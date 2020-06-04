@@ -290,8 +290,7 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
             string += 4;
           } break;
           default: {
-            BSLS_ASSERT_OPT(0 && "unreachable");
-            bsl::abort();
+            BSLS_ASSERT_INVOKE_NORETURN("unreachable");
           }
         }
 
@@ -409,8 +408,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
             pc += 4;
           } break;
           default: {
-            BSLS_ASSERT_OPT(0 && "unreachable");
-            bsl::abort();
+            BSLS_ASSERT_INVOKE_NORETURN("unreachable");
           }
         }
 
@@ -521,8 +519,7 @@ static int validateAndCountCodePoints(const char             **invalidString,
             return k_END_OF_INPUT_TRUNCATION;                         // RETURN
           } break;
           default: {
-            BSLS_ASSERT_OPT(0 && "unreachable");
-            bsl::abort();
+            BSLS_ASSERT_INVOKE_NORETURN("unreachable");
           }
         }
 
@@ -732,8 +729,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
           } continue;
 
           default: {
-            BSLS_ASSERT_OPT(0 && "unreachable");
-            bsl::abort();
+            BSLS_ASSERT_INVOKE_NORETURN("unreachable");
           }
         }
 
@@ -942,8 +938,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
           } continue;
 
           default: {
-            BSLS_ASSERT_OPT(0 && "unreachable");
-            bsl::abort();
+            BSLS_ASSERT_INVOKE_NORETURN("unreachable");
           }
         }
 
@@ -1025,8 +1020,7 @@ Utf8Util::IntPtr Utf8Util::advanceRaw(const char **result,
           } continue;
 
           default: {
-            BSLS_ASSERT_OPT(0 && "unreachable");
-            bsl::abort();
+            BSLS_ASSERT_INVOKE_NORETURN("unreachable");
           }
         }
 
@@ -1506,8 +1500,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
             out += 4;
           } continue;
           default: {
-            BSLS_ASSERT_OPT(0 && "unreachable");
-            bsl::abort();
+            BSLS_ASSERT_INVOKE_NORETURN("unreachable");
           }
         }
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
