@@ -44,6 +44,45 @@ using bsl::size_t;
 
 //=============================================================================
 //                             TEST PLAN
+//
+//: o Test case 1 is the BREATHING TEST.
+//:
+//: o Test case 2 tests the validity checking routines on valid UTF-8
+//:   sequences.
+//:
+//: o Test case 3 tests the behavior of byte-order marks.
+//:
+//: o Test case 4 tests the behavior of surrogates.
+//:
+//: o Test case 5 tests that the 'raw' functions that count code points count
+//:   correly on valid strings.
+//:
+//: o Test case 6 runs a table-driven test on valid and invalid UTF-8 strings
+//:   and observe that the various overloads of 'isValid' and
+//:   'numCodePointsIfValid' all detect the invalid sequences.
+//:
+//: o Test case 7 tests the 'advance' functions on one very long string of
+//:   valid UTF-8 of real, human-generated prose in Chinese, Hindi, French, and
+//:   Greek and code points of all sizes (but no embedded '\0's).
+//:
+//: o Test case 8 tests the various functions, include, for the first time,
+//:   'readIfValid', on valid randomly-generated UTF-8 sequences.
+//:
+//: o Test case 9 is the 'broken glass' test -- testing strings that contain a
+//:   mix of valid and invalid UTF-8, using a mix of table data and
+//:   randomly-generated data.
+//:
+//: o Test case 10 tests 'numBytesIfValid' (note that this function is badly
+//:   named and the behavior is undefined if the input is invalid UTF-8).
+//:
+//: o Test case 11 is a table-driven test to tets 'getByteSize'.
+//:
+//: o Test case 12 tests 'appendUtf8Character on valid Unicode characters.
+//:
+//: o Test case 13 is a table-driven test of the 'toAscii' class method.
+//:
+//: o Test cases 14, 15, and 16 are USAGE EXAMPLES.
+//
 //-----------------------------------------------------------------------------
 // To fit functions on one line, 'typedef const char cchar'.
 //
@@ -2276,8 +2315,19 @@ bool allValid(const bsl::string& str)
     // Return 'true' if all the UTF-8 code points in the specified 'str' are
     // valid and 'false' otherwise.
 {
-    bool a = Obj::isValid(str.c_str());
+    const bool a = Obj::isValid(str.c_str());
     ASSERT(Obj::isValid(str.data(), str.length()) == a);
+
+    const char *invalid = 0;
+    ASSERT(a == (0 <= Obj::numCodePointsIfValid(&invalid,
+                                                str.data(),
+                                                str.length())));
+    ASSERT(a == !invalid);
+
+    invalid = 0;
+    ASSERT(a == (0 <= Obj::numCodePointsIfValid(&invalid,
+                                                str.c_str())));
+    ASSERT(a == !invalid);
 
     return a;
 }
@@ -2286,8 +2336,10 @@ static
 IntPtr allNumCodePoints(const bsl::string& str)
     // Return the total number of code points in the specified UTF-8 'str'.
 {
-    const IntPtr len = Obj::numCharacters(str.data(), str.length());
-    ASSERT(Obj::numCharacters(str.c_str()) == len);
+    IntPtr len = Obj::numCharacters(str.data(), str.length());
+    ASSERT(Obj::numCharacters(str.c_str())                 == len);
+    ASSERT(Obj::numCodePointsRaw(str.data(), str.length()) == len);
+    ASSERT(Obj::numCodePointsRaw(str.c_str())              == len);
 
     return len;
 }
@@ -2307,6 +2359,17 @@ IntPtr allNumCodePointsIfValid(const char         **invalidPointArg,
     ASSERT(ret == Obj::numCodePointsIfValid(&invalidPointLocal,
                                             str.data(),
                                             str.length()));
+    ASSERT(invalidPointLocal == *invalidPointArg);
+
+    invalidPointLocal = 0;
+    ASSERT(ret == Obj::numCharactersIfValid(&invalidPointLocal,
+                                            str.data(),
+                                            str.length()));
+    ASSERT(invalidPointLocal == *invalidPointArg);
+
+    invalidPointLocal = 0;
+    ASSERT(ret == Obj::numCharactersIfValid(&invalidPointLocal,
+                                            str.c_str()));
     ASSERT(invalidPointLocal == *invalidPointArg);
 
     return ret;
@@ -2971,7 +3034,7 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE 3
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "USAGE EXAMPLE 3: 'readIfValid':\n"
+        if (verbose) cout << "USAGE EXAMPLE 3: 'readIfValid'\n"
                              "==============================\n";
 
         using namespace USAGE_3;
@@ -3280,7 +3343,7 @@ int main(int argc, char *argv[])
         //   const char *toAscii(IntPtr);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'toAscii':\n"
+        if (verbose) cout << "TESTING 'toAscii'\n"
                              "=================\n";
 
         static const char *NOT_FOUND = "(* unrecognized value *)";
@@ -3461,17 +3524,15 @@ int main(int argc, char *argv[])
         //:   and properly terminate and report them, when the incorrect
         //:   sequences are surrounded by correct UTF-8.
         //:
-        //: 2 Test 'advanceIfValid' on correct input concatenated with
-        //:   incorrect input.
+        //: 2 Test that 'advanceIfValid', 'isValid''numCodePointsIfValid', and
+        //:   'readIfValid' will, given invalid UTF-8 embedded in a string,
+        //:   correctly identify the nature of the invalid UTF-8, and in cases
+        //:   where the offset of the problem is returned, will return the
+        //:   correct offset.
         //:
-        //: 3 Test 'isValid' on correct input concatenated with incorrect
-        //:   input.
-        //:
-        //: 4 Test 'numCodePointsIfValid' on correct input concatenated with
-        //:   incorrect input.
-        //:
-        //: 5 Test 'readIfValid' on correct input concatenated with incorrect
-        //:   input.
+        //: 3 In the case of 'readIfValid', that it will leave the input
+        //:   'bsl::streambuf' positioned right after the end of the leading
+        //:   valid UTF-8 (if any) and before the invalid UTF-8 code point.
         //
         // PLAN:
         //: 1 In this test case, we test incorrect UTF-8 sequences both
@@ -3955,17 +4016,6 @@ int main(int argc, char *argv[])
                                         // result in a reallocation and a move
                                         // of the buffer.
         out.reserve(k_MAX_INPUT_LEN + 4);
-
-#if   defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
-        const double defaultFraction = 1.0;
-#elif defined(BSLS_PLATFORM_OS_AIX)
-        const double defaultFraction = 0.90;
-#else
-        const double defaultFraction = 0.75;
-#endif
-
-        const double fraction = verbose ? strtod(argv[2], 0) : defaultFraction;
-        ASSERT(fraction >= 0.0 && fraction <= 1.0);
 
         const char *WOOF = "woof";
 
@@ -4526,10 +4576,10 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(LINE,
                         NUMCPS     == Obj::numCharactersRaw(UTF8,
-                                                              NUMBYTES));
+                                                            NUMBYTES));
             LOOP_ASSERT(LINE,
                         NUMCPS + 1 == Obj::numCharactersRaw(UTF8,
-                                                              NUMBYTES + 1));
+                                                            NUMBYTES + 1));
 
             LOOP_ASSERT(LINE,
                         NUMCPS     == Obj::numCharacters(UTF8));
@@ -4538,13 +4588,20 @@ int main(int argc, char *argv[])
                         NUMCPS     == Obj::numCharacters(UTF8, NUMBYTES));
             LOOP_ASSERT(LINE,
                         NUMCPS + 1 == Obj::numCharacters(UTF8,
-                                                           NUMBYTES + 1));
+                                                         NUMBYTES + 1));
         }
 
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING SURROGATES
+        //
+        // Surrogates are special values encoded in pairs in UTF-16 to encode
+        // high Unicode values.  It is mathematically impossible to encode a
+        // surrogate value, alone or as a pair, in UTF-16.  It is
+        // mathematically possible to encode them in UTF-8, but we make them
+        // artificially illegal so that any valid UTF-8 sequence can be
+        // translated to UTF-16.
         //
         // Concerns:
         //: 1 Create some strings containing surrogate pairs and verify that
@@ -4599,7 +4656,6 @@ int main(int argc, char *argv[])
             ASSERT(Obj::k_SURROGATE == sts);
             ASSERT(str.c_str() + preLen == invalidPoint);
 
-
             invalidPoint = 0;
             ASSERT(Obj::k_SURROGATE == allNumCodePointsIfValid(&invalidPoint,
                                                                str));
@@ -4630,7 +4686,6 @@ int main(int argc, char *argv[])
             ASSERT(numLeading == allAdvanceIfValid(&sts, &invalidPoint, str));
             ASSERT(Obj::k_SURROGATE == sts);
             ASSERT(str.c_str() + preLen == invalidPoint);
-
 
             invalidPoint = 0;
             ASSERT(Obj::k_SURROGATE == allNumCodePointsIfValid(&invalidPoint,
@@ -4835,7 +4890,7 @@ int main(int argc, char *argv[])
             ASSERT(int(val) == val ## testId);                              \
             ASSERT(str == utf8Encode(val ## testId));                       \
             ASSERT(allValid(str));                                          \
-            ASSERT(1 == allNumCodePoints(str));                             \
+            ASSERTV(val ## testId, 1 == allNumCodePoints(str));             \
             ASSERT(bsl::strlen(str.c_str()) == str.length());               \
         } while(false);
 

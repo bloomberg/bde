@@ -364,7 +364,7 @@ struct Utf8Util {
         // that some of the functions in this 'struct' have a return value
         // that is non-negative on success, and one of these values when an
         // error occurs, so all of these values must be negative to distinguish
-        // them from a 'success' value.
+        // them from a "success" value.
 
         k_END_OF_INPUT_TRUNCATION       = -1,
            // The end of input was reached partway through a multibyte UTF-8

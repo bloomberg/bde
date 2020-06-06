@@ -1350,7 +1350,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
     // 'outputBuffer'.
 
     char        tmpBuf[4] = { 0 };    // zero out to silence purify
-    char       *tmp_p;
+    char       *tmpPtr;
 
     char       *out = outputBuffer;
     const char *end = outputBuffer + outputBufferLength - 3;
@@ -1374,8 +1374,8 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
             break;
         }
 
-        tmp_p = tmpBuf;
-        *tmp_p++ = static_cast<char>(c);
+        tmpPtr = tmpBuf;
+        *tmpPtr++ = static_cast<char>(c);
 
         switch (static_cast<unsigned char>(c) >> 4) {
           case 0x0: BSLA_FALLTHROUGH;
@@ -1405,7 +1405,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
                 break;
             }
 
-            *tmp_p++ = static_cast<char>(c);
+            *tmpPtr++ = static_cast<char>(c);
 
             const int value = get2ByteValue(tmpBuf);
             if (UNLIKELY(isNotContinuation(tmpBuf[1])
@@ -1429,7 +1429,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
                     break;
                 }
 
-                *tmp_p++ = static_cast<char>(c);
+                *tmpPtr++ = static_cast<char>(c);
 
                 if (UNLIKELY(isNotContinuation(tmpBuf[ii]))) {
                     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1474,7 +1474,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
                     break;
                 }
 
-                *tmp_p++ = static_cast<char>(c);
+                *tmpPtr++ = static_cast<char>(c);
 
                 if (UNLIKELY(isNotContinuation(tmpBuf[ii]))) {
                     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1505,8 +1505,8 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
         }
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-        while (tmpBuf < tmp_p) {
-            input->sputbackc(*--tmp_p);
+        while (tmpBuf < tmpPtr) {
+            input->sputbackc(*--tmpPtr);
         }
 
         break;
