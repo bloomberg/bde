@@ -16,7 +16,8 @@
 ..
   7. bdlma_multipoolallocator
 
-  6. bdlma_localsequentialallocator
+  6. bdlma_aligningallocator
+     bdlma_localsequentialallocator
      bdlma_multipool
 
   5. bdlma_bufferedsequentialallocator
@@ -37,7 +38,6 @@
      bdlma_pool
 
   1. bdlma_alignedallocator
-     bdlma_aligningallocator
      bdlma_autoreleaser
      bdlma_blocklist
      bdlma_bufferimputil
