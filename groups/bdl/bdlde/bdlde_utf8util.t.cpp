@@ -54,7 +54,7 @@ using bsl::size_t;
 //:
 //: o Test case 4 tests the behavior of surrogates.
 //:
-//: o Test case 5 tests that the 'H"raw" functions that count code points count
+//: o Test case 5 tests that the "raw" functions that count code points count
 //:   correctly on valid strings.
 //:
 //: o Test case 6 runs a table-driven test on valid and invalid UTF-8 strings
