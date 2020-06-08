@@ -54,30 +54,30 @@ using bsl::size_t;
 //:
 //: o Test case 4 tests the behavior of surrogates.
 //:
-//: o Test case 5 tests that the 'raw' functions that count code points count
-//:   correly on valid strings.
+//: o Test case 5 tests that the 'H"raw" functions that count code points count
+//:   correctly on valid strings.
 //:
 //: o Test case 6 runs a table-driven test on valid and invalid UTF-8 strings
-//:   and observe that the various overloads of 'isValid' and
+//:   and observes that the various overloads of 'isValid' and
 //:   'numCodePointsIfValid' all detect the invalid sequences.
 //:
 //: o Test case 7 tests the 'advance' functions on one very long string of
 //:   valid UTF-8 of real, human-generated prose in Chinese, Hindi, French, and
 //:   Greek and code points of all sizes (but no embedded '\0's).
 //:
-//: o Test case 8 tests the various functions, include, for the first time,
+//: o Test case 8 tests the various functions, including, for the first time,
 //:   'readIfValid', on valid randomly-generated UTF-8 sequences.
 //:
-//: o Test case 9 is the 'broken glass' test -- testing strings that contain a
+//: o Test case 9 is the "broken glass" test -- testing strings that contain a
 //:   mix of valid and invalid UTF-8, using a mix of table data and
 //:   randomly-generated data.
 //:
 //: o Test case 10 tests 'numBytesIfValid' (note that this function is badly
 //:   named and the behavior is undefined if the input is invalid UTF-8).
 //:
-//: o Test case 11 is a table-driven test to tets 'getByteSize'.
+//: o Test case 11 is a table-driven test to test 'getByteSize'.
 //:
-//: o Test case 12 tests 'appendUtf8Character on valid Unicode characters.
+//: o Test case 12 tests 'appendUtf8Character' on valid Unicode characters.
 //:
 //: o Test case 13 is a table-driven test of the 'toAscii' class method.
 //:
@@ -3524,7 +3524,7 @@ int main(int argc, char *argv[])
         //:   and properly terminate and report them, when the incorrect
         //:   sequences are surrounded by correct UTF-8.
         //:
-        //: 2 Test that 'advanceIfValid', 'isValid''numCodePointsIfValid', and
+        //: 2 That 'advanceIfValid', 'isValid', 'numCodePointsIfValid', and
         //:   'readIfValid' will, given invalid UTF-8 embedded in a string,
         //:   correctly identify the nature of the invalid UTF-8, and in cases
         //:   where the offset of the problem is returned, will return the
