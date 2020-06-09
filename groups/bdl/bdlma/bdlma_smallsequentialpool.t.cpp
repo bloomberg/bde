@@ -1067,6 +1067,8 @@ int main(int argc, char *argv[])
         //:
         //: 3 That 'reserveCapacity' can override the maximum buffer size
         //:   parameter supplied to the pool at construction.
+        //:
+        //: 4 That 'reserveCapacity' has no effect when invoked with 0.
         //
         // Plan:
         //: 1 Create a 'bdlma::SmallSequentialPool' using a test allocator and
@@ -1083,6 +1085,9 @@ int main(int argc, char *argv[])
         //:
         //: 4 Invoke 'reserveCapacity' with a size larger than the maximum
         //:   buffer size.  Repeat verification done in P-2.  (C-3)
+        //:
+        //: 5 Invoke 'reserveCapacity' with an argument of 0.  Confirm that
+        //:   there no dyanamic allocation is triggered.  (C-4)
         //
         // Testing:
         //   void reserveCapacity(int numBytes);
@@ -1106,6 +1111,9 @@ int main(int argc, char *argv[])
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
             mX.allocate(k_INITIAL_SIZE / 2);
+            ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
+
+            mX.reserveCapacity(0);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
             mX.reserveCapacity(k_INITIAL_SIZE * 2);
@@ -1133,6 +1141,9 @@ int main(int argc, char *argv[])
             bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
 
             mX.allocate(k_DEFAULT_SIZE);
+            ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
+
+            mX.reserveCapacity(0);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
             mX.reserveCapacity(k_DEFAULT_SIZE * 4);
