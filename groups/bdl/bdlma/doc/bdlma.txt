@@ -9,7 +9,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlma' package currently has 29 components having 7 levels of physical
+ The 'bdlma' package currently has 30 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -30,6 +30,7 @@
      bdlma_concurrentmultipool
      bdlma_concurrentpoolallocator
      bdlma_sequentialpool
+     bdlma_smallsequentialpool
 
   2. bdlma_buffermanager
      bdlma_concurrentpool
@@ -138,4 +139,7 @@
 :      Provide a managed allocator using dynamically-allocated buffers.
 :
 : 'bdlma_sequentialpool':
+:      Provide sequential memory using dynamically-allocated buffers.
+:
+: 'bdlma_smallsequentialpool':
 :      Provide sequential memory using dynamically-allocated buffers.
