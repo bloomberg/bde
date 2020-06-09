@@ -1537,11 +1537,11 @@ int main(int argc, char *argv[])
             Obj                     mX;
             bsls::Types::size_type  size = 1;
 
-            ASSERT_SAFE_PASS(0 != mX.allocateAndExpand(&size));
+            ASSERT(0 != mX.allocateAndExpand(&size));
 
             size = 0;
 
-            ASSERT_SAFE_PASS(0 == mX.allocateAndExpand(&size));
+            ASSERT(0 == mX.allocateAndExpand(&size));
         }
 
       } break;
