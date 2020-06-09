@@ -4,8 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_smallsequentialpool_cpp, "$Id$ $CSID$")
 
-#include <bsls_performancehint.h>
-
 #include <bsl_climits.h>  // 'INT_MAX'
 
 enum {
@@ -23,9 +21,10 @@ namespace bdlma {
                            // -------------------------
 
 // PRIVATE MANIPULATORS
-void *SmallSequentialPool::allocateNonFastPath(bsls::Types::size_type size)
+void *SmallSequentialPool::allocateNonFastPath(bsl::size_t size)
 {
-    if (0 == size) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return 0;                                                     // RETURN
     }
 
@@ -283,20 +282,10 @@ SmallSequentialPool(bsl::size_t                  initialSize,
 }
 
 // MANIPULATORS
-void *SmallSequentialPool::allocateAndExpand(bsls::Types::size_type *size)
-{
-    BSLS_ASSERT(size);
-    BSLS_ASSERT(0 < *size);
-
-    void *result = allocate(static_cast<int>(*size));
-    *size = d_buffer.expand(result, static_cast<int>(*size));
-
-    return result;
-}
-
 void SmallSequentialPool::reserveCapacity(bsl::size_t numBytes)
 {
-    if (0 == numBytes) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == numBytes)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return;                                                       // RETURN
     }
 

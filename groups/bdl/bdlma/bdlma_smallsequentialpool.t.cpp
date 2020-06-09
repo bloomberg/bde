@@ -1358,7 +1358,8 @@ int main(int argc, char *argv[])
         //: 2 The 'allocateAndExpand' method returns the updated size of memory
         //:   used.
         //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        //: 3 The 'allocateAndExpand' method performs as expected for
+        //:   zero-sized allocations.
         //
         // Plan:
         //: 1 Using the table-driven technique, create test vectors having the
@@ -1370,8 +1371,9 @@ int main(int argc, char *argv[])
         //:   dynamic memory allocation -- meaning 'allocateAndExpand' did use
         //:   up all available memory in the internal buffer.  (C-1..2)
         //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered.  (C-3)
+        //: 2 Call the 'allocateAndExpand' method with 0 and non-zero arguments
+        //:   and confirm that the returned addresses are 0 and non-zero,
+        //:   respectively.  (C-3)
         //
         // Testing:
         //   void *allocateAndExpand(size_type *size);
@@ -1478,6 +1480,10 @@ int main(int argc, char *argv[])
                     == static_cast<char *>(addr2));
             }
 
+#undef NAT
+#undef MAX
+#undef BYT
+
             // Check 'size' is updated correctly.
             ASSERT(EXPUSED == (int)size);
 
@@ -1524,22 +1530,19 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_FAIL(mX.allocateAndExpand(    0));
             }
 
-            if (veryVerbose) cout << "\t'0 < *size'" << endl;
-            {
-                Obj                    mX;
-                bsls::Types::size_type size = 1;
-
-                ASSERT_SAFE_PASS(mX.allocateAndExpand(&size));
-
-                size = 0;
-
-                ASSERT_SAFE_FAIL(mX.allocateAndExpand(&size));
-            }
         }
 
-#undef NAT
-#undef MAX
-#undef BYT
+        if (veryVerbose) cout << "\t'0 <= *size'" << endl;
+        {
+            Obj                     mX;
+            bsls::Types::size_type  size = 1;
+
+            ASSERT_SAFE_PASS(0 != mX.allocateAndExpand(&size));
+
+            size = 0;
+
+            ASSERT_SAFE_PASS(0 == mX.allocateAndExpand(&size));
+        }
 
       } break;
       case 6: {
@@ -1774,7 +1777,8 @@ int main(int argc, char *argv[])
         //:   from the internal block list if the they cannot be satisfied by
         //:   the pool's internal buffer.
         //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        //: 3 The 'allocate' method performs as expected for zero-sized
+        //:   allocations.
         //
         // Plan:
         //: 1 Construct objects 'mV', 'mW', 'mX', and 'mY' with default,
@@ -1785,8 +1789,9 @@ int main(int argc, char *argv[])
         //:   allocations by the pool.  Confirm the bytes allocated by the
         //:   objects are as expected.  (C-1..2)
         //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered.  (C-3)
+        //: 2 Call the 'allocate' method with 0 and non-zero arguments and
+        //:   confirm that the returned addresses are 0 and non-zero,
+        //:   respectively.  (C-3)
         //
         // Testing:
         //   void *allocate(size_type size);
@@ -2075,19 +2080,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nNegative Testing." << endl;
+        if (veryVerbose) cout << "\t'allocate(0 <= size)'" << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
             Obj mX;
 
-            if (veryVerbose) cout << "\t'allocate(0 < size)'" << endl;
-            {
-                ASSERT_SAFE_PASS(mX.allocate(1));
-
-                ASSERT_SAFE_FAIL(mX.allocate(0));
-            }
+            ASSERT(0 == mX.allocate(0));
+            ASSERT(0 != mX.allocate(1));
         }
       } break;
       case 3: {
