@@ -532,7 +532,7 @@ class SmallSequentialPool {
 
   private:
     // PRIVATE MANIPULATORS
-    void *allocateNonFastPath(bsls::Types::size_type size);
+    void *allocateNonFastPath(bsl::size_t size);
         // If the specified 'size' is not 0, use the allocator supplied at
         // construction to allocate a new internal buffer and return the
         // address of a contiguous block of memory of 'size' (in bytes) from
@@ -663,23 +663,23 @@ class SmallSequentialPool {
         // released.
 
     // MANIPULATORS
-    void *allocate(bsls::Types::size_type size);
+    void *allocate(bsl::size_t size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) according to the alignment strategy specified at
-        // construction.  If the allocation request exceeds the remaining free
+        // construction.  If 'size' is 0, no memory is allocated and 0 is
+        // returned.  If the allocation request exceeds the remaining free
         // memory space in the current internal buffer, use the allocator
         // supplied at construction to allocate a new internal buffer, then
-        // allocate memory from the new buffer.  The behavior is undefined
-        // unless '0 < size'.
+        // allocate memory from the new buffer.
 
-    void *allocateAndExpand(bsls::Types::size_type *size);
+    void *allocateAndExpand(bsl::size_t *size);
         // Return the address of a contiguous block of memory of at least the
         // specified '*size' (in bytes), and load the actual amount of memory
-        // allocated in '*size'.  If the allocation request exceeds the
-        // remaining free memory space in the current internal buffer, use the
-        // allocator supplied at construction to allocate a new internal
-        // buffer, then allocate memory from the new buffer.  The behavior is
-        // undefined unless '0 < *size'.
+        // allocated in '*size'.  If '*size' is 0, return 0 with no effect.  If
+        // the allocation request exceeds the remaining free memory space in
+        // the current internal buffer, use the allocator supplied at
+        // construction to allocate a new internal buffer, then allocate memory
+        // from the new buffer.
 
     template <class TYPE>
     void deleteObject(const TYPE *object);
@@ -822,10 +822,8 @@ SmallSequentialPool::~SmallSequentialPool()
 
 // MANIPULATORS
 inline
-void *SmallSequentialPool::allocate(bsls::Types::size_type size)
+void *SmallSequentialPool::allocate(bsl::size_t size)
 {
-    BSLS_ASSERT(0 < size);
-
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(d_buffer.buffer())) {
         void *result = d_buffer.allocate(size);
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
@@ -834,6 +832,20 @@ void *SmallSequentialPool::allocate(bsls::Types::size_type size)
     }
 
     return allocateNonFastPath(size);
+}
+
+inline
+void *SmallSequentialPool::allocateAndExpand(bsl::size_t *size)
+{
+    BSLS_ASSERT(size);
+
+    void *result = allocate(*size);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
+        *size = d_buffer.expand(result, *size);
+    }
+
+    return result;
 }
 
 template <class TYPE>
