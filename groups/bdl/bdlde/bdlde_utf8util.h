@@ -68,6 +68,15 @@ BSLS_IDENT("$Id: $")
 //  http://en.wikipedia.org/wiki/Utf-8
 //..
 //
+///Zero-Length Strings
+///-------------------
+// For those functions that take input as a 'pointer, length' pair, if
+// '0 == pointer' and '0 == length', then the input is interpreted as a
+// zero-length string.  If the '0 == pointer' and '0 != length', the behavior
+// is undefined.  All such functions have a counterpart that takes a lone
+// pointer to a null-terminated string.  The behavior is always undefined if
+// that lone pointer is passed 0.
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -680,7 +689,7 @@ bool Utf8Util::isValid(const char *string)
 inline
 bool Utf8Util::isValid(const char *string, size_type length)
 {
-    BSLS_ASSERT(string);
+    BSLS_ASSERT(string || 0 == length);
 
     const char *dummy = 0;
     return isValid(&dummy, string, length);
