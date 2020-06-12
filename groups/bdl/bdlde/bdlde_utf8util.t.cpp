@@ -3388,7 +3388,7 @@ int main(int argc, char *argv[])
             for (int ncp = 0; ncp < 2; ++ncp) {
                 const int NCP = ncp;    // num code points
 
-                if (verbose) {
+                if (veryVerbose) {
                     cout << "advanceIfValid - no length, NCP: " << NCP << "\n";
                 }
                 {
@@ -3414,7 +3414,7 @@ int main(int argc, char *argv[])
                     ASSERT(INIT_RESULT == result);
                 }
 
-                if (verbose) {
+                if (veryVerbose) {
                     cout << "advanceIfValid - with length, NCP: " << NCP <<
                                                                           "\n";
                 }
@@ -3455,7 +3455,7 @@ int main(int argc, char *argv[])
                     ASSERT(INIT_INT == status);
                 }
 
-                if (verbose) {
+                if (veryVerbose) {
                     cout << "advanceRaw - no length, NCP: " << NCP << "\n";
                 }
                 {
@@ -3474,7 +3474,7 @@ int main(int argc, char *argv[])
                     result = INIT_RESULT;
                 }
 
-                if (verbose) {
+                if (veryVerbose) {
                     cout << "advanceRaw - with length, NCP: " << NCP << "\n";
                 }
                 {

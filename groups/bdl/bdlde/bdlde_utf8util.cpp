@@ -768,8 +768,6 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
     // between iterations.
 
     for (; true; ++ret, string = next) {
-        next = string + 1;
-
         if (UNLIKELY(string >= endOfInput)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
@@ -780,6 +778,8 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
             *status = 0;
             break;
         }
+
+        next = string + 1;
 
         if (UNLIKELY(ret >= numCodePoints)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1216,7 +1216,7 @@ Utf8Util::IntPtr Utf8Util::numBytesIfValid(
                                         const bslstl::StringRef& string,
                                         IntPtr                   numCodePoints)
 {
-    BSLS_ASSERT(string.isEmpty() || string.data());
+    BSLS_ASSERT(string.data() || string.isEmpty());
     BSLS_ASSERT(0 <= numCodePoints);
 
     size_t numBytes = 0;
