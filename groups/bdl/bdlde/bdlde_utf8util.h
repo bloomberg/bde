@@ -441,7 +441,7 @@ struct Utf8Util {
         // immediately following the last valid code point traversed, or to
         // 'string' if 'length' or 'numCodePoints' is 0.  'string' need not be
         // null-terminated and can contain embedded null bytes, and 'string'
-        // may be null if '0 == length' (See {Empty Input Strings}).  The
+        // may be null if '0 == length' (see {Empty Input Strings}).  The
         // behavior is undefined unless '0 <= numCodePoints'.  Note that the
         // value returned will be in the range '[0 .. numCodePoints]'.  Also
         // note that 'string' may contain less than 'length' Unicode code
@@ -476,12 +476,12 @@ struct Utf8Util {
         // '*result' to the address of the byte immediately following the last
         // code point traversed, or to 'string' if 'length' or 'numCodePoints'
         // is 0.  'string' need not be null-terminated and can contain embedded
-        // null bytes, 'string' may be null if '0 == length' (see {Empty Input
-        // Strings}).  The behavior is undefined unless the initial 'length'
-        // bytes of 'string' contain valid UTF-8 and '0 <= numCodePoints'.
-        // Note that the value returned will be in the range
-        // '[0 .. numCodePoints]'.  Also note that 'string' may contain less
-        // than 'length' Unicode code points.
+        // null bytes, and 'string' may be null if '0 == length' (see {Empty
+        // Input Strings}).  The behavior is undefined unless the initial
+        // 'length' bytes of 'string' contain valid UTF-8 and
+        // '0 <= numCodePoints'.  Note that the value returned will be in the
+        // range '[0 .. numCodePoints]'.  Also note that 'string' may contain
+        // less than 'length' Unicode code points.
 
     static int appendUtf8Character(bsl::string  *output,
                                    unsigned int  codePoint);
