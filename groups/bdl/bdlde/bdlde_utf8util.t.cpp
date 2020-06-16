@@ -14,6 +14,7 @@
 
 #include <bslim_testutil.h>
 
+#include <bsls_asserttest.h>
 #include <bsls_log.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
@@ -81,7 +82,9 @@ using bsl::size_t;
 //:
 //: o Test case 13 is a table-driven test of the 'toAscii' class method.
 //:
-//: o Test cases 14, 15, and 16 are USAGE EXAMPLES.
+//: o Test case 14 is negative testing.
+//:
+//: o Test cases 15, 16, and 17 are USAGE EXAMPLES.
 //
 //-----------------------------------------------------------------------------
 // To fit functions on one line, 'typedef const char cchar'.
@@ -145,9 +148,10 @@ using bsl::size_t;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TABLE-DRIVEN ENCODING / DECODING / VALIDATION TEST
-// [14] USAGE EXAMPLE 1
-// [15] USAGE EXAMPLE 2
-// [16] USAGE EXAMPLE 3
+// [14] NEGATIVE TESTING
+// [15] USAGE EXAMPLE 1
+// [16] USAGE EXAMPLE 2
+// [17] USAGE EXAMPLE 3
 // [-1] random number generator
 // [-2] 'utf8Encode', 'decode'
 
@@ -194,6 +198,17 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
 //         GLOBAL TYPEDEFS, CONSTANTS, ROUTINES & MACROS FOR TESTING
@@ -3009,7 +3024,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 3: 'readIfValid'
         //
@@ -3091,7 +3106,7 @@ int main(int argc, char *argv[])
         ASSERT(out.length() == validLen);
         ASSERT(validChineseUtf8 == out);
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2: 'advance'
         //
@@ -3204,7 +3219,7 @@ int main(int argc, char *argv[])
     ASSERT(static_cast<int>(string.length()) == result - start);
 //..
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1: 'isValid' AND 'numCodePoints*'
         //
@@ -3323,6 +3338,402 @@ int main(int argc, char *argv[])
     ASSERT(bdlde::Utf8Util::k_OVERLONG_ENCODING == rc);
     ASSERT(invalidPosition == stringWithOverlong.data() + string.length());
 //..
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // NEGATIVE TESTING
+        //
+        // Concern:
+        //: 1 That all the functions in this component properly assert their
+        //:   preconditions to avoid undefined behavior.
+        //:
+        //: 2 That those functions that take their input as a string pointer,
+        //:   length pair will tolerate being passed a null pointer when the
+        //:   length is 0, and will not tolerate being passed a null pointer
+        //:   when '0 < length'.
+        //
+        // Plan:
+        //: 1 Go through every function in the component, first calling them in
+        //:   such a way that they function properly, then calling them with
+        //:   every possible pointer argument passed null when it shouldn't be,
+        //:   and confirm that this is caught in an assert using the
+        //:   'bsls_asserttest' component.
+        //:
+        //: 2 For the functions that take their input as a 'ptr, length' pair,
+        //:   call them with null ptrs while passing a 0 to the 'length' field
+        //:   and verify that the function works properly, then pass it exactly
+        //:   the same arguments except with the 'length == 1', and observe
+        //:   that this is caught with an exception.
+        //
+        // Testing:
+        //   NEGATIVE TESTING
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "NEGATIVE TESTING\n"
+                             "================\n";
+
+#ifdef BDE_BUILD_TARGET_EXC
+        {
+            const int                     INIT_INT = 123454321;      // garbage
+            const char           * const  INIT_RESULT = "woof";      // garbage
+
+            bsls::AssertTestHandlerGuard  guard;
+            int                           status = INIT_INT;
+            const char                   *result = INIT_RESULT;
+            const char           * const  nullStr = 0;
+            IntPtr                        rc;
+
+            const char            * const WOOF = "woof";
+
+            for (int ncp = 0; ncp < 2; ++ncp) {
+                const int NCP = ncp;    // num code points
+
+                if (veryVerbose) {
+                    cout << "advanceIfValid - no length, NCP: " << NCP << "\n";
+                }
+                {
+                    ASSERT_PASS(rc = Obj::advanceIfValid(&status, &result,
+                                                                   WOOF, NCP));
+                    ASSERT(NCP == rc);
+                    ASSERT(0 == status);
+                    ASSERT(WOOF + NCP == result);
+
+                    rc     = INIT_INT;
+                    status = INIT_INT;
+                    result = INIT_RESULT;
+
+                    ASSERT_FAIL(Obj::advanceIfValid(0, &result, WOOF, NCP));
+                    ASSERT(INIT_INT == status);
+
+                    ASSERT_FAIL(Obj::advanceIfValid(&status, 0, WOOF, NCP));
+                    ASSERT(INIT_INT == status);
+
+                    ASSERT_FAIL(Obj::advanceIfValid(&status, &result, nullStr,
+                                                                         NCP));
+                    ASSERT(INIT_INT == status);
+                    ASSERT(INIT_RESULT == result);
+                }
+
+                if (veryVerbose) {
+                    cout << "advanceIfValid - with length, NCP: " << NCP <<
+                                                                          "\n";
+                }
+                {
+                    rc     = INIT_INT;
+                    status = INIT_INT;
+                    result = INIT_RESULT;
+
+                    ASSERT_PASS(rc = Obj::advanceIfValid(&status, &result,
+                                                                WOOF, 4, NCP));
+                    ASSERT(NCP == rc);
+                    ASSERT(0 == status);
+                    ASSERT(WOOF + NCP == result);
+
+                    rc     = INIT_INT;
+                    status = INIT_INT;
+                    result = INIT_RESULT;
+
+                    ASSERT_PASS(rc = Obj::advanceIfValid(&status, &result,
+                                                             nullStr, 0, NCP));
+                    ASSERT(0 == rc);
+                    ASSERT(0 == status);
+                    ASSERT(0 == result);
+
+                    rc     = INIT_INT;
+                    status = INIT_INT;
+                    result = INIT_RESULT;
+
+                    ASSERT_FAIL(Obj::advanceIfValid(&status, &result, nullStr,
+                                                                      1, NCP));
+                    ASSERT(INIT_INT == status);
+                    ASSERT(INIT_RESULT == result);
+
+                    ASSERT_FAIL(Obj::advanceIfValid(0, &result, WOOF, 4, NCP));
+                    ASSERT(INIT_RESULT == result);
+
+                    ASSERT_FAIL(Obj::advanceIfValid(&status, 0, WOOF, 4, NCP));
+                    ASSERT(INIT_INT == status);
+                }
+
+                if (veryVerbose) {
+                    cout << "advanceRaw - no length, NCP: " << NCP << "\n";
+                }
+                {
+                    ASSERT_PASS(rc = Obj::advanceRaw(&result, WOOF, NCP));
+                    ASSERT(NCP == rc);
+                    ASSERT(WOOF + NCP == result);
+
+                    rc     = INIT_INT;
+                    result = INIT_RESULT;
+
+                    ASSERT_FAIL(Obj::advanceRaw(0, WOOF, NCP));
+
+                    ASSERT_FAIL(Obj::advanceRaw(&result, nullStr, NCP));
+                    ASSERT(INIT_RESULT == result);
+
+                    result = INIT_RESULT;
+                }
+
+                if (veryVerbose) {
+                    cout << "advanceRaw - with length, NCP: " << NCP << "\n";
+                }
+                {
+                    ASSERT_PASS(rc = Obj::advanceRaw(&result, WOOF, 4, NCP));
+                    ASSERT(NCP == rc);
+                    ASSERT(WOOF + NCP == result);
+
+                    rc     = INIT_INT;
+                    result = INIT_RESULT;
+
+                    ASSERT_PASS(rc =
+                                    Obj::advanceRaw(&result, nullStr, 0, NCP));
+                    ASSERT(0 == rc);
+                    ASSERT(0 == result);
+
+                    rc     = INIT_INT;
+                    result = INIT_RESULT;
+
+                    ASSERT_FAIL(Obj::advanceRaw(0, WOOF, 4, NCP));
+
+                    ASSERT_FAIL(Obj::advanceRaw(&result, nullStr, 1, NCP));
+                }
+            }
+
+            if (verbose) cout << "appendUtf8Character\n";
+            {
+                bsl::string s;
+                ASSERT_PASS(rc = Obj::appendUtf8Character(&s, 'a'));
+                ASSERT(0 == rc);
+                ASSERT("a" == s);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::appendUtf8Character(
+                                          static_cast<bsl::string *>(0), 'a'));
+            }
+
+            if (verbose) cout << "getByteSize\n";
+            {
+                ASSERT_PASS(1 == Obj::getByteSize(WOOF));
+
+                ASSERT_FAIL(Obj::getByteSize(nullStr));
+            }
+
+            if (verbose) cout << "isValid -- no length\n";
+            {
+                ASSERT_PASS(rc = Obj::isValid(WOOF));
+                ASSERT(1 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::isValid(nullStr));
+            }
+
+            if (verbose) cout << "isValid -- with length\n";
+            {
+                ASSERT_PASS(rc = Obj::isValid(WOOF, 4));
+                ASSERT(1 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_PASS(rc = Obj::isValid(nullStr, 0));
+                ASSERT(1 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::isValid(nullStr, 1));
+            }
+
+            if (verbose) cout << "isValid -- with result, no length\n";
+            {
+                ASSERT_PASS(rc = Obj::isValid(&result, WOOF));
+                ASSERT(1 == rc);
+                ASSERT(INIT_RESULT == result);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::isValid(&result, nullStr));
+                ASSERT(INIT_RESULT == result);
+            }
+
+            if (verbose) cout << "isValid -- with result and length\n";
+            {
+                ASSERT_PASS(rc = Obj::isValid(&result, WOOF, 4));
+                ASSERT(1 == rc);
+                ASSERT(INIT_RESULT == result);
+
+                rc     = INIT_INT;
+
+                ASSERT_PASS(rc = Obj::isValid(&result, nullStr, 0));
+                ASSERT(1 == rc);
+                ASSERT(INIT_RESULT == result);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::isValid(0, WOOF, 4));
+
+                ASSERT_FAIL(Obj::isValid(&result, nullStr, 1));
+                ASSERT(INIT_RESULT == result);
+            }
+
+            if (verbose) cout << "numCharacters -- no length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCharacters(WOOF));
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCharacters(nullStr));
+            }
+
+            if (verbose) cout << "numCharacters -- with length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCharacters(WOOF, 4));
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_PASS(rc = Obj::numCharacters(nullStr, 0));
+                ASSERT(0 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCharacters(nullStr, 1));
+            }
+
+            if (verbose) cout << "numCharactersIfValid -- no length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCharactersIfValid(&result, WOOF));
+                ASSERT(INIT_RESULT == result);
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCharactersIfValid(0, WOOF));
+
+                ASSERT_FAIL(Obj::numCharactersIfValid(&result, nullStr));
+                ASSERT(INIT_RESULT == result);
+            }
+
+            if (verbose) cout << "numCharactersIfValid -- with length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCharactersIfValid(&result, WOOF, 4));
+                ASSERT(INIT_RESULT == result);
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_PASS(rc = Obj::numCharactersIfValid(&result, nullStr,
+                                                                           0));
+                ASSERT(0 == rc);
+                ASSERT(INIT_RESULT == result);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCharactersIfValid(0, WOOF, 4));
+
+                ASSERT_FAIL(Obj::numCharactersIfValid(&result, nullStr, 1));
+                ASSERT(INIT_RESULT == result);
+            }
+
+            if (verbose) cout << "numCodePointsRaw -- no length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCodePointsRaw(WOOF));
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCodePointsRaw(nullStr));
+            }
+
+            if (verbose) cout << "numCodePointsRaw -- with length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCodePointsRaw(WOOF, 4));
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_PASS(rc = Obj::numCodePointsRaw(nullStr, 0));
+                ASSERT(0 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCodePointsRaw(nullStr, 1));
+            }
+
+            if (verbose) cout << "numCodePointsIfValid -- no length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCodePointsIfValid(&result, WOOF));
+                ASSERT(INIT_RESULT == result);
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCodePointsIfValid(0, WOOF));
+
+                ASSERT_FAIL(Obj::numCodePointsIfValid(&result, nullStr));
+                ASSERT(INIT_RESULT == result);
+            }
+
+            if (verbose) cout << "numCodePointsIfValid -- with length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCodePointsIfValid(&result, WOOF, 4));
+                ASSERT(INIT_RESULT == result);
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_PASS(rc = Obj::numCodePointsIfValid(&result, nullStr,
+                                                                           0));
+                ASSERT(0 == rc);
+                ASSERT(INIT_RESULT == result);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCodePointsIfValid(0, WOOF, 4));
+
+                ASSERT_FAIL(Obj::numCodePointsIfValid(&result, nullStr, 1));
+                ASSERT(INIT_RESULT == result);
+            }
+
+            if (verbose) cout << "readIfValid\n";
+            {
+                bdlsb::FixedMemInStreamBuf fsb("woof", 4);
+                char buf[4] = { "ugh" };
+                const bsl::string UGH = buf;
+
+                ASSERT_PASS(rc = Obj::readIfValid(&status, buf, 4, &fsb));
+                ASSERT(1 == rc);
+                ASSERT(0 < status);
+                buf[rc] = 0;
+                ASSERT(!bsl::strcmp("w", buf));
+                ASSERT(1 == fsb.pubseekoff(0, bsl::ios_base::cur));
+
+                rc     = INIT_INT;
+                status = INIT_INT;
+                bsl::strcpy(buf, UGH.c_str());
+                fsb.pubseekpos(0);
+
+                ASSERT_FAIL(Obj::readIfValid(0, buf, 4, &fsb));
+                ASSERT(0 == fsb.pubseekoff(0, bsl::ios_base::cur));
+                ASSERT(UGH == buf);
+
+                ASSERT_FAIL(Obj::readIfValid(&status, 0, 4, &fsb));
+                ASSERT(0 == fsb.pubseekoff(0, bsl::ios_base::cur));
+                ASSERT(UGH == buf);
+                ASSERT(INIT_INT == status);
+
+                ASSERT_FAIL(Obj::readIfValid(&status, buf, 3, &fsb));
+                ASSERT(0 == fsb.pubseekoff(0, bsl::ios_base::cur));
+                ASSERT(UGH == buf);
+                ASSERT(INIT_INT == status);
+
+                ASSERT_FAIL(Obj::readIfValid(&status, buf, 4, 0));
+                ASSERT(UGH == buf);
+                ASSERT(INIT_INT == status);
+            }
+        }
+#endif
       } break;
       case 13: {
         // --------------------------------------------------------------------

@@ -68,6 +68,16 @@ BSLS_IDENT("$Id: $")
 //  http://en.wikipedia.org/wiki/Utf-8
 //..
 //
+///Empty Input Strings
+///-------------------
+// The utility functions provided by this component consider the empty string
+// to be valid UTF-8.  For those functions that take input as a
+// '(pointer, length)' pair, if '0 == pointer' and '0 == length', then the
+// input is interpreted as a valid, empty string.  However, if '0 == pointer'
+// and '0 != length', the behavior is undefined.  All such functions have a
+// counterpart that takes a lone pointer to a null-terminated (C-style) string.
+// The behavior is always undefined if 0 is supplied for that lone pointer.
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -430,10 +440,12 @@ struct Utf8Util {
         // otherwise.  Set the specified '*result' to the address of the byte
         // immediately following the last valid code point traversed, or to
         // 'string' if 'length' or 'numCodePoints' is 0.  'string' need not be
-        // null-terminated and can contain embedded null bytes.  The behavior
-        // is undefined unless '0 <= numCodePoints'.  Note that the value
-        // returned will be in the range '[0 .. numCodePoints]'.  Also note
-        // that 'string' may contain less than 'length' Unicode code points.
+        // null-terminated and can contain embedded null bytes, and 'string'
+        // may be null if '0 == length' (see {Empty Input Strings}).  The
+        // behavior is undefined unless '0 <= numCodePoints'.  Note that the
+        // value returned will be in the range '[0 .. numCodePoints]'.  Also
+        // note that 'string' may contain less than 'length' Unicode code
+        // points.
 
     static IntPtr advanceRaw(const char **result,
                              const char  *string,
@@ -464,11 +476,12 @@ struct Utf8Util {
         // '*result' to the address of the byte immediately following the last
         // code point traversed, or to 'string' if 'length' or 'numCodePoints'
         // is 0.  'string' need not be null-terminated and can contain embedded
-        // null bytes.  The behavior is undefined unless the initial 'length'
-        // bytes of 'string' contain valid UTF-8 and '0 <= numCodePoints'.
-        // Note that the value returned will be in the range
-        // '[0 .. numCodePoints]'.  Also note that 'string' may contain less
-        // than 'length' Unicode code points.
+        // null bytes, and 'string' may be null if '0 == length' (see {Empty
+        // Input Strings}).  The behavior is undefined unless the initial
+        // 'length' bytes of 'string' contain valid UTF-8 and
+        // '0 <= numCodePoints'.  Note that the value returned will be in the
+        // range '[0 .. numCodePoints]'.  Also note that 'string' may contain
+        // less than 'length' Unicode code points.
 
     static int appendUtf8Character(bsl::string  *output,
                                    unsigned int  codePoint);
@@ -492,7 +505,8 @@ struct Utf8Util {
         // Return 'true' if the specified 'string' having the specified
         // 'length' (in bytes) contains valid UTF-8, and 'false' otherwise.
         // 'string' need not be null-terminated and can contain embedded null
-        // bytes.
+        // bytes, and 'string' may be null if '0 == length' (see {Empty Input
+        // Strings}).
 
     static bool isValid(const char **invalidString, const char *string);
         // Return 'true' if the specified 'string' contains valid UTF-8, and
@@ -512,7 +526,8 @@ struct Utf8Util {
         // 'invalidString' the address of the byte after the last valid code
         // point traversed; 'invalidString' is unaffected if 'string' contains
         // only valid UTF-8.  'string' need not be null-terminated and can
-        // contain embedded null bytes.
+        // contain embedded null bytes, and 'string' may be null if
+        // '0 == length' (see {Empty Input Strings}).
 
     static IntPtr numBytesIfValid(const bslstl::StringRef& string,
                                   IntPtr                   numCodePoints);
@@ -535,9 +550,10 @@ struct Utf8Util {
     static IntPtr numCharacters(const char *string, size_type length);
         // Return the number of Unicode code points in the specified 'string'
         // having the specified 'length' (in bytes).  'string' need not be
-        // null-terminated and can contain embedded null bytes.  The behavior
-        // is undefined unless 'string' contains valid UTF-8.  Note that
-        // 'string' may contain less than 'length' Unicode code points.
+        // null-terminated and can contain embedded null bytes, and 'string'
+        // may be null if '0 == length' (see {Empty Input Strings}).  The
+        // behavior is undefined unless 'string' contains valid UTF-8.  Note
+        // that 'string' may contain less than 'length' Unicode code points.
         //
         // DEPRECATED: Use 'numCodePointsRaw' instead.
 
@@ -562,8 +578,9 @@ struct Utf8Util {
         // return a negative value and load into 'invalidString' the address of
         // the byte after the last valid Unicode code point traversed.
         // 'string' need not be null-terminated and may contain embedded null
-        // bytes.  Note that 'string' may contain less than 'length' Unicode
-        // code points.
+        // bytes, and 'string' may be null if '0 == length' (see {Empty Input
+        // Strings}).  Note that 'string' may contain less than 'length'
+        // Unicode code points.
         //
         // DEPRECATED: Use 'numCodePointsIfValid' instead.
 
@@ -579,9 +596,10 @@ struct Utf8Util {
     static IntPtr numCharactersRaw(const char *string, size_type length);
         // Return the number of Unicode code points in the specified 'string'
         // having the specified 'length' (in bytes).  'string' need not be
-        // null-terminated and can contain embedded null bytes.  The behavior
-        // is undefined 'string' contains valid UTF-8.  Note that 'string' may
-        // contain less than 'length' Unicode code points.
+        // null-terminated and can contain embedded null bytes, and 'string'
+        // may be null if '0 == length' (see {Empty Input Strings}).  The
+        // behavior is undefined 'string' contains valid UTF-8.  Note that
+        // 'string' may contain less than 'length' Unicode code points.
         //
         // DEPRECATED: Use 'numCodePointsRaw' instead.
 
@@ -605,8 +623,10 @@ struct Utf8Util {
         // return a value from the 'ErrorStatus' 'enum' (which are all
         // negative) and load into 'invalidString' the address of the byte
         // after the last valid Unicode code point traversed.  'string' need
-        // not be null-terminated and may contain embedded null bytes.  Note
-        // that 'string' may contain less than 'length' Unicode code points.
+        // not be null-terminated and may contain embedded null bytes, and
+        // 'string' may be null if '0 == length' (see {Empty Input Strings}).
+        // Note that 'string' may contain less than 'length' Unicode code
+        // points.
 
     static IntPtr numCodePointsRaw(const char *string);
         // Return the number of Unicode code points in the specified 'string'.
@@ -618,9 +638,10 @@ struct Utf8Util {
     static IntPtr numCodePointsRaw(const char *string, size_type length);
         // Return the number of Unicode code points in the specified 'string'
         // having the specified 'length' (in bytes).  'string' need not be
-        // null-terminated and can contain embedded null bytes.  The behavior
-        // is undefined unless 'string' contains valid UTF-8.  Note that
-        // 'string' may contain less than 'length' Unicode code points.
+        // null-terminated and can contain embedded null bytes, and 'string'
+        // may be null if '0 == length' (see {Empty Input Strings}).  The
+        // behavior is undefined unless 'string' contains valid UTF-8.  Note
+        // that 'string' may contain less than 'length' Unicode code points.
 
     static size_type readIfValid(int            *status,
                                  char           *outputBuffer,
@@ -680,7 +701,7 @@ bool Utf8Util::isValid(const char *string)
 inline
 bool Utf8Util::isValid(const char *string, size_type length)
 {
-    BSLS_ASSERT(string);
+    BSLS_ASSERT(string || 0 == length);
 
     const char *dummy = 0;
     return isValid(&dummy, string, length);
