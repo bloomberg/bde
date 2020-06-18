@@ -968,6 +968,13 @@ class unordered_multimap {
         // object will be empty after this call, but allocated memory may be
         // retained for future use.
 
+    template <class K2>
+    typename enable_if<
+                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+                      pair<iterator, iterator> >::type
+    equal_range(const K2& key);
+
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this unordered multimap with a
@@ -1011,6 +1018,13 @@ class unordered_multimap {
         // unordered multimap or are the 'end' iterator, and the 'first'
         // position is at or before the 'last' position in the sequence
         // provided by this container.
+
+    template <class K2>
+    typename enable_if<
+                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+                      iterator>::type
+    find(const K2& key);
 
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the first
@@ -1274,15 +1288,36 @@ class unordered_multimap {
         // multimap to generate a hash value (of type 'size_type') for a
         // 'key_type' object.
 
+    template <class K2>
+    typename enable_if<
+                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+                      const_iterator>::type
+    find(const K2& key) const;
+
     const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the sequence of 'value_type' objects of this
         // unordered multimap with a key equivalent to the specified 'key', if
         // such entries exist, and the past-the-end ('end') iterator otherwise.
 
+    template <class K2>
+    typename enable_if<
+                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+                      size_type>::type
+    count(const K2& key) const;
+
     size_type count(const key_type& key) const;
         // Return the number of 'value_type' objects in this unordered multimap
         // with a key equivalent to the specified 'key'.
+
+    template <class K2>
+    typename enable_if<
+                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+                      pair<const_iterator, const_iterator> >::type
+    equal_range(const K2& key) const;
 
     pair<const_iterator, const_iterator> equal_range(
                                                     const key_type& key) const;
@@ -1832,6 +1867,18 @@ void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::clear()
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class K2>
+inline
+typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+     typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator>
+::type
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(const K2& key)
+{
+    return iterator(d_impl.find(key));
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
@@ -1839,6 +1886,24 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
 {
     return iterator(d_impl.find(key));
 }
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class K2>
+inline
+typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename bsl::pair<
+    typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
+    typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator>
+>::type
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(const K2& key)
+{
+    HashTableLink *first;
+    HashTableLink *last;
+    d_impl.findRange(&first, &last, key);
+    return bsl::pair<iterator, iterator>(iterator(first), iterator(last));
+}
+
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bsl::pair<
@@ -2130,6 +2195,36 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_size(
     return d_impl.countElementsInBucket(index);
 }
 
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class K2>
+inline
+    typename enable_if<
+                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type>
+::type
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::count(
+                                                           const K2& key) const
+{
+    typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
+
+    size_type result = 0;
+    for (HashTableLink *cursor = d_impl.find(key);
+         cursor;
+         ++result, cursor = cursor->nextLink())
+    {
+        BNode *cursorNode = static_cast<BNode *>(cursor);
+        if (!this->key_eq()(key,
+                         ListConfiguration::extractKey(cursorNode->value()))) {
+
+            break;
+        }
+    }
+    return result;
+}
+
+
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>:: size_type
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::count(
@@ -2150,6 +2245,20 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::count(
         }
     }
     return  result;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class K2>
+inline
+typename enable_if<
+                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL,ALLOCATOR>::const_iterator>
+::type
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
+                                                           const K2& key) const
+{
+    return const_iterator(d_impl.find(key));
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -2203,6 +2312,26 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::key_eq() const
 {
     return d_impl.comparator();
 }
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class K2>
+inline
+typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename bsl::pair<
+    typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator,
+    typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator>
+>::type
+unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
+                                                           const K2& key) const
+{
+    HashTableLink *first;
+    HashTableLink *last;
+    d_impl.findRange(&first, &last, key);
+    return bsl::pair<const_iterator, const_iterator>(const_iterator(first),
+                                                     const_iterator(last));
+}
+
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bsl::pair<typename unordered_multimap<KEY,

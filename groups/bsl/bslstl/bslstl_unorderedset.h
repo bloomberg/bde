@@ -1386,11 +1386,25 @@ class unordered_set {
         // empty after this call, but allocated memory may be retained for
         // future use.
 
+    template <class K2>
+    typename enable_if<
+                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+                      iterator>::type
+    find(const K2& key);
+
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the 'value_type'
         // object in this set that is equivalent to the specified 'key', if
         // such an entry exists, and the past-the-end ('end') iterator
         // otherwise.
+
+    template <class K2>
+    typename enable_if<
+                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+                      pair<iterator, iterator> >::type
+    equal_range(const K2& key);
 
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
@@ -1471,16 +1485,37 @@ class unordered_set {
         // Return (a copy of) the hash unary functor used by this set to
         // generate a hash value (of type 'size_t') for a 'key_type' object.
 
+    template <class K2>
+    typename enable_if<
+                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+                      const_iterator>::type
+    find(const K2& key) const;
+
     const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the
         // 'value_type' object in this set that is equivalent to the specified
         // 'key', if such an entry exists, and the past-the-end ('end')
         // iterator otherwise.
 
+    template <class K2>
+    typename enable_if<
+                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+                      size_type>::type
+    count(const K2& key) const;
+
     size_type count(const key_type& key) const;
         // Return the number of 'value_type' objects within this set that are
         // equivalent to the specified 'key'.  Note that since an unordered set
         // maintains unique keys, the returned value will be either 0 or 1.
+
+    template <class K2>
+    typename enable_if<
+                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+                      pair<const_iterator, const_iterator> >::type
+    equal_range(const K2& key) const;
 
     pair<const_iterator, const_iterator> equal_range(
                                                     const key_type& key) const;
@@ -2574,6 +2609,25 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
 #endif
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class K2>
+inline
+typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+    typename bsl::pair<
+         typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator,
+         typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator>
+>::type
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::equal_range(const K2& key)
+{
+    typedef bsl::pair<iterator, iterator> ResultType;
+
+    HashTableLink *first = d_impl.find(key);
+    return first
+         ? ResultType(iterator(first), iterator(first->nextLink()))
+         : ResultType(iterator(0),     iterator(0));
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bsl::pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator,
           typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator>
@@ -2640,6 +2694,17 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
     }
 
     return iterator(first.node());          // convert from const_iterator
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class K2>
+inline
+typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+    typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator>::type
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::find(const K2& key)
+{
+    return iterator(d_impl.find(key));
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -2810,6 +2875,17 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cbegin() const
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class K2>
+inline
+typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type>::type
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::count(const K2& key) const
+{
+    return d_impl.find(key) != 0;
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::cend() const BSLS_KEYWORD_NOEXCEPT
@@ -2859,6 +2935,18 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::key_eq() const
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class K2>
+inline
+typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator>
+::type
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::find(const K2& key) const
+{
+    return const_iterator(d_impl.find(key));
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::find(const key_type& key) const
@@ -2872,6 +2960,25 @@ typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::count(const key_type& key) const
 {
     return 0 != d_impl.find(key);
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class K2>
+inline
+typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
+                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename bsl::pair<
+    typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator,
+    typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator>
+>::type
+unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::equal_range(const K2& key) const
+{
+    typedef bsl::pair<const_iterator, const_iterator> ResultType;
+
+    HashTableLink *first = d_impl.find(key);
+    return first
+         ? ResultType(iterator(first), iterator(first->nextLink()))
+         : ResultType(iterator(0),     iterator(0));
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>

@@ -1520,6 +1520,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isfunction.h>
 #include <bslmf_ispointer.h>
+#include <bslmf_istransparentpredicate.h>
 #include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
@@ -2890,6 +2891,13 @@ class HashTable {
         // Return the address of the first element in this hash table, or a
         // null pointer value if this hash table is empty.
 
+    template <class K2>
+    typename bsl::enable_if<
+              BloombergLP::bslmf::IsTransparentPredicate<HASHER,    K2>::value
+           && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,K2>::value,
+                          bslalg::BidirectionalLink *>::type
+    find(const K2& key) const;
+
     bslalg::BidirectionalLink *find(const KeyType& key) const;
         // Return the address of a link whose key has the same value as the
         // specified 'key' (according to this hash-table's 'comparator'), and a
@@ -2907,6 +2915,15 @@ class HashTable {
         // behavior is undefined unless 'first' is a link in this hash- table.
         // Note that this hash-table ensures all elements having the same key
         // form a contiguous sequence.
+
+    template <class K2>
+    typename bsl::enable_if<
+              BloombergLP::bslmf::IsTransparentPredicate<HASHER,    K2>::value
+           && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,K2>::value,
+                  void>::type
+    findRange(bslalg::BidirectionalLink **first,
+                   bslalg::BidirectionalLink **last,
+                   const K2& key) const;
 
     void findRange(bslalg::BidirectionalLink **first,
                    bslalg::BidirectionalLink **last,
@@ -6979,6 +6996,24 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::elementListRoot() const
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class K2>
+inline
+typename bsl::enable_if<
+              BloombergLP::bslmf::IsTransparentPredicate<HASHER,    K2>::value
+           && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,K2>::value,
+                           bslalg::BidirectionalLink *>::type
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::find(
+                                                      const K2& key) const
+{
+    return bslalg::HashTableImpUtil::find<KEY_CONFIG>(
+                                             d_anchor,
+                                             key,
+                                             d_parameters.comparator(),
+                                             d_parameters.hashCodeForKey(key));
+}
+
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::find(
@@ -7016,6 +7051,29 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findEndOfRange(
     }
     return first;
 }
+
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class K2>
+inline
+typename bsl::enable_if<
+              BloombergLP::bslmf::IsTransparentPredicate<HASHER,    K2>::value
+           && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,K2>::value,
+                  void>::type
+HashTable< KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findRange(
+          bslalg::BidirectionalLink **first,
+          bslalg::BidirectionalLink **last,
+          const K2&                   key) const
+{
+    BSLS_ASSERT_SAFE(first);
+    BSLS_ASSERT_SAFE(last);
+
+    *first = this->find(key);
+    *last  = *first
+           ? this->findEndOfRange(*first)
+           : 0;
+}
+
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline

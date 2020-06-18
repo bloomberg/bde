@@ -1104,6 +1104,38 @@ void runErasure(
 
 }  // close unnamed namespace
 
+namespace {
+                          // ========================
+                          // struct TransparentHasher
+                          // ========================
+// A transparent hashing functor:
+//   If it's passed an int, it returns the int
+//   If it's passed a bsl::string, it converts it to an int.
+// Note: no provisions for errors.
+struct TransparentHasher
+{
+    size_t operator() (int i)    const { return i; }
+    size_t operator() (bsl::string s) const { return atoi(s.c_str());}
+    typedef void is_transparent;
+};
+
+                        // ============================
+                        // struct TransparentComparator
+                        // ============================
+// A transparent comparison functor:
+//   If it's passed an int, it compares using the int
+//   If it's passed a string, it converts it to an int, and compares
+// Note: no provisions for errors.
+struct TransparentComparator
+{
+    size_t operator() (int i1,         int i2)         const { return i1               == i2; }
+    size_t operator() (int i1,         bsl::string s2) const { return i1               == atoi(s2.c_str()); }
+    size_t operator() (bsl::string s1, int i2)         const { return atoi(s1.c_str()) == i2; }
+    size_t operator() (bsl::string s1, bsl::string s2) const { return atoi(s1.c_str()) == atoi(s2.c_str()); }
+    typedef void is_transparent;
+};
+
+}  // close unnamed namespace
 //=============================================================================
 //                              TestDriver
 //-----------------------------------------------------------------------------
@@ -6686,6 +6718,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
     //   bsl::pair<const_iter, const_iter> equal_range(const key_type&) const;
     //   iterator find(const key_type& key);
     //   const_iterator find(const key_type& key) const;
+    //
+    //   template <class K2>
+    //     size_type count(const K2& key) const;
+    //   template <class K2>
+    //     bsl::pair<iterator, iterator> equal_range(const K2& key);
+    //   template <class K2>
+    //     bsl::pair<const_iter, const_iter> equal_range(const K2&) const;
+    //   template <class K2>
+    //     iterator find(const K2& key);
+    //   template <class K2>
+    //     const_iterator find(const K2& key) const;
     // ------------------------------------------------------------------------
 
     typedef bsl::pair<Iter, Iter>   Range;
@@ -6809,6 +6852,83 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
             ASSERT(dam.isTotalSame());
         }
     }
+
+    if (veryVerbose) printf("Testing transparent methods\n");
+	{
+	typedef bsl::unordered_multimap<int, int, TransparentHasher, TransparentComparator> M;
+	M m;
+	const M& cm = m;
+	for (int i = 1; i < 20; i += 2)
+		m.insert(M::value_type(i, 2 * i + 1));
+	m.insert(M::value_type(9, 4)); // duplicate key
+
+	{
+	M::iterator it;
+	it = m.find(bsl::string("3"));
+	ASSERT(it != m.end());
+	ASSERT(it->first == 3);
+	ASSERT(it->second == 7);
+	it = m.find(bsl::string("4"));
+	ASSERT(it == m.end());
+	}
+
+	{
+	M::const_iterator cit;
+	cit = cm.find(bsl::string("3"));
+	ASSERT(cit != cm.end());
+	ASSERT(cit->first == 3);
+	ASSERT(cit->second == 7);
+	cit = cm.find(bsl::string("4"));
+	ASSERT(cit == cm.end());
+	}
+
+	{
+	ASSERT(cm.count("4") == 0);
+	ASSERT(cm.count("5") == 1);
+	ASSERT(cm.count("9") == 2);
+	}
+
+	{
+	bsl::pair<M::iterator, M::iterator> er;
+	er = m.equal_range("6");
+	ASSERT(er.first == er.second);
+	er = m.equal_range("7");
+	ASSERT(er.first != er.second);
+	ASSERT(bsl::distance(er.first, er.second) == 1);
+	ASSERT(er.first->first  == 7);
+	ASSERT(er.first->second == 15);
+
+	er = m.equal_range("9");
+	ASSERT(er.first != er.second);
+	ASSERT(bsl::distance(er.first, er.second) == 2);
+	ASSERT(er.first->first  == 9);
+	ASSERT(er.first->second == 19 || er.first->second == 4);
+	++er.first;
+	ASSERT(er.first->first  == 9);
+	ASSERT(er.first->second == 19 || er.first->second == 4);
+	}
+
+	{
+	bsl::pair<M::const_iterator, M::const_iterator> cer;
+	cer = cm.equal_range("6");
+	ASSERT(cer.first == cer.second);
+
+	cer = cm.equal_range("7");
+	ASSERT(cer.first != cer.second);
+	ASSERT(bsl::distance(cer.first, cer.second) == 1);
+	ASSERT(cer.first->first  == 7);
+	ASSERT(cer.first->second == 15);
+
+	cer = cm.equal_range("9");
+	ASSERT(cer.first != cer.second);
+	ASSERT(bsl::distance(cer.first, cer.second) == 2);
+	ASSERT(cer.first->first  == 9);
+	ASSERT(cer.first->second == 19 || cer.first->second == 4);
+	++cer.first;
+	ASSERT(cer.first->first  == 9);
+	ASSERT(cer.first->second == 19 || cer.first->second == 4);
+	}
+	}
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>

@@ -1279,6 +1279,39 @@ TestIncompleteType::~TestIncompleteType()
 
 }  // close unnamed namespace
 
+namespace {
+                          // ========================
+                          // struct TransparentHasher
+                          // ========================
+// A transparent hashing functor:
+//   If it's passed an int, it returns the int
+//   If it's passed a bsl::string, it converts it to an int.
+// Note: no provisions for errors.
+struct TransparentHasher
+{
+    size_t operator() (int i)    const { return i; }
+    size_t operator() (bsl::string s) const { return atoi(s.c_str());}
+    typedef void is_transparent;
+};
+
+                        // ============================
+                        // struct TransparentComparator
+                        // ============================
+// A transparent comparison functor:
+//   If it's passed an int, it compares using the int
+//   If it's passed a string, it converts it to an int, and compares
+// Note: no provisions for errors.
+struct TransparentComparator
+{
+    size_t operator() (int i1,         int i2)         const { return i1               == i2; }
+    size_t operator() (int i1,         bsl::string s2) const { return i1               == atoi(s2.c_str()); }
+    size_t operator() (bsl::string s1, int i2)         const { return atoi(s1.c_str()) == i2; }
+    size_t operator() (bsl::string s1, bsl::string s2) const { return atoi(s1.c_str()) == atoi(s2.c_str()); }
+    typedef void is_transparent;
+};
+
+}  // close unnamed namespace
+
 //=============================================================================
 //                              TestDriver
 //-----------------------------------------------------------------------------
@@ -7823,6 +7856,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
     //   size_type count(const key_type& key) const;
     //   pair<iterator, iterator> equal_range(const key_type& key);
     //   pair<const_iter, const_iter> equal_range(const key_type&) const;
+    //
+    //   template <class K2>
+    //     iterator find(const K2& key);
+    //   template <class K2>
+    //     const_iterator find(const K2& key) const;
+    //   template <class K2>
+    //     size_type count(const K2& key) const;
+    //   template <class K2>
+    //     pair<iterator, iterator> equal_range(const K2& key);
+    //   template <class K2>
+    //     pair<const_iter, const_iter> equal_range(const K2&) const;
     // ------------------------------------------------------------------------
 
     if (verbose) printf("TESTING SEARCH FUNCTIONS: %s\n"
@@ -7917,6 +7961,65 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
             ASSERTV(ti, oam.isTotalSame());
             ASSERTV(ti, da.numAllocations(), 0 == da.numAllocations());
         }
+    }
+
+    {
+        typedef bsl::unordered_map<int,
+                                   int,
+                                   TransparentHasher,
+                                   TransparentComparator> M;
+        M m;
+        const M& cm = m;
+        for (int i = 1; i < 20; i += 2)
+			m.insert(M::value_type(i, 2 * i + 1));
+
+        {
+        M::iterator it;
+        it = m.find(bsl::string("3"));
+        ASSERT(it != m.end());
+        ASSERT(3 == it->first);
+        ASSERT(7 == it->second);
+        it = m.find(bsl::string("4"));
+        ASSERT(it == m.end());
+        }
+
+        {
+        M::const_iterator cit;
+        cit = m.find(bsl::string("3"));
+        ASSERT(cit != cm.end());
+        ASSERT(3 == cit->first);
+        ASSERT(7 == cit->second);
+        cit = cm.find(bsl::string("4"));
+        ASSERT(cit == cm.end());
+        }
+
+        {
+        ASSERT(0 == cm.count("4"));
+        ASSERT(1 == cm.count("5"));
+        }
+
+        {
+        bsl::pair<M::iterator, M::iterator> er;
+        er = m.equal_range("6");
+        ASSERT(er.first == er.second);
+        er = m.equal_range("7");
+        ASSERT(er.first != er.second);
+        ASSERT( 1 == bsl::distance(er.first, er.second));
+        ASSERT( 7 == er.first->first);
+        ASSERT(15 == er.first->second);
+        }
+
+        {
+        bsl::pair<M::const_iterator, M::const_iterator> cer;
+        cer = cm.equal_range("6");
+        ASSERT(cer.first == cer.second);
+        cer = cm.equal_range("7");
+        ASSERT(cer.first != cer.second);
+        ASSERT( 1 == bsl::distance(cer.first, cer.second));
+        ASSERT( 7 == cer.first->first);
+        ASSERT(15 == cer.first->second);
+        }
+
     }
 
     ASSERTV(doneA && doneB && doneC);

@@ -506,6 +506,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 
 #include <bslmf_conditional.h>
+#include <bslmf_enableif.h>
 
 #include <bsls_assert.h>
 #include <bsls_nativestd.h>
@@ -692,6 +693,13 @@ struct HashTableImpUtil {
         // a node of type 'BidirectionalNode<KEY_CONFIG::ValueType>' and
         // 'HASHER(extractKey<KEY_CONFIG>(link))' returns 'hashCode'.
 
+    template <class KEY_CONFIG, class KEY_EQUAL, class K2>
+    static BidirectionalLink * find(
+        const HashTableAnchor&                                 anchor,
+        const K2 &                                             key,
+        const KEY_EQUAL&                                       equalityFunctor,
+        native_std::size_t                                     hashCode);
+
     template <class KEY_CONFIG, class KEY_EQUAL>
     static BidirectionalLink *find(
               const HashTableAnchor&                                    anchor,
@@ -815,6 +823,31 @@ HashTableImpUtil::extractKey(BidirectionalLink *link)
 
     BNode *node = static_cast<BNode *>(link);
     return KEY_CONFIG::extractKey(node->value());
+}
+
+template <class KEY_CONFIG, class KEY_EQUAL, class K2>
+inline
+BidirectionalLink * HashTableImpUtil::find(
+  const HashTableAnchor&                                       anchor,
+  const K2 &                                                   key,
+  const KEY_EQUAL&                                             equalityFunctor,
+  native_std::size_t                                           hashCode)
+{
+    BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
+    BSLS_ASSERT_SAFE(anchor.bucketArraySize());
+
+    const HashTableBucket *bucket = findBucketForHashCode(anchor, hashCode);
+    BSLS_ASSERT_SAFE(bucket);
+
+    for (BidirectionalLink *cursor     = bucket->first(),
+                           * const end = bucket->end();
+                                 end != cursor; cursor = cursor->nextLink() ) {
+        if (equalityFunctor(key, extractKey<KEY_CONFIG>(cursor))) {
+            return cursor;                                            // RETURN
+        }
+    }
+
+    return 0;
 }
 
 template <class KEY_CONFIG, class KEY_EQUAL>
