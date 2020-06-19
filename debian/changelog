@@ -1,5 +1,15 @@
-bsl-internal (3.56.0.0) unstable; urgency=low
+bsl-internal (3.57.0.0) unstable; urgency=low
 
+  * 3fb3a44bf Bumped version to 3.57.0.0
+  * d4724815c Merge pull request #2806 from bchapman/bdlde_utf8util-null-strings-with-0-length-158618031
+  * c036745f5 Merge pull request #2778 from bchapman/bdlde_utf8util-meaningful-error-codes-drqs-158055467
+  * 22a25869f Merge pull request #2805 from sbreitst/bdlma_smallsequentialpool-drqs-160053713
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 19 Jun 2020 10:25:27 -0400
+
+bsl-internal (3.56.0.0) git; urgency=low
+
+  * c18a684f4 Changelog for version 3.56.0.0
   * 697a7b7ab Bumped version to 3.56.0.0
   * 86e6f3ae5 Merge pull request #2802 from cteubner/patch-2
   * e002c171f Merge pull request #2804 from cteubner/patch-4
@@ -7,7 +17,7 @@ bsl-internal (3.56.0.0) unstable; urgency=low
   * 20fb14399 Merge pull request #2797 from ameredit/sun_warnings
   * 3c05e2d73 Merge pull request #2794 from jberne4/aligningallocator_update
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 7 Jun 2020 10:59:55 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 7 Jun 2020 11:00:29 -0400
 
 bsl-internal (3.55.0.0) git; urgency=low
 
