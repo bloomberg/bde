@@ -1517,6 +1517,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_addlvaluereference.h>
 #include <bslmf_assert.h>
 #include <bslmf_conditional.h>
+#include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isfunction.h>
 #include <bslmf_ispointer.h>
@@ -7003,9 +7004,9 @@ typename bsl::enable_if<
            && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,K2>::value,
                            bslalg::BidirectionalLink *>::type
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::find(
-                                                      const K2& key) const
+                                                           const K2& key) const
 {
-    return bslalg::HashTableImpUtil::find<KEY_CONFIG>(
+    return bslalg::HashTableImpUtil::find_transparent<KEY_CONFIG>(
                                              d_anchor,
                                              key,
                                              d_parameters.comparator(),

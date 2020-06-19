@@ -693,12 +693,33 @@ struct HashTableImpUtil {
         // a node of type 'BidirectionalNode<KEY_CONFIG::ValueType>' and
         // 'HASHER(extractKey<KEY_CONFIG>(link))' returns 'hashCode'.
 
-    template <class KEY_CONFIG, class KEY_EQUAL, class K2>
-    static BidirectionalLink * find(
-        const HashTableAnchor&                                 anchor,
-        const K2 &                                             key,
+    template <class KEY_CONFIG, class K2, class KEY_EQUAL>
+    static BidirectionalLink * find_transparent(
+        const HashTableAnchor&                                          anchor,
+        const K2&                                                          key,
         const KEY_EQUAL&                                       equalityFunctor,
-        native_std::size_t                                     hashCode);
+        native_std::size_t                                           hashCode);
+        // Return the address of the first link in the list element of
+        // the specified 'anchor', having a value matching (according to the
+        // specified 'equalityFunctor') the specified 'key' in the bucket that
+        // holds elements with the specified 'hashCode' if such a link exists,
+        // and return 0 otherwise.  The behavior is undefined unless, for the
+        // provided 'KEY_CONFIG' and some hash function, 'HASHER', 'anchor' is
+        // well-formed (see 'isWellFormed') and 'HASHER(key)' returns
+        // 'hashCode'.  'KEY_CONFIG' shall be a
+        // namespace providing the type names 'KeyType' and 'ValueType', as
+        // well as a function that can be called as if it had the following
+        // signature:
+        //..
+        //  const KeyType& extractKey(const ValueType& obj);
+        //..
+        // 'KEY_EQUAL' shall be a functor that can be called as if it had the
+        // following signature:
+        //..
+        //  bool operator()(const K2&                  key1,
+        //                  const KEY_CONFIG::KeyType& key2)
+        //
+        //..
 
     template <class KEY_CONFIG, class KEY_EQUAL>
     static BidirectionalLink *find(
@@ -825,9 +846,9 @@ HashTableImpUtil::extractKey(BidirectionalLink *link)
     return KEY_CONFIG::extractKey(node->value());
 }
 
-template <class KEY_CONFIG, class KEY_EQUAL, class K2>
+template <class KEY_CONFIG, class K2, class KEY_EQUAL>
 inline
-BidirectionalLink * HashTableImpUtil::find(
+BidirectionalLink * HashTableImpUtil::find_transparent(
   const HashTableAnchor&                                       anchor,
   const K2 &                                                   key,
   const KEY_EQUAL&                                             equalityFunctor,
