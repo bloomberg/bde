@@ -5,23 +5,23 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a namespace for standard algorithms that are not provided
-//  by the underlying standard library implementation. For example, 'any_of' is
-//  a C++11 algorithm, and it is provided here for code using C++03.
+//@PURPOSE: Provide implementations for algorithms not in the system library
 //
 //@CLASSES:
 //
-//@SEE_ALSO: bos+stdhdrs
+//@SEE_ALSO: bsl+bslhdrs
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
-// '<bsl_algorithm>' instead.  This component provides a namespace for
-// work-arounds for the platform supplied algorithm header (particularly for
-// the Sun Studio libCstd).
+// '<bsl_algorithm.h>' instead.  This component provides a namespace for
+// implementations for standard algorithms that are not provided by the
+// underlying standard library implementation.
+// For example, 'any_of' is a C++11 algorithm, and it is provided here for code
+// using C++03.
 //
 ///Usage
 ///-----
-// This component is for use by the 'bos+stdhdrs' package.  Use 'algorithm'
-// directly.
+// This component is for use by the 'bsl+bslhdrs' package.  Use
+// 'bsl_algorithm.h' directly.
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -31,6 +31,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #include <bslscm_version.h>
+#include <bsls_libraryfeatures.h>
 
 namespace bsl {
 
@@ -38,35 +39,41 @@ namespace bsl {
 
 // Provide an implementation for 'all_of' if we're using a pre-C++11 standard
 // library implementation.
-template<typename InputIter, typename PREDICATE>
-bool all_of (InputIter first, InputIter last, PREDICATE pred)
+template <class InputIter, class PREDICATE>
+bool all_of(InputIter first, InputIter last, PREDICATE pred)
 {
-    for (; first != last; ++first)
-        if (!pred(*first))
+    for (; first != last; ++first) {
+        if (!pred(*first)) {
             return false;
+            }
+        }
     return true;
 }
 
 // Provide an implementation for 'any_of' if we're using a pre-C++11 standard
 // library implementation.
-template<typename InputIter, typename PREDICATE>
-bool any_of (InputIter first, InputIter last, PREDICATE pred) 
+template <class InputIter, class PREDICATE>
+bool any_of(InputIter first, InputIter last, PREDICATE pred)
 {
-    for (; first != last; ++first)
-        if (pred(*first))
+    for (; first != last; ++first) {
+        if (pred(*first)) {
             return true;
+            }
+        }
     return false;
 }
 
 
 // Provide an implementation for 'none_of' if we're using a pre-C++11 standard
 // library implementation.
-template<typename InputIter, typename PREDICATE>
-bool none_of (InputIter first, InputIter last, PREDICATE pred)
+template <class InputIter, class PREDICATE>
+bool none_of(InputIter first, InputIter last, PREDICATE pred)
 {
-    for (; first != last; ++first)
-        if (pred(*first))
+    for (; first != last; ++first) {
+        if (pred(*first)) {
             return false;
+            }
+        }
     return true;
 }
 
@@ -79,7 +86,7 @@ bool none_of (InputIter first, InputIter last, PREDICATE pred)
 //   is_permutation
 //   partition_point
 //   partition_copy
-//   copy_if (this is already in bslstl_algorithmsworkaround.h)
+//   copy_if (this is already in bslstl_algorithmworkaround.h)
 //   copy_n
 //   iota
 
@@ -89,7 +96,7 @@ bool none_of (InputIter first, InputIter last, PREDICATE pred)
 // C++17 Algorithms
 //   for_each_n
 
-} // close namespace bsl
+}  // close namespace bsl
 
 #endif
 

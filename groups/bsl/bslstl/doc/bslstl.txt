@@ -119,6 +119,9 @@
 
 /Component Synopsis
 /------------------
+: 'bslstl_algorithm':
+:      Provide implementations for algorithms not in the system library
+:
 : 'bslstl_algorithmworkaround':
 :      Provide a namespace for work arounds for the standard algorithms
 :

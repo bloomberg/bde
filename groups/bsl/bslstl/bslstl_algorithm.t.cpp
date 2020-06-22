@@ -1,11 +1,11 @@
 // bslstl_algorithm.t.cpp                                             -*-C++-*-
 #include <bslstl_algorithm.h>
 
-#include <bslma_default.h>
 #include <bslma_allocator.h>
-#include <bslma_testallocator.h>
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_destructorguard.h>
+#include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -28,8 +28,9 @@
 // ----------------------------------------------------------------------------
 //
 // ----------------------------------------------------------------------------
-// [  ] BREATHING TEST
-// [  ] USAGE EXAMPLE
+// [ 1] bool all_of (InputIter first, InputIter last, PREDICATE pred);
+// [ 1] bool any_of (InputIter first, InputIter last, PREDICATE pred);
+// [ 1] bool none_of(InputIter first, InputIter last, PREDICATE pred);
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -119,19 +120,18 @@ struct IsOdd {
     typedef bool result_type;
 
     // ACCESSORS
+    // Return 'true' if the specified 'value' is odd, and 'false' otherwise.
     result_type operator()(argument_type value) const
-        // Return 'true' if the specified 'value' is odd.  Otherwise, if
-        // 'value' is even, return 'false'.
     {
         return (value % 2) != 0;
     }
 };
 
-// A function that (as opposed to a functor) that returns 'true' if an 'int'
-// value is even
+// A function that (as opposed to a functor)
+// Return 'true' if the specified 'value' is even, and 'false' otherwise.
 bool isEven(int value)
 {
-	return (value % 2) == 0;
+    return (value % 2) == 0;
 }
 
 // ============================================================================
@@ -150,30 +150,9 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 2: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
-        //
-        // Testing:
-        //
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============\n");
-
-      } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST
+        // FUNCTIONALITY TEST
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
@@ -181,7 +160,7 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Run each method with an empty input range and verify that the 
+        //: 1 Run each method with an empty input range and verify that the
         //:   behavior is as expected.
         //: 2 Run each method with a single-element input range and verify that
         //:   the behavior is as expected.
@@ -192,42 +171,41 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST"
+        if (verbose) printf("\nFUNCTIONALITY TEST"
                             "\n==============\n");
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-		const int a[] = {4};
-		const int b[] = {0, 2, 4, 6, 8, 1, 3, 5, 7, 9};
-		const int c[] = {1, 3, 5, 7, 9, 0, 2, 4, 6, 8};
+        const int a[] = {4};
+        const int b[] = {0, 2, 4, 6, 8, 1, 3, 5, 7, 9};
+        const int c[] = {1, 3, 5, 7, 9, 0, 2, 4, 6, 8};
 
-		ASSERT( (bsl::all_of (a, a,   IsOdd()) ));
-		ASSERT(!(bsl::any_of (a, a,   IsOdd()) ));
-		ASSERT( (bsl::none_of(a, a,   IsOdd()) ));
+        ASSERT( (bsl::all_of (a, a,   IsOdd()) ));
+        ASSERT(!(bsl::any_of (a, a,   IsOdd()) ));
+        ASSERT( (bsl::none_of(a, a,   IsOdd()) ));
 
-		ASSERT(!(bsl::all_of (a, a+1, IsOdd()) ));
-		ASSERT( (bsl::all_of (a, a+1, isEven)  ));
-		ASSERT(!(bsl::any_of (a, a+1, IsOdd()) ));
-		ASSERT( (bsl::any_of (a, a+1, isEven)  ));
-		ASSERT( (bsl::none_of(a, a+1, IsOdd()) ));
-		ASSERT(!(bsl::none_of(a, a+1, isEven)  ));
+        ASSERT(!(bsl::all_of (a, a+1, IsOdd()) ));
+        ASSERT( (bsl::all_of (a, a+1, isEven)  ));
+        ASSERT(!(bsl::any_of (a, a+1, IsOdd()) ));
+        ASSERT( (bsl::any_of (a, a+1, isEven)  ));
+        ASSERT( (bsl::none_of(a, a+1, IsOdd()) ));
+        ASSERT(!(bsl::none_of(a, a+1, isEven)  ));
 
-		ASSERT( (bsl::all_of (b, b+5, isEven)  ));
-		ASSERT(!(bsl::all_of (b, b+6, isEven)  ));
-		ASSERT(!(bsl::all_of (c, c+5, isEven)  ));
-		ASSERT(!(bsl::all_of (c, c+6, isEven)  ));
+        ASSERT( (bsl::all_of (b, b+5, isEven)  ));
+        ASSERT(!(bsl::all_of (b, b+6, isEven)  ));
+        ASSERT(!(bsl::all_of (c, c+5, isEven)  ));
+        ASSERT(!(bsl::all_of (c, c+6, isEven)  ));
 
-		ASSERT( (bsl::any_of (b, b+5, isEven)  ));
-		ASSERT( (bsl::any_of (b, b+6, isEven)  ));
-		ASSERT(!(bsl::any_of (c, c+5, isEven)  ));
-		ASSERT( (bsl::any_of (c, c+6, isEven)  ));
-		
-		ASSERT(!(bsl::none_of(b, b+5, isEven)  ));
-		ASSERT(!(bsl::none_of(b, b+6, isEven)  ));
-		ASSERT( (bsl::none_of(c, c+5, isEven)  ));
-		ASSERT(!(bsl::none_of(c, c+6, isEven)  ));
+        ASSERT( (bsl::any_of (b, b+5, isEven)  ));
+        ASSERT( (bsl::any_of (b, b+6, isEven)  ));
+        ASSERT(!(bsl::any_of (c, c+5, isEven)  ));
+        ASSERT( (bsl::any_of (c, c+6, isEven)  ));
+
+        ASSERT(!(bsl::none_of(b, b+5, isEven)  ));
+        ASSERT(!(bsl::none_of(b, b+6, isEven)  ));
+        ASSERT( (bsl::none_of(c, c+5, isEven)  ));
+        ASSERT(!(bsl::none_of(c, c+6, isEven)  ));
 #endif
       } break;
-
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
