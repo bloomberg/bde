@@ -657,6 +657,7 @@ BSL_OVERRIDES_STD mode"
                                        // but not very user friendly
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
@@ -1021,12 +1022,12 @@ class unordered_multiset
         // container is empty after this call, but allocated memory may be
         // retained for future use.
 
-    template <class K2>
+    template <class LOOKUP_KEY>
     typename enable_if<
-                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       pair<iterator, iterator> >::type
-    equal_range(const K2& key);
+    equal_range(const LOOKUP_KEY& key);
 
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
@@ -1070,12 +1071,12 @@ class unordered_multiset
         // position is at or before the 'last' position in the sequence
         // provided by this container.
 
-    template <class K2>
+    template <class LOOKUP_KEY>
     typename enable_if<
-                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       iterator>::type
-    find(const K2& key);
+    find(const LOOKUP_KEY& key);
 
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the first
@@ -1546,12 +1547,12 @@ class unordered_multiset
         // multiset to generate a hash value (of type 'size_t') for a
         // 'key_type' object.
 
-    template <class K2>
+    template <class LOOKUP_KEY>
     typename enable_if<
-                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       const_iterator>::type
-    find(const K2& key) const;
+    find(const LOOKUP_KEY& key) const;
 
     const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the first
@@ -1559,23 +1560,23 @@ class unordered_multiset
         // this unordered multiset equivalent to the specified 'key', if such
         // entries exist, and the past-the-end ('end') iterator otherwise.
 
-    template <class K2>
+    template <class LOOKUP_KEY>
     typename enable_if<
-                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       size_type>::type
-    count(const K2& key) const;
+    count(const LOOKUP_KEY& key) const;
 
     size_type count(const key_type& key) const;
         // Return the number of 'value_type' objects within this unordered
         // multiset that are equivalent to the specified 'key'.
 
-    template <class K2>
+    template <class LOOKUP_KEY>
     typename enable_if<
-                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       pair<const_iterator, const_iterator> >::type
-    equal_range(const K2& key) const;
+    equal_range(const LOOKUP_KEY& key) const;
 
     pair<const_iterator, const_iterator> equal_range(
                                                     const key_type& key) const;
@@ -2579,12 +2580,13 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-template <class K2>
+template <class LOOKUP_KEY>
 inline
-typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
     typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::iterator>::type
-unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::find(const K2& key)
+unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::find(const LOOKUP_KEY& key)
 {
     return iterator(d_impl.find(key));
 }
@@ -2597,15 +2599,17 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::find(const key_type& key)
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-template <class K2>
+template <class LOOKUP_KEY>
 inline
-typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
     typename bsl::pair<
          typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::iterator,
          typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::iterator>
 >::type
-unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::equal_range(const K2& key)
+unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::equal_range(
+                                                         const LOOKUP_KEY& key)
 {
     HashTableLink *first;
     HashTableLink *last;
@@ -2904,12 +2908,14 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::bucket_size(
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-template <class K2>
+template <class LOOKUP_KEY>
 inline
-typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::size_type>::type
-unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::count(const K2& key) const
+unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::count(
+                                                   const LOOKUP_KEY& key) const
 {
     typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
 
@@ -2951,13 +2957,15 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::count(
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-template <class K2>
+template <class LOOKUP_KEY>
 inline
-typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator>
 ::type
-unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::find(const K2& key) const
+unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::find(
+                                                   const LOOKUP_KEY& key) const
 {
     return const_iterator(d_impl.find(key));
 }
@@ -3015,16 +3023,17 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::key_eq() const
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-template <class K2>
+template <class LOOKUP_KEY>
 inline
-typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
 typename bsl::pair<
     typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator,
     typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator>
 >::type
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::equal_range(
-                                                           const K2& key) const
+                                                   const LOOKUP_KEY& key) const
 {
     HashTableLink *first;
     HashTableLink *last;

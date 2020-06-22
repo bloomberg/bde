@@ -1472,12 +1472,12 @@ class unordered_map {
         // at or before the 'last' position in the iteration sequence provided
         // by this container.
 
-    template <class K2>
+    template <class LOOKUP_KEY>
     typename enable_if<
-                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       iterator>::type
-    find(const K2& key);
+    find(const LOOKUP_KEY& key);
 
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the 'value_type'
@@ -1631,12 +1631,12 @@ class unordered_map {
         // 'copy-constructible' (see {Requirements on 'value_type'}).
 #endif
 
-    template <class K2>
+    template <class LOOKUP_KEY>
     typename enable_if<
-                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
-                      pair<iterator, iterator> >::type
-    equal_range(const K2& key);
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                       pair<iterator, iterator> >::type
+    equal_range(const LOOKUP_KEY& key);
 
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
@@ -1747,12 +1747,12 @@ class unordered_map {
         // unordered map.  The behavior is undefined unless
         // 'index < bucket_count()'.
 
-    template <class K2>
+    template <class LOOKUP_KEY>
     typename enable_if<
-                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       size_type>::type
-    count(const K2& key) const;
+    count(const LOOKUP_KEY& key) const;
 
     size_type count(const key_type& key) const;
         // Return the number of 'value_type' objects contained within this
@@ -1764,12 +1764,12 @@ class unordered_map {
         // Return 'true' if this unordered map contains no elements, and
         // 'false' otherwise.
 
-    template <class K2>
+    template <class LOOKUP_KEY>
     typename enable_if<
-                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       pair<const_iterator, const_iterator> >::type
-    equal_range(const K2& key) const;
+    equal_range(const LOOKUP_KEY& key) const;
 
     pair<const_iterator, const_iterator> equal_range(
                                                     const key_type& key) const;
@@ -1782,12 +1782,12 @@ class unordered_map {
         // value, 'end()'.  Note that since an unordered map maintains unique
         // keys, the range will contain at most one element.
 
-    template <class K2>
+    template <class LOOKUP_KEY>
     typename enable_if<
-                   BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       const_iterator>::type
-    find(const K2& key) const;
+    find(const LOOKUP_KEY& key) const;
 
     const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the
@@ -2495,12 +2495,13 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class K2>
+template <class LOOKUP_KEY>
 inline
-typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
     typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator>::type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(const K2& key)
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(const LOOKUP_KEY& key)
 {
     return iterator(d_impl.find(key));
 }
@@ -2575,22 +2576,23 @@ void unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
 #endif
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class K2>
+template <class LOOKUP_KEY>
 inline
-typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
     typename bsl::pair<
          typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
          typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator>
 >::type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(const K2& key)
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
+                                                         const LOOKUP_KEY& key)
 {
     typedef bsl::pair<iterator, iterator> ResultType;
 
     HashTableLink *first = d_impl.find(key);
-    return first
-         ? ResultType(iterator(first), iterator(first->nextLink()))
-         : ResultType(iterator(0),     iterator(0));
+    return first ? ResultType(iterator(first), iterator(first->nextLink()))
+                 : ResultType(iterator(0),     iterator(0));
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -2603,9 +2605,8 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
     typedef bsl::pair<iterator, iterator> ResultType;
 
     HashTableLink *first = d_impl.find(key);
-    return first
-         ? ResultType(iterator(first), iterator(first->nextLink()))
-         : ResultType(iterator(0),     iterator(0));
+    return first ? ResultType(iterator(first), iterator(first->nextLink()))
+                 : ResultType(iterator(0),     iterator(0));
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -2780,12 +2781,14 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_size(
 
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class K2>
+template <class LOOKUP_KEY>
 inline
-typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type>::type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::count(const K2& key) const
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::count(
+                                                   const LOOKUP_KEY& key) const
 {
     return d_impl.find(key) != 0;
 }
@@ -2810,15 +2813,17 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::empty() const
 
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class K2>
+template <class LOOKUP_KEY>
 inline
-typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
 typename bsl::pair<
     typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator,
     typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator>
 >::type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(const K2& key) const
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
+                                                   const LOOKUP_KEY& key) const
 {
     typedef bsl::pair<const_iterator, const_iterator> ResultType;
 
@@ -2851,13 +2856,15 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class K2>
+template <class LOOKUP_KEY>
 inline
-typename enable_if<BloombergLP::bslmf::IsTransparentPredicate<HASH, K2>::value
-                && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,K2>::value,
+typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator>
 ::type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(const K2& key) const
+unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
+                                                   const LOOKUP_KEY& key) const
 {
     return const_iterator(d_impl.find(key));
 }

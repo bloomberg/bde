@@ -1287,8 +1287,7 @@ namespace {
 //   If it's passed an int, it returns the int
 //   If it's passed a bsl::string, it converts it to an int.
 // Note: no provisions for errors.
-struct TransparentHasher
-{
+struct TransparentHasher {
     size_t operator() (int i)    const { return i; }
     size_t operator() (bsl::string s) const { return atoi(s.c_str());}
     typedef void is_transparent;
@@ -1301,8 +1300,7 @@ struct TransparentHasher
 //   If it's passed an int, it compares using the int
 //   If it's passed a string, it converts it to an int, and compares
 // Note: no provisions for errors.
-struct TransparentComparator
-{
+struct TransparentComparator {
     size_t operator() (int i1,         int i2)         const { return i1               == i2; }
     size_t operator() (int i1,         bsl::string s2) const { return i1               == atoi(s2.c_str()); }
     size_t operator() (bsl::string s1, int i2)         const { return atoi(s1.c_str()) == i2; }
@@ -7857,16 +7855,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
     //   pair<iterator, iterator> equal_range(const key_type& key);
     //   pair<const_iter, const_iter> equal_range(const key_type&) const;
     //
-    //   template <class K2>
-    //     iterator find(const K2& key);
-    //   template <class K2>
-    //     const_iterator find(const K2& key) const;
-    //   template <class K2>
-    //     size_type count(const K2& key) const;
-    //   template <class K2>
-    //     pair<iterator, iterator> equal_range(const K2& key);
-    //   template <class K2>
-    //     pair<const_iter, const_iter> equal_range(const K2&) const;
+    //   iterator find(const LOOKUP_KEY& key);
+    //   const_iterator find(const LOOKUP_KEY& key) const;
+    //   size_type count(const LOOKUP_KEY& key) const;
+    //   pair<iterator, iterator> equal_range(const LOOKUP_KEY& key);
+    //   pair<const_iter, const_iter> equal_range(const LOOKUP_KEY&) const;
     // ------------------------------------------------------------------------
 
     if (verbose) printf("TESTING SEARCH FUNCTIONS: %s\n"
