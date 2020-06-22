@@ -1066,7 +1066,7 @@ class TestDriver {
     }
 
     static void setData(ELEMENT *target, int value)
-        // The the value of the specified '*target' to the specified 'value'.
+        // Set the value of the specified '*target' to the specified 'value'.
     {
         u::AccessData<ELEMENT>::set(target, value);
     }

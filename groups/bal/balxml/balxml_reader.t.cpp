@@ -313,10 +313,10 @@ namespace UsageExample {
     inline
     void TestReader::adjustPrefixStack()
     {
-        // Each time this object reads a 'BAEXML_NODE_TYPE_ELEMENT' node, it
-        // must push a namespace prefix onto the prefix stack to handle
-        // in-scope namespace calculations that happen inside XML documents
-        // where inner namespaces can override outer ones.
+        // Each time this object reads a 'e_NODE_TYPE_ELEMENT' node, it must
+        // push a namespace prefix onto the prefix stack to handle in-scope
+        // namespace calculations that happen inside XML documents where inner
+        // namespaces can override outer ones.
 
         if (balxml::Reader::e_NODE_TYPE_ELEMENT == d_currentNode->d_type) {
             for (int ii = 0; ii < TestNode::k_NUM_ATTRIBUTES; ++ii) {
@@ -426,7 +426,7 @@ namespace UsageExample {
 
         if (balxml::Reader::e_NODE_TYPE_NONE == nextNode->d_type) {
             // The document ends when the type of the next node is
-            // 'BAEXML_NODE_TYPE_NONE'.
+            // 'e_NODE_TYPE_NONE'.
             d_prefixes->reset();
             return 1;                                                 // RETURN
         }

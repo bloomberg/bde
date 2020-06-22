@@ -568,7 +568,7 @@ int main(int argc, char *argv[])
         //: 6 Leave the innermost loop.
         //:
         //: 7 Still in the outermost loop, create an object 'mX' initialized to
-        //:   'DATA1', and assign to to itself.
+        //:   'DATA1', and assign it to itself.
         //:
         //:   1 Verify that the address of the return value is the same as that
         //:     of 'mX'.  (C-5)

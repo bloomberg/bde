@@ -356,9 +356,9 @@ class Tokenizer {
 
     int value(bslstl::StringRef *data) const;
         // Load into the specified 'data' the value of the specified token if
-        // the current token's type is 'BAEJSN_ELEMENT_NAME' or
-        // 'BAEJSN_ELEMENT_VALUE' or leave 'data' unmodified otherwise.  Return
-        // 0 on success and a non-zero value otherwise.
+        // the current token's type is 'e_ELEMENT_NAME' or 'e_ELEMENT_VALUE' or
+        // leave 'data' unmodified otherwise.  Return 0 on success and a
+        // non-zero value otherwise.
 };
 
 // ============================================================================

@@ -437,12 +437,12 @@ int main(int argc, char *argv[])
         //   The 'sendEmptyMessage' function does not deadlock during shutdown.
         //
         // Plan:
-        //: Create a 'baea_PipeControlChannel' with a callback that triggers a
+        //: Create a 'balb_PipeControlChannel' with a callback that triggers a
         //: condition variable then waits 200 milliseconds.  Next create a
         //: thread that (after a 2 seconds) wait will send data to the pipe.
         //: Then wait on the condition variable.  Once the condition is
         //: triggered the main thread is going to destroy the
-        //: 'baea_PipeControlChannel', which opens up a window of opportunity
+        //: 'balb_PipeControlChannel', which opens up a window of opportunity
         //: to the tested (regression) race condition to occur.  The test case
         //: has been tested using the unfixed code (on Windows) and the
         //: deadlock occurs.
@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
             cout << "Skipping test case 11 on non-Windows OS..." << endl;
         }
 #else
-        const char PIPE_NAME[] = "\\\\.\\pipe\\ctrl.baea.pcctest11";
+        const char PIPE_NAME[] = "\\\\.\\pipe\\ctrl.balb.pcctest11";
         bslmt::Mutex mutex;
         bslmt::Condition condition;
         bsls::AtomicBool conditionFlag(false);
@@ -943,7 +943,7 @@ int main(int argc, char *argv[])
             bsl::string pipeName;
 
             ASSERT(0 == bdls::PipeUtil::makeCanonicalName
-                   (&pipeName, "ctrl.baea.pcctest6"));
+                   (&pipeName, "ctrl.balb.pcctest6"));
 #ifdef BSLS_PLATFORM_OS_UNIX
             unlink(pipeName.c_str());
 #endif
@@ -1028,7 +1028,7 @@ int main(int argc, char *argv[])
             bsl::string pipeName;
 
             ASSERT(0 == bdls::PipeUtil::makeCanonicalName
-                   (&pipeName, "ctrl.baea.pcctest5"));
+                   (&pipeName, "ctrl.balb.pcctest5"));
 #ifdef BSLS_PLATFORM_OS_UNIX
             unlink(pipeName.c_str());
 #endif
@@ -1084,7 +1084,7 @@ int main(int argc, char *argv[])
             bsl::string pipeName;
 
             ASSERT(0 == bdls::PipeUtil::makeCanonicalName
-                   (&pipeName, "ctrl.baea.pcctest4"));
+                   (&pipeName, "ctrl.balb.pcctest4"));
 #ifdef BSLS_PLATFORM_OS_UNIX
             unlink(pipeName.c_str());
 #endif
@@ -1123,9 +1123,9 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            const char PIPE_NAME[] = "\\\\.\\pipe\\ctrl.baea.pcctest3";
+            const char PIPE_NAME[] = "\\\\.\\pipe\\ctrl.balb.pcctest3";
 #else
-            const char PIPE_NAME[] = "/tmp/ctrl.baea.pcctest3";
+            const char PIPE_NAME[] = "/tmp/ctrl.balb.pcctest3";
             unlink(PIPE_NAME);
 #endif
 
@@ -1175,8 +1175,8 @@ int main(int argc, char *argv[])
             const char PIPE_NAME1[] = "\\\\.\\pipe\\ctrl.pcctest2-1";
             const char PIPE_NAME2[] = "\\\\.\\pipe\\ctrl.pcctest2-2";
 #else
-            const char PIPE_NAME1[] = "/tmp/ctrl.baea.pcctest2-1";
-            const char PIPE_NAME2[] = "/tmp/ctrl.baea.pcctest2-2";
+            const char PIPE_NAME1[] = "/tmp/ctrl.balb.pcctest2-1";
+            const char PIPE_NAME2[] = "/tmp/ctrl.balb.pcctest2-2";
             unlink(PIPE_NAME1);
             unlink(PIPE_NAME2);
 #endif
@@ -1234,9 +1234,9 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            const char PIPE_NAME[] = "\\\\.\\pipe\\ctrl.baea.pcctest1";
+            const char PIPE_NAME[] = "\\\\.\\pipe\\ctrl.balb.pcctest1";
 #else
-            const char PIPE_NAME[] = "/tmp/ctrl.baea.pcctest1";
+            const char PIPE_NAME[] = "/tmp/ctrl.balb.pcctest1";
             unlink(PIPE_NAME);
 #endif
 

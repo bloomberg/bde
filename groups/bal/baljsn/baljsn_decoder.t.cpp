@@ -36845,7 +36845,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 For each row in the tables of P-1:
         //:
-        //:   1 Create a 'baejsn_Decoder' object.
+        //:   1 Create a 'baljsn_Decoder' object.
         //:
         //:   2 Create a 'bsl::istringstream' object with the JSON text.
         //:

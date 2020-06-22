@@ -1594,7 +1594,7 @@ int main(int argc, char *argv[]) {
         //:
         //: 3 Verify the number of enqueued, processed, and deleted jobs in
         //:   P-2 to ensure no jobs were lost.  Use 'numQueues' and
-        //:   'numElements' to verify the the queue no longer exists.  (C-3)
+        //:   'numElements' to verify the queue no longer exists.  (C-3)
         //:
         //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
         //

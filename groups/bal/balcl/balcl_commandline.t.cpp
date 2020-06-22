@@ -1288,10 +1288,10 @@ int generateTestData(bsl::vector<OptionInfo>  *options,
     // Load into the specified 'options' a sequence of 'OptionInfo' objects
     // generated from the global tables of representative values
     // 'OPTION_TYPEINFO', 'OPTION_OCCURRENCE', and 'OPTION_DEFAULT_VALUES' (see
-    // {Input Tables}).  Load into the the specified 'numBaseOptions' the
-    // number of generated options.  The following sequences of options can be
-    // validly used to construct a 'balcl::CommandLine' object' where 'i' is in
-    // the range '[0 .. numBaseOptions)':
+    // {Input Tables}).  Load into the specified 'numBaseOptions' the number of
+    // generated options.  The following sequences of options can be validly
+    // used to construct a 'balcl::CommandLine' object' where 'i' is in the
+    // range '[0 .. numBaseOptions)':
     //: o Single option
     //:   o 'option[i]'
     //: o Double option

@@ -380,13 +380,13 @@ int main(int argc, char *argv[])
         //: 2 When a log record is produced, examine it to verify that it
         //:   contains a method name expected to be in the stack trace. (C-2)
         //:
-        //: 3 Set up a callback that returns 'BAEL_FATAL' and verify that a
-        //:   record is logged on assertion failure.  Set up a callback that
-        //:   returns 'BAEL_WARN' and verify that a record is not logged on
-        //:   assertion failure. (C-3)
+        //: 3 Set up a callback that returns 'e_FATAL' and verify that a record
+        //:   is logged on assertion failure.  Set up a callback that returns
+        //:   'e_WARN' and verify that a record is not logged on assertion
+        //:   failure. (C-3)
         //:
         //: 4 Set the 'ball::LoggerManager' pass threshold to 255 (meaning
-        //:   all), set the defualt log severity to 'BAEL_OFF', trigger an
+        //:   all), set the defualt log severity to 'e_OFF', trigger an
         //:   assertion, and verify that a record is not logged.  (C-4)
         //
         // Testing:
@@ -504,7 +504,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == cb);
         ASSERT(0 == cl);
 
-        if (veryVerbose) { T_ cout << "BAEL_OFF disables tracing" << endl; }
+        if (veryVerbose) { T_ cout << "e_OFF disables tracing" << endl; }
         ball::LoggerManager::singleton().setDefaultThresholdLevels(
                                                                  0, 255, 0, 0);
         balst::AssertionLogger::setDefaultLogSeverity(

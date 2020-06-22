@@ -50,7 +50,7 @@
 :      Provide push parser for Base64 types.
 :
 : 'balxml_configschema':
-:      Provide the 'baexml' schema.
+:      Provide the 'balxml' schema.
 :
 : 'balxml_decoder':
 :      Provide a generic translation from XML into C++ objects.
