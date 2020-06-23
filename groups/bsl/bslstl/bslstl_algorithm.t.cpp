@@ -24,13 +24,12 @@
 // ----------------------------------------------------------------------------
 // The component under test provides implementations for algorithms not
 // provided by the underlying standard library implementation.
-//
 // ----------------------------------------------------------------------------
 //
-// ----------------------------------------------------------------------------
 // [ 1] bool all_of (InputIter first, InputIter last, PREDICATE pred);
 // [ 1] bool any_of (InputIter first, InputIter last, PREDICATE pred);
 // [ 1] bool none_of(InputIter first, InputIter last, PREDICATE pred);
+// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -120,16 +119,16 @@ struct IsOdd {
     typedef bool result_type;
 
     // ACCESSORS
-    // Return 'true' if the specified 'value' is odd, and 'false' otherwise.
     result_type operator()(argument_type value) const
+        // Return 'true' if 'value' is odd, and 'false' otherwise.
     {
         return (value % 2) != 0;
     }
 };
 
-// A function that (as opposed to a functor)
-// Return 'true' if the specified 'value' is even, and 'false' otherwise.
 bool isEven(int value)
+    // A function that (as opposed to a functor) that
+    // returns 'true' if 'value' is even, and 'false' otherwise.
 {
     return (value % 2) == 0;
 }
@@ -156,8 +155,7 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        //: 1 
         //
         // Plan:
         //: 1 Run each method with an empty input range and verify that the
@@ -168,7 +166,10 @@ int main(int argc, char *argv[])
         //:   the behavior is as expected.
         //
         // Testing:
-        //   BREATHING TEST
+        //   FUNCTIONALITY TEST
+        // [ 1] bool all_of (InputIter first, InputIter last, PREDICATE pred);
+        // [ 1] bool any_of (InputIter first, InputIter last, PREDICATE pred);
+        // [ 1] bool none_of(InputIter first, InputIter last, PREDICATE pred);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFUNCTIONALITY TEST"

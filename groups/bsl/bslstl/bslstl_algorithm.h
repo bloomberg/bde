@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide implementations for algorithms not in the system library
+//@PURPOSE: Provide implementations for algorithms not in the system library.
 //
 //@CLASSES:
 //
@@ -14,9 +14,8 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_algorithm.h>' instead.  This component provides a namespace for
 // implementations for standard algorithms that are not provided by the
-// underlying standard library implementation.
-// For example, 'any_of' is a C++11 algorithm, and it is provided here for code
-// using C++03.
+// underlying standard library implementation. For example, 'any_of' is a C++11
+// algorithm, and it is provided here for code using C++03.
 //
 ///Usage
 ///-----
@@ -37,43 +36,46 @@ namespace bsl {
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
-// Provide an implementation for 'all_of' if we're using a pre-C++11 standard
-// library implementation.
 template <class InputIter, class PREDICATE>
 bool all_of(InputIter first, InputIter last, PREDICATE pred)
+    // Returns: 'true' if [first, last) is empty or if pred(*i) is true for
+    // every iterator i in the range [first, last), and 'false' otherwise.
+    // Complexity: At most last - first applications of the predicate.
 {
     for (; first != last; ++first) {
         if (!pred(*first)) {
-            return false;
-            }
+            return false;                                             // RETURN
         }
+     }
     return true;
 }
 
-// Provide an implementation for 'any_of' if we're using a pre-C++11 standard
-// library implementation.
 template <class InputIter, class PREDICATE>
 bool any_of(InputIter first, InputIter last, PREDICATE pred)
+    // Returns: 'false' if [first, last) is empty or if there is no iterator i
+    // in the range [first, last) such that pred(*i) is true, and 'true'
+    // otherwise.
+    // Complexity: At most last - first applications of the predicate.
 {
     for (; first != last; ++first) {
         if (pred(*first)) {
-            return true;
-            }
+            return true;                                              // RETURN
         }
+    }
     return false;
 }
 
-
-// Provide an implementation for 'none_of' if we're using a pre-C++11 standard
-// library implementation.
 template <class InputIter, class PREDICATE>
 bool none_of(InputIter first, InputIter last, PREDICATE pred)
+    // Returns: 'true' if [first, last) is empty or if pred(*i) is false for
+    // every iterator i in the range [first, last), and 'false' otherwise.
+    // Complexity: At most last - first applications of the predicate.
 {
     for (; first != last; ++first) {
         if (pred(*first)) {
-            return false;
-            }
+            return false;                                             // RETURN
         }
+    }
     return true;
 }
 
