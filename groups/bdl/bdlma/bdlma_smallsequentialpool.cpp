@@ -53,16 +53,20 @@ bsl::size_t SmallSequentialPool::calculateNextBufferSize(bsl::size_t size)
         return nextSize;                                              // RETURN
     }
 
-    bsl::size_t oldSize;
-    do {
-        oldSize   = nextSize;
-        nextSize *= k_GROWTH_FACTOR;
-    } while (nextSize < size && oldSize < nextSize);
+    if (0 == bufferSize && size <= nextSize) {
+        ;  // First allocation satisfied by initial size.
+    } else {
+        bsl::size_t oldSize;
+        do {
+            oldSize   = nextSize;
+            nextSize *= k_GROWTH_FACTOR;
+        } while (nextSize < size && oldSize < nextSize);
 
-    // If 'nextSize' overflows, use 'oldSize'.
+        // If 'nextSize' overflows, use 'oldSize'.
 
-    if (oldSize >= nextSize) {
-        nextSize = oldSize;
+        if (oldSize >= nextSize) {
+            nextSize = oldSize;
+        }
     }
 
     return nextSize <= d_maxBufferSize ? nextSize : d_maxBufferSize;
