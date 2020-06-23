@@ -59,7 +59,7 @@ bsl::size_t SmallSequentialPool::calculateNextBufferSize(bsl::size_t size)
         bsl::size_t oldSize;
         do {
             oldSize   = nextSize;
-            nextSize *= k_GROWTH_FACTOR;
+            nextSize *= static_cast<bsl::size_t>(k_GROWTH_FACTOR);
         } while (nextSize < size && oldSize < nextSize);
 
         // If 'nextSize' overflows, use 'oldSize'.
