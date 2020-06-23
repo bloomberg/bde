@@ -283,7 +283,7 @@ int BitUtil::numBitsSet(uint64_t value)
     return __builtin_popcountll(value);
 #elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
     #if defined(BSLS_PLATFORM_CPU_64_BIT)
-        return __popcnt64(value);
+        return static_cast<int>(__popcnt64(value));
     #else
         // '__popcnt64' available only in 64bit target
         return __popcnt(static_cast<uint32_t>(value)) +
