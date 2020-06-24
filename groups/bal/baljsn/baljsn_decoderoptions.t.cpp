@@ -1373,7 +1373,7 @@ int main(int argc, char *argv[])
 
         const int   D1   = 32;                   // 'maxDepth'
         const bool  D2   = true;                 // 'skipUnknownElements'
-        const bool  D3   = false;
+        const bool  D3   = false;                // 'validateInputIsUtf8'
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;

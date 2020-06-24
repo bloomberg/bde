@@ -74,7 +74,7 @@ int Tokenizer::reloadStringBuffer()
     d_stringBuffer.resize(k_MAX_STRING_SIZE);
 
     bsl::size_t numRead;
-    if (d_readStatus) {
+    if (d_readStatus || d_bufEndStatus) {
         numRead = 0;
     }
     else if (d_allowNonUTF8Tokens) {
@@ -83,21 +83,25 @@ int Tokenizer::reloadStringBuffer()
                                                            k_MAX_STRING_SIZE));
     }
     else {
-        numRead = bdlde::Utf8Util::readIfValid(&d_readStatus,
+        int sts = 0;
+        numRead = bdlde::Utf8Util::readIfValid(&sts,
                                                &d_stringBuffer[0],
                                                k_MAX_STRING_SIZE,
                                                d_streambuf_p);
-        if (0 < d_readStatus) {
+        if (0 < sts) {
             // should be buffer full
 
             BSLS_ASSERT(k_MAX_STRING_SIZE < numRead + 4);
-
-            d_readStatus = 0;
+        }
+        else if (sts < 0) {
+            d_bufEndStatus = sts;
         }
     }
 
     if (0 == d_readStatus && 0 == numRead) {
-        d_readStatus = k_EOF;
+        d_readStatus = 0 == d_bufEndStatus
+                     ? k_EOF
+                     : d_bufEndStatus;
     }
 
     d_readOffset += numRead;
@@ -112,7 +116,7 @@ int Tokenizer::expandBufferForLargeValue()
     d_stringBuffer.resize(currLength + k_MAX_STRING_SIZE);
 
     bsl::size_t numRead;
-    if (d_readStatus) {
+    if (d_readStatus || d_bufEndStatus) {
         numRead = 0;
     }
     else if (d_allowNonUTF8Tokens) {
@@ -121,21 +125,25 @@ int Tokenizer::expandBufferForLargeValue()
                                                   k_MAX_STRING_SIZE));
     }
     else {
-        numRead = bdlde::Utf8Util::readIfValid(&d_readStatus,
+        int sts = 0;
+        numRead = bdlde::Utf8Util::readIfValid(&sts,
                                                &d_stringBuffer[d_valueIter],
                                                k_MAX_STRING_SIZE,
                                                d_streambuf_p);
-        if (0 < d_readStatus) {
+        if (0 < sts) {
             // should be buffer full
 
             BSLS_ASSERT(k_MAX_STRING_SIZE < numRead + 4);
-
-            d_readStatus = 0;
+        }
+        else if (sts < 0) {
+            d_bufEndStatus = sts;
         }
     }
 
-    if (0 == numRead && 0 == d_readStatus) {
-        d_readStatus = k_EOF;
+    if (0 == d_readStatus && 0 == numRead) {
+        d_readStatus = 0 == d_bufEndStatus
+                     ? k_EOF
+                     : d_bufEndStatus;
     }
 
     d_readOffset += numRead;
@@ -153,7 +161,7 @@ int Tokenizer::moveValueCharsToStartAndReloadBuffer()
     d_valueBegin = 0;
 
     bsl::size_t numRead;
-    if (d_readStatus) {
+    if (d_readStatus || d_bufEndStatus) {
         numRead = 0;
     }
     else if (d_allowNonUTF8Tokens) {
@@ -162,21 +170,25 @@ int Tokenizer::moveValueCharsToStartAndReloadBuffer()
                                              k_MAX_STRING_SIZE - d_valueIter));
     }
     else {
-        numRead = bdlde::Utf8Util::readIfValid(&d_readStatus,
+        int sts = 0;
+        numRead = bdlde::Utf8Util::readIfValid(&sts,
                                                &d_stringBuffer[d_valueIter],
                                                k_MAX_STRING_SIZE - d_valueIter,
                                                d_streambuf_p);
-        if (0 < d_readStatus) {
+        if (0 < sts) {
             // should be buffer full
 
             BSLS_ASSERT(k_MAX_STRING_SIZE - d_valueIter < numRead + 4);
-
-            d_readStatus = 0;
+        }
+        else if (sts < 0) {
+            d_bufEndStatus = sts;
         }
     }
 
     if (0 == d_readStatus && 0 == numRead) {
-        d_readStatus = k_EOF;
+        d_readStatus = 0 == d_bufEndStatus
+                     ? k_EOF
+                     : d_bufEndStatus;
     }
 
     d_readOffset += numRead;
@@ -662,6 +674,7 @@ int Tokenizer::resetStreamBufGetPointer()
                                                             bsl::ios_base::in);
     if (numExtraCharsRead) {
         d_readStatus = 0;
+        d_bufEndStatus = 0;
     }
 
     return newPos >= 0 ? 0 : -1;

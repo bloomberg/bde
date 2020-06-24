@@ -28,6 +28,9 @@ BSLS_IDENT("$Id: $")
 //: o 'maxDepth': maximum depth of the decoded data
 //:
 //: o 'skipUnknownElements': flag specifying if unknown elements are skipped
+//:
+//: o 'validateInputIsUtf8': flag specifying whether UTF-8 correctness checking
+//:   is enabled.
 //
 ///Implementation Note
 ///- - - - - - - - - -

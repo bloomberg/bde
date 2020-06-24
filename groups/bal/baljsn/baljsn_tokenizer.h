@@ -234,9 +234,15 @@ class Tokenizer {
 
     bsl::vector<char>   d_contextStack;     // context type stack
 
-    int                 d_readStatus;       // status of last read from
-                                            // '*d_streambuf_p'.  Returned by
-                                            // 'readStatus()'
+    int                 d_readStatus;       // 0 until EOF or an error is
+                                            // encountered, then indicates
+                                            // nature of error.  Returned by
+                                            // 'readStatus'
+
+    int                 d_bufEndStatus;     // status of last read from
+                                            // '*d_streambuf_p'.  If non-zero,
+                                            // opied to 'd_readStatus' on next
+                                            // read attempt.
 
     bool                d_allowStandAloneValues;
                                             // option for allowing stand alone
@@ -323,7 +329,7 @@ class Tokenizer {
         // Note that the reader will not be on a valid node until
         // 'advanceToNextToken' is called.  Note that this function does not
         // change the value of the 'allowStandAloneValues',
-        // 'd_allowHeterogenousArrays', or 'd_allowNonUTF8Tokens' options.
+        // 'allowHeterogenousArrays', or 'allowNonUTF8Tokens' options.
 
     int advanceToNextToken();
         // Move to the next token in the data steam.  Return 0 on success and a
@@ -382,27 +388,20 @@ class Tokenizer {
 
     bsls::Types::Uint64 readOffset() const;
         // If end of file or bad UTF-8 is encountered, the position in the
-        // 'streambuf' of the beginning of the end of file or the bad UTF-8
-        // sequence.  If the 'streambuf' is not seekable, there is no way for
-        // this 'Tokenizer' object to know the position in the 'streambuf', in
-        // which case the object will assume that the 'streambuf' was at
-        // location 0 when 'reset' was called.
+        // 'streambuf' of the end of file of the beginning of the bad UTF-8
+        // sequence.  The position will be relative to the position when
+        // 'reset' was called.
 
     int readStatus() const;
-        // The status of the last read from the 'streambuf'.
-        //: o Zero if success.
+        // The status of the last read from the 'Tokenizer'.
+        //: o 0 if a token was read.
         //:
-        //: o negative if UTF-8 error, according to
-        //:   'bdlde::Utf8Util:: ErrorStatus'
+        //: o 'k_EOF' (which is positive) if no data could be read before EOF.
         //:
-        //: o +1 if no data could be read before EOF
-        // Note that, usually, each read from the 'streambuf' loads a large
-        // amount of data into the buffer.  If bad UTF-8 occurs anywhere by the
-        // read, there could still be kilobytes of good data in the bufer, but
-        // 'readStatus' will reflect the UTF-8 problem, even while
-        // 'advanceToNextToken' is succeeding at reading data kilobytes before
-        // the problem, so this funciton and 'readOffset' should only be called
-        // when the client is not able to get more data.
+        //: o negative if the 'validateInputIsUtf8' option is 'true' and a
+        //:   UTF-8 error occurred, the specific value according to the
+        //:   'bdlde::Utf8Util:: ErrorStatus' 'enum' type indicating the nature
+        //:   of the UTF-8 error.
 
     TokenType tokenType() const;
         // Return the token type of the current token.
@@ -462,6 +461,7 @@ Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
 , d_tokenType(e_BEGIN)
 , d_contextStack(200, &d_stackAllocator)
 , d_readStatus(0)
+, d_bufEndStatus(0)
 , d_allowStandAloneValues(true)
 , d_allowHeterogenousArrays(true)
 , d_allowNonUTF8Tokens(true)
@@ -480,19 +480,16 @@ Tokenizer::~Tokenizer()
 inline
 void Tokenizer::reset(bsl::streambuf *streambuf)
 {
-    d_streambuf_p = streambuf;
+    d_streambuf_p  = streambuf;
     d_stringBuffer.clear();
-    d_cursor      = 0;
-    d_valueBegin  = 0;
-    d_valueEnd    = 0;
-    d_valueIter   = 0;
-    d_tokenType   = e_BEGIN;
-    d_readStatus  = 0;
-
-    bsl::streamoff pos = d_streambuf_p->pubseekoff(0,
-                                                   bsl::ios_base::cur,
-                                                   bsl::ios_base::in);
-    d_readOffset = 0 <= pos ? pos : 0;
+    d_cursor       = 0;
+    d_valueBegin   = 0;
+    d_valueEnd     = 0;
+    d_valueIter    = 0;
+    d_readOffset   = 0;
+    d_tokenType    = e_BEGIN;
+    d_readStatus   = 0;
+    d_bufEndStatus = 0;
 
     d_contextStack.clear();
     pushContext(e_OBJECT_CONTEXT);
