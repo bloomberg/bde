@@ -250,6 +250,11 @@
 // [36] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 // [37] CONCERN: 'bslmf::MovableRef<T>' does not escape (in C++03 mode).
 // [38] CONCERN: 'erase' overload is deduced correctly.
+// [39] CONCERN: 'find'        properly handles transparent comparators.
+// [39] CONCERN: 'count'       properly handles transparent comparators.
+// [39] CONCERN: 'lower_bound' properly handles transparent comparators.
+// [39] CONCERN: 'upper_bound' properly handles transparent comparators.
+// [39] CONCERN: 'equal_range' properly handles transparent comparators.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS

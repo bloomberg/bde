@@ -179,6 +179,11 @@
 // [23] CONCERN: The object has the necessary type traits
 // [25] CONCERN: The type provides the full interface defined by the standard.
 // [33] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [34] CONCERN: 'find'        properly handles transparent comparators.
+// [34] CONCERN: 'count'       properly handles transparent comparators.
+// [34] CONCERN: 'lower_bound' properly handles transparent comparators.
+// [34] CONCERN: 'upper_bound' properly handles transparent comparators.
+// [34] CONCERN: 'equal_range' properly handles transparent comparators.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
