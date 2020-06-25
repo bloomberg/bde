@@ -516,6 +516,9 @@ class SmallSequentialPool {
 
     bsl::size_t         d_maxBufferSize;   // maximum internal buffer size
 
+    bsl::size_t         d_geometricSize;   // latest geometric growth
+                                           // allocation
+
     InfrequentDeleteBlockList
                         d_blockList;       // memory manager used to supply
                                            // dynamically-allocated memory
@@ -541,10 +544,12 @@ class SmallSequentialPool {
         // returned.
 
     // PRIVATE ACCESSORS
-    bsl::size_t calculateNextBufferSize(bsl::size_t size) const;
+    bsl::size_t calculateNextBufferSize(bsl::size_t size);
         // Return the next buffer size (in bytes) that is sufficiently large to
         // satisfy a memory allocation request of the specified 'size' (in
         // bytes), or the maximum buffer size if the buffer can no longer grow.
+        // Update 'd_geometricSize' when the geometric growth strategy is
+        // used.
 
   public:
     // CREATORS
