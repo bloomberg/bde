@@ -12,7 +12,7 @@
 #include <bsls_types.h>
 
 #include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdlib.h>     // 'atoi', 'rand'
 #include <string.h>     // 'strlen'
 
 using namespace BloombergLP;
@@ -208,8 +208,6 @@ typedef bslma::TestAllocatorMonitor Tam;
     inline
     MyClass::~MyClass()
     {
-        BSLS_ASSERT_SAFE(0 <= d_capacity);
-
         d_allocator_p->deallocate(d_description_p);
     }
 
@@ -972,7 +970,7 @@ int main(int argc, char *argv[])
         {
             Ta    ta1("ta1", veryVeryVeryVerbose);  // Do not use yet.
             Ta    ta2("ta2", veryVeryVeryVerbose);
-            void *p2  = ta2.allocate((bsls::Types::size_type) &ta2 & 0xFFFF);
+            void *p2  = ta2.allocate(100 + (rand() & 0xFFF));
 
             const struct {
                 int   d_line;
@@ -999,7 +997,7 @@ int main(int argc, char *argv[])
                 ASSERT(tam.isInUseSame());
                 ASSERT(tam.isMaxSame());
 
-                void *p = TA.allocate((bsls::Types::size_type) &TA & 0xFFFF);
+                void *p = TA.allocate(100 + (rand() & 0xFFF));
 
                 ASSERT(tam.isTotalUp());
                 ASSERT(tam.isInUseUp());
