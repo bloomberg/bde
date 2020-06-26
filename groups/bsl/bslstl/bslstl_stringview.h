@@ -229,7 +229,8 @@ using native_std::operator>=;
 
 }
 #define BSLSTL_STRING_VIEW_IS_ALIASED
-
+#else
+#error "Must be at least c++17"
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #endif  // BDE_DISABLE_CPP17_ABI
 
