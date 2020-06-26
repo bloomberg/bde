@@ -1049,9 +1049,9 @@ int main(int argc, char *argv[])
         double *d = new(mX) double(3.0);
         (void)d;
 
-        ASSERT(0 != objectAllocator.numBytesInUse());
+        ASSERT(0 !=  objectAllocator.numBytesInUse());
         ASSERT(0 == defaultAllocator.numBytesInUse());
-        ASSERT(0 == globalAllocator.numBytesInUse());
+        ASSERT(0 ==  globalAllocator.numBytesInUse());
 
       } break;
       case 9: {
@@ -1690,7 +1690,7 @@ int main(int argc, char *argv[])
                        strategy <= bsls::Alignment::BSLS_BYTEALIGNED;
                        strategy = (Strat)(strategy + 1)) {
 
-                bslma::TestAllocator ta(veryVeryVerbose);
+                bslma::TestAllocator ta(veryVeryVeryVerbose);
 
                 Obj mX(BUFSIZE, CON, strategy, &ta);
                 ASSERT(1 == ta.numBlocksInUse());
@@ -1831,10 +1831,10 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(i) P(SIZE) }
 
-                bslma::TestAllocator ta(veryVeryVerbose),
-                                     tb(veryVeryVerbose),
-                                     tc(veryVeryVerbose),
-                                     td(veryVeryVerbose);
+                bslma::TestAllocator ta(veryVeryVeryVerbose),
+                                     tb(veryVeryVeryVerbose),
+                                     tc(veryVeryVeryVerbose),
+                                     td(veryVeryVeryVerbose);
 
                 Obj mV(     &ta);
                 Obj mW(MAX, &tb);
@@ -1897,18 +1897,22 @@ int main(int argc, char *argv[])
                 const int NUM_INITIAL_SIZES = sizeof  INITIAL_SIZES
                                             / sizeof *INITIAL_SIZES;
 
+                if (veryVerbose) {
+                    T_ P_(i) P(SIZE)
+                }
+
                 for (int j = 0; j < NUM_INITIAL_SIZES; ++j) {
                     const int                         INITIAL_SIZE =
                                                               INITIAL_SIZES[j];
                     const bsls::BlockGrowth::Strategy STRATEGY     =  STRAT[j];
 
-                    bslma::TestAllocator ta(veryVeryVerbose),
-                                         tb(veryVeryVerbose),
-                                         tc(veryVeryVerbose),
-                                         td(veryVeryVerbose);
+                    bslma::TestAllocator ta(veryVeryVeryVerbose),
+                                         tb(veryVeryVeryVerbose),
+                                         tc(veryVeryVeryVerbose),
+                                         td(veryVeryVeryVerbose);
 
                     if (veryVerbose) {
-                        P(INITIAL_SIZE) P(SIZE)
+                        T_ T_ P_(j) P_(STRATEGY) P(INITIAL_SIZE)
                     }
 
                     Obj mV(INITIAL_SIZE, STRATEGY,      &ta);
@@ -1945,8 +1949,10 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(i, ND + blockSize(nextSize)
                                                         == td.numBytesInUse());
                     }
-                    else {
+                    else {  // constant-growth strategy
                         if (0 == INITIAL_SIZE && SIZE < k_DEFAULT_SIZE) {
+                            BSLS_ASSERT(!"Reached");
+
                             LOOP_ASSERT(i, NA + blockSize(k_DEFAULT_SIZE)
                                                         == ta.numBytesInUse());
                             LOOP_ASSERT(i, NB + blockSize(k_DEFAULT_SIZE)
@@ -1956,7 +1962,7 @@ int main(int argc, char *argv[])
                             LOOP_ASSERT(i, ND + blockSize(k_DEFAULT_SIZE)
                                                         == td.numBytesInUse());
                         }
-                        else {
+                        else if (SIZE <= INITIAL_SIZE) {
                             LOOP_ASSERT(i, NA + blockSize(SIZE)
                                                         == ta.numBytesInUse());
                             LOOP_ASSERT(i, NB + blockSize(SIZE)
@@ -1964,6 +1970,20 @@ int main(int argc, char *argv[])
                             LOOP_ASSERT(i, NC + blockSize(SIZE)
                                                         == tc.numBytesInUse());
                             LOOP_ASSERT(i, ND + blockSize(SIZE)
+                                                        == td.numBytesInUse());
+                        }
+                        else {  // constant-growth going geometric
+                            int nextSize = calculateNextSize(INITIAL_SIZE,
+                                                             SIZE);
+                            LOOP3_ASSERT(i, NA + blockSize(nextSize),
+                                         ta.numBytesInUse(),
+                                         NA + blockSize(nextSize)
+                                                        == ta.numBytesInUse());
+                            LOOP_ASSERT(i, NB + blockSize(nextSize)
+                                                        == tb.numBytesInUse());
+                            LOOP_ASSERT(i, NC + blockSize(nextSize)
+                                                        == tc.numBytesInUse());
+                            LOOP_ASSERT(i, ND + blockSize(nextSize)
                                                         == td.numBytesInUse());
                         }
                     }
@@ -1979,7 +1999,7 @@ int main(int argc, char *argv[])
                 const int SIZE = DATA[i];
 
                 if (veryVerbose) {
-                    T_ P(SIZE)
+                    T_ P_(i) P(SIZE)
                 }
 
                 const int INITIAL_SIZES[] = { SIZE - 1, SIZE, SIZE + 1,
@@ -2003,13 +2023,13 @@ int main(int argc, char *argv[])
                                                               INITIAL_SIZES[j];
                     const bsls::BlockGrowth::Strategy STRATEGY = STRATEGIES[j];
 
-                    bslma::TestAllocator ta(veryVeryVerbose),
-                                         tb(veryVeryVerbose),
-                                         tc(veryVeryVerbose),
-                                         td(veryVeryVerbose);
+                    bslma::TestAllocator ta(veryVeryVeryVerbose),
+                                         tb(veryVeryVeryVerbose),
+                                         tc(veryVeryVeryVerbose),
+                                         td(veryVeryVeryVerbose);
 
                     if (veryVerbose) {
-                        T_ T_ P_(INITIAL_SIZE) P(SIZE)
+                        T_ T_ P_(j) P_(INITIAL_SIZE) P(SIZE)
                     }
 
                     const int NUM_MAX_SIZES = 3;
@@ -2078,15 +2098,45 @@ int main(int argc, char *argv[])
                                                         == td.numBytesInUse());
                                 }
                             }
-                            else {
-                                LOOP_ASSERT(i, NA + blockSize(ALLOC_SIZE)
+                            else {  // constant-growth strategy
+                                if (ALLOC_SIZE <= INITIAL_SIZE // pool  block
+                                 || ALLOC_SIZE >  MAX_SIZE     // large block
+                                                ) {
+                                    LOOP_ASSERT(i, NA + blockSize(ALLOC_SIZE)
                                                         == ta.numBytesInUse());
-                                LOOP_ASSERT(i, NB + blockSize(ALLOC_SIZE)
+                                    LOOP_ASSERT(i, NB + blockSize(ALLOC_SIZE)
                                                         == tb.numBytesInUse());
-                                LOOP_ASSERT(i, NC + blockSize(ALLOC_SIZE)
+                                    LOOP_ASSERT(i, NC + blockSize(ALLOC_SIZE)
                                                         == tc.numBytesInUse());
-                                LOOP_ASSERT(i, ND + blockSize(ALLOC_SIZE)
+                                    LOOP_ASSERT(i, ND + blockSize(ALLOC_SIZE)
                                                         == td.numBytesInUse());
+                                }
+                                else { // constant-growth going geometric
+                                    int nextSize = calculateNextSize(
+                                                                  INITIAL_SIZE,
+                                                                  ALLOC_SIZE);
+                                    if (veryVeryVerbose) {
+                                        T_ T_ T_ T_ P_(nextSize)
+                                                    P(blockSize(nextSize))
+                                        typedef bsls::Types::Int64 Int64;
+                                        Int64 diffA = ta.numBytesInUse() - NA;
+                                        Int64 diffB = tb.numBytesInUse() - NB;
+                                        Int64 diffC = tc.numBytesInUse() - NC;
+                                        Int64 diffD = td.numBytesInUse() - ND;
+                                        T_ T_ T_ T_ P_(diffA)
+                                                    P_(diffB)
+                                                    P_(diffC)
+                                                    P(diffD)
+                                    }
+                                    LOOP_ASSERT(i, NA + blockSize(nextSize)
+                                                        == ta.numBytesInUse());
+                                    LOOP_ASSERT(i, NB + blockSize(nextSize)
+                                                        == tb.numBytesInUse());
+                                    LOOP_ASSERT(i, NC + blockSize(nextSize)
+                                                        == tc.numBytesInUse());
+                                    LOOP_ASSERT(i, ND + blockSize(nextSize)
+                                                        == td.numBytesInUse());
+                                }
                             }
                         }
                     }
@@ -2682,7 +2732,7 @@ int main(int argc, char *argv[])
         const int DATA[] = { 0, 1, 5, 12, 24, 64, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma::TestAllocator             a(veryVeryVerbose);
+        bslma::TestAllocator             a(veryVeryVeryVerbose);
         bdlma::InfrequentDeleteBlockList bl(&a);
 
         for (int i = 0; i < NUM_DATA; ++i) {
