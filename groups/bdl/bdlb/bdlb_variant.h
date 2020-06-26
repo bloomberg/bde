@@ -7501,14 +7501,14 @@ inline
 TYPE& VariantImp<TYPES>::createInPlace()
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator());
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator());
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
@@ -7517,15 +7517,15 @@ inline
 TYPE& VariantImp<TYPES>::createInPlace(const A1& a1)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator(),
-                     a1);
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator(),
+                                       a1);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
@@ -7534,15 +7534,15 @@ inline
 TYPE& VariantImp<TYPES>::createInPlace(const A1& a1, const A2& a2)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator(),
-                     a1, a2);
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator(),
+                                       a1, a2);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
@@ -7552,15 +7552,15 @@ TYPE& VariantImp<TYPES>::createInPlace(
                                       const A1& a1, const A2& a2, const A3& a3)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator(),
-                     a1, a2, a3);
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator(),
+                                       a1, a2, a3);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
@@ -7570,15 +7570,15 @@ TYPE& VariantImp<TYPES>::createInPlace(
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator(),
-                     a1, a2, a3, a4);
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator(),
+                                       a1, a2, a3, a4);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
@@ -7589,15 +7589,15 @@ TYPE& VariantImp<TYPES>::createInPlace(
                         const A5& a5)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator(),
-                     a1, a2, a3, a4, a5);
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator(),
+                                       a1, a2, a3, a4, a5);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
@@ -7609,15 +7609,15 @@ TYPE& VariantImp<TYPES>::createInPlace(
                         const A5& a5, const A6& a6)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator(),
-                     a1, a2, a3, a4, a5, a6);
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator(),
+                                       a1, a2, a3, a4, a5, a6);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
@@ -7629,15 +7629,15 @@ TYPE& VariantImp<TYPES>::createInPlace(
                         const A5& a5, const A6& a6, const A7& a7)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator(),
-                     a1, a2, a3, a4, a5, a6, a7);
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator(),
+                                       a1, a2, a3, a4, a5, a6, a7);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
@@ -7649,15 +7649,15 @@ TYPE& VariantImp<TYPES>::createInPlace(
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator(),
-                     a1, a2, a3, a4, a5, a6, a7, a8);
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator(),
+                                       a1, a2, a3, a4, a5, a6, a7, a8);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
@@ -7670,15 +7670,15 @@ TYPE& VariantImp<TYPES>::createInPlace(
                         const A9& a9)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator(),
-                     a1, a2, a3, a4, a5, a6, a7, a8, a9);
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator(),
+                                       a1, a2, a3, a4, a5, a6, a7, a8, a9);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
@@ -7691,15 +7691,16 @@ TYPE& VariantImp<TYPES>::createInPlace(
                        const A9& a9, const A10& a10)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator(),
-                     a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator(),
+                                       a1, a2, a3, a4, a5, a6, a7, a8, a9,
+                                                                          a10);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
@@ -7713,15 +7714,16 @@ TYPE& VariantImp<TYPES>::createInPlace(
                      const A9& a9, const A10& a10, const A11& a11)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator(),
-                     a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator(),
+                                       a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
+                                                                          a11);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
@@ -7736,15 +7738,16 @@ TYPE& VariantImp<TYPES>::createInPlace(
                     const A12& a12)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator(),
-                     a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator(),
+                                       a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
+                                                                     a11, a12);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
@@ -7759,15 +7762,16 @@ TYPE& VariantImp<TYPES>::createInPlace(
                    const A12& a12, const A13& a13)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator(),
-                     a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator(),
+                                       a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
+                                                                a11, a12, a13);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
@@ -7782,16 +7786,16 @@ TYPE& VariantImp<TYPES>::createInPlace(
                    const A12& a12, const A13& a13, const A14& a14)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
+    BufferType& bufR = *reinterpret_cast<BufferType *>(&this->d_value);
 
     reset();
-    bslma::ConstructionUtil::construct(
-                     reinterpret_cast<BufferType *>(&this->d_value)->address(),
-                     this->getAllocator(),
-                     a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13,
-                     a14);
+    bslma::ConstructionUtil::construct(bufR.address(),
+                                       this->getAllocator(),
+                                       a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
+                                                           a11, a12, a13, a14);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
 
-    return reinterpret_cast<BufferType *>(&this->d_value)->object();
+    return bufR.object();
 }
 
 template <class TYPES>
