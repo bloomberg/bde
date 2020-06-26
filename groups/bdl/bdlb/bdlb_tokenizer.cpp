@@ -183,45 +183,7 @@ TokenizerIterator& TokenizerIterator::operator++()
         int currentState = TOKEN;
         int inputType;
 
-        do {
-            if (d_end_p == d_cursor_p) {
-                return *this;                                         // RETURN
-            }
-
-            inputType = d_sharedData_p->inputType(*d_cursor_p);
-
-            switch (actionTable[inputType][currentState]) {
-              case ACC_TOKEN: {  // accumulate token
-                ++d_postDelim_p;
-              } break;
-              case ACC_DELIM: {  // accumulate delimiter
-                // Nothing to do.
-              } break;
-              case STOP: {       // stop parsing and return result
-                return *this;                                         // RETURN
-              } break;
-            }
-
-            currentState = stateTable[inputType][currentState];
-            ++d_cursor_p;
-        } while (true);
-    } else {
-        d_token_p     = d_cursor_p;
-        d_postDelim_p = d_cursor_p;
-
-        if ( 0 == *d_cursor_p ) {
-            d_endFlag = true;
-            return *this;                                             // RETURN
-        }
-
-        int currentState = TOKEN;
-        int inputType;
-
-        do {
-            if (0 == *d_cursor_p) {
-                return *this;                                         // RETURN
-            }
-
+        while (d_end_p != d_cursor_p) {
             inputType = d_sharedData_p->inputType(*d_cursor_p);
 
             switch (actionTable[inputType][currentState]) {
@@ -241,10 +203,44 @@ TokenizerIterator& TokenizerIterator::operator++()
 
             currentState = stateTable[inputType][currentState];
             ++d_cursor_p;
-        } while (true);
+        }
+    }
+    else {
+        d_token_p     = d_cursor_p;
+        d_postDelim_p = d_cursor_p;
+
+        if ( 0 == *d_cursor_p ) {
+            d_endFlag = true;
+            return *this;                                             // RETURN
+        }
+
+        int currentState = TOKEN;
+        int inputType;
+
+        while (0 != *d_cursor_p) {
+            inputType = d_sharedData_p->inputType(*d_cursor_p);
+
+            switch (actionTable[inputType][currentState]) {
+              case ACC_TOKEN: {  // accumulate token
+                ++d_postDelim_p;
+              } break;
+              case ACC_DELIM: {  // accumulate delimiter
+                // Nothing to do.
+              } break;
+              case STOP: {       // stop parsing and return result
+                return *this;                                         // RETURN
+              } break;
+              default: {
+                BSLS_ASSERT(0);
+              } break;
+            }
+
+            currentState = stateTable[inputType][currentState];
+            ++d_cursor_p;
+        }
     }
 
-    BSLS_ASSERT(0);
+    return *this;
 }
 
                         // ---------------
@@ -319,11 +315,7 @@ Tokenizer& Tokenizer::operator++()
         int currentState = TOKEN;
         int inputType;
 
-        do {
-            if (d_end_p == d_cursor_p) {
-                return *this;                                         // RETURN
-            }
-
+        while (d_end_p != d_cursor_p) {
             inputType = d_sharedData.inputType(*d_cursor_p);
 
             switch (actionTable[inputType][currentState]) {
@@ -343,9 +335,9 @@ Tokenizer& Tokenizer::operator++()
 
             currentState = stateTable[inputType][currentState];
             ++d_cursor_p;
-        } while (true);
-
-    } else {
+        }
+    }
+    else {
 
         d_prevDelim_p = d_postDelim_p;  // current delimiter becomes previous
         d_token_p     = d_cursor_p;
@@ -359,11 +351,7 @@ Tokenizer& Tokenizer::operator++()
         int currentState = TOKEN;
         int inputType;
 
-        do {
-            if (0 == *d_cursor_p) {
-                return *this;                                         // RETURN
-            }
-
+        while (0 != *d_cursor_p) {
             inputType = d_sharedData.inputType(*d_cursor_p);
 
             switch (actionTable[inputType][currentState]) {
@@ -383,10 +371,10 @@ Tokenizer& Tokenizer::operator++()
 
             currentState = stateTable[inputType][currentState];
             ++d_cursor_p;
-        } while (true);
+        }
     }
 
-    BSLS_ASSERT(0);
+    return *this;
 }
 
 bool Tokenizer::hasPreviousSoft() const
