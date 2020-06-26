@@ -1803,70 +1803,72 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // convertible to 'TYPE'.
 
     template <class TYPE>
-    void createInPlace();
+    TYPE& createInPlace();
     template <class TYPE, class A1>
-    void createInPlace(const A1& a1);
+    TYPE& createInPlace(const A1& a1);
     template <class TYPE, class A1, class A2>
-    void createInPlace(const A1& a1, const A2& a2);
+    TYPE& createInPlace(const A1& a1, const A2& a2);
     template <class TYPE, class A1, class A2, class A3>
-    void createInPlace(const A1& a1, const A2& a2, const A3& a3);
+    TYPE& createInPlace(const A1& a1, const A2& a2, const A3& a3);
     template <class TYPE, class A1, class A2, class A3, class A4>
-    void createInPlace(const A1& a1, const A2& a2, const A3& a3, const A4& a4);
+    TYPE& createInPlace(const A1& a1, const A2& a2, const A3& a3,
+                        const A4& a4);
     template <class TYPE, class A1, class A2, class A3, class A4, class A5>
-    void createInPlace(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5);
+    TYPE& createInPlace(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
+                        const A5& a5);
     template <class TYPE, class A1, class A2, class A3, class A4, class A5,
                           class A6>
-    void createInPlace(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6);
+    TYPE& createInPlace(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
+                        const A5& a5, const A6& a6);
     template <class TYPE, class A1, class A2, class A3, class A4, class A5,
                           class A6, class A7>
-    void createInPlace(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7);
+    TYPE& createInPlace(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
+                        const A5& a5, const A6& a6, const A7& a7);
     template <class TYPE, class A1, class A2, class A3, class A4, class A5,
                           class A6, class A7, class A8>
-    void createInPlace(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7, const A8& a8);
+    TYPE& createInPlace(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
+                        const A5& a5, const A6& a6, const A7& a7,
+                        const A8& a8);
     template <class TYPE, class A1, class A2, class A3, class A4, class A5,
                           class A6, class A7, class A8, class A9>
-    void createInPlace(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                       const A9& a9);
+    TYPE& createInPlace(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
+                        const A5& a5, const A6& a6, const A7& a7, const A8& a8,
+                        const A9& a9);
     template <class TYPE, class A1, class A2, class A3, class A4, class A5,
                           class A6, class A7, class A8, class A9, class A10>
-    void createInPlace(const A1& a1, const A2&  a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6&  a6, const A7& a7, const A8& a8,
-                       const A9& a9, const A10& a10);
+    TYPE& createInPlace(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
+                        const A5& a5, const A6& a6, const A7& a7, const A8& a8,
+                        const A9& a9, const A10& a10);
     template <class TYPE, class A1, class A2, class A3, class A4, class A5,
                           class A6, class A7, class A8, class A9, class A10,
                           class A11>
-    void createInPlace(const A1&  a1,  const A2&  a2, const A3& a3,
-                       const A4&  a4,  const A5&  a5, const A6& a6,
-                       const A7&  a7,  const A8&  a8, const A9& a9,
-                       const A10& a10, const A11& a11);
+    TYPE& createInPlace(const A1&  a1,  const A2&  a2, const A3& a3,
+                        const A4&  a4,  const A5&  a5, const A6& a6,
+                        const A7&  a7,  const A8&  a8, const A9& a9,
+                        const A10& a10, const A11& a11);
     template <class TYPE, class A1,  class A2, class A3, class A4, class A5,
                           class A6,  class A7, class A8, class A9, class A10,
                           class A11, class A12>
-    void createInPlace(const A1&  a1,  const A2&  a2,  const A3&  a3,
-                       const A4&  a4,  const A5&  a5,  const A6&  a6,
-                       const A7&  a7,  const A8&  a8,  const A9&  a9,
-                       const A10& a10, const A11& a11, const A12& a12);
+    TYPE& createInPlace(const A1&  a1,  const A2&  a2,  const A3&  a3,
+                        const A4&  a4,  const A5&  a5,  const A6&  a6,
+                        const A7&  a7,  const A8&  a8,  const A9&  a9,
+                        const A10& a10, const A11& a11, const A12& a12);
     template <class TYPE, class A1,  class A2,  class A3, class A4, class A5,
                           class A6,  class A7,  class A8, class A9, class A10,
                           class A11, class A12, class A13>
-    void createInPlace(const A1&  a1,  const A2&  a2,  const A3&  a3,
-                       const A4&  a4,  const A5&  a5,  const A6&  a6,
-                       const A7&  a7,  const A8&  a8,  const A9&  a9,
-                       const A10& a10, const A11& a11, const A12& a12,
-                       const A13& a13);
+    TYPE& createInPlace(const A1&  a1,  const A2&  a2,  const A3&  a3,
+                        const A4&  a4,  const A5&  a5,  const A6&  a6,
+                        const A7&  a7,  const A8&  a8,  const A9&  a9,
+                        const A10& a10, const A11& a11, const A12& a12,
+                        const A13& a13);
     template <class TYPE, class A1,  class A2,  class A3,  class A4, class A5,
                           class A6,  class A7,  class A8,  class A9, class A10,
                           class A11, class A12, class A13, class A14>
-    void createInPlace(const A1&  a1,  const A2&  a2,  const A3&  a3,
-                       const A4&  a4,  const A5&  a5,  const A6&  a6,
-                       const A7&  a7,  const A8&  a8,  const A9&  a9,
-                       const A10& a10, const A11& a11, const A12& a12,
-                       const A13& a13, const A14& a14);
+    TYPE& createInPlace(const A1&  a1,  const A2&  a2,  const A3&  a3,
+                        const A4&  a4,  const A5&  a5,  const A6&  a6,
+                        const A7&  a7,  const A8&  a8,  const A9&  a9,
+                        const A10& a10, const A11& a11, const A12& a12,
+                        const A13& a13, const A14& a14);
         // Create an instance of template parameter 'TYPE' in this variant
         // object with up to 14 parameters using the allocator currently held
         // by this variant to supply memory.  This method first destroys the
@@ -7496,7 +7498,7 @@ VariantImp<TYPES>& VariantImp<TYPES>::assignTo(const SOURCE_TYPE& value)
 template <class TYPES>
 template <class TYPE>
 inline
-void VariantImp<TYPES>::createInPlace()
+TYPE& VariantImp<TYPES>::createInPlace()
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
@@ -7505,12 +7507,14 @@ void VariantImp<TYPES>::createInPlace()
                      reinterpret_cast<BufferType *>(&this->d_value)->address(),
                      this->getAllocator());
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
 template <class TYPE, class A1>
 inline
-void VariantImp<TYPES>::createInPlace(const A1& a1)
+TYPE& VariantImp<TYPES>::createInPlace(const A1& a1)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
@@ -7520,12 +7524,14 @@ void VariantImp<TYPES>::createInPlace(const A1& a1)
                      this->getAllocator(),
                      a1);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
 template <class TYPE, class A1, class A2>
 inline
-void VariantImp<TYPES>::createInPlace(const A1& a1, const A2& a2)
+TYPE& VariantImp<TYPES>::createInPlace(const A1& a1, const A2& a2)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
@@ -7535,12 +7541,15 @@ void VariantImp<TYPES>::createInPlace(const A1& a1, const A2& a2)
                      this->getAllocator(),
                      a1, a2);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
 template <class TYPE, class A1, class A2, class A3>
 inline
-void VariantImp<TYPES>::createInPlace(const A1& a1, const A2& a2, const A3& a3)
+TYPE& VariantImp<TYPES>::createInPlace(
+                                      const A1& a1, const A2& a2, const A3& a3)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
 
@@ -7550,12 +7559,14 @@ void VariantImp<TYPES>::createInPlace(const A1& a1, const A2& a2, const A3& a3)
                      this->getAllocator(),
                      a1, a2, a3);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
 template <class TYPE, class A1, class A2, class A3, class A4>
 inline
-void VariantImp<TYPES>::createInPlace(
+TYPE& VariantImp<TYPES>::createInPlace(
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4)
 {
     typedef bsls::ObjectBuffer<TYPE> BufferType;
@@ -7566,12 +7577,14 @@ void VariantImp<TYPES>::createInPlace(
                      this->getAllocator(),
                      a1, a2, a3, a4);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
 template <class TYPE, class A1, class A2, class A3, class A4, class A5>
 inline
-void VariantImp<TYPES>::createInPlace(
+TYPE& VariantImp<TYPES>::createInPlace(
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5)
 {
@@ -7583,13 +7596,15 @@ void VariantImp<TYPES>::createInPlace(
                      this->getAllocator(),
                      a1, a2, a3, a4, a5);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
 template <class TYPE, class A1, class A2, class A3, class A4, class A5,
                       class A6>
 inline
-void VariantImp<TYPES>::createInPlace(
+TYPE& VariantImp<TYPES>::createInPlace(
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6)
 {
@@ -7601,13 +7616,15 @@ void VariantImp<TYPES>::createInPlace(
                      this->getAllocator(),
                      a1, a2, a3, a4, a5, a6);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
 template <class TYPE, class A1, class A2, class A3, class A4, class A5,
                       class A6, class A7>
 inline
-void VariantImp<TYPES>::createInPlace(
+TYPE& VariantImp<TYPES>::createInPlace(
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7)
 {
@@ -7619,13 +7636,15 @@ void VariantImp<TYPES>::createInPlace(
                      this->getAllocator(),
                      a1, a2, a3, a4, a5, a6, a7);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
 template <class TYPE, class A1, class A2, class A3, class A4, class A5,
                       class A6, class A7, class A8>
 inline
-void VariantImp<TYPES>::createInPlace(
+TYPE& VariantImp<TYPES>::createInPlace(
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8)
 {
@@ -7637,13 +7656,15 @@ void VariantImp<TYPES>::createInPlace(
                      this->getAllocator(),
                      a1, a2, a3, a4, a5, a6, a7, a8);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
 template <class TYPE, class A1, class A2, class A3, class A4, class A5,
                       class A6, class A7, class A8, class A9>
 inline
-void VariantImp<TYPES>::createInPlace(
+TYPE& VariantImp<TYPES>::createInPlace(
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9)
@@ -7656,13 +7677,15 @@ void VariantImp<TYPES>::createInPlace(
                      this->getAllocator(),
                      a1, a2, a3, a4, a5, a6, a7, a8, a9);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
 template <class TYPE, class A1, class A2, class A3, class A4, class A5,
                       class A6, class A7, class A8, class A9, class A10>
 inline
-void VariantImp<TYPES>::createInPlace(
+TYPE& VariantImp<TYPES>::createInPlace(
                        const A1& a1, const A2&  a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6&  a6, const A7& a7, const A8& a8,
                        const A9& a9, const A10& a10)
@@ -7675,6 +7698,8 @@ void VariantImp<TYPES>::createInPlace(
                      this->getAllocator(),
                      a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
@@ -7682,7 +7707,7 @@ template <class TYPE, class A1, class A2, class A3, class A4, class A5,
                       class A6, class A7, class A8, class A9, class A10,
                       class A11>
 inline
-void VariantImp<TYPES>::createInPlace(
+TYPE& VariantImp<TYPES>::createInPlace(
                      const A1& a1, const A2&  a2,  const A3&  a3, const A4& a4,
                      const A5& a5, const A6&  a6,  const A7&  a7, const A8& a8,
                      const A9& a9, const A10& a10, const A11& a11)
@@ -7695,6 +7720,8 @@ void VariantImp<TYPES>::createInPlace(
                      this->getAllocator(),
                      a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
@@ -7702,7 +7729,7 @@ template <class TYPE, class A1,  class A2,  class A3, class A4, class A5,
                       class A6,  class A7,  class A8, class A9, class A10,
                       class A11, class A12>
 inline
-void VariantImp<TYPES>::createInPlace(
+TYPE& VariantImp<TYPES>::createInPlace(
                     const A1&  a1, const A2&  a2,  const A3&  a3, const A4& a4,
                     const A5&  a5, const A6&  a6,  const A7&  a7, const A8& a8,
                     const A9&  a9, const A10& a10, const A11& a11,
@@ -7716,6 +7743,8 @@ void VariantImp<TYPES>::createInPlace(
                      this->getAllocator(),
                      a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
@@ -7723,7 +7752,7 @@ template <class TYPE, class A1,  class A2,  class A3,  class A4, class A5,
                       class A6,  class A7,  class A8,  class A9, class A10,
                       class A11, class A12, class A13>
 inline
-void VariantImp<TYPES>::createInPlace(
+TYPE& VariantImp<TYPES>::createInPlace(
                    const A1&  a1,  const A2&  a2,  const A3&  a3, const A4& a4,
                    const A5&  a5,  const A6&  a6,  const A7&  a7, const A8& a8,
                    const A9&  a9,  const A10& a10, const A11& a11,
@@ -7737,6 +7766,8 @@ void VariantImp<TYPES>::createInPlace(
                      this->getAllocator(),
                      a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>
@@ -7744,7 +7775,7 @@ template <class TYPE, class A1,  class A2,  class A3,  class A4,  class A5,
                       class A6,  class A7,  class A8,  class A9,  class A10,
                       class A11, class A12, class A13, class A14>
 inline
-void VariantImp<TYPES>::createInPlace(
+TYPE& VariantImp<TYPES>::createInPlace(
                    const A1&  a1,  const A2&  a2,  const A3&  a3, const A4& a4,
                    const A5&  a5,  const A6&  a6,  const A7&  a7, const A8& a8,
                    const A9&  a9,  const A10& a10, const A11& a11,
@@ -7759,6 +7790,8 @@ void VariantImp<TYPES>::createInPlace(
                      a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13,
                      a14);
     this->d_type = Variant_TypeIndex<TYPES, TYPE>::value;
+
+    return reinterpret_cast<BufferType *>(&this->d_value)->object();
 }
 
 template <class TYPES>

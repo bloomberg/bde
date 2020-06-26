@@ -102,7 +102,7 @@ using bsls::NameOf;
 // [ 2] VariantImp& assign(const TYPE& value);
 // [24] VariantImp& assign(TYPE&& value);
 // [11] VariantImp& assignTo(const SOURCE& value);
-// [14] void createInPlace<TYPE>(...);                     // all 15 variations
+// [14] TYPE& createInPlace<TYPE>(...);                    // all 15 variations
 // [ 2] void reset();
 // [ 4] TYPE& the<TYPE>();
 //
@@ -3574,19 +3574,28 @@ void applyTestRTNS(const VALUE_TYPE& defaultValue,
         switch (i) {
           case 0:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 variant.apply(visitor);
             }
             break;
           case 1:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 variant.applyRaw(visitor);
             }
             break;
           case 2:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.template apply<RetType>(visitor);
                 returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
@@ -3594,7 +3603,10 @@ void applyTestRTNS(const VALUE_TYPE& defaultValue,
             break;
           case 3:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue =
                                    variant.template applyRaw<RetType>(visitor);
                 returnAddr = &returnValue;
@@ -3603,13 +3615,19 @@ void applyTestRTNS(const VALUE_TYPE& defaultValue,
             break;
           case 4:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 variant.apply(visitor, defaultValue);
             }
             break;
           case 5:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.template apply<RetType>(
                                                                  visitor,
                                                                  defaultValue);
@@ -3717,7 +3735,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
         switch (i) {
           case 0:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.apply(visitor);
                 returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
@@ -3725,7 +3746,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
             break;
           case 1:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.applyRaw(visitor);
                 returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
@@ -3733,7 +3757,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
             break;
           case 2:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.template apply<RetType>(visitor);
                 returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
@@ -3741,7 +3768,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
             break;
           case 3:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.template applyRaw<RetType>(
                                                                       visitor);
                 returnAddr = &returnValue;
@@ -3750,7 +3780,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
             break;
           case 4:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.apply(visitor, defaultValue);
                 returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
@@ -3758,7 +3791,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
             break;
           case 5:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.template apply<RetType>(
                                                                  visitor,
                                                                  defaultValue);
@@ -27148,10 +27184,31 @@ void TestUtil::testCase15()
         Obj mXs[LENGTH];
         Obj mYs[LENGTH];
 
-        mXs[0].createInPlace<int>(INT_DATA[0]);
-        mXs[1].createInPlace<TestInt>(TEST_INT_DATA[0]);
-        mXs[2].createInPlace<bsl::string>(STRING_DATA[0]);
-        mXs[3].createInPlace<TestString>(TEST_STRING_DATA[0]);
+        {
+            int& xs = mXs[0].createInPlace<int>(INT_DATA[0]);
+            ASSERT(INT_DATA[0] == xs);
+            ASSERT(&xs == &mXs[0].the<int>());
+        }
+       
+        {
+            TestInt& xs = mXs[1].createInPlace<TestInt>(TEST_INT_DATA[0]);
+            ASSERT(TEST_INT_DATA[0] == xs);
+            ASSERT(&xs == &mXs[1].the<TestInt>());
+        }
+
+        {
+            bsl::string& xs = mXs[2].createInPlace<bsl::string>(
+                                                               STRING_DATA[0]);
+            ASSERT(STRING_DATA[0] == xs);
+            ASSERT(&xs == &mXs[2].the<bsl::string>());
+        }
+
+        {
+            TestString& xs = mXs[3].createInPlace<TestString>(
+                                                          TEST_STRING_DATA[0]);
+            ASSERT(TEST_STRING_DATA[0] == xs);
+            ASSERT(&xs == &mXs[3].the<TestString>());
+        }
 
         mYs[0].createInPlace<int>(INT_DATA[0]);
         mYs[1].createInPlace<TestInt>(TEST_INT_DATA[0]);
@@ -27384,10 +27441,12 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with no arg." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>();
+        Copyable& mR = mX.createInPlace<Copyable>();
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 0);
+        checkCopyableParameters(mR,                0);
 
         mX.assign<TestString>(VK);  // will allocate
         mX.createInPlace<Copyable>();
@@ -27399,10 +27458,12 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 1 arg." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true);
+        Copyable& mR = mX.createInPlace<Copyable>(true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 1);
+        checkCopyableParameters(mR,                1);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true);
@@ -27414,10 +27475,12 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 2 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 2);
+        checkCopyableParameters(mR,                2);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true);
@@ -27429,10 +27492,12 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 3 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 3);
+        checkCopyableParameters(mR,                3);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true);
@@ -27444,10 +27509,12 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 4 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 4);
+        checkCopyableParameters(mR,                4);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true);
@@ -27459,10 +27526,13 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 5 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+                                                 true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 5);
+        checkCopyableParameters(mR,                5);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true);
@@ -27474,10 +27544,13 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 6 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+                                           true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 6);
+        checkCopyableParameters(mR,                6);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true);
@@ -27489,10 +27562,13 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 7 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+                                     true, true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 7);
+        checkCopyableParameters(mR,                7);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true);
@@ -27504,11 +27580,13 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 8 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+                               true, true, true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 8);
+        checkCopyableParameters(mR,                8);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
@@ -27521,11 +27599,13 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 9 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+                         true, true, true, true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 9);
+        checkCopyableParameters(mR,                9);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
@@ -27538,11 +27618,13 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 10 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+                   true, true, true, true, true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 10);
+        checkCopyableParameters(mR,                10);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
@@ -27555,11 +27637,13 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 11 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true, true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+             true, true, true, true, true, true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 11);
+        checkCopyableParameters(mR,                11);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
@@ -27572,11 +27656,14 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 12 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true, true, true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+                                      true, true, true, true, true, true, true,
+                                      true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 12);
+        checkCopyableParameters(mR,                12);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
@@ -27589,11 +27676,14 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 13 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
+        Copyable& mR = mX.createInPlace<Copyable>(
+                                   true, true, true, true, true, true, true,
                                    true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 13);
+        checkCopyableParameters(mR,                13);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
@@ -27606,11 +27696,14 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 14 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
+        Copyable& mR = mX.createInPlace<Copyable>(
+                                   true, true, true, true, true, true, true,
                                    true, true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 14);
+        checkCopyableParameters(mR,                14);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
