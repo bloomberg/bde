@@ -14,8 +14,8 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_algorithm.h>' instead.  This component provides a namespace for
 // implementations for standard algorithms that are not provided by the
-// underlying standard library implementation. For example, 'any_of' is a C++11
-// algorithm, and it is provided here for code using C++03.
+// underlying standard library implementation.  For example, 'any_of' is a
+// C++11 algorithm, and it is provided here for code using C++03.
 //
 ///Usage
 ///-----
@@ -38,9 +38,10 @@ namespace bsl {
 
 template <class InputIter, class PREDICATE>
 bool all_of(InputIter first, InputIter last, PREDICATE pred)
-    // Returns: 'true' if [first, last) is empty or if pred(*i) is true for
-    // every iterator i in the range [first, last), and 'false' otherwise.
-    // Complexity: At most last - first applications of the predicate.
+    // Return 'true' if, for the specified [first, last) range and the
+    // specified predicate 'pred', the range is either empty or 'pred(*i)' is
+    // 'true' for every iterator 'i' in the range, and 'false' otherwise.  Note
+    // that at most 'last - first' applications of the predicate are performed.
 {
     for (; first != last; ++first) {
         if (!pred(*first)) {
@@ -52,10 +53,10 @@ bool all_of(InputIter first, InputIter last, PREDICATE pred)
 
 template <class InputIter, class PREDICATE>
 bool any_of(InputIter first, InputIter last, PREDICATE pred)
-    // Returns: 'false' if [first, last) is empty or if there is no iterator i
-    // in the range [first, last) such that pred(*i) is true, and 'true'
-    // otherwise.
-    // Complexity: At most last - first applications of the predicate.
+    // Return 'false' if, for the specified [first, last) range and the
+    // specified predicate 'pred', the range is either empty or 'pred(*i)' is
+    // 'false' for every iterator 'i' in the range, and 'true' otherwise.  Note
+    // that at most 'last - first' applications of the predicate are performed.
 {
     for (; first != last; ++first) {
         if (pred(*first)) {
@@ -67,9 +68,10 @@ bool any_of(InputIter first, InputIter last, PREDICATE pred)
 
 template <class InputIter, class PREDICATE>
 bool none_of(InputIter first, InputIter last, PREDICATE pred)
-    // Returns: 'true' if [first, last) is empty or if pred(*i) is false for
-    // every iterator i in the range [first, last), and 'false' otherwise.
-    // Complexity: At most last - first applications of the predicate.
+    // Return 'true' if, for the specified [first, last) range and the
+    // specified predicate 'pred', the range is either empty or 'pred(*i)' is
+    // 'false' for every iterator 'i' in the range, and 'true' otherwise.  Note
+    // that at most 'last - first' applications of the predicate are performed.
 {
     for (; first != last; ++first) {
         if (pred(*first)) {

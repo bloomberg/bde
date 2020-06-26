@@ -120,15 +120,15 @@ struct IsOdd {
 
     // ACCESSORS
     result_type operator()(argument_type value) const
-        // Return 'true' if 'value' is odd, and 'false' otherwise.
+        // Return 'true' if the specified 'value' is odd, and 'false' otherwise.
     {
         return (value % 2) != 0;
     }
 };
 
+// A function (as opposed to a functor)
 bool isEven(int value)
-    // A function that (as opposed to a functor) that
-    // returns 'true' if 'value' is even, and 'false' otherwise.
+    // Return 'true' if the specified 'value' is even, and 'false' otherwise.
 {
     return (value % 2) == 0;
 }
@@ -152,10 +152,10 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // FUNCTIONALITY TEST
-        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 
+        //: 1 That the routines exist in the 'bsl' namespace and behave as
+        //    expected.
         //
         // Plan:
         //: 1 Run each method with an empty input range and verify that the
@@ -166,45 +166,39 @@ int main(int argc, char *argv[])
         //:   the behavior is as expected.
         //
         // Testing:
-        //   FUNCTIONALITY TEST
-        // [ 1] bool all_of (InputIter first, InputIter last, PREDICATE pred);
-        // [ 1] bool any_of (InputIter first, InputIter last, PREDICATE pred);
-        // [ 1] bool none_of(InputIter first, InputIter last, PREDICATE pred);
+        //   bool all_of (InputIter first, InputIter last, PREDICATE pred);
+        //   bool any_of (InputIter first, InputIter last, PREDICATE pred);
+        //   bool none_of(InputIter first, InputIter last, PREDICATE pred);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFUNCTIONALITY TEST"
                             "\n==============\n");
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-        const int a[] = {4};
-        const int b[] = {0, 2, 4, 6, 8, 1, 3, 5, 7, 9};
-        const int c[] = {1, 3, 5, 7, 9, 0, 2, 4, 6, 8};
+        const int v[] = {0, 2, 4, 1, 3, 5, 6, 8};
 
-        ASSERT( (bsl::all_of (a, a,   IsOdd()) ));
-        ASSERT(!(bsl::any_of (a, a,   IsOdd()) ));
-        ASSERT( (bsl::none_of(a, a,   IsOdd()) ));
+        ASSERT( (bsl::all_of (v, v,   IsOdd()) ));
+        ASSERT(!(bsl::any_of (v, v,   IsOdd()) ));
+        ASSERT( (bsl::none_of(v, v,   IsOdd()) ));
 
-        ASSERT(!(bsl::all_of (a, a+1, IsOdd()) ));
-        ASSERT( (bsl::all_of (a, a+1, isEven)  ));
-        ASSERT(!(bsl::any_of (a, a+1, IsOdd()) ));
-        ASSERT( (bsl::any_of (a, a+1, isEven)  ));
-        ASSERT( (bsl::none_of(a, a+1, IsOdd()) ));
-        ASSERT(!(bsl::none_of(a, a+1, isEven)  ));
+        ASSERT(!(bsl::all_of (v, v+1, IsOdd()) ));
+        ASSERT( (bsl::all_of (v, v+1, isEven)  ));
+        ASSERT(!(bsl::any_of (v, v+1, IsOdd()) ));
+        ASSERT( (bsl::any_of (v, v+1, isEven)  ));
+        ASSERT( (bsl::none_of(v, v+1, IsOdd()) ));
+        ASSERT(!(bsl::none_of(v, v+1, isEven)  ));
 
-        ASSERT( (bsl::all_of (b, b+5, isEven)  ));
-        ASSERT(!(bsl::all_of (b, b+6, isEven)  ));
-        ASSERT(!(bsl::all_of (c, c+5, isEven)  ));
-        ASSERT(!(bsl::all_of (c, c+6, isEven)  ));
+        ASSERT( (bsl::all_of (v + 3, v + 6, IsOdd()) ));
+        ASSERT(!(bsl::any_of (v,     v + 3, IsOdd()) ));
+        ASSERT( (bsl::none_of(v,     v + 3, IsOdd()) ));
 
-        ASSERT( (bsl::any_of (b, b+5, isEven)  ));
-        ASSERT( (bsl::any_of (b, b+6, isEven)  ));
-        ASSERT(!(bsl::any_of (c, c+5, isEven)  ));
-        ASSERT( (bsl::any_of (c, c+6, isEven)  ));
+        ASSERT(!(bsl::all_of (v,     v + 3, IsOdd()) ));
+        ASSERT( (bsl::any_of (v + 3, v + 6, IsOdd()) ));
+        ASSERT(!(bsl::none_of(v + 3, v + 6, IsOdd()) ));
 
-        ASSERT(!(bsl::none_of(b, b+5, isEven)  ));
-        ASSERT(!(bsl::none_of(b, b+6, isEven)  ));
-        ASSERT( (bsl::none_of(c, c+5, isEven)  ));
-        ASSERT(!(bsl::none_of(c, c+6, isEven)  ));
+        ASSERT(!(bsl::all_of (v + 3, v + 8, IsOdd()) ));
+        ASSERT( (bsl::any_of (v,     v + 6, IsOdd()) ));
+        ASSERT(!(bsl::none_of(v,     v + 6, IsOdd()) ));
 #endif
       } break;
       default: {
