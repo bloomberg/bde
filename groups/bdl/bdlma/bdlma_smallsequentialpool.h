@@ -514,10 +514,10 @@ class SmallSequentialPool {
 
     bsl::size_t         d_initialSize;     // initial internal buffer size
 
-    bsl::size_t         d_maxBufferSize;   // maximum internal buffer size
-
     bsl::size_t         d_geometricSize;   // latest geometric growth
                                            // allocation
+
+    bsl::size_t         d_maxBufferSize;   // maximum internal buffer size
 
     InfrequentDeleteBlockList
                         d_blockList;       // memory manager used to supply
@@ -883,6 +883,8 @@ void SmallSequentialPool::release()
 
     d_blockList.release();
     d_largeBlockList.release();
+
+    d_geometricSize = d_initialSize;
 }
 
 inline
@@ -891,6 +893,8 @@ void SmallSequentialPool::rewind()
     d_buffer.release();  // Reset the internal cursor in the current block.
     d_blockList.releaseAllButLastBlock();
     d_largeBlockList.release();
+
+    d_geometricSize = d_initialSize;
 }
 
 inline

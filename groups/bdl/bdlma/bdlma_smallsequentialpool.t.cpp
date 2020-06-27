@@ -1614,6 +1614,10 @@ int main(int argc, char *argv[])
         //:
         //: 2 Subsequent allocation requests after invocation of the 'release'
         //:   method follow the specified growth and alignment strategies.
+        //:
+        //: 3 The 'rewind' method retains the most recently allocated block
+        //:   when the constant-growth strategy is used and when then
+        //:   constant-growth strategy lapes into geometric growth.
         //
         // Plan:
         //: 1 Using the table-driven technique, create test vectors having an
@@ -1626,6 +1630,14 @@ int main(int argc, char *argv[])
         //:   'release' and verify, using the test allocator, that there is no
         //:   outstanding memory allocated.  Finally, allocate memory again and
         //:   verify the alignment and growth strategies.  (C-1..2)
+        //:
+        //: 2 Issue a series a memory requests designed so that the final
+        //:   request triggers the allocation of a new block then 'rewind' and
+        //:   allocate a single byte.  The address of the allocated byte should
+        //:   match that of the last allocation before rewind.  Confirm this in
+        //:   scenarios using the constant-growth strategy and when
+        //:   constant-growth lapses into geometric growth.  (C-3)
+        //
         //
         // Testing:
         //   void release();
@@ -1640,55 +1652,73 @@ int main(int argc, char *argv[])
         const int TH = 64;  // threshold
 
         static const struct {
-            int d_line;         // line number
-            int d_bufSize;      // buffer size
-            int d_requestSize;  // request size
-            int d_numRequests;  // number of requests
+            int  d_line;         // line number
+            int  d_bufSize;      // buffer size
+            int  d_requestSize;  // request size
+            int  d_numRequests;  // number of requests
+
+            bool d_isGeometric;  // expect geometric growth
         } DATA[] = {
-            //LINE      BUFSIZE     REQUEST SIZE    # REQUESTS
-            //----      -------     ------------    ----------
+            //LINE      BUFSIZE     REQUEST SIZE    # REQUESTS        IS_GEO
+            //----      -------     ------------    ----------        ------
 
-            {  L_,      1,          1,              2                 },
-            {  L_,      1,          5,              2                 },
-            {  L_,      1,          TH - 1,         2                 },
-            {  L_,      1,          TH,             2                 },
-            {  L_,      1,          TH + 1,         2                 },
+            {  L_,      1,          1,              2               , false  },
 
-            {  L_,      TH - 1,     1,              TH                },
-            {  L_,      TH - 1,     5,              1 + (TH - 1) / 5  },
-            {  L_,      TH - 1,     TH - 2,         2                 },
-            {  L_,      TH - 1,     TH - 1,         2                 },
-            {  L_,      TH - 1,     TH,             2                 },
+            {  L_,      TH - 1,     1,              TH              , false  },
+            {  L_,      TH - 1,     5,              1 + (TH - 1) / 5, false  },
+            {  L_,      TH - 1,     TH - 2,         2               , false  },
+            {  L_,      TH - 1,     TH - 1,         2               , false  },
 
-            {  L_,      TH,         1,              TH + 1            },
-            {  L_,      TH,         5,              1 + TH / 5        },
-            {  L_,      TH,         TH - 1,         2                 },
-            {  L_,      TH,         TH,             2                 },
-            {  L_,      TH,         TH + 1,         2                 },
+            {  L_,      TH,         1,              TH + 1          , false  },
+            {  L_,      TH,         5,              1 + TH / 5      , false  },
+            {  L_,      TH,         TH - 1,         2               , false  },
+            {  L_,      TH,         TH,             2               , false  },
 
-            {  L_,      TH + 1,     1,              TH + 2            },
-            {  L_,      TH + 1,     5,              1 + (TH + 1) / 5  },
-            {  L_,      TH + 1,     TH,             2                 },
-            {  L_,      TH + 1,     TH + 1,         2                 },
-            {  L_,      TH + 1,     TH + 2,         2                 },
+            {  L_,      TH + 1,     1,              TH + 2          , false  },
+            {  L_,      TH + 1,     5,              1 + (TH + 1) / 5, false  },
+            {  L_,      TH + 1,     TH,             2               , false  },
+            {  L_,      TH + 1,     TH + 1,         2               , false  },
+       
+#if 1
+            // constant-growth lapsing into geometric-growth 
+            {  L_,      1,          5,              2               , true   },
+
+            {  L_,      1,          TH - 1,         2               , true   },
+            {  L_,      1,          TH,             2               , true   },
+            {  L_,      1,          TH + 1,         2               , true   },
+          
+            {  L_,      TH - 1,     TH,             2               , true   },
+            {  L_,      TH,         TH + 1,         2               , true   },
+            {  L_,      TH + 1,     TH + 2,         2               , true   },
+#endif // 0
+
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int LINE    = DATA[i].d_line;
-            const int BUFSIZE = DATA[i].d_bufSize;
-            const int REQSIZE = DATA[i].d_requestSize;
-            const int NUMREQ  = DATA[i].d_numRequests;
+            const int  LINE    = DATA[i].d_line;
+            const int  BUFSIZE = DATA[i].d_bufSize;
+            const int  REQSIZE = DATA[i].d_requestSize;
+            const int  NUMREQ  = DATA[i].d_numRequests;
+            const bool IS_GEO  = DATA[i].d_isGeometric;
 
             const int MAXNUMREQ  = TH + 2;
             LOOP2_ASSERT(MAXNUMREQ, NUMREQ, MAXNUMREQ >= NUMREQ);
             if (MAXNUMREQ < NUMREQ) continue;
 
+            if (veryVerbose) {
+                P_(i) P_(LINE) P_(BUFSIZE) P_(REQSIZE) P_(NUMREQ) P(IS_GEO)
+            }
+
             // Try each test using maximum, natural, and 1-byte alignment.
 
-            for (Strat strategy = bsls::Alignment::BSLS_MAXIMUM;
+            for (Strat strategy  = bsls::Alignment::BSLS_MAXIMUM;
                        strategy <= bsls::Alignment::BSLS_BYTEALIGNED;
                        strategy = (Strat)(strategy + 1)) {
+
+                if (veryVerbose) {
+                    T_ P(strategy)
+                }
 
                 bslma::TestAllocator ta(veryVeryVeryVerbose);
 
@@ -1700,16 +1730,23 @@ int main(int argc, char *argv[])
                 // allocator was used after each request.
 
                 for (int reqNum = 0; reqNum < NUMREQ; ++reqNum) {
-                    void *returnAddr = mX.allocate(REQSIZE);
+                    bsl::size_t requestSize = IS_GEO
+                                            ? REQSIZE * (1 << reqNum)
+                                            : REQSIZE;
+                    void *returnAddr = mX.allocate(requestSize);
                     LOOP2_ASSERT(LINE, reqNum, returnAddr);
                     LOOP2_ASSERT(LINE, reqNum, ta.numBlocksInUse());
 
                     if (veryVerbose) {
-                        P_(reqNum) P(returnAddr);
+                        T_ T_ P_(reqNum) P_(requestSize) P(returnAddr);
                     }
                 }
 
                 // Now call 'release' and verify that all memory is returned.
+
+                if (veryVerbose) {
+                    T_ T_ Q(release)
+                }
 
                 mX.release();
                 ASSERT(0 == ta.numBlocksInUse());
@@ -1719,23 +1756,50 @@ int main(int argc, char *argv[])
                 // allocator was used after each request.
 
                 for (int reqNum = 0; reqNum < NUMREQ; ++reqNum) {
-                    void *returnAddr = mX.allocate(REQSIZE);
+                    bsl::size_t requestSize = IS_GEO
+                                            ? REQSIZE * (1 << reqNum)
+                                            : REQSIZE;
+                    void *returnAddr = mX.allocate(requestSize);
                     LOOP2_ASSERT(LINE, reqNum, returnAddr);
                     LOOP2_ASSERT(LINE, reqNum, ta.numBlocksInUse());
 
                     if (veryVerbose) {
-                        P_(reqNum) P(returnAddr);
+                        T_ T_ P_(reqNum) P_(requestSize) P(returnAddr);
                     }
                 }
 
+                bslma::TestAllocatorMonitor tam(&ta);
+
+#if 0
                 void* addrPre =  mX.allocate(BUFSIZE);
+#else
+                bsl::size_t additionalRequestSize
+                                                = IS_GEO
+                                                ? REQSIZE * (1 << (NUMREQ + 1))
+                                                : BUFSIZE;
+                if (veryVerbose) {
+                    T_ T_ P(additionalRequestSize)
+                }
+                void *addrPre =  mX.allocate(additionalRequestSize);
+#endif
+
+                if (veryVerbose) {
+                    T_ T_ P(addrPre)
+                }
+
+                ASSERT(1 == tam.numBlocksInUseChange());
 
                 // Now release all the allocations, but keep the last buffer
                 // to use again.
-
+                
+                if (veryVerbose) {
+                    T_ T_ Q(rewind)
+                }
+               
                 mX.rewind();
                 void* addrPost = mX.allocate(1);
-                ASSERT(addrPre == addrPost);
+                ASSERTV(addrPre,   addrPost,
+                        addrPre == addrPost);
                 ASSERT(1 == ta.numBlocksInUse());
 
                 mX.release();
