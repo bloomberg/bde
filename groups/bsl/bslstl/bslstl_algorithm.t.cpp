@@ -51,9 +51,9 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -120,7 +120,8 @@ struct IsOdd {
 
     // ACCESSORS
     result_type operator()(argument_type value) const
-        // Return 'true' if the specified 'value' is odd, and 'false' otherwise.
+        // Return 'true' if the specified 'value' is odd, and 'false'
+        // otherwise.
     {
         return (value % 2) != 0;
     }
@@ -172,15 +173,17 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFUNCTIONALITY TEST"
-                            "\n==============\n");
+                            "\n==================\n");
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         const int v[] = {0, 2, 4, 1, 3, 5, 6, 8};
 
+        // Never enter the loop
         ASSERT( (bsl::all_of (v, v,   IsOdd()) ));
         ASSERT(!(bsl::any_of (v, v,   IsOdd()) ));
         ASSERT( (bsl::none_of(v, v,   IsOdd()) ));
 
+        // single element ranges
         ASSERT(!(bsl::all_of (v, v+1, IsOdd()) ));
         ASSERT( (bsl::all_of (v, v+1, isEven)  ));
         ASSERT(!(bsl::any_of (v, v+1, IsOdd()) ));
@@ -188,14 +191,17 @@ int main(int argc, char *argv[])
         ASSERT( (bsl::none_of(v, v+1, IsOdd()) ));
         ASSERT(!(bsl::none_of(v, v+1, isEven)  ));
 
+        // never break
         ASSERT( (bsl::all_of (v + 3, v + 6, IsOdd()) ));
         ASSERT(!(bsl::any_of (v,     v + 3, IsOdd()) ));
         ASSERT( (bsl::none_of(v,     v + 3, IsOdd()) ));
 
+        // break on first iteration
         ASSERT(!(bsl::all_of (v,     v + 3, IsOdd()) ));
         ASSERT( (bsl::any_of (v + 3, v + 6, IsOdd()) ));
         ASSERT(!(bsl::none_of(v + 3, v + 6, IsOdd()) ));
 
+        // break on later iteration
         ASSERT(!(bsl::all_of (v + 3, v + 8, IsOdd()) ));
         ASSERT( (bsl::any_of (v,     v + 6, IsOdd()) ));
         ASSERT(!(bsl::none_of(v,     v + 6, IsOdd()) ));

@@ -38,7 +38,7 @@ namespace bsl {
 
 template <class InputIter, class PREDICATE>
 bool all_of(InputIter first, InputIter last, PREDICATE pred)
-    // Return 'true' if, for the specified [first, last) range and the
+    // Return 'true' if, for the specified '[first, last)' range and the
     // specified predicate 'pred', the range is either empty or 'pred(*i)' is
     // 'true' for every iterator 'i' in the range, and 'false' otherwise.  Note
     // that at most 'last - first' applications of the predicate are performed.
@@ -53,7 +53,7 @@ bool all_of(InputIter first, InputIter last, PREDICATE pred)
 
 template <class InputIter, class PREDICATE>
 bool any_of(InputIter first, InputIter last, PREDICATE pred)
-    // Return 'false' if, for the specified [first, last) range and the
+    // Return 'false' if, for the specified '[first, last)' range and the
     // specified predicate 'pred', the range is either empty or 'pred(*i)' is
     // 'false' for every iterator 'i' in the range, and 'true' otherwise.  Note
     // that at most 'last - first' applications of the predicate are performed.
@@ -68,10 +68,11 @@ bool any_of(InputIter first, InputIter last, PREDICATE pred)
 
 template <class InputIter, class PREDICATE>
 bool none_of(InputIter first, InputIter last, PREDICATE pred)
-    // Return 'true' if, for the specified [first, last) range and the
+    // Return 'true' if, for the specified '[first, last)' range and the
     // specified predicate 'pred', the range is either empty or 'pred(*i)' is
-    // 'false' for every iterator 'i' in the range, and 'true' otherwise.  Note
-    // that at most 'last - first' applications of the predicate are performed.
+    // 'false' for every iterator 'i' in the range, and 'false' otherwise.
+    // Note that at most 'last - first' applications of the predicate are
+    // performed.
 {
     for (; first != last; ++first) {
         if (pred(*first)) {
