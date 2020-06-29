@@ -1663,35 +1663,28 @@ int main(int argc, char *argv[])
             //----      -------     ------------    ----------        ------
 
             {  L_,      1,          1,              2               , false  },
+            {  L_,      1,          5,              2               , true   },
+            {  L_,      1,          TH - 1,         2               , true   },
+            {  L_,      1,          TH,             2               , true   },
+            {  L_,      1,          TH + 1,         2               , true   },
 
             {  L_,      TH - 1,     1,              TH              , false  },
             {  L_,      TH - 1,     5,              1 + (TH - 1) / 5, false  },
             {  L_,      TH - 1,     TH - 2,         2               , false  },
             {  L_,      TH - 1,     TH - 1,         2               , false  },
+            {  L_,      TH - 1,     TH,             2               , true   },
 
             {  L_,      TH,         1,              TH + 1          , false  },
             {  L_,      TH,         5,              1 + TH / 5      , false  },
             {  L_,      TH,         TH - 1,         2               , false  },
             {  L_,      TH,         TH,             2               , false  },
+            {  L_,      TH,         TH + 1,         2               , true   },
 
             {  L_,      TH + 1,     1,              TH + 2          , false  },
             {  L_,      TH + 1,     5,              1 + (TH + 1) / 5, false  },
             {  L_,      TH + 1,     TH,             2               , false  },
             {  L_,      TH + 1,     TH + 1,         2               , false  },
-       
-#if 1
-            // constant-growth lapsing into geometric-growth 
-            {  L_,      1,          5,              2               , true   },
-
-            {  L_,      1,          TH - 1,         2               , true   },
-            {  L_,      1,          TH,             2               , true   },
-            {  L_,      1,          TH + 1,         2               , true   },
-          
-            {  L_,      TH - 1,     TH,             2               , true   },
-            {  L_,      TH,         TH + 1,         2               , true   },
             {  L_,      TH + 1,     TH + 2,         2               , true   },
-#endif // 0
-
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1748,7 +1741,7 @@ int main(int argc, char *argv[])
                     T_ T_ Q(release)
                 }
 
-                mX.release();
+                mX.release();  // ACTION
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(0 == ta.numBytesInUse());
 
@@ -1796,7 +1789,7 @@ int main(int argc, char *argv[])
                     T_ T_ Q(rewind)
                 }
                
-                mX.rewind();
+                mX.rewind();  // ACTION
                 void* addrPost = mX.allocate(1);
                 ASSERTV(addrPre,   addrPost,
                         addrPre == addrPost);
