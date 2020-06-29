@@ -193,10 +193,10 @@ BSLS_IDENT("$Id: $")
 // behavior is undefined if the variant is unset.
 //..
 //  template <class TYPE>
-//  void createInPlace();
-//  void createInPlace(const A1& a1);
+//  TYPE& createInPlace();
+//  TYPE& createInPlace(const A1& a1);
 //  // ...
-//  void createInPlace(const A1& a1, const A2& a2, ..., const A14& a14);
+//  TYPE& createInPlace(const A1& a1, const A2& a2, ..., const A14& a14);
 //..
 // Create a new value of template parameter 'TYPE' in-place, with up to 14
 // constructor arguments.
@@ -305,6 +305,16 @@ BSLS_IDENT("$Id: $")
 //  z.createInPlace<int>(10);
 //  assert(z.is<int>());
 //  assert(10 == z.the<int>());
+//..
+// 'createInPlace' returns a reference providing modifiable access to the
+// created object:
+//..
+//  bsl::string& ref = z.createInPlace<bsl::string>("Goodbye");
+//  assert("Goodbye" == z.the<bsl::string>());
+//  assert("Goodbye" == ref);
+//  assert(&ref == &z.the<bsl::string>());
+//  ref = "Hello again!";
+//  assert("Hello again!" == z.the<bsl::string>());
 //..
 //
 ///Example 2: Variant Assignment
@@ -1871,11 +1881,13 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
                         const A13& a13, const A14& a14);
         // Create an instance of template parameter 'TYPE' in this variant
         // object with up to 14 parameters using the allocator currently held
-        // by this variant to supply memory.  This method first destroys the
-        // current value held by this variant (even if 'TYPE' is the same as
-        // the type currently held).  'TYPE' must be the same as one of the
-        // types that this variant can hold.  Note the order of the template
-        // arguments was chosen so that 'TYPE' must always be specified.
+        // by this variant to supply memory, and return a reference providing
+        // modifiable access to the created instance.  This method first
+        // destroys the current value held by this variant (even if 'TYPE' is
+        // the same as the type currently held).  'TYPE' must be the same as
+        // one of the types that this variant can hold.  Note the order of the
+        // template arguments was chosen so that 'TYPE' must always be
+        // specified.
 
     void reset();
         // Destroy the current value held by this variant (if any), and reset
