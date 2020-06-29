@@ -12,6 +12,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <bsltf_testvaluesarray.h>
+
 #include <functional>
 #include <limits.h>
 #include <stddef.h>
@@ -107,15 +109,17 @@ static bool     veryVeryVerbose;
 static bool veryVeryVeryVerbose;
 
 // ============================================================================
-//                            MAIN PROGRAM
+//                              TEST FUNCTIONS
 // ----------------------------------------------------------------------------
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 struct IsOdd {
     // A standard compliant C++03 unary predicate functor that returns 'true'
     // if an 'int' value is odd.
 
     // PUBLIC TYPES
-    typedef int  argument_type;
+    typedef char  argument_type;
     typedef bool result_type;
 
     // ACCESSORS
@@ -128,11 +132,200 @@ struct IsOdd {
 };
 
 // A function (as opposed to a functor)
-bool isEven(int value)
+bool isEven(char value)
     // Return 'true' if the specified 'value' is even, and 'false' otherwise.
 {
     return (value % 2) == 0;
 }
+
+template <class VALUE>
+void runTestAllOf()
+    // Test driver for 'all_of'.
+{
+    struct {
+        const char *d_spec;
+        bool        d_result;
+    } DATA_EVEN[] = {
+        { "",    true  },
+        { "0",   true  },
+        { "1",   false },
+        { "00",  true  },
+        { "01",  false },
+        { "10",  false },
+        { "11",  false },
+        { "000", true  },
+        { "001", false },
+        { "010", false },
+        { "100", false },
+        { "111", false }
+    };
+    const size_t NUM_DATA_EVEN = sizeof DATA_EVEN / sizeof *DATA_EVEN;
+
+    for (size_t i = 0; i < NUM_DATA_EVEN; ++i) {
+        const char *const SPEC = DATA_EVEN[i].d_spec;
+        const VALUE       EXP  =
+            bsltf::TemplateTestFacility::create<VALUE>(DATA_EVEN[i].d_result);
+
+            bsltf::TestValuesArray<VALUE> values(SPEC);
+            ASSERT((EXP == bsl::all_of(values.begin(), values.end(), isEven)));
+    }
+
+    struct {
+        const char *d_spec;
+        bool        d_result;
+    } DATA_ODD[] = {
+        { "",    true  },
+        { "0",   false },
+        { "1",   true  },
+        { "00",  false },
+        { "01",  false },
+        { "10",  false },
+        { "11",  true  },
+        { "000", false },
+        { "001", false },
+        { "010", false },
+        { "100", false },
+        { "111", true  }
+    };
+    const size_t NUM_DATA_ODD = sizeof DATA_ODD / sizeof *DATA_ODD;
+
+    for (size_t i = 0; i < NUM_DATA_ODD; ++i) {
+        const char *const SPEC = DATA_ODD[i].d_spec;
+        const VALUE       EXP  =
+            bsltf::TemplateTestFacility::create<VALUE>(DATA_ODD[i].d_result);
+
+            bsltf::TestValuesArray<VALUE> values(SPEC);
+            ASSERT((EXP ==
+                          bsl::all_of(values.begin(), values.end(), IsOdd())));
+    }
+}
+
+template <class VALUE>
+void runTestAnyOf()
+    // Test driver for 'any_of'.
+{
+    struct {
+        const char *d_spec;
+        bool        d_result;
+    } DATA_EVEN[] = {
+        { "",    false },
+        { "0",   true  },
+        { "1",   false },
+        { "00",  true  },
+        { "01",  true  },
+        { "10",  true  },
+        { "11",  false },
+        { "000", true  },
+        { "001", true  },
+        { "010", true  },
+        { "100", true  },
+        { "111", false }
+    };
+    const size_t NUM_DATA_EVEN = sizeof DATA_EVEN / sizeof *DATA_EVEN;
+
+    for (size_t i = 0; i < NUM_DATA_EVEN; ++i) {
+        const char *const SPEC = DATA_EVEN[i].d_spec;
+        const VALUE       EXP  =
+            bsltf::TemplateTestFacility::create<VALUE>(DATA_EVEN[i].d_result);
+
+            bsltf::TestValuesArray<VALUE> values(SPEC);
+            ASSERT((EXP == bsl::any_of(values.begin(), values.end(), isEven)));
+    }
+
+    struct {
+        const char *d_spec;
+        bool        d_result;
+    } DATA_ODD[] = {
+        { "",    false },
+        { "0",   false },
+        { "1",   true  },
+        { "00",  false },
+        { "01",  true  },
+        { "10",  true  },
+        { "11",  true  },
+        { "000", false },
+        { "001", true  },
+        { "010", true  },
+        { "100", true  },
+        { "111", true  }
+    };
+    const size_t NUM_DATA_ODD = sizeof DATA_ODD / sizeof *DATA_ODD;
+
+    for (size_t i = 0; i < NUM_DATA_ODD; ++i) {
+        const char *const SPEC = DATA_ODD[i].d_spec;
+        const VALUE       EXP  =
+            bsltf::TemplateTestFacility::create<VALUE>(DATA_ODD[i].d_result);
+
+            bsltf::TestValuesArray<VALUE> values(SPEC);
+            ASSERT((EXP ==
+                          bsl::any_of(values.begin(), values.end(), IsOdd())));
+    }
+}
+
+template <class VALUE>
+void runTestNoneOf()
+    // Test driver for 'none_of'.
+{
+    struct {
+        const char *d_spec;
+        bool        d_result;
+    } DATA_EVEN[] = {
+        { "",    true  },
+        { "0",   false },
+        { "1",   true  },
+        { "00",  false },
+        { "01",  false },
+        { "10",  false },
+        { "11",  true  },
+        { "000", false },
+        { "001", false },
+        { "010", false },
+        { "100", false },
+        { "111", true  }
+    };
+    const size_t NUM_DATA_EVEN = sizeof DATA_EVEN / sizeof *DATA_EVEN;
+
+    for (size_t i = 0; i < NUM_DATA_EVEN; ++i) {
+        const char *const SPEC = DATA_EVEN[i].d_spec;
+        const VALUE       EXP  =
+            bsltf::TemplateTestFacility::create<VALUE>(DATA_EVEN[i].d_result);
+
+            bsltf::TestValuesArray<VALUE> values(SPEC);
+            ASSERT((EXP ==
+                          bsl::none_of(values.begin(), values.end(), isEven)));
+    }
+
+    struct {
+        const char *d_spec;
+        bool        d_result;
+    } DATA_ODD[] = {
+        { "",    true  },
+        { "0",   true  },
+        { "1",   false },
+        { "00",  true  },
+        { "01",  false },
+        { "10",  false },
+        { "11",  false },
+        { "000", true  },
+        { "001", false },
+        { "010", false },
+        { "100", false },
+        { "111", false }
+    };
+    const size_t NUM_DATA_ODD = sizeof DATA_ODD / sizeof *DATA_ODD;
+
+    for (size_t i = 0; i < NUM_DATA_ODD; ++i) {
+        const char *const SPEC = DATA_ODD[i].d_spec;
+        const VALUE       EXP  =
+            bsltf::TemplateTestFacility::create<VALUE>(DATA_ODD[i].d_result);
+
+            bsltf::TestValuesArray<VALUE> values(SPEC);
+            ASSERT((EXP ==
+                         bsl::none_of(values.begin(), values.end(), IsOdd())));
+    }
+}
+
+#endif
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -176,36 +369,11 @@ int main(int argc, char *argv[])
                             "\n==================\n");
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-        const int v[] = {0, 2, 4, 1, 3, 5, 6, 8};
-
-        // Never enter the loop
-        ASSERT( (bsl::all_of (v, v,   IsOdd()) ));
-        ASSERT(!(bsl::any_of (v, v,   IsOdd()) ));
-        ASSERT( (bsl::none_of(v, v,   IsOdd()) ));
-
-        // single element ranges
-        ASSERT(!(bsl::all_of (v, v+1, IsOdd()) ));
-        ASSERT( (bsl::all_of (v, v+1, isEven)  ));
-        ASSERT(!(bsl::any_of (v, v+1, IsOdd()) ));
-        ASSERT( (bsl::any_of (v, v+1, isEven)  ));
-        ASSERT( (bsl::none_of(v, v+1, IsOdd()) ));
-        ASSERT(!(bsl::none_of(v, v+1, isEven)  ));
-
-        // never break
-        ASSERT( (bsl::all_of (v + 3, v + 6, IsOdd()) ));
-        ASSERT(!(bsl::any_of (v,     v + 3, IsOdd()) ));
-        ASSERT( (bsl::none_of(v,     v + 3, IsOdd()) ));
-
-        // break on first iteration
-        ASSERT(!(bsl::all_of (v,     v + 3, IsOdd()) ));
-        ASSERT( (bsl::any_of (v + 3, v + 6, IsOdd()) ));
-        ASSERT(!(bsl::none_of(v + 3, v + 6, IsOdd()) ));
-
-        // break on later iteration
-        ASSERT(!(bsl::all_of (v + 3, v + 8, IsOdd()) ));
-        ASSERT( (bsl::any_of (v,     v + 6, IsOdd()) ));
-        ASSERT(!(bsl::none_of(v,     v + 6, IsOdd()) ));
+            runTestAllOf<char>();
+            runTestAnyOf<char>();
+            runTestNoneOf<char>();
 #endif
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

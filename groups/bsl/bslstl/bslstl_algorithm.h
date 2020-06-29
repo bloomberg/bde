@@ -32,16 +32,37 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #include <bsls_libraryfeatures.h>
 
-namespace bsl {
-
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
-template <class InputIter, class PREDICATE>
-bool all_of(InputIter first, InputIter last, PREDICATE pred)
+namespace bsl {
+
+template <class INPUT_ITERATOR, class PREDICATE>
+bool all_of(INPUT_ITERATOR first, INPUT_ITERATOR last, PREDICATE pred);
     // Return 'true' if, for the specified '[first, last)' range and the
     // specified predicate 'pred', the range is either empty or 'pred(*i)' is
     // 'true' for every iterator 'i' in the range, and 'false' otherwise.  Note
     // that at most 'last - first' applications of the predicate are performed.
+
+template <class INPUT_ITERATOR, class PREDICATE>
+bool any_of(INPUT_ITERATOR first, INPUT_ITERATOR last, PREDICATE pred);
+    // Return 'false' if, for the specified '[first, last)' range and the
+    // specified predicate 'pred', the range is either empty or 'pred(*i)' is
+    // 'false' for every iterator 'i' in the range, and 'true' otherwise.  Note
+    // that at most 'last - first' applications of the predicate are performed.
+
+template <class INPUT_ITERATOR, class PREDICATE>
+bool none_of(INPUT_ITERATOR first, INPUT_ITERATOR last, PREDICATE pred);
+    // Return 'true' if, for the specified '[first, last)' range and the
+    // specified predicate 'pred', the range is either empty or 'pred(*i)' is
+    // 'false' for every iterator 'i' in the range, and 'false' otherwise.
+    // Note that at most 'last - first' applications of the predicate are
+    // performed.
+
+}  // close namespace bsl
+
+
+template <class INPUT_ITERATOR, class PREDICATE>
+bool bsl::all_of(INPUT_ITERATOR first, INPUT_ITERATOR last, PREDICATE pred)
 {
     for (; first != last; ++first) {
         if (!pred(*first)) {
@@ -51,12 +72,8 @@ bool all_of(InputIter first, InputIter last, PREDICATE pred)
     return true;
 }
 
-template <class InputIter, class PREDICATE>
-bool any_of(InputIter first, InputIter last, PREDICATE pred)
-    // Return 'false' if, for the specified '[first, last)' range and the
-    // specified predicate 'pred', the range is either empty or 'pred(*i)' is
-    // 'false' for every iterator 'i' in the range, and 'true' otherwise.  Note
-    // that at most 'last - first' applications of the predicate are performed.
+template <class INPUT_ITERATOR, class PREDICATE>
+bool bsl::any_of(INPUT_ITERATOR first, INPUT_ITERATOR last, PREDICATE pred)
 {
     for (; first != last; ++first) {
         if (pred(*first)) {
@@ -66,13 +83,8 @@ bool any_of(InputIter first, InputIter last, PREDICATE pred)
     return false;
 }
 
-template <class InputIter, class PREDICATE>
-bool none_of(InputIter first, InputIter last, PREDICATE pred)
-    // Return 'true' if, for the specified '[first, last)' range and the
-    // specified predicate 'pred', the range is either empty or 'pred(*i)' is
-    // 'false' for every iterator 'i' in the range, and 'false' otherwise.
-    // Note that at most 'last - first' applications of the predicate are
-    // performed.
+template <class INPUT_ITERATOR, class PREDICATE>
+bool bsl::none_of(INPUT_ITERATOR first, INPUT_ITERATOR last, PREDICATE pred)
 {
     for (; first != last; ++first) {
         if (pred(*first)) {
@@ -85,7 +97,6 @@ bool none_of(InputIter first, InputIter last, PREDICATE pred)
 #endif
 
 // C++11 Algorithms
-//   one_of
 //   is_sorted
 //   is_partitioned
 //   is_permutation
@@ -100,8 +111,6 @@ bool none_of(InputIter first, InputIter last, PREDICATE pred)
 //   mismatch
 // C++17 Algorithms
 //   for_each_n
-
-}  // close namespace bsl
 
 #endif
 
