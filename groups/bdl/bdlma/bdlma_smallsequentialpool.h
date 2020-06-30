@@ -29,15 +29,20 @@ BSLS_IDENT("$Id: $")
 // on whether the request size exceeds an optionally-specified threshold.
 // Allocations that exceed that threshold are deemed "large" blocks.  See
 // {Optional 'maxBufferSize' Parameter} and {Optional 'growthStrategy'
-// Parameter} for details of specifying allocation such thresholds.
+// Parameter} for details of specifying allocation such thresholds.  Requests
+// exceeding 'maxBufferSize' should be avoided since they are simply passed
+// through to the upstream allocator, thereby defeating the advantages of using
+// a pool.  See {Example 1: Using 'bdlma::SmallSequentialPool' for Efficient
+// Allocations}.
 //
 // The 'release' method releases all memory allocated through the pool, as does
 // the destructor.  Note that individually allocated memory blocks cannot be
 // separately deallocated.
 //
 // The 'rewind' method releases all memory allocated through the pool *except*
-// for the last non-"large" block, if any.  Using 'rewind' instead of
-// 'release' can save on reallocations when a pool object is being reused.
+// for the last non-"large" block, if any.  Using 'rewind' instead of 'release'
+// can save on reallocations when a pool object is being reused.  See {Example
+// 3: Iterative Pool Reuse}.
 //
 ///Optional 'initialSize' Parameter
 ///--------------------------------
@@ -63,11 +68,16 @@ BSLS_IDENT("$Id: $")
 // specify the growth rate of the dynamically-allocated buffers.  See
 // {'bsls_blockgrowth'} for more details.  The buffers can grow either
 // geometrically or remain constant in size.  If 'growthStrategy' is not
-// specified, geometric growth is used.  If the constant size growth strategy
-// is chosen, the pool always allocates internal buffers of the specified
-// 'initialSize' (see {Optional 'initialSize' Parameter}) or an
-// implementation-defined value.  Each pool request in excess of the constant
-// buffer size is satisfied by allocating (and returning) a "large" block.
+// specified, geometric growth is used.
+//
+// If the constant size growth strategy is chosen, the pool always allocates
+// internal buffers of the specified 'initialSize' (see {Optional 'initialSize'
+// Parameter}) or an implementation-defined value.  If an allocation request
+// exceeds the growth size the pool switches to geometric growth for that
+// request.  Allocation requests in excess of 'maxBufferSize' are satisfied by
+// providing a single "large" block of the requested size.  The fallback from
+// constant to geometric growth can be suppressed by constructing the pool with
+// 'initialSize' equal to 'maxBufferSize'.
 //
 ///Optional 'alignmentStrategy' Parameter
 ///--------------------------------------
