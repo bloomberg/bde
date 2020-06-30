@@ -861,12 +861,7 @@ int main(int argc, char *argv[])
                                            ||  'u' == CONFIG
                                            ||  'v' == CONFIG;
 
-#if 0
-            const bool canHaveLargeBlocks   = hasMaximumBlockSize
-                                           || usesConstantGrowthStrategy;
-#else
             const bool canHaveLargeBlocks   = hasMaximumBlockSize;
-#endif
 
             if (veryVerbose) {
                 cout << "Classification" << ": ";
@@ -913,15 +908,10 @@ int main(int argc, char *argv[])
 
             // Note: True irrespective of 'hasInitialAllocation'.
 
-            ASSERTV(CONFIG, 1              == blocksExplicitAlloc);
-#if 0
-            ASSERTV(CONFIG, ISZ, blockSize(ISZ), bytesExplicitAlloc, 
-                            blockSize(ISZ) == bytesExplicitAlloc);
-#else
+            ASSERTV(CONFIG, 1                  == blocksExplicitAlloc);
             ASSERTV(CONFIG, bytesExplicitAlloc == hasMaximumBlockSize
                                                 ? blockSize(ISZ)
                                                 : blockSize(ISZ * 2));
-#endif // 0
 
             mX.rewind();  // ACTION
 
@@ -1020,16 +1010,12 @@ int main(int argc, char *argv[])
 
                 bslma::TestAllocatorMonitor sam(&sa);
 
-#if 1
                 ASSERT(mX.allocate(k_DEFAULT_SIZE + 1));  // ACTION
-#else
-                ASSERT(mX.allocate(k_DEFAULT_SIZE + 0));  // ACTION
-#endif // 0
 
                 static const bsls::Types::Int64 bytesPerAllocation =
                                                             sa.numBytesInUse()
                                                           - bytesInitialAlloc;
-                    // Note that this value is fixed on the first pass.
+                    // This 'static' value is fixed on the first pass.
 
                 if (veryVerbose) {
                     T_ T_ P_(bytesPerAllocation)
@@ -1038,11 +1024,11 @@ int main(int argc, char *argv[])
 
                 }
 
-                ASSERTV(i, j, sa.numBlocksInUse(),
-                                j + 1                  == sa.numBlocksInUse());
-                ASSERTV(i, j, bytesPerAllocation, sa. numBytesInUse() - bytesInitialAlloc,
-                                j  * bytesPerAllocation == sa.numBytesInUse()
-                                                         - bytesInitialAlloc);
+                ASSERTV(i, j, j                      == sa.numBlocksInUse()
+                                                      - blocksInitialAlloc);
+                ASSERTV(i, j, j * bytesPerAllocation == sa.numBytesInUse()
+                                                      - bytesInitialAlloc);
+
                 if (veryVerbose) {
                     cout << endl;
                 }
@@ -1050,11 +1036,7 @@ int main(int argc, char *argv[])
 
             mX.rewind();  // ACTION
 
-#if 0
-            ASSERTV(i, 0 == sa.numBlocksInUse());
-#else
             ASSERTV(i, 1 == sa.numBlocksInUse());
-#endif // 0
 
             for (int j = 1; j <= i; ++j) {
 
