@@ -241,6 +241,8 @@ static int calculateNextSize(int currentSize, int size)
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
+// BDE_VERIFY pragma: -FABC01 // Functions are not in alphanumeric order.
+
 namespace Usage {
 
 ///Usage
@@ -572,8 +574,8 @@ namespace Usage {
 //..
 // Now, we can use our allocator class and confirm that its behavior is
 // consistent with that of 'bslma::SmallSequentialPool'.  As in {Example 1}, we
-// use a 'bslma::TestAllocator' to allow us to observe the interations with the
-// global allocator.
+// use a 'bslma::TestAllocator' to allow us to observe the interactions with
+// the global allocator.
 //..
     void useMySmallSequentialAllocator()
         // Demonstrate some of the characteristic behaviors of the
@@ -659,7 +661,7 @@ namespace Usage {
 // upstream allocator so that the memory usage of the pool can be observed:
 //..
     void iterativePoolReuse()
-        // Simulate resue of a 'bslma::SmallSequentialPool' object by
+        // Simulate reuse of a 'bslma::SmallSequentialPool' object by
         // iteratively subjecting it to the 'poolAllocationScenario' and
         // invoking its 'rewind' method after after each iteration.
     {
@@ -723,6 +725,8 @@ namespace Usage {
 //..
 
 }  // close namespace Usage
+
+// BDE_VERIFY pragma: +FABC01 // Functions are not in alphanumeric order.
 
 // ============================================================================
 //                                MAIN PROGRAM
@@ -841,6 +845,7 @@ int main(int argc, char *argv[])
 
         const bsls::BlockGrowth::Strategy CS =
                                              bsls::BlockGrowth::BSLS_CONSTANT;
+
         const int ISZ = 1024;     // initial buffer size
         const int MBS = ISZ * 8;  // maximum buffer size
 
@@ -1459,7 +1464,7 @@ int main(int argc, char *argv[])
         //:   buffer size.  Repeat verification done in P-2.  (C-3)
         //:
         //: 5 Invoke 'reserveCapacity' with an argument of 0.  Confirm that
-        //:   there no dyanamic allocation is triggered.  (C-4)
+        //:   there no dynamic allocation is triggered.  (C-4)
         //
         // Testing:
         //   void reserveCapacity(int numBytes);
@@ -1989,7 +1994,7 @@ int main(int argc, char *argv[])
         //:
         //: 3 The 'rewind' method retains the most recently allocated block
         //:   when the constant-growth strategy is used and when then
-        //:   constant-growth strategy lapes into geometric growth.
+        //:   constant-growth strategy lapses into geometric growth.
         //
         // Plan:
         //: 1 Using the table-driven technique, create test vectors having an
@@ -2095,10 +2100,10 @@ int main(int argc, char *argv[])
                 // allocator was used after each request.
 
                 for (int reqNum = 0; reqNum < NUMREQ; ++reqNum) {
-                    bsl::size_t requestSize = IS_GEO
-                                            ? REQSIZE * (1 << reqNum)
-                                            : REQSIZE;
-                    void *returnAddr = mX.allocate(requestSize);
+                    bsl::size_t  requestSize = IS_GEO
+                                             ? REQSIZE * (1 << reqNum)
+                                             : REQSIZE;
+                    void        *returnAddr = mX.allocate(requestSize);
                     LOOP2_ASSERT(LINE, reqNum, returnAddr);
                     LOOP2_ASSERT(LINE, reqNum, ta.numBlocksInUse());
 
@@ -2121,10 +2126,10 @@ int main(int argc, char *argv[])
                 // allocator was used after each request.
 
                 for (int reqNum = 0; reqNum < NUMREQ; ++reqNum) {
-                    bsl::size_t requestSize = IS_GEO
-                                            ? REQSIZE * (1 << reqNum)
-                                            : REQSIZE;
-                    void *returnAddr = mX.allocate(requestSize);
+                    bsl::size_t  requestSize = IS_GEO
+                                             ? REQSIZE * (1 << reqNum)
+                                             : REQSIZE;
+                    void        *returnAddr = mX.allocate(requestSize);
                     LOOP2_ASSERT(LINE, reqNum, returnAddr);
                     LOOP2_ASSERT(LINE, reqNum, ta.numBlocksInUse());
 

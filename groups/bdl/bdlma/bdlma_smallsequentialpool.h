@@ -419,8 +419,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, we can use our allocator class and confirm that its behavior is
 // consistent with that of 'bslma::SmallSequentialPool'.  As in {Example 1}, we
-// use a 'bslma::TestAllocator' to allow us to observe the interations with the
-// global allocator.
+// use a 'bslma::TestAllocator' to allow us to observe the interactions with
+// the global allocator.
 //..
 //  void useMySmallSequentialAllocator()
 //      // Demonstrate some of the characteristic behaviors of the
@@ -526,7 +526,7 @@ BSLS_IDENT("$Id: $")
 //
 //          ssp.rewind();
 //      }
-//.. 
+//..
 // Now, we examine the usage pattern:
 //..
 //  0: 3 1816
@@ -641,7 +641,6 @@ class SmallSequentialPool {
         // construction.  If 'size' is 0, no memory is allocated and 0 is
         // returned.
 
-    // PRIVATE ACCESSORS
     bsl::size_t calculateNextBufferSize(bsl::size_t size);
         // Return the next buffer size (in bytes) that is sufficiently large to
         // satisfy a memory allocation request of the specified 'size' (in
