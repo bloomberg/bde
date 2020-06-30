@@ -13,6 +13,7 @@
 #include <bsls_bsltestutil.h>
 
 #include <bsltf_testvaluesarray.h>
+#include <bsltf_templatetestfacility.h>
 
 #include <functional>
 #include <limits.h>
@@ -34,7 +35,7 @@
 // ----------------------------------------------------------------------------
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
@@ -54,7 +55,7 @@ void aSsErT(bool b, const char *s, int i)
 }  // close unnamed namespace
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -119,7 +120,7 @@ struct IsOdd {
     // if an 'int' value is odd.
 
     // PUBLIC TYPES
-    typedef char  argument_type;
+    typedef char argument_type;
     typedef bool result_type;
 
     // ACCESSORS
@@ -142,8 +143,8 @@ template <class VALUE>
 void runTestAllOf()
     // Test driver for 'all_of'.
 {
-    struct {
-        const char *d_spec;
+    const struct {
+        const char *d_spec_p;
         bool        d_result;
     } DATA_EVEN[] = {
         { "",    true  },
@@ -157,12 +158,13 @@ void runTestAllOf()
         { "001", false },
         { "010", false },
         { "100", false },
+        { "101", false },
         { "111", false }
     };
     const size_t NUM_DATA_EVEN = sizeof DATA_EVEN / sizeof *DATA_EVEN;
 
     for (size_t i = 0; i < NUM_DATA_EVEN; ++i) {
-        const char *const SPEC = DATA_EVEN[i].d_spec;
+        const char *const SPEC = DATA_EVEN[i].d_spec_p;
         const VALUE       EXP  =
             bsltf::TemplateTestFacility::create<VALUE>(DATA_EVEN[i].d_result);
 
@@ -170,8 +172,8 @@ void runTestAllOf()
             ASSERT((EXP == bsl::all_of(values.begin(), values.end(), isEven)));
     }
 
-    struct {
-        const char *d_spec;
+    const struct {
+        const char *d_spec_p;
         bool        d_result;
     } DATA_ODD[] = {
         { "",    true  },
@@ -185,12 +187,13 @@ void runTestAllOf()
         { "001", false },
         { "010", false },
         { "100", false },
+        { "101", false },
         { "111", true  }
     };
     const size_t NUM_DATA_ODD = sizeof DATA_ODD / sizeof *DATA_ODD;
 
     for (size_t i = 0; i < NUM_DATA_ODD; ++i) {
-        const char *const SPEC = DATA_ODD[i].d_spec;
+        const char *const SPEC = DATA_ODD[i].d_spec_p;
         const VALUE       EXP  =
             bsltf::TemplateTestFacility::create<VALUE>(DATA_ODD[i].d_result);
 
@@ -204,8 +207,8 @@ template <class VALUE>
 void runTestAnyOf()
     // Test driver for 'any_of'.
 {
-    struct {
-        const char *d_spec;
+    const struct {
+        const char *d_spec_p;
         bool        d_result;
     } DATA_EVEN[] = {
         { "",    false },
@@ -219,12 +222,13 @@ void runTestAnyOf()
         { "001", true  },
         { "010", true  },
         { "100", true  },
+        { "101", true  },
         { "111", false }
     };
     const size_t NUM_DATA_EVEN = sizeof DATA_EVEN / sizeof *DATA_EVEN;
 
     for (size_t i = 0; i < NUM_DATA_EVEN; ++i) {
-        const char *const SPEC = DATA_EVEN[i].d_spec;
+        const char *const SPEC = DATA_EVEN[i].d_spec_p;
         const VALUE       EXP  =
             bsltf::TemplateTestFacility::create<VALUE>(DATA_EVEN[i].d_result);
 
@@ -232,8 +236,8 @@ void runTestAnyOf()
             ASSERT((EXP == bsl::any_of(values.begin(), values.end(), isEven)));
     }
 
-    struct {
-        const char *d_spec;
+    const struct {
+        const char *d_spec_p;
         bool        d_result;
     } DATA_ODD[] = {
         { "",    false },
@@ -247,12 +251,13 @@ void runTestAnyOf()
         { "001", true  },
         { "010", true  },
         { "100", true  },
+        { "101", true  },
         { "111", true  }
     };
     const size_t NUM_DATA_ODD = sizeof DATA_ODD / sizeof *DATA_ODD;
 
     for (size_t i = 0; i < NUM_DATA_ODD; ++i) {
-        const char *const SPEC = DATA_ODD[i].d_spec;
+        const char *const SPEC = DATA_ODD[i].d_spec_p;
         const VALUE       EXP  =
             bsltf::TemplateTestFacility::create<VALUE>(DATA_ODD[i].d_result);
 
@@ -266,8 +271,8 @@ template <class VALUE>
 void runTestNoneOf()
     // Test driver for 'none_of'.
 {
-    struct {
-        const char *d_spec;
+    const struct {
+        const char *d_spec_p;
         bool        d_result;
     } DATA_EVEN[] = {
         { "",    true  },
@@ -281,12 +286,13 @@ void runTestNoneOf()
         { "001", false },
         { "010", false },
         { "100", false },
+        { "101", false },
         { "111", true  }
     };
     const size_t NUM_DATA_EVEN = sizeof DATA_EVEN / sizeof *DATA_EVEN;
 
     for (size_t i = 0; i < NUM_DATA_EVEN; ++i) {
-        const char *const SPEC = DATA_EVEN[i].d_spec;
+        const char *const SPEC = DATA_EVEN[i].d_spec_p;
         const VALUE       EXP  =
             bsltf::TemplateTestFacility::create<VALUE>(DATA_EVEN[i].d_result);
 
@@ -295,8 +301,8 @@ void runTestNoneOf()
                           bsl::none_of(values.begin(), values.end(), isEven)));
     }
 
-    struct {
-        const char *d_spec;
+    const struct {
+        const char *d_spec_p;
         bool        d_result;
     } DATA_ODD[] = {
         { "",    true  },
@@ -310,12 +316,13 @@ void runTestNoneOf()
         { "001", false },
         { "010", false },
         { "100", false },
+        { "101", false },
         { "111", false }
     };
     const size_t NUM_DATA_ODD = sizeof DATA_ODD / sizeof *DATA_ODD;
 
     for (size_t i = 0; i < NUM_DATA_ODD; ++i) {
-        const char *const SPEC = DATA_ODD[i].d_spec;
+        const char *const SPEC = DATA_ODD[i].d_spec_p;
         const VALUE       EXP  =
             bsltf::TemplateTestFacility::create<VALUE>(DATA_ODD[i].d_result);
 
@@ -369,9 +376,9 @@ int main(int argc, char *argv[])
                             "\n==================\n");
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-            runTestAllOf<char>();
-            runTestAnyOf<char>();
-            runTestNoneOf<char>();
+        runTestAllOf<char>();
+        runTestAnyOf<char>();
+        runTestNoneOf<char>();
 #endif
 
       } break;
@@ -402,4 +409,3 @@ int main(int argc, char *argv[])
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-
