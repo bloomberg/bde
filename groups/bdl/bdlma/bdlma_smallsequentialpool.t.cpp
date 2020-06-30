@@ -94,7 +94,8 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [ 2] HELPER FUNCTION: 'int blockSize(numBytes)'
 // [11] CONCERN: Large allocated blocks are released by 'rewind'
-// [12] USAGE EXAMPLE
+// [12] CONCERN: Growth-Strategy Transitions
+// [13] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -655,7 +656,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -682,6 +683,197 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "Example 2" << endl;
         Usage::useMySmallSequentialAllocator();
+
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TEST GROWTH-STRATEGY TRANSITIONS
+        //   The pool constant-growth strategy lapse to geometric growth if a
+        //   request exceeds the constant-growth size but is within the maximum
+        //   buffer size.  Requests larger than the maximum buffer size are
+        //   handled as "large" blocks.  Each policy is used only when needed.
+        //
+        // Concerns:
+        //: 1 The pool growth strategy switches from constant-growth to
+        //:   geometric growth when an allocation request exceeds the constant
+        //:   growth size.
+        //:
+        //: 2 The initial growth strategy used can be either constant or
+        //:   geometric.
+        //:
+        //: 3 The geometric growth factor is retained across episodes of
+        //:   constant growth.
+        //:
+        //: 4 A maximum buffer size limits geometric growth initiated from
+        //:   constant growth.
+        //:
+        //: 5 Blocks acquired by constant-growth and (forced) geometric-growth
+        //:   strategies are retained across 'rewind' whereas "large" blocks
+        //:   are not.
+        //:
+        //: 6 The 'release' method resets the geometric growth factor.
+        //
+        // Plan:
+        //: 1 The different transitions will be explored by an ad-hoc series of
+        //:   tests.
+        //
+        // Testing:
+        //   CONCERN: Growth-Strategy Transitions
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TEST GROWTH-STRATEGY TRANSITIONS" << endl
+                          << "================================" << endl;
+
+        const bsls::BlockGrowth::Strategy CS =
+                                             bsls::BlockGrowth::BSLS_CONSTANT;
+        const int ISZ = 1024;     // initial buffer size
+        const int MBS = ISZ * 8;  // maximum buffer size
+
+        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+        bsls::Types::Int64 priorBlocksInUse = sa.numBlocksInUse();
+        bsls::Types::Int64 priorBytesInUse  = sa. numBytesInUse();
+
+        ASSERT(0 == priorBlocksInUse);
+        ASSERT(0 == priorBytesInUse);
+
+        if (veryVerbose) { Q(scenario: constant-growth first) }
+
+        Obj mX(ISZ, MBS, CS, &sa);                                    // ACTION
+
+        ASSERT(1              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Consume block allocated on construction.
+        mX.allocate(ISZ);                                             // ACTION
+
+        ASSERT(0              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(0              == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Add a block to the pool under the constant growth strategy
+        mX.allocate(ISZ);                                             // ACTION
+
+        ASSERT(1              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Force geometric allocation.
+        mX.allocate(ISZ + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(2 * ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Service a request via constant-growth strategy (second time).
+        mX.allocate(ISZ);                                             // ACTION
+
+        ASSERT(1              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Force geometric allocation again.
+        mX.allocate(ISZ + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(4 * ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Force "large" block allocation
+        mX.allocate(MBS + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(MBS + 1) == sa.numBytesInUse()  - priorBytesInUse);
+
+        mX.rewind();                                                  // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse());
+        ASSERT(blockSize(4 * ISZ) == sa.numBytesInUse());  // last non-large
+                                                           // allocation
+                                                           // (geometric)
+                                                           
+        if (veryVerbose) { Q(release) }
+
+        mX.release();                                                 // ACTION
+
+        ASSERT(0                  == sa.numBlocksInUse());
+        ASSERT(0                  == sa.numBytesInUse());
+
+        if (veryVerbose) { Q(scenario: geometric-growth first) }
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Force geometric allocation.
+        mX.allocate(ISZ + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(2 * ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Add a block to the pool under the constant growth strategy
+        mX.allocate(ISZ);                                             // ACTION
+
+        ASSERT(1              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Force geometric allocation again.
+        mX.allocate(ISZ + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(4 * ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Consume remaining space of last allocation
+        mX.allocate(4 * ISZ - (ISZ + 1));                             // ACTION
+
+        ASSERT(0                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(0                  == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Service a request via constant-growth strategy (second time).
+        mX.allocate(ISZ);                                             // ACTION
+
+        ASSERT(1              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Force "large" block allocation
+        mX.allocate(MBS + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(MBS + 1) == sa.numBytesInUse()  - priorBytesInUse);
+
+        mX.rewind();                                                  // ACTION
+
+        ASSERT(1              == sa.numBlocksInUse());
+        ASSERT(blockSize(ISZ) == sa.numBytesInUse());  // last non-large
+                                                       // allocation (constant)
 
       } break;
       case 11: {
@@ -794,11 +986,7 @@ int main(int argc, char *argv[])
         ASSERT(k_DEFAULT_SIZE < ISZ);  // Exceeds default size of constant
                                        // growth strategy.
 
-#if 1
         for (char cfg = 'a'; cfg <= 'v'; ++cfg) {
-#else
-        for (char cfg = 'v'; cfg <= 'v'; ++cfg) {
-#endif // 0
             const char CONFIG = cfg;
 
             if (veryVerbose) {
