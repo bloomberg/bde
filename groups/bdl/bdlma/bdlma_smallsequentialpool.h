@@ -419,8 +419,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, we can use our allocator class and confirm that its behavior is
 // consistent with that of 'bslma::SmallSequentialPool'.  As in {Example 1}, we
-// use a 'bslma::TestAllocator' to allow us to observe the interactions with
-// the global allocator.
+// use a 'bslma::TestAllocator' to allow us to observe the interations with the
+// global allocator.
 //..
 //  void useMySmallSequentialAllocator()
 //      // Demonstrate some of the characteristic behaviors of the
@@ -469,6 +469,104 @@ BSLS_IDENT("$Id: $")
 //..
 //      assert(0 == ta.numBlocksInUse());
 //  }
+//..
+//
+///Example 3: Iterative Pool Reuse
+///- - - - - - - - - - - - - - - -
+// {Example 1} shows that when must make a fairly large number of small memory
+// allocations, it is more efficient to use a pool to services those requests
+// from few relatively large blocks (obtained from the global allocator) than
+// to allocate those memory requests directly from the global allocator.
+//
+// In this example, we illustrate a scenario where the 'rewind' method can be
+// used to make allocation even more efficient.  Suppose one has an application
+// that repeatedly makes a large number of small allocations and then
+// deallocates them (e.g., a service responding to a client query).
+//
+// First, we define 'poolAllocationScenario', a function that represents to
+// usage scenario.  For simplicity of exposition, this function is
+// preternaturally regular: the same number of allocations of a uniform size
+// are made in each invocation:
+//..
+//  void poolAllocationScenario(bdlma::SmallSequentialPool *pool,
+//                              bsl::size_t                 allocationSize)
+//      // Approximate a "typical" pool usage scenario consisting of many
+//      // small allocations of the specified 'allocationSize' from the
+//      // specified 'pool'.
+//  {
+//      BSLS_ASSERT(pool);
+//
+//      for (int i = 0; i < 448; ++i) {
+//          pool->allocate(allocationSize);
+//      }
+//  }
+//..
+// Then, we create a 'bdlma::SmallSequentialPool' object to be supplied to the
+// usage scenario.  We install a 'bslma::TestAllocator' object as the pool's
+// upstream allocator so that the memory usage of the pool can be observed:
+//..
+//  void iterativePoolReuse()
+//      // Simulate resue of a 'bslma::SmallSequentialPool' object by
+//      // iteratively subjecting it to the 'poolAllocationScenario' and
+//      // invoking its 'rewind' method after after each iteration.
+//  {
+//      bslma::TestAllocator       sa("supplied");
+//      bdlma::SmallSequentialPool ssp(&sa);
+//..
+// Next, we iteratively invoke the usage scenario, rewinding the pool after
+// each use:
+//..
+//      for (int i = 0; i < 5; ++i) {
+//
+//          poolAllocationScenario(&ssp, 4);
+//
+//          cout << i                   << ": "
+//               << sa.numBlocksInUse() << " "
+//               << sa.numBytesInUse()  << endl;
+//
+//          ssp.rewind();
+//      }
+//.. 
+// Now, we examine the usage pattern:
+//..
+//  0: 3 1816
+//  1: 2 3088
+//  2: 1 2056
+//  3: 1 2056
+//  4: 1 2056
+//..
+// Recall that the 'bdlma::SmallSequentialPool' class retains the latest (for
+// geometric growth, the largest non-"large") allocated block.  Notice that for
+// this usage pattern the pool converges to a single (contiguous) block (no
+// further upstream allocations) and that block size is less than the maximum
+// allocation.  Also notice that nice situation was achieved with *no*
+// foreknowledge of the usage pattern of the repeated scenario.  (The
+// implementation-specific default value was used for the initial block
+// allocation.)
+//
+// Finally, we consider what happens if the usage scenario should change over
+// time by doubling the allocation size from 4 to 8:
+//..
+//      for (int i = 0; i < 5; ++i) {
+//
+//          poolAllocationScenario(&ssp, 8);  // Increased allocation size
+//
+//          cout << i                   << ": "
+//               << sa.numBlocksInUse() << " "
+//               << sa.numBytesInUse()  << endl;
+//
+//          ssp.rewind();
+//      }
+//  }
+//..
+// The output shows that the pool rapidly adapted to the increased larger
+// allocations:
+//..
+//  0: 2 6160
+//  1: 1 4104
+//  2: 1 4104
+//  3: 1 4104
+//  4: 1 4104
 //..
 
 #include <bdlscm_version.h>
@@ -894,7 +992,9 @@ void SmallSequentialPool::rewind()
     d_blockList.releaseAllButLastBlock();
     d_largeBlockList.release();
 
-    d_geometricSize = d_initialSize;
+    d_geometricSize = d_buffer.bufferSize()
+                    ? d_buffer.bufferSize()
+                    : d_initialSize;
 }
 
 inline

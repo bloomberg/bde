@@ -28,6 +28,10 @@ void *SmallSequentialPool::allocateNonFastPath(bsl::size_t size)
         return 0;                                                     // RETURN
     }
 
+    if (d_maxBufferSize < size) {
+        return d_largeBlockList.allocate(size);                       // RETURN
+    }
+
     const bsl::size_t nextSize = calculateNextBufferSize(size);
 
     if (nextSize < size) {
@@ -43,15 +47,6 @@ void *SmallSequentialPool::allocateNonFastPath(bsl::size_t size)
 // PRIVATE ACCESSORS
 bsl::size_t SmallSequentialPool::calculateNextBufferSize(bsl::size_t size)
 {
-#if 0
-    bsl::size_t       nextSize   = 0 == bufferSize
-                                 ? d_initialSize
-                                 : bufferSize;
-    if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy
-     && size <= nextSize) {
-        return nextSize;                                              // RETURN
-    }
-#else
     if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy
      && size <= d_initialSize) {
         BSLS_ASSERT(d_initialSize <= d_maxBufferSize);
@@ -59,7 +54,6 @@ bsl::size_t SmallSequentialPool::calculateNextBufferSize(bsl::size_t size)
     }
 
     bsl::size_t nextSize = d_geometricSize;
-#endif
 
     const bsl::size_t bufferSize = d_buffer.bufferSize();
 

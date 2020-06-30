@@ -17,8 +17,10 @@
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
-#include <bsl_cstring.h>  // 'bsl::memcpy'
+#include <bsl_cstring.h>   // 'bsl::memcpy'
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>   // 'bsl::ostringstream'
+#include <bsl_streambuf.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -33,7 +35,7 @@ using namespace bsl;
 // memory.  The primary concern is that the sequential pool's internal block
 // list grows using the specified growth strategy, has the specified initial
 // size, and is constrained by the specified maximum buffer size.  These
-// options together create 12 variations of the constructor, and they must all
+// options together create 13 variations of the constructor, and they must all
 // be thoroughly tested.
 //
 // Because 'bdlma::SmallSequentialPool' does not have any accessors, this test
@@ -621,6 +623,104 @@ namespace Usage {
         ASSERT(0 == ta.numBlocksInUse());
     }
 //..
+//
+///Example 3: Iterative Pool Reuse
+///- - - - - - - - - - - - - - - -
+// {Example 1} shows that when must make a fairly large number of small memory
+// allocations, it is more efficient to use a pool to services those requests
+// from few relatively large blocks (obtained from the global allocator) than
+// to allocate those memory requests directly from the global allocator.
+//
+// In this example, we illustrate a scenario where the 'rewind' method can be
+// used to make allocation even more efficient.  Suppose one has an application
+// that repeatedly makes a large number of small allocations and then
+// deallocates them (e.g., a service responding to a client query).
+//
+// First, we define 'poolAllocationScenario', a function that represents to
+// usage scenario.  For simplicity of exposition, this function is
+// preternaturally regular: the same number of allocations of a uniform size
+// are made in each invocation:
+//..
+    void poolAllocationScenario(bdlma::SmallSequentialPool *pool,
+                                bsl::size_t                 allocationSize)
+        // Approximate a "typical" pool usage scenario consisting of many
+        // small allocations of the specified 'allocationSize' from the
+        // specified 'pool'.
+    {
+        BSLS_ASSERT(pool);
+
+        for (int i = 0; i < 448; ++i) {
+            pool->allocate(allocationSize);
+        }
+    }
+//..
+// Then, we create a 'bdlma::SmallSequentialPool' object to be supplied to the
+// usage scenario.  We install a 'bslma::TestAllocator' object as the pool's
+// upstream allocator so that the memory usage of the pool can be observed:
+//..
+    void iterativePoolReuse()
+        // Simulate resue of a 'bslma::SmallSequentialPool' object by
+        // iteratively subjecting it to the 'poolAllocationScenario' and
+        // invoking its 'rewind' method after after each iteration.
+    {
+        bslma::TestAllocator       sa("supplied");
+        bdlma::SmallSequentialPool ssp(&sa);
+//..
+// Next, we iteratively invoke the usage scenario, rewinding the pool after
+// each use:
+//..
+        for (int i = 0; i < 5; ++i) {
+
+            poolAllocationScenario(&ssp, 4);
+
+            cout << i                   << ": "
+                 << sa.numBlocksInUse() << " "
+                 << sa.numBytesInUse()  << endl;
+
+            ssp.rewind();
+        }
+//.. 
+// Now, we examine the usage pattern:
+//..
+//  0: 3 1816
+//  1: 2 3088
+//  2: 1 2056
+//  3: 1 2056
+//  4: 1 2056
+//..
+// Recall that the 'bdlma::SmallSequentialPool' class retains the latest (for
+// geometric growth, the largest non-"large") allocated block.  Notice that for
+// this usage pattern the pool converges to a single (contiguous) block (no
+// further upstream allocations) and that block size is less than the maximum
+// allocation.  Also notice that nice situation was achieved with *no*
+// foreknowledge of the usage pattern of the repeated scenario.  (The
+// implementation-specific default value was used for the initial block
+// allocation.)
+//
+// Finally, we consider what happens if the usage scenario should change over
+// time by doubling the allocation size from 4 to 8:
+//..
+        for (int i = 0; i < 5; ++i) {
+
+            poolAllocationScenario(&ssp, 8);  // Increased allocation size
+
+            cout << i                   << ": "
+                 << sa.numBlocksInUse() << " "
+                 << sa.numBytesInUse()  << endl;
+
+            ssp.rewind();
+        }
+    }
+//..
+// The output shows that the pool rapidly adapted to the increased larger
+// allocations:
+//..
+//  0: 2 6160
+//  1: 1 4104
+//  2: 1 4104
+//  3: 1 4104
+//  4: 1 4104
+//..
 
 }  // close namespace Usage
 
@@ -683,6 +783,20 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "Example 2" << endl;
         Usage::useMySmallSequentialAllocator();
+
+        if (veryVerbose) cout << "Example 3" << endl;
+
+        bsl::streambuf     *coutStreambuf = bsl::cout.rdbuf();
+        bsl::ostringstream  ss;
+        bsl::cout.rdbuf(ss.rdbuf());    // Redirect 'cout' to the 'streambuf'.
+
+        Usage::iterativePoolReuse();    // ACTION
+
+        bsl::cout.rdbuf(coutStreambuf); // Undo the output redirection.
+
+        if (veryVeryVerbose) {
+            cout << ss.str() << endl;
+        }
 
       } break;
       case 12: {
@@ -1985,9 +2099,6 @@ int main(int argc, char *argv[])
 
                 bslma::TestAllocatorMonitor tam(&ta);
 
-#if 0
-                void* addrPre =  mX.allocate(BUFSIZE);
-#else
                 bsl::size_t additionalRequestSize
                                                 = IS_GEO
                                                 ? REQSIZE * (1 << (NUMREQ + 1))
@@ -1996,7 +2107,6 @@ int main(int argc, char *argv[])
                     T_ T_ P(additionalRequestSize)
                 }
                 void *addrPre =  mX.allocate(additionalRequestSize);
-#endif
 
                 if (veryVerbose) {
                     T_ T_ P(addrPre)
@@ -2012,7 +2122,7 @@ int main(int argc, char *argv[])
                 }
                
                 mX.rewind();  // ACTION
-                void* addrPost = mX.allocate(1);
+                void *addrPost = mX.allocate(1);
                 ASSERTV(addrPre,   addrPost,
                         addrPre == addrPost);
                 ASSERT(1 == ta.numBlocksInUse());
