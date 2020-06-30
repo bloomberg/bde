@@ -28394,6 +28394,7 @@ int main(int argc, char *argv[])
     ASSERT("Goodbye" == z.the<bsl::string>());
     ASSERT("Goodbye" == ref);
     ASSERT(&ref == &z.the<bsl::string>());
+
     ref = "Hello again!";
     ASSERT("Hello again!" == z.the<bsl::string>());
 //..
@@ -29358,7 +29359,7 @@ int main(int argc, char *argv[])
         //   properly.  Also assert that the copy constructor is never invoked.
         //
         // Testing:
-        //   void createInPlace<TYPE>(...);
+        //   TYPE& createInPlace<TYPE>(...);
         // --------------------------------------------------------------------
 
         // This test case is defined outside of 'main' to avoid out-of-memory

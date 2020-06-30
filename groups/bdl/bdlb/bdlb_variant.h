@@ -313,6 +313,7 @@ BSLS_IDENT("$Id: $")
 //  assert("Goodbye" == z.the<bsl::string>());
 //  assert("Goodbye" == ref);
 //  assert(&ref == &z.the<bsl::string>());
+//
 //  ref = "Hello again!";
 //  assert("Hello again!" == z.the<bsl::string>());
 //..
