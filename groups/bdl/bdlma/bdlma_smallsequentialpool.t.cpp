@@ -679,7 +679,7 @@ namespace Usage {
 
             ssp.rewind();
         }
-//.. 
+//..
 // Now, we examine the usage pattern:
 //..
 //  0: 3 1816
@@ -919,7 +919,25 @@ int main(int argc, char *argv[])
         ASSERT(blockSize(4 * ISZ) == sa.numBytesInUse());  // last non-large
                                                            // allocation
                                                            // (geometric)
-                                                           
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Consume block allocated retained across 'rewind'.
+        mX.allocate(4 * ISZ);                                         // ACTION
+
+        ASSERT(0              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(0              == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Confirm that geometric growth is based retained block.
+        mX.allocate(ISZ + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(8 * ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
         if (veryVerbose) { Q(release) }
 
         mX.release();                                                 // ACTION
@@ -988,6 +1006,24 @@ int main(int argc, char *argv[])
         ASSERT(1              == sa.numBlocksInUse());
         ASSERT(blockSize(ISZ) == sa.numBytesInUse());  // last non-large
                                                        // allocation (constant)
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Consume block allocated retained across 'rewind'.
+        mX.allocate(ISZ);                                             // ACTION
+
+        ASSERT(0              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(0              == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Confirm that geometric growth is based retained block.
+        mX.allocate(ISZ + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(2 * ISZ) == sa.numBytesInUse()  - priorBytesInUse);
 
       } break;
       case 11: {
@@ -2116,11 +2152,11 @@ int main(int argc, char *argv[])
 
                 // Now release all the allocations, but keep the last buffer
                 // to use again.
-                
+
                 if (veryVerbose) {
                     T_ T_ Q(rewind)
                 }
-               
+
                 mX.rewind();  // ACTION
                 void *addrPost = mX.allocate(1);
                 ASSERTV(addrPre,   addrPost,
