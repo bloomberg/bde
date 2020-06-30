@@ -788,7 +788,17 @@ int main(int argc, char *argv[])
         int hasNoInitialAllocationAvecLargeBlocks = 0;
         int hasNoInitialAllocationSansLargeBlocks = 0;
 
+        const int ISZ = 1024;          // initial size
+        const int MBS = ISZ;           // maximum size
+
+        ASSERT(k_DEFAULT_SIZE < ISZ);  // Exceeds default size of constant
+                                       // growth strategy.
+
+#if 1
         for (char cfg = 'a'; cfg <= 'v'; ++cfg) {
+#else
+        for (char cfg = 'v'; cfg <= 'v'; ++cfg) {
+#endif // 0
             const char CONFIG = cfg;
 
             if (veryVerbose) {
@@ -796,11 +806,6 @@ int main(int argc, char *argv[])
                 T_ P(CONFIG)
             }
 
-            const int ISZ = 1024;          // initial size
-            const int MBS = ISZ;           // maximum size
-
-            ASSERT(k_DEFAULT_SIZE < ISZ);  // Exceeds default size of constant
-                                           // growth strategy.
 
             bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
@@ -849,22 +854,24 @@ int main(int argc, char *argv[])
                                            ||  'u' == CONFIG;
 
             const bool hasMaximumBlockSize  = ('i' <= CONFIG && CONFIG <= 'l')
-                                           ||  's' == CONFIG
-                                           ||  't' == CONFIG;
-                // Note that maximum block size is ignored under the constant
-                // growth strategy.
+                                           || ('q' <= CONFIG && CONFIG <= 'v');
 
             const bool usesConstantGrowthStrategy =
                                               ('m' <= CONFIG && CONFIG <= 'r')
                                            ||  'u' == CONFIG
                                            ||  'v' == CONFIG;
 
+#if 0
             const bool canHaveLargeBlocks   = hasMaximumBlockSize
                                            || usesConstantGrowthStrategy;
+#else
+            const bool canHaveLargeBlocks   = hasMaximumBlockSize;
+#endif
 
             if (veryVerbose) {
                 cout << "Classification" << ": ";
                 P(hasInitialAllocation)
+                P(usesConstantGrowthStrategy)
                 P(hasMaximumBlockSize)
                 P(canHaveLargeBlocks)
             }
@@ -885,12 +892,13 @@ int main(int argc, char *argv[])
                 ASSERTV(CONFIG, 0   ==  bytesInitialAlloc);
             }
 
-            // Trigger an allocation by explicitly allocating at least one byte
-            // more than available memory.  If the object is constructed to
-            // distinguish some blocks as "large", this allocation will be a
-            // "large" block.
+            bsl::size_t explicitAllocationSize = ISZ + 1;
 
-            ASSERTV(CONFIG, mX.allocate(ISZ + 1));  // ACTION
+            if (veryVerbose) {
+                P(explicitAllocationSize)
+            }
+
+            ASSERTV(CONFIG, mX.allocate(explicitAllocationSize));  // ACTION
 
             const bsls::Types::Int64 blocksExplicitAlloc = sa.numBlocksInUse()
                                                          - blocksInitialAlloc;
@@ -905,8 +913,15 @@ int main(int argc, char *argv[])
 
             // Note: True irrespective of 'hasInitialAllocation'.
 
-            ASSERTV(CONFIG, 1   == blocksExplicitAlloc);
-            ASSERTV(CONFIG, ISZ <   bytesExplicitAlloc); // allow for header
+            ASSERTV(CONFIG, 1              == blocksExplicitAlloc);
+#if 0
+            ASSERTV(CONFIG, ISZ, blockSize(ISZ), bytesExplicitAlloc, 
+                            blockSize(ISZ) == bytesExplicitAlloc);
+#else
+            ASSERTV(CONFIG, bytesExplicitAlloc == hasMaximumBlockSize
+                                                ? blockSize(ISZ)
+                                                : blockSize(ISZ * 2));
+#endif // 0
 
             mX.rewind();  // ACTION
 
@@ -985,24 +1000,61 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            Obj mX(CS, &sa);
+            // Create a pool object that uses the constant-growth strategy and
+            // that has an initial buffer sized to be insufficient for the
+            // allocation size.  Set the maximum buffer size to disallow the
+            // use of geometric-growth as a fall-back.  Thus, each allocation
+            // will be handled as a "large" block.
+
+            Obj mX(k_DEFAULT_SIZE, k_DEFAULT_SIZE, CS, &sa);
+
+            const bsls::Types::Int64 blocksInitialAlloc = sa.numBlocksInUse();
+            const bsls::Types::Int64  bytesInitialAlloc = sa. numBytesInUse();
+
+            ASSERT(1                         == blocksInitialAlloc);
+            ASSERT(blockSize(k_DEFAULT_SIZE) ==  bytesInitialAlloc);
 
             for (int j = 1; j <= i; ++j) {
 
                 if (veryVerbose) { T_ T_ P(j) }
 
+                bslma::TestAllocatorMonitor sam(&sa);
+
+#if 1
                 ASSERT(mX.allocate(k_DEFAULT_SIZE + 1));  // ACTION
+#else
+                ASSERT(mX.allocate(k_DEFAULT_SIZE + 0));  // ACTION
+#endif // 0
 
                 static const bsls::Types::Int64 bytesPerAllocation =
-                                                            sa.numBytesInUse();
+                                                            sa.numBytesInUse()
+                                                          - bytesInitialAlloc;
+                    // Note that this value is fixed on the first pass.
 
-                ASSERTV(i, j, j                      == sa.numBlocksInUse());
-                ASSERTV(i, j, j * bytesPerAllocation == sa. numBytesInUse());
+                if (veryVerbose) {
+                    T_ T_ P_(bytesPerAllocation)
+                          P_(sa.numBlocksInUse())
+                          P(sa.numBytesInUse())
+
+                }
+
+                ASSERTV(i, j, sa.numBlocksInUse(),
+                                j + 1                  == sa.numBlocksInUse());
+                ASSERTV(i, j, bytesPerAllocation, sa. numBytesInUse() - bytesInitialAlloc,
+                                j  * bytesPerAllocation == sa.numBytesInUse()
+                                                         - bytesInitialAlloc);
+                if (veryVerbose) {
+                    cout << endl;
+                }
             }
 
             mX.rewind();  // ACTION
 
+#if 0
             ASSERTV(i, 0 == sa.numBlocksInUse());
+#else
+            ASSERTV(i, 1 == sa.numBlocksInUse());
+#endif // 0
 
             for (int j = 1; j <= i; ++j) {
 
