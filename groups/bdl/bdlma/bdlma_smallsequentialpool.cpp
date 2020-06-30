@@ -47,6 +47,8 @@ void *SmallSequentialPool::allocateNonFastPath(bsl::size_t size)
 // PRIVATE ACCESSORS
 bsl::size_t SmallSequentialPool::calculateNextBufferSize(bsl::size_t size)
 {
+    BSLS_ASSERT(size <= d_maxBufferSize);
+
     if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy
      && size <= d_initialSize) {
         BSLS_ASSERT(d_initialSize <= d_maxBufferSize);

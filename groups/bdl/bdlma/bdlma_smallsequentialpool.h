@@ -645,8 +645,11 @@ class SmallSequentialPool {
         // Return the next buffer size (in bytes) that is sufficiently large to
         // satisfy a memory allocation request of the specified 'size' (in
         // bytes), or the maximum buffer size if the buffer can no longer grow.
-        // Update 'd_geometricSize' when the geometric growth strategy is
-        // used.
+        // If the object is using the constant-growth strategy and 'size'
+        // exceeds the growth size, calculate the next size using the geometric
+        // strategy.  Update 'd_geometricSize' whenever the geometric growth
+        // strategy is used.  The behavior is undefined if
+        // 'd_maxBufferSize < size'.
 
   public:
     // CREATORS
