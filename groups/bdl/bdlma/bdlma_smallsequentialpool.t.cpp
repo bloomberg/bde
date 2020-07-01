@@ -32,11 +32,11 @@ using namespace bsl;
 //                             --------
 // A 'bdlma::SmallSequentialPool' is a mechanism (i.e., having state but no
 // value) that is used as a memory manager to manage dynamically allocated
-// memory.  The primary concern is that the sequential pool's internal block
-// list grows using the specified growth strategy, has the specified initial
-// size, and is constrained by the specified maximum buffer size.  These
-// options together create 13 variations of the constructor, and they must all
-// be thoroughly tested.
+// memory.  The primary concern is that the small sequential pool's block list
+// grows using the specified growth strategy, has the specified initial size,
+// and is constrained by the specified maximum buffer size.  These options
+// together create 13 variations of the constructor, and they must all be
+// thoroughly tested.
 //
 // Because 'bdlma::SmallSequentialPool' does not have any accessors, this test
 // driver verifies the correctness of the pool's allocations *indirectly*
@@ -46,8 +46,8 @@ using namespace bsl;
 //
 // We make heavy use of the 'bslma::TestAllocator' to ensure that:
 //
-//: 1 The growth rate of the internal block list matches the specified growth
-//:   strategy and is constrained by the specified maximum buffer size.
+//: 1 The growth rate of the block list matches the specified growth strategy
+//:   and is constrained by the specified maximum buffer size.
 //:
 //: 2 When 'release' is invoked, all memory managed by the pool is deallocated.
 //:
@@ -511,7 +511,7 @@ namespace Usage {
     class my_SmallSequentialAllocator : public bslma::Allocator {
         // This class implements the 'bslma::Allocator' protocol to provide a
         // fast allocator of heterogeneous blocks of memory (of varying,
-        // user-specified sizes) from dynamically-allocated internal buffers.
+        // user-specified sizes) from dynamically-allocated buffers.
 
         // DATA
         bdlma::SmallSequentialPool d_pool;  // manager for allocated memory
@@ -522,7 +522,7 @@ namespace Usage {
         explicit my_SmallSequentialAllocator(
                                          bslma::Allocator *basicAllocator = 0);
             // Create an allocator for allocating memory blocks from
-            // dynamically-allocated internal buffers.  Optionally specify a
+            // dynamically-allocated buffers.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
 
@@ -829,7 +829,9 @@ int main(int argc, char *argv[])
         //:   strategies are retained across 'rewind' whereas "large" blocks
         //:   are not.
         //:
-        //: 6 The 'release' method resets the geometric growth factor.
+        //: 6 The geometric growth factor is retained across calls to 'rewind'.
+        //:
+        //: 7 The 'release' method resets the geometric growth factor.
         //
         // Plan:
         //: 1 The different transitions will be explored by an ad-hoc series of
@@ -1045,9 +1047,9 @@ int main(int argc, char *argv[])
         //:     allocations that exceed that maximum as "large" blocks.  Note
         //:     that these constructors always specify an initial size.
         //:
-        //:   2 Constructors that specify a constant growth strategy
-        //:     create objects that manage allocations that exceed the initial
-        //:     size as "large" blocks.
+        //:   2 Constructors that specify a constant growth strategy create
+        //:     objects that manage allocations that exceed the initial size as
+        //:     "large" blocks.
         //:
         //:   3 Other constructors create objects that do not distinguish
         //:     allocations as "large" blocks.
@@ -1082,8 +1084,8 @@ int main(int argc, char *argv[])
         //:   (e.g., 'canHaveLargeBlocks').
         //
         //: 3 Confirm and save allocator state after construction.  Note that
-        //:   constructor preconditions assure us that any memory allocated
-        //:   as part of construction is not classified as a "large" block.
+        //:   constructor preconditions assure us that any memory allocated as
+        //:   part of construction is not classified as a "large" block.
         //:
         //: 4 Explicitly call 'allocate' using a size value that results in a
         //:   "large" block if the object distinguishes large blocks.
@@ -1436,7 +1438,7 @@ int main(int argc, char *argv[])
         // 'reserveCapacity' TEST
         //
         // Concerns:
-        //: 1 That if there is sufficient memory within the internal buffer,
+        //: 1 That if there is sufficient memory within the buffer,
         //:   'reserveCapacity' should not trigger dynamic allocation.
         //:
         //: 2 That we can allocate at least the amount of bytes specified in
@@ -1757,7 +1759,7 @@ int main(int argc, char *argv[])
         //:   the updated size is the same as the expected memory used.
         //:   Finally, invoke 'allocate' again and verify it triggers new
         //:   dynamic memory allocation -- meaning 'allocateAndExpand' did use
-        //:   up all available memory in the internal buffer.  (C-1..2)
+        //:   up all available memory in the buffer.  (C-1..2)
         //:
         //: 2 Call the 'allocateAndExpand' method with 0 and non-zero arguments
         //:   and confirm that the returned addresses are 0 and non-zero,
@@ -2015,7 +2017,6 @@ int main(int argc, char *argv[])
         //:   scenarios using the constant-growth strategy and when
         //:   constant-growth lapses into geometric growth.  (C-3)
         //
-        //
         // Testing:
         //   void release();
         //   void rewind();
@@ -2218,8 +2219,8 @@ int main(int argc, char *argv[])
         //:   growth strategy.
         //:
         //: 2 All requests over a specified THRESHOLD are satisfied directly
-        //:   from the internal block list if the they cannot be satisfied by
-        //:   the pool's internal buffer.
+        //:   from the block list if the they cannot be satisfied by the pool's
+        //:   buffer.
         //:
         //: 3 The 'allocate' method performs as expected for zero-sized
         //:   allocations.
@@ -2586,13 +2587,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CONSTRUCTOR TEST
         //   Note that this test alone is insufficient to thoroughly test the
-        //   constructors, as the untested 'allocate' method is used to
-        //   verify that the buffer, alignment strategy, and allocator are
-        //   properly passed to the pool at construction.  However, we cannot
-        //   test 'allocate' first - as it requires the constructors.  Hence,
-        //   it is a combination of both this test and test case 4 that
-        //   provides complete test coverage for the constructor and the
-        //   'allocate' method.
+        //   constructors, as the untested 'allocate' method is used to verify
+        //   that the buffer, alignment strategy, and allocator are properly
+        //   passed to the pool at construction.  However, we cannot test
+        //   'allocate' first -- as it requires the constructors.  Hence, it is
+        //   a combination of both this test and test case 4 that provides
+        //   complete test coverage for the constructor and the 'allocate'
+        //   method.
         //
         // Concerns:
         //: 1 That when an allocator is not supplied, the currently installed
@@ -3193,11 +3194,10 @@ int main(int argc, char *argv[])
         //:   specified size and expected alignment.
         //:
         //: 3 That 'allocate' method does not always causes dynamic allocation
-        //:   (i.e., the pool manages an internal buffer of memory)
+        //:   (i.e., the pool manages an buffer of memory)
         //:
         //: 4 The 'allocate' method returns a block of memory even when the the
-        //:   allocation request exceeds the initial size of the internal
-        //:   buffer.
+        //:   allocation request exceeds the initial size of the buffer.
         //:
         //: 5 Destruction of the pool releases all managed memory.
         //
@@ -3243,7 +3243,7 @@ int main(int argc, char *argv[])
             bsls::Types::Int64 oldNumBytesInUse =
                                                objectAllocator.numBytesInUse();
 
-            if (verbose) cout << "\nTesting internal buffering." << endl;
+            if (verbose) cout << "\nTesting buffering." << endl;
             void *addr2 = mX.allocate(k_ALLOC_SIZE2);
 
             ASSERT(oldNumBytesInUse == objectAllocator.numBytesInUse());
