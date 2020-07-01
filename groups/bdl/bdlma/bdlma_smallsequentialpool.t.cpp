@@ -1151,7 +1151,6 @@ int main(int argc, char *argv[])
                 T_ P(CONFIG)
             }
 
-
             bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
