@@ -12,7 +12,6 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
 #include <functional>
@@ -165,11 +164,10 @@ void runTestAllOf()
 
     for (size_t i = 0; i < NUM_DATA_EVEN; ++i) {
         const char *const SPEC = DATA_EVEN[i].d_spec_p;
-        const VALUE       EXP  =
-            bsltf::TemplateTestFacility::create<VALUE>(DATA_EVEN[i].d_result);
+        const bool        EXP  = DATA_EVEN[i].d_result;
 
-            bsltf::TestValuesArray<VALUE> values(SPEC);
-            ASSERT((EXP == bsl::all_of(values.begin(), values.end(), isEven)));
+        bsltf::TestValuesArray<VALUE> values(SPEC);
+        ASSERT((EXP == bsl::all_of(values.begin(), values.end(), isEven)));
     }
 
     const struct {
@@ -194,12 +192,10 @@ void runTestAllOf()
 
     for (size_t i = 0; i < NUM_DATA_ODD; ++i) {
         const char *const SPEC = DATA_ODD[i].d_spec_p;
-        const VALUE       EXP  =
-            bsltf::TemplateTestFacility::create<VALUE>(DATA_ODD[i].d_result);
+        const bool        EXP  = DATA_ODD[i].d_result;
 
-            bsltf::TestValuesArray<VALUE> values(SPEC);
-            ASSERT((EXP ==
-                          bsl::all_of(values.begin(), values.end(), IsOdd())));
+        bsltf::TestValuesArray<VALUE> values(SPEC);
+        ASSERT((EXP == bsl::all_of(values.begin(), values.end(), IsOdd())));
     }
 }
 
@@ -229,11 +225,10 @@ void runTestAnyOf()
 
     for (size_t i = 0; i < NUM_DATA_EVEN; ++i) {
         const char *const SPEC = DATA_EVEN[i].d_spec_p;
-        const VALUE       EXP  =
-            bsltf::TemplateTestFacility::create<VALUE>(DATA_EVEN[i].d_result);
+        const bool        EXP  = DATA_EVEN[i].d_result;
 
-            bsltf::TestValuesArray<VALUE> values(SPEC);
-            ASSERT((EXP == bsl::any_of(values.begin(), values.end(), isEven)));
+        bsltf::TestValuesArray<VALUE> values(SPEC);
+        ASSERT((EXP == bsl::any_of(values.begin(), values.end(), isEven)));
     }
 
     const struct {
@@ -258,12 +253,10 @@ void runTestAnyOf()
 
     for (size_t i = 0; i < NUM_DATA_ODD; ++i) {
         const char *const SPEC = DATA_ODD[i].d_spec_p;
-        const VALUE       EXP  =
-            bsltf::TemplateTestFacility::create<VALUE>(DATA_ODD[i].d_result);
+        const bool        EXP  = DATA_ODD[i].d_result;
 
-            bsltf::TestValuesArray<VALUE> values(SPEC);
-            ASSERT((EXP ==
-                          bsl::any_of(values.begin(), values.end(), IsOdd())));
+        bsltf::TestValuesArray<VALUE> values(SPEC);
+        ASSERT((EXP == bsl::any_of(values.begin(), values.end(), IsOdd())));
     }
 }
 
@@ -293,12 +286,10 @@ void runTestNoneOf()
 
     for (size_t i = 0; i < NUM_DATA_EVEN; ++i) {
         const char *const SPEC = DATA_EVEN[i].d_spec_p;
-        const VALUE       EXP  =
-            bsltf::TemplateTestFacility::create<VALUE>(DATA_EVEN[i].d_result);
+        const bool        EXP  = DATA_EVEN[i].d_result;
 
-            bsltf::TestValuesArray<VALUE> values(SPEC);
-            ASSERT((EXP ==
-                          bsl::none_of(values.begin(), values.end(), isEven)));
+        bsltf::TestValuesArray<VALUE> values(SPEC);
+        ASSERT((EXP == bsl::none_of(values.begin(), values.end(), isEven)));
     }
 
     const struct {
@@ -323,12 +314,10 @@ void runTestNoneOf()
 
     for (size_t i = 0; i < NUM_DATA_ODD; ++i) {
         const char *const SPEC = DATA_ODD[i].d_spec_p;
-        const VALUE       EXP  =
-            bsltf::TemplateTestFacility::create<VALUE>(DATA_ODD[i].d_result);
+        const bool        EXP  = DATA_ODD[i].d_result;
 
-            bsltf::TestValuesArray<VALUE> values(SPEC);
-            ASSERT((EXP ==
-                         bsl::none_of(values.begin(), values.end(), IsOdd())));
+        bsltf::TestValuesArray<VALUE> values(SPEC);
+        ASSERT((EXP == bsl::none_of(values.begin(), values.end(), IsOdd())));
     }
 }
 
@@ -355,16 +344,16 @@ int main(int argc, char *argv[])
         // FUNCTIONALITY TEST
         //
         // Concerns:
-        //: 1 That the routines exist in the 'bsl' namespace and behave as
-        //    expected.
+        //: 1 The algorithms are sufficiently functional to enable
+        //:   comprehensive testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Run each method with an empty input range and verify that the
+        //: 1 Run each algorithm with an empty input range and verify that the
         //:   behavior is as expected.
-        //: 2 Run each method with a single-element input range and verify that
-        //:   the behavior is as expected.
-        //: 3 Run each method with multiple-element input range and verify that
-        //:   the behavior is as expected.
+        //: 2 Run each algorithm with a single-element input range and verify
+        //:   that the behavior is as expected.
+        //: 3 Run each algorithm with multiple-element input range and verify
+        //:   that the behavior is as expected.
         //
         // Testing:
         //   bool all_of (InputIter first, InputIter last, PREDICATE pred);
