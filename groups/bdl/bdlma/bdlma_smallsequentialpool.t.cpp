@@ -1224,11 +1224,11 @@ int main(int argc, char *argv[])
             }
 
             if (hasInitialAllocation) {
-                ASSERTV(CONFIG, 1   == blocksInitialAlloc);
-                ASSERTV(CONFIG, ISZ <   bytesInitialAlloc); // allow for header
+                ASSERTV(CONFIG, 1              == blocksInitialAlloc);
+                ASSERTV(CONFIG, blockSize(ISZ) ==  bytesInitialAlloc);
             } else {
-                ASSERTV(CONFIG, 0   == blocksInitialAlloc);
-                ASSERTV(CONFIG, 0   ==  bytesInitialAlloc);
+                ASSERTV(CONFIG, 0              == blocksInitialAlloc);
+                ASSERTV(CONFIG, 0              ==  bytesInitialAlloc);
             }
 
             bsl::size_t explicitAllocationSize = ISZ + 1;
@@ -1253,9 +1253,9 @@ int main(int argc, char *argv[])
             // Note: True irrespective of 'hasInitialAllocation'.
 
             ASSERTV(CONFIG, 1                  == blocksExplicitAlloc);
-            ASSERTV(CONFIG, bytesExplicitAlloc == hasMaximumBlockSize
-                                                ? blockSize(ISZ)
-                                                : blockSize(ISZ * 2));
+            ASSERTV(CONFIG, bytesExplicitAlloc == (hasMaximumBlockSize
+                                                   ? blockSize(ISZ + 1)
+                                                   : blockSize(ISZ * 2)));
 
             mX.rewind();  // ACTION
 
