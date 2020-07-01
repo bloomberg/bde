@@ -1476,8 +1476,9 @@ int main(int argc, char *argv[])
 
         enum { k_INITIAL_SIZE = 64, k_MAX_BUFFER = k_INITIAL_SIZE * 4 };
 
-        if (verbose) cout << "\nTesting that 'reserveCapacity' does not "
-                             "trigger dynamic memory allocation." << endl;
+        if (verbose) cout << "\nTesting that 'reserveCapacity' triggers "
+                             "dynamic memory allocation only when needed."
+                          << endl;
 
         {
             Obj                mX(k_INITIAL_SIZE,

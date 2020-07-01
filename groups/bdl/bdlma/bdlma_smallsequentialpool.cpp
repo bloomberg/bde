@@ -322,7 +322,9 @@ void SmallSequentialPool::reserveCapacity(bsl::size_t numBytes)
         return;                                                       // RETURN
     }
 
-    bsl::size_t nextSize = calculateNextBufferSize(numBytes);
+    bsl::size_t nextSize = d_maxBufferSize < numBytes
+                         ? numBytes
+                         : calculateNextBufferSize(numBytes);
 
     if (nextSize < numBytes) {
         nextSize = numBytes;
