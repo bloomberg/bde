@@ -12,8 +12,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <bsltf_testvaluesarray.h>
 #include <bsltf_templatetestfacility.h>
+#include <bsltf_testvaluesarray.h>
 
 #include <functional>
 #include <limits.h>
