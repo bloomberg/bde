@@ -628,15 +628,13 @@ namespace Usage {
 //
 ///Example 3: Iterative Pool Reuse
 ///- - - - - - - - - - - - - - - -
-// {Example 1} shows that when must make a fairly large number of small memory
-// allocations, it is more efficient to use a pool to services those requests
-// from few relatively large blocks (obtained from the global allocator) than
-// to allocate those memory requests directly from the global allocator.
-//
-// In this example, we illustrate a scenario where the 'rewind' method can be
-// used to make allocation even more efficient.  Suppose one has an application
-// that repeatedly makes a large number of small allocations and then
-// deallocates them (e.g., a service responding to a client query).
+// Using a pool is more efficient for allocations a large number of small
+// memory allocations than allocating directly from the global allocator.  See
+// {Example 1}.  In this example, we illustrate a scenario where the 'rewind'
+// method is used to make such allocations even *more* efficient.  Suppose one
+// has an application that repeatedly makes a large number of small
+// allocations, deallocations, and reallocations (e.g., a service responding to
+// a client query).
 //
 // First, we define 'poolAllocationScenario', a function that represents to
 // usage scenario.  For simplicity of exposition, this function is
@@ -651,7 +649,10 @@ namespace Usage {
     {
         BSLS_ASSERT(pool);
 
-        for (int i = 0; i < 448; ++i) {
+        // Consume the first three, geometrically-allocated buffers, assuming
+        // 4-byte allocations.
+
+        for (int i = 0; i < 64 + 128 + 256; ++i) {
             pool->allocate(allocationSize);
         }
     }
@@ -694,7 +695,7 @@ namespace Usage {
 // geometric growth, the largest non-"large") allocated block.  Notice that for
 // this usage pattern the pool converges to a single (contiguous) block (no
 // further upstream allocations) and that block size is less than the maximum
-// allocation.  Also notice that nice situation was achieved with *no*
+// allocation.  Also notice that this nice behavior was achieved with *no*
 // foreknowledge of the usage pattern of the repeated scenario.  (The
 // implementation-specific default value was used for the initial block
 // allocation.)
@@ -702,7 +703,7 @@ namespace Usage {
 // Finally, we consider what happens if the usage scenario should change over
 // time by doubling the allocation size from 4 to 8:
 //..
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 5; i < 10; ++i) {
 
             poolAllocationScenario(&ssp, 8);  // Increased allocation size
 
@@ -717,11 +718,11 @@ namespace Usage {
 // The output shows that the pool rapidly adapted to the increased larger
 // allocations:
 //..
-//  0: 2 6160
-//  1: 1 4104
-//  2: 1 4104
-//  3: 1 4104
-//  4: 1 4104
+//  5: 2 6160
+//  6: 1 4104
+//  7: 1 4104
+//  8: 1 4104
+//  9: 1 4104
 //..
 
 }  // close namespace Usage
@@ -806,7 +807,7 @@ int main(int argc, char *argv[])
       case 12: {
         // --------------------------------------------------------------------
         // TEST GROWTH-STRATEGY TRANSITIONS
-        //   The pool constant-growth strategy lapse to geometric growth if a
+        //   The pool constant-growth strategy lapses to geometric growth if a
         //   request exceeds the constant-growth size but is within the maximum
         //   buffer size.  Requests larger than the maximum buffer size are
         //   handled as "large" blocks.  Each policy is used only when needed.
@@ -835,7 +836,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 The different transitions will be explored by an ad-hoc series of
-        //:   tests.
+        //:   tests.  (C-1..7)
         //
         // Testing:
         //   CONCERN: Growth-Strategy Transitions
