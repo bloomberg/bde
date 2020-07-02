@@ -476,9 +476,8 @@ class my_ClassFussy {
     // CREATORS
     my_ClassFussy()
     {
-        // Should never be invoked by 'ConstructionUtil'.
-
-        BSLS_ASSERT_OPT(0);
+        d_def.d_value       = 0;
+        d_def.d_allocator_p = 0;
     }
 
     // deliberately not explicit
@@ -490,11 +489,10 @@ class my_ClassFussy {
         d_def.d_allocator_p = 0;
     }
 
-    my_ClassFussy(const my_ClassFussy& /* rhs */)
+    my_ClassFussy(const my_ClassFussy& rhs)
     {
-        // Should never be invoked by 'ConstructionUtil'.
-
-        BSLS_ASSERT_OPT(0);
+        d_def.d_value       = rhs.d_def.d_value;
+        d_def.d_allocator_p = 0;
     }
 
     my_ClassFussy(bslmf::MovableRef<my_ClassFussy> /* rhs */)
@@ -3371,17 +3369,17 @@ int main(int argc, char *argv[])
 
         //                      CP   MV   CP_B MV_B CP_A MV_A EXP_ALLOCATOR
         //                      ==   ==   ==== ==== ==== ==== ==============
-            T::testCase5NoAlloc(0,   0,   0,   0,   0,   0,       T::OBJECT  );
+            T::testCase5NoAlloc(0,   1,   0,   0,   0,   0,       T::DEFAULT );
            NT::testCase5NoAlloc(0,   1,   0,   0,   0,   0,      NT::DEFAULT );
           BAT::testCase5NoAlloc(0,   1,   0,   0,   0,   0,     BAT::DEFAULT );
           ATT::testCase5NoAlloc(0,   1,   0,   0,   0,   0,     ATT::DEFAULT );
 
-          MOT::testCase5NoAlloc(0,   0,   0,   0,   0,   0,     MOT::OBJECT  );
+          MOT::testCase5NoAlloc(0,   1,   0,   0,   0,   0,     MOT::DEFAULT );
          MONT::testCase5NoAlloc(0,   1,   0,   0,   0,   0,    MONT::DEFAULT );
         MOBAT::testCase5NoAlloc(0,   1,   0,   0,   0,   0,   MOBAT::DEFAULT );
         MOATT::testCase5NoAlloc(0,   1,   0,   0,   0,   0,   MOATT::DEFAULT );
 
-          COT::testCase5NoAlloc(0,   0,   0,   0,   0,   0,     COT::OBJECT  );
+          COT::testCase5NoAlloc(1,   0,   0,   0,   0,   0,     COT::DEFAULT );
          CONT::testCase5NoAlloc(1,   0,   0,   0,   0,   0,    CONT::DEFAULT );
         COBAT::testCase5NoAlloc(1,   0,   0,   0,   0,   0,   COBAT::DEFAULT );
         COATT::testCase5NoAlloc(1,   0,   0,   0,   0,   0,   COATT::DEFAULT );
@@ -3390,17 +3388,17 @@ int main(int argc, char *argv[])
 
         //                      CP   MV   CP_B MV_B CP_A MV_A EXP_ALLOCATOR
         //                      ==   ==   ==== ==== ==== ==== ===============
-            T::testCase5Alloc(  0,   0,   0,   0,   0,   0,       T::OBJECT  );
+            T::testCase5Alloc(  0,   1,   0,   0,   0,   0,       T::DEFAULT );
            NT::testCase5Alloc(  0,   1,   0,   0,   0,   0,      NT::DEFAULT );
           BAT::testCase5Alloc(  0,   0,   0,   1,   0,   0,     BAT::SUPPLIED);
           ATT::testCase5Alloc(  0,   0,   0,   0,   0,   1,     ATT::SUPPLIED);
 
-          MOT::testCase5Alloc(  0,   0,   0,   0,   0,   0,     MOT::OBJECT  );
+          MOT::testCase5Alloc(  0,   1,   0,   0,   0,   0,     MOT::DEFAULT );
          MONT::testCase5Alloc(  0,   1,   0,   0,   0,   0,    MONT::DEFAULT );
         MOBAT::testCase5Alloc(  0,   0,   0,   1,   0,   0,   MOBAT::SUPPLIED);
         MOATT::testCase5Alloc(  0,   0,   0,   0,   0,   1,   MOATT::SUPPLIED);
 
-          COT::testCase5Alloc(  0,   0,   0,   0,   0,   0,     COT::OBJECT  );
+          COT::testCase5Alloc(  1,   0,   0,   0,   0,   0,     COT::DEFAULT );
          CONT::testCase5Alloc(  1,   0,   0,   0,   0,   0,    CONT::DEFAULT );
         COBAT::testCase5Alloc(  0,   0,   1,   0,   0,   0,   COBAT::SUPPLIED);
         COATT::testCase5Alloc(  0,   0,   0,   0,   1,   0,   COATT::SUPPLIED);

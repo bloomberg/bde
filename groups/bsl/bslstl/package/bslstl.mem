@@ -18,6 +18,7 @@ bslstl_errc
 bslstl_error
 bslstl_forwarditerator
 bslstl_function
+bslstl_function_test
 bslstl_hash
 bslstl_hashtable
 bslstl_hashtable_test1

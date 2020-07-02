@@ -4138,20 +4138,12 @@ ConstructionUtil_Imp::construct(
               TARGET_TYPE *address,
               bsl::integral_constant<int, e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *)
 {
-    if (bsl::is_fundamental<TARGET_TYPE>::value
-     || bsl::is_pointer<TARGET_TYPE>::value
-     || bsl::is_member_pointer<TARGET_TYPE>::value) {
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-        defaultConstructScalar(bsl::is_member_pointer<TARGET_TYPE>(), address);
+    defaultConstructScalar(bsl::is_member_pointer<TARGET_TYPE>(), address);
 #else
-        ::new (voidify(address)) TARGET_TYPE();
-        BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
+    ::new (voidify(address)) TARGET_TYPE();
+    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 #endif
-    }
-    else {
-        // coverity[suspicious_sizeof]
-        memset(voidify(address), 0, sizeof *address);
-    }
 }
 
 template <class TARGET_TYPE>
@@ -4172,18 +4164,8 @@ void ConstructionUtil_Imp::construct(TARGET_TYPE       *address,
                       bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
                                      const TARGET_TYPE& original)
 {
-    if (bsl::is_fundamental<TARGET_TYPE>::value
-     || bsl::is_pointer<TARGET_TYPE>::value
-     || bsl::is_empty<TARGET_TYPE>::value) {
-
-        ::new (voidify(address)) TARGET_TYPE(original);
-        BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-    }
-    else {
-        memcpy((void *)address,
-               BSLS_UTIL_ADDRESSOF(original),
-               sizeof original);
-    }
+    ::new (voidify(address)) TARGET_TYPE(original);
+    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 
 template <class TARGET_TYPE>
@@ -4206,16 +4188,8 @@ void ConstructionUtil_Imp::construct(
                bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
                bslmf::MovableRef<TARGET_TYPE>                         original)
 {
-    if (bsl::is_fundamental<TARGET_TYPE>::value
-     || bsl::is_pointer<TARGET_TYPE>::value
-     || bsl::is_empty<TARGET_TYPE>::value) {
-         ::new (voidify(address)) TARGET_TYPE(
-                         BSLS_COMPILERFEATURES_FORWARD(TARGET_TYPE, original));
-         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-     } else {
-         TARGET_TYPE& lvalue = original;
-         memcpy((void *)address, BSLS_UTIL_ADDRESSOF(lvalue), sizeof lvalue);
-     }
+    ::new (voidify(address)) TARGET_TYPE(BSLS_COMPILERFEATURES_FORWARD(
+        TARGET_TYPE, bslmf::MovableRefUtil::move(original)));
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=15
