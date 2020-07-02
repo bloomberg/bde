@@ -68,6 +68,7 @@ bslstl_sharedptr_cpp03
 bslstl_sharedptrallocateinplacerep
 bslstl_sharedptrallocateoutofplacerep
 bslstl_simplepool
+bslstl_size
 bslstl_stack
 bslstl_stack_cpp03
 bslstl_stdexceptutil
