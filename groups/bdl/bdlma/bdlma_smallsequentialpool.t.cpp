@@ -17,8 +17,10 @@
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
-#include <bsl_cstring.h>  // 'bsl::memcpy'
+#include <bsl_cstring.h>   // 'bsl::memcpy'
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>   // 'bsl::ostringstream'
+#include <bsl_streambuf.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -30,11 +32,11 @@ using namespace bsl;
 //                             --------
 // A 'bdlma::SmallSequentialPool' is a mechanism (i.e., having state but no
 // value) that is used as a memory manager to manage dynamically allocated
-// memory.  The primary concern is that the sequential pool's internal block
-// list grows using the specified growth strategy, has the specified initial
-// size, and is constrained by the specified maximum buffer size.  These
-// options together create 12 variations of the constructor, and they must all
-// be thoroughly tested.
+// memory.  The primary concern is that the small sequential pool's block list
+// grows using the specified growth strategy, has the specified initial size,
+// and is constrained by the specified maximum buffer size.  These options
+// together create 13 variations of the constructor, and they must all be
+// thoroughly tested.
 //
 // Because 'bdlma::SmallSequentialPool' does not have any accessors, this test
 // driver verifies the correctness of the pool's allocations *indirectly*
@@ -44,8 +46,8 @@ using namespace bsl;
 //
 // We make heavy use of the 'bslma::TestAllocator' to ensure that:
 //
-//: 1 The growth rate of the internal block list matches the specified growth
-//:   strategy and is constrained by the specified maximum buffer size.
+//: 1 The growth rate of the block list matches the specified growth strategy
+//:   and is constrained by the specified maximum buffer size.
 //:
 //: 2 When 'release' is invoked, all memory managed by the pool is deallocated.
 //:
@@ -94,7 +96,8 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [ 2] HELPER FUNCTION: 'int blockSize(numBytes)'
 // [11] CONCERN: Large allocated blocks are released by 'rewind'
-// [12] USAGE EXAMPLE
+// [12] CONCERN: Growth-Strategy Transitions
+// [13] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -237,6 +240,8 @@ static int calculateNextSize(int currentSize, int size)
 // ============================================================================
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
+
+// BDE_VERIFY pragma: -FABC01 // Functions are not in alphanumeric order.
 
 namespace Usage {
 
@@ -506,7 +511,7 @@ namespace Usage {
     class my_SmallSequentialAllocator : public bslma::Allocator {
         // This class implements the 'bslma::Allocator' protocol to provide a
         // fast allocator of heterogeneous blocks of memory (of varying,
-        // user-specified sizes) from dynamically-allocated internal buffers.
+        // user-specified sizes) from dynamically-allocated buffers.
 
         // DATA
         bdlma::SmallSequentialPool d_pool;  // manager for allocated memory
@@ -517,7 +522,7 @@ namespace Usage {
         explicit my_SmallSequentialAllocator(
                                          bslma::Allocator *basicAllocator = 0);
             // Create an allocator for allocating memory blocks from
-            // dynamically-allocated internal buffers.  Optionally specify a
+            // dynamically-allocated buffers.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
 
@@ -569,8 +574,8 @@ namespace Usage {
 //..
 // Now, we can use our allocator class and confirm that its behavior is
 // consistent with that of 'bslma::SmallSequentialPool'.  As in {Example 1}, we
-// use a 'bslma::TestAllocator' to allow us to observe the interations with the
-// global allocator.
+// use a 'bslma::TestAllocator' to allow us to observe the interactions with
+// the global allocator.
 //..
     void useMySmallSequentialAllocator()
         // Demonstrate some of the characteristic behaviors of the
@@ -620,8 +625,109 @@ namespace Usage {
         ASSERT(0 == ta.numBlocksInUse());
     }
 //..
+//
+///Example 3: Iterative Pool Reuse
+///- - - - - - - - - - - - - - - -
+// Using a pool is more efficient for allocations a large number of small
+// memory allocations than allocating directly from the global allocator.  See
+// {Example 1}.  In this example, we illustrate a scenario where the 'rewind'
+// method is used to make such allocations even *more* efficient.  Suppose one
+// has an application that repeatedly makes a large number of small
+// allocations, deallocations, and reallocations (e.g., a service responding to
+// a client query).
+//
+// First, we define 'poolAllocationScenario', a function that represents to
+// usage scenario.  For simplicity of exposition, this function is
+// preternaturally regular: the same number of allocations of a uniform size
+// are made in each invocation:
+//..
+    void poolAllocationScenario(bdlma::SmallSequentialPool *pool,
+                                bsl::size_t                 allocationSize)
+        // Approximate a "typical" pool usage scenario consisting of many
+        // small allocations of the specified 'allocationSize' from the
+        // specified 'pool'.
+    {
+        BSLS_ASSERT(pool);
+
+        // Consume the first three, geometrically-allocated buffers, assuming
+        // 4-byte allocations.
+
+        for (int i = 0; i < 64 + 128 + 256; ++i) {
+            pool->allocate(allocationSize);
+        }
+    }
+//..
+// Then, we create a 'bdlma::SmallSequentialPool' object to be supplied to the
+// usage scenario.  We install a 'bslma::TestAllocator' object as the pool's
+// upstream allocator so that the memory usage of the pool can be observed:
+//..
+    void iterativePoolReuse()
+        // Simulate reuse of a 'bslma::SmallSequentialPool' object by
+        // iteratively subjecting it to the 'poolAllocationScenario' and
+        // invoking its 'rewind' method after after each iteration.
+    {
+        bslma::TestAllocator       sa("supplied");
+        bdlma::SmallSequentialPool ssp(&sa);
+//..
+// Next, we iteratively invoke the usage scenario, rewinding the pool after
+// each use:
+//..
+        for (int i = 0; i < 5; ++i) {
+
+            poolAllocationScenario(&ssp, 4);
+
+            cout << i                   << ": "
+                 << sa.numBlocksInUse() << " "
+                 << sa.numBytesInUse()  << endl;
+
+            ssp.rewind();
+        }
+//..
+// Now, we examine the usage pattern:
+//..
+//  0: 3 1816
+//  1: 2 3088
+//  2: 1 2056
+//  3: 1 2056
+//  4: 1 2056
+//..
+// Recall that the 'bdlma::SmallSequentialPool' class retains the latest (for
+// geometric growth, the largest non-"large") allocated block.  Notice that for
+// this usage pattern the pool converges to a single (contiguous) block (no
+// further upstream allocations) and that block size is less than the maximum
+// allocation.  Also notice that this nice behavior was achieved with *no*
+// foreknowledge of the usage pattern of the repeated scenario.  (The
+// implementation-specific default value was used for the initial block
+// allocation.)
+//
+// Finally, we consider what happens if the usage scenario should change over
+// time by doubling the allocation size from 4 to 8:
+//..
+        for (int i = 5; i < 10; ++i) {
+
+            poolAllocationScenario(&ssp, 8);  // Increased allocation size
+
+            cout << i                   << ": "
+                 << sa.numBlocksInUse() << " "
+                 << sa.numBytesInUse()  << endl;
+
+            ssp.rewind();
+        }
+    }
+//..
+// The output shows that the pool rapidly adapted to the increased larger
+// allocations:
+//..
+//  5: 2 6160
+//  6: 1 4104
+//  7: 1 4104
+//  8: 1 4104
+//  9: 1 4104
+//..
 
 }  // close namespace Usage
+
+// BDE_VERIFY pragma: +FABC01 // Functions are not in alphanumeric order.
 
 // ============================================================================
 //                                MAIN PROGRAM
@@ -655,7 +761,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -683,6 +789,250 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Example 2" << endl;
         Usage::useMySmallSequentialAllocator();
 
+        if (veryVerbose) cout << "Example 3" << endl;
+
+        bsl::streambuf     *coutStreambuf = bsl::cout.rdbuf();
+        bsl::ostringstream  ss;
+        bsl::cout.rdbuf(ss.rdbuf());    // Redirect 'cout' to the 'streambuf'.
+
+        Usage::iterativePoolReuse();    // ACTION
+
+        bsl::cout.rdbuf(coutStreambuf); // Undo the output redirection.
+
+        if (veryVeryVerbose) {
+            cout << ss.str() << endl;
+        }
+
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TEST GROWTH-STRATEGY TRANSITIONS
+        //   The pool constant-growth strategy lapses to geometric growth if a
+        //   request exceeds the constant-growth size but is within the maximum
+        //   buffer size.  Requests larger than the maximum buffer size are
+        //   handled as "large" blocks.  Each policy is used only when needed.
+        //
+        // Concerns:
+        //: 1 The pool growth strategy switches from constant-growth to
+        //:   geometric growth when an allocation request exceeds the constant
+        //:   growth size.
+        //:
+        //: 2 The initial growth strategy used can be either constant or
+        //:   geometric.
+        //:
+        //: 3 The geometric growth factor is retained across episodes of
+        //:   constant growth.
+        //:
+        //: 4 A maximum buffer size limits geometric growth initiated from
+        //:   constant growth.
+        //:
+        //: 5 Blocks acquired by constant-growth and (forced) geometric-growth
+        //:   strategies are retained across 'rewind' whereas "large" blocks
+        //:   are not.
+        //:
+        //: 6 The geometric growth factor is retained across calls to 'rewind'.
+        //:
+        //: 7 The 'release' method resets the geometric growth factor.
+        //
+        // Plan:
+        //: 1 The different transitions will be explored by an ad-hoc series of
+        //:   tests.  (C-1..7)
+        //
+        // Testing:
+        //   CONCERN: Growth-Strategy Transitions
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TEST GROWTH-STRATEGY TRANSITIONS" << endl
+                          << "================================" << endl;
+
+        const bsls::BlockGrowth::Strategy CS =
+                                             bsls::BlockGrowth::BSLS_CONSTANT;
+
+        const int ISZ = 1024;     // initial buffer size
+        const int MBS = ISZ * 8;  // maximum buffer size
+
+        bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+        bsls::Types::Int64 priorBlocksInUse = sa.numBlocksInUse();
+        bsls::Types::Int64 priorBytesInUse  = sa. numBytesInUse();
+
+        ASSERT(0 == priorBlocksInUse);
+        ASSERT(0 == priorBytesInUse);
+
+        if (veryVerbose) { Q(scenario: constant-growth first) }
+
+        Obj mX(ISZ, MBS, CS, &sa);                                    // ACTION
+
+        ASSERT(1              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Consume block allocated on construction.
+        mX.allocate(ISZ);                                             // ACTION
+
+        ASSERT(0              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(0              == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Add a block to the pool under the constant growth strategy
+        mX.allocate(ISZ);                                             // ACTION
+
+        ASSERT(1              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Force geometric allocation.
+        mX.allocate(ISZ + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(2 * ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Service a request via constant-growth strategy (second time).
+        mX.allocate(ISZ);                                             // ACTION
+
+        ASSERT(1              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Force geometric allocation again.
+        mX.allocate(ISZ + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(4 * ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Force "large" block allocation
+        mX.allocate(MBS + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(MBS + 1) == sa.numBytesInUse()  - priorBytesInUse);
+
+        mX.rewind();                                                  // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse());
+        ASSERT(blockSize(4 * ISZ) == sa.numBytesInUse());  // last non-large
+                                                           // allocation
+                                                           // (geometric)
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Consume block allocated retained across 'rewind'.
+        mX.allocate(4 * ISZ);                                         // ACTION
+
+        ASSERT(0              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(0              == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Confirm that geometric growth is based retained block.
+        mX.allocate(ISZ + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(8 * ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        if (veryVerbose) { Q(release) }
+
+        mX.release();                                                 // ACTION
+
+        ASSERT(0                  == sa.numBlocksInUse());
+        ASSERT(0                  == sa.numBytesInUse());
+
+        if (veryVerbose) { Q(scenario: geometric-growth first) }
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Force geometric allocation.
+        mX.allocate(ISZ + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(2 * ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Add a block to the pool under the constant growth strategy
+        mX.allocate(ISZ);                                             // ACTION
+
+        ASSERT(1              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Force geometric allocation again.
+        mX.allocate(ISZ + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(4 * ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Consume remaining space of last allocation
+        mX.allocate(4 * ISZ - (ISZ + 1));                             // ACTION
+
+        ASSERT(0                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(0                  == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Service a request via constant-growth strategy (second time).
+        mX.allocate(ISZ);                                             // ACTION
+
+        ASSERT(1              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Force "large" block allocation
+        mX.allocate(MBS + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(MBS + 1) == sa.numBytesInUse()  - priorBytesInUse);
+
+        mX.rewind();                                                  // ACTION
+
+        ASSERT(1              == sa.numBlocksInUse());
+        ASSERT(blockSize(ISZ) == sa.numBytesInUse());  // last non-large
+                                                       // allocation (constant)
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Consume block allocated retained across 'rewind'.
+        mX.allocate(ISZ);                                             // ACTION
+
+        ASSERT(0              == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(0              == sa.numBytesInUse()  - priorBytesInUse);
+
+        priorBlocksInUse = sa.numBlocksInUse();
+        priorBytesInUse  = sa.numBytesInUse();
+
+        // Confirm that geometric growth is based retained block.
+        mX.allocate(ISZ + 1);                                         // ACTION
+
+        ASSERT(1                  == sa.numBlocksInUse() - priorBlocksInUse);
+        ASSERT(blockSize(2 * ISZ) == sa.numBytesInUse()  - priorBytesInUse);
+
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -698,9 +1048,9 @@ int main(int argc, char *argv[])
         //:     allocations that exceed that maximum as "large" blocks.  Note
         //:     that these constructors always specify an initial size.
         //:
-        //:   2 Constructors that specify a constant growth strategy
-        //:     create objects that manage allocations that exceed the initial
-        //:     size as "large" blocks.
+        //:   2 Constructors that specify a constant growth strategy create
+        //:     objects that manage allocations that exceed the initial size as
+        //:     "large" blocks.
         //:
         //:   3 Other constructors create objects that do not distinguish
         //:     allocations as "large" blocks.
@@ -735,8 +1085,8 @@ int main(int argc, char *argv[])
         //:   (e.g., 'canHaveLargeBlocks').
         //
         //: 3 Confirm and save allocator state after construction.  Note that
-        //:   constructor preconditions assure us that any memory allocated
-        //:   as part of construction is not classified as a "large" block.
+        //:   constructor preconditions assure us that any memory allocated as
+        //:   part of construction is not classified as a "large" block.
         //:
         //: 4 Explicitly call 'allocate' using a size value that results in a
         //:   "large" block if the object distinguishes large blocks.
@@ -788,6 +1138,12 @@ int main(int argc, char *argv[])
         int hasNoInitialAllocationAvecLargeBlocks = 0;
         int hasNoInitialAllocationSansLargeBlocks = 0;
 
+        const int ISZ = 1024;          // initial size
+        const int MBS = ISZ;           // maximum size
+
+        ASSERT(k_DEFAULT_SIZE < ISZ);  // Exceeds default size of constant
+                                       // growth strategy.
+
         for (char cfg = 'a'; cfg <= 'v'; ++cfg) {
             const char CONFIG = cfg;
 
@@ -795,12 +1151,6 @@ int main(int argc, char *argv[])
                 cout << endl;
                 T_ P(CONFIG)
             }
-
-            const int ISZ = 1024;          // initial size
-            const int MBS = ISZ;           // maximum size
-
-            ASSERT(k_DEFAULT_SIZE < ISZ);  // Exceeds default size of constant
-                                           // growth strategy.
 
             bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
@@ -849,22 +1199,19 @@ int main(int argc, char *argv[])
                                            ||  'u' == CONFIG;
 
             const bool hasMaximumBlockSize  = ('i' <= CONFIG && CONFIG <= 'l')
-                                           ||  's' == CONFIG
-                                           ||  't' == CONFIG;
-                // Note that maximum block size is ignored under the constant
-                // growth strategy.
+                                           || ('q' <= CONFIG && CONFIG <= 'v');
 
             const bool usesConstantGrowthStrategy =
                                               ('m' <= CONFIG && CONFIG <= 'r')
                                            ||  'u' == CONFIG
                                            ||  'v' == CONFIG;
 
-            const bool canHaveLargeBlocks   = hasMaximumBlockSize
-                                           || usesConstantGrowthStrategy;
+            const bool canHaveLargeBlocks   = hasMaximumBlockSize;
 
             if (veryVerbose) {
                 cout << "Classification" << ": ";
                 P(hasInitialAllocation)
+                P(usesConstantGrowthStrategy)
                 P(hasMaximumBlockSize)
                 P(canHaveLargeBlocks)
             }
@@ -878,19 +1225,20 @@ int main(int argc, char *argv[])
             }
 
             if (hasInitialAllocation) {
-                ASSERTV(CONFIG, 1   == blocksInitialAlloc);
-                ASSERTV(CONFIG, ISZ <   bytesInitialAlloc); // allow for header
+                ASSERTV(CONFIG, 1              == blocksInitialAlloc);
+                ASSERTV(CONFIG, blockSize(ISZ) ==  bytesInitialAlloc);
             } else {
-                ASSERTV(CONFIG, 0   == blocksInitialAlloc);
-                ASSERTV(CONFIG, 0   ==  bytesInitialAlloc);
+                ASSERTV(CONFIG, 0              == blocksInitialAlloc);
+                ASSERTV(CONFIG, 0              ==  bytesInitialAlloc);
             }
 
-            // Trigger an allocation by explicitly allocating at least one byte
-            // more than available memory.  If the object is constructed to
-            // distinguish some blocks as "large", this allocation will be a
-            // "large" block.
+            bsl::size_t explicitAllocationSize = ISZ + 1;
 
-            ASSERTV(CONFIG, mX.allocate(ISZ + 1));  // ACTION
+            if (veryVerbose) {
+                P(explicitAllocationSize)
+            }
+
+            ASSERTV(CONFIG, mX.allocate(explicitAllocationSize));  // ACTION
 
             const bsls::Types::Int64 blocksExplicitAlloc = sa.numBlocksInUse()
                                                          - blocksInitialAlloc;
@@ -905,8 +1253,10 @@ int main(int argc, char *argv[])
 
             // Note: True irrespective of 'hasInitialAllocation'.
 
-            ASSERTV(CONFIG, 1   == blocksExplicitAlloc);
-            ASSERTV(CONFIG, ISZ <   bytesExplicitAlloc); // allow for header
+            ASSERTV(CONFIG, 1                  == blocksExplicitAlloc);
+            ASSERTV(CONFIG, bytesExplicitAlloc == (hasMaximumBlockSize
+                                                   ? blockSize(ISZ + 1)
+                                                   : blockSize(ISZ * 2)));
 
             mX.rewind();  // ACTION
 
@@ -985,24 +1335,53 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            Obj mX(CS, &sa);
+            // Create a pool object that uses the constant-growth strategy and
+            // that has an initial buffer sized to be insufficient for the
+            // allocation size.  Set the maximum buffer size to disallow the
+            // use of geometric-growth as a fall-back.  Thus, each allocation
+            // will be handled as a "large" block.
+
+            Obj mX(k_DEFAULT_SIZE, k_DEFAULT_SIZE, CS, &sa);
+
+            const bsls::Types::Int64 blocksInitialAlloc = sa.numBlocksInUse();
+            const bsls::Types::Int64  bytesInitialAlloc = sa. numBytesInUse();
+
+            ASSERT(1                         == blocksInitialAlloc);
+            ASSERT(blockSize(k_DEFAULT_SIZE) ==  bytesInitialAlloc);
 
             for (int j = 1; j <= i; ++j) {
 
                 if (veryVerbose) { T_ T_ P(j) }
 
+                bslma::TestAllocatorMonitor sam(&sa);
+
                 ASSERT(mX.allocate(k_DEFAULT_SIZE + 1));  // ACTION
 
                 static const bsls::Types::Int64 bytesPerAllocation =
-                                                            sa.numBytesInUse();
+                                                            sa.numBytesInUse()
+                                                          - bytesInitialAlloc;
+                    // This 'static' value is fixed on the first pass.
 
-                ASSERTV(i, j, j                      == sa.numBlocksInUse());
-                ASSERTV(i, j, j * bytesPerAllocation == sa. numBytesInUse());
+                if (veryVerbose) {
+                    T_ T_ P_(bytesPerAllocation)
+                          P_(sa.numBlocksInUse())
+                          P(sa.numBytesInUse())
+
+                }
+
+                ASSERTV(i, j, j                      == sa.numBlocksInUse()
+                                                      - blocksInitialAlloc);
+                ASSERTV(i, j, j * bytesPerAllocation == sa.numBytesInUse()
+                                                      - bytesInitialAlloc);
+
+                if (veryVerbose) {
+                    cout << endl;
+                }
             }
 
             mX.rewind();  // ACTION
 
-            ASSERTV(i, 0 == sa.numBlocksInUse());
+            ASSERTV(i, 1 == sa.numBlocksInUse());
 
             for (int j = 1; j <= i; ++j) {
 
@@ -1049,9 +1428,9 @@ int main(int argc, char *argv[])
         double *d = new(mX) double(3.0);
         (void)d;
 
-        ASSERT(0 != objectAllocator.numBytesInUse());
+        ASSERT(0 !=  objectAllocator.numBytesInUse());
         ASSERT(0 == defaultAllocator.numBytesInUse());
-        ASSERT(0 == globalAllocator.numBytesInUse());
+        ASSERT(0 ==  globalAllocator.numBytesInUse());
 
       } break;
       case 9: {
@@ -1059,7 +1438,7 @@ int main(int argc, char *argv[])
         // 'reserveCapacity' TEST
         //
         // Concerns:
-        //: 1 That if there is sufficient memory within the internal buffer,
+        //: 1 That if there is sufficient memory within the buffer,
         //:   'reserveCapacity' should not trigger dynamic allocation.
         //:
         //: 2 That we can allocate at least the amount of bytes specified in
@@ -1087,7 +1466,7 @@ int main(int argc, char *argv[])
         //:   buffer size.  Repeat verification done in P-2.  (C-3)
         //:
         //: 5 Invoke 'reserveCapacity' with an argument of 0.  Confirm that
-        //:   there no dyanamic allocation is triggered.  (C-4)
+        //:   there no dynamic allocation is triggered.  (C-4)
         //
         // Testing:
         //   void reserveCapacity(int numBytes);
@@ -1098,8 +1477,9 @@ int main(int argc, char *argv[])
 
         enum { k_INITIAL_SIZE = 64, k_MAX_BUFFER = k_INITIAL_SIZE * 4 };
 
-        if (verbose) cout << "\nTesting that 'reserveCapacity' does not "
-                             "trigger dynamic memory allocation." << endl;
+        if (verbose) cout << "\nTesting that 'reserveCapacity' triggers "
+                             "dynamic memory allocation only when needed."
+                          << endl;
 
         {
             Obj                mX(k_INITIAL_SIZE,
@@ -1380,7 +1760,7 @@ int main(int argc, char *argv[])
         //:   the updated size is the same as the expected memory used.
         //:   Finally, invoke 'allocate' again and verify it triggers new
         //:   dynamic memory allocation -- meaning 'allocateAndExpand' did use
-        //:   up all available memory in the internal buffer.  (C-1..2)
+        //:   up all available memory in the buffer.  (C-1..2)
         //:
         //: 2 Call the 'allocateAndExpand' method with 0 and non-zero arguments
         //:   and confirm that the returned addresses are 0 and non-zero,
@@ -1409,39 +1789,39 @@ int main(int argc, char *argv[])
             // ----     -----       -----------       -------
 
             // NATURAL ALIGNMENT
-            {  L_,      NAT,           1,   k_DEFAULT_SIZE * 2 - 1           },
-            {  L_,      NAT,           2,   k_DEFAULT_SIZE * 2 - 2           },
-            {  L_,      NAT,           3,   k_DEFAULT_SIZE * 2 - 3           },
-            {  L_,      NAT,           4,   k_DEFAULT_SIZE * 2 - 4           },
-            {  L_,      NAT,           7,   k_DEFAULT_SIZE * 2 - 7           },
-            {  L_,      NAT,           8,   k_DEFAULT_SIZE * 2 - 8           },
-            {  L_,      NAT,          15,   k_DEFAULT_SIZE * 2 - 15          },
-            {  L_,      NAT,          16,   k_DEFAULT_SIZE * 2 - 16          },
-            {  L_,      NAT,         100,   k_DEFAULT_SIZE * 2 - 100         },
+            {  L_,      NAT,           1,   k_DEFAULT_SIZE * 1 - 1           },
+            {  L_,      NAT,           2,   k_DEFAULT_SIZE * 1 - 2           },
+            {  L_,      NAT,           3,   k_DEFAULT_SIZE * 1 - 3           },
+            {  L_,      NAT,           4,   k_DEFAULT_SIZE * 1 - 4           },
+            {  L_,      NAT,           7,   k_DEFAULT_SIZE * 1 - 7           },
+            {  L_,      NAT,           8,   k_DEFAULT_SIZE * 1 - 8           },
+            {  L_,      NAT,          15,   k_DEFAULT_SIZE * 1 - 15          },
+            {  L_,      NAT,          16,   k_DEFAULT_SIZE * 1 - 16          },
+            {  L_,      NAT,         100,   k_DEFAULT_SIZE * 1 - 100         },
             {  L_,      NAT,         510,   k_DEFAULT_SIZE * 2 - 510         },
             {  L_,      NAT,         511,   k_DEFAULT_SIZE * 2 - 511         },
 
             // MAXIMUM ALIGNMENT
-            {  L_,      MAX,           1,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
-            {  L_,      MAX,           2,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
-            {  L_,      MAX,           3,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
-            {  L_,      MAX,           4,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
-            {  L_,      MAX,           7,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
-            {  L_,      MAX,           8,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
-            {  L_,      MAX,          15,   k_DEFAULT_SIZE * 2 - 16          },
-            {  L_,      MAX,          16,   k_DEFAULT_SIZE * 2 - 16          },
-            {  L_,      MAX,         108,   k_DEFAULT_SIZE * 2 - 112         },
+            {  L_,      MAX,           1,   k_DEFAULT_SIZE * 1 - k_MAX_ALIGN },
+            {  L_,      MAX,           2,   k_DEFAULT_SIZE * 1 - k_MAX_ALIGN },
+            {  L_,      MAX,           3,   k_DEFAULT_SIZE * 1 - k_MAX_ALIGN },
+            {  L_,      MAX,           4,   k_DEFAULT_SIZE * 1 - k_MAX_ALIGN },
+            {  L_,      MAX,           7,   k_DEFAULT_SIZE * 1 - k_MAX_ALIGN },
+            {  L_,      MAX,           8,   k_DEFAULT_SIZE * 1 - k_MAX_ALIGN },
+            {  L_,      MAX,          15,   k_DEFAULT_SIZE * 1 - 16          },
+            {  L_,      MAX,          16,   k_DEFAULT_SIZE * 1 - 16          },
+            {  L_,      MAX,         108,   k_DEFAULT_SIZE * 1 - 112         },
 
             // 1-BYTE ALIGNMENT
-            {  L_,      BYT,           1,   k_DEFAULT_SIZE * 2 - 1           },
-            {  L_,      BYT,           2,   k_DEFAULT_SIZE * 2 - 2           },
-            {  L_,      BYT,           3,   k_DEFAULT_SIZE * 2 - 3           },
-            {  L_,      BYT,           4,   k_DEFAULT_SIZE * 2 - 4           },
-            {  L_,      BYT,           7,   k_DEFAULT_SIZE * 2 - 7           },
-            {  L_,      BYT,           8,   k_DEFAULT_SIZE * 2 - 8           },
-            {  L_,      BYT,          15,   k_DEFAULT_SIZE * 2 - 15          },
-            {  L_,      BYT,          16,   k_DEFAULT_SIZE * 2 - 16          },
-            {  L_,      BYT,         100,   k_DEFAULT_SIZE * 2 - 100         },
+            {  L_,      BYT,           1,   k_DEFAULT_SIZE * 1 - 1           },
+            {  L_,      BYT,           2,   k_DEFAULT_SIZE * 1 - 2           },
+            {  L_,      BYT,           3,   k_DEFAULT_SIZE * 1 - 3           },
+            {  L_,      BYT,           4,   k_DEFAULT_SIZE * 1 - 4           },
+            {  L_,      BYT,           7,   k_DEFAULT_SIZE * 1 - 7           },
+            {  L_,      BYT,           8,   k_DEFAULT_SIZE * 1 - 8           },
+            {  L_,      BYT,          15,   k_DEFAULT_SIZE * 1 - 15          },
+            {  L_,      BYT,          16,   k_DEFAULT_SIZE * 1 - 16          },
+            {  L_,      BYT,         100,   k_DEFAULT_SIZE * 1 - 100         },
             {  L_,      BYT,         510,   k_DEFAULT_SIZE * 2 - 510         },
             {  L_,      BYT,         511,   k_DEFAULT_SIZE * 2 - 511         },
         };
@@ -1471,8 +1851,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == objectAllocator.numBytesInUse());
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
-            void *addr1 = mX.allocate(INITIALSIZE);
-            ASSERT(blockSize(k_DEFAULT_SIZE * 2) ==
+            void      *addr1  = mX.allocate(INITIALSIZE);
+            const int  GROWTH = INITIALSIZE/k_DEFAULT_SIZE + 1;
+            ASSERTV(blockSize(k_DEFAULT_SIZE * GROWTH),
+                    objectAllocator.numBytesInUse(),
+                    blockSize(k_DEFAULT_SIZE * GROWTH) ==
                                               objectAllocator.numBytesInUse());
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
@@ -1499,7 +1882,7 @@ int main(int argc, char *argv[])
             ASSERT(EXPUSED == (int)size);
 
             // Check for no new allocations.
-            ASSERT(blockSize(k_DEFAULT_SIZE * 2) ==
+            ASSERT(blockSize(k_DEFAULT_SIZE * GROWTH) ==
                                               objectAllocator.numBytesInUse());
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
@@ -1517,7 +1900,7 @@ int main(int argc, char *argv[])
 
             bsls::Types::size_type size = 1;
             mX.allocateAndExpand(&size);
-            ASSERT(blockSize(k_DEFAULT_SIZE * 2) ==
+            ASSERT(blockSize(k_DEFAULT_SIZE * 1) ==
                                               objectAllocator.numBytesInUse());
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
@@ -1611,6 +1994,10 @@ int main(int argc, char *argv[])
         //:
         //: 2 Subsequent allocation requests after invocation of the 'release'
         //:   method follow the specified growth and alignment strategies.
+        //:
+        //: 3 The 'rewind' method retains the most recently allocated block
+        //:   when the constant-growth strategy is used and when then
+        //:   constant-growth strategy lapses into geometric growth.
         //
         // Plan:
         //: 1 Using the table-driven technique, create test vectors having an
@@ -1623,6 +2010,13 @@ int main(int argc, char *argv[])
         //:   'release' and verify, using the test allocator, that there is no
         //:   outstanding memory allocated.  Finally, allocate memory again and
         //:   verify the alignment and growth strategies.  (C-1..2)
+        //:
+        //: 2 Issue a series a memory requests designed so that the final
+        //:   request triggers the allocation of a new block then 'rewind' and
+        //:   allocate a single byte.  The address of the allocated byte should
+        //:   match that of the last allocation before rewind.  Confirm this in
+        //:   scenarios using the constant-growth strategy and when
+        //:   constant-growth lapses into geometric growth.  (C-3)
         //
         // Testing:
         //   void release();
@@ -1637,57 +2031,68 @@ int main(int argc, char *argv[])
         const int TH = 64;  // threshold
 
         static const struct {
-            int d_line;         // line number
-            int d_bufSize;      // buffer size
-            int d_requestSize;  // request size
-            int d_numRequests;  // number of requests
+            int  d_line;         // line number
+            int  d_bufSize;      // buffer size
+            int  d_requestSize;  // request size
+            int  d_numRequests;  // number of requests
+
+            bool d_isGeometric;  // expect geometric growth
         } DATA[] = {
-            //LINE      BUFSIZE     REQUEST SIZE    # REQUESTS
-            //----      -------     ------------    ----------
+            //LINE      BUFSIZE     REQUEST SIZE    # REQUESTS        IS_GEO
+            //----      -------     ------------    ----------        ------
 
-            {  L_,      1,          1,              2                 },
-            {  L_,      1,          5,              2                 },
-            {  L_,      1,          TH - 1,         2                 },
-            {  L_,      1,          TH,             2                 },
-            {  L_,      1,          TH + 1,         2                 },
+            {  L_,      1,          1,              2               , false  },
+            {  L_,      1,          5,              2               , true   },
+            {  L_,      1,          TH - 1,         2               , true   },
+            {  L_,      1,          TH,             2               , true   },
+            {  L_,      1,          TH + 1,         2               , true   },
 
-            {  L_,      TH - 1,     1,              TH                },
-            {  L_,      TH - 1,     5,              1 + (TH - 1) / 5  },
-            {  L_,      TH - 1,     TH - 2,         2                 },
-            {  L_,      TH - 1,     TH - 1,         2                 },
-            {  L_,      TH - 1,     TH,             2                 },
+            {  L_,      TH - 1,     1,              TH              , false  },
+            {  L_,      TH - 1,     5,              1 + (TH - 1) / 5, false  },
+            {  L_,      TH - 1,     TH - 2,         2               , false  },
+            {  L_,      TH - 1,     TH - 1,         2               , false  },
+            {  L_,      TH - 1,     TH,             2               , true   },
 
-            {  L_,      TH,         1,              TH + 1            },
-            {  L_,      TH,         5,              1 + TH / 5        },
-            {  L_,      TH,         TH - 1,         2                 },
-            {  L_,      TH,         TH,             2                 },
-            {  L_,      TH,         TH + 1,         2                 },
+            {  L_,      TH,         1,              TH + 1          , false  },
+            {  L_,      TH,         5,              1 + TH / 5      , false  },
+            {  L_,      TH,         TH - 1,         2               , false  },
+            {  L_,      TH,         TH,             2               , false  },
+            {  L_,      TH,         TH + 1,         2               , true   },
 
-            {  L_,      TH + 1,     1,              TH + 2            },
-            {  L_,      TH + 1,     5,              1 + (TH + 1) / 5  },
-            {  L_,      TH + 1,     TH,             2                 },
-            {  L_,      TH + 1,     TH + 1,         2                 },
-            {  L_,      TH + 1,     TH + 2,         2                 },
+            {  L_,      TH + 1,     1,              TH + 2          , false  },
+            {  L_,      TH + 1,     5,              1 + (TH + 1) / 5, false  },
+            {  L_,      TH + 1,     TH,             2               , false  },
+            {  L_,      TH + 1,     TH + 1,         2               , false  },
+            {  L_,      TH + 1,     TH + 2,         2               , true   },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int LINE    = DATA[i].d_line;
-            const int BUFSIZE = DATA[i].d_bufSize;
-            const int REQSIZE = DATA[i].d_requestSize;
-            const int NUMREQ  = DATA[i].d_numRequests;
+            const int  LINE    = DATA[i].d_line;
+            const int  BUFSIZE = DATA[i].d_bufSize;
+            const int  REQSIZE = DATA[i].d_requestSize;
+            const int  NUMREQ  = DATA[i].d_numRequests;
+            const bool IS_GEO  = DATA[i].d_isGeometric;
 
             const int MAXNUMREQ  = TH + 2;
             LOOP2_ASSERT(MAXNUMREQ, NUMREQ, MAXNUMREQ >= NUMREQ);
             if (MAXNUMREQ < NUMREQ) continue;
 
+            if (veryVerbose) {
+                P_(i) P_(LINE) P_(BUFSIZE) P_(REQSIZE) P_(NUMREQ) P(IS_GEO)
+            }
+
             // Try each test using maximum, natural, and 1-byte alignment.
 
-            for (Strat strategy = bsls::Alignment::BSLS_MAXIMUM;
+            for (Strat strategy  = bsls::Alignment::BSLS_MAXIMUM;
                        strategy <= bsls::Alignment::BSLS_BYTEALIGNED;
                        strategy = (Strat)(strategy + 1)) {
 
-                bslma::TestAllocator ta(veryVeryVerbose);
+                if (veryVerbose) {
+                    T_ P(strategy)
+                }
+
+                bslma::TestAllocator ta(veryVeryVeryVerbose);
 
                 Obj mX(BUFSIZE, CON, strategy, &ta);
                 ASSERT(1 == ta.numBlocksInUse());
@@ -1697,18 +2102,25 @@ int main(int argc, char *argv[])
                 // allocator was used after each request.
 
                 for (int reqNum = 0; reqNum < NUMREQ; ++reqNum) {
-                    void *returnAddr = mX.allocate(REQSIZE);
+                    bsl::size_t  requestSize = IS_GEO
+                                             ? REQSIZE * (1 << reqNum)
+                                             : REQSIZE;
+                    void        *returnAddr = mX.allocate(requestSize);
                     LOOP2_ASSERT(LINE, reqNum, returnAddr);
                     LOOP2_ASSERT(LINE, reqNum, ta.numBlocksInUse());
 
                     if (veryVerbose) {
-                        P_(reqNum) P(returnAddr);
+                        T_ T_ P_(reqNum) P_(requestSize) P(returnAddr);
                     }
                 }
 
                 // Now call 'release' and verify that all memory is returned.
 
-                mX.release();
+                if (veryVerbose) {
+                    T_ T_ Q(release)
+                }
+
+                mX.release();  // ACTION
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(0 == ta.numBytesInUse());
 
@@ -1716,23 +2128,46 @@ int main(int argc, char *argv[])
                 // allocator was used after each request.
 
                 for (int reqNum = 0; reqNum < NUMREQ; ++reqNum) {
-                    void *returnAddr = mX.allocate(REQSIZE);
+                    bsl::size_t  requestSize = IS_GEO
+                                             ? REQSIZE * (1 << reqNum)
+                                             : REQSIZE;
+                    void        *returnAddr = mX.allocate(requestSize);
                     LOOP2_ASSERT(LINE, reqNum, returnAddr);
                     LOOP2_ASSERT(LINE, reqNum, ta.numBlocksInUse());
 
                     if (veryVerbose) {
-                        P_(reqNum) P(returnAddr);
+                        T_ T_ P_(reqNum) P_(requestSize) P(returnAddr);
                     }
                 }
 
-                void* addrPre =  mX.allocate(BUFSIZE);
+                bslma::TestAllocatorMonitor tam(&ta);
+
+                bsl::size_t additionalRequestSize
+                                                = IS_GEO
+                                                ? REQSIZE * (1 << (NUMREQ + 1))
+                                                : BUFSIZE;
+                if (veryVerbose) {
+                    T_ T_ P(additionalRequestSize)
+                }
+                void *addrPre =  mX.allocate(additionalRequestSize);
+
+                if (veryVerbose) {
+                    T_ T_ P(addrPre)
+                }
+
+                ASSERT(1 == tam.numBlocksInUseChange());
 
                 // Now release all the allocations, but keep the last buffer
                 // to use again.
 
-                mX.rewind();
-                void* addrPost = mX.allocate(1);
-                ASSERT(addrPre == addrPost);
+                if (veryVerbose) {
+                    T_ T_ Q(rewind)
+                }
+
+                mX.rewind();  // ACTION
+                void *addrPost = mX.allocate(1);
+                ASSERTV(addrPre,   addrPost,
+                        addrPre == addrPost);
                 ASSERT(1 == ta.numBlocksInUse());
 
                 mX.release();
@@ -1785,8 +2220,8 @@ int main(int argc, char *argv[])
         //:   growth strategy.
         //:
         //: 2 All requests over a specified THRESHOLD are satisfied directly
-        //:   from the internal block list if the they cannot be satisfied by
-        //:   the pool's internal buffer.
+        //:   from the block list if the they cannot be satisfied by the pool's
+        //:   buffer.
         //:
         //: 3 The 'allocate' method performs as expected for zero-sized
         //:   allocations.
@@ -1828,10 +2263,10 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(i) P(SIZE) }
 
-                bslma::TestAllocator ta(veryVeryVerbose),
-                                     tb(veryVeryVerbose),
-                                     tc(veryVeryVerbose),
-                                     td(veryVeryVerbose);
+                bslma::TestAllocator ta(veryVeryVeryVerbose),
+                                     tb(veryVeryVeryVerbose),
+                                     tc(veryVeryVeryVerbose),
+                                     td(veryVeryVeryVerbose);
 
                 Obj mV(     &ta);
                 Obj mW(MAX, &tb);
@@ -1847,15 +2282,15 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                if (SIZE <= k_DEFAULT_SIZE * 2) {
+                if (SIZE <= k_DEFAULT_SIZE) {
                     LOOP2_ASSERT(i, SIZE,
-                          blockSize(k_DEFAULT_SIZE * 2) == ta.numBytesInUse());
+                          blockSize(k_DEFAULT_SIZE) == ta.numBytesInUse());
                     LOOP2_ASSERT(i, SIZE,
-                          blockSize(k_DEFAULT_SIZE * 2) == tb.numBytesInUse());
+                          blockSize(k_DEFAULT_SIZE) == tb.numBytesInUse());
                     LOOP2_ASSERT(i, SIZE,
-                          blockSize(k_DEFAULT_SIZE * 2) == tc.numBytesInUse());
+                          blockSize(k_DEFAULT_SIZE) == tc.numBytesInUse());
                     LOOP2_ASSERT(i, SIZE,
-                          blockSize(k_DEFAULT_SIZE * 2) == td.numBytesInUse());
+                          blockSize(k_DEFAULT_SIZE) == td.numBytesInUse());
                 }
                 else {
                     int nextSize = calculateNextSize(k_DEFAULT_SIZE, SIZE);
@@ -1894,18 +2329,22 @@ int main(int argc, char *argv[])
                 const int NUM_INITIAL_SIZES = sizeof  INITIAL_SIZES
                                             / sizeof *INITIAL_SIZES;
 
+                if (veryVerbose) {
+                    T_ P_(i) P(SIZE)
+                }
+
                 for (int j = 0; j < NUM_INITIAL_SIZES; ++j) {
                     const int                         INITIAL_SIZE =
                                                               INITIAL_SIZES[j];
                     const bsls::BlockGrowth::Strategy STRATEGY     =  STRAT[j];
 
-                    bslma::TestAllocator ta(veryVeryVerbose),
-                                         tb(veryVeryVerbose),
-                                         tc(veryVeryVerbose),
-                                         td(veryVeryVerbose);
+                    bslma::TestAllocator ta(veryVeryVeryVerbose),
+                                         tb(veryVeryVeryVerbose),
+                                         tc(veryVeryVeryVerbose),
+                                         td(veryVeryVeryVerbose);
 
                     if (veryVerbose) {
-                        P(INITIAL_SIZE) P(SIZE)
+                        T_ T_ P_(j) P_(STRATEGY) P(INITIAL_SIZE)
                     }
 
                     Obj mV(INITIAL_SIZE, STRATEGY,      &ta);
@@ -1942,8 +2381,10 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(i, ND + blockSize(nextSize)
                                                         == td.numBytesInUse());
                     }
-                    else {
+                    else {  // constant-growth strategy
                         if (0 == INITIAL_SIZE && SIZE < k_DEFAULT_SIZE) {
+                            BSLS_ASSERT(!"Reached");
+
                             LOOP_ASSERT(i, NA + blockSize(k_DEFAULT_SIZE)
                                                         == ta.numBytesInUse());
                             LOOP_ASSERT(i, NB + blockSize(k_DEFAULT_SIZE)
@@ -1953,7 +2394,7 @@ int main(int argc, char *argv[])
                             LOOP_ASSERT(i, ND + blockSize(k_DEFAULT_SIZE)
                                                         == td.numBytesInUse());
                         }
-                        else {
+                        else if (SIZE <= INITIAL_SIZE) {
                             LOOP_ASSERT(i, NA + blockSize(SIZE)
                                                         == ta.numBytesInUse());
                             LOOP_ASSERT(i, NB + blockSize(SIZE)
@@ -1961,6 +2402,20 @@ int main(int argc, char *argv[])
                             LOOP_ASSERT(i, NC + blockSize(SIZE)
                                                         == tc.numBytesInUse());
                             LOOP_ASSERT(i, ND + blockSize(SIZE)
+                                                        == td.numBytesInUse());
+                        }
+                        else {  // constant-growth going geometric
+                            int nextSize = calculateNextSize(INITIAL_SIZE,
+                                                             SIZE);
+                            LOOP3_ASSERT(i, NA + blockSize(nextSize),
+                                         ta.numBytesInUse(),
+                                         NA + blockSize(nextSize)
+                                                        == ta.numBytesInUse());
+                            LOOP_ASSERT(i, NB + blockSize(nextSize)
+                                                        == tb.numBytesInUse());
+                            LOOP_ASSERT(i, NC + blockSize(nextSize)
+                                                        == tc.numBytesInUse());
+                            LOOP_ASSERT(i, ND + blockSize(nextSize)
                                                         == td.numBytesInUse());
                         }
                     }
@@ -1976,7 +2431,7 @@ int main(int argc, char *argv[])
                 const int SIZE = DATA[i];
 
                 if (veryVerbose) {
-                    T_ P(SIZE)
+                    T_ P_(i) P(SIZE)
                 }
 
                 const int INITIAL_SIZES[] = { SIZE - 1, SIZE, SIZE + 1,
@@ -2000,13 +2455,13 @@ int main(int argc, char *argv[])
                                                               INITIAL_SIZES[j];
                     const bsls::BlockGrowth::Strategy STRATEGY = STRATEGIES[j];
 
-                    bslma::TestAllocator ta(veryVeryVerbose),
-                                         tb(veryVeryVerbose),
-                                         tc(veryVeryVerbose),
-                                         td(veryVeryVerbose);
+                    bslma::TestAllocator ta(veryVeryVeryVerbose),
+                                         tb(veryVeryVeryVerbose),
+                                         tc(veryVeryVeryVerbose),
+                                         td(veryVeryVeryVerbose);
 
                     if (veryVerbose) {
-                        T_ T_ P_(INITIAL_SIZE) P(SIZE)
+                        T_ T_ P_(j) P_(INITIAL_SIZE) P(SIZE)
                     }
 
                     const int NUM_MAX_SIZES = 3;
@@ -2075,15 +2530,45 @@ int main(int argc, char *argv[])
                                                         == td.numBytesInUse());
                                 }
                             }
-                            else {
-                                LOOP_ASSERT(i, NA + blockSize(ALLOC_SIZE)
+                            else {  // constant-growth strategy
+                                if (ALLOC_SIZE <= INITIAL_SIZE // pool  block
+                                 || ALLOC_SIZE >  MAX_SIZE     // large block
+                                                ) {
+                                    LOOP_ASSERT(i, NA + blockSize(ALLOC_SIZE)
                                                         == ta.numBytesInUse());
-                                LOOP_ASSERT(i, NB + blockSize(ALLOC_SIZE)
+                                    LOOP_ASSERT(i, NB + blockSize(ALLOC_SIZE)
                                                         == tb.numBytesInUse());
-                                LOOP_ASSERT(i, NC + blockSize(ALLOC_SIZE)
+                                    LOOP_ASSERT(i, NC + blockSize(ALLOC_SIZE)
                                                         == tc.numBytesInUse());
-                                LOOP_ASSERT(i, ND + blockSize(ALLOC_SIZE)
+                                    LOOP_ASSERT(i, ND + blockSize(ALLOC_SIZE)
                                                         == td.numBytesInUse());
+                                }
+                                else { // constant-growth going geometric
+                                    int nextSize = calculateNextSize(
+                                                                  INITIAL_SIZE,
+                                                                  ALLOC_SIZE);
+                                    if (veryVeryVerbose) {
+                                        T_ T_ T_ T_ P_(nextSize)
+                                                    P(blockSize(nextSize))
+                                        typedef bsls::Types::Int64 Int64;
+                                        Int64 diffA = ta.numBytesInUse() - NA;
+                                        Int64 diffB = tb.numBytesInUse() - NB;
+                                        Int64 diffC = tc.numBytesInUse() - NC;
+                                        Int64 diffD = td.numBytesInUse() - ND;
+                                        T_ T_ T_ T_ P_(diffA)
+                                                    P_(diffB)
+                                                    P_(diffC)
+                                                    P(diffD)
+                                    }
+                                    LOOP_ASSERT(i, NA + blockSize(nextSize)
+                                                        == ta.numBytesInUse());
+                                    LOOP_ASSERT(i, NB + blockSize(nextSize)
+                                                        == tb.numBytesInUse());
+                                    LOOP_ASSERT(i, NC + blockSize(nextSize)
+                                                        == tc.numBytesInUse());
+                                    LOOP_ASSERT(i, ND + blockSize(nextSize)
+                                                        == td.numBytesInUse());
+                                }
                             }
                         }
                     }
@@ -2103,13 +2588,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CONSTRUCTOR TEST
         //   Note that this test alone is insufficient to thoroughly test the
-        //   constructors, as the untested 'allocate' method is used to
-        //   verify that the buffer, alignment strategy, and allocator are
-        //   properly passed to the pool at construction.  However, we cannot
-        //   test 'allocate' first - as it requires the constructors.  Hence,
-        //   it is a combination of both this test and test case 4 that
-        //   provides complete test coverage for the constructor and the
-        //   'allocate' method.
+        //   constructors, as the untested 'allocate' method is used to verify
+        //   that the buffer, alignment strategy, and allocator are properly
+        //   passed to the pool at construction.  However, we cannot test
+        //   'allocate' first -- as it requires the constructors.  Hence, it is
+        //   a combination of both this test and test case 4 that provides
+        //   complete test coverage for the constructor and the 'allocate'
+        //   method.
         //
         // Concerns:
         //: 1 That when an allocator is not supplied, the currently installed
@@ -2679,7 +3164,7 @@ int main(int argc, char *argv[])
         const int DATA[] = { 0, 1, 5, 12, 24, 64, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma::TestAllocator             a(veryVeryVerbose);
+        bslma::TestAllocator             a(veryVeryVeryVerbose);
         bdlma::InfrequentDeleteBlockList bl(&a);
 
         for (int i = 0; i < NUM_DATA; ++i) {
@@ -2710,11 +3195,10 @@ int main(int argc, char *argv[])
         //:   specified size and expected alignment.
         //:
         //: 3 That 'allocate' method does not always causes dynamic allocation
-        //:   (i.e., the pool manages an internal buffer of memory)
+        //:   (i.e., the pool manages an buffer of memory)
         //:
         //: 4 The 'allocate' method returns a block of memory even when the the
-        //:   allocation request exceeds the initial size of the internal
-        //:   buffer.
+        //:   allocation request exceeds the initial size of the buffer.
         //:
         //: 5 Destruction of the pool releases all managed memory.
         //
@@ -2760,7 +3244,7 @@ int main(int argc, char *argv[])
             bsls::Types::Int64 oldNumBytesInUse =
                                                objectAllocator.numBytesInUse();
 
-            if (verbose) cout << "\nTesting internal buffering." << endl;
+            if (verbose) cout << "\nTesting buffering." << endl;
             void *addr2 = mX.allocate(k_ALLOC_SIZE2);
 
             ASSERT(oldNumBytesInUse == objectAllocator.numBytesInUse());

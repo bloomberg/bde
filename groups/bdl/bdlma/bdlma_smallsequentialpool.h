@@ -15,36 +15,42 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a fast sequential memory pool,
 // 'bdlma::SmallSequentialPool', that dispenses heterogeneous memory blocks (of
-// varying, user-specified sizes) from a dynamically-allocated internal buffer.
-// A 'bdlma::SmallSequentialPool' is typically used when fast allocation and
+// varying, user-specified sizes) from dynamically-allocated buffers.  A
+// 'bdlma::SmallSequentialPool' is typically used when fast allocation and
 // deallocation is needed, but the user does not know in advance the maximum
-// amount of memory needed.  The class rates the appellation "small" because
-// its footprint is significantly less than that of 'bdlma::SequentialPool', a
-// similar class that uses a different policy for its 'rewind' method.  See
-// {Comparison: 'bdlma::SequentialPool' and 'bdlma::SmallSequentialPool'}.
+// amount of memory needed.
+//
+// The class rates the appellation "small" because its footprint is
+// significantly less than that of 'bdlma::SequentialPool', a similar class
+// that uses a different policy for its 'rewind' method.  See {Comparison:
+// 'bdlma::SequentialPool' and 'bdlma::SmallSequentialPool'}.
 //
 // If an allocation request exceeds the remaining free memory space in the
-// internal buffer, the pool either replenishes its internal buffer with new
-// memory to satisfy the request, or returns a separate memory block, depending
-// on whether the request size exceeds an optionally-specified threshold.
-// Allocations that exceed that threshold are deemed "large" blocks.  See
-// {Optional 'maxBufferSize' Parameter} and {Optional 'growthStrategy'
-// Parameter} for details of specifying allocation such thresholds.
+// buffer, the pool either replenishes its buffer with new memory to satisfy
+// the request, or returns a separate memory block of the requested size,
+// depending on whether the request size exceeds an optionally-specified
+// threshold.  Allocations that exceed that threshold are deemed "large"
+// blocks.  See {Optional 'maxBufferSize' Parameter} and {Optional
+// 'growthStrategy' Parameter} for details of specifying allocation such
+// thresholds.  Note that "large" requests are simply passed through to the
+// pool's allocator and bypass the pool's features that make allocations more
+// efficient.  See {Example 1: Using 'bdlma::SmallSequentialPool' for Efficient
+// Allocations}.
 //
 // The 'release' method releases all memory allocated through the pool, as does
 // the destructor.  Note that individually allocated memory blocks cannot be
 // separately deallocated.
 //
 // The 'rewind' method releases all memory allocated through the pool *except*
-// for the last non-"large" block, if any.  Using 'rewind' instead of
-// 'release' can save on reallocations when a pool object is being reused.
+// for the last non-"large" block, if any.  Using 'rewind' instead of 'release'
+// can save on reallocations when a pool object is being reused.  See {Example
+// 3: Iterative Pool Reuse}.
 //
 ///Optional 'initialSize' Parameter
 ///--------------------------------
 // An optional 'initialSize' parameter can be supplied at construction to
-// specify the initial size of the internal buffer.  If 'initialSize' is not
-// supplied, an implementation-defined value is used for the initial internal
-// size of the buffer.
+// specify the initial size of the buffer.  If 'initialSize' is not supplied,
+// an implementation-defined value is used for the initial size of the buffer.
 //
 ///Optional 'maxBufferSize' Parameter
 /// - - - - - - - - - - - - - - - - -
@@ -54,8 +60,13 @@ BSLS_IDENT("$Id: $")
 // (and returning) a "large" block of the requested size.  The behavior is
 // undefined unless 'intialSize <= maxBufferSize'.  Note that 'reserveCapacity'
 // always ensures that the requested number of bytes is available (allocating a
-// new internal buffer if necessary) regardless of whether the size of the
-// request exceeds 'maxBufferSize'.
+// new buffer if necessary) regardless of whether the size of the request
+// exceeds 'maxBufferSize'.
+//
+// "Large" allocations are never candidates for preservation across invocations
+// of 'rewind'.  Consequently, when pool objects are being reused (see {Example
+// 3}), an unusually large allocation cannot be pinned to the pool object for
+// the remainder of its lifetime.
 //
 ///Optional 'growthStrategy' Parameter
 ///-----------------------------------
@@ -63,11 +74,16 @@ BSLS_IDENT("$Id: $")
 // specify the growth rate of the dynamically-allocated buffers.  See
 // {'bsls_blockgrowth'} for more details.  The buffers can grow either
 // geometrically or remain constant in size.  If 'growthStrategy' is not
-// specified, geometric growth is used.  If the constant size growth strategy
-// is chosen, the pool always allocates internal buffers of the specified
-// 'initialSize' (see {Optional 'initialSize' Parameter}) or an
-// implementation-defined value.  Each pool request in excess of the constant
-// buffer size is satisfied by allocating (and returning) a "large" block.
+// specified, geometric growth is used.
+//
+// If the constant size growth strategy is chosen, the pool always allocates
+// buffers of the specified 'initialSize' (see {Optional 'initialSize'
+// Parameter}) or an implementation-defined value.  If an allocation request
+// exceeds the growth size the pool switches to geometric growth for that
+// request.  Allocation requests in excess of 'maxBufferSize' are satisfied by
+// providing a single "large" block of the requested size.  The fallback from
+// constant to geometric growth can be suppressed by constructing the pool with
+// 'initialSize' equal to 'maxBufferSize'.
 //
 ///Optional 'alignmentStrategy' Parameter
 ///--------------------------------------
@@ -356,7 +372,7 @@ BSLS_IDENT("$Id: $")
 //  class my_SmallSequentialAllocator : public bslma::Allocator {
 //      // This class implements the 'bslma::Allocator' protocol to provide a
 //      // fast allocator of heterogeneous blocks of memory (of varying,
-//      // user-specified sizes) from dynamically-allocated internal buffers.
+//      // user-specified sizes) from dynamically-allocated buffers.
 //
 //      // DATA
 //      bdlma::SmallSequentialPool d_pool;  // manager for allocated memory
@@ -367,7 +383,7 @@ BSLS_IDENT("$Id: $")
 //      explicit my_SmallSequentialAllocator(
 //                                       bslma::Allocator *basicAllocator = 0);
 //          // Create an allocator for allocating memory blocks from
-//          // dynamically-allocated internal buffers.  Optionally specify a
+//          // dynamically-allocated buffers.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //          // 0, the currently installed default allocator is used.
 //
@@ -470,6 +486,105 @@ BSLS_IDENT("$Id: $")
 //      assert(0 == ta.numBlocksInUse());
 //  }
 //..
+//
+///Example 3: Iterative Pool Reuse
+///- - - - - - - - - - - - - - - -
+// Using a pool is more efficient for allocations a large number of small
+// memory allocations than allocating directly from the global allocator.  See
+// {Example 1}.  In this example, we illustrate a scenario where the 'rewind'
+// method is used to make such allocations even *more* efficient.  Suppose one
+// has an application that repeatedly makes a large number of small
+// allocations, deallocations, and reallocations (e.g., a service responding to
+// a client query).
+//
+// First, we define 'poolAllocationScenario', a function that represents to
+// usage scenario.  For simplicity of exposition, this function is
+// preternaturally regular: the same number of allocations of a uniform size
+// are made in each invocation:
+//..
+//  void poolAllocationScenario(bdlma::SmallSequentialPool *pool,
+//                              bsl::size_t                 allocationSize)
+//      // Approximate a "typical" pool usage scenario consisting of many
+//      // small allocations of the specified 'allocationSize' from the
+//      // specified 'pool'.
+//  {
+//      BSLS_ASSERT(pool);
+//
+//      // Consume the first three, geometrically-allocated buffers, assuming
+//      // 4-byte allocations.
+//
+//      for (int i = 0; i < 64 + 128 + 256; ++i) {
+//          pool->allocate(allocationSize);
+//      }
+//  }
+//..
+// Then, we create a 'bdlma::SmallSequentialPool' object to be supplied to the
+// usage scenario.  We install a 'bslma::TestAllocator' object as the pool's
+// upstream allocator so that the memory usage of the pool can be observed:
+//..
+//  void iterativePoolReuse()
+//      // Simulate reuse of a 'bslma::SmallSequentialPool' object by
+//      // iteratively subjecting it to the 'poolAllocationScenario' and
+//      // invoking its 'rewind' method after after each iteration.
+//  {
+//      bslma::TestAllocator       sa("supplied");
+//      bdlma::SmallSequentialPool ssp(&sa);
+//..
+// Next, we iteratively invoke the usage scenario, rewinding the pool after
+// each use:
+//..
+//      for (int i = 0; i < 5; ++i) {
+//
+//          poolAllocationScenario(&ssp, 4);
+//
+//          cout << i                   << ": "
+//               << sa.numBlocksInUse() << " "
+//               << sa.numBytesInUse()  << endl;
+//
+//          ssp.rewind();
+//      }
+//..
+// Now, we examine the usage pattern:
+//..
+//  0: 3 1816
+//  1: 2 3088
+//  2: 1 2056
+//  3: 1 2056
+//  4: 1 2056
+//..
+// Recall that the 'bdlma::SmallSequentialPool' class retains the latest (for
+// geometric growth, the largest non-"large") allocated block.  Notice that for
+// this usage pattern the pool converges to a single (contiguous) block (no
+// further upstream allocations) and that block size is less than the maximum
+// allocation.  Also notice that this nice behavior was achieved with *no*
+// foreknowledge of the usage pattern of the repeated scenario.  (The
+// implementation-specific default value was used for the initial block
+// allocation.)
+//
+// Finally, we consider what happens if the usage scenario should change over
+// time by doubling the allocation size from 4 to 8:
+//..
+//      for (int i = 5; i < 10; ++i) {
+//
+//          poolAllocationScenario(&ssp, 8);  // Increased allocation size
+//
+//          cout << i                   << ": "
+//               << sa.numBlocksInUse() << " "
+//               << sa.numBytesInUse()  << endl;
+//
+//          ssp.rewind();
+//      }
+//  }
+//..
+// The output shows that the pool rapidly adapted to the increased larger
+// allocations:
+//..
+//  5: 2 6160
+//  6: 1 4104
+//  7: 1 4104
+//  8: 1 4104
+//  9: 1 4104
+//..
 
 #include <bdlscm_version.h>
 
@@ -497,14 +612,14 @@ namespace bdlma {
 class SmallSequentialPool {
     // This class implements a fast memory pool that efficiently dispenses
     // heterogeneous blocks of memory (of varying, user-specified sizes) from a
-    // sequence of dynamically-allocated internal buffers.  Memory for the
-    // internal buffers is supplied by an (optional) allocator supplied at
-    // construction; if no allocator is supplied, the currently installed
-    // default allocator is used.  If an allocation exceeds the remaining free
-    // memory space in the current buffer, the pool replenishes its internal
-    // buffer with new memory to satisfy the request.  This class is
-    // *exception* *neutral*: If memory cannot be allocated, the behavior is
-    // defined by the (optional) allocator specified at construction.
+    // sequence of dynamically-allocated buffers.  Memory for the buffers is
+    // supplied by an (optional) allocator supplied at construction; if no
+    // allocator is supplied, the currently installed default allocator is
+    // used.  If an allocation exceeds the remaining free memory space in the
+    // current buffer, the pool replenishes its buffer with new memory to
+    // satisfy the request.  This class is *exception* *neutral*: If memory
+    // cannot be allocated, the behavior is defined by the (optional) allocator
+    // specified at construction.
 
     // DATA
     BufferManager       d_buffer;          // memory manager for current buffer
@@ -512,9 +627,12 @@ class SmallSequentialPool {
     bsls::BlockGrowth::Strategy
                         d_growthStrategy;  // growth strategy for block list
 
-    bsl::size_t         d_initialSize;     // initial internal buffer size
+    bsl::size_t         d_initialSize;     // initial buffer size
 
-    bsl::size_t         d_maxBufferSize;   // maximum internal buffer size
+    bsl::size_t         d_geometricSize;   // latest geometric growth
+                                           // allocation size
+
+    bsl::size_t         d_maxBufferSize;   // maximum buffer size
 
     InfrequentDeleteBlockList
                         d_blockList;       // memory manager used to supply
@@ -534,17 +652,21 @@ class SmallSequentialPool {
     // PRIVATE MANIPULATORS
     void *allocateNonFastPath(bsl::size_t size);
         // If the specified 'size' is not 0, use the allocator supplied at
-        // construction to allocate a new internal buffer and return the
-        // address of a contiguous block of memory of 'size' (in bytes) from
-        // this new buffer, according to the alignment strategy specified at
+        // construction to allocate a new buffer and return the address of a
+        // contiguous block of memory of 'size' (in bytes) from this new
+        // buffer, according to the alignment strategy specified at
         // construction.  If 'size' is 0, no memory is allocated and 0 is
         // returned.
 
-    // PRIVATE ACCESSORS
-    bsl::size_t calculateNextBufferSize(bsl::size_t size) const;
+    bsl::size_t calculateNextBufferSize(bsl::size_t size);
         // Return the next buffer size (in bytes) that is sufficiently large to
         // satisfy a memory allocation request of the specified 'size' (in
         // bytes), or the maximum buffer size if the buffer can no longer grow.
+        // If the object is using the constant-growth strategy and 'size'
+        // exceeds the growth size, calculate the next size using the geometric
+        // strategy.  Update 'd_geometricSize' whenever the geometric growth
+        // strategy is used.  The behavior is undefined if
+        // 'd_maxBufferSize < size'.
 
   public:
     // CREATORS
@@ -569,10 +691,10 @@ class SmallSequentialPool {
         // used to control alignment of allocated memory blocks.  If no
         // 'alignmentStrategy' is specified, natural alignment is used.  An
         // implementation-defined value is used as the initial size of the
-        // internal buffer.  Note that no limit is imposed on the size of the
-        // internal buffers when geometric growth is used.  Also note that when
-        // constant growth is used, the size of the internal buffers will
-        // always be the same as the implementation-defined value.
+        // buffer.  Note that no limit is imposed on the size of the buffers
+        // when geometric growth is used.  Also note that when constant growth
+        // is used, the size of the buffers will always be the same as the
+        // implementation-defined value.
 
     explicit
     SmallSequentialPool(int                          initialSize,
@@ -600,10 +722,9 @@ class SmallSequentialPool {
         // natural alignment is used.  By specifying an 'initialSize', the
         // construction of a sequential pool will incur a memory allocation.
         // The behavior is undefined unless '0 < initialSize'.  Note that no
-        // limit is imposed on the size of the internal buffers when geometric
-        // growth is used.  Also note that when constant growth is used, the
-        // size of the internal buffers will always be the same as
-        // 'initialSize'.
+        // limit is imposed on the size of the buffers when geometric growth is
+        // used.  Also note that when constant growth is used, the size of the
+        // buffers will always be the same as 'initialSize'.
 
     SmallSequentialPool(bsl::size_t                  initialSize,
                         bsl::size_t                  maxBufferSize,
@@ -623,9 +744,9 @@ class SmallSequentialPool {
                         bslma::Allocator            *basicAllocator = 0);
         // Create a sequential pool for allocating memory blocks from a
         // sequence of dynamically-allocated buffers, of which the initial
-        // buffer has the specified 'initialSize' (in bytes), and the internal
-        // buffer growth is limited to the specified 'maxBufferSize'.
-        // Optionally specify a 'basicAllocator' used to supply memory for the
+        // buffer has the specified 'initialSize' (in bytes), and the buffer
+        // growth is limited to the specified 'maxBufferSize'.  Optionally
+        // specify a 'basicAllocator' used to supply memory for the
         // dynamically-allocated buffers.  If 'basicAllocator' is 0, the
         // currently installed default allocator is used.  Optionally specify a
         // 'growthStrategy' used to control buffer growth.  If no
@@ -634,8 +755,8 @@ class SmallSequentialPool {
         // allocated memory blocks.  If no 'alignmentStrategy' is specified,
         // natural alignment is used.  The behavior is undefined unless
         // '0 < initialSize' and 'initialSize <= maxBufferSize'.  Note that
-        // when constant growth is used, the size of the internal buffers will
-        // always be the same as 'initialSize'.
+        // when constant growth is used, the size of the buffers will always be
+        // the same as 'initialSize'.
 
     SmallSequentialPool(bsl::size_t                  initialSize,
                         bsl::size_t                  maxBufferSize,
@@ -645,18 +766,18 @@ class SmallSequentialPool {
                         bslma::Allocator            *basicAllocator = 0);
         // Create a sequential pool for allocating memory blocks from a
         // sequence of dynamically-allocated buffers, of which the initial
-        // buffer has the specified 'initialSize' (in bytes), the internal
-        // buffer growth is limited to the specified 'maxBufferSize', the
-        // specified 'growthStrategy' is used to control buffer growth, and the
-        // specified 'alignmentStrategy' is used to control alignment of
-        // allocated memory blocks.  Allocate the initial buffer only if the
-        // specified 'allocateInitialBuffer' is 'true'.  Optionally specify a
+        // buffer has the specified 'initialSize' (in bytes), the buffer growth
+        // is limited to the specified 'maxBufferSize', the specified
+        // 'growthStrategy' is used to control buffer growth, and the specified
+        // 'alignmentStrategy' is used to control alignment of allocated memory
+        // blocks.  Allocate the initial buffer only if the specified
+        // 'allocateInitialBuffer' is 'true'.  Optionally specify a
         // 'basicAllocator' used to supply memory for the dynamically-allocated
         // buffers.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.  The behavior is undefined unless
         // '0 < initialSize' and 'initialSize <= maxBufferSize'.  Note that
-        // when constant growth is used, the size of the internal buffers will
-        // always be the same as 'initialSize'.
+        // when constant growth is used, the size of the buffers will always be
+        // the same as 'initialSize'.
 
     ~SmallSequentialPool();
         // Destroy this sequential pool.  All memory allocated by this pool is
@@ -668,18 +789,17 @@ class SmallSequentialPool {
         // 'size' (in bytes) according to the alignment strategy specified at
         // construction.  If 'size' is 0, no memory is allocated and 0 is
         // returned.  If the allocation request exceeds the remaining free
-        // memory space in the current internal buffer, use the allocator
-        // supplied at construction to allocate a new internal buffer, then
-        // allocate memory from the new buffer.
+        // memory space in the current buffer, use the allocator supplied at
+        // construction to allocate a new buffer, then allocate memory from the
+        // new buffer.
 
     void *allocateAndExpand(bsl::size_t *size);
         // Return the address of a contiguous block of memory of at least the
         // specified '*size' (in bytes), and load the actual amount of memory
         // allocated in '*size'.  If '*size' is 0, return 0 with no effect.  If
         // the allocation request exceeds the remaining free memory space in
-        // the current internal buffer, use the allocator supplied at
-        // construction to allocate a new internal buffer, then allocate memory
-        // from the new buffer.
+        // the current buffer, use the allocator supplied at construction to
+        // allocate a new buffer, then allocate memory from the new buffer.
 
     template <class TYPE>
     void deleteObject(const TYPE *object);
@@ -878,6 +998,8 @@ void SmallSequentialPool::release()
 
     d_blockList.release();
     d_largeBlockList.release();
+
+    d_geometricSize = d_initialSize;
 }
 
 inline
@@ -886,6 +1008,10 @@ void SmallSequentialPool::rewind()
     d_buffer.release();  // Reset the internal cursor in the current block.
     d_blockList.releaseAllButLastBlock();
     d_largeBlockList.release();
+
+    d_geometricSize = d_buffer.bufferSize()
+                    ? d_buffer.bufferSize()
+                    : d_initialSize;
 }
 
 inline

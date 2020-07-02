@@ -28,6 +28,10 @@ void *SmallSequentialPool::allocateNonFastPath(bsl::size_t size)
         return 0;                                                     // RETURN
     }
 
+    if (d_maxBufferSize < size) {
+        return d_largeBlockList.allocate(size);                       // RETURN
+    }
+
     const bsl::size_t nextSize = calculateNextBufferSize(size);
 
     if (nextSize < size) {
@@ -42,27 +46,35 @@ void *SmallSequentialPool::allocateNonFastPath(bsl::size_t size)
 
 // PRIVATE ACCESSORS
 bsl::size_t SmallSequentialPool::calculateNextBufferSize(bsl::size_t size)
-                                                                          const
 {
-    const bsl::size_t bufferSize = d_buffer.bufferSize();
-    bsl::size_t       nextSize   = 0 == bufferSize
-                                 ? d_initialSize
-                                 : bufferSize;
+    BSLS_ASSERT(size <= d_maxBufferSize);
 
-    if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy) {
-        return nextSize;                                              // RETURN
+    if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy
+     && size <= d_initialSize) {
+        BSLS_ASSERT(d_initialSize <= d_maxBufferSize);
+        return d_initialSize;                                         // RETURN
     }
 
-    bsl::size_t oldSize;
-    do {
-        oldSize   = nextSize;
-        nextSize *= k_GROWTH_FACTOR;
-    } while (nextSize < size && oldSize < nextSize);
+    bsl::size_t nextSize = d_geometricSize;
 
-    // If 'nextSize' overflows, use 'oldSize'.
+    const bsl::size_t bufferSize = d_buffer.bufferSize();
 
-    if (oldSize >= nextSize) {
-        nextSize = oldSize;
+    if (0 == bufferSize && size <= nextSize) {
+        ;  // First allocation satisfied by initial size.
+    } else {
+        bsl::size_t oldSize;
+        do {
+            oldSize   = nextSize;
+            nextSize *= static_cast<bsl::size_t>(k_GROWTH_FACTOR);
+        } while (nextSize < size && oldSize < nextSize);
+
+        // If 'nextSize' overflows, use 'oldSize'.
+
+        if (oldSize >= nextSize) {
+            nextSize = oldSize;
+        }
+
+        d_geometricSize = nextSize;
     }
 
     return nextSize <= d_maxBufferSize ? nextSize : d_maxBufferSize;
@@ -73,6 +85,7 @@ SmallSequentialPool::SmallSequentialPool(bslma::Allocator *basicAllocator)
 : d_buffer()
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_initialSize(k_INITIAL_SIZE)
+, d_geometricSize(k_INITIAL_SIZE)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 , d_largeBlockList(basicAllocator)
@@ -85,6 +98,7 @@ SmallSequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
 : d_buffer()
 , d_growthStrategy(growthStrategy)
 , d_initialSize(k_INITIAL_SIZE)
+, d_geometricSize(k_INITIAL_SIZE)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 , d_largeBlockList(basicAllocator)
@@ -97,6 +111,7 @@ SmallSequentialPool(bsls::Alignment::Strategy  alignmentStrategy,
 : d_buffer(alignmentStrategy)
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_initialSize(k_INITIAL_SIZE)
+, d_geometricSize(k_INITIAL_SIZE)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 , d_largeBlockList(basicAllocator)
@@ -110,6 +125,7 @@ SmallSequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
 : d_buffer(alignmentStrategy)
 , d_growthStrategy(growthStrategy)
 , d_initialSize(k_INITIAL_SIZE)
+, d_geometricSize(k_INITIAL_SIZE)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 , d_largeBlockList(basicAllocator)
@@ -121,6 +137,7 @@ SmallSequentialPool(int initialSize, bslma::Allocator *basicAllocator)
 : d_buffer()
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_initialSize(initialSize)
+, d_geometricSize(initialSize)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 , d_largeBlockList(basicAllocator)
@@ -138,6 +155,7 @@ SmallSequentialPool(bsl::size_t                  initialSize,
 : d_buffer()
 , d_growthStrategy(growthStrategy)
 , d_initialSize(initialSize)
+, d_geometricSize(initialSize)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 , d_largeBlockList(basicAllocator)
@@ -155,6 +173,7 @@ SmallSequentialPool(bsl::size_t                initialSize,
 : d_buffer(alignmentStrategy)
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_initialSize(initialSize)
+, d_geometricSize(initialSize)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 , d_largeBlockList(basicAllocator)
@@ -173,6 +192,7 @@ SmallSequentialPool(bsl::size_t                  initialSize,
 : d_buffer(alignmentStrategy)
 , d_growthStrategy(growthStrategy)
 , d_initialSize(initialSize)
+, d_geometricSize(initialSize)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 , d_largeBlockList(basicAllocator)
@@ -190,6 +210,7 @@ SmallSequentialPool(bsl::size_t       initialSize,
 : d_buffer()
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_initialSize(initialSize)
+, d_geometricSize(initialSize)
 , d_maxBufferSize(maxBufferSize)
 , d_blockList(basicAllocator)
 , d_largeBlockList(basicAllocator)
@@ -209,6 +230,7 @@ SmallSequentialPool(bsl::size_t                  initialSize,
 : d_buffer()
 , d_growthStrategy(growthStrategy)
 , d_initialSize(initialSize)
+, d_geometricSize(initialSize)
 , d_maxBufferSize(maxBufferSize)
 , d_blockList(basicAllocator)
 , d_largeBlockList(basicAllocator)
@@ -228,6 +250,7 @@ SmallSequentialPool(bsl::size_t                initialSize,
 : d_buffer(alignmentStrategy)
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_initialSize(initialSize)
+, d_geometricSize(initialSize)
 , d_maxBufferSize(maxBufferSize)
 , d_blockList(basicAllocator)
 , d_largeBlockList(basicAllocator)
@@ -248,6 +271,7 @@ SmallSequentialPool(bsl::size_t                  initialSize,
 : d_buffer(alignmentStrategy)
 , d_growthStrategy(growthStrategy)
 , d_initialSize(initialSize)
+, d_geometricSize(initialSize)
 , d_maxBufferSize(maxBufferSize)
 , d_blockList(basicAllocator)
 , d_largeBlockList(basicAllocator)
@@ -269,6 +293,7 @@ SmallSequentialPool(bsl::size_t                  initialSize,
 : d_buffer(alignmentStrategy)
 , d_growthStrategy(growthStrategy)
 , d_initialSize(initialSize)
+, d_geometricSize(initialSize)
 , d_maxBufferSize(maxBufferSize)
 , d_blockList(basicAllocator)
 , d_largeBlockList(basicAllocator)
@@ -297,7 +322,9 @@ void SmallSequentialPool::reserveCapacity(bsl::size_t numBytes)
         return;                                                       // RETURN
     }
 
-    bsl::size_t nextSize = calculateNextBufferSize(numBytes);
+    bsl::size_t nextSize = d_maxBufferSize < numBytes
+                         ? numBytes
+                         : calculateNextBufferSize(numBytes);
 
     if (nextSize < numBytes) {
         nextSize = numBytes;
