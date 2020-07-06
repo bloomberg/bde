@@ -6240,8 +6240,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase21()
     //: 6 Comparator is properly propagated on copy construction, copy
     //:   assignment, and swap.
     //:
-    //: 7 Functor with a non-const function call operator can be used -- any
-    //:   non-const operation on the set that utilizes the comparator can be
+    //: 7 Functor with a non-'const' function call operator can be used -- any
+    //:   non-'const' operation on the set that utilizes the comparator can be
     //:   invoked from a non modifiable reference of a set.
     //
     // Plan:
@@ -6279,7 +6279,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase21()
     //:     compare equals to the one created in P-5.1, and the original object
     //:     has a default constructed comparator.  (P-6)
     //:
-    //: 6 Repeat P-5 except with a comparator having non-const function call
+    //: 6 Repeat P-5 except with a comparator having non-'const' function call
     //:   operator.  (P-7
     //
     // Testing:

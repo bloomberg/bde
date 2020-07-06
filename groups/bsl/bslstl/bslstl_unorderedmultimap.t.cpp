@@ -1090,7 +1090,7 @@ class TestDriver {
     BSLMF_ASSERT((!bslmf::IsSame<LIter, CLIter>::value));
 
     typedef TestNonConstEqualityComparator<KEY>              NonConstEqual;
-        // Comparator functor with a non-const function call operator.
+        // Comparator functor with a non-'const' function call operator.
 
     static const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value +
                                   bslma::UsesBslmaAllocator<VALUE>::value;

@@ -73,8 +73,8 @@ BSLS_IDENT("$Id: $")
 //..
 // 'bdlmt::EventSchedulerEventHandle' and
 // 'bdlmt::EventSchedulerRecurringEventHandle' are *const* *thread-safe*.  It
-// is not safe for multiple threads to invoke non-const methods on the same
-// EventHandle or RecurringEventHandle object concurrently.
+// is not safe for multiple threads to invoke non-'const' methods on the same
+// 'EventHandle' or 'RecurringEventHandle' object concurrently.
 //
 ///The Dispatcher Thread and the Dispatcher Functor
 ///------------------------------------------------

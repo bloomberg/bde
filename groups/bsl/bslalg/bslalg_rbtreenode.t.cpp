@@ -681,7 +681,7 @@ int main(int argc, char *argv[])
         //: 1 Each method returns the value of the corresponding attribute
         //:   of the object.
         //:
-        //: 2 Each method return a non-const pointer.
+        //: 2 Each method return a non-'const' pointer.
         //
         // Plan:
         //: 1 Use the default constructor to create an object (having default

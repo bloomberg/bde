@@ -109,12 +109,12 @@ struct MatchAnyType {
 
     template <class TYPE> MatchAnyType(const TYPE&) { }             // IMPLICIT
         // This constructor will match any rvalue or any non-volatile lvalue.
-        // A non-const version of this constructor is not necessary and will
+        // A non-'const' version of this constructor is not necessary and will
         // cause some compilers to complain of ambiguities.
 
     template <class TYPE> MatchAnyType(const volatile TYPE&) { }    // IMPLICIT
         // This constructor will match any volatile lvalue.  According to the
-        // standard, it should NOT match an rvalue.  A non-const version of
+        // standard, it should NOT match an rvalue.  A non-'const' version of
         // this constructor is not necessary and will cause some compilers to
         // complain of ambiguities.
 };

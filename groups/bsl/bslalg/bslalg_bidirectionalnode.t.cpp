@@ -433,8 +433,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create an object and a const reference to it.  Manipulate the
-        //:   object with the accessors using the non-const object, and observe
-        //:   it via the accessors using the const object.
+        //:   object with the accessors using the non-'const' object, and
+        //:   observe it via the accessors using the 'const' object.
         // --------------------------------------------------------------------
 
         if (verbose) printf(

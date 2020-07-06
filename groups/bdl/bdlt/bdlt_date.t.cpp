@@ -469,7 +469,7 @@ if (verbose)
         //
         //: 2 Hashes equal inputs identically
         //
-        //: 3 Works for const and non-const dates
+        //: 3 Works for 'const' and non-'const' dates
         //
         // Plan:
         //: 1 Brute force test of a few hand picked values, ensuring that

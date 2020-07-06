@@ -5015,8 +5015,8 @@ void TestDriver<TYPE, ALLOC>::testCase15Negative()
     // NEGATIVE TESTING ELEMENT ACCESS
     //
     // Concerns:
-    //   For a vector 'v', the following const and non-const operations assert
-    //   on undefined behavior:
+    //   For a vector 'v', the following const and non-'const' operations
+    //   assert on undefined behavior:
     //   1 v[x] - when the index 'x' is out of range
     //   2 v.front() - when 'v' is empty
     //   3 v.back() - when 'v' is empty

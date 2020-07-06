@@ -6555,7 +6555,7 @@ int main(int argc, char *argv[])
         //: 2 That the right most node of the tree is returned if previous' is
         //:   called on the tree's sentinel node.
         //:
-        //: 3 That 'previous' is defined for both const and non-const
+        //: 3 That 'previous' is defined for both const and non-'const'
         //:   'RbTreeNode' objects
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
@@ -6682,8 +6682,8 @@ int main(int argc, char *argv[])
         //: 2 That the tree's sentinel node is returned if 'next' is called on
         //:   the tree's 'rightmost' node.
         //:
-        //: 3 That 'next' is defined for both const and non-const 'RbTreeNode'
-        //:   objects
+        //: 3 That 'next' is defined for both const and non-'const'
+        //:   'RbTreeNode' objects
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -6805,7 +6805,7 @@ int main(int argc, char *argv[])
         //:   'rightmost' returns the right-most node of a binary tree.
         //
         //: 2 That 'leftmost' and 'rightmost' methods are defined on both
-        //:   const and non-const 'RbTreeNode' objects
+        //:   'const' and non-'const' 'RbTreeNode' objects
         //:
         //: 3 QoI: Asserted precondition violations are detected when enabled.
         //

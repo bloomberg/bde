@@ -947,7 +947,7 @@ int main(int argc, char **argv)
                           << "===========================" << endl;
 
         if (verbose) cout <<
-            "\nTesting 'pubsetbuf' using non-const C arrays." << endl;
+            "\nTesting 'pubsetbuf' using non-'const' C arrays." << endl;
 
         {
             static const bsl::size_t sampleSizes[] = { 0, 1, INIT_BUFSIZE };
@@ -1578,7 +1578,7 @@ int main(int argc, char **argv)
         enum { SAMPLE_NUM = sizeof(sampleSizes) / sizeof(sampleSizes[0]) };
 
         if (verbose) cout <<
-            "\nTesting constructor using non-const C arrays" << endl;
+            "\nTesting constructor using non-'const' C arrays" << endl;
         {
             for (int j = 0; j < SAMPLE_NUM; ++j) {
                 const bsl::size_t BUFFER_SIZE = sampleSizes[j];

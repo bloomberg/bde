@@ -759,7 +759,7 @@ class TestComparator {
 
 template <class TYPE>
 class TestComparatorNonConst {
-    // This test class provides a mechanism that defines a non-const
+    // This test class provides a mechanism that defines a non-'const'
     // function-call operator that compares two objects of the parameterized
     // 'TYPE'.  The function-call operator is implemented with integer
     // comparison using integers converted from objects of 'TYPE' by the class
@@ -1396,7 +1396,7 @@ class TestDriver {
                      CharToPairConverter<const KEY, VALUE, ALLOC> > TestValues;
 
     typedef TestComparatorNonConst<KEY>           NonConstComp;
-        // Comparator functor with a non-const function call operator.
+        // Comparator functor with a non-'const' function call operator.
 
     enum AllocCategory { e_BSLMA, e_ADAPTOR, e_STATEFUL };
 
@@ -6083,9 +6083,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase21()
     //: 6 Comparator is properly propagated on copy construction, copy
     //:   assignment, and swap.
     //:
-    //: 7 Functor with a non-const function call operator can be used -- any
-    //:   non-const operation on the multimap that utilizes the comparator can
-    //:   be invoked from a non modifiable reference of a multimap.
+    //: 7 Functor with a non-'const' function call operator can be used -- any
+    //:   non-'const' operation on the multimap that utilizes the comparator
+    //:   can be invoked from a non modifiable reference of a multimap.
     //
     // Plan:
     //: 1 Create default object and verify comparator is 'std::less'.  (C-2)
@@ -6122,7 +6122,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase21()
     //:     compare equals to the one created in P-5.1, and the original object
     //:     has a default constructed comparator.  (P-6)
     //:
-    //: 6 Repeat P-5 except with a comparator having non-const function call
+    //: 6 Repeat P-5 except with a comparator having non-'const' function call
     //:   operator.  (P-7
     //
     // Testing:

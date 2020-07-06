@@ -407,14 +407,14 @@ int main(int argc, char *argv[])
         //   Verify all function templates are callable.
         //
         // Concerns:
-        //: 1 Both const and non-const arrays should work.
+        //: 1 Both 'const' and non-'const' arrays should work.
         //: 2 The functions should be callable with arbitrary types.
         //: 3 The functions should be applicable to different array sizes.
         //
         // Plan:
         //: 1 Try all functions.
         //: 2 Try them with built-in and user-defined types.
-        //: 3 Try them with both const, volatile and non-const versions
+        //: 3 Try them with 'const', 'volatile' and non-'const' versions.
         //: 4 Use different array sizes for the various types.
         //
         // Testing:

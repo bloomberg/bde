@@ -135,7 +135,7 @@ BSLS_IDENT("$Id: $")
 //:     This macro is defined if 'constexpr' with C++14 semantics is supported
 //:     by the current compiler settings for this platform.  In particular,
 //:     this allows multiple statements in a 'constexpr' function; changing
-//:     state of local variables within the function; and making 'non-const'
+//:     state of local variables within the function; and making non-'const'
 //:     member functions 'constexpr'.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17':

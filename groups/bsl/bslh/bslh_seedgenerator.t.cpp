@@ -660,7 +660,7 @@ int main(int argc, char *argv[])
         //:   'SeedGenerator' from an existing instance. (C-3,4)
         //:
         //: 4 Copy the value of the one (const) instance of 'SeedGenerator'
-        //:   to a second non-const one. (C-5)
+        //:   to a second non-'const' one. (C-5)
         //
         // Testing:
         //   SeedGenerator()
@@ -700,7 +700,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Copy the value of the one (const) instance of"
-                            " 'SeedGenerator' to a second non-const one."
+                            " 'SeedGenerator' to a second non-'const' one."
                             " (C-5)\n");
         {
             MockRNG rng;

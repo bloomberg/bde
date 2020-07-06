@@ -210,7 +210,7 @@ class LessThanFunctor {
 
 template <class TYPE>
 class LessThanFunctorNonConst {
-    // This test class provides a mechanism that defines a non-const
+    // This test class provides a mechanism that defines a non-'const'
     // function-call operator that compares two objects of the parameterized
     // 'TYPE'.  The function-call operator is implemented with integer
     // comparison using integers converted from objects of 'TYPE' by the class
@@ -456,19 +456,19 @@ void TestDriver<TYPE>::test3()
     //:   to by a function pointer passed on construction.
     //:
     //: 5 A modifiable reference to an object support delegating to a functor
-    //:   'COMPARATOR' providing a non-const function call operator.
+    //:   'COMPARATOR' providing a non-'const' function call operator.
     //
     // Plan:
     //: 1 Construct two objects using the default constructor with (1) a
     //:   functor type providing a const function call operator and (2) a
-    //:   functor type providing a non-const function call operator.  Verify
+    //:   functor type providing a non-'const' function call operator.  Verify
     //:   the operations of calling the 'operator()' on non-modifiable
     //:   references to the first object and a modifiable reference to the
     //:   second object.  (C-1..2, 5)
     //:
     //: 2 Construct two object using the value constructor passing in (1) a
     //:   functor providing a const function call operator and (2) a functor
-    //:   providing a non-const function call operator.  Verify that invoking
+    //:   providing a non-'const' function call operator.  Verify that invoking
     //:   the 'operator()' on a non-modifiable reference to the first object
     //:   and a modifiable reference to the second object delegate their
     //:   operations to a copy of the functor passed on construction.

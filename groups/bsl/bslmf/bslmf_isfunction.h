@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // variable C++17 compiler feature, 'bsl::is_function_v' is defined as an
 // 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
 // variable templates C++14 compiler feature, 'bsl::is_function_v' is defined
-// as a non-const 'constexpr bool' variable.  See
+// as a non-'const' 'constexpr bool' variable.  See
 // 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
 // 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
 // bsls_compilerfeatures component for details.

@@ -684,7 +684,7 @@ class TestComparator {
 
 template <class TYPE>
 class TestComparatorNonConst {
-    // This test class provides a mechanism that defines a non-const
+    // This test class provides a mechanism that defines a non-'const'
     // function-call operator that compares two objects of the parameterized
     // 'TYPE'.  The function-call operator is implemented with integer
     // comparison using integers converted from objects of 'TYPE' by the class
@@ -993,7 +993,7 @@ class TestDriver {
     typedef TestMovableTypeUtil<Iter, KEY>        TstMoveUtil;
 
     typedef TestComparatorNonConst<KEY>           NonConstComp;
-        // Comparator functor with a non-const function call operator.
+        // Comparator functor with a non-'const' function call operator.
 
     typedef bsl::allocator_traits<ALLOC>          AllocatorTraits;
 

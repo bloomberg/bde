@@ -124,7 +124,7 @@ BSLS_IDENT("$Id: $")
 // 'bdlcc::SkipListPair' objects (see above).
 //
 // 'bdlcc::SkipListPairHandle' is only *const* *thread-safe*.  It is not safe
-// for multiple threads to invoke non-const methods on the same PairHandle
+// for multiple threads to invoke non-'const' methods on the same 'PairHandle'
 // object concurrently.
 //
 // 'bdlcc::SkipListPair' is a name used for opaque pointers; the concept of

@@ -4079,22 +4079,23 @@ void testLoadAliasOps2(
 {
     // This scenario tests the correct state change for following a 'loadAlias'
     // call with another 'loadAlias' call.  It will also test derived* -> base*
-    // conversions for the aliased pointer, and non-const* -> const*.  The test
-    // process is to take an empty 'bslma::ManagedPtr' object and 'load' a
-    // known state into it using a well-known test function.  Then we "alias"
-    // this pointer by calling 'loadAlias' on another (empty) managed pointer
-    // object, and check that the new aliased state has been created correctly,
-    // without allocating any memory, and that the original managed pointer
-    // object is now empty.  Next we establish another well-known managed
-    // pointer value, and call 'loadAlias' again on the pointer in the existing
-    // aliased state.  We again confirm that the aliased state is transferred
-    // without allocating any memory, but also that the object managed by the
-    // original 'bslma::ManagedPtr' object has now been destroyed as expected.
-    // Finally we let this final managed pointer object leave scope and confirm
-    // that all managed objects have been destroyed, as expected, and that all
-    // memory has been reclaimed.  At each step, we further implement negative
-    // testing if a null pointer may be passed, and that passing a null pointer
-    // would yield (negatively testable) undefined behavior.
+    // conversions for the aliased pointer, and non-'const *' -> 'const *'.
+    // The test process is to take an empty 'bslma::ManagedPtr' object and
+    // 'load' a known state into it using a well-known test function.  Then we
+    // "alias" this pointer by calling 'loadAlias' on another (empty) managed
+    // pointer object, and check that the new aliased state has been created
+    // correctly, without allocating any memory, and that the original managed
+    // pointer object is now empty.  Next we establish another well-known
+    // managed pointer value, and call 'loadAlias' again on the pointer in the
+    // existing aliased state.  We again confirm that the aliased state is
+    // transferred without allocating any memory, but also that the object
+    // managed by the original 'bslma::ManagedPtr' object has now been
+    // destroyed as expected.  Finally we let this final managed pointer object
+    // leave scope and confirm that all managed objects have been destroyed, as
+    // expected, and that all memory has been reclaimed.  At each step, we
+    // further implement negative testing if a null pointer may be passed, and
+    // that passing a null pointer would yield (negatively testable) undefined
+    // behavior.
 
     typedef bslma::ManagedPtr<TEST_TARGET> TestPointer;
 
@@ -4498,22 +4499,23 @@ void testLoadAliasOps2(int                        callLine,
 {
     // This scenario tests the correct state change for following a 'loadAlias'
     // call with another 'loadAlias' call.  It will also test derived* -> base*
-    // conversions for the aliased pointer, and non-const* -> const*.  The test
-    // process is to take an empty 'bslma::ManagedPtr' object and 'load' a
-    // known state into it using a well-known test function.  Then we "alias"
-    // this pointer by calling 'loadAlias' on another (empty) managed pointer
-    // object, and check that the new aliased state has been created correctly,
-    // without allocating any memory, and that the original managed pointer
-    // object is now empty.  Next we establish another well-known managed
-    // pointer value, and call 'loadAlias' again on the pointer in the existing
-    // aliased state.  We again confirm that the aliased state is transferred
-    // without allocating any memory, but also that the object managed by the
-    // original 'bslma::ManagedPtr' object has now been destroyed as expected.
-    // Finally we let this final managed pointer object leave scope and confirm
-    // that all managed objects have been destroyed, as expected, and that all
-    // memory has been reclaimed.  At each step, we further implement negative
-    // testing if a null pointer may be passed, and that passing a null pointer
-    // would yield (negatively testable) undefined behavior.
+    // conversions for the aliased pointer, and non-'const *' -> 'const *'.
+    // The test process is to take an empty 'bslma::ManagedPtr' object and
+    // 'load' a known state into it using a well-known test function.  Then we
+    // "alias" this pointer by calling 'loadAlias' on another (empty) managed
+    // pointer object, and check that the new aliased state has been created
+    // correctly, without allocating any memory, and that the original managed
+    // pointer object is now empty.  Next we establish another well-known
+    // managed pointer value, and call 'loadAlias' again on the pointer in the
+    // existing aliased state.  We again confirm that the aliased state is
+    // transferred without allocating any memory, but also that the object
+    // managed by the original 'bslma::ManagedPtr' object has now been
+    // destroyed as expected.  Finally we let this final managed pointer object
+    // leave scope and confirm that all managed objects have been destroyed, as
+    // expected, and that all memory has been reclaimed.  At each step, we
+    // further implement negative testing if a null pointer may be passed, and
+    // that passing a null pointer would yield (negatively testable) undefined
+    // behavior.
 
     typedef bslma::ManagedPtr<TEST_TARGET> TestPointer;
 
@@ -11094,8 +11096,8 @@ int main(int argc, char *argv[])
 // examples to demonstrate:
         // Moving from lvalues:
         //   derived->base
-        //   no-cv -> const
-        //   anything -> void
+        //   no-cv -> 'const'
+        //   anything -> 'void'
         //
         // Moving from rvalues:
         //   as above, plus...
@@ -11120,8 +11122,8 @@ int main(int argc, char *argv[])
 
         // Additional failures to demonstrate
         //   base -> derived type (a likely user error)
-        //   const -> non-const
-        //   void -> anything but void
+        //   'const' -> non-'const'
+        //   'void' -> anything but 'void'
 #endif
       } break;
       case 8: {

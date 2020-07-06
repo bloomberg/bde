@@ -1603,7 +1603,7 @@ struct UsesBslmaAllocator<StatefulAllocator2<TYPE> > : bsl::false_type {};
 //-----------------------------------------------------------------------------
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-// Return 1 if called with a non-const 'bsl::function<PROTO>'.
+// Return 1 if called with a non-'const' 'bsl::function<PROTO>'.
 int bdefOverload(BloombergLP::bdef_Function<PROTO*>&)
 {
     return 1;
@@ -1619,7 +1619,7 @@ int bdefOverload(const BloombergLP::bdef_Function<PROTO*>&)
 template <class T, class RET, class ARG>
 void testPtrToMemFunc(const char *prototypeStr)
     // Test invocation of pointer to member function wrapper.
-    // Tests using non-const member functions 'IntWrapper::increment[0-9]'
+    // Tests using non-'const' member functions 'IntWrapper::increment[0-9]'
 {
 #if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
     if (veryVeryVerbose) printf("\t%s\n", prototypeStr);
@@ -2916,14 +2916,14 @@ void testAssignFromFunctor(const Obj&   lhsIn,
     bslma::TestAllocatorMonitor testAllocMonitor(&ta);
     FunctorMonitor funcMonitor(L_);
 
-    // Test copy-assignment from non-const functor
+    // Test copy-assignment from non-'const' functor
     EXCEPTION_TEST_BEGIN(&ta, &copyLimit) {
         // Make copy of lhsIn using desired allocator.  Measure memory usage.
         AllocSizeType preBytes = ta.numBytesInUse();
         Obj lhs(bsl::allocator_arg, alloc, lhsIn);
         AllocSizeType lhsBytesBefore = ta.numBytesInUse() - preBytes;
 
-        // Make copy of 'rhsIn'.  The copy is a non-const lvalue, but its
+        // Make copy of 'rhsIn'.  The copy is a non-'const' lvalue, but its
         // value should be unchanged by the assignment.
         FUNC_ARG rhs(rhsIn);
 
@@ -3002,7 +3002,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
         // Make copy of lhsIn using desired allocator.  Measure memory usage.
         Obj lhs(bsl::allocator_arg, alloc, lhsIn);
 
-        // Make copy of 'rhsIn'.  The copy is a non-const lvalue, but its
+        // Make copy of 'rhsIn'.  The copy is a non-'const' lvalue, but its
         // value should be unchanged by the assignment.
         FUNC_ARG rhs(rhsIn); const FUNC_ARG& RHS = rhs;
 
@@ -3348,13 +3348,13 @@ int main(int argc, char *argv[])
         //: 2 For concern 2, initialize a reference to 'bsl::function<F>'.
         //:   from the reference created in step 1.  Verify that the address
         //:   of the original object matches the address of the new reference.
-        //: 3 For concern 3, repeat steps 1 and 2, except initialize const
-        //:   references from non-const references and const references from
-        //:   const references.
+        //: 3 For concern 3, repeat steps 1 and 2, except initialize 'const'
+        //:   references from non-'const' references and const references from
+        //:   'const' references.
         //: 4 For concern 4, create two functions named 'bdefOverload', one
         //:   taking a 'bdef_Function<F*>&' and returning '1' and the other
         //:   taking a 'const bdef_Function<F*>&' and returning '2'.  Call
-        //:   'bdefOverload' with each the const and non-const
+        //:   'bdefOverload' with each the 'const' and non-'const'
         //:   'bsl::function<F>' objects and verify that the correct one was
         //:   called.
         //
@@ -5759,8 +5759,8 @@ int main(int argc, char *argv[])
         //:   'FRET'.
         //: 7 If 'fp' is a pointer to const member function, then 'T' can be
         //:   rvalue of, reference to, pointer to, or smart-pointer to either
-        //:   a const or a non-const type.  All of the above concerns apply to
-        //:   both const and non-const member functions.
+        //:   a 'const' or a non-'const' type.  All of the above concerns apply
+        //:   to both 'const' and non-'const' member functions.
         //: 8 Concerns 1 and 2 also apply if 'T' is an rvalue of, reference to,
         //:   pointer to, or smart-pointer to type derived from 'FT'.
         //: 9 If 'RET' is 'void', then the return value of 'pf' is discarded,
@@ -5770,7 +5770,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create a class 'IntWrapper' that holds an 'int' value and has
-        //:   const member functions 'add0' to 'add9' and non-const member
+        //:   'const' member functions 'add0' to 'add9' and non-'const' member
         //:   functions 'increment0' to 'increment9' and 'voidIncrement0' to
         //:   'voidIncrement9' each taking 0 to 9 'int' arguments.  The
         //:   'sum[0-9]' functions return the 'int' sum of the arguments + the
@@ -5798,8 +5798,8 @@ int main(int argc, char *argv[])
         //:   and using 'IntWrapper' instead of 'RET'.
         //: 7 For concern 7, implement a test function template,
         //:   'testPtrToConstMemFunc' that works similarly to
-        //:   'testPtrToMemFunc' except that it wraps the const member
-        //:   functions 'sum[0-9]' instead of the non-const member functions
+        //:   'testPtrToMemFunc' except that it wraps the 'const' member
+        //:   functions 'sum[0-9]' instead of the non-'const' member functions
         //:   'increment[0-9]'.  To save compile time, since concern 1 has
         //:   already been tested, we need to test only a small number of
         //:   possible argument-list lengths (e.g. 0, 1, and 9 arguments).
