@@ -12,8 +12,6 @@ bslstl_chrono
 bslstl_complex
 bslstl_defaultsearcher
 bslstl_deque
-bslstl_deque_test1
-bslstl_deque_test2
 bslstl_equalto
 bslstl_errc
 bslstl_error
