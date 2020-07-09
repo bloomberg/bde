@@ -1619,7 +1619,7 @@ int main(int argc, char *argv[])
         ASSERTV(wit2->data, 13 == wit2->data);
         ASSERTV(&*wit1, &*wit2, &*wit1 == &*wit2);
 
-        //  Confirm const_iterator can iterate, just like a non-const_iterator
+        // Verify 'const_iterator' iterates, just like a non-'const' 'iterator'
         ++wit1;
         ++wit2;
         ASSERTV(&*wit1, &*wit2, wit1 == wit2);
@@ -1734,11 +1734,12 @@ int main(int argc, char *argv[])
         for (iter_type it = a.begin(); it != a.end(); ) {
             //  Each iteration of the loop shall advance 'it' exactly once.
 
-            // Test that initialization from non-const to const iterator works.
+            // Verify thet a 'const' 'iterator' can be initialized by a
+            // non-'const' 'iterator'
             const_iter_type itc = it;
             ASSERT(itc == it);
 
-            // Test assignment from non-const to const iterators
+            // Test assignment from non-'const' to 'const' iterators
             ++itc;
             ASSERT(itc != it);
             itc = it;
@@ -1811,11 +1812,11 @@ int main(int argc, char *argv[])
             // Test post-increment
             *it++ -= 2;
 
-            // Test that initialization from non-const to const iterator works.
+            // Verify initialization from non-'const' to 'const_iterator'.
             const_iter_type itc = it;
             ASSERT(itc == it);
 
-            // Now test assignment from non-const to const iterators
+            // Now test assignment from non-'const' to 'const_iterator'.
             --itc;
             ASSERT(itc != it);
             itc = it;

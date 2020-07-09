@@ -1116,7 +1116,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\nVerify there are no non-const overloads\n");
+        if (verbose) printf("\nVerify there are no non-'const' overloads\n");
         {
             sink(&bsl::type_index::hash_code);
             sink(&bsl::type_index::name);
@@ -1237,7 +1237,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\nVerify there are no non-const overloads\n");
+        if (verbose) printf("\nVerify there are no non-'const' overloads\n");
         {
             sink(&bsl::type_index::operator<);
             sink(&bsl::type_index::operator<=);
@@ -1759,7 +1759,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\nVerify there are no non-const overloads\n");
+        if (verbose) printf("\nVerify there are no non-'const' overloads\n");
         {
             sink(&bsl::type_index::operator==);
             sink(&bsl::type_index::operator!=);

@@ -7219,7 +7219,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
         ASSERT_SAFE_FAIL(mX.replace(X.begin() + 1, X.begin(),
                                     mY.begin(), mY.end()));
 
-        // stringFirst > stringLast (non-const iterators)
+        // stringFirst > stringLast (non-'const' iterators)
         ASSERT_SAFE_FAIL(mX.replace(X.begin(), X.end(),
                                     mY.end(), mY.begin()));
 
@@ -7227,7 +7227,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
         ASSERT_SAFE_FAIL(mX.replace(X.begin(), X.end(),
                                     Y.end(), Y.begin()));
 
-        // pass (non-const iterators)
+        // pass (non-'const' iterators)
         ASSERT_SAFE_PASS(mX.replace(X.begin(), X.end(),
                                     mY.begin(), mY.end()));
 
@@ -10658,8 +10658,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15Negative()
     // NEGATIVE TESTING ELEMENT ACCESS
     //
     // Concerns:
-    //   For a string 's', the following const and non-const operations assert
-    //   on undefined behavior:
+    //   For a string 's', the following const and non-'const' operations
+    //   assert on undefined behavior:
     //   1 s[x] - when the index 'x' is out of range
     //   2 s.front() - when 's' is empty
     //   3 s.back() - when 's' is empty

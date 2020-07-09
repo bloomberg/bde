@@ -1312,7 +1312,7 @@ struct TestDriver {
         // Test basic accessors ('size' and 'operator[]').
 
     static void testCase4a();
-        // Test non-const accessors ('at' and 'operator[]').
+        // Test non-'const' accessors ('at' and 'operator[]').
 
     static void testCase3();
         // Test generator functions 'ggg' and 'gg'.
@@ -3499,7 +3499,7 @@ void TestDriver<TYPE, ALLOC>::testCase4a()
 
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    if (verbose) printf("\tTesting non-const versions of operator[] and "
+    if (verbose) printf("\tTesting non-'const' versions of operator[] and "
                         "function at() modify state of object correctly.\t");
     {
         int oldLen = -1;
@@ -3700,7 +3700,7 @@ void TestDriver<TYPE, ALLOC>::testCase4a()
 
                 const int NUM_TRIALS = 2;
 
-                // Check exception behavior for non-const version of 'at()'.
+                // Check exception behavior for non-'const' version of 'at()'.
                 // Checking the behavior for 'pos == size()' and
                 // 'pos > size()'.
 
@@ -3852,7 +3852,7 @@ void TestDriver<TYPE, ALLOC>::testCase4()
     };
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    if (verbose) printf("\tTesting const and non-const versions of "
+    if (verbose) printf("\tTesting const and non-'const' versions of "
                         "operator[] and function at() where pos < size().\n");
     {
         int oldLen = -1;

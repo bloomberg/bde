@@ -315,13 +315,14 @@ int main(int argc, char *argv[])
         BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::VALUE);
       } break;
       case 2: {
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Testing Primary Manipulators / Accessors
         //
         // For each of the 6 attributes of Attribute, set the attribute on a
         // newly constructed object, copy the object, and use the accessor for
-        // that attribute to verify the value.
-        // ------------------------------------------------------------------
+        // that attribute to verify the value.  Also verify that each (fluent)
+        //  manipulator returns a non-'const' reference to the targeted object.
+        // --------------------------------------------------------------------
 
         if (verbose) {
             cout << "PRIMARY METHOD TEST\n"
@@ -372,13 +373,35 @@ int main(int argc, char *argv[])
             const Int64 numDaPreAlloc = da.numAllocations();
 
             Obj mX(&ta);    const Obj& X = mX;
-            mX.setDetachedState(PARAM[i].d_detachedState);
-            mX.setSchedulingPolicy(PARAM[i].d_schedulingPolicy);
-            mX.setSchedulingPriority(PARAM[i].d_schedulingPriority);
-            mX.setInheritSchedule(PARAM[i].d_inheritSchedule);
-            mX.setStackSize(PARAM[i].d_stackSize);
-            mX.setGuardSize(PARAM[i].d_guardSize);
-            mX.setThreadName(PARAM[i].d_threadName);
+            {
+                Obj &rv = mX.setDetachedState(PARAM[i].d_detachedState);
+                ASSERTV(&rv, &mX, &rv == &mX);
+            }
+            {
+                Obj &rv = mX.setSchedulingPolicy(PARAM[i].d_schedulingPolicy);
+                ASSERTV(&rv, &mX, &rv == &mX);
+            }
+            {
+                Obj &rv =
+                       mX.setSchedulingPriority(PARAM[i].d_schedulingPriority);
+                ASSERTV(&rv, &mX, &rv == &mX);
+            }
+            {
+                Obj &rv = mX.setInheritSchedule(PARAM[i].d_inheritSchedule);
+                ASSERTV(&rv, &mX, &rv == &mX);
+            }
+            {
+                Obj &rv = mX.setStackSize(PARAM[i].d_stackSize);
+                ASSERTV(&rv, &mX, &rv == &mX);
+            }
+            {
+                Obj &rv = mX.setGuardSize(PARAM[i].d_guardSize);
+                ASSERTV(&rv, &mX, &rv == &mX);
+            }
+            {
+                Obj &rv = mX.setThreadName(PARAM[i].d_threadName);
+                ASSERTV(&rv, &mX, &rv == &mX);
+            }
 
             ASSERT(da.numAllocations() == numDaPreAlloc);
             ASSERTV(X.threadName(), (X.threadName().length() > 15) ==
@@ -467,11 +490,11 @@ int main(int argc, char *argv[])
         }
       } break;
       case 1: {
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Breathing test
         //
         // Create and destroy and object.  Verify default values.
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------
         if (verbose) {
             cout << "BREATHING TEST" << endl;
             cout << "==============" << endl;
@@ -578,7 +601,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -4430,11 +4430,11 @@ struct Function_MemFuncInvokeImp {
           typename BloombergLP::bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
           typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...      args)
     {
-        // If 'OBJ_ARG_TYPE' is a non-const rvalue, then it will have been
-        // forwarded as a const reference, instead.  In order to call a
-        // potentially non-const member function on it, we must cast the
+        // If 'OBJ_ARG_TYPE' is a non-'const' rvalue, then it will have been
+        // forwarded as a 'const' reference, instead.  In order to call a
+        // potentially non-'const' member function on it, we must cast the
         // reference back to the original type.  The 'const_cast', below, will
-        // have no effect unless 'OBJ_ARG_TYPE' is a non-const rvalue.
+        // have no effect unless 'OBJ_ARG_TYPE' is a non-'const' rvalue.
         typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
         return (const_cast<ObjTp>(obj).*f)(args...);
     }
@@ -4446,11 +4446,11 @@ struct Function_MemFuncInvokeImp {
           typename BloombergLP::bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
           typename BloombergLP::bslmf::ForwardingType<ARGS>::Type...      args)
     {
-        // If 'OBJ_ARG_TYPE' is a non-const rvalue, then it will have been
-        // forwarded as a const reference, instead.  In order to call a
-        // potentially non-const member function on it, we must cast the
+        // If 'OBJ_ARG_TYPE' is a non-'const' rvalue, then it will have been
+        // forwarded as a 'const' reference, instead.  In order to call a
+        // potentially non-'const' member function on it, we must cast the
         // reference back to a the original type.  The 'const_cast', below,
-        // will have no effect unless 'OBJ_ARG_TYPE' is a non-const rvalue.
+        // will have no effect unless 'OBJ_ARG_TYPE' is a non-'const' rvalue.
         typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
         return ((*const_cast<ObjTp>(obj)).*f)(args...);
     }
@@ -8531,7 +8531,7 @@ void bsl::Function_Imp<RET(ARGS...)>::assignTarget(ManagerOpCode  moveOrCopy,
 
     // Move 'func' into initialized 'tempRep'
     if (tempRep.d_funcManager_p) {
-        // Get non-const pointer to 'func'
+        // Get non-'const' pointer to 'func'
         FuncType *funcAddr = const_cast<FuncType*>(func);
         tempRep.d_funcManager_p(moveOrCopy, &tempRep, funcAddr);
     }

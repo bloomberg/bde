@@ -5128,8 +5128,8 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase10(
 
     if (bsl::is_same<ToFirst, ToSecond>::value) {
         // TBD: clearly the following is just a simple test to ensure that the
-        // lvalue references to const and non-const values are being processed
-        // correctly.
+        // lvalue references to const and non-'const' values are being
+        // processed correctly.
 
         {
             typedef ManagedWrapper<ToFirst>              WrappedType;
@@ -8889,7 +8889,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 Hashes equal inputs identically
         //:
-        //: 3 Works for const and non-const pairs, members
+        //: 3 Works for 'const' and non-'const' pairs, members
         //:
         //: 4 'hashAppend' for 'pair' correctly uses 'hashAppend' implemented
         //:   for the pair's template parameter types.

@@ -4403,7 +4403,7 @@ int verifyListContents(Link                                 *containerList,
     }
 
     // We make a copy of the comparator in case we are supplied a predicate
-    // that has a non-const qualified 'operator()'.  Note that we are now
+    // that has a non-'const' qualified 'operator()'.  Note that we are now
     // requiring that the comparator be copy-constructible, which may be an
     // issue for testing a 'HashTable' default-constructed with functors that
     // are only default-constructible themselves.
@@ -4568,7 +4568,7 @@ struct ModifiableKeyConfig {
     // This class provides the most primitive possible KEY_CONFIG type that can
     // support a 'HashTable'.  It might be consistent with use as a 'set' or a
     // 'multiset' container.  It also allows for functors that expect to take
-    // their argument by a reference to non-const, although behavior will be
+    // their argument by a reference to non-'const', although behavior will be
     // undefined should any such functor actually modify such an argument.
 
     typedef ELEMENT KeyType;

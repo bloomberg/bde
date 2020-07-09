@@ -180,9 +180,9 @@ namespace bsl {
 template <class TYPE>
 struct is_copy_constructible
 : BloombergLP::bslmf::IsCopyConstructible_Imp<TYPE>::type {
-    // The primary template for this traits handles only non-const-qualified
+    // The primary template for this traits handles only non-'const'-qualified
     // types; partial specializations will handle some interesting cases,
-    // including the remaining const-qualified types.
+    // including the remaining 'const'-qualified types.
 };
 
 template <class TYPE>

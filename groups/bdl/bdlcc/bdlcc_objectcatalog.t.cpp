@@ -1060,7 +1060,7 @@ class TestDriver {
 
     // PRIVATE CLASS METHODS
     static ELEMENT *ampersand(ELEMENT& expression)
-        // Return a non-const ptr to the specified 'expression'.
+        // Return a non-'const' ptr to the specified 'expression'.
     {
         return bsls::Util::addressOf(expression);
     }

@@ -273,7 +273,7 @@ class FunctionOutputIterator BDLB_SUNITERATORWORKAROUND {
         // assignment from 'TYPE'.  When a value is assigned to the returned
         // value, invoke the functor or function indicated at construction
         // supplying the assigned value as the parameter.  This function is
-        // non-const in accordance with the input iterator requirements, even
+        // non-'const' in accordance with the input iterator requirements, even
         // though '*this' is not modified.   Note that if 'FUNCTION' is a
         // function pointer type and a valid function pointer was not supplied
         // at construction, then the behavior when assigning to a dereferenced

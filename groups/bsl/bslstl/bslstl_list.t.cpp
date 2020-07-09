@@ -4713,7 +4713,7 @@ void TestDriver<TYPE,ALLOC>::test04_basicAccessors()
     //:   only the values in that list.
     //:
     //: 4 Iteration works for both const containers (using const_iterator) and
-    //:   non-const containers (using iterator).
+    //:   non-'const' containers (using iterator).
     //:
     //: 5 empty() returns true if size() return 0.
     //:
@@ -4829,8 +4829,8 @@ void TestDriver<TYPE,ALLOC>::test04_basicAccessors()
         ASSERT(! is_mutable(cmVref));
     }
 
-    if (verbose) printf("Testing const and non-const versions of "
-                        "begin() and end().\n");
+    if (verbose) printf("Testing const and non-'const' versions of "
+                        "'begin()' and 'end()'.\n");
     {
         int oldLen = -1;
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -4890,7 +4890,7 @@ void TestDriver<TYPE,ALLOC>::test04_basicAccessors()
         }
     }
 
-    if (verbose) printf("Testing non-const iterators "
+    if (verbose) printf("Testing non-'const' iterators "
                         "modify state of object correctly.\n");
     {
         int oldLen = -1;
@@ -6518,17 +6518,17 @@ int main(int argc, char *argv[])
         // TESTING BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 size() returns the list size.
+        //: 1 'size()' returns the list size.
         //:
-        //: 2 begin() == end() if and only if the list is empty
+        //: 2 'begin() == end()' if and only if the list is empty
         //:
-        //: 3 Iterating from begin() to end() will visit every value in a list
-        //:   and only the values in that list.
+        //: 3 Iterating from 'begin()' to 'end()' will visit every value in a
+        //:   list and only the values in that list.
         //:
-        //: 4 Iteration works for both const containers (using const_iterator)
-        //:   and non-const containers (using iterator).
+        //: 4 Iteration works for both 'const' containers (using
+        //:   'const_iterator') and non-'const' containers (using 'iterator').
         //:
-        //: 5 empty() returns true if size() return 0
+        //: 5 'empty()' returns true if 'size()' return 0
         //:
         //: 6 The test function 'succ' increments an iterator by n.
         //:

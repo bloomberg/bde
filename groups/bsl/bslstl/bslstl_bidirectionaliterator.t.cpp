@@ -1365,7 +1365,7 @@ int main(int argc, char *argv[])
         ASSERTV(wit2->data,          13 == wit2->data);
         ASSERTV(&*wit1, &*wit2, &*wit1 == &*wit2);
 
-        //  Confirm const_iterator can iterate, just like a non-const_iterator
+        //  Verify 'const_iterator' iterates, just like non-'const' 'iterator'.
         ++wit1;
         ++wit2;
         ASSERTV(&*wit1, &*wit2, wit1 == wit2);
@@ -1481,11 +1481,11 @@ int main(int argc, char *argv[])
         for (my_List<int>::iterator it = a.begin(); it != a.end(); ) {
             //  Each iteration of the loop shall advance 'it' exactly once.
 
-            // Test that initialization from non-const to const iterator works.
+            // Test 'const_iterator' can be initialized from non-'const'.
             my_List<int>::const_iterator itc = it;
             ASSERT(itc == it);
 
-            // Test assignment from non-const to const iterators
+            // Test assignment from non-'const' to 'const_iterator'.
             ++itc;
             ASSERT(itc != it);
             itc = it;

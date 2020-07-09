@@ -300,10 +300,10 @@ int myFunctionWithConstnessMix(const int   a1,
 
 int myFunctionWithNoConstnessMix(int& a1, int& a2, int& a3, const int*& a4)
 {
-    // This function is a non-const-safe version of the above function, which
+    // This function is a non-'const'-safe version of the above function, which
     // allows to take true references, since there is no mix between lvalues
     // and rvalues in the arguments.  This is to forgo our limitation to the
-    // const forwarding problem.
+    // 'const' forwarding problem.
 
     a3 = a1;
     a4 = &a2;
@@ -386,8 +386,8 @@ void testMultipleSignatureBinder(Binder binder)
 }
 
 struct MyFunctionObjectWithConstAndNonConstOperator {
-    // This stateless 'struct' provides several function operators with const
-    // and non-const signature.
+    // This stateless 'struct' provides several function operators with 'const'
+    // and non-'const' signature.
 
     // TYPES
     typedef int ResultType;
@@ -415,19 +415,19 @@ void testMyFunctionObjectWithConstAndNonConstOperator()
     const ConvertibleFromToInt X(1); // value is irrelevant
     const int I(2);                  // value is irrelevant
 
-    // When functor is taken by address, the non-const operator will be an
-    // exact match for argument 'x', and the const operator will be an exact
-    // match for argument 'i'.
+    // When functor is taken by address, the non-'const' operator will be an
+    // exact match for argument 'x', and the 'const' 'operator' will be an
+    // exact match for argument 'i'.
     ASSERT(0 == bdlf::BindUtil::bind(&mBinder, _1)(X));
     // We need to pass 'binder' and not 'mBinder' otherwise there is an
     // ambiguity between converting I to a 'ConvertibleFromToInt const&', or
     // '*(&binder)' to a 'MyFunctionObjectWithConstAndNonConstOperator const&'.
     ASSERT(1 == bdlf::BindUtil::bind(&binder, _1)(I));
 
-    // When functor is taken by value, the non-const operator will no longer be
-    // an exact match for argument 'x' but the const operator will pick up via
-    // a conversion to int, and the const operator will still be an exact match
-    // for argument 'i'.
+    // When functor is taken by value, the non-'const' 'operator' will no
+    // longer be an exact match for argument 'x' but the 'const' 'operator'
+    // will pick up via a conversion to 'int', and the 'const' 'operator' will
+    // still be an exact match for argument 'i'.
     ASSERT(1 == bdlf::BindUtil::bind(mBinder, _1)(X));
     ASSERT(1 == bdlf::BindUtil::bind(mBinder, _1)(I));
 }
@@ -1085,7 +1085,7 @@ using namespace bdlf::PlaceHolders;
 //
 // CAVEAT: When passing a function object by value, only the (non-modifiable)
 // copy held by the binder will be invoked.  Prior to this version, it was
-// possible to modifiably invoke this copy (hence a non-const 'operator()')
+// possible to modifiably invoke this copy (hence a non-'const' 'operator()')
 // with the intent to modify the state of the function object.  However, only
 // the copy held by the binder was modified and the original function object
 // passed to the binder was not, but this usage error went undetected.  In this
@@ -1891,7 +1891,7 @@ DEFINE_TEST_CASE(5) {
         //   5. That we can bind a function object with placeholders, and later
         //   invoke the binder resolving to two different overloads based on
         //   the type of the invocation arguments.
-        //   6. That we cannot call non-const member functions for a function
+        //   6. That we cannot call non-'const' member functions for a function
         //   object that is passed by value (it would only modify the temporary
         //   bound copy, probably not what the user intended).
         //
@@ -1899,10 +1899,10 @@ DEFINE_TEST_CASE(5) {
         //   1. Create binders with bound objects that have extern "C" linkage
         //   and verify that the binders works as expected.
         //   2 and 3. Create binders with bound objects whose signatures are a
-        //   mix of non-const and const rvalues and lvalues.  Verify that the
-        //   code compiles and works as expected.
+        //   mix of non-'const' and 'const' rvalues and lvalues.  Verify that
+        //   the code compiles and works as expected.
         //   4. Create binders with bound objects whose signatures are a mix
-        //   of non-const and const volatile rvalues and lvalues.
+        //   of non-'const' and 'const' 'volatile' rvalues and lvalues.
         //   Verify that the code compiles and works as expected.
         //   5. Create a binder with a bound object that accepts multiple
         //   signatures and verify that the proper signature is called
@@ -1910,11 +1910,11 @@ DEFINE_TEST_CASE(5) {
         //   6. This one is tricky to test since we essentially want to make
         //   sure that there would be compilation failure, but this test driver
         //   cannot trigger it.  We create a binder with a bound object that
-        //   takes an int and has an exact-match non-const operator, and a
-        //   near-match (with conversion to int) const operator that takes a
-        //   ConvertibleFromToInt.  When invoked with an int value, we make
-        //   sure that the exact match is not considered by checking that the
-        //   conversion took place.
+        //   takes an 'int' and has an exact-match non-'const' 'operator', and
+        //   a near-match (with conversion to 'int') 'const' 'operator' that
+        //   takes a 'ConvertibleFromToInt'.  When invoked with an 'int' value,
+        //   we make sure that the exact match is not considered by checking
+        //   that the conversion took place.
         //
         // Testing:
         //   RESPECTING THE SIGNATURE OF THE INVOCABLE
@@ -1980,7 +1980,8 @@ DEFINE_TEST_CASE(5) {
 #endif
 
         if (verbose)
-         printf("\tRespecting mix of const and non-const lvalue arguments.\n");
+            printf("\tRespecting mix of 'const' "
+                   "and non-'const' lvalue arguments.\n");
         {
             int        mX1(1);     const int& X1 = mX1;
             int        mX2(2);     const int& X2 = mX2;
@@ -1989,7 +1990,7 @@ DEFINE_TEST_CASE(5) {
 
             // With an explicit binder, the signature known at compile time.
             // The bound arguments are stored with the appropriate type
-            // (respecting non-const references).  Here, every invocation
+            // (respecting non-'const' references).  Here, every invocation
             // argument is a reference.
 
             ASSERT(1 == bdlf::BindUtil::bind(&myFunctionWithNoConstnessMix,

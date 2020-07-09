@@ -2562,8 +2562,8 @@ void TestDriver<TYPE, SIZE>::testCase18()
 
         const int NUM_TRIALS = 2;
 
-        // Check exception behavior for non-const version of 'at()'.  Checking
-        // the behavior for 'pos == size()' and 'pos > size()'.
+        // Check exception behavior for non-'const' version of 'at()'.
+        // Checking the behavior for 'pos == size()' and 'pos > size()'.
 
         int exceptions = 0;
         int trials;

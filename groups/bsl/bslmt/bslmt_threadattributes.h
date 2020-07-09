@@ -130,6 +130,23 @@ BSLS_IDENT("$Id: $")
 // thread names, and there is a maximum thread name length of 15 on both of
 // those platforms.
 //
+///Fluent Interface
+///------------------
+// 'bslmt::ThreadAttributes' provides manipulators that return a non-'const'
+// reference to the object so that setting individual attributes can be
+// "chained" into a single expression statement, or that attributes can be
+// "built" in place as a function argument.  For example:
+//..
+//  bslmt::ThreadUtil::Handle handle;
+//
+//  int status = bslmt::ThreadUtil::create(
+//                          &handle,
+//                          bslmt::ThreadAttributes().setThreadName("myName")
+//                                                   .setInheritSchedule(true),
+//                          myThreadFunction,
+//                          &myThreadArgument);
+//..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -409,41 +426,49 @@ class ThreadAttributes {
         // return a reference providing modifiable access to this object.
 
     // MANIPULATORS
-    void setDetachedState(DetachedState value);
+    ThreadAttributes& setDetachedState(DetachedState value);
         // Set the 'detachedState' attribute of this object to the specified
-        // 'value'.  A value of 'e_CREATE_JOINABLE' (the default) indicates
-        // that a thread must be joined to clean up its resources after it
-        // terminates; a value of 'e_CREATE_DETACHED' (the only other legal
-        // value) indicates that the resources will be cleaned up automatically
-        // upon thread termination, and that the thread must not be joined.
+        // 'value'.  Return a non-'const' reference to this object (see also
+        // {Fluent Interface}).  A value of 'e_CREATE_JOINABLE' (the default)
+        // indicates that a thread must be joined to clean up its resources
+        // after it terminates; a value of 'e_CREATE_DETACHED' (the only other
+        // legal value) indicates that the resources will be cleaned up
+        // automatically upon thread termination, and that the thread must not
+        // be joined.
 
-    void setGuardSize(int value);
+    ThreadAttributes& setGuardSize(int value);
         // Set the 'guardSize' attribute of this object to the specified
-        // 'value' (in bytes).  'e_UNSET_GUARD_SIZE == guardSize' is intended
-        // to indicate that the default value as defined by the platform is to
-        // be used.  This default value is typically the size of one or two
-        // pages (see 'bslmt_configuration').  The behavior is undefined unless
-        // 'e_UNSET_GUARD_SIZE == guardSize' or 'guardSize >= 0'.
+        // 'value' (in bytes).  Return a non-'const' reference to this object
+        // (see also {Fluent Interface}).  'e_UNSET_GUARD_SIZE == guardSize' is
+        // intended to indicate that the default value as defined by the
+        // platform is to be used.  This default value is typically the size of
+        // one or two pages (see 'bslmt_configuration').  The behavior is
+        // undefined unless 'e_UNSET_GUARD_SIZE == guardSize' or
+        // 'guardSize >= 0'.
 
-    void setInheritSchedule(bool value);
+    ThreadAttributes& setInheritSchedule(bool value);
         // Set the 'inheritSchedule' attribute of this object to the specified
-        // 'value'.  A value of 'false' for the inherit schedule attribute
-        // indicates that a thread should *not* inherit the scheduling policy
-        // and priority of the thread that created it and instead should use
-        // the respective values supplied by this object; whereas a value of
-        // 'true' indicates that the thread *should* inherit these attributes
-        // and ignore the respective values in this object.  See
-        // 'bslmt_threadutil' for information about support for this attribute.
+        // 'value'.  Return a non-'const' reference to this object (see also
+        // {Fluent Interface}).  A value of 'false' for the inherit schedule
+        // attribute indicates that a thread should *not* inherit the
+        // scheduling policy and priority of the thread that created it and
+        // instead should use the respective values supplied by this object;
+        // whereas a value of 'true' indicates that the thread *should* inherit
+        // these attributes and ignore the respective values in this object.
+        // See 'bslmt_threadutil' for information about support for this
+        // attribute.
 
-    void setSchedulingPolicy(SchedulingPolicy value);
+    ThreadAttributes& setSchedulingPolicy(SchedulingPolicy value);
         // Set the value of the 'schedulingPolicy' attribute of this object to
-        // the specified 'value'.  This attribute is ignored unless
-        // 'inheritSchedule' is 'false'.  See 'bslmt_threadutil' for
+        // the specified 'value'.  Return a non-'const' reference to this
+        // object (see also {Fluent Interface}).  This attribute is ignored
+        // unless 'inheritSchedule' is 'false'.  See 'bslmt_threadutil' for
         // information about this attribute.
 
-    void setSchedulingPriority(int value);
+    ThreadAttributes& setSchedulingPriority(int value);
         // Set the 'schedulingPriority' attribute of this object to the
-        // specified 'value'.  This attribute is ignored unless
+        // specified 'value'.  Return a non-'const' reference to this object
+        // (see also {Fluent Interface}).  This attribute is ignored unless
         // 'inheritSchedule()' is 'false'.  Higher values of 'value' signify
         // more urgent priorities.  Note that the valid range of priorities
         // depends upon the platform and 'schedulingPolicy' attribute, and the
@@ -451,16 +476,18 @@ class ThreadAttributes {
         // 'bslmt_threadutil'.  See 'bslmt_threadutil' for information about
         // this attribute.
 
-    void setStackSize(int value);
+    ThreadAttributes& setStackSize(int value);
         // Set the 'stackSize' attribute of this object to the specified
-        // 'value'.  If 'stackSize' is 'e_UNSET_STACK_SIZE', thread creation
-        // should use the default stack size value provided by
+        // 'value'.  Return a non-'const' reference to this object (see also
+        // {Fluent Interface}).  If 'stackSize' is 'e_UNSET_STACK_SIZE', thread
+        // creation should use the default stack size value provided by
         // 'bslmt_configuration'.  The behavior is undefined unless
         // 'e_UNSET_STACK_SIZE == stackSize' or '0 <= stackSize'.
 
-    void setThreadName(const bslstl::StringRef& value);
+    ThreadAttributes& setThreadName(const bslstl::StringRef& value);
         // Set the 'threadName' attribute of this object to the specified
-        // 'value'.
+        // 'value'.  Return a non-'const' reference to this object (see also
+        // {Fluent Interface}).
 
     // ACCESSORS
     DetachedState detachedState() const;
@@ -533,8 +560,6 @@ bool operator!=(const ThreadAttributes& lhs, const ThreadAttributes& rhs);
     // 'detachedState', 'guardSize', 'inheritSchedule', 'schedulingPolicy',
     // 'schedulingPriority', and 'stackSize' attributes are not the same.
 
-}  // close package namespace
-
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -545,104 +570,117 @@ bool operator!=(const ThreadAttributes& lhs, const ThreadAttributes& rhs);
 
 // MANIPULATORS
 inline
-void bslmt::ThreadAttributes::setDetachedState(
+ThreadAttributes& ThreadAttributes::setDetachedState(
                                          ThreadAttributes::DetachedState value)
 {
     BSLS_ASSERT_SAFE(e_CREATE_DETACHED == value ||
                      e_CREATE_JOINABLE == value);
 
     d_detachedState = value;
+
+    return *this;
 }
 
 inline
-void bslmt::ThreadAttributes::setGuardSize(int value)
+ThreadAttributes& ThreadAttributes::setGuardSize(int value)
 {
     BSLMF_ASSERT(-1 == e_UNSET_GUARD_SIZE);
 
     BSLS_ASSERT_SAFE(-1 <= value);
 
     d_guardSize = value;
+
+    return *this;
 }
 
 inline
-void bslmt::ThreadAttributes::setInheritSchedule(bool value)
+ThreadAttributes& ThreadAttributes::setInheritSchedule(bool value)
 {
     d_inheritScheduleFlag = value;
+
+    return *this;
 }
 
 inline
-void bslmt::ThreadAttributes::setSchedulingPolicy(
+ThreadAttributes& ThreadAttributes::setSchedulingPolicy(
                                       ThreadAttributes::SchedulingPolicy value)
 {
     BSLS_ASSERT_SAFE(e_SCHED_MIN <= (int) value);
     BSLS_ASSERT_SAFE(                   (int) value <= e_SCHED_MAX);
 
     d_schedulingPolicy = value;
+
+    return *this;
 }
 
 inline
-void bslmt::ThreadAttributes::setSchedulingPriority(int value)
+ThreadAttributes& ThreadAttributes::setSchedulingPriority(int value)
 {
     d_schedulingPriority = value;
+
+    return *this;
 }
 
 inline
-void bslmt::ThreadAttributes::setStackSize(int value)
+ThreadAttributes& ThreadAttributes::setStackSize(int value)
 {
     BSLMF_ASSERT(-1 == e_UNSET_STACK_SIZE);
 
     BSLS_ASSERT_SAFE(-1 <= value);
 
     d_stackSize = value;
+
+    return *this;
 }
 
 inline
-void bslmt::ThreadAttributes::setThreadName(const bslstl::StringRef& value)
+ThreadAttributes& ThreadAttributes::setThreadName(
+                                                const bslstl::StringRef& value)
 {
     d_threadName.assign(value);
+
+    return *this;
 }
 
 // ACCESSORS
 inline
-bslmt::ThreadAttributes::DetachedState
-bslmt::ThreadAttributes::detachedState() const
+ThreadAttributes::DetachedState ThreadAttributes::detachedState() const
 {
     return d_detachedState;
 }
 
 inline
-int bslmt::ThreadAttributes::guardSize() const
+int ThreadAttributes::guardSize() const
 {
     return d_guardSize;
 }
 
 inline
-bool bslmt::ThreadAttributes::inheritSchedule() const
+bool ThreadAttributes::inheritSchedule() const
 {
     return d_inheritScheduleFlag;
 }
 
 inline
-bslmt::ThreadAttributes::SchedulingPolicy
-bslmt::ThreadAttributes::schedulingPolicy() const
+ThreadAttributes::SchedulingPolicy ThreadAttributes::schedulingPolicy() const
 {
     return d_schedulingPolicy;
 }
 
 inline
-int bslmt::ThreadAttributes::schedulingPriority() const
+int ThreadAttributes::schedulingPriority() const
 {
     return d_schedulingPriority;
 }
 
 inline
-int bslmt::ThreadAttributes::stackSize() const
+int ThreadAttributes::stackSize() const
 {
     return d_stackSize;
 }
 
 inline
-bslstl::StringRef bslmt::ThreadAttributes::threadName() const
+bslstl::StringRef ThreadAttributes::threadName() const
 {
     return d_threadName;
 }
@@ -650,17 +688,18 @@ bslstl::StringRef bslmt::ThreadAttributes::threadName() const
                                   // Aspects
 
 inline
-bslma::Allocator *bslmt::ThreadAttributes::allocator() const
+bslma::Allocator *ThreadAttributes::allocator() const
 {
     return d_threadName.get_allocator().mechanism();
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

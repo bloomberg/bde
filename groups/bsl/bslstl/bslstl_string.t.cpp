@@ -4326,8 +4326,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
         }
     }
 
-    if (verbose) printf("\nTesting non-const operator[] and "
-                        "function at() modify state of object correctly.\n");
+    if (verbose) printf("\nTesting non-'const' 'operator[]' and "
+                        "function 'at()' modify state of object correctly.\n");
     {
 
         int oldLen = -1;
@@ -4405,7 +4405,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
 
                 const int NUM_TRIALS = 2;
 
-                // Check exception behavior for non-const version of at()
+                // Check exception behavior for non-'const' version of 'at()'
                 // Checking the behavior for 'pos == size()' and
                 // 'pos > size()'.
 

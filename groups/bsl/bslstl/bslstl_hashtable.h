@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 //..
 // This alternative signature is necessary to support the rare case that a hash
 // function or comparator used to configure the 'HashTable' template below take
-// their arguments by non-const reference.  This is subject to additional
+// their arguments by non-'const' reference.  This is subject to additional
 // constraints that these functions may not modify the passed arguments, and is
 // inherently a fragile interface and not recommended.  It is supported only
 // for C++ Standard conformance.
@@ -149,9 +149,10 @@ BSLS_IDENT("$Id: $")
 // The operations of a 'HashTable' provide the strong exception guarantee (see
 // {'bsldoc_glossary'}) except in the presence of a hash-functor or
 // equality-comparator that throws exceptions.  If either the hash-functor or
-// equality-comparator throws an exception from a non-const method, 'HashTable'
-// provides only the basic exception guarantee, and the operation will leave
-// the container in a valid but unspecified (potentially empty) state.
+// equality-comparator throws an exception from a non-'const' method,
+// 'HashTable' provides only the basic exception guarantee, and the operation
+// will leave the container in a valid but unspecified (potentially empty)
+// state.
 //
 ///Internal Data Structure
 ///-----------------------
@@ -3214,8 +3215,8 @@ struct HashTable_Util {
     // than intrusively in this component, and in similar ways by any other
     // container trying to support the full range of standard conforming
     // functors.  Given that our intent is to support standard predicates, it
-    // may be appropriate to handle calling non-const 'operator()' overloads
-    // (via a mutable member) too.
+    // may be appropriate to handle calling non-'const' 'operator()' overloads
+    // (via a 'mutable' member) too.
 
 template <class HASHER>
 struct HashTable_BaseHasher

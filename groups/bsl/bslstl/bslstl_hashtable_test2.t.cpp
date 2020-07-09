@@ -2715,7 +2715,7 @@ struct ModifiableKeyConfig {
     // This class provides the most primitive possible KEY_CONFIG type that can
     // support a 'HashTable'.  It might be consistent with use as a 'set' or a
     // 'multiset' container.  It also allows for functors that expect to take
-    // their argument by a reference to non-const, although behavior will be
+    // their argument by a reference to non-'const', although behavior will be
     // undefined should any such functor actually modify such an argument.
 
     typedef ELEMENT KeyType;

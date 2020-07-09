@@ -756,7 +756,7 @@ class TestComparator {
 
 template <class TYPE>
 class TestComparatorNonConst {
-    // This test class provides a mechanism that defines a non-const
+    // This test class provides a mechanism that defines a non-'const'
     // function-call operator that compares two objects of the parameterized
     // 'TYPE'.  The function-call operator is implemented with integer
     // comparison using integers converted from objects of 'TYPE' by the class
@@ -1226,7 +1226,7 @@ class TestDriver {
     typedef TestMovableTypeUtil<Iter, KEY>        TstMoveUtil;
 
     typedef TestComparatorNonConst<KEY>           NonConstComp;
-        // Comparator functor with a non-const function call operator.
+        // Comparator functor with a non-'const' function call operator.
 
     typedef bsl::allocator_traits<ALLOC>          AllocatorTraits;
 
@@ -5741,10 +5741,10 @@ void TestDriver<KEY, COMP, ALLOC>::testCase21()
     //: 6 Comparator is properly propagated on copy construction, copy
     //:   assignment, and swap.
     //:
-    //: 7 Functor with a non-const function call operator can be used -- any
-    //:   non-const operation on the multiset that utilizes the comparator can
-    //:   be invoked from a reference providing non-modifiable access to the
-    //:   multiset.
+    //: 7 Functor with a non-'const' function call operator can be used -- any
+    //:   non-'const' operation on the multiset that utilizes the comparator
+    //:   can be invoked from a reference providing non-modifiable access to
+    //:   the multiset.
     //
     // Plan:
     //: 1 Create default object and verify comparator is 'std::less'.  (C-2)
@@ -5781,8 +5781,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase21()
     //:     compare equals to the one created in P-5.1, and the original object
     //:     has a default constructed comparator.  (P-6)
     //:
-    //: 6 Repeat P-5 except with a comparator having non-const function call
-    //:   operator.  (P-7
+    //: 6 Repeat P-5 except with a comparator having non-'const' function call
+    //:   operator.  (P-7)
     //
     // Testing:
     //   key_compare key_comp() const;
