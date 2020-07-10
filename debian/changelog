@@ -1,11 +1,26 @@
-bsl-internal (3.57.0.0) unstable; urgency=low
+bsl-internal (3.58.0.0) unstable; urgency=low
 
+  * 2c6de7b55 Bumped version to 3.58.0.0
+  * 5749c2d59 Merge pull request #2819 from bchapman/bdlb_variant-createInPlace-return-drqs-160662990
+  * f77eb979d Merge pull request #2817 from bchapman/bslma_testallocatormonitor-fix-allocate-0-drqs-160613942
+  * 31345c3d2 Merge pull request #2826 from afeher/drqs-159234337-melt-bslmt_threadattributes-interface
+  * 0808aadd2 Merge pull request #2824 from sbreitst/bdlma_smallsequentialpool-drqs-160588397
+  * 33dd75890 Merge pull request #2811 from mclow3/drqs-126021517
+  * e90ca5012 Merge pull request #2820 from osubbotin/review/bdlb-tokenizer-compile-warnings
+  * a9059d9fd Merge pull request #2815 from mclow3/drqs-113474532-deletions
+  * cf99ec112 Merge pull request #2813 from gsoumar/patch-1
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 10 Jul 2020 13:06:32 -0400
+
+bsl-internal (3.57.0.0) git; urgency=low
+
+  * 0e6927984 Changelog for version 3.57.0.0
   * 3fb3a44bf Bumped version to 3.57.0.0
   * d4724815c Merge pull request #2806 from bchapman/bdlde_utf8util-null-strings-with-0-length-158618031
   * c036745f5 Merge pull request #2778 from bchapman/bdlde_utf8util-meaningful-error-codes-drqs-158055467
   * 22a25869f Merge pull request #2805 from sbreitst/bdlma_smallsequentialpool-drqs-160053713
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 19 Jun 2020 10:25:27 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 19 Jun 2020 10:28:55 -0400
 
 bsl-internal (3.56.0.0) git; urgency=low
 
