@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 86 components having 9 levels of physical
+ The 'bslstl' package currently has 87 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -68,7 +68,8 @@
      bslstl_unorderedmultiset
      bslstl_unorderedset
 
-  4. bslstl_hashtable
+  4. bslstl_function_test                                             !PRIVATE!
+     bslstl_hashtable
      bslstl_randomaccessiterator
      bslstl_string
      bslstl_systemerror
@@ -124,7 +125,7 @@
 :      Provide implementations for algorithms not in the system library.
 :
 : 'bslstl_algorithmworkaround':
-:      Provide a namespace for work arounds for the standard algorithms.
+:      Provide a namespace for work arounds for the standard algorithms
 :
 : 'bslstl_allocator':                                    !DEPRECATED!
 :      Provide an STL-compatible proxy for 'bslma::Allocator' objects.
@@ -182,6 +183,9 @@
 :
 : 'bslstl_function':
 :      Provide a polymorphic function object with a specific prototype.
+:
+: 'bslstl_function_test':                                             !PRIVATE!
+:      Provide support for the 'bslstl_function_test.t.cpp' test driver.
 :
 : 'bslstl_hash':
 :      Provide a namespace for hash functions.
