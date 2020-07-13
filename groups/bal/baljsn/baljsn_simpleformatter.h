@@ -420,20 +420,20 @@ class SimpleFormatter {
         // Print onto the stream supplied at construction the sequence of
         // characters designating the start of an object (referred to as an
         // "object" in JSON), preceded, if necessary, by a comma.  The behavior
-        // is undefined if 'isNameNeeded()' is 'true'.
+        // is undefined unless 'isNameNeeded()' is 'false'.
 
     void openObject(const bslstl::StringRef& name);
         // Print onto the stream supplied at construction the sequence of
         // characters designating the start of an object (referred to as an
         // "object" in JSON) with the specified 'name' , preceded, if
         // necessary, by a comma.  The behavior is undefined unless
-        // 'isNameNeeded()' is 'false'.
+        // 'isNameNeeded()' is 'true'.
 
     void addMemberName(const bslstl::StringRef& name);
         // Print onto the stream supplied at construction the specified 'name'
         // in double-quotes, preceded, if necessary, by a comma, and followed
         // by a ':'.  The behavior is undefined unless 'isNameNeeded()' is
-        // 'false'.  After this operation, 'isNameNeeded' will be 'false', and
+        // 'true'.  After this operation, 'isNameNeeded()' will be 'false', and
         // an immediately subsequent attempt to add a value (or open an object
         // or array) should not provide a name.
 
@@ -441,8 +441,7 @@ class SimpleFormatter {
         // Print onto the stream supplied at construction the sequence of
         // characters designating the end of an object (referred to as an
         // "object" in JSON).  The behavior is undefined unless
-        // 'isFormattingObject()' is 'true' and 'addMemberName()' was not the
-        // most recently called manipulator.
+        // 'isNameNeeded()' is 'true'.
 
     void openArray(
                 ArrayFormattingStyle formattingStyle = e_REGULAR_ARRAY_FORMAT);

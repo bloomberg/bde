@@ -91,7 +91,7 @@ void SimpleFormatter::closeArray(ArrayFormattingStyle formattingStyle)
 
 void SimpleFormatter::closeObject()
 {
-    BSLS_ASSERT(isFormattingObject() && !d_memberNameSupplied);
+    BSLS_ASSERT(isNameNeeded());
     BSLS_ASSERT_SAFE(!isFormattingArray());
     if (usePrettyStyle()) {
         --d_indentLevel;
