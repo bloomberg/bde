@@ -1,5 +1,11 @@
-bsl-internal (3.58.0.0) unstable; urgency=low
+bsl-internal (3.58.0.1) unstable; urgency=low
 
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 12 Jul 2020 20:54:49 -0400
+
+bsl-internal (3.58.0.0) git; urgency=low
+
+  * 1ed0dfc42 Changelog for version 3.58.0.0
   * 2c6de7b55 Bumped version to 3.58.0.0
   * 5749c2d59 Merge pull request #2819 from bchapman/bdlb_variant-createInPlace-return-drqs-160662990
   * f77eb979d Merge pull request #2817 from bchapman/bslma_testallocatormonitor-fix-allocate-0-drqs-160613942
@@ -10,7 +16,7 @@ bsl-internal (3.58.0.0) unstable; urgency=low
   * a9059d9fd Merge pull request #2815 from mclow3/drqs-113474532-deletions
   * cf99ec112 Merge pull request #2813 from gsoumar/patch-1
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 10 Jul 2020 13:06:32 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 10 Jul 2020 13:07:32 -0400
 
 bsl-internal (3.57.0.0) git; urgency=low
 
