@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 87 components having 9 levels of physical
+ The 'bslstl' package currently has 86 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -98,8 +98,7 @@
      bslstl_treeiterator
      bslstl_vector
 
-  1. bslstl_algorithm
-     bslstl_allocator                                    !DEPRECATED!
+  1. bslstl_allocator                                    !DEPRECATED!
      bslstl_allocatortraits                              !DEPRECATED!
      bslstl_badweakptr
      bslstl_complex
@@ -121,9 +120,6 @@
 
 /Component Synopsis
 /------------------
-: 'bslstl_algorithm':
-:      Provide implementations for algorithms not in the system library.
-:
 : 'bslstl_algorithmworkaround':
 :      Provide a namespace for work arounds for the standard algorithms
 :
