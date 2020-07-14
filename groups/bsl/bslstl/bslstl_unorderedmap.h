@@ -1660,8 +1660,9 @@ class unordered_map {
             typedef bsl::pair<iterator, iterator> ResultType;
 
             HashTableLink *first = d_impl.find(key);
-            return first ? ResultType(iterator(first), iterator(first->nextLink()))
-                         : ResultType(iterator(0),     iterator(0));
+            return first
+                     ? ResultType(iterator(first), iterator(first->nextLink()))
+                     : ResultType(iterator(0),     iterator(0));
         }
 
     pair<iterator, iterator> equal_range(const key_type& key);
@@ -1821,8 +1822,9 @@ class unordered_map {
             typedef bsl::pair<const_iterator, const_iterator> ResultType;
 
             HashTableLink *first = d_impl.find(key);
-            return first ? ResultType(iterator(first), iterator(first->nextLink()))
-                         : ResultType(iterator(0),     iterator(0));
+            return first
+                     ? ResultType(iterator(first), iterator(first->nextLink()))
+                     : ResultType(iterator(0),     iterator(0));
         }
 
     pair<const_iterator, const_iterator> equal_range(

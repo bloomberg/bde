@@ -2923,8 +2923,8 @@ class HashTable {
    && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
                    void>::type
     findRange(bslalg::BidirectionalLink **first,
-                   bslalg::BidirectionalLink **last,
-                   const LOOKUP_KEY& key) const;
+              bslalg::BidirectionalLink **last,
+              const LOOKUP_KEY&           key) const;
 
     void findRange(bslalg::BidirectionalLink **first,
                    bslalg::BidirectionalLink **last,
