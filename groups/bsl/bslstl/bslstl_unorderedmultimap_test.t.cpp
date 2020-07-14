@@ -203,6 +203,11 @@ using bsls::NameOf;
 // [35] CONCERN: 'unordered_multimap' supports incomplete types
 // [36] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 // [37] CONCERN: 'erase' overload is deduced correctly.
+// [38] CONCERN: 'find'        properly handles transparent comparators.
+// [38] CONCERN: 'count'       properly handles transparent comparators.
+// [38] CONCERN: 'lower_bound' properly handles transparent comparators.
+// [38] CONCERN: 'upper_bound' properly handles transparent comparators.
+// [38] CONCERN: 'equal_range' properly handles transparent comparators.
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -1102,8 +1107,6 @@ void runErasure(
     }
 }
 
-}  // close unnamed namespace
-
                     // =============================
                     // class TransparentlyComparable
                     // =============================
@@ -1154,7 +1157,7 @@ class TransparentlyComparable {
         return lhs.d_value == rhs;
     }
 
-    friend bool operator<(int lhs, const TransparentlyComparable& rhs)
+    friend bool operator==(int lhs, const TransparentlyComparable& rhs)
         // Return 'true' if the specified 'lhs' is equal to the value of the
         // specified 'rhs', and 'false' otherwise.
     {
@@ -1211,13 +1214,12 @@ template <class Container>
 void testTransparentComparator(Container& container,
                                bool       isTransparent,
                                int        initKeyValue)
-    // Search for a value equal to the specified 'initKeyValue' in the
-    // specified 'container', and count the number of conversions expected
-    // based on the specified 'isTransparent'.  Note that 'Container' may
-    // resolve to a 'const'-qualified type, we are using the "reference" here
-    // as a sort of universal reference.  Conceptually, the object remains
-    // constant, but we want to test 'const'-qualified and
-    // non-'const'-qualified overloads.
+    // Search for a key equal to the specified 'initKeyValue' in the specified
+    // 'container', and count the number of conversions expected based on the
+    // specified 'isTransparent'.  Note that 'Container' may resolve to a
+    // 'const'-qualified type, we are using the "reference" here as a sort of
+    // universal reference; conceptually, the object remains constant, but we
+    // want to test 'const'-qualified and non-'const'-qualified overloads.
 {
     typedef typename Container::const_iterator Iterator;
     typedef typename Container::size_type      Count;
@@ -1270,14 +1272,20 @@ void testTransparentComparator(Container& container,
     }
 
     ASSERT(expectedConversionCount == existingKey.conversionCount());
-	ASSERT(EXPECTED_C == 
-	 static_cast<Count>(std::distance(EXISTING_ER.first, EXISTING_ER.second)));
+    ASSERT(EXPECTED_C == 
+     static_cast<Count>(std::distance(EXISTING_ER.first, EXISTING_ER.second)));
+
+    for (Iterator it = EXISTING_ER.first; it != EXISTING_ER.second; ++it) {
+        ASSERT(existingKey.value() == it->first);
+    }
 
     const bsl::pair<Iterator, Iterator> NON_EXISTING_ER =
                                          container.equal_range(nonExistingKey);
-	ASSERT(NON_EXISTING_ER.first == NON_EXISTING_ER.second);
+    ASSERT(NON_EXISTING_ER.first   == NON_EXISTING_ER.second);
     ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
 }
+
+}  // close unnamed namespace
 
 //=============================================================================
 //                              TestDriver
@@ -7176,11 +7184,11 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Construct a non-transparent unordered_multimap and call the
         //:   lookup functions with a type that is convertible to the
-        //:   'value_type'.  There should be exactly one conversion per call to
-        //:   a lookup function.  (C-1)
+        //:   'key_type'.  There should be exactly one conversion per call to a
+        //:   lookup function.  (C-1)
         //:
         //: 2 Construct a transparent unordered_multimap and call the lookup
-        //:   functions with a type that is convertible to the 'value_type'.
+        //:   functions with a type that is convertible to the 'key_type'.
         //:   There should be no conversions.  (C-2)
         //
         // Testing:
@@ -7222,31 +7230,31 @@ int main(int argc, char *argv[])
         const TransparentMultimap& XT = mXT;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int VALUE = DATA[i];
+            const int KEY = DATA[i];
             if (veryVerbose) {
-                printf("Testing transparent comparators with a value of %d\n",
-                       VALUE);
+                printf("Testing transparent comparators with a key of %d\n",
+                       KEY);
             }
 
             if (veryVerbose) {
                 printf("\tTesting const non-transparent multimap.\n");
             }
-            testTransparentComparator( XNT, false, VALUE);
+            testTransparentComparator( XNT, false, KEY);
 
             if (veryVerbose) {
                 printf("\tTesting mutable non-transparent multimap.\n");
             }
-            testTransparentComparator(mXNT, false, VALUE);
+            testTransparentComparator(mXNT, false, KEY);
 
             if (veryVerbose) {
                 printf("\tTesting const transparent multimap.\n");
             }
-            testTransparentComparator( XT,  true,  VALUE);
+            testTransparentComparator( XT,  true,  KEY);
 
             if (veryVerbose) {
                 printf("\tTesting mutable transparent multimap.\n");
             }
-            testTransparentComparator(mXT,  true,  VALUE);
+            testTransparentComparator(mXT,  true,  KEY);
         }
       } break;
       case 37: {
