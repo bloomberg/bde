@@ -1477,7 +1477,16 @@ class unordered_map {
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       iterator>::type
-    find(const LOOKUP_KEY& key);
+    find(const LOOKUP_KEY& key)
+        // Return an iterator providing modifiable access to the 'value_type'
+        // object in this unordered map with a key equivalent to the specified
+        // 'key', if such an entry exists, and the past-the-end iterator
+        // ('end') otherwise.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            return iterator(d_impl.find(key));
+        }
 
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the 'value_type'
@@ -1636,7 +1645,24 @@ class unordered_map {
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                        pair<iterator, iterator> >::type
-    equal_range(const LOOKUP_KEY& key);
+    equal_range(const LOOKUP_KEY& key)
+        // Return a pair of iterators providing modifiable access to the
+        // sequence of 'value_type' objects in this unordered map having the
+        // specified 'key', where the first iterator is positioned at the start
+        // of the sequence, and the second is positioned one past the end of
+        // the sequence.  If this unordered map contains no 'value_type' object
+        // having 'key', then the two returned iterators will have the same
+        // value, 'end()'.  Note that since an unordered map maintains unique
+        // keys, the range will contain at most one element.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            typedef bsl::pair<iterator, iterator> ResultType;
+
+            HashTableLink *first = d_impl.find(key);
+            return first ? ResultType(iterator(first), iterator(first->nextLink()))
+                         : ResultType(iterator(0),     iterator(0));
+        }
 
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
@@ -1752,7 +1778,18 @@ class unordered_map {
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       size_type>::type
-    count(const LOOKUP_KEY& key) const;
+    count(const LOOKUP_KEY& key) const
+        // Return the number of 'value_type' objects within this set that are
+        // equivalent to the specified 'key'.  Note that although a map
+        // maintains unique keys, the returned value can be other than 0 or 1,
+        // because a transparent comparator may have been supplied that
+        // provides a different (but compatible) partitioning of keys for
+        // 'LOOKUP_KEY' as the comparisons used to order the keys in the map.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            return d_impl.find(key) != 0;
+        }
 
     size_type count(const key_type& key) const;
         // Return the number of 'value_type' objects contained within this
@@ -1769,7 +1806,24 @@ class unordered_map {
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       pair<const_iterator, const_iterator> >::type
-    equal_range(const LOOKUP_KEY& key) const;
+    equal_range(const LOOKUP_KEY& key) const
+        // Return a pair of iterators providing non-modifiable access to the
+        // sequence of 'value_type' objects in this unordered map having the
+        // specified 'key', where the first iterator is positioned at the start
+        // of the sequence, and the second is positioned one past the end of
+        // the sequence.  If this unordered map contains no 'value_type' object
+        // having 'key', then the two returned iterators will have the same
+        // value, 'end()'.  Note that since an unordered map maintains unique
+        // keys, the range will contain at most one element.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            typedef bsl::pair<const_iterator, const_iterator> ResultType;
+
+            HashTableLink *first = d_impl.find(key);
+            return first ? ResultType(iterator(first), iterator(first->nextLink()))
+                         : ResultType(iterator(0),     iterator(0));
+        }
 
     pair<const_iterator, const_iterator> equal_range(
                                                     const key_type& key) const;
@@ -1787,7 +1841,16 @@ class unordered_map {
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       const_iterator>::type
-    find(const LOOKUP_KEY& key) const;
+    find(const LOOKUP_KEY& key) const
+        // Return an iterator providing non-modifiable access to the
+        // 'value_type' object in this unordered map with a key equivalent to
+        // the specified 'key', if such an entry exists, and the past-the-end
+        // iterator ('end') otherwise.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            return const_iterator(d_impl.find(key));
+        }
 
     const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the
@@ -2495,18 +2558,6 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class LOOKUP_KEY>
-inline
-typename enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-    typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator>::type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(const LOOKUP_KEY& key)
-{
-    return iterator(d_impl.find(key));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(const key_type& key)
@@ -2574,26 +2625,6 @@ void unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
     insert(values.begin(), values.end());
 }
 #endif
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class LOOKUP_KEY>
-inline
-typename enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-    typename bsl::pair<
-         typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
-         typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator>
->::type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
-                                                         const LOOKUP_KEY& key)
-{
-    typedef bsl::pair<iterator, iterator> ResultType;
-
-    HashTableLink *first = d_impl.find(key);
-    return first ? ResultType(iterator(first), iterator(first->nextLink()))
-                 : ResultType(iterator(0),     iterator(0));
-}
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bsl::pair<
@@ -2779,20 +2810,6 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_size(
     return d_impl.countElementsInBucket(index);
 }
 
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class LOOKUP_KEY>
-inline
-typename enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type>::type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::count(
-                                                   const LOOKUP_KEY& key) const
-{
-    return d_impl.find(key) != 0;
-}
-
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
@@ -2811,27 +2828,6 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::empty() const
     return 0 == d_impl.size();
 }
 
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class LOOKUP_KEY>
-inline
-typename enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-typename bsl::pair<
-    typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator,
-    typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator>
->::type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
-                                                   const LOOKUP_KEY& key) const
-{
-    typedef bsl::pair<const_iterator, const_iterator> ResultType;
-
-    HashTableLink *first = d_impl.find(key);
-    return first
-         ? ResultType(iterator(first), iterator(first->nextLink()))
-         : ResultType(iterator(0),     iterator(0));
-}
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bsl::pair<typename unordered_map<KEY,
@@ -2853,20 +2849,6 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
     return first
          ? ResultType(const_iterator(first), const_iterator(first->nextLink()))
          : ResultType(const_iterator(0),     const_iterator(0));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class LOOKUP_KEY>
-inline
-typename enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator>
-::type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
-                                                   const LOOKUP_KEY& key) const
-{
-    return const_iterator(d_impl.find(key));
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>

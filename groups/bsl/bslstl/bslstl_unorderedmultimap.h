@@ -973,7 +973,23 @@ class unordered_multimap {
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       pair<iterator, iterator> >::type
-    equal_range(const LOOKUP_KEY& key);
+    equal_range(const LOOKUP_KEY& key)
+        // Return a pair of iterators providing modifiable access to the
+        // sequence of 'value_type' objects in this unordered multimap with a
+        // key equivalent to the specified 'key', where the first iterator is
+        // positioned at the start of the sequence, and the second is
+        // positioned one past the end of the sequence.  If this unordered
+        // multimap contains no 'value_type' objects with a key equivalent to
+        // 'key', then the two returned iterators will have the same value.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            typedef bsl::pair<iterator, iterator> ResultType;
+            HashTableLink *first;
+            HashTableLink *last;
+            d_impl.findRange(&first, &last, key);
+            return ResultType(iterator(first), iterator(last));
+        }
 
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
@@ -1024,7 +1040,17 @@ class unordered_multimap {
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       iterator>::type
-    find(const LOOKUP_KEY& key);
+    find(const LOOKUP_KEY& key)
+        // Return an iterator providing modifiable access to the first
+        // 'value_type' object in the sequence of all the 'value_type' objects
+        // of this unordered multimap with a key equivalent to the specified
+        // 'key', if such entries exist, and the past-the-end ('end') iterator
+        // otherwise.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            return iterator(d_impl.find(key));
+        }
 
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the first
@@ -1293,7 +1319,17 @@ class unordered_multimap {
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       const_iterator>::type
-    find(const LOOKUP_KEY& key) const;
+    find(const LOOKUP_KEY& key) const
+        // Return an iterator providing modifiable access to the first
+        // 'value_type' object in this multimap whose key is equivalent to the
+        // specified 'key', if such an entry exists, and the past-the-end
+        // ('end') iterator otherwise.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            return const_iterator(d_impl.find(key));
+        }
+
 
     const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the first
@@ -1306,7 +1342,29 @@ class unordered_multimap {
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       size_type>::type
-    count(const LOOKUP_KEY& key) const;
+    count(const LOOKUP_KEY& key) const
+        // Return the number of 'value_type' objects in this unordered multimap
+        // with a key equivalent to the specified 'key'.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
+
+            size_type result = 0;
+            for (HashTableLink *cursor = d_impl.find(key);
+                 cursor;
+                 ++result, cursor = cursor->nextLink())
+            {
+                BNode *cursorNode = static_cast<BNode *>(cursor);
+                if (!this->key_eq()(
+                         key,
+                         ListConfiguration::extractKey(cursorNode->value()))) {
+
+                    break;
+                }
+            }
+            return result;
+        }
 
     size_type count(const key_type& key) const;
         // Return the number of 'value_type' objects in this unordered multimap
@@ -1317,7 +1375,23 @@ class unordered_multimap {
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       pair<const_iterator, const_iterator> >::type
-    equal_range(const LOOKUP_KEY& key) const;
+    equal_range(const LOOKUP_KEY& key) const
+        // Return a pair of iterators providing non-modifiable access to the
+        // sequence of 'value_type' objects in this unordered multimap with a
+        // key equivalent to the specified 'key', where the first iterator is
+        // positioned at the start of the sequence, and the second is
+        // positioned one past the end of the sequence.  If this unordered
+        // multimap contains no 'value_type' objects with a key equivalent to
+        // 'key', then the two returned iterators will have the same value.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            typedef bsl::pair<const_iterator, const_iterator> ResultType;
+            HashTableLink *first;
+            HashTableLink *last;
+            d_impl.findRange(&first, &last, key);
+            return ResultType(const_iterator(first), const_iterator(last));
+        }
 
     pair<const_iterator, const_iterator> equal_range(
                                                     const key_type& key) const;
@@ -1867,20 +1941,6 @@ void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::clear()
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class LOOKUP_KEY>
-inline
-typename enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-     typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator>
-::type
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
-                                                         const LOOKUP_KEY& key)
-{
-    return iterator(d_impl.find(key));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
@@ -1888,26 +1948,6 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
 {
     return iterator(d_impl.find(key));
 }
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class LOOKUP_KEY>
-inline
-typename enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-typename bsl::pair<
-    typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
-    typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator>
->::type
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
-                                                         const LOOKUP_KEY& key)
-{
-    HashTableLink *first;
-    HashTableLink *last;
-    d_impl.findRange(&first, &last, key);
-    return bsl::pair<iterator, iterator>(iterator(first), iterator(last));
-}
-
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bsl::pair<
@@ -2201,35 +2241,6 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_size(
 
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class LOOKUP_KEY>
-inline
-    typename enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type>
-::type
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::count(
-                                                   const LOOKUP_KEY& key) const
-{
-    typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
-
-    size_type result = 0;
-    for (HashTableLink *cursor = d_impl.find(key);
-         cursor;
-         ++result, cursor = cursor->nextLink())
-    {
-        BNode *cursorNode = static_cast<BNode *>(cursor);
-        if (!this->key_eq()(key,
-                         ListConfiguration::extractKey(cursorNode->value()))) {
-
-            break;
-        }
-    }
-    return result;
-}
-
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>:: size_type
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::count(
                                                      const key_type& key) const
@@ -2249,20 +2260,6 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::count(
         }
     }
     return  result;
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class LOOKUP_KEY>
-inline
-typename enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL,ALLOCATOR>::const_iterator>
-::type
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
-                                                   const LOOKUP_KEY& key) const
-{
-    return const_iterator(d_impl.find(key));
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -2316,29 +2313,6 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::key_eq() const
 {
     return d_impl.comparator();
 }
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class LOOKUP_KEY>
-inline
-typename enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-typename bsl::pair<
-    typename
-        unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator,
-    typename
-        unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator>
->::type
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
-                                                   const LOOKUP_KEY& key) const
-{
-    HashTableLink *first;
-    HashTableLink *last;
-    d_impl.findRange(&first, &last, key);
-    return bsl::pair<const_iterator, const_iterator>(const_iterator(first),
-                                                     const_iterator(last));
-}
-
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bsl::pair<typename unordered_multimap<KEY,
