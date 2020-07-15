@@ -73,12 +73,11 @@ using bsl::size_t;
 //:   mix of valid and invalid UTF-8, using a mix of table data and
 //:   randomly-generated data.
 //:
-//: o Test case 10 tests 'numBytesIfValid' (note that this function is badly
-//:   named and the behavior is undefined if the input is invalid UTF-8).
+//: o Test case 10 tests 'numBytesRaw'.
 //:
-//: o Test case 11 is a table-driven test to test 'getByteSize'.
+//: o Test case 11 is a table-driven test to test 'numBytesInCodePoint'.
 //:
-//: o Test case 12 tests 'appendUtf8Character' on valid Unicode characters.
+//: o Test case 12 tests 'appendUtf8CodePoint' on valid Unicode characters.
 //:
 //: o Test case 13 is a table-driven test of the 'toAscii' class method.
 //:
@@ -102,7 +101,9 @@ using bsl::size_t;
 // [ 7] IntPtr advanceRaw(const char **, const char *, int, int);
 // [ 8] IntPtr advanceRaw(const char **, const char *, int);
 // [ 8] IntPtr advanceRaw(const char **, const char *, int, int);
+// [12] int appendUtf8CodePoint(bsl::string *, unsigned int);
 // [12] int appendUtf8Character(bsl::string *, unsigned int);
+// [11] int numBytesInCodePoint(const char *);
 // [11] int getByteSize(const char *);
 // [ 3] bool isValid(const char *s);
 // [ 9] bool isValid(cchar *);
@@ -124,6 +125,7 @@ using bsl::size_t;
 // [ 8] bool isValid(const char *, int);
 // [ 8] bool isValid(const char **, const char *);
 // [ 8] bool isValid(const char **, const char *, int);
+// [10] IntPtr numBytesRaw(const bslstl::StringRef&, IntPtr);
 // [10] IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
 // [ 5] IntPtr numCharacters(const char *s);
 // [ 5] IntPtr numCharacters(const char *s, int len);
@@ -3114,7 +3116,7 @@ int main(int argc, char *argv[])
         //: 1 Demonstrate the 'advance*' functions.
         //
         // Plan:
-        //: 1 Use the 'appendUtf8Character' function to build an example
+        //: 1 Use the 'appendUtf8CodePoint' function to build an example
         //:   string, then advance through it.
         //
         // Testing:
@@ -3130,20 +3132,20 @@ int main(int argc, char *argv[])
 // In this example, we will use the various 'advance' functions to advance
 // through a UTF-8 string.
 //
-// First, build the string using 'appendUtf8Character', keeping track of how
+// First, build the string using 'appendUtf8CodePoint', keeping track of how
 // many bytes are in each Unicode code point:
 //..
     bsl::string string;
-    bdlde::Utf8Util::appendUtf8Character(&string, 0xff00);        // 3 bytes
-    bdlde::Utf8Util::appendUtf8Character(&string, 0x1ff);         // 2 bytes
-    bdlde::Utf8Util::appendUtf8Character(&string, 'a');           // 1 byte
-    bdlde::Utf8Util::appendUtf8Character(&string, 0x1008aa);      // 4 bytes
-    bdlde::Utf8Util::appendUtf8Character(&string, 0x1abcd);       // 4 bytes
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0xff00);        // 3 bytes
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0x1ff);         // 2 bytes
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 'a');           // 1 byte
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0x1008aa);      // 4 bytes
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0x1abcd);       // 4 bytes
     string += "\xe3\x8f\xfe";           // 3 bytes (invalid 3-byte sequence,
                                         // the first 2 bytes are valid but the
                                         // last continuation byte is invalid)
-    bdlde::Utf8Util::appendUtf8Character(&string, 'w');           // 1 byte
-    bdlde::Utf8Util::appendUtf8Character(&string, '\n');          // 1 byte
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 'w');           // 1 byte
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, '\n');          // 1 byte
 //..
 // Then, declare a few variables we'll need:
 //..
@@ -3250,15 +3252,15 @@ int main(int argc, char *argv[])
 // First, we build an unquestionably valid UTF-8 string:
 //..
     bsl::string string;
-    bdlde::Utf8Util::appendUtf8Character(&string, 0xff00);
-    bdlde::Utf8Util::appendUtf8Character(&string, 0x856);
-    bdlde::Utf8Util::appendUtf8Character(&string, 'a');
-    bdlde::Utf8Util::appendUtf8Character(&string, 0x1008aa);
-    bdlde::Utf8Util::appendUtf8Character(&string, 0xfff);
-    bdlde::Utf8Util::appendUtf8Character(&string, 'w');
-    bdlde::Utf8Util::appendUtf8Character(&string, 0x1abcd);
-    bdlde::Utf8Util::appendUtf8Character(&string, '.');
-    bdlde::Utf8Util::appendUtf8Character(&string, '\n');
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0xff00);
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0x856);
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 'a');
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0x1008aa);
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0xfff);
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 'w');
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0x1abcd);
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, '.');
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, '\n');
 //..
 // Then, we check its validity and measure its length:
 //..
@@ -3499,6 +3501,19 @@ int main(int argc, char *argv[])
                 }
             }
 
+            if (verbose) cout << "appendUtf8CodePoint\n";
+            {
+                bsl::string s;
+                ASSERT_PASS(rc = Obj::appendUtf8CodePoint(&s, 'a'));
+                ASSERT(0 == rc);
+                ASSERT("a" == s);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::appendUtf8CodePoint(
+                                          static_cast<bsl::string *>(0), 'a'));
+            }
+
             if (verbose) cout << "appendUtf8Character\n";
             {
                 bsl::string s;
@@ -3512,9 +3527,18 @@ int main(int argc, char *argv[])
                                           static_cast<bsl::string *>(0), 'a'));
             }
 
+            if (verbose) cout << "numBytesInCodePoint\n";
+            {
+                ASSERT_PASS(rc = Obj::numBytesInCodePoint(WOOF));
+                ASSERT(1 == rc);
+
+                ASSERT_FAIL(Obj::numBytesInCodePoint(nullStr));
+            }
+
             if (verbose) cout << "getByteSize\n";
             {
-                ASSERT_PASS(1 == Obj::getByteSize(WOOF));
+                ASSERT_PASS(rc = Obj::getByteSize(WOOF));
+                ASSERT(1 == rc);
 
                 ASSERT_FAIL(Obj::getByteSize(nullStr));
             }
@@ -3794,7 +3818,7 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'appendUtf8Character'
+        // TESTING 'appendUtf8CodePoint'
         //
         // Concerns:
         //: 1 The method under test produce the expected results on valid
@@ -3808,10 +3832,11 @@ int main(int argc, char *argv[])
         //:   implemented in terms of an already tested component.
         //
         // Testing:
+        //   int appendUtf8CodePoint(bsl::string *, unsigned int);
         //   int appendUtf8Character(bsl::string *, unsigned int);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'appendUtf8Character'\n"
+        if (verbose) cout << "\nTESTING 'appendUtf8CodePoint'\n"
                                "=============================\n";
 
         for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
@@ -3829,6 +3854,15 @@ int main(int argc, char *argv[])
                 P_(LINE); P_(dumpStr(UTF8)); P_(UTF8_LEN); P(CODEPOINT);
             }
 
+            ASSERT(0 == Obj::appendUtf8CodePoint(&empty, CODEPOINT));
+            ASSERT(UTF8_LEN == empty.length());
+
+            ASSERT(0 == Obj::appendUtf8CodePoint(&non_empty, CODEPOINT));
+            ASSERT(non_empty_init_len + UTF8_LEN == non_empty.length());
+
+            empty.clear();
+            non_empty.resize(non_empty_init_len);
+
             ASSERT(0 == Obj::appendUtf8Character(&empty, CODEPOINT));
             ASSERT(UTF8_LEN == empty.length());
 
@@ -3838,7 +3872,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'getByteSize'
+        // TESTING 'numBytesInCodePoint'
         //
         // Concerns:
         //: 1 The method under test produce the expected results on valid UTF-8
@@ -3849,11 +3883,12 @@ int main(int argc, char *argv[])
         //:   various valid UTF-8 code points.
         //
         // Testing:
+        //   int numBytesInCodePoint(const char *);
         //   int getByteSize(const char *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getByteSize'\n"
-                               "=====================\n";
+        if (verbose) cout << "\nTESTING 'numBytesInCodePoint'\n"
+                               "=============================\n";
 
         for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
             const int    LINE     = legalCodepointData[ti].d_lineNum;
@@ -3865,12 +3900,13 @@ int main(int argc, char *argv[])
                 P_(LINE); P_(dumpStr(UTF8)); P(UTF8_LEN);
             }
 
+            ASSERT(int(UTF8_LEN) == Obj::numBytesInCodePoint(UTF8));
             ASSERT(int(UTF8_LEN) == Obj::getByteSize(UTF8));
         }
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'numBytesIfValid'
+        // TESTING 'numBytesRaw'
         //
         // Concerns:
         //: 1 The method under test produce the expected results on valid UTF-8
@@ -3882,11 +3918,12 @@ int main(int argc, char *argv[])
         //:   string, then repeat appending each table entry again.
         //
         // Testing:
+        //   IntPtr numBytesRaw(const bslstl::StringRef&, IntPtr);
         //   IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'numBytesIfValid'\n"
-                               "=========================\n";
+        if (verbose) cout << "\nTESTING 'numBytesRaw'\n"
+                               "=====================\n";
 
         for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
             const int         LINE = legalCodepointData[ti].d_lineNum;
@@ -3896,6 +3933,9 @@ int main(int argc, char *argv[])
                 T_; P_(ti);
                 P_(LINE); P_(dumpStr(UTF8)); P(UTF8.length());
             }
+
+            ASSERT(Obj::IntPtr(UTF8.length()) ==
+                   Obj::numBytesRaw(UTF8, 1));
 
             ASSERT(Obj::IntPtr(UTF8.length()) ==
                    Obj::numBytesIfValid(UTF8, 1));
@@ -3911,6 +3951,18 @@ int main(int argc, char *argv[])
                     T_; T_; P_(tj);
                     P_(LINE_2); P_(dumpStr(UTF8_2)); P(UTF8_2.length());
                 }
+
+                // Adding 2nd code point doesn't change the answer if we only
+                // ask for the 1st code point's byte length.
+                ASSERT(Obj::IntPtr(UTF8.length()) ==
+                       Obj::numBytesRaw(UTF8_2, 1));
+
+                // Embedded nulls count as 1 byte.
+                ASSERT(1 + Obj::IntPtr(UTF8.length()) ==
+                       Obj::numBytesRaw(UTF8_2, 2));
+
+                ASSERT(Obj::IntPtr(UTF8_2.length()) ==
+                       Obj::numBytesRaw(UTF8_2, 3));
 
                 // Adding 2nd code point doesn't change the answer if we only
                 // ask for the 1st code point's byte length.
@@ -5593,18 +5645,18 @@ int main(int argc, char *argv[])
         str.reserve(41);
         for (int i = 0; i < 40; i += 4) {
             bsl::string newcp = code32(randVal32());
-            ASSERT(4 == Obj::getByteSize(newcp.c_str()));
-            ASSERT(4 == Obj::numBytesIfValid(newcp, 1));
+            ASSERT(4 == Obj::numBytesInCodePoint(newcp.c_str()));
+            ASSERT(4 == Obj::numBytesRaw(newcp, 1));
             str += newcp;
         }
 
         ASSERT(40 == str.length());
         ASSERT(10 == allNumCodePoints(str));
-        ASSERT(40 == Obj::numBytesIfValid(str, 10));
-        ASSERT( 4 == Obj::getByteSize(str.c_str()));
+        ASSERT(40 == Obj::numBytesRaw(str, 10));
+        ASSERT( 4 == Obj::numBytesInCodePoint(str.c_str()));
 
         bsl::string s2 = " ";
-        ASSERT( 0 == Obj::appendUtf8Character(&s2, decode(U8_10000)));
+        ASSERT( 0 == Obj::appendUtf8CodePoint(&s2, decode(U8_10000)));
         ASSERT( 5 == s2.length());
 
         ASSERT(allValid(str));
@@ -5637,7 +5689,7 @@ int main(int argc, char *argv[])
 
             ASSERT(44 == overStr.length());
             ASSERT(11 == allNumCodePoints(overStr));
-            ASSERT(44 == Obj::numBytesIfValid(overStr, 11));
+            ASSERT(44 == Obj::numBytesRaw(overStr, 11));
 
             ASSERT(! allValid(overStr));
 
@@ -5672,16 +5724,16 @@ int main(int argc, char *argv[])
 
             bsl::string newcp = code24(randVal24(true));
 
-            ASSERT(3 == Obj::getByteSize(newcp.c_str()));
-            ASSERT(3 == Obj::numBytesIfValid(newcp, 1));
+            ASSERT(3 == Obj::numBytesInCodePoint(newcp.c_str()));
+            ASSERT(3 == Obj::numBytesRaw(newcp, 1));
 
             str += newcp;
         }
 
         ASSERT(30 == str.length());
         ASSERT(10 == allNumCodePoints(str));
-        ASSERT(30 == Obj::numBytesIfValid(str, 10));
-        ASSERT( 3 == Obj::getByteSize(str.c_str()));
+        ASSERT(30 == Obj::numBytesRaw(str, 10));
+        ASSERT( 3 == Obj::numBytesInCodePoint(str.c_str()));
 
         ASSERT(allValid(str));
 
@@ -5787,16 +5839,16 @@ int main(int argc, char *argv[])
             } while (0 == val);
             bsl::string newcp = code16(val);
 
-            ASSERT(2 == Obj::getByteSize(newcp.c_str()));
-            ASSERT(2 == Obj::numBytesIfValid(newcp, 1));
+            ASSERT(2 == Obj::numBytesInCodePoint(newcp.c_str()));
+            ASSERT(2 == Obj::numBytesRaw(newcp, 1));
 
             str += newcp;
         }
 
         ASSERT(20 == str.length());
         ASSERT(10 == allNumCodePoints(str));
-        ASSERT(20 == Obj::numBytesIfValid(str, 10));
-        ASSERT( 2 == Obj::getByteSize(str.c_str()));
+        ASSERT(20 == Obj::numBytesRaw(str, 10));
+        ASSERT( 2 == Obj::numBytesInCodePoint(str.c_str()));
 
         ASSERT(allValid(str));
 
@@ -5895,14 +5947,14 @@ int main(int argc, char *argv[])
         str.reserve(14);
         for (int i = 0; i < 10; ++ i) {
             bsl::string newcp = code8(randVal8(true));
-            ASSERT(1 == Obj::getByteSize(newcp.c_str()));
-            ASSERT(1 == Obj::numBytesIfValid(newcp, 1));
+            ASSERT(1 == Obj::numBytesInCodePoint(newcp.c_str()));
+            ASSERT(1 == Obj::numBytesRaw(newcp, 1));
             str += newcp;
         }
 
         ASSERT(10 == str.length());
         ASSERT(10 == allNumCodePoints(str));
-        ASSERT(10 == Obj::numBytesIfValid(str, 10));
+        ASSERT(10 == Obj::numBytesRaw(str, 10));
 
         ASSERT(allValid(str));
 

@@ -71,9 +71,14 @@ enum {
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 
-bool isValidUtf8(const char *sequence)
+bool isValidUtf8CodePoint(const char *sequence)
     // Return 'true' if 'sequence' points to a valid UTF-8 code point and
-    // 'false' otherwise.
+    // 'false' otherwise.  Note that this checks for neither:
+    //: o values too large
+    //:
+    //: o surrogates
+    //:
+    //: o non-minimal encodings
 {
     return (sequence[0] & k_ONEBYTEHEAD_TEST)   == k_ONEBYTEHEAD_RES ||
           ((sequence[1] & k_MULTIPLEBYTE_TEST)  == k_MULTIPLEBYTE_RES &&
@@ -1132,7 +1137,7 @@ Utf8Util::IntPtr Utf8Util::advanceRaw(const char **result,
 
 // BDE_VERIFY pragma: -SP01     // 'FFFF' is not a typo.
 
-int Utf8Util::appendUtf8Character(bsl::string *output, unsigned int codePoint)
+int Utf8Util::appendUtf8CodePoint(bsl::string *output, unsigned int codePoint)
 {
     BSLS_ASSERT(output);
 
@@ -1185,12 +1190,12 @@ int Utf8Util::appendUtf8Character(bsl::string *output, unsigned int codePoint)
 
 // BDE_VERIFY pragma: pop
 
-int Utf8Util::getByteSize(const char *string)
+int Utf8Util::numBytesInCodePoint(const char *codePoint)
 {
-    BSLS_ASSERT(string);
-    BSLS_ASSERT_SAFE(isValidUtf8(string));
+    BSLS_ASSERT(codePoint);
+    BSLS_ASSERT_SAFE(isValidUtf8CodePoint(codePoint));
 
-    return utf8Size(string[0]);
+    return utf8Size(codePoint[0]);
 }
 
 bool Utf8Util::isValid(const char **invalidString, const char *string)
@@ -1212,9 +1217,8 @@ bool Utf8Util::isValid(const char **invalidString,
     return validateAndCountCodePoints(invalidString, string, length) >= 0;
 }
 
-Utf8Util::IntPtr Utf8Util::numBytesIfValid(
-                                        const bslstl::StringRef& string,
-                                        IntPtr                   numCodePoints)
+Utf8Util::IntPtr Utf8Util::numBytesRaw(const bslstl::StringRef& string,
+                                       IntPtr                   numCodePoints)
 {
     BSLS_ASSERT(string.data() || string.isEmpty());
     BSLS_ASSERT(0 <= numCodePoints);
@@ -1225,7 +1229,7 @@ Utf8Util::IntPtr Utf8Util::numBytesIfValid(
     // validation functions our work is very simple.
 
     for (int i = 0; i < numCodePoints && numBytes < string.length(); ++i) {
-        BSLS_ASSERT_SAFE(isValidUtf8(&string[numBytes]));
+        BSLS_ASSERT_SAFE(isValidUtf8CodePoint(&string[numBytes]));
         numBytes += utf8Size(string[numBytes]);
     }
 
