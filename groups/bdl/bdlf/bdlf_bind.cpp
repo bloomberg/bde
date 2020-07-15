@@ -12,10 +12,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlf_bind_cpp,"$Id$ $CSID$")
 
-#include <bdlf_bind_test.h>  // for testing only
-
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

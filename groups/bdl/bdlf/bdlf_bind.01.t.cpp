@@ -1,4 +1,4 @@
-// bdlf_bind.t.cpp                                                    -*-C++-*-
+// bdlf_bind.01.t.cpp                                                 -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,36 +7,18 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <bdlf_bind.h>
+#define BDLF_BIND_00T_AS_INCLUDE
+#include <bdlf_bind.00.t.cpp>
 
-#include <bdlf_bind_test.h>
-#include <bdlf_placeholder.h>
-
-#include <bslma_allocator.h>
-#include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
-
-#include <bslmf_nil.h>
-
-#include <bsls_platform.h>
-#include <bsls_bsltestutil.h>
-
-#include <bsl_cstdio.h>
-#include <bsl_cstdlib.h>        // 'atoi'
 #include <bsl_cstring.h>        // 'strcpy'
 #include <bsl_functional.h>     // 'ref', 'cref'
 #include <bsl_string.h>
 
-
-using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
-
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
-//                                Overview
-//                                --------
+// See Overview in 'bdlf_bind.00.t.cpp'.
+
 // The 'bdlf_bind' component defines a parameterized type for binding an
 // "invocable" (to respect the terminology of the component-level
 // documentation), which is either a free function, a member function, or a
@@ -74,9 +56,9 @@ using namespace bsl;  // automatically added by script
 //
 // Even if we test only all placeholders or all bound arguments (a more
 // elaborate mix of placeholders and arguments is explored in a separate test
-// case [3]), it is impractical to test the remaining almost thousand
+// case [4]), it is impractical to test the remaining almost thousand
 // combinations in a single component (due to limitation in the compilation
-// time of test driver).  We therefore split the testing into 14 components and
+// time of test driver).  We therefore split the testing into 17 parts and
 // delegate the combinations of the family of factory methods ('bind', bindR',
 // or 'bindS'), the nature of the bound object (free function pointer or
 // reference, member function pointer, and function object by reference or by
@@ -86,20 +68,24 @@ using namespace bsl;  // automatically added by script
 // object.
 //
 // Our test plan proceeds by checking that the traits are set up so that
-// allocators know about 'bdlf::Bind' using the 'bslma::Allocator' protocol
-// (case 2).  Then we test the mix of placeholders and bound arguments (case
-// 3).  We also test the additional concerns about passing 'bdlf_bind' objects
-// as parameters to the various 'bdlf::BindUtil::bind", 'bindR' and 'bindS'
-// (case 4) and about respecting the signature of the invocable (case 5).
-// Finally, we make sure the usage example compiles and runs as advertised
-// (case 6).
+// allocators know about 'bdlf::Bind' using the 'bslma::Allocator' protocol, as
+// well as the necessary traits of the test types specific to 'bdlf::Bind'
+// (case 2).  Next, we test the 'bdlf::Bind' specific test machinery (types).
+// Then we test the mix of placeholders and bound arguments (case 4).  We also
+// test the additional concerns about passing 'bdlf_bind' objects as parameters
+// to the various 'bdlf::BindUtil::bind", 'bindR' and 'bindS' (case 5) and
+// about respecting the signature of the invocable (case 6).  Then, we make
+// sure the usage example compiles and runs as advertised (case 7).  Finally,
+// we verify usage examples from other test drivers (case 8).
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TESTING BSLALG_DECLARE_NESTED_TRAITS
-// [ 3] MIXING BOUND ARGUMENTS AND PLACEHOLDERS
-// [ 4] PASSING 'bdlf_bind' OBJECTS AS PARAMETERS
-// [ 5] RESPECTING THE SIGNATURE OF THE INVOKABLE
-// [ 6] USAGE EXAMPLE
+// [ 3] TESTING HELPER FUNCTIONS/CLASSES
+// [ 4] MIXING BOUND ARGUMENTS AND PLACEHOLDERS
+// [ 5] PASSING 'bdlf_bind' OBJECTS AS PARAMETERS
+// [ 6] RESPECTING THE SIGNATURE OF THE INVOKABLE
+// [ 7] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE FROM TEST DRIVERS
 //-----------------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
@@ -108,47 +94,109 @@ using namespace bsl;  // automatically added by script
 #endif
 
 // ============================================================================
-//                     STANDARD BSL ASSERT TEST FUNCTION
+//                MACROS EXPORTING INITIALIZATION OUT OF MAIN
 // ----------------------------------------------------------------------------
 
-namespace {
+#define DECLARE_01T_MAIN_VARIABLES                                            \
+    /*
+    // The following machinery is for use in conjunction with the
+    // 'SlotsNoAlloc::resetSlots' and 'SlotsNoAlloc::verifySlots' functions.
+    // The slots are set when the corresponding function object or free
+    // function is called with the appropriate number of arguments.
+    */                                                                        \
+                                                                              \
+    const int NO_ALLOC_SLOTS[][NUM_SLOTS]= {                                  \
+     /* 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14 NumArgs  */ \
+     { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }, /* 0  */ \
+     { -1,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }, /* 1  */ \
+     { -1,  1,  2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }, /* 2  */ \
+     { -1,  1,  2,  3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }, /* 3  */ \
+     { -1,  1,  2,  3,  4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }, /* 4  */ \
+     { -1,  1,  2,  3,  4,  5, -1, -1, -1, -1, -1, -1, -1, -1, -1 }, /* 5  */ \
+     { -1,  1,  2,  3,  4,  5,  6, -1, -1, -1, -1, -1, -1, -1, -1 }, /* 6  */ \
+     { -1,  1,  2,  3,  4,  5,  6,  7, -1, -1, -1, -1, -1, -1, -1 }, /* 7  */ \
+     { -1,  1,  2,  3,  4,  5,  6,  7,  8, -1, -1, -1, -1, -1, -1 }, /* 8  */ \
+     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, -1, -1, -1, -1, -1 }, /* 9  */ \
+     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, -1, -1, -1, -1 }, /* 10 */ \
+     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, -1, -1, -1 }, /* 11 */ \
+     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, -1, -1 }, /* 12 */ \
+     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, -1 }, /* 13 */ \
+     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14 }  /* 14 */ \
+    };                                                                        \
+    const int NO_ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {                           \
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1          \
+    };                                                                        \
+                                                                              \
+    (void)NO_ALLOC_SLOTS;                                                     \
+    (void)NO_ALLOC_SLOTS_DEFAULT;                                             \
+                                                                              \
+    /*
+    // Values that do not take an allocator are declared 'static const' above.
 
-int testStatus = 0;
-
-void aSsErT(bool condition, const char *message, int line)
-{
-    if (condition) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
-
-        if (0 <= testStatus && testStatus <= 100) {
-            ++testStatus;
-        }
-    }
-}
-
-}  // close unnamed namespace
-
-// ============================================================================
-//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
-
-#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-
-#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+    // The following machinery is for use in conjunction with the
+    // 'SlotsAlloc::resetSlots' and 'SlotsAlloc::verifySlots' functions.  The
+    // slots are set when the corresponding function object or free function is
+    // called the appropriate number of arguments.
+    */                                                                        \
+                                                                              \
+    bslma::TestAllocator allocator0(veryVeryVerbose);                         \
+    bslma::TestAllocator allocator1(veryVeryVerbose);                         \
+    bslma::TestAllocator allocator2(veryVeryVerbose);                         \
+                                                                              \
+    bslma::TestAllocator *Z0 = &allocator0;                                   \
+    bslma::TestAllocator *Z1 = &allocator1;                                   \
+    bslma::TestAllocator *Z2 = &allocator2;                                   \
+                                                                              \
+    bslma::DefaultAllocatorGuard allocGuard(Z0);                              \
+    SlotsAlloc::setZ0(Z0);                                                    \
+    SlotsAlloc::setZ1(Z1);                                                    \
+    SlotsAlloc::setZ2(Z2);                                                    \
+                                                                              \
+    const bslma::Allocator *ALLOC_SLOTS[][NUM_SLOTS] = {                      \
+     /* 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  NumArgs */ \
+     { Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0 }, /*  0 */ \
+     { Z0, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0 }, /*  1 */ \
+     { Z0, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0 }, /*  2 */ \
+     { Z0, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0 }, /*  3 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0 }, /*  4 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0 }, /*  5 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0 }, /*  6 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0 }, /*  7 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0 }, /*  8 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0 }, /*  9 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0 }, /* 10 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0 }, /* 11 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0 }, /* 12 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0 }, /* 13 */ \
+     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2 }, /* 14 */ \
+     { Z0, Z1, Z1, Z1, Z1, Z1, Z1, Z1, Z1, Z1, Z1, Z1, Z1, Z1, Z1 }  /* 15 */ \
+    };                                                                        \
+    const bslma::Allocator *ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {                \
+          Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0          \
+    };                                                                        \
+    (void)ALLOC_SLOTS;                                                        \
+    (void)ALLOC_SLOTS_DEFAULT;                                                \
+                                                                              \
+    /*
+    // Values that do take an allocator (default allocator is used, which means
+    // means we must perform the initialization *after* the allocator guard,
+    // hence in main).
+    */                                                                        \
+                                                                              \
+    const AllocTestArg1  V1(    1), VZ1(    1, Z2), NV1(-1);                  \
+    const AllocTestArg2  V2(   20), VZ2(   20, Z2), NV2(-20);                 \
+    const AllocTestArg3  V3(   23), VZ3(   23, Z2), NV3(-23);                 \
+    const AllocTestArg4  V4(   44), VZ4(   44, Z2), NV4(-44);                 \
+    const AllocTestArg5  V5(   66), VZ5(   66, Z2), NV5(-66);                 \
+    const AllocTestArg6  V6(  176), VZ6(  176, Z2), NV6(-176);                \
+    const AllocTestArg7  V7(  878), VZ7(  878, Z2), NV7(-878);                \
+    const AllocTestArg8  V8(    8), VZ8(    8, Z2), NV8(-8);                  \
+    const AllocTestArg9  V9(  912), VZ9(  912, Z2), NV9(-912);                \
+    const AllocTestArg10 V10( 102), VZ10( 102, Z2), NV10(-120);               \
+    const AllocTestArg11 V11( 111), VZ11( 111, Z2), NV11(-111);               \
+    const AllocTestArg12 V12( 333), VZ12( 333, Z2), NV12(-333);               \
+    const AllocTestArg13 V13( 712), VZ13( 712, Z2), NV13(-712);               \
+    const AllocTestArg14 V14(1414), VZ14(1414, Z2), NV14(-1414);
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -158,121 +206,10 @@ typedef bsls::Types::Int64 Int64;
 
 bool globalVerbose = false;
 
-// The whole bdlf_bind component currently works with up to 14 arguments.
-
-const int BIND_MAX_ARGUMENTS = 14;
-const int NUM_SLOTS = BIND_MAX_ARGUMENTS+1;
-
-// Nil value (uninitialized).
-
-const int N1 = -1;
-
-// Typedefs for argument and test types.
-
-typedef bdlf::Bind_TestSlotsNoAlloc    SlotsNoAlloc;
-
-typedef bdlf::Bind_TestArgNoAlloc<1>   NoAllocTestArg1;
-typedef bdlf::Bind_TestArgNoAlloc<2>   NoAllocTestArg2;
-typedef bdlf::Bind_TestArgNoAlloc<3>   NoAllocTestArg3;
-typedef bdlf::Bind_TestArgNoAlloc<4>   NoAllocTestArg4;
-typedef bdlf::Bind_TestArgNoAlloc<5>   NoAllocTestArg5;
-typedef bdlf::Bind_TestArgNoAlloc<6>   NoAllocTestArg6;
-typedef bdlf::Bind_TestArgNoAlloc<7>   NoAllocTestArg7;
-typedef bdlf::Bind_TestArgNoAlloc<8>   NoAllocTestArg8;
-typedef bdlf::Bind_TestArgNoAlloc<9>   NoAllocTestArg9;
-typedef bdlf::Bind_TestArgNoAlloc<10>  NoAllocTestArg10;
-typedef bdlf::Bind_TestArgNoAlloc<11>  NoAllocTestArg11;
-typedef bdlf::Bind_TestArgNoAlloc<12>  NoAllocTestArg12;
-typedef bdlf::Bind_TestArgNoAlloc<13>  NoAllocTestArg13;
-typedef bdlf::Bind_TestArgNoAlloc<14>  NoAllocTestArg14;
-
-typedef bdlf::Bind_TestTypeNoAlloc     NoAllocTestType;
-
-typedef bdlf::Bind_TestSlotsAlloc      SlotsAlloc;
-
-typedef bdlf::Bind_TestArgAlloc<1>     AllocTestArg1;
-typedef bdlf::Bind_TestArgAlloc<2>     AllocTestArg2;
-typedef bdlf::Bind_TestArgAlloc<3>     AllocTestArg3;
-typedef bdlf::Bind_TestArgAlloc<4>     AllocTestArg4;
-typedef bdlf::Bind_TestArgAlloc<5>     AllocTestArg5;
-typedef bdlf::Bind_TestArgAlloc<6>     AllocTestArg6;
-typedef bdlf::Bind_TestArgAlloc<7>     AllocTestArg7;
-typedef bdlf::Bind_TestArgAlloc<8>     AllocTestArg8;
-typedef bdlf::Bind_TestArgAlloc<9>     AllocTestArg9;
-typedef bdlf::Bind_TestArgAlloc<10>    AllocTestArg10;
-typedef bdlf::Bind_TestArgAlloc<11>    AllocTestArg11;
-typedef bdlf::Bind_TestArgAlloc<12>    AllocTestArg12;
-typedef bdlf::Bind_TestArgAlloc<13>    AllocTestArg13;
-typedef bdlf::Bind_TestArgAlloc<14>    AllocTestArg14;
-
-typedef bdlf::Bind_TestTypeAlloc       AllocTestType;
-
-// Placeholder types for the corresponding _1, _2, etc.
-
-typedef bdlf::PlaceHolder<1>  PH1;
-typedef bdlf::PlaceHolder<2>  PH2;
-typedef bdlf::PlaceHolder<3>  PH3;
-typedef bdlf::PlaceHolder<4>  PH4;
-typedef bdlf::PlaceHolder<5>  PH5;
-typedef bdlf::PlaceHolder<6>  PH6;
-typedef bdlf::PlaceHolder<7>  PH7;
-typedef bdlf::PlaceHolder<8>  PH8;
-typedef bdlf::PlaceHolder<9>  PH9;
-typedef bdlf::PlaceHolder<10> PH10;
-typedef bdlf::PlaceHolder<11> PH11;
-typedef bdlf::PlaceHolder<12> PH12;
-typedef bdlf::PlaceHolder<13> PH13;
-typedef bdlf::PlaceHolder<14> PH14;
-
-// Values that do not take an allocator.
-
-static const NoAllocTestArg1  I1  = 1;
-static const NoAllocTestArg2  I2  = 2;
-static const NoAllocTestArg3  I3  = 3;
-static const NoAllocTestArg4  I4  = 4;
-static const NoAllocTestArg5  I5  = 5;
-static const NoAllocTestArg6  I6  = 6;
-static const NoAllocTestArg7  I7  = 7;
-static const NoAllocTestArg8  I8  = 8;
-static const NoAllocTestArg9  I9  = 9;
-static const NoAllocTestArg10 I10 = 10;
-static const NoAllocTestArg11 I11 = 11;
-static const NoAllocTestArg12 I12 = 12;
-static const NoAllocTestArg13 I13 = 13;
-static const NoAllocTestArg14 I14 = 14;
-
-// ============================================================================
-//                     GLOBAL HELPER CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
+//                   TESTING FUNCTIONS/CLASSES FOR CASE 6
 // ----------------------------------------------------------------------------
 
-class ConvertibleFromToInt {
-    // Object that is convertible from and to 'int'.  Used to make sure that
-    // 'bindR' can overwrite the return type of a bound object to an arbitrary
-    // type that is convertible from the actual return type of the bound
-    // object.  It is also convertible to 'int' to enable comparison to an int
-    // for the verification of the return value of the binder invocation.
-
-    int d_value; // int value of this object
-
-    public:
-    // CREATORS
-    ConvertibleFromToInt() : d_value() { }
-    ConvertibleFromToInt(int value) : d_value(value) { }
-
-    // MANIPULATORS
-    operator int&() { return d_value; }
-
-    // ACCESSORS
-    operator int() const { return d_value; }
-};
-
-// ============================================================================
-//                    GLOBAL HELPER FUNCTIONS FOR TESTING
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-//                   TESTING FUNCTIONS/CLASSES FOR CASE 5
-// ----------------------------------------------------------------------------
 extern "C" { // cannot be part of a namespace (namespace would be ignored)
 
 int myFunctionWithExternCLinkage(int x)
@@ -282,7 +219,7 @@ int myFunctionWithExternCLinkage(int x)
 
 }  // extern "C"
 
-namespace BDLF_BIND_TEST_CASE_5 {
+namespace BDLF_BIND_TEST_CASE_6 {
 
 int myFunctionWithConstnessMix(const int   a1,
                                const int&  a2,
@@ -482,12 +419,12 @@ struct ConcreteDerivedClass : public AbstractBaseClass {
     virtual int test() const { return 2; }
 };
 
-}  // close namespace BDLF_BIND_TEST_CASE_5
+}  // close namespace BDLF_BIND_TEST_CASE_6
 
 // ----------------------------------------------------------------------------
-//                   TESTING FUNCTIONS/CLASSES FOR CASE 4
+//                   TESTING FUNCTIONS/CLASSES FOR CASE 5
 // ----------------------------------------------------------------------------
-namespace BDLF_BIND_TEST_CASE_4 {
+namespace BDLF_BIND_TEST_CASE_5 {
 
 #define BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS                                  \
                     NoAllocTestArg1  const& a1,  NoAllocTestArg2  const& a2,  \
@@ -744,12 +681,12 @@ AllocTestArg14 const&
 #undef USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
 #undef BDLF_BIND_TEST_ALLOC_14_ARGUMENTS
 
-}  // close namespace BDLF_BIND_TEST_CASE_4
+}  // close namespace BDLF_BIND_TEST_CASE_5
 
 // ----------------------------------------------------------------------------
-//                   TESTING FUNCTIONS/CLASSES FOR CASE 3
+//                   TESTING FUNCTIONS/CLASSES FOR CASE 4
 // ----------------------------------------------------------------------------
-namespace BDLF_BIND_TEST_CASE_3 {
+namespace BDLF_BIND_TEST_CASE_4 {
 
 template <// Types of bound arguments, could be I1-14, or placeholder.
           class B1,  class B2,  class B3,  class B4,  class B5,
@@ -794,7 +731,7 @@ void testPlaceHolder(
     ASSERT(EXPECTED == X);
 }
 
-}  // close namespace BDLF_BIND_TEST_CASE_3
+}  // close namespace BDLF_BIND_TEST_CASE_4
 
 // ============================================================================
 //                   BREATHING TEST CLASSES AND FUNCTIONS
@@ -1578,6 +1515,7 @@ using namespace bdlf::PlaceHolders;
 //..
 
 }  // close namespace BDLF_BIND_USAGE_EXAMPLE
+
 // ============================================================================
 //              USAGE EXAMPLE FROM OTHER TEST DRIVERS FUNCTIONS
 // ----------------------------------------------------------------------------
@@ -1610,117 +1548,13 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
 }
 
 }  // close namespace BDLF_BIND_USAGE_EXAMPLE_FROM_OTHER_TEST_DRIVERS
-// ============================================================================
-//                MACROS EXPORTING INITIALIZATION OUT OF MAIN
-// ----------------------------------------------------------------------------
-#define DECLARE_MAIN_VARIABLES                                                \
-    /*
-    // The following machinery is for use in conjunction with the
-    // 'SlotsNoAlloc::resetSlots' and 'SlotsNoAlloc::verifySlots' functions.
-    // The slots are set when the corresponding function object or free
-    // function is called with the appropriate number of arguments.
-    */                                                                        \
-                                                                              \
-    const int NO_ALLOC_SLOTS[][NUM_SLOTS]= {                                  \
-     /* 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  NumArgs */ \
-     { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 0 */ \
-     { -1,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 1 */ \
-     { -1,  1,  2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 2 */ \
-     { -1,  1,  2,  3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 3 */ \
-     { -1,  1,  2,  3,  4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 4 */ \
-     { -1,  1,  2,  3,  4,  5, -1, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 5 */ \
-     { -1,  1,  2,  3,  4,  5,  6, -1, -1, -1, -1, -1, -1, -1, -1, }, /* 6 */ \
-     { -1,  1,  2,  3,  4,  5,  6,  7, -1, -1, -1, -1, -1, -1, -1, }, /* 7 */ \
-     { -1,  1,  2,  3,  4,  5,  6,  7,  8, -1, -1, -1, -1, -1, -1, }, /* 8 */ \
-     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, -1, -1, -1, -1, -1, }, /* 9 */ \
-     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, -1, -1, -1, -1, }, /* 10*/ \
-     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, -1, -1, -1, }, /* 11*/ \
-     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, -1, -1, }, /* 12*/ \
-     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, -1, }, /* 13*/ \
-     { -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, }, /* 14*/ \
-    };                                                                        \
-    const int NO_ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {                           \
-          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,         \
-    };                                                                        \
-                                                                              \
-    (void)NO_ALLOC_SLOTS;                                                     \
-    (void)NO_ALLOC_SLOTS_DEFAULT;                                             \
-    /*
-    // Values that do not take an allocator are declared 'static const' above.
-
-    // The following machinery is for use in conjunction with the
-    // 'SlotsAlloc::resetSlots' and 'SlotsAlloc::verifySlots' functions.  The
-    // slots are set when the corresponding function object or free function is
-    // called the appropriate number of arguments.
-    */                                                                        \
-                                                                              \
-                                                                              \
-    bslma::TestAllocator allocator0(veryVeryVerbose);                         \
-    bslma::TestAllocator allocator1(veryVeryVerbose);                         \
-    bslma::TestAllocator allocator2(veryVeryVerbose);                         \
-                                                                              \
-    bslma::TestAllocator *Z0 = &allocator0;                                   \
-    bslma::TestAllocator *Z1 = &allocator1;                                   \
-    bslma::TestAllocator *Z2 = &allocator2;                                   \
-                                                                              \
-    bslma::DefaultAllocatorGuard allocGuard(Z0);                              \
-    SlotsAlloc::setZ0(Z0);                                                    \
-    SlotsAlloc::setZ1(Z1);                                                    \
-    SlotsAlloc::setZ2(Z2);                                                    \
-                                                                              \
-    const bslma::Allocator *ALLOC_SLOTS[][NUM_SLOTS] = {                      \
-     /* 0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  NumArgs */ \
-     { Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 0 */ \
-     { Z0, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 1 */ \
-     { Z0, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 2 */ \
-     { Z0, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 3 */ \
-     { Z0, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 4 */ \
-     { Z0, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 5 */ \
-     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 6 */ \
-     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 7 */ \
-     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, Z0, }, /* 8 */ \
-     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, Z0, }, /* 9 */ \
-     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, Z0, }, /* 10*/ \
-     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, Z0, }, /* 11*/ \
-     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, Z0, }, /* 12*/ \
-     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z0, }, /* 13*/ \
-     { Z0, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, Z2, }, /* 14*/ \
-    };                                                                        \
-    const bslma::Allocator *ALLOC_SLOTS_DEFAULT[NUM_SLOTS] = {                \
-          Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0, Z0,         \
-    };                                                                        \
-    (void)ALLOC_SLOTS;                                                        \
-    (void)ALLOC_SLOTS_DEFAULT;                                                \
-                                                                              \
-    /*
-    // Values that do take an allocator (default allocator is used, which means
-    // means we must perform the initialization *after* the allocator guard,
-    // hence in main).
-    */                                                                        \
-                                                                              \
-    const AllocTestArg1  V1(1),     NV1(-1);                                  \
-    const AllocTestArg2  V2(20),    NV2(-20);                                 \
-    const AllocTestArg3  V3(23),    NV3(-23);                                 \
-    const AllocTestArg4  V4(44),    NV4(-44);                                 \
-    const AllocTestArg5  V5(66),    NV5(-66);                                 \
-    const AllocTestArg6  V6(176),   NV6(-176);                                \
-    const AllocTestArg7  V7(878),   NV7(-878);                                \
-    const AllocTestArg8  V8(8),     NV8(-8);                                  \
-    const AllocTestArg9  V9(912),   NV9(-912);                                \
-    const AllocTestArg10 V10(102),  NV10(-120);                               \
-    const AllocTestArg11 V11(111),  NV11(-111);                               \
-    const AllocTestArg12 V12(333),  NV12(-333);                               \
-    const AllocTestArg13 V13(712),  NV13(-712);                               \
-    const AllocTestArg14 V14(1414), NV14(-1414);
 
 // ============================================================================
 //                                TEST CASES
 // ----------------------------------------------------------------------------
-#define DEFINE_TEST_CASE(NUMBER)                                              \
-void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
-DEFINE_TEST_CASE(7) {
-        DECLARE_MAIN_VARIABLES
+DEFINE_TEST_CASE(8) {
+        DECLARE_01T_MAIN_VARIABLES
         // ------------------------------------------------------------------
         // TESTING USAGE EXAMPLE FROM TEST DRIVERS
         //   Some usage examples in other package groups do not compile on
@@ -1832,8 +1666,8 @@ DEFINE_TEST_CASE(7) {
         }
       }
 
-DEFINE_TEST_CASE(6) {
-        DECLARE_MAIN_VARIABLES
+DEFINE_TEST_CASE(7) {
+        DECLARE_01T_MAIN_VARIABLES
         // ------------------------------------------------------------------
         // TESTING USAGE EXAMPLES
         //   The usage examples provided in the component header file must
@@ -1876,8 +1710,8 @@ DEFINE_TEST_CASE(6) {
         bindTest7();
       }
 
-DEFINE_TEST_CASE(5) {
-        DECLARE_MAIN_VARIABLES
+DEFINE_TEST_CASE(6) {
+        DECLARE_01T_MAIN_VARIABLES
         // ------------------------------------------------------------------
         // RESPECTING THE SIGNATURE OF THE INVOCABLE
         //
@@ -1926,7 +1760,7 @@ DEFINE_TEST_CASE(5) {
             printf("\nTESTING RESPECTING THE SIGNATURE OF THE INVOCABLE"
                    "\n=================================================\n");
 
-        using namespace BDLF_BIND_TEST_CASE_5;
+        using namespace BDLF_BIND_TEST_CASE_6;
         using namespace bdlf::PlaceHolders;
 
 #if !defined(BSLS_PLATFORM_CMP_IBM)
@@ -2282,8 +2116,8 @@ DEFINE_TEST_CASE(5) {
         }
       }
 
-DEFINE_TEST_CASE(4) {
-        DECLARE_MAIN_VARIABLES
+DEFINE_TEST_CASE(5) {
+        DECLARE_01T_MAIN_VARIABLES
         // ------------------------------------------------------------------
         // PASSING 'Bind' and 'BindWrapper' OBJECTS AS PARAMETERS
         //
@@ -2316,7 +2150,7 @@ DEFINE_TEST_CASE(4) {
             printf("\nTESTING PASSING 'bdlf_bind' OBJECTS AS PARAMETERS"
                    "\n=================================================\n");
 
-        using namespace BDLF_BIND_TEST_CASE_4;
+        using namespace BDLF_BIND_TEST_CASE_5;
         using namespace bdlf::PlaceHolders;
 
         if (verbose)
@@ -2474,9 +2308,9 @@ DEFINE_TEST_CASE(4) {
                              bdlf::BindUtil::bindS(Z0, &selectAllocArgument1,
                                  _1, _2, _3, _4, _5, _6, _7, _8, _9,
                                  _10, _11, _12, _13, _14),
-                             // second to thirteenth bound arguments below
-                             _2, _3, _4, _5, _6, _7, _8, _9,
-                             _10, _11, _12, _13, _14)
+                              // second to thirteenth bound arguments below
+                              _2, _3, _4, _5, _6, _7, _8, _9,
+                              _10, _11, _12, _13, _14)
                                        // invocation arguments follow
                                        (V1, V2, V3, V4, V5, V6, V7, V8, V9,
                                         V10, V11, V12, V13, V14));
@@ -2582,8 +2416,8 @@ DEFINE_TEST_CASE(4) {
         }
       }
 
-DEFINE_TEST_CASE(3) {
-        DECLARE_MAIN_VARIABLES
+DEFINE_TEST_CASE(4) {
+        DECLARE_01T_MAIN_VARIABLES
         // ------------------------------------------------------------------
         // MIXING BOUND ARGUMENTS AND PLACEHOLDERS
         //
@@ -2625,7 +2459,7 @@ DEFINE_TEST_CASE(3) {
         if (verbose) printf("\nMIXING BOUND ARGUMENTS AND PLACEHOLDERS"
                             "\n=======================================\n");
 
-        using namespace BDLF_BIND_TEST_CASE_3;
+        using namespace BDLF_BIND_TEST_CASE_4;
         using namespace bdlf::PlaceHolders;
 
         if (verbose) printf("\tAll placeholders in cyclic permutation.\n");
@@ -3384,8 +3218,1072 @@ DEFINE_TEST_CASE(3) {
         }
       }
 
+DEFINE_TEST_CASE(3) {
+        DECLARE_01T_MAIN_VARIABLES
+        // ------------------------------------------------------------------
+        // TESTING TEST APPARATUS
+        //
+        // Concerns:
+        //   This component has a rather large apparatus of test helper
+        //   functions, classes, and macros.  We need to make sure they all
+        //   work as intended.
+        //
+        // Plan:
+        //   'isBitwiseMoveableType': Returns true if called on bitwise
+        //       moveable types and false otherwise.
+        //   '...NoAllocSlots':      set slots in sequence to produce the
+        //       various rows of the 'NO_ALLOC_SLOTS' matrix.
+        //   'class NoAllocTestType': check the constructor and comparison
+        //       operator, then check every member function
+        //       'testFunction[0-14]' including its side-effects on the slots.
+        //   global 'function[0-14]': same as for member functions.
+        //   '...AllocSlots':      set slots in sequence to produce the
+        //       various rows of the 'NO_ALLOC_SLOTS' matrix.
+        //   'class AllocTestType': check the constructor and comparison
+        //       operator, then check every member function
+        //       'testFunction[0-14]' including its side-effects on the slots.
+        //   global 'function[0-14]': same as for member functions.
+        //
+        // Testing:
+        //   TESTING HELPER FUNCTIONS/CLASSES
+        // ------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING HELPER FUNCTIONS/CLASSES"
+                            "\n================================\n");
+
+        if (verbose) printf("\tTestUtil machinery.\n");
+        ASSERT( TestUtil::isBitwiseMoveableType(3));
+        ASSERT( TestUtil::isBitwiseMoveableType(NoAllocTestArg<1>(0)));
+        ASSERT(!TestUtil::isBitwiseMoveableType(AllocTestArg<1>(0)));
+
+        if (verbose) printf("\tNoAllocSlots machinery.\n");
+        {
+            for (int i = 0; i<NUM_SLOTS; ++i) {
+                SlotsNoAlloc::resetSlots(N1);
+                ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS_DEFAULT,
+                            veryVerbose));
+                for (int j = 1; j <= i; ++j) {
+                    SlotsNoAlloc::setSlot(j, j);
+                }
+                ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[i],
+                            veryVerbose));
+            }
+        }
+
+        if (verbose) printf("\tclass NoAllocTestType.\n");
+        {
+            NoAllocTestType mX; NoAllocTestType const& X = mX;
+            NoAllocTestType mY; NoAllocTestType const& Y = mY;
+            ASSERT(X == Y);
+
+            const NoAllocTestType EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(0  == mX.testFunc0());
+            ASSERT(EXPECTED0 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[0], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(0  == mY());
+            ASSERT(EXPECTED0 == Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[0], veryVerbose));
+
+            const NoAllocTestType EXPECTED1(I1);
+            mX = EXPECTED1;
+            ASSERT(EXPECTED1 == X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(1  == mX.testFunc1(I1));
+            ASSERT(EXPECTED1 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[1], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(1  == mY(I1));
+            ASSERT(EXPECTED1 == Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[1], veryVerbose));
+
+            const NoAllocTestType EXPECTED2 (I1,I2);
+            mX = EXPECTED2;
+            ASSERT(EXPECTED2 == X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(2  == mX.testFunc2(I1,I2));
+            ASSERT(EXPECTED2 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[2], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(2  == mY(I1,I2));
+            ASSERT(EXPECTED2 == Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[2], veryVerbose));
+
+            const NoAllocTestType EXPECTED3 (I1,I2,I3);
+            mX = EXPECTED3;
+            ASSERT(EXPECTED3 == X);
+            ASSERT(EXPECTED2 != X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(3  == mX.testFunc3(I1,I2,I3));
+            ASSERT(EXPECTED3 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[3], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(3  == mY(I1,I2,I3));
+            ASSERT(EXPECTED3 == Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[3], veryVerbose));
+
+            const NoAllocTestType EXPECTED4 (I1,I2,I3,I4);
+            mX = EXPECTED4;
+            ASSERT(EXPECTED4 == X);
+            ASSERT(EXPECTED3 != X);
+            ASSERT(EXPECTED2 != X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(4  == mX.testFunc4(I1,I2,I3,I4));
+            ASSERT(EXPECTED4 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[4], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(4  == mY(I1,I2,I3,I4));
+            ASSERT(EXPECTED4 == Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[4], veryVerbose));
+
+            const NoAllocTestType EXPECTED5 (I1,I2,I3,I4,I5);
+            mX = EXPECTED5;
+            ASSERT(EXPECTED5 == X);
+            ASSERT(EXPECTED4 != X);
+            ASSERT(EXPECTED3 != X);
+            ASSERT(EXPECTED2 != X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(5  == mX.testFunc5(I1,I2,I3,I4,I5));
+            ASSERT(EXPECTED5 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[5], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(5  == mY(I1,I2,I3,I4,I5));
+            ASSERT(EXPECTED5 == Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[5], veryVerbose));
+
+            const NoAllocTestType EXPECTED6 (I1,I2,I3,I4,I5,I6);
+            mX = EXPECTED6;
+            ASSERT(EXPECTED6 == X);
+            ASSERT(EXPECTED5 != X);
+            ASSERT(EXPECTED4 != X);
+            ASSERT(EXPECTED3 != X);
+            ASSERT(EXPECTED2 != X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(6  == mX.testFunc6(I1,I2,I3,I4,I5,I6));
+            ASSERT(EXPECTED6 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[6], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(6  == mY(I1,I2,I3,I4,I5,I6));
+            ASSERT(EXPECTED6 == Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[6], veryVerbose));
+
+            const NoAllocTestType EXPECTED7 (I1,I2,I3,I4,I5,I6,I7);
+            mX = EXPECTED7;
+            ASSERT(EXPECTED7 == X);
+            ASSERT(EXPECTED6 != X);
+            ASSERT(EXPECTED5 != X);
+            ASSERT(EXPECTED4 != X);
+            ASSERT(EXPECTED3 != X);
+            ASSERT(EXPECTED2 != X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(7  == mX.testFunc7(I1,I2,I3,I4,I5,I6,I7));
+            ASSERT(EXPECTED7 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[7], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(7  == mY(I1,I2,I3,I4,I5,I6,I7));
+            ASSERT(EXPECTED7 == Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[7], veryVerbose));
+
+            const NoAllocTestType EXPECTED8 (I1,I2,I3,I4,I5,I6,I7,I8);
+            mX = EXPECTED8;
+            ASSERT(EXPECTED8 == X);
+            ASSERT(EXPECTED7 != X);
+            ASSERT(EXPECTED6 != X);
+            ASSERT(EXPECTED5 != X);
+            ASSERT(EXPECTED4 != X);
+            ASSERT(EXPECTED3 != X);
+            ASSERT(EXPECTED2 != X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(8  == mX.testFunc8(I1,I2,I3,I4,I5,I6,I7,I8));
+            ASSERT(EXPECTED8 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[8], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(8  == mY(I1,I2,I3,I4,I5,I6,I7,I8));
+            ASSERT(EXPECTED8 == Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[8], veryVerbose));
+
+            const NoAllocTestType EXPECTED9 (I1,I2,I3,I4,I5,I6,I7,I8,I9);
+            mX = EXPECTED9;
+            ASSERT(EXPECTED9 == X);
+            ASSERT(EXPECTED8 != EXPECTED9);
+            ASSERT(EXPECTED7 != EXPECTED9);
+            ASSERT(EXPECTED6 != EXPECTED9);
+            ASSERT(EXPECTED5 != EXPECTED9);
+            ASSERT(EXPECTED4 != EXPECTED9);
+            ASSERT(EXPECTED3 != EXPECTED9);
+            ASSERT(EXPECTED2 != EXPECTED9);
+            ASSERT(EXPECTED1 != EXPECTED9);
+            ASSERT(EXPECTED0 != EXPECTED9);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(9  == mX.testFunc9(I1,I2,I3,I4,I5,I6,I7,I8,I9));
+            ASSERT(EXPECTED9 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[9], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(9  == mY(I1,I2,I3,I4,I5,I6,I7,I8,I9));
+            ASSERT(EXPECTED9 == Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[9], veryVerbose));
+
+            const NoAllocTestType EXPECTED10(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10);
+            mX = EXPECTED10;
+            ASSERT(EXPECTED10 == X);
+            ASSERT(EXPECTED9  != X);
+            ASSERT(EXPECTED8  != X);
+            ASSERT(EXPECTED7  != X);
+            ASSERT(EXPECTED6  != X);
+            ASSERT(EXPECTED5  != X);
+            ASSERT(EXPECTED4  != X);
+            ASSERT(EXPECTED3  != X);
+            ASSERT(EXPECTED2  != X);
+            ASSERT(EXPECTED1  != X);
+            ASSERT(EXPECTED0  != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0  == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(10 == mX.testFunc10(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10));
+            ASSERT(EXPECTED10== X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[10], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(10 == mY(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10));
+            ASSERT(EXPECTED10== Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[10], veryVerbose));
+
+            const NoAllocTestType EXPECTED11(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,
+                                                                          I11);
+            mX = EXPECTED11;
+            ASSERT(EXPECTED11 == X);
+            ASSERT(EXPECTED10 != X);
+            ASSERT(EXPECTED9  != X);
+            ASSERT(EXPECTED8  != X);
+            ASSERT(EXPECTED7  != X);
+            ASSERT(EXPECTED6  != X);
+            ASSERT(EXPECTED5  != X);
+            ASSERT(EXPECTED4  != X);
+            ASSERT(EXPECTED3  != X);
+            ASSERT(EXPECTED2  != X);
+            ASSERT(EXPECTED1  != X);
+            ASSERT(EXPECTED0  != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0  == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(11 == mX.testFunc11(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,I11));
+            ASSERT(EXPECTED11 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[11], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(11 == mY(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,I11));
+            ASSERT(EXPECTED11 == Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[11], veryVerbose));
+
+            const NoAllocTestType EXPECTED12(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,
+                                                                      I11,I12);
+            mX = EXPECTED12;
+            ASSERT(EXPECTED12 == X);
+            ASSERT(EXPECTED11 != X);
+            ASSERT(EXPECTED10 != X);
+            ASSERT(EXPECTED9  != X);
+            ASSERT(EXPECTED8  != X);
+            ASSERT(EXPECTED7  != X);
+            ASSERT(EXPECTED6  != X);
+            ASSERT(EXPECTED5  != X);
+            ASSERT(EXPECTED4  != X);
+            ASSERT(EXPECTED3  != X);
+            ASSERT(EXPECTED2  != X);
+            ASSERT(EXPECTED1  != X);
+            ASSERT(EXPECTED0  != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0  == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(12 == mX.testFunc12(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,I11,
+                                                                         I12));
+            ASSERT(EXPECTED12 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[12], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(12 == mY(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,I11,I12));
+            ASSERT(EXPECTED12 == Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[12], veryVerbose));
+
+            const NoAllocTestType EXPECTED13(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,
+                                                                  I11,I12,I13);
+            mX = EXPECTED13;
+            ASSERT(EXPECTED13 == X);
+            ASSERT(EXPECTED12 != X);
+            ASSERT(EXPECTED11 != X);
+            ASSERT(EXPECTED10 != X);
+            ASSERT(EXPECTED9  != X);
+            ASSERT(EXPECTED8  != X);
+            ASSERT(EXPECTED7  != X);
+            ASSERT(EXPECTED6  != X);
+            ASSERT(EXPECTED5  != X);
+            ASSERT(EXPECTED4  != X);
+            ASSERT(EXPECTED3  != X);
+            ASSERT(EXPECTED2  != X);
+            ASSERT(EXPECTED1  != X);
+            ASSERT(EXPECTED0  != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0  == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(13 == mX.testFunc13(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,I11,
+                                                                     I12,I13));
+            ASSERT(EXPECTED13 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[13], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(13 == mY(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,I11,I12,I13));
+            ASSERT(EXPECTED13 == Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[13], veryVerbose));
+
+            const NoAllocTestType EXPECTED14(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,
+                                                              I11,I12,I13,I14);
+            mX = EXPECTED14;
+            ASSERT(EXPECTED14 == X);
+            ASSERT(EXPECTED13 != X);
+            ASSERT(EXPECTED12 != X);
+            ASSERT(EXPECTED11 != X);
+            ASSERT(EXPECTED10 != X);
+            ASSERT(EXPECTED9  != X);
+            ASSERT(EXPECTED8  != X);
+            ASSERT(EXPECTED7  != X);
+            ASSERT(EXPECTED6  != X);
+            ASSERT(EXPECTED5  != X);
+            ASSERT(EXPECTED4  != X);
+            ASSERT(EXPECTED3  != X);
+            ASSERT(EXPECTED2  != X);
+            ASSERT(EXPECTED1  != X);
+            ASSERT(EXPECTED0  != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0  == X);
+
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(14 == mX.testFunc14(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,I11,
+                                                                 I12,I13,I14));
+            ASSERT(EXPECTED14 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[14], veryVerbose));
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(14 == mY(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,I11,I12,I13,I14));
+            ASSERT(EXPECTED14 == Y);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[14], veryVerbose));
+        }
+
+        if (verbose) printf("\tglobal func0-14 functions.\n");
+        {
+            NoAllocTestType mX; NoAllocTestType const& X = mX;
+
+            const NoAllocTestType EXPECTED0;
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(0  == TestFunctionsNoAlloc::func0(&mX));
+            ASSERT(EXPECTED0 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[0], veryVerbose));
+
+            const NoAllocTestType EXPECTED1(I1);
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(1  == TestFunctionsNoAlloc::func1(&mX,I1));
+            ASSERT(EXPECTED1 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[1], veryVerbose));
+
+            const NoAllocTestType EXPECTED2 (I1,I2);
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(2  == TestFunctionsNoAlloc::func2(&mX,I1,I2));
+            ASSERT(EXPECTED2 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[2], veryVerbose));
+
+            const NoAllocTestType EXPECTED3 (I1,I2,I3);
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(3  == TestFunctionsNoAlloc::func3(&mX,I1,I2,I3));
+            ASSERT(EXPECTED3 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[3], veryVerbose));
+
+            const NoAllocTestType EXPECTED4 (I1,I2,I3,I4);
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(4  == TestFunctionsNoAlloc::func4(&mX,
+                                                                 I1,I2,I3,I4));
+            ASSERT(EXPECTED4 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[4], veryVerbose));
+
+            const NoAllocTestType EXPECTED5 (I1,I2,I3,I4,I5);
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(5  == TestFunctionsNoAlloc::func5(&mX,
+                                                              I1,I2,I3,I4,I5));
+            ASSERT(EXPECTED5 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[5], veryVerbose));
+
+            const NoAllocTestType EXPECTED6 (I1,I2,I3,I4,I5,I6);
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(6  == TestFunctionsNoAlloc::func6(&mX,
+                                                           I1,I2,I3,I4,I5,I6));
+            ASSERT(EXPECTED6 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[6], veryVerbose));
+
+            const NoAllocTestType EXPECTED7 (I1,I2,I3,I4,I5,I6,I7);
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(7  == TestFunctionsNoAlloc::func7(&mX,
+                                                        I1,I2,I3,I4,I5,I6,I7));
+            ASSERT(EXPECTED7 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[7], veryVerbose));
+
+            const NoAllocTestType EXPECTED8 (I1,I2,I3,I4,I5,I6,I7,I8);
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(8  == TestFunctionsNoAlloc::func8(&mX,
+                                                     I1,I2,I3,I4,I5,I6,I7,I8));
+            ASSERT(EXPECTED8 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[8], veryVerbose));
+
+            const NoAllocTestType EXPECTED9 (I1,I2,I3,I4,I5,I6,I7,I8,I9);
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(9  == TestFunctionsNoAlloc::func9(&mX,
+                                                  I1,I2,I3,I4,I5,I6,I7,I8,I9));
+            ASSERT(EXPECTED9 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[9], veryVerbose));
+
+            const NoAllocTestType EXPECTED10(I1,I2,I3,I4,I5,I6,I7,I8,I9,
+                                                          I10);
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(10 == TestFunctionsNoAlloc::func10(&mX,
+                                              I1,I2,I3,I4,I5,I6,I7,I8,I9,I10));
+            ASSERT(EXPECTED10== X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[10], veryVerbose));
+
+            const NoAllocTestType EXPECTED11(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,
+                                             I11);
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(11 == TestFunctionsNoAlloc::func11(&mX,
+                                          I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,I11));
+            ASSERT(EXPECTED11 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[11], veryVerbose));
+
+            const NoAllocTestType EXPECTED12(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,
+                                                                      I11,I12);
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(12 == TestFunctionsNoAlloc::func12(&mX,
+                                      I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,I11,I12));
+            ASSERT(EXPECTED12 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[12], veryVerbose));
+
+            const NoAllocTestType EXPECTED13(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,
+                                                                  I11,I12,I13);
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(13 == TestFunctionsNoAlloc::func13(&mX,
+                                 I1,I2,I3,I4,I5,I6,I7,I8,I9,I10, I11,I12,I13));
+            ASSERT(EXPECTED13 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[13], veryVerbose));
+
+            const NoAllocTestType EXPECTED14(I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,
+                                                              I11,I12,I13,I14);
+            SlotsNoAlloc::resetSlots(N1);
+            ASSERT(14 == TestFunctionsNoAlloc::func14(&mX,
+                              I1,I2,I3,I4,I5,I6,I7,I8,I9,I10,I11,I12,I13,I14));
+            ASSERT(EXPECTED14 == X);
+            ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[14], veryVerbose));
+        }
+
+        if (verbose) printf("\tAllocSlots machinery.\n");
+        {
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS_DEFAULT, veryVerbose));
+
+            for (int i = 0; i<NUM_SLOTS; ++i) {
+                SlotsAlloc::resetSlots(Z0);
+                for (int j = 1; j <= i; ++j) {
+                    SlotsAlloc::setSlot(Z2, j);
+                }
+                ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[i], veryVerbose));
+            }
+        }
+
+        if (verbose) printf("\tclass bdlf::Bind_TestArgAlloc.\n");
+        {
+            const Int64 NUM_ALLOCS_Z0 = Z0->numAllocations();
+            const Int64 NUM_ALLOCS_Z1 = Z1->numAllocations();
+
+            // Concern: creation should allocate an int using proper allocator.
+            AllocTestArg<0> mX(1,Z1);
+            AllocTestArg<0> const& X = mX;
+            ASSERT(NUM_ALLOCS_Z0   == Z0->numAllocations());
+            ASSERT(NUM_ALLOCS_Z1+1 == Z1->numAllocations());
+
+            // Concern: creation should allocate an int using proper allocator.
+            AllocTestArg<0> mY(2,Z1);
+            AllocTestArg<0> const& Y = mY;
+            ASSERT(NUM_ALLOCS_Z0   == Z0->numAllocations());
+            ASSERT(NUM_ALLOCS_Z1+2 == Z1->numAllocations());
+
+            // For testing, a value equal to 'X' with a default allocator.
+            AllocTestArg<0> mZ(1,Z0);
+            AllocTestArg<0> const& Z = mZ;
+            ASSERT(NUM_ALLOCS_Z0+1 == Z0->numAllocations());
+            ASSERT(NUM_ALLOCS_Z1+2 == Z1->numAllocations());
+
+            // Concerns: comparison operator should not copy, and should not be
+            // influenced by the allocator.
+            ASSERT(X != Y);
+            ASSERT(X == Z);
+            ASSERT(NUM_ALLOCS_Z0+1 == Z0->numAllocations());
+            ASSERT(NUM_ALLOCS_Z1+2 == Z1->numAllocations());
+
+            // Concern: copying to self does not allocate.
+            mX = X;
+            ASSERT(X == Z);
+            ASSERT(NUM_ALLOCS_Z0+1 == Z0->numAllocations());
+            ASSERT(NUM_ALLOCS_Z1+2 == Z1->numAllocations());
+
+            // Concern: copying from non-self allocates from proper allocator
+            // and value is correct.
+            mX = Y;
+            ASSERT(X == Y);
+            ASSERT(NUM_ALLOCS_Z0+1 == Z0->numAllocations());
+            ASSERT(NUM_ALLOCS_Z1+3 == Z1->numAllocations());
+
+            // Concern: copying does not acquire different allocator.
+            mX = Z;
+            ASSERT(X == Z);
+            ASSERT(NUM_ALLOCS_Z0+1 == Z0->numAllocations());
+            ASSERT(NUM_ALLOCS_Z1+4 == Z1->numAllocations());
+
+            // Concern: member functions 'allocator' and 'value'.
+            ASSERT(Z1 == X.allocator());
+            ASSERT(Z1 == Y.allocator());
+            ASSERT(Z0 == Z.allocator());
+            ASSERT(1 == X.value());
+            ASSERT(2 == Y.value());
+            ASSERT(1 == Z.value());
+        }
+
+        if (verbose) printf("\tclass AllocTestType.\n");
+        {
+            AllocTestType mX(Z1); AllocTestType const& X = mX;
+            AllocTestType mY(Z1); AllocTestType const& Y = mY;
+
+            const AllocTestType EXPECTED0(Z0);
+            ASSERT(EXPECTED0 == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(0  == mX.testFunc0());
+            ASSERT(EXPECTED0 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[0], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(0  == mY());
+            ASSERT(EXPECTED0 == Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[0], veryVerbose));
+
+            const AllocTestType EXPECTED1(Z0,VZ1);
+            mX = EXPECTED1;
+            ASSERT(EXPECTED1 == X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(1  == mX.testFunc1(VZ1));
+            ASSERT(EXPECTED1 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[1], veryVerbose));
+            mX.setSlots();
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[15], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(1  == mY(VZ1));
+            ASSERT(EXPECTED1 == Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[1], veryVerbose));
+
+            const AllocTestType EXPECTED2(Z0,VZ1,VZ2);
+            mX = EXPECTED2;
+            ASSERT(EXPECTED2 == X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(2  == mX.testFunc2(VZ1,VZ2));
+            ASSERT(EXPECTED2 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[2], veryVerbose));
+            mX.setSlots();
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[15], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(2  == mY(VZ1,VZ2));
+            ASSERT(EXPECTED2 == Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[2], veryVerbose));
+
+            const AllocTestType EXPECTED3(Z0,VZ1,VZ2,VZ3);
+            mX = EXPECTED3;
+            ASSERT(EXPECTED3 == X);
+            ASSERT(EXPECTED2 != X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(3  == mX.testFunc3(VZ1,VZ2,VZ3));
+            ASSERT(EXPECTED3 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[3], veryVerbose));
+            mX.setSlots();
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[15], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(3  == mY(VZ1,VZ2,VZ3));
+            ASSERT(EXPECTED3 == Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[3], veryVerbose));
+
+            const AllocTestType EXPECTED4(Z0,VZ1,VZ2,VZ3,VZ4);
+            mX = EXPECTED4;
+            ASSERT(EXPECTED4 == X);
+            ASSERT(EXPECTED3 != X);
+            ASSERT(EXPECTED2 != X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(4  == mX.testFunc4(VZ1,VZ2,VZ3,VZ4));
+            ASSERT(EXPECTED4 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[4], veryVerbose));
+            mX.setSlots();
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[15], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(4  == mY(VZ1,VZ2,VZ3,VZ4));
+            ASSERT(EXPECTED4 == Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[4], veryVerbose));
+
+            const AllocTestType EXPECTED5(Z0,VZ1,VZ2,VZ3,VZ4,VZ5);
+            mX = EXPECTED5;
+            ASSERT(EXPECTED5 == X);
+            ASSERT(EXPECTED4 != X);
+            ASSERT(EXPECTED3 != X);
+            ASSERT(EXPECTED2 != X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(5  == mX.testFunc5(VZ1,VZ2,VZ3,VZ4,VZ5));
+            ASSERT(EXPECTED5 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[5], veryVerbose));
+            mX.setSlots();
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[15], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(5  == mY(VZ1,VZ2,VZ3,VZ4,VZ5));
+            ASSERT(EXPECTED5 == Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[5], veryVerbose));
+
+            const AllocTestType EXPECTED6(Z0,VZ1,VZ2,VZ3,VZ4,VZ5,VZ6);
+            mX = EXPECTED6;
+            ASSERT(EXPECTED6 == X);
+            ASSERT(EXPECTED5 != X);
+            ASSERT(EXPECTED4 != X);
+            ASSERT(EXPECTED3 != X);
+            ASSERT(EXPECTED2 != X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(6  == mX.testFunc6(VZ1,VZ2,VZ3,VZ4,VZ5,VZ6));
+            ASSERT(EXPECTED6 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[6], veryVerbose));
+            mX.setSlots();
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[15], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(6  == mY(VZ1,VZ2,VZ3,VZ4,VZ5,VZ6));
+            ASSERT(EXPECTED6 == Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[6], veryVerbose));
+
+            const AllocTestType EXPECTED7(Z0,VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7);
+            mX = EXPECTED7;
+            ASSERT(EXPECTED7 == X);
+            ASSERT(EXPECTED6 != X);
+            ASSERT(EXPECTED5 != X);
+            ASSERT(EXPECTED4 != X);
+            ASSERT(EXPECTED3 != X);
+            ASSERT(EXPECTED2 != X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(7  == mX.testFunc7(VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7));
+            ASSERT(EXPECTED7 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[7], veryVerbose));
+            mX.setSlots();
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[15], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(7  == mY(VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7));
+            ASSERT(EXPECTED7 == Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[7], veryVerbose));
+
+            const AllocTestType EXPECTED8(Z0,VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8);
+            mX = EXPECTED8;
+            ASSERT(EXPECTED8 == X);
+            ASSERT(EXPECTED7 != X);
+            ASSERT(EXPECTED6 != X);
+            ASSERT(EXPECTED5 != X);
+            ASSERT(EXPECTED4 != X);
+            ASSERT(EXPECTED3 != X);
+            ASSERT(EXPECTED2 != X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(8  == mX.testFunc8(VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8));
+            ASSERT(EXPECTED8 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[8], veryVerbose));
+            mX.setSlots();
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[15], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(8  == mY(VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8));
+            ASSERT(EXPECTED8 == Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[8], veryVerbose));
+
+            const AllocTestType EXPECTED9(Z0,
+                                          VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9);
+            mX = EXPECTED9;
+            ASSERT(EXPECTED9 == X);
+            ASSERT(EXPECTED8 != X);
+            ASSERT(EXPECTED7 != X);
+            ASSERT(EXPECTED6 != X);
+            ASSERT(EXPECTED5 != X);
+            ASSERT(EXPECTED4 != X);
+            ASSERT(EXPECTED3 != X);
+            ASSERT(EXPECTED2 != X);
+            ASSERT(EXPECTED1 != X);
+            ASSERT(EXPECTED0 != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0 == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(9  == mX.testFunc9(VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9));
+            ASSERT(EXPECTED9 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[9], veryVerbose));
+            mX.setSlots();
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[15], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(9  == mY(VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9));
+            ASSERT(EXPECTED9 == Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[9], veryVerbose));
+
+            const AllocTestType EXPECTED10(
+                                  Z0,VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10);
+            mX = EXPECTED10;
+            ASSERT(EXPECTED10 == X);
+            ASSERT(EXPECTED9  != X);
+            ASSERT(EXPECTED8  != X);
+            ASSERT(EXPECTED7  != X);
+            ASSERT(EXPECTED6  != X);
+            ASSERT(EXPECTED5  != X);
+            ASSERT(EXPECTED4  != X);
+            ASSERT(EXPECTED3  != X);
+            ASSERT(EXPECTED2  != X);
+            ASSERT(EXPECTED1  != X);
+            ASSERT(EXPECTED0  != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0  == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(10 == mX.testFunc10(
+                                    VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10));
+            ASSERT(EXPECTED10== X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[10], veryVerbose));
+            mX.setSlots();
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[15], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(10 == mY(VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10));
+            ASSERT(EXPECTED10== Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[10], veryVerbose));
+
+            const AllocTestType EXPECTED11(
+                             Z0,VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11);
+            mX = EXPECTED11;
+            ASSERT(EXPECTED11 == X);
+            ASSERT(EXPECTED10 != X);
+            ASSERT(EXPECTED9  != X);
+            ASSERT(EXPECTED8  != X);
+            ASSERT(EXPECTED7  != X);
+            ASSERT(EXPECTED6  != X);
+            ASSERT(EXPECTED5  != X);
+            ASSERT(EXPECTED4  != X);
+            ASSERT(EXPECTED3  != X);
+            ASSERT(EXPECTED2  != X);
+            ASSERT(EXPECTED1  != X);
+            ASSERT(EXPECTED0  != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0  == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(11 == mX.testFunc11(
+                               VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11));
+            ASSERT(EXPECTED11 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[11], veryVerbose));
+            mX.setSlots();
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[15], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(11 == mY(VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11));
+            ASSERT(EXPECTED11 == Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[11], veryVerbose));
+
+            const AllocTestType EXPECTED12(
+                        Z0,VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11,VZ12);
+            mX = EXPECTED12;
+            ASSERT(EXPECTED12 == X);
+            ASSERT(EXPECTED11 != X);
+            ASSERT(EXPECTED10 != X);
+            ASSERT(EXPECTED9  != X);
+            ASSERT(EXPECTED8  != X);
+            ASSERT(EXPECTED7  != X);
+            ASSERT(EXPECTED6  != X);
+            ASSERT(EXPECTED5  != X);
+            ASSERT(EXPECTED4  != X);
+            ASSERT(EXPECTED3  != X);
+            ASSERT(EXPECTED2  != X);
+            ASSERT(EXPECTED1  != X);
+            ASSERT(EXPECTED0  != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0  == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(12 == mX.testFunc12(
+                          VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11,VZ12));
+            ASSERT(EXPECTED12 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[12], veryVerbose));
+            mX.setSlots();
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[15], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(12 == mY(
+                          VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11,VZ12));
+            ASSERT(EXPECTED12 == Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[12], veryVerbose));
+
+            const AllocTestType EXPECTED13(
+                   Z0,VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11,VZ12,VZ13);
+            mX = EXPECTED13;
+            ASSERT(EXPECTED13 == X);
+            ASSERT(EXPECTED12 != X);
+            ASSERT(EXPECTED11 != X);
+            ASSERT(EXPECTED10 != X);
+            ASSERT(EXPECTED9  != X);
+            ASSERT(EXPECTED8  != X);
+            ASSERT(EXPECTED7  != X);
+            ASSERT(EXPECTED6  != X);
+            ASSERT(EXPECTED5  != X);
+            ASSERT(EXPECTED4  != X);
+            ASSERT(EXPECTED3  != X);
+            ASSERT(EXPECTED2  != X);
+            ASSERT(EXPECTED1  != X);
+            ASSERT(EXPECTED0  != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0  == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(13 == mX.testFunc13(
+                     VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11,VZ12,VZ13));
+            ASSERT(EXPECTED13 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[13], veryVerbose));
+            mX.setSlots();
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[15], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(13 == mY(
+                     VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11,VZ12,VZ13));
+            ASSERT(EXPECTED13 == Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[13], veryVerbose));
+
+            const AllocTestType EXPECTED14(Z0,
+                 VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11,VZ12,VZ13,VZ14);
+            mX = EXPECTED14;
+            ASSERT(EXPECTED14 == X);
+            ASSERT(EXPECTED13 != X);
+            ASSERT(EXPECTED12 != X);
+            ASSERT(EXPECTED11 != X);
+            ASSERT(EXPECTED10 != X);
+            ASSERT(EXPECTED9  != X);
+            ASSERT(EXPECTED8  != X);
+            ASSERT(EXPECTED7  != X);
+            ASSERT(EXPECTED6  != X);
+            ASSERT(EXPECTED5  != X);
+            ASSERT(EXPECTED4  != X);
+            ASSERT(EXPECTED3  != X);
+            ASSERT(EXPECTED2  != X);
+            ASSERT(EXPECTED1  != X);
+            ASSERT(EXPECTED0  != X);
+            mX = EXPECTED0;
+            ASSERT(EXPECTED0  == X);
+
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(14 == mX.testFunc14(
+                VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11,VZ12,VZ13,VZ14));
+            ASSERT(EXPECTED14 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[14], veryVerbose));
+            mX.setSlots();
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[15], veryVerbose));
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(14 == mY(VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,
+                            VZ8,VZ9,VZ10,VZ11,VZ12,VZ13,VZ14));
+            ASSERT(EXPECTED14 == Y);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[14], veryVerbose));
+        }
+
+        if (verbose) printf("\tglobal func0-14 functions.\n");
+        {
+            AllocTestType mX(Z1); AllocTestType const& X = mX;
+
+            const AllocTestType EXPECTED0(Z1);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(0 == TestFunctionsAlloc::func0(&mX));
+            ASSERT(EXPECTED0 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[0], veryVerbose));
+
+            const AllocTestType EXPECTED1(Z1,VZ1);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(1 == TestFunctionsAlloc::func1(&mX,VZ1));
+            ASSERT(EXPECTED1 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[1], veryVerbose));
+
+            const AllocTestType EXPECTED2(Z1,VZ1,VZ2);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(2 == TestFunctionsAlloc::func2(&mX,VZ1,VZ2));
+            ASSERT(EXPECTED2 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[2], veryVerbose));
+
+            const AllocTestType EXPECTED3(Z1,VZ1,VZ2,VZ3);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(3 == TestFunctionsAlloc::func3(&mX,VZ1,VZ2,VZ3));
+            ASSERT(EXPECTED3 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[3], veryVerbose));
+
+            const AllocTestType EXPECTED4(Z1,VZ1,VZ2,VZ3,VZ4);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(4 == TestFunctionsAlloc::func4(&mX, VZ1,VZ2,VZ3,VZ4));
+            ASSERT(EXPECTED4 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[4], veryVerbose));
+
+            const AllocTestType EXPECTED5(Z1,VZ1,VZ2,VZ3,VZ4,VZ5);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(5 == TestFunctionsAlloc::func5(&mX, VZ1,VZ2,VZ3,VZ4,VZ5));
+            ASSERT(EXPECTED5 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[5], veryVerbose));
+
+            const AllocTestType EXPECTED6 (Z1,VZ1,VZ2,VZ3,VZ4,VZ5,VZ6);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(6 == TestFunctionsAlloc::func6(&mX,
+                                                  VZ1,VZ2,VZ3,VZ4,VZ5,VZ6));
+            ASSERT(EXPECTED6 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[6], veryVerbose));
+
+            const AllocTestType EXPECTED7(Z1,VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(7 == TestFunctionsAlloc::func7(&mX,
+                                                 VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7));
+            ASSERT(EXPECTED7 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[7], veryVerbose));
+
+            const AllocTestType EXPECTED8(Z1,VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(8 == TestFunctionsAlloc::func8(&mX,
+                                             VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8));
+            ASSERT(EXPECTED8 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[8], veryVerbose));
+
+            const AllocTestType EXPECTED9(Z1,
+                                          VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(9 == TestFunctionsAlloc::func9(&mX,
+                                         VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9));
+            ASSERT(EXPECTED9 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[9], veryVerbose));
+
+            const AllocTestType EXPECTED10(Z1,
+                                     VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(10 == TestFunctionsAlloc::func10(&mX,
+                                    VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10));
+            ASSERT(EXPECTED10== X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[10], veryVerbose));
+
+            const AllocTestType EXPECTED11(
+                             Z1,VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(11 == TestFunctionsAlloc::func11(&mX,
+                               VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11));
+            ASSERT(EXPECTED11 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[11], veryVerbose));
+
+            const AllocTestType EXPECTED12(
+                        Z1,VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11,VZ12);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(12 == TestFunctionsAlloc::func12(&mX,
+                          VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11,VZ12));
+            ASSERT(EXPECTED12 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[12], veryVerbose));
+
+            const AllocTestType EXPECTED13(
+                   Z1,VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11,VZ12,VZ13);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(13 == TestFunctionsAlloc::func13(&mX,
+                     VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,VZ9,VZ10,VZ11,VZ12,VZ13));
+            ASSERT(EXPECTED13 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[13], veryVerbose));
+
+            const AllocTestType EXPECTED14(Z1,
+                                           VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,
+                                           VZ8,VZ9,VZ10,VZ11,VZ12,VZ13,VZ14);
+            SlotsAlloc::resetSlots(Z0);
+            ASSERT(14 == TestFunctionsAlloc::func14(&mX,
+                                            VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,
+                                            VZ8,VZ9,VZ10,VZ11,VZ12,VZ13,VZ14));
+            ASSERT(EXPECTED14 == X);
+            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[14], veryVerbose));
+        }
+      }
+
 DEFINE_TEST_CASE(2) {
-        DECLARE_MAIN_VARIABLES
+        DECLARE_01T_MAIN_VARIABLES
         // ------------------------------------------------------------------
         // TESTING TRAITS
         //
@@ -3413,8 +4311,24 @@ DEFINE_TEST_CASE(2) {
         if (verbose) printf("\nTESTING TRAITS"
                             "\n==============\n");
 
-        typedef NoAllocTestType *FUNC;
-        typedef bdlf::Bind_Tuple1<PH1> ListType;
+
+        if (verbose) printf("\tAsserting traits of test classes.\n");
+        {
+            ASSERT(0 == (bslalg::HasTrait<NoAllocTestArg<1>,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+
+            ASSERT(0 == (bslalg::HasTrait<NoAllocTestType,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+
+            ASSERT(1 == (bslalg::HasTrait<AllocTestArg<1>,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+
+            ASSERT(1 == (bslalg::HasTrait<AllocTestType,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+        }
+
+        typedef NoAllocTestType        *FUNC;
+        typedef bdlf::Bind_Tuple1<PH1>  ListType;
 
         if (verbose) printf("\tAsserting traits of 'bdlf::Bind'.\n");
         {
@@ -3433,7 +4347,7 @@ DEFINE_TEST_CASE(2) {
       }
 
 DEFINE_TEST_CASE(1) {
-        DECLARE_MAIN_VARIABLES
+        DECLARE_01T_MAIN_VARIABLES
         // ------------------------------------------------------------------
         // BREATHING TEST
         //
@@ -3464,8 +4378,7 @@ DEFINE_TEST_CASE(1) {
         bindTest5();
         if (verbose) printf("\tbindTest6.\n");
         bindTest6();
-
-      }
+    }
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -3487,6 +4400,7 @@ int main(int argc, char *argv[])
       case NUMBER: {                                                          \
         testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose);              \
       } break
+        CASE(8);
         CASE(7);
         CASE(6);
         CASE(5);
@@ -3509,7 +4423,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

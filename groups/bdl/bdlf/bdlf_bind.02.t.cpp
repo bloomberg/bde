@@ -1,6 +1,11 @@
-// bdlf_bind_test0.t.cpp                                              -*-C++-*-
+// bdlf_bind.02.t.cpp                                                 -*-C++-*-
 
-#include <bdlf_bind_test0.h>
+// ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+// Testing 'bdlf::Bind' using 0-argument functions.  See the test plan in
+// 'bdlf_bind.00.t.cpp'.
+// ----------------------------------------------------------------------------
 
 // Count
 #define BBT_n 0
@@ -14,10 +19,13 @@
 // Repeat comma-separated S once per number of parameters
 #define BBT_R(S)
 
-#include <bdlf_bind_testn.t.cpp>
+// Generate a test driver
+#define BDLF_BIND_00T_AS_GENERATOR
+
+#include <bdlf_bind.00.t.cpp>
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
