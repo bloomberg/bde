@@ -1476,7 +1476,7 @@ void testTransparentComparator(Container& container,
 
     ASSERT(expectedConversionCount == existingKey.conversionCount());
     ASSERT(EXPECTED_C == 
-     static_cast<Count>(std::distance(EXISTING_ER.first, EXISTING_ER.second)));
+     static_cast<Count>(bsl::distance(EXISTING_ER.first, EXISTING_ER.second)));
 
     for (Iterator it = EXISTING_ER.first; it != EXISTING_ER.second; ++it) {
         ASSERT(existingKey.value() == *it);
