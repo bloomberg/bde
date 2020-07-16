@@ -18,6 +18,52 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::Log: namespace for logging utilities (for *internal* use only)
 //
+//@MACROS:
+//  BALL_LOG_SET_CATEGORY(C): set a category for logging to the specified 'C'
+//  BALL_LOG_SET_DYNAMIC_CATEGORY(C): set a run-time-dependent category
+//  BALL_LOG_SET_CLASS_CATEGORY(C): set a category in the scope of a class
+//  BALL_LOG_SET_NAMESPACE_CATEGORY(C): set a category in a namespace
+//  BALL_LOG_SET_CATEGORY_HIERARCHICALLY(C): set a category hierarchically
+//  BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(C): set a run-time category
+//  BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(C): set a class category
+//  BALL_LOG_SET_NAMESPACE_CATEGORY_HIERARCHICALLY(C): set a namespace category
+//  BALL_LOG_TRACE: produce a log record with the 'e_TRACE' severity level
+//  BALL_LOG_DEBUG: produce a log record with the 'e_DEBUG' severity level
+//  BALL_LOG_INFO: produce a log record with the 'e_INFO' severity level
+//  BALL_LOG_WARN: produce a log record with the 'e_WARN' severity level
+//  BALL_LOG_ERROR: produce a log record with the 'e_ERROR' severity level
+//  BALL_LOG_FATAL: produce a log record with the 'e_FATAL' severity level
+//  BALL_LOG_STREAM(SEV): produce a log record with the specified 'SEV' level
+//  BALL_LOGCB_TRACE(CB): produce a 'e_TRACE' log record using callback 'CB'
+//  BALL_LOGCB_DEBUG(CB): produce a 'e_DEBUG' log record using callback 'CB'
+//  BALL_LOGCB_INFO(CB): produce an 'e_INFO' log record using callback 'CB'
+//  BALL_LOGCB_WARN(CB): produce a 'e_WARN' log record using callback 'CB'
+//  BALL_LOGCB_ERROR(CB): produce an 'e_ERROR' log record using callback 'CB'
+//  BALL_LOGCB_FATAL(CB): produce a 'e_FATAL' log record using callback 'CB'
+//  BALL_LOGCB_STREAM(SEV, CB): produce a 'SEV' log record using callback
+//  BALL_LOGVA_TRACE(MSG, ...): produce 'e_TRACE' record using 'printf' format
+//  BALL_LOGVA_DEBUG(MSG, ...): produce 'e_DEBUG' record using 'printf' format
+//  BALL_LOGVA_INFO( MSG, ...): produce 'e_INFO' record using 'printf' format
+//  BALL_LOGVA_WARN( MSG, ...): produce 'e_WARN' record using 'printf' format
+//  BALL_LOGVA_ERROR(MSG, ...): produce 'e_ERROR' record using 'printf' format
+//  BALL_LOGVA_FATAL(MSG, ...): produce 'e_FATAL' record using 'printf' format
+//  BALL_LOGVA(SEV, MSG, ...): produce a 'SEV' log record using 'printf' format
+//  BALL_LOG_TRACE_BLOCK: set code block with 'e_TRACE' condition of execution
+//  BALL_LOG_DEBUG_BLOCK: set code block with 'e_DEBUG' condition of execution
+//  BALL_LOG_INFO_BLOCK: set a code block with 'e_INFO' condition of execution
+//  BALL_LOG_WARN_BLOCK: set a code block with 'e_WARN' condition of execution
+//  BALL_LOG_ERROR_BLOCK: set code block with 'e_ERROR' condition of execution
+//  BALL_LOG_FATAL_BLOCK: set code block with 'e_FATAL' condition of execution
+//  BALL_LOG_STREAM_BLOCK(SEV): set a code block with 'SEV' condition
+//  BALL_LOGCB_TRACE_BLOCK(CB): set 'e_TRACE' block with the specified callback
+//  BALL_LOGCB_DEBUG_BLOCK(CB): set 'e_DEBUG' block with the specified callback
+//  BALL_LOGCB_INFO_BLOCK(CB): set 'e_INFO' block with the specified callback
+//  BALL_LOGCB_WARN_BLOCK(CB): set 'e_WARN' block with the specified callback
+//  BALL_LOGCB_ERROR_BLOCK(CB): set an 'e_ERROR' block with the specified 'CB'
+//  BALL_LOGCB_FATAL_BLOCK(CB): set 'e_FATAL' block with the specified callback
+//  BALL_LOGCB_STREAM_BLOCK(SEV, CB): set a 'SEV' block with the specified 'CB'
+//  BALL_LOG_IS_ENABLED(SEV): indicate if 'SEV' is severe enough for logging
+//
 //@SEE_ALSO: ball_loggermanager, ball_category, ball_severity, ball_record
 //
 //@DESCRIPTION: This component provides preprocessor macros and utility
