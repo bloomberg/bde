@@ -1321,15 +1321,14 @@ class unordered_multimap {
                       const_iterator>::type
     find(const LOOKUP_KEY& key) const
         // Return an iterator providing modifiable access to the first
-        // 'value_type' object in this multimap whose key is equivalent to the
-        // specified 'key', if such an entry exists, and the past-the-end
-        // ('end') iterator otherwise.
+        // 'value_type' object in this unordered multimap whose key is
+        // equivalent to the specified 'key', if such an entry exists, and the
+        // past-the-end ('end') iterator otherwise.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
             return const_iterator(d_impl.find(key));
         }
-
 
     const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the first
@@ -2238,7 +2237,6 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_size(
 
     return d_impl.countElementsInBucket(index);
 }
-
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>:: size_type

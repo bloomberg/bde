@@ -10666,7 +10666,6 @@ int main(int argc, char *argv[])
 #endif
 
         TestDriver<TestKeyType, TestValueType>::testCase4();
-
       } break;
       case 3: {
         // --------------------------------------------------------------------

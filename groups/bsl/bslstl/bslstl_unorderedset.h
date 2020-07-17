@@ -1394,9 +1394,9 @@ class unordered_set {
                       iterator>::type
     find(const LOOKUP_KEY& key)
         // Return an iterator providing modifiable access to the 'value_type'
-        // object in this set that is equivalent to the specified 'key', if
-        // such an entry exists, and the past-the-end ('end') iterator
-        // otherwise.
+        // object in this unordered set that is equivalent to the specified
+        // 'key', if such an entry exists, and the past-the-end ('end')
+        // iterator otherwise.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1405,9 +1405,9 @@ class unordered_set {
 
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the 'value_type'
-        // object in this set that is equivalent to the specified 'key', if
-        // such an entry exists, and the past-the-end ('end') iterator
-        // otherwise.
+        // object in this unordered set that is equivalent to the specified
+        // 'key', if such an entry exists, and the past-the-end ('end')
+        // iterator otherwise.
 
     template <class LOOKUP_KEY>
     typename enable_if<
@@ -1421,8 +1421,9 @@ class unordered_set {
         // positioned at the start of the sequence, and the second is
         // positioned one past the end of the sequence.  If this unordered set
         // contains no 'value_type' objects equivalent to 'key', then the two
-        // returned iterators will have the same value.  Note that since a set
-        // maintains unique keys, the range will contain at most one element.
+        // returned iterators will have the same value.  Note that since an 
+        // unordered set maintains unique keys, the range will contain at most
+        // one element.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1441,8 +1442,9 @@ class unordered_set {
         // positioned at the start of the sequence, and the second is
         // positioned one past the end of the sequence.  If this unordered set
         // contains no 'value_type' objects equivalent to 'key', then the two
-        // returned iterators will have the same value.  Note that since a set
-        // maintains unique keys, the range will contain at most one element.
+        // returned iterators will have the same value.  Note that since an
+        // unordered set maintains unique keys, the range will contain at most
+        // one element.
 
     void max_load_factor(float newLoadFactor);
         // Set the maximum load factor of this container to the specified
@@ -1520,9 +1522,9 @@ class unordered_set {
                       const_iterator>::type
     find(const LOOKUP_KEY& key) const
         // Return an iterator providing non-modifiable access to the
-        // 'value_type' object in this set that is equivalent to the specified
-        // 'key', if such an entry exists, and the past-the-end ('end')
-        // iterator otherwise.
+        // 'value_type' object in this unordered set that is equivalent to the
+        // specified 'key', if such an entry exists, and the past-the-end
+        // ('end') iterator otherwise.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1531,9 +1533,9 @@ class unordered_set {
 
     const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the
-        // 'value_type' object in this set that is equivalent to the specified
-        // 'key', if such an entry exists, and the past-the-end ('end')
-        // iterator otherwise.
+        // 'value_type' object in this unordered set that is equivalent to the
+        // specified 'key', if such an entry exists, and the past-the-end
+        // ('end') iterator otherwise.
 
     template <class LOOKUP_KEY>
     typename enable_if<
@@ -1541,9 +1543,10 @@ class unordered_set {
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       size_type>::type
     count(const LOOKUP_KEY& key) const
-        // Return the number of 'value_type' objects within this set that are
-        // equivalent to the specified 'key'.  Note that since an unordered set
-        // maintains unique keys, the returned value will be either 0 or 1.
+        // Return the number of 'value_type' objects within this unordred set
+        // that are equivalent to the specified 'key'.  Note that since an
+        // unordered set maintains unique keys, the returned value will be
+        // either 0 or 1.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1551,9 +1554,10 @@ class unordered_set {
         }
 
     size_type count(const key_type& key) const;
-        // Return the number of 'value_type' objects within this set that are
-        // equivalent to the specified 'key'.  Note that since an unordered set
-        // maintains unique keys, the returned value will be either 0 or 1.
+        // Return the number of 'value_type' objects within this unordred set
+        // that are equivalent to the specified 'key'.  Note that since an
+        // unordered set maintains unique keys, the returned value will be
+        // either 0 or 1.
 
     template <class LOOKUP_KEY>
     typename enable_if<
@@ -1562,13 +1566,14 @@ class unordered_set {
                       pair<const_iterator, const_iterator> >::type
     equal_range(const LOOKUP_KEY& key) const
         // Return a pair of iterators providing non-modifiable access to the
-        // sequence of 'value_type' objects in this set that are equivalent to
-        // the specified 'key', where the first iterator is positioned at the
-        // start of the sequence and the second iterator is positioned one past
-        // the end of the sequence.  If this set contains no 'value_type'
-        // objects equivalent to 'key', then the two returned iterators will
-        // have the same value.  Note that since a set maintains unique keys,
-        // the range will contain at most one element.
+        // sequence of 'value_type' objects in this unordered set that are
+        // equivalent to the specified 'key', where the first iterator is
+        // positioned at the start of the sequence and the second iterator is
+        // positioned one past the end of the sequence.  If this unordered set
+        // contains no 'value_type' objects equivalent to 'key', then the two
+        // returned iterators will have the same value.  Note that since an
+        // unordered set maintains unique keys, the range will contain at most
+        // one element.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1583,13 +1588,14 @@ class unordered_set {
     pair<const_iterator, const_iterator> equal_range(
                                                     const key_type& key) const;
         // Return a pair of iterators providing non-modifiable access to the
-        // sequence of 'value_type' objects in this set that are equivalent to
-        // the specified 'key', where the first iterator is positioned at the
-        // start of the sequence and the second iterator is positioned one past
-        // the end of the sequence.  If this set contains no 'value_type'
-        // objects equivalent to 'key', then the two returned iterators will
-        // have the same value.  Note that since a set maintains unique keys,
-        // the range will contain at most one element.
+        // sequence of 'value_type' objects in this unordered set that are
+        // equivalent to the specified 'key', where the first iterator is
+        // positioned at the start of the sequence and the second iterator is
+        // positioned one past the end of the sequence.  If this unordered set
+        // contains no 'value_type' objects equivalent to 'key', then the two
+        // returned iterators will have the same value.  Note that since an
+        // unordered set maintains unique keys, the range will contain at most
+        // one element.
 
     size_type bucket_count() const BSLS_KEYWORD_NOEXCEPT;
         // Return the number of buckets in the array of buckets maintained by

@@ -218,8 +218,6 @@ using bsls::NameOf;
 // [33] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 // [34] CONCERN: 'find'        properly handles transparent comparators.
 // [34] CONCERN: 'count'       properly handles transparent comparators.
-// [34] CONCERN: 'lower_bound' properly handles transparent comparators.
-// [34] CONCERN: 'upper_bound' properly handles transparent comparators.
 // [34] CONCERN: 'equal_range' properly handles transparent comparators.
 
 // ============================================================================
@@ -1485,7 +1483,7 @@ void testTransparentComparator(Container& container,
     }
 
     ASSERT(expectedConversionCount == existingKey.conversionCount());
-    ASSERT(EXPECTED_C == 
+    ASSERT(EXPECTED_C ==
      static_cast<Count>(bsl::distance(EXISTING_ER.first, EXISTING_ER.second)));
 
     for (Iterator it = EXISTING_ER.first; it != EXISTING_ER.second; ++it) {
@@ -7867,8 +7865,6 @@ int main(int argc, char *argv[])
         // Testing:
         //   CONCERN: 'find'        properly handles transparent comparators
         //   CONCERN: 'count'       properly handles transparent comparators
-        //   CONCERN: 'lower_bound' properly handles transparent comparators
-        //   CONCERN: 'upper_bound' properly handles transparent comparators
         //   CONCERN: 'equal_range' properly handles transparent comparators
         // --------------------------------------------------------------------
 
@@ -7876,7 +7872,7 @@ int main(int argc, char *argv[])
                                  "==============================" "\n");
 
         typedef bsl::unordered_set<int>                      NonTransparentSet;
-        typedef bsl::unordered_set<int, 
+        typedef bsl::unordered_set<int,
                    TransparentHasher, TransparentComparator> TransparentSet;
 
         const int DATA[] = { 0, 1, 2, 3, 4 };

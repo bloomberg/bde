@@ -209,8 +209,6 @@ using bsls::NameOf;
 // [35] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 // [36] CONCERN: 'find'        properly handles transparent comparators.
 // [36] CONCERN: 'count'       properly handles transparent comparators.
-// [36] CONCERN: 'lower_bound' properly handles transparent comparators.
-// [36] CONCERN: 'upper_bound' properly handles transparent comparators.
 // [36] CONCERN: 'equal_range' properly handles transparent comparators.
 
 // ============================================================================
@@ -7679,8 +7677,6 @@ int main(int argc, char *argv[])
         // Testing:
         //   CONCERN: 'find'        properly handles transparent comparators.
         //   CONCERN: 'count'       properly handles transparent comparators.
-        //   CONCERN: 'lower_bound' properly handles transparent comparators.
-        //   CONCERN: 'upper_bound' properly handles transparent comparators.
         //   CONCERN: 'equal_range' properly handles transparent comparators.
         // --------------------------------------------------------------------
 

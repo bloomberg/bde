@@ -1094,7 +1094,7 @@ class unordered_multiset
                       iterator>::type
     find(const LOOKUP_KEY& key)
         // Return an iterator providing modifiable access to the first
-        // 'value_type' object in the sequence of all the value-elements of
+        // 'value_type' object in the sequence of all the value elements of
         // this unordered multiset equivalent to the specified 'key', if such
         // entries exist, and the past-the-end ('end') iterator otherwise.
         //
@@ -1105,7 +1105,7 @@ class unordered_multiset
 
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the first
-        // 'value_type' object in the sequence of all the value-elements of
+        // 'value_type' object in the sequence of all the value elements of
         // this unordered multiset equivalent to the specified 'key', if such
         // entries exist, and the past-the-end ('end') iterator otherwise.
 
@@ -1579,7 +1579,7 @@ class unordered_multiset
                       const_iterator>::type
     find(const LOOKUP_KEY& key) const
         // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object in the sequence of all the value-elements of
+        // 'value_type' object in the sequence of all the value elements of
         // this unordered multiset equivalent to the specified 'key', if such
         // entries exist, and the past-the-end ('end') iterator otherwise.
         //
@@ -1590,7 +1590,7 @@ class unordered_multiset
 
     const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object in the sequence of all the value-elements of
+        // 'value_type' object in the sequence of all the value elements of
         // this unordered multiset equivalent to the specified 'key', if such
         // entries exist, and the past-the-end ('end') iterator otherwise.
 
@@ -1600,12 +1600,8 @@ class unordered_multiset
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       size_type>::type
     count(const LOOKUP_KEY& key) const
-        // Return the number of 'value_type' objects within this set that are
-        // equivalent to the specified 'key'.  Note that although a set
-        // maintains unique keys, the returned value can be other than 0 or 1,
-        // because a transparent comparator may have been supplied that
-        // provides a different (but compatible) partitioning of keys for
-        // 'LOOKUP_KEY' as the comparisons used to order the keys in the set.
+        // Return the number of 'value_type' objects within this unordered
+        // multiset that are equivalent to the specified 'key'.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1725,7 +1721,7 @@ bool operator==(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
                 const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'unordered_multiset' objects have the
-    // same value if they have the same number of value-elements, and for each
+    // same value if they have the same number of value elements, and for each
     // value-element that is contained in 'lhs' there is a value-element
     // contained in 'rhs' having the same value, and vice-versa.  Note that
     // this method requires that the (template parameter) type 'KEY' be
@@ -1737,7 +1733,7 @@ bool operator!=(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'unordered_multiset' objects do
     // not have the same value if they do not have the same number of
-    // value-elements, or that for some value-element contained in 'lhs' there
+    // value elements, or that for some value-element contained in 'lhs' there
     // is not a value-element in 'rhs' having the same value, and vice-versa.
     // Note that this method requires that the (template parameter) type 'KEY'
     // and be 'equality-comparable' (see {Requirements on 'KEY'}).

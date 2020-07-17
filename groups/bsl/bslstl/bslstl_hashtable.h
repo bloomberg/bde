@@ -2942,7 +2942,7 @@ class HashTable {
         // addresses of the first and last link (in the list of elements owned
         // by this hash table) where the contained elements have a key that
         // compares equal to the specified 'key' using the 'comparator' of this
-        // hash-table, and null pointers values if there are no elements
+        // hash-table, and null pointer values if there are no elements
         // matching 'key'.  Note that the output values will form a closed
         // range, where both 'first' and 'last' point to links satisfying the
         // predicate (rather than a semi-open range where 'last' would point to
@@ -2965,7 +2965,7 @@ class HashTable {
         // addresses of the first and last link (in the list of elements owned
         // by this hash table) where the contained elements have a key that
         // compares equal to the specified 'key' using the 'comparator' of this
-        // hash-table, and null pointers values if there are no elements
+        // hash-table, and null pointer values if there are no elements
         // matching 'key'.  Note that the output values will form a closed
         // range, where both 'first' and 'last' point to links satisfying the
         // predicate (rather than a semi-open range where 'last' would point to
@@ -7066,7 +7066,6 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findEndOfRange(
     }
     return first;
 }
-
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline

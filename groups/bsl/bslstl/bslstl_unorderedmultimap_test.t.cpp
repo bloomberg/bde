@@ -205,8 +205,6 @@ using bsls::NameOf;
 // [37] CONCERN: 'erase' overload is deduced correctly.
 // [38] CONCERN: 'find'        properly handles transparent comparators.
 // [38] CONCERN: 'count'       properly handles transparent comparators.
-// [38] CONCERN: 'lower_bound' properly handles transparent comparators.
-// [38] CONCERN: 'upper_bound' properly handles transparent comparators.
 // [38] CONCERN: 'equal_range' properly handles transparent comparators.
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1272,7 +1270,7 @@ void testTransparentComparator(Container& container,
     }
 
     ASSERT(expectedConversionCount == existingKey.conversionCount());
-    ASSERT(EXPECTED_C == 
+    ASSERT(EXPECTED_C ==
      static_cast<Count>(bsl::distance(EXISTING_ER.first, EXISTING_ER.second)));
 
     for (Iterator it = EXISTING_ER.first; it != EXISTING_ER.second; ++it) {
@@ -6870,16 +6868,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
     //   iterator find(const key_type& key);
     //   const_iterator find(const key_type& key) const;
     //
-    //   template <class K2>
-    //     size_type count(const K2& key) const;
-    //   template <class K2>
-    //     bsl::pair<iterator, iterator> equal_range(const K2& key);
-    //   template <class K2>
-    //     bsl::pair<const_iter, const_iter> equal_range(const K2&) const;
-    //   template <class K2>
-    //     iterator find(const K2& key);
-    //   template <class K2>
-    //     const_iterator find(const K2& key) const;
     // ------------------------------------------------------------------------
 
     typedef bsl::pair<Iter, Iter>   Range;
@@ -7194,8 +7182,6 @@ int main(int argc, char *argv[])
         // Testing:
         //   CONCERN: 'find'        properly handles transparent comparators.
         //   CONCERN: 'count'       properly handles transparent comparators.
-        //   CONCERN: 'lower_bound' properly handles transparent comparators.
-        //   CONCERN: 'upper_bound' properly handles transparent comparators.
         //   CONCERN: 'equal_range' properly handles transparent comparators.
         // --------------------------------------------------------------------
 
@@ -7205,7 +7191,7 @@ int main(int argc, char *argv[])
         typedef bsl::unordered_multimap<int, int>
                                                         NonTransparentMultimap;
         typedef NonTransparentMultimap::value_type      Value;
-        typedef bsl::unordered_multimap<int, int, 
+        typedef bsl::unordered_multimap<int, int,
                                   TransparentHasher, TransparentComparator>
                                                         TransparentMultimap;
 
