@@ -13,6 +13,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_cfloat.h>
 #include <bsl_climits.h>
 #include <bsl_iostream.h>
@@ -616,7 +617,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 That the tokenizer can accurately detect and report invalid
         //:   UTF-8.
-        //:   o The tokenizer accurately idenifies the type of error.
+        //:   o The tokenizer accurately identifies the type of error.
         //:
         //:   o The tokenizer accurately identifies the offset of the error.
         //:
@@ -628,8 +629,8 @@ int main(int argc, char *argv[])
         //:
         // Plan:
         //: 1 Create large table, 'UTF8_DATA' contain valid and invalid UTF-8
-        //:   sequence, include a very large valid sequence that nearly fills
-        //:   up the buffer.
+        //:   sequences, including a very large valid sequence that nearly
+        //:   fills up the buffer.
         //:
         //: 2 Iterate through the table, visiting only valid UTF-8 strings.
         //:   o Nest a loop iterating through the same table, again visting
@@ -640,7 +641,7 @@ int main(int argc, char *argv[])
         //:
         //:   o Initialize a stringstream to the spliced string.
         //:
-        //:   o Reset the tokenizer to the stringstreams 'streambuf'.
+        //:   o Reset the tokenizer to the stringstream's 'streambuf'.
         //:
         //:   o Call 'advanceToNextToken' and observe:
         //:     1 It returns 0.
@@ -6229,6 +6230,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int advanceToNextToken();
+        //   TokenType tokenType() const;
+        //   int value(bslstl::StringRef *data) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

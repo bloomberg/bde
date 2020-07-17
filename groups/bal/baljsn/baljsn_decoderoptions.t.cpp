@@ -1085,6 +1085,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   int  maxDepth() const;
         //   bool skipUnknownElements() const;
+        //   bool validateInputIsUtf8() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1203,6 +1204,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   setMaxDepth(int value);
         //   setSkipUnknownElements(int value);
+        //   setValidateInputIsUtf8(bool value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

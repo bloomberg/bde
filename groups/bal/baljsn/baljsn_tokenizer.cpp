@@ -88,13 +88,14 @@ int Tokenizer::reloadStringBuffer()
                                                &d_stringBuffer[0],
                                                k_MAX_STRING_SIZE,
                                                d_streambuf_p);
-        if (0 < sts) {
-            // should be buffer full
 
-            BSLS_ASSERT(k_MAX_STRING_SIZE < numRead + 4);
-        }
-        else if (sts < 0) {
+        if (sts < 0) {
             d_bufEndStatus = sts;
+        }
+        else {
+            // should be success or buffer full
+
+            BSLS_ASSERT(0 == sts || k_MAX_STRING_SIZE < numRead + 4);
         }
     }
 
@@ -130,13 +131,13 @@ int Tokenizer::expandBufferForLargeValue()
                                                &d_stringBuffer[d_valueIter],
                                                k_MAX_STRING_SIZE,
                                                d_streambuf_p);
-        if (0 < sts) {
-            // should be buffer full
-
-            BSLS_ASSERT(k_MAX_STRING_SIZE < numRead + 4);
-        }
-        else if (sts < 0) {
+        if (sts < 0) {
             d_bufEndStatus = sts;
+        }
+        else {
+            // should be success or buffer full
+
+            BSLS_ASSERT(0 == sts || k_MAX_STRING_SIZE < numRead + 4);
         }
     }
 
@@ -175,13 +176,14 @@ int Tokenizer::moveValueCharsToStartAndReloadBuffer()
                                                &d_stringBuffer[d_valueIter],
                                                k_MAX_STRING_SIZE - d_valueIter,
                                                d_streambuf_p);
-        if (0 < sts) {
-            // should be buffer full
-
-            BSLS_ASSERT(k_MAX_STRING_SIZE - d_valueIter < numRead + 4);
-        }
-        else if (sts < 0) {
+        if (sts < 0) {
             d_bufEndStatus = sts;
+        }
+        else {
+            // should be success or buffer full
+
+            BSLS_ASSERT(0 == sts ||
+                                k_MAX_STRING_SIZE - d_valueIter < numRead + 4);
         }
     }
 

@@ -241,7 +241,7 @@ class Tokenizer {
 
     int                 d_bufEndStatus;     // status of last read from
                                             // '*d_streambuf_p'.  If non-zero,
-                                            // opied to 'd_readStatus' on next
+                                            // copied to 'd_readStatus' on next
                                             // read attempt.
 
     bool                d_allowStandAloneValues;
@@ -324,8 +324,7 @@ class Tokenizer {
 
     // MANIPULATORS
     void reset(bsl::streambuf *streambuf);
-        // Reset this tokenizer to read data from the specified 'streambuf' and
-        // set 'd_d_allowNonUTF8Tokens' to the specified 'allowNonUTF8Tokens'.
+        // Reset this tokenizer to read data from the specified 'streambuf'.
         // Note that the reader will not be on a valid node until
         // 'advanceToNextToken' is called.  Note that this function does not
         // change the value of the 'allowStandAloneValues',
@@ -387,21 +386,23 @@ class Tokenizer {
         // tokenizer.
 
     bsls::Types::Uint64 readOffset() const;
-        // If end of file or bad UTF-8 is encountered, the position in the
-        // 'streambuf' of the end of file of the beginning of the bad UTF-8
-        // sequence.  The position will be relative to the position when
-        // 'reset' was called.
+        // Return the position relative to when 'reset' was called.  If end of
+        // file or bad UTF-8 has been encountered, the position relative to
+        // when 'reset' was called of the end of file or of the beginning of
+        // the start of the bad UTF-8 sequence is returned.
 
     int readStatus() const;
-        // The status of the last read from the 'Tokenizer'.
-        //: o 0 if a token was read.
+        // Return the status of the last call to 'advanceToNextToken':
+        //: o 0 if 'advanceToNextToken' has not been called or if a token was
+        //:   successfully read.
         //:
-        //: o 'k_EOF' (which is positive) if no data could be read before EOF.
+        //: o 'k_EOF' (which is positive) if no data could be read before
+        //:   reaching EOF.
         //:
-        //: o negative if the 'validateInputIsUtf8' option is 'true' and a
-        //:   UTF-8 error occurred, the specific value according to the
-        //:   'bdlde::Utf8Util:: ErrorStatus' 'enum' type indicating the nature
-        //:   of the UTF-8 error.
+        //: o a negative value if the 'validateInputIsUtf8' option is 'true'
+        //:   and a UTF-8 error occurred.  The specific value returned will be
+        //:   one of the enumerators of the 'bdlde::Utf8Util::ErrorStatus'
+        //:   'enum' type indicating the nature of the UTF-8 error.
 
     TokenType tokenType() const;
         // Return the token type of the current token.
@@ -533,9 +534,9 @@ bool Tokenizer::allowNonUTF8Tokens() const
 }
 
 inline
-Tokenizer::TokenType Tokenizer::tokenType() const
+bsls::Types::Uint64 Tokenizer::readOffset() const
 {
-    return d_tokenType;
+    return d_readOffset;
 }
 
 inline
@@ -545,9 +546,9 @@ int Tokenizer::readStatus() const
 }
 
 inline
-bsls::Types::Uint64 Tokenizer::readOffset() const
+Tokenizer::TokenType Tokenizer::tokenType() const
 {
-    return d_readOffset;
+    return d_tokenType;
 }
 
 }  // close package namespace
