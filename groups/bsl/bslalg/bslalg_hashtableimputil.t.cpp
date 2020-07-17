@@ -49,10 +49,10 @@ using namespace BloombergLP::bslalg;
 // ----------------------------------------------------------------------------
 // [  ] ...
 // ----------------------------------------------------------------------------
-// [13] findTransparent(const HashTableAnchor& a, key, comparator, size_t h);
 // [10] remove(HashTableAnchor *a, BidirectionalLink *l, size_t  h);
 // [10] bucketContainsLink(const Bucket& b, BidirectionalLink *l);
 // [ 9] find(const HashTableAnchor& a, KeyType& key, comparator, size_t h);
+// [12] findTransparent(const HashTableAnchor& a, key, comparator, size_t h);
 // [ 8] rehash(  HashTableAnchor *a, BidirectionalLink *r, const HASHER& h);
 // [ 7] isWellFormed(const HashTableAnchor& anchor, bslma::Allocator *a = 0);
 // [ 6] insertAtPosition(Anchor *a, Link *l, size_t h, Link  *p);
@@ -257,19 +257,19 @@ struct Equals {
 
 
 struct IntHolder {
-    IntHolder(int v) : value(v) {}
-    int value;
+    int d_value;   // PUBLIC DATA
+    explicit IntHolder(int v) : d_value(v) {}
 };
 
 struct TransparentEquals {
     typedef void is_transparent;
-    bool operator()(const int & lhs, const IntHolder & rhs) const
+    bool operator()(const int& lhs, const IntHolder& rhs) const
     {
-        return lhs == rhs.value;
+        return lhs == rhs.d_value;
     }
-    bool operator()(const IntHolder &lhs, const int & rhs) const
+    bool operator()(const IntHolder& lhs, const int& rhs) const
     {
-        return lhs.value == rhs;
+        return lhs.d_value == rhs;
     }
 };
 
@@ -698,6 +698,87 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 13: {
         // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //   Demonstrate the functioning of this component.
+        //
+        // Plan:
+        //   Create a hash table using the functions in this component and
+        //   'HashTableAnchor'.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+//..
+// Then, we declare a test allocator and make it the default allocator to use
+// during our example, to observe if we leak any memory:
+//..
+        bslma::TestAllocator da("defaultAllocator");
+        bslma::DefaultAllocatorGuard defaultGuard(&da);
+//..
+// Next, in 'main', we create an instance of our 'HashSet' type, configured to
+// contain 'const char *' strings:
+//..
+        HashSet<const char *, StringHash, StringEqual> hs;
+//..
+// Then, we insert a few values:
+//..
+        ASSERT(1 == hs.insert("woof"));
+        ASSERT(1 == hs.insert("arf"));
+        ASSERT(1 == hs.insert("meow"));
+//..
+// Next, we attempt to insert a redundant value, and observe that the 'insert'
+// mthod returns 'false' to indicate that the insert was refused:
+//..
+        ASSERT(0 == hs.insert("woof"));
+//..
+// Then, we use to 'size' method to observe that there are 3 strings stored in
+// our 'HashSet':
+//..
+        ASSERT(3 == hs.size());
+//..
+// Next, we use the 'count' method to observe, specifically, which strings are
+// and are not in our 'HashSet':
+//..
+        ASSERT(1 == hs.count("woof"));
+        ASSERT(1 == hs.count("arf"));
+        ASSERT(1 == hs.count("meow"));
+        ASSERT(0 == hs.count("ruff"));
+        ASSERT(0 == hs.count("chomp"));
+//..
+// Then, we attempt to erase a string which is not in our 'HashSet' and observe
+// that 'false' is returned, which tells us the 'erase' attempt was
+// unsuccesful:
+//..
+        ASSERT(0 == hs.erase("ruff"));
+//..
+// Next, we erase the string "meow", which is stored in our 'HashSet' and
+// observe that 'true' is returned, telling us the 'erase' attempt succeeded:
+//..
+        ASSERT(1 == hs.erase("meow"));
+//..
+// Now, we use the 'size' method to verify there are 2 strings remaining in our
+// 'HashSet':
+//..
+        ASSERT(2 == hs.size());
+//..
+// Finally, we use the 'count' method to observe specifically which strings are
+// still in our 'HashSet'.  Note that "meow" is no longer there.  We observe
+// that the default allocator was never used.  When we leave the block, our
+// 'HashSet' will be destroyed, freeing its memory, then our 'TestAllocator'
+// will be destroyed, verifying that our destructor worked correctly and that
+// no memory was leaked:
+//..
+        ASSERT(1 == hs.count("woof"));
+        ASSERT(1 == hs.count("arf"));
+        ASSERT(0 == hs.count("meow"));
+        ASSERT(0 == hs.count("ruff"));
+        ASSERT(0 == hs.count("chomp"));
+//..
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
         // TESTING 'findTransparent'
         // --------------------------------------------------------------------
 
@@ -809,87 +890,6 @@ int main(int argc, char *argv[])
                 oa.deallocate(links[i]);
             }
         }
-      } break;
-      case 12: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //
-        // Concern:
-        //   Demonstrate the functioning of this component.
-        //
-        // Plan:
-        //   Create a hash table using the functions in this component and
-        //   'HashTableAnchor'.
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============\n");
-//..
-// Then, we declare a test allocator and make it the default allocator to use
-// during our example, to observe if we leak any memory:
-//..
-        bslma::TestAllocator da("defaultAllocator");
-        bslma::DefaultAllocatorGuard defaultGuard(&da);
-//..
-// Next, in 'main', we create an instance of our 'HashSet' type, configured to
-// contain 'const char *' strings:
-//..
-        HashSet<const char *, StringHash, StringEqual> hs;
-//..
-// Then, we insert a few values:
-//..
-        ASSERT(1 == hs.insert("woof"));
-        ASSERT(1 == hs.insert("arf"));
-        ASSERT(1 == hs.insert("meow"));
-//..
-// Next, we attempt to insert a redundant value, and observe that the 'insert'
-// mthod returns 'false' to indicate that the insert was refused:
-//..
-        ASSERT(0 == hs.insert("woof"));
-//..
-// Then, we use to 'size' method to observe that there are 3 strings stored in
-// our 'HashSet':
-//..
-        ASSERT(3 == hs.size());
-//..
-// Next, we use the 'count' method to observe, specifically, which strings are
-// and are not in our 'HashSet':
-//..
-        ASSERT(1 == hs.count("woof"));
-        ASSERT(1 == hs.count("arf"));
-        ASSERT(1 == hs.count("meow"));
-        ASSERT(0 == hs.count("ruff"));
-        ASSERT(0 == hs.count("chomp"));
-//..
-// Then, we attempt to erase a string which is not in our 'HashSet' and observe
-// that 'false' is returned, which tells us the 'erase' attempt was
-// unsuccesful:
-//..
-        ASSERT(0 == hs.erase("ruff"));
-//..
-// Next, we erase the string "meow", which is stored in our 'HashSet' and
-// observe that 'true' is returned, telling us the 'erase' attempt succeeded:
-//..
-        ASSERT(1 == hs.erase("meow"));
-//..
-// Now, we use the 'size' method to verify there are 2 strings remaining in our
-// 'HashSet':
-//..
-        ASSERT(2 == hs.size());
-//..
-// Finally, we use the 'count' method to observe specifically which strings are
-// still in our 'HashSet'.  Note that "meow" is no longer there.  We observe
-// that the default allocator was never used.  When we leave the block, our
-// 'HashSet' will be destroyed, freeing its memory, then our 'TestAllocator'
-// will be destroyed, verifying that our destructor worked correctly and that
-// no memory was leaked:
-//..
-        ASSERT(1 == hs.count("woof"));
-        ASSERT(1 == hs.count("arf"));
-        ASSERT(0 == hs.count("meow"));
-        ASSERT(0 == hs.count("ruff"));
-        ASSERT(0 == hs.count("chomp"));
-//..
       } break;
       case 11: {
         // --------------------------------------------------------------------

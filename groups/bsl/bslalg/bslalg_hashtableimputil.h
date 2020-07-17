@@ -726,10 +726,10 @@ struct HashTableImpUtil {
                                         const KEY_EQUAL&       equalityFunctor,
                                         native_std::size_t     hashCode);
         // Return the address of the first link in the list element of the
-        // specified 'anchor', having a value matching (according to the
+        // specified 'anchor' having a value matching (according to the
         // specified transparent 'equalityFunctor') the specified 'key' in the
         // bucket that holds elements with the specified 'hashCode' if such a
-        // link exists,and return 0 otherwise.  The behavior is undefined
+        // link exists, and return 0 otherwise.  The behavior is undefined
         // unless, for the provided 'KEY_CONFIG' and some hash function,
         // 'HASHER', 'anchor' is well-formed (see 'isWellFormed') and
         // 'HASHER(key)' returns 'hashCode'.  'KEY_CONFIG' shall be a
@@ -873,10 +873,10 @@ BidirectionalLink *HashTableImpUtil::find(
 template <class KEY_CONFIG, class LOOKUP_KEY, class KEY_EQUAL>
 inline
 BidirectionalLink *HashTableImpUtil::findTransparent(
-  const HashTableAnchor&                                       anchor,
-  const LOOKUP_KEY&                                            key,
-  const KEY_EQUAL&                                             equalityFunctor,
-  native_std::size_t                                           hashCode)
+  const HashTableAnchor& anchor,
+  const LOOKUP_KEY&      key,
+  const KEY_EQUAL&       equalityFunctor,
+  native_std::size_t     hashCode)
 {
     BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
     BSLS_ASSERT_SAFE(anchor.bucketArraySize());
