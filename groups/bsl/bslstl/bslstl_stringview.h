@@ -204,7 +204,7 @@ BSLS_IDENT("$Id: $")
 #include <string>      // for 'native_std::char_traits'
 #include <functional>  // for 'native_std::less', 'native_std::greater_equal'
 
-//#define BDE_DISABLE_CPP17_ABI  // Temporary workaround before switching to cpp17
+// No longer allow ABI override.
 #undef BDE_DISABLE_CPP17_ABI
 
 #ifndef BDE_DISABLE_CPP17_ABI
@@ -229,8 +229,8 @@ using native_std::operator>=;
 
 }
 #define BSLSTL_STRING_VIEW_IS_ALIASED
-#else
-#error "Must be at least c++17"
+#elif defined(BSLS_PLATFORM_OS_LINUX)
+#error "BDE requires at least C++17 for ABI compatibility on Linux systems."
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #endif  // BDE_DISABLE_CPP17_ABI
 
