@@ -133,7 +133,23 @@ SmallSequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
 }
 
 SmallSequentialPool::
-SmallSequentialPool(int initialSize, bslma::Allocator *basicAllocator)
+SmallSequentialPool(int initialSize)
+: d_buffer()
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_initialSize(initialSize)
+, d_geometricSize(initialSize)
+, d_maxBufferSize(INT_MAX)
+, d_blockList(0)
+, d_largeBlockList(0)
+{
+    BSLS_ASSERT(0 < initialSize);
+
+    char *buffer = static_cast<char *>(d_blockList.allocate(initialSize));
+    d_buffer.replaceBuffer(buffer, initialSize);
+}
+
+SmallSequentialPool::
+SmallSequentialPool(bsl::size_t initialSize, bslma::Allocator *basicAllocator)
 : d_buffer()
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_initialSize(initialSize)

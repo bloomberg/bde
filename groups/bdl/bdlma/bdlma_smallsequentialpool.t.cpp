@@ -60,22 +60,23 @@ using namespace bsl;
 // memory had been released by the destructor of the pool.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 3] SmallSequentialPool(bslma::Allocator *a = 0);
-// [ 3] SmallSequentialPool(GS g, bslma::Allocator *a = 0);
-// [ 3] SmallSequentialPool(AS a, bslma::Allocator *a = 0);
-// [ 3] SmallSequentialPool(GS g, AS a, bslma::Allocator *a = 0);
+// [ 3] SmallSequentialPool(*a = 0);
+// [ 3] SmallSequentialPool(GS g, *a = 0);
+// [ 3] SmallSequentialPool(AS a, *a = 0);
+// [ 3] SmallSequentialPool(GS g, AS a, *a = 0);
 //
-// [ 3] SmallSequentialPool(int i, bslma::Allocator *a = 0);
-// [ 3] SmallSequentialPool(int i, GS g, bslma::Allocator *a = 0);
-// [ 3] SmallSequentialPool(int i, AS a, bslma::Allocator *a = 0);
-// [ 3] SmallSequentialPool(int i, GS g, AS a, bslma::Allocator *a = 0);
+// [ 3] SmallSequentialPool(int  i);
+// [ 3] SmallSequentialPool(size i, *a = 0);
+// [ 3] SmallSequentialPool(size i, GS g, *a = 0);
+// [ 3] SmallSequentialPool(size i, AS a, *a = 0);
+// [ 3] SmallSequentialPool(size i, GS g, AS a, *a = 0);
 //
-// [ 3] SmallSequentialPool(int i, int m, bslma::Allocator *a = 0);
-// [ 3] SmallSequentialPool(int i, int m, GS g, bslma::Allocator *a = 0);
-// [ 3] SmallSequentialPool(int i, int m, AS a, bslma::Allocator *a = 0);
-// [ 3] SmallSequentialPool(int i, int m, GS g, AS a, *a = 0);
+// [ 3] SmallSequentialPool(size i, int m, *a = 0);
+// [ 3] SmallSequentialPool(size i, int m, GS g, *a = 0);
+// [ 3] SmallSequentialPool(size i, int m, AS a, *a = 0);
+// [ 3] SmallSequentialPool(size i, int m, GS g, AS a, *a = 0);
 //
-// [ 3] SmallSequentialPool(int i, int m, GS g, AS a, bool aIB, *a = 0);
+// [ 3] SmallSequentialPool(size i, int m, GS g, AS a, bool aIB, *a = 0);
 //
 // [ 3] ~SmallSequentialPool();
 //
@@ -85,8 +86,8 @@ using namespace bsl;
 // [ 6] void deleteObjectRaw(const TYPE *object);
 // [ 6] void deleteObject(const TYPE *object);
 // [ 5] void release();
-// [ 5] void rewind();
 // [ 9] void reserveCapacity(int numBytes);
+// [ 5] void rewind();
 // [ 8] int truncate(void *address, int originalSize, int newSize);
 //
 // FREE OPERATORS
@@ -2626,22 +2627,23 @@ int main(int argc, char *argv[])
         //:   triggered.  (C-7)
         //
         // Testing:
-        //   SmallSequentialPool(bslma::Allocator *a = 0);
-        //   SmallSequentialPool(GS g, bslma::Allocator *a = 0);
-        //   SmallSequentialPool(AS a, bslma::Allocator *a = 0);
-        //   SmallSequentialPool(GS g, AS a, bslma::Allocator *a = 0);
+        //   SmallSequentialPool(*a = 0);
+        //   SmallSequentialPool(GS g, *a = 0);
+        //   SmallSequentialPool(AS a, *a = 0);
+        //   SmallSequentialPool(GS g, AS a, *a = 0);
         //
-        //   SmallSequentialPool(int i, bslma::Allocator *a = 0);
-        //   SmallSequentialPool(int i, GS g, bslma::Allocator *a = 0);
-        //   SmallSequentialPool(int i, AS a, bslma::Allocator *a = 0);
-        //   SmallSequentialPool(int i, GS g, AS a, bslma::Allocator *a = 0);
+        //   SmallSequentialPool(int  i);
+        //   SmallSequentialPool(size i, *a = 0);
+        //   SmallSequentialPool(size i, GS g, *a = 0);
+        //   SmallSequentialPool(size i, AS a, *a = 0);
+        //   SmallSequentialPool(size i, GS g, AS a, *a = 0);
         //
-        //   SmallSequentialPool(int i, int m, bslma::Allocator *a = 0);
-        //   SmallSequentialPool(int i, int m, GS g, bslma::Allocator *a = 0);
-        //   SmallSequentialPool(int i, int m, AS a, bslma::Allocator *a = 0);
-        //   SmallSequentialPool(int i, int m, GS g, AS a, *a = 0);
+        //   SmallSequentialPool(size i, int m, *a = 0);
+        //   SmallSequentialPool(size i, int m, GS g, *a = 0);
+        //   SmallSequentialPool(size i, int m, AS a, *a = 0);
+        //   SmallSequentialPool(size i, int m, GS g, AS a, *a = 0);
         //
-        //   SmallSequentialPool(int i, int m, GS g, AS a, bool aIB, *a = 0);
+        //   SmallSequentialPool(size i, int m, GS g, AS a, bool aIB, *a = 0);
         //
         //   ~SmallSequentialPool();
         // --------------------------------------------------------------------

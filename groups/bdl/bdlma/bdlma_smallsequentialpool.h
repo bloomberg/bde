@@ -596,6 +596,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignment.h>
 #include <bsls_assert.h>
 #include <bsls_blockgrowth.h>
+#include <bsls_keyword.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -645,8 +646,9 @@ class SmallSequentialPool {
                                            // blocks exceeding growth strategy
   private:
     // NOT IMPLEMENTED
-    SmallSequentialPool(const SmallSequentialPool&);             // = delete
-    SmallSequentialPool& operator=(const SmallSequentialPool&);  // = delete
+    SmallSequentialPool(const SmallSequentialPool&)       BSLS_KEYWORD_DELETED;
+    SmallSequentialPool& operator=(const SmallSequentialPool&)
+                                                          BSLS_KEYWORD_DELETED;
 
   private:
     // PRIVATE MANIPULATORS
@@ -697,7 +699,9 @@ class SmallSequentialPool {
         // implementation-defined value.
 
     explicit
-    SmallSequentialPool(int                          initialSize,
+    SmallSequentialPool(int                          initialSize);
+    explicit
+    SmallSequentialPool(bsl::size_t                  initialSize,
                         bslma::Allocator            *basicAllocator = 0);
     SmallSequentialPool(bsl::size_t                  initialSize,
                         bsls::BlockGrowth::Strategy  growthStrategy,
