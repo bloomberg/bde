@@ -27,5 +27,3 @@ bdlma_multipoolallocator
 bdlma_pool
 bdlma_sequentialallocator
 bdlma_sequentialpool
-bdlma_smallsequentialallocator
-bdlma_smallsequentialpool
