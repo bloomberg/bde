@@ -102,3 +102,6 @@ bsl_cstdbool.h
 bsl_cstdint.h
 bsl_ctgmath.h
 bsl_cuchar.h
+
+# C++17 headers
+bsl_string_view.h

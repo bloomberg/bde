@@ -192,6 +192,9 @@ class StringRefData : public bsl::basic_string_view<CHAR_TYPE> {
         // attribute values.  The behavior is undefined unless 'begin <= end'
         // and '!begin == !end'.
 
+    StringRefData(const bsl::basic_string_view<CHAR_TYPE>& view);
+        // Create a 'StringRefData' object from the specified 'view'.
+
     //! StringRefData(const StringRefData&) = default;
     //! ~StringRefData() = default;
 
@@ -236,6 +239,14 @@ StringRefData<CHAR_TYPE>
 {
     BSLS_ASSERT_SAFE(begin <= end);
     BSLS_ASSERT_SAFE(!begin == !end);
+}
+
+template <class CHAR_TYPE>
+inline
+StringRefData<CHAR_TYPE>
+    ::StringRefData(const bsl::basic_string_view<CHAR_TYPE>& view)
+: Base(view)
+{
 }
 
 }  // close package namespace

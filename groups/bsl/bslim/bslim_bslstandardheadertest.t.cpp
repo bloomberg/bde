@@ -102,6 +102,7 @@
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
 #include <bsl_strstream.h>
+#include <bsl_string_view.h>      // C++17 header ported to C++03
 #include <bsl_system_error.h>     // C++11 header ported to C++03
 #include <bsl_typeindex.h>        // C++11 header ported to C++03
 #include <bsl_typeinfo.h>
