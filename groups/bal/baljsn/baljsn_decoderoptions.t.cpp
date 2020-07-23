@@ -34,10 +34,12 @@ using namespace bsl;
 // Primary Manipulators:
 //: o 'setMaxDepth'
 //: o 'setSkipUnknownElements'
+//: o 'setValidateInputIsUtf8'
 //
 // Basic Accessors:
 //: o 'maxDepth'
 //: o 'skipUnknownElements'
+//: o 'validateInputIsUtf8'
 //
 // Certain standard value-semantic-type test cases are omitted:
 //: o [ 8] -- 'swap' is not implemented for this class.
@@ -64,11 +66,13 @@ using namespace bsl;
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 // [ 3] setMaxDepth(int value);
 // [ 3] setSkipUnknownElements(bool value);
+// [ 3] setValidateInputIsUtf8(bool value);
 //
 // ACCESSORS
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 4] int  maxDepth() const;
 // [ 4] bool skipUnknownElements() const;
+// [ 4] bool validateInputIsUtf8() const;
 //
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
@@ -162,27 +166,35 @@ struct DefaultDataRow {
     int         d_line;           // source line number
     int         d_maxDepth;
     bool        d_skipUnknownElements;
+    bool        d_validateInputIsUtf8;
 };
 
 static
 const DefaultDataRow DEFAULT_DATA[] =
 {
-    //LINE  MAX_DEPTH   SKIP_ELEMS
-    //----  ---------   ----------
+    //LINE  MAX_DEPTH   SKIP_ELEMS   VALID_UTF8
+    //----  ---------   ----------   ----------
 
     // default (must be first)
-    { L_,        32,    true },
+    { L_,        32,    true,        false },
+    { L_,        32,    true,        true  },
+    { L_,        32,    false,       false },
+    { L_,        32,    false,       true  },
 
-    // 'maxDepth'
-    { L_,         1,  false },
-    { L_,   INT_MAX,  false },
+    { L_,         1,   false,        true  },
+    { L_,         1,    true,        true  },
+    { L_,         1,   false,        false },
+    { L_,         1,    true,        false },
 
-    // 'skipUnknownElements'
-    { L_,         0,   true },
+    { L_,   INT_MAX,   false,        true  },
+    { L_,   INT_MAX,    true,        true  },
+    { L_,   INT_MAX,   false,        false },
+    { L_,   INT_MAX,    true,        false },
 
-    // other
-    { L_,         1,   true },
-    { L_,   INT_MAX,   true },
+    { L_,         0,   false,        true  },
+    { L_,         0,    true,        true  },
+    { L_,         0,   false,        false },
+    { L_,         0,    true,        false },
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
@@ -386,16 +398,19 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE1    = DATA[ti].d_line;
-            const int   DEPTH1  = DATA[ti].d_maxDepth;
-            const int   SKIP1     = DATA[ti].d_skipUnknownElements;
+            const int   DEPTH1   = DATA[ti].d_maxDepth;
+            const bool  SKIP1    = DATA[ti].d_skipUnknownElements;
+            const bool  UTF81    = DATA[ti].d_validateInputIsUtf8;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setMaxDepth(DEPTH1);
             mZ.setSkipUnknownElements(SKIP1);
+            mZ.setValidateInputIsUtf8(UTF81);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setMaxDepth(DEPTH1);
             mZZ.setSkipUnknownElements(SKIP1);
+            mZZ.setValidateInputIsUtf8(UTF81);
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
 
@@ -409,13 +424,15 @@ int main(int argc, char *argv[])
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int   LINE2    = DATA[tj].d_line;
+                const int   LINE2   = DATA[tj].d_line;
                 const int   DEPTH2  = DATA[tj].d_maxDepth;
-                const int   SKIP2     = DATA[tj].d_skipUnknownElements;
+                const bool  SKIP2   = DATA[tj].d_skipUnknownElements;
+                const bool  UTF82   = DATA[tj].d_validateInputIsUtf8;
 
                 Obj mX;  const Obj& X = mX;
                 mX.setMaxDepth(DEPTH2);
                 mX.setSkipUnknownElements(SKIP2);
+                mX.setValidateInputIsUtf8(UTF82);
 
                 if (veryVerbose) { T_ P_(LINE2) P(X) }
 
@@ -434,10 +451,12 @@ int main(int argc, char *argv[])
                 Obj mX;
                 mX.setMaxDepth(DEPTH1);
                 mX.setSkipUnknownElements(SKIP1);
+                mX.setValidateInputIsUtf8(UTF81);
 
                 Obj mZZ;  const Obj& ZZ = mZZ;
                 mZZ.setMaxDepth(DEPTH1);
                 mZZ.setSkipUnknownElements(SKIP1);
+                mZZ.setValidateInputIsUtf8(UTF81);
 
                 const Obj& Z = mX;
 
@@ -525,15 +544,18 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE    = DATA[ti].d_line;
             const int   DEPTH   = DATA[ti].d_maxDepth;
-            const int   SKIP    = DATA[ti].d_skipUnknownElements;
+            const bool  SKIP    = DATA[ti].d_skipUnknownElements;
+            const bool  UTF8    = DATA[ti].d_validateInputIsUtf8;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setMaxDepth(DEPTH);
             mZ.setSkipUnknownElements(SKIP);
+            mZ.setValidateInputIsUtf8(UTF8);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setMaxDepth(DEPTH);
             mZZ.setSkipUnknownElements(SKIP);
+            mZZ.setValidateInputIsUtf8(UTF8);
 
             if (veryVerbose) { T_ P_(Z) P(ZZ) }
 
@@ -659,6 +681,7 @@ int main(int argc, char *argv[])
 
         typedef int   T1;        // 'maxDepth'
         typedef bool  T2;        // 'skipUnknownElements'
+        typedef bool  T3;        // 'validateInputIsUtf8'
 
                       // ------------------------------
                       // Attribute 1 Values: 'maxDepth'
@@ -674,6 +697,13 @@ int main(int argc, char *argv[])
         const T2 A2 = true;                  // baseline
         const T2 B2 = false;
 
+                // -----------------------------------------
+                // Attribute 2 Values: 'skipUnknownElements'
+                // -----------------------------------------
+
+        const T3 A3 = false;                 // baseline
+        const T3 B3 = true;
+
         if (verbose) cout <<
             "\nCreate a table of distinct, but similar object values." << endl;
 
@@ -681,6 +711,7 @@ int main(int argc, char *argv[])
             int   d_line;        // source line number
             int   d_maxDepth;
             bool  d_skipUnknownElements;
+            bool  d_validateInputIsUtf8;
         } DATA[] = {
 
         // The first row of the table below represents an object value
@@ -688,13 +719,14 @@ int main(int argc, char *argv[])
         // row differs (slightly) from the first in exactly one attribute value
         // (Bi).
 
-        //LINE  DEPTH   SKIP
-        //----  -----   ----
+        //LINE  DEPTH   SKIP   UTF8
+        //----  -----   ----   ----
 
-        { L_,       A1,   A2   },          // baseline
+        { L_,       A1,   A2,   A3 },          // baseline
 
-        { L_,       B1,   A2   },
-        { L_,       A1,   B2   },
+        { L_,       B1,   A2,   A3 },
+        { L_,       A1,   B2,   A3 },
+        { L_,       A1,   A2,   B3 },
 
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -703,10 +735,11 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE1    = DATA[ti].d_line;
-            const int   DEPTH1  = DATA[ti].d_maxDepth;
-            const int   SKIP1     = DATA[ti].d_skipUnknownElements;
+            const int   DEPTH1   = DATA[ti].d_maxDepth;
+            const bool  SKIP1    = DATA[ti].d_skipUnknownElements;
+            const bool  UTF81    = DATA[ti].d_validateInputIsUtf8;
 
-            if (veryVerbose) { T_ P_(LINE1) P_(DEPTH1) P_(SKIP1)  }
+            if (veryVerbose) { T_ P_(LINE1) P_(DEPTH1) P_(SKIP1) P(UTF81)  }
 
             // Ensure an object compares correctly with itself (alias test).
             {
@@ -714,6 +747,7 @@ int main(int argc, char *argv[])
 
                 mX.setMaxDepth(DEPTH1);
                 mX.setSkipUnknownElements(SKIP1);
+                mX.setValidateInputIsUtf8(UTF81);
 
                 LOOP2_ASSERT(LINE1, X,   X == X);
                 LOOP2_ASSERT(LINE1, X, !(X != X));
@@ -721,21 +755,25 @@ int main(int argc, char *argv[])
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int   LINE2    = DATA[tj].d_line;
-                const int   DEPTH2  = DATA[tj].d_maxDepth;
-                const int   SKIP2     = DATA[tj].d_skipUnknownElements;
-
-                if (veryVerbose) { T_ P_(LINE1) P_(DEPTH2) P_(SKIP2) }
+                const int   DEPTH2   = DATA[tj].d_maxDepth;
+                const bool  SKIP2    = DATA[tj].d_skipUnknownElements;
+                const bool  UTF82    = DATA[tj].d_validateInputIsUtf8;
 
                 const bool EXP = ti == tj;  // expected for equality comparison
+
+                if (veryVerbose) { T_ P_(LINE2) P_(DEPTH2) P_(SKIP2) P_(UTF82)
+                                                                       P(EXP) }
 
                 Obj mX;  const Obj& X = mX;
                 Obj mY;  const Obj& Y = mY;
 
                 mX.setMaxDepth(DEPTH1);
                 mX.setSkipUnknownElements(SKIP1);
+                mX.setValidateInputIsUtf8(UTF81);
 
                 mY.setMaxDepth(DEPTH2);
                 mY.setSkipUnknownElements(SKIP2);
+                mY.setValidateInputIsUtf8(UTF82);
 
                 if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
 
@@ -841,6 +879,7 @@ int main(int argc, char *argv[])
 
             int         d_maxDepth;
             bool        d_skipUnknownElements;
+            bool        d_validateInputIsUtf8;
 
             const char *d_expected_p;
         } DATA[] = {
@@ -852,24 +891,27 @@ int main(int argc, char *argv[])
         // P-2.1.1: { A } x { 0 } x { 0, 1, -1 } --> 3 expected outputs
         // ------------------------------------------------------------------
 
-        //LINE L SPL  MD   SUE  EXP
-        //---- - ---  ---  ---  ---
+        //LINE L SPL  MD  S  U   EXP
+        //---- - ---  --- -  -   ---
 
-        { L_,  0,  0, 89, true,  "["                                         NL
+        { L_,  0,  0, 89, 1, 0, "["                                          NL
                                  "maxDepth = 89"                             NL
                                  "skipUnknownElements = true"                NL
+                                 "validateInputIsUtf8 = false"               NL
                                  "]"                                         NL
                                                                              },
 
-        { L_,  0,  1, 89, true,  "["                                         NL
+        { L_,  0,  1, 89, 1, 0,  "["                                         NL
                                  " maxDepth = 89"                            NL
                                  " skipUnknownElements = true"               NL
+                                 " validateInputIsUtf8 = false"              NL
                                  "]"                                         NL
                                                                              },
 
-        { L_,  0, -1, 89, false, "["                                         SP
+        { L_,  0, -1, 89, 0, 1,  "["                                         SP
                                  "maxDepth = 89"                             SP
                                  "skipUnknownElements = false"               SP
+                                 "validateInputIsUtf8 = true"                SP
                                  "]"
                                                                              },
 
@@ -877,42 +919,48 @@ int main(int argc, char *argv[])
         // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 } --> 6 expected outputs
         // ------------------------------------------------------------------
 
-        //LINE L SPL  MD   SUE  EXP
-        //---- - ---  ---  ---  ---
+        //LINE L SPL  MD  S U    EXP
+        //---- - ---  --- - -    ---
 
-        { L_,  3,  0, 89, true,  "["                                         NL
+        { L_,  3,  0, 89, 1, 1,  "["                                         NL
                                  "maxDepth = 89"                             NL
                                  "skipUnknownElements = true"                NL
+                                 "validateInputIsUtf8 = true"                NL
                                  "]"                                         NL
                                                                              },
 
-        { L_,  3,  2, 89, false, "      ["                                   NL
+        { L_,  3,  2, 89, 0, 0,  "      ["                                   NL
                                  "        maxDepth = 89"                     NL
                                  "        skipUnknownElements = false"       NL
+                                 "        validateInputIsUtf8 = false"       NL
                                  "      ]"                                   NL
                                                                              },
 
-        { L_,  3, -2, 89, false, "      ["                                   SP
+        { L_,  3, -2, 89, 0, 1,  "      ["                                   SP
                                  "maxDepth = 89"                             SP
                                  "skipUnknownElements = false"               SP
+                                 "validateInputIsUtf8 = true"                SP
                                  "]"
                                                                              },
 
-        { L_, -3,  0, 89, true,  "["                                         NL
+        { L_, -3,  0, 89, 1, 0,  "["                                         NL
                                  "maxDepth = 89"                             NL
                                  "skipUnknownElements = true"                NL
+                                 "validateInputIsUtf8 = false"               NL
                                  "]"                                         NL
                                                                              },
 
-        { L_, -3,  2, 89, false, "["                                         NL
+        { L_, -3,  2, 89, 0, 0,  "["                                         NL
                                  "        maxDepth = 89"                     NL
                                  "        skipUnknownElements = false"       NL
+                                 "        validateInputIsUtf8 = false"       NL
                                  "      ]"                                   NL
                                                                              },
 
-        { L_, -3, -2, 89, true,  "["                                         SP
+        { L_, -3, -2, 89, 1, 1,  "["                                         SP
                                  "maxDepth = 89"                             SP
                                  "skipUnknownElements = true"                SP
+                                 "validateInputIsUtf8 = true"                SP
                                  "]"
                                                                              },
 
@@ -920,12 +968,13 @@ int main(int argc, char *argv[])
         // P-2.1.3: { B } x { 2 } x { 3 } --> 1 expected output
         // -----------------------------------------------------------------
 
-        //LINE L SPL  MD   SUE  EXP
-        //---- - ---  ---  ---  ---
+        //LINE L SPL  MD  S  U   EXP
+        //---- - ---  --  -  -   ---
 
-        { L_,  2,  3, 89, true,  "      ["                                   NL
+        { L_,  2,  3, 89, 1, 0,  "      ["                                   NL
                                  "         maxDepth = 89"                    NL
                                  "         skipUnknownElements = true"       NL
+                                 "         validateInputIsUtf8 = false"      NL
                                  "      ]"                                   NL
                                                                              },
 
@@ -933,17 +982,19 @@ int main(int argc, char *argv[])
         // P-2.1.4: { A B } x { -9 } x { -9 } --> 2 expected outputs
         // -----------------------------------------------------------------
 
-        //LINE L SPL  MD   SUE  EXP
-        //---- - ---  ---  ---  ---
+        //LINE L SPL  MD   S  U  EXP
+        //---- - ---  ---  -  -  ---
 
-        { L_, -9, -9,  89, true, "["                                         SP
+        { L_, -9, -9,  89, 1, 1, "["                                         SP
                                  "maxDepth = 89"                             SP
                                  "skipUnknownElements = true"                SP
+                                 "validateInputIsUtf8 = true"                SP
                                  "]"                                         },
 
-        { L_, -9, -9,   7, false, "["                                        SP
+        { L_, -9, -9,   7, 0, 1, "["                                         SP
                                  "maxDepth = 7"                              SP
                                  "skipUnknownElements = false"               SP
+                                 "validateInputIsUtf8 = true"                SP
                                  "]"                                         },
 
 #undef NL
@@ -962,6 +1013,7 @@ int main(int argc, char *argv[])
 
                 const int         MAX_DEPTH  = DATA[ti].d_maxDepth;
                 const int         SKIP_ELEMS = DATA[ti].d_skipUnknownElements;
+                const int         VALID_UTF8 = DATA[ti].d_validateInputIsUtf8;
 
                 const char *const EXP    = DATA[ti].d_expected_p;
 
@@ -972,6 +1024,7 @@ int main(int argc, char *argv[])
                 Obj mX;  const Obj& X = mX;
                 mX.setMaxDepth(MAX_DEPTH);
                 mX.setSkipUnknownElements(SKIP_ELEMS);
+                mX.setValidateInputIsUtf8(VALID_UTF8);
 
                 ostringstream os;
 
@@ -1032,6 +1085,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   int  maxDepth() const;
         //   bool skipUnknownElements() const;
+        //   bool validateInputIsUtf8() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1042,6 +1096,7 @@ int main(int argc, char *argv[])
 
         typedef int   T1;        // 'maxDepth'
         typedef bool  T2;        // 'skipUnknownElements'
+        typedef bool  T3;        // 'validateInputIsUtf8'
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -1050,14 +1105,16 @@ int main(int argc, char *argv[])
           // -----------------------------------------------------
 
         const int   D1   = 32;                    // 'maxDepth'
-        const int   D2   = true;                  // 'skipUnknownElements'
+        const bool  D2   = true;                  // 'skipUnknownElements'
+        const bool  D3   = false;                 // 'validateInputIsUtf8'
 
                        // ----------------------------
                        // 'A' values: Boundary values.
                        // ----------------------------
 
         const int   A1   = INT_MAX;              // 'maxDepth'
-        const int   A2   = false;                // 'skipUnknownElements'
+        const bool  A2   = false;                // 'skipUnknownElements'
+        const bool  A3   = true;                 // 'validateInputIsUtf8'
 
         if (verbose) cout << "\nCreate an object." << endl;
 
@@ -1071,6 +1128,9 @@ int main(int argc, char *argv[])
 
             const T2& skipUnknownElements = X.skipUnknownElements();
             LOOP2_ASSERT(D2, skipUnknownElements, D2 == skipUnknownElements);
+
+            const T3& validateInputIsUtf8 = X.validateInputIsUtf8();
+            ASSERTV(D3, validateInputIsUtf8, D3 == validateInputIsUtf8);
         }
 
         if (verbose) cout <<
@@ -1090,6 +1150,14 @@ int main(int argc, char *argv[])
 
             const T2& skipUnknownElements = X.skipUnknownElements();
             LOOP2_ASSERT(A2, skipUnknownElements, A2 == skipUnknownElements);
+        }
+
+        if (veryVerbose) { T_ Q(validateInputIsUtf8) }
+        {
+            mX.setValidateInputIsUtf8(A3);
+
+            const T3& validateInputIsUtf8 = X.validateInputIsUtf8();
+            ASSERTV(A3, validateInputIsUtf8, A3 == validateInputIsUtf8);
         }
       } break;
       case 3: {
@@ -1136,6 +1204,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   setMaxDepth(int value);
         //   setSkipUnknownElements(int value);
+        //   setValidateInputIsUtf8(bool value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1148,16 +1217,19 @@ int main(int argc, char *argv[])
 
         const int   D1   = 32;                   // 'maxDepth'
         const bool  D2   = true;                 // 'skipUnknownElements'
+        const bool  D3   = false;                // 'validateInputIsUtf8'
 
         // 'A' values.
 
         const int   A1   = 1;                    // 'maxDepth'
-        const int   A2   = false;                // 'skipUnknownElements'
+        const bool  A2   = false;                // 'skipUnknownElements'
+        const bool  A3   = true;                 // 'validateInputIsUtf8'
 
         // 'B' values.
 
         const int   B1   = INT_MAX;              // 'maxDepth'
-        const int   B2   = true;                 // 'skipUnknownElements'
+        const bool  B2   = true;                 // 'skipUnknownElements'
+        const bool  B3   = false;                // 'validateInputIsUtf8'
 
         Obj mX;  const Obj& X = mX;
 
@@ -1171,14 +1243,17 @@ int main(int argc, char *argv[])
             mX.setMaxDepth(A1);
             ASSERT(A1 == X.maxDepth());
             ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
 
             mX.setMaxDepth(B1);
             ASSERT(B1 == X.maxDepth());
             ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
 
             mX.setMaxDepth(D1);
             ASSERT(D1 == X.maxDepth());
             ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
         }
 
         // ---------------------
@@ -1188,14 +1263,37 @@ int main(int argc, char *argv[])
             mX.setSkipUnknownElements(A2);
             ASSERT(D1 == X.maxDepth());
             ASSERT(A2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
 
             mX.setSkipUnknownElements(B2);
             ASSERT(D1 == X.maxDepth());
             ASSERT(B2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
 
             mX.setSkipUnknownElements(D2);
             ASSERT(D1 == X.maxDepth());
             ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
+        }
+
+        // ---------------------
+        // 'validateInputIsUtf8'
+        // ---------------------
+        {
+            mX.setValidateInputIsUtf8(A3);
+            ASSERT(D1 == X.maxDepth());
+            ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(A3 == X.validateInputIsUtf8());
+
+            mX.setValidateInputIsUtf8(B3);
+            ASSERT(D1 == X.maxDepth());
+            ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(B3 == X.validateInputIsUtf8());
+
+            mX.setValidateInputIsUtf8(D3);
+            ASSERT(D1 == X.maxDepth());
+            ASSERT(D2 == X.skipUnknownElements());
+            ASSERT(D3 == X.validateInputIsUtf8());
         }
 
         if (verbose) cout << "Corroborate attribute independence." << endl;
@@ -1206,9 +1304,11 @@ int main(int argc, char *argv[])
 
             mX.setMaxDepth(A1);
             mX.setSkipUnknownElements(A2);
+            mX.setValidateInputIsUtf8(A3);
 
             ASSERT(A1 == X.maxDepth());
             ASSERT(A2 == X.skipUnknownElements());
+            ASSERT(A3 == X.validateInputIsUtf8());
 
                  // ---------------------------------------
                  // Set all attributes to their 'B' values.
@@ -1218,11 +1318,19 @@ int main(int argc, char *argv[])
 
             ASSERT(B1 == X.maxDepth());
             ASSERT(A2 == X.skipUnknownElements());
+            ASSERT(A3 == X.validateInputIsUtf8());
 
             mX.setSkipUnknownElements(B2);
 
             ASSERT(B1 == X.maxDepth());
             ASSERT(B2 == X.skipUnknownElements());
+            ASSERT(A3 == X.validateInputIsUtf8());
+
+            mX.setValidateInputIsUtf8(B3);
+
+            ASSERT(B1 == X.maxDepth());
+            ASSERT(B2 == X.skipUnknownElements());
+            ASSERT(B3 == X.validateInputIsUtf8());
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1267,6 +1375,7 @@ int main(int argc, char *argv[])
 
         const int   D1   = 32;                   // 'maxDepth'
         const bool  D2   = true;                 // 'skipUnknownElements'
+        const bool  D3   = false;                // 'validateInputIsUtf8'
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
@@ -1282,6 +1391,8 @@ int main(int argc, char *argv[])
         LOOP2_ASSERT(D1, X.maxDepth(), D1 == X.maxDepth());
         LOOP2_ASSERT(D2, X.skipUnknownElements(),
                      D2 == X.skipUnknownElements());
+        LOOP2_ASSERT(D3, X.validateInputIsUtf8(),
+                     D3 == X.validateInputIsUtf8());
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1326,6 +1437,11 @@ int main(int argc, char *argv[])
         const T2 D2 = true;    // default value
         const T2 A2 = false;
 
+        // Attribute 3 Values: 'validateInputIsUtf8'
+
+        const T2 D3 = false;    // default value
+        const T2 A3 = true;
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
@@ -1338,6 +1454,7 @@ int main(int argc, char *argv[])
 
         ASSERT(D1 == W.maxDepth());
         ASSERT(D2 == W.skipUnknownElements());
+        ASSERT(D3 == W.validateInputIsUtf8());
 
         if (veryVerbose) cout <<
                   "\tb. Try equality operators: 'w' <op> 'w'." << endl;
@@ -1356,6 +1473,7 @@ int main(int argc, char *argv[])
 
         ASSERT(D1 == X.maxDepth());
         ASSERT(D2 == X.skipUnknownElements());
+        ASSERT(D3 == X.validateInputIsUtf8());
 
         if (veryVerbose) cout <<
                    "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -1370,12 +1488,14 @@ int main(int argc, char *argv[])
 
         mX.setMaxDepth(A1);
         mX.setSkipUnknownElements(A2);
+        mX.setValidateInputIsUtf8(A3);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.maxDepth());
         ASSERT(A2 == X.skipUnknownElements());
+        ASSERT(A3 == X.validateInputIsUtf8());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -1391,12 +1511,14 @@ int main(int argc, char *argv[])
         Obj mY;  const Obj& Y = mY;
         mY.setMaxDepth(A1);
         mY.setSkipUnknownElements(A2);
+        mY.setValidateInputIsUtf8(A3);
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
 
         ASSERT(A1 == Y.maxDepth());
         ASSERT(A2 == Y.skipUnknownElements());
+        ASSERT(A3 == Y.validateInputIsUtf8());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
@@ -1417,6 +1539,7 @@ int main(int argc, char *argv[])
 
         ASSERT(A1 == Z.maxDepth());
         ASSERT(A2 == Z.skipUnknownElements());
+        ASSERT(A3 == Z.validateInputIsUtf8());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1433,12 +1556,14 @@ int main(int argc, char *argv[])
 
         mZ.setMaxDepth(D1);
         mZ.setSkipUnknownElements(D2);
+        mZ.setValidateInputIsUtf8(D3);
 
         if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(D1 == Z.maxDepth());
         ASSERT(D2 == Z.skipUnknownElements());
+        ASSERT(D3 == Z.validateInputIsUtf8());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1459,6 +1584,7 @@ int main(int argc, char *argv[])
 
         ASSERT(A1 == W.maxDepth());
         ASSERT(A2 == W.skipUnknownElements());
+        ASSERT(A3 == W.validateInputIsUtf8());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1479,6 +1605,7 @@ int main(int argc, char *argv[])
 
         ASSERT(D1 == W.maxDepth());
         ASSERT(D2 == W.skipUnknownElements());
+        ASSERT(D3 == W.validateInputIsUtf8());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1499,6 +1626,7 @@ int main(int argc, char *argv[])
 
         ASSERT(A1 == X.maxDepth());
         ASSERT(A2 == X.skipUnknownElements());
+        ASSERT(A3 == X.validateInputIsUtf8());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;

@@ -188,6 +188,16 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name='ValidateInputIsUtf8' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='false'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            option to check that input is valid UTF-8
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 </xs:schema>
