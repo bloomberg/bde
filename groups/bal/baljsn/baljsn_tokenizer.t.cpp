@@ -327,11 +327,10 @@ void confirmStreamBufReset(bsl::streambuf     *sb,
 const Utf8Util::ErrorStatus EIT = Utf8Util::k_END_OF_INPUT_TRUNCATION;
 const Utf8Util::ErrorStatus UCO = Utf8Util::k_UNEXPECTED_CONTINUATION_OCTET;
 const Utf8Util::ErrorStatus NCO = Utf8Util::k_NON_CONTINUATION_OCTET;
-const Utf8Util::ErrorStatus NME = Utf8Util::k_NON_MINIMAL_ENCODING;
-const Utf8Util::ErrorStatus STL = Utf8Util::k_SEQUENCE_TOO_LONG;
-const Utf8Util::ErrorStatus VTL = Utf8Util::k_VALUE_TOO_LARGE;
+const Utf8Util::ErrorStatus OLE = Utf8Util::k_OVERLONG_ENCODING;
+const Utf8Util::ErrorStatus IIO = Utf8Util::k_INVALID_INITIAL_OCTET;
+const Utf8Util::ErrorStatus VLT = Utf8Util::k_VALUE_LARGER_THAN_0X10FFFF;
 const Utf8Util::ErrorStatus SUR = Utf8Util::k_SURROGATE;
-
 
 static const struct Utf8Data {
     int         d_lineNum;    // source line number
@@ -364,33 +363,33 @@ static const struct Utf8Data {
     { L_, "\xe0",                         EIT,  0   },
     { L_, "\xe0\x80 ",                    NCO,  0   },
     { L_, "\xe0 ",                        NCO,  0   },
-    { L_, "\xf8\xaf\xaf\xaf",             STL,  0   },
-    { L_, "\xf8\x80\x80\x80",             STL,  0   },
-    { L_, "\xf8",                         STL,  0   },
-    { L_, "\xf9",                         STL,  0   },
-    { L_, "\xf0\x80\x80\x80",             NME,  0   },
-    { L_, "\xf0\x8a\xaa\xaa",             NME,  0   },
-    { L_, "\xf0\x8f\xbf\xbf",             NME,  0   },    // max NME
+    { L_, "\xf8\xaf\xaf\xaf",             IIO,  0   },
+    { L_, "\xf8\x80\x80\x80",             IIO,  0   },
+    { L_, "\xf8",                         IIO,  0   },
+    { L_, "\xf9",                         IIO,  0   },
+    { L_, "\xf0\x80\x80\x80",             OLE,  0   },
+    { L_, "\xf0\x8a\xaa\xaa",             OLE,  0   },
+    { L_, "\xf0\x8f\xbf\xbf",             OLE,  0   },    // max OLE
     { L_, "\xf0\x90\x80\x80",               1, -1   },    // min legal
     { L_, "\xf1\x80\x80\x80",               1, -1   },    // norm legal
     { L_, "\xf1\xaa\xaa\xaa",               1, -1   },    // norm legal
     { L_, "\xf4\x8f\xbf\xbf",               1, -1   },    // max legal
-    { L_, "\xf4\x90\x80\x80",             VTL,  0   },    // min VTL
-    { L_, "\xf4\x90\xbf\xbf",             VTL,  0   },    //     VTL
-    { L_, "\xf4\xa0\x80\x80",             VTL,  0   },    //     VTL
-    { L_, "\xf7\xbf\xbf\xbf",             VTL,  0   },    // max VTL
+    { L_, "\xf4\x90\x80\x80",             VLT,  0   },    // min VLT
+    { L_, "\xf4\x90\xbf\xbf",             VLT,  0   },    //     VLT
+    { L_, "\xf4\xa0\x80\x80",             VLT,  0   },    //     VLT
+    { L_, "\xf7\xbf\xbf\xbf",             VLT,  0   },    // max VLT
 
-    { L_, "\xe0\x80\x80",                 NME,  0   },
-    { L_, "\xe0\x9a\xaa",                 NME,  0   },
-    { L_, "\xe0\x9f\xbf",                 NME,  0   },    // max NME
+    { L_, "\xe0\x80\x80",                 OLE,  0   },
+    { L_, "\xe0\x9a\xaa",                 OLE,  0   },
+    { L_, "\xe0\x9f\xbf",                 OLE,  0   },    // max OLE
     { L_, "\xe0\xa0\x80",                   1, -1   },    // min legal
     { L_, "\xef\xbf\xbf",                   1, -1   },    // max
 
-    { L_, "\xc0\x80",                     NME,  0   },
-    { L_, "\xc0\xaa",                     NME,  0   },
-    { L_, "\xc0\xbf",                     NME,  0   },
-    { L_, "\xc1\x81",                     NME,  0   },
-    { L_, "\xc1\xbf",                     NME,  0   },    // max NME
+    { L_, "\xc0\x80",                     OLE,  0   },
+    { L_, "\xc0\xaa",                     OLE,  0   },
+    { L_, "\xc0\xbf",                     OLE,  0   },
+    { L_, "\xc1\x81",                     OLE,  0   },
+    { L_, "\xc1\xbf",                     OLE,  0   },    // max OLE
     { L_, "\xc2\x80",                       1, -1   },    // min legal
     { L_, "\xd0\xb0",                       1, -1   },
     { L_, "\xdf\xbf",                       1, -1   },    // max
@@ -421,12 +420,12 @@ static const struct Utf8Data {
 
     { L_, LARGE_STRING_C_STR + 1,        8177, -1   },
 
-    { L_, "123456\xe0\x80\x80",           NME,  6   },
-    { L_, "1234567\xe0\x80\x80",          NME,  7   },
-    { L_, "12345678\xe0\x80\x80",         NME,  8   },
-    { L_, "12345678A\xe0\x80\x80",        NME,  9   },
-    { L_, "12345678AB\xe0\x80\x80",       NME, 10   },
-    { L_, "12345678ABC\xe0\x80\x80",      NME, 11   },
+    { L_, "123456\xe0\x80\x80",           OLE,  6   },
+    { L_, "1234567\xe0\x80\x80",          OLE,  7   },
+    { L_, "12345678\xe0\x80\x80",         OLE,  8   },
+    { L_, "12345678A\xe0\x80\x80",        OLE,  9   },
+    { L_, "12345678AB\xe0\x80\x80",       OLE, 10   },
+    { L_, "12345678ABC\xe0\x80\x80",      OLE, 11   },
 
     { L_, "1\xef\xbf\xbf",                  2, -1   },
     { L_, "12\xef\xbf\xbf",                 3, -1   },
@@ -454,19 +453,19 @@ static const struct Utf8Data {
     { L_, "12345678ABCD\xf1\xaa\xaa\xaa",  13, -1   },
     { L_, "12345678ABCDE\xf1\xaa\xaa\xaa", 14, -1   },
 
-    { L_, "1\xf4\xa0\x80\x80",            VTL,  1   },
-    { L_, "12\xf4\xa0\x80\x80",           VTL,  2   },
-    { L_, "123\xf4\xa0\x80\x80",          VTL,  3   },
-    { L_, "1234\xf4\xa0\x80\x80",         VTL,  4   },
-    { L_, "12345\xf4\xa0\x80\x80",        VTL,  5   },
-    { L_, "123456\xf4\xa0\x80\x80",       VTL,  6   },
-    { L_, "1234567\xf4\xa0\x80\x80",      VTL,  7   },
-    { L_, "12345678\xf4\xa0\x80\x80",     VTL,  8   },
-    { L_, "12345678A\xf4\xa0\x80\x80",    VTL,  9   },
-    { L_, "12345678AB\xf4\xa0\x80\x80",   VTL, 10   },
-    { L_, "12345678ABC\xf4\xa0\x80\x80",  VTL, 11   },
-    { L_, "12345678ABCD\xf4\xa0\x80\x80", VTL, 12   },
-    { L_, "12345678ABCDE\xf4\xa0\x80\x80",VTL, 13   },
+    { L_, "1\xf4\xa0\x80\x80",            VLT,  1   },
+    { L_, "12\xf4\xa0\x80\x80",           VLT,  2   },
+    { L_, "123\xf4\xa0\x80\x80",          VLT,  3   },
+    { L_, "1234\xf4\xa0\x80\x80",         VLT,  4   },
+    { L_, "12345\xf4\xa0\x80\x80",        VLT,  5   },
+    { L_, "123456\xf4\xa0\x80\x80",       VLT,  6   },
+    { L_, "1234567\xf4\xa0\x80\x80",      VLT,  7   },
+    { L_, "12345678\xf4\xa0\x80\x80",     VLT,  8   },
+    { L_, "12345678A\xf4\xa0\x80\x80",    VLT,  9   },
+    { L_, "12345678AB\xf4\xa0\x80\x80",   VLT, 10   },
+    { L_, "12345678ABC\xf4\xa0\x80\x80",  VLT, 11   },
+    { L_, "12345678ABCD\xf4\xa0\x80\x80", VLT, 12   },
+    { L_, "12345678ABCDE\xf4\xa0\x80\x80",VLT, 13   },
 };
 enum { k_NUM_UTF8_DATA = sizeof UTF8_DATA / sizeof *UTF8_DATA };
 
@@ -777,7 +776,7 @@ int main(int argc, char *argv[])
                 char errOffStr[256];
                 bdlsb::FixedMemOutStreamBuf sb(errOffStr, sizeof(errOffStr));
                 bsl::ostream ostr(&sb);
-                ostr << "UTF-8 error " << Utf8Util::toErrorMessage(JSTATUS) <<
+                ostr << "UTF-8 error " << Utf8Util::toAscii(JSTATUS) <<
                                           " at offset " << ERROFF << bsl::ends;
                 ASSERT(bsl::strlen(errOffStr) < sizeof(errOffStr));
 
@@ -804,7 +803,7 @@ int main(int argc, char *argv[])
                 Uint64 sOff = iss.rdbuf()->pubseekoff(0,
                                                       bsl::ios_base::cur,
                                                       bsl::ios_base::in);
-                ASSERT(ERROFF < sOff);
+                ASSERT(ERROFF == sOff);
 
                 if (EIT == JSTATUS) {
                     // Now expect 'NCO' (Non Continuation Octet)
@@ -827,7 +826,7 @@ int main(int argc, char *argv[])
                     Uint64 sOff = iss.rdbuf()->pubseekoff(0,
                                                           bsl::ios_base::cur,
                                                           bsl::ios_base::in);
-                    ASSERT(ERROFF < sOff);
+                    ASSERT(ERROFF == sOff);
                 }
             }
         }

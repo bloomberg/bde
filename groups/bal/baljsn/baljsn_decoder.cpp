@@ -26,7 +26,7 @@ bsl::ostream& Decoder::logTokenizerError(const char *alternateString)
         d_logStream << alternateString;
     }
     else if (sts < 0) {
-        d_logStream << "UTF-8 error " << bdlde::Utf8Util::toErrorMessage(sts)
+        d_logStream << "UTF-8 error " << bdlde::Utf8Util::toAscii(sts)
                     << " at offset " << d_tokenizer.readOffset();
     }
     else {

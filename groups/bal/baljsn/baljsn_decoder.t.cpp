@@ -36709,9 +36709,9 @@ int main(int argc, char *argv[])
             { L_, Util::k_END_OF_INPUT_TRUNCATION,       "\xc7"             },
             { L_, Util::k_UNEXPECTED_CONTINUATION_OCTET, "\xa4"             },
             { L_, Util::k_NON_CONTINUATION_OCTET,        "\xc7?"            },
-            { L_, Util::k_NON_MINIMAL_ENCODING,          "\xc0\x83"         },
-            { L_, Util::k_SEQUENCE_TOO_LONG,             "\xfa\0x80"        },
-            { L_, Util::k_VALUE_TOO_LARGE,               "\xf4\xa0\x80\x80" },
+            { L_, Util::k_OVERLONG_ENCODING,             "\xc0\x83"         },
+            { L_, Util::k_INVALID_INITIAL_OCTET,         "\xfa\0x80"        },
+            { L_, Util::k_VALUE_LARGER_THAN_0X10FFFF,    "\xf4\xa0\x80\x80" },
             { L_, Util::k_SURROGATE,                     "\xed\xb0\x85"     }
         };
         enum { k_NUM_UTF8_DATA = sizeof UTF8_DATA / sizeof *UTF8_DATA };
@@ -36779,7 +36779,7 @@ int main(int argc, char *argv[])
                 const char     *USEQ     = utf8Data.d_sequence;
                 const char     *UMSG     = baljsn::Tokenizer::k_EOF == UERR
                                          ? "Error: unexpected end of file"
-                                         : Util::toErrorMessage(UERR);
+                                         : Util::toAscii(UERR);
 
                 bsl::string str(pattern, pf - pattern);
                 str += USEQ;
