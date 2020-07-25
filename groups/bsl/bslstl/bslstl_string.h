@@ -2061,15 +2061,6 @@ class basic_string
         // 'stringLast' refer to a sequence of valid values where 'stringFirst'
         // is at a position at or before 'stringLast'.
 
-                     // *** 21.3.7 string operations: ***
-
-    CHAR_TYPE *data() BSLS_KEYWORD_NOEXCEPT;
-        // Return an address providing modifiable access to the null-terminated
-        // buffer of 'length() + 1' characters whose contents are identical to
-        // the value of this string.  Note that any call to the string
-        // destructor or any of its manipulators invalidates the returned
-        // pointer.
-
     void swap(basic_string& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
         // Exchange the value of this string with the value of the specified
         // 'other' object.  Additionally, if
@@ -5244,16 +5235,6 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                   stringLast,
                                   stringFirst,
                                   BloombergLP::bslmf::Nil());
-}
-
-                 // *** 21.3.7 string operations: ***
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-inline
-CHAR_TYPE *
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::data() BSLS_KEYWORD_NOEXCEPT
-{
-    return this->dataPtr();
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
