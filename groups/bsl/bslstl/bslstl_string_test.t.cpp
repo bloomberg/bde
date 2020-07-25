@@ -206,7 +206,6 @@ using bsls::nameOfType;
 // [20] basic_string& replace(const_iterator p, q, const C *s);
 // [20] basic_string& replace(const_iterator p, q, size_type n2, C c);
 // [20] template <It> basic_string& replace(const_iterator p, q, It f, l);
-// [36] CHAR_TYPE *data();
 // [21] void swap(basic_string& other);
 //
 // ACCESSORS:
@@ -228,8 +227,8 @@ using bsls::nameOfType;
 // [  ] const_iterator cend() const;
 // [  ] const_reverse_iterator crbegin() const;
 // [  ] const_reverse_iterator crend() const;
-// [ 4] const CHAR_TYPE *c_str() const;
-// [ 4] const CHAR_TYPE *data() const;
+// [  ] const C *c_str() const;
+// [  ] const C *data() const;
 // [  ] allocator_type get_allocator() const;
 // [22] size_type find(const string& str, pos = 0) const;
 // [22] size_type find(const C *s, pos, n) const;
@@ -694,6 +693,9 @@ static bslma::TestAllocator *globalAllocator_p,
                             *defaultAllocator_p,
                             *objectAllocator_p;
 
+static int numCopyCtorCalls    = 0;
+static int numDestructorCalls  = 0;
+
                             // ====================
                             // class ExceptionGuard
                             // ====================
@@ -1122,11 +1124,8 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
-    static void testCase36();
-        // Test 'data' manipulator.
-
     static void testCase35();
-        // Test 'noexcept' specifications.
+        // Test 'noexcept' specifications
 
     static void testCase33();
         // Test the 'initializer_list' functions where supported.
@@ -1393,136 +1392,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
                                 // ----------
                                 // TEST CASES
                                 // ----------
-template <class TYPE, class TRAITS, class ALLOC>
-void TestDriver<TYPE, TRAITS, ALLOC>::testCase36()
-{
-    // ------------------------------------------------------------------------
-    // TESTING 'data' MANIPULATOR
-    //
-    // Concerns:
-    //: 1 The 'data()' method returns the address of a buffer containing all
-    //:   the characters of this string object.
-    //:
-    //: 2 The 'data()' method returns the address of a buffer containing the
-    //:   null character at the last (equal to the length of the object)
-    //:   position, even for an empty object.
-    //:
-    //: 3 Changing the buffer contents (via the returned address) changes the
-    //:   value of the string object.
-    //:
-    //: 4 The method works for string lengths that are less than and greater
-    //:   than the small string optimization limit.
-    //:
-    //: 5 QoI: The address returned by this 'data()' method is the same as the
-    //:   address returned by the 'const'-qualified 'data()' method.
-    //
-    // Plan:
-    //: 1 Specify a set S of representative object values ordered by increasing
-    //:   length.  For each value w in S, initialize a newly constructed object
-    //:   x with w.
-    //:
-    //: 2 For each x from P-1:
-    //:
-    //:   1 Call 'data()' method and iterate through the obtained buffer and
-    //:     compare its value with the symbols, returned by the 'operator[]'.
-    //:     (C-1)
-    //:
-    //:   2 Modify each buffer's character and verify, that object's value is
-    //:     modified accordingly.  (C-3)
-    //:
-    //:   3 Verify, that the null character encloses the character sequence.
-    //:     (C-2)
-    //:
-    //:   4 Compare the address returned by 'data()' method with the result of
-    //:     the 'const'-qualified 'data()' method invocation.  (C-5)
-    //:
-    //: 3 Construct long string and repeat the steps from P-2.  (C-4)
-    //
-    // Testing:
-    //   CHAR_TYPE *data();
-    // ------------------------------------------------------------------------
-
-    static const struct {
-        int         d_lineNum;  // source line number
-        const char *d_spec_p;   // specification string
-    } DATA[] = {
-        //line  spec
-        //----  -----------------------------------
-        { L_,   ""                                 },
-        { L_,   "A"                                },
-        { L_,   "B"                                },
-        { L_,   "AB"                               },
-        { L_,   "BC"                               },
-        { L_,   "BCA"                              },
-        { L_,   "CAB"                              },
-        { L_,   "CDAB"                             },
-        { L_,   "DABC"                             },
-        { L_,   "ABCDE"                            },
-        { L_,   "EDCBA"                            },
-        { L_,   "ABCDEA"                           },
-        { L_,   "ABCDEAB"                          },
-        { L_,   "BACDEABC"                         },
-        { L_,   "CBADEABCD"                        },
-        { L_,   "CBADEABCDAB"                      },
-        { L_,   "CBADEABCDABC"                     },
-        { L_,   "CBADEABCDABCDE"                   },
-        { L_,   "CBADEABCDABCDEA"                  },
-        { L_,   "CBADEABCDABCDEAB"                 },
-        { L_,   "CBADEABCDABCDEABCBADEABCDABCDEA"  },
-        { L_,   "CBADEABCDABCDEABCBADEABCDABCDEAB" }
-    };
-
-    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
-
-    for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const int         LINE = DATA[ti].d_lineNum;
-        const char *const SPEC = DATA[ti].d_spec_p;
-
-        if (veryVerbose) printf("\t\tSpec = \"%s\"\n", SPEC);
-
-        Obj        mX;
-        const Obj& X = gg(&mX, SPEC);
-
-
-        TYPE         *dataPtr = mX.data();
-        const size_t  LENGTH  = X.length();
-
-        for (size_t i = 0; i < LENGTH; ++i) {
-            LOOP3_ASSERT(LINE, X[i], *(dataPtr + i), X[i] == *(dataPtr + i));
-
-            *(dataPtr + i) = 'Z';
-            LOOP2_ASSERT(LINE, X[i], 'Z' == X[i]);
-        }
-
-        LOOP_ASSERT(LINE, 0 == *(dataPtr + LENGTH));
-
-        LOOP_ASSERT(LINE, X.data() == mX.data());
-    }
-
-    // Testing a long string whose length exceeds the small string optimization
-    // limit.
-
-    {
-        const char   *longStr = "ABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJ";
-        Obj           mX;
-        const Obj&    X       = gg(&mX, longStr);
-        const size_t  LENGTH  = X.length();
-        TYPE         *dataPtr = mX.data();
-
-        ASSERT(DEFAULT_CAPACITY < LENGTH);
-
-        for (size_t i = 0; i < LENGTH; ++i) {
-            LOOP3_ASSERT(i, X[i], *(dataPtr + i), X[i] == *(dataPtr + i));
-
-            *(dataPtr + i) = 'Z';
-            LOOP2_ASSERT(i, X[i], 'Z' == X[i]);
-        }
-
-        LOOP_ASSERT(*(dataPtr + LENGTH), 0 == *(dataPtr + LENGTH));
-
-        ASSERT(X.data() == mX.data());
-    }
-}
 
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
@@ -14783,21 +14652,6 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 36: {
-        // --------------------------------------------------------------------
-        // TESTING 'data' MANIPULATOR
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\n" "TESTING 'data' MANIPULATOR" "\n"
-                                 "==========================" "\n");
-
-        if (verbose) printf("\n... with 'char'.\n");
-        TestDriver<char>::testCase36();
-
-        if (verbose) printf("\n... with 'wchar_t'.\n");
-        TestDriver<wchar_t>::testCase36();
-
-      } break;
       case 35: {
         // --------------------------------------------------------------------
         // 'noexcept' SPECIFICATION
@@ -14921,7 +14775,7 @@ int main(int argc, char *argv[])
             }
 # if !defined(BSLS_STRING_DISABLE_S_LITERALS)
             { // C-4
-                const bsls::Types::Int64 GLOBAL_NUM_BYTES_IN_USE =
+                const int GLOBAL_NUM_BYTES_IN_USE =
                                             globalAllocator_p->numBytesInUse();
                 {
                     using namespace bsl::literals;
@@ -15047,7 +14901,7 @@ int main(int argc, char *argv[])
             }
 # if !defined(BSLS_STRING_DISABLE_S_LITERALS)
             { // C-4
-                const bsls::Types::Int64 GLOBAL_NUM_BYTES_IN_USE =
+                const int GLOBAL_NUM_BYTES_IN_USE =
                                             globalAllocator_p->numBytesInUse();
                 {
                     using namespace bsl::literals;
@@ -15866,7 +15720,7 @@ int main(int argc, char *argv[])
                 long double    SPEC   = DATA[ti].d_spec;
 
                 if (veryVeryVerbose) {
-                    printf("\tPOS: " ZU ", SPEC: \"%Lf\"\n", POS, SPEC);
+                    printf("\tPOS: " ZU ", SPEC: \"%g\"\n", POS, SPEC);
                 }
 
                 const bsl::wstring      inV(INPUT);
