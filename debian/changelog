@@ -1,5 +1,19 @@
-bsl-internal (3.58.0.0) unstable; urgency=low
+bsl-internal (3.59.0.0) unstable; urgency=low
 
+  * 0b0dafcac Bumped version to 3.59.0.0
+  * b8cad69a9 Merge pull request #2841 from mgiroux/PR-2666-latest
+  * 6adc7449f Merge pull request #2789 from bchapman/bal-jsn,xml-decoder-check-utf8-drqs-158055467
+  * b0f374c3a Merge pull request #2847 from mgiroux/remove-smallsequential-allocator-and-pool
+  * e7248b29a Clean up string_view conversion tests
+  * e44df7712 Enable more conversions and test them.
+  * 9f0f58bbf String view conversions
+  * de8eb1b9e Merge pull request #2832 from APILayer/fix/baljsn-ub-clauses
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 25 Jul 2020 16:01:51 -0400
+
+bsl-internal (3.58.0.0) git; urgency=low
+
+  * 1ed0dfc42 Changelog for version 3.58.0.0
   * 2c6de7b55 Bumped version to 3.58.0.0
   * 5749c2d59 Merge pull request #2819 from bchapman/bdlb_variant-createInPlace-return-drqs-160662990
   * f77eb979d Merge pull request #2817 from bchapman/bslma_testallocatormonitor-fix-allocate-0-drqs-160613942
@@ -10,7 +24,7 @@ bsl-internal (3.58.0.0) unstable; urgency=low
   * a9059d9fd Merge pull request #2815 from mclow3/drqs-113474532-deletions
   * cf99ec112 Merge pull request #2813 from gsoumar/patch-1
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 10 Jul 2020 13:06:32 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 10 Jul 2020 13:07:32 -0400
 
 bsl-internal (3.57.0.0) git; urgency=low
 
