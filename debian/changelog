@@ -1,5 +1,12 @@
-bsl-internal (3.59.0.0) unstable; urgency=low
+bsl-internal (3.59.0.1) unstable; urgency=low
 
+  * 13985df61 Merge pull request #2857 from bde/revert-2816-review/bde-string-non-const-data-drqs-160160630
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 25 Jul 2020 17:14:00 -0400
+
+bsl-internal (3.59.0.0) git; urgency=low
+
+  * 9609964c9 Changelog for version 3.59.0.0
   * 0b0dafcac Bumped version to 3.59.0.0
   * b8cad69a9 Merge pull request #2841 from mgiroux/PR-2666-latest
   * 6adc7449f Merge pull request #2789 from bchapman/bal-jsn,xml-decoder-check-utf8-drqs-158055467
@@ -9,7 +16,7 @@ bsl-internal (3.59.0.0) unstable; urgency=low
   * 9f0f58bbf String view conversions
   * de8eb1b9e Merge pull request #2832 from APILayer/fix/baljsn-ub-clauses
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 25 Jul 2020 16:01:51 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 25 Jul 2020 16:47:53 -0400
 
 bsl-internal (3.58.0.0) git; urgency=low
 
