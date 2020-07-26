@@ -173,7 +173,7 @@ class Decoder {
 
     // DATA
     bsl::ostringstream  d_logStream;            // stream to record errors
-    Tokenizer           d_tokenizer;            // JSON tokenizer
+    Tokenizer    d_tokenizer;            // JSON tokenizer
     bsl::string         d_elementName;          // current element name
     int                 d_currentDepth;         // current decoding depth
     int                 d_maxDepth;             // max decoding depth
@@ -214,20 +214,14 @@ class Decoder {
         // formatting mode as specified in 'bdlat_FormattingMode'.  Note that
         // 'ANY_CATEGORY' shall be a tag-type defined in 'bdlat_TypeCategory'.
 
-    bsl::ostream& logTokenizerError(const char *alternateString);
-        // Log the latest tokenizer error to 'd_logStream'.  If the tokenizer
-        // did not have an error, log the specified 'alternateString'.  Return
-        // a reference to 'd_logStream'.
-
     int skipUnknownElement(const bslstl::StringRef& elementName);
         // Skip the unknown element specified by 'elementName' by discarding
         // all the data associated with it and advancing the parser to the next
         // element.  Return 0 on success and a non-zero value otherwise.
 
   private:
-    // NOT IMPLEMENTED
+    // Not implemented:
     Decoder(const Decoder&);
-    Decoder& operator=(const Decoder&);
 
   public:
     // CREATORS
@@ -314,7 +308,7 @@ struct Decoder_ElementVisitor {
 
     // DATA
     Decoder *d_decoder_p;  // decoder (held, not owned)
-    int      d_mode;       // formatting mode
+    int             d_mode;       // formatting mode
 
     // CREATORS
 
@@ -435,12 +429,13 @@ int Decoder::decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Sequence)
 
         int rc = d_tokenizer.advanceToNextToken();
         if (rc) {
-            d_logStream << "Could not decode sequence, ";
-            logTokenizerError("error") << " reading token after '{'\n";
+            d_logStream << "Could not decode sequence, "
+                        << "error reading token after '{'\n";
             return -1;                                                // RETURN
         }
 
-        while (Tokenizer::e_ELEMENT_NAME == d_tokenizer.tokenType()) {
+        while (Tokenizer::e_ELEMENT_NAME ==
+                                                     d_tokenizer.tokenType()) {
             bslstl::StringRef elementName;
             rc = d_tokenizer.value(&elementName);
             if (rc) {
@@ -456,8 +451,8 @@ int Decoder::decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Sequence)
 
                 rc = d_tokenizer.advanceToNextToken();
                 if (rc) {
-                    logTokenizerError("Error") << " reading value for"
-                                 << " attribute '" << d_elementName << "' \n";
+                    d_logStream << "Error reading value for attribute '"
+                                << d_elementName << "' \n";
                     return -1;                                        // RETURN
                 }
 
@@ -492,8 +487,7 @@ int Decoder::decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Sequence)
 
             rc = d_tokenizer.advanceToNextToken();
             if (rc) {
-                d_logStream << "Could not decode sequence, ";
-                logTokenizerError("error") << " reading token"
+                d_logStream << "Could not decode sequence, error reading token"
                             << " after value for attribute '"
                             << d_elementName << "' \n";
                 return -1;                                            // RETURN
@@ -549,9 +543,9 @@ int Decoder::decodeImp(TYPE                       *value,
             if (d_skipUnknownElements) {
                 const int rc = skipUnknownElement(selectionName);
                 if (rc) {
-                    d_logStream << "Error reading unknown element '"
-                                << selectionName << "' or after that "
-                                << "element\n";
+                     d_logStream << "Error reading unknown element '"
+                                 << selectionName << "' or after that "
+                                 << "element\n";
                     return -1;                                        // RETURN
                 }
             }
@@ -576,8 +570,8 @@ int Decoder::decodeImp(TYPE                       *value,
 
         int rc = d_tokenizer.advanceToNextToken();
         if (rc) {
-            d_logStream << "Could not decode choice, ";
-            logTokenizerError("error") << " reading token after {\n";
+            d_logStream << "Could not decode choice, "
+                        << "error reading token after {\n";
             return -1;                                                // RETURN
         }
 
@@ -604,8 +598,8 @@ int Decoder::decodeImp(TYPE                       *value,
 
                 rc = d_tokenizer.advanceToNextToken();
                 if (rc) {
-                    d_logStream << "Could not decode choice, ";
-                    logTokenizerError("error") << " reading value \n";
+                    d_logStream << "Could not decode choice, "
+                                << "error reading value \n";
                     return -1;                                        // RETURN
                 }
 
@@ -637,10 +631,8 @@ int Decoder::decodeImp(TYPE                       *value,
 
             rc = d_tokenizer.advanceToNextToken();
             if (rc) {
-                d_logStream << "Could not decode choice, ";
-                logTokenizerError("error") << " reading token after value for"
-                                                               " selection \n";
-
+                d_logStream << "Could not decode choice, error reading "
+                            << "token after value for selection \n";
                 return -1;                                            // RETURN
             }
         }
@@ -679,7 +671,6 @@ int Decoder::decodeImp(TYPE *value,
     }
 
     // This used to be 'BUF_SIZE' but that caused a #define conflict.
-
     const int                                     BAL_BUF_SIZE = 128;
     bdlma::LocalSequentialAllocator<BAL_BUF_SIZE> bufferAllocator;
     bsl::string                                   tmpString(&bufferAllocator);
@@ -792,7 +783,6 @@ int Decoder::decodeImp(TYPE                      *value,
 
     int rc = d_tokenizer.advanceToNextToken();
     if (rc) {
-        logTokenizerError("Error") << " reading array.\n";
         return rc;                                                    // RETURN
     }
 
@@ -815,8 +805,8 @@ int Decoder::decodeImp(TYPE                      *value,
 
             rc = d_tokenizer.advanceToNextToken();
             if (rc) {
-                logTokenizerError("Error") << " reading token after value of"
-                                " element '" << i - 1 << "'\n";
+                d_logStream << "Error reading token after value of element '"
+                            << i - 1 << "'\n";
                 return rc;                                            // RETURN
             }
         }
@@ -910,14 +900,13 @@ int Decoder::decode(bsl::streambuf        *streamBuf,
     d_tokenizer.reset(streamBuf);
     d_tokenizer.setAllowStandAloneValues(false);
     d_tokenizer.setAllowHeterogenousArrays(false);
-    d_tokenizer.setAllowNonUTF8Tokens(!options.validateInputIsUtf8());
 
     typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     int rc = d_tokenizer.advanceToNextToken();
     if (rc) {
-        logTokenizerError("Error") << " advancing to the first token. "
-                             "Expecting a '{' or '[' as the first character\n";
+        d_logStream << "Error advancing to the first token. "
+                    << "Expecting a '{' or '[' as the first character\n";
         return rc;                                                    // RETURN
     }
 

@@ -4,11 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(baljsn_decoder_cpp,"$Id$ $CSID$")
 
-#include <bdlde_utf8util.h>
-
-#include <bsla_fallthrough.h>
-
 #include <bsl_iterator.h>
+
+#include <bsls_annotation.h>
 
 namespace BloombergLP {
 namespace baljsn {
@@ -18,31 +16,12 @@ namespace baljsn {
                                // -------------
 
 // PRIVATE MANIPULATORS
-bsl::ostream& Decoder::logTokenizerError(const char *alternateString)
-{
-    const int sts = d_tokenizer.readStatus();
-
-    if (0 == sts) {
-        d_logStream << alternateString;
-    }
-    else if (sts < 0) {
-        d_logStream << "UTF-8 error " << bdlde::Utf8Util::toAscii(sts)
-                    << " at offset " << d_tokenizer.readOffset();
-    }
-    else {
-        d_logStream << "Error: unexpected end of file at offset " <<
-                                                      d_tokenizer.readOffset();
-    }
-
-    return d_logStream;
-}
-
 int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
 {
     int rc = d_tokenizer.advanceToNextToken();
     if (rc) {
-        logTokenizerError("Error") << " advancing to token after '"
-                                   << elementName << "'\n";
+        d_logStream << "Error advancing to token after '"
+                    << elementName << "'\n";
         return -1;                                                    // RETURN
     }
 
@@ -57,7 +36,8 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
         }
         return rc;                                                    // RETURN
     }
-    else if (Tokenizer::e_START_OBJECT == d_tokenizer.tokenType()) {
+    else if (Tokenizer::e_START_OBJECT ==
+                                                     d_tokenizer.tokenType()) {
         // 'elementName' is a sequence or choice.  Descend into the element and
         // skip all its sub-elements.
 
@@ -74,13 +54,14 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
 
             int rc = d_tokenizer.advanceToNextToken();
             if (rc) {
-                logTokenizerError("Error") << " reading unknown element '"
+                d_logStream << "Error reading unknown element '"
                             << elementName << "' or after that element\n";
                 return -1;                                            // RETURN
             }
 
             switch (d_tokenizer.tokenType()) {
-              case Tokenizer::e_ELEMENT_NAME: BSLA_FALLTHROUGH;
+              case Tokenizer::e_ELEMENT_NAME:
+                BSLS_ANNOTATION_FALLTHROUGH;
               case Tokenizer::e_ELEMENT_VALUE: {
                 bslstl::StringRef tmp;
                 rc = d_tokenizer.value(&tmp);
@@ -120,13 +101,14 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
 
             int rc = d_tokenizer.advanceToNextToken();
             if (rc) {
-                logTokenizerError("Error") << " reading unknown element '"
+                d_logStream << "Error reading unknown element '"
                             << elementName << "' or after that element\n";
                 return -1;                                            // RETURN
             }
 
             switch (d_tokenizer.tokenType()) {
-              case Tokenizer::e_ELEMENT_NAME: BSLA_FALLTHROUGH;
+              case Tokenizer::e_ELEMENT_NAME:
+                BSLS_ANNOTATION_FALLTHROUGH;
               case Tokenizer::e_ELEMENT_VALUE: {
                 bslstl::StringRef tmp;
                 rc = d_tokenizer.value(&tmp);
