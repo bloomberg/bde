@@ -230,7 +230,8 @@ using native_std::operator>=;
 }
 #define BSLSTL_STRING_VIEW_IS_ALIASED
 #elif defined(BSLS_PLATFORM_OS_LINUX)
-#error "BDE requires at least C++17 for ABI compatibility on Linux systems."
+//TODO: reinstate for production releases temporarily
+//#error "BDE requires at least C++17 for ABI compatibility on Linux systems."
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #endif  // BDE_DISABLE_CPP17_ABI
 

@@ -5401,23 +5401,70 @@ int main(int argc, char *argv[])
 
         bsl::string foo = tempFileName(20);
         Obj::remove(foo);
-        Obj::FileDescriptor fd = Obj::open(foo,
-                                           Obj::e_OPEN_OR_CREATE,
-                                           Obj::e_READ_WRITE);
-        int pageSize = bdls::MemoryUtil::pageSize();
+        Obj::FileDescriptor fd =
+            Obj::open(foo, Obj::e_OPEN_OR_CREATE, Obj::e_READ_WRITE);
+        bsl::size_t pageSize    = bdls::MemoryUtil::pageSize();
+        bsl::size_t intsPerPage = pageSize / INT_SIZEOF(int);
+
         Obj::growFile(fd, pageSize, true);
-        int *p;
-        ASSERT(0 == Obj::map(fd, (void**)&p, 0, pageSize,
+
+        int *fileBase;
+
+        const int ITER_COUNT = 10000;
+
+        const bsl::size_t MAPPED_SIZE = pageSize * ITER_COUNT;
+
+        ASSERT(0 == Obj::map(fd, (void**)&fileBase, 0, MAPPED_SIZE,
                                    bdls::MemoryUtil::k_ACCESS_READ_WRITE));
-        printf("mapped at %p\n", p);
-        for (int i = 0; i < 10000; ++i) {
-          ASSERT(0 == Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
-          int buf;
+
+        ASSERT(0 == Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
+        *fileBase = 1234;
+        int buf;
+        ASSERT(INT_SIZEOF(int) == Obj::read(fd, &buf, INT_SIZEOF(int)));
+        ASSERT(1234 == buf);
+        ASSERT(1234 == *fileBase);
+
+        bsl::size_t fileSize    = pageSize;
+        printf("mapped %zu bytes at %p in %s\n", MAPPED_SIZE, fileBase, foo);
+
+        bool printSizes = false;
+
+        for (int i = 1; i < ITER_COUNT; ++i) {
+          if (veryVerbose) {
+              P(i);
+          }
+          int rc = Obj::growFile(fd, fileSize + pageSize, true);
+          ASSERTV(i, fileSize, pageSize, 0 == rc);
+          fileSize += pageSize;
+
+          if (rc != 0) {
+              printSizes = true;
+          }
+
+          if (printSizes) {
+              P_(L_); T_; P_(i); T_; P(Obj::getFileSize(foo));
+          }
+
+          int *p = fileBase + (i * intsPerPage);
+
           *p = i;
-          ASSERT(INT_SIZEOF(int) == Obj::read(fd, &buf, INT_SIZEOF(int)));
-          ASSERT(i == buf);
+
+          rc = Obj::seek(fd,
+                         i * intsPerPage * INT_SIZEOF(int),
+                         Obj::e_SEEK_FROM_BEGINNING);
+          ASSERTV(i,
+                  fileSize,
+                  intsPerPage,
+                  i * intsPerPage * INT_SIZEOF(int),
+                  rc,
+                  i * intsPerPage * INT_SIZEOF(int) == rc);
+
+          int buf;
+          ASSERTV(i, INT_SIZEOF(int) == Obj::read(fd, &buf, INT_SIZEOF(int)));
+          ASSERTV(i, i == buf);
+          ASSERTV(i, i == *p);
         }
-        ASSERT(0 == Obj::unmap(p, pageSize));
+        ASSERT(0 == Obj::unmap(fileBase, MAPPED_SIZE));
 
 #if 0
         Obj::FileDescriptor fd =  // /bb/data is Bloomberg-specific
