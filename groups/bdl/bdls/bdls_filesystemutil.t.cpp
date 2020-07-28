@@ -5425,7 +5425,6 @@ int main(int argc, char *argv[])
         ASSERT(1234 == *fileBase);
 
         bsl::size_t fileSize    = pageSize;
-        printf("mapped %zu bytes at %p in %s\n", MAPPED_SIZE, fileBase, foo);
 
         bool printSizes = false;
 
