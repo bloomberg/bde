@@ -1292,8 +1292,8 @@ int TestDriver<TYPE,TRAITS,ALLOC>::getValues(const TYPE **values)
                                       &bslma::NewDeleteAllocator::singleton());
 
     const int NUM_VALUES = 12;
-    static const TYPE initValues[NUM_VALUES] = { // avoid 'DEFAULT_VALUE' and
-        TYPE(VA),                                // 'UNINITIALIZED_VALUE'.
+    static const TYPE initValues[NUM_VALUES + 1] = {
+        TYPE(VA),
         TYPE(VB),
         TYPE(VC),
         TYPE(VD),
@@ -1304,7 +1304,8 @@ int TestDriver<TYPE,TRAITS,ALLOC>::getValues(const TYPE **values)
         TYPE(VI),
         TYPE(VJ),
         TYPE(VK),
-        TYPE(VL)
+        TYPE(VL),
+        0
     };
 
     *values = initValues;
@@ -1602,7 +1603,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     //..
 
     {
-        Obj s;  const Obj& S = s;
+        Obj s;  const Obj& S = s;  (void)S;
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(s.begin()));
@@ -1647,7 +1648,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     //..
 
     {
-        Obj s;  const Obj& S = s;
+        Obj s;  const Obj& S = s;  (void)S;
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(S.size()));
@@ -1699,7 +1700,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     //..
 
     {
-        Obj s;  const Obj& S = s;
+        Obj s;  const Obj& S = s;  (void)S;
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(S.c_str()));
@@ -1711,7 +1712,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(S.get_allocator()));
 
         Obj    str;
-        size_t pos(0);
+        size_t pos(0);  (void)pos;
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(S.find             (str, pos)));
@@ -3135,8 +3136,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase26()
         0  // null string required as last element
     };
 
-    const TYPE DEFAULT_VALUE = TYPE(::DEFAULT_VALUE);
-
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
@@ -3221,7 +3220,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase26()
         ASSERT(0 == std::memcmp(&n[0 * NUM_VALUES], VALUES, NUM_VALUES));
         ASSERT(0 == std::memcmp(&n[1 * NUM_VALUES], VALUES, NUM_VALUES));
         ASSERT(0 == std::memcmp(&n[2 * NUM_VALUES], VALUES, NUM_VALUES));
-        ASSERT(3 * NUM_VALUES == n.size());
+        ASSERTV(3u * NUM_VALUES == n.size());
     }
 
     if (verbose) printf("\tTesting conversion from native string\n");
@@ -3261,7 +3260,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase26()
         ASSERT(0 == std::memcmp(&b[0 * NUM_VALUES], VALUES, NUM_VALUES));
         ASSERT(0 == std::memcmp(&b[1 * NUM_VALUES], VALUES, NUM_VALUES));
         ASSERT(0 == std::memcmp(&b[2 * NUM_VALUES], VALUES, NUM_VALUES));
-        ASSERT(3 * NUM_VALUES == b.size());
+        ASSERT(3u * NUM_VALUES == b.size());
     }
 }
 
