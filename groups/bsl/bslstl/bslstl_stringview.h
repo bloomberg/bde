@@ -197,6 +197,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_linkcoercion.h>
 #include <bsls_nativestd.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
@@ -229,13 +230,19 @@ using native_std::operator>=;
 
 }
 #define BSLSTL_STRING_VIEW_IS_ALIASED
+
+#define BSLSTL_STRING_VIEW_LINKER_CHECK_NAME bslstl_stringview_POST_cpp17_ABI
+
 #elif defined(BSLS_PLATFORM_OS_LINUX)
 //TODO: reinstate for production releases temporarily
 //#error "BDE requires at least C++17 for ABI compatibility on Linux systems."
+
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #endif  // BDE_DISABLE_CPP17_ABI
 
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
+
+#define BSLSTL_STRING_VIEW_LINKER_CHECK_NAME bslstl_stringview_PRE_cpp17_ABI
 
 namespace bsl {
 // Import 'char_traits' into the 'bsl' namespace so that 'basic_string_view'
@@ -2446,7 +2453,15 @@ void bslh::hashAppend(
 
 }  // close enterprise namespace
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
+namespace BloombergLP {
 
+extern const char *BSLSTL_STRING_VIEW_LINKER_CHECK_NAME;
+BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
+                      const char *,
+                      bslstl_stringview_assertion,
+                      BloombergLP::BSLSTL_STRING_VIEW_LINKER_CHECK_NAME)
+
+}  // close enterprise namespace
 #endif
 
 // ----------------------------------------------------------------------------
