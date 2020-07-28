@@ -1780,12 +1780,10 @@ class unordered_map {
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       size_type>::type
     count(const LOOKUP_KEY& key) const
-        // Return the number of 'value_type' objects within this unordered map
-        // that are equivalent to the specified 'key'.  Note that although a
-        // map maintains unique keys, the returned value can be other than 0 or
-        // 1, because a transparent comparator may have been supplied that
-        // provides a different (but compatible) partitioning of keys for
-        // 'LOOKUP_KEY' as the comparisons used to order the keys in the map.
+        // Return the number of 'value_type' objects within this unordred map
+        // that are equivalent to the specified 'key'.  Note that since an
+        // unordered map maintains unique keys, the returned value will be
+        // either 0 or 1.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
