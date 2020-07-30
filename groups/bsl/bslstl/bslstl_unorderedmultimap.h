@@ -981,6 +981,9 @@ class unordered_multimap {
         // positioned one past the end of the sequence.  If this unordered
         // multimap contains no 'value_type' objects with a key equivalent to
         // 'key', then the two returned iterators will have the same value.
+        // Note that the behaviour is undefined unless the value being searched
+        // for matches the elements of at most one equivalent-key group in the
+        // container.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1045,7 +1048,10 @@ class unordered_multimap {
         // 'value_type' object in the sequence of all the 'value_type' objects
         // of this unordered multimap with a key equivalent to the specified
         // 'key', if such entries exist, and the past-the-end ('end') iterator
-        // otherwise.
+        // otherwise.  Note that the behaviour is undefined unless the value
+        // being searched for matches the elements of at most one
+        // equivalent-key group in the container.
+
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1323,7 +1329,10 @@ class unordered_multimap {
         // Return an iterator providing modifiable access to the first
         // 'value_type' object in this unordered multimap whose key is
         // equivalent to the specified 'key', if such an entry exists, and the
-        // past-the-end ('end') iterator otherwise.
+        // past-the-end ('end') iterator otherwise.  Note that the behaviour is
+        // undefined unless the value being searched for matches the elements
+        // of at most one equivalent-key group in the container.
+
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1343,7 +1352,10 @@ class unordered_multimap {
                       size_type>::type
     count(const LOOKUP_KEY& key) const
         // Return the number of 'value_type' objects in this unordered multimap
-        // with a key equivalent to the specified 'key'.
+        // with a key equivalent to the specified 'key'.  Note that the
+        // behaviour is undefined unless the value being searched for matches
+        // the elements of at most one equivalent-key group in the container.
+
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1382,6 +1394,9 @@ class unordered_multimap {
         // positioned one past the end of the sequence.  If this unordered
         // multimap contains no 'value_type' objects with a key equivalent to
         // 'key', then the two returned iterators will have the same value.
+        // Note that the behaviour is undefined unless the value being searched
+        // for matches the elements of at most one equivalent-key group in the
+        // container.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {

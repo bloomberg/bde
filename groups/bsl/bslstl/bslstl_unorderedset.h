@@ -1396,7 +1396,8 @@ class unordered_set {
         // Return an iterator providing modifiable access to the 'value_type'
         // object in this unordered set that is equivalent to the specified
         // 'key', if such an entry exists, and the past-the-end ('end')
-        // iterator otherwise.
+        // iterator otherwise.  Note that the behaviour is undefined unless the
+        // value being searched for matches at most one key in the container.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1423,7 +1424,9 @@ class unordered_set {
         // contains no 'value_type' objects equivalent to 'key', then the two
         // returned iterators will have the same value.  Note that since an 
         // unordered set maintains unique keys, the range will contain at most
-        // one element.
+        // one element.  Note that the behaviour is undefined unless the value
+        // being searched for matches at most one key in the container.
+
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1524,7 +1527,10 @@ class unordered_set {
         // Return an iterator providing non-modifiable access to the
         // 'value_type' object in this unordered set that is equivalent to the
         // specified 'key', if such an entry exists, and the past-the-end
-        // ('end') iterator otherwise.
+        // ('end') iterator otherwise.  Note that the behaviour is undefined
+        // unless the value being searched for matches at most one key in the
+        // container.
+
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1546,7 +1552,9 @@ class unordered_set {
         // Return the number of 'value_type' objects within this unordred set
         // that are equivalent to the specified 'key'.  Note that since an
         // unordered set maintains unique keys, the returned value will be
-        // either 0 or 1.
+        // either 0 or 1.  Note that the behaviour is undefined unless the
+        // value being searched for matches at most one key in the container.
+
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1573,7 +1581,9 @@ class unordered_set {
         // contains no 'value_type' objects equivalent to 'key', then the two
         // returned iterators will have the same value.  Note that since an
         // unordered set maintains unique keys, the range will contain at most
-        // one element.
+        // one element.  Note that the behaviour is undefined unless the value
+        // being searched for matches at most one key in the container.
+
         //
         // Note: implemented inline due to Sun CC compilation error.
         {

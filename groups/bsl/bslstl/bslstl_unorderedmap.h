@@ -1481,7 +1481,9 @@ class unordered_map {
         // Return an iterator providing modifiable access to the 'value_type'
         // object in this unordered map with a key equivalent to the specified
         // 'key', if such an entry exists, and the past-the-end iterator
-        // ('end') otherwise.
+        // ('end') otherwise.  Note that the behaviour is undefined unless the
+        // value being searched for matches at most one key in the container.
+
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1653,7 +1655,9 @@ class unordered_map {
         // the sequence.  If this unordered map contains no 'value_type' object
         // having 'key', then the two returned iterators will have the same
         // value, 'end()'.  Note that since an unordered map maintains unique
-        // keys, the range will contain at most one element.
+        // keys, the range will contain at most one element.  Note that the
+        // behaviour is undefined unless the value being searched for matches
+        // at most one key in the container.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1783,7 +1787,9 @@ class unordered_map {
         // Return the number of 'value_type' objects within this unordred map
         // that are equivalent to the specified 'key'.  Note that since an
         // unordered map maintains unique keys, the returned value will be
-        // either 0 or 1.
+        // either 0 or 1.  Note that the behaviour is undefined unless the
+        // value being searched for matches at most one key in the container.
+
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1813,7 +1819,10 @@ class unordered_map {
         // the sequence.  If this unordered map contains no 'value_type' object
         // having 'key', then the two returned iterators will have the same
         // value, 'end()'.  Note that since an unordered map maintains unique
-        // keys, the range will contain at most one element.
+        // keys, the range will contain at most one element.  Note that the
+        // behaviour is undefined unless the value being searched for matches
+        // at most one key in the container.
+
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1845,7 +1854,10 @@ class unordered_map {
         // Return an iterator providing non-modifiable access to the
         // 'value_type' object in this unordered map with a key equivalent to
         // the specified 'key', if such an entry exists, and the past-the-end
-        // iterator ('end') otherwise.
+        // iterator ('end') otherwise.  Note that the behaviour is undefined
+        // unless the value being searched for matches at most one key in the
+        // container.
+
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
