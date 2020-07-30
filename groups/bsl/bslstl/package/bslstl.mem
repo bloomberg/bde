@@ -31,7 +31,6 @@ bslstl_istringstream
 bslstl_iterator
 bslstl_iteratorutil
 bslstl_list
-bslstl_list_test
 bslstl_map
 bslstl_map_test1
 bslstl_map_test2

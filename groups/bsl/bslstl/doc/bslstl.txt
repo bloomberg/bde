@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 83 components having 9 levels of physical
+ The 'bslstl' package currently has 82 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -78,7 +78,6 @@
      bslstl_function
      bslstl_hashtablebucketiterator
      bslstl_hashtableiterator
-     bslstl_list_test                                                 !PRIVATE!
      bslstl_priorityqueue
      bslstl_stringrefdata
 
@@ -215,9 +214,6 @@
 :
 : 'bslstl_list':
 :      Provide an STL-compliant list class.
-:
-: 'bslstl_list_test':                                                 !PRIVATE!
-:      Provide support for the 'bslstl_list.t.cpp' test driver.
 :
 : 'bslstl_map':
 :      Provide an STL-compliant map class.
