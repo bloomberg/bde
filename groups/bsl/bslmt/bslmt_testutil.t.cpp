@@ -3,22 +3,25 @@
 
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
 #include <bslmt_threadgroup.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
+#include <bsls_asserttestexception.h>
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_cstddef.h>     // 'size_t'
+#include <bsl_cstddef.h>    // 'bsl::size_t'
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
-#include <bsl_string.h>
+#include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 
 #include <fcntl.h>
 
@@ -42,7 +45,7 @@
 //                              Overview
 //                              --------
 // The component under test implements a set of macros that write to the
-// standard output ('bsl::cout').
+// standard outputs ('bsl::cout' and 'bsl::cerr').
 //
 // The macros provided mirror the standard test macros normally used in test
 // drivers.  The intention is that the standard test macros should be
@@ -83,7 +86,6 @@
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 7] void *callFunc(void *arg);
-// [ 7] void setFunc(Func func);
 //
 // MACROS
 // [ 6] BSLMT_TESTUTIL_ASSERT(X)
@@ -100,11 +102,16 @@
 // [ 4] BSLMT_TESTUTIL_P_(X)
 // [ 3] BSLMT_TESTUTIL_L_
 // [ 3] BSLMT_TESTUTIL_T_
+// [ 8] BSLMT_TESTUTIL_GUARD
+// [ 8] BSLMT_TESTUTIL_COUT
+// [ 8] BSLMT_TESTUTIL_GUARDED_STREAM
+// [ 8] BSLMT_TESTUTIL_T_
+// [ 9] BSLMT_TESTUTIL_CERR
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TEST APPARATUS
 // [ 8] MULTITHREADED TEST
-// [ 9] USAGE EXAMPLE
+// [10] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -181,21 +188,31 @@ typedef BloombergLP::bslmt::TestUtil      Obj;
 typedef BloombergLP::bsls::AtomicInt      AtomicInt;
 typedef BloombergLP::bslmt::Mutex         Mutex;
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+# define U_SLASH_STR "\\"
+#else
+# define U_SLASH_STR "/"
+#endif
+
 //=============================================================================
 //                             USAGE EXAMPLE CODE
 //-----------------------------------------------------------------------------
 
 namespace Usage {
 
-///Example 1: Writing a Test Driver
-/// - - - - - - - - - - - - - - - -
-// First, we write an elided component to test, which provides a utility class:
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Use of Thread-Safe Asserts and Guard in a Test Driver
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we write a function, 'sumOfSquares', to test:
 //..
-    namespace bslabc {
+    namespace xyzde {
 
     struct SumUtil {
         // This utility class provides sample functionality to demonstrate how
-        // a multi threaded test driver might be written.
+        // a multi-threaded test driver might be written.
 
         // CLASS METHODS
         static double sumOfSquares(double a,
@@ -216,21 +233,24 @@ namespace Usage {
         // Note that there is a bug here in that we have added the cube, rather
         // than the square, of 'd'.
 
-        double ret = a*a;
-        ret += b*b;
-        ret += c*c;
-        ret += d*d*d;
+        double ret = a * a;
+        ret += b * b;
+        ret += c * c;
+        ret += d * d * d;
         return ret;
     }
 
-    }  // close namespace bslabc
+    }  // close namespace xyzde
 //..
-// Then, we can write an elided test driver for this component.  We start by
-// providing the standard BDE assert test macro:
+// Then, we can write a test driver for this component.  We start by providing
+// the standard BDE 'ASSERT' test macro, which is not thread-safe, and is the
+// same as it is for a test driver using 'bslim_testutil'.  The macros in
+// 'bslmt_testutil' ensure that any time this function is called, the global
+// mutex has been acquired.
 //..
-    //=========================================================================
-    //                       STANDARD BDE ASSERT TEST MACRO
-    //-------------------------------------------------------------------------
+    // ========================================================================
+    //                       STANDARD BDE ASSERT TEST FUNCTION
+    // ------------------------------------------------------------------------
     int testStatus = 0;
 
     void aSsErT(int c, const char *s, int i)
@@ -242,200 +262,225 @@ namespace Usage {
         }
     }
 //..
-// Next, we define the standard print and 'ASSERT*' macros, as aliases to the
+// Next, we define the standard output and 'ASSERT*' macros, as aliases to the
 // macros defined by this component:
 //..
-    //=========================================================================
+    // ========================================================================
     //                       STANDARD BDE TEST DRIVER MACROS
-    //-------------------------------------------------------------------------
-    #define ASSERT   BSLMT_TESTUTIL_ASSERT
-    #define ASSERTV  BSLMT_TESTUTIL_ASSERTV
+    // ------------------------------------------------------------------------
 
-    #define Q        BSLMT_TESTUTIL_Q   // Quote identifier literally.
-    #define P        BSLMT_TESTUTIL_P   // Print identifier and value.
-    #define P_       BSLMT_TESTUTIL_P_  // P(X) without '\n'.
-    #define T_       BSLMT_TESTUTIL_T_  // Print a tab (w/o newline).
-    #define L_       BSLMT_TESTUTIL_L_  // current Line number
+    #define ASSERT                   BSLMT_TESTUTIL_ASSERT
+    #define ASSERTV                  BSLMT_TESTUTIL_ASSERTV
+
+    #define LOOP_ASSERT              BSLMT_TESTUTIL_LOOP_ASSERT
+    #define LOOP2_ASSERT             BSLMT_TESTUTIL_LOOP2_ASSERT
+    #define LOOP3_ASSERT             BSLMT_TESTUTIL_LOOP3_ASSERT
+    #define LOOP4_ASSERT             BSLMT_TESTUTIL_LOOP4_ASSERT
+    #define LOOP5_ASSERT             BSLMT_TESTUTIL_LOOP5_ASSERT
+    #define LOOP6_ASSERT             BSLMT_TESTUTIL_LOOP6_ASSERT
+
+    #define GUARD                    BSLMT_TESTUTIL_GUARD
+
+    #define Q                        BSLMT_TESTUTIL_Q
+    #define P                        BSLMT_TESTUTIL_P
+    #define P_                       BSLMT_TESTUTIL_P_
+    #define T_                       BSLMT_TESTUTIL_T_
+    #define L_                       BSLMT_TESTUTIL_L_
+
+    #define GUARDED_STREAM(STREAM)   BSLMT_TESTUTIL_GUARDED_STREAM(STREAM)
+    #define COUT                     BSLMT_TESTUTIL_COUT
+    #define CERR                     BSLMT_TESTUTIL_CERR
 //..
 // Then, we define global verbosity flags to be used for controlling debug
 // traces.  The flags will be set by elided code at the beginning of 'main' to
-// determine the level of output verbosity the client wants.  We also define
-// six global double variables that we will use for testing, and a barrier to
-// coordinate threads
+// determine the level of output verbosity the client wants:
 //..
-    //=========================================================================
+    // ========================================================================
     //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-    //-------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     bool  verbose;
     bool  veryVerbose;
     bool  veryVeryVerbose;
     bool  veryVeryVeryVerbose;
 //..
-// Next we define some global typedefs, variables, and constants used by this
-// test case:
+// Next begin the usage test case, defining a 'typedef' and some 'enum's used
+// by this test case:
 //..
                                 // ---------------
                                 // Usage Test Case
                                 // ---------------
 
-    typedef  bslabc::SumUtil SU;
+    typedef  xyzde::SumUtil SU;
 
-    AtomicInt threadIdx(0);
-    AtomicInt lastRand(0);
+    enum { k_NUM_THREADS =    5,
+           k_LIMIT       =  100 };
+    const double limit   =  100;
 
-    enum { k_NUM_ITERATIONS     = 5,
-           k_NUM_THREADS        = 10,
-           k_NUM_RAND_VARIABLES = k_NUM_ITERATIONS * k_NUM_THREADS * 4 };
-
-    double *randNumbers;
 //..
-// Then, using out test macros, we write five test functors that can be run
-// concurrently to test the five static functions.
+// Then, using our test macros, we write our test functor that can be run
+// concurrently to test the static function:
 //..
-    struct TestSums {
+    struct SumUtilTest {
         void operator()()
             // Test 'TestUtil::sumOfSquares' with a variety of randomly
-            // generated arguments to be found in the array 'randNumbers'
+            // generated arguments.
         {
-            const int idx     = threadIdx++;
-            int       randIdx = idx * k_NUM_ITERATIONS * 4;
+            int    threadIdx;
+            double x[4];                // randomly-generated test values
+//..
+// Next, we use the 'GUARD' macro to serialize the initialization of
+// 'threadIdx' and the 'x' array.  We call 'bsl::srand' and 'bsl::rand', which
+// are not thread-safe, so the calls to them must be mutex-guarded.  Because
+// all access to 'masterThreadIdx' is guarded by the 'GUARD' call, it does not
+// need to be an atomic variable.
+//..
+            {
+                GUARD;
 
-            if (veryVerbose) {
-                BSLMT_TESTUTIL_OUTPUT_GUARD;
+                static int masterThreadIdx = 0;
+                threadIdx = masterThreadIdx++;
 
-                // Instantiating the output guard above locks the output
-                // mutex.  The following two macros would lock that mutex
-                // themselves, except that they detect the output guard and
-                // refrain.  Having the two macros guarded by one output guard
-                // ensures that the output from both will appear on the same
-                // line, uninterrupted by output from the 'BSLMT_TESTUTIL_*'
-                // macros being called from any other thread.
+                unsigned randSeed = (1234567891 + threadIdx) * 3333333333U;
+                bsl::srand(randSeed);
 
-                P_(idx);    P(randIdx);
+                for (int ii = 0; ii < 4; ++ii) {
+                    // Note that 'bsl::rand' always returns a non-negative
+                    // value.
+
+                    const double characteristic =  bsl::rand() % k_LIMIT;
+                    const double mantissa       =
+                               static_cast<double>(bsl::rand() % 1024) / 1024;
+                    const int    sign           = (bsl::rand() & 1) ? +1 : -1;
+
+                    // Note that it is safe to use 'ASSERTV', which redundantly
+                    // locks the mutex, even though the mutex has already been
+                    // acquired by the 'GUARD' call above.
+
+                    ASSERTV(threadIdx,ii, characteristic, 0 <= characteristic);
+                    ASSERTV(threadIdx,ii, characteristic,
+                                                       characteristic < limit);
+                    ASSERTV(threadIdx,ii, mantissa,       0 <= mantissa);
+                    ASSERTV(threadIdx,ii, mantissa,       mantissa < 1);
+
+                    x[ii] = sign * (characteristic + mantissa / 1000);
+                }
+//..
+// Then we close the block, allowing other threads to do output with the
+// 'BSLMT_TESTUTIL_*' macros or enter sections guarded by 'GUARD's.  Now, if we
+// want to do output, we have to acquire the critical section again, which we
+// can do by using the 'COUT' (aliased to 'BSLMT_TESTUTIL_COUT') macro:
+//..
             }
 
-            for (int ii = 0; ii < k_NUM_ITERATIONS; ++ii) {
-                double x[4];
-                for (int jj = 0; jj < 4; ++jj, ++randIdx) {
-                    x[jj] = randNumbers[randIdx];
-                }
-                if (randIdx >= k_NUM_RAND_VARIABLES) {
-                    BSLMT_TESTUTIL_OUTPUT_GUARD;
+            if (veryVerbose) COUT << "threadIdx: " << threadIdx <<
+                       ", x[] = { " << x[0] << ", " << x[1] << ", " << x[2] <<
+                                                         ", " << x[3] <<" }\n";
+//..
+// Next, if any of the 'ASSERTV's following this point fail with no 'GUARD'
+// call in scope, they will lock the mutex before doing output.  Note that the
+// 'ASSERTV's do not lock the mutex while checking to see if the predicate
+// passed to them is 'false'.
+//..
+            for (int ii = 0; ii < 4; ++ii) {
+                ASSERTV(threadIdx, ii, x[ii], x[ii] < limit);
+                ASSERTV(threadIdx, ii, x[ii], -limit < x[ii]);
+            }
 
-                    // We expect with the following two asserts, if either one
-                    // fails, both will fail.  We create the output guard above
-                    // to ensure that if they both output, their output will
-                    // appear adjacent to each other, uninterrupted by any
-                    // output from 'bslmt_TESTUTIL_*' macros being called by
-                    // any other thread.
-
-                    ASSERTV(randIdx, k_NUM_RAND_VARIABLES, !lastRand);
-                    ASSERTV(randIdx, k_NUM_RAND_VARIABLES,
-                                              randIdx == k_NUM_RAND_VARIABLES);
-                    lastRand = true;
-
-                    if (veryVerbose) {
-                        // This output calling 'cout' could become illegible if
-                        // 'BSLMT_TESTUTIL_*' macros in the other threads
-                        // output at the same time.  We are safe here because
-                        // we are within scope of an output guard.
-
-                        bsl::cout << "Thread number " << idx <<
-                             " reached the end of the random number buffer." <<
-                                                                     bsl::endl;
-                    }
-                }
-
-                // If any of the 'ASSERTV's following here fail, they will
-                // detect that no output guard object is in scope and lock the
-                // output mutex before doing any output, so the entire trace
-                // from any one failing 'ASSERTV' will be in one contiguous
-                // block.
-
-                double exp = x[0] * x[0];
-                ASSERTV(x[0], exp, SU::sumOfSquares(x[0]),
+            double exp = x[0] * x[0];
+            ASSERTV(x[0], exp, SU::sumOfSquares(x[0]),
                                                 exp == SU::sumOfSquares(x[0]));
 
-                exp += x[1] * x[1];
-                ASSERTV(x[0], x[1], exp, SU::sumOfSquares(x[0], x[1]),
+            exp += x[1] * x[1];
+            ASSERTV(x[0], x[1], exp, SU::sumOfSquares(x[0], x[1]),
                                           exp == SU::sumOfSquares(x[0], x[1]));
 
-                exp += x[2] * x[2];
-                ASSERTV(x[0], x[1], x[2], exp,
-                                            SU::sumOfSquares(x[0], x[1], x[2]),
+            exp += x[2] * x[2];
+            ASSERTV(x[0], x[1], x[2], exp, SU::sumOfSquares(x[0], x[1], x[2]),
                                     exp == SU::sumOfSquares(x[0], x[1], x[2]));
 
-                exp += x[3] * x[3];
-                ASSERTV(x[0], x[1], x[2], x[3], exp,
+            exp += x[3] * x[3];
+            ASSERTV(x[0], x[1], x[2], x[3], exp,
                                       SU::sumOfSquares(x[0], x[1], x[2], x[3]),
                               exp == SU::sumOfSquares(x[0], x[1], x[2], x[3]));
-            }
-
+//..
+// Then, if we want to do any more output, since the mutex has not been
+// acquired at this point, we have to re-acquire it.  We have a choice between
+// using 'COUT' again, as we did above, or by using 'GUARD' and 'bsl::cout':
+//..
             if (veryVerbose) {
-                BSLMT_TESTUTIL_OUTPUT_GUARD;
+                GUARD;
 
-                bsl::cout << "Thread number " << idx << " finishing." <<
-                                                                     bsl::endl;
+                bsl::cout << "Thread number " << threadIdx << " finishing.\n";
             }
         }
     };
 //..
+// Next, in 'main', we spawn our threads and let them run:
 //..
-int testMain()    // do not copy to .h file
-{
-    using namespace BloombergLP;    // do not copy to .h file
-//..
-// Next, in 'main', we allocate and populate our array of random numbers with
-// 'bsl::rand', which is single-threaded:
-//..
-    TestAllocator testAllocator("usage");
-    randNumbers = static_cast<double *>(testAllocator.allocate(
-                                       sizeof(double) * k_NUM_RAND_VARIABLES));
+    int main()
+    {
+        // ..
 
-    for (int ii = 0; ii < k_NUM_RAND_VARIABLES; ++ii) {
-        randNumbers[ii] = static_cast<double>(bsl::rand()) / RAND_MAX *
-                                                                   bsl::rand();
+        using namespace BloombergLP;
+
+        bslmt::ThreadGroup tg;
+        tg.addThreads(SumUtilTest(), k_NUM_THREADS);
+//..
+// Then, we join the threads:
+//..
+        tg.joinAll();
+//..
+// Now, we observe output something like this (tabs eliminated, long lines
+// wrapped).  Note that each of the five test threads reported a failure:
+//..
+//  x[0]: 24.0005  x[1]: 80.0001  x[2]: 14.0009  x[3]: 3.00029  exp: 7181.07
+//  SU::sumOfSquares(x[0], x[1], x[2], x[3]): 7199.08
+//  Error ../../bde/groups/bsl/bslmt/bslmt_testutil.t.cpp(380):
+//                  exp == SU::sumOfSquares(x[0], x[1], x[2], x[3])    (failed)
+//  x[0]: -81.0006  x[1]: -82.0009  x[2]: 36.0009  x[3]: -59.0002
+//  exp: 18062.3  SU::sumOfSquares(x[0], x[1], x[2], x[3]): -190799
+//  Error ../../bde/groups/bsl/bslmt/bslmt_testutil.t.cpp(380):
+//                  exp == SU::sumOfSquares(x[0], x[1], x[2], x[3])    (failed)
+//  x[0]: 46.0001  x[1]: -62.0004  x[2]: 75.0006  x[3]: -66.0008  exp: 15941.3
+//  SU::sumOfSquares(x[0], x[1], x[2], x[3]): -275921
+//  Error ../../bde/groups/bsl/bslmt/bslmt_testutil.t.cpp(380):
+//                  exp == SU::sumOfSquares(x[0], x[1], x[2], x[3])    (failed)
+//  x[0]: -18.0003  x[1]: -84.0006  x[2]: 79.0004  x[3]: 76.0007  exp: 19397.3
+//  SU::sumOfSquares(x[0], x[1], x[2], x[3]): 452609
+//  Error ../../bde/groups/bsl/bslmt/bslmt_testutil.t.cpp(380):
+//                  exp == SU::sumOfSquares(x[0], x[1], x[2], x[3])    (failed)
+//  x[0]: -55.0006  x[1]: 35.0004  x[2]: 54.0009  x[3]: -45.0002  exp: 9191.21
+//  SU::sumOfSquares(x[0], x[1], x[2], x[3]): -83960.1
+//  Error ../../bde/groups/bsl/bslmt/bslmt_testutil.t.cpp(380):
+//                  exp == SU::sumOfSquares(x[0], x[1], x[2], x[3])    (failed)
+//..
+// Finally, at the end of 'main' examine 'testStatus'.  If it's greater than 0,
+// report that the test failed.  Note that since there is a bug in
+// 'SU::sumOfSquares' with 4 args, we expect the last assert in
+// 'SumUtil::operator()' to fail 5 times, so the following message will report
+// 'test status = 5'.
+//..
+
+        if (testStatus > 0) {
+            bsl::cerr << "Error, non-zero test status = " << testStatus << "."
+                      << bsl::endl;
+        }
+
+        return testStatus;
     }
 //..
-// Then, we spawn our threads and let them run:
-//..
-    BloombergLP::bslmt::ThreadGroup tg;
-    tg.addThreads(TestSums(), k_NUM_THREADS);
-//..
-// Now, we join the threads, clean up, and at the end of 'main' examine
-// 'testStatus'.  If it's greater than 0, report that the test failed:
-//..
-    tg.joinAll();
-
-    testAllocator.deallocate(randNumbers);
-
-    if (testStatus > 0) {
-        // Note that since there is a bug in 'SU::sumOfSquares' with 4 args, we
-        // expect the last assert in 'TestSums::operator()' to fail 5
-        // iterations times 10 threads == 50 times, so the following message
-        // will report 'test status = 50'.
-
-        bsl::cerr << "Error, non-zero test status = " << testStatus << "."
-                  << bsl::endl;
-    }
-
-    return testStatus;
-//..
-// Finally, after the program has run, we see 50 assertion failures in the
-// output with differring values of the 'x[*]' variables, but each assert's
-// output is intact (rather than being interleaved with output from asserts in
-// other threads).
-}
 
 }  // close namespace Usage
 
-//=============================================================================
+// ============================================================================
 //                    UNDEFINE STANDARD TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #undef ASSERT
 #undef ASSERTV
+
+#undef GUARD
 
 #undef Q
 #undef P
@@ -443,18 +488,28 @@ int testMain()    // do not copy to .h file
 #undef T_
 #undef L_
 
-//=============================================================================
+#undef GUARDED_STREAM
+#undef COUT
+#undef CERR
+
+// ============================================================================
 //                    DEFINE SHORTHAND MACROS UNDER TEST
 //-----------------------------------------------------------------------------
 
 #define MT_ASSERT      BSLMT_TESTUTIL_LOOP0_ASSERT
 #define MT_ASSERTV     BSLMT_TESTUTIL_ASSERTV
 
+#define MT_GUARD       BSLMT_TESTUTIL_GUARD
+
 #define MT_Q           BSLMT_TESTUTIL_Q   // Quote identifier literally.
 #define MT_P           BSLMT_TESTUTIL_P   // Print identifier and value.
 #define MT_P_          BSLMT_TESTUTIL_P_  // P(X) without '\n'.
 #define MT_T_          BSLMT_TESTUTIL_T_  // Print a tab (w/o newline).
 #define MT_L_          BSLMT_TESTUTIL_L_  // current Line number
+
+#define MT_GUARDED_STREAM(STREAM)   BSLMT_TESTUTIL_GUARDED_STREAM(STREAM)
+#define MT_COUT                     BSLMT_TESTUTIL_COUT
+#define MT_CERR                     BSLMT_TESTUTIL_CERR
 
 int&      testStatus          = Usage::testStatus;
 
@@ -472,9 +527,9 @@ void aSsErT(int c, const char *s, int i)
     Usage::aSsErT(c, s, i);
 }
 
-//=============================================================================
+// ============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace BSLMT_TESTUTIL_TEST_FUNCTION_CALL {
 
@@ -581,11 +636,6 @@ class OutputRedirector {
         // successfully.  Note that captured output is allowed to have 0
         // length.
 
-    int numInstances(const bsl::string& expected);
-        // Scan the buffer for instances of the specified 'expected', and
-        // return the number of instances of 'expected' that were found.
-        // Overwrite the matched memory in the buffer with '*'s.
-
     void redirect();
         // Redirect 'stdout' to a temp file, and 'stderr' to the original
         // 'stdout', putting this 'OutputRedirector' object into the redirected
@@ -597,7 +647,7 @@ class OutputRedirector {
 
     void reset();
         // Reset the scratch buffer to empty.  The behavior is undefined unless
-        // 'redirect' has been previously called suCCESSFULLY.
+        // 'redirect' has been previously called successfully.
 
     void resetSize();
         // Reset the output size to the length of the null-terminated
@@ -610,10 +660,11 @@ class OutputRedirector {
     int compare(const char *expected) const;
         // Compare the specified 'expected' character buffer with any output
         // that has been loaded into the scratch buffer.  'expected' is assumed
-        // to be an NTBS, and its length is taken to be the string length of
-        // the NTBS.  Return 0 if 'expected' has the same length and contents
-        // as the scratch buffer, and non-zero otherwise.  The behavior is
-        // undefined unless 'redirect' has been previously called successfully.
+        // to be an NTBS (null-terminated binary string), and its length is
+        // taken to be the string length of the NTBS.  Return 0 if 'expected'
+        // has the same length and contents as the scratch buffer, and non-zero
+        // otherwise.  The behavior is undefined unless 'redirect' has been
+        // previously called successfully.
 
     int compare(const char *expected, bsl::size_t expectedLength) const;
         // Compare the specified 'expected' character buffer of the specified
@@ -627,10 +678,6 @@ class OutputRedirector {
     bool isOutputReady() const;
         // Return 'true' if captured output been loaded into the scratch
         // buffer, and 'false' otherwise.
-
-    bool isRedirected() const;
-        // Return 'true' if 'stdout' and 'stderr' have been successfully
-        // redirected, and 'false' otherwise.
 
     const struct stat& originalStdoutStat() const;
         // Return a reference providing non-modifiable access to the status
@@ -765,25 +812,6 @@ bool OutputRedirector::load()
     d_isOutputReadyFlag = true;
 
     return true;
-}
-
-int OutputRedirector::numInstances(const bsl::string& expected)
-{
-    BSLS_ASSERT(d_isOutputReadyFlag);
-    BSLS_ASSERT(!expected.empty());
-    BSLS_ASSERT(bsl::string::npos == expected.find('#'));
-
-    const char        *e   = expected.c_str();
-    const bsl::size_t  len = expected.length();
-
-    int ret = 0;
-    for (char *pc = d_outputBuffer_p; (pc = bsl::strstr(pc, e)); ) {
-        ++ret;
-
-        bsl::fill(pc, pc + len, '#');
-    }
-
-    return ret;
 }
 
 void OutputRedirector::redirect()
@@ -929,11 +957,6 @@ bool OutputRedirector::isOutputReady() const
     return d_isOutputReadyFlag;
 }
 
-bool OutputRedirector::isRedirected() const
-{
-    return d_isRedirectedFlag;
-}
-
 const struct stat& OutputRedirector::originalStdoutStat() const
 {
     return d_originalStdoutStat;
@@ -956,9 +979,11 @@ enum { k_NUM_THREADS      = 40,
 BloombergLP::bslmt::Barrier  barrier(k_NUM_THREADS + 1);
 AtomicInt                    atomicBarrier(0);
 AtomicInt                    threadIdx(0);
+bsl::ostringstream          *separateOut_p;
 
 u::OutputRedirector         *outputRedirector_p = 0;
 
+BloombergLP::bslmt::Mutex    patternVecMutex;
 bsl::vector<const char *>    patternVec(&ta);
 
 struct TestFunctor {
@@ -982,11 +1007,16 @@ struct TestFunctor {
         // Iterate 'k_NUM_ITERATIONS' times, doing various kinds of output
         // simultaneous.  All output patterns should occur exactly
         // 'k_NUM_ITERATIONS * k_NUM_THREADS' times.  Also, if the thread index
-        // is zero, then on that last itertaion set 'd_enablePush', which will
+        // is zero, then on that last iteration set 'd_enablePush', which will
         // enable 'push'.  After doing each form of output, call 'push' on the
         // string expected to be output.  The '0'th thread on the last
         // iteration will, via 'push', populate 'patternVec' with all the
         // patterns we expect to match.
+
+    void subRoutine();
+        // Does some output in a context where a guard has already locked the
+        // mutex.  The behavior is undefined unless the mutex was already
+        // locked.
 
     // ACCESSOR
     void push(const char *str) const
@@ -994,10 +1024,21 @@ struct TestFunctor {
         // 'str' to the current pattern to be matched.
     {
         if (d_enablePush) {
+            BloombergLP::bslmt::LockGuard<BloombergLP::bslmt::Mutex> guard(
+                                                             &patternVecMutex);
+
             patternVec.push_back(str);
         }
     }
 };
+
+void TestFunctor::subRoutine()
+{
+    MT_ASSERTV(89, 88, 87, 86, 85,
+                               7 * 89 - 6 * 88 + 3 * 87 - 27 * 86 == 103 * 85);
+    MT_ASSERTV(79, 78, 77, 76, 75, 74,
+                          2 * 79 + 2 * 78 + 2 * 77 < 2 * 76 + 2 * 75 + 2 * 74);
+}
 
 void TestFunctor::operator()()
 {
@@ -1012,9 +1053,8 @@ void TestFunctor::operator()()
     for (int ii = k_NUM_ITERATIONS; 0 < ii--; ) {
         d_enablePush = zeroThread && 0 == ii;
 
-        // Test 'MT_Q', 'MT_P', and 'MT_P_', all of which have built-in
-        // mutex control so their respective outputs will occur distinct
-        // but intact.
+        // Test 'MT_Q', 'MT_P', and 'MT_P_', all of which have built-in mutex
+        // control so their respective outputs will occur distinct but intact.
 
         MT_Q(A stitch in time saves nine.);
         push("<| A stitch in time saves nine. |>\n");
@@ -1025,13 +1065,13 @@ void TestFunctor::operator()()
         MT_P_(222);
         push("222 = 222, ");
 
-        // Output a block out output.  The 'BSLMT_TESTUTIL_OUTPUT_GUARD'
-        // creates a guard locking the output mutex, and the 'MT_P_',
-        // 'MT_P', 'MT_Q', and 'MT_T_' macros will all detect the presence
-        // of that guard and not try to lock the mutex themselves.
+        // Output a block out output.  The 'MT_GUARD' creates a guard locking
+        // the output mutex, and the 'MT_P_', 'MT_P', 'MT_Q', and 'MT_T_'
+        // macros will all detect the presence of that guard and not try to
+        // lock the mutex themselves.
 
         {
-            BSLMT_TESTUTIL_OUTPUT_GUARD;
+            MT_GUARD;
 
             MT_P_(333);    MT_T_    MT_P_(444);    MT_P(555);
             MT_P(666);
@@ -1051,8 +1091,10 @@ void TestFunctor::operator()()
         // Output block containing regular stream output.
 
         {
-            BSLMT_TESTUTIL_OUTPUT_GUARD;
-            using namespace bsl;
+            MT_GUARD;
+
+            using bsl::cout;
+            using bsl::endl;
 
             cout << "There are more things in heaven and earth, Horatio,\n";
             cout << "Than are dreamt of in your philosophy." << endl;
@@ -1062,6 +1104,21 @@ void TestFunctor::operator()()
                  "Than are dreamt of in your philosophy.\n"
                  "12345\n");
         }
+
+        MT_COUT << "Thou" << " shalt" << " live" <<
+                        " 'till" << " Birnham" << " Wood" << " come" << " to"
+                        " Dunsinane." << bsl::endl <<
+                        1122332211 << bsl::endl;
+        push("Thou shalt live 'till Birnham Wood come to Dunsinane.\n"
+             "1122332211\n");
+
+        MT_COUT << "Thou" << " can't" << " be" << " slain" <<
+                        " by any" << " man " << 'o' << 'f' <<" woman born " <<
+                        776655;
+        push("Thou can't be slain by any man of woman born 776655");
+
+        MT_GUARDED_STREAM(*separateOut_p) << 1 << ", " << 2 << ", " << 3 <<
+                                           ", " << 4 << ", " << 5 << ", " << 6;
 
         MT_ASSERTV(21 > 2 * 44);
         push("Error " __FILE__ "(): 21 > 2 * 44    (failed)\n");
@@ -1101,7 +1158,7 @@ void TestFunctor::operator()()
         // Output blocks containing all the asserts we haven't done yet.
 
         {
-            BSLMT_TESTUTIL_OUTPUT_GUARD;
+            MT_GUARD;
 
             MT_ASSERTV(21 > 2 * 43);
             MT_ASSERTV(66, 20 > 3 * 17);
@@ -1112,7 +1169,7 @@ void TestFunctor::operator()()
         }
 
         {
-            BSLMT_TESTUTIL_OUTPUT_GUARD;
+            MT_GUARD;
 
             MT_ASSERTV(57, 32, 57 >= 3 * 32);
             MT_ASSERTV(26, 16, 98,
@@ -1125,14 +1182,11 @@ void TestFunctor::operator()()
         }
 
         {
-            BSLMT_TESTUTIL_OUTPUT_GUARD;
+            MT_GUARD;
 
             MT_ASSERTV(98, 97, 96, 95,
                                      2 * 98 + 3 * 2 * 97 == 4 * 96 - 207 * 95);
-            MT_ASSERTV(89, 88, 87, 86, 85,
-                               7 * 89 - 6 * 88 + 3 * 87 - 27 * 86 == 103 * 85);
-            MT_ASSERTV(79, 78, 77, 76, 75, 74,
-                          2 * 79 + 2 * 78 + 2 * 77 < 2 * 76 + 2 * 75 + 2 * 74);
+            subRoutine();
 
             push("98: 98\t97: 97\t96: 96\t95: 95\n"
                  "Error " __FILE__ "(): "
@@ -1152,7 +1206,7 @@ void TestFunctor::operator()()
 void checkOutput()
     // Check the output in '*outputRedirector_p'.  'patternVec' contains a
     // collection of strings, each of which should occur exactly
-    // 'K_EXPECTED_MATCHES' times.  Each instance of each string should be
+    // 'k_EXPECTED_MATCHES' times.  Each instance of each string should be
     // intact.  There should be no other output.
 {
     bsl::size_t totalPatternLen = 0;
@@ -1161,8 +1215,8 @@ void checkOutput()
     }
     const bsl::size_t expLen = k_EXPECTED_MATCHES * totalPatternLen;
 
-    char *pc        = outputRedirector_p->buffer();
-    bsl::size_t len = outputRedirector_p->outputSize();
+    char        *pc  = outputRedirector_p->buffer();
+    bsl::size_t  len = outputRedirector_p->outputSize();
     REAL_ASSERT(bsl::strlen(pc) == len);
     REALLOOP3_ASSERT(len, totalPatternLen, expLen, expLen == len);
     REAL_ASSERT(0 == bsl::count(pc, pc + len, '#'));
@@ -1174,8 +1228,8 @@ void checkOutput()
     // filled with '#'.
 
     for (unsigned uu = 0; uu < patternVec.size(); ++uu) {
-        int numMatches = 0;
-        const char *pattern = patternVec[uu];
+        int         numMatches = 0;
+        const char *pattern    = patternVec[uu];
         len = bsl::strlen(pattern);
 
         for (pc = outputRedirector_p->buffer();
@@ -1203,7 +1257,7 @@ void checkOutput()
     // found, to aid in debugging the test.
 
     if (expLen != numPounds) {
-        int stringIdx = 0;
+        int         stringIdx = 0;
         bsl::string s(&ta);
         for (const char *a = pc, *b, *c; *a; a = c) {
             for (b = a; '#' == *b; ++b) ;
@@ -1218,6 +1272,21 @@ void checkOutput()
             s.insert(s.end(), b, c);
             bsl::cerr << s << bsl::endl;
             bsl::cerr << "-------------------------------------------------\n";
+        }
+    }
+
+    {
+        const bsl::string&  separateOut       = separateOut_p->str();
+        const char         *out_p             = separateOut.c_str();
+        const char         *separateOutExp    = "1, 2, 3, 4, 5, 6";
+        const bsl::size_t   separateOutExpLen = bsl::strlen(separateOutExp);
+        REALLOOP3_ASSERT(k_EXPECTED_MATCHES, separateOut.length(),
+                                                             separateOutExpLen,
+               separateOut.length() == k_EXPECTED_MATCHES * separateOutExpLen);
+        for (int ii = 0; ii < k_EXPECTED_MATCHES; ++ii) {
+            REAL_ASSERT(!bsl::strncmp(out_p + ii * separateOutExpLen,
+                                      separateOutExp,
+                                      separateOutExpLen));
         }
     }
 
@@ -1250,9 +1319,9 @@ void eliminateLineNumbers()
     enum { k_PATTERN_LEN  = sizeof(pattern) - 1 };
 
     while (true) {
-        const char *found = bsl::strstr(bufIn, pattern);
-        const bsl::size_t len = found ? (found += k_PATTERN_LEN) - bufIn
-                                      : bsl::strlen(bufIn);
+        const char        *found = bsl::strstr(bufIn, pattern);
+        const bsl::size_t  len   = found ? (found += k_PATTERN_LEN) - bufIn
+                                         : bsl::strlen(bufIn);
         bsl::memmove(bufOut, bufIn, len);
         bufOut += len;
         if (!found) {
@@ -1271,9 +1340,9 @@ void eliminateLineNumbers()
 
 }  // close namespace MultiThreadedTest
 
-//=============================================================================
+// ============================================================================
 //                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -1322,20 +1391,21 @@ int main(int argc, char *argv[])
     unlink(scratchFileName.c_str());
     if (veryVerbose) REALP(scratchFileName);
 
-    static const int usageTest = 9;    // test number of usage test case
+    static const int usageTest = 10;    // test number of usage test case
+    static const int cerrTest  = 9;
 
     // Capture 'stdout' to a file, and send 'stderr' to 'stdout', unless we are
     // running the usage example.
 
     u::OutputRedirector output(scratchFileName, &ta);
-    if (test != usageTest && test != 0) {
+    if (test != usageTest && test != cerrTest && test != 0) {
         output.redirect();
     }
 
     bsl::cerr << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1355,19 +1425,53 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cerr << "USAGE EXAMPLE\n"
                                   "=============\n";
 
-        REAL_ASSERT(9 == usageTest);
+        REAL_ASSERT(10 == usageTest);
 
         namespace TC = Usage;
 
-        const int rc = TC::testMain();
+        const int rc = TC::main();
         REALLOOP2_ASSERT(rc, testStatus, rc == testStatus);
 
-        REALLOOP3_ASSERT(TC::k_NUM_THREADS, TC::k_NUM_ITERATIONS, testStatus,
-                       TC::k_NUM_THREADS * TC::k_NUM_ITERATIONS == testStatus);
+        REALLOOP2_ASSERT(TC::k_NUM_THREADS, testStatus,
+                                              TC::k_NUM_THREADS == testStatus);
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // BSLMT_TESTUTIL_CERR TEST
+        //
+        // Concerns:
+        //: 1 That 'BSLMT_TESTUTIL_CERR' properly outputs to 'bsl::cerr'.
+        //
+        // Plan:
+        //: 1 Capture 'bsl::cerr' to a 'stringstream' and do output to it with
+        //:  'BSLMT_TESTUTIL_CERR' and observe that the output is properly
+        //:   redirected.
+        //
+        // Testing:
+        //   BSLMT_TESTUTIL_CERR
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cerr << "BSLMT_TESTUTIL_CERR TEST\n"
+                                  "========================\n";
+
+        bsl::streambuf     *savedCerrStreamBuf = bsl::cerr.rdbuf();
+        bsl::ostringstream  captured(&ta);
+        bsl::cerr.rdbuf(captured.rdbuf());
+
+        MT_CERR << "The " << "rain " << "in " << "Spain " <<
+                          "falls " << "mainly " << "in " << "the " << "plain.";
+
+        bsl::cerr.rdbuf(savedCerrStreamBuf);
+
+        if (captured.str() != "The rain in Spain falls mainly in the plain.") {
+            bsl::cerr << "Test failed, captured: " << captured.str() <<
+                                                                     bsl::endl;
+            ++realTestStatus;
+        }
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // MULTITHREADED TEST
+        // MULTITHREADED TEST, GUARD TEST
         //
         // Concern:
         //: 1 That the macros all operate properly in a multithreaded context.
@@ -1391,15 +1495,21 @@ int main(int argc, char *argv[])
         //:   the output buffer is completely filled with '#'s.
         //
         // Testing:
+        //   BSLMT_TESTUTIL_GUARD
+        //   BSLMT_TESTUTIL_GUARDED_STREAM
+        //   BSLMT_TESTUTIL_COUT
+        //   BSLMT_TESTUTIL_T_
         //   MULTITHREADED TEST
         // --------------------------------------------------------------------
 
-
-        if (verbose) bsl::cerr << "MULTITHREADED TEST\n"
-                                  "==================\n";
+        if (verbose) bsl::cerr << "MULTITHREADED TEST, GUARD TEST\n"
+                                  "==============================\n";
 
         namespace TC = MultiThreadedTest;
 
+        bsl::ostringstream oss(&ta);
+
+        TC::separateOut_p = &oss;
         TC::outputRedirector_p = &output;
         TC::atomicBarrier = TC::k_NUM_THREADS;
 
@@ -1439,7 +1549,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void *callFunc(void *arg);
-        //   void setFunc(Func func);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cerr << "TESTING 'callFunc' AND 'setFunc' METHODS\n"
@@ -1449,32 +1558,26 @@ int main(int argc, char *argv[])
 
         REAL_ASSERT(0 == callCount);
 
-        Obj::setFunc(testFunctionAdd);
-
-        REAL_ASSERT(0 == callCount);
-
         int   refValue;
         void *INPUT = &refValue;
-        void *result = Obj::callFunc(INPUT);
+        void *result = Obj::callFunc(testFunctionAdd, INPUT);
 
         REAL_ASSERT(1 == callCount);
         REAL_ASSERT(&refValue == result);
 
-        result = Obj::callFunc(INPUT);
+        result = Obj::callFunc(testFunctionAdd, INPUT);
 
         REAL_ASSERT(2 == callCount);
         REAL_ASSERT(&refValue == result);
 
-        Obj::setFunc(testFunctionSub);
-
         REAL_ASSERT(2 == callCount);
 
-        result = Obj::callFunc(INPUT);
+        result = Obj::callFunc(testFunctionSub, INPUT);
 
         REAL_ASSERT(1 == callCount);
         REAL_ASSERT(&refValue == result);
 
-        result = Obj::callFunc(INPUT);
+        result = Obj::callFunc(testFunctionSub, INPUT);
 
         REAL_ASSERT(0 == callCount);
         REAL_ASSERT(&refValue == result);
@@ -2637,16 +2740,16 @@ int main(int argc, char *argv[])
         }
       } break;
       default: {
-        bsl::fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+        bsl::cerr << "WARNING: CASE " << test << " NOT FOUND." << bsl::endl;
         realTestStatus = -1;
       }
     }
 
     if (realTestStatus > 0) {
-        bsl::fprintf(stderr,
-                     "Error, non-zero test status = %d.\n",
-                     realTestStatus);
+        bsl::cerr << "Error, non-zero test status = " << realTestStatus <<
+                                                                     bsl::endl;
     }
+
     return realTestStatus;
 }
 

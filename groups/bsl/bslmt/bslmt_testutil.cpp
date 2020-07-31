@@ -1,86 +1,45 @@
 // bslmt_testutil.cpp                                                 -*-C++-*-
 #include <bslmt_testutil.h>
 
-#include <bslmt_once.h>
-
 #include <bsls_ident.h>
-BSLS_IDENT("$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslmt_testutil_cpp,"$Id$ $CSID$")
 
-#include <bsls_assert.h>
+#include <bslmt_barrier.h>            // for testing only
+#include <bslmt_lockguard.h>          // for testing only
+#include <bslmt_mutex.h>              // for testing only
+#include <bslmt_once.h>
+#include <bslmt_threadgroup.h>        // for testing only
 
-char bloomberglp_bslmt_testutil_guard_object = 0;
 
 namespace BloombergLP {
 namespace bslmt {
 
-                              // ---------------
-                              // struct TestUtil
-                              // ---------------
-
-// CLASS DATA
-TestUtil::Func TestUtil::s_func = 0;
+                                // ---------------
+                                // struct TestUtil
+                                // ---------------
 
 // CLASS METHODS
-void *TestUtil::callFunc(void *arg)
+void *TestUtil::callFunc(Func func, void *arg)
 {
-    BSLS_ASSERT(s_func);
-
-    return (*s_func)(arg);
+    return (*func)(arg);
 }
 
-bslmt::Mutex& TestUtil::outputMutexSingleton_impl()
+                             // --------------------
+                             // class TestUtil_Guard
+                             // --------------------
+
+RecursiveMutex& TestUtil_Guard::singletonMutex()
+    // Return a reference to the recursive mutex created by this singleton.
 {
-    static bslmt::Mutex *mutex_p;
+    static RecursiveMutex *mutex_p;
 
     BSLMT_ONCE_DO {
-        static bslmt::Mutex mutex;
+        static RecursiveMutex mutex;
 
         mutex_p = &mutex;
     }
 
     return *mutex_p;
-}
-
-void TestUtil::setFunc(TestUtil::Func func)
-{
-    s_func = func;
-}
-
-                          // ---------------------------
-                          // class TestUtil::GuardObject
-                          // ---------------------------
-
-TestUtil::GuardObject::GuardObject()
-: d_mutex_p(&TestUtil::outputMutexSingleton_impl())
-{
-    d_mutex_p->lock();
-}
-
-TestUtil::GuardObject::~GuardObject()
-{
-    d_mutex_p->unlock();
-}
-
-                          // ---------------------------
-                          // class TestUtil::NestedGuard
-                          // ---------------------------
-
-// CREATORS
-TestUtil::NestedGuard::NestedGuard(char *)
-: d_mutex_p(&TestUtil::outputMutexSingleton_impl())
-{
-    d_mutex_p->lock();
-}
-
-TestUtil::NestedGuard::NestedGuard(GuardObject *)
-: d_mutex_p(0)
-{}
-
-TestUtil::NestedGuard::~NestedGuard()
-{
-    if (d_mutex_p) {
-        d_mutex_p->unlock();
-    }
 }
 
 }  // close package namespace

@@ -121,7 +121,7 @@ void aSsErT(int c, const char *s, int i)
 #define T_  BSLMT_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLMT_TESTUTIL_L_  // current Line number
 
-#define OUTPUT_GUARD BSLMT_TESTUTIL_OUTPUT_GUARD
+#define OUTPUT_GUARD BSLMT_TESTUTIL_GUARD
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING

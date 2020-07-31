@@ -119,8 +119,7 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT         BSLMT_TESTUTIL_ASSERT
 #define ASSERTV        BSLMT_TESTUTIL_ASSERTV
 
-#define OUTPUT_GUARD   BSLMT_TESTUTIL_OUTPUT_GUARD
-#define NESTED_GUARD   BSLMT_TESTUTIL_NESTED_OUTPUT_GUARD
+#define OUTPUT_GUARD   BSLMT_TESTUTIL_GUARD
 
 #define Q              BSLMT_TESTUTIL_Q   // Quote identifier literally.
 #define P              BSLMT_TESTUTIL_P   // Print identifier and value.
