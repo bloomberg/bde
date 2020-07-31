@@ -75,6 +75,40 @@ enum {
     k_ROTATE_RENAME_AND_NEW_LOG_ERROR = -3
 };
 
+enum {
+    // Enumeration defining a set of constants used to determine the size of
+    // character buffer large enough to hold the log message "preambula", i.e.,
+    // "\n<time stamp> <processId>:<threadId> <severity> <filename>:<line> "
+    k_TIMESTAMP_ID_LENGTH = 24,  // DD:MMM:YYYY_hh:mm:ss.sss
+    k_PROCESS_ID_LENGTH   = 7,
+    k_THREAD_ID_LENGTH    = 19,
+    k_SEVERITY_LENGTH     = 5,
+    // The max path constant is defined differently on different platforms:
+    //: Linux:   4096
+    //: Solaris: 1024
+    //: AIX:     1024
+    //: Windows:  260
+    // We choose a reasonably large value which is unlikely to be exceeded on
+    // all platforms.
+    k_MAX_PATH_LENGTH     = 1024,
+    k_LINE_NUM_LENGTH     = 6,
+    k_DELIMETER_LENGTH    = 1,
+    k_BUFFER_SIZE         = k_DELIMETER_LENGTH    // '\n'
+                          + k_TIMESTAMP_ID_LENGTH
+                          + k_DELIMETER_LENGTH    // ' '
+                          + k_PROCESS_ID_LENGTH
+                          + k_DELIMETER_LENGTH    // ':'
+                          + k_THREAD_ID_LENGTH
+                          + k_DELIMETER_LENGTH    // ' '
+                          + k_SEVERITY_LENGTH
+                          + k_DELIMETER_LENGTH    // ' '
+                          + k_MAX_PATH_LENGTH
+                          + k_DELIMETER_LENGTH    // ':'
+                          + k_LINE_NUM_LENGTH
+                          + k_DELIMETER_LENGTH,   // ' '
+    k_ERROR_BUFFER_SIZE   = k_MAX_PATH_LENGTH + 256
+};
+
 static int getErrorCode(void)
     // Return the system-specific error code.
 {
@@ -236,7 +270,7 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
                                                   FileUtil::e_KEEP);
 
     if (fd == FileUtil::k_INVALID_FD) {
-        char errorBuffer[256];
+        char errorBuffer[k_ERROR_BUFFER_SIZE];
 
         snprintf(errorBuffer,
                  sizeof errorBuffer,
@@ -256,7 +290,7 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
     BSLS_ASSERT(streamBuf);
 
     if (0 != streamBuf->reset(fd, true, true, true)) {
-        char errorBuffer[256];
+        char errorBuffer[k_ERROR_BUFFER_SIZE];
 
         snprintf(errorBuffer,
                  sizeof errorBuffer,
@@ -378,7 +412,7 @@ void FileObserver2::logRecordDefault(bsl::ostream& stream,
         timestamp.addSeconds(localTimeOffsetInSeconds);
     }
 
-    char  buffer[256];
+    char  buffer[k_BUFFER_SIZE];
     char *ptr = buffer;
 
     *ptr = '\n';
@@ -433,7 +467,7 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
     int returnStatus = k_ROTATE_SUCCESS;
 
     if (0 != d_logStreamBuf.clear()) {
-        char errorBuffer[256];
+        char errorBuffer[k_ERROR_BUFFER_SIZE];
 
         snprintf(errorBuffer,
                  sizeof errorBuffer,
@@ -470,7 +504,7 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
             *rotatedLogFileName = newFileName;
         }
         else {
-            char errorBuffer[256];
+            char errorBuffer[k_ERROR_BUFFER_SIZE];
 
             snprintf(errorBuffer,
                      sizeof errorBuffer,
@@ -494,7 +528,7 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
     }
 
     if (0 != openLogFile(&d_logOutStream, d_logFileName.c_str())) {
-        char errorBuffer[256];
+        char errorBuffer[k_ERROR_BUFFER_SIZE];
 
         snprintf(errorBuffer,
                  sizeof errorBuffer,
@@ -699,7 +733,7 @@ void FileObserver2::publish(const Record& record, const Context&)
             d_logFileFunctor(d_logOutStream, record);
 
             if (!d_logOutStream) {
-                char errorBuffer[256];
+                char errorBuffer[k_ERROR_BUFFER_SIZE];
 
                 snprintf(errorBuffer,
                          sizeof errorBuffer,
