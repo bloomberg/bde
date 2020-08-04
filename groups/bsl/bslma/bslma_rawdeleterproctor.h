@@ -286,19 +286,6 @@ void RawDeleterProctor<TYPE, ALLOCATOR>::reset(TYPE *object)
 }
 
 }  // close package namespace
-
-#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ============================================================================
-//                           BACKWARD COMPATIBILITY
-// ============================================================================
-
-#ifdef bslma_RawDeleterProctor
-#undef bslma_RawDeleterProctor
-#endif
-#define bslma_RawDeleterProctor bslma::RawDeleterProctor
-    // This alias is defined for backward compatibility.
-#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
-
 }  // close enterprise namespace
 
 #endif

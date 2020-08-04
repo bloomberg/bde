@@ -410,18 +410,6 @@ bslstl::operator--(BidirectionalIterator<T,ITER_IMP,TAG_TYPE>& iter, int)
     return tmp;
 }
 
-#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ============================================================================
-//                           BACKWARD COMPATIBILITY
-// ============================================================================
-
-#ifdef bslstl_BidirectionalIterator
-#undef bslstl_BidirectionalIterator
-#endif
-#define bslstl_BidirectionalIterator bslstl::BidirectionalIterator
-    // This alias is defined for backward compatibility.
-#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
-
 }  // close enterprise namespace
 
 #endif
