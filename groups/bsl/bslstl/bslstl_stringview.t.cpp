@@ -6072,8 +6072,10 @@ void TestDriver<TYPE, TRAITS>::testCase4()
 
         OP op = bsl::operator==;
         (void) op;
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
         op    = bsl::operator!=;
         (void) op;
+#endif
     }
 
     if (verbose) printf("\tTesting basic behavior.\n");
