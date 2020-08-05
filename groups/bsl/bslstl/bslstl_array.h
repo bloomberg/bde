@@ -109,8 +109,8 @@ BSLS_IDENT("$Id: $")
 //    ASSERT(a == a);   // This assertion will *NOT* fail!
 //..
 // Addressing this issue, i.e., updating 'bslmf::IsBitwiseEqualityComparable'
-// to return 'false' for floating point types, would potentially destabilize
-// production software so the change has *NOT* been made.
+// to return 'false' for floating point types, could potentially destabilize
+// production software so the change (for the moment) has not been made.
 //
 ///Usage
 ///-----
