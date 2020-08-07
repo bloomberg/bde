@@ -235,7 +235,8 @@ using native_std::operator>=;
 #define BSLSTL_STRING_VIEW_LINKER_CHECK_NAME bslstl_stringview_POST_cpp17_ABI
 
 #elif defined(BSLS_PLATFORM_OS_LINUX)
-#error "BDE requires at least C++17 for ABI compatibility on Linux systems."
+// Must be disabled on master to allow matrix and nightly builds.
+//#error "BDE requires at least C++17 for ABI compatibility on Linux systems."
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #endif  // BDE_DISABLE_CPP17_ABI
 
