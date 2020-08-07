@@ -205,9 +205,10 @@ BSLS_IDENT("$Id: $")
 #include <string>      // for 'native_std::char_traits'
 #include <functional>  // for 'native_std::less', 'native_std::greater_equal'
 
-// No longer allow ABI override.
-#undef BDE_DISABLE_CPP17_ABI
 
+// 'BDE_DISABLE_CPP17_ABI' is intended for CI builds only, to allow simulation
+// of Sun/AIX builds on Linux hosts.  It is an error to define this symbol in
+// Bloomberg production builds.
 #ifndef BDE_DISABLE_CPP17_ABI
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
@@ -234,9 +235,7 @@ using native_std::operator>=;
 #define BSLSTL_STRING_VIEW_LINKER_CHECK_NAME bslstl_stringview_POST_cpp17_ABI
 
 #elif defined(BSLS_PLATFORM_OS_LINUX)
-//TODO: reinstate for production releases temporarily
-//#error "BDE requires at least C++17 for ABI compatibility on Linux systems."
-
+#error "BDE requires at least C++17 for ABI compatibility on Linux systems."
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #endif  // BDE_DISABLE_CPP17_ABI
 
