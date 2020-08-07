@@ -1,5 +1,13 @@
-bsl-internal (3.60.0.0) unstable; urgency=low
+bsl-internal (3.60.0.1) unstable; urgency=low
 
+  * cf9dd459e Merge pull request #2886 from mgiroux/restore-BDE_DISABLE_CPP17_ABI-DRQS162362013
+  * ff38874b3 Merge pull request #2880 from hrosen4/printer-stringview_drqs-162250825
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 7 Aug 2020 12:00:52 -0400
+
+bsl-internal (3.60.0.0) git; urgency=low
+
+  * c9ccd8cde Changelog for version 3.60.0.0
   * 6cf4f67f4 Bumped version to 3.60.0.0
   * 643c1e1ad Merge pull request #2873 from osubbotin/review/remove-obsolete
   * 8c2442898 Merge pull request #2870 from afeher/drqs-161634136-newly-split-bind-test-driver
@@ -8,7 +16,7 @@ bsl-internal (3.60.0.0) unstable; urgency=low
   * 2c79f04f4 Merge pull request #2862 from afeher/drqs-161365350-newly-split-deque-test-driver
   * 169c9c4fe Increase minimum required cmake version to 3.15. (#2861)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 7 Aug 2020 11:18:45 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 7 Aug 2020 11:22:00 -0400
 
 bsl-internal (3.59.0.0) git; urgency=low
 
