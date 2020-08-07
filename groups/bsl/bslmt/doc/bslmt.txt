@@ -195,7 +195,7 @@
 :      Provide a "sluice" class.
 :
 : 'bslmt_testutil':
-:      Provide thread-safe test utilities for components above 'bsl'.
+:      Provide thread-safe test utilities for multithreaded components.
 :
 : 'bslmt_threadattributes':
 :      Provide a description of the attributes of a thread.

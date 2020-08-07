@@ -42,7 +42,6 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-
   2. bdlf_bind
 
   1. bdlf_memfn
