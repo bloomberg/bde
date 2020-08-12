@@ -29,6 +29,22 @@ BSLS_IDENT("$Id: $")
 // general-purpose memory allocator.  In order to gain further efficiency, this
 // factory allocates the shared pointer representation together with the buffer
 // (contiguously).
+//
+///Potential Lifetime Issues
+///-------------------------
+// Be aware that the destruction of a 'bdlbb::PooledBlobBufferFactory' object
+// releases all the 'BlobBuffer' objects allocated by that factory. A common
+// misconception is that, because of the use of 'shared_ptr', the data referred
+// to in 'BlobBuffer' objects created will remain valid until the last shared
+// reference is destroyed, even if a reference outlives the
+// 'PooledBlobBufferFactory' that created it. This is *not* the case.
+// Destroying a 'PooledBlobBufferFactory' releases any memory created by that
+// pool, even if shared references remain to the data, and it is therefore
+// undefined behavior to use any 'BlobBuffer' created by a pool after that pool
+// is destroyed. A user must clearly understand the lifetime of memory
+// allocated by a subsystem, and scope the lifetime of the
+// 'PooledBlobBufferFactory' to be greater than the active lifetime of that
+// subsystem.
 
 #include <bdlscm_version.h>
 
@@ -83,12 +99,15 @@ class PooledBlobBufferFactory : public BlobBufferFactory {
         // undefined unless '0 < bufferSize', and '1 <= maxBlocksPerChunk'.
 
     ~PooledBlobBufferFactory();
-        // Destroy this factory.
+        // Destroy this factory.  This operation releases all 'BlobBuffer'
+        // objects allocated via this factory.
 
     // MANIPULATORS
     void allocate(BlobBuffer *buffer);
         // Allocate a new buffer with the buffer size specified at construction
-        // and load it into the specified 'buffer'.
+        // and load it into the specified 'buffer'.  Note that destruction of
+        // the 'bdlbb::PooledBlobBufferFactory' object releases all
+        // 'BlobBuffer' objects allocated via this factory.
 
     // ACCESSORS
     int bufferSize() const;
