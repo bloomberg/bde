@@ -2489,6 +2489,18 @@ class ManagedWrapper {
 
 };
 
+
+//=============================================================================
+//          HELPER CLASS TO TEST CONVERTING CONSTRUCTOR
+//-----------------------------------------------------------------------------
+class NonCopyable131875306 {
+private:
+	int val;
+	NonCopyable131875306 (const NonCopyable131875306 &rhs) : val(rhs.val) {}
+public:
+	NonCopyable131875306(int i) : val(i) {}
+};
+
 //=============================================================================
 //              HELPER CLASSES AND FUNCTIONS FOR TESTING SWAP
 //-----------------------------------------------------------------------------
@@ -5577,6 +5589,34 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 27: {
+        // --------------------------------------------------------------------
+        // TESTING FIX FOR DRQS 131875306
+        //  This test case concerns report that a user was unable to emplace
+        //  a non-copyable type into a bsl::unordered_map.  The fix was to 
+        //  rework the constraints on the converting constructor for
+        //  'bsl::pair'.
+        //
+        // Concerns:
+        //: 1 Pre-existing code does not fail to compile with thes changes.
+        //
+        // Plan:
+        //: 1 Provide a minimal code example of the kind of valid code that was
+        //:   surprisingly failing to compile.  This test remains as a canary
+        //:   should a further regression introduce a similar problem.
+        //
+        // Testing:
+        //   Concern: Fix for DRQS 131875306
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING FIX FOR DRQS 131875306"
+                            "\n==============================\n");
+        typedef bsl::pair<int, NonCopyable131875306> Obj;
+        Obj o(1,2);
+            // This would fail to compile, reporting an attempt to access
+            // private constructors prior to applying the patch for the ticket
+            // above.
+      } break;
       case 26: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
