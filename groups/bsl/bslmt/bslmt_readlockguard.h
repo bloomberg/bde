@@ -13,7 +13,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a generic proctor for read synchronization objects.
+//@PURPOSE: Provide generic scoped guards for read synchronization objects.
 //
 //@CLASSES:
 //  bslmt::ReadLockGuard: automatic locking-unlocking for read access
@@ -21,14 +21,13 @@ BSLS_IDENT("$Id: $")
 //  bslmt::ReadLockGuardTryLock: automatic non-blocking locking-unlocking
 //  bslmt::LockReadGuard: DEPRECATED
 //
-//@SEE_ALSO: bslmt_lockguard, bslmt_writelockguard, bslmt_rwmutex
+//@SEE_ALSO: bslmt_lockguard, bslmt_writelockguard
 //
-//@DESCRIPTION: This component provides generic proctors,
-// 'bslmt::ReadLockGuard', 'bslmt::ReadLockGuardUnlock',
-// 'bslmt::ReadLockGuardTryLock', and 'bslmt::LockReadGuard', to automatically
-// lock and unlock an external synchronization object for reading.  The
-// synchronization object can be any type (e.g., 'bslmt::ReaderWriterLock')
-// that provides the following methods:
+//@DESCRIPTION: This component provides generic guards, 'bslmt::ReadLockGuard',
+// 'bslmt::ReadLockGuardUnlock', and 'bslmt::ReadLockGuardTryLock', to
+// automatically lock and unlock an external synchronization object for
+// reading.  The synchronization object can be any type (e.g.,
+// 'bslmt::ReaderWriterLock') that provides the following methods:
 //..
 //  void lockRead();
 //  void unlock();
@@ -55,14 +54,14 @@ BSLS_IDENT("$Id: $")
 // Note that objects of none of these guard types assumes ownership of the
 // synchronization object provided at construction.  Also note that objects of
 // all of the guard types may be constructed with a null 'lock' whereby the
-// constructed guard objects proctor no lock.  The destructor of each of the
+// constructed guard objects guard no lock.  The destructor of each of the
 // guard types has no effect if no lock is under management.
 //
 ///Behavior of the 'release' Method
 ///--------------------------------
-// Like all BDE proctor classes, each of the three 'bslmt::ReadLockGuard*'
-// classes provides a 'release' method that terminates the proctor's management
-// of any lock object that the proctor holds.  The 'release' method has *no*
+// Like all BDE guard classes, each of the three 'bslmt::ReadLockGuard*'
+// classes provides a 'release' method that terminates the guard's management
+// of any lock object that the guard holds.  The 'release' method has *no*
 // *effect* on the state of the lock object.
 //
 // In particular, 'bslmt::ReadLockGuard::release' does not unlock the lock
@@ -244,11 +243,11 @@ namespace bslmt {
 
 template <class T>
 class ReadLockGuard {
-    // This class template implements a proctor for acquisition and release of
+    // This class template implements a guard for acquisition and release of
     // read synchronization resources (i.e., reader locks).
 
     // DATA
-    T *d_lock_p;  // lock proctored by this object (held, not owned)
+    T *d_lock_p;  // lock guarded by this object (held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -258,35 +257,42 @@ class ReadLockGuard {
   public:
     // CREATORS
     explicit ReadLockGuard(T *lock);
-        // Create a proctor object that conditionally manages the specified
-        // 'lock' (if non-zero), and invokes the 'lockRead' method on 'lock'.
-        // Note that 'lock' must remain valid throughout the lifetime of this
-        // proctor, or until 'release' is called.
+        // Create a scoped guard that conditionally manages the specified
+        // 'lock' (if non-null) and invokes 'lock->lockRead()'.  Supplying a
+        // null 'lock' has no effect.  The behavior is undefined unless 'lock'
+        // (if non-null) is not already locked by this thread.  Note that
+        // 'lock' must remain valid throughout the lifetime of this guard, or
+        // until 'release' is called.
 
-    ReadLockGuard(T *lock, int preLockedFlag);
-        // Create a proctor object that conditionally manages the specified
-        // 'lock' (if non-zero) and, unless the specified 'preLockedFlag' is
-        // non-zero, invokes the 'lockRead' method on 'lock'.  Note that 'lock'
-        // must remain valid throughout the lifetime of this proctor, or until
-        // 'release' is called.
+    ReadLockGuard(T *lock, bool alreadyLockedFlag);
+        // Create a scoped guard that conditionally manages the specified
+        // 'lock' (if non-null) and invokes 'lock->lockRead()' if the specified
+        // 'alreadyLockedFlag' is 'false'.  Supplying a null 'lock' has no
+        // effect.  The behavior is undefined unless the state of 'lock' (if
+        // non-null) is consistent with 'alreadyLockedFlag'.  Note that
+        // 'alreadyLockedFlag' is used to indicate whether 'lock' is in an
+        // already-locked state when passed, so if 'alreadyLockedFlag' is
+        // 'true' the 'lock' method will *not* be called on the supplied
+        // 'lock'.  Also note that 'lock' must remain valid throughout the
+        // lifetime of this guard, or until 'release' is called.
 
     ~ReadLockGuard();
-        // Destroy this proctor object and invoke the 'unlock' method on the
-        // lock object under management by this proctor, if any.  If no lock is
+        // Destroy this scoped guard and invoke the 'unlock' method on the
+        // lock object under management by this guard, if any.  If no lock is
         // currently being managed, this method has no effect.
 
     // MANIPULATORS
     T *release();
         // Return the address of the modifiable lock object under management by
-        // this proctor, and release the lock from further management by this
-        // proctor.  If no lock is currently being managed, return 0 with no
+        // this guard, and release the lock from further management by this
+        // guard.  If no lock is currently being managed, return 0 with no
         // other effect.  Note that this operation does *not* unlock the lock
         // object (if any) that was under management.
 
     // ACCESSORS
     T *ptr() const;
         // Return the address of the modifiable lock object under management by
-        // this proctor, or 0 if no lock is currently being managed.
+        // this guard, or 0 if no lock is currently being managed.
 };
 
                            // ===================
@@ -307,7 +313,7 @@ class LockReadGuard : public ReadLockGuard<T> {
     explicit LockReadGuard(T *lock);
         // DEPRECATED: Use 'ReadLockGuard' instead.
 
-    LockReadGuard(T *lock, int preLockedFlag);
+    LockReadGuard(T *lock, bool alreadyLockedFlag);
         // DEPRECATED: Use 'ReadLockGuard' instead.
 };
 
@@ -317,11 +323,11 @@ class LockReadGuard : public ReadLockGuard<T> {
 
 template <class T>
 class ReadLockGuardUnlock {
-    // This class template implements a proctor for release and reacquisition
+    // This class template implements a guard for release and reacquisition
     // of read synchronization resources (i.e., reader locks).
 
     // DATA
-    T *d_lock_p;  // lock proctored by this object (held, not owned)
+    T *d_lock_p;  // lock guarded by this object (held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -331,35 +337,42 @@ class ReadLockGuardUnlock {
   public:
     // CREATORS
     explicit ReadLockGuardUnlock(T *lock);
-        // Create a proctor object that conditionally manages the specified
-        // 'lock' (if non-zero), and invokes the 'unlock' method on 'lock'.
-        // Note that 'lock' must remain valid throughout the lifetime of this
-        // proctor, or until 'release' is called.
+        // Create a scoped guard that conditionally manages the specified
+        // 'lock' (if non-null) and invokes 'lock->unlock()'.  Supplying a null
+        // 'lock' has no effect.  The behavior is undefined unless 'lock' (if
+        // non-null) is locked by this thread.  Note that 'lock' must remain
+        // valid throughout the lifetime of this guard, or until 'release' is
+        // called.
 
-    ReadLockGuardUnlock(T *lock, int preUnlockedFlag);
-        // Create a proctor object that conditionally manages the specified
-        // 'lock' (if non-zero) and, unless the specified 'preUnlockedFlag' is
-        // non-zero, invokes the 'unlock' method on 'lock'.  Note that 'lock'
-        // must remain valid throughout the lifetime of this proctor, or until
-        // 'release' is called.
+    ReadLockGuardUnlock(T *lock, bool alreadyUnlockedFlag);
+        // Create a scoped guard that conditionally manages the specified
+        // 'lock' (if non-null) and invokes 'lock->unlock()' if the specified
+        // 'alreadyUnlockedFlag' is 'false'.  Supplying a null 'lock' has no
+        // effect.  The behavior is undefined unless the state of 'lock' (if
+        // non-null) is consistent with 'alreadyUnlockedFlag'.  Note that
+        // 'alreadyUnlockedFlag' is used to indicate whether 'lock' is in an
+        // already-unlocked state when passed, so if 'alreadyUnlockedFlag' is
+        // 'true' the 'unlock' method will *not* be called on the supplied
+        // 'lock'.  Also note that 'lock' must remain valid throughout the
+        // lifetime of this guard, or until 'release' is called.
 
     ~ReadLockGuardUnlock();
-        // Destroy this proctor object and invoke the 'lockRead' method on the
-        // lock object under management by this proctor, if any.  If no lock is
+        // Destroy this scoped guard and invoke the 'lockRead' method on the
+        // lock object under management by this guard, if any.  If no lock is
         // currently being managed, this method has no effect.
 
     // MANIPULATORS
     T *release();
         // Return the address of the modifiable lock object under management by
-        // this proctor, and release the lock from further management by this
-        // proctor.  If no lock is currently being managed, return 0 with no
+        // this guard, and release the lock from further management by this
+        // guard.  If no lock is currently being managed, return 0 with no
         // other effect.  Note that this operation does *not* lock the lock
         // object (if any) that was under management.
 
     // ACCESSORS
     T *ptr() const;
         // Return the address of the modifiable lock object under management by
-        // this proctor, or 0 if no lock is currently being managed.
+        // this guard, or 0 if no lock is currently being managed.
 };
 
                         // ==========================
@@ -368,11 +381,11 @@ class ReadLockGuardUnlock {
 
 template <class T>
 class ReadLockGuardTryLock {
-    // This class template implements a proctor for tentative acquisition and
+    // This class template implements a guard for tentative acquisition and
     // release of read synchronization resources (i.e., reader locks).
 
     // DATA
-    T *d_lock_p;  // lock proctored by this object (held, not owned)
+    T *d_lock_p;  // lock guarded by this object (held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -382,31 +395,33 @@ class ReadLockGuardTryLock {
   public:
     // CREATORS
     explicit ReadLockGuardTryLock(T *lock, int attempts = 1);
-        // Create a proctor object that conditionally manages the specified
-        // 'lock' (if non-zero), and invokes the 'tryLockRead' method on 'lock'
-        // until the lock is acquired, or until up to the optionally specified
-        // 'attempts' have been made to acquire the lock.  The behavior is
-        // undefined unless '0 < attempts'.  Note that 'lock' must remain valid
-        // throughout the lifetime of this proctor, or until 'release' is
-        // called.
+        // Create a scoped guard that conditionally manages the specified
+        // 'lock' (if non-null) and invokes 'lock->tryLockRead()' until the
+        // lock is acquired for reading, or until the optionally specified
+        // 'attempts' have been made to acquire the lock.  If 'attempts' is not
+        // specified only one attempt is made to acquire the lock.  Supplying a
+        // null 'lock' has no effect.  The behavior is undefined unless 'lock'
+        // (if non-null) is not already locked by this thread and
+        // '0 < attempts'.  Note that 'lock' must remain valid throughout the
+        // lifetime of this guard, or until 'release' is called.
 
     ~ReadLockGuardTryLock();
-        // Destroy this proctor object and invoke the 'unlock' method on the
-        // lock object under management by this proctor, if any.  If no lock is
+        // Destroy this scoped guard and invoke the 'unlock' method on the
+        // lock object under management by this guard, if any.  If no lock is
         // currently being managed, this method has no effect.
 
     // MANIPULATORS
     T *release();
         // Return the address of the modifiable lock object under management by
-        // this proctor, and release the lock from further management by this
-        // proctor.  If no lock is currently being managed, return 0 with no
+        // this guard, and release the lock from further management by this
+        // guard.  If no lock is currently being managed, return 0 with no
         // other effect.  Note that this operation does *not* unlock the lock
         // object (if any) that was under management.
 
     // ACCESSORS
     T *ptr() const;
         // Return the address of the modifiable lock object under management by
-        // this proctor, or 0 if no lock is currently being managed.
+        // this guard, or 0 if no lock is currently being managed.
 };
 
 }  // close package namespace
@@ -432,10 +447,10 @@ bslmt::ReadLockGuard<T>::ReadLockGuard(T *lock)
 
 template <class T>
 inline
-bslmt::ReadLockGuard<T>::ReadLockGuard(T *lock, int preLockedFlag)
+bslmt::ReadLockGuard<T>::ReadLockGuard(T *lock, bool alreadyLockedFlag)
 : d_lock_p(lock)
 {
-    if (d_lock_p && !preLockedFlag) {
+    if (d_lock_p && !alreadyLockedFlag) {
         d_lock_p->lockRead();
     }
 }
@@ -481,8 +496,8 @@ bslmt::LockReadGuard<T>::LockReadGuard(T *lock)
 
 template <class T>
 inline
-bslmt::LockReadGuard<T>::LockReadGuard(T *lock, int preLockedFlag)
-: ReadLockGuard<T>(lock, preLockedFlag)
+bslmt::LockReadGuard<T>::LockReadGuard(T *lock, bool alreadyLockedFlag)
+: ReadLockGuard<T>(lock, alreadyLockedFlag)
 {
 }
 
@@ -503,11 +518,11 @@ bslmt::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock)
 
 template <class T>
 inline
-bslmt::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T   *lock,
-                                                   int  preUnlockedFlag)
+bslmt::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T    *lock,
+                                                   bool  alreadyUnlockedFlag)
 : d_lock_p(lock)
 {
-    if (d_lock_p && !preUnlockedFlag) {
+    if (d_lock_p && !alreadyUnlockedFlag) {
         d_lock_p->unlock();
     }
 }

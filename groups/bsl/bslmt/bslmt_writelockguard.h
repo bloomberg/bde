@@ -13,7 +13,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a generic proctor for write synchronization objects.
+//@PURPOSE: Provide generic scoped guards for write synchronization objects.
 //
 //@CLASSES:
 //  bslmt::WriteLockGuard: automatic locking-unlocking for write access
@@ -21,14 +21,13 @@ BSLS_IDENT("$Id: $")
 //  bslmt::WriteLockGuardTryLock: automatic non-blocking locking-unlocking
 //  bslmt::LockWriteGuard: DEPRECATED
 //
-//@SEE_ALSO: bslmt_lockguard, bslmt_readlockguard, bslmt_rwmutex
+//@SEE_ALSO: bslmt_lockguard, bslmt_readlockguard
 //
-//@DESCRIPTION: This component provides generic proctors,
-// 'bslmt::WriteLockGuard', 'bslmt::WriteLockGuardUnlock',
-// 'bslmt::WriteLockGuardTryLock', and 'bslmt::LockWriteGuard', to
-// automatically lock and unlock an external synchronization object for
-// writing.  The synchronization object can be any type (e.g.,
-// 'bslmt::ReaderWriterLock') that provides the following methods:
+//@DESCRIPTION: This component provides generic guards,
+// 'bslmt::WriteLockGuard', 'bslmt::WriteLockGuardUnlock', and
+// 'bslmt::WriteLockGuardTryLock', to automatically lock and unlock an external
+// synchronization object for writing.  The synchronization object can be any
+// type (e.g., 'bslmt::ReaderWriterLock') that provides the following methods:
 //..
 //  void lockWrite();
 //  void unlock();
@@ -55,14 +54,14 @@ BSLS_IDENT("$Id: $")
 // Note that objects of neither guard type assumes ownership of the
 // synchronization object passed at construction.  Also note that objects of
 // all of the guard types may be constructed with a null 'lock' whereby the
-// constructed guard objects proctor no lock.  The destructor of each of the
+// constructed guard objects guard no lock.  The destructor of each of the
 // guard types has no effect if no lock is under management.
 //
 ///Behavior of the 'release' Method
 ///--------------------------------
-// Like all BDE proctor classes, each of the three 'bslmt::WriteLockGuard*'
-// classes provides a 'release' method that terminates the proctor's management
-// of any lock object that the proctor holds.  The 'release' method has *no*
+// Like all BDE guard classes, each of the three 'bslmt::WriteLockGuard*'
+// classes provides a 'release' method that terminates the guard's management
+// of any lock object that the guard holds.  The 'release' method has *no*
 // *effect* on the state of the lock object.
 //
 // In particular, 'bslmt::WriteLockGuard::release' does not unlock the lock
@@ -158,9 +157,9 @@ BSLS_IDENT("$Id: $")
 // If the underlying lock object provides an upgrade from a lock for read to a
 // lock for write (as does 'bslmt::ReaderWriterLock' with the
 // 'upgradeToWriteLock' function, for example), and the lock is already guarded
-// by a 'bslmt::LockReadGuard', then it is not necessary to transfer the guard
+// by a 'bslmt::ReadLockGuard', then it is not necessary to transfer the guard
 // to a 'bslmt::WriteLockGuard'.  In fact, a combination of
-// 'bslmt::LockReadGuard' and 'bslmt::WriteLockGuard' guarding a common lock
+// 'bslmt::ReadLockGuard' and 'bslmt::WriteLockGuard' guarding a common lock
 // object should probably never be needed.
 //
 // Care must be taken so as not to interleave guard objects in such a way as to
@@ -178,11 +177,11 @@ namespace bslmt {
 
 template <class T>
 class WriteLockGuard {
-    // This class template implements a proctor for acquisition and release of
+    // This class template implements a guard for acquisition and release of
     // write synchronization resources (i.e., writer locks).
 
     // DATA
-    T *d_lock_p;  // lock proctored by this object (held, not owned)
+    T *d_lock_p;  // lock guarded by this object (held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -192,35 +191,42 @@ class WriteLockGuard {
   public:
     // CREATORS
     explicit WriteLockGuard(T *lock);
-        // Create a proctor object that conditionally manages the specified
-        // 'lock' (if non-zero), and invokes the 'lockWrite' method on 'lock'.
-        // Note that 'lock' must remain valid throughout the lifetime of this
-        // proctor, or until 'release' is called.
-
-    WriteLockGuard(T *lock, int preLockedFlag);
-        // Create a proctor object that conditionally manages the specified
-        // 'lock' (if non-zero) and, unless the specified 'preLockedFlag' is
-        // non-zero, invokes the 'lockWrite' method on 'lock'.  Note that
-        // 'lock' must remain valid throughout the lifetime of this proctor, or
+        // Create a scoped guard that conditionally manages the specified
+        // 'lock' (if non-null) and invokes 'lock->lockWrite()'.  Supplying a
+        // null 'lock' has no effect.  The behavior is undefined unless 'lock'
+        // (if non-null) is not already locked by this thread.  Note that
+        // 'lock' must remain valid throughout the lifetime of this guard, or
         // until 'release' is called.
 
+    WriteLockGuard(T *lock, bool alreadyLockedFlag);
+        // Create a scoped guard that conditionally manages the specified
+        // 'lock' (if non-null) and invokes 'lock->lockWrite()' if the
+        // specified 'alreadyLockedFlag' is 'false'.  Supplying a null 'lock'
+        // has no effect.  The behavior is undefined unless the state of 'lock'
+        // (if non-null) is consistent with 'alreadyLockedFlag'.  Note that
+        // 'alreadyLockedFlag' is used to indicate whether 'lock' is in an
+        // already-locked state when passed, so if 'alreadyLockedFlag' is
+        // 'true' the 'lock' method will *not* be called on the supplied
+        // 'lock'.  Also note that 'lock' must remain valid throughout the
+        // lifetime of this guard, or until 'release' is called.
+
     ~WriteLockGuard();
-        // Destroy this proctor object and invoke the 'unlock' method on the
-        // lock object under management by this proctor, if any.  If no lock is
+        // Destroy this scoped guard and invoke the 'unlock' method on the
+        // lock object under management by this guard, if any.  If no lock is
         // currently being managed, this method has no effect.
 
     // MANIPULATORS
     T *release();
         // Return the address of the modifiable lock object under management by
-        // this proctor, and release the lock from further management by this
-        // proctor.  If no lock is currently being managed, return 0 with no
+        // this guard, and release the lock from further management by this
+        // guard.  If no lock is currently being managed, return 0 with no
         // other effect.  Note that this operation does *not* unlock the lock
         // object (if any) that was under management.
 
     // ACCESSORS
     T *ptr() const;
         // Return the address of the modifiable lock object under management by
-        // this proctor, or 0 if no lock is currently being managed.
+        // this guard, or 0 if no lock is currently being managed.
 };
 
                            // ====================
@@ -241,7 +247,7 @@ class LockWriteGuard : public WriteLockGuard<T> {
     explicit LockWriteGuard(T *lock);
         // DEPRECATED: Use 'WriteLockGuard' instead.
 
-    LockWriteGuard(T *lock, int preLockedFlag);
+    LockWriteGuard(T *lock, bool alreadyLockedFlag);
         // DEPRECATED: Use 'WriteLockGuard' instead.
 
 };
@@ -252,11 +258,11 @@ class LockWriteGuard : public WriteLockGuard<T> {
 
 template <class T>
 class WriteLockGuardUnlock {
-    // This class template implements a proctor for release and reacquisition
+    // This class template implements a guard for release and reacquisition
     // of write synchronization resources (i.e., writer locks).
 
     // DATA
-    T *d_lock_p;  // lock proctored by this object (held, not owned)
+    T *d_lock_p;  // lock guarded by this object (held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -266,35 +272,42 @@ class WriteLockGuardUnlock {
   public:
     // CREATORS
     explicit WriteLockGuardUnlock(T *lock);
-        // Create a proctor object that conditionally manages the specified
-        // 'lock' (if non-zero), and invokes the 'unlock' method on 'lock'.
-        // Note that 'lock' must remain valid throughout the lifetime of this
-        // proctor, or until 'release' is called.
+        // Create a scoped guard that conditionally manages the specified
+        // 'lock' (if non-null) and invokes 'lock->unlock()'.  Supplying a null
+        // 'lock' has no effect.  The behavior is undefined unless 'lock' (if
+        // non-null) is locked by this thread.  Note that 'lock' must remain
+        // valid throughout the lifetime of this guard, or until 'release' is
+        // called.
 
-    WriteLockGuardUnlock(T *lock, int preUnlockedFlag);
-        // Create a proctor object that conditionally manages the specified
-        // 'lock' (if non-zero) and, unless the specified 'preUnlockedFlag' is
-        // non-zero, invokes the 'unlock' method on 'lock'.  Note that 'lock'
-        // must remain valid throughout the lifetime of this proctor, or until
-        // 'release' is called.
+    WriteLockGuardUnlock(T *lock, bool alreadyUnlockedFlag);
+        // Create a scoped guard that conditionally manages the specified
+        // 'lock' (if non-null) and invokes 'lock->unlock()' if the specified
+        // 'alreadyUnlockedFlag' is 'false'.  Supplying a null 'lock' has no
+        // effect.  The behavior is undefined unless the state of 'lock' (if
+        // non-null) is consistent with 'alreadyUnlockedFlag'.  Note that
+        // 'alreadyUnlockedFlag' is used to indicate whether 'lock' is in an
+        // already-unlocked state when passed, so if 'alreadyUnlockedFlag' is
+        // 'true' the 'unlock' method will *not* be called on the supplied
+        // 'lock'.  Also note that 'lock' must remain valid throughout the
+        // lifetime of this guard, or until 'release' is called.
 
     ~WriteLockGuardUnlock();
-        // Destroy this proctor object and invoke the 'lockWrite' method on the
-        // lock object under management by this proctor, if any.  If no lock is
+        // Destroy this scoped guard and invoke the 'lockWrite' method on the
+        // lock object under management by this guard, if any.  If no lock is
         // currently being managed, this method has no effect.
 
     // MANIPULATORS
     T *release();
         // Return the address of the modifiable lock object under management by
-        // this proctor, and release the lock from further management by this
-        // proctor.  If no lock is currently being managed, return 0 with no
+        // this guard, and release the lock from further management by this
+        // guard.  If no lock is currently being managed, return 0 with no
         // other effect.  Note that this operation does *not* lock the lock
         // object (if any) that was under management.
 
     // ACCESSORS
     T *ptr() const;
         // Return the address of the modifiable lock object under management by
-        // this proctor, or 0 if no lock is currently being managed.
+        // this guard, or 0 if no lock is currently being managed.
 };
 
                        // ===========================
@@ -303,11 +316,11 @@ class WriteLockGuardUnlock {
 
 template <class T>
 class WriteLockGuardTryLock {
-    // This class template implements a proctor for tentative acquisition and
+    // This class template implements a guard for tentative acquisition and
     // release of write synchronization resources (i.e., writer locks).
 
     // DATA
-    T *d_lock_p;  // lock proctored by this object (held, not owned)
+    T *d_lock_p;  // lock guarded by this object (held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -317,31 +330,33 @@ class WriteLockGuardTryLock {
   public:
     // CREATORS
     explicit WriteLockGuardTryLock(T *lock, int attempts = 1);
-        // Create a proctor object that conditionally manages the specified
-        // 'lock' (if non-zero), and invokes the 'tryLockWrite' method on
-        // 'lock' until the lock is acquired, or until up to the optionally
-        // specified 'attempts' have been made to acquire the lock.  The
-        // behavior is undefined unless '0 < attempts'.  Note that 'lock' must
-        // remain valid throughout the lifetime of this proctor, or until
-        // 'release' is called.
+        // Create a scoped guard that conditionally manages the specified
+        // 'lock' (if non-null) and invokes 'lock->tryLockWrite()' until the
+        // lock is acquired for writing, or until the optionally specified
+        // 'attempts' have been made to acquire the lock.  If 'attempts' is not
+        // specified only one attempt is made to acquire the lock.  Supplying a
+        // null 'lock' has no effect.  The behavior is undefined unless 'lock'
+        // (if non-null) is not already locked by this thread and
+        // '0 < attempts'.  Note that 'lock' must remain valid throughout the
+        // lifetime of this guard, or until 'release' is called.
 
     ~WriteLockGuardTryLock();
-        // Destroy this proctor object and invoke the 'unlock' method on the
-        // lock object under management by this proctor, if any.  If no lock is
+        // Destroy this scoped guard and invoke the 'unlock' method on the
+        // lock object under management by this guard, if any.  If no lock is
         // currently being managed, this method has no effect.
 
     // MANIPULATORS
     T *release();
         // Return the address of the modifiable lock object under management by
-        // this proctor, and release the lock from further management by this
-        // proctor.  If no lock is currently being managed, return 0 with no
+        // this guard, and release the lock from further management by this
+        // guard.  If no lock is currently being managed, return 0 with no
         // other effect.  Note that this operation does *not* unlock the lock
         // object (if any) that was under management.
 
     // ACCESSORS
     T *ptr() const;
         // Return the address of the modifiable lock object under management by
-        // this proctor, or 0 if no lock is currently being managed.
+        // this guard, or 0 if no lock is currently being managed.
 };
 
 }  // close package namespace
@@ -367,10 +382,10 @@ bslmt::WriteLockGuard<T>::WriteLockGuard(T *lock)
 
 template <class T>
 inline
-bslmt::WriteLockGuard<T>::WriteLockGuard(T *lock, int preLockedFlag)
+bslmt::WriteLockGuard<T>::WriteLockGuard(T *lock, bool alreadyLockedFlag)
 : d_lock_p(lock)
 {
-    if (d_lock_p && !preLockedFlag) {
+    if (d_lock_p && !alreadyLockedFlag) {
         d_lock_p->lockWrite();
     }
 }
@@ -420,11 +435,11 @@ bslmt::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock)
 
 template <class T>
 inline
-bslmt::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T   *lock,
-                                                     int  preUnlockedFlag)
+bslmt::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T    *lock,
+                                                     bool  alreadyUnlockedFlag)
 : d_lock_p(lock)
 {
-    if (d_lock_p && !preUnlockedFlag) {
+    if (d_lock_p && !alreadyUnlockedFlag) {
         d_lock_p->unlock();
     }
 }
@@ -516,8 +531,8 @@ bslmt::LockWriteGuard<T>::LockWriteGuard(T *lock)
 
 template <class T>
 inline
-bslmt::LockWriteGuard<T>::LockWriteGuard(T *lock, int preLockedFlag)
-: WriteLockGuard<T>(lock, preLockedFlag)
+bslmt::LockWriteGuard<T>::LockWriteGuard(T *lock, bool alreadyLockedFlag)
+: WriteLockGuard<T>(lock, alreadyLockedFlag)
 {
 }
 
