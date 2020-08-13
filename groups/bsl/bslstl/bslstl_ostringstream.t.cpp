@@ -12,9 +12,11 @@
 
 #include <bslmf_assert.h>
 
+#include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
+#include <bsltf_stdstatefulallocator.h>
 #include <bsltf_stdtestallocator.h>
 
 #include <ios>
@@ -43,21 +45,27 @@
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] ostringstream(const A& a = A());
-// [ 3] ostringstream(const A&& a);
+// [ 3] ostringstream(const ostringstream&& original);
+// [10] ostringstream(const ostringstream&& original, const A& a);
 // [ 5] ostringstream(openmode mask, const A& a = A());
 // [ 6] ostringstream(const STRING& s, const A& a = A());
 // [ 7] ostringstream(const STRING& s, openmode mask, const A& a = A());
 //
 // MANIPULATORS
-// [ 3] operator=(const A&& a);
+// [ 3] operator=(const ostringstream&& original);
 // [ 4] void str(const StringType& value);
+// [11] void swap(basic_ostringstream& other);
 //
 // ACCESSORS
 // [ 4] StringType str() const;
 // [ 2] StreamBufType *rdbuf() const;
+// [ 9] allocator_type get_allocator() const;
+//
+// FREE FUNCTIONS
+// [11] void swap(basic_ostringstream& a, basic_ostringstream& b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 9] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 // [ 8] CONCERN: Standard allocator can be used
 // [ *] CONCERN: In no case does memory come from the global allocator.
 
@@ -204,6 +212,315 @@ void loadString(StringT *value, int length)
                      static_cast<typename StringT::value_type>('a' + (i % 26));
     }
 }
+template <class StreamT, class StringT>
+void testCase11()
+{
+    // ------------------------------------------------------------------------
+    // TESTING SWAP
+    //   Since 'basic_ostringstream' doesn't have its own data fields, the
+    //   'swap' method just calls similar methods of the parent classes. So we
+    //   need to verify that these methods are indeed called.
+    //
+    // Concerns:
+    //: 1 The 'swap' method of the 'BaseType' ('StringBufContainer') class is
+    //:   called by the 'basic_ostringstream::swap' method.
+    //:
+    //: 2 The 'swap' method of the 'BaseStream' ('basic_istream') class is
+    //:   called by the 'basic_ostringstream::swap' method.
+    //:
+    //: 3 Swap free function works the same way as the 'swap' method.
+    //:
+    //: 4 Asserted precondition violations are detected when enabled.
+    //
+    // Plan:
+    //: 1 Create two output streams.
+    //:
+    //: 2 Write different strings to streams from P-1 to have their
+    //:   'BaseStream' ('basic_istream') states changed and set different
+    //:   'iostate' values to modify 'BaseType' ('StringBufContainer') states.
+    //:
+    //: 3 Swap two objects.
+    //:
+    //: 4 Using the 'str()' member verify that the 'BaseType'
+    //:   ('StringBufContainer') part has been swapped.  (C-1)
+    //:
+    //: 5 Using the 'rdstate()' member verify that the 'BaseStream'
+    //:   ('basic_istream') part has been swapped.  (C-2)
+    //:
+    //: 6 Swap objects once again using free function and verify that objects
+    //:   obtain their initial states.  (C-3)
+    //:
+    //: 7 Verify that, in appropriate build modes, defensive checks are
+    //:   triggered for invalid attribute values, but not triggered for
+    //:   adjacent valid ones.  (C-4)
+    //
+    // Testing:
+    //   void swap(basic_ostringstream& other);
+    //   void swap(basic_ostringstream& a, basic_ostringstream& b);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nTESTING SWAP"
+                        "\n============\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    using namespace BloombergLP;
+
+    if (verbose) printf("\n\tTesting basic behavior.\n");
+    {
+        StreamT        mX1;
+        const StreamT& X1 = mX1;
+        StreamT        mX2;
+        const StreamT& X2 = mX2;
+
+        const size_t strLength1 = 1;
+        const size_t strLength2 = 2;
+        StringT      str1;
+        StringT      str2;
+        loadString(&str1, strLength1);
+        loadString(&str2, strLength2);
+
+        // 'StringBufContainer' part.
+
+        mX1.write(str1.data(), strLength1);
+        mX2.write(str2.data(), strLength2);
+
+        // 'native_std::basic_ostream' part.
+
+        mX1.setstate(IosBase::failbit);
+        mX2.setstate(IosBase::badbit);
+
+        ASSERT(str1             == X1.str()    );
+        ASSERT(str2             == X2.str()    );
+        ASSERT(X1.str()         != X2.str()    );
+        ASSERT(IosBase::failbit == X1.rdstate());
+        ASSERT(IosBase::badbit  == X2.rdstate());
+
+        mX1.swap(mX2);
+
+        ASSERT(str2             == X1.str()    );
+        ASSERT(str1             == X2.str()    );
+        ASSERT(IosBase::badbit  == X1.rdstate());
+        ASSERT(IosBase::failbit == X2.rdstate());
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+        bsl::swap(mX1, mX2);
+
+        ASSERT(str1             == X1.str()    );
+        ASSERT(str2             == X2.str()    );
+        ASSERT(IosBase::failbit == X1.rdstate());
+        ASSERT(IosBase::badbit  == X2.rdstate());
+#endif
+    }
+
+    if (verbose) printf("\n\tNegative Testing.\n");
+    {
+        typedef typename StreamT::char_type CharType;
+
+        typedef bsltf::StdStatefulAllocator<
+                                       CharType,
+                                       true,  // ON_CONTAINER_COPY_CONSTRUCTION
+                                       true,  // ON_CONTAINER_COPY_ASSIGNMENT
+                                       true,  // ON_CONTAINER_SWAP
+                                       true>  // ON_CONTAINER_MOVE_ASSIGNMENT
+                                            PropagatingStdAlloc;
+
+        typedef bsltf::StdStatefulAllocator<
+                                      CharType,
+                                      true,   // ON_CONTAINER_COPY_CONSTRUCTION
+                                      true,   // ON_CONTAINER_COPY_ASSIGNMENT
+                                      false,  // ON_CONTAINER_SWAP
+                                      true>   // ON_CONTAINER_MOVE_ASSIGNMENT
+                                            NonPropagatingStdAlloc;
+
+        typedef bsl::basic_ostringstream<CharType,
+                                         bsl::char_traits<CharType>,
+                                         PropagatingStdAlloc>
+                                            PropagatingObj;
+        typedef bsl::basic_ostringstream<CharType,
+                                         bsl::char_traits<CharType>,
+                                         NonPropagatingStdAlloc>
+                                            NonPropagatingObj;
+
+        bsls::AssertTestHandlerGuard guard;
+
+        bslma::TestAllocator   ta1;
+        bslma::TestAllocator   ta2;
+        PropagatingStdAlloc    pa1(&ta1);
+        PropagatingStdAlloc    pa2(&ta2);
+        NonPropagatingStdAlloc npa1(&ta1);
+        NonPropagatingStdAlloc npa2(&ta2);
+
+        PropagatingObj    poEqualAlloc1(pa1);
+        PropagatingObj    poEqualAlloc2(pa1);
+        PropagatingObj    poNonEqualAlloc(pa2);
+
+        NonPropagatingObj npoEqualAlloc1(npa1);
+        NonPropagatingObj npoEqualAlloc2(npa1);
+        NonPropagatingObj npoNonEqualAlloc(npa2);
+
+        ASSERT_PASS(poEqualAlloc1.swap(poEqualAlloc2  ));
+        ASSERT_PASS(poEqualAlloc1.swap(poNonEqualAlloc));
+
+        ASSERT_PASS(npoEqualAlloc1.swap(npoEqualAlloc2  ));
+        ASSERT_FAIL(npoEqualAlloc1.swap(npoNonEqualAlloc));
+    }
+#else
+    if (verbose) {
+        printf("\tThis functionality is not supported.\n");
+    }
+#endif
+}
+
+template <class StreamT, class StringT>
+void testCase10()
+{
+    // ------------------------------------------------------------------------
+    // TESTING MOVE CTOR WITH ALLOCATOR
+    //
+    // Concerns:
+    //: 1 An object created with the move constructor has the state of the
+    //:   moved-from object.
+    //:
+    //: 2 The supplied allocator is assigned to the object created with the
+    //:   move constructor.
+    //:
+    //: 3 Move construction allocates no memory from the default allocator.
+    //:
+    //: 4 The moved-from object is in a valid state.
+    //
+    // Plan:
+    //: 1 Create an output stream, using test allocator.
+    //:
+    //: 2 Write some string to have a state change in the 'BaseStream'
+    //:   ('basic_istream') and 'BaseType' ('StringBufContainer').
+    //:
+    //: 3 Move-construct a stream, using the allocator different from the
+    //:   allocator from P-1.
+    //:
+    //: 4 Using 'get_allocator' method, verify that internal memory management
+    //:   system hooked up properly.
+    //:
+    //: 5 Verify that the 'BaseType' ('StringBufContainer') has been moved.
+    //:   The verification is done using the 'str()' member.
+    //:
+    //: 6 Verify that the 'BaseStream' ('basic_istream') has been moved.  The
+    //:   verification is done using the 'fail()' and 'tellp()' members.
+    //
+    // Testing:
+    //   ostringstream(const ostringstream&& original, const A& a);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nTESTING MOVE CTOR WITH ALLOCATOR"
+                        "\n================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    using namespace BloombergLP;
+
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    bslma::TestAllocator oa("object",   veryVeryVeryVerbose);
+    bslma::TestAllocator ba("buffer",   veryVeryVeryVerbose);
+    bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+    for (int i = 0; i <= LENGTH_OF_SUFFICIENTLY_LONG_STRING; ++i)
+    {
+        StreamT movedFrom(IosBase::out, &oa);
+
+        // Set some state for both 'BaseType' and 'BaseStream'
+
+        StringT str(&ba);
+        loadString(&str, i);
+
+        // Change state in 'BaseType'.
+
+        movedFrom.write(str.data(), i);
+        ASSERTV(movedFrom.tellp(), i == movedFrom.tellp());
+
+        static const typename StreamT::pos_type seekPos = i ? i -1 : 0;
+
+        movedFrom.seekp(seekPos);
+        ASSERTV(movedFrom.tellp(), seekPos == movedFrom.tellp());
+
+         // Change state in 'BaseStream'.
+
+        movedFrom.setstate(IosBase::failbit);
+        ASSERT(movedFrom.fail());
+
+        bsls::Types::Int64 DEFAULT_NUM_BYTES_TOTAL = da.numBytesTotal();
+
+        // Move the stream
+
+        StreamT movedTo(std::move(movedFrom), &sa);
+
+        ASSERTV(da.numBytesTotal(),
+                DEFAULT_NUM_BYTES_TOTAL == da.numBytesTotal());
+
+        ASSERTV(movedTo.str().c_str(), str == movedTo.str());
+        ASSERTV(movedTo.get_allocator().mechanism(),
+                &sa == movedTo.get_allocator().mechanism());
+
+        ASSERT(movedTo.fail());
+        movedTo.clear();
+        ASSERTV(movedTo.tellp(), seekPos == movedTo.tellp());
+    }
+
+#else
+    if (verbose) {
+        printf("\tThis functionality is not supported.\n");
+    }
+#endif
+}
+
+template <class StreamT>
+void testCase9()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'get_allocator'
+    //
+    // Concerns:
+    //: 1 The 'get_allocator' method returns the allocator specified at
+    //:   construction, and that is the default allocator at the time of
+    //:   object's construction if none was specified at construction.
+    //
+    // Plan:
+    //: 1 Create an object without passing an allocator reference, setup
+    //:   temporary default allocator and verify that 'get_allocator' returns a
+    //:   copy of the default allocator at the time of object's construction.
+    //:
+    //: 2 Create an object specifying the allocator and verify that
+    //:  'get_allocator' returns a copy of the supplied allocator.
+    //
+    // Testing:
+    //   allocator_type get_allocator() const;
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nTESTING 'get_allocator'"
+                        "\n=======================\n");
+
+    using namespace BloombergLP;
+
+    bslma::TestAllocator         da("default",  veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+    bslma::TestAllocator         sa("supplied", veryVeryVeryVerbose);
+
+    StreamT        mXD;
+    const StreamT& XD = mXD;
+
+    {
+        bslma::TestAllocator         tda("temporary", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard tdag(&tda);
+
+        ASSERTV(&da, XD.get_allocator().mechanism(),
+                &da == XD.get_allocator().mechanism());
+    }
+
+    StreamT        mXS(&sa);
+    const StreamT& XS = mXS;
+
+    ASSERTV(&sa, XS.get_allocator().mechanism(),
+            &sa == XS.get_allocator().mechanism());
+}
 
 template <class StreamT, class BaseT, class StringT, class CharT>
 void testCase3()
@@ -234,8 +551,8 @@ void testCase3()
     //:   verification is done using the 'fail()' and 'tellp()' members.
     //
     // Testing:
-    //   ostringstream(const A&&);
-    //   operator=(const A&& a);
+    //   ostringstream(const ostringstream&& original);
+    //   operator=(const ostringstream&& original);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nMOVE CTOR AND ASSIGNMENT"
@@ -617,12 +934,17 @@ void testCase4()
 
         bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-        StreamT mX(&sa);  const StreamT& X = mX;   ASSERT(X.str().empty());
+        StreamT mX(&sa);  const StreamT& X = mX;
+        ASSERT(X.str().empty());
+        ASSERT(&da == X.str().get_allocator().mechanism());
 
         StringT mS(&da);  const StringT& S = mS;
         loadString(&mS, LENGTH_TI);
 
-        mX.str(S);                                 ASSERT(X.str() == S);
+        mX.str(S);
+
+        ASSERT(S   == X.str());
+        ASSERT(&da == X.str().get_allocator().mechanism());
 
         for (int tj = 0; tj < NUM_STRLEN_DATA; ++tj) {
             const int LENGTH_TJ = STRLEN_DATA[tj].d_length;
@@ -1334,7 +1656,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 9: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1365,6 +1687,18 @@ int main(int argc, char *argv[])
     ASSERT(toString("abc") == "abc");
 //..
 
+      } break;
+      case 11: {
+        testCase11<Obj,  bsl::string >();
+        testCase11<WObj, bsl::wstring>();
+      } break;
+      case 10: {
+        testCase10<Obj,  bsl::string >();
+        testCase10<WObj, bsl::wstring>();
+      } break;
+      case 9: {
+        testCase9<Obj>();
+        testCase9<WObj>();
       } break;
       case 8: {
         testCase8<char>();

@@ -145,6 +145,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_iosfwd.h>
 #include <bslstl_string.h>
 
+#include <bslalg_swaputil.h>
+
 #include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -412,16 +414,16 @@ class basic_stringbuf
   public:
     // CREATORS
     explicit
-    basic_stringbuf(const allocator_type& basicAllocator = allocator_type());
+    basic_stringbuf(const allocator_type& allocator = allocator_type());
     explicit
     basic_stringbuf(ios_base::openmode    modeBitMask,
-                    const allocator_type& basicAllocator = allocator_type());
+                    const allocator_type& allocator = allocator_type());
     explicit
     basic_stringbuf(const StringType&     initialString,
-                    const allocator_type& basicAllocator = allocator_type());
+                    const allocator_type& allocator = allocator_type());
     basic_stringbuf(const StringType&     initialString,
                     ios_base::openmode    modeBitMask,
-                    const allocator_type& basicAllocator = allocator_type());
+                    const allocator_type& allocator = allocator_type());
         // Create a 'basic_stringbuf' object.  Optionally specify a
         // 'modeBitMask' indicating whether this buffer may be read from,
         // written to, or both.  If 'modeBitMask' is not supplied, this buffer
@@ -429,21 +431,24 @@ class basic_stringbuf
         // an 'initialString' indicating the initial sequence of characters
         // that this buffer will access or manipulate.  If 'initialString' is
         // not supplied, the initial sequence of characters will be empty.
-        // Optionally specify the 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is not supplied, a default-constructed object of
-        // the (template parameter) 'ALLOCATOR' type is used.  If the
-        // 'ALLOCATOR' argument is of type 'bsl::allocator' (the default), then
-        // 'basicAllocator', if supplied, shall be convertible to
+        // Optionally specify the 'allocator' used to supply memory.  If
+        // 'allocator' is not supplied, a default-constructed object of the
+        // (template parameter) 'ALLOCATOR' type is used.  If the 'ALLOCATOR'
+        // argument is of type 'bsl::allocator' (the default), then
+        // 'allocator', if supplied, shall be convertible to
         // 'bslma::Allocator *'.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
+        // 'bsl::allocator' and 'allocator' is not supplied, the currently
         // installed default allocator will be used to supply memory.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
     basic_stringbuf(basic_stringbuf&& original);
+    basic_stringbuf(basic_stringbuf&&     original,
+                    const allocator_type& allocator);
         // Create a 'basic_stringbuf' object having the same value as the
         // specified 'original' object by moving the contents of 'original' to
-        // the newly-created object.  'original' is left in a valid but
-        // unspecified state.
+        // the newly-created object.  Optionally specify the 'allocator' used
+        // to supply memory.  'original' is left in a valid but unspecified
+        // state.
 #endif
 
     ~basic_stringbuf();
@@ -466,10 +471,38 @@ class basic_stringbuf
         // updated buffer, and update the current output position to be the end
         // of the updated buffer.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    void swap(basic_stringbuf& other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee if '*this' and 'other' allocators compare
+        // equal.  The behavior is undefined unless either '*this' and 'other'
+        // allocators compare equal or 'propagate_on_container_swap' is 'true'.
+        // Note that this function is only available for C++11 (and later)
+        // language standards because it requires that 'swap' be provided on
+        // the (platform supplied) base class for this type.
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
     // ACCESSORS
+    allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
+        // Return the allocator used by the underlying string to supply memory.
+
     StringType str() const;
         // Return the currently buffered sequence of characters.
+
 };
+
+// FREE FUNCTIONS
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)                  \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE)
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+void swap(basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& a,
+          basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& b);
+    // Efficiently exchange the values of the specified 'a' and 'b' objects.
+    // This method provides the no-throw exception-safety guarantee if 'a' and
+    // 'b' allocators compare equal.  Note that this function is only available
+    // for C++11 (and later) language standards.
+#endif
 
 // STANDARD TYPEDEFS
 typedef basic_stringbuf<char, char_traits<char>, allocator<char> >   stringbuf;
@@ -514,27 +547,27 @@ class StringBufContainer {
   public:
     // CREATORS
     explicit
-    StringBufContainer(const ALLOCATOR& basicAllocator)
-    : d_bufObj(basicAllocator)
+    StringBufContainer(const ALLOCATOR& allocator)
+    : d_bufObj(allocator)
     {
     }
 
     StringBufContainer(ios_base::openmode modeBitMask,
-                       const ALLOCATOR&   basicAllocator)
-    : d_bufObj(modeBitMask, basicAllocator)
+                       const ALLOCATOR&   allocator)
+    : d_bufObj(modeBitMask, allocator)
     {
     }
 
     StringBufContainer(const StringType& initialString,
-                       const ALLOCATOR&  basicAllocator)
-    : d_bufObj(initialString, basicAllocator)
+                       const ALLOCATOR&  allocator)
+    : d_bufObj(initialString, allocator)
     {
     }
 
     StringBufContainer(const StringType&  initialString,
                        ios_base::openmode modeBitMask,
-                       const ALLOCATOR&   basicAllocator)
-    : d_bufObj(initialString, modeBitMask, basicAllocator)
+                       const ALLOCATOR&   allocator)
+    : d_bufObj(initialString, modeBitMask, allocator)
     {
     }
 
@@ -545,6 +578,16 @@ class StringBufContainer {
         // the newly-created object.  'original' is left in a valid but
         // unspecified state.
     : d_bufObj(std::move(original.d_bufObj))
+    {
+    }
+
+    StringBufContainer(StringBufContainer&& original,
+                       const ALLOCATOR&     allocator)
+    // Create a 'StringBufContainer' object using the specified 'allocator' to
+    // supply memory and having the same value as the specified 'original'
+    // object by moving the contents of 'original' to the newly-created object.
+    // 'original' is left in a valid but unspecified state.
+    : d_bufObj(std::move(original.d_bufObj), allocator)
     {
     }
 #endif
@@ -564,6 +607,15 @@ class StringBufContainer {
         return *this;
     }
 #endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    void swap(StringBufContainer& other)
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.
+    {
+        d_bufObj.swap(other.d_bufObj);
+    }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
     // ACCESSORS
     StreamBufType *rdbuf() const
@@ -1019,9 +1071,9 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
 // CREATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-    basic_stringbuf(const allocator_type& basicAllocator)
+    basic_stringbuf(const allocator_type& allocator)
 : BaseType()
-, d_str(basicAllocator)
+, d_str(allocator)
 , d_endHint(0)
 , d_mode(ios_base::in | ios_base::out)
 {
@@ -1031,9 +1083,9 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     basic_stringbuf(ios_base::openmode    modeBitMask,
-                    const allocator_type& basicAllocator)
+                    const allocator_type& allocator)
 : BaseType()
-, d_str(basicAllocator)
+, d_str(allocator)
 , d_endHint(0)
 , d_mode(modeBitMask)
 {
@@ -1043,9 +1095,9 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     basic_stringbuf(const StringType&     initialString,
-                    const allocator_type& basicAllocator)
+                    const allocator_type& allocator)
 : BaseType()
-, d_str(initialString, basicAllocator)
+, d_str(initialString, allocator)
 , d_endHint(initialString.size())
 , d_mode(ios_base::in | ios_base::out)
 {
@@ -1057,9 +1109,9 @@ inline
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     basic_stringbuf(const StringType&     initialString,
                     ios_base::openmode    modeBitMask,
-                    const allocator_type& basicAllocator)
+                    const allocator_type& allocator)
 : BaseType()
-, d_str(initialString, basicAllocator)
+, d_str(initialString, allocator)
 , d_endHint(initialString.size())
 , d_mode(modeBitMask)
 {
@@ -1079,6 +1131,34 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     // Capture the positions for later restoration
 
     const off_type  inputOffset = original.gptr() - original.eback();
+    const off_type outputOffset = original.pptr() - original.pbase();
+    updateStreamPositions(inputOffset, outputOffset);
+
+    this->pubimbue(original.getloc());
+
+    if (original.d_endHint > 0 &&
+        static_cast<size_t>(original.d_endHint) > original.d_str.size()) {
+
+        // The move has moved away the string
+
+        original.d_endHint = 0;
+        original.updateStreamPositions();
+    }
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
+    basic_stringbuf(basic_stringbuf&&     original,
+                    const allocator_type& allocator)
+: BaseType()
+, d_str(std::move(original.d_str), allocator)
+, d_endHint(std::move(original.d_endHint))
+, d_mode(std::move(original.d_mode))
+{
+    // Capture the positions for later restoration
+
+    const off_type inputOffset  = original.gptr() - original.eback();
     const off_type outputOffset = original.pptr() - original.pbase();
     updateStreamPositions(inputOffset, outputOffset);
 
@@ -1159,17 +1239,94 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
     updateStreamPositions(0, d_mode & ios_base::ate ? d_endHint : 0);
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::swap(
+                                                        basic_stringbuf& other)
+{
+    BSLS_ASSERT(
+         bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap::value
+      || d_str.get_allocator() == other.d_str.get_allocator());
+    // Capture the positions for the later restoration.  Formally,
+    // 'std::basic_streambuf::swap' exchanges the internal pointers and the
+    // locale object.  But 'bsl::string' swapping can invalidate pointers, so
+    // we need to control this process manually.
+
+    const off_type           inputOffset       = this->gptr() - this->eback();
+    const off_type           outputOffset      = this->pptr() - this->pbase();
+    const native_std::locale loc               = this->getloc();
+
+    const off_type           otherInputOffset  = other.gptr() - other.eback();
+    const off_type           otherOutputOffset = other.pptr() - other.pbase();
+    const native_std::locale otherLoc          = other.getloc();
+
+    // Parent method invocation.
+
+    this->BaseType::swap(other);
+
+    // Swapping data members.
+
+    this->pubimbue(otherLoc);
+    other.pubimbue(loc);
+
+    d_str.swap(other.d_str);
+    BloombergLP::bslalg::SwapUtil::swap(&this->d_endHint, &other.d_endHint);
+    BloombergLP::bslalg::SwapUtil::swap(&this->d_mode,    &other.d_mode);
+
+    // Fix the stream-position pointers.
+
+    this->updateStreamPositions(otherInputOffset, otherOutputOffset);
+    other.updateStreamPositions(     inputOffset,      outputOffset);
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
 // ACCESSORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
-typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
-    basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
+typename basic_stringbuf<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::allocator_type
+basic_stringbuf<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::get_allocator() const
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
-    return StringType(d_str.begin(), d_str.begin()
-                                  + static_cast<std::ptrdiff_t>(streamSize()));
+    return d_str.get_allocator();
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
+basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
+{
+    return StringType(
+                    d_str.begin(),
+                    d_str.begin() + static_cast<std::ptrdiff_t>(streamSize()));
 }
 
 }  // close namespace bsl
+
+// FREE FUNCTIONS
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)                  \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE)
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+void bsl::swap(basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& a,
+               basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& b)
+{
+    typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+
+    if (a.get_allocator() == b.get_allocator()
+    ||  bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap::value) {
+        a.swap(b);
+    }
+    else {
+        basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> aCopy(
+                                                            MoveUtil::move(a),
+                                                            b.get_allocator());
+        basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> bCopy(
+                                                            MoveUtil::move(b),
+                                                            a.get_allocator());
+        swap(a, bCopy);
+        swap(b, aCopy);
+    }
+}
+#endif
 
 // ============================================================================
 //                                TYPE TRAITS

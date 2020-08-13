@@ -8,7 +8,11 @@
 #include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+
+#include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+
+#include <bsltf_stdstatefulallocator.h>
 
 #include <iostream>
 #include <istream>
@@ -40,21 +44,28 @@ using namespace BloombergLP;
 // [ 2] stringbuf(ios_base::openmode, const ALLOCATOR&)
 // [ 2] stringbuf(const string&, const ALLOCATOR&)
 // [ 2] stringbuf(const string&, ios_base::openmode, const ALLOCATOR&)
-// [ 2] stringbuf(stringbuf&&)
-// [ 3] operator=(stringbuf&&)
-// [ 4] seekoff(streamoff, ios_base::seekdir, ios_base::openmode)
-// [ 5] seekpos(streempos, ios_base::openmode)
-// [ 6] xsgetn(char *, streamsize)
-// [ 7] underflow()
-// [ 8] uflow()
-// [ 9] pbackfail(int)
-// [10] xsputn(const char *, streamsize)
-// [11] overflow(int)
+// [ 4] stringbuf(stringbuf&&)
+// [17] stringbuf(stringbuf&&, const ALLOCATOR&);
+// [ 4] operator=(stringbuf&&)
+// [ 5] seekoff(streamoff, ios_base::seekdir, ios_base::openmode)
+// [ 6] seekpos(streempos, ios_base::openmode)
+// [ 7] xsgetn(char *, streamsize)
+// [ 8] underflow()
+// [ 9] uflow()
+// [10] pbackfail(int)
+// [11] xsputn(const char *, streamsize)
+// [12] overflow(int)
+// [ 3] allocator_type get_allocator() const;
+// [ 3] StringType str() const;
+// [18] void swap(basic_stringbuf& other);
+//
+// FREE FUNCTIONS
+// [18] void swap(basic_stringbuf& a, basic_stringbuf& b);
 //-----------------------------------------------------------------------------
-// [12] OUTPUT TO STRINGBUF VIA PUBLIC INTERFACE
-// [13] INPUT FROM STRINGBUF VIA PUBLIC INTERFACE
-// [14] INPUT/OUTPUT FROM/TO STRINGBUF VIA PUBLIC INTERFACE
-// [15] USAGE EXAMPLE
+// [13] OUTPUT TO STRINGBUF VIA PUBLIC INTERFACE
+// [14] INPUT FROM STRINGBUF VIA PUBLIC INTERFACE
+// [15] INPUT/OUTPUT FROM/TO STRINGBUF VIA PUBLIC INTERFACE
+// [19] USAGE EXAMPLE
 // [ 1] BREATHING TEST
 
 // ============================================================================
@@ -100,37 +111,124 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+//=============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
+const char VA = 'A';
+const char VB = 'B';
+const char VC = 'C';
+const char VD = 'D';
+const char VE = 'E';
+const char VF = 'F';
+const char VG = 'G';
+const char VH = 'H';
+const char VI = 'I';
+const char VJ = 'J';
+const char VK = 'K';
+const char VL = 'L';
+    // All test types have character value type.
+
 //=============================================================================
 //                     GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
 namespace {
 
-class StringBufTest : public bsl::stringbuf
+template <class TYPE>
+class StringBufTest : public bsl::basic_stringbuf<TYPE>
 {
-public:
-    StringBufTest(bsl::string const & s, bsl::ios_base::openmode mode)
-        : bsl::stringbuf(s, mode)
+    // PRIVATE TYPES
+    typedef bsl::basic_stringbuf<TYPE> Base;  // parent class alias
+  public:
+    // CREATORS
+    StringBufTest(bsl::basic_string<TYPE> const & s,
+                  bsl::ios_base::openmode         mode)
+        : bsl::basic_stringbuf<TYPE>(s, mode)
     {}
+
+    static int getValues(const TYPE **values)
+    {
+        bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
+
+        const int NUM_VALUES = 12;
+        static const TYPE initValues[NUM_VALUES] = { // avoid 'DEFAULT_VALUE'
+            TYPE(VA),                                // and
+            TYPE(VB),                                // 'UNINITIALIZED_VALUE'.
+            TYPE(VC),
+            TYPE(VD),
+            TYPE(VE),
+            TYPE(VF),
+            TYPE(VG),
+            TYPE(VH),
+            TYPE(VI),
+            TYPE(VJ),
+            TYPE(VK),
+            TYPE(VL)
+        };
+
+        *values = initValues;
+        return NUM_VALUES;
+    }
+
+    static int populateString(bsl::basic_string<TYPE> *object,
+                              const char              *spec,
+                              int                      verboseFlag = 1)
+    {
+        const TYPE *VALUES;
+        getValues(&VALUES);
+        enum { SUCCESS = -1 };
+
+        for (int i = 0; spec[i]; ++i) {
+            if ('A' <= spec[i] && spec[i] <= 'L') {
+                object->push_back(VALUES[spec[i] - 'A']);
+            }
+            else if ('~' == spec[i]) {
+                object->clear();
+            }
+            else {
+                if (verboseFlag) {
+                    printf("Error, bad character ('%c') in spec \"%s\" "
+                           "at position %d.\n", spec[i], spec, i);
+                }
+                return i;  // Discontinue processing this spec.       // RETURN
+            }
+        }
+        return SUCCESS;
+    }
 
     void assertInputPosition(int line, std::streampos inputPos)
     {
-        LOOP_ASSERT(line, inputPos - std::streampos(0) == gptr() - eback());
-        LOOP_ASSERT(line, egptr() - eback() > inputPos);
+        LOOP_ASSERT(line, inputPos - std::streampos(0) ==
+                                                 Base::gptr() - Base::eback());
+        LOOP_ASSERT(line, Base::egptr() - Base::eback() > inputPos);
     }
 
     void assertOutputPosition(int line, std::streampos outputPos)
     {
-        LOOP_ASSERT(line, outputPos - std::streampos(0) == pptr() - pbase());
-        LOOP_ASSERT(line, epptr() - pbase() > outputPos);
+        LOOP_ASSERT(line, outputPos - std::streampos(0) ==
+                                                 Base::pptr() - Base::pbase());
+        LOOP_ASSERT(line, Base::epptr() - Base::pbase() > outputPos);
     }
 
     void assertPositions(int line,
                          std::streampos inputPos,
                          std::streampos outputPos)
     {
-        LOOP_ASSERT(line, eback() == pbase());
-        LOOP_ASSERT(line, egptr() <= epptr());
+        LOOP_ASSERT(line, Base::eback() == Base::pbase());
+        LOOP_ASSERT(line, Base::egptr() <= Base::epptr());
         assertInputPosition(line, inputPos);
         assertOutputPosition(line, outputPos);
     }
@@ -493,6 +591,551 @@ public:
             }
         }
     }
+
+    static void testStrAccessor()
+    {
+        typedef bsl::basic_string<TYPE,
+                                  bsl::char_traits<TYPE>,
+                                  bsl::allocator<TYPE> >    StringType;
+        typedef bsl::basic_stringbuf<TYPE,
+                                     bsl::char_traits<TYPE>,
+                                     bsl::allocator<TYPE> > Obj;
+
+        static const struct {
+            int         d_line;     // line
+            const char *d_spec_p;   // spec of the initial string
+        } DATA[] = {
+            //LINE SPEC
+            //---- ---------------------------------------------------------
+            { L_,  ""                                                        },
+            { L_,  "A"                                                       },
+            { L_,  "AA"                                                      },
+            { L_,  "ABA"                                                     },
+            { L_,  "ABCA"                                                    },
+            { L_,  "ABCDA"                                                   },
+            { L_,  "ABCDEA"                                                  },
+            { L_,  "ABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKLABCDEFG" },
+        };
+        const std::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (std::size_t i = 0; i != NUM_DATA; ++i) {
+            const int   LINE = DATA[i].d_line;
+            const char *SPEC = DATA[i].d_spec_p;
+
+            StringType initialString;
+            populateString(&initialString, SPEC);
+
+            for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
+
+                const char CONFIG = cfg;  // how we specify the allocator
+
+                bslma::TestAllocator da("default");
+                bslma::TestAllocator fa("footprint");
+                bslma::TestAllocator sa("supplied");
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                Obj                  *objPtr = 0;
+                bslma::TestAllocator *objAllocatorPtr = 0;
+
+                switch (CONFIG) {
+                  case 'a': {
+                    objAllocatorPtr = &da;
+                    objPtr = new (fa) Obj(initialString);
+                  } break;
+                  case 'b': {
+                    objAllocatorPtr = &sa;
+                    objPtr = new (fa) Obj(initialString, objAllocatorPtr);
+                  } break;
+                  default: {
+                    BSLS_ASSERT_OPT(!"Bad allocator config.");
+                  } break;
+                }
+
+                Obj&                   mX = *objPtr;
+                const Obj&             X  = mX;
+                bslma::TestAllocator&  oa = *objAllocatorPtr;
+
+                // Verify the object's 'get_allocator' accessor.
+
+                ASSERTV(LINE, CONFIG, &oa, X.get_allocator().mechanism(),
+                        &oa == X.get_allocator().mechanism());
+
+                const StringType RESULT = X.str();
+
+                ASSERTV(LINE, CONFIG, initialString == RESULT);
+                ASSERTV(LINE,
+                        CONFIG,
+                        &da,
+                        RESULT.get_allocator().mechanism(),
+                        &da == RESULT.get_allocator());
+
+                fa.deleteObject(objPtr);
+            }
+        }
+    }
+
+    static void testGetAllocator()
+    {
+        typedef bsl::basic_stringbuf<TYPE,
+                                     bsl::char_traits<TYPE>,
+                                     bsl::allocator<TYPE> > Obj;
+
+
+        bslma::TestAllocator         da("default");
+        bslma::TestAllocator         sa("supplied");
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        Obj        mXD;
+        const Obj& XD  = mXD;
+
+        {
+            bslma::TestAllocator         tda("temporary");
+            bslma::DefaultAllocatorGuard tdag(&tda);
+
+            ASSERTV(&da, XD.get_allocator().mechanism(),
+                    &da == XD.get_allocator().mechanism());
+        }
+
+        Obj        mXS(&sa);
+        const Obj& XS  = mXS;
+
+        ASSERTV(&sa, XS.get_allocator().mechanism(),
+                &sa == XS.get_allocator().mechanism());
+    }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    static void testSwapMethod()
+    {
+        typedef bsl::basic_string<TYPE,
+                          bsl::char_traits<TYPE>,
+                          bsl::allocator<TYPE> >    StringType;
+
+        static const struct {
+            int          d_line;    // line
+            const char  *d_spec_p;  // spec for the initial string
+            std::size_t  d_length;  // length of the spec
+
+        } DATA[] = {
+            //LINE SPEC                                               LENGTH
+            //---- -------------------------------------------------- ------
+            { L_, "A",                                                1     },
+            { L_, "AB",                                               2     },
+            { L_, "ABC",                                              3     },
+            { L_, "ABCA",                                             4     },
+            { L_, "ABCDA",                                            5     },
+            { L_, "ABCDEA",                                           6     },
+            { L_, "ABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKL", 48    }
+        };
+
+        const std::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (std::size_t i = 0; i != NUM_DATA; ++i) {
+            const int          LINE1   = DATA[i].d_line;
+            const char        *SPEC1 = DATA[i].d_spec_p;
+            const std::size_t  LENGTH1 = DATA[i].d_length;
+
+            StringType  initialString1;
+            populateString(&initialString1, SPEC1);
+
+            for (std::size_t j = 0; j != NUM_DATA; ++j) {
+                const int          LINE2   = DATA[j].d_line;
+                const char        *SPEC2 = DATA[j].d_spec_p;
+                const std::size_t  LENGTH2 = DATA[j].d_length;
+
+                StringType  initialString2;
+                populateString(&initialString2, SPEC2);
+
+                for (std::size_t k = 0; k < LENGTH1; ++k) {
+                    const std::size_t POS1 = k;
+                    for (std::size_t l = 0; l < LENGTH2; ++l) {
+                        const std::size_t POS2 = l;
+                        P_(SPEC1)P_(SPEC2)P_(POS1)P(POS2);
+
+                        StringBufTest sb1(initialString1, std::ios_base::in );
+                        StringBufTest sb2(initialString2, std::ios_base::out);
+
+                        sb1.seekpos(POS1, std::ios_base::in );
+                        sb2.seekpos(POS2, std::ios_base::out);
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                initialString1 == sb1.str());
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                initialString2 == sb2.str());
+
+                        sb1.swap(sb2);
+
+                        // Check buffer replacement.
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                initialString2 == sb1.str());
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                initialString1 == sb2.str());
+
+                        // Check mode replacement.  Writing to read-only buffer
+                        // reading from write-only buffer should fail.
+
+                        TYPE result = '0';
+                        TYPE input  = '1';
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                0 == sb1.xsgetn(&result, 1));
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                0 == sb2.xsputn(&input,  1));
+
+                        // Check current positions.
+
+                        sb1.assertOutputPosition(LINE1, POS2);
+                        sb2.assertInputPosition( LINE2, POS1);
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                1 == sb1.xsputn(&input,  1));
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                1 == sb2.xsgetn(&result, 1));
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                input           == sb1.str()[POS2]);
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                sb2.str()[POS1] == result         );
+
+                        // Check beginning positions.
+
+                        sb1.seekpos(0, std::ios_base::out);
+                        sb2.seekpos(0, std::ios_base::in );
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                1 == sb1.xsputn(&input,  1));
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                1 == sb2.xsgetn(&result, 1));
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                input        == sb1.str()[0]);
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                sb2.str()[0] == result      );
+
+                        // Check end positions.
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                static_cast<int>(LENGTH2) == sb1.seekpos(
+                                                          LENGTH2,
+                                                          std::ios_base::out));
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                static_cast<int>(LENGTH1) == sb2.seekpos(
+                                                           LENGTH1,
+                                                           std::ios_base::in));
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                -1 == sb1.seekpos(LENGTH2 + 1,
+                                                  std::ios_base::out));
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                -1 == sb2.seekpos(LENGTH1 + 1,
+                                                  std::ios_base::in));
+                    }
+                }
+            }
+        }
+    }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    static void testSwapFunction()
+    {
+        typedef bsl::basic_string<TYPE,
+                          bsl::char_traits<TYPE>,
+                          bsl::allocator<TYPE> >    StringType;
+
+        static const struct {
+            int          d_line;    // line
+            const char  *d_spec_p;  // spec for the initial string
+            std::size_t  d_length;  // length of the spec
+
+        } DATA[] = {
+            //LINE SPEC                                               LENGTH
+            //---- -------------------------------------------------- ------
+            { L_, "A",                                                1     },
+            { L_, "AB",                                               2     },
+            { L_, "ABC",                                              3     },
+            { L_, "ABCA",                                             4     },
+            { L_, "ABCDA",                                            5     },
+            { L_, "ABCDEA",                                           6     },
+            { L_, "ABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKL", 48    }
+        };
+
+        const std::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (std::size_t i = 0; i != NUM_DATA; ++i) {
+            const int          LINE1   = DATA[i].d_line;
+            const char        *SPEC1 = DATA[i].d_spec_p;
+            const std::size_t  LENGTH1 = DATA[i].d_length;
+
+            StringType  initialString1;
+            populateString(&initialString1, SPEC1);
+
+            for (std::size_t j = 0; j != NUM_DATA; ++j) {
+                const int          LINE2   = DATA[j].d_line;
+                const char        *SPEC2 = DATA[j].d_spec_p;
+                const std::size_t  LENGTH2 = DATA[j].d_length;
+
+                StringType  initialString2;
+                populateString(&initialString2, SPEC2);
+
+                for (std::size_t k = 0; k < LENGTH1; ++k) {
+                    const std::size_t POS1 = k;
+                    for (std::size_t l = 0; l < LENGTH2; ++l) {
+                        const std::size_t POS2 = l;
+                        P_(SPEC1)P_(SPEC2)P_(POS1)P(POS2);
+
+                        StringBufTest sb1(initialString1, std::ios_base::in );
+                        StringBufTest sb2(initialString2, std::ios_base::out);
+
+                        sb1.seekpos(POS1, std::ios_base::in );
+                        sb2.seekpos(POS2, std::ios_base::out);
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                initialString1 == sb1.str());
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                initialString2 == sb2.str());
+
+                        bsl::swap(sb1, sb2);
+
+                        // Check buffer replacement.
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                initialString2 == sb1.str());
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                initialString1 == sb2.str());
+
+                        // Check mode replacement.  Writing to read-only buffer
+                        // reading from write-only buffer should fail.
+
+                        TYPE result = '0';
+                        TYPE input  = '1';
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                0 == sb1.xsgetn(&result, 1));
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                0 == sb2.xsputn(&input,  1));
+
+                        // Check current positions.
+
+                        sb1.assertOutputPosition(LINE1, POS2);
+                        sb2.assertInputPosition( LINE2, POS1);
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                1 == sb1.xsputn(&input,  1));
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                1 == sb2.xsgetn(&result, 1));
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                input           == sb1.str()[POS2]);
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                sb2.str()[POS1] == result         );
+
+                        // Check beginning positions.
+
+                        sb1.seekpos(0, std::ios_base::out);
+                        sb2.seekpos(0, std::ios_base::in );
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                1 == sb1.xsputn(&input,  1));
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                1 == sb2.xsgetn(&result, 1));
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                input        == sb1.str()[0]);
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                sb2.str()[0] == result      );
+
+                        // Check end positions.
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                static_cast<int>(LENGTH2) == sb1.seekpos(
+                                                          LENGTH2,
+                                                          std::ios_base::out));
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                static_cast<int>(LENGTH1) == sb2.seekpos(
+                                                           LENGTH1,
+                                                           std::ios_base::in));
+
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                -1 == sb1.seekpos(LENGTH2 + 1,
+                                                  std::ios_base::out));
+                        ASSERTV(LINE1, LINE2, POS1, POS2,
+                                -1 == sb2.seekpos(LENGTH1 + 1,
+                                                  std::ios_base::in));
+                    }
+                }
+            }
+        }
+    }
+#endif
+
+    static void testSwapNegative()
+    {
+        typedef bsltf::StdStatefulAllocator<
+                                       TYPE,
+                                       true,  // ON_CONTAINER_COPY_CONSTRUCTION
+                                       true,  // ON_CONTAINER_COPY_ASSIGNMENT
+                                       true,  // ON_CONTAINER_SWAP
+                                       true>  // ON_CONTAINER_MOVE_ASSIGNMENT
+                                       PropagatingStdAlloc;
+
+        typedef bsltf::StdStatefulAllocator<
+                                      TYPE,
+                                      true,   // ON_CONTAINER_COPY_CONSTRUCTION
+                                      true,   // ON_CONTAINER_COPY_ASSIGNMENT
+                                      false,  // ON_CONTAINER_SWAP
+                                      true>   // ON_CONTAINER_MOVE_ASSIGNMENT
+                                      NonPropagatingStdAlloc;
+
+        typedef bsl::basic_stringbuf<TYPE,
+                                     bsl::char_traits<TYPE>,
+                                     PropagatingStdAlloc>    PropagatingObj;
+        typedef bsl::basic_stringbuf<TYPE,
+                                     bsl::char_traits<TYPE>,
+                                     NonPropagatingStdAlloc> NonPropagatingObj;
+
+        bsls::AssertTestHandlerGuard guard;
+
+        bslma::TestAllocator   ta1;
+        bslma::TestAllocator   ta2;
+        PropagatingStdAlloc    pa1(&ta1);
+        PropagatingStdAlloc    pa2(&ta2);
+        NonPropagatingStdAlloc npa1(&ta1);
+        NonPropagatingStdAlloc npa2(&ta2);
+
+        PropagatingObj    poEqualAlloc1(pa1);
+        PropagatingObj    poEqualAlloc2(pa1);
+        PropagatingObj    poNonEqualAlloc(pa2);
+
+        NonPropagatingObj npoEqualAlloc1(npa1);
+        NonPropagatingObj npoEqualAlloc2(npa1);
+        NonPropagatingObj npoNonEqualAlloc(npa2);
+
+        ASSERT_PASS(poEqualAlloc1.swap(poEqualAlloc2  ));
+        ASSERT_PASS(poEqualAlloc1.swap(poNonEqualAlloc));
+
+        ASSERT_PASS(npoEqualAlloc1.swap(npoEqualAlloc2  ));
+        ASSERT_FAIL(npoEqualAlloc1.swap(npoNonEqualAlloc));
+    }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+
+    static void testMoveCtorWithAllocator()
+    {
+        typedef bsl::basic_string<TYPE,
+                                  bsl::char_traits<TYPE>,
+                                  bsl::allocator<TYPE> >       StringType;
+        typedef bsl::basic_stringbuf<TYPE,
+                                     bsl::char_traits<TYPE>,
+                                     bsl::allocator<TYPE> >    Obj;
+
+        static const struct {
+            int         d_line;     // line
+            const char *d_spec_p;   // spec of the initial string
+        } DATA[] = {
+            //LINE SPEC
+            //---- ---------------------------------------------------------
+            { L_,  ""                                                        },
+            { L_,  "A"                                                       },
+            { L_,  "AA"                                                      },
+            { L_,  "ABA"                                                     },
+            { L_,  "ABCA"                                                    },
+            { L_,  "ABCDA"                                                   },
+            { L_,  "ABCDEA"                                                  },
+            { L_,  "ABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKLABCDEFG" },
+        };
+        const std::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (std::size_t i = 0; i != NUM_DATA; ++i) {
+            const int   LINE = DATA[i].d_line;
+            const char *SPEC = DATA[i].d_spec_p;
+
+            StringType initialString;
+            populateString(&initialString, SPEC);
+
+            const std::size_t LENGTH = initialString.length();
+
+            bslma::TestAllocator da("default");
+            bslma::TestAllocator oa("object");
+            bslma::TestAllocator sa("supplied");
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            for (std::size_t j = 0; j < LENGTH; ++j) {
+                const std::size_t POS = j;
+                P_(SPEC) P(POS);
+
+                Obj        mXI(initialString, std::ios_base::in );
+                const Obj& XI = mXI;
+                Obj        mXO(initialString, std::ios_base::out);
+                const Obj& XO = mXO;
+
+                mXI.pubseekpos(POS, std::ios_base::in );
+                mXO.pubseekpos(POS, std::ios_base::out);
+
+                ASSERTV(LINE, POS, initialString == XI.str());
+                ASSERTV(LINE, POS, initialString == XO.str());
+
+                Obj        mYI(std::move(mXI), &sa);
+                const Obj& YI = mYI;
+                Obj        mYO(std::move(mXO), &sa);
+                const Obj& YO = mYO;
+
+                // Check allocator replacement.
+
+                ASSERTV(LINE, POS, &sa == YI.get_allocator().mechanism());
+                ASSERTV(LINE, POS, &sa == YO.get_allocator().mechanism());
+
+                // Check buffer replacement.
+
+                ASSERTV(LINE, POS, initialString == YI.str());
+                ASSERTV(LINE, POS, initialString == YO.str());
+
+                // Check mode replacement.  Writing to read-only buffer and
+                // reading from write-only buffer should fail.
+
+                TYPE result = '0';
+                TYPE input  = '1';
+
+                ASSERTV(LINE, POS, 0 == mYI.sputn(&input,  1));
+                ASSERTV(LINE, POS, 0 == mYO.sgetn(&result, 1));
+
+                // Check current positions.
+
+                ASSERTV(LINE, POS, 1 == mYI.sgetn(&result, 1));
+                ASSERTV(LINE, POS, 1 == mYO.sputn(&input, 1));
+
+                ASSERTV(LINE, POS, YI.str()[POS] == result);
+                ASSERTV(LINE, POS, input == YO.str()[POS]);
+
+                // Check beginning positions.
+
+                mYI.pubseekpos(0, std::ios_base::in);
+                mYO.pubseekpos(0, std::ios_base::out);
+
+                ASSERTV(LINE, POS, 1 == mYI.sgetn(&result, 1));
+                ASSERTV(LINE, POS, 1 == mYO.sputn(&input, 1));
+
+                ASSERTV(LINE, POS, YI.str()[0] == result);
+                ASSERTV(LINE, POS, input == mYO.str()[0]);
+
+                // Check end positions.
+
+                ASSERTV(LINE, POS,
+                        static_cast<int>(LENGTH) ==
+                                   mYI.pubseekpos(LENGTH, std::ios_base::in ));
+                ASSERTV(LINE, POS,
+                        static_cast<int>(LENGTH) ==
+                                   mYO.pubseekpos(LENGTH, std::ios_base::out));
+
+                ASSERTV(LINE, POS,
+                        -1 == mYI.pubseekpos(LENGTH + 1, std::ios_base::in ));
+                ASSERTV(LINE, POS,
+                        -1 == mYO.pubseekpos(LENGTH + 1, std::ios_base::out));
+            }
+        }
+    }
+#endif
+
 };
 
 template <class SeekFunc>
@@ -659,7 +1302,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -684,7 +1327,94 @@ int main(int argc, char *argv[])
 //..
 
       } break;
-      case 15: {
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING SWAP
+        //
+        // Concerns:
+        //: 1 The 'swap' method exchanges internal strings.
+        //:
+        //: 2 The 'swap' method exchanges internal pointers.
+        //:
+        //: 3 The 'swap' method exchanges modes.
+        //:
+        //: 4 Swap free function works the same way as the 'swap' method.
+        //:
+        //: 5 Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create two objects of the 'StringBufTest' that allows to call
+        //:   'bslstl::basic_stringbuf' protected methods.
+        //:
+        //: 2 Swap these objects using class method and
+        //:
+        //:   1 Using 'str()' method verify that the internal strings have
+        //:     been exchanged.  (C-1)
+        //:
+        //:   2 Using protected methods 'xsgetn()' for output 'streambuf' and
+        //:     'xsputn()' for input 'streambuf' verify that modes of the
+        //:     objects have been replaced.  (C-3)
+        //:
+        //:   3 Using protected methods 'seekpos()', 'xsgetn()' and
+        //:     'xsputn()' verify that internal pointers of the objects have
+        //:     been replaced.  (C-2)
+        //:
+        //: 3 Create another two objects, swap them using free function and
+        //:   repeat the steps from P-2.  (C-4)
+        //:
+        //: 4 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones.  (C-5)
+        //
+        // Testing:
+        //   void swap(basic_stringbuf& other);
+        //   void swap(basic_stringbuf& a, basic_stringbuf& b);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING SWAP"
+                            "\n============\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        if (verbose) printf("\tTesting method.\n");
+        StringBufTest<char   >::testSwapMethod();
+        StringBufTest<wchar_t>::testSwapMethod();
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+        if (verbose) printf("\tTesting free function.\n");
+        StringBufTest<char   >::testSwapFunction();
+        StringBufTest<wchar_t>::testSwapFunction();
+#endif
+        if (verbose) printf("\tNegative Testing.\n");
+        StringBufTest<char   >::testSwapNegative();
+        StringBufTest<wchar_t>::testSwapNegative();
+#else
+    if (verbose) {
+        printf("\tThis functionality is not supported.\n");
+    }
+#endif
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE CTOR WITH ALLOCATOR
+        //
+        // Concerns:
+
+        //
+        // Plan:
+
+        // Testing:
+        //   stringbuf(stringbuf&&, const ALLOCATOR&);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING MOVE CTOR WITH ALLOCATOR"
+                            "\n================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+        StringBufTest<char   >::testMoveCtorWithAllocator();
+        StringBufTest<wchar_t>::testMoveCtorWithAllocator();
+#endif
+      } break;
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING MODIFYING BUFFER POINTERS VIA BASE CLASS INTERFACE
         //
@@ -749,7 +1479,7 @@ int main(int argc, char *argv[])
             buf.setp(0, 0);
         }
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING INPUT/OUTPUT FROM/TO STRINGBUF VIA PUBLIC INTERFACE
         //
@@ -795,7 +1525,7 @@ int main(int argc, char *argv[])
             ASSERT(res == EOF);
         }
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING INPUT FROM STRINGBUF VIA PUBLIC INTERFACE
         //
@@ -852,27 +1582,27 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\ttesting xsgetn\n");
 
-        StringBufTest::testXsgetn();
+        StringBufTest<char>::testXsgetn();
 
         if (veryVerbose) printf("\ttesting underflow\n");
 
-        StringBufTest::testUnderflow();
+        StringBufTest<char>::testUnderflow();
 
         if (veryVerbose) printf("\ttesting uflow\n");
 
-        StringBufTest::testUflow();
+        StringBufTest<char>::testUflow();
 
         if (veryVerbose) printf("\ttesting pbackfail\n");
 
-        StringBufTest::testPbackfail();
+        StringBufTest<char>::testPbackfail();
 
         if (veryVerbose) printf("\ttesting overflow\n");
 
-        StringBufTest::testOverflow();
+        StringBufTest<char>::testOverflow();
 
         if (veryVerbose) printf("\ttesting xsputn\n");
 
-        StringBufTest::testXsputn();
+        StringBufTest<char>::testXsputn();
 
         if (veryVerbose) printf("\ttesting in_avail\n");
 
@@ -1053,7 +1783,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT TO STRINGBUF VIA PUBLIC INTERFACE
         //
@@ -1171,7 +1901,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING OVERFLOW FUNCTION
         //
@@ -1195,10 +1925,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING OVERFLOW FUNCTION"
                             "\n=========================\n");
 
-        StringBufTest::testOverflow();
+        StringBufTest<char>::testOverflow();
 
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING XSPUTN FUNCTION
         //
@@ -1223,10 +1953,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING XSPUTN FUNCTION"
                             "\n=======================\n");
 
-        StringBufTest::testXsputn();
+        StringBufTest<char>::testXsputn();
 
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING PBACKFAIL FUNCTION
         //
@@ -1255,10 +1985,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING PBACKFAIL FUNCTION"
                             "\n==========================\n");
 
-        StringBufTest::testPbackfail();
+        StringBufTest<char>::testPbackfail();
 
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING UFLOW FUNCTION
         //
@@ -1279,10 +2009,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING UFLOW FUNCTION"
                             "\n======================\n");
 
-        StringBufTest::testUflow();
+        StringBufTest<char>::testUflow();
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING UNDERFLOW FUNCTION
         //
@@ -1303,10 +2033,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING UNDERFLOW FUNCTION"
                             "\n==========================\n");
 
-        StringBufTest::testUnderflow();
+        StringBufTest<char>::testUnderflow();
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING XSGETN FUNCTION
         //
@@ -1324,10 +2054,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING XSGETN FUNCTION"
                             "\n=======================\n");
 
-        StringBufTest::testXsgetn();
+        StringBufTest<char>::testXsgetn();
 
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING SEEKPOS FUNCTION
         //
@@ -1348,10 +2078,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING SEEKPOS FUNCTION"
                             "\n========================\n");
 
-        StringBufTest::testSeekpos();
+        StringBufTest<char>::testSeekpos();
 
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING SEEKOFF FUNCTION
         //
@@ -1377,10 +2107,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING SEEKOFF FUNCTION"
                             "\n========================\n");
 
-        StringBufTest::testSeekoff();
+        StringBufTest<char>::testSeekoff();
 
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING MOVE ASSIGMENT
         //
@@ -1484,9 +2214,68 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // BASIC ACCESSORS
+        //
+        // Concerns:
+        //: 1 The 'get_allocator' method returns the allocator specified at
+        //:   construction, and that is the default allocator at the time of
+        //:   object's construction if none was specified at construction.
+        //:
+        //: 2 The 'str' method returns a copy of the buffered sequence of
+        //:   characters that uses the default allocator to supply memory.
+        //
+        // Plan:
+        //: 1 Create an object without passing an allocator reference, setup
+        //:   temporary default allocator and verify that 'get_allocator'
+        //:   returns a copy of the default allocator at the time of object's
+        //:   construction.
+        //:
+        //: 2 Create an object specifying the allocator and verify that
+        //:   'get_allocator' returns a copy of the supplied allocator.  (C-1)
+        //:
+        //: 3 Specify a set S of initial strings with substantial and varied
+        //:   differences, ordered by increasing length, to be used in the
+        //:   following tests.
+        //:
+        //: 4 Execute a loop that creates an object with each value in S but
+        //:   invokes the constructor differently in each iteration:
+        //:   (a) without passing an allocator,
+        //:   (b) passing the address of a test allocator distinct from the
+        //:       default.
+        //:
+        //: 2 For each iteration from P-4:
+        //:
+        //:   1 Using 'str' method obtain a copy of the object's buffered
+        //:     sequence of characters.
+        //:
+        //:   2 Verify the value of the obtained string.
+        //:
+        //:   3 Using the 'get_allocator()' method verify that the expected
+        //:     allocator is assigned to the obtained string.  (C-2)
+        //
+        // Testing:
+        //   allocator_type get_allocator() const;
+        //   StringType str() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nBASIC ACCESSORS"
+                            "\n===============\n");
+
+        if (verbose) printf("\tTesting 'get_allocator().'\n");
+
+        StringBufTest<char   >::testGetAllocator();
+        StringBufTest<wchar_t>::testGetAllocator();
+
+        if (verbose) printf("\tTesting 'str()'.\n");
+
+        StringBufTest<char   >::testStrAccessor();
+        StringBufTest<wchar_t>::testStrAccessor();
+      } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING CREATORS
+        // PRIMARY MANIPULATORS
         //
         // Concerns:
         //: 1. stringbuf is creatable with the default constructor

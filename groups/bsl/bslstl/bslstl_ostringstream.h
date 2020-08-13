@@ -180,10 +180,13 @@ class basic_ostringstream
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
     basic_ostringstream(basic_ostringstream&& original);
+    basic_ostringstream(basic_ostringstream&& original,
+                        const allocator_type& allocator);
         // Create a 'basic_ostringstream' object having the same value as the
         // specified 'original' object by moving the contents of 'original' to
-        // the newly-created object.  'original' is left in a valid but
-        // unspecified state.
+        // the newly-created object.  Optionally specify the 'allocator' used
+        // to supply memory.  'original' is left in a valid but unspecified
+        // state.
 #endif
 
     //! ~basic_ostringstream() = default;
@@ -202,7 +205,22 @@ class basic_ostringstream
         // Reset the internally buffered sequence of characters maintained by
         // this stream object to the specified 'value'.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    void swap(basic_ostringstream& other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee if '*this' and 'other' allocators compare
+        // equal.  The behavior is undefined unless either '*this' and 'other'
+        // allocators compare equal or 'propagate_on_container_swap' is 'true'.
+        // Note that this function is only available for C++11 (and later)
+        // language standards because it requires that 'swap' be provided on
+        // the (platform supplied) base class for this type.
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
     // ACCESSORS
+    allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
+        // Return the allocator used by the underlying buffer to supply memory.
+
     StringType str() const;
         // Return the sequence of characters that have been written to this
         // stream object.
@@ -212,6 +230,18 @@ class basic_ostringstream
         // 'basic_stringbuf' object that is internally used by this string
         // stream to buffer unformatted characters.
 };
+
+// FREE FUNCTIONS
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)                  \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE)
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+void swap(basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& a,
+          basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& b);
+    // Efficiently exchange the values of the specified 'a' and 'b' objects.
+    // This method provides the no-throw exception-safety guarantee if 'a' and
+    // 'b' allocators compare equal.  Note that this function is only available
+    // for C++11 (and later) language standards.
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 // STANDARD TYPEDEFS
 typedef basic_ostringstream<char, char_traits<char>, allocator<char> >
@@ -295,6 +325,17 @@ basic_ostringstream(basic_ostringstream&& original)
 {
     BaseStream::set_rdbuf(BaseType::rdbuf());
 }
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
+basic_ostringstream(basic_ostringstream&& original,
+                    const allocator_type& allocator)
+: BaseType(std::move(original), allocator)
+, BaseStream(std::move(original))
+{
+    BaseStream::set_rdbuf(BaseType::rdbuf());
+}
 #endif
 
 // MANIPULATORS
@@ -320,7 +361,30 @@ void basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
     this->rdbuf()->str(value);
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+void basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::swap(
+                                                    basic_ostringstream& other)
+{
+    BSLS_ASSERT(
+           bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap::value
+        || get_allocator() == other.get_allocator());
+    this->BaseType::swap(other);
+    this->BaseStream::swap(other);
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
 // ACCESSORS
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+typename basic_ostringstream<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::allocator_type
+basic_ostringstream<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::get_allocator() const
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return rdbuf()->get_allocator();
+}
+
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
@@ -339,6 +403,32 @@ basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::rdbuf() const
 }
 
 }  // close namespace bsl
+
+// FREE FUNCTIONS
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)                  \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE)
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+void bsl::swap(basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& a,
+               basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& b)
+{
+    typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+
+    if (a.get_allocator() == b.get_allocator()
+    ||  bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap::value) {
+        a.swap(b);
+    }
+    else {
+        basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> aCopy(
+                                                            MoveUtil::move(a),
+                                                            b.get_allocator());
+        basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> bCopy(
+                                                            MoveUtil::move(b),
+                                                            a.get_allocator());
+        swap(a, bCopy);
+        swap(b, aCopy);
+    }
+}
+#endif
 
 #endif
 
