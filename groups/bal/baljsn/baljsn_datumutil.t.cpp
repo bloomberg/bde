@@ -3,10 +3,12 @@
 
 #include <baljsn_simpleformatter.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_list.h>
 #include <bsl_ostream.h>
 
 #include <bslim_testutil.h>
@@ -61,14 +63,18 @@ using namespace bsl;
 // matches the expected value.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 6] int encode(string *, const Datum&, const DUOptions&, Allocator *);
-// [ 6] int encode(string *, const Datum&, const DUOptions*, Allocator *);
-// [ 6] int encode(ostream&, const Datum&, const DUOptions&, Allocator *);
-// [ 6] int encode(ostream&, const Datum&, const DUOptions*, Allocator *);
-// [ 5] int decode(ManagedDatum*, const StringRef&, Allocator*);
-// [ 5] int decode(ManagedDatum*, ostream*, const StringRef&, Allocator*);
-// [ 5] int decode(ManagedDatum*, streamBuf*, Allocator*);
-// [ 5] int decode(ManagedDatum*, ostream*, streamBuf*, Allocator*);
+// [ 6] int encode(string *, const Datum&, const DEOptions&, Allocator *);
+// [ 6] int encode(string *, const Datum&, const DEOptions*, Allocator *);
+// [ 6] int encode(ostream&, const Datum&, const DEOptions&, Allocator *);
+// [ 6] int encode(ostream&, const Datum&, const DEOptions*, Allocator *);
+// [ 5] int decode(MgedDatum*, const StringRef&);
+// [ 5] int decode(MgedDatum*, const StringRef&, const DDOptions&);
+// [ 5] int decode(MgedDatum*, os*, const StrRef&);
+// [ 5] int decode(MgedDatum*, os*, const StrRef&, const DDOptions&);
+// [ 5] int decode(MgedDatum*, streamBuf*);
+// [ 5] int decode(MgedDatum*, streamBuf*, const DDOptions&);
+// [ 5] int decode(MgedDatum*, ostream*, streamBuf*);
+// [ 5] int decode(MgedDatum*, ostream*, streamBuf*, const DDOptions&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] BREATHING DECODE TEST
@@ -181,6 +187,44 @@ const char *LONG_JSON_OBJECT = "{"
                                   "\"" STR64  "\" : " "\"" STR256 "\","
                                   "\"" STR256 "\" : " "\"" STR256 "\""
                               "}";
+
+                              // 96 nested arrays
+const char *DEEP_JSON_ARRAY = "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                              "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                              "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                              "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]"
+                              "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]"
+                              "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]";
+
+                              // 1 outer array, 71 nested objects inside
+const char *DEEP_JSON_OBJECT = "["
+                  "{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{"
+                   "\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{"
+                   "\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{"
+                   "\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{"
+                   "\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{"
+                   "\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{"
+                   "\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{"
+                   "\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{"
+                   "\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{"
+                   "}}}}}}}}"
+                   "}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}"
+                   "}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}"
+                               "]";
+
+
+                              // 1 outer array, 1 nested object, 93 nested
+                              // arrays inside
+const char *DEEP_JSON_AOA = "["
+                               "{\"a\":"
+                                   "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                                   "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                                   "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                                   "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]"
+                                   "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]"
+                                   "]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]"
+                               "}"
+                            "]";
 
 // ============================================================================
 //                                TEST APPARATUS
@@ -437,10 +481,10 @@ int main(int argc, char *argv[])
         //:   are handled properly.
         //
         // Testing:
-        //   int encode(string *, const Datum&, const DUOptions&, Allocator *);
-        //   int encode(string *, const Datum&, const DUOptions*, Allocator *);
-        //   int encode(ostream&, const Datum&, const DUOptions&, Allocator *);
-        //   int encode(ostream&, const Datum&, const DUOptions*, Allocator *);
+        //   int encode(string *, const Datum&, const DEOptions&, Allocator *);
+        //   int encode(string *, const Datum&, const DEOptions*, Allocator *);
+        //   int encode(ostream&, const Datum&, const DEOptions&, Allocator *);
+        //   int encode(ostream&, const Datum&, const DEOptions*, Allocator *);
         //---------------------------------------------------------------------
 
         if (verbose) cout << endl << "ENCODE AND PRINT TEST" << endl
@@ -909,20 +953,28 @@ int main(int argc, char *argv[])
         //:
         //: 2 The empty string is decoded correctly.
         //:
-        //: 3 Whitespace is ignored in all legal locations.
+        //: 3 The 'maxNestedDepth' option is handled correctly.
         //:
-        //: 4 All allocations are done via the passed-in allocator.
+        //: 4 Whitespace is ignored in all legal locations.
+        //:
+        //: 5 All allocations are done via the passed-in allocator.
         //
         // Plan:
         //: 1 'decode' strings, and compare them with the expected return codes
         //:   and Datums, using 'TestAllocator's to ensure allocations are
-        //:   handled properly.
+        //:   handled properly.  Pass different 'maxNestedDepth' option values
+        //:   to make sure errors occur if 'maxNestedDepth' is insuffient and
+        //:   the string is otherwise valid.
         //
         // Testing:
-        //   int decode(ManagedDatum*, const StringRef&, Allocator*);
-        //   int decode(ManagedDatum*, ostream*, const StringRef&, Allocator*);
-        //   int decode(ManagedDatum*, streamBuf*, Allocator*);
-        //   int decode(ManagedDatum*, ostream*, streamBuf*, Allocator*);
+        //  int decode(MgedDatum*, const StringRef&);
+        //  int decode(MgedDatum*, const StringRef&, const DDOptions&);
+        //  int decode(MgedDatum*, os*, const StrRef&);
+        //  int decode(MgedDatum*, os*, const StrRef&, const DDOptions&);
+        //  int decode(MgedDatum*, streamBuf*);
+        //  int decode(MgedDatum*, streamBuf*, const DDOptions&);
+        //  int decode(MgedDatum*, ostream*, streamBuf*);
+        //  int decode(MgedDatum*, ostream*, streamBuf*, const DDOptions&);
         //---------------------------------------------------------------------
 
         if (verbose) cout << endl << "DECODE TEST" << endl
@@ -934,6 +986,61 @@ int main(int argc, char *argv[])
 
         bdld::DatumMaker m(&bsa);
 
+        const bdld::Datum LONG_DATUM_ARRAY  = m.a(m(STR256),
+                                                  m(STR256),
+                                                  m(STR256),
+                                                  m(STR256),
+                                                  m(STR256),
+                                                  m(STR256),
+                                                  m(STR256),
+                                                  m(STR256));
+        const bdld::Datum LONG_DATUM_OBJECT = m.m(
+                                                  STR1,   STR256,
+                                                  STR2,   STR256,
+                                                  STR4,   STR256,
+                                                  STR8,   STR256,
+                                                  STR16,  STR256,
+                                                  STR64,  STR256,
+                                                  STR256, STR256);
+        const bdld::Datum DEEP_DATUM_ARRAY  = m.a(
+              m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a(
+              m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a(
+              m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a(
+              m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a(
+              m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a(
+              m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a(
+              m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a(
+              m.a( m.a( m.a( m.a(
+                 ))))))))))))))))))))))))))))))))))))))))))))))))
+                 ))))))))))))))))))))))))))))))))))))))))))))))));
+        const bdld::Datum DEEP_DATUM_OBJECT = m.a(
+              m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a",
+              m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a",
+              m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a",
+              m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a",
+              m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a",
+              m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a",
+              m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a",
+              m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a",
+              m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a",
+              m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a", m.m("a",
+              m.m(
+                 ))))))))))))))))))))))))))))))))))))
+                 ))))))))))))))))))))))))))))))))))));
+        const bdld::Datum DEEP_DATUM_AOA    = m.a(
+              m.m("a",
+              m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a(
+              m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a(
+              m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a(
+              m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a(
+              m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a(
+              m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a(
+              m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a( m.a(
+              m.a( m.a(
+                 ))))))))))))))))))))))))))))))))
+                 ))))))))))))))))))))))))))))))))
+                 )))))))))))))))))))))))))))))));
+
 #define WS "   \t       \n      \v       \f       \r       "
 
         struct {
@@ -941,96 +1048,105 @@ int main(int argc, char *argv[])
             const char *d_json_p;
             int         d_rc;       // return code.  Only the sign is
                                     // significant, but we're testing exact
-                                    // values.
+                                    // values
+            int         d_depth;    // required maxNestedDepth for 'd_json_p'
+                                    // to parse, 0 for N/A
             bdld::Datum d_datum;
         } DATA[] =
         {
-         //   L  d_json_p                d_rc        d_datum
-         //   -- --------                ----        -------
-            { L_, "",                     -1,        m()                     },
-            { L_, "n",                    -2,        m()                     },
-            { L_, "nu",                   -2,        m()                     },
-            { L_, "nul",                  -2,        m()                     },
-            { L_, "null",                  0,        m()                     },
-            { L_, WS "null",               0,        m()                     },
-            { L_, "null" WS,               0,        m()                     },
-            { L_, "1",                     0,        m(1.0)                  },
-            { L_, WS "1",                  0,        m(1.0)                  },
-            { L_, "1" WS,                  0,        m(1.0)                  },
-            { L_, "2.5",                   0,        m(2.5)                  },
-            { L_, "\"hello\"",             0,        m("hello")              },
-            { L_, WS "\"hello\"",          0,        m("hello")              },
-            { L_, WS "\"hello\"" WS,       0,        m("hello")              },
-            { L_, "\"hello",              -1,        m()                     },
-            { L_, "t",                    -2,        m()                     },
-            { L_, "tr",                   -2,        m()                     },
-            { L_, "tru",                  -2,        m()                     },
-            { L_, "treu",                 -2,        m()                     },
-            { L_, "true",                  0,        m(true)                 },
-            { L_, WS "true",               0,        m(true)                 },
-            { L_, "true" WS,               0,        m(true)                 },
-            { L_, "false",                 0,        m(false)                },
-            { L_, "fals",                 -2,        m()                     },
-            { L_, "[]",                    0,        m.a()                   },
-            { L_, WS "[]",                 0,        m.a()                   },
-            { L_, "[" WS "]",              0,        m.a()                   },
-            { L_, "[]" WS,                 0,        m.a()                   },
-            { L_, "[",                    -2,        m.a()                   },
-            { L_, "]",                    -1,        m.a()                   },
-            { L_, "[1.0]",                 0,        m.a(1.0)                },
-            { L_, WS "[1.0]",              0,        m.a(1.0)                },
-            { L_, "[" WS "1.0]",           0,        m.a(1.0)                },
-            { L_, "[1.0" WS "]",           0,        m.a(1.0)                },
-            { L_, "[1.0]" WS,              0,        m.a(1.0)                },
-            { L_, "[[]]",                  0,        m.a(m.a())              },
-            { L_, WS "[[]]",               0,        m.a(m.a())              },
-            { L_, "[" WS "[]]",            0,        m.a(m.a())              },
-            { L_, "[[" WS "]]",            0,        m.a(m.a())              },
-            { L_, "[[]" WS "]",            0,        m.a(m.a())              },
-            { L_, "[[]]" WS,               0,        m.a(m.a())              },
-            { L_, "[[]",                  -2,        m()                     },
-            { L_, "[[[]",                 -2,        m()                     },
-            { L_, "[[[]]",                -2,        m()                     },
-            { L_, "[]]",                  -3,        m()                     },
-            { L_, "[]]]",                 -3,        m()                     },
-            { L_, "[[1.0]]",               0,        m.a(m.a(1.0))           },
-            { L_, "{}",                    0,        m.m()                   },
-            { L_, WS "{}",                 0,        m.m()                   },
-            { L_, "{" WS "}",              0,        m.m()                   },
-            { L_, "{}" WS,                 0,        m.m()                   },
-            { L_, "{{}",                  -2,        m.m()                   },
-            { L_, "{{{}",                 -2,        m.m()                   },
-            { L_, "{{{}}",                -2,        m.m()                   },
-            { L_, "{}}",                  -3,        m.m()                   },
-            { L_, "{}}}",                 -3,        m.m()                   },
-            { L_, "{",                    -2,        m()                     },
-            { L_, "}",                    -1,        m()                     },
-            { L_, "{\"object\":{}}",       0,        m.m("object", m.m())    },
-            { L_, WS "{\"object\":{}}",    0,        m.m("object", m.m())    },
-            { L_, "{" WS "\"object\":{}}", 0,        m.m("object", m.m())    },
-            { L_, "{\"object\"" WS ":{}}", 0,        m.m("object", m.m())    },
-            { L_, "{\"object\":" WS "{}}", 0,        m.m("object", m.m())    },
-            { L_, "{\"object\":{" WS "}}", 0,        m.m("object", m.m())    },
-            { L_, "{\"object\":{}" WS "}", 0,        m.m("object", m.m())    },
-            { L_, "{\"object\":{}}}" WS,  -3,        m()                     },
+         //   L  d_json_p                d_rc d_dpth d_datum
+         //   -- --------                ---- ------ -------
+            { L_, "",                     -1,     0, m()                     },
+            { L_, "n",                    -2,     0, m()                     },
+            { L_, "nu",                   -2,     0, m()                     },
+            { L_, "nul",                  -2,     0, m()                     },
+            { L_, "null",                  0,     0, m()                     },
+            { L_, WS "null",               0,     0, m()                     },
+            { L_, "null" WS,               0,     0, m()                     },
+            { L_, "1",                     0,     0, m(1.0)                  },
+            { L_, WS "1",                  0,     0, m(1.0)                  },
+            { L_, "1" WS,                  0,     0, m(1.0)                  },
+            { L_, "2.5",                   0,     0, m(2.5)                  },
+            { L_, "\"hello\"",             0,     0, m("hello")              },
+            { L_, WS "\"hello\"",          0,     0, m("hello")              },
+            { L_, WS "\"hello\"" WS,       0,     0, m("hello")              },
+            { L_, "\"hello",              -1,     0, m()                     },
+            { L_, "t",                    -2,     0, m()                     },
+            { L_, "tr",                   -2,     0, m()                     },
+            { L_, "tru",                  -2,     0, m()                     },
+            { L_, "treu",                 -2,     0, m()                     },
+            { L_, "true",                  0,     0, m(true)                 },
+            { L_, WS "true",               0,     0, m(true)                 },
+            { L_, "true" WS,               0,     0, m(true)                 },
+            { L_, "false",                 0,     0, m(false)                },
+            { L_, "fals",                 -2,     0, m()                     },
+            { L_, "[]",                    0,     0, m.a()                   },
+            { L_, "[}",                   -2,     0, m.a()                   },
+            { L_, "{]",                   -2,     0, m.a()                   },
+            { L_, "{}}",                  -3,     0, m.a()                   },
+            { L_, "[]}",                  -3,     0, m.a()                   },
+            { L_, "{}]",                  -3,     0, m.a()                   },
+            { L_, "[]]",                  -3,     0, m.a()                   },
+            { L_, WS "[]",                 0,     0, m.a()                   },
+            { L_, "[" WS "]",              0,     0, m.a()                   },
+            { L_, "[]" WS,                 0,     0, m.a()                   },
+            { L_, "[",                    -2,     0, m.a()                   },
+            { L_, "]",                    -1,     0, m.a()                   },
+            { L_, "[1.0]",                 0,     0, m.a(1.0)                },
+            { L_, WS "[1.0]",              0,     0, m.a(1.0)                },
+            { L_, "[" WS "1.0]",           0,     0, m.a(1.0)                },
+            { L_, "[1.0" WS "]",           0,     0, m.a(1.0)                },
+            { L_, "[1.0]" WS,              0,     0, m.a(1.0)                },
+            { L_, "[[]]",                  0,     2, m.a(m.a())              },
+            { L_, WS "[[]]",               0,     2, m.a(m.a())              },
+            { L_, "[" WS "[]]",            0,     2, m.a(m.a())              },
+            { L_, "[[" WS "]]",            0,     2, m.a(m.a())              },
+            { L_, "[[]" WS "]",            0,     2, m.a(m.a())              },
+            { L_, "[[]]" WS,               0,     2, m.a(m.a())              },
+            { L_, "[[]",                  -2,     2, m()                     },
+            { L_, "[[[]",                 -2,     3, m()                     },
+            { L_, "[[[]]",                -2,     3, m()                     },
+            { L_, "[]]",                  -3,     1, m()                     },
+            { L_, "[]]]",                 -3,     1, m()                     },
+            { L_, "[[1.0]]",               0,     2, m.a(m.a(1.0))           },
+            { L_, "{}",                    0,     1, m.m()                   },
+            { L_, WS "{}",                 0,     1, m.m()                   },
+            { L_, "{" WS "}",              0,     1, m.m()                   },
+            { L_, "{}" WS,                 0,     1, m.m()                   },
+            { L_, "{{}",                  -2,     2, m.m()                   },
+            { L_, "{{{}",                 -2,     3, m.m()                   },
+            { L_, "{{{}}",                -2,     3, m.m()                   },
+            { L_, "{}}",                  -3,     1, m.m()                   },
+            { L_, "{}}}",                 -3,     1, m.m()                   },
+            { L_, "{",                    -2,     1, m()                     },
+            { L_, "}",                    -1,     0, m()                     },
+            { L_, "{\"object\":{}}",       0,     2, m.m("object", m.m())    },
+            { L_, "[{\"obj\":{}}]",        0,     3, m.a(m.m("obj", m.m()))  },
+            { L_, WS "{\"object\":{}}",    0,     2, m.m("object", m.m())    },
+            { L_, "{" WS "\"object\":{}}", 0,     2, m.m("object", m.m())    },
+            { L_, "{\"object\"" WS ":{}}", 0,     2, m.m("object", m.m())    },
+            { L_, "{\"object\":" WS "{}}", 0,     2, m.m("object", m.m())    },
+            { L_, "{\"object\":{" WS "}}", 0,     2, m.m("object", m.m())    },
+            { L_, "{\"object\":{}" WS "}", 0,     2, m.m("object", m.m())    },
+            { L_, "{\"object\":{}}}" WS,  -3,     2, m()                     },
             { L_, "{\"firstName\":\"Bart\"}",
-                                           0,        m.m("firstName", "Bart")},
+                                           0,     1, m.m("firstName", "Bart")},
             { L_, "{\"firstName\":" WS "\"Bart\"}",
-                                           0,        m.m("firstName", "Bart")},
+                                           0,     1, m.m("firstName", "Bart")},
             { L_, "{\"firstName\":\"Bart\"" WS "}",
-                                           0,        m.m("firstName", "Bart")},
+                                           0,     1, m.m("firstName", "Bart")},
             { L_, "{\"Name\":{"
                                "\"first\":\"Bart\","
                                "\"last\":\"Simpson\""
                             "}"
-                  "}",                     0,        m.m("Name", m.m(
+                  "}",                     0,     2, m.m("Name", m.m(
                                                         "first", "Bart",
                                                         "last",  "Simpson")) },
             { L_, "{\"Name\":{"
                                "\"first\":\"Bart\"," WS
                                "\"last\":\"Simpson\""
                             "}"
-                  "}",                     0,        m.m("Name", m.m(
+                  "}",                     0,     2, m.m("Name", m.m(
                                                         "first", "Bart",
                                                         "last",  "Simpson")) },
             { L_, "{\"Family\":["
@@ -1041,7 +1157,7 @@ int main(int argc, char *argv[])
                          "\"Maggie\","
                          "\"Santa's LH\""
                               "]"
-                  "}",                     0,        m.m("Family",
+                  "}",                     0,     2, m.m("Family",
                                                         m.a(
                                                                 m("Homer"),
                                                                 m("Marge"),
@@ -1058,7 +1174,7 @@ int main(int argc, char *argv[])
                          "\"Maggie\","
                          "\"Santa's LH\""
                               "]"
-                  "}",                     0,        m.m("Family",
+                  "}",                     0,     2, m.m("Family",
                                                         m.a(
                                                                 m("Homer"),
                                                                 m("Marge"),
@@ -1075,7 +1191,7 @@ int main(int argc, char *argv[])
                          "\"Maggie\","
                          "\"Santa's LH\""
                               "]"
-                  "}",                     0,        m.m("Family",
+                  "}",                     0,     2, m.m("Family",
                                                         m.a(
                                                                 m("Homer"),
                                                                 m("Marge"),
@@ -1092,7 +1208,7 @@ int main(int argc, char *argv[])
                          "\"Maggie\","
                          "\"Santa's LH\""
                               "]"
-                  "}",                     0,        m.m("Family",
+                  "}",                     0,     2, m.m("Family",
                                                         m.a(
                                                                 m("Homer"),
                                                                 m("Marge"),
@@ -1109,7 +1225,7 @@ int main(int argc, char *argv[])
                          "\"Maggie\","
                          "\"Santa's LH\"" WS
                               "]"
-                  "}",                     0,        m.m("Family",
+                  "}",                     0,     2, m.m("Family",
                                                         m.a(
                                                                 m("Homer"),
                                                                 m("Marge"),
@@ -1126,7 +1242,7 @@ int main(int argc, char *argv[])
                          "\"Maggie\","
                          "\"Santa's LH\""
                               "]" WS
-                  "}",                     0,        m.m("Family",
+                  "}",                     0,     2, m.m("Family",
                                                         m.a(
                                                                 m("Homer"),
                                                                 m("Marge"),
@@ -1143,26 +1259,12 @@ int main(int argc, char *argv[])
                          "\"Maggie\","
                          "\"Santa's LH\""
                               "]       ] "  // Note bad extra ']'
-                  "}",                    -2,        m()                     },
-            { L_, LONG_JSON_ARRAY,         0,        m.a(
-                                                            m(STR256),
-                                                            m(STR256),
-                                                            m(STR256),
-                                                            m(STR256),
-                                                            m(STR256),
-                                                            m(STR256),
-                                                            m(STR256),
-                                                            m(STR256)
-                                                        )                    },
-            { L_, LONG_JSON_OBJECT,        0,        m.m(
-                                                            STR1,   STR256,
-                                                            STR2,   STR256,
-                                                            STR4,   STR256,
-                                                            STR8,   STR256,
-                                                            STR16,  STR256,
-                                                            STR64,  STR256,
-                                                            STR256, STR256
-                                                        )                    },
+                  "}",                    -2,     2, m()                     },
+            { L_, LONG_JSON_ARRAY,         0,     1, LONG_DATUM_ARRAY        },
+            { L_, LONG_JSON_OBJECT,        0,     1, LONG_DATUM_OBJECT       },
+            { L_, DEEP_JSON_ARRAY,         0,    96, DEEP_DATUM_ARRAY        },
+            { L_, DEEP_JSON_OBJECT,        0,    72, DEEP_DATUM_OBJECT       },
+            { L_, DEEP_JSON_AOA,           0,    95, DEEP_DATUM_AOA          },
         };
 #undef WS
 
@@ -1171,64 +1273,428 @@ int main(int argc, char *argv[])
                  << endl;
 
         const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+        const int DEFAULT_DEPTH =
+            baljsn::DatumDecoderOptions().maxNestedDepth();
+
+        // Testing when DEFAULT_DEPTH is not exceeded.
+        //   int decode(MgedDatum*, ostream*, streamBuf*);
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int           LINE  = DATA[ti].d_line;
             const char         *JSON  = DATA[ti].d_json_p;
             const int           RC    = DATA[ti].d_rc;
+            const int           DEPTH = DATA[ti].d_depth;
             const bdld::Datum&  DATUM = DATA[ti].d_datum;
+
+            // Depth limit options tested below
+            if (DEPTH > DEFAULT_DEPTH) {
+                continue;                                           // CONTINUE
+            }
 
             // Must do this before setting up 'da' - 'datum.print()' uses
             // default allocator.
             if(veryVerbose) {
-                T_ P_(LINE) P_(JSON) P_(RC) P(DATUM)
+                T_ P_(LINE) P_(JSON) P_(RC) P_(DEPTH) P(DATUM)
             }
 
+            // Testing
+            //   int decode(MgedDatum*, ostream*, streamBuf*);
             bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
             bslma::TestAllocatorMonitor tam(&ta);
 
             MD result(&ta);
 
-            {
-                int rc = Util::decode(&result, JSON);
-                ASSERTV(LINE, RC, rc, result, result->type(), RC == rc);
+            bdlsb::FixedMemInStreamBuf isb(JSON, bsl::strlen(JSON));
+            bsl::ostringstream         os(&ta);
 
-                if (0 == rc) {
-                    ASSERTV(LINE, DATUM, result, DATUM == *result);
-                }
+            int rc = Util::decode(&result, &os, &isb);
+
+            ASSERTV(LINE,
+                    RC,
+                    rc,
+                    result,
+                    result->type(),
+                    RC == rc);
+
+            if (0 == rc) {
+                ASSERTV(LINE,
+                        DATUM,
+                        result,
+                        DATUM == *result);
+                ASSERTV(os.str(), os.str().length(), 0 == os.str().length());
+            }
+            else {
+                ASSERTV(os.str(), os.str().length(), 0 != os.str().length());
+            }
+        }
+
+        // Testing handling of DEPTH option including exceeding DEFAULT_DEPTH.
+        //   int decode(MgedDatum*, ostream*, streamBuf*);
+        //   int decode(MgedDatum*, ostream*, streamBuf*, const DDOptions&);
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int           LINE  = DATA[ti].d_line;
+            const char         *JSON  = DATA[ti].d_json_p;
+            const int           RC    = DATA[ti].d_rc;
+            const int           DEPTH = DATA[ti].d_depth;
+            const bdld::Datum&  DATUM = DATA[ti].d_datum;
+
+            // Must do this before setting up 'da' - 'datum.print()' uses
+            // default allocator.
+            if(veryVerbose) {
+                T_ P_(LINE) P_(JSON) P_(RC) P_(DEPTH) P(DATUM)
             }
 
-            {
-                bsl::ostringstream os(&ta);
-                int                rc = Util::decode(&result, &os, JSON);
-                ASSERTV(LINE, RC, rc, result, result->type(), RC == rc);
+            if (DEPTH <= DEFAULT_DEPTH) {
+                bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+                bslma::TestAllocatorMonitor tam(&ta);
 
-                if (0 == rc) {
-                    ASSERTV(LINE, DATUM, result, DATUM == *result);
-                }
-            }
+                MD result(&ta);
 
-            {
-                bdlsb::FixedMemInStreamBuf isb(JSON, bsl::strlen(JSON));
-                int                        rc = Util::decode(&result,
-                                                             &isb);
-                ASSERTV(LINE, RC, rc, result, result->type(), RC == rc);
-
-                if (0 == rc) {
-                    ASSERTV(LINE, DATUM, result, DATUM == *result);
-                }
-            }
-
-            {
                 bdlsb::FixedMemInStreamBuf isb(JSON, bsl::strlen(JSON));
                 bsl::ostringstream         os(&ta);
 
+                // Testing
+                // int decode(MgedDatum*, ostream*, streamBuf*);
                 int rc = Util::decode(&result, &os, &isb);
-                ASSERTV(LINE, RC, rc, result, result->type(), RC == rc);
+
+                ASSERTV(LINE,
+                        RC,
+                        rc,
+                        result,
+                        result->type(),
+                        RC == rc);
 
                 if (0 == rc) {
-                    ASSERTV(LINE, DATUM, result, DATUM == *result);
+                    ASSERTV(LINE,
+                            DATUM,
+                            result,
+                            DATUM == *result);
+                    ASSERTV(
+                        os.str(), os.str().length(), 0 == os.str().length());
+                }
+                else {
+                    ASSERTV(
+                        os.str(), os.str().length(), 0 != os.str().length());
                 }
             }
+
+            bsl::vector<baljsn::DatumDecoderOptions> options;
+
+            options.push_back(baljsn::DatumDecoderOptions());
+
+            baljsn::DatumDecoderOptions opt;
+
+            if (DEPTH) {
+                if (DEPTH > 2) {
+                    opt.setMaxNestedDepth(DEPTH - 2);
+                    options.push_back(opt);
+                }
+
+                if (DEPTH > 1) {
+                    opt.setMaxNestedDepth(DEPTH - 1);
+                    options.push_back(opt);
+                }
+
+                opt.setMaxNestedDepth(DEPTH);
+                options.push_back(opt);
+
+                opt.setMaxNestedDepth(DEPTH + 1);
+                options.push_back(opt);
+            }
+            else {
+                opt.setMaxNestedDepth(DEFAULT_DEPTH);
+                options.push_back(opt);
+            }
+
+            opt.setMaxNestedDepth(1);
+            options.push_back(opt);
+
+            opt.setMaxNestedDepth(INT_MAX);
+            options.push_back(opt);
+
+            // Testing
+            //   int decode(MgedDatum*, ostream*, streamBuf*, const DDOpts&);
+            for (bsl::vector<baljsn::DatumDecoderOptions>::const_iterator i =
+                     options.begin();
+                 i != options.end();
+                 ++i) {
+                const int OPTIONS_DEPTH = i->maxNestedDepth();
+
+                if(veryVeryVerbose) {
+                    T_ T_ P_(LINE) P(OPTIONS_DEPTH)
+                }
+
+                bdlsb::FixedMemInStreamBuf isb(JSON, bsl::strlen(JSON));
+                bsl::ostringstream         os(&ta);
+
+                MD result(&ta);
+
+                int rc = Util::decode(&result, &os, &isb, *i);
+
+                // If '0==DEPTH', we expected the parse to fail, so we don't
+                // expect  the depth option to change anything.  If
+                // 'OPTIONS_DEPTH>=DEPTH', the parse should have the expected
+                // 'rc'.
+                if (DEPTH == 0 || OPTIONS_DEPTH >= DEPTH) {
+                    ASSERTV(LINE,
+                            RC,
+                            rc,
+                            result,
+                            result->type(),
+                            RC == rc);
+
+                    ASSERTV(LINE,
+                            DEPTH,
+                            OPTIONS_DEPTH,
+                            RC == rc);
+
+                    if (0 == rc) {
+                        ASSERTV(LINE,
+                                DATUM,
+                                result,
+                                DATUM == *result);
+                        ASSERTV(os.str(),
+                                os.str().length(),
+                                0 == os.str().length());
+                    }
+                    else {
+                        ASSERTV(os.str(),
+                                os.str().length(),
+                                0 != os.str().length());
+                    }
+                }
+                else { // 'OPTIONS_DEPTH' is insufficient, we expect a failure.
+                    ASSERTV(LINE,
+                            DEPTH,
+                            OPTIONS_DEPTH,
+                            rc,
+                            0 > rc);
+
+                    if (0 == rc) {
+                        ASSERTV(LINE,
+                                DEPTH,
+                                OPTIONS_DEPTH,
+                                DATUM,
+                                result,
+                                DATUM == *result);
+                        ASSERTV(os.str(),
+                                os.str().length(),
+                                0 == os.str().length());
+                    }
+                    else {
+                        ASSERTV(os.str(),
+                                os.str().length(),
+                                0 != os.str().length());
+                    }
+                }
+            }
+        }
+
+        // Testing that args are forwarded correctly for:
+        //   int decode(MgedDatum*, const StringRef&);
+        {
+            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+            bslma::TestAllocatorMonitor tam(&ta);
+
+            MD result(&ta);
+
+            int rc = Util::decode(&result, LONG_JSON_ARRAY);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(LONG_DATUM_ARRAY, result, LONG_DATUM_ARRAY == *result);
+
+            rc = Util::decode(&result, DEEP_JSON_ARRAY);
+            ASSERTV(rc, 0 != rc);
+        }
+
+        // Testing that args are forwarded correctly for:
+        //   int decode(MgedDatum*, const StringRef&, const DDOptions&);
+        {
+            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+            bslma::TestAllocatorMonitor tam(&ta);
+            baljsn::DatumDecoderOptions opt;
+
+            MD result(&ta);
+
+            int rc = Util::decode(&result, LONG_JSON_ARRAY, opt);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(LONG_DATUM_ARRAY, result, LONG_DATUM_ARRAY == *result);
+
+            rc = Util::decode(&result, DEEP_JSON_ARRAY, opt);
+            ASSERTV(rc, 0 != rc);
+
+            opt.setMaxNestedDepth(96);
+            rc = Util::decode(&result, DEEP_JSON_ARRAY, opt);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(DEEP_DATUM_ARRAY, result, DEEP_DATUM_ARRAY == *result);
+        }
+
+
+        // Testing that args are forwarded correctly for:
+        //   int decode(MgedDatum*, os*, const StrRef&);
+        {
+            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+            bslma::TestAllocatorMonitor tam(&ta);
+
+            bsl::ostringstream          os(&ta);
+
+            MD result(&ta);
+
+            int rc = Util::decode(&result, &os, LONG_JSON_ARRAY);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(LONG_DATUM_ARRAY, result, LONG_DATUM_ARRAY == *result);
+            ASSERTV(os.str(), os.str().length(), 0 == os.str().length());
+
+            os.str("");
+            os.clear();
+
+            rc = Util::decode(&result, &os, DEEP_JSON_ARRAY);
+            ASSERTV(rc, 0 != rc);
+            ASSERTV(os.str(), os.str().length(), 0 != os.str().length());
+        }
+
+        // Testing that args are forwarded correctly for:
+        //   int decode(MgedDatum*, os*, const StrRef&, const DDOptions&);
+        {
+            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+            bslma::TestAllocatorMonitor tam(&ta);
+            baljsn::DatumDecoderOptions opt;
+
+            bsl::ostringstream          os(&ta);
+
+            MD result(&ta);
+
+            int rc = Util::decode(&result, &os, LONG_JSON_ARRAY, opt);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(LONG_DATUM_ARRAY, result, LONG_DATUM_ARRAY == *result);
+            ASSERTV(os.str(), os.str().length(), 0 == os.str().length());
+
+            os.str("");
+            os.clear();
+
+            rc = Util::decode(&result, &os, DEEP_JSON_ARRAY, opt);
+            ASSERTV(rc, 0 != rc);
+            ASSERTV(os.str(), os.str().length(), 0 != os.str().length());
+
+            os.str("");
+            os.clear();
+
+            opt.setMaxNestedDepth(96);
+            rc = Util::decode(&result, &os, DEEP_JSON_ARRAY, opt);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(DEEP_DATUM_ARRAY, result, DEEP_DATUM_ARRAY == *result);
+            ASSERTV(os.str(), os.str().length(), 0 == os.str().length());
+        }
+
+        // Testing that args are forwarded correctly for:
+        //   int decode(MgedDatum*, streamBuf*);
+        {
+            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+            bslma::TestAllocatorMonitor tam(&ta);
+            bdlsb::FixedMemInStreamBuf  isb(LONG_JSON_ARRAY,
+                                            bsl::strlen(LONG_JSON_ARRAY));
+
+            MD result(&ta);
+
+            int rc = Util::decode(&result, &isb);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(LONG_DATUM_ARRAY, result, LONG_DATUM_ARRAY == *result);
+
+            bdlsb::FixedMemInStreamBuf  isb2(DEEP_JSON_ARRAY,
+                                            bsl::strlen(DEEP_JSON_ARRAY));
+            rc = Util::decode(&result, &isb);
+            ASSERTV(rc, 0 != rc);
+        }
+
+        // Testing that args are forwarded correctly for:
+        //   int decode(MgedDatum*, streamBuf*, const DDOptions&);
+        {
+            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+            bslma::TestAllocatorMonitor tam(&ta);
+            baljsn::DatumDecoderOptions opt;
+
+            bdlsb::FixedMemInStreamBuf  isb(LONG_JSON_ARRAY,
+                                            bsl::strlen(LONG_JSON_ARRAY));
+
+            MD result(&ta);
+
+            int rc = Util::decode(&result, &isb, opt);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(LONG_DATUM_ARRAY, result, LONG_DATUM_ARRAY == *result);
+
+            bdlsb::FixedMemInStreamBuf  isb2(DEEP_JSON_ARRAY,
+                                            bsl::strlen(DEEP_JSON_ARRAY));
+            rc = Util::decode(&result, &isb, opt);
+            ASSERTV(rc, 0 != rc);
+
+            opt.setMaxNestedDepth(96);
+            rc = Util::decode(&result, &isb2, opt);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(DEEP_DATUM_ARRAY, result, DEEP_DATUM_ARRAY == *result);
+        }
+
+        // Testing that args are forwarded correctly for:
+        //   int decode(MgedDatum*, os*, streamBuf*);
+        {
+            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+            bslma::TestAllocatorMonitor tam(&ta);
+            bdlsb::FixedMemInStreamBuf  isb(LONG_JSON_ARRAY,
+                                            bsl::strlen(LONG_JSON_ARRAY));
+
+            bsl::ostringstream          os(&ta);
+
+            MD result(&ta);
+
+            int rc = Util::decode(&result, &os, &isb);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(LONG_DATUM_ARRAY, result, LONG_DATUM_ARRAY == *result);
+            ASSERTV(os.str(), os.str().length(), 0 == os.str().length());
+
+            os.str("");
+            os.clear();
+
+            bdlsb::FixedMemInStreamBuf  isb2(DEEP_JSON_ARRAY,
+                                            bsl::strlen(DEEP_JSON_ARRAY));
+            rc = Util::decode(&result, &os, &isb);
+            ASSERTV(rc, 0 != rc);
+            ASSERTV(os.str(), os.str().length(), 0 != os.str().length());
+        }
+
+        // Testing that args are forwarded correctly for:
+        //   int decode(MgedDatum*, os*, streamBuf*, const DDOptions&);
+        {
+            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+            bslma::TestAllocatorMonitor tam(&ta);
+            baljsn::DatumDecoderOptions opt;
+
+            bdlsb::FixedMemInStreamBuf  isb(LONG_JSON_ARRAY,
+                                            bsl::strlen(LONG_JSON_ARRAY));
+
+            bsl::ostringstream          os(&ta);
+
+            MD result(&ta);
+
+            int rc = Util::decode(&result, &os, &isb, opt);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(LONG_DATUM_ARRAY, result, LONG_DATUM_ARRAY == *result);
+            ASSERTV(os.str(), os.str().length(), 0 == os.str().length());
+
+            os.str("");
+            os.clear();
+
+            bdlsb::FixedMemInStreamBuf  isb2(DEEP_JSON_ARRAY,
+                                            bsl::strlen(DEEP_JSON_ARRAY));
+            rc = Util::decode(&result, &os, &isb, opt);
+            ASSERTV(rc, 0 != rc);
+            ASSERTV(os.str(), os.str().length(), 0 != os.str().length());
+
+            os.str("");
+            os.clear();
+
+            opt.setMaxNestedDepth(96);
+            rc = Util::decode(&result, &isb2, opt);
+            ASSERTV(rc, 0 == rc);
+            ASSERTV(DEEP_DATUM_ARRAY, result, DEEP_DATUM_ARRAY == *result);
+            ASSERTV(os.str(), os.str().length(), 0 == os.str().length());
         }
       } break;
       case 4: {
@@ -1248,14 +1714,15 @@ int main(int argc, char *argv[])
         //   BREATHING ROUND-TRIP TEST
         //---------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING ROUND-TRIP TEST" << endl
-                                  << "=========================" << endl;
+        if (verbose)
+            cout << endl
+                 << "BREATHING ROUND-TRIP TEST" << endl
+                 << "=========================" << endl;
 
         baljsn::DatumEncoderOptions strict_options;
         strict_options.setStrictTypes(true);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 
         PVV("1. Verify we can round-trip strings");
 
@@ -1263,10 +1730,10 @@ int main(int argc, char *argv[])
 
         PVVV("\ta. round-trip simple string.");
         {
-            const bsl::string      EXP_STRING = "hello";
-            const bsl::string      EXP_JSON   = "\"" + EXP_STRING + "\"";
-            MD                     datum(D::copyString(EXP_STRING, &ta), &ta);
-            bsl::string            json(&ta);
+            const bsl::string EXP_STRING = "hello";
+            const bsl::string EXP_JSON   = "\"" + EXP_STRING + "\"";
+            MD                datum(D::copyString(EXP_STRING, &ta), &ta);
+            bsl::string       json(&ta);
 
             int result = Util::encode(&json, *datum, strict_options);
             ASSERT(0 == result);
@@ -1285,8 +1752,8 @@ int main(int argc, char *argv[])
 
         PVVV("\tb. round-trip string with special characters.");
         {
-            const bsl::string      EXP_STRING = "\" \\ \b \f \n \r \t \x01";
-            const bsl::string      EXP_JSON =
+            const bsl::string EXP_STRING = "\" \\ \b \f \n \r \t \x01";
+            const bsl::string EXP_JSON =
                 "\"\\\" \\\\ \\b \\f \\n \\r \\t \\u0001\"";
 
             MD          datum(D::copyString(EXP_STRING, &ta), &ta);
@@ -1308,8 +1775,8 @@ int main(int argc, char *argv[])
 
         PVV("2. Verify we can round-trip 'int's");
         {
-            int                    obj = 123;
-            const bsl::string      EXP_JSON   = "123";
+            int               obj      = 123;
+            const bsl::string EXP_JSON = "123";
 
             MD          datum(D::createInteger(obj), &ta);
             bsl::string json;
@@ -1331,8 +1798,8 @@ int main(int argc, char *argv[])
 
         PVV("3. Verify we can round-trip 'double's");
         {
-            double                 obj = 1.375;
-            const bsl::string      EXP_JSON   = "1.375";
+            double            obj      = 1.375;
+            const bsl::string EXP_JSON = "1.375";
 
             MD          datum(D::createDouble(obj), &ta);
             bsl::string json;
@@ -1344,9 +1811,7 @@ int main(int argc, char *argv[])
             result = Util::decode(&other, json);
             ASSERTV(result, 0 == result);
             ASSERTV(other->isDouble(), other->isDouble());
-            ASSERTV(obj,
-                    other->theDouble(),
-                    obj == other->theDouble());
+            ASSERTV(obj, other->theDouble(), obj == other->theDouble());
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1357,8 +1822,8 @@ int main(int argc, char *argv[])
 
         PVVV("\ta. false");
         {
-            bool                   obj = false;
-            const bsl::string      EXP_JSON   = "false";
+            bool              obj      = false;
+            const bsl::string EXP_JSON = "false";
 
             MD          datum(D::createBoolean(obj), &ta);
             bsl::string json;
@@ -1377,8 +1842,8 @@ int main(int argc, char *argv[])
 
         PVVV("\tb. true");
         {
-            bool                   obj = true;
-            const bsl::string      EXP_JSON   = "true";
+            bool              obj      = true;
+            const bsl::string EXP_JSON = "true";
 
             MD          datum(D::createBoolean(obj), &ta);
             bsl::string json;
@@ -1397,7 +1862,7 @@ int main(int argc, char *argv[])
 
         PVV("5. Verify we can round-trip 'null's");
         {
-            const bsl::string      EXP_JSON   = "null";
+            const bsl::string EXP_JSON = "null";
 
             MD          datum(D::createNull(), &ta);
             bsl::string json;
@@ -1415,9 +1880,9 @@ int main(int argc, char *argv[])
 
         PVV("6. Verify we can round-trip 'Date's");
         {
-            bdlt::Date             obj(2001, 12, 25);
-            const bsl::string      EXP_STRING = "2001-12-25";
-            const bsl::string      EXP_JSON   = "\"" + EXP_STRING + "\"";
+            bdlt::Date        obj(2001, 12, 25);
+            const bsl::string EXP_STRING = "2001-12-25";
+            const bsl::string EXP_JSON   = "\"" + EXP_STRING + "\"";
 
             MD          datum(D::createDate(obj), &ta);
             bsl::string json;
@@ -1439,9 +1904,9 @@ int main(int argc, char *argv[])
 
         PVV("7. Verify we can round-trip 'Datetime's");
         {
-            bdlt::Datetime         obj(2001, 12, 25, 15, 59, 57, 123);
-            const bsl::string      EXP_STRING = "2001-12-25T15:59:57.123";
-            const bsl::string      EXP_JSON   = "\"" + EXP_STRING + "\"";
+            bdlt::Datetime    obj(2001, 12, 25, 15, 59, 57, 123);
+            const bsl::string EXP_STRING = "2001-12-25T15:59:57.123";
+            const bsl::string EXP_JSON   = "\"" + EXP_STRING + "\"";
 
             MD          datum(D::createDatetime(obj, &ta), &ta);
             bsl::string json;
@@ -1487,9 +1952,9 @@ int main(int argc, char *argv[])
 
         PVV("9. Verify we can round-trip 'Time's");
         {
-            bdlt::Time             obj(13, 14, 15, 678);
-            const bsl::string      EXP_STRING = "13:14:15.678";
-            const bsl::string      EXP_JSON   = "\"" + EXP_STRING + "\"";
+            bdlt::Time        obj(13, 14, 15, 678);
+            const bsl::string EXP_STRING = "13:14:15.678";
+            const bsl::string EXP_JSON   = "\"" + EXP_STRING + "\"";
 
             MD          datum(D::createTime(obj), &ta);
             bsl::string json;
@@ -1511,8 +1976,8 @@ int main(int argc, char *argv[])
 
         PVV("10. Verify we can round-trip 'int64's");
         {
-            bsls::Types::Int64     obj        = 12345;
-            const bsl::string      EXP_JSON   = "12345";
+            bsls::Types::Int64 obj      = 12345;
+            const bsl::string  EXP_JSON = "12345";
 
             MD          datum(D::createInteger64(obj, &ta), &ta);
             bsl::string json;
@@ -1526,8 +1991,7 @@ int main(int argc, char *argv[])
             ASSERTV(result, 0 == result);
 
             PVVV("\tobj: " << obj
-                           << ", other->theDouble(): "
-                           << other->theDouble());
+                           << ", other->theDouble(): " << other->theDouble());
 
             ASSERTV(other->isDouble(), other->isDouble());
             ASSERTV(double(obj),

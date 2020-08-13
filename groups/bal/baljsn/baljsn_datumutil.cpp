@@ -31,10 +31,11 @@ namespace {
 // LOCAL METHODS
 static int decodeValue(bdld::ManagedDatum *result,
                        bsl::ostream       *errorStream,
-                       baljsn::Tokenizer  *tokenizer);
+                       baljsn::Tokenizer  *tokenizer,
+                       int                 maxNestedDepth);
     // Decode into the specified '*result' the JSON object in the specified
     // '*tokenizer', updating the specified '*errorStream' if any errors are
-    // detected.
+    // detected, including if the specified 'maxNestedDepth' is exceeded.
 
 static int encodeValue(SimpleFormatter    *formatter,
                        const bdld::Datum&  datum,
@@ -48,11 +49,19 @@ static int encodeValue(SimpleFormatter    *formatter,
 
 static int decodeObject(bdld::ManagedDatum *result,
                         bsl::ostream       *errorStream,
-                        baljsn::Tokenizer  *tokenizer)
+                        baljsn::Tokenizer  *tokenizer,
+                        int                 maxNestedDepth)
     // Decode into the specified '*result' the JSON object in the specified
     // '*tokenizer', updating the specified '*errorStream' if any errors are
-    // detected.
+    // detected, including if the specified 'maxNestedDepth' is exceeded.
 {
+    if (maxNestedDepth < 0) {
+        if (errorStream) {
+            *errorStream << "Maximum nesting depth exceeded";
+        }
+        return -4;                                                    // RETURN
+    }
+
     // Advance from e_START_OBJECT
     tokenizer->advanceToNextToken();
     if (baljsn::Tokenizer::e_ERROR == tokenizer->tokenType()) {
@@ -83,7 +92,8 @@ static int decodeObject(bdld::ManagedDatum *result,
 
         bdld::ManagedDatum elementValue(result->allocator());
 
-        int rc = decodeValue(&elementValue, errorStream, tokenizer);
+        int rc =
+            decodeValue(&elementValue, errorStream, tokenizer, maxNestedDepth);
 
         if (0 != rc) {
             if (errorStream) {
@@ -108,11 +118,19 @@ static int decodeObject(bdld::ManagedDatum *result,
 
 static int decodeArray(bdld::ManagedDatum *result,
                        bsl::ostream       *errorStream,
-                       baljsn::Tokenizer  *tokenizer)
+                       baljsn::Tokenizer  *tokenizer,
+                       int                 maxNestedDepth)
     // Decode into the specified '*result' the JSON array in the specified
     // '*tokenizer', updating the specified '*errorStream' if any errors are
-    // detected.
+    // detected, including if the specified 'maxNestedDepth' is exceeded.
 {
+    if (maxNestedDepth < 0) {
+        if (errorStream) {
+            *errorStream << "Maximum nesting depth exceeded";
+        }
+        return -4;                                                    // RETURN
+    }
+
     // Advance from e_START_ARRAY
     tokenizer->advanceToNextToken();
     if (baljsn::Tokenizer::e_ERROR == tokenizer->tokenType()) {
@@ -127,8 +145,10 @@ static int decodeArray(bdld::ManagedDatum *result,
     while (baljsn::Tokenizer::e_END_ARRAY != tokenizer->tokenType()) {
         // decodeValue checks the token, so we don't need to do it here.
         bdld::ManagedDatum elementValue(result->allocator());
-        int                rc = decodeValue(&elementValue, errorStream,
-                                            tokenizer);
+
+        int rc =
+            decodeValue(&elementValue, errorStream, tokenizer, maxNestedDepth);
+
         if (0 != rc) {
             if (errorStream) {
                 *errorStream << "decodeValue failed, rc = " << rc << '\n';
@@ -303,12 +323,13 @@ static int extractValue(bdld::ManagedDatum *result,
 
 static int decodeValue(bdld::ManagedDatum *result,
                        bsl::ostream       *errorStream,
-                       baljsn::Tokenizer  *tokenizer)
+                       baljsn::Tokenizer  *tokenizer,
+                       int                 maxNestedDepth)
 {
     switch (tokenizer->tokenType()) {
       case baljsn::Tokenizer::e_START_OBJECT: {
         int rc =
-            decodeObject(result, errorStream, tokenizer);
+            decodeObject(result, errorStream, tokenizer, maxNestedDepth - 1);
         if (0 != rc) {
             if (errorStream) {
                 *errorStream << "decodeObject failed, rc = " << rc << '\n';
@@ -317,7 +338,8 @@ static int decodeValue(bdld::ManagedDatum *result,
         }
       } break;
       case baljsn::Tokenizer::e_START_ARRAY: {
-        int rc = decodeArray(result, errorStream, tokenizer);
+        int rc =
+            decodeArray(result, errorStream, tokenizer, maxNestedDepth - 1);
         if (0 != rc) {
             if (errorStream) {
                 *errorStream << "decodeArray failed, rc = " << rc << '\n';
@@ -484,9 +506,10 @@ static int encodeValue(SimpleFormatter    *formatter,
                               // ----------------
 
 // CLASS METHODS
-int DatumUtil::decode(bdld::ManagedDatum *result,
-                      bsl::ostream       *errorStream,
-                      bsl::streambuf     *jsonBuffer)
+int DatumUtil::decode(bdld::ManagedDatum         *result,
+                      bsl::ostream               *errorStream,
+                      bsl::streambuf             *jsonBuffer,
+                      const DatumDecoderOptions&  options)
 {
     bsls::AlignedBuffer<8 * 1024>      buffer;
     bdlma::BufferedSequentialAllocator bsa(
@@ -505,7 +528,9 @@ int DatumUtil::decode(bdld::ManagedDatum *result,
     }
 
     bdld::ManagedDatum value(result->allocator());
-    int                rc = decodeValue(&value, errorStream, &tokenizer);
+
+    int rc =
+        decodeValue(&value, errorStream, &tokenizer, options.maxNestedDepth());
     if (0 != rc) {
         if (errorStream) {
             *errorStream << "decodeValue failed, rc = " << rc << '\n';
@@ -536,7 +561,8 @@ int DatumUtil::encode(bsl::string                *result,
 
     bdlsb::MemOutStreamBuf streambuf(&bsa);
     bsl::ostream           stream(&streambuf);
-    int                    rc = encode(stream, datum, options);
+
+    int rc = encode(stream, datum, options);
 
     if (0 <= rc) {
         result->assign(streambuf.data(), streambuf.length());
