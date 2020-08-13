@@ -7,6 +7,7 @@ s_baltst_customstring
 s_baltst_employee
 s_baltst_enumerated
 s_baltst_featuretestmessage
+s_baltst_featuretestmessageutil
 s_baltst_mychoice
 s_baltst_myenumeration
 s_baltst_mysequence
