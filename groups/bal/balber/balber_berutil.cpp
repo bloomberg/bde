@@ -860,8 +860,12 @@ int BerUtil_FloatingPointImpUtil::getDecimal64Value(
         return -1;                                                    // RETURN
     }
 
-    *value = bdldfp::DecimalConvertUtil::decimal64FromMultiWidthEncoding(
-        buffer, length);
+    if (0 !=
+        bdldfp::DecimalConvertUtil::decimal64FromMultiWidthEncodingIfValid(
+            value, buffer, length)) {
+        return -1;                                                    // RETURN
+    }
+
     return 0;
 }
 

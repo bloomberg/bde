@@ -10701,6 +10701,17 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(VALUE, value, VALUE == value);
             }
         }
+
+        // '{DRQS 162368178}'
+        {
+            const char                 fuzz[] = {
+                0, 0, 7, 'Z', 0, 1, 127, 1, 0, 0, 1
+            };
+            bdlsb::FixedMemInStreamBuf isb(fuzz, sizeof(fuzz));
+            bdldfp::Decimal64          value;
+            int                        numBytesConsumed;
+            ASSERT(SUCCESS != Util::getValue(&isb, &value, &numBytesConsumed));
+        }
       } break;
       case 21: {
         // --------------------------------------------------------------------
