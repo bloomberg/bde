@@ -23,6 +23,10 @@ BSLS_IDENT("$Id: $")
 // package and in most cases clients should use the 'baljsn_decoder' component
 // instead of using this 'class'.
 //
+// On malformed JSON, tokenization may fail before the end of input is reached,
+// but not all such errors are detected.  In particular, callers should check
+// that closing brackets and braces match opening ones.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -185,7 +189,8 @@ class Tokenizer {
         // This 'enum' lists the possible contexts that the tokenizer can be
         // in.
 
-        e_OBJECT_CONTEXT = 1,         // object context
+        e_NO_CONTEXT,                 // context stack is empty
+        e_OBJECT_CONTEXT,             // object context
         e_ARRAY_CONTEXT               // array context
     };
 
@@ -286,8 +291,8 @@ class Tokenizer {
         // Return 0 on success and a non-zero value otherwise.
 
     ContextType popContext();
-        // Pop the top context from the 'd_contextStack' stack, and return it.
-        // The behavior is undefined if 'd_contextStack' is empty.
+        // If the 'd_contextStack' is empty, return 'e_NO_CONTEXT', otherwise
+        // pop the top context from the 'd_contextStack' stack, and return it.
 
     void pushContext(ContextType context);
         // Push the specified 'context' onto the 'd_contextStack' stack.
@@ -304,8 +309,9 @@ class Tokenizer {
 
     // PRIVATE ACCESSOR
     ContextType context() const;
-        // Returns the top context from the 'd_contextStack' stack without
-        // popping.  The behavior is undefined if 'd_contextStack' is empty.
+        // If the 'd_contextStack' is empty, return 'e_NO_CONTEXT', otherwise
+        // return the top context from the 'd_contextStack' stack without
+        // popping.
 
   private:
     // NOT IMPLEMENTED
@@ -332,9 +338,11 @@ class Tokenizer {
 
     int advanceToNextToken();
         // Move to the next token in the data steam.  Return 0 on success and a
-        // non-zero value otherwise.  Note that each call to
-        // 'advanceToNextToken' invalidates the string references returned by
-        // the 'value' accessor for prior nodes.
+        // non-zero value otherwise.  Each call to 'advanceToNextToken'
+        // invalidates the string references returned by the 'value' accessor
+        // for prior nodes.  Note that on malformed JSON, this function may,
+        // but will not always, return a non-zero value before the end of the
+        // token stream is reached.
 
     int resetStreamBufGetPointer();
         // Reset the get pointer of the 'streambuf' held by this object to
@@ -422,10 +430,12 @@ class Tokenizer {
 inline
 Tokenizer::ContextType Tokenizer::popContext()
 {
-    BSLS_ASSERT(!d_contextStack.empty());
+    ContextType ret = e_NO_CONTEXT;
 
-    ContextType ret = static_cast<ContextType>(d_contextStack.back());
-    d_contextStack.pop_back();
+    if (!d_contextStack.empty()) {
+        ret = static_cast<ContextType>(d_contextStack.back());
+        d_contextStack.pop_back();
+    }
 
     return ret;
 }
@@ -440,11 +450,9 @@ void Tokenizer::pushContext(ContextType context)
 inline
 Tokenizer::ContextType Tokenizer::context() const
 {
-    BSLS_ASSERT(!d_contextStack.empty());
-
-    ContextType ret = static_cast<ContextType>(d_contextStack.back());
-
-    return ret;
+    return d_contextStack.empty()
+               ? e_NO_CONTEXT
+               : static_cast<ContextType>(d_contextStack.back());
 }
 
 // CREATORS

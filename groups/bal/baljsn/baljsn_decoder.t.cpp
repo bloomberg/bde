@@ -37408,6 +37408,7 @@ int main(int argc, char *argv[])
                 {   L_,   "1   {}"    },
                 {   L_,   "*   {}"    },
                 {   L_,   "A   {}"    },
+                {   L_,   "{\"elem\":[\\}}}}\n" },  // '{DRQS 162368278}'
             };
             const int NUM_DATA = sizeof DATA/ sizeof *DATA;
 

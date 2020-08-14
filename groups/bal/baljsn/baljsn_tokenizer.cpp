@@ -379,8 +379,11 @@ int Tokenizer::advanceToNextToken()
              || e_END_OBJECT     == d_tokenType
              || e_END_ARRAY      == d_tokenType) {
 
+                // Soldier onward on mismatches - '{DRQS 162368278}'
+                if (e_NO_CONTEXT != context()) {
+                    popContext();
+                }
                 d_tokenType  = e_END_OBJECT;
-                popContext();
                 previousChar = '}';
 
                 ++d_cursor;
@@ -418,8 +421,11 @@ int Tokenizer::advanceToNextToken()
              || (e_END_ARRAY     == d_tokenType && ',' != previousChar)
              || (e_END_OBJECT    == d_tokenType && ',' != previousChar)) {
 
+                // Soldier onward on mismatches - '{DRQS 162368278}'
+                if (e_NO_CONTEXT != context()) {
+                    popContext();
+                }
                 d_tokenType = e_END_ARRAY;
-                popContext();
                 previousChar = ']';
 
                 ++d_cursor;
