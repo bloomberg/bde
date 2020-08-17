@@ -73,6 +73,8 @@ enum {
     k_UNKNOWN_ERROR = 127
 };
 
+static const int k_PAGE_SIZE = BloombergLP::bdls::MemoryUtil::pageSize();
+
 // STATIC HELPER FUNCTIONS
 
 namespace {
@@ -527,6 +529,7 @@ int removeFile(const char *path)
 const bdls::FilesystemUtil::FileDescriptor bdls::FilesystemUtil::k_INVALID_FD =
                                                           INVALID_HANDLE_VALUE;
 
+
 namespace bdls {
 FilesystemUtil::FileDescriptor FilesystemUtil::open(
                                             const char         *pathName,
@@ -775,9 +778,9 @@ int FilesystemUtil::sync(char *address, bsl::size_t numBytes, bool)
 {
     BSLS_ASSERT(0 != address);
     BSLS_ASSERT(0 <= numBytes);
-    BSLS_ASSERT(0 == numBytes % MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(address) %
-                     MemoryUtil::pageSize());
+    BSLS_ASSERT(0 == numBytes % k_PAGE_SIZE);
+    BSLS_ASSERT(0 ==
+                reinterpret_cast<bsls::Types::UintPtr>(address) % k_PAGE_SIZE);
 
     // The meaning of the 'sync' flag (cause this function to be synchronous
     // vs. asynchronous) does not appear to be supported by 'FlushViewOfFile'.
@@ -1637,9 +1640,9 @@ int  FilesystemUtil::unmap(void *address, bsl::size_t size)
 int FilesystemUtil::sync(char *address, bsl::size_t numBytes, bool syncFlag)
 {
     BSLS_ASSERT(0 != address);
-    BSLS_ASSERT(0 == numBytes % MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(address) %
-                     MemoryUtil::pageSize());
+    BSLS_ASSERT(0 == numBytes % k_PAGE_SIZE);
+    BSLS_ASSERT(0 ==
+                reinterpret_cast<bsls::Types::UintPtr>(address) % k_PAGE_SIZE);
 
     int rc = ::msync(address, numBytes, syncFlag ? MS_SYNC : MS_ASYNC);
 
@@ -2235,13 +2238,23 @@ int FilesystemUtil::growFile(FileDescriptor         descriptor,
             bytesToGrow -= nBytes;
         }
         allocator_p->deallocate(buffer);
-        return 0;                                                     // RETURN
     }
     Offset res = seek(descriptor, size - 1, e_SEEK_FROM_BEGINNING);
     if (-1 == res || 1 != write(descriptor, "", 1))
     {
         return -1;                                                    // RETURN
     }
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    if (!FlushFileBuffers(descriptor)) {
+        return -1;                                                    // RETURN
+    }
+#else
+    if (0 != fsync(descriptor)) {
+        return errno;                                                 // RETURN
+    }
+#endif
+
     return 0;
 }
 
