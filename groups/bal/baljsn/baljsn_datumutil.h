@@ -36,7 +36,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // example, enabling 'strictTypes' will result in 'encode' producing a positive
 // return status if one of the encoded types is an 'int', because decoding the
 // resulting JSON will produce a 'double'.  The 'strictTypes' option does not,
-// however, verify that Datum maps contain unique keys.
+// however, verify that a Datum map contains unique keys.
 //
 // The order of key/value pairs in objects in textual JSON passed to 'decode'
 // is preserved in the decoded 'Datum'.  If multiple entries with the same
@@ -45,7 +45,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // The order of key/value pairs ('DatumMapEntry') in 'Datum' objects passed to
 // 'encode' will be preserved in the resulting 'JSON', and all keys/value pairs
 // will be present (including duplicate keys).  Duplicate keys will be rendered
-// in an encoded JSON, even if 'strictTypes' checking is enable.  Note that a
+// in an encoded JSON, even if 'strictTypes' checking is enabled.  Note that a
 // Datum map containing duplicate keys is typically an error (the result of a
 // incorrectly constructed Datum), but the public interface for Datum does not
 // disallow creating such a 'Datum' object.
