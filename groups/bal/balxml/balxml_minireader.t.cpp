@@ -98,7 +98,8 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [-1] INTERACTIVE TEST
 // [ 1] BREATHING TEST
-// [15] USAGE EXAMPLE
+// [15] FUZZ TEST
+// [16] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -812,7 +813,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -854,6 +855,42 @@ int main(int argc, char *argv[])
 
         usageExample();
 
+      } break;
+
+      case 15: {
+        // --------------------------------------------------------------------
+        // FUZZ TEST
+        //
+        // Concerns:
+        //: 1 A large arbitrary XML input does not cause contract violations.
+        //:   See '{DRQS 154828363}'.
+        //
+        // Plan:
+        //: 1 Generate XML input similar to the fuzz test data found to have
+        //:   caused a problem and verify no crashes.
+        //
+        // Testing:
+        //   FUZZ TEST
+        // --------------------------------------------------------------------
+        
+        bsl::string f = "xmlns=\"1\"\n";
+        f += f; f += f; f += f; f += f; f += f; f += f;
+        f += "xlll<a:e=\"1\"\n";
+        f += f; f += f; f += f; f += f; f += f; f += f;
+        f = "<xmle\n" + f;
+
+        balxml::NamespaceRegistry namespaces;
+        balxml::PrefixStack       prefixStack(&namespaces);
+        Obj                       miniReader;
+        Obj&                      reader = miniReader;
+
+        reader.setPrefixStack(&prefixStack);
+
+        int rc = reader.open(f.c_str(), f.size());
+        ASSERT(-1 < rc);
+
+        rc = parseAndProcess(&reader);
+        ASSERT(0 != rc);
       } break;
 
       case 14: {

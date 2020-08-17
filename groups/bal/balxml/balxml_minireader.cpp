@@ -962,18 +962,17 @@ MiniReader::searchCommentCDataOrEndElementName(const bsl::string& name)
             Node& node = currentNode();
             node.d_qualifiedName = d_scanPtr;
             d_scanPtr += name.length();
-            char *nameEnd = d_scanPtr;
             // If we have attributes (and/or spaces), skip them
             if (scanForSymbol('>') == 0) {
                 d_scanPtr = d_endPtr;
-                *nameEnd = '\0';
+                const_cast<char *>(node.d_qualifiedName)[name.length()] = '\0';
                 return e_STRINGTYPE_NONE;                             // RETURN
             }
             if (*d_scanPtr != '>') {
                 continue;                                           // CONTINUE
             }
             ++d_scanPtr;
-            *nameEnd = '\0';
+            const_cast<char *>(node.d_qualifiedName)[name.length()] = '\0';
             if (e_STRINGTYPE_NONE == type) {
                 type = e_STRINGTYPE_START_ELEMENT;
             }
@@ -1030,7 +1029,6 @@ MiniReader::searchElementName(const bsl::string& name)
             Node& node = currentNode();
             node.d_qualifiedName = d_scanPtr;
             d_scanPtr += name.length();
-            char *nameEnd = d_scanPtr;
             if (bsl::isspace(static_cast<unsigned char>(*d_scanPtr))) {
                 if (skipSpaces() == 0) {
                     d_scanPtr = d_endPtr;
@@ -1041,7 +1039,7 @@ MiniReader::searchElementName(const bsl::string& name)
                 continue;                                           // CONTINUE
             }
             ++d_scanPtr;
-            *nameEnd = '\0';
+            const_cast<char *>(node.d_qualifiedName)[name.length()] = '\0';
             if (e_STRINGTYPE_NONE == type) {
                 type = e_STRINGTYPE_START_ELEMENT;
             }
@@ -2153,6 +2151,14 @@ MiniReader::readInput()
     }
 
     if (d_parseBuf.size() < (numLeft + chunkSize + 1)) {
+        if (d_parseBuf.capacity() < (numLeft + chunkSize + 1)) {
+            // '{DRQS 154828363}' - rebase the pointers on reallocation
+            bsl::vector<char> newbuf(d_parseBuf.get_allocator());
+            newbuf.reserve(numLeft + chunkSize + 1);
+            newbuf.assign(d_parseBuf.begin(), d_parseBuf.end());
+            rebasePointers(&newbuf.front(), newbuf.size());
+            d_parseBuf.swap(newbuf);
+        }
         d_parseBuf.resize(numLeft + chunkSize + 1);
     }
 
