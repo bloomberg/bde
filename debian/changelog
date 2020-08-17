@@ -1,9 +1,15 @@
-bsl-internal (3.60.0.1) unstable; urgency=low
+bsl-internal (3.60.0.1.fsync-patch) unstable; urgency=low
 
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 17 Aug 2020 12:28:29 -0400
+
+bsl-internal (3.60.0.1) git; urgency=low
+
+  * cf71ecdde Changelog for version 3.60.0.1
   * cf9dd459e Merge pull request #2886 from mgiroux/restore-BDE_DISABLE_CPP17_ABI-DRQS162362013
   * ff38874b3 Merge pull request #2880 from hrosen4/printer-stringview_drqs-162250825
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 7 Aug 2020 12:00:52 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 7 Aug 2020 12:05:36 -0400
 
 bsl-internal (3.60.0.0) git; urgency=low
 
