@@ -131,7 +131,7 @@ class MetricDescription {
                     d_userData;    // user data, indexed by keys
 
     mutable bslmt::Mutex
-                    d_mutex;       // synchronize non-const elements
+                    d_mutex;       // synchronize non-'const' elements
                                    // (publication type, format, user data)
 
     // NOT IMPLEMENTED

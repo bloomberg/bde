@@ -23,10 +23,14 @@ BSLS_IDENT("$Id: $")
 //  ------------------    -----------    -------         ------------------
 //  maxDepth              int            32              >= 0
 //  skipUnknownElements   bool           true            none
+//  validateInputIsUtf8   bool           false           none
 //..
 //: o 'maxDepth': maximum depth of the decoded data
 //:
 //: o 'skipUnknownElements': flag specifying if unknown elements are skipped
+//:
+//: o 'validateInputIsUtf8': flag specifying whether UTF-8 correctness checking
+//:   is enabled.
 //
 ///Implementation Note
 ///- - - - - - - - - -
@@ -71,11 +75,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_selectioninfo.h>
 #include <bdlat_typetraits.h>
 
+#include <bslh_hash.h>
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
-#include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
+#include <bsl_limits.h>
 
 namespace BloombergLP {
 
@@ -94,21 +99,25 @@ class DecoderOptions {
         // maximum recursion depth
     bool  d_skipUnknownElements;
         // option to skip unknown elements
+    bool  d_validateInputIsUtf8;
+        // option to check that input is valid UTF-8
 
   public:
     // TYPES
     enum {
-        ATTRIBUTE_ID_MAX_DEPTH             = 0
-      , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = 1
+        ATTRIBUTE_ID_MAX_DEPTH              = 0
+      , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS  = 1
+      , ATTRIBUTE_ID_VALIDATE_INPUT_IS_UTF8 = 2
     };
 
     enum {
-        NUM_ATTRIBUTES = 2
+        NUM_ATTRIBUTES = 3
     };
 
     enum {
-        ATTRIBUTE_INDEX_MAX_DEPTH             = 0
-      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = 1
+        ATTRIBUTE_INDEX_MAX_DEPTH              = 0
+      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS  = 1
+      , ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8 = 2
     };
 
     // CONSTANTS
@@ -117,6 +126,8 @@ class DecoderOptions {
     static const int DEFAULT_INITIALIZER_MAX_DEPTH;
 
     static const bool DEFAULT_INITIALIZER_SKIP_UNKNOWN_ELEMENTS;
+
+    static const bool DEFAULT_INITIALIZER_VALIDATE_INPUT_IS_UTF8;
 
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
@@ -127,8 +138,8 @@ class DecoderOptions {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                    const char *name,
-                                                    int         nameLength);
+                                                       const char *name,
+                                                       int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -141,12 +152,28 @@ class DecoderOptions {
         // Create an object of type 'DecoderOptions' having the value of the
         // specified 'original' object.
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    DecoderOptions(DecoderOptions&& original) = default;
+        // Create an object of type 'DecoderOptions' having the value of the
+        // specified 'original' object.  After performing this action, the
+        // 'original' object will be left in a valid, but unspecified state.
+#endif
+
     ~DecoderOptions();
         // Destroy this object.
 
     // MANIPULATORS
     DecoderOptions& operator=(const DecoderOptions& rhs);
         // Assign to this object the value of the specified 'rhs' object.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    DecoderOptions& operator=(DecoderOptions&& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+        // After performing this action, the 'rhs' object will be left in a
+        // valid, but unspecified state.
+#endif
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -187,6 +214,10 @@ class DecoderOptions {
 
     void setSkipUnknownElements(bool value);
         // Set the "SkipUnknownElements" attribute of this object to the
+        // specified 'value'.
+
+    void setValidateInputIsUtf8(bool value);
+        // Set the "ValidateInputIsUtf8" attribute of this object to the
         // specified 'value'.
 
     // ACCESSORS
@@ -240,6 +271,10 @@ class DecoderOptions {
     bool skipUnknownElements() const;
         // Return a reference to the non-modifiable "SkipUnknownElements"
         // attribute of this object.
+
+    bool validateInputIsUtf8() const;
+        // Return a reference to the non-modifiable "ValidateInputIsUtf8"
+        // attribute of this object.
 };
 
 // FREE OPERATORS
@@ -260,6 +295,12 @@ inline
 bsl::ostream& operator<<(bsl::ostream& stream, const DecoderOptions& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
+
+template <typename HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::DecoderOptions& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'DecoderOptions'.
 
 }  // close package namespace
 
@@ -294,6 +335,11 @@ int DecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
+    ret = manipulator(&d_validateInputIsUtf8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -305,10 +351,13 @@ int DecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
     switch (id) {
       case ATTRIBUTE_ID_MAX_DEPTH: {
         return manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
-      } break;
+      }
       case ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
         return manipulator(&d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
-      } break;
+      }
+      case ATTRIBUTE_ID_VALIDATE_INPUT_IS_UTF8: {
+        return manipulator(&d_validateInputIsUtf8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8]);
+      }
       default:
         return NOT_FOUND;
     }
@@ -323,7 +372,7 @@ int DecoderOptions::manipulateAttribute(
     enum { NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
-           lookupAttributeInfo(name, nameLength);
+                                         lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;
     }
@@ -345,6 +394,12 @@ void DecoderOptions::setSkipUnknownElements(bool value)
     d_skipUnknownElements = value;
 }
 
+inline
+void DecoderOptions::setValidateInputIsUtf8(bool value)
+{
+    d_validateInputIsUtf8 = value;
+}
+
 // ACCESSORS
 template <class ACCESSOR>
 int DecoderOptions::accessAttributes(ACCESSOR& accessor) const
@@ -361,6 +416,11 @@ int DecoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
+    ret = accessor(d_validateInputIsUtf8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -372,10 +432,13 @@ int DecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
     switch (id) {
       case ATTRIBUTE_ID_MAX_DEPTH: {
         return accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
-      } break;
+      }
       case ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
         return accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
-      } break;
+      }
+      case ATTRIBUTE_ID_VALIDATE_INPUT_IS_UTF8: {
+        return accessor(d_validateInputIsUtf8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8]);
+      }
       default:
         return NOT_FOUND;
     }
@@ -410,6 +473,23 @@ bool DecoderOptions::skipUnknownElements() const
     return d_skipUnknownElements;
 }
 
+inline
+bool DecoderOptions::validateInputIsUtf8() const
+{
+    return d_validateInputIsUtf8;
+}
+
+template <typename HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::DecoderOptions& object)
+{
+    (void)hashAlg;
+    (void)object;
+    using bslh::hashAppend;
+    hashAppend(hashAlg, object.maxDepth());
+    hashAppend(hashAlg, object.skipUnknownElements());
+    hashAppend(hashAlg, object.validateInputIsUtf8());
+}
+
 }  // close package namespace
 
 // FREE FUNCTIONS
@@ -420,7 +500,8 @@ bool baljsn::operator==(
         const baljsn::DecoderOptions& rhs)
 {
     return  lhs.maxDepth() == rhs.maxDepth()
-         && lhs.skipUnknownElements() == rhs.skipUnknownElements();
+         && lhs.skipUnknownElements() == rhs.skipUnknownElements()
+         && lhs.validateInputIsUtf8() == rhs.validateInputIsUtf8();
 }
 
 inline
@@ -428,8 +509,7 @@ bool baljsn::operator!=(
         const baljsn::DecoderOptions& lhs,
         const baljsn::DecoderOptions& rhs)
 {
-    return  lhs.maxDepth() != rhs.maxDepth()
-         || lhs.skipUnknownElements() != rhs.skipUnknownElements();
+    return !(lhs == rhs);
 }
 
 inline
@@ -443,11 +523,10 @@ bsl::ostream& baljsn::operator<<(
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_3.8.24 Fri Feb 17 12:35:40 2017
-// USING bas_codegen.pl -m msg --package baljsn --noExternalization -E --noAggregateConversion baljsn.xsd
-// SERVICE VERSION
+// GENERATED BY BLP_BAS_CODEGEN_2020.04.20.1
+// USING bas_codegen.pl -m msg -p baljsn -E --noExternalization --noAggregateConversion baljsn.xsd
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

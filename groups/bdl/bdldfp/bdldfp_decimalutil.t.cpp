@@ -5182,6 +5182,28 @@ int main(int argc, char* argv[])
         ASSERT(Util::makeDecimalRaw64(314159ull, -5) ==
                BDLDFP_DECIMAL_DD(3.14159));
 
+        if (veryVeryVerbose) bsl::cout << "Testing the quanta of 0 value"
+                                       << bsl::endl;
+        // {DRQS 154126434}
+        for (int i = -398; i <= 369; ++i) {
+
+            bdldfp::Decimal64 d64 = Util::makeDecimalRaw64(0, i);
+
+            int                 sign;
+            bsls::Types::Uint64 significand;
+            int                 exponent;
+
+            int classification = Util::decompose(&sign,
+                                                 &significand,
+                                                 &exponent,
+                                                 d64);
+
+            LOOP2_ASSERT(i, classification, FP_ZERO == classification);
+            LOOP2_ASSERT(i, sign,           1       == sign);
+            LOOP2_ASSERT(i, significand,    0       == significand);
+            LOOP2_ASSERT(i, exponent,       i       == exponent);
+        }
+
         if (veryVeryVerbose) bsl::cout << "makeDecimalRaw128" << bsl::endl;
 
         // XLC versions prior to 12.0 incorrectly pass decimal128 values in
@@ -5196,6 +5218,29 @@ int main(int argc, char* argv[])
         ASSERT(Util::makeDecimalRaw128(314159ull, -5) ==
                BDLDFP_DECIMAL_DL(3.14159));
 #endif
+
+        if (veryVeryVerbose) bsl::cout << "Testing the quanta of 0 value"
+                                       << bsl::endl;
+        // {DRQS 154126434}
+        for (int i = -6176; i <= 6111; ++i) {
+
+            bdldfp::Decimal128 d128 = Util::makeDecimalRaw128(0, i);
+
+            int           sign;
+            BDEC::Uint128 significand;
+            int     exponent;
+
+            int classification = Util::decompose(&sign,
+                                                 &significand,
+                                                 &exponent,
+                                                 d128);
+
+            LOOP2_ASSERT(i, classification,     FP_ZERO == classification);
+            LOOP2_ASSERT(i, sign,               1       == sign);
+            LOOP2_ASSERT(i, significand.high(), 0       == significand.high());
+            LOOP2_ASSERT(i, significand.low(),  0       == significand.low());
+            LOOP2_ASSERT(i, exponent,           i       == exponent);
+        }
 
         if (veryVerbose) bsl::cout << "makeDecimalNN functions" << bsl::endl;
 

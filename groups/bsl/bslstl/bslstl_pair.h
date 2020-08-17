@@ -344,10 +344,10 @@ void swap(TYPE& a, TYPE& b);
  || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
 # define BSLSTL_PAIR_NO_IMPLICIT_DELETED_FOR_MOVE_OPS 1
 // In order to support the correct signature for copy constructor/assignment
-// operators of members with non-const references for those operations, we must
-// take the implicitly generated declarations.  However, the specification for
-// assignment through references requires defining the assiugnment operator in
-// those cases, and that will delete any (otherwise) implicitly-declared
+// operators of members with non-'const' references for those operations, we
+// must take the implicitly generated declarations.  However, the specification
+// for assignment through references requires defining the assiugnment operator
+// in those cases, and that will delete any (otherwise) implicitly-declared
 // constructors, so they must be explicitly defaulted on platforms that support
 // them.  However, Visual C++ 2013 refused to recognize these defaults as valid
 // for move constructors, so a special exception must be made in this case.

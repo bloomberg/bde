@@ -827,8 +827,8 @@ int main(int argc, char *argv[])
         //   operation of the following methods and operators:
         //     - constructor/destructor
         //     - assignment operator
-        //     - customFields()/fixedFields() (non-const versions)
-        //     - customFields()/fixedFields() (const versions)
+        //     - customFields()/fixedFields() (non-'const' versions)
+        //     - customFields()/fixedFields() ('const' versions)
         //     - setCustomFields()/setFixedFields()
         //     - numAllocatedBytes()
         //     - equality/inequality operator (== and !=)
@@ -840,12 +840,12 @@ int main(int argc, char *argv[])
         //   to verify the correct values.  Copy construct RC from RA, verify
         //   their equality.  Use manipulators to set RA to values hold by RB,
         //   verify RA's inequality with RC, and equality with RB.  Reset RA
-        //   original values.  Get the dynamic memory usage.  To test non-const
-        //   versions of the 'customFields' and 'fixedFields' methods, create a
-        //   record RA from FA and *VALUES_DATA[1], get modifiable references
-        //   to fixed field and user field and assign them FB and
-        //   *VALUES_DATA[2] and finally verify that record is appropriately
-        //   modified.
+        //   original values.  Get the dynamic memory usage.  To test
+        //   non-'const' versions of the 'customFields' and 'fixedFields'
+        //   methods, create a record RA from FA and *VALUES_DATA[1], get
+        //   modifiable references to fixed field and user field and assign
+        //   them FB and *VALUES_DATA[2] and finally verify that record is
+        //   appropriately modified.
         //
         // Testing:
         //   This "test" *exercises* basic functionality, but *tests* nothing.

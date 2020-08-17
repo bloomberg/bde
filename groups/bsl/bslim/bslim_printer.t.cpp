@@ -2631,6 +2631,31 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
         }
 
+        if (veryVerbose) { printf("string_view\n"); }
+        {
+            bsl::string_view        ref = "Testing";
+            const bsl::string_view& REF = ref;
+            bsl::ostringstream      out;
+            bslim::Printer          p(&out, 2, 2);
+            p.printAttribute("stringref", REF);
+
+            bsl::ostringstream EXP;
+            EXP << "      stringref = \"Testing\"\n";
+
+            LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
+        }
+        {
+            bsl::string_view        ref = "Testing";
+            const bsl::string_view& REF = ref;
+            bsl::ostringstream      out;
+            bslim::Printer          p(&out, 2, 2);
+            p.printValue(REF);
+
+            bsl::ostringstream EXP;
+            EXP << "      \"Testing\"\n";
+
+            LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
+        }
 
         if (veryVerbose) { printf("vector<int>::iterator with FUNCTOR\n"); }
         {

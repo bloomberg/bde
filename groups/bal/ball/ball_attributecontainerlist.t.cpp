@@ -1164,9 +1164,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout
-            << endl
-            << "BASIC MANIPULATORS AND ACCESSORS: bae_AttributeContainerList\n"
-            << "============================================================"
+            << "\nBASIC MANIPULATORS AND ACCESSORS: AttributeContainerList"
+            << "\n========================================================"
             << endl;
 
         const int NUM_ELEMENTS = 10;

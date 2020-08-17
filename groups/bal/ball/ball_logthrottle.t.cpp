@@ -1434,7 +1434,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 That the 'BALL_LOGTHROTTLE_STREAM' macro works as documented.
-        //:   o The 'severity' argument is able to be passed a non-const
+        //:   o The 'severity' argument is able to be passed a non-'const'
         //:     variable.
         //:
         //:   o If the 'severity' is less severe than the threshold, no trace
@@ -1910,7 +1910,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 That the 'BALL_LOGTHROTTLEVA' macro works as documented.
-        //:   o The 'severity' argument is able to be passed a non-const
+        //:   o The 'severity' argument is able to be passed a non-'const'
         //:     variable.
         //:
         //:   o If the 'severity' is less severe than the threshold, no trace
@@ -2080,8 +2080,8 @@ int main(int argc, char *argv[])
         const char *FILE = __FILE__;
 
         if (verbose) cout <<
-                         "Now test the variadic '*_LOGTHROTTLEVA' macros"
-                             " with non-const severity & varying arguments.\n";
+                           "Now test the variadic '*_LOGTHROTTLEVA' macros"
+                           " with non-'const' severity & varying arguments.\n";
 
         ASSERT(!bsl::strcmp("sieve", CAT->categoryName()));
 

@@ -102,7 +102,7 @@ using bsls::NameOf;
 // [ 2] VariantImp& assign(const TYPE& value);
 // [24] VariantImp& assign(TYPE&& value);
 // [11] VariantImp& assignTo(const SOURCE& value);
-// [14] void createInPlace<TYPE>(...);                     // all 15 variations
+// [14] TYPE& createInPlace<TYPE>(...);
 // [ 2] void reset();
 // [ 4] TYPE& the<TYPE>();
 //
@@ -282,6 +282,7 @@ struct TestVoid {
 
     // CLASS METHODS
     static int maxSupportedBdexVersion()
+        // Return the max supported bdex version.
     {
         // Implementation note: in order to play nice with our variant wrapper
         // below, we *need* all the TestTypes to have the same version numbers
@@ -293,6 +294,8 @@ struct TestVoid {
     // MANIPULATORS
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version)
+        // Stream bdex of the specified 'version' in from the specified
+        // 'stream.
     {
         if (version != 1 && version != 2) {
             stream.invalidate();
@@ -303,6 +306,7 @@ struct TestVoid {
     // ACCESSORS
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int /* version */) const
+        // Stream bdex out to the specified 'stream'.
     {
         return stream;
     }
@@ -349,6 +353,7 @@ class TestAllocObj {
 
     // CLASS METHODS
     static int maxSupportedBdexVersion()
+        // Return the max supported bdex version.
     {
         // Implementation note: in order to play nice with our variant wrapper
         // below, we *need* all the TestTypes to have the same version numbers
@@ -360,17 +365,22 @@ class TestAllocObj {
     // CREATORS
     explicit TestAllocObj(bslma::Allocator *basicAllocator = 0)
     : d_allocator_p(basicAllocator)
+        // Create a 'TestAllocObj' object using the specified 'basicAllocator'
+        // to allocate memory.
     {
         d_data_p = d_allocator_p->allocate(1);
     }
 
     TestAllocObj(const TestAllocObj&, bslma::Allocator *basicAllocator = 0)
     : d_allocator_p(basicAllocator)
+        // Create a 'TestAllocObj' object using the specified 'basicAllocator'
+        // to allocate memory.
     {
         d_data_p = d_allocator_p->allocate(1);
     }
 
     ~TestAllocObj()
+        // Destroy this object.
     {
         ASSERT(d_allocator_p);
 
@@ -379,12 +389,15 @@ class TestAllocObj {
 
     // MANIPULATORS
     TestAllocObj& operator=(const TestAllocObj&)
+        // Return a reference to this object.
     {
         return *this;
     }
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version)
+        // Stream bdex of the specified 'version' in from the specified
+        // 'stream.
     {
         if (version != 1 && version != 2) {
             stream.invalidate();
@@ -395,6 +408,7 @@ class TestAllocObj {
     // ACCESSORS
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const
+        // Stream bdex out to the specified 'stream'.
     {
         return stream;
     }
@@ -465,13 +479,13 @@ class TestInt {
                 int value;
                 stream.getInt32(value);
                 if (!stream) {
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 // Add redundant code (purely for the sake of example!)
                 unsigned char sum;
                 stream.getUint8(sum);
                 if (!stream) {
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 union {
                     unsigned char d_char[4];
@@ -509,7 +523,7 @@ class TestInt {
           case 2: {
             stream.putInt32(d_value);
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
             // Add redundant code (purely for the sake of example!)
             union {
@@ -529,11 +543,6 @@ class TestInt {
         return stream;
     }
 
-    int theInt() const
-    {
-        return d_value;
-    }
-
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const
@@ -551,6 +560,11 @@ class TestInt {
         stream << "]";
         return stream;
     }
+
+    int theInt() const
+    {
+        return d_value;
+    }
 };
 
 // FREE OPERATORS
@@ -565,6 +579,7 @@ bool operator!=(const TestInt& lhs, const TestInt& rhs)
 }
 
 bsl::ostream& operator<<(bsl::ostream& stream, const TestInt& rhs)
+    // Stream the specified 'rhs' to the specified 'stream'.
 {
     rhs.print(stream, 0, -1);
     return stream;
@@ -634,13 +649,13 @@ class TestString {
                 bsl::string value;
                 stream.getString(value);
                 if (!stream) {
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 // Add redundant code (purely for the sake of example!).
                 unsigned char sum, check = 0;
                 stream.getUint8(sum);
                 if (!stream) {
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 for (bsl::size_t i = 0; i < value.length(); ++i) {
                     check = static_cast<unsigned char>(check + value[i]);
@@ -675,7 +690,7 @@ class TestString {
           case 2: {
             stream.putString(d_value);
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
             // Add redundant code (purely for the sake of example!).
             unsigned char sum = 0;
@@ -689,11 +704,6 @@ class TestString {
           }
         }
         return stream;
-    }
-
-    const bsl::string& theString() const
-    {
-        return d_value;
     }
 
     bsl::ostream& print(bsl::ostream& stream,
@@ -712,6 +722,11 @@ class TestString {
         bdlb::Print::newlineAndIndent(stream, level, spacesPerLevel);
         stream << "]";
         return stream;
+    }
+
+    const bsl::string& theString() const
+    {
+        return d_value;
     }
 };
 
@@ -781,13 +796,13 @@ class TestArg {
                 int value;
                 stream.getInt32(value);
                 if (!stream) {
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 // Add redundant code (purely for the sake of example!)
                 unsigned char sum;
                 stream.getUint8(sum);
                 if (!stream) {
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 union {
                     unsigned char d_char[4];
@@ -825,7 +840,7 @@ class TestArg {
           case 2: {
             stream.putInt32(d_value);
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
             // Add redundant code (purely for the sake of example!)
             union {
@@ -845,11 +860,6 @@ class TestArg {
         return stream;
     }
 
-    int theInt() const
-    {
-        return d_value;
-    }
-
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const
@@ -866,6 +876,11 @@ class TestArg {
         bdlb::Print::newlineAndIndent(stream, level, spacesPerLevel);
         stream << "]";
         return stream;
+    }
+
+    int theInt() const
+    {
+        return d_value;
     }
 };
 
@@ -931,12 +946,15 @@ struct Copyable {
     // PUBLIC DATA
     bool d_arguments[MAX_COPYABLE_PARAMETERS];  // the 14 arguments
 
+    // CREATORS
     explicit
     Copyable(bool a1  = false, bool a2  = false, bool a3  = false,
              bool a4  = false, bool a5  = false, bool a6  = false,
              bool a7  = false, bool a8  = false, bool a9  = false,
              bool a10 = false, bool a11 = false, bool a12 = false,
              bool a13 = false, bool a14 = false)
+        // Create a 'Copyable' object, initializing the 14 elements of
+        // 'd_arguments' with their specified corresponding 'a*' arguments.
     {
         d_arguments[0]  = a1;  d_arguments[1]  = a2;  d_arguments[2]  = a3;
         d_arguments[3]  = a4;  d_arguments[4]  = a5;  d_arguments[5]  = a6;
@@ -945,13 +963,15 @@ struct Copyable {
         d_arguments[12] = a13; d_arguments[13] = a14;
     }
 
-    Copyable(int)  // IMPLICIT
-    {
-    }
-
     Copyable(const Copyable&)
     {
         s_copyConstructorCalled = true;
+    }
+
+    Copyable(int value)                                             // IMPLICIT
+    {
+        bsl::memset(this, 0,  sizeof(*this));
+        d_arguments[0] = !!value;
     }
 };
 
@@ -1020,7 +1040,7 @@ struct UsesAllocator {
     BSLMF_NESTED_TRAIT_DECLARATION(UsesAllocator, bslma::UsesBslmaAllocator);
 
     // DATA
-    bslma::Allocator *allocator;
+    bslma::Allocator *d_allocator_p;
 };
 
 // ----------------------------------------------------------------------------
@@ -1570,11 +1590,11 @@ struct ReturningVisitorBase {
         return d_intOperatorNumCalled;
     }
 
-    int testIntOperatorNumCalled() const
-        // Return the number of times the operator accepting constant referense
-        // to 'TestInt' object was called.
+    int nilOperatorNumCalled() const
+        // Return the number of times the operator accepting 'bslmf::Nil'
+        // object was called.
     {
-        return d_testIntOperatorNumCalled;
+        return d_nilOperatorNumCalled;
     }
 
     int stringOperatorNumCalled() const
@@ -1584,18 +1604,18 @@ struct ReturningVisitorBase {
         return d_stringOperatorNumCalled;
     }
 
+    int testIntOperatorNumCalled() const
+        // Return the number of times the operator accepting constant referense
+        // to 'TestInt' object was called.
+    {
+        return d_testIntOperatorNumCalled;
+    }
+
     int testStringOperatorNumCalled() const
         // Return the number of times the operator accepting constant referense
         // to 'TestString' object was called.
     {
         return d_testStringOperatorNumCalled;
-    }
-
-    int nilOperatorNumCalled() const
-        // Return the number of times the operator accepting 'bslmf::Nil'
-        // object was called.
-    {
-        return d_nilOperatorNumCalled;
     }
 
     const int& value() const
@@ -3574,19 +3594,28 @@ void applyTestRTNS(const VALUE_TYPE& defaultValue,
         switch (i) {
           case 0:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 variant.apply(visitor);
             }
             break;
           case 1:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 variant.applyRaw(visitor);
             }
             break;
           case 2:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.template apply<RetType>(visitor);
                 returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
@@ -3594,7 +3623,10 @@ void applyTestRTNS(const VALUE_TYPE& defaultValue,
             break;
           case 3:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue =
                                    variant.template applyRaw<RetType>(visitor);
                 returnAddr = &returnValue;
@@ -3603,13 +3635,19 @@ void applyTestRTNS(const VALUE_TYPE& defaultValue,
             break;
           case 4:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 variant.apply(visitor, defaultValue);
             }
             break;
           case 5:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.template apply<RetType>(
                                                                  visitor,
                                                                  defaultValue);
@@ -3717,7 +3755,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
         switch (i) {
           case 0:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.apply(visitor);
                 returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
@@ -3725,7 +3766,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
             break;
           case 1:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.applyRaw(visitor);
                 returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
@@ -3733,7 +3777,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
             break;
           case 2:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.template apply<RetType>(visitor);
                 returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
@@ -3741,7 +3788,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
             break;
           case 3:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.template applyRaw<RetType>(
                                                                       visitor);
                 returnAddr = &returnValue;
@@ -3750,7 +3800,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
             break;
           case 4:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.apply(visitor, defaultValue);
                 returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
@@ -3758,7 +3811,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
             break;
           case 5:
             {
-                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                VALUE_TYPE& v =
+                      variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                ASSERT(defaultValue == v);
+                ASSERT(&variant. template the<VALUE_TYPE>() == &v);
                 RetType returnValue = variant.template apply<RetType>(
                                                                  visitor,
                                                                  defaultValue);
@@ -3955,6 +4011,7 @@ struct TestUtil {
 
     static void testCase12();
         // Test value constructor.
+
 };
 
                         // ---------------
@@ -20024,7 +20081,7 @@ void TestUtil::testCase21()
 
     static struct {
         int         d_lineNum;
-        const char *d_input;        // input specifications
+        const char *d_input_p;      // input specifications
         int         d_expTypeIdx;   // expected type index
         int         d_expValueIdx;  // expected value index (within type)
     } DATA[] = {
@@ -20044,7 +20101,7 @@ void TestUtil::testCase21()
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int   LINE1      = DATA[ti].d_lineNum;
-        const char *INPUT1     = DATA[ti].d_input;
+        const char *INPUT1     = DATA[ti].d_input_p;
         const int   TYPE_IDX1  = DATA[ti].d_expTypeIdx;
         const int   VALUE_IDX1 = DATA[ti].d_expValueIdx;
 
@@ -20054,7 +20111,7 @@ void TestUtil::testCase21()
 
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const int   LINE2      = DATA[ti].d_lineNum;
-            const char *INPUT2     = DATA[ti].d_input;
+            const char *INPUT2     = DATA[ti].d_input_p;
             const int   TYPE_IDX2  = DATA[ti].d_expTypeIdx;
             const int   VALUE_IDX2 = DATA[ti].d_expValueIdx;
 
@@ -20183,8 +20240,7 @@ void TestUtil::testCase20()
         "\nCall applyRaw using template w/o deduction for the return type."
                       << endl;
     {
-        // Note that 'applyRaw<TYPE>' cannot have 'void' as the result
-        // type.
+        // Note that 'applyRaw<TYPE>' cannot have 'void' as the result type.
 
         Variant mX(1);  const Variant& X = mX;
 
@@ -27148,10 +27204,31 @@ void TestUtil::testCase15()
         Obj mXs[LENGTH];
         Obj mYs[LENGTH];
 
-        mXs[0].createInPlace<int>(INT_DATA[0]);
-        mXs[1].createInPlace<TestInt>(TEST_INT_DATA[0]);
-        mXs[2].createInPlace<bsl::string>(STRING_DATA[0]);
-        mXs[3].createInPlace<TestString>(TEST_STRING_DATA[0]);
+        {
+            int& xs = mXs[0].createInPlace<int>(INT_DATA[0]);
+            ASSERT(INT_DATA[0] == xs);
+            ASSERT(&xs == &mXs[0].the<int>());
+        }
+
+        {
+            TestInt& xs = mXs[1].createInPlace<TestInt>(TEST_INT_DATA[0]);
+            ASSERT(TEST_INT_DATA[0] == xs);
+            ASSERT(&xs == &mXs[1].the<TestInt>());
+        }
+
+        {
+            bsl::string& xs = mXs[2].createInPlace<bsl::string>(
+                                                               STRING_DATA[0]);
+            ASSERT(STRING_DATA[0] == xs);
+            ASSERT(&xs == &mXs[2].the<bsl::string>());
+        }
+
+        {
+            TestString& xs = mXs[3].createInPlace<TestString>(
+                                                          TEST_STRING_DATA[0]);
+            ASSERT(TEST_STRING_DATA[0] == xs);
+            ASSERT(&xs == &mXs[3].the<TestString>());
+        }
 
         mYs[0].createInPlace<int>(INT_DATA[0]);
         mYs[1].createInPlace<TestInt>(TEST_INT_DATA[0]);
@@ -27384,10 +27461,12 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with no arg." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>();
+        Copyable& mR = mX.createInPlace<Copyable>();
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 0);
+        checkCopyableParameters(mR,                0);
 
         mX.assign<TestString>(VK);  // will allocate
         mX.createInPlace<Copyable>();
@@ -27399,10 +27478,12 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 1 arg." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true);
+        Copyable& mR = mX.createInPlace<Copyable>(true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 1);
+        checkCopyableParameters(mR,                1);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true);
@@ -27414,10 +27495,12 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 2 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 2);
+        checkCopyableParameters(mR,                2);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true);
@@ -27429,10 +27512,12 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 3 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 3);
+        checkCopyableParameters(mR,                3);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true);
@@ -27444,10 +27529,12 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 4 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 4);
+        checkCopyableParameters(mR,                4);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true);
@@ -27459,10 +27546,13 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 5 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+                                                 true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 5);
+        checkCopyableParameters(mR,                5);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true);
@@ -27474,10 +27564,13 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 6 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+                                           true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 6);
+        checkCopyableParameters(mR,                6);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true);
@@ -27489,10 +27582,13 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 7 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+                                     true, true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 7);
+        checkCopyableParameters(mR,                7);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true);
@@ -27504,11 +27600,13 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 8 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+                               true, true, true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 8);
+        checkCopyableParameters(mR,                8);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
@@ -27521,11 +27619,13 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 9 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+                         true, true, true, true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 9);
+        checkCopyableParameters(mR,                9);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
@@ -27538,11 +27638,13 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 10 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+                   true, true, true, true, true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 10);
+        checkCopyableParameters(mR,                10);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
@@ -27555,11 +27657,13 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 11 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true, true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+             true, true, true, true, true, true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 11);
+        checkCopyableParameters(mR,                11);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
@@ -27572,11 +27676,14 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 12 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
-                                   true, true, true, true, true);
+        Copyable& mR = mX.createInPlace<Copyable>(
+                                      true, true, true, true, true, true, true,
+                                      true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 12);
+        checkCopyableParameters(mR,                12);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
@@ -27589,11 +27696,14 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 13 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
+        Copyable& mR = mX.createInPlace<Copyable>(
+                                   true, true, true, true, true, true, true,
                                    true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 13);
+        checkCopyableParameters(mR,                13);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
@@ -27606,11 +27716,14 @@ void TestUtil::testCase14()
     if (verbose) cout << "\nTesting 'createInPlace' with 14 args." << endl;
     {
         Obj mX;  const Obj& X = mX;
-        mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
+        Copyable& mR = mX.createInPlace<Copyable>(
+                                   true, true, true, true, true, true, true,
                                    true, true, true, true, true, true, true);
+        ASSERT(&X.the<Copyable>() == &mR);
 
         ASSERT(false == Copyable::s_copyConstructorCalled);
         checkCopyableParameters(X.the<Copyable>(), 14);
+        checkCopyableParameters(mR,                14);
 
         mX.assign<TestString>(VK);
         mX.createInPlace<Copyable>(true, true, true, true, true, true, true,
@@ -27633,7 +27746,7 @@ void TestUtil::testCase13()
 
     static struct {
         int         d_lineNum;
-        const char *d_input;        // input specifications
+        const char *d_input_p;      // input specifications
         int         d_expTypeIdx;   // expected type index
         int         d_expValueIdx;  // expected value index (within type)
     } DATA[] = {
@@ -27665,7 +27778,7 @@ void TestUtil::testCase13()
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int   LINE1      = DATA[ti].d_lineNum;
-        const char *INPUT1     = DATA[ti].d_input;
+        const char *INPUT1     = DATA[ti].d_input_p;
         const int   TYPE_IDX1  = DATA[ti].d_expTypeIdx;
         const int   VALUE_IDX1 = DATA[ti].d_expValueIdx;
 
@@ -27803,7 +27916,7 @@ void TestUtil::testCase13()
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int   LINE1      = DATA[ti].d_lineNum;
-        const char *INPUT1     = DATA[ti].d_input;
+        const char *INPUT1     = DATA[ti].d_input_p;
         const int   TYPE_IDX1  = DATA[ti].d_expTypeIdx;
         const int   VALUE_IDX1 = DATA[ti].d_expValueIdx;
 
@@ -28273,6 +28386,17 @@ int main(int argc, char *argv[])
     z.createInPlace<int>(10);
     ASSERT(z.is<int>());
     ASSERT(10 == z.the<int>());
+//..
+// 'createInPlace' returns a reference providing modifiable access to the
+// created object:
+//..
+    bsl::string& ref = z.createInPlace<bsl::string>("Goodbye");
+    ASSERT("Goodbye" == z.the<bsl::string>());
+    ASSERT("Goodbye" == ref);
+    ASSERT(&ref == &z.the<bsl::string>());
+
+    ref = "Hello again!";
+    ASSERT("Hello again!" == z.the<bsl::string>());
 //..
         }
         {
@@ -29235,7 +29359,7 @@ int main(int argc, char *argv[])
         //   properly.  Also assert that the copy constructor is never invoked.
         //
         // Testing:
-        //   void createInPlace<TYPE>(...);                // all 15 variations
+        //   TYPE& createInPlace<TYPE>(...);
         // --------------------------------------------------------------------
 
         // This test case is defined outside of 'main' to avoid out-of-memory
@@ -29419,8 +29543,8 @@ int main(int argc, char *argv[])
             dam.reset();
             oam.reset();
 
-            mR = &mX.assignTo<bsl::string>(
-                                       (const char *)SUFFICIENTLY_LONG_STRING);
+            const char *sls = SUFFICIENTLY_LONG_STRING;
+            mR = &mX.assignTo<bsl::string>(sls);
             ASSERT(      X.is<bsl::string>());
             ASSERT(VS == X.the<bsl::string>());
             ASSERT(mR == &mX);
@@ -29435,8 +29559,7 @@ int main(int argc, char *argv[])
 
             // Deliberately call 'assign' instead of 'assignTo'.
 
-            mR = &mX.assign<bsl::string>(
-                                       (const char *)SUFFICIENTLY_LONG_STRING);
+            mR = &mX.assign<bsl::string>(sls);
             ASSERT(      X.is<bsl::string>());
             ASSERT(VS == X.the<bsl::string>());
             ASSERT(mR == &mX);
@@ -29591,8 +29714,8 @@ int main(int argc, char *argv[])
                     if (UU.variant().maxSupportedBdexVersion() > 0 &&
                         VV.variant().maxSupportedBdexVersion() <= 0) {
                         // This will not work since 'operator<<' will not
-                        // stream in the version for UU.  Must abort.
-                        // See "BDEX Streamability" in component-level doc.
+                        // stream in the version for UU.  Must abort.  See
+                        // "BDEX Streamability" in component-level doc.
 
                         continue;
                     }
@@ -30098,7 +30221,7 @@ int main(int argc, char *argv[])
 
         static struct {
             int         d_lineNum;
-            const char *d_input;        // input specifications
+            const char *d_input_p;      // input specifications
             int         d_expTypeIdx;   // expected type index
             int         d_expValueIdx;  // expected value index (within type)
         } DATA[] = {
@@ -30133,7 +30256,7 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE      = DATA[ti].d_lineNum;
-            const char *INPUT     = DATA[ti].d_input;
+            const char *INPUT     = DATA[ti].d_input_p;
             const int   TYPE_IDX  = DATA[ti].d_expTypeIdx;
             const int   VALUE_IDX = DATA[ti].d_expValueIdx;
 
@@ -30181,7 +30304,7 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE      = DATA[ti].d_lineNum;
-            const char *INPUT     = DATA[ti].d_input;
+            const char *INPUT     = DATA[ti].d_input_p;
             const int   TYPE_IDX  = DATA[ti].d_expTypeIdx;
             const int   VALUE_IDX = DATA[ti].d_expValueIdx;
 
@@ -30241,7 +30364,7 @@ int main(int argc, char *argv[])
 
         static struct {
             int         d_lineNum;
-            const char *d_input;        // input specifications
+            const char *d_input_p;      // input specifications
             int         d_expTypeIdx;   // expected type index
             int         d_expValueIdx;  // expected value index (within type)
         } DATA[] = {
@@ -30274,7 +30397,7 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE1      = DATA[ti].d_lineNum;
-            const char *INPUT1     = DATA[ti].d_input;
+            const char *INPUT1     = DATA[ti].d_input_p;
             const int   TYPE1_IDX  = DATA[ti].d_expTypeIdx;
             const int   VALUE1_IDX = DATA[ti].d_expValueIdx;
 
@@ -30284,7 +30407,7 @@ int main(int argc, char *argv[])
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int   LINE2      = DATA[tj].d_lineNum;
-                const char *INPUT2     = DATA[tj].d_input;
+                const char *INPUT2     = DATA[tj].d_input_p;
                 const int   TYPE2_IDX  = DATA[tj].d_expTypeIdx;
                 const int   VALUE2_IDX = DATA[tj].d_expValueIdx;
 
@@ -30348,10 +30471,10 @@ int main(int argc, char *argv[])
 
         static struct {
             int         d_lineNum;
-            const char *d_spec;
+            const char *d_spec_p;
             int         d_level;
             int         d_spacesPerLevel;
-            const char *d_result;
+            const char *d_result_p;
         } DATA[] = {
           // LINE SPEC      LEVEL SPACE   RESULT
           // ---- ----      ----- -----   ------
@@ -30387,10 +30510,10 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int          LINE   = DATA[ti].d_lineNum;
-            const char        *SPEC   = DATA[ti].d_spec;
+            const char        *SPEC   = DATA[ti].d_spec_p;
             const int          LEVEL  = DATA[ti].d_level;
             const int          SPACES = DATA[ti].d_spacesPerLevel;
-            const bsl::string  RESULT = DATA[ti].d_result;
+            const bsl::string  RESULT = DATA[ti].d_result_p;
 
             if (veryVerbose) {
                 T_ P_(LINE) P_(SPEC) P_(LEVEL) P_(SPACES) P(RESULT)
@@ -30455,7 +30578,7 @@ int main(int argc, char *argv[])
 
         static struct {
             int         d_lineNum;
-            const char *d_input;        // input specifications
+            const char *d_input_p;      // input specifications
             int         d_expTypeIdx;   // expected type index
             int         d_expValueIdx;  // expected value index (within type)
         } DATA[] = {
@@ -30504,7 +30627,7 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE      = DATA[ti].d_lineNum;
-            const char *INPUT     = DATA[ti].d_input;
+            const char *INPUT     = DATA[ti].d_input_p;
             const int   TYPE_IDX  = DATA[ti].d_expTypeIdx;
             const int   VALUE_IDX = DATA[ti].d_expValueIdx;
 
@@ -30666,7 +30789,7 @@ int main(int argc, char *argv[])
 
         static struct {
             int         d_lineNum;
-            const char *d_input;        // input specifications
+            const char *d_input_p;      // input specifications
             int         d_retCode;      // return code of ggg()
             int         d_expTypeIdx;   // expected type index
             int         d_expValueIdx;  // expected value index (within type)
@@ -30730,7 +30853,7 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE      = DATA[ti].d_lineNum;
-            const char *INPUT     = DATA[ti].d_input;
+            const char *INPUT     = DATA[ti].d_input_p;
             const int   RC        = DATA[ti].d_retCode;
             const int   TYPE_IDX  = DATA[ti].d_expTypeIdx;
             const int   VALUE_IDX = DATA[ti].d_expValueIdx;

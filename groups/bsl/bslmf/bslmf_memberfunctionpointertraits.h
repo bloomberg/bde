@@ -167,16 +167,17 @@ class MemberFunctionPointerTraits_ClassType {
     // specialization of 'MemberFunctionPointerTraits_Imp' based on
     // cv-qualification of the member-function pointer.
 
-    typedef Tag<0> NonCVTag;            // non-const, non-volatile
-    typedef Tag<1> ConstTag;            // const
-    typedef Tag<2> VolTag;              // volatile
-    typedef Tag<3> ConstVolTag;         // const volatile
+    typedef Tag<0> NonCVTag;            // non-'const', non-'volatile'
+    typedef Tag<1> ConstTag;            // 'const'
+    typedef Tag<2> VolTag;              // 'volatile'
+    typedef Tag<3> ConstVolTag;         // 'const volatile'
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES && \
     defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
-    typedef Tag<4> NonCVNoExceptTag;    // non-const, non-volatile, noexcept
-    typedef Tag<5> ConstNoExceptTag;    // const noexcept
-    typedef Tag<6> VolNoExceptTag;      // volatile noexcept
-    typedef Tag<7> ConstVolNoExceptTag; // const volatile noexcept
+    typedef Tag<4> NonCVNoExceptTag;    // non-'const', non-'volatile',
+                                        // 'noexcept'
+    typedef Tag<5> ConstNoExceptTag;    // 'const', 'noexcept'
+    typedef Tag<6> VolNoExceptTag;      // 'volatile', 'noexcept'
+    typedef Tag<7> ConstVolNoExceptTag; // 'const', 'volatile', 'noexcept'
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 
     static NonCVTag test(BSLMF_RETURN(TYPE::*)(ARGS...));

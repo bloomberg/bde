@@ -488,8 +488,8 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(2 == sizeof x);           \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(2 == sizeof(dstType));    \
                                                                               \
-        return static_cast<dstType>(                                          \
-                        (static_cast<unsigned short>(x) >> 8) | (x << 8));    \
+        return static_cast<dstType>((((x) & 0xff00u) >> 8) |                  \
+                                    (((x) & 0x00ffu) << 8));                  \
     }
 
 #define BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(dstType, x)                    \
@@ -497,27 +497,25 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(4 == sizeof x);           \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(4 == sizeof(dstType));    \
                                                                               \
-        return static_cast<dstType>((x                           << 24)       \
-                                 | ((x & 0x0000ff00U)            <<  8)       \
-                                 | ((x & 0x00ff0000U)            >>  8)       \
-                                 | (static_cast<unsigned int>(x) >> 24));     \
+        return static_cast<dstType>((((x) & 0x000000ffU) << 24)               \
+                                  | (((x) & 0x0000ff00U) <<  8)               \
+                                  | (((x) & 0x00ff0000U) >>  8)               \
+                                  | (((x) & 0xff000000U) >> 24));             \
     }
 
 #define BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(dstType, x)                    \
     {                                                                         \
-        typedef BloombergLP::bsls::Types::Uint64 Uint64;                      \
-                                                                              \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof x);           \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof(dstType));    \
                                                                               \
-        return static_cast<dstType>(( x                          << 56)       \
-                                  | ((x & 0x000000000000ff00ULL) << 40)       \
-                                  | ((x & 0x0000000000ff0000ULL) << 24)       \
-                                  | ((x & 0x00000000ff000000ULL) <<  8)       \
-                                  | ((x & 0x000000ff00000000ULL) >>  8)       \
-                                  | ((x & 0x0000ff0000000000ULL) >> 24)       \
-                                  | ((x & 0x00ff000000000000ULL) >> 40)       \
-                                  | (static_cast<Uint64>(x)      >> 56));     \
+        return static_cast<dstType>((((x) & 0x00000000000000ffULL) << 56)     \
+                                  | (((x) & 0x000000000000ff00ULL) << 40)     \
+                                  | (((x) & 0x0000000000ff0000ULL) << 24)     \
+                                  | (((x) & 0x00000000ff000000ULL) <<  8)     \
+                                  | (((x) & 0x000000ff00000000ULL) >>  8)     \
+                                  | (((x) & 0x0000ff0000000000ULL) >> 24)     \
+                                  | (((x) & 0x00ff000000000000ULL) >> 40)     \
+                                  | (((x) & 0xff00000000000000ULL) >> 56));   \
     }
 
 namespace bsls {

@@ -1,5 +1,6 @@
 // bslstl_stringview.t.cpp                                            -*-C++-*-
 #include <bslstl_stringview.h>
+#include <bslstl_stringref.h>
 
 #include <bslstl_algorithmworkaround.h>  // bsl::count()
 #include <bslstl_map.h>
@@ -173,30 +174,18 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-
-#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
-#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
-#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
-
-#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
 #define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
 #define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
 #define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
-#else
-#define ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)
-
-#define ASSERT_SAFE_FAIL_RAW(EXPR)
-#define ASSERT_FAIL_RAW(EXPR)
-#define ASSERT_OPT_FAIL_RAW(EXPR)
-#endif
 
 // ============================================================================
 //                             SWAP TEST HELPERS
@@ -683,6 +672,9 @@ struct TestDriver {
     static const int  s_testStringLength = 49;  // length of test string
 
     // TEST CASES
+    static void testCase23();
+        // Conversions between strings and string views.
+
     static void testCase22();
         // Test 'operator ""_sv'.
 
@@ -769,6 +761,193 @@ const TYPE TestDriver<TYPE, TRAITS>::s_testString [] =
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+template <class TYPE, class TRAITS>
+void TestDriver<TYPE,TRAITS>::testCase23()
+{
+    // --------------------------------------------------------------------
+    // TESTING CONVERSION W.R.T. 'native_std::basic_string'
+    //
+    // Concerns:
+    //: 1 That it is possible to construct a 'string_view' from a
+    //:   'native_std::string'.
+    //:
+    //: 2 That the source is not modified.
+    //:
+    //: 3 That the contents of the constructed object match the original
+    //:   string.
+    //:
+    //: 4 That a variety of string and string view types are constructible and
+    //:   assignable from each other.
+    //
+    // Plan:
+    //: 1 Using a few samples, create strings with those contents, create
+    //:   string views from them, and verify that the results are consistent.
+    //:
+    //: 2 Construct a variety of string-like objects and verify that they
+    //:   inter-convert properly with string views.
+    // --------------------------------------------------------------------
+
+    static const char *DATA[] = {
+        "", "woof", "meow", "bow wow",
+        "The rain in Spain falls mainly in the plain.",
+        "By george, I think she's got it!" };
+    enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const char *CHAR_STR = DATA[ti];
+        const char *pc;
+        TYPE        buffer[100], *pB;
+
+        // Copy from 'char' buffer to 'TYPE' buffer.
+
+        for (pB = buffer, pc = CHAR_STR; (*pB++ = *pc++); ) {
+            ;  // do nothing
+        }
+        const size_t LEN = pB - 1 - buffer;
+        ASSERT(0 == buffer[LEN]);
+
+        pB = buffer;
+
+        const native_std::basic_string<TYPE> str(pB);
+        ASSERT(pB == str);
+        const bsl::basic_string_view<TYPE> sv(str);
+        ASSERT(pB == str);    // unchanged
+
+        // Compare 'sv' with 'str', they should match.
+
+        ASSERT(str.length() == sv.length());
+        ASSERT(!sv.data()[sv.length()]);
+
+        for (unsigned ii = 0; ii < LEN; ++ii) {
+            ASSERT(sv[ii] == str[ii]);
+            ASSERT(sv[ii] == buffer[ii]);
+        }
+
+        if (LEN < 4) {
+            continue;
+        }
+
+        // Now, do it over again with an embedded zero in the string.
+
+        buffer[2] = 0;
+
+        const native_std::basic_string<TYPE> zStr(pB, LEN);
+        ASSERT(LEN == zStr.length());
+        ASSERT(zStr != str);
+        ASSERT(zStr[2] == 0);
+
+        const native_std::basic_string<TYPE> zStrB(pB, LEN);
+        ASSERT(LEN == zStrB.length());
+        ASSERT(zStrB != str);
+        ASSERT(zStrB[2] == 0);
+        ASSERT(zStr == zStrB);
+
+        const bsl::basic_string_view<TYPE> zSv(zStr);
+        ASSERT(LEN == zSv.length());
+        ASSERT(zSv.data() == zStr.data());
+        ASSERT(zSv[2] == 0);
+
+        ASSERT(LEN == zStr.length());  // unchanged
+        ASSERT(zStr == zStrB);         // unchanged
+
+        for (unsigned ii = 0; ii < LEN; ++ii) {
+            ASSERT(zSv[ii] == zStr[ii]);
+            ASSERT(zSv[ii] == buffer[ii]);
+        }
+
+        if (veryVerbose) printf("\tbsl::string vs. string_view\n");
+        {
+            bsl::basic_string<TYPE> s(pB, pB + LEN);
+            bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
+            v = s;
+            ASSERT(v.data() == s.data());
+            bsl::basic_string<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o.assign(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+        }
+
+        if (veryVerbose) printf("\tstd::string vs. string_view\n");
+        {
+            std::basic_string<TYPE> s(pB, pB + LEN);
+            bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
+            v = s;
+            ASSERT(v.data() == s.data());
+            std::basic_string<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            // Will not work with 'explicit string_view::operator std::string'
+            // in our implementation.
+            o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o.assign(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+#endif
+        }
+
+        if (veryVerbose) printf("\tnative_std::string vs. string_view\n");
+        {
+            native_std::basic_string<TYPE> s(pB, pB + LEN);
+            bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
+            v = s;
+            ASSERT(v.data() == s.data());
+            native_std::basic_string<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            // Will not work with 'explicit string_view::operator std::string'
+            // in our implementation.
+            o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o.assign(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+#endif
+        }
+
+        if (veryVerbose) printf("\tStringRefImp vs. string_view\n");
+        {
+            bslstl::StringRefImp<TYPE> s(pB, pB + LEN);
+            bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
+            v = s;
+            ASSERT(v.data() == s.data());
+            bslstl::StringRefImp<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o.assign(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+        }
+
+        if (veryVerbose) printf("\tStringRefData vs. string_view\n");
+        {
+            bslstl::StringRefData<TYPE> s(pB, pB + LEN);
+            bsl::basic_string_view<TYPE> v(s);
+            ASSERT(v.data() == s.data());
+            ASSERT(s == v);
+            ASSERT(v == s);
+            v = s;
+            ASSERT(v.data() == s.data());
+            bslstl::StringRefData<TYPE> o(v);
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+            o = v;
+            ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
+        }
+    }
+}
 
 template <class TYPE, class TRAITS>
 void TestDriver<TYPE,TRAITS>::testCase22()
@@ -892,6 +1071,7 @@ void TestDriver<TYPE,TRAITS>::testCase22()
             (void) mX;
         }
 
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
         if (verbose) printf("\tNegative testing.\n");
         { // C-6
             using namespace bsl::string_view_literals;
@@ -906,6 +1086,7 @@ void TestDriver<TYPE,TRAITS>::testCase22()
             ASSERT_SAFE_PASS(operator ""_sv(NULL_PTR, 0));
             ASSERT_SAFE_FAIL(operator ""_sv(NULL_PTR, 5));
         }
+#endif
     }
 
     if (verbose) printf("for wchar_t type.\n");
@@ -976,6 +1157,7 @@ void TestDriver<TYPE,TRAITS>::testCase22()
             (void) mX;
         }
 
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
         if (verbose) printf("\tNegative testing.\n");
         { // C-6
             using namespace bsl::string_view_literals;
@@ -991,6 +1173,7 @@ void TestDriver<TYPE,TRAITS>::testCase22()
             ASSERT_SAFE_PASS(operator ""_sv(NULL_PTR, 0));
             ASSERT_SAFE_FAIL(operator ""_sv(NULL_PTR, 5));
         }
+#endif
     }
 
     // Verify no memory was ever allocated.
@@ -1253,6 +1436,7 @@ void TestDriver<TYPE, TRAITS>::testCase21() {
         }
     }
 
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
     if (verbose) printf("\tNegative testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
@@ -1270,6 +1454,7 @@ void TestDriver<TYPE, TRAITS>::testCase21() {
         ASSERT_SAFE_PASS(X.ends_with(STR));
         ASSERT_SAFE_FAIL(X.ends_with(NULL_PTR));
     }
+#endif
 }
 #endif
 
@@ -2219,6 +2404,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
         }
     }
 
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
     if (verbose) printf("\tNegative testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
@@ -2256,6 +2442,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
         ASSERT_SAFE_PASS(XNonEmpty.compare(0, 0, STRING  , NPOS - 1));
         ASSERT_SAFE_PASS(XNonEmpty.compare(0, 0, STRING  , NPOS    ));
     }
+#endif
 
 #ifdef BDE_BUILD_TARGET_EXC
     if (verbose) printf("\tTesting exceptions.\n");
@@ -2452,6 +2639,7 @@ void TestDriver<TYPE, TRAITS>::testCase17()
         }
     }
 
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
     if (verbose) printf("\tNegative testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
@@ -2479,6 +2667,7 @@ void TestDriver<TYPE, TRAITS>::testCase17()
         ASSERT_SAFE_FAIL(X.substr(1));
         ASSERT_SAFE_FAIL(X.substr(2));
     }
+#endif
 }
 
 template <class TYPE, class TRAITS>
@@ -2588,11 +2777,9 @@ void TestDriver<TYPE, TRAITS>::testCase16()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
-    const TYPE      *STRING        = s_testString;
-    const size_type  STRING_LENGTH = s_testStringLength;
-    const TYPE      *NULL_PTR      = 0;
-
-    const size_type  NPOS          = Obj::npos;
+    const TYPE      *STRING   = s_testString;
+    const TYPE      *NULL_PTR = 0;
+    const size_type  NPOS     = Obj::npos;
 
     if (verbose) printf("\tTesting basic behavior.\n");
 
@@ -3053,12 +3240,14 @@ void TestDriver<TYPE, TRAITS>::testCase16()
         }
     }
 
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
     if (verbose) printf("\tNegative testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
 
-        Obj        mX(STRING, STRING_LENGTH);
-        const Obj& X = mX;
+        const size_type STRING_LENGTH = s_testStringLength;
+        Obj             mX(STRING, STRING_LENGTH);
+        const Obj&      X = mX;
 
         ASSERT_SAFE_PASS(X.find_first_not_of(STRING  , 0, 1            ));
         ASSERT_SAFE_PASS(X.find_first_not_of(STRING  , 0, 0            ));
@@ -3082,6 +3271,7 @@ void TestDriver<TYPE, TRAITS>::testCase16()
         ASSERT_SAFE_PASS(X.find_last_not_of( STRING  , 0, Obj::npos - 1));
         ASSERT_SAFE_PASS(X.find_last_not_of( STRING  , 0, Obj::npos    ));
     }
+#endif
 }
 
 template <class TYPE, class TRAITS>
@@ -3190,11 +3380,9 @@ void TestDriver<TYPE, TRAITS>::testCase15()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
-    const TYPE      *STRING        = s_testString;
-    const size_type  STRING_LENGTH = s_testStringLength;
-    const TYPE      *NULL_PTR      = 0;
-
-    const size_type  NPOS          = Obj::npos;
+    const TYPE      *STRING   = s_testString;
+    const TYPE      *NULL_PTR = 0;
+    const size_type  NPOS     = Obj::npos;
 
     if (verbose) printf("\tTesting basic behavior.\n");
 
@@ -3616,12 +3804,14 @@ void TestDriver<TYPE, TRAITS>::testCase15()
         }
     }
 
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
     if (verbose) printf("\tNegative testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
 
-        Obj        mX(STRING, STRING_LENGTH);
-        const Obj& X = mX;
+        const size_type STRING_LENGTH = s_testStringLength;
+        Obj             mX(STRING, STRING_LENGTH);
+        const Obj&      X = mX;
 
         ASSERT_SAFE_PASS(X.find_first_of(STRING  , 0, 1            ));
         ASSERT_SAFE_PASS(X.find_first_of(STRING  , 0, 0            ));
@@ -3645,6 +3835,7 @@ void TestDriver<TYPE, TRAITS>::testCase15()
         ASSERT_SAFE_PASS(X.find_last_of( STRING  , 0, Obj::npos - 1));
         ASSERT_SAFE_PASS(X.find_last_of( STRING  , 0, Obj::npos    ));
     }
+#endif
 }
 
 template <class TYPE, class TRAITS>
@@ -3776,10 +3967,9 @@ void TestDriver<TYPE, TRAITS>::testCase14()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
-    const TYPE      *STRING        = s_testString;
-    const size_type  STRING_LENGTH = s_testStringLength;
-    const TYPE      *NULL_PTR      = 0;
-    const size_type  NPOS          = Obj::npos;
+    const TYPE      *STRING   = s_testString;
+    const TYPE      *NULL_PTR = 0;
+    const size_type  NPOS     = Obj::npos;
 
     if (verbose) printf("\tTesting basic behavior.\n");
 
@@ -4282,12 +4472,14 @@ void TestDriver<TYPE, TRAITS>::testCase14()
         }
     }
 
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
     if (verbose) printf("\tNegative testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
 
-        Obj        mX(STRING, STRING_LENGTH);
-        const Obj& X = mX;
+        const size_type STRING_LENGTH = s_testStringLength;
+        Obj             mX(STRING, STRING_LENGTH);
+        const Obj&      X = mX;
 
         ASSERT_SAFE_PASS(X.find( STRING  , 0, 1            ));
         ASSERT_SAFE_PASS(X.find( STRING  , 0, 0            ));
@@ -4311,6 +4503,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
         ASSERT_SAFE_PASS(X.rfind(STRING  , 0, Obj::npos - 1));
         ASSERT_SAFE_PASS(X.rfind(STRING  , 0, Obj::npos    ));
     }
+#endif
 }
 
 template <class TYPE, class TRAITS>
@@ -4504,6 +4697,7 @@ void TestDriver<TYPE, TRAITS>::testCase13()
         }
     }
 
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
     if (verbose) printf("\tNegative testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
@@ -4556,6 +4750,7 @@ void TestDriver<TYPE, TRAITS>::testCase13()
         ASSERT_SAFE_PASS(XR.copy(END   + 1, 1));
         ASSERT_SAFE_PASS(XR.copy(END   + 2, 0));
     }
+#endif
 
 #ifdef BDE_BUILD_TARGET_EXC
     if (verbose) printf("\tTesting exceptions.\n");
@@ -4712,6 +4907,7 @@ void TestDriver<TYPE, TRAITS>::testCase12()
         }
     }
 
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
     if (verbose) printf("\tNegative testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
@@ -4745,6 +4941,7 @@ void TestDriver<TYPE, TRAITS>::testCase12()
         ASSERT_SAFE_PASS(mXS2.remove_suffix(1));
         ASSERT_SAFE_FAIL(mXS3.remove_suffix(2));
     }
+#endif
 
     // Check that no additional memory has been allocated.
     ASSERTV(da.numBytesTotal(), 0 == da.numBytesTotal());
@@ -4978,6 +5175,7 @@ void TestDriver<TYPE, TRAITS>::testCase10()
         }
     }
 
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
     if (verbose) printf("\tNegative testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
@@ -5003,6 +5201,7 @@ void TestDriver<TYPE, TRAITS>::testCase10()
         ASSERT_SAFE_FAIL(XNonEmpty[3]);
         ASSERT_SAFE_FAIL(XEmpty[0]);
     }
+#endif
 
 #ifdef BDE_BUILD_TARGET_EXC
     if (verbose) printf("\tTesting exceptions.\n");
@@ -5203,6 +5402,7 @@ void TestDriver<TYPE, TRAITS>::testCase8()
         fa.deleteObject(objPtr);
     }
 
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
     if (verbose) printf("\tNegative testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
@@ -5220,6 +5420,7 @@ void TestDriver<TYPE, TRAITS>::testCase8()
         ASSERT_SAFE_FAIL((Obj(                 0)));
         ASSERT_SAFE_FAIL((DummyStringView(STRING)));
     }
+#endif
 
     // Verify no memory was ever allocated.
     ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
@@ -5871,8 +6072,10 @@ void TestDriver<TYPE, TRAITS>::testCase4()
 
         OP op = bsl::operator==;
         (void) op;
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
         op    = bsl::operator!=;
         (void) op;
+#endif
     }
 
     if (verbose) printf("\tTesting basic behavior.\n");
@@ -6238,6 +6441,7 @@ void TestDriver<TYPE, TRAITS>::testCase2()
         };
     }
 
+#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
     if (verbose) printf("\tNegative testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
@@ -6250,6 +6454,7 @@ void TestDriver<TYPE, TRAITS>::testCase2()
         ASSERT_SAFE_PASS((Obj(STRING, (Obj::npos - 1) / sizeof(TYPE))));
         ASSERT_SAFE_FAIL((Obj(STRING, Obj::npos    )));
     }
+#endif
 
     // Verify no memory was ever allocated.
     ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
@@ -6299,7 +6504,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -6369,6 +6574,18 @@ int main(int argc, char *argv[])
         sfa.deleteObject(sPtr);
         svfa.deleteObject(svPtr);
 //..
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // CONSTRUCTION FROM 'native_std::basic_string'
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING CONVERSION W.R.T. 'native_std::basic_string'"
+                   "\n====================================================\n");
+
+        TestDriver<char>::testCase23();
+        TestDriver<wchar_t>::testCase23();
       } break;
       case 22: {
 

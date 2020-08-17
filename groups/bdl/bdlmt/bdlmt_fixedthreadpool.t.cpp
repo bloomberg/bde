@@ -155,9 +155,9 @@ struct TestJobFunctionArgs {
     bslmt::Condition *d_startCond;
     bslmt::Condition *d_stopCond;
     bslmt::Mutex     *d_mutex;
-    volatile int     d_count;
-    volatile int     d_startSig;
-    volatile int     d_stopSig;
+    volatile int      d_count;
+    volatile int      d_startSig;
+    volatile int      d_stopSig;
 };
 
 struct TestJobFunctionArgs1 {
@@ -302,7 +302,7 @@ static double getCurrentCpuTime()
 struct myFastSearchJobInfo {
     const string        *d_word;    // word to search for
     const string        *d_path;    // path of the file to search
-    bslmt::Mutex         *d_mutex;   // mutex to control access the result
+    bslmt::Mutex        *d_mutex;   // mutex to control access the result
                                     // file list.
     bsl::vector<string> *d_outList; // list of matching files
 };
@@ -446,9 +446,9 @@ class ConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool   d_pool;
+    bdlmt::FixedThreadPool  d_pool;
     bslmt::Barrier          d_barrier;
-    bslma::Allocator      *d_allocator_p;
+    bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -829,7 +829,7 @@ int main(int argc, char *argv[])
         // TEST CASE FOR WINDOWS TEST FAILURE
         //   This test case was created for a windows failure that occurred on
         //   8/17.  This essentially recreates the use of
-        //   'bdlmt_fixedthreadpool' in the 'baem' test drivers.
+        //   'bdlmt_fixedthreadpool' in the 'balm' test drivers.
         //
         // Plan:
         if (verbose) cout << "Check windows test failure\n"

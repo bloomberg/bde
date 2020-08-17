@@ -592,8 +592,7 @@ struct DecimalImpUtil_IntelDfp {
         // Return the result of multiplying the specified 'value' by ten raised
         // to the specified 'exponent'.  The quantum of 'value' is scaled
         // according to IEEE 754's 'scaleB' operations.  The result is
-        // unspecified if 'value' is NaN or infinity.  The behavior is
-        // undefined unless '-1999999997 <= y <= 99999999'.
+        // unspecified if 'value' is NaN or infinity.
 
                         // Parsing functions
 

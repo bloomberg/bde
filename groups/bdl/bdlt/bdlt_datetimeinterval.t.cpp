@@ -452,7 +452,7 @@ if (veryVerbose)
         // Concerns:
         //: 1 Hope that different inputs hash differently
         //: 2 Verify that equal inputs hash identically
-        //: 3 Works for const and non-const values
+        //: 3 Works for 'const' and non-'const' values
         //
         // Plan:
         //: 1 Use a table specifying a set of distinct objects, verify that

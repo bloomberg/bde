@@ -1060,13 +1060,13 @@ class TestDriver {
 
     // PRIVATE CLASS METHODS
     static ELEMENT *ampersand(ELEMENT& expression)
-        // Return a non-const ptr to the specified 'expression'.
+        // Return a non-'const' ptr to the specified 'expression'.
     {
         return bsls::Util::addressOf(expression);
     }
 
     static void setData(ELEMENT *target, int value)
-        // The the value of the specified '*target' to the specified 'value'.
+        // Set the value of the specified '*target' to the specified 'value'.
     {
         u::AccessData<ELEMENT>::set(target, value);
     }

@@ -127,7 +127,7 @@
 :      Provide a template for nullable (in-place) objects.
 :
 : 'bdlb_nullopt':
-:      Provide a tag type to precede allocator arguments.
+:      Provide a tag type and constant indicating an empty nullable value.
 :
 : 'bdlb_nulloutputiterator':
 :      Provide an output iterator type that discards output.

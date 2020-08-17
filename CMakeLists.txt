@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.15)
 
 if (NOT CMAKE_MODULE_PATH)
     message(FATAL "Please specify path to BDE cmake modules.")

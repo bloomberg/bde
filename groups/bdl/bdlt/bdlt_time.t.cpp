@@ -688,7 +688,7 @@ if (veryVerbose)
         //
         //: 2 Hashes equal inputs identically
         //
-        //: 3 Works for const and non-const times
+        //: 3 Works for 'const' and non-'const' times
         //
         // Plan:
         //: 1 Brute force test of a few hand picked values, ensuring that

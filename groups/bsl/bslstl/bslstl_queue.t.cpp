@@ -5,6 +5,8 @@
 #include <bslstl_list.h>
 #include <bslstl_vector.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -44,8 +46,8 @@
 template <class TYPE>
 void invokeAdlSwap(TYPE& a, TYPE& b)
     // Exchange the values of the specified 'a' and 'b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).  The behavior
-    // is undefined unless 'a' and 'b' were created with the same allocator.
+    // 'swap' method found by ADL (Argument Dependent Lookup).  The behavior is
+    // undefined unless 'a' and 'b' were created with the same allocator.
 {
     // BSLS_ASSERT_OPT(a.get_allocator() == b.get_allocator());
 
@@ -128,79 +130,49 @@ using namespace bsl;
 // [10] STREAMING: Not Applicable
 // [**] CONCERN: The object is compatible with STL allocator.
 // [20] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
-//
+
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-# define LOOP_ASSERT(I,X) { \
-    if (!(X)) { P(I); aSsErT(!(X), #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-# define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { P_(I) P(J);   \
-                aSsErT(!(X), #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { P_(I) P_(J) P(K) \
-                aSsErT(!(X), #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { P_(I) P_(J) P_(K) P(L)\
-                aSsErT(!(X), #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-    if (!(X)) { P_(I) P_(J) P_(K) P_(L) P(M)\
-                aSsErT(!(X), #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-    if (!(X)) { P_(I) P_(J) P_(K) P_(L) P_(M) P(N)\
-                aSsErT(!(X), #X, __LINE__); } }
-
-#define LOOP0_ASSERT ASSERT
-#define LOOP1_ASSERT LOOP_ASSERT
-
-//=============================================================================
-//                  STANDARD BDE VARIADIC ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
-#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
-
-#define LOOPN_ASSERT_IMPL(N, ...) LOOP ## N ## _ASSERT(__VA_ARGS__)
-#define LOOPN_ASSERT(N, ...)      LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");      // Quote identifier literally.
-#define P(X) dbg_print(#X " = ", X, "\n");  // Print identifier and value.
-#define P_(X) dbg_print(#X " = ", X, ", "); // P(X) without '\n'
-#define L_ __LINE__                         // current Line number
-#define T_ putchar('\t');                   // Print a tab (w/o newline)
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -304,6 +276,22 @@ int NUM_SPECIAL_INT_VALUES     =
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#define PRVALUE(x) x
+#else
+template <class T>
+bslmf::MovableRef<T> cpp03_prvalue(const T& x)
+    // Return a movable reference to the specified 'x'.  The behavior is
+    // undefined unless 'x' can be safely 'const_cast' to a modifiable
+    // reference.
+{
+    return bslmf::MovableRefUtil::move(const_cast<T&>(x));
+}
+#define PRVALUE(x) cpp03_prvalue(x)
+#endif
+
+
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 //#define TEST_TYPES_REGULAR BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
 
@@ -335,71 +323,33 @@ int NUM_SPECIAL_INT_VALUES     =
 #endif
 
 
-// Fundamental-type-specific print functions.
-inline void dbg_print(bool b) { printf(b ? "true" : "false"); fflush(stdout); }
-inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(short val) { printf("%d", (int)val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {
-    printf("%d", (int)val);
-    fflush(stdout);
-}
-inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(long val) { printf("%ld", val); fflush(stdout); }
-inline void dbg_print(unsigned long val) {
-    printf("%lu", val);
-    fflush(stdout);
-}
-inline void dbg_print(long long val) { printf("%lld", val); fflush(stdout); }
-inline void dbg_print(unsigned long long val) {
-    printf("%llu", val);
-    fflush(stdout);
-}
-inline void dbg_print(float val) {
-    printf("'%f'", (double)val);
-    fflush(stdout);
-}
-inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(long double val) {
-    printf("'%Lf'", val);
-    fflush(stdout);
-}
-inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
-
 // 'queue' specific print function
+namespace bsl {
 
 template <class VALUE, class CONTAINER>
-void dbg_print(const bsl::queue<VALUE, CONTAINER>& q)
+void debugprint(const bsl::queue<VALUE, CONTAINER>& q)
 {
     if (q.empty()) {
         printf("<empty>");
     }
     else {
+        using namespace bsls;
+        
         printf("size: %d, front: ", (int) q.size());
-        dbg_print(static_cast<char>(
+        bsls::BslTestUtil::callDebugprint(static_cast<char>(
                        bsltf::TemplateTestFacility::getIdentifier(q.front())));
         printf(", back: ");
-        dbg_print(static_cast<char>(
+        bsls::BslTestUtil::callDebugprint(static_cast<char>(
                         bsltf::TemplateTestFacility::getIdentifier(q.back())));
     }
     fflush(stdout);
 }
 
-// generic debug print function (3-arguments)
-template <class T>
-void dbg_print(const char* s, const T& val, const char* nl) {
-    printf("%s", s); dbg_print(val);
-    printf("%s", nl);
-    fflush(stdout);
-}
+}  // close namespace bsl
 
-                            // =======================
-                            // class NonAllocContainer
-                            // =======================
+                          // =======================
+                          // class NonAllocContainer
+                          // =======================
 
 template <class VALUE>
 class NonAllocContainer {
@@ -484,9 +434,9 @@ namespace std {
     }
 }  // close namespace std
 
-                            // ==========================
-                            // class StatefulStlAllocator
-                            // ==========================
+                          // ==========================
+                          // class StatefulStlAllocator
+                          // ==========================
 
 template <class VALUE>
 class StatefulStlAllocator : public bsltf::StdTestAllocator<VALUE>
@@ -556,11 +506,11 @@ class StatefulStlAllocator : public bsltf::StdTestAllocator<VALUE>
 template <class OBJECT>
 struct ExceptionGuard {
     // This class provide a mechanism to verify the strong exception guarantee
-    // in exception-throwing code.  On construction, this class stores the
-    // a copy of an object of the parameterized type 'OBJECT' and the address
-    // of that object.  On destruction, if 'release' was not invoked, it will
-    // verify the value of the object is the same as the value of the copy
-    // create on construction.  This class requires the copy constructor and
+    // in exception-throwing code.  On construction, this class stores a copy
+    // of an object of the parameterized type 'OBJECT' and the address of that
+    // object.  On destruction, if 'release' was not invoked, it will verify
+    // the value of the object is the same as the value of the copy created
+    // on construction.  This class requires the copy constructor and
     // 'operator ==' to be tested before use.
 
     // DATA
@@ -707,9 +657,9 @@ enum CalledMethod getCalledMethod()
     return g_calledMethodFlag;
 }
 
-                            // ======================
-                            // class NonMovableVector
-                            // ======================
+                           // ======================
+                           // class NonMovableVector
+                           // ======================
 
 template <class VALUE, class ALLOCATOR>
 class NonMovableVector;
@@ -850,230 +800,190 @@ class NonMovableVector {
     }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    template <class... Args> void emplace_back(Args&&... arguments)
+    template <class... Args> void emplace_back(
+                                         BSLA_MAYBE_UNUSED Args&&... arguments)
         // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the specified 'arguments'.  Note that this method is written only
-        // for testing purposes, it DOESN'T simulate standard vector behavior
-        // and requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+        // object, constructed with integer literal as a parameter,
+        // irrespective of the specified 'arguments'.  Note that this method is
+        // written only for testing purposes, it DOESN'T simulate standard
+        // vector behavior and requires that the (template parameter) type
+        // 'VALUE_TYPE' has constructor, accepting integer value as a
+        // parameter.  Method invocation is recorded.
     {
-         int argumentsNumber = sizeof...(arguments);
+         int argumentsNumber = sizeof...(Args);
          g_calledMethodFlag |= static_cast<CalledMethod>(
                      static_cast<int>(e_EMPLACE_0) << argumentsNumber);
-         d_vector.push_back(value_type(1));
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-    inline
-    void emplace_back()
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter.  Note that
-        // this method is written only for testing purposes, it DOESN'T
-        // simulate standard vector behavior and requires that the (template
-        // parameter) type 'VALUE_TYPE' has constructor, accepting integer
-        // value as a parameter.  Method invocation is recorded.
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_queue.t.cpp
+#ifndef BSLSTL_QUEUE_VARIADIC_LIMIT
+#define BSLSTL_QUEUE_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_QUEUE_VARIADIC_LIMIT_A
+#define BSLSTL_QUEUE_VARIADIC_LIMIT_A BSLSTL_QUEUE_VARIADIC_LIMIT
+#endif
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 0
+    void emplace_back(
+                                         )
     {
-        g_calledMethodFlag |= e_EMPLACE_0;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  0u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 0
 
-    template <class Args_01>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed argument.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 1
+    template <class Args_01> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-
-        g_calledMethodFlag |= e_EMPLACE_1;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  1u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 1
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 2
     template <class Args_01,
-              class Args_02>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_02> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-
-        g_calledMethodFlag |= e_EMPLACE_2;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  2u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 2
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 3
     template <class Args_01,
               class Args_02,
-              class Args_03>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_03> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-
-        g_calledMethodFlag |= e_EMPLACE_3;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  3u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 3
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
-              class Args_04>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_04> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-        (void)args_04;
-
-        g_calledMethodFlag |= e_EMPLACE_4;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  4u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 4
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04,
-              class Args_05>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_05> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-        (void)args_04;
-        (void)args_05;
-
-        g_calledMethodFlag |= e_EMPLACE_5;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  5u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 5
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04,
               class Args_05,
-              class Args_06>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_06> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-        (void)args_04;
-        (void)args_05;
-        (void)args_06;
-
-        g_calledMethodFlag |= e_EMPLACE_6;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  6u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 6
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04,
               class Args_05,
               class Args_06,
-              class Args_07>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_07> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-        (void)args_04;
-        (void)args_05;
-        (void)args_06;
-        (void)args_07;
-
-        g_calledMethodFlag |= e_EMPLACE_7;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  7u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 7
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1081,39 +991,32 @@ class NonMovableVector {
               class Args_05,
               class Args_06,
               class Args_07,
-              class Args_08>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_08> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-        (void)args_04;
-        (void)args_05;
-        (void)args_06;
-        (void)args_07;
-        (void)args_08;
-
-        g_calledMethodFlag |= e_EMPLACE_8;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  8u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 8
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1122,41 +1025,34 @@ class NonMovableVector {
               class Args_06,
               class Args_07,
               class Args_08,
-              class Args_09>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_09> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-        (void)args_04;
-        (void)args_05;
-        (void)args_06;
-        (void)args_07;
-        (void)args_08;
-        (void)args_09;
-
-        g_calledMethodFlag |= e_EMPLACE_9;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  9u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 9
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1166,58 +1062,48 @@ class NonMovableVector {
               class Args_07,
               class Args_08,
               class Args_09,
-              class Args_10>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_10> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-        (void)args_04;
-        (void)args_05;
-        (void)args_06;
-        (void)args_07;
-        (void)args_08;
-        (void)args_09;
-        (void)args_10;
-
-        g_calledMethodFlag |= e_EMPLACE_A;
-        d_vector.push_back(value_type(1));
-    }
-#else
-    template <class... Args> void emplace_back(
-                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the specified 'arguments'.  Note that this method is written only
-        // for testing purposes, it DOESN'T simulate standard vector behavior
-        // and requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
-    {
-        int argumentsNumber = sizeof...(arguments);
-        g_calledMethodFlag |= static_cast<CalledMethod>(
+         int argumentsNumber = 10u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
                      static_cast<int>(e_EMPLACE_0) << argumentsNumber);
-        d_vector.push_back(value_type(1));
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 10
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class... Args> void emplace_back(
+                                         BSLA_MAYBE_UNUSED
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+    {
+         int argumentsNumber = sizeof...(Args);
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
+    }
+// }}} END GENERATED CODE
 #endif
 
     // ACCESSORS
@@ -1263,9 +1149,9 @@ class NonMovableVector {
     }
 };
 
-                            // ----------------------
-                            // class NonMovableVector
-                            // ----------------------
+                           // ----------------------
+                           // class NonMovableVector
+                           // ----------------------
 
 // CLASS METHODS
 template <class VALUE, class CONTAINER>
@@ -1503,230 +1389,190 @@ class MovableVector {
     }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    template <class... Args> void emplace_back(Args&&... arguments)
+    template <class... Args> void emplace_back(
+                                         BSLA_MAYBE_UNUSED Args&&... arguments)
         // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the specified 'arguments'.  Note that this method is written only
-        // for testing purposes, it DOESN'T simulate standard vector behavior
-        // and requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+        // object, constructed with integer literal as a parameter,
+        // irrespective of the specified 'arguments'.  Note that this method is
+        // written only for testing purposes, it DOESN'T simulate standard
+        // vector behavior and requires that the (template parameter) type
+        // 'VALUE_TYPE' has constructor, accepting integer value as a
+        // parameter.  Method invocation is recorded.
     {
-         int argumentsNumber = sizeof...(arguments);
+         int argumentsNumber = sizeof...(Args);
          g_calledMethodFlag |= static_cast<CalledMethod>(
                      static_cast<int>(e_EMPLACE_0) << argumentsNumber);
-         d_vector.push_back(value_type(1));
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-    inline
-    void emplace_back()
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter.  Note that
-        // this method is written only for testing purposes, it DOESN'T
-        // simulate standard vector behavior and requires that the (template
-        // parameter) type 'VALUE_TYPE' has constructor, accepting integer
-        // value as a parameter.  Method invocation is recorded.
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_queue.t.cpp
+#ifndef BSLSTL_QUEUE_VARIADIC_LIMIT
+#define BSLSTL_QUEUE_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_QUEUE_VARIADIC_LIMIT_B
+#define BSLSTL_QUEUE_VARIADIC_LIMIT_B BSLSTL_QUEUE_VARIADIC_LIMIT
+#endif
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 0
+    void emplace_back(
+                                         )
     {
-        g_calledMethodFlag |= e_EMPLACE_0;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  0u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 0
 
-    template <class Args_01>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed argument.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 1
+    template <class Args_01> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-
-        g_calledMethodFlag |= e_EMPLACE_1;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  1u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 1
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 2
     template <class Args_01,
-              class Args_02>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_02> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-
-        g_calledMethodFlag |= e_EMPLACE_2;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  2u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 2
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 3
     template <class Args_01,
               class Args_02,
-              class Args_03>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_03> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-
-        g_calledMethodFlag |= e_EMPLACE_3;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  3u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 3
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
-              class Args_04>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_04> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-        (void)args_04;
-
-        g_calledMethodFlag |= e_EMPLACE_4;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  4u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 4
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04,
-              class Args_05>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_05> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-        (void)args_04;
-        (void)args_05;
-
-        g_calledMethodFlag |= e_EMPLACE_5;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  5u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 5
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04,
               class Args_05,
-              class Args_06>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_06> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-        (void)args_04;
-        (void)args_05;
-        (void)args_06;
-
-        g_calledMethodFlag |= e_EMPLACE_6;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  6u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 6
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04,
               class Args_05,
               class Args_06,
-              class Args_07>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_07> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-        (void)args_04;
-        (void)args_05;
-        (void)args_06;
-        (void)args_07;
-
-        g_calledMethodFlag |= e_EMPLACE_7;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  7u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 7
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1734,39 +1580,32 @@ class MovableVector {
               class Args_05,
               class Args_06,
               class Args_07,
-              class Args_08>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_08> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-        (void)args_04;
-        (void)args_05;
-        (void)args_06;
-        (void)args_07;
-        (void)args_08;
-
-        g_calledMethodFlag |= e_EMPLACE_8;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  8u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 8
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1775,41 +1614,34 @@ class MovableVector {
               class Args_06,
               class Args_07,
               class Args_08,
-              class Args_09>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_09> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-        (void)args_04;
-        (void)args_05;
-        (void)args_06;
-        (void)args_07;
-        (void)args_08;
-        (void)args_09;
-
-        g_calledMethodFlag |= e_EMPLACE_9;
-        d_vector.push_back(value_type(1));
+         int argumentsNumber =  9u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 9
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1819,58 +1651,48 @@ class MovableVector {
               class Args_07,
               class Args_08,
               class Args_09,
-              class Args_10>
-    inline
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the passed arguments.  Note that this method is written only for
-        // testing purposes, it DOESN'T simulate standard vector behavior and
-        // requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
+              class Args_10> void emplace_back(
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+                       BSLA_MAYBE_UNUSED
+                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
     {
-         // Compiler warnings suppression.
-
-        (void)args_01;
-        (void)args_02;
-        (void)args_03;
-        (void)args_04;
-        (void)args_05;
-        (void)args_06;
-        (void)args_07;
-        (void)args_08;
-        (void)args_09;
-        (void)args_10;
-
-        g_calledMethodFlag |= e_EMPLACE_A;
-        d_vector.push_back(value_type(1));
-    }
-#else
-    template <class... Args> void emplace_back(
-                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
-        // Append to the end of this vector a newly created 'value_type'
-        // object, constructed with integer literal as a parameter, despite of
-        // the specified 'arguments'.  Note that this method is written only
-        // for testing purposes, it DOESN'T simulate standard vector behavior
-        // and requires that the (template parameter) type 'VALUE_TYPE' has
-        // constructor, accepting integer value as a parameter.  Method
-        // invocation is recorded.
-    {
-        int argumentsNumber = sizeof...(arguments);
-        g_calledMethodFlag |= static_cast<CalledMethod>(
+         int argumentsNumber = 10u;
+         g_calledMethodFlag |= static_cast<CalledMethod>(
                      static_cast<int>(e_EMPLACE_0) << argumentsNumber);
-        d_vector.push_back(value_type(1));
+         d_vector.push_back(PRVALUE(value_type(1)));
     }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 10
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class... Args> void emplace_back(
+                                         BSLA_MAYBE_UNUSED
+                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+    {
+         int argumentsNumber = sizeof...(Args);
+         g_calledMethodFlag |= static_cast<CalledMethod>(
+                     static_cast<int>(e_EMPLACE_0) << argumentsNumber);
+         d_vector.push_back(PRVALUE(value_type(1)));
+    }
+// }}} END GENERATED CODE
 #endif
 
     // ACCESSORS
@@ -2011,9 +1833,9 @@ bool isCalledMethodCheckPassed(CalledMethod flag)
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
 
-                            // ----------------
-                            // class TestDriver
-                            // ----------------
+                              // ----------------
+                              // class TestDriver
+                              // ----------------
 
 template <class VALUE, class CONTAINER = deque<VALUE> >
 class TestDriver {
@@ -2096,13 +1918,11 @@ class TestDriver {
     static void testCase20();
         // Test 'noexcept' specifications
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     static void testCase19MoveOnlyType();
         // Test move manipulators on move-only types
 
     static void testCase18MoveOnlyType();
         // Test move manipulators on move-only types
-#endif // !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
     template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
               bool OTHER_FLAGS>
@@ -2297,9 +2117,9 @@ TestDriver<VALUE, CONTAINER>::gg(Obj *object, const char *spec)
     return *object;
 }
 
-                                // ----------
-                                // TEST CASES
-                                // ----------
+                                 // ----------
+                                 // TEST CASES
+                                 // ----------
 
 template <class VALUE, class CONTAINER>
 void TestDriver<VALUE, CONTAINER>::testCase20()
@@ -2316,9 +2136,9 @@ void TestDriver<VALUE, CONTAINER>::testCase20()
     //:   appearing in the standard and confirm that calculated boolean value
     //:   matches the expected value.
     //:
-    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
-    //:   of the container, we need test for just one general type and any
-    //:   'TYPE' specializations.
+    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE' of
+    //:   the container, we need test for just one general type and any 'TYPE'
+    //:   specializations.
     //
     // Testing:
     //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
@@ -2359,7 +2179,6 @@ void TestDriver<VALUE, CONTAINER>::testCase20()
     }
 }
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class VALUE, class CONTAINER>
 void TestDriver<VALUE, CONTAINER>::testCase19MoveOnlyType()
 {
@@ -2367,9 +2186,9 @@ void TestDriver<VALUE, CONTAINER>::testCase19MoveOnlyType()
     // MOVE MANIPULATORS FOR MOVE ONLY TYPES
     //
     // Concerns:
-    //: 1 The implementation of the move manipulator methods do not rely on
-    //:   the (non-existent) copy construction or copy assignment methods of
-    //:   the contained type.
+    //: 1 The implementation of the move manipulator methods do not rely on the
+    //:   (non-existent) copy construction or copy assignment methods of the
+    //:   contained type.
     //
     // Plan:
     //: 1 Instantiate this test method for the instrumented helper container
@@ -2401,7 +2220,7 @@ void TestDriver<VALUE, CONTAINER>::testCase19MoveOnlyType()
     }
 
     ASSERT( is_special_container);
-    ASSERT(!is_copy_constructible)
+    ASSERT(!is_copy_constructible);
 
     if (verbose) { printf("Movable 'push'"); }
     {
@@ -2414,14 +2233,18 @@ void TestDriver<VALUE, CONTAINER>::testCase19MoveOnlyType()
 
             if (veryVerbose) { P(i) }
 
-            static VALUE value0(VALUE(0));
+            const VALUE lastValue(i);
+                
+            VALUE prValue1(0);
+            static VALUE value0(MoveUtil::move(prValue1));
 
             setupCalledMethodCheck();
-            mX.push(MoveUtil::move(VALUE(i)));
+            VALUE prValue2(i);
+            mX.push(MoveUtil::move(prValue2));
             ASSERT(isCalledMethodCheckPassed<CONTAINER>(expectedPushMethod));
 
-            ASSERT(value0   == X.front())
-            ASSERT(VALUE(i) == X.back())
+            ASSERT(value0    == X.front());
+            ASSERT(lastValue == X.back());
         }
     }
 
@@ -2438,8 +2261,10 @@ void TestDriver<VALUE, CONTAINER>::testCase19MoveOnlyType()
             Obj mY; const Obj& Y = mY;
 
             for (int j = 0; j < i; ++j) {
-                mX.push(VALUE(j));
-                mY.push(VALUE(j));
+                VALUE prValue1(j);
+                mX.push(bslmf::MovableRefUtil::move(prValue1));
+                VALUE prValue2(j);
+                mY.push(bslmf::MovableRefUtil::move(prValue2));
             }
 
             Obj mZ; const Obj& Z = mZ;
@@ -2522,7 +2347,7 @@ void TestDriver<VALUE, CONTAINER>::testCase19MoveOnlyType()
                 addressOfResult = bsls::Util::addressOf(result);
               } break;
               default:
-                  ASSERT(!"'value' not in range '[0, k_MAX_NUM_PARAMS]'")
+                  ASSERT(!"'value' not in range '[0, k_MAX_NUM_PARAMS]'");
             }
             ASSERTV(
                    numArgs,
@@ -2540,7 +2365,8 @@ void TestDriver<VALUE, CONTAINER>::testCase19MoveOnlyType()
             // '(Non)?MovableVector' append 'VALUE(1)' regardless the number
             // and value of their arguments.
 
-            mB.push(VALUE(1));
+            VALUE prValue(1);
+            mB.push(bslmf::MovableRefUtil::move(prValue));
 
             ASSERTV(A.size(), B.size(), B == A);
         }
@@ -2587,7 +2413,7 @@ void TestDriver<VALUE, CONTAINER>::testCase18MoveOnlyType()
     }
 
     ASSERT( is_special_container);
-    ASSERT(!is_copy_constructible)
+    ASSERT(!is_copy_constructible);
 
     {
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
@@ -2629,7 +2455,7 @@ void TestDriver<VALUE, CONTAINER>::testCase18MoveOnlyType()
                 bslma::TestAllocator  fa("footprint", veryVeryVeryVerbose);
 
                 Obj                  *objPtr;
-                bslma::TestAllocator *objAllocatorPtr; (void)objAllocatorPtr;
+                bslma::TestAllocator *objAllocatorPtr;
 
                 setupCalledMethodCheck();
 
@@ -2674,6 +2500,8 @@ void TestDriver<VALUE, CONTAINER>::testCase18MoveOnlyType()
                   } break;
                 }
 
+                Obj& mY = *objPtr;  const Obj& Y = mY;  // test object
+                                
                 ASSERTV(
                   bsls::NameOf<CONTAINER>(),
                   LINE,
@@ -2684,6 +2512,12 @@ void TestDriver<VALUE, CONTAINER>::testCase18MoveOnlyType()
 
                 ASSERTV(LINE, SPEC, CONFIG, sizeof(Obj) == fa.numBytesInUse());
 
+                // 'use_same_allocator' does not work with move=only types for
+                // now, so just mark that we aren't going to make use of these
+                // variables
+                (void)objAllocatorPtr;
+                (void)Y;
+                
                 // Reclaim dynamically allocated source object.
 
                 delete pX;
@@ -2705,7 +2539,6 @@ void TestDriver<VALUE, CONTAINER>::testCase18MoveOnlyType()
         }
     }
 }
-#endif // !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
 template <class VALUE, class CONTAINER>
 template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
@@ -3091,7 +2924,7 @@ void TestDriver<VALUE, CONTAINER>::testCase19(bool isMovableContainer)
                 addressOfResult = bsls::Util::addressOf(result);
               } break;
               default:
-                  ASSERT(!"'value' not in range '[0, k_MAX_NUM_PARAMS]'")
+                  ASSERT(!"'value' not in range '[0, k_MAX_NUM_PARAMS]'");
             }
             ASSERTV(
                    numArgs,
@@ -3672,18 +3505,18 @@ void TestDriver<VALUE, CONTAINER>::testCase12()
     //: 1 The object is constructed with all values in the user-supplied
     //:   container in the same order.
     //:
-    //: 2 If an allocator is NOT supplied to the value constructor, the
-    //:   default allocator in effect at the time of construction becomes
-    //:   the object allocator for the resulting object.
+    //: 2 If an allocator is NOT supplied to the value constructor, the default
+    //:   allocator in effect at the time of construction becomes the object
+    //:   allocator for the resulting object.
     //:
-    //: 3 If an allocator IS supplied to the value constructor, that
-    //:   allocator becomes the object allocator for the resulting object.
+    //: 3 If an allocator IS supplied to the value constructor, that allocator
+    //:   becomes the object allocator for the resulting object.
     //:
     //: 4 Supplying a null allocator address has the same effect as not
     //:   supplying an allocator.
     //:
-    //: 5 Supplying an allocator to the value constructor has no effect
-    //:   on subsequent object values.
+    //: 5 Supplying an allocator to the value constructor has no effect on
+    //:   subsequent object values.
     //:
     //: 6 Any memory allocation is from the object allocator.
     //:
@@ -4449,14 +4282,14 @@ void TestDriver<VALUE, CONTAINER>::testCase8_propagate_on_container_swap()
     // SWAP MEMBER AND FREE FUNCTIONS: ALLOCATOR PROPAGATION
     //
     // Concerns:
-    //: 1 If the 'propagate_on_container_swap' trait is 'false', the
-    //:   allocators used by the source and target objects remain unchanged
-    //:   (i.e., the allocators are *not* exchanged).
+    //: 1 If the 'propagate_on_container_swap' trait is 'false', the allocators
+    //:   used by the source and target objects remain unchanged (i.e., the
+    //:   allocators are *not* exchanged).
     //:
-    //: 2 If the 'propagate_on_container_swap' trait is 'true', the
-    //:   allocator used by the target (source) object is updated to be a copy
-    //:   of that used by the source (target) object (i.e., the allocators
-    //:   *are* exchanged).
+    //: 2 If the 'propagate_on_container_swap' trait is 'true', the allocator
+    //:   used by the target (source) object is updated to be a copy of that
+    //:   used by the source (target) object (i.e., the allocators *are*
+    //:   exchanged).
     //:
     //: 3 If the allocators are propagated (i.e., exchanged), there is no
     //:   additional allocation from any allocator.
@@ -4539,8 +4372,8 @@ void TestDriver<VALUE, CONTAINER>::testCase8()
     //: 5 Two objects with different allocators may be swapped.  In which case,
     //:   memory may be allocated.
     //:
-    //: 6 Using either function to swap an object with itself does not
-    //:   affect the value of the object (alias-safety).
+    //: 6 Using either function to swap an object with itself does not affect
+    //:   the value of the object (alias-safety).
     //:
     //: 7 The free 'swap' function is discoverable through ADL (Argument
     //:   Dependent Lookup).
@@ -4548,10 +4381,10 @@ void TestDriver<VALUE, CONTAINER>::testCase8()
     //: 8 QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Use the addresses of the 'swap' member and free functions defined
-    //:   in this component to initialize, respectively, member-function
-    //:   and free-function pointers having the appropriate signatures and
-    //:   return types.  (C-4)
+    //: 1 Use the addresses of the 'swap' member and free functions defined in
+    //:   this component to initialize, respectively, member-function and
+    //:   free-function pointers having the appropriate signatures and return
+    //:   types.  (C-4)
     //:
     //: 2 Create a 'bslma_TestAllocator' object, and install it as the
     //:   default allocator (note that a ubiquitous test allocator is
@@ -4636,9 +4469,9 @@ void TestDriver<VALUE, CONTAINER>::testCase8()
     //:   allocated from the default allocator.  (C-3)
     //:
     //: 7 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered when an attempt is made to swap objects that do not
-    //:   refer to the same allocator, but not when the allocators are the
-    //:   same (using the 'BSLS_ASSERTTEST_*' macros).  (C-7)
+    //:   triggered when an attempt is made to swap objects that do not refer
+    //:   to the same allocator, but not when the allocators are the same
+    //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-7)
     //
     // Testing:
     //   void swap(queue& other);
@@ -4684,8 +4517,8 @@ void TestDriver<VALUE, CONTAINER>::testCase8()
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
 
-        // Ensure the first row of the table contains the
-        // default-constructed value.
+        // Ensure the first row of the table contains the default-constructed
+        // value.
 
         static bool firstFlag = true;
         if (firstFlag) {
@@ -4928,8 +4761,8 @@ void TestDriver<VALUE, CONTAINER>::
     //: 4 Copy construct 'Y' from 'X' and use 'operator==' to verify that both
     //:   'X' and 'Y' subsequently have the same value as 'W'.
     //:
-    //: 5 Use the 'get_allocator' method to verify that the allocator of 'X'
-    //:   is *not* propagated to 'Y'.
+    //: 5 Use the 'get_allocator' method to verify that the allocator of 'X' is
+    //:   *not* propagated to 'Y'.
     //:
     //: 6 Repeat P-2..5 except that this time configure the allocator property
     //:   under test to 'true' and verify that the allocator of 'X' *is*
@@ -5024,8 +4857,8 @@ void TestDriver<VALUE, CONTAINER>::testCase7()
     //: 4 Subsequent changes in or destruction of the source object have no
     //:   effect on the copy-constructed object.
     //:
-    //: 5 Subsequent changes ('push's) on the created object have no
-    //:   effect on the original.
+    //: 5 Subsequent changes ('push's) on the created object have no effect on
+    //:   the original.
     //:
     //: 6 The object has its internal memory management system hooked up
     //:   properly so that *all* internally allocated memory draws from a
@@ -6300,8 +6133,8 @@ class MessageProcessor {
         // Enqueue the specified 'message' for processing.
 
     void processMessages(int verbose);
-        // Dequeue all messages currently contained by this processor,
-        // and print them to the console if the specified 'verbose' flag
+        // Dequeue all messages currently contained by this processor, and
+        // print them to the console if the specified 'verbose' flag
         // is not 0.
 };
 //..
@@ -6446,17 +6279,20 @@ int main(int argc, char *argv[])
         TestDriver<TTF_FP, NonMovableVector<TTF_FP> >::testCase19(false);
 #endif
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
         if (verbose) printf("\n" "Move Only Type" "\n"
                                  "--------------" "\n");
 
+#ifndef BSLS_PLATFORM_CMP_IBM
+        // move-only tests on AIX actually do compile and pass, but they
+        // produce a vast number of warnings because of the poor handling of
+        // temporaries in xlC.
         typedef bsltf::MoveOnlyAllocTestType            MOATT;
         TestDriver<MOATT,   MovableVector<MOATT> >::testCase19MoveOnlyType();
 
         typedef bsltf::WellBehavedMoveOnlyAllocTestType  WBMOATT;
         TestDriver<WBMOATT, MovableVector<WBMOATT> >::testCase19MoveOnlyType();
-#endif // !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-
+#endif
+        
         // 'propagate_on_container_move_assignment' testing
 
 // TBD enable this
@@ -6530,7 +6366,6 @@ int main(int argc, char *argv[])
         TestDriver<TTF_FP, NonMovableVector<TTF_FP> >::testCase18(false);
 #endif
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
         if (verbose) printf("\n" "Move Only Type" "\n"
                                  "--------------" "\n");
 
@@ -6541,8 +6376,6 @@ int main(int argc, char *argv[])
         typedef bsltf::WellBehavedMoveOnlyAllocTestType  WBMOATT;
 
         TestDriver<WBMOATT, MovableVector<WBMOATT> >::testCase18MoveOnlyType();
-#endif // !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-
       } break;
       case 17: {
         // --------------------------------------------------------------------

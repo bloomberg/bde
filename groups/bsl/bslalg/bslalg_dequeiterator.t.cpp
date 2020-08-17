@@ -159,7 +159,7 @@ TestDriver<VALUE_TYPE, BLOCK_LENGTH>::getValues(const Obj **valuesPtr)
     const int NUM_BLOCKS = 5;
     const int NUM_VALUES = NUM_BLOCKS * BLOCK_LENGTH;
 
-    // We use global arenas because static (non-const) arrays don't play well
+    // We use global arenas because static (non-'const') arrays don't play well
     // inside a function template.  For safety, we always fill the arenas with
     // junk and use padding at the boundaries.
 

@@ -204,6 +204,7 @@ using bsls::nameOfType;
 // [20] basic_string& replace(const_iterator p, q, const C *s);
 // [20] basic_string& replace(const_iterator p, q, size_type n2, C c);
 // [20] template <It> basic_string& replace(const_iterator p, q, It f, l);
+// [36] CHAR_TYPE *data();
 // [21] void swap(basic_string& other);
 //
 // ACCESSORS:
@@ -225,8 +226,8 @@ using bsls::nameOfType;
 // [  ] const_iterator cend() const;
 // [  ] const_reverse_iterator crbegin() const;
 // [  ] const_reverse_iterator crend() const;
-// [  ] const C *c_str() const;
-// [  ] const C *data() const;
+// [ 4] const CHAR_TYPE *c_str() const;
+// [ 4] const CHAR_TYPE *data() const;
 // [  ] allocator_type get_allocator() const;
 // [22] size_type find(const string& str, pos = 0) const;
 // [22] size_type find(const C *s, pos, n) const;
@@ -1153,10 +1154,6 @@ struct TestDriver {
         // character for the (template parameter) 'TYPE' if 'value' is not
         // specified; then remove all elements leaving 'object' empty.
 
-    static void checkCompare(const Obj& X, const Obj& Y, int result);
-        // Compare the specified 'X' and 'Y' strings according to the
-        // specifications, and check that the specified 'result' agrees.
-
     static size1& fromStringView(...);
     static size2& fromStringView(const Obj &);
         // Test apparatus for implicit conversion from 'string_view' to string.
@@ -1218,34 +1215,6 @@ struct TestDriver {
                                // --------------
                                // TEST APPARATUS
                                // --------------
-
-template <class TYPE, class TRAITS, class ALLOC>
-void TestDriver<TYPE,TRAITS,ALLOC>::checkCompare(const Obj& X,
-                                                 const Obj& Y,
-                                                 int        result)
-{
-    // As per C++ standard, chapter 21, clause 21.3.7.9.
-
-    typename Obj::size_type rlen = min(X.length(), Y.length());
-    int ret = TRAITS::compare(X.data(), Y.data(), rlen);
-    if (ret) {
-        ASSERT(ret == result);
-        return;                                                       // RETURN
-    }
-    if (X.size() > Y.size()) {
-        ASSERT(result > 0);
-        return;                                                       // RETURN
-    }
-    if (X.size() < Y.size()) {
-        ASSERT(result < 0);
-        return;                                                       // RETURN
-    }
-    if (X.size() == Y.size()) {
-        ASSERT(result == 0);
-        return;                                                       // RETURN
-    }
-    ASSERT(0);
-}
 
 template <class TYPE, class TRAITS, class ALLOC>
 int TestDriver<TYPE,TRAITS,ALLOC>::getValues(const TYPE **values)
@@ -2156,7 +2125,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                     LOOP4_ASSERT(SPEC, N, assignMode, constructMode, Y == Y);
                     LOOP4_ASSERT(SPEC, N, assignMode, constructMode, X == Y);
 
-                    int OFFSET = 0;
+                    size_t OFFSET = 0;
                     switch (constructMode) {
                       case PARTIAL_SELF_ASSIGN_CONSTRUCT_LONG_TAIL: {
                         OFFSET = 1;
@@ -4117,6 +4086,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
     //   5) The internal memory management is correctly hooked up so that
     //      changes made to the state of the object via these accessors
     //      do change the state of the object.
+    //   6) The 'data' method's signature and return type are standard.
+    //   7) The 'c_str' method's signature and return type are standard.
+    //   8) The 'data' and the 'c_str' methods return the address of a
+    //      buffer containing all the characters of this string object.
+    //   9) The 'data' and the 'c_str' methods return the address of a
+    //      buffer containing a null character at the last (equal to the length
+    //      of the object) position, even for an empty object.
     //
     // Plan:
     //   For 1 and 4 do the following:
@@ -4141,12 +4117,22 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
     //   recreate the value of x in y.  Verify that x == y.
     //   Note - Using untested resize(int).
     //
+    //   For 6 and 7, use the addresses of 'data' and 'c_str' to initialize
+    //   member-function pointers having the appropriate signature and
+    //   return type.
+    //
+    //   For 8 and 9, iterate through the buffers and compare their values with
+    //   the symbols, returned by the already tested 'operator[]'.  Verify,
+    //   that the null character encloses these sequences.
+    //
     // Testing:
     //   size_type size() const;
     //   reference operator[](size_type pos);
     //   const_reference operator[](size_type pos) const;
     //   reference at(size_type pos);
     //   const_reference at(size_type pos) const;
+    //   const CHAR_TYPE *c_str() const;
+    //   const CHAR_TYPE *data() const;
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -4326,8 +4312,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
         }
     }
 
-    if (verbose) printf("\nTesting non-const operator[] and "
-                        "function at() modify state of object correctly.\n");
+    if (verbose) printf("\nTesting non-'const' 'operator[]' and "
+                        "function 'at()' modify state of object correctly.\n");
     {
 
         int oldLen = -1;
@@ -4405,7 +4391,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
 
                 const int NUM_TRIALS = 2;
 
-                // Check exception behavior for non-const version of at()
+                // Check exception behavior for non-'const' version of 'at()'
                 // Checking the behavior for 'pos == size()' and
                 // 'pos > size()'.
 
@@ -4450,6 +4436,41 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
         }
     }
 #endif // BDE_BUILD_TARGET_EXC
+
+    if (verbose) printf("\nTesting 'c_str()' and 'data()'.\n");
+    {
+        typedef const TYPE *(Obj::*MemberFunction)() const;
+
+        MemberFunction dataMemberFunction = &Obj::data;
+        MemberFunction cStrMemberFunction = &Obj::c_str;
+        (void)&dataMemberFunction;
+        (void)&cStrMemberFunction;
+    }
+    {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE = DATA[ti].d_lineNum;
+            const char *const SPEC = DATA[ti].d_spec_p;
+
+            if (veryVerbose) printf("\t\tSpec = \"%s\"\n", SPEC);
+
+            Obj        mX;
+            const Obj& X = gg(&mX, SPEC);
+
+            const TYPE   *cStrPtr = X.c_str();
+            const TYPE   *dataPtr = X.data();
+            const size_t  LENGTH  = X.length();
+
+            for (size_t i = 0; i < LENGTH; ++i) {
+                LOOP3_ASSERT(LINE, X[i], *(cStrPtr + i),
+                             X[i] == *(cStrPtr + i));
+                LOOP3_ASSERT(LINE, X[i], *(dataPtr + i),
+                             X[i] == *(dataPtr + i));
+            }
+
+            LOOP_ASSERT(LINE, 0 == *(cStrPtr + LENGTH));
+            LOOP_ASSERT(LINE, 0 == *(dataPtr + LENGTH));
+        }
+    }
 
     delete AllocType[0];
     delete AllocType[1];
@@ -5754,7 +5775,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 36: {
+      case 37: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -5966,6 +5987,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 36: // falls through
       case 35: // falls through
       case 34: // falls through
       case 33: // falls through
@@ -6319,6 +6341,8 @@ int main(int argc, char *argv[])
         //   size_type size() const;
         //   const_reference operator[](size_type pos) const;
         //   const_reference at(size_type pos) const;
+        //   const CHAR_TYPE *c_str() const;
+        //   const CHAR_TYPE *data() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING BASIC ACCESSORS"

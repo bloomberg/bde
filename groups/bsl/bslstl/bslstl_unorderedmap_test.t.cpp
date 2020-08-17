@@ -4734,7 +4734,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                 }
 
                 if (IS_UNIQ && k_IS_KEY_MOVE_AWARE) {
-                    // 'KEY' of 'TValueType' is a non-const type, so can be
+                    // 'KEY' of 'TValueType' is a non-'const' type, so can be
                     // moved.
 
                     ASSERTV(NameOf<KEY>(), MoveState::e_MOVED ==
@@ -4749,7 +4749,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                                           ? MoveState::e_NOT_MOVED
                                           : MoveState::e_MOVED;
 
-                    MoveState::Enum mState = 
+                    MoveState::Enum mState =
                                    bsltf::getMovedFrom(buffer.object().second);
                     ASSERTV(NameOf<VALUE>(), exp, mState,
                                                       exp == mState && "from");
@@ -4860,7 +4860,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                                           ? MoveState::e_NOT_MOVED
                                           : MoveState::e_MOVED;
 
-                    MoveState::Enum mState = 
+                    MoveState::Enum mState =
                                    bsltf::getMovedFrom(buffer.object().second);
                     ASSERTV(NameOf<VALUE>(), exp, mState,
                                                       exp == mState && "from");
@@ -4972,7 +4972,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                                           ? MoveState::e_NOT_MOVED
                                           : MoveState::e_MOVED;
 
-                        MoveState::Enum mState = 
+                        MoveState::Enum mState =
                                    bsltf::getMovedFrom(buffer.object().second);
                         ASSERTV(NameOf<VALUE>(), exp, mState,
                                                       exp == mState && "from");
@@ -6352,7 +6352,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase24()
     //:
     //:   4 Verify 'std::out_of_range' is thrown.
     //:
-    //:   5 Repeat P-1.3-4 with the 'non-const' version of 'at' method.
+    //:   5 Repeat P-1.3-4 with the non-'const' version of 'at' method.
     //:
     //:   6 Invoke 'operator[]' using the out-of-range key under the presence
     //:     of exception.

@@ -427,9 +427,9 @@ class FixedVector {
 //  size, and to avoid making everything a vector with its (very) measurable
 //  allocation overhead, we define an 'view' that's templatized on the value
 //  type, but carries the size as a variable.
-//  We'll have a const and non-const version, and define appropriate
+//  We'll have a 'const' and non-'const' version, and define appropriate
 //  comparisons and conversions.
-//  Non-const:
+//  Non-'const':
 template<class VALUE_TYPE>
 struct ArrayRange {
     // ArrayRange<> allows iteration through an array.  It combines the

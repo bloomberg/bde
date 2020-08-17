@@ -280,7 +280,7 @@ class SpookyHashAlgorithmImp {
         // 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8', 'h9', 'h10', and
         // 'h11', and then mix the inputs together so that 'h0' and 'h1' are a
         // hash of all the inputs.  Note that non-BDE-standard passing by
-        // non-const reference is used here to remain consistent with the
+        // non-'const' reference is used here to remain consistent with the
         // cannonical implementation.  The behavior is undefined unless 'data'
         // points at least 8 bytes of initialized memory.
 
@@ -290,7 +290,7 @@ class SpookyHashAlgorithmImp {
         // Combine the specified 'h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         // 'h7', 'h8', 'h9', 'h10', and 'h11' together so that 'h0' and 'h1'
         // will be a hash of all the inputs.  Note that non-BDE-standard
-        // passing by non-const reference is used here to remain consistent
+        // passing by non-'const' reference is used here to remain consistent
         // with the cannonical implementation.  The behavior is undefined
         // unless 'data' points at least 8 bytes of initialized memory.
 
@@ -303,7 +303,7 @@ class SpookyHashAlgorithmImp {
         // 's11'.  This method should be used when the input is 96 bytes or
         // longer to prevent the loss of entropy, because the internal state of
         // 'SpookyHashAlgorithmImp' is overwritten every 96 bytes.  Note that
-        // non-BDE-standard passing by non-const reference is used here to
+        // non-BDE-standard passing by non-'const' reference is used here to
         // remain consistent with the cannonical implementation.  The behavior
         // is undefined unless 'data' points at least 8 bytes of initialized
         // memory.
@@ -327,14 +327,14 @@ class SpookyHashAlgorithmImp {
     static void shortEnd(Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3);
         // Combine the specified 'h0', 'h1', 'h2', and 'h3' together so that
         // 'h0' and 'h1' will be a hash of all the inputs.  Note that
-        // non-BDE-standard passing by non-const reference is used here to
+        // non-BDE-standard passing by non-'const' reference is used here to
         // remain consistent with the cannonical implementation.
 
     static void shortMix(Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3);
         // Thoroughly mix the specified 'h0', 'h1', 'h2', and 'h3' so that each
         // bit of input contributes entropy to every bit of the final states of
         // 'h0', 'h1', 'h2', and 'h3'.  Note that non-BDE-standard passing by
-        // non-const reference is used here to remain consistent with the
+        // non-'const' reference is used here to remain consistent with the
         // cannonical implementation.
 
     // NOT IMPLEMENTED

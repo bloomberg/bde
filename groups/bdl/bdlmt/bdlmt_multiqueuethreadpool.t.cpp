@@ -1594,7 +1594,7 @@ int main(int argc, char *argv[]) {
         //:
         //: 3 Verify the number of enqueued, processed, and deleted jobs in
         //:   P-2 to ensure no jobs were lost.  Use 'numQueues' and
-        //:   'numElements' to verify the the queue no longer exists.  (C-3)
+        //:   'numElements' to verify the queue no longer exists.  (C-3)
         //:
         //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
         //
@@ -4952,9 +4952,9 @@ int main(int argc, char *argv[]) {
         //
         // Plan:
         //   Create a modifiable 'bdlmt::MultiQueueThreadPool' instance, 'mX',
-        //   and a non-const reference to 'mX' named 'X'.  Start 'mX'.  Create
-        //   a queue, and enqueue a fixed number of jobs to it.  Each job
-        //   (represented as a functor) increments a counter; the address
+        //   and a non-'const' reference to 'mX' named 'X'.  Start 'mX'.
+        //   Create a queue, and enqueue a fixed number of jobs to it.  Each
+        //   job (represented as a functor) increments a counter; the address
         //   the counter is bound to the functor.  Then, stop 'mX', and verify
         //   the results.
         //

@@ -1,3 +1,4 @@
+bslstl_algorithm
 bslstl_algorithmworkaround
 bslstl_allocator
 bslstl_allocatortraits
@@ -11,13 +12,12 @@ bslstl_chrono
 bslstl_complex
 bslstl_defaultsearcher
 bslstl_deque
-bslstl_deque_test1
-bslstl_deque_test2
 bslstl_equalto
 bslstl_errc
 bslstl_error
 bslstl_forwarditerator
 bslstl_function
+bslstl_function_test
 bslstl_hash
 bslstl_hashtable
 bslstl_hashtable_test1
@@ -31,7 +31,6 @@ bslstl_istringstream
 bslstl_iterator
 bslstl_iteratorutil
 bslstl_list
-bslstl_list_test
 bslstl_map
 bslstl_map_test1
 bslstl_map_test2
@@ -81,5 +80,3 @@ bslstl_unorderedset
 bslstl_unorderedset_test
 bslstl_unorderedsetkeyconfiguration
 bslstl_vector
-bslstl_vector_test1
-bslstl_vector_test2

@@ -388,6 +388,7 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // as it is bound to this string reference.  The behavior is undefined
         // unless 'data' is null-terminated.
 
+    StringRefImp(const bsl::basic_string_view<CHAR_TYPE>& str);     // IMPLICIT
     StringRefImp(const native_std::basic_string<CHAR_TYPE>& str);   // IMPLICIT
     StringRefImp(const bsl::basic_string<CHAR_TYPE>& str);          // IMPLICIT
         // Create a string-reference object having a valid 'std::string' value,
@@ -856,6 +857,14 @@ StringRefImp<CHAR_TYPE>::StringRefImp(const CHAR_TYPE *data)
 : Base(data, data + Base::cStringLength(data))
 {
     BSLS_ASSERT_SAFE(data);
+}
+
+template <class CHAR_TYPE>
+inline
+StringRefImp<CHAR_TYPE>::StringRefImp(
+                                  const bsl::basic_string_view<CHAR_TYPE>& str)
+: Base(str)
+{
 }
 
 template <class CHAR_TYPE>

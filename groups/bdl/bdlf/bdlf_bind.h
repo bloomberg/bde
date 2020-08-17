@@ -392,7 +392,7 @@ BSLS_IDENT("$Id: $")
 //
 // CAVEAT: When passing a function object by value, only the (non-modifiable)
 // copy held by the binder will be invoked.  Prior to this version, it was
-// possible to modifiably invoke this copy (hence a non-const 'operator()')
+// possible to modifiably invoke this copy (hence a non-'const' 'operator()')
 // with the intent to modify the state of the function object.  However, only
 // the copy held by the binder was modified and the original function object
 // passed to the binder was not, but this usage error went undetected.  In this

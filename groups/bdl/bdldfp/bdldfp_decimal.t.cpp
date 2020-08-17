@@ -932,7 +932,7 @@ void TestDriver::testCase7()
     //: 2 The 'hashAppend' function hashes objects with the same values
     //:   identically irregardless their representations.
     //:
-    //: 3 The 'hashAppend' function hashes const and non-const objects.
+    //: 3 The 'hashAppend' function hashes 'const' and non-'const' objects.
     //
     // Plan:
     //: 1 Brute force test of a several hand picked and randomly generated

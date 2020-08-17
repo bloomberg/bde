@@ -490,13 +490,13 @@ BSLS_IDENT("$Id: $")
 //                    line for this option (the type 'int' is inferred
 //                    implicitly from the type of 'portNum').
 //
-//  balcl::TypeInfo(balcl::OptionType::e_INT)
+//  balcl::TypeInfo(balcl::OptionType::k_INT)
 //                    This option value must be an integer.
 //
 //  balcl::TypeInfo(&isVerbose)
 //                    Load the variable 'isVerbose' with this option value.
 //
-//  balcl::TypeInfo(balcl::OptionType::e_BOOL)
+//  balcl::TypeInfo(balcl::OptionType::k_BOOL)
 //                    This option is a flag.
 //
 //  balcl::TypeInfo(&fileNames)
@@ -506,7 +506,7 @@ BSLS_IDENT("$Id: $")
 //                    this variable will contain the sequence of values
 //                    specified on the command line, in the same order.
 //
-//  balcl::TypeInfo(balcl::OptionType::e_STRING_ARRAY)
+//  balcl::TypeInfo(balcl::OptionType::k_STRING_ARRAY)
 //                    This option value consists of a sequence of string
 //                    values specified on the command line, in the same order.
 //..

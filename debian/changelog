@@ -1,11 +1,83 @@
-bsl-internal (3.55.0.0) unstable; urgency=low
+bsl-internal (3.60.0.1) unstable; urgency=low
 
+  * cf9dd459e Merge pull request #2886 from mgiroux/restore-BDE_DISABLE_CPP17_ABI-DRQS162362013
+  * ff38874b3 Merge pull request #2880 from hrosen4/printer-stringview_drqs-162250825
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 7 Aug 2020 12:00:52 -0400
+
+bsl-internal (3.60.0.0) git; urgency=low
+
+  * c9ccd8cde Changelog for version 3.60.0.0
+  * 6cf4f67f4 Bumped version to 3.60.0.0
+  * 643c1e1ad Merge pull request #2873 from osubbotin/review/remove-obsolete
+  * 8c2442898 Merge pull request #2870 from afeher/drqs-161634136-newly-split-bind-test-driver
+  * 6ac2f79e4 Merge pull request #2865 from afeher/drqs-161457836-newly-split-list-test-driver
+  * a771df7cc Merge pull request #2864 from afeher/drqs-161365580-newly-split-vector-test-driver
+  * 2c79f04f4 Merge pull request #2862 from afeher/drqs-161365350-newly-split-deque-test-driver
+  * 169c9c4fe Increase minimum required cmake version to 3.15. (#2861)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 7 Aug 2020 11:22:00 -0400
+
+bsl-internal (3.59.0.0) git; urgency=low
+
+  * 9609964c9 Changelog for version 3.59.0.0
+  * 0b0dafcac Bumped version to 3.59.0.0
+  * b8cad69a9 Merge pull request #2841 from mgiroux/PR-2666-latest
+  * 6adc7449f Merge pull request #2789 from bchapman/bal-jsn,xml-decoder-check-utf8-drqs-158055467
+  * b0f374c3a Merge pull request #2847 from mgiroux/remove-smallsequential-allocator-and-pool
+  * e7248b29a Clean up string_view conversion tests
+  * e44df7712 Enable more conversions and test them.
+  * 9f0f58bbf String view conversions
+  * de8eb1b9e Merge pull request #2832 from APILayer/fix/baljsn-ub-clauses
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 25 Jul 2020 16:47:53 -0400
+
+bsl-internal (3.58.0.0) git; urgency=low
+
+  * 1ed0dfc42 Changelog for version 3.58.0.0
+  * 2c6de7b55 Bumped version to 3.58.0.0
+  * 5749c2d59 Merge pull request #2819 from bchapman/bdlb_variant-createInPlace-return-drqs-160662990
+  * f77eb979d Merge pull request #2817 from bchapman/bslma_testallocatormonitor-fix-allocate-0-drqs-160613942
+  * 31345c3d2 Merge pull request #2826 from afeher/drqs-159234337-melt-bslmt_threadattributes-interface
+  * 0808aadd2 Merge pull request #2824 from sbreitst/bdlma_smallsequentialpool-drqs-160588397
+  * 33dd75890 Merge pull request #2811 from mclow3/drqs-126021517
+  * e90ca5012 Merge pull request #2820 from osubbotin/review/bdlb-tokenizer-compile-warnings
+  * a9059d9fd Merge pull request #2815 from mclow3/drqs-113474532-deletions
+  * cf99ec112 Merge pull request #2813 from gsoumar/patch-1
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 10 Jul 2020 13:07:32 -0400
+
+bsl-internal (3.57.0.0) git; urgency=low
+
+  * 0e6927984 Changelog for version 3.57.0.0
+  * 3fb3a44bf Bumped version to 3.57.0.0
+  * d4724815c Merge pull request #2806 from bchapman/bdlde_utf8util-null-strings-with-0-length-158618031
+  * c036745f5 Merge pull request #2778 from bchapman/bdlde_utf8util-meaningful-error-codes-drqs-158055467
+  * 22a25869f Merge pull request #2805 from sbreitst/bdlma_smallsequentialpool-drqs-160053713
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 19 Jun 2020 10:28:55 -0400
+
+bsl-internal (3.56.0.0) git; urgency=low
+
+  * c18a684f4 Changelog for version 3.56.0.0
+  * 697a7b7ab Bumped version to 3.56.0.0
+  * 86e6f3ae5 Merge pull request #2802 from cteubner/patch-2
+  * e002c171f Merge pull request #2804 from cteubner/patch-4
+  * e992ffae7 Merge pull request #2799 from cwilson/bslstl_ratio-testing-drqs-151126457
+  * 20fb14399 Merge pull request #2797 from ameredit/sun_warnings
+  * 3c05e2d73 Merge pull request #2794 from jberne4/aligningallocator_update
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 7 Jun 2020 11:00:29 -0400
+
+bsl-internal (3.55.0.0) git; urgency=low
+
+  * cb82f0e4a Changelog for version 3.55.0.0
   * 0227da956 Bumped version to 3.55.0.0
   * 8eb2e365a Merge pull request #2787 from afeher/drqs-158600501-gcc9-WG14-N2322-recommendation-for-__LINE__-support
   * 870a353d7 Merge pull request #2792 from cteubner/patch-1
   * af85e9428 Merge pull request #2784 from sbreitst/bdlma_infrequentdeleteblocklist-drqs-158142905
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 15 May 2020 10:43:02 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 15 May 2020 10:51:01 -0400
 
 bsl-internal (3.54.0.0) git; urgency=low
 

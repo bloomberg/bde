@@ -37,31 +37,12 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlf' package currently has 20 components having 4 levels of physical
+ The 'bdlf' package currently has 3 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  4. bdlf_bind_test1                                                  !PRIVATE!
-     bdlf_bind_test10                                                 !PRIVATE!
-     bdlf_bind_test11                                                 !PRIVATE!
-     bdlf_bind_test12                                                 !PRIVATE!
-     bdlf_bind_test13                                                 !PRIVATE!
-     bdlf_bind_test14                                                 !PRIVATE!
-     bdlf_bind_test2                                                  !PRIVATE!
-     bdlf_bind_test3                                                  !PRIVATE!
-     bdlf_bind_test4                                                  !PRIVATE!
-     bdlf_bind_test5                                                  !PRIVATE!
-     bdlf_bind_test6                                                  !PRIVATE!
-     bdlf_bind_test7                                                  !PRIVATE!
-     bdlf_bind_test8                                                  !PRIVATE!
-     bdlf_bind_test9                                                  !PRIVATE!
-     bdlf_bind_testn                                                  !PRIVATE!
-
-  3. bdlf_bind
-     bdlf_bind_test0                                                  !PRIVATE!
-
-  2. bdlf_bind_test                                                   !PRIVATE!
+  2. bdlf_bind
 
   1. bdlf_memfn
      bdlf_placeholder
@@ -71,57 +52,6 @@
 /------------------
 : 'bdlf_bind':
 :      Provide a signature-specific function object (functor).
-:
-: 'bdlf_bind_test':                                                   !PRIVATE!
-:      Provide a test apparatus for bdlf_bind.
-:
-: 'bdlf_bind_test0':                                                  !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 0 arguments.
-:
-: 'bdlf_bind_test1':                                                  !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 1 argument.
-:
-: 'bdlf_bind_test10':                                                 !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 10 arguments.
-:
-: 'bdlf_bind_test11':                                                 !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 11 arguments.
-:
-: 'bdlf_bind_test12':                                                 !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 12 arguments.
-:
-: 'bdlf_bind_test13':                                                 !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 13 arguments.
-:
-: 'bdlf_bind_test14':                                                 !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 14 arguments.
-:
-: 'bdlf_bind_test2':                                                  !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 2 arguments.
-:
-: 'bdlf_bind_test3':                                                  !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 3 arguments.
-:
-: 'bdlf_bind_test4':                                                  !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 4 arguments.
-:
-: 'bdlf_bind_test5':                                                  !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 5 arguments.
-:
-: 'bdlf_bind_test6':                                                  !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 6 arguments.
-:
-: 'bdlf_bind_test7':                                                  !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 7 arguments.
-:
-: 'bdlf_bind_test8':                                                  !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 8 arguments.
-:
-: 'bdlf_bind_test9':                                                  !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with 9 arguments.
-:
-: 'bdlf_bind_testn':                                                  !PRIVATE!
-:      Provide a test sequence for 'bdlf_bind' with N arguments.
 :
 : 'bdlf_memfn':
 :      Provide member function pointer wrapper classes and utility.

@@ -100,8 +100,8 @@ BSLS_IDENT("$Id: $")
 //:     name of the (multi-line) macro invocation.  When this macro is not
 //:     defined '__LINE__' is replaced (as traditional on older C++ compilers)
 //:     by the line number of the last character of the  macro invocation that
-//:     expands to a use of '__LINE__'.  See also
-//:     {Example 2: '__LINE__' macro multi-line value}.
+//:     expands to a use of '__LINE__'.  See also {Example 2: '__LINE__' Macro
+//:     Multi-line Value Differences Demonstration}.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES':
 //:     This macro is defined if alias templates are supported by the current
@@ -135,7 +135,7 @@ BSLS_IDENT("$Id: $")
 //:     This macro is defined if 'constexpr' with C++14 semantics is supported
 //:     by the current compiler settings for this platform.  In particular,
 //:     this allows multiple statements in a 'constexpr' function; changing
-//:     state of local variables within the function; and making 'non-const'
+//:     state of local variables within the function; and making non-'const'
 //:     member functions 'constexpr'.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17':
@@ -279,7 +279,7 @@ BSLS_IDENT("$Id: $")
 //  // ...
 //..
 //
-///Example 2: '__LINE__' macro multi-line value differences demonstration
+///Example 2: '__LINE__' Macro Multi-line Value Differences Demonstration
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Note that this isn't an example of use, it is a demonstration of compiler
 // preprocessor behavior and the 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST'

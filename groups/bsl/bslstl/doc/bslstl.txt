@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 85 components having 9 levels of physical
+ The 'bslstl' package currently has 82 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -39,8 +39,6 @@
      bslstl_set
 
   6. bslstl_boyermoorehorspoolsearcher
-     bslstl_deque_test1                                               !PRIVATE!
-     bslstl_deque_test2                                               !PRIVATE!
      bslstl_istringstream
      bslstl_mapcomparator
      bslstl_ostringstream
@@ -68,7 +66,8 @@
      bslstl_unorderedmultiset
      bslstl_unorderedset
 
-  4. bslstl_hashtable
+  4. bslstl_function_test                                             !PRIVATE!
+     bslstl_hashtable
      bslstl_randomaccessiterator
      bslstl_string
      bslstl_systemerror
@@ -79,11 +78,8 @@
      bslstl_function
      bslstl_hashtablebucketiterator
      bslstl_hashtableiterator
-     bslstl_list_test                                                 !PRIVATE!
      bslstl_priorityqueue
      bslstl_stringrefdata
-     bslstl_vector_test1                                              !PRIVATE!
-     bslstl_vector_test2                                              !PRIVATE!
 
   2. bslstl_array
      bslstl_bidirectionalnodepool
@@ -97,7 +93,8 @@
      bslstl_treeiterator
      bslstl_vector
 
-  1. bslstl_allocator                                    !DEPRECATED!
+  1. bslstl_algorithm
+     bslstl_allocator                                    !DEPRECATED!
      bslstl_allocatortraits                              !DEPRECATED!
      bslstl_badweakptr
      bslstl_complex
@@ -119,6 +116,9 @@
 
 /Component Synopsis
 /------------------
+: 'bslstl_algorithm':
+:      Provide implementations for algorithms not in the system library.
+:
 : 'bslstl_algorithmworkaround':
 :      Provide a namespace for work arounds for the standard algorithms
 :
@@ -158,12 +158,6 @@
 : 'bslstl_deque':
 :      Provide an STL-compliant deque class.
 :
-: 'bslstl_deque_test1':                                               !PRIVATE!
-:      Provide support for the 'bslstl_deque.t.cpp' test driver.
-:
-: 'bslstl_deque_test2':                                               !PRIVATE!
-:      Provide support for the 'bslstl_deque.t.cpp' test driver.
-:
 : 'bslstl_equalto':
 :      Provide a binary functor conforming to the C++11 'equal_to' spec.
 :
@@ -178,6 +172,9 @@
 :
 : 'bslstl_function':
 :      Provide a polymorphic function object with a specific prototype.
+:
+: 'bslstl_function_test':                                             !PRIVATE!
+:      Provide support for the 'bslstl_function_test.t.cpp' test driver.
 :
 : 'bslstl_hash':
 :      Provide a namespace for hash functions.
@@ -217,9 +214,6 @@
 :
 : 'bslstl_list':
 :      Provide an STL-compliant list class.
-:
-: 'bslstl_list_test':                                                 !PRIVATE!
-:      Provide support for the 'bslstl_list.t.cpp' test driver.
 :
 : 'bslstl_map':
 :      Provide an STL-compliant map class.
@@ -367,9 +361,3 @@
 :
 : 'bslstl_vector':
 :      Provide an STL-compliant vector class.
-:
-: 'bslstl_vector_test1':                                              !PRIVATE!
-:      Provide support for the 'bslstl_vector.t.cpp' test driver.
-:
-: 'bslstl_vector_test2':                                              !PRIVATE!
-:      Provide support for the 'bslstl_vector.t.cpp' test driver.

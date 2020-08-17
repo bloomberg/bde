@@ -205,7 +205,13 @@ int NumericParseUtil::parseDouble(double                   *result,
 {
     BSLS_ASSERT(remainder);
     BSLS_ASSERT(result);
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    // 'setlocale' is slow on Windows, see '{drqs 161551330}'.
+    BSLS_ASSERT_SAFE(bsl::setlocale(0, 0) == bslstl::StringRef("C"));
+#else
     BSLS_ASSERT(bsl::setlocale(0, 0) == bslstl::StringRef("C"));
+#endif
 
     // An empty string cannot be a number.
 

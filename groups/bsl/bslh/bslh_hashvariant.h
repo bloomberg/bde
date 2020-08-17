@@ -86,7 +86,7 @@ void
 hashAppend(HASH_ALGORITHM& algorithm, const std::variant<TYPE ...> &input)
     // Pass the index of the active variant of the specified 'input' to the
     // specified 'algorithm', followed by the active value itself, to be
-    // combined into the internal state of the the algorithm that is used to
+    // combined into the internal state of the algorithm that is used to
     // produce the resulting hash value.
 {
     hashAppend(algorithm, input.index());

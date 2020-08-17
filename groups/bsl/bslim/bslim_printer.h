@@ -990,6 +990,12 @@ struct Printer_Helper {
                          int                        spacesPerLevel,
                          bslmf::SelectTraitCase<>);
 
+    static void printRaw(bsl::ostream&              stream,
+                         const bsl::string_view&    data,
+                         int                        level,
+                         int                        spacesPerLevel,
+                         bslmf::SelectTraitCase<>);
+
     template <class TYPE>
     static void printRaw(bsl::ostream&                stream,
                          const bsl::shared_ptr<TYPE>& data,

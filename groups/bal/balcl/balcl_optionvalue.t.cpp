@@ -1198,9 +1198,9 @@ bool hasValueDAB(const Obj& obj, char cfg, int offset = 0)
 }
 
 bslma::Allocator *getContainedAllocator(const Obj& obj)
-    // Return the allocator of the the specified 'obj'.  The behavior is
-    // undefined unless 'OptionType::EnumToType<ENUM>::type' is an allocating
-    // type where 'ENUM' matches 'obj.type()'.
+    // Return the allocator of the specified 'obj'.  The behavior is undefined
+    // unless 'OptionType::EnumToType<ENUM>::type' is an allocating type where
+    // 'ENUM' matches 'obj.type()'.
 {
     BSLS_ASSERT(Ot::e_VOID     != obj.type()
              && Ot::e_BOOL     != obj.type()

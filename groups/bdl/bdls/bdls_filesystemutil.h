@@ -696,10 +696,8 @@ struct FilesystemUtil {
         // Note that any initial contents of 'result' will be erased, and that
         // the paths in 'result' will not be in any particular guaranteed
         // order.  Return the number of paths matched on success, and a
-        // negative value otherwise; if 'result' is specified and a negative
-        // value is returned, the contents of '*result' are undefined.  If
-        // 'result' is not specified the function merely returns the number of
-        // paths matched.
+        // negative value otherwise; if a negative value is returned, the
+        // contents of '*result' are undefined.
         //
         // WINDOWS-SPECIFIC NOTE: To support DOS idioms, the OS-provided search
         // function has behavior that we have chosen not to work around: an

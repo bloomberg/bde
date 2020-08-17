@@ -240,6 +240,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <balscm_version.h>
 
+#include <baljsn_datumdecoderoptions.h>
 #include <baljsn_datumencoderoptions.h>
 
 #include <bdld_datum.h>
@@ -265,6 +266,55 @@ struct DatumUtil {
     // between a JSON formated string and a 'bdld::Datum'.
 
     // CLASS METHODS
+    static int decode(bdld::ManagedDatum         *result,
+                      const bslstl::StringRef&    json);
+    static int decode(bdld::ManagedDatum         *result,
+                      const bslstl::StringRef&    json,
+                      const DatumDecoderOptions&  options);
+    static int decode(bdld::ManagedDatum         *result,
+                      bsl::ostream               *errorStream,
+                      const bslstl::StringRef&    json);
+    static int decode(bdld::ManagedDatum         *result,
+                      bsl::ostream               *errorStream,
+                      const bslstl::StringRef&    json,
+                      const DatumDecoderOptions&  options);
+        // Decode the specified 'json' into the specified 'result'.  If the
+        // optionally specified 'errorStream' is non-null, a description of any
+        // errors that occur during parsing will be output to this stream.  If
+        // the optionally specified 'options' argument is not present, treat it
+        // as a default-constructed 'DatumDecoderOptions'.  Return 0 on
+        // success, and a negative value if 'json' could not be decoded (either
+        // because it is ill-formed, or if a constraint imposed by 'option' is
+        // violated).  An error status will be returned if 'json' contains
+        // arrays or objects that are nested beyond a depth configured by
+        // 'options.maxNestedDepth()'.  The mapping of types in JSON to the
+        // types supported by 'Datum' is described in {Supported Types}.
+
+    static int decode(bdld::ManagedDatum         *result,
+                      bsl::streambuf             *jsonBuffer);
+    static int decode(bdld::ManagedDatum         *result,
+                      bsl::streambuf             *jsonBuffer,
+                      const DatumDecoderOptions&  options);
+    static int decode(bdld::ManagedDatum         *result,
+                      bsl::ostream               *errorStream,
+                      bsl::streambuf             *jsonBuffer);
+    static int decode(bdld::ManagedDatum         *result,
+                      bsl::ostream               *errorStream,
+                      bsl::streambuf             *jsonBuffer,
+                      const DatumDecoderOptions&  options);
+        // Decode the JSON string provided by the specified 'jsonBuffer' into
+        // the specified 'result'.  If the optionally specified 'errorStream'
+        // is non-null, a description of any errors that occur during parsing
+        // will be output to this stream.  If the optionally specified
+        // 'options' argument is not present, treat it as a default-constructed
+        // 'DatumDecoderOptions'.  Return 0 on success, and a negative value if
+        // 'json' could not be decoded (either because it is ill-formed, or if
+        // a constraint imposed by 'option' is violated).  An error status will
+        // be returned if 'json' contains arrays or objects that are nested
+        // beyond a depth configured by 'options.maxNestedDepth()'.  The
+        // mapping of types in JSON to the types supported by 'Datum' is
+        // described in {Supported Types}.
+
     static int encode(bsl::string               *result,
                       const bdld::Datum&         datum);
     static int encode(bsl::string                *result,
@@ -300,31 +350,6 @@ struct DatumUtil {
         // 'strictTypes' option, but if 'strictTypes' is 'true' a non-zero
         // positive status will be returned).  The mapping of types supported
         // by 'Datum' to JSON types is described in {Supported Types}.
-
-    static int decode(bdld::ManagedDatum       *result,
-                      const bslstl::StringRef&  json);
-    static int decode(bdld::ManagedDatum       *result,
-                      bsl::ostream             *errorStream,
-                      const bslstl::StringRef&  json);
-        // Decode the specified 'json' into the specified 'result'.  If the
-        // optionally specified 'errorStream' is non-null, a description of any
-        // errors that occur during parsing will be output to this stream.
-        // Return 0 on success, and a negative value if 'json' could not be
-        // decoded (if it is ill-formed).  The mapping of types in JSON to the
-        // types supported by 'Datum' is described in {Supported Types}.
-
-    static int decode(bdld::ManagedDatum *result,
-                      bsl::streambuf     *jsonBuffer);
-    static int decode(bdld::ManagedDatum *result,
-                      bsl::ostream       *errorStream,
-                      bsl::streambuf     *jsonBuffer);
-        // Decode the JSON string provided by the specified 'jsonBuffer' into
-        // the specified 'result'.  If the optionally specified 'errorStream'
-        // is non-null, a description of any errors that occur during parsing
-        // will be output to this stream.  Return 0 on success, and a negative
-        // value if the JSON string contained in 'jsonBuffer' could not be
-        // decoded (if it is ill-formed).  The mapping of types in JSON to the
-        // types supported by 'Datum' is described in {Supported Types}.
 };
 
 // ============================================================================
@@ -334,42 +359,72 @@ struct DatumUtil {
 // CLASS METHODS
 
 inline
-int DatumUtil::decode(bdld::ManagedDatum       *result,
-                      const bslstl::StringRef&  json)
+int DatumUtil::decode(bdld::ManagedDatum         *result,
+                      const bslstl::StringRef&    json,
+                      const DatumDecoderOptions&  options)
 {
     bdlsb::FixedMemInStreamBuf buffer(json.data(), json.length());
-    return decode(result, 0, &buffer);
+    return decode(result, 0, &buffer, options);
 }
 
 inline
 int DatumUtil::decode(bdld::ManagedDatum       *result,
-                      bsl::ostream             *errorStream,
                       const bslstl::StringRef&  json)
 {
-    bdlsb::FixedMemInStreamBuf buffer(json.data(), json.length());
-    return decode(result, errorStream, &buffer);
+    return decode(result, json, DatumDecoderOptions());
 }
 
 inline
-int DatumUtil::decode(bdld::ManagedDatum *result, bsl::streambuf *jsonBuffer)
+int DatumUtil::decode(bdld::ManagedDatum         *result,
+                      bsl::ostream               *errorStream,
+                      const bslstl::StringRef&    json,
+                      const DatumDecoderOptions&  options)
 {
-    return decode(result, 0, jsonBuffer);
+    bdlsb::FixedMemInStreamBuf buffer(json.data(), json.length());
+    return decode(result, errorStream, &buffer, options);
+}
+
+inline
+int DatumUtil::decode(bdld::ManagedDatum         *result,
+                      bsl::ostream               *errorStream,
+                      const bslstl::StringRef&    json)
+{
+    return decode(result, errorStream, json, DatumDecoderOptions());
+}
+
+inline
+int DatumUtil::decode(bdld::ManagedDatum         *result,
+                      bsl::streambuf             *jsonBuffer,
+                      const DatumDecoderOptions&  options)
+{
+    return decode(result, 0, jsonBuffer, options);
+}
+
+inline
+int DatumUtil::decode(bdld::ManagedDatum         *result,
+                      bsl::streambuf             *jsonBuffer)
+{
+    return decode(result, 0, jsonBuffer, DatumDecoderOptions());
+}
+
+inline
+int DatumUtil::decode(bdld::ManagedDatum         *result,
+                      bsl::ostream               *errorStream,
+                      bsl::streambuf             *jsonBuffer)
+{
+    return decode(result, errorStream, jsonBuffer, DatumDecoderOptions());
 }
 
 inline
 int DatumUtil::encode(bsl::string *result, const bdld::Datum& datum)
 {
-    const DatumEncoderOptions localOpts;
-
-    return encode(result, datum, localOpts);
+    return encode(result, datum, DatumEncoderOptions());
 }
 
 inline
 int DatumUtil::encode(bsl::ostream& stream, const bdld::Datum& datum)
 {
-    const DatumEncoderOptions localOpts;
-
-    return encode(stream, datum, localOpts);
+    return encode(stream, datum, DatumEncoderOptions());
 }
 
 

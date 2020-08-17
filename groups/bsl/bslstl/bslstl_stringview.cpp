@@ -31,6 +31,15 @@ bsl::wstring_view operator ""_sv(const wchar_t *characterString,
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY &&
         // BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
 
+namespace BloombergLP {
+#define STRINGIFY2(a) #a
+#define STRINGIFY(a) STRINGIFY2(a)
+
+const char *BSLSTL_STRING_VIEW_LINKER_CHECK_NAME =
+                               "BSLSTL_STRINGVIEW_ABI_CHECK: "
+                               STRINGIFY(BSLSTL_STRING_VIEW_LINKER_CHECK_NAME);
+}  // close enterprise namespace
+
 // ----------------------------------------------------------------------------
 // Copyright 2019 Bloomberg Finance L.P.
 //

@@ -426,23 +426,23 @@ int main(int argc, char *argv[])
       case 17: {
         // --------------------------------------------------------------------
         // CONSTRUCTOR OVERLOADS
-        //   Ensure that the iterator types (const and non-const) both have
+        //   Ensure that the iterator types (const and non-'const') both have
         //   only a copy constructor, a conversion constructor from the
-        //   const-version, a default constructor, and no other, surprising
+        //   'const'-version, a default constructor, and no other, surprising
         //   overloads.
         //
         // Concerns:
-        //:  1 A non-const 'iterator' is copy constructible from a type that
-        //:    converts to a non-const 'iterator'.
+        //:  1 A non-'const' 'iterator' is copy constructible from a type that
+        //:    converts to a non-'const' 'iterator'.
         //:
         //:  2 A 'const_iterator' is copy constructible from a type that
         //:    converts to a 'const_iterator'.
         //:
-        //:  3 A non-const 'iterator' is copy constructible from a type that
+        //:  3 A non-'const' 'iterator' is copy constructible from a type that
         //:    converts to a 'const_iterator'.
         //
         // Plan:
-        //: 1 Create two (const/non-const) iterator types.
+        //: 1 Create two ('const'/non-'const') iterator types.
         //:
         //: 2 Create a templated type 'BasedOn' that publicly inherits from an
         //:   'iterator'.
@@ -451,7 +451,7 @@ int main(int argc, char *argv[])
         //:   an 'iterator'.
         //:
         //: 4 Construct 'BasedOn' and a 'ConvertsTo' with known values; some
-        //:   with const, the others with non-const value type.
+        //:   with 'const', the others with non-'const' value type.
         //:
         //: 5 Construct 'iterator's from the objects with mutable value types.
         //:   Verify that the values were copied properly.
@@ -558,14 +558,14 @@ int main(int argc, char *argv[])
       case 16: {
         // --------------------------------------------------------------------
         // TYPE TRAITS
-        //   Ensure that the iterator types (const and non-const) both have the
-        //   proper type traits.
+        //   Ensure that the iterator types ('const' and non-'const') both have
+        //   the proper type traits.
         //
         // Concerns:
         //:  1 The types are trivially copyable.
         //
         // Plan:
-        //: 1 Create two (const/non-const) iterator types.
+        //: 1 Create two ('const'/non-'const') iterator types.
         //:
         //: 2 Verify that their type traits say they are trivially copyable.
         //
@@ -1152,9 +1152,9 @@ int main(int argc, char *argv[])
         //:
         //: 3 The value of the original object is unchanged.
         //:
-        //: 4 An object having the parameterized 'VALUE_TYPE' declared const
+        //: 4 An object having the parameterized 'VALUE_TYPE' declared 'const'
         //:   can be used to create an object having a the same 'VALUE_TYPE'
-        //:   declared as non-const.
+        //:   declared as non-'const'.
         //
         // Plan:
         //: 1 Create a tree with N nodes.

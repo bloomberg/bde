@@ -400,7 +400,7 @@ struct TestUtil {
         // the specified 'buffer' having the specified 'bufferLength' to the
         // specified 'value' and consumes the specified 'numBytesConsumed' in
         // the process, and return 'false' otherwise.  If 'buffer' does not
-        // successfully decode to 'value', then log an unspecified,
+        // successfully decode to 'value', then write an unspecified,
         // human-readable description of the error condition to the specified
         // 'log'.
 
@@ -419,10 +419,9 @@ struct TestUtil {
         // 'hexadecimalExpression' when doing so, and return 'false' otherwise.
         // Load into the specified 'bytes' the encoded contents of 'value'.  If
         // 'value' does not encode to the bytes specified by
-        // 'hexadecimalExpression', load an unspecified, human-readable
+        // 'hexadecimalExpression', write an unspecified, human-readable
         // description of the error condition to the specified 'log'.
 };
-
 
                              // ==================
                              // class Case27Tester
@@ -460,16 +459,16 @@ struct ByteBufferUtil {
         // Load to the specified 'buffer' the bytes corresponding to the
         // sequence of big-endian hexadecimal digits defined by the specified
         // 'expression' having the specified 'expressionSize' length.  Load to
-        // the specified 'numBytesWritten' the number of bytes loaded to the
-        // 'buffer'.  Return 0 on success, and a non-zero value otherwise.
-        // Return a non-zero value if the 'expression' defines a sequence of
-        // hexadecimal digits that is longer than 'buffer'.  The behavior is
-        // undefined unless 'expressionSize' matches the regular expression '('
-        // '|[A-F]|[0-9])*', where whitespace has no semantic meaning, 'A-F'
-        // indicate numerical values 10-15 respectively, and '0-9' indicate
-        // numeric values 0-9 respectively.  Each digit loaded to 'buffer' is
-        // defined by a pair of digits in 'expression'.  The behavior is
-        // undefined if 'expression' contains an odd number of digits.
+        // the specified 'numBytesWritten' the number of bytes loaded to
+        // 'buffer'.  Return 0 on success, and a non-zero value value if the
+        // expression defines a sequence of hexadecimal digits that is longer
+        // than 'bufferSize'.  Each digit loaded to the 'buffer' is defnied by
+        // a pair of digits in 'expression'.  The behavior is defnied by a pair
+        // of digits in 'expression'.  The behavior is undefined unless
+        // 'expression' contains an even number of digits and 'expression'
+        // matches the regular expression '([A-F]|[0-9])*', where whitespace
+        // has no semantic meaning, 'A-F' indicate numerical values 10-15
+        // respectively, and '0-9' indicate numerical values 0-9 respectively.
 };
 
                           // =========================
@@ -4081,7 +4080,6 @@ Md5Fingerprint Md5Util::getFingerprint(const unsigned char *begin,
                          // class Md5ChecksumAlgorithm
                          // --------------------------
 
-
 // CREATORS
 Md5ChecksumAlgorithm::Md5ChecksumAlgorithm()
 : d_state(Md5StateUtil::getSeedValue())
@@ -4967,7 +4965,6 @@ void checksumAppend(CHECKSUM_ALGORITHM& checksum, float value)
     // floating point format.
 
     BSLMF_ASSERT(4 == sizeof(value));
-
 
     if (bdlb::Float::isNan(value)) {
         checksumAppend(checksum, 0);
@@ -7485,7 +7482,6 @@ int main(int argc, char *argv[])
                     static_cast<int>(bsl::strlen(EXP)));
                 LOOP1_ASSERT_EQ(LINE, 0, rc);
                 if (0 != rc) continue;                              // CONTINUE
-
 
                 {
                     bdlsb::FixedMemInStreamBuf streamBuf(buffer, bufferSize);
@@ -10701,6 +10697,17 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(VALUE, value, VALUE == value);
             }
         }
+
+        // '{DRQS 162368178}'
+        {
+            const char                 fuzz[] = {
+                0, 0, 7, 'Z', 0, 1, 127, 1, 0, 0, 1
+            };
+            bdlsb::FixedMemInStreamBuf isb(fuzz, sizeof(fuzz));
+            bdldfp::Decimal64          value;
+            int                        numBytesConsumed;
+            ASSERT(SUCCESS != Util::getValue(&isb, &value, &numBytesConsumed));
+        }
       } break;
       case 21: {
         // --------------------------------------------------------------------
@@ -12413,7 +12420,6 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(VALUE, value, VALUE == value);
             }
         }
-
 
         if (verbose) bsl::cout << "\nTesting Datetime "
                                << "with milliseconds precision."

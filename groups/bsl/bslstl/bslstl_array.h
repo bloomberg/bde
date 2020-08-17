@@ -96,6 +96,22 @@ BSLS_IDENT("$Id: $")
 //  |-----------------------------------------+-------------------------------|
 //..
 //
+///Comparing an array of floating point values
+///-------------------------------------------
+// The comparison operator performs a bit-wise comparison for floating point
+// types ('float' and 'double'), which produces results for NaN, +0, and -0
+// values that do not meet the guarantees provided by the standard.
+// The 'bslmf::IsBitwiseEqualityComparable' trait for 'double' and 'float'
+// types returns 'true' which is incorrect because a comparison with a NaN
+// value is always 'false', and -0 and +0 are equal.
+//..
+//    bsl::array<double, 1> a{bsl::numeric_limits<double>::quiet_NaN()};
+//    ASSERT(a == a);   // This assertion will *NOT* fail!
+//..
+// Addressing this issue, i.e., updating 'bslmf::IsBitwiseEqualityComparable'
+// to return 'false' for floating point types, could potentially destabilize
+// production software so the change (for the moment) has not been made.
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.

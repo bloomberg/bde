@@ -120,7 +120,7 @@
 :      Provide a single-use mechanism for synchronizing on an event count.
 :
 : 'bslmt_lockguard':
-:      Provide a generic proctor for synchronization objects.
+:      Provide generic scoped guards for synchronization objects.
 :
 : 'bslmt_meteredmutex':
 :      Provide a mutex capable of keeping track of wait and hold time.
@@ -159,7 +159,7 @@
 :      Provide a multi-reader/single-writer lock.
 :
 : 'bslmt_readlockguard':
-:      Provide a generic proctor for read synchronization objects.
+:      Provide generic scoped guards for read synchronization objects.
 :
 : 'bslmt_recursivemutex':
 :      Provide a platform-independent recursive mutex.
@@ -195,7 +195,7 @@
 :      Provide a "sluice" class.
 :
 : 'bslmt_testutil':
-:      Provide thread-safe test utilities for components above 'bsl'.
+:      Provide thread-safe test utilities for multithreaded components.
 :
 : 'bslmt_threadattributes':
 :      Provide a description of the attributes of a thread.
@@ -237,7 +237,7 @@
 :      Provide a mechanism to meter time.
 :
 : 'bslmt_writelockguard':
-:      Provide a generic proctor for write synchronization objects.
+:      Provide generic scoped guards for write synchronization objects.
 
 /Thread Management
 /-----------------
@@ -296,7 +296,7 @@
  Code in multiple threads can create a 'bslmt::Mutex' and call 'mutex->lock()'
  and 'mutex->unlock()' to guarantee exclusive access to critical sections of
  code.  A more idiomatic usage is provided by 'bslmt::LockGuard' and
- 'bslmt::UnLockGuard'; objects of these types themselves lock and unlock a
+ 'bslmt::LockGuardUnlock'; objects of these types themselves lock and unlock a
  'bslmt::Mutex' when they are created or destroyed, allowing clients to manage
  mutex locks in a way more transparent, safer way, and also making sure the
  lock is released when an exception is thrown within the critical section.
@@ -354,7 +354,7 @@
 :
 : o 'bslmt::ReaderWriterLock': Preferred only when very long hold times are
 :   anticipated.  It also provides 'upgrade*' methods from a locked-for-read
-:   state to a lockedfor-write state, but the use of this feature is
+:   state to a locked-for-write state, but the use of this feature is
 :   discouraged as it has performed poorly on benchmarks.
 :
 : o 'bslmt::RWMutex': Deprecated.

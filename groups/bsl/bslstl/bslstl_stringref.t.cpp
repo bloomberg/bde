@@ -69,6 +69,11 @@ using namespace bsl;  // automatically added by script
 // [ 2] bslstl::StringRefImp(const bslstl::StringRefImp& original);
 // [ 2] ~bslstl::StringRefImp();
 // [ 9] bslstl::StringRefImp(const StringRefImp& , size_type, size_type)
+// [14] bsl::string_view(const char *);
+// [14] bsl::string_view(const char *, size_t);
+// [14] bsl::string_view(const bsl::string&);
+// [14] bsl::string_view(const native_std::string&);
+// [14] bsl::string_view(const bsl::string_view&);
 //
 // MANIPULATORS
 // [ 2] bslstl::StringRefImp& operator=(const bslstl::StringRefImp&);
@@ -2268,6 +2273,44 @@ int absMmixRandNum()
 //                        GLOBAL FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+template <class CHAR_TYPE>
+bool areEqual(const bsl::basic_string<CHAR_TYPE>& lhs,
+              bsl::basic_string_view<CHAR_TYPE>   rhs)
+    // Return 'true' is 'lhs' and 'rhs' depict the same string and 'false'
+    // otherwise.
+{
+    if (lhs.length() != rhs.length()) {
+        return false;                                                 // RETURN
+    }
+
+    for (size_t ii = 0; ii < lhs.length(); ++ii) {
+        if (lhs[ii] != rhs[ii]) {
+            return false;                                             // RETURN
+        }
+    }
+
+    return true;
+}
+
+template <class CHAR_TYPE>
+bool areEqual(const bsl::basic_string<CHAR_TYPE>& lhs,
+              bslstl::StringRefImp<CHAR_TYPE>     rhs)
+    // Return 'true' is 'lhs' and 'rhs' depict the same string and 'false'
+    // otherwise.
+{
+    if (lhs.length() != rhs.length()) {
+        return false;                                                 // RETURN
+    }
+
+    for (size_t ii = 0; ii < lhs.length(); ++ii) {
+        if (lhs[ii] != rhs[ii]) {
+            return false;                                             // RETURN
+        }
+    }
+
+    return true;
+}
+
 template <class CHAR>
 void printChar(CHAR c, bool notFirst)
     // Print the specified 'c'.  If '1 < sizeof(c)' and 'notFirst', precede it
@@ -2458,6 +2501,10 @@ class TestDriver {
 
   public:
 
+    static void testCase14();
+        // Testing construction of string views and string refs from different
+        // types.
+
     static void testCase10();
         // Testing reverse iterators.
 
@@ -2465,6 +2512,202 @@ class TestDriver {
         // Testing 'StringRefImp(const StringRefImp& , size_type, size_type)'
 };
 
+
+template <class CHAR_TYPE>
+void TestDriver<CHAR_TYPE>::testCase14()
+{
+    // ------------------------------------------------------------------------
+    // TESTING CONSTRUCTION AND STRING VIEWS
+    //
+    // Concern:
+    //: 1 That both 'StringRefImp' and 'bsl::string_view' are constructible
+    //:   from a variety of source types.
+    //:   o from 'const CHAR_TYPE *'
+    //:
+    //:   o from '(const CHAR_TYPE *, size_t)'
+    //:
+    //:   o from 'bsl::basic_string<CHAR_TYPE>'
+    //:
+    //:   o from 'native_std::basic_string<CHAR_TYPE>'
+    //:
+    //:   o from another 'const' object of the same type
+    //
+    // Plan:
+    //: 1 Have a function 'areEqual' which will determine if a 'basic_string'
+    //:   matches a 'StringRefImp', with an overload similarly comparing a
+    //:   'basic_string' with a 'basic_string_view'.
+    //:
+    //: 2 Have a table containing a number of strings, some of which are too
+    //:   long to be stored in the short string optimization.
+    //:
+    //: 3 Iterate through the table.
+    //:
+    //: 4 Copy the string of 'char' to a buffer of 'CHAR_TYPE'.
+    //:
+    //: 5 With both 'StringRefImp<CHAR_TYPE>' and
+    //:   'basic_string_view<CHAR_TYPE>', construct from various types, then
+    //:   compare using 'areEqual':
+    //:   o from 'const CHAR_TYPE *'
+    //:
+    //:   o from '(const CHAR_TYPE *, size_t)'
+    //:
+    //:   o from 'bsl::basic_string<CHAR_TYPE>'
+    //:
+    //:   o from 'native_std::basic_string<CHAR_TYPE>'
+    //:
+    //:   o from another 'const' object of the same type
+    //:
+    //: 6 Compare the 5 objects created with 'operator==' to ensure they're all
+    //:   identical.
+    //:
+    //: 7 Also create another object from a different string 'arf' not in the
+    //:   table and test that 'areEqual' indicates that it does not match other
+    //:   objects to test the accuracy of 'areEqual'.
+    //
+    // Testing:
+    //   bsl::string_view(const char *);
+    //   bsl::string_view(const char *, size_t);
+    //   bsl::string_view(const bsl::string&);
+    //   bsl::string_view(const native_std::string&);
+    //   bsl::string_view(const bsl::string_view&);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("TESTING CONSTRUCTION AND STRING VIEWS: %s\n",
+                                             bsls::NameOf<CHAR_TYPE>().name());
+
+    bslma::TestAllocator ta;
+    bslma::TestAllocator da;
+    bslma::DefaultAllocatorGuard guard(&da);
+
+    static const char *DATA[] = {
+        "",
+        "woof",
+        "meow",
+        "Weasel & the White Boy's Cool - Rickie Lee Jones",
+        "Chuck E's in Love - Rickie Lee Jones",
+        "Company - Rickie Lee Jones",
+        "There are more things in heaven and Earth, Horatio, than are dreamt"
+                                                      " of in your philosophy."
+    };
+    enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    for (unsigned ti = 0; ti < k_NUM_DATA; ++ti) {
+        const char *C_STR_ORIG = DATA[ti];
+        size_t      LEN        = strlen(C_STR_ORIG);
+
+        ASSERT(LEN < 256);
+
+        CHAR_TYPE buffer[256], *pB = buffer;
+        const char *pc = C_STR_ORIG;
+        while ((*pB++ = *pc++)) {
+            ;    // do nothing
+        }
+
+        const CHAR_TYPE *C_STR = buffer;
+        const CHAR_TYPE ARF[] = { 'a', 'r', 'f', 0 };
+
+        const bsl::basic_string<CHAR_TYPE>        str(C_STR, &ta);
+        const native_std::basic_string<CHAR_TYPE> stdStr(C_STR);
+
+        ASSERT(str    == stdStr);
+        ASSERT(str    == C_STR);
+        ASSERT(stdStr == C_STR);
+
+        ASSERT(str    != ARF);
+        ASSERT(stdStr != ARF);
+
+        ASSERT(str.   length() == LEN);
+        ASSERT(stdStr.length() == LEN);
+
+        {
+            typedef bslstl::StringRefImp<CHAR_TYPE> SR;
+
+            const SR srCStr(C_STR);
+            ASSERT(areEqual(str, srCStr));
+
+            const SR srArf(ARF);
+            ASSERT(!areEqual(str, srArf));
+
+            const SR srCStrLen(C_STR, LEN);
+            ASSERT(areEqual(str, srCStrLen));
+
+            const SR srStr(str);
+            ASSERT(areEqual(str, srStr));
+
+            const SR srStdStr(stdStr);
+            ASSERT(areEqual(str, srStdStr));
+
+            const SR srCopy(srCStr);
+            ASSERT(areEqual(str, srCopy));
+
+            SR srs[] = { srCStr, srCStrLen, srStr, srStdStr, srCopy };
+            enum { k_NUM_SRS = sizeof srs / sizeof *srs };
+
+            for (int ii = 0; ii < k_NUM_SRS; ++ii) {
+                const bsl::basic_string<CHAR_TYPE>        bs(srs[ii], &ta);
+
+                ASSERT(bs == str);
+                ASSERT(areEqual(bs, srs[ii]));
+
+                for (int jj = 0; jj < k_NUM_SRS; ++jj) {
+                    ASSERT(areEqual(bs, srs[jj]));
+                }
+                ASSERT(srArf != srs[ii]);
+            }
+        }
+
+        {
+            typedef bsl::basic_string_view<CHAR_TYPE> SV;
+
+            const SV svCStr(C_STR);
+            ASSERT(areEqual(str, svCStr));
+
+            const SV svArf(ARF);
+            ASSERT(!areEqual(str, svArf));
+
+            const SV svCStrLen(C_STR, LEN);
+            ASSERT(areEqual(str, svCStrLen));
+
+            const SV svStr(str);
+            ASSERT(areEqual(str, svStr));
+
+            const SV svStdStr(stdStr);
+            ASSERT(areEqual(str, svStdStr));
+
+            const SV svCopy(svCStr);
+            ASSERT(areEqual(str, svCopy));
+
+            SV svs[] = { svCStr, svCStrLen, svStr, svStdStr, svCopy };
+            enum { k_NUM_SVS = sizeof svs / sizeof *svs };
+
+            for (int ii = 0; ii < k_NUM_SVS; ++ii) {
+                const bsl::basic_string<CHAR_TYPE>        bs(svs[ii], &ta);
+
+                ASSERT(bs == str);
+                ASSERT(areEqual(bs, svs[ii]));
+                ASSERT(!areEqual(bs, svArf));
+
+                for (int jj = 0; jj < k_NUM_SVS; ++jj) {
+                    ASSERT(areEqual(bs, svs[jj]));
+                }
+                ASSERT(svArf != svs[ii]);
+            }
+        }
+
+        ASSERT(str    == stdStr);
+        ASSERT(str    == C_STR);
+        ASSERT(stdStr == C_STR);
+
+        ASSERT(str    != ARF);
+        ASSERT(stdStr != ARF);
+
+        ASSERT(str.   length() == LEN);
+        ASSERT(stdStr.length() == LEN);
+    }
+
+    ASSERT(0 == da.numAllocations());
+    ASSERT(0 <  ta.numAllocations());
+}
 
 template <class CHAR_TYPE>
 void TestDriver<CHAR_TYPE>::testCase10()
@@ -3056,7 +3299,7 @@ int main(int argc, char *argv[])
     std::cout << "TEST " << __FILE__ << " CASE " << test << std::endl;
 
     switch (test) { case 0:
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -3168,6 +3411,16 @@ int main(int argc, char *argv[])
     numBlanks = getNumBlanks(bslstl::StringRef(poemWithNulls, poemLength));
     ASSERT(42 == numBlanks);
 //..
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING CONSTRUCTION AND STRING VIEW
+        // --------------------------------------------------------------------
+
+        if (verbose) std::cout << "TESTING CONSTRUCTION AND STRING VIEW\n"
+                                  "====================================\n";
+
+        RUN_EACH_TYPE(TestDriver, testCase14, char, wchar_t);
       } break;
       case 13: {
         // --------------------------------------------------------------------

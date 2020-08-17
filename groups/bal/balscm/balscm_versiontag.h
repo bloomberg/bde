@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // conditional-compilation based on 'bal' version information.  The following
 // usage example illustrates this basic capability.
 //
-// Note that since 'bae' is always released in lock-step with 'bde', they
+// Note that since 'bal' is always released in lock-step with 'bsl', they
 // share common versioning, and the 'BAL_VERSION' will always equal the
 // 'BSL_VERSION'.
 //
@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 #define BAL_VERSION_MAJOR 3
     // BAL release major version
 
-#define BAL_VERSION_MINOR 55
+#define BAL_VERSION_MINOR 60
     // BAL release major version
 
 #define BAL_VERSION BSL_MAKE_VERSION(BAL_VERSION_MAJOR, \

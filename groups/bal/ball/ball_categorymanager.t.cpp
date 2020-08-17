@@ -1858,7 +1858,7 @@ int main(int argc, char *argv[])
         //   Create a modifiable 'ball::CategoryManager' object, 'mX', and a
         //   non-modifiable reference to 'mX' named 'X'.  Add categories to
         //   'mX' having various names and threshold level values.  Iterate
-        //   over 'mX', using the non-const index operator to change the
+        //   over 'mX', using the non-'const' index 'operator' to change the
         //   threshold level values on 'ball::Category' objects obtained from
         //   'mX'.  Verify that the values are changed using const
         //   'ball::Category' objects obtained from 'X'.  Change the threshold

@@ -114,9 +114,8 @@ struct DecimalUtil {
                                       int                exponent);
         // Create a 'Decimal64' object representing a decimal floating point
         // number consisting of the specified 'significand' and 'exponent',
-        // with the sign given by the 'significand' (if signed).  If
-        // 'significand' is 0, the result is 0 but the quanta of the result is
-        // unspecified.  The behavior is undefined unless
+        // with the sign given by the 'significand' (if signed).  The behavior
+        // is undefined unless
         // '-9,999,999,999,999,999 <= significand <= 9,999,999,999,999,999' and
         // '-398 <= exponent <= 369'.
 
@@ -131,9 +130,7 @@ struct DecimalUtil {
         // Create a 'Deciaml128' object representing a decimal floating point
         // number consisting of the specified 'significand' and specified
         // 'exponent', with the sign given by the 'significand' (if signed).
-        // If 'significand' is 0, the result is 0 but the quanta of the result
-        // is unspecified.  The behavior is undefined unless
-        // '-6176 <= exponent <= 6111'.
+        // The behavior is undefined unless '-6176 <= exponent <= 6111'.
 
     static Decimal64 makeDecimal64(int                significand,
                                    int                exponent);

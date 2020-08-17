@@ -197,6 +197,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_linkcoercion.h>
 #include <bsls_nativestd.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
@@ -204,8 +205,10 @@ BSLS_IDENT("$Id: $")
 #include <string>      // for 'native_std::char_traits'
 #include <functional>  // for 'native_std::less', 'native_std::greater_equal'
 
-#define BDE_DISABLE_CPP17_ABI  // Temporary workaround before switching to cpp17
 
+// 'BDE_DISABLE_CPP17_ABI' is intended for CI builds only, to allow simulation
+// of Sun/AIX builds on Linux hosts.  It is an error to define this symbol in
+// Bloomberg production builds.
 #ifndef BDE_DISABLE_CPP17_ABI
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
@@ -229,10 +232,17 @@ using native_std::operator>=;
 }
 #define BSLSTL_STRING_VIEW_IS_ALIASED
 
+#define BSLSTL_STRING_VIEW_LINKER_CHECK_NAME bslstl_stringview_POST_cpp17_ABI
+
+#elif defined(BSLS_PLATFORM_OS_LINUX)
+// Must be disabled on master to allow matrix and nightly builds.
+//#error "BDE requires at least C++17 for ABI compatibility on Linux systems."
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #endif  // BDE_DISABLE_CPP17_ABI
 
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
+
+#define BSLSTL_STRING_VIEW_LINKER_CHECK_NAME bslstl_stringview_PRE_cpp17_ABI
 
 namespace bsl {
 // Import 'char_traits' into the 'bsl' namespace so that 'basic_string_view'
@@ -240,9 +250,9 @@ namespace bsl {
 
 using native_std::char_traits;
 
-                          // =======================
-                          // class basic_string_view
-                          // =======================
+                        // =======================
+                        // class basic_string_view
+                        // =======================
 
 template <class CHAR_TYPE, class CHAR_TRAITS = char_traits<CHAR_TYPE> >
 class basic_string_view {
@@ -312,9 +322,8 @@ class basic_string_view {
     basic_string_view() BSLS_KEYWORD_NOEXCEPT;
         // Create an empty view.
 
-    //! BSLS_KEYWORD_CONSTEXPR
-    //! basic_string_view(const basic_string_view& original)
-    //!                                        BSLS_KEYWORD_NOEXCEPT = default;
+    BSLS_KEYWORD_CONSTEXPR
+    basic_string_view(const basic_string_view& original) BSLS_KEYWORD_NOEXCEPT;
         // Create a view that has the same value as the specified 'original'
         // object.
 
@@ -331,15 +340,26 @@ class basic_string_view {
         // the specified 'characterString'.  The behavior is undefined unless
         // 'characterString || (numChars == 0)' and 'numChars <= max_size()'.
 
-    //! ~basic_string_view() = default;
-        // Destroy this object.
+    template <class ALLOCATOR>
+    BSLS_KEYWORD_CONSTEXPR_CPP14
+    basic_string_view(
+       const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str);
+        // Create a view of the specified 'string'.
 
     // MANIPULATORS
-    //! BSLS_KEYWORD_CONSTEXPR
-    //! basic_string_view& operator=(const basic_string_view& rhs)
-    //!                                        BSLS_KEYWORD_NOEXCEPT = default;
-        // Assign to this view the value of the specified 'rhs' object, a
-        // reference providing modifiable access to this view.
+    BSLS_KEYWORD_CONSTEXPR_CPP14
+    basic_string_view& operator=(const basic_string_view& rhs)
+    BSLS_KEYWORD_NOEXCEPT;
+        // Assign to this view the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this view.
+
+    template <class ALLOCATOR>
+    BSLS_KEYWORD_CONSTEXPR_CPP14
+    basic_string_view& operator=(
+        const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
+    BSLS_KEYWORD_NOEXCEPT;
+        // Assign to this view the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this view.
 
     BSLS_KEYWORD_CONSTEXPR_CPP14
     void remove_prefix(size_type numChars);
@@ -807,6 +827,24 @@ class basic_string_view {
         // can be found in this view (on or *before* the optionally specified
         // 'position' if such a 'position' is specified), and return 'npos'
         // otherwise.
+
+            // *** BDE compatibility with platform libraries: ***
+
+    template <class ALLOCATOR>
+    BSLS_KEYWORD_EXPLICIT
+    operator native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>()
+    const
+        // Convert this object to a string type native to the compiler's
+        // library, instantiated with the same character type and traits type.
+        // The return string will contain the same sequence of characters as
+        // this object and will have a default-constructed allocator.  Note
+        // that this conversion operator can be invoked implicitly (e.g.,
+        // during argument passing).
+    {
+        // See {DRQS 131792157} for why this is inline.
+        return native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(
+            d_start_p, d_length);
+    }
 };
 
 // TYPEDEFS
@@ -824,9 +862,21 @@ void swap(basic_string_view<CHAR_TYPE, CHAR_TRAITS>& a,
 // FREE OPERATORS
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
-bool operator==(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
-                basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+bool operator==(basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  lhs,
+                basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  rhs)
+BSLS_KEYWORD_NOEXCEPT;
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+BSLS_KEYWORD_CONSTEXPR
+bool operator==(
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+BSLS_KEYWORD_NOEXCEPT;
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+BSLS_KEYWORD_CONSTEXPR
+bool operator==(
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' view has the same value as the
     // specified 'rhs' view, and 'false' otherwise.  Two views have the same
     // value if they have the same length, and the characters at each
@@ -834,9 +884,21 @@ bool operator==(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
-bool operator!=(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
-                basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+bool operator!=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  lhs,
+                basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  rhs)
+BSLS_KEYWORD_NOEXCEPT;
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+BSLS_KEYWORD_CONSTEXPR
+bool operator!=(
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+BSLS_KEYWORD_NOEXCEPT;
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+BSLS_KEYWORD_CONSTEXPR
+bool operator!=(
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' view has a different value from the
     // specified 'rhs' view, and 'false' otherwise.  Two views have the same
     // value if they have the same length, and the characters at each
@@ -844,36 +906,84 @@ bool operator!=(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR_CPP14
-bool operator<(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
-               basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+bool operator<(basic_string_view<CHAR_TYPE, CHAR_TRAITS>                   lhs,
+               basic_string_view<CHAR_TYPE, CHAR_TRAITS>                   rhs)
+BSLS_KEYWORD_NOEXCEPT;
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+BSLS_KEYWORD_CONSTEXPR
+bool operator<(
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+BSLS_KEYWORD_NOEXCEPT;
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+BSLS_KEYWORD_CONSTEXPR
+bool operator<(
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' view has a lexicographically
     // smaller value than the specified 'rhs' view, and 'false' otherwise.  See
     // {Lexicographical Comparisons}.
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
-bool operator>(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
-               basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+bool operator>(basic_string_view<CHAR_TYPE, CHAR_TRAITS>                   lhs,
+               basic_string_view<CHAR_TYPE, CHAR_TRAITS>                   rhs)
+BSLS_KEYWORD_NOEXCEPT;
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+BSLS_KEYWORD_CONSTEXPR
+bool operator>(
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+BSLS_KEYWORD_NOEXCEPT;
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+BSLS_KEYWORD_CONSTEXPR
+bool operator>(
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' view has a lexicographically larger
     // value than the specified 'rhs' view, and 'false' otherwise.  See
     // {Lexicographical Comparisons}.
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
-bool operator<=(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
-                basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+bool operator<=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  lhs,
+                basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  rhs)
+BSLS_KEYWORD_NOEXCEPT;
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+BSLS_KEYWORD_CONSTEXPR
+bool operator<=(
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+BSLS_KEYWORD_NOEXCEPT;
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+BSLS_KEYWORD_CONSTEXPR
+bool operator<=(
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' view has a value lexicographically
     // smaller than or or equal to the specified 'rhs' view, and 'false'
     // otherwise.  See {Lexicographical Comparisons}.
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
-bool operator>=(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
-                basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+bool operator>=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  lhs,
+                basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  rhs)
+BSLS_KEYWORD_NOEXCEPT;
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+BSLS_KEYWORD_CONSTEXPR
+bool operator>=(
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+BSLS_KEYWORD_NOEXCEPT;
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+BSLS_KEYWORD_CONSTEXPR
+bool operator>=(
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' view has a value lexicographically
     // larger than or equal to the specified 'rhs' view, and 'false' otherwise.
     // See {Lexicographical Comparisons}.
@@ -1060,6 +1170,16 @@ basic_string_view<CHAR_TYPE,CHAR_TRAITS>::basic_string_view()
 {}
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
+inline
+BSLS_KEYWORD_CONSTEXPR
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
+                       const basic_string_view& original) BSLS_KEYWORD_NOEXCEPT
+: d_start_p(original.d_start_p)
+, d_length(original.d_length)
+{
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 BSLS_KEYWORD_CONSTEXPR_CPP14
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
@@ -1087,7 +1207,45 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
     d_length  = numChars;
 }
 
+template <class CHAR_TYPE, class CHAR_TRAITS>
+template <class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+BSLS_KEYWORD_CONSTEXPR_CPP14
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
+        const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
+{
+    d_start_p = str.data();
+    d_length  = str.size();
+}
+
 // MANIPULATORS
+template <class CHAR_TYPE, class CHAR_TRAITS>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+BSLS_KEYWORD_CONSTEXPR_CPP14
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>&
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::operator=(
+                                                  const basic_string_view& rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    d_start_p = rhs.d_start_p;
+    d_length  = rhs.d_length;
+    return *this;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
+template <class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+BSLS_KEYWORD_CONSTEXPR_CPP14
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>&
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::operator=(
+        const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    d_start_p = rhs.data();
+    d_length  = rhs.size();
+    return *this;
+}
+
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR_CPP14
 void
@@ -2024,29 +2182,73 @@ void bsl::swap(
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
-bool bsl::operator==(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
-                     basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
+bool bsl::operator==(basic_string_view<CHAR_TYPE, CHAR_TRAITS>        lhs,
+                     basic_string_view<CHAR_TYPE, CHAR_TRAITS>        rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return lhs.size() == rhs.size()
         && 0 == CHAR_TRAITS::compare(lhs.data(), rhs.data(), lhs.size());
 }
 
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator==(
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs) == rhs;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator==(
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs == basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs);
+}
+
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
-bool bsl::operator!=(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
-                     basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
+bool bsl::operator!=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>        lhs,
+                     basic_string_view<CHAR_TYPE, CHAR_TRAITS>        rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return !(lhs == rhs);
 }
 
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator!=(
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs) != rhs;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator!=(
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs != basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs);
+}
+
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR_CPP14
-bool bsl::operator<(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
-                    basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
+bool bsl::operator<(basic_string_view<CHAR_TYPE, CHAR_TRAITS>        lhs,
+                    basic_string_view<CHAR_TYPE, CHAR_TRAITS>        rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     const std::size_t minLen = lhs.length() < rhs.length()
@@ -2059,34 +2261,122 @@ bool bsl::operator<(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
     return (ret < 0);
 }
 
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator<(
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs) < rhs;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator<(
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs < basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs);
+}
+
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
-bool bsl::operator>(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
-                    basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
+bool bsl::operator>(basic_string_view<CHAR_TYPE, CHAR_TRAITS>        lhs,
+                    basic_string_view<CHAR_TYPE, CHAR_TRAITS>        rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return rhs < lhs;
 }
 
-template <class CHAR_TYPE, class CHAR_TRAITS>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
 BSLS_KEYWORD_CONSTEXPR
-bool bsl::operator<=(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
-                     basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+bool bsl::operator>(
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+BSLS_KEYWORD_NOEXCEPT
 {
-    return !(rhs < lhs);
+    return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs) > rhs;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator>(
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs > basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
-bool bsl::operator>=(basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
-                     basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
+bool bsl::operator<=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>        lhs,
+                     basic_string_view<CHAR_TYPE, CHAR_TRAITS>        rhs)
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return !(rhs < lhs);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator<=(
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs) <= rhs;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator<=(
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs <= basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator>=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>        lhs,
+                     basic_string_view<CHAR_TYPE, CHAR_TRAITS>        rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return !(lhs < rhs);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator>=(
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs) >= rhs;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator>=(
+            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
+            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    return lhs >= basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
@@ -2163,7 +2453,15 @@ void bslh::hashAppend(
 
 }  // close enterprise namespace
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
+namespace BloombergLP {
 
+extern const char *BSLSTL_STRING_VIEW_LINKER_CHECK_NAME;
+BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
+                      const char *,
+                      bslstl_stringview_assertion,
+                      BloombergLP::BSLSTL_STRING_VIEW_LINKER_CHECK_NAME)
+
+}  // close enterprise namespace
 #endif
 
 // ----------------------------------------------------------------------------

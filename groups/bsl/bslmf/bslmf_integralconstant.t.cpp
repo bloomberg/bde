@@ -555,7 +555,7 @@ int main(int argc, char *argv[])
         //:   'int&' and 'const int&'.  Verify that its 'VALUE' member is
         //:   true only when the types are identically the same.  (C-1..5)
         //:
-        //: 2 Call 'isConst' for both const and non-const variables and
+        //: 2 Call 'isConst' for both 'const' and non-'const' variables and
         //:   verify the result.  (C-6)
         //
         // Testing:

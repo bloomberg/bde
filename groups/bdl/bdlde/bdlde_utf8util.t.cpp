@@ -10,9 +10,12 @@
 #include <bdlde_utf8util.h>
 
 #include <bdlb_random.h>
+#include <bdlsb_fixedmeminstreambuf.h>
 
 #include <bslim_testutil.h>
 
+#include <bsls_asserttest.h>
+#include <bsls_log.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
@@ -21,6 +24,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_limits.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -41,65 +45,115 @@ using bsl::size_t;
 
 //=============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
-//                              Overview
-//                              --------
 //
-//: o Test cases 1-6 Test 'isValid', 'numCodePointsRaw', and
-//:   'numCodePointsIfValid'.
-//: o Regarding 'advanceRaw' and 'advanceIfValid' in cases 7-9:
-//:   1 Test that they correctly advance through a long string of multilingual
-//:     prose.
-//:   2 Test that they correctly advance through all possible combinations of
-//:     machine-generated correct UTF-8 input.
-//:   3 Test that 'advanceIfValid' works on all possible sequences of correct
-//:     input followed by all possible types of incorrect input.
-//: o Test case 10 Test 'numBytesIfValid'.
-//: o Test case 11 Test 'getByteSize'.
-//: o Test case 12 Test 'appendUtf8Character'.
+//: o Test case 1 is the BREATHING TEST.
+//:
+//: o Test case 2 tests the validity checking routines on valid UTF-8
+//:   sequences.
+//:
+//: o Test case 3 tests the behavior of byte-order marks.
+//:
+//: o Test case 4 tests the behavior of surrogates.
+//:
+//: o Test case 5 tests that the "raw" functions that count code points count
+//:   correctly on valid strings.
+//:
+//: o Test case 6 runs a table-driven test on valid and invalid UTF-8 strings
+//:   and observes that the various overloads of 'isValid' and
+//:   'numCodePointsIfValid' all detect the invalid sequences.
+//:
+//: o Test case 7 tests the 'advance' functions on one very long string of
+//:   valid UTF-8 of real, human-generated prose in Chinese, Hindi, French, and
+//:   Greek and code points of all sizes (but no embedded '\0's).
+//:
+//: o Test case 8 tests the various functions, including, for the first time,
+//:   'readIfValid', on valid randomly-generated UTF-8 sequences.
+//:
+//: o Test case 9 is the "broken glass" test -- testing strings that contain a
+//:   mix of valid and invalid UTF-8, using a mix of table data and
+//:   randomly-generated data.
+//:
+//: o Test case 10 tests 'numBytesRaw'.
+//:
+//: o Test case 11 is a table-driven test to test 'numBytesInCodePoint'.
+//:
+//: o Test case 12 tests 'appendUtf8CodePoint' on valid Unicode characters.
+//:
+//: o Test case 13 is a table-driven test of the 'toAscii' class method.
+//:
+//: o Test case 14 is negative testing.
+//:
+//: o Test cases 15, 16, and 17 are USAGE EXAMPLES.
+//
 //-----------------------------------------------------------------------------
+// To fit functions on one line, 'typedef const char cchar'.
+//
 // CLASS METHODS
+// [ 4] IntPtr advanceIfValid(int *, const char **, const char *, int);
+// [ 4] IntPtr advanceIfValid(int*,const char**,const char *,int,int);
+// [ 7] IntPtr advanceIfValid(int *, const char **, const char *, int);
+// [ 7] IntPtr advanceIfValid(int*,const char**,const char *,int,int);
+// [ 8] IntPtr advanceIfValid(int *, const char **, const char *, int);
+// [ 8] IntPtr advanceIfValid(int *, const char **, const char *,int,int);
+// [ 9] IntPtr advanceIfValid(int *, cchar **,  cchar *, IntPtr);
+// [ 9] IntPtr advanceIfValid(int *, cchar **, cchar *, size_t, IntPtr);
+// [ 7] IntPtr advanceRaw(const char **, const char *, int);
+// [ 7] IntPtr advanceRaw(const char **, const char *, int, int);
+// [ 8] IntPtr advanceRaw(const char **, const char *, int);
+// [ 8] IntPtr advanceRaw(const char **, const char *, int, int);
+// [12] int appendUtf8CodePoint(bsl::string *, unsigned int);
 // [12] int appendUtf8Character(bsl::string *, unsigned int);
+// [11] int numBytesInCodePoint(const char *);
 // [11] int getByteSize(const char *);
-// [10] IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
-// [ 8] int advanceIfValid(int *, const char **, const char *, int);
-// [ 8] int advanceIfValid(int *, const char **, const char *, int, int);
-// [ 8] int advanceRaw(const char **, const char *, int);
-// [ 8] int advanceRaw(const char **, const char *, int, int);
-// [ 7] int advanceIfValid(int *, const char **, const char *, int); prose
-// [ 7] int advanceIfValid(int*,const char**,const char *,int,int); prose
-// [ 7] int advanceRaw(const char **, const char *, int); prose
-// [ 7] int advanceRaw(const char **, const char *, int, int); prose
-// [ 6] bool isValid(const char *s);
-// [ 6] bool isValid(const char *s, int len);
-// [ 6] bool isValid(const char **err, const char *s);
-// [ 6] bool isValid(const char **err, const char *s, int len);
-// [ 6] int numCodePointsIfValid(**err, const char *s);
-// [ 6] int numCodePointsIfValid(**err, const char *s, int len);
-// [ 6] int numCharactersIfValid(**err, const char *s);
-// [ 6] int numCharactersIfValid(**err, const char *s, int len);
-// [ 5] int numCodePointsRaw(const char *s);
-// [ 5] int numCharacters(const char *s, int len);
-// [ 5] int numCharacters(const char *s);
-// [ 5] int numCharactersRaw(const char *s, int len);
-// [ 5] int numCharactersRaw(const char *s);
-// [ 5] int numCodePointsRaw(const char *s, int len);
-// [ 5] int numCodePoints(const char *s);
-// [ 5] int numCodePoints(const char *s, int len);
+// [ 3] bool isValid(const char *s);
+// [ 9] bool isValid(cchar *);
+// [ 3] bool isValid(const char *s, int len);
+// [ 9] bool isValid(cchar *, size_t);
+// [ 3] bool isValid(const char **err, const char *s);
+// [ 9] bool isValid(cchar **, cchar *);
+// [ 3] bool isValid(const char **err, const char *s, int len);
+// [ 9] bool isValid(cchar **, cchar *, size_t);
 // [ 4] bool isValid(const char *s);
 // [ 4] bool isValid(const char *s, int len);
 // [ 4] bool isValid(const char **err, const char *s);
 // [ 4] bool isValid(const char **err, const char *s, int len);
-// [ 3] bool isValid(const char *s);
-// [ 3] bool isValid(const char *s, int len);
-// [ 3] bool isValid(const char **err, const char *s);
-// [ 3] bool isValid(const char **err, const char *s, int len);
+// [ 6] bool isValid(const char *s);
+// [ 6] bool isValid(const char *s, int len);
+// [ 6] bool isValid(const char **err, const char *s);
+// [ 6] bool isValid(const char **err, const char *s, int len);
+// [ 8] bool isValid(const char *);
+// [ 8] bool isValid(const char *, int);
+// [ 8] bool isValid(const char **, const char *);
+// [ 8] bool isValid(const char **, const char *, int);
+// [10] IntPtr numBytesRaw(const bslstl::StringRef&, IntPtr);
+// [10] IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
+// [ 5] IntPtr numCharacters(const char *s);
+// [ 5] IntPtr numCharacters(const char *s, int len);
+// [ 6] IntPtr numCharactersIfValid(**err, const char *s);
+// [ 6] IntPtr numCharactersIfValid(**err, const char *s, int len);
+// [ 5] IntPtr numCharactersRaw(const char *s, int len);
+// [ 5] IntPtr numCharactersRaw(const char *s);
+// [ 4] IntPtr numCodePointsIfValid(**err, const char *s);
+// [ 9] IntPtr numCodePointsIfValid(cchar **, cchar *);
+// [ 4] IntPtr numCodePointsIfValid(**err, const char *s, int len);
+// [ 9] IntPtr numCodePointsIfValid(cchar **, const char *, int);
+// [ 9] IntPtr numCodePointsIfValid(cchar **, cchar *, IntPtr);
+// [ 6] IntPtr numCodePointsIfValid(**err, const char *s);
+// [ 8] IntPtr numCodePointsIfValid(const char **, const char *);
+// [ 6] IntPtr numCodePointsIfValid(**err, const char *s, int len);
+// [ 8] IntPtr numCodePointsIfValid(const char **, const char *, int);
+// [ 5] IntPtr numCodePointsRaw(const char *s);
+// [ 5] IntPtr numCodePointsRaw(const char *s, int len);
+// [ 8] size_t readIfValid(int *, char *, size_t, streambuf *);
+// [ 9] IntPtr readIfValid(int *, cchar *, size_t, streambuf *);
+// [13] const char *toAscii(IntPtr);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TABLE-DRIVEN ENCODING / DECODING / VALIDATION TEST
-// [13] USAGE EXAMPLE 1
-// [14] USAGE EXAMPLE 2
-// [ 9] 'advanceIfValid' on correct input followed by incorrect input
+// [14] NEGATIVE TESTING
+// [15] USAGE EXAMPLE 1
+// [16] USAGE EXAMPLE 2
+// [17] USAGE EXAMPLE 3
 // [-1] random number generator
 // [-2] 'utf8Encode', 'decode'
 
@@ -148,10 +202,22 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+// ============================================================================
 //         GLOBAL TYPEDEFS, CONSTANTS, ROUTINES & MACROS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlde::Utf8Util Obj;
+typedef bdlde::Utf8Util     Obj;
+typedef bsls::Types::IntPtr IntPtr;
 
 static int verbose;
 static int veryVerbose;
@@ -1771,19 +1837,6 @@ const char * const charUtf8MultiLang = (const char *) utf8MultiLang;
 enum { NUM_UTF8_MULTI_LANG_CODE_POINTS = 11781 };
 
 static
-bsl::string dumpVec(const bsl::vector<int>& vec)
-    // Return the contents of the specified 'vec' in string form.
-{
-    bsl::ostringstream oss;
-
-    for (unsigned uu = 0; uu < vec.size(); ++uu) {
-        oss << (uu ? " " : "") << vec[uu];
-    }
-
-    return oss.str();
-}
-
-static
 bsl::string dumpStr(const bsl::string& str)
     // Returns the specified 'str' in a human-readable hex format.
 {
@@ -1808,15 +1861,21 @@ bsl::string dumpStr(const bsl::string& str)
 }
 
 static inline
+int intAbs(int x)
+    // Return roughly the absolute value of the specified 'x'.
+{
+    x = x < 0 ? -x : x;
+    return x < 0 ? ~x : x;
+}
+
+static inline
 unsigned int randUnsigned()
     // Return a pseudo-random unsigned integer.
 {
-    static unsigned int key = 0x87654321U;
+    static bsls::Types::Uint64 randAccum = 0;
 
-    key *= 1103515245;
-    key += 12345;
-
-    return key ^ 0x5a5a5a5aU;
+    randAccum = randAccum * 6364136223846793005LL + 1442695040888963407LL;
+    return unsigned(randAccum >> 32);
 }
 
 static
@@ -1909,13 +1968,29 @@ void appendRand4Byte(bsl::string *dst)
 }
 
 static
-void appendRandCorrectCodePoint(bsl::string *dst, bool useZero)
+void appendRandCorrectCodePoint(bsl::string *dst,
+                                bool         useZero,
+                                int          numBytes = -1)
     // Append a random valid UTF-8 character to the specified '*dst'.  The '\0'
-    // byte is only possible if the specified 'useZero' is 'true'.
+    // byte is only possible if the specified 'useZero' is 'true'.  Optionally
+    // specify 'numBytes'.  If '0 == numBytes' append a '\0', otherwise
+    // 'numBytes' is the length in bytes of the random sequence to be appended.
+    // If 'numBytes' is not specified, a random value in the range '[ 1 .. 4 ]'
+    // will be used.  The behavior is undefined if a value of 'numBytes'
+    // outside the range '[ 1 .. 4 ]' is specified.
 {
-    unsigned r = randUnsigned();
-    r = useZero ? r % 5
-                : (r & 3) + 1;
+    unsigned r;
+    if (-1 == numBytes) {
+        r = randUnsigned();
+        r = useZero ? r % 5
+                    : (r & 3) + 1;
+    }
+    else {
+        BSLS_ASSERT(0 <= numBytes && numBytes <= 4);
+
+        r = useZero && 1 == numBytes && 0 == randUnsigned() % 5 ? 0
+                                                                : numBytes;
+    }
 
     switch (r) {
       case 0: {
@@ -1940,8 +2015,8 @@ void appendRandCorrectCodePoint(bsl::string *dst, bool useZero)
 }
 
 bsl::string code8(int b)
-    // Return the encoded representation of the specified 7-bit UTF-8 codepoint
-    // 'b'.  Note that this is simply 'b'.
+    // Return the encoded representation of the 7-bit Unicode code point
+    // specified by 'b'.  Note that this is simply 'b'.
 {
     bsl::string ret;
 
@@ -1954,8 +2029,8 @@ bsl::string code8(int b)
 
 static
 bsl::string code16(int b)
-    // Return the encoded representation of the specified 2-byte UTF-8
-    // codepoint 'b'.
+    // Return the encoded representation of the 2-byte Unicode code point
+    // specified by 'b'.
 {
     ASSERT(0 == (b & ~0x7ff));
 
@@ -1969,8 +2044,8 @@ bsl::string code16(int b)
 
 static
 bsl::string code24(int b)
-    // Return the encoded representation of the specified 3-byte UTF-8
-    // codepoint 'b'.
+    // Return the encoded representation of the 3-byte Unicode code point
+    // specified by 'b'.
 {
     ASSERT(0 == (b & ~0xffff));
 
@@ -1985,8 +2060,8 @@ bsl::string code24(int b)
 
 static
 bsl::string code32(int b)
-    // Return the encoded representation of the specified 4-byte UTF-8
-    // codepoint 'b'.
+    // Return the encoded representation of the 4-byte Unicode code point
+    // specified by 'b'.
 {
     ASSERT(static_cast<unsigned>(b) <= 0x10ffff);
 
@@ -2002,7 +2077,8 @@ bsl::string code32(int b)
 
 static
 bsl::string utf8Encode(int b)
-    // Return the encoded representation of the specified UTF-8 codepoint 'b'.
+    // Return the encoded representation of the specified Unicode code point
+    // 'b'.
 {
     ASSERT(static_cast<unsigned>(b) <= 0x10ffff);
 
@@ -2037,7 +2113,7 @@ bsl::string codeBOM()
 
 static
 unsigned int decode8(const char *pc)
-    // Return the decoded value of the 1-byte UTF-8 codepoint pointed to by
+    // Return the decoded value of the 1-byte UTF-8 code point pointed to by
     // the specified 'pc'.  Note that this is just '*pc'.
 {
     ASSERT(!(~0x7f & *pc));
@@ -2047,7 +2123,7 @@ unsigned int decode8(const char *pc)
 
 static
 unsigned int decode16(const char *pc)
-    // Return the decoded value of the 2-byte UTF-8 codepoint pointed to by
+    // Return the decoded value of the 2-byte UTF-8 code point pointed to by
     // the specified 'pc'.
 {
     ASSERT(0xc0 == (*pc & 0xe0) && 0x80 == (pc[1] & 0xc0));
@@ -2057,7 +2133,7 @@ unsigned int decode16(const char *pc)
 
 static
 unsigned int decode24(const char *pc)
-    // Return the decoded value of the 3-byte UTF-8 codepoint pointed to by
+    // Return the decoded value of the 3-byte UTF-8 code point pointed to by
     // the specified 'pc'.
 {
     ASSERT(0xe0 == (*pc & 0xf0) && 0x80 == (pc[1] & 0xc0) &&
@@ -2068,7 +2144,7 @@ unsigned int decode24(const char *pc)
 
 static
 unsigned int decode32(const char *pc)
-    // Return the decoded value of the 4-byte UTF-8 codepoint pointed to by
+    // Return the decoded value of the 4-byte UTF-8 code point pointed to by
     // the specified 'pc'.
 {
     ASSERT(0xf0 == (*pc & 0xf8) && 0x80 == (pc[1] & 0xc0) &&
@@ -2080,8 +2156,8 @@ unsigned int decode32(const char *pc)
 
 static
 unsigned int decode(const char **pc)
-    // Return the decoded value of the UTF-8 codepoint pointed to by the
-    // specified '*pc', updating '*pc' to point to the next codepoint.
+    // Return the decoded value of the UTF-8 code point pointed to by the
+    // specified '*pc', updating '*pc' to point to the next code point.
 {
     int ret;
 
@@ -2109,7 +2185,7 @@ unsigned int decode(const char **pc)
 
 static
 unsigned int decode(const char *pc)
-    // Return the decoded value of the UTF-8 codepoint pointed to by the
+    // Return the decoded value of the UTF-8 code point pointed to by the
     // specified 'pc'.
 {
     return decode(&pc);
@@ -2117,6 +2193,46 @@ unsigned int decode(const char *pc)
 
 static
 bsls::Types::Uint64 randAccum = 0;
+
+static
+int intendedSequenceLength(char firstChar)
+    // Return the length of a UTF-8 sequence that begins with the specified
+    // 'firstChar', or -1 if 'firstChar' is a continuation character.
+{
+    switch (static_cast<unsigned char>(firstChar) >> 4) {
+      case 0x0:
+      case 0x1:
+      case 0x2:
+      case 0x3:
+      case 0x4:
+      case 0x5:
+      case 0x6:
+      case 0x7: {
+        return 1;                                                     // RETURN
+      } break;
+      case 0x8:
+      case 0x9:
+      case 0xa:
+      case 0xb: {
+        return -1;                                                    // RETURN
+      } break;
+      case 0xc:
+      case 0xd: {
+        return 2;                                                     // RETURN
+      } break;
+      case 0xe: {
+        return 3;                                                     // RETURN
+      } break;
+      case 0xf: {
+        return 4;                                                     // RETURN
+      } break;
+      default: {
+        BSLS_ASSERT(0);
+
+        return -1;                                                    // RETURN
+      }
+    }
+}
 
 int randNum()
     // MMIX Linear Congruential Generator algorithm by Donald Knuth
@@ -2213,23 +2329,97 @@ int randValue(bool strict = false, bool never0 = false)
 
 static
 bool allValid(const bsl::string& str)
-    // Return true if all the UTF-8 codepoints in the specified 'str' are
-    // valid.
+    // Return 'true' if all the UTF-8 code points in the specified 'str' are
+    // valid and 'false' otherwise.
 {
-    bool a = Obj::isValid(str.c_str());
+    const bool a = Obj::isValid(str.c_str());
     ASSERT(Obj::isValid(str.data(), str.length()) == a);
+
+    const char *invalid = 0;
+    ASSERT(a == (0 <= Obj::numCodePointsIfValid(&invalid,
+                                                str.data(),
+                                                str.length())));
+    ASSERT(a == !invalid);
+
+    invalid = 0;
+    ASSERT(a == (0 <= Obj::numCodePointsIfValid(&invalid,
+                                                str.c_str())));
+    ASSERT(a == !invalid);
 
     return a;
 }
 
 static
-int allNumCodePoints(const bsl::string& str)
-    // Return the total number of codepoints in the specified UTF-8 'str'.
+IntPtr allNumCodePoints(const bsl::string& str)
+    // Return the total number of code points in the specified UTF-8 'str'.
 {
-    int len = Obj::numCharacters(str.data(), str.length());
-    ASSERT(Obj::numCharacters(str.c_str()) == len);
+    IntPtr len = Obj::numCharacters(str.data(), str.length());
+    ASSERT(Obj::numCharacters(str.c_str())                 == len);
+    ASSERT(Obj::numCodePointsRaw(str.data(), str.length()) == len);
+    ASSERT(Obj::numCodePointsRaw(str.c_str())              == len);
 
     return len;
+}
+
+static
+IntPtr allNumCodePointsIfValid(const char         **invalidPointArg,
+                               const bsl::string&   str)
+    // Run both 'numCodePointsIfValid' overloads on the specified 'str' and
+    // check that they yield identical results, and return those results.
+    // Return the address of any invalid UTF-8 in the specified
+    // 'invalidPointArg'
+{
+    *invalidPointArg = 0;
+    const IntPtr ret = Obj::numCodePointsIfValid(invalidPointArg, str.c_str());
+
+    const char *invalidPointLocal = 0;
+    ASSERT(ret == Obj::numCodePointsIfValid(&invalidPointLocal,
+                                            str.data(),
+                                            str.length()));
+    ASSERT(invalidPointLocal == *invalidPointArg);
+
+    invalidPointLocal = 0;
+    ASSERT(ret == Obj::numCharactersIfValid(&invalidPointLocal,
+                                            str.data(),
+                                            str.length()));
+    ASSERT(invalidPointLocal == *invalidPointArg);
+
+    invalidPointLocal = 0;
+    ASSERT(ret == Obj::numCharactersIfValid(&invalidPointLocal,
+                                            str.c_str()));
+    ASSERT(invalidPointLocal == *invalidPointArg);
+
+    return ret;
+}
+
+static
+IntPtr allAdvanceIfValid(int                 *statusArg,
+                         const char         **invalidPointArg,
+                         const bsl::string&   str)
+    // Run both the 4 and 5 argument overloads of 'advanceIfValid' on the
+    // specified 'str', check that they yield the same results.  Return the
+    // number of code points, and set the specified 'statusArg' to the type of
+    // error encountered (or 0 if no error), and set the specified
+    // 'invalidPointArg' to the address of the first UTF-8 error.
+{
+    const IntPtr infinity = bsl::numeric_limits<IntPtr>::max();
+
+    int         statusLocal = 100;
+    const char *invalidPointLocal = 0;
+
+    const IntPtr ret = Obj::advanceIfValid(statusArg,
+                                           invalidPointArg,
+                                           str.c_str(),
+                                           infinity);
+    ASSERT(ret == Obj::advanceIfValid(&statusLocal,
+                                      &invalidPointLocal,
+                                      str.data(),
+                                      str.length(),
+                                      infinity));
+    ASSERT(statusLocal       == *statusArg);
+    ASSERT(invalidPointLocal == *invalidPointArg);
+
+    return ret;
 }
 
 static
@@ -2283,10 +2473,10 @@ bsl::string clone(const char *pc, int length)
 static const struct {
     int           d_lineNum;    // source line number
     const char   *d_utf8_p;     // UTF-8 input string
-    unsigned int  d_codepoint;  // 32-bit codepoint value
+    unsigned int  d_codePoint;  // 32-bit code point value
 } legalCodepointData[] = {
-    //L#      UTF-8          codepoint
-    //--      -----          ---------
+    //L#      UTF-8          code point
+    //--      -----          ----------
     { L_,     U8_00001,      decode(U8_00001) },
     { L_,     U8_00002,      decode(U8_00002) },
     { L_,       "\x03",      decode("\x03")   },
@@ -2435,101 +2625,87 @@ enum {
 };
 
 // ============================================================================
-//                               Usage Example
+//                               Usage Example 3
 // ----------------------------------------------------------------------------
 
-namespace USAGE {
+namespace USAGE_3 {
 
-///Usage
-///-----
-// For our usage example we will define some functions that can encode UTF-8,
-// use them to build some strings, and observe how the functions defined in
-// this class perform on them.
+//
+///Example 3: Validating UTF-8 Read from a 'bsl::streambuf'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this usage example, we will demonstrate reading and validating UTF-8
+// from a stream.
+//
+// We write a function to read valid UTF-8 to a 'bsl::string'.  We don't know
+// how long the input will be, so we don't know how long to make the string
+// before we start.  We will grow the string in small, 32-byte increments.
 //..
-    void utf8AppendOneByte(bsl::string *string, int value)
-        // Append the specified 1-byte UTF-8-encoded 'value' to the end of the
-        // specified 'string'.
+    int utf8StreambufToString(bsl::string    *output,
+                              bsl::streambuf *sb)
+        // Read valid UTF-8 from the specified streambuf 'sb' to the specified
+        // 'output'.  Return 0 if the input was exhausted without encountering
+        // any invalid UTF-8, and a non-zero value otherwise.  If invalid UTF-8
+        // is encountered, log a message describing the problem after loading
+        // all the valid UTF-8 preceding it into 'output'.  Note that after the
+        // call, in no case will 'output' contain any invalid UTF-8.
     {
-        ASSERT(0 == (value & ~0x7f));
+        enum { k_READ_LENGTH = 32 };
 
-        *string += static_cast<char>(value);
-    }
+        output->clear();
+        while (true) {
+            bsl::size_t len = output->length();
+            output->resize(len + k_READ_LENGTH);
+            int status;
+            IntPtr numBytes = bdlde::Utf8Util::readIfValid(&status,
+                                                           &(*output)[len],
+                                                           k_READ_LENGTH,
+                                                           sb);
+            BSLS_ASSERT(0 <= numBytes);
+            BSLS_ASSERT(numBytes <= k_READ_LENGTH);
 
-    void utf8AppendTwoBytes(bsl::string *string, int value)
-        // Append the specified 2-byte UTF-8-encoded 'value' to the end of the
-        // specified 'string'.
-    {
-        ASSERT(0 == (value & ~0x7ff));
+            output->resize(len + numBytes);
+            if (0 < status) {
+                // Buffer was full before the end of input was encountered.
+                // Note that 'numBytes' may be up to 3 bytes less than
+                // 'k_READ_LENGTH'.
 
-        unsigned char buf[3];
-        buf[0] = static_cast<unsigned char>(((value & 0x7c0) >> 6) | 0xc0);
-        buf[1] = static_cast<unsigned char>( (value &  0x3f)       | 0x80);
-        buf[2] = 0;
+                BSLS_ASSERT(k_READ_LENGTH - 4 < numBytes);
 
-        *string += reinterpret_cast<char *>(buf);
-    }
+                // Go on to grow the string and get more input.
 
-    void utf8AppendThreeBytes(bsl::string *string, int value)
-        // Append the specified 3-byte UTF-8-encoded 'value' to the end of the
-        // specified 'string'.
-    {
-        ASSERT(0 == (value & ~0xffff));
+                continue;
+            }
+            else if (0 == status) {
+                // Success!  We've reached the end of input without
+                // encountering any invalid UTF-8.
 
-        unsigned char buf[4];
-        buf[0] = static_cast<unsigned char>(((value & 0xf000) >> 12) | 0xe0);
-        buf[1] = static_cast<unsigned char>(((value &  0xfc0) >>  6) | 0x80);
-        buf[2] = static_cast<unsigned char>( (value &   0x3f)        | 0x80);
-        buf[3] = 0;
+                return 0;                                             // RETURN
+            }
+            else {
+                // Invalid UTF-8 encountered; the value of 'status' indicates
+                // the exact nature of the problem.  'numBytes' returned from
+                // the above call indicated the number of valid UTF-8 bytes
+                // read before encountering the invalid UTF-8.
 
-        *string += reinterpret_cast<char *>(buf);
-    }
+if (verbose) {
+                BSLS_LOG_ERROR("Invalid UTF-8 error %s at position %u.\n",
+                               bdlde::Utf8Util::toAscii(status),
+                               static_cast<unsigned>(output->length()));
+}
 
-    void utf8AppendFourBytes(bsl::string *string, int value)
-        // Append the specified 4-byte UTF-8-encoded 'value' to the end of the
-        // specified 'string'.
-    {
-        ASSERT(static_cast<unsigned>(value) <= 0x10ffff);
-
-        unsigned char buf[5];
-        buf[0] = static_cast<unsigned char>(((value & 0x1c0000) >> 18) | 0xf0);
-        buf[1] = static_cast<unsigned char>(((value &  0x3f000) >> 12) | 0x80);
-        buf[2] = static_cast<unsigned char>(((value &    0xfc0) >>  6) | 0x80);
-        buf[3] = static_cast<unsigned char>( (value &     0x3f)        | 0x80);
-        buf[4] = 0;
-
-        *string += reinterpret_cast<char *>(buf);
-    }
-
-    void utf8Append(bsl::string *string, unsigned int value)
-        // Append the specified UTF-8-encoded 'value' in the minimum number of
-        // bytes to the end of the specified 'string'.
-    {
-        ASSERT(value <= 0x10ffff);
-
-        if (value <= 0x7f) {
-            utf8AppendOneByte(string, value);
-            return;                                                   // RETURN
+                return -1;                                            // RETURN
+            }
         }
-        if (value <= 0x7ff) {
-            utf8AppendTwoBytes(string, value);
-            return;                                                   // RETURN
-        }
-        if (value <= 0xffff) {
-            utf8AppendThreeBytes(string, value);
-            return;                                                   // RETURN
-        }
-
-        utf8AppendFourBytes(string, value);
     }
 //..
 
-}  // close namespace USAGE
+}  // close namespace USAGE_3
 
 // ============================================================================
 //                       HELPER DEFINITIONS FOR TEST 4
 // ----------------------------------------------------------------------------
 
-namespace BDEDE_UTF8UTIL_CASE_4 {
+namespace BDLDE_UTF8UTIL_CASE_4 {
 
 const int  surrogates[] = {0xd800,
                           0xd811,
@@ -2548,13 +2724,13 @@ const int  surrogates[] = {0xd800,
                           0xdf24,
                           0xdfff};
 const int *loSgates     = surrogates;
-const int *hiSgates     = surrogates + 8;
+const int *hiSgates     = surrogates + 8;    // beginning of high surrogates
 
 bsl::string codeRandSurrogate()
     // Return a random surrogate.
 {
     int val = randNum();
-    if (val &0x1800) {
+    if (val & 0x1800) {
         val = (val & 0x7ff) + 0xd800;
     }
     else {
@@ -2582,7 +2758,7 @@ bsl::string codeRandSurrogatePair()
 }
 
 bsl::string codeRandBenign()
-    // Return a random UTF-8 codepoint with no zeroes or surrogates.
+    // Return a random UTF-8 code point with no zeroes or surrogates.
 {
     int val;
     do {
@@ -2592,13 +2768,13 @@ bsl::string codeRandBenign()
     return utf8Encode(val);
 }
 
-}  // close namespace BDEDE_UTF8UTIL_CASE_4
+}  // close namespace BDLDE_UTF8UTIL_CASE_4
 
 // ============================================================================
 //                       HELPER DEFINITIONS FOR TEST 2
 // ----------------------------------------------------------------------------
 
-namespace BDEDE_UTF8UTIL_CASE_2 {
+namespace BDLDE_UTF8UTIL_CASE_2 {
 
 bsl::string makeString(const char *pc, size_t len)
     // Return a 'bsl::string' containing the specified 'len' bytes from the
@@ -2613,7 +2789,15 @@ bsl::string makeString(const char *pc, size_t len)
 
 #define STR(testId)  makeString(encode ## testId, sizeof(encode ## testId))
 
-}  // close namespace BDEDE_UTF8UTIL_CASE_2
+}  // close namespace BDLDE_UTF8UTIL_CASE_2
+
+const Obj::ErrorStatus EIT = Obj::k_END_OF_INPUT_TRUNCATION;
+const Obj::ErrorStatus UCO = Obj::k_UNEXPECTED_CONTINUATION_OCTET;
+const Obj::ErrorStatus NCO = Obj::k_NON_CONTINUATION_OCTET;
+const Obj::ErrorStatus OLE = Obj::k_OVERLONG_ENCODING;
+const Obj::ErrorStatus IIO = Obj::k_INVALID_INITIAL_OCTET;
+const Obj::ErrorStatus VTL = Obj::k_VALUE_LARGER_THAN_0X10FFFF;
+const Obj::ErrorStatus SUR = Obj::k_SURROGATE;
 
 static const struct {
     int         d_lineNum;    // source line number
@@ -2631,155 +2815,195 @@ static const struct {
 
     int         d_isValid;    // 1 if valid UTF-8; 0 otherwise
 } DATA[] = {
-    //L#  input                          #b  #c  eo  result
-    //--  -----                          --  --  --  ------
-    { L_, "",                             0,  0, -1,   1   },
-    { L_, " ",                            1,  1, -1,   1   },
+    //L#  input                          #b   #c  eo  result
+    //--  -----                          --  ---  --  ------
+    { L_, "",                             0,   0, -1,   1   },
+    { L_, " ",                            1,   1, -1,   1   },
 
-    { L_, "H",                            1,  1, -1,   1   },
-    { L_, "He",                           2,  2, -1,   1   },
-    { L_, "Hel",                          3,  3, -1,   1   },
-    { L_, "Hell",                         4,  4, -1,   1   },
-    { L_, "Hello",                        5,  5, -1,   1   },
+    { L_, "H",                            1,   1, -1,   1   },
+    { L_, "He",                           2,   2, -1,   1   },
+    { L_, "Hel",                          3,   3, -1,   1   },
+    { L_, "Hell",                         4,   4, -1,   1   },
+    { L_, "Hello",                        5,   5, -1,   1   },
 
     // Check the boundary between 1-octet and 2-octet code points.
 
-    { L_, "\x7f",                         1,  1, -1,   1   },
-    { L_, U8_00080,                       2,  1, -1,   1   },
+    { L_, "\x7f",                         1,   1, -1,   1   },
+    { L_, U8_00080,                       2,   1, -1,   1   },
 
     // Check the boundary between 2-octet and 3-octet code points.
 
-    { L_, U8_007ff,                       2,  1, -1,   1   },
-    { L_, U8_00800,                       3,  1, -1,   1   },
+    { L_, U8_007ff,                       2,   1, -1,   1   },
+    { L_, U8_00800,                       3,   1, -1,   1   },
 
     // Check the maximal 3-octet code point.
 
-    { L_, U8_0ffff,                       3,  1, -1,   1   },
+    { L_, U8_0ffff,                       3,   1, -1,   1   },
 
     // Make sure 4-octet code points are handled correctly.
 
-    { L_, U8_10000,                       4,  1, -1,   1   },
-    { L_, U8_10000 " ",                   5,  2, -1,   1   },
-    { L_, " " U8_10001 " ",               6,  3, -1,   1   },
-    { L_, U8_10fffe,                      4,  1, -1,   1   },
-    { L_, U8_10fffe " ",                  5,  2, -1,   1   },
-    { L_, " " U8_10ffff " ",              6,  3, -1,   1   },
+    { L_, U8_10000,                       4,   1, -1,   1   },
+    { L_, U8_10000 " ",                   5,   2, -1,   1   },
+    { L_, " " U8_10001 " ",               6,   3, -1,   1   },
+    { L_, U8_10fffe,                      4,   1, -1,   1   },
+    { L_, U8_10fffe " ",                  5,   2, -1,   1   },
+    { L_, " " U8_10ffff " ",              6,   3, -1,   1   },
+
+    // unexpected continuation octets
+
+    { L_, "\x80",                         1, UCO,  0,   0   },
+    { L_, "\x85p",                        2, UCO,  0,   0   },
+    { L_, "a\x85",                        2, UCO,  1,   0   },
+    { L_, "\x90",                         1, UCO,  0,   0   },
+    { L_, " \x91",                        2, UCO,  1,   0   },
+    { L_, "\x9a",                         1, UCO,  0,   0   },
+    { L_, " \x9f",                        2, UCO,  1,   0   },
+    { L_, " \xa0",                        2, UCO,  1,   0   },
+    { L_, "\xa1",                         1, UCO,  0,   0   },
+    { L_, "7\xaa",                        2, UCO,  1,   0   },
+    { L_, "\xaf",                         1, UCO,  0,   0   },
+    { L_, " \xb0",                        2, UCO,  1,   0   },
+    { L_, "\xb1",                         1, UCO,  0,   0   },
+    { L_, "\xba",                         1, UCO,  0,   0   },
+    { L_, "p\xbf",                        2, UCO,  1,   0   },
 
     // Make sure partial 4-octet code points are handled correctly (with a
     // single error).
 
-    { L_, "\xf0",                         1, -1,  0,   0   },
-    { L_, "\xf0\x80",                     2, -1,  0,   0   },
-    { L_, "\xf0\x80\x80",                 3, -1,  0,   0   },
-    { L_, "\xf0 ",                        2, -1,  0,   0   },
-    { L_, "\xf0\x80 ",                    3, -1,  0,   0   },
-    { L_, "\xf0\x80\x80 ",                4, -1,  0,   0   },
+    { L_, "\xf0",                         1, EIT,  0,   0   },
+    { L_, "\xf0\x80",                     2, EIT,  0,   0   },
+    { L_, "\xf0\x80\x80",                 3, EIT,  0,   0   },
+    { L_, "\xf0 ",                        2, NCO,  0,   0   },
+    { L_, "\xf0\x80 ",                    3, NCO,  0,   0   },
+    { L_, "\xf0\x80\x80 ",                4, NCO,  0,   0   },
+
+    // Make sure partial 4-octet code points are handled correctly (with a
+    // single error).
+
+    { L_, "\xe0\x80",                     2, EIT,  0,   0   },
+    { L_, "\xe0",                         1, EIT,  0,   0   },
+    { L_, "\xe0\x80 ",                    3, NCO,  0,   0   },
+    { L_, "\xe0 ",                        2, NCO,  0,   0   },
 
     // Make sure the "illegal" UTF-8 octets are handled correctly:
     //   o The octet values C0, C1, F5 to FF never appear.
 
-    { L_, "\xc0",                         1, -1,  0,   0   },
-    { L_, "\xc1",                         1, -1,  0,   0   },
-    { L_, "\xf5",                         1, -1,  0,   0   },
-    { L_, "\xf6",                         1, -1,  0,   0   },
-    { L_, "\xf7",                         1, -1,  0,   0   },
-    { L_, "\xf8",                         1, -1,  0,   0   },
-    { L_, "\xf9",                         1, -1,  0,   0   },
-    { L_, "\xfa",                         1, -1,  0,   0   },
-    { L_, "\xfb",                         1, -1,  0,   0   },
-    { L_, "\xfc",                         1, -1,  0,   0   },
-    { L_, "\xfd",                         1, -1,  0,   0   },
-    { L_, "\xfe",                         1, -1,  0,   0   },
-    { L_, "\xff",                         1, -1,  0,   0   },
+    { L_, "\xc0",                         1, EIT,  0,   0   },
+    { L_, "\xc1",                         1, EIT,  0,   0   },
+    { L_, "\xf0",                         1, EIT,  0,   0   },
+    { L_, "\xf5",                         1, EIT,  0,   0   },
+    { L_, "\xf6",                         1, EIT,  0,   0   },
+    { L_, "\xf7",                         1, EIT,  0,   0   },
+    { L_, "\xf8",                         1, IIO,  0,   0   },
+    { L_, "\xf8\xaf\xaf\xaf",             4, IIO,  0,   0   },
+    { L_, "\xf8\x80\x80\x80",             4, IIO,  0,   0   },
+    { L_, "\xf8",                         1, IIO,  0,   0   },
+    { L_, "\xf9",                         1, IIO,  0,   0   },
+    { L_, "\xfa",                         1, IIO,  0,   0   },
+    { L_, "\xfb",                         1, IIO,  0,   0   },
+    { L_, "\xfc",                         1, IIO,  0,   0   },
+    { L_, "\xfd",                         1, IIO,  0,   0   },
+    { L_, "\xfe",                         1, IIO,  0,   0   },
+    { L_, "\xff",                         1, IIO,  0,   0   },
 
     // Make sure that the "illegal" UTF-8 octets are handled correctly
     // mid-string:
     //   o The octet values C0, C1, F5 to FF never appear.
 
-    { L_, " \xc0 ",                       3, -1,  1,   0   },
-    { L_, " \xc1 ",                       3, -1,  1,   0   },
-    { L_, " \xf5 ",                       3, -1,  1,   0   },
-    { L_, " \xf6 ",                       3, -1,  1,   0   },
-    { L_, " \xf7 ",                       3, -1,  1,   0   },
-    { L_, " \xf8 ",                       3, -1,  1,   0   },
-    { L_, " \xf9 ",                       3, -1,  1,   0   },
-    { L_, " \xfa ",                       3, -1,  1,   0   },
-    { L_, " \xfb ",                       3, -1,  1,   0   },
-    { L_, " \xfc ",                       3, -1,  1,   0   },
-    { L_, " \xfd ",                       3, -1,  1,   0   },
-    { L_, " \xfe ",                       3, -1,  1,   0   },
-    { L_, " \xff ",                       3, -1,  1,   0   },
+    { L_, " \xc0 ",                       3, NCO,  1,   0   },
+    { L_, " \xc1 ",                       3, NCO,  1,   0   },
+    { L_, " \xf5 ",                       3, NCO,  1,   0   },
+    { L_, " \xf6 ",                       3, NCO,  1,   0   },
+    { L_, " \xf7 ",                       3, NCO,  1,   0   },
+    { L_, " \xf8 ",                       3, IIO,  1,   0   },
+    { L_, " \xf9 ",                       3, IIO,  1,   0   },
+    { L_, " \xfa ",                       3, IIO,  1,   0   },
+    { L_, " \xfb ",                       3, IIO,  1,   0   },
+    { L_, " \xfc ",                       3, IIO,  1,   0   },
+    { L_, " \xfd ",                       3, IIO,  1,   0   },
+    { L_, " \xfe ",                       3, IIO,  1,   0   },
+    { L_, " \xff ",                       3, IIO,  1,   0   },
 
-    { L_, U8_00080,                       2,  1, -1,   1   },
-    { L_, "\xc2",                         1, -1,  0,   0   },
-    { L_, U8_00080 " ",                   3,  2, -1,   1   },
-    { L_, U8_000ff,                       2,  1, -1,   1   },
+    { L_, U8_00080,                       2,   1, -1,   1   },
+    { L_, "\xc2",                         1, EIT,  0,   0   },
+    { L_, U8_00080 " ",                   3,   2, -1,   1   },
+    { L_, U8_000ff,                       2,   1, -1,   1   },
     { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
-                                         13,  7, -1,   1   },
+                                         13,   7, -1,   1   },
 
     { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 "\xef",
-                                         12, -1, 10,   0   },
+                                         11, EIT, 10,   0   },
 
     { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 "\xef\xbf",
-                                         12, -1, 10,   0   },
+                                         12, EIT, 10,   0   },
 
     { L_, U8_0ffff U8_00800 U8_007ff U8_000ff "\x7f\x20\x01",
-                                         13,  7, -1,   1   },
+                                         13,   7, -1,   1   },
 
     // Make sure illegal overlong encodings are not accepted.  These code
     // points are mathematically correctly encoded, but since there are
-    // equivalent 1-octet encodings, the UTF-8 standard disallows them.
+    // equivalent encodings with fewer octets, the UTF-8 standard disallows
+    // them.
 
-    { L_, "\xc0\x81",                     2, -1,  0,   0   },
-    { L_, "\xc0\xbf",                     2, -1,  0,   0   },
-    { L_, "\xc1\x81",                     2, -1,  0,   0   },
-    { L_, "\xc1\xbf",                     2, -1,  0,   0   },
+    { L_, "\xf0\x80\x80\x80",             4, OLE,  0,   0   },
+    { L_, "\xf0\x8a\xaa\xaa",             4, OLE,  0,   0   },
+    { L_, "\xf0\x8f\xbf\xbf",             4, OLE,  0,   0   },    // max OLE
+    { L_, "\xf0\x90\x80\x80",             4,   1,  0,   1   },    // min legal
+    { L_, "\xf1\x80\x80\x80",             4,   1,  0,   1   },    // norm legal
+    { L_, "\xf1\xaa\xaa\xaa",             4,   1,  0,   1   },    // norm legal
+    { L_, "\xf4\x8f\xbf\xbf",             4,   1,  0,   1   },    // max legal
+    { L_, "\xf4\x90\x80\x80",             4, VTL,  0,   0   },    // min VTL
+    { L_, "\xf4\x90\xbf\xbf",             4, VTL,  0,   0   },    //     VTL
+    { L_, "\xf4\xa0\x80\x80",             4, VTL,  0,   0   },    //     VTL
+    { L_, "\xf7\xbf\xbf\xbf",             4, VTL,  0,   0   },    // max VTL
+
+    { L_, "\xe0\x80\x80",                 3, OLE,  0,   0   },
+    { L_, "\xe0\x9a\xaa",                 3, OLE,  0,   0   },
+    { L_, "\xe0\x9f\xbf",                 3, OLE,  0,   0   },    // max OLE
+    { L_, "\xe0\xa0\x80",                 3,   1,  0,   1   },    // min legal
+
+    { L_, "\xc0\x80",                     2, OLE,  0,   0   },
+    { L_, "\xc0\xaa",                     2, OLE,  0,   0   },
+    { L_, "\xc0\xbf",                     2, OLE,  0,   0   },
+    { L_, "\xc1\x81",                     2, OLE,  0,   0   },
+    { L_, "\xc1\xbf",                     2, OLE,  0,   0   },    // max OLE
+    { L_, "\xc2\x80",                     2,   1,  0,   1   },    // min legal
 
     // Corrupted 2-octet code point:
 
-    { L_, "\xc2",                         1, -1,  0,   0   },
-    { L_, " \xc2",                        2, -1,  1,   0   },
-    { L_, "\xc2 ",                        2, -1,  0,   0   },
-    { L_, "\xc2\xc2 ",                    3, -1,  0,   0   },
-    { L_, "\xc2 \xc2",                    3, -1,  0,   0   },
-
-    // Corrupted 2-octet code point followed by a valid code point:
-
-    { L_, "\xc2" U8_00080,                3, -1,  0,   0   },
-    { L_, "\xc2" U8_00080,                3, -1,  0,   0   },
+    { L_, "\xc2",                         1, EIT,  0,   0   },
+    { L_, " \xc2",                        2, EIT,  1,   0   },
+    { L_, "\xc2 ",                        2, NCO,  0,   0   },
+    { L_, "\xc2\xc2",                     2, NCO,  0,   0   },
+    { L_, "\xc2\xef",                     2, NCO,  0,   0   },
 
     // Corrupted 2-octet code point followed by an invalid code point:
 
-    { L_, "\xc2\xff",                     2, -1,  0,   0   },
-    { L_, "\xc2\xff",                     2, -1,  0,   0   },
+    { L_, "\xc2\xff",                     2, NCO,  0,   0   },
+    { L_, "\xc2\xff",                     2, NCO,  0,   0   },
 
     // 3-octet code points corrupted after octet 1:
 
-    { L_, "\xef",                         1, -1,  0,   0   },
-    { L_, " \xef",                        2, -1,  1,   0   },
-    { L_, "\xef ",                        2, -1,  0,   0   },
-    { L_, "\xef\xef ",                    3, -1,  0,   0   },
-    { L_, "\xef \xef",                    3, -1,  0,   0   },
-    { L_, "\xef" U8_00080,                3, -1,  0,   0   },
+    { L_, "\xef",                         1, EIT,  0,   0   },
+    { L_, " \xef",                        2, EIT,  1,   0   },
+    { L_, "\xef ",                        2, NCO,  0,   0   },
+    { L_, "\xef\xef ",                    3, NCO,  0,   0   },
+    { L_, "\xef \xef",                    3, NCO,  0,   0   },
+    { L_, "\xef" U8_00080,                3, NCO,  0,   0   },
 
     // 3-octet code points corrupted after octet 2:
 
-    { L_, "\xef\xbf",                     2, -1,  0,   0   },
-    { L_, "\xef\xbf",                     2, -1,  0,   0   },
-    { L_, " \xef\xbf@",                   4, -1,  1,   0   },
-    { L_, " \xef\xbf@",                   4, -1,  1,   0   },
-    { L_, "\xef\xbf ",                    3, -1,  0,   0   },
-    { L_, "\xef\xbf ",                    3, -1,  0,   0   },
-    { L_, "\xef\xbf" U8_00080,            4, -1,  0,   0   },
-    { L_, "\xef\xbf" U8_00080,            4, -1,  0,   0   },
-    { L_, "\xef\xbf" U8_00080 " ",        5, -1,  0,   0   },
-    { L_, "\xef\xbf" U8_00080 " ",        5, -1,  0,   0   },
-    { L_, "\xef\xbf" U8_00080 " ",        5, -1,  0,   0   },
-    { L_, "\xef\xbf\xef\xbf ",            5, -1,  0,   0   },
-    { L_, "\xef\xbf\xef\xbf ",            5, -1,  0,   0   },
-    { L_, "\xef\xbf \xef\xbf",            5, -1,  0,   0   },
-    { L_, "\xef\xbf \xef\xbf",            4, -1,  0,   0   },
-    { L_, "\xef\xbf \xef\xbf",            4, -1,  0,   0   },
+    { L_, "\xef\xbf",                     2, EIT,  0,   0   },
+    { L_, "\xef\xbf",                     2, EIT,  0,   0   },
+    { L_, " \xef\xbf@",                   4, NCO,  1,   0   },
+    { L_, " \xef\xbf@",                   4, NCO,  1,   0   },
+    { L_, "\xef\xbf ",                    3, NCO,  0,   0   },
+    { L_, "\xef\xbf ",                    3, NCO,  0,   0   },
+    { L_, "\xef\xbf\xef",                 3, NCO,  0,   0   },
+
+    { L_, "\xed\xa0\x80",                 3, SUR,  0,   0   },
+    { L_, "\xed\xb0\x85 ",                4, SUR,  0,   0   },
+    { L_, "\xed\xbf\xbf",                 3, SUR,  0,   0   },
 };
 enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
@@ -2802,7 +3026,89 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 17: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 3: 'readIfValid'
+        //
+        // Concerns:
+        //: 1 Demonstrate the 'readIfValid' function.
+        //
+        // Plan:
+        //: 1 Create a function, 'utf8StreambufToString', that uses the
+        //:   'readIfValid' function to stream and check UTF-8 from a
+        //:   'streambuf' to a 'bsl::string'.
+        //:
+        //: 2 Stream trivial and non-trivial valid UTF-8 to the string.
+        //:
+        //: 3 Append invalid UTF-8 to the non-trivial valid UTF-8 string.
+        //:
+        //: 4 Try to input that with our function and observe that the valid
+        //:   UTF-8 preceding the invalid code point gets input, and show how
+        //:   the 'status' returned through the argument list of 'readIfValid'
+        //:   shows the nature of the UTF-8 error.
+        //
+        // Testing:
+        //   USAGE EXAMPLE 3
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "USAGE EXAMPLE 3: 'readIfValid'\n"
+                             "==============================\n";
+
+        using namespace USAGE_3;
+
+        // We decided not to include the following code in the usage example,
+        // the function by itself should be enough without its call.  This
+        // tests the function.
+
+        bsl::stringstream ss;
+        ss << "Hello, world!\n";
+        bsl::string out;
+        int rc = utf8StreambufToString(&out, ss.rdbuf());
+        ASSERT(0 == rc);
+        ASSERT("Hello, world!\n" == out);
+
+        static const char validChineseUtf8[] = {
+            "\xe4\xb8\xad\xe5\x8d\x8e\xe4\xba\xba\xe6\xb0\x91\xe5\x85\xb1"
+            "\xe5\x92\x8c\xe5\x9b\xbd\xef\xbc\x8c\xe9\x80\x9a\xe7\xa7\xb0"
+            "\xe4\xb8\xad\xe5\x9b\xbd\x5b\xe6\xb3\xa8\x20\x33\x5d\xef\xbc"
+            "\x8c\xe6\x98\xaf\xe4\xbd\x8d\xe6\x96\xbc\xe4\xba\x9a\xe6\xb4"
+            "\xb2\xe6\x9d\xb1\xe9\x83\xa8\xe3\x80\x81\xe5\xa4\xaa\xe5\xb9"
+            "\xb3\xe6\xb4\x8b\xe8\xa5\xbf\xe5\xb2\xb8\xe7\x9a\x84\xe4\xb8"
+            "\x80\xe4\xb8\xaa\xe7\xa4\xbe\xe4\xbc\x9a\xe4\xb8\xbb\xe4\xb9"
+            "\x89\xe5\x9b\xbd\xe5\xae\xb6\xe3\x80\x82\xe9\xa6\x96\xe9\x83"
+            "\xbd\xe7\x82\xba\xe5\x8c\x97\xe4\xba\xac\xe3\x80\x82\xe5\x85"
+            "\xb6\xe9\x99\x86\xe5\x9c\xb0\xe7\x96\x86\xe5\x9f\x9f\xe8\x88"
+            "\x87\xe5\x91\xa8\xe9\x82\x8a\x31\x34\xe5\x80\x8b\xe5\x9c\x8b"
+            "\xe5\xae\xb6\xe6\x8e\xa5\xe5\xa3\xa4\xef\xbc\x8c\xe9\x99\x86"
+            "\xe5\x9c\xb0\xe5\x8f\x8a\xe6\xb9\x96\xe6\xb3\x8a\xe7\x9a\x84"
+            "\xe6\x80\xbb\xe9\x9d\xa2\xe7\xa9\x8d\xe7\xba\xa6\x39\x36\x30"
+            "\xe8\x90\xac\xe5\xb9\xb3\xe6\x96\xb9\xe5\x85\xac\xe9\x87\x8c"
+            "\x5b\x31\x31\x5d\x5b\x31\x32\x5d\x5b\x31\x33\x5d\xef\xbc\x8c"
+            "\xe6\x98\xaf\xe5\x85\xa8\xe4\xb8\x96\xe7\x95\x8c\xe9\x99\x86"
+            "\xe5\x9c\xb0" };
+        const bsl::size_t validLen = sizeof(validChineseUtf8) - 1;
+
+        if (verbose) cout << "Length of Chinese string: " << validLen << endl;
+        if (veryVerbose) cout << validChineseUtf8 << endl;
+
+        ss.str("");
+        ss << validChineseUtf8;
+        rc = utf8StreambufToString(&out, ss.rdbuf());
+        ASSERT(0 == rc);
+        ASSERT(validChineseUtf8 == out);
+
+        bsl::string invalidUtf8Str(validChineseUtf8);
+        invalidUtf8Str += "\xaf Keep cool with Coolidge!";
+
+        ss.str("");
+        ss << invalidUtf8Str;
+        rc = utf8StreambufToString(&out, ss.rdbuf());
+        ASSERT(rc != 0);
+        ASSERT(invalidUtf8Str != out);
+        ASSERT(out.length() == validLen);
+        ASSERT(validChineseUtf8 == out);
+      } break;
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2: 'advance'
         //
@@ -2810,40 +3116,42 @@ int main(int argc, char *argv[])
         //: 1 Demonstrate the 'advance*' functions.
         //
         // Plan:
-        //: 1 Use the 'appendUtf8Character' function to build an example
+        //: 1 Use the 'appendUtf8CodePoint' function to build an example
         //:   string, then advance through it.
         //
         // Testing:
         //   USAGE EXAMPLE 2
         // --------------------------------------------------------------------
 
-        using namespace USAGE;
-
         if (verbose) cout << "USAGE EXAMPLE 2: 'advance'\n"
                              "==========================\n";
 
+//
+///Example 2: Advancing Over a Given Number of Code Points
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we will use the various 'advance' functions to advance
 // through a UTF-8 string.
 //
-// First, build the string using 'appendUtf8Character', keeping track of how
+// First, build the string using 'appendUtf8CodePoint', keeping track of how
 // many bytes are in each Unicode code point:
 //..
     bsl::string string;
-    bdlde::Utf8Util::appendUtf8Character(&string, 0xff00);        // 3 bytes
-    bdlde::Utf8Util::appendUtf8Character(&string, 0x1ff);         // 2 bytes
-    bdlde::Utf8Util::appendUtf8Character(&string, 'a');           // 1 byte
-    bdlde::Utf8Util::appendUtf8Character(&string, 0x1008aa);      // 4 bytes
-    bdlde::Utf8Util::appendUtf8Character(&string, 0x1abcd);       // 4 bytes
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0xff00);        // 3 bytes
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0x1ff);         // 2 bytes
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 'a');           // 1 byte
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0x1008aa);      // 4 bytes
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0x1abcd);       // 4 bytes
     string += "\xe3\x8f\xfe";           // 3 bytes (invalid 3-byte sequence,
                                         // the first 2 bytes are valid but the
                                         // last continuation byte is invalid)
-    bdlde::Utf8Util::appendUtf8Character(&string, 'w');           // 1 byte
-    bdlde::Utf8Util::appendUtf8Character(&string, '\n');          // 1 byte
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 'w');           // 1 byte
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, '\n');          // 1 byte
 //..
 // Then, declare a few variables we'll need:
 //..
-    int               rc, status;
-    const char       *result;
+    bsls::Types::IntPtr  rc;
+    int                  status;
+    const char          *result;
     const char *const start = string.c_str();
 //..
 // Next, try advancing 2 code points, then 3, then 4, observing that the value
@@ -2893,7 +3201,7 @@ int main(int argc, char *argv[])
 //..
 // Now, doctor the string to replace the invalid code point with a valid one,
 // so the string is entirely correct UTF-8:
-//.
+//..
     string[3 + 2 + 1 + 4 + 4 + 2] = static_cast<char>(0x8a);
 //..
 // Finally, advance using both functions by more code points than are in the
@@ -2913,7 +3221,7 @@ int main(int argc, char *argv[])
     ASSERT(static_cast<int>(string.length()) == result - start);
 //..
       } break;
-      case 13: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1: 'isValid' AND 'numCodePoints*'
         //
@@ -2928,27 +3236,31 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE 1
         // --------------------------------------------------------------------
 
-        using namespace USAGE;
-
         if (verbose) cout <<
                            "USAGE EXAMPLE 1: 'isValid' AND 'numCodePoints*'\n"
                            "===============================================\n";
 
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Validating Strings and Counting Unicode Code Points
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this usage example, we will encode some Unicode code points in UTF-8
 // strings and demonstrate those that are valid and those that are not.
 //
 // First, we build an unquestionably valid UTF-8 string:
 //..
     bsl::string string;
-    bdlde::Utf8Util::appendUtf8Character(&string, 0xff00);
-    bdlde::Utf8Util::appendUtf8Character(&string, 0x856);
-    bdlde::Utf8Util::appendUtf8Character(&string, 'a');
-    bdlde::Utf8Util::appendUtf8Character(&string, 0x1008aa);
-    bdlde::Utf8Util::appendUtf8Character(&string, 0xfff);
-    bdlde::Utf8Util::appendUtf8Character(&string, 'w');
-    bdlde::Utf8Util::appendUtf8Character(&string, 0x1abcd);
-    bdlde::Utf8Util::appendUtf8Character(&string, '.');
-    bdlde::Utf8Util::appendUtf8Character(&string, '\n');
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0xff00);
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0x856);
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 'a');
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0x1008aa);
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0xfff);
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 'w');
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, 0x1abcd);
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, '.');
+    bdlde::Utf8Util::appendUtf8CodePoint(&string, '\n');
 //..
 // Then, we check its validity and measure its length:
 //..
@@ -2959,11 +3271,10 @@ int main(int argc, char *argv[])
                                                      string.length()));
     ASSERT(   9 == bdlde::Utf8Util::numCodePointsRaw(string.c_str()));
 //..
-// Next, we encode a lone surrogate value, which is not allowed, using
-// 'utf8Append' instead of 'appendUtf8Character' to avoid validation:
+// Next, we encode a lone surrogate value, '0xd8ab', that we encode as the raw
+// 3-byte sequence "\xed\xa2\xab" to avoid validation:
 //..
-    bsl::string stringWithSurrogate = string;
-    utf8Append(&stringWithSurrogate, 0xd8ab);
+    bsl::string stringWithSurrogate = string + "\xed\xa2\xab";
 //..
     ASSERT(false == bdlde::Utf8Util::isValid(stringWithSurrogate.data(),
                                              stringWithSurrogate.length()));
@@ -2976,24 +3287,27 @@ int main(int argc, char *argv[])
 //..
     const char *invalidPosition = 0;
 
-    ASSERT(-1 == bdlde::Utf8Util::numCodePointsIfValid(
-                                                &invalidPosition,
-                                                stringWithSurrogate.data(),
-                                                stringWithSurrogate.length()));
+    bsls::Types::IntPtr rc;
+    rc = bdlde::Utf8Util::numCodePointsIfValid(&invalidPosition,
+                                               stringWithSurrogate.data(),
+                                               stringWithSurrogate.length());
+    ASSERT(rc < 0);
+    ASSERT(bdlde::Utf8Util::k_SURROGATE == rc);
     ASSERT(invalidPosition == stringWithSurrogate.data() + string.length());
 
     invalidPosition = 0;  // reset
 
-    ASSERT(-1 == bdlde::Utf8Util::numCodePointsIfValid(
-                                                &invalidPosition,
-                                                stringWithSurrogate.c_str()));
+    rc = bdlde::Utf8Util::numCodePointsIfValid(&invalidPosition,
+                                               stringWithSurrogate.c_str());
+    ASSERT(rc < 0);
+    ASSERT(bdlde::Utf8Util::k_SURROGATE == rc);
     ASSERT(invalidPosition == stringWithSurrogate.data() + string.length());
 //..
 // Now, we encode 0, which is allowed.  However, note that we cannot use any
 // interfaces that take a null-terminated string for this case:
 //..
     bsl::string stringWithNull = string;
-    utf8AppendOneByte(&stringWithNull, 0);
+    stringWithNull += '\0';
 //..
     ASSERT(true == bdlde::Utf8Util::isValid(stringWithNull.data(),
                                             stringWithNull.length()));
@@ -3001,44 +3315,535 @@ int main(int argc, char *argv[])
     ASSERT(  10 == bdlde::Utf8Util::numCodePointsRaw(stringWithNull.data(),
                                                      stringWithNull.length()));
 //..
-// Finally, we encode '0x61' ('a') as an overlong value using 2 bytes, which is
-// not valid UTF-8 (since 'a' can be "encoded" in 1 byte):
+// Finally, we encode '0x3a' (':') as an overlong value using 2 bytes, which is
+// not valid UTF-8 (since ':' can be "encoded" in 1 byte):
 //..
     bsl::string stringWithOverlong = string;
-    utf8AppendTwoBytes(&stringWithOverlong, 'a');
+    stringWithOverlong += static_cast<char>(0xc0);        // start of 2-byte
+                                                          // sequence
+    stringWithOverlong += static_cast<char>(0x80 | ':');  // continuation byte
 
     ASSERT(false == bdlde::Utf8Util::isValid(stringWithOverlong.data(),
                                              stringWithOverlong.length()));
     ASSERT(false == bdlde::Utf8Util::isValid(stringWithOverlong.c_str()));
+
+    rc = bdlde::Utf8Util::numCodePointsIfValid(&invalidPosition,
+                                               stringWithOverlong.data(),
+                                               stringWithOverlong.length());
+    ASSERT(rc < 0);
+    ASSERT(bdlde::Utf8Util::k_OVERLONG_ENCODING == rc);
+    ASSERT(invalidPosition == stringWithOverlong.data() + string.length());
+
+    rc = bdlde::Utf8Util::numCodePointsIfValid(&invalidPosition,
+                                               stringWithOverlong.c_str());
+    ASSERT(rc < 0);
+    ASSERT(bdlde::Utf8Util::k_OVERLONG_ENCODING == rc);
+    ASSERT(invalidPosition == stringWithOverlong.data() + string.length());
 //..
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // NEGATIVE TESTING
+        //
+        // Concern:
+        //: 1 That all the functions in this component properly assert their
+        //:   preconditions to avoid undefined behavior.
+        //:
+        //: 2 That those functions that take their input as a string pointer,
+        //:   length pair will tolerate being passed a null pointer when the
+        //:   length is 0, and will not tolerate being passed a null pointer
+        //:   when '0 < length'.
+        //
+        // Plan:
+        //: 1 Go through every function in the component, first calling them in
+        //:   such a way that they function properly, then calling them with
+        //:   every possible pointer argument passed null when it shouldn't be,
+        //:   and confirm that this is caught in an assert using the
+        //:   'bsls_asserttest' component.
+        //:
+        //: 2 For the functions that take their input as a 'ptr, length' pair,
+        //:   call them with null ptrs while passing a 0 to the 'length' field
+        //:   and verify that the function works properly, then pass it exactly
+        //:   the same arguments except with the 'length == 1', and observe
+        //:   that this is caught with an exception.
+        //
+        // Testing:
+        //   NEGATIVE TESTING
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "NEGATIVE TESTING\n"
+                             "================\n";
+
+#ifdef BDE_BUILD_TARGET_EXC
+        {
+            const int                     INIT_INT = 123454321;      // garbage
+            const char           * const  INIT_RESULT = "woof";      // garbage
+
+            bsls::AssertTestHandlerGuard  guard;
+            int                           status = INIT_INT;
+            const char                   *result = INIT_RESULT;
+            const char           * const  nullStr = 0;
+            IntPtr                        rc;
+
+            const char            * const WOOF = "woof";
+
+            for (int ncp = 0; ncp < 2; ++ncp) {
+                const int NCP = ncp;    // num code points
+
+                if (veryVerbose) {
+                    cout << "advanceIfValid - no length, NCP: " << NCP << "\n";
+                }
+                {
+                    ASSERT_PASS(rc = Obj::advanceIfValid(&status, &result,
+                                                                   WOOF, NCP));
+                    ASSERT(NCP == rc);
+                    ASSERT(0 == status);
+                    ASSERT(WOOF + NCP == result);
+
+                    rc     = INIT_INT;
+                    status = INIT_INT;
+                    result = INIT_RESULT;
+
+                    ASSERT_FAIL(Obj::advanceIfValid(0, &result, WOOF, NCP));
+                    ASSERT(INIT_INT == status);
+
+                    ASSERT_FAIL(Obj::advanceIfValid(&status, 0, WOOF, NCP));
+                    ASSERT(INIT_INT == status);
+
+                    ASSERT_FAIL(Obj::advanceIfValid(&status, &result, nullStr,
+                                                                         NCP));
+                    ASSERT(INIT_INT == status);
+                    ASSERT(INIT_RESULT == result);
+                }
+
+                if (veryVerbose) {
+                    cout << "advanceIfValid - with length, NCP: " << NCP <<
+                                                                          "\n";
+                }
+                {
+                    rc     = INIT_INT;
+                    status = INIT_INT;
+                    result = INIT_RESULT;
+
+                    ASSERT_PASS(rc = Obj::advanceIfValid(&status, &result,
+                                                                WOOF, 4, NCP));
+                    ASSERT(NCP == rc);
+                    ASSERT(0 == status);
+                    ASSERT(WOOF + NCP == result);
+
+                    rc     = INIT_INT;
+                    status = INIT_INT;
+                    result = INIT_RESULT;
+
+                    ASSERT_PASS(rc = Obj::advanceIfValid(&status, &result,
+                                                             nullStr, 0, NCP));
+                    ASSERT(0 == rc);
+                    ASSERT(0 == status);
+                    ASSERT(0 == result);
+
+                    rc     = INIT_INT;
+                    status = INIT_INT;
+                    result = INIT_RESULT;
+
+                    ASSERT_FAIL(Obj::advanceIfValid(&status, &result, nullStr,
+                                                                      1, NCP));
+                    ASSERT(INIT_INT == status);
+                    ASSERT(INIT_RESULT == result);
+
+                    ASSERT_FAIL(Obj::advanceIfValid(0, &result, WOOF, 4, NCP));
+                    ASSERT(INIT_RESULT == result);
+
+                    ASSERT_FAIL(Obj::advanceIfValid(&status, 0, WOOF, 4, NCP));
+                    ASSERT(INIT_INT == status);
+                }
+
+                if (veryVerbose) {
+                    cout << "advanceRaw - no length, NCP: " << NCP << "\n";
+                }
+                {
+                    ASSERT_PASS(rc = Obj::advanceRaw(&result, WOOF, NCP));
+                    ASSERT(NCP == rc);
+                    ASSERT(WOOF + NCP == result);
+
+                    rc     = INIT_INT;
+                    result = INIT_RESULT;
+
+                    ASSERT_FAIL(Obj::advanceRaw(0, WOOF, NCP));
+
+                    ASSERT_FAIL(Obj::advanceRaw(&result, nullStr, NCP));
+                    ASSERT(INIT_RESULT == result);
+
+                    result = INIT_RESULT;
+                }
+
+                if (veryVerbose) {
+                    cout << "advanceRaw - with length, NCP: " << NCP << "\n";
+                }
+                {
+                    ASSERT_PASS(rc = Obj::advanceRaw(&result, WOOF, 4, NCP));
+                    ASSERT(NCP == rc);
+                    ASSERT(WOOF + NCP == result);
+
+                    rc     = INIT_INT;
+                    result = INIT_RESULT;
+
+                    ASSERT_PASS(rc =
+                                    Obj::advanceRaw(&result, nullStr, 0, NCP));
+                    ASSERT(0 == rc);
+                    ASSERT(0 == result);
+
+                    rc     = INIT_INT;
+                    result = INIT_RESULT;
+
+                    ASSERT_FAIL(Obj::advanceRaw(0, WOOF, 4, NCP));
+
+                    ASSERT_FAIL(Obj::advanceRaw(&result, nullStr, 1, NCP));
+                }
+            }
+
+            if (verbose) cout << "appendUtf8CodePoint\n";
+            {
+                bsl::string s;
+                ASSERT_PASS(rc = Obj::appendUtf8CodePoint(&s, 'a'));
+                ASSERT(0 == rc);
+                ASSERT("a" == s);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::appendUtf8CodePoint(
+                                          static_cast<bsl::string *>(0), 'a'));
+            }
+
+            if (verbose) cout << "appendUtf8Character\n";
+            {
+                bsl::string s;
+                ASSERT_PASS(rc = Obj::appendUtf8Character(&s, 'a'));
+                ASSERT(0 == rc);
+                ASSERT("a" == s);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::appendUtf8Character(
+                                          static_cast<bsl::string *>(0), 'a'));
+            }
+
+            if (verbose) cout << "numBytesInCodePoint\n";
+            {
+                ASSERT_PASS(rc = Obj::numBytesInCodePoint(WOOF));
+                ASSERT(1 == rc);
+
+                ASSERT_FAIL(Obj::numBytesInCodePoint(nullStr));
+            }
+
+            if (verbose) cout << "getByteSize\n";
+            {
+                ASSERT_PASS(rc = Obj::getByteSize(WOOF));
+                ASSERT(1 == rc);
+
+                ASSERT_FAIL(Obj::getByteSize(nullStr));
+            }
+
+            if (verbose) cout << "isValid -- no length\n";
+            {
+                ASSERT_PASS(rc = Obj::isValid(WOOF));
+                ASSERT(1 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::isValid(nullStr));
+            }
+
+            if (verbose) cout << "isValid -- with length\n";
+            {
+                ASSERT_PASS(rc = Obj::isValid(WOOF, 4));
+                ASSERT(1 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_PASS(rc = Obj::isValid(nullStr, 0));
+                ASSERT(1 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::isValid(nullStr, 1));
+            }
+
+            if (verbose) cout << "isValid -- with result, no length\n";
+            {
+                ASSERT_PASS(rc = Obj::isValid(&result, WOOF));
+                ASSERT(1 == rc);
+                ASSERT(INIT_RESULT == result);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::isValid(&result, nullStr));
+                ASSERT(INIT_RESULT == result);
+            }
+
+            if (verbose) cout << "isValid -- with result and length\n";
+            {
+                ASSERT_PASS(rc = Obj::isValid(&result, WOOF, 4));
+                ASSERT(1 == rc);
+                ASSERT(INIT_RESULT == result);
+
+                rc     = INIT_INT;
+
+                ASSERT_PASS(rc = Obj::isValid(&result, nullStr, 0));
+                ASSERT(1 == rc);
+                ASSERT(INIT_RESULT == result);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::isValid(0, WOOF, 4));
+
+                ASSERT_FAIL(Obj::isValid(&result, nullStr, 1));
+                ASSERT(INIT_RESULT == result);
+            }
+
+            if (verbose) cout << "numCharacters -- no length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCharacters(WOOF));
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCharacters(nullStr));
+            }
+
+            if (verbose) cout << "numCharacters -- with length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCharacters(WOOF, 4));
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_PASS(rc = Obj::numCharacters(nullStr, 0));
+                ASSERT(0 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCharacters(nullStr, 1));
+            }
+
+            if (verbose) cout << "numCharactersIfValid -- no length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCharactersIfValid(&result, WOOF));
+                ASSERT(INIT_RESULT == result);
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCharactersIfValid(0, WOOF));
+
+                ASSERT_FAIL(Obj::numCharactersIfValid(&result, nullStr));
+                ASSERT(INIT_RESULT == result);
+            }
+
+            if (verbose) cout << "numCharactersIfValid -- with length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCharactersIfValid(&result, WOOF, 4));
+                ASSERT(INIT_RESULT == result);
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_PASS(rc = Obj::numCharactersIfValid(&result, nullStr,
+                                                                           0));
+                ASSERT(0 == rc);
+                ASSERT(INIT_RESULT == result);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCharactersIfValid(0, WOOF, 4));
+
+                ASSERT_FAIL(Obj::numCharactersIfValid(&result, nullStr, 1));
+                ASSERT(INIT_RESULT == result);
+            }
+
+            if (verbose) cout << "numCodePointsRaw -- no length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCodePointsRaw(WOOF));
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCodePointsRaw(nullStr));
+            }
+
+            if (verbose) cout << "numCodePointsRaw -- with length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCodePointsRaw(WOOF, 4));
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_PASS(rc = Obj::numCodePointsRaw(nullStr, 0));
+                ASSERT(0 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCodePointsRaw(nullStr, 1));
+            }
+
+            if (verbose) cout << "numCodePointsIfValid -- no length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCodePointsIfValid(&result, WOOF));
+                ASSERT(INIT_RESULT == result);
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCodePointsIfValid(0, WOOF));
+
+                ASSERT_FAIL(Obj::numCodePointsIfValid(&result, nullStr));
+                ASSERT(INIT_RESULT == result);
+            }
+
+            if (verbose) cout << "numCodePointsIfValid -- with length\n";
+            {
+                ASSERT_PASS(rc = Obj::numCodePointsIfValid(&result, WOOF, 4));
+                ASSERT(INIT_RESULT == result);
+                ASSERT(4 == rc);
+
+                rc     = INIT_INT;
+
+                ASSERT_PASS(rc = Obj::numCodePointsIfValid(&result, nullStr,
+                                                                           0));
+                ASSERT(0 == rc);
+                ASSERT(INIT_RESULT == result);
+
+                rc     = INIT_INT;
+
+                ASSERT_FAIL(Obj::numCodePointsIfValid(0, WOOF, 4));
+
+                ASSERT_FAIL(Obj::numCodePointsIfValid(&result, nullStr, 1));
+                ASSERT(INIT_RESULT == result);
+            }
+
+            if (verbose) cout << "readIfValid\n";
+            {
+                bdlsb::FixedMemInStreamBuf fsb("woof", 4);
+                char buf[4] = { "ugh" };
+                const bsl::string UGH = buf;
+
+                ASSERT_PASS(rc = Obj::readIfValid(&status, buf, 4, &fsb));
+                ASSERT(1 == rc);
+                ASSERT(0 < status);
+                buf[rc] = 0;
+                ASSERT(!bsl::strcmp("w", buf));
+                ASSERT(1 == fsb.pubseekoff(0, bsl::ios_base::cur));
+
+                rc     = INIT_INT;
+                status = INIT_INT;
+                bsl::strcpy(buf, UGH.c_str());
+                fsb.pubseekpos(0);
+
+                ASSERT_FAIL(Obj::readIfValid(0, buf, 4, &fsb));
+                ASSERT(0 == fsb.pubseekoff(0, bsl::ios_base::cur));
+                ASSERT(UGH == buf);
+
+                ASSERT_FAIL(Obj::readIfValid(&status, 0, 4, &fsb));
+                ASSERT(0 == fsb.pubseekoff(0, bsl::ios_base::cur));
+                ASSERT(UGH == buf);
+                ASSERT(INIT_INT == status);
+
+                ASSERT_FAIL(Obj::readIfValid(&status, buf, 3, &fsb));
+                ASSERT(0 == fsb.pubseekoff(0, bsl::ios_base::cur));
+                ASSERT(UGH == buf);
+                ASSERT(INIT_INT == status);
+
+                ASSERT_FAIL(Obj::readIfValid(&status, buf, 4, 0));
+                ASSERT(UGH == buf);
+                ASSERT(INIT_INT == status);
+            }
+        }
+#endif
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING 'toAscii'
+        //
+        // Concerns:
+        //: 1 That 'toAscii' correctly translates 'ErrorStatus' values to
+        //:   strings.
+        //
+        // Plan:
+        //: 1 Create a table of all valid 'ErrorStatus' values and their
+        //:   expected string forms.
+        //:
+        //: 2 Iterate through the table, calling 'toAscii' and checking its
+        //:   return value.
+        //
+        // Testing:
+        //   const char *toAscii(IntPtr);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'toAscii'\n"
+                             "=================\n";
+
+        static const char *NOT_FOUND = "(* unrecognized value *)";
+
+        static const struct Data {
+            IntPtr      d_status;
+            const char *d_expStr_p;
+        } DATA[] = {
+          { Obj::k_END_OF_INPUT_TRUNCATION,    "END_OF_INPUT_TRUNCATION" },
+          { Obj::k_UNEXPECTED_CONTINUATION_OCTET,
+                                              "UNEXPECTED_CONTINUATION_OCTET"},
+          { Obj::k_NON_CONTINUATION_OCTET,     "NON_CONTINUATION_OCTET" },
+          { Obj::k_OVERLONG_ENCODING,          "OVERLONG_ENCODING" },
+          { Obj::k_INVALID_INITIAL_OCTET,      "INVALID_INITIAL_OCTET" },
+          { Obj::k_VALUE_LARGER_THAN_0X10FFFF, "VALUE_LARGER_THAN_0X10FFFF" },
+          { Obj::k_SURROGATE,                  "SURROGATE" },
+          { 0,                                 NOT_FOUND },
+          { 1,                                 NOT_FOUND },
+          { 100,                               NOT_FOUND },
+          { Obj::k_END_OF_INPUT_TRUNCATION+1,  NOT_FOUND },
+          { Obj::k_SURROGATE - 1,              NOT_FOUND },
+          { 100,                               NOT_FOUND },
+          { -100,                              NOT_FOUND },
+          { INT_MAX,                           NOT_FOUND },
+          { INT_MIN,                           NOT_FOUND },
+          { LONG_MAX,                          NOT_FOUND },
+          { LONG_MIN,                          NOT_FOUND }
+        };
+        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+            const IntPtr      STATUS  = DATA[ti].d_status;
+            const bsl::string EXP_STR = DATA[ti].d_expStr_p;
+
+            ASSERT(EXP_STR == Obj::toAscii(STATUS));
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'appendUtf8Character'
+        // TESTING 'appendUtf8CodePoint'
         //
         // Concerns:
         //: 1 The method under test produce the expected results on valid
-        //:   codepoints.  The principal concern is that the append is
+        //:   code points.  The principal concern is that the append is
         //:   performed correctly.
         //
         // Plan:
         //: 1 Use the table-driven approach to verify correct behavior when
-        //:   appending various valid codepoints to both empty and non-empty
+        //:   appending various valid code points to both empty and non-empty
         //:   strings.  This is sufficient since the routine under test is
         //:   implemented in terms of an already tested component.
         //
         // Testing:
+        //   int appendUtf8CodePoint(bsl::string *, unsigned int);
         //   int appendUtf8Character(bsl::string *, unsigned int);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'appendUtf8Character'\n"
+        if (verbose) cout << "\nTESTING 'appendUtf8CodePoint'\n"
                                "=============================\n";
 
         for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
             const int     LINE      = legalCodepointData[ti].d_lineNum;
             const char   *UTF8      = legalCodepointData[ti].d_utf8_p;
             bsl::size_t   UTF8_LEN  = strlen(UTF8);
-            unsigned int  CODEPOINT = legalCodepointData[ti].d_codepoint;
+            unsigned int  CODEPOINT = legalCodepointData[ti].d_codePoint;
 
             bsl::string   empty;
             bsl::string   non_empty("Not an empty string");
@@ -3049,6 +3854,15 @@ int main(int argc, char *argv[])
                 P_(LINE); P_(dumpStr(UTF8)); P_(UTF8_LEN); P(CODEPOINT);
             }
 
+            ASSERT(0 == Obj::appendUtf8CodePoint(&empty, CODEPOINT));
+            ASSERT(UTF8_LEN == empty.length());
+
+            ASSERT(0 == Obj::appendUtf8CodePoint(&non_empty, CODEPOINT));
+            ASSERT(non_empty_init_len + UTF8_LEN == non_empty.length());
+
+            empty.clear();
+            non_empty.resize(non_empty_init_len);
+
             ASSERT(0 == Obj::appendUtf8Character(&empty, CODEPOINT));
             ASSERT(UTF8_LEN == empty.length());
 
@@ -3058,22 +3872,23 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'getByteSize'
+        // TESTING 'numBytesInCodePoint'
         //
         // Concerns:
         //: 1 The method under test produce the expected results on valid UTF-8
-        //:   codepoints.
+        //:   code points.
         //
         // Plan:
         //: 1 Use the table-driven approach to verify correct behavior on
-        //:   various valid UTF-8 codepoints.
+        //:   various valid UTF-8 code points.
         //
         // Testing:
+        //   int numBytesInCodePoint(const char *);
         //   int getByteSize(const char *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getByteSize'\n"
-                               "=====================\n";
+        if (verbose) cout << "\nTESTING 'numBytesInCodePoint'\n"
+                               "=============================\n";
 
         for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
             const int    LINE     = legalCodepointData[ti].d_lineNum;
@@ -3085,12 +3900,13 @@ int main(int argc, char *argv[])
                 P_(LINE); P_(dumpStr(UTF8)); P(UTF8_LEN);
             }
 
+            ASSERT(int(UTF8_LEN) == Obj::numBytesInCodePoint(UTF8));
             ASSERT(int(UTF8_LEN) == Obj::getByteSize(UTF8));
         }
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'numBytesIfValid'
+        // TESTING 'numBytesRaw'
         //
         // Concerns:
         //: 1 The method under test produce the expected results on valid UTF-8
@@ -3102,11 +3918,12 @@ int main(int argc, char *argv[])
         //:   string, then repeat appending each table entry again.
         //
         // Testing:
+        //   IntPtr numBytesRaw(const bslstl::StringRef&, IntPtr);
         //   IntPtr numBytesIfValid(const bslstl::StringRef&, IntPtr);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'numBytesIfValid'\n"
-                               "=========================\n";
+        if (verbose) cout << "\nTESTING 'numBytesRaw'\n"
+                               "=====================\n";
 
         for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
             const int         LINE = legalCodepointData[ti].d_lineNum;
@@ -3116,6 +3933,9 @@ int main(int argc, char *argv[])
                 T_; P_(ti);
                 P_(LINE); P_(dumpStr(UTF8)); P(UTF8.length());
             }
+
+            ASSERT(Obj::IntPtr(UTF8.length()) ==
+                   Obj::numBytesRaw(UTF8, 1));
 
             ASSERT(Obj::IntPtr(UTF8.length()) ==
                    Obj::numBytesIfValid(UTF8, 1));
@@ -3132,12 +3952,24 @@ int main(int argc, char *argv[])
                     P_(LINE_2); P_(dumpStr(UTF8_2)); P(UTF8_2.length());
                 }
 
-                // Adding 2nd codepoint doesn't change the answer if we only
-                // ask for the 1st codepoint's byte length.
+                // Adding 2nd code point doesn't change the answer if we only
+                // ask for the 1st code point's byte length.
+                ASSERT(Obj::IntPtr(UTF8.length()) ==
+                       Obj::numBytesRaw(UTF8_2, 1));
+
+                // Embedded nulls count as 1 byte.
+                ASSERT(1 + Obj::IntPtr(UTF8.length()) ==
+                       Obj::numBytesRaw(UTF8_2, 2));
+
+                ASSERT(Obj::IntPtr(UTF8_2.length()) ==
+                       Obj::numBytesRaw(UTF8_2, 3));
+
+                // Adding 2nd code point doesn't change the answer if we only
+                // ask for the 1st code point's byte length.
                 ASSERT(Obj::IntPtr(UTF8.length()) ==
                        Obj::numBytesIfValid(UTF8_2, 1));
 
-                // Embedded NUL's count as 1 byte.
+                // Embedded nulls count as 1 byte.
                 ASSERT(1 + Obj::IntPtr(UTF8.length()) ==
                        Obj::numBytesIfValid(UTF8_2, 2));
 
@@ -3152,226 +3984,410 @@ int main(int argc, char *argv[])
         //
         // CONCERN:
         //: 1 That 'advanceIfValid' will detect all forms of error sequences
-        //:   and properly terminate and report them.
+        //:   and properly terminate and report them, when the incorrect
+        //:   sequences are surrounded by correct UTF-8.
+        //:
+        //: 2 That 'advanceIfValid', 'isValid', 'numCodePointsIfValid', and
+        //:   'readIfValid' will, given invalid UTF-8 embedded in a string,
+        //:   correctly identify the nature of the invalid UTF-8, and in cases
+        //:   where the offset of the problem is returned, will return the
+        //:   correct offset.
+        //:
+        //: 3 In the case of 'readIfValid', that it will leave the input
+        //:   'bsl::streambuf' positioned right after the end of the leading
+        //:   valid UTF-8 (if any) and before the invalid UTF-8 code point.
         //
         // PLAN:
-        //: 1 In TC 8, we generated correct sequences containing up to 2 of
-        //:   every type of correct Unicode code point.  In this sequence, we
-        //:   will generate correct sequences of only up to 1 of every type of
-        //:   correct Unicode code point.
-        //: 2 We will follow these correct sequences with an error sequence,
-        //:   and observe the 'advanceIfValid' detects and returns a pointer to
-        //:   the incorrect sequence every time.
-        //: 3 If the error sequence was truncated, we will repeat the test,
-        //:   appending a correct sequence after the error sequence, and
-        //:   observe this makes no difference to the result.
+        //: 1 In this test case, we test incorrect UTF-8 sequences both
+        //:   preceded by, and sometimes followed by, correct UTF-8 input.
+        //:
+        //: 2 We set the boolean 'useZero', which indicates whether our random
+        //:   value generation is allowed to generate ASCII '\0' bytes in
+        //:   otherwise correct UTF-8 input.  We don't want to do this most of
+        //:   the time, since it precludes calling interfaces that take
+        //:   null-terminated input.
+        //:
+        //: 3 We randomly generate 'correctStr', several random correct UTF-8
+        //:   code points.
+        //:
+        //: 4 We iterate over the global 'DATA[]' array, skipping the sequences
+        //:   of correct UTF-8 in it, focusing instead on only the incorrect
+        //:   sequences.
+        //:
+        //: 5 We look at ERROR_CODE, the expected error code for the invalid
+        //:   UTF-8 sequence.  It it's 'EIT' (end of buffer truncation), we
+        //:   generate a random valid UTF-8 sequence of the same type and
+        //:   truncate it by the same amount.  For other values of ERROR_CODE,
+        //:   we simply use the error string from 'DATA[]'.  In either case, we
+        //:   append this error string to 'str', the test string.
+        //:
+        //: 6 If there are no embedded '\0's in the input, we call all
+        //:   overloads of 'advanceIfValid', 'isValid' and
+        //:   'numCodePointsIfValid' that take null-terminated strings, and
+        //:   observe that they return a status of 'ERROR_CODE' and if they
+        //:   return 'invalidString', that 'invalidString' is correct.
+        //:
+        //: 7 We then call all overloads of 'advanceIfValid', 'isValid',
+        //:   'numCodePointsIfValid', and 'readValidUtf8ToBuffer' that pass the
+        //:   length of the string, and confirm that they return the error code
+        //:   'ERROR_CODE'.  If there are no embedded '\0's in 'str', we also
+        //:   call the overloads that take null-terminated input.
+        //:
+        //: 8 We then append a valid code point to 'str'.  If 'ERROR_CODE' was
+        //:   'EIT' (end of buffer truncation), we change 'ERROR_CODE' to 'NCO'
+        //:   (non-continuation octet).
+        //:
+        //: 9 We now repeat step '6'.
         //
         // Testing:
-        //   'advanceIfValid' on correct input followed by incorrect input
+        //   IntPtr advanceIfValid(int *, cchar **,  cchar *, IntPtr);
+        //   IntPtr advanceIfValid(int *, cchar **, cchar *, size_t, IntPtr);
+        //   bool isValid(cchar *);
+        //   bool isValid(cchar *, size_t);
+        //   bool isValid(cchar **, cchar *);
+        //   bool isValid(cchar **, cchar *, size_t);
+        //   IntPtr numCodePointsIfValid(cchar **, cchar *);
+        //   IntPtr numCodePointsIfValid(cchar **, const char *, int);
+        //   IntPtr numCodePointsIfValid(cchar **, cchar *, IntPtr);
+        //   IntPtr readIfValid(int *, cchar *, size_t, streambuf *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING CORRECT + BROKEN GLASS\n"
                                "==============================\n";
 
-        typedef void (*AppendFunc)(bsl::string *);
-
-        struct {
-            const char *d_string_p;
-            unsigned    d_truncatedBy;
-            AppendFunc  d_appendFunc;
-            unsigned    d_index;    // only used for debugging
-        } DATA[] = {
-            { "\x84",             1,  0,  0 },    // unexpected continuation
-            { "\x80\x8f",         1,  0,  1 },    // unexpected continuation
-            { "\x8a\x87\xac",     1,  0,  2 },    // unexpected continuation
-            { "\x8c\x97\xac\xbf", 1,  0,  3 },    // unexpected continuation
-
-            // All entries above ('index < CONTINUATION_BOUNDARY') are
-            // continuations.
-
-            { "\xf4\x8f\xbf",     1,  &appendRand4Byte,
-                                          4 },    // 4 byte trunc
-            { "\xf4\x8f",         2,  &appendRand4Byte,
-                                          5 },    // 4 byte trunc
-            { "\xf4",             3,  &appendRand4Byte,
-                                          6 },    // 4 byte trUNC
-
-            { "\xef\xbf",         1,  &appendRand3Byte,
-                                          7 },    // 3 byte trunc
-            { "\xef",             2,  &appendRand3Byte,
-                                          8 },    // 3 byte trunc
-
-            { "\xdf",             1,  &appendRand2Byte,
-                                          9 },    // 2 byte trunc
-
-            { "\xf8",             0,  0, 10 },    // illegal in any context
-
-            { "\xf0\x80\xbf\xbf", 0,  0, 11 },    // max non-minimal 4 byte
-            { "\xe0\x9f\xbf",     0,  0, 12 },    // max non-minimal 3 byte
-            { "\xc1\xbf",         0,  0, 13 },    // max non-minimal 2 byte
-
-            { "\xed\xa0\x00",     0,  0, 14 },    // min surrogate
-            { "\xed\xbf\xbf",     0,  0, 15 },    // max surrogate
-        };
-        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
-
-        bsl::vector<int> vec;
-        bsl::vector<int> origVec;
         bsl::string      correctStr;
-        bsl::string      str;
+        bsl::string      str, errorStr, out;
 
-        vec.    reserve(5);
-        origVec.reserve(5);
-        correctStr.reserve(200);// reserve longer than the longest length we
-                                // will use, so no manipulation of this
-                                // 'string' will result in a reallocation and a
-                                // move of the buffer.
-        str.reserve(200 + 10);  // enough room to copy 'correctStr' and tack
-                                // some carnage on to the end of it.
+        const IntPtr INT_PTR_MAX = ~static_cast<bsl::size_t>(0) >> 1;
 
-        for (int useZero = 0; useZero < 2; ++useZero) {
-            const int numValues         = 4 + useZero;
-            const int correctIterations = 1 << numValues;
-            const int zeroUsedMask      = 1 << 4;
+        enum { k_NUM_ITERATIONS          = 800,
+               k_NUM_USE_ZERO_ITERATIONS = k_NUM_ITERATIONS / 10,
+               k_MAX_INPUT_LEN           = 200 };
 
-            for (int key = 0; key < correctIterations; ++key) {
-                if (useZero && 0 == (key & zeroUsedMask)) {
-                    continue;
+        correctStr.reserve(k_MAX_INPUT_LEN);    // reserve longer than the
+                                                // longest length we will use,
+                                                // so no manipulation of this
+                                                // 'string' will result in a
+                                                // reallocation and a move of
+                                                // the buffer.
+
+        str.reserve(k_MAX_INPUT_LEN + 10);      // enough room to copy
+                                                // 'correctStr' and tack some
+                                                // carnage on to the end of it.
+
+        out.reserve(k_MAX_INPUT_LEN + 14);      // enough room for output from
+                                                // str
+        errorStr.reserve(200);
+
+        const char badChar = static_cast<char>(0xf8);    // always illegal char
+
+        bdlsb::FixedMemInStreamBuf fsb(0, 0);
+
+        for (int tj = 0; tj < k_NUM_ITERATIONS; ++tj) {
+            const bool useZero = tj < k_NUM_USE_ZERO_ITERATIONS;
+            const int numCorrectStrCodePoints = tj ? randUnsigned() % 4 + 2
+                                                   : 0;
+
+            correctStr.clear();
+            for (int ii = 0; ii < numCorrectStrCodePoints; ++ii) {
+                appendRandCorrectCodePoint(&correctStr, useZero);
+            }
+
+            if (veryVerbose) {
+                P(dumpStr(correctStr));
+            }
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE         = DATA[ti].d_lineNum;
+                const char *ERROR_STR    = DATA[ti].d_utf8_p;
+                int         STATUS       = DATA[ti].d_numCodePoints;
+                int         OFFSET       = DATA[ti].d_errOffset;
+
+                if (0 <= STATUS) continue;
+
+                Obj::ErrorStatus
+                            ERROR_STATUS = static_cast<Obj::ErrorStatus>(
+                                                                       STATUS);
+
+                ASSERT(0 <= OFFSET);
+
+                str = correctStr;
+                bool zeroUsed = bsl::count(str.begin(), str.end(), '\0');
+                ASSERT(!zeroUsed || useZero);
+
+                errorStr.clear();
+                if (EIT == ERROR_STATUS &&
+                                30 <= intAbs(tj - k_NUM_USE_ZERO_ITERATIONS)) {
+                    // In the end of buffer truncation cases, instead of taking
+                    // 'ERROR_STR', manufacture a valid multibyte sequence of
+                    // the same indicated length and then truncate it to the
+                    // length of 'ERROR_STR'.
+
+                    const IntPtr len = bsl::strlen(ERROR_STR + OFFSET);
+                    const int    intendedLen = intendedSequenceLength(
+                                                            ERROR_STR[OFFSET]);
+                    ASSERT(len < intendedLen);
+                    ASSERT(intendedLen - len <= 3);
+
+                    errorStr.assign(ERROR_STR, OFFSET);
+                    appendRandCorrectCodePoint(&errorStr, false, intendedLen);
+
+                    errorStr.resize(OFFSET + len);
+                }
+                else if (SUR == ERROR_STATUS &&
+                                30 <= intAbs(tj - k_NUM_USE_ZERO_ITERATIONS)) {
+                    errorStr = BDLDE_UTF8UTIL_CASE_4::codeRandSurrogate();
+                }
+                else {
+                    errorStr = ERROR_STR;
+                }
+                str += errorStr;
+
+                ASSERT(str.length() < k_MAX_INPUT_LEN);
+
+                const char * const begin       = str.c_str();
+                const char * const endOfValid  = begin +
+                                                  correctStr.length() + OFFSET;
+                const char *       end;
+                IntPtr             numCodePoints;
+                int                sts;
+
+                const IntPtr numOffsetCodePoints =
+                                    Obj::numCodePointsIfValid(&end,
+                                                              errorStr.c_str(),
+                                                              OFFSET);
+                ASSERT(0 <= numOffsetCodePoints);
+
+                const IntPtr numCodePointsExp = numCorrectStrCodePoints +
+                                                           numOffsetCodePoints;
+
+                if (!zeroUsed) {
+                    sts = -11;
+                    end = "woof";
+                    numCodePoints = Obj::advanceIfValid(&sts,
+                                                        &end,
+                                                        begin,
+                                                        INT_PTR_MAX);
+                    ASSERT(endOfValid == end);
+                    ASSERT(numCodePointsExp == numCodePoints);
+                    ASSERTV(LINE, ERROR_STATUS, sts, dumpStr(errorStr),
+                                                          ERROR_STATUS == sts);
+
+                    ASSERT(!Obj::isValid(begin));
+
+                    end = "woof";
+                    ASSERT(!Obj::isValid(&end, begin));
+                    ASSERT(endOfValid == end);
+
+                    end = "woof";
+                    numCodePoints = Obj::numCodePointsIfValid(&end,
+                                                              begin);
+                    ASSERTV(end - endOfValid, ERROR_STATUS, endOfValid == end);
+                    ASSERTV(LINE, ERROR_STATUS, numCodePoints,
+                                                ERROR_STATUS == numCodePoints);
                 }
 
-                bool zeroUsed = false;
+                sts = -11;
+                end = "woof";
+                numCodePoints = Obj::advanceIfValid(&sts,
+                                                    &end,
+                                                    begin,
+                                                    str.length(),
+                                                    INT_PTR_MAX);
+                ASSERT(endOfValid == end);
+                ASSERT(numCodePointsExp == numCodePoints);
+                ASSERTV(LINE, ERROR_STATUS, sts, ERROR_STATUS == sts);
 
-                vec.clear();
-                for (int jj = 0; jj < numValues; ++jj) {
-                    // Valid values of 'bytesPerCodePoint' are 1, 2, 3, 4, and
-                    // 0, and '0' gets converted from 'jj == 4', and only when
-                    // 'numValues == 5'.
+                ASSERT(!Obj::isValid(begin, str.length()));
 
-                    if (key & (1 << jj)) {
-                        int bytesPerCodePoint = jj + 1;
-                        if (5 == bytesPerCodePoint) {
-                            bytesPerCodePoint = 0;
-                            zeroUsed = true;
-                        }
-                        vec.push_back(bytesPerCodePoint);
-                    }
-                }
-                ASSERT(!useZero || zeroUsed);
+                end = "woof";
+                ASSERT(!Obj::isValid(&end, begin, str.length()));
+                ASSERT(endOfValid == end);
 
-                origVec = vec;
-                do {    // for all permutations of vec
-                    correctStr.clear();
+                end = "woof";
+                numCodePoints = Obj::numCodePointsIfValid(&end,
+                                                          begin,
+                                                          str.length());
+                ASSERT(endOfValid == end);
+                ASSERTV(LINE, ERROR_STATUS, numCodePoints,
+                                                ERROR_STATUS == numCodePoints);
 
-                    for (unsigned jj = 0; jj < vec.size(); ++jj) {
-                        switch (vec[jj]) {
-                          case 1: {
-                            appendRand1Byte(&correctStr);
-                          } break;
-                          case 2: {
-                            appendRand2Byte(&correctStr);
-                          } break;
-                          case 3: {
-                            appendRand3Byte(&correctStr);
-                          } break;
-                          case 4: {
-                            appendRand4Byte(&correctStr);
-                          } break;
-                          case 0: {
-                            correctStr.push_back('\0');
-                          } break;
-                          default: {
-                            ASSERT(0);
-                          }
-                        }
-                    }
+                const IntPtr validLen  = endOfValid - begin;
+                IntPtr       intStrLen = str.length();
+                for (IntPtr endOutLen = intStrLen + 4,
+                                   outLen = bsl::max<IntPtr>(4, intStrLen - 1);
+                                           outLen <= endOutLen + 4; ++outLen) {
+                    // Do the test twice, with and without the seek check,
+                    // since that seek might throw off the behavior after it.
 
-                    if (veryVerbose) {
-                        P(dumpVec(vec));
-                        P(dumpStr(correctStr));
-                    }
+                    for (int tk = 0; tk < 2; ++tk) {
+                        bool CHECK_WITH_SEEK = tk;
 
-                    for (int ti = 0; ti < NUM_DATA; ++ti) {
-                        const char *ERROR_STR    = DATA[ti].d_string_p;
-                        const int   TRUNCATED_BY = DATA[ti].d_truncatedBy;
-                        AppendFunc  APPEND_FUNC  = DATA[ti].d_appendFunc;
+                        fsb.pubsetbuf(begin, str.length());
+                        out.resize(0);
+                        out.resize(outLen + 1, badChar);
 
-                        str = correctStr;
-                        if (APPEND_FUNC) {
-                            (*APPEND_FUNC)(&str);
-                            if (TRUNCATED_BY) {
-                                str.resize(str.length() - TRUNCATED_BY);
-                            }
+                        IntPtr intBufLen = Obj::readIfValid(&sts,
+                                                            &out[0],
+                                                            outLen,
+                                                            &fsb);
+                        ASSERT(0 <= intBufLen);
+
+                        ASSERTV(dumpStr(str), intBufLen, outLen,
+                                                          intBufLen <= outLen);
+                        ASSERTV(dumpStr(str), intBufLen, outLen,
+                                                        intBufLen <= validLen);
+                        ASSERT(badChar == out[outLen]);
+
+                        if (sts == ERROR_STATUS) {
+                            ASSERT(intBufLen == validLen);
+                            ASSERT(0 == validLen || 0 < intBufLen);
                         }
                         else {
-                            str += ERROR_STR;
+                            ASSERTV(sts, ERROR_STATUS, 0 < sts);
+                            ASSERTV(outLen, intStrLen,
+                                                      outLen - 3 <= intStrLen);
                         }
 
-                        const char * const begin       = str.c_str();
-                        const char * const endOfValid  = begin +
-                                                           correctStr.length();
-                        const char *       end;
-                        int                numCodePoints;
-                        int                sts;
-                        const int          numCodePointsArg = int(vec.size());
-                        const int          strLength   = int(str.length());
+                        out.resize(intBufLen);
+                        ASSERTV(dumpStr(out),
+                                             Obj::isValid(&out[0], intBufLen));
 
-                        if (!useZero) {
-                            sts = -2;
-                            end = "woof";
-                            numCodePoints = Obj::advanceIfValid(&sts,
-                                                                &end,
-                                                                begin,
-                                                                INT_MAX);
-                            ASSERT(endOfValid == end);
-                            ASSERT(numCodePointsArg == numCodePoints);
-                            ASSERT(-1 == sts);
+                        if (CHECK_WITH_SEEK) {
+                            ASSERT(fsb.pubseekoff(0, bsl::ios_base::cur,
+                                  bsl::ios_base::in) ==
+                                          bsl::streambuf::pos_type(intBufLen));
                         }
 
-                        sts = -2;
-                        end = "woof";
-                        numCodePoints = Obj::advanceIfValid(&sts,
-                                                            &end,
-                                                            begin,
-                                                            strLength,
-                                                            INT_MAX);
-                        ASSERT(endOfValid == end);
-                        ASSERT(numCodePointsArg == numCodePoints);
-                        ASSERT(-1 == sts);
-
-                        if (0 != TRUNCATED_BY) {
-                            // Now, if the error char was truncated, we tack a
-                            // correct char on after and observe no change to
-                            // the result:
-
-                            appendRandCorrectCodePoint(&str, useZero);
-
-                            if (!useZero) {
-                                sts = -2;
-                                end = "woof";
-                                numCodePoints = Obj::advanceIfValid(&sts,
-                                                                    &end,
-                                                                    begin,
-                                                                    INT_MAX);
-                                ASSERT(endOfValid == end);
-                                ASSERT(numCodePointsArg == numCodePoints);
-                                ASSERT(-1 == sts);
-                            }
-
-                            sts = -2;
-                            end = "woof";
-                            numCodePoints = Obj::advanceIfValid(&sts,
-                                                                &end,
-                                                                begin,
-                                                                strLength,
-                                                                INT_MAX);
-                            ASSERT(endOfValid == end);
-                            ASSERT(numCodePointsArg == numCodePoints);
-                            ASSERT(-1 == sts);
-                        }
+                        bsl::string remainderStr;
+                        remainderStr.resize(1024);
+                        const IntPtr expLen = str.length() - intBufLen;
+                        ASSERT(expLen == fsb.sgetn(&remainderStr[0], 1024));
+                        remainderStr.resize(expLen);
+                        ASSERTV(dumpStr(str.substr(intBufLen)),
+                                                         dumpStr(remainderStr),
+                                        str.substr(intBufLen) == remainderStr);
                     }
+                }
 
-                    bsl::next_permutation(vec.begin(), vec.end());
-                } while (origVec != vec);
+                // Now, we tack a correct char on after and observe no change
+                // to the result:
+
+                for (unsigned uu = randUnsigned() % 3 + 1; 0 < uu--; ) {
+                    appendRandCorrectCodePoint(&str, useZero);
+                }
+                zeroUsed = zeroUsed || (useZero &&
+                                     bsl::count(str.begin(), str.end(), '\0'));
+
+                ERROR_STATUS = EIT == ERROR_STATUS ? NCO : ERROR_STATUS;
+
+                if (!zeroUsed) {
+                    ASSERT(bsl::strlen(begin) == str.length());
+
+                    sts = -11;
+                    end = "woof";
+                    numCodePoints = Obj::advanceIfValid(&sts,
+                                                        &end,
+                                                        begin,
+                                                        INT_PTR_MAX);
+                    ASSERT(endOfValid == end);
+                    ASSERT(numCodePointsExp == numCodePoints);
+                    ASSERT(ERROR_STATUS == sts);
+
+                    ASSERT(!Obj::isValid(begin));
+
+                    end = "woof";
+                    ASSERT(!Obj::isValid(&end, begin));
+                    ASSERT(endOfValid == end);
+
+                    end = "woof";
+                    numCodePoints = Obj::numCodePointsIfValid(&end,
+                                                              begin);
+                    ASSERT(endOfValid == end);
+                    ASSERT(ERROR_STATUS == numCodePoints);
+                }
+
+                sts = -11;
+                end = "woof";
+                numCodePoints = Obj::advanceIfValid(&sts,
+                                                    &end,
+                                                    begin,
+                                                    str.length(),
+                                                    INT_PTR_MAX);
+                ASSERT(endOfValid == end);
+                ASSERT(numCodePointsExp == numCodePoints);
+                ASSERTV(LINE, ERROR_STATUS, sts,
+                                     str[str.length()-1], ERROR_STATUS == sts);
+
+                ASSERT(!Obj::isValid(begin, str.length()));
+
+                end = "woof";
+                ASSERT(!Obj::isValid(&end, begin, str.length()));
+                ASSERT(endOfValid == end);
+
+                end = "woof";
+                numCodePoints = Obj::numCodePointsIfValid(&end,
+                                                          begin,
+                                                          str.length());
+                ASSERT(endOfValid == end);
+                ASSERTV(LINE, dumpStr(errorStr), ERROR_STATUS, numCodePoints,
+                                                ERROR_STATUS == numCodePoints);
+
+                intStrLen = str.length();
+                for (IntPtr endOutLen = intStrLen + 4,
+                                   outLen = bsl::max<IntPtr>(4, intStrLen - 1);
+                                           outLen <= endOutLen + 4; ++outLen) {
+                    // Do the test twice, with and without the seek check,
+                    // since that seek might throw off the behavior after it.
+
+                    for (int tk = 0; tk < 2; ++tk) {
+                        bool CHECK_WITH_SEEK = tk;
+
+                        fsb.pubsetbuf(begin, str.length());
+                        out.resize(0);
+                        out.resize(outLen + 1, badChar);
+
+                        IntPtr intBufLen = Obj::readIfValid(&sts,
+                                                            &out[0],
+                                                            outLen,
+                                                            &fsb);
+                        ASSERT(0 <= intBufLen);
+                        ASSERT(badChar == out[outLen]);
+
+                        ASSERTV(dumpStr(str), intBufLen, outLen,
+                                                          intBufLen <= outLen);
+                        ASSERTV(dumpStr(str), intBufLen, outLen,
+                                                        intBufLen <= validLen);
+
+                        if (sts == ERROR_STATUS) {
+                            ASSERT(intBufLen == validLen);
+                            ASSERT(0 == validLen || 0 < intBufLen);
+                        }
+                        else {
+                            ASSERTV(sts, ERROR_STATUS, 0 < sts);
+                            ASSERTV(outLen, intStrLen,
+                                                      outLen - 3 <= intStrLen);
+                        }
+
+                        out.resize(intBufLen);
+                        ASSERTV(dumpStr(out), Obj::isValid(&out[0],
+                                                                   intBufLen));
+
+                        if (CHECK_WITH_SEEK) {
+                            ASSERT(fsb.pubseekoff(0, bsl::ios_base::cur,
+                                  bsl::ios_base::in) ==
+                                          bsl::streambuf::pos_type(intBufLen));
+                        }
+                        bsl::string remainderStr;
+                        remainderStr.resize(1024);
+                        const IntPtr expLen = str.length() - intBufLen;
+                        ASSERT(expLen == fsb.sgetn(&remainderStr[0], 1024));
+                        remainderStr.resize(expLen);
+                        ASSERTV(dumpStr(str.substr(intBufLen)),
+                                                         dumpStr(remainderStr),
+                                        str.substr(intBufLen) == remainderStr);
+                    }
+                }
             }
         }
       } break;
@@ -3387,258 +4403,348 @@ int main(int argc, char *argv[])
         //: 1 We create static functions 'appendRand*Char(bsl::string*)' that
         //:   will append one random Unicode code point of the 4 possible valid
         //:   lengths to a string.
+        //:
         //: 2 There are 5 types of code points we will have in the input
         //:   strings: non-zero Unicode values of the 4 possible lengths, and
         //:   the zero char.  We represent string containing up to two of each
         //:   of those values with a vector 'vec' of integers, where value
         //:   '1-4' represent non-zero Unicode code points of the length
         //:   indicated by the number, and 0 representing a 0 code point.
+        //:
         //: 3 We do our tests twice, once where we don't include any 0 code
         //:   points for testing functions that take zero-terminated input, and
         //:   again including 0 code points, by iterating on 'useZero',
         //:   effectively a boolean.
+        //:
         //: 4 We have an integer key, where the bottom several bits of the
         //:   value indicate whether Unicode code points of a given length will
         //:   be present in the value.  The key is 8 bits long if 0 is not
         //:   used, 10 bits long if 0 is used (two bits for each length, to
         //:   indicate the presence or absence of up to 2 instances of Unicode
         //:   code points).
+        //:
         //: 5 The key is processed into 'vec', where each element of vec
         //:   indicates the Unicode code point length (or 0 value) of a Unicode
         //:   code point to be present in the test string.
+        //:
         //: 6 We then iterate through all permutations of 'vec'.
+        //:
         //: 7 For each permutation, we translate 'vec' into a string, using the
         //:   'appendRaw*Char' functions described above.
+        //:
         //: 8 We then call all forms of 'advance*' function on this string, and
         //:   observe that the return values are as expected.
-        //: 9 We then push a random garbage char onto the end of the string.
+        //:
+        //: 9 We then call 'readValidUtf8ToBuffer' on the input with a variety
+        //:    of output buffer lengths.
+        //:
+        //: 10 We then push a random garbage char onto the end of the string.
         //:   Since we 'reserve'd a long length for the string, this will not
         //:   cause a reallocation of the buffer or invalidation of any of our
         //:   pointers at or into the string.
-        //: 10 We then call the 'advance' functions that either don't take 0
+        //:
+        //: 11 We then call the 'advance' functions that either don't take 0
         //:    terminated input, or that are passed 'numCodePoints', which will
         //:    tell the 'advance*' to finish before examining the garbage byte,
         //:    and observe the functions succeed.
         //
         // Testing:
-        //   int advanceIfValid(int *, const char **, const char *, int);
-        //   int advanceIfValid(int *, const char **, const char *, int, int);
-        //   int advanceRaw(const char **, const char *, int);
-        //   int advanceRaw(const char **, const char *, int, int);
+        //   IntPtr advanceIfValid(int *, const char **, const char *, int);
+        //   IntPtr advanceIfValid(int *, const char **, const char *,int,int);
+        //   IntPtr advanceRaw(const char **, const char *, int);
+        //   IntPtr advanceRaw(const char **, const char *, int, int);
+        //   bool isValid(const char *);
+        //   bool isValid(const char *, int);
+        //   bool isValid(const char **, const char *);
+        //   bool isValid(const char **, const char *, int);
+        //   IntPtr numCodePointsIfValid(const char **, const char *);
+        //   IntPtr numCodePointsIfValid(const char **, const char *, int);
+        //   size_t readIfValid(int *, char *, size_t, streambuf *);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING EXHAUSTIVE CORRECT SEQUENCES\n"
                                "====================================\n";
 
-        bsl::vector<int> vec;
-        bsl::vector<int> origVec;
-        bsl::string      str;
+        bsl::string str, out;
 
-        vec.    reserve(10);
-        origVec.reserve(10);
-        str.    reserve(50);    // reserve longer than the longest length we
-                                // will use, so no manipulation of this
-                                // 'string' will result in a reallocation and a
-                                // move of the buffer.
+        const IntPtr INT_PTR_MAX = ~static_cast<bsl::size_t>(0) >> 1;
 
-#if   defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
-        const double defaultFraction = 1.0;
-#elif defined(BSLS_PLATFORM_OS_AIX)
-        const double defaultFraction = 0.90;
-#else
-        const double defaultFraction = 0.75;
-#endif
+        enum { k_NUM_ITERATIONS          = 70 * 1000,
+               k_NUM_USE_ZERO_ITERATIONS = k_NUM_ITERATIONS / 10,
+               k_MAX_INPUT_LEN           = 200 };
 
-        const double fraction = verbose ? strtod(argv[2], 0) : defaultFraction;
-        ASSERT(fraction >= 0.0 && fraction <= 1.0);
+        str.reserve(k_MAX_INPUT_LEN);   // reserve longer than the longest
+                                        // length we will use, so no
+                                        // manipulation of this 'string' will
+                                        // result in a reallocation and a move
+                                        // of the buffer.
+        out.reserve(k_MAX_INPUT_LEN + 4);
 
-        for (int useZero = 0; useZero < 2; ++useZero) {
-            int numValues   = 4 + useZero;
+        const char *WOOF = "woof";
 
-            // Only throttle 'totalValues' in the case 'useZero == true'.  In
-            // the other case, the max length of 'vec' is 8, and the number of
-            // permutations isn't a problem until you get up to 9 or 10.
+        for (int tj = 0; tj < k_NUM_ITERATIONS; ++tj) {
+            const bool useZero = tj < k_NUM_USE_ZERO_ITERATIONS;
+            const int  numCodePointsExp = randUnsigned() % 6 + 4;
 
-            int totalValues = useZero
-                            ? int(2 * numValues * (0.5 + fraction * 0.5))
-                            : 2 * numValues;
-            int iterations  = 1 << totalValues;
-            if (veryVerbose) P(totalValues);
-
-            const int zeroUsedMask = (totalValues >=  5 ? (1 << 4) : 0) |
-                                     (totalValues >= 10 ? (1 << 9) : 0);
-
-            for (int key = 0; key < iterations; ++key) {
-                if (useZero && 0 == (key & zeroUsedMask)) {
-                    continue;
-                }
-
-                bool zeroUsed = false;
-
-                vec.clear();
-                for (int jj = 0; jj < totalValues; ++jj) {
-                    // Valid values of 'bytesPerCodePoint' are 1, 2, 3, 4, and
-                    // 0, and '0' gets converted from 'jj == 4', and only when
-                    // 'numValues == 5'.
-
-                    if (key & (1 << jj)) {
-                        int bytesPerCodePoint = jj % numValues + 1;
-                        if (5 == bytesPerCodePoint) {
-                            bytesPerCodePoint = 0;
-                            zeroUsed = true;
-                        }
-                        vec.push_back(bytesPerCodePoint);
-                    }
-                }
-                ASSERT(!useZero || zeroUsed);
-
-                origVec = vec;
-                do {    // for all permutations of vec
-                    str.clear();
-
-                    for (unsigned jj = 0; jj < vec.size(); ++jj) {
-                        switch (vec[jj]) {
-                          case 1: {
-                            appendRand1Byte(&str);
-                          } break;
-                          case 2: {
-                            appendRand2Byte(&str);
-                          } break;
-                          case 3: {
-                            appendRand3Byte(&str);
-                          } break;
-                          case 4: {
-                            appendRand4Byte(&str);
-                          } break;
-                          case 0: {
-                            str.push_back('\0');
-                          } break;
-                          default: {
-                            ASSERT(0);
-                          }
-                        }
-                    }
-
-                    if (veryVerbose) {
-                        P(dumpVec(vec));
-                        P(dumpStr(str));
-                    }
-
-                    const char * const begin       = str.c_str();
-                    const char * const endOfString = &*str.end();
-                    const char *       end;
-                    int                numCodePoints;
-                    int                sts;
-                    const int          numCodePointsArg = int(vec.size());
-                    const int          strLength   = int(str.length());
-
-                    if (!useZero) {
-                        end = "woof";
-                        numCodePoints = Obj::advanceRaw(&end, begin, INT_MAX);
-                        ASSERT(endOfString == end);
-                        ASSERT(numCodePointsArg == numCodePoints);
-
-                        sts = -2;
-                        end = "woof";
-                        numCodePoints = Obj::advanceIfValid(&sts,
-                                                            &end,
-                                                            begin,
-                                                            INT_MAX);
-                        ASSERT(endOfString == end);
-                        ASSERT(numCodePointsArg == numCodePoints);
-                        ASSERT(0 == sts);
-                    }
-
-                    end = "woof";
-                    numCodePoints = Obj::advanceRaw(&end,
-                                                    begin,
-                                                    strLength,
-                                                    INT_MAX);
-                    ASSERT(endOfString == end);
-                    ASSERT(numCodePointsArg == numCodePoints);
-
-                    sts = -2;
-                    end = "woof";
-                    numCodePoints = Obj::advanceIfValid(&sts,
-                                                        &end,
-                                                        begin,
-                                                        strLength,
-                                                        INT_MAX);
-                    ASSERT(endOfString == end);
-                    ASSERT(numCodePointsArg == numCodePoints);
-                    ASSERT(0 == sts);
-
-                    // Now we tack an extra non-zero garbage char on the end
-                    // 'str', and make sure that it makes no difference when
-                    // when 'strLength' and 'numCodePointsArg' dictate that it
-                    // will not be read.
-
-                    // Don't use 'c == 0' as we already tested that above.
-
-                    char c = char(randUnsigned() % 256 - 128);
-                    c = c ? c : 'a';
-                    str.push_back(c);
-
-                    end = "woof";
-                    numCodePoints = Obj::advanceRaw(&end,
-                                                    begin,
-                                                    strLength,
-                                                    INT_MAX);
-                    ASSERT(endOfString == end);
-                    ASSERT(numCodePointsArg == numCodePoints);
-
-                    sts = -2;
-                    end = "woof";
-                    numCodePoints = Obj::advanceIfValid(&sts,
-                                                   &end,
-                                                   begin,
-                                                   strLength,
-                                                   INT_MAX);
-                    ASSERT(endOfString == end);
-                    ASSERT(numCodePointsArg == numCodePoints);
-                    ASSERT(0 == sts);
-
-                    if (!useZero) {
-                        end = "woof";
-                        numCodePoints = Obj::advanceRaw(&end,
-                                                        begin,
-                                                        numCodePointsArg);
-                        ASSERT(endOfString == end);
-                        ASSERT(numCodePointsArg == numCodePoints);
-
-                        sts = -2;
-                        end = "woof";
-                        numCodePoints = Obj::advanceIfValid(&sts,
-                                                            &end,
-                                                            begin,
-                                                            numCodePointsArg);
-                        ASSERT(endOfString == end);
-                        ASSERT(numCodePointsArg == numCodePoints);
-                        ASSERT(0 == sts);
-                    }
-
-                    end = "woof";
-                    numCodePoints = Obj::advanceRaw(&end,
-                                                    begin,
-                                                    strLength + 1,
-                                                    numCodePointsArg);
-                    ASSERT(endOfString == end);
-                    ASSERT(numCodePointsArg == numCodePoints);
-
-                    sts = -2;
-                    end = "woof";
-                    numCodePoints = Obj::advanceIfValid(&sts,
-                                                        &end,
-                                                        begin,
-                                                        strLength + 1,
-                                                        numCodePointsArg);
-                    ASSERT(endOfString == end);
-                    ASSERT(numCodePointsArg == numCodePoints);
-                    ASSERT(0 == sts);
-
-                    bsl::next_permutation(vec.begin(), vec.end());
-                } while (origVec != vec);
+            str.clear();
+            for (int ii = 0; ii < numCodePointsExp; ++ii) {
+                appendRandCorrectCodePoint(&str, useZero);
             }
+            ASSERT(str.length() < k_MAX_INPUT_LEN);
+
+            if (veryVeryVerbose ||
+                               (intAbs(tj - k_NUM_USE_ZERO_ITERATIONS) < 100 &&
+                                                                veryVerbose)) {
+                P(dumpStr(str));
+            }
+
+            const bool zeroUsed = bsl::count(str.begin(), str.end(), '\0');
+            ASSERT(!zeroUsed || useZero);
+
+            const char * const begin       = str.c_str();
+            const char * const endOfString = &*str.end();
+            const char *       end;
+            IntPtr             numCodePoints;
+            int                sts;
+            const bsl::size_t  strLength = str.length();
+
+            if (!zeroUsed) {
+                end = WOOF;
+                numCodePoints = Obj::advanceRaw(&end, begin, INT_MAX);
+                ASSERT(endOfString == end);
+                ASSERT(numCodePointsExp == numCodePoints);
+
+                sts = -11;
+                end = WOOF;
+                numCodePoints = Obj::advanceIfValid(&sts,
+                                                    &end,
+                                                    begin,
+                                                    INT_PTR_MAX);
+                ASSERT(endOfString == end);
+                ASSERT(numCodePointsExp == numCodePoints);
+                ASSERT(0 == sts);
+
+                ASSERT(Obj::isValid(begin));
+
+                end = WOOF;
+                ASSERT(Obj::isValid(&end, begin));
+                ASSERT(WOOF == end);
+
+                end = WOOF;
+                numCodePoints = Obj::numCodePointsIfValid(&end,
+                                                          begin);
+                ASSERT(WOOF == end);
+                ASSERT(numCodePointsExp == numCodePoints);
+
+                numCodePoints = Obj::numCodePointsRaw(begin);
+                ASSERT(numCodePointsExp == numCodePoints);
+            }
+
+            end = "woof";
+            numCodePoints = Obj::advanceRaw(&end,
+                                            begin,
+                                            strLength,
+                                            INT_PTR_MAX);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+
+            sts = -11;
+            end = "woof";
+            numCodePoints = Obj::advanceIfValid(&sts,
+                                                &end,
+                                                begin,
+                                                strLength,
+                                                INT_PTR_MAX);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+            ASSERT(0 == sts);
+
+            ASSERT(Obj::isValid(begin, strLength));
+
+            end = WOOF;
+            ASSERT(Obj::isValid(&end, begin, strLength));
+            ASSERT(WOOF == end);
+
+            end = WOOF;
+            numCodePoints = Obj::numCodePointsIfValid(&end,
+                                                      begin,
+                                                      strLength);
+            ASSERT(WOOF == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+
+            numCodePoints = Obj::numCodePointsRaw(begin, strLength);
+            ASSERT(numCodePointsExp == numCodePoints);
+
+            bdlsb::FixedMemInStreamBuf fsb(0, 0);
+
+            const char badChar = static_cast<char>(0xf8);     // 'f8' is ALWAYS
+                                                              // illegal UTF-8
+            IntPtr sbLen0 = bsl::max<IntPtr>(strLength - 3, 0);
+            const IntPtr sbEnd = strLength;
+            static bool firstTime = true;
+            if (firstTime) {
+                firstTime = false;
+
+                // We want to try with an empty streambuf, but only once
+
+                sbLen0 = 0;
+            }
+            for (IntPtr sbLen = sbLen0; sbLen <= sbEnd;
+                                      sbLen = bsl::max(sbLen + 1, sbEnd - 3)) {
+                for (IntPtr outLen = 4; outLen <= sbLen + 4;
+                                    outLen = bsl::max(outLen + 1, sbLen - 3)) {
+                    ASSERT(outLen <= k_MAX_INPUT_LEN + 4);
+
+                    out.resize(0);
+                    out.resize(outLen, badChar);
+
+                    fsb.pubsetbuf(begin, sbLen);
+
+                    const bool inputValid = Obj::isValid(begin, sbLen);
+
+                    IntPtr intBufLen = Obj::readIfValid(&sts,
+                                                        &out[0],
+                                                        outLen,
+                                                        &fsb);
+                    ASSERT(0 <= intBufLen);
+
+                    switch (sts) {
+                      case 0: {
+                        ASSERT(intBufLen == sbLen);
+                      } break;
+                      case Obj::k_END_OF_INPUT_TRUNCATION: {
+                        ASSERT(!inputValid);
+                        IntPtr ii = 1, end = bsl::min<IntPtr>(3, sbLen);
+                        for (; ii <= end; ++ii) {
+                            if ((0xc0 & begin[sbLen - ii]) == 0xc0) {
+                                break;
+                            }
+                        }
+                        ASSERT(ii <= end);
+                      } break;
+                      default: {
+                        if (0 < sts) {
+                            ASSERT(outLen <= sbLen + 3);
+                        }
+                        else {
+                            ASSERTV(sts, 0 && "unexpected error");
+                        }
+                      }
+                    }
+
+                    ASSERTV(intBufLen, outLen, intBufLen <= outLen);
+                    ASSERTV(intBufLen, sbLen,  intBufLen <= sbLen);
+                    ASSERTV(intBufLen, sbLen, outLen,
+                                   bsl::min(sbLen, outLen-3) - intBufLen <= 3);
+                    ASSERTV(0 < intBufLen || 0 == sbLen ||
+                                                   (!inputValid && sbLen < 4));
+
+                    ASSERT(0 == bsl::memcmp(&out[0], begin,intBufLen));
+                    ASSERT(Obj::isValid(&out[0], intBufLen));
+
+                    if (inputValid) {
+                        ASSERT(0 <= sts);
+                        ASSERT((0 < sts) ==
+                                       (outLen - 4 < static_cast<int>(sbLen)));
+
+                        if (4 == outLen && 0 < sbLen) {
+                            end = WOOF;
+                            ASSERT(1 == Obj::numCodePointsIfValid(&end,
+                                                                  &out[0],
+                                                                  intBufLen));
+                            ASSERT(WOOF == end);
+                        }
+                    }
+                    else {
+                        ASSERT(0 != sts);
+                        ASSERTV(sts, sbLen + 3 > outLen ||
+                                        Obj::k_END_OF_INPUT_TRUNCATION == sts);
+                    }
+                }
+            }
+
+            // Now we tack an extra non-zero garbage char on the end 'str', and
+            // make sure that it makes no difference when when 'strLength' and
+            // 'numCodePointsExp' dictate that it will not be read.
+
+            // Don't use 'c == 0' as we already tested that above.
+
+            char c = char(randUnsigned() % 256 - 128);
+            c = c ? c : 'a';
+            str.push_back(c);
+
+            end = "woof";
+            numCodePoints = Obj::advanceRaw(&end,
+                                            begin,
+                                            strLength,
+                                            INT_PTR_MAX);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+
+            sts = -11;
+            end = "woof";
+            numCodePoints = Obj::advanceIfValid(&sts,
+                                           &end,
+                                           begin,
+                                           strLength,
+                                           INT_PTR_MAX);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+            ASSERT(0 == sts);
+
+            if (!zeroUsed) {
+                end = "woof";
+                numCodePoints = Obj::advanceRaw(&end,
+                                                begin,
+                                                numCodePointsExp);
+                ASSERT(endOfString == end);
+                ASSERT(numCodePointsExp == numCodePoints);
+
+                sts = -11;
+                end = "woof";
+                numCodePoints = Obj::advanceIfValid(&sts,
+                                                    &end,
+                                                    begin,
+                                                    numCodePointsExp);
+                ASSERT(endOfString == end);
+                ASSERT(numCodePointsExp == numCodePoints);
+                ASSERT(0 == sts);
+            }
+
+            end = "woof";
+            numCodePoints = Obj::advanceRaw(&end,
+                                            begin,
+                                            strLength + 1,
+                                            numCodePointsExp);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+
+            sts = -11;
+            end = "woof";
+            numCodePoints = Obj::advanceIfValid(&sts,
+                                                &end,
+                                                begin,
+                                                strLength + 1,
+                                                numCodePointsExp);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+            ASSERT(0 == sts);
+
+            ASSERT(Obj::isValid(begin, strLength));
+
+            end = WOOF;
+            ASSERT(Obj::isValid(&end, begin, strLength));
+            ASSERT(WOOF == end);
+
+            end = WOOF;
+            numCodePoints = Obj::numCodePointsIfValid(&end,
+                                                      begin,
+                                                      strLength);
+            ASSERT(WOOF == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+
+            numCodePoints = Obj::numCodePointsRaw(begin, strLength);
+            ASSERT(numCodePointsExp == numCodePoints);
         }
       } break;
       case 7: {
@@ -3655,17 +4761,17 @@ int main(int argc, char *argv[])
         //:   the code points correctly, and don't report any errors.
         //
         // Testing:
-        //   int advanceIfValid(int *, const char **, const char *, int); prose
-        //   int advanceIfValid(int*,const char**,const char *,int,int); prose
-        //   int advanceRaw(const char **, const char *, int); prose
-        //   int advanceRaw(const char **, const char *, int, int); prose
+        //   IntPtr advanceIfValid(int *, const char **, const char *, int);
+        //   IntPtr advanceIfValid(int*,const char**,const char *,int,int);
+        //   IntPtr advanceRaw(const char **, const char *, int);
+        //   IntPtr advanceRaw(const char **, const char *, int, int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING REAL PROSE\n"
                                "==================\n";
 
         const char *result;
-        int         numCodePoints;
+        IntPtr      numCodePoints;
         int         sts;
 
         const char * const begin  = charUtf8MultiLang;
@@ -3757,14 +4863,16 @@ int main(int argc, char *argv[])
         //   bool isValid(const char *s, int len);
         //   bool isValid(const char **err, const char *s);
         //   bool isValid(const char **err, const char *s, int len);
-        //   int numCharactersIfValid(**err, const char *s);
-        //   int numCharactersIfValid(**err, const char *s, int len);
-        //   int numCodePointsIfValid(**err, const char *s);
-        //   int numCodePointsIfValid(**err, const char *s, int len);
+        //   IntPtr numCharactersIfValid(**err, const char *s);
+        //   IntPtr numCharactersIfValid(**err, const char *s, int len);
+        //   IntPtr numCodePointsIfValid(**err, const char *s);
+        //   IntPtr numCodePointsIfValid(**err, const char *s, int len);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING 'isValid' & 'numCodePointsIfValid'\n"
                                "==========================================\n";
+
+        IntPtr rc;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE     = DATA[ti].d_lineNum;
@@ -3772,12 +4880,14 @@ int main(int argc, char *argv[])
             const int   NUMBYTES = DATA[ti].d_numBytes;
             const int   NUMCPS   = DATA[ti].d_numCodePoints;
             const int   ERROFF   = DATA[ti].d_errOffset;
-            const int   VALID    = DATA[ti].d_isValid;
+            const bool  VALID    = DATA[ti].d_isValid;
 
             if (veryVerbose) {
                 T_; P_(ti);
                 P_(UTF8); P_(NUMBYTES); P_(NUMCPS); P_(ERROFF); P(VALID);
             }
+
+            ASSERTV(LINE, static_cast<int>(bsl::strlen(UTF8)) == NUMBYTES);
 
             LOOP_ASSERT(LINE, VALID == Obj::isValid(UTF8));
             LOOP_ASSERT(LINE, VALID == Obj::isValid(UTF8, NUMBYTES));
@@ -3818,8 +4928,8 @@ int main(int argc, char *argv[])
             }
 
             ERRSTR = 0;
-            LOOP_ASSERT(LINE, NUMCPS == Obj::numCharactersIfValid(&ERRSTR,
-                                                                  UTF8));
+            rc = Obj::numCharactersIfValid(&ERRSTR, UTF8);
+            ASSERTV(LINE, NUMCPS, rc, NUMCPS == rc);
 
             ERRSTR = 0;
             LOOP_ASSERT(LINE, NUMCPS == Obj::numCodePointsIfValid(&ERRSTR,
@@ -3838,9 +4948,10 @@ int main(int argc, char *argv[])
                                                                     NUMBYTES));
 
             ERRSTR = 0;
-            LOOP_ASSERT(LINE, NUMCPS == Obj::numCodePointsIfValid(&ERRSTR,
-                                                                  UTF8,
-                                                                  NUMBYTES));
+            ASSERTV(LINE, NUMCPS, rc,
+                         NUMCPS == (rc = Obj::numCodePointsIfValid(&ERRSTR,
+                                                                   UTF8,
+                                                                   NUMBYTES)));
 
             if (VALID) {
                 LOOP_ASSERT(LINE, 0      == ERRSTR);
@@ -3862,14 +4973,12 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, 0 == ERRSTR);
             }
             else {
-                LOOP_ASSERT(LINE, -1 ==
-                                      Obj::numCharactersIfValid(&ERRSTR,
-                                                                UTF8,
-                                                                NUMBYTES + 1));
-                LOOP_ASSERT(LINE, -1 ==
-                                      Obj::numCodePointsIfValid(&ERRSTR,
-                                                                UTF8,
-                                                                NUMBYTES + 1));
+                LOOP_ASSERT(LINE, Obj::numCharactersIfValid(&ERRSTR,
+                                                            UTF8,
+                                                            NUMBYTES + 1) < 0);
+                LOOP_ASSERT(LINE, Obj::numCodePointsIfValid(&ERRSTR,
+                                                            UTF8,
+                                                            NUMBYTES + 1) < 0);
                 LOOP_ASSERT(LINE, ERROFF == ERRSTR - UTF8);
             }
         }
@@ -3888,14 +4997,14 @@ int main(int argc, char *argv[])
         //:   various valid and invalid UTF-8 strings.
         //
         // Testing:
-        //   int numCharacters(const char *s);
-        //   int numCharacters(const char *s, int len);
-        //   int numCharactersRaw(const char *s);
-        //   int numCharactersRaw(const char *s, int len);
-        //   int numCodePointsRaw(const char *s);
-        //   int numCodePointsRaw(const char *s, int len);
-        //   int numCodePoints(const char *s);
-        //   int numCodePoints(const char *s, int len);
+        //   IntPtr numCharacters(const char *s);
+        //   IntPtr numCharacters(const char *s, int len);
+        //   IntPtr numCharactersRaw(const char *s);
+        //   IntPtr numCharactersRaw(const char *s, int len);
+        //   IntPtr numCodePointsRaw(const char *s);
+        //   IntPtr numCodePointsRaw(const char *s, int len);
+        //   IntPtr numCharacters(const char *s);
+        //   IntPtr numCharacters(const char *s, int len);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING 'numCharactersRaw'" << endl
@@ -3930,10 +5039,10 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(LINE,
                         NUMCPS     == Obj::numCharactersRaw(UTF8,
-                                                              NUMBYTES));
+                                                            NUMBYTES));
             LOOP_ASSERT(LINE,
                         NUMCPS + 1 == Obj::numCharactersRaw(UTF8,
-                                                              NUMBYTES + 1));
+                                                            NUMBYTES + 1));
 
             LOOP_ASSERT(LINE,
                         NUMCPS     == Obj::numCharacters(UTF8));
@@ -3942,13 +5051,20 @@ int main(int argc, char *argv[])
                         NUMCPS     == Obj::numCharacters(UTF8, NUMBYTES));
             LOOP_ASSERT(LINE,
                         NUMCPS + 1 == Obj::numCharacters(UTF8,
-                                                           NUMBYTES + 1));
+                                                         NUMBYTES + 1));
         }
 
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING SURROGATES
+        //
+        // Surrogates are special values encoded in pairs in UTF-16 to encode
+        // high Unicode values.  It is mathematically impossible to encode a
+        // surrogate value, alone or as a pair, in UTF-16.  It is
+        // mathematically possible to encode them in UTF-8, but we make them
+        // artificially illegal so that any valid UTF-8 sequence can be
+        // translated to UTF-16.
         //
         // Concerns:
         //: 1 Create some strings containing surrogate pairs and verify that
@@ -3964,12 +5080,16 @@ int main(int argc, char *argv[])
         //   bool isValid(const char *s, int len);
         //   bool isValid(const char **err, const char *s);
         //   bool isValid(const char **err, const char *s, int len);
+        //   IntPtr advanceIfValid(int *, const char **, const char *, int);
+        //   IntPtr advanceIfValid(int*,const char**,const char *,int,int);
+        //   IntPtr numCodePointsIfValid(**err, const char *s);
+        //   IntPtr numCodePointsIfValid(**err, const char *s, int len);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING SURROGATES" << endl
                           << "==================" << endl;
 
-        using namespace BDEDE_UTF8UTIL_CASE_4;
+        using namespace BDLDE_UTF8UTIL_CASE_4;
 
         bsl::string str;
         str.reserve(6 * 4 + 6 + 1);
@@ -3978,19 +5098,31 @@ int main(int argc, char *argv[])
 
         // test strings with surrogate pairs
         for (int i = 5000; i > 0; -- i) {
-            int rv = randVal();
-            int numLeading = rv & 3;
-            int numTrailing = (rv >> 2) & 3;
+            const int rv = randVal();
+            const int numLeading = rv & 3;
+            const int numTrailing = (rv >> 2) & 3;
             str = "";
             for (int j = 0; j < numLeading; ++ j) {
                 str += codeRandBenign();
             }
+            const IntPtr preLen = str.length();
             str += codeRandSurrogatePair();
             for (int j = 0; j < numTrailing; ++ j) {
                 str += codeRandBenign();
             }
 
             ASSERT(false == allValid(str));
+
+            int sts;
+            const char *invalidPoint;
+            ASSERT(numLeading == allAdvanceIfValid(&sts, &invalidPoint, str));
+            ASSERT(Obj::k_SURROGATE == sts);
+            ASSERT(str.c_str() + preLen == invalidPoint);
+
+            invalidPoint = 0;
+            ASSERT(Obj::k_SURROGATE == allNumCodePointsIfValid(&invalidPoint,
+                                                               str));
+            ASSERT(str.c_str() + preLen == invalidPoint);
         }
 
         randAccum = 0;
@@ -4004,12 +5136,24 @@ int main(int argc, char *argv[])
             for (int j = 0; j < numLeading; ++ j) {
                 str += codeRandBenign();
             }
+            const IntPtr preLen = str.length();
             str += codeRandSurrogate();
             for (int j = 0; j < numTrailing; ++ j) {
                 str += codeRandBenign();
             }
 
             ASSERT(false == allValid(str));
+
+            int sts;
+            const char *invalidPoint;
+            ASSERT(numLeading == allAdvanceIfValid(&sts, &invalidPoint, str));
+            ASSERT(Obj::k_SURROGATE == sts);
+            ASSERT(str.c_str() + preLen == invalidPoint);
+
+            invalidPoint = 0;
+            ASSERT(Obj::k_SURROGATE == allNumCodePointsIfValid(&invalidPoint,
+                                                               str));
+            ASSERT(str.c_str() + preLen == invalidPoint);
         }
       } break;
       case 3: {
@@ -4035,7 +5179,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING BYTE-ORDER MARK" << endl
                           << "=======================" << endl;
 
-        using namespace BDEDE_UTF8UTIL_CASE_2;
+        using namespace BDLDE_UTF8UTIL_CASE_2;
 
         typedef const char Char;
 
@@ -4138,7 +5282,7 @@ int main(int argc, char *argv[])
                       "\nTABLE-DRIVEN ENCODING / DECODING / VALIDATION TEST\n"
                         "==================================================\n";
 
-        using namespace BDEDE_UTF8UTIL_CASE_2;
+        using namespace BDLDE_UTF8UTIL_CASE_2;
 
         typedef const char Char;
 
@@ -4209,7 +5353,7 @@ int main(int argc, char *argv[])
             ASSERT(int(val) == val ## testId);                              \
             ASSERT(str == utf8Encode(val ## testId));                       \
             ASSERT(allValid(str));                                          \
-            ASSERT(1 == allNumCodePoints(str));                             \
+            ASSERTV(val ## testId, 1 == allNumCodePoints(str));             \
             ASSERT(bsl::strlen(str.c_str()) == str.length());               \
         } while(false);
 
@@ -4501,18 +5645,18 @@ int main(int argc, char *argv[])
         str.reserve(41);
         for (int i = 0; i < 40; i += 4) {
             bsl::string newcp = code32(randVal32());
-            ASSERT(4 == Obj::getByteSize(newcp.c_str()));
-            ASSERT(4 == Obj::numBytesIfValid(newcp, 1));
+            ASSERT(4 == Obj::numBytesInCodePoint(newcp.c_str()));
+            ASSERT(4 == Obj::numBytesRaw(newcp, 1));
             str += newcp;
         }
 
         ASSERT(40 == str.length());
         ASSERT(10 == allNumCodePoints(str));
-        ASSERT(40 == Obj::numBytesIfValid(str, 10));
-        ASSERT( 4 == Obj::getByteSize(str.c_str()));
+        ASSERT(40 == Obj::numBytesRaw(str, 10));
+        ASSERT( 4 == Obj::numBytesInCodePoint(str.c_str()));
 
         bsl::string s2 = " ";
-        ASSERT( 0 == Obj::appendUtf8Character(&s2, decode(U8_10000)));
+        ASSERT( 0 == Obj::appendUtf8CodePoint(&s2, decode(U8_10000)));
         ASSERT( 5 == s2.length());
 
         ASSERT(allValid(str));
@@ -4545,7 +5689,7 @@ int main(int argc, char *argv[])
 
             ASSERT(44 == overStr.length());
             ASSERT(11 == allNumCodePoints(overStr));
-            ASSERT(44 == Obj::numBytesIfValid(overStr, 11));
+            ASSERT(44 == Obj::numBytesRaw(overStr, 11));
 
             ASSERT(! allValid(overStr));
 
@@ -4580,16 +5724,16 @@ int main(int argc, char *argv[])
 
             bsl::string newcp = code24(randVal24(true));
 
-            ASSERT(3 == Obj::getByteSize(newcp.c_str()));
-            ASSERT(3 == Obj::numBytesIfValid(newcp, 1));
+            ASSERT(3 == Obj::numBytesInCodePoint(newcp.c_str()));
+            ASSERT(3 == Obj::numBytesRaw(newcp, 1));
 
             str += newcp;
         }
 
         ASSERT(30 == str.length());
         ASSERT(10 == allNumCodePoints(str));
-        ASSERT(30 == Obj::numBytesIfValid(str, 10));
-        ASSERT( 3 == Obj::getByteSize(str.c_str()));
+        ASSERT(30 == Obj::numBytesRaw(str, 10));
+        ASSERT( 3 == Obj::numBytesInCodePoint(str.c_str()));
 
         ASSERT(allValid(str));
 
@@ -4695,16 +5839,16 @@ int main(int argc, char *argv[])
             } while (0 == val);
             bsl::string newcp = code16(val);
 
-            ASSERT(2 == Obj::getByteSize(newcp.c_str()));
-            ASSERT(2 == Obj::numBytesIfValid(newcp, 1));
+            ASSERT(2 == Obj::numBytesInCodePoint(newcp.c_str()));
+            ASSERT(2 == Obj::numBytesRaw(newcp, 1));
 
             str += newcp;
         }
 
         ASSERT(20 == str.length());
         ASSERT(10 == allNumCodePoints(str));
-        ASSERT(20 == Obj::numBytesIfValid(str, 10));
-        ASSERT( 2 == Obj::getByteSize(str.c_str()));
+        ASSERT(20 == Obj::numBytesRaw(str, 10));
+        ASSERT( 2 == Obj::numBytesInCodePoint(str.c_str()));
 
         ASSERT(allValid(str));
 
@@ -4803,14 +5947,14 @@ int main(int argc, char *argv[])
         str.reserve(14);
         for (int i = 0; i < 10; ++ i) {
             bsl::string newcp = code8(randVal8(true));
-            ASSERT(1 == Obj::getByteSize(newcp.c_str()));
-            ASSERT(1 == Obj::numBytesIfValid(newcp, 1));
+            ASSERT(1 == Obj::numBytesInCodePoint(newcp.c_str()));
+            ASSERT(1 == Obj::numBytesRaw(newcp, 1));
             str += newcp;
         }
 
         ASSERT(10 == str.length());
         ASSERT(10 == allNumCodePoints(str));
-        ASSERT(10 == Obj::numBytesIfValid(str, 10));
+        ASSERT(10 == Obj::numBytesRaw(str, 10));
 
         ASSERT(allValid(str));
 

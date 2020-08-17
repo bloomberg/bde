@@ -860,8 +860,12 @@ int BerUtil_FloatingPointImpUtil::getDecimal64Value(
         return -1;                                                    // RETURN
     }
 
-    *value = bdldfp::DecimalConvertUtil::decimal64FromMultiWidthEncoding(
-        buffer, length);
+    if (0 !=
+        bdldfp::DecimalConvertUtil::decimal64FromMultiWidthEncodingIfValid(
+            value, buffer, length)) {
+        return -1;                                                    // RETURN
+    }
+
     return 0;
 }
 
@@ -1395,11 +1399,10 @@ int BerUtil_DateImpUtil::getDateValue(bdlt::Date     *value,
         return -1;                                                    // RETURN
     }
 
-    bool                reserved;
     DateEncoding::Value encoding;
-    detectDateEncoding(&reserved, &encoding, length, firstByte);
+    int rc = detectDateEncoding(&encoding, length, firstByte);
 
-    if (reserved) {
+    if (0 != rc) {
         return -1;                                                    // RETURN
     }
 
@@ -1466,11 +1469,10 @@ int BerUtil_DateImpUtil::getDateTzValue(bdlt::DateTz   *value,
         return -1;                                                    // RETURN
     }
 
-    bool                  reserved;
     DateTzEncoding::Value encoding;
-    detectDateTzEncoding(&reserved, &encoding, length, firstByte);
+    int rc = detectDateTzEncoding(&encoding, length, firstByte);
 
-    if (reserved) {
+    if (0 != rc) {
         return -1;                                                    // RETURN
     }
 

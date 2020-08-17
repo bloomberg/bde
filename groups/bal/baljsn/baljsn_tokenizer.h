@@ -23,6 +23,10 @@ BSLS_IDENT("$Id: $")
 // package and in most cases clients should use the 'baljsn_decoder' component
 // instead of using this 'class'.
 //
+// On malformed JSON, tokenization may fail before the end of input is reached,
+// but not all such errors are detected.  In particular, callers should check
+// that closing brackets and braces match opening ones.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -131,6 +135,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
+#include <bsl_ios.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -149,6 +154,9 @@ class Tokenizer {
 
   public:
     // TYPES
+    typedef bsls::Types::IntPtr IntPtr;
+    typedef bsls::Types::Uint64 Uint64;
+
     enum TokenType {
         // This 'enum' lists all the possible token types.
 
@@ -173,13 +181,16 @@ class Tokenizer {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
+    enum { k_EOF = +1 };
+
   private:
     // TYPES
     enum ContextType {
         // This 'enum' lists the possible contexts that the tokenizer can be
         // in.
 
-        e_OBJECT_CONTEXT = 1,         // object context
+        e_NO_CONTEXT,                 // context stack is empty
+        e_OBJECT_CONTEXT,             // object context
         e_ARRAY_CONTEXT               // array context
     };
 
@@ -187,56 +198,67 @@ class Tokenizer {
     // another for the context state stack.
 
     enum {
-        k_BUFSIZE         = 1024 * 8,
-        k_MAX_STRING_SIZE = k_BUFSIZE - 1,
+        k_BUFSIZE                  = 1024 * 8,
+        k_MAX_STRING_SIZE          = k_BUFSIZE - 1,
 
-        k_STACKBUFSIZE    = 256
+        k_STACKBUFSIZE             = 256,
+        k_UTF8_MESSAGE_BUFFER_SIZE = 256
     };
 
     // DATA
-    bsls::AlignedBuffer<k_BUFSIZE>       d_buffer;          // string buffer
+    bsls::AlignedBuffer<k_BUFSIZE>
+                        d_buffer;           // string buffer
 
-    bsls::AlignedBuffer<k_STACKBUFSIZE>  d_stackBuffer;     // stack buffer
+    bsls::AlignedBuffer<k_STACKBUFSIZE>
+                        d_stackBuffer;      // stack buffer
 
-    bdlma::BufferedSequentialAllocator   d_allocator;       // string allocator
-                                                            // (owned)
+    bdlma::BufferedSequentialAllocator
+                        d_allocator;        // string allocator (owned)
 
-    bdlma::BufferedSequentialAllocator   d_stackAllocator;  // stack allocator
-                                                            // (owned)
+    bdlma::BufferedSequentialAllocator
+                        d_stackAllocator;   // stack allocator (owned)
 
-    bsl::string                          d_stringBuffer;    // string buffer
+    bsl::string         d_stringBuffer;     // string buffer
 
-    bsl::streambuf                      *d_streambuf_p;     // streambuf
-                                                            // (held, not
-                                                            // owned)
+    bsl::streambuf     *d_streambuf_p;      // streambuf (held, not owned)
 
-    bsl::size_t                          d_cursor;          // current cursor
+    bsl::size_t         d_cursor;           // current cursor
 
-    bsl::size_t                          d_valueBegin;      // cursor for
-                                                            // beginning of
-                                                            // value
+    bsl::size_t         d_valueBegin;       // cursor for beginning of value
 
-    bsl::size_t                          d_valueEnd;        // cursor for end
-                                                            // of value
+    bsl::size_t         d_valueEnd;         // cursor for end of value
 
-    bsl::size_t                          d_valueIter;       // cursor for
-                                                            // iterating value
+    bsl::size_t         d_valueIter;        // cursor for iterating value
 
-    TokenType                            d_tokenType;       // token type
+    Uint64              d_readOffset;       // unused unless UTF-8 checking is
+                                            // enabled -- offset in the
+                                            // streambuf after the last byte of
+                                            // valid UTF-8 read
 
-    bsl::vector<char>                    d_contextStack;    // context type
-                                                            // stack
+    TokenType           d_tokenType;        // token type
 
-    bool                                 d_allowStandAloneValues;
-                                                            // option for
-                                                            // allowing stand
-                                                            // alone values
+    bsl::vector<char>   d_contextStack;     // context type stack
 
-    bool                                 d_allowHeterogenousArrays;
-                                                            // option for
-                                                            // allowing arrays
-                                                            // of heterogenous
-                                                            // values
+    int                 d_readStatus;       // 0 until EOF or an error is
+                                            // encountered, then indicates
+                                            // nature of error.  Returned by
+                                            // 'readStatus'
+
+    int                 d_bufEndStatus;     // status of last read from
+                                            // '*d_streambuf_p'.  If non-zero,
+                                            // copied to 'd_readStatus' on next
+                                            // read attempt.
+
+    bool                d_allowStandAloneValues;
+                                            // option for allowing stand alone
+                                            // values
+
+    bool                d_allowHeterogenousArrays;
+                                            // option for allowing arrays of
+                                            // heterogenous values
+
+    bool                d_allowNonUTF8Tokens;
+                                            // Disables UTF-8 validation
 
     // PRIVATE MANIPULATORS
     int extractStringValue();
@@ -251,7 +273,10 @@ class Tokenizer {
         // additional characters, from the internally-held 'streambuf'
         // ('d_streambuf_p') to the end of that sequence up to a maximum
         // sequence length of 'd_buffer.size()' characters.  Return the number
-        // of bytes read from the 'streambuf'.
+        // of bytes read from the 'streambuf'.  Note that if 0 is returned, it
+        // may mean end of file or, if UTF-8 checking is set, that invalid
+        // UTF-8 was encountered, so it may be necessary to call
+        // 'utf8ErrorIsSet()' to tell the difference.
 
     int reloadStringBuffer();
         // Reload the string buffer with new data read from the underlying
@@ -265,30 +290,33 @@ class Tokenizer {
         // 'd_streambuf_p') to the end of the current sequence of characters.
         // Return 0 on success and a non-zero value otherwise.
 
-    int skipWhitespace();
-        // Skip all whitespace characters and position the cursor onto the
-        // first non-whitespace character.  Return 0 on success and a non-zero
-        // value otherwise.
+    ContextType popContext();
+        // If the 'd_contextStack' is empty, return 'e_NO_CONTEXT', otherwise
+        // pop the top context from the 'd_contextStack' stack, and return it.
+
+    void pushContext(ContextType context);
+        // Push the specified 'context' onto the 'd_contextStack' stack.
 
     int skipNonWhitespaceOrTillToken();
         // Skip all characters until a whitespace or a token character is
         // encountered and position the cursor onto the first such character.
         // Return 0 on success and a non-zero value otherwise.
 
-    void pushContext(ContextType context);
-        // Push the specified 'context' onto the 'd_contextStack' stack.
-
-    ContextType popContext();
-        // Pop the top context from the 'd_contextStack' stack, and return it.
-        // The behavior is undefined if 'd_contextStack' is empty.
+    int skipWhitespace();
+        // Skip all whitespace characters and position the cursor onto the
+        // first non-whitespace character.  Return 0 on success and a non-zero
+        // value otherwise.
 
     // PRIVATE ACCESSOR
     ContextType context() const;
-        // Returns the top context from the 'd_contextStack' stack without
-        // popping.  The behavior is undefined if 'd_contextStack' is empty.
+        // If the 'd_contextStack' is empty, return 'e_NO_CONTEXT', otherwise
+        // return the top context from the 'd_contextStack' stack without
+        // popping.
 
-    // Not implemented:
+  private:
+    // NOT IMPLEMENTED
     Tokenizer(const Tokenizer&);
+    Tokenizer& operator=(const Tokenizer&);
 
   public:
     // CREATORS
@@ -305,13 +333,16 @@ class Tokenizer {
         // Reset this tokenizer to read data from the specified 'streambuf'.
         // Note that the reader will not be on a valid node until
         // 'advanceToNextToken' is called.  Note that this function does not
-        // change the value of the 'allowStandAloneValues' option.
+        // change the value of the 'allowStandAloneValues',
+        // 'allowHeterogenousArrays', or 'allowNonUTF8Tokens' options.
 
     int advanceToNextToken();
         // Move to the next token in the data steam.  Return 0 on success and a
-        // non-zero value otherwise.  Note that each call to
-        // 'advanceToNextToken' invalidates the string references returned by
-        // the 'value' accessor for prior nodes.
+        // non-zero value otherwise.  Each call to 'advanceToNextToken'
+        // invalidates the string references returned by the 'value' accessor
+        // for prior nodes.  Note that on malformed JSON, this function may,
+        // but will not always, return a non-zero value before the end of the
+        // token stream is reached.
 
     int resetStreamBufGetPointer();
         // Reset the get pointer of the 'streambuf' held by this object to
@@ -325,6 +356,21 @@ class Tokenizer {
         // invoked on this object should only be done after calling 'reset' and
         // specifying a new 'streambuf'.
 
+    void setAllowHeterogenousArrays(bool value);
+        // Set the 'allowHeterogenousArrays' option to the specified 'value'.
+        // If the 'allowHeterogenousArrays' value is 'true' this tokenizer will
+        // successfully tokenize heterogenous values within an array.  If the
+        // option's value is 'false' then the tokenizer will return an error
+        // for arrays having heterogenous values.  By default, the value of the
+        // 'allowHeterogenousArrays' option is 'true'.
+
+    void setAllowNonUTF8Tokens(bool value);
+        // Set the 'allowNonUTF8Tokens' option to the specified 'value'.  If
+        // the 'allowNonUTF8Tokens' value is 'true' this tokenizer will check
+        // input for invalid UTF-8, and enter an error mode if any invalid
+        // UTF-8 is encountered, and quit working until 'reset' is called.  By
+        // default, the value of the 'allowNonUTF8Tokens' option is 'false'.
+
     void setAllowStandAloneValues(bool value);
         // Set the 'allowStandAloneValues' option to the specified 'value'.  If
         // the 'allowStandAloneValues' value is 'true' this tokenizer will
@@ -334,31 +380,46 @@ class Tokenizer {
         // error for stand alone JSON values.  By default, the value of the
         // 'allowStandAloneValues' option is 'true'.
 
-    void setAllowHeterogenousArrays(bool value);
-        // Set the 'allowHeterogenousArrays' option to the specified 'value'.
-        // If the 'allowHeterogenousArrays' value is 'true' this tokenizer will
-        // successfully tokenize heterogenous values within an array.  If the
-        // option's value is 'false' then the tokenizer will return an error
-        // for arrays having heterogenous values.  By default, the value of the
-        // 'allowHeterogenousArrays' option is 'true'.
-
     // ACCESSORS
-    TokenType tokenType() const;
-        // Return the token type of the current token.
+    bool allowHeterogenousArrays() const;
+        // Return the value of the 'allowHeterogenousArrays' option of this
+        // tokenizer.
+
+    bool allowNonUTF8Tokens() const;
+        // Return the value of the 'allowNonUTF8Tokens' option of this
+        // tokenizer.
 
     bool allowStandAloneValues() const;
         // Return the value of the 'allowStandAloneValues' option of this
         // tokenizer.
 
-    bool allowHeterogenousArrays() const;
-        // Return the value of the 'allowHeterogenousArrays' option of this
-        // tokenizer.
+    bsls::Types::Uint64 readOffset() const;
+        // Return the position relative to when 'reset' was called.  If end of
+        // file or bad UTF-8 has been encountered, the position relative to
+        // when 'reset' was called of the end of file or of the beginning of
+        // the start of the bad UTF-8 sequence is returned.
+
+    int readStatus() const;
+        // Return the status of the last call to 'advanceToNextToken':
+        //: o 0 if 'advanceToNextToken' has not been called or if a token was
+        //:   successfully read.
+        //:
+        //: o 'k_EOF' (which is positive) if no data could be read before
+        //:   reaching EOF.
+        //:
+        //: o a negative value if the 'validateInputIsUtf8' option is 'true'
+        //:   and a UTF-8 error occurred.  The specific value returned will be
+        //:   one of the enumerators of the 'bdlde::Utf8Util::ErrorStatus'
+        //:   'enum' type indicating the nature of the UTF-8 error.
+
+    TokenType tokenType() const;
+        // Return the token type of the current token.
 
     int value(bslstl::StringRef *data) const;
         // Load into the specified 'data' the value of the specified token if
-        // the current token's type is 'BAEJSN_ELEMENT_NAME' or
-        // 'BAEJSN_ELEMENT_VALUE' or leave 'data' unmodified otherwise.  Return
-        // 0 on success and a non-zero value otherwise.
+        // the current token's type is 'e_ELEMENT_NAME' or 'e_ELEMENT_VALUE' or
+        // leave 'data' unmodified otherwise.  Return 0 on success and a
+        // non-zero value otherwise.
 };
 
 // ============================================================================
@@ -369,9 +430,12 @@ class Tokenizer {
 inline
 Tokenizer::ContextType Tokenizer::popContext()
 {
-    BSLS_ASSERT(!d_contextStack.empty());
-    ContextType ret = static_cast<ContextType>(d_contextStack.back());
-    d_contextStack.pop_back();
+    ContextType ret = e_NO_CONTEXT;
+
+    if (!d_contextStack.empty()) {
+        ret = static_cast<ContextType>(d_contextStack.back());
+        d_contextStack.pop_back();
+    }
 
     return ret;
 }
@@ -386,10 +450,9 @@ void Tokenizer::pushContext(ContextType context)
 inline
 Tokenizer::ContextType Tokenizer::context() const
 {
-    BSLS_ASSERT(!d_contextStack.empty());
-    ContextType ret = static_cast<ContextType>(d_contextStack.back());
-
-    return ret;
+    return d_contextStack.empty()
+               ? e_NO_CONTEXT
+               : static_cast<ContextType>(d_contextStack.back());
 }
 
 // CREATORS
@@ -403,15 +466,18 @@ Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
 , d_valueBegin(0)
 , d_valueEnd(0)
 , d_valueIter(0)
+, d_readOffset(0)
 , d_tokenType(e_BEGIN)
 , d_contextStack(200, &d_stackAllocator)
+, d_readStatus(0)
+, d_bufEndStatus(0)
 , d_allowStandAloneValues(true)
 , d_allowHeterogenousArrays(true)
+, d_allowNonUTF8Tokens(true)
 {
     d_stringBuffer.reserve(k_MAX_STRING_SIZE);
     d_contextStack.clear();
     pushContext(e_OBJECT_CONTEXT);
-
 }
 
 inline
@@ -423,13 +489,16 @@ Tokenizer::~Tokenizer()
 inline
 void Tokenizer::reset(bsl::streambuf *streambuf)
 {
-    d_streambuf_p = streambuf;
+    d_streambuf_p  = streambuf;
     d_stringBuffer.clear();
-    d_cursor      = 0;
-    d_valueBegin  = 0;
-    d_valueEnd    = 0;
-    d_valueIter   = 0;
-    d_tokenType   = e_BEGIN;
+    d_cursor       = 0;
+    d_valueBegin   = 0;
+    d_valueEnd     = 0;
+    d_valueIter    = 0;
+    d_readOffset   = 0;
+    d_tokenType    = e_BEGIN;
+    d_readStatus   = 0;
+    d_bufEndStatus = 0;
 
     d_contextStack.clear();
     pushContext(e_OBJECT_CONTEXT);
@@ -447,13 +516,13 @@ void Tokenizer::setAllowHeterogenousArrays(bool value)
     d_allowHeterogenousArrays = value;
 }
 
-// ACCESSORS
 inline
-Tokenizer::TokenType Tokenizer::tokenType() const
+void Tokenizer::setAllowNonUTF8Tokens(bool value)
 {
-    return d_tokenType;
+    d_allowNonUTF8Tokens = value;
 }
 
+// ACCESSORS
 inline
 bool Tokenizer::allowStandAloneValues() const
 {
@@ -466,8 +535,31 @@ bool Tokenizer::allowHeterogenousArrays() const
     return d_allowHeterogenousArrays;
 }
 
-}  // close package namespace
+inline
+bool Tokenizer::allowNonUTF8Tokens() const
+{
+    return d_allowNonUTF8Tokens;
+}
 
+inline
+bsls::Types::Uint64 Tokenizer::readOffset() const
+{
+    return d_readOffset;
+}
+
+inline
+int Tokenizer::readStatus() const
+{
+    return d_readStatus;
+}
+
+inline
+Tokenizer::TokenType Tokenizer::tokenType() const
+{
+    return d_tokenType;
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
