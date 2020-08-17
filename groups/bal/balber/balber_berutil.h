@@ -1,5 +1,4 @@
 // balber_berutil.h                                                   -*-C++-*-
-
 #ifndef INCLUDED_BALBER_BERUTIL
 #define INCLUDED_BALBER_BERUTIL
 
@@ -28,6 +27,21 @@ BSLS_IDENT("$Id: $")
 // primitive constructs.  Clients should use the 'balber_berencoder' and
 // 'balber_berdecoder' components (which use this component in the
 // implementation) to encode and decode well-formed BER messages.
+//
+///Terminology
+///-----------
+// The documentation of this component occasionally uses the following
+// terminology as shorthand:
+//
+//: *date-and-time* *type*:
+//:   A data type provided by BDE for the representation of a date and/or time
+//:   value.  The date-and-time types are: 'bdlt::Date', 'bdlt::DateTz',
+//:   'bdlt::Datetime', 'bdlt::DatetimeTz', 'bdlt::Time', and 'bdlt::TimeTz'.
+//:   Note that under this definition, the time-zone-aware types provided by
+//:   BDE, such as 'baltzo::LocalDatetime', are not date-and-time types.
+//:
+//: *date-and-time* *value*:
+//:   The value associated with an object of a date-and-time type.
 //
 ///Usage
 ///-----
@@ -262,7 +276,7 @@ struct BerUtil_Constants {
     // decoders.  For example, this struct provides a named constant for the
     // number of bits in a byte, which is used in downstream calculations.
 
-    // CLASS DATA
+    // TYPES
     enum { k_NUM_BITS_PER_OCTET = 8 };
 };
 
@@ -282,8 +296,8 @@ struct BerUtil_StreambufUtil {
         // the read position and load that byte into the specified 'value'.
         // Return 0 on success, and a non-zero value otherwise.  If this
         // operation is not successful, the value of '*value' is unchanged.
-        // Note that this operation will not succeed if the input sequence of
-        // the 'streamBuf' is at its end.
+        // This operation fails if the input sequence of 'streamBuf' is at its
+        // end.
 
     static int getChars(char           *buffer,
                         bsl::streambuf *streamBuf,
@@ -298,10 +312,7 @@ struct BerUtil_StreambufUtil {
         // unavailable.  If less than 'bufferLength' bytes are read, the number
         // of bytes loaded into 'buffer' is not specified.  The behavior is
         // undefined unless '0 <= bufferLength' and 'buffer' is the address of
-        // a sequence of at least 'bufferLength' bytes.  Note that if a
-        // non-zero value is returned, either the input sequence of the
-        // 'streamBuf' has reached its end or an error occurred when reading
-        // from its input sequence.
+        // a sequence of at least 'bufferLength' bytes.
 
     static int putChars(bsl::streambuf *streamBuf,
                         const char     *buffer,
@@ -328,7 +339,7 @@ struct BerUtil_IdentifierImpUtil {
         // data.
 
   private:
-    // PRIVATE CLASS DATA
+    // PRIVATE TYPES
     enum {
         k_TAG_CLASS_MASK  = 0xC0,  // 0xC0 = 0b1100'0000
         k_TAG_TYPE_MASK   = 0x20,  // 0x20 = 0b0010'0000
@@ -441,7 +452,7 @@ struct BerUtil_LengthImpUtil {
         // used to implement integer encoding.
 
   private:
-    // PRIVATE CLASS DATA
+    // PRIVATE TYPES
     enum {
         k_INDEFINITE_LENGTH = -1,
         // constant used to indicate that a calculated length quantity is
@@ -489,10 +500,9 @@ struct BerUtil_LengthImpUtil {
     // Length Encoding Functions
 
     static int putLength(bsl::streambuf *streamBuf, int length);
-        // Encode the "indefinite-length" octet onto the specified 'streamBuf'.
-        // This octet signifies that the length of the contents is indefinite
-        // (i.e., contents will be terminated by end of content octets).
-        // Return 0 on success, and a non-zero value otherwise.
+        // Encode the specified 'length' length octets to the specified
+        // 'streamBuf'.  Return 0 on success, and a non-zero value otherwise.
+        // The behavior is undefined unless '0 <= length'.
 
     static int putIndefiniteLengthOctet(bsl::streambuf *streamBuf);
         // Encode the "indefinite-length" octet onto the specified 'streamBuf'.
@@ -581,7 +591,6 @@ struct BerUtil_IntegerImpUtil {
         // used to implement input and output operations on 'bsl::streambuf'
         // objects.
 
-    // CLASS DATA
     enum {
         k_40_BIT_INTEGER_LENGTH = 5
         // the number of octets used to encode a signed integer value
@@ -610,20 +619,6 @@ struct BerUtil_IntegerImpUtil {
         // interpretation of those bytes as the contents octets of a
         // BER-encoded integer value according to the specification.  Return 0
         // if successful, and a non-zero value otherwise.
-        //
-        // The operation succeeds if 'length' bytes are read from the input
-        // sequence of the 'streamBuf' without an error occurring or an attempt
-        // is made to read past the end of the input sequence of the
-        // 'streamBuf', and the 'chars' read contain a valid representation of
-        // the contents octets of an integer value according to the
-        // specification.
-        //
-        //
-        // The operation succeeds if 'length' bytes are successfully read from
-        // the input sequence of the 'streamBuf' without the read position
-        // becoming unavailable, and the bytes read contain a valid
-        // representation of the contents octets of an integer value according
-        // to the specification.
 
     template <class INTEGRAL_TYPE>
     static int getIntegerValue(INTEGRAL_TYPE  *value,
@@ -820,7 +815,7 @@ struct BerUtil_FloatingPointImpUtil {
         // quantities.
 
   private:
-    // PRIVATE CLASS DATA
+    // PRIVATE TYPES
     enum {
         k_MAX_MULTI_WIDTH_ENCODING_SIZE = 8,
 
@@ -1272,7 +1267,7 @@ struct BerUtil_TimezoneOffsetImpUtil {
     // of functions and constants used by 'BerUtil' to encode and decode
     // time-zone values.
 
-    // CLASS DATA
+    // TYPES
     enum {
         k_MIN_OFFSET = -1439,
         // The minimum number of minutes in a valid time-zone offset
@@ -1342,7 +1337,7 @@ struct BerUtil_DateAndTimeEncoding {
         e_EXTENDED_BINARY_TIMETZ
     };
 
-    // CLASS DATA
+    // TYPES
     enum {
         k_EXTENDED_BINARY_MIN_BDE_VERSION = 35500
         // the minimum BDE version number in which this component supports
@@ -1399,7 +1394,7 @@ struct BerUtil_ExtendedBinaryEncodingUtil {
 struct BerUtil_DateAndTimeHeaderType {
     // This component-private 'struct' provides a namespace for enumerating the
     // set of "header type" values that may be encoded in the 2-byte header of
-    // an extended-binary-encoding formatted datetime value.
+    // an extended-binary-encoding formatted date-and-time value.
 
     // TYPES
     enum Value {
@@ -1428,17 +1423,17 @@ class BerUtil_DateAndTimeHeader {
     // This component-private, in-core, value-semantic attribute class provides
     // a representation of the information available in the first two bytes of
     // any extended-binary-encoding formatted data.  All extended-binary
-    // encoding schemes for datetime types contain a 2-byte header in the same
-    // format, which can be unambiguously distinguished from the first 2 bytes
-    // of a datetime type in its corresponding compact-binary-encoding format
-    // or its ISO 8601 format.
+    // encoding schemes for date-and-time types contain a 2-byte header in the
+    // same format, which can be unambiguously distinguished from the first 2
+    // bytes of a date-and-time type in its corresponding
+    // compact-binary-encoding format or its ISO 8601 format.
 
   public:
     // TYPES
     typedef BerUtil_DateAndTimeHeaderType Type;
         // 'Type' is an alias to a namespace for enumerating the set of "header
         // type" values that may be encoded in the 2-byte header of an
-        // extended-binary-encoding formatted datetime value.
+        // extended-binary-encoding formatted date-and-time value.
 
     typedef BerUtil_TimezoneOffsetImpUtil TimezoneUtil;
         // 'TimezoneUtil' is an alias to a namespace for a suite of functions
@@ -1448,11 +1443,11 @@ class BerUtil_DateAndTimeHeader {
   private:
     // DATA
     Type::Value d_type;
-        // datetime header type.
+        // date-and-time header type
 
     int         d_timezoneOffsetInMinutes;
-        // offset in minutes from UTC indicated by the datetime header if the
-        // header contains a time-zone offset, and 0 otherwise
+        // offset in minutes from UTC indicated by the date-and-time header if
+        // the header contains a time-zone offset, and 0 otherwise
 
   public:
     // CREATORS
@@ -1543,7 +1538,7 @@ struct BerUtil_DateAndTimeHeaderImpUtil {
         // used to implement BER encoding and decoding operations for time-zone
         // offset values.
 
-    // CLASS DATA
+    // TYPES
     enum {
         k_HEADER_LENGTH = 2
         // number of octets used to encode an extended-binary-encoding
@@ -1800,7 +1795,6 @@ struct BerUtil_DateImpUtil {
         // 'DateOrDateTz' is a convenient alias for
         // 'bdlb::Variant2<bdlt::Date, bdlt::DateTz>'.
 
-    // CLASS DATA
     enum {
         k_COMPACT_BINARY_DATE_EPOCH = 737425
         // The serial date of January 1st, 2020.  Note that the serial date
@@ -1809,7 +1803,7 @@ struct BerUtil_DateImpUtil {
     };
 
   private:
-    // PRIVATE CLASS DATA
+    // PRIVATE TYPES
     enum {
         k_MAX_ISO8601_DATE_LENGTH = bdlt::Iso8601Util::k_DATE_STRLEN,
         // the maximum number of content octets used by 'BerUtil' to encode
@@ -1839,16 +1833,14 @@ struct BerUtil_DateImpUtil {
 
     // 'bdlt::Date' Decoding
 
-    static void detectDateEncoding(bool                *isReservedFormat,
-                                   DateEncoding::Value *encoding,
-                                   int                  length,
-                                   unsigned char        firstByte);
-        // Detect the format used to encode a 'bdlt::Date' value given the
-        // specified 'length' and 'firstByte' of its encoded representation.
-        // Set the specified 'isReservedFormat' to 'true' if the detected
-        // format is reserved for future use, and 'false' otherwise.  If
-        // 'isReservedFormat' is set to 'false', set 'encoding' to the
-        // enumerator that represents the detected format.
+    static int detectDateEncoding(DateEncoding::Value *encoding,
+                                  int                  length,
+                                  unsigned char        firstByte);
+        // Load to the specified 'encoding' the enumerator that describes the
+        // format used to encode a 'bdlt::Date' value given the specified
+        // 'length' and 'firstByte' of the encoded representation.  Return 0 on
+        // success, -1 if the format is reserved for future use, and some other
+        // non-zero value otherwise.
 
     static int getIso8601DateValue(bdlt::Date     *value,
                                    bsl::streambuf *streamBuf,
@@ -1908,16 +1900,14 @@ struct BerUtil_DateImpUtil {
 
     // 'bdlt::DateTz' Decoding
 
-    static void detectDateTzEncoding(bool                  *isReservedFormat,
-                                     DateTzEncoding::Value *encoding,
-                                     int                    length,
-                                     unsigned char          firstByte);
-        // Detect the format used to encode a 'bdlt::DateTz' value given the
-        // specified 'length' and 'firstByte' of its encoded representation.
-        // Set the specified 'isReservedFormat' to 'true' if the detected
-        // format is reserved for future use, and 'false' otherwise.  If
-        // 'isReservedFormat' is set to 'false', set 'encoding' to the
-        // enumerator that represents the detected format.
+    static int detectDateTzEncoding(DateTzEncoding::Value *encoding,
+                                    int                    length,
+                                    unsigned char          firstByte);
+        // Load to the specified 'encoding' the enumerator that describes the
+        // format used to encode a 'bdlt::DateTz' value given the specified
+        // 'length' and 'firstByte' of the encoded representation.  Return 0 on
+        // success, -1 if the format is reserved for future use, and some other
+        // non-zero value otherwise.
 
     static int getIso8601DateTzValue(bdlt::DateTz   *value,
                                      bsl::streambuf *streamBuf,
@@ -2002,17 +1992,15 @@ struct BerUtil_DateImpUtil {
 
     // Variant Decoding
 
-    static void detectDateOrDateTzEncoding(
-                                 bool                        *isReservedFormat,
+    static int detectDateOrDateTzEncoding(
                                  DateOrDateTzEncoding::Value *encoding,
                                  int                          length,
                                  unsigned char                firstByte);
-        // Detect the format used to encode a 'bdlt::Date' or 'bdlt::DateTz'
-        // value given the specified 'length' and 'firstByte' of its encoded
-        // representation.  Set the specified 'isReservedFormat' to 'true' if
-        // the detected format is reserved for future use, and 'false'
-        // otherwise.  If 'isReservedFormat' is set to 'false', set 'encoding'
-        // to the enumerator that represents the detected format.
+        // Load to the specified 'encoding' the enumerator that describes the
+        // format used to encode a 'bdlt::Date' or 'bdlt::DateTz' value given
+        // the specified 'length' and 'firstByte' of the encoded
+        // representation.  Return 0 on success, -1 if the format is reserved
+        // for future use, and some other non-zero value otherwise.
 
     static int getIso8601DateValue(DateOrDateTz   *value,
                                    bsl::streambuf *streamBuf,
@@ -2189,7 +2177,6 @@ struct BerUtil_TimeEncoding {
         e_EXTENDED_BINARY_TIME = Encoding::e_EXTENDED_BINARY_TIME
     };
 
-    // CLASS DATA
     enum {
         k_EXTENDED_BINARY_MIN_BDE_VERSION =
             Encoding::k_EXTENDED_BINARY_MIN_BDE_VERSION
@@ -2218,7 +2205,6 @@ struct BerUtil_TimeTzEncoding {
         e_EXTENDED_BINARY_TIMETZ = Encoding::e_EXTENDED_BINARY_TIMETZ
     };
 
-    // CLASS DATA
     enum {
         k_EXTENDED_BINARY_MIN_BDE_VERSION =
             Encoding::k_EXTENDED_BINARY_MIN_BDE_VERSION
@@ -2344,7 +2330,7 @@ struct BerUtil_TimeImpUtil {
         // 'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>'.
 
   private:
-    // PRIVATE CLASS DATA
+    // PRIVATE TYPES
     enum {
         k_EXTENDED_BINARY_TIME_LENGTH =
             DateAndTimeHeaderUtil::k_HEADER_LENGTH +
@@ -2391,16 +2377,14 @@ struct BerUtil_TimeImpUtil {
 
     // 'bdlt::Time' Decoding
 
-    static void detectTimeEncoding(bool                *isReservedFormat,
-                                   TimeEncoding::Value *encoding,
-                                   int                  length,
-                                   unsigned char        firstByte);
-        // Detect the format used to encode a 'bdlt::Time' value given the
-        // specified 'length' and 'firstByte' of its encoded representation.
-        // Set the specified 'isReservedFormat' to 'true' if the detected
-        // format is reserved for future use, and 'false' otherwise.  If
-        // 'isReservedFormat' is set to 'false', set 'encoding' to the
-        // enumerator that represents the detected format.
+    static int detectTimeEncoding(TimeEncoding::Value *encoding,
+                                  int                  length,
+                                  unsigned char        firstByte);
+        // Load to the specified 'encoding' the enumerator that describes the
+        // format used to encode a 'bdlt::Time' value given the specified
+        // 'length' and 'firstByte' of the encoded representation.  Return 0 on
+        // success, -1 if the format is reserved for future use, and some other
+        // non-zero value otherwise.
 
     static int getIso8601TimeValue(bdlt::Time     *value,
                                    bsl::streambuf *streamBuf,
@@ -2483,16 +2467,14 @@ struct BerUtil_TimeImpUtil {
 
     // 'bdlt::TimeTz' Decoding
 
-    static void detectTimeTzEncoding(bool                  *isReservedFormat,
-                                     TimeTzEncoding::Value *encoding,
-                                     int                    length,
-                                     unsigned char          firstByte);
-        // Detect the format used to encode a 'bdlt::TimteTz' value given the
-        // specified 'length' and 'firstByte' of its encoded representation.
-        // Set the specified 'isReservedFormat' to 'true' if the detected
-        // format is reserved for future use, and 'false' otherwise.  If
-        // 'isReservedFormat' is set to 'false', set 'encoding' to the
-        // enumerator that represents the detected format.
+    static int detectTimeTzEncoding(TimeTzEncoding::Value *encoding,
+                                    int                    length,
+                                    unsigned char          firstByte);
+        // Load to the specified 'encoding' the enumerator that describes the
+        // format used to encode a 'bdlt::Time' value given the specified
+        // 'length' and 'firstByte' of the encoded representation.  Return 0 on
+        // success, -1 if the format is reserved for future use, and some other
+        // non-zero value otherwise.
 
     static int getIso8601TimeTzValue(bdlt::TimeTz   *value,
                                      bsl::streambuf *streamBuf,
@@ -2602,17 +2584,15 @@ struct BerUtil_TimeImpUtil {
 
     // Variant Decoding
 
-    static void detectTimeOrTimeTzEncoding(
-                                 bool                        *isReservedFormat,
-                                 TimeOrTimeTzEncoding::Value *encoding,
-                                 int                          length,
-                                 unsigned char                firstByte);
-        // Detect the format used to encode a 'bdlt::Time' or 'bdlt::TimeTz'
-        // value given the specified 'length' and 'firstByte' of its encoded
-        // representation.  Set the specified 'isReservedFormat' to 'true' if
-        // the detected format is reserved for future use, and 'false'
-        // otherwise.  If 'isReservedFormat' is set to 'false', set 'encoding'
-        // to the enumerator that represents the detected format.
+    static int detectTimeOrTimeTzEncoding(
+                                       TimeOrTimeTzEncoding::Value *encoding,
+                                       int                          length,
+                                       unsigned char                firstByte);
+        // Load to the specified 'encoding' the enumerator that describes the
+        // format used to encode a 'bdlt::Time' or 'bdlt::TimeTz' value given
+        // the specified 'length' and 'firstByte' of the encoded
+        // representation.  Return 0 on success, -1 if the format is reserved
+        // for future use, and some other non-zero value otherwise.
 
     static int getIso8601TimeValue(TimeOrTimeTz   *value,
                                    bsl::streambuf *streamBuf,
@@ -2821,7 +2801,6 @@ struct BerUtil_DatetimeEncoding {
         e_EXTENDED_BINARY_DATETIME  = Encoding::e_EXTENDED_BINARY_DATETIMETZ
     };
 
-    // CLASS DATA
     enum {
         k_EXTENDED_BINARY_MIN_BDE_VERSION =
             Encoding::k_EXTENDED_BINARY_MIN_BDE_VERSION
@@ -2850,7 +2829,6 @@ struct BerUtil_DatetimeTzEncoding {
         e_EXTENDED_BINARY_DATETIMETZ = Encoding::e_EXTENDED_BINARY_DATETIMETZ
     };
 
-    // CLASS DATA
     enum {
         k_EXTENDED_BINARY_MIN_BDE_VERSION =
             Encoding::k_EXTENDED_BINARY_MIN_BDE_VERSION
@@ -2987,7 +2965,7 @@ struct BerUtil_DatetimeImpUtil {
         // 'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>'.
 
   private:
-    // PRIVATE CLASS DATA
+    // PRIVATE TYPES
     enum {
         k_EXTENDED_BINARY_SERIAL_DATE_LENGTH = 3,
 
@@ -3062,17 +3040,14 @@ struct BerUtil_DatetimeImpUtil {
 
     // 'bdlt::Datetime' Decoding
 
-    static void detectDatetimeEncoding(
-                                     bool                    *isReservedFormat,
-                                     DatetimeEncoding::Value *encoding,
-                                     int                      length,
-                                     unsigned char            firstByte);
-        // Detect the format used to encode a 'bdlt::Datetime' value given the
-        // specified 'length' and 'firstByte' of its encoded representation.
-        // Set the specified 'isReservedFormat' to 'true' if the detected
-        // format is reserved for future use, and 'false' otherwise.  If
-        // 'isReservedFormat' is set to 'false', set 'encoding' to the
-        // enumerator that represents the detected format.
+    static int detectDatetimeEncoding(DatetimeEncoding::Value *encoding,
+                                      int                      length,
+                                      unsigned char            firstByte);
+        // Load to the specified 'encoding' the enumerator that describes the
+        // format used to encode a 'bdlt::Datetime' value given the specified
+        // 'length' and 'firstByte' of the encoded representation.  Return 0 on
+        // success, -1 if the format is reserved for future use, and some other
+        // non-zero value otherwise.
 
     static int getIso8601DatetimeValue(bdlt::Datetime *value,
                                        bsl::streambuf *streamBuf,
@@ -3213,17 +3188,15 @@ struct BerUtil_DatetimeImpUtil {
 
     // 'bdlt::DatetimeTz' Decoding
 
-    static void detectDatetimeTzEncoding(
-                                   bool                      *isReservedFormat,
+    static int detectDatetimeTzEncoding(
                                    DatetimeTzEncoding::Value *encoding,
                                    int                        length,
                                    unsigned char              firstByte);
-        // Detect the format used to encode a 'bdlt::DatetimeTz' value given
-        // the specified 'length' and 'firstByte' of its encoded
-        // representation.  Set the specified 'isReservedFormat' to 'true' if
-        // the detected format is reserved for future use, and 'false'
-        // otherwise.  If 'isReservedFormat' is set to 'false', set 'encoding'
-        // to the enumerator that represents the detected format.
+        // Load to the specified 'encoding' the enumerator that describes the
+        // format used to encode a 'bdlt::DatetimeTz' value given the specified
+        // 'length' and 'firstByte' of the encoded representation.  Return 0 on
+        // success, -1 if the format is reserved for future use, and some other
+        // non-zero value otherwise.
 
     static int getIso8601DatetimeTzValue(bdlt::DatetimeTz *value,
                                          bsl::streambuf   *streamBuf,
@@ -3334,18 +3307,15 @@ struct BerUtil_DatetimeImpUtil {
 
     // Variant Decoding
 
-    static void detectDatetimeOrDatetimeTzEncoding(
-                         bool                                *isReservedFormat,
-                         DatetimeOrDatetimeTzEncoding::Value *encoding,
-                         int                                  length,
-                         unsigned char                        firstByte);
-        // Detect the format used to encode a 'bdlt::Datetime' or
-        // 'bdlt::DatetimeTz' value given the specified 'length' and
-        // 'firstByte' of its encoded representation.  Set the specified
-        // 'isReservedFormat' to 'true' if the detected format is reserved for
-        // future use, and 'false' otherwise.  If 'isReservedFormat' is set to
-        // 'false', set 'encoding' to the enumerator that represents the
-        // detected format.
+    static int detectDatetimeOrDatetimeTzEncoding(
+                               DatetimeOrDatetimeTzEncoding::Value *encoding,
+                               int                                  length,
+                               unsigned char                        firstByte);
+        // Load to the specified 'encoding' the enumerator that describes the
+        // format used to encode a 'bdlt::Datetime' or 'bdlt::DatetimeTz' value
+        // given the specified 'length' and 'firstByte' of the encoded
+        // representation.  Return 0 on success, -1 if the format is reserved
+        // for future use, and some other non-zero value otherwise.
 
     static int getIso8601DatetimeValue(DatetimeOrDatetimeTz *value,
                                        bsl::streambuf       *streamBuf,
@@ -4866,26 +4836,23 @@ int BerUtil_DateAndTimeHeaderImpUtil::putExtendedBinaryWithTimezoneValue(
 // 'bdlt::Date' Decoding
 
 inline
-void BerUtil_DateImpUtil::detectDateEncoding(bool                *reserved,
-                                             DateEncoding::Value *encoding,
-                                             int                  length,
-                                             unsigned char        firstByte)
+int BerUtil_DateImpUtil::detectDateEncoding(DateEncoding::Value *encoding,
+                                            int                  length,
+                                            unsigned char        firstByte)
 {
     if (k_MAX_COMPACT_BINARY_DATE_LENGTH >= length) {
-        *reserved = false;
         *encoding = DateEncoding::e_COMPACT_BINARY_DATE;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     BSLS_ASSERT_SAFE(k_MAX_COMPACT_BINARY_DATE_LENGTH < length);
 
     if (DateAndTimeHeaderUtil::isReserved(firstByte)) {
-        *reserved = true;
-        return;                                                       // RETURN
+        return -1;                                                    // RETURN
     }
 
-    *reserved = false;
     *encoding = DateEncoding::e_ISO8601_DATE;
+    return 0;
 }
 
 // 'bdlt::Date' Encoding
@@ -4905,9 +4872,7 @@ BerUtil_DateEncoding::Value BerUtil_DateImpUtil::selectDateEncoding(
 // 'bdlt::DateTz' Decoding
 
 inline
-void BerUtil_DateImpUtil::detectDateTzEncoding(
-                                              bool                  *reserved,
-                                              DateTzEncoding::Value *encoding,
+int BerUtil_DateImpUtil::detectDateTzEncoding(DateTzEncoding::Value *encoding,
                                               int                    length,
                                               unsigned char          firstByte)
 {
@@ -4915,26 +4880,23 @@ void BerUtil_DateImpUtil::detectDateTzEncoding(
                  k_MIN_COMPACT_BINARY_DATETZ_LENGTH);
 
     if (k_MIN_COMPACT_BINARY_DATETZ_LENGTH > length) {
-        *reserved = false;
         *encoding = DateTzEncoding::e_COMPACT_BINARY_DATE;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (k_MAX_COMPACT_BINARY_DATETZ_LENGTH >= length) {
-        *reserved = false;
         *encoding = DateTzEncoding::e_COMPACT_BINARY_DATETZ;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     BSLS_ASSERT_SAFE(k_MAX_COMPACT_BINARY_DATETZ_LENGTH < length);
 
     if (DateAndTimeHeaderUtil::isReserved(firstByte)) {
-        *reserved = true;
-        return;                                                       // RETURN
+        return -1;                                                    // RETURN
     }
 
-    *reserved = false;
     *encoding = DateTzEncoding::e_ISO8601_DATETZ;
+    return 0;
 }
 
 // 'bdlt::DateTz' Encoding
@@ -4959,43 +4921,38 @@ BerUtil_DateTzEncoding::Value BerUtil_DateImpUtil::selectDateTzEncoding(
 // Variant Decoding
 
 inline
-void BerUtil_DateImpUtil::detectDateOrDateTzEncoding(
-                                        bool                        *reserved,
+int BerUtil_DateImpUtil::detectDateOrDateTzEncoding(
                                         DateOrDateTzEncoding::Value *encoding,
                                         int                          length,
                                         unsigned char                firstByte)
 {
     if (k_MAX_COMPACT_BINARY_DATE_LENGTH >= length) {
-        *reserved = false;
         *encoding = DateOrDateTzEncoding::e_COMPACT_BINARY_DATE;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     BSLS_ASSERT_SAFE(k_MAX_COMPACT_BINARY_DATE_LENGTH < length);
 
     if (k_MAX_COMPACT_BINARY_DATETZ_LENGTH >= length) {
-        *reserved = false;
         *encoding = DateOrDateTzEncoding::e_COMPACT_BINARY_DATETZ;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     BSLS_ASSERT_SAFE(k_MAX_COMPACT_BINARY_DATETZ_LENGTH < length);
 
     if (DateAndTimeHeaderUtil::isReserved(firstByte)) {
-        *reserved = true;
-        return;                                                       // RETURN
+        return -1;                                                    // RETURN
     }
 
     if (k_MAX_ISO8601_DATE_LENGTH >= length) {
-        *reserved = false;
         *encoding = DateOrDateTzEncoding::e_ISO8601_DATE;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     BSLS_ASSERT_SAFE(k_MAX_ISO8601_DATE_LENGTH < length);
 
-    *reserved = false;
     *encoding = DateOrDateTzEncoding::e_ISO8601_DATETZ;
+    return 0;
 }
 
 inline
@@ -5051,11 +5008,10 @@ int BerUtil_DateImpUtil::getDateOrDateTzValue(DateOrDateTz   *value,
         return -1;                                                    // RETURN
     }
 
-    bool                        reserved;
     DateOrDateTzEncoding::Value encoding;
-    detectDateOrDateTzEncoding(&reserved, &encoding, length, firstByte);
+    int rc = detectDateOrDateTzEncoding(&encoding, length, firstByte);
 
-    if (reserved) {
+    if (0 != rc) {
         return -1;                                                    // RETURN
     }
 
@@ -5128,32 +5084,28 @@ int BerUtil_DateImpUtil::daysSinceEpochToDate(
 // 'bdlt::Time' Decoding
 
 inline
-void BerUtil_TimeImpUtil::detectTimeEncoding(bool                *reserved,
-                                             TimeEncoding::Value *encoding,
-                                             int                  length,
-                                             unsigned char        firstByte)
+int BerUtil_TimeImpUtil::detectTimeEncoding(TimeEncoding::Value *encoding,
+                                            int                  length,
+                                            unsigned char        firstByte)
 {
     if (k_MAX_COMPACT_BINARY_TIME_LENGTH >= length) {
-        *reserved = false;
         *encoding = TimeEncoding::e_COMPACT_BINARY_TIME;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     BSLS_ASSERT_SAFE(k_MAX_COMPACT_BINARY_TIME_LENGTH < length);
 
     if (DateAndTimeHeaderUtil::isReserved(firstByte)) {
-        *reserved = true;
-        return;                                                       // RETURN
+        return -1;                                                    // RETURN
     }
 
     if (DateAndTimeHeaderUtil::isExtendedBinary(firstByte)) {
-        *reserved = false;
         *encoding = TimeEncoding::e_EXTENDED_BINARY_TIME;
-        return;
+        return 0;                                                     // RETURN
     }
 
-    *reserved = false;
     *encoding = TimeEncoding::e_ISO8601_TIME;
+    return 0;
 }
 
 inline
@@ -5195,9 +5147,7 @@ int BerUtil_TimeImpUtil::putIso8601TimeValue(
 // 'bdlt::Time' Decoding
 
 inline
-void BerUtil_TimeImpUtil::detectTimeTzEncoding(
-                                              bool                  *reserved,
-                                              TimeTzEncoding::Value *encoding,
+int BerUtil_TimeImpUtil::detectTimeTzEncoding(TimeTzEncoding::Value *encoding,
                                               int                    length,
                                               unsigned char          firstByte)
 {
@@ -5208,32 +5158,28 @@ void BerUtil_TimeImpUtil::detectTimeTzEncoding(
                  k_MAX_COMPACT_BINARY_TIMETZ_LENGTH);
 
     if (k_MAX_COMPACT_BINARY_TIME_LENGTH >= length) {
-        *reserved = false;
         *encoding = TimeTzEncoding::e_COMPACT_BINARY_TIME;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (k_MAX_COMPACT_BINARY_TIMETZ_LENGTH >= length) {
-        *reserved = false;
         *encoding = TimeTzEncoding::e_COMPACT_BINARY_TIMETZ;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     BSLS_ASSERT(k_MAX_COMPACT_BINARY_TIMETZ_LENGTH < length);
 
     if (DateAndTimeHeaderUtil::isReserved(firstByte)) {
-        *reserved = true;
-        return;                                                       // RETURN
+        return -1;                                                    // RETURN
     }
 
     if (DateAndTimeHeaderUtil::isExtendedBinary(firstByte)) {
-        *reserved = false;
         *encoding = TimeTzEncoding::e_EXTENDED_BINARY_TIMETZ;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
-    *reserved = false;
     *encoding = TimeTzEncoding::e_ISO8601_TIMETZ;
+    return 0;
 }
 
 inline
@@ -5280,49 +5226,42 @@ int BerUtil_TimeImpUtil::putIso8601TimeTzValue(
 // Variant Decoding
 
 inline
-void BerUtil_TimeImpUtil::detectTimeOrTimeTzEncoding(
-                                        bool                        *reserved,
+int BerUtil_TimeImpUtil::detectTimeOrTimeTzEncoding(
                                         TimeOrTimeTzEncoding::Value *encoding,
                                         int                          length,
                                         unsigned char                firstByte)
 {
     if (k_MAX_COMPACT_BINARY_TIME_LENGTH >= length) {
-        *reserved = false;
         *encoding = TimeOrTimeTzEncoding::e_COMPACT_BINARY_TIME;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (k_MAX_COMPACT_BINARY_TIMETZ_LENGTH >= length) {
-        *reserved = false;
         *encoding = TimeOrTimeTzEncoding::e_COMPACT_BINARY_TIMETZ;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (DateAndTimeHeaderUtil::isReserved(firstByte)) {
-        *reserved = true;
-        return;                                                       // RETURN
+        return -1;                                                    // RETURN
     }
 
     if (DateAndTimeHeaderUtil::isExtendedBinaryWithoutTimezone(firstByte)) {
-        *reserved = false;
         *encoding = TimeOrTimeTzEncoding::e_EXTENDED_BINARY_TIME;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (DateAndTimeHeaderUtil::isExtendedBinaryWithTimezone(firstByte)) {
-        *reserved = false;
         *encoding = TimeOrTimeTzEncoding::e_EXTENDED_BINARY_TIMETZ;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (k_MAX_ISO8601_TIME_LENGTH >= length) {
-        *reserved = false;
         *encoding = TimeOrTimeTzEncoding::e_ISO8601_TIME;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
-    *reserved = false;
     *encoding = TimeOrTimeTzEncoding::e_ISO8601_TIMETZ;
+    return 0;
 }
 
 inline
@@ -5517,11 +5456,10 @@ int BerUtil_TimeImpUtil::getTimeValue(bdlt::Time     *value,
         return -1;                                                    // RETURN
     }
 
-    bool                reserved;
     TimeEncoding::Value encoding;
-    detectTimeEncoding(&reserved, &encoding, length, firstByte);
+    int rc = detectTimeEncoding(&encoding, length, firstByte);
 
-    if (reserved) {
+    if (0 != rc) {
         return -1;                                                    // RETURN
     }
 
@@ -5586,11 +5524,10 @@ int BerUtil_TimeImpUtil::getTimeTzValue(bdlt::TimeTz   *value,
         return -1;                                                    // RETURN
     }
 
-    bool                  reserved;
     TimeTzEncoding::Value encoding;
-    detectTimeTzEncoding(&reserved, &encoding, length, firstByte);
+    int rc = detectTimeTzEncoding(&encoding, length, firstByte);
 
-    if (reserved) {
+    if (0 != rc) {
         return -1;                                                    // RETURN
     }
 
@@ -5664,11 +5601,10 @@ int BerUtil_TimeImpUtil::getTimeOrTimeTzValue(TimeOrTimeTz   *value,
         return -1;                                                    // RETURN
     }
 
-    bool                        reserved;
     TimeOrTimeTzEncoding::Value encoding;
-    detectTimeOrTimeTzEncoding(&reserved, &encoding, length, firstByte);
+    int rc = detectTimeOrTimeTzEncoding(&encoding, length, firstByte);
 
-    if (reserved) {
+    if (0 != rc) {
         return -1;                                                    // RETURN
     }
 
@@ -5712,37 +5648,32 @@ int BerUtil_TimeImpUtil::getTimeOrTimeTzValue(TimeOrTimeTz   *value,
 // 'bdlt::Datetime' Decoding
 
 inline
-void BerUtil_DatetimeImpUtil::detectDatetimeEncoding(
-                                            bool                    *reserved,
+int BerUtil_DatetimeImpUtil::detectDatetimeEncoding(
                                             DatetimeEncoding::Value *encoding,
                                             int                      length,
                                             unsigned char            firstByte)
 {
     if (k_MAX_COMPACT_BINARY_DATETIME_LENGTH >= length) {
-        *reserved = false;
         *encoding = DatetimeEncoding::e_COMPACT_BINARY_DATETIME;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (k_MAX_COMPACT_BINARY_DATETIMETZ_LENGTH >= length) {
-        *reserved = false;
         *encoding = DatetimeEncoding::e_COMPACT_BINARY_DATETIMETZ;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (DateAndTimeHeaderUtil::isReserved(firstByte)) {
-        *reserved = true;
-        return;                                                       // RETURN
+        return -1;                                                    // RETURN
     }
 
     if (DateAndTimeHeaderUtil::isExtendedBinary(firstByte)) {
-        *reserved = false;
         *encoding = DatetimeEncoding::e_EXTENDED_BINARY_DATETIME;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
-    *reserved = false;
     *encoding = DatetimeEncoding::e_ISO8601_DATETIME;
+    return 0;
 }
 
 // 'bdlt::Datetime' Encoding
@@ -5785,37 +5716,32 @@ BerUtil_DatetimeImpUtil::selectDatetimeEncoding(
 // 'bdlt::DatetimeTz' Decoding
 
 inline
-void BerUtil_DatetimeImpUtil::detectDatetimeTzEncoding(
-                                          bool                      *reserved,
+int BerUtil_DatetimeImpUtil::detectDatetimeTzEncoding(
                                           DatetimeTzEncoding::Value *encoding,
                                           int                        length,
                                           unsigned char              firstByte)
 {
     if (k_MAX_COMPACT_BINARY_DATETIME_LENGTH >= length) {
-        *reserved = false;
         *encoding = DatetimeTzEncoding::e_COMPACT_BINARY_DATETIME;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (k_MAX_COMPACT_BINARY_DATETIMETZ_LENGTH >= length) {
-        *reserved = false;
         *encoding = DatetimeTzEncoding::e_COMPACT_BINARY_DATETIMETZ;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (DateAndTimeHeaderUtil::isReserved(firstByte)) {
-        *reserved = true;
-        return;                                                       // RETURN
+        return -1;                                                    // RETURN
     }
 
     if (DateAndTimeHeaderUtil::isExtendedBinary(firstByte)) {
-        *reserved = false;
         *encoding = DatetimeTzEncoding::e_EXTENDED_BINARY_DATETIMETZ;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
-    *reserved = false;
     *encoding = DatetimeTzEncoding::e_ISO8601_DATETIMETZ;
+    return 0;
 }
 
 // 'bdlt::DatetimeTz' Encoding
@@ -5859,8 +5785,7 @@ BerUtil_DatetimeImpUtil::selectDatetimeTzEncoding(
 // Variant Decoding
 
 inline
-void BerUtil_DatetimeImpUtil::detectDatetimeOrDatetimeTzEncoding(
-                                bool                                *reserved,
+int BerUtil_DatetimeImpUtil::detectDatetimeOrDatetimeTzEncoding(
                                 DatetimeOrDatetimeTzEncoding::Value *encoding,
                                 int                                  length,
                                 unsigned char                        firstByte)
@@ -5868,42 +5793,36 @@ void BerUtil_DatetimeImpUtil::detectDatetimeOrDatetimeTzEncoding(
     BSLS_ASSERT(0 < length);
 
     if (k_MAX_COMPACT_BINARY_DATETIME_LENGTH >= length) {
-        *reserved = false;
         *encoding = DatetimeOrDatetimeTzEncoding::e_COMPACT_BINARY_DATETIME;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (k_MAX_COMPACT_BINARY_DATETIMETZ_LENGTH >= length) {
-        *reserved = false;
         *encoding = DatetimeOrDatetimeTzEncoding::e_COMPACT_BINARY_DATETIMETZ;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (DateAndTimeHeaderUtil::isReserved(firstByte)) {
-        *reserved = true;
-        return;                                                       // RETURN
+        return -1;                                                    // RETURN
     }
 
     if (DateAndTimeHeaderUtil::isExtendedBinaryWithoutTimezone(firstByte)) {
-        *reserved = false;
         *encoding = DatetimeOrDatetimeTzEncoding::e_EXTENDED_BINARY_DATETIME;
-        return;                                                       // RETURN
+        return 0;                                                       // RETURN
     }
 
     if (DateAndTimeHeaderUtil::isExtendedBinaryWithTimezone(firstByte)) {
-        *reserved = false;
         *encoding = DatetimeOrDatetimeTzEncoding::e_EXTENDED_BINARY_DATETIMETZ;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (k_MAX_ISO8601_DATETIME_LENGTH >= length) {
-        *reserved = false;
         *encoding = DatetimeOrDatetimeTzEncoding::e_ISO8601_DATETIME;
-        return;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
-    *reserved = false;
     *encoding = DatetimeOrDatetimeTzEncoding::e_ISO8601_DATETIMETZ;
+    return 0;
 }
 
 inline
@@ -6032,11 +5951,10 @@ int BerUtil_DatetimeImpUtil::getDatetimeValue(bdlt::Datetime *value,
         return -1;                                                    // RETURN
     }
 
-    bool                    reserved;
     DatetimeEncoding::Value encoding;
-    detectDatetimeEncoding(&reserved, &encoding, length, firstByte);
+    int rc = detectDatetimeEncoding(&encoding, length, firstByte);
 
-    if (reserved) {
+    if (0 != rc) {
         return -1;                                                    // RETURN
     }
 
@@ -6137,11 +6055,10 @@ int BerUtil_DatetimeImpUtil::getDatetimeTzValue(bdlt::DatetimeTz *value,
         return -1;                                                    // RETURN
     }
 
-    bool                      reserved;
     DatetimeTzEncoding::Value encoding;
-    detectDatetimeTzEncoding(&reserved, &encoding, length, firstByte);
+    int rc = detectDatetimeTzEncoding(&encoding, length, firstByte);
 
-    if (reserved) {
+    if (0 != rc) {
         return -1;                                                    // RETURN
     }
 
@@ -6184,12 +6101,10 @@ int BerUtil_DatetimeImpUtil::getDatetimeOrDatetimeTzValue(
         return -1;                                                    // RETURN
     }
 
-    bool                                reserved;
     DatetimeOrDatetimeTzEncoding::Value encoding;
-    detectDatetimeOrDatetimeTzEncoding(
-        &reserved, &encoding, length, firstByte);
+    int rc = detectDatetimeOrDatetimeTzEncoding(&encoding, length, firstByte);
 
-    if (reserved) {
+    if (0 != rc) {
         return -1;                                                    // RETURN
     }
 
