@@ -28,10 +28,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 // Clients wishing to ensure that encoding and then decoding results in a Datum
 // equal to the original value, should use only Datum types natively supported
-// in JSON (see {'Supported Types'} below).  To verify that an encoded JSON can
-// be decoded back into a Datum of equal value, clients can supply the
-// 'strictTypes' option (see {'DatumEncoderOptions'}) to 'encode'.  A call to
-// 'encode' with 'strictTypes' as 'true' will return a positive value if the
+// in JSON (see {'Supported Types'} below).  To verify that encoded JSON fields
+// can be decoded back into Datum fields of of equal value, clients can supply
+// the 'strictTypes' option (see {'DatumEncoderOptions'}) to 'encode'.  A call
+// to 'encode' with 'strictTypes' as 'true' will return a positive value if the
 // encoded 'Datum' contained a type not natively supported in JSON.
 //
 // The order of key/value pairs in objects in textual JSON passed to 'decode'
