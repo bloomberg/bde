@@ -1176,7 +1176,7 @@ int main(int argc, char *argv[])
                                "\"first\":\"Bart\"," WS
                                "\"first\":\"Lisa\""
                             "}"
-                  "}",                     0,        m.m("Name", m.m(
+                  "}",                     0,     2, m.m("Name", m.m(
                                                         "first",  "Bart")) },
             { L_, "{\"Family\":["
                          "\"Homer\","
