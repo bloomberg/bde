@@ -1289,12 +1289,18 @@ Utf8Util::IntPtr Utf8Util::numCodePointsRaw(const char *string)
           } break;
           case 0xc: BSLA_FALLTHROUGH;
           case 0xd: {
+            BSLS_ASSERT(string[1]);
             string += 2;
           } break;
           case 0xe: {
+            BSLS_ASSERT(string[1]);
+            BSLS_ASSERT(string[2]);
             string += 3;
           } break;
           default: {
+            BSLS_ASSERT(string[1]);
+            BSLS_ASSERT(string[2]);
+            BSLS_ASSERT(string[3]);
             string += 4;
           } break;
         }
@@ -1329,20 +1335,21 @@ Utf8Util::IntPtr Utf8Util::numCodePointsRaw(const char *string,
           } break;
           case 0xc: BSLA_FALLTHROUGH;
           case 0xd: {
+            BSLS_ASSERT(2 <= end - string);
             string += 2;
           } break;
           case 0xe: {
+            BSLS_ASSERT(3 <= end - string);
             string += 3;
           } break;
           default: {
+            BSLS_ASSERT(4 <= end - string);
             string += 4;
           } break;
         }
 
         ++count;
     }
-
-    BSLS_ASSERT(end == string);
 
     return count;
 }

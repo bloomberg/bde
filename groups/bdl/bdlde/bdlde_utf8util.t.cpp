@@ -3668,6 +3668,21 @@ int main(int argc, char *argv[])
                 rc     = INIT_INT;
 
                 ASSERT_FAIL(Obj::numCodePointsRaw(nullStr));
+
+                for (int i = 1; i <= 255; ++i) {
+                    char buf[5] = { char(i), '*', '*', '*', 0 };
+                    for (int j = 4; j > 0; --j) {
+                        buf[j] = 0;
+                        if (veryVeryVerbose) { T_ P_(i) P_(j) P(buf) }
+                        if (j >= "1111111144442234"[i >> 4] - '0') {
+                            ASSERT_PASS(rc = Obj::numCodePointsRaw(buf));
+                            ASSERT(1 <= rc);
+                        }
+                        else {
+                            ASSERT_FAIL(rc = Obj::numCodePointsRaw(buf));
+                        }
+                    }
+                }
             }
 
             if (verbose) cout << "numCodePointsRaw -- with length\n";
@@ -3683,6 +3698,20 @@ int main(int argc, char *argv[])
                 rc     = INIT_INT;
 
                 ASSERT_FAIL(Obj::numCodePointsRaw(nullStr, 1));
+
+                for (int i = 0; i <= 255; ++i) {
+                    char buf[4] = { char(i), '*', '*', '*' };
+                    for (int j = 4; j > 0; --j) {
+                        if (veryVeryVerbose) { T_ P_(i) P_(j) P(buf) }
+                        if (j >= "1111111144442234"[i >> 4] - '0') {
+                            ASSERT_PASS(rc = Obj::numCodePointsRaw(buf, j));
+                            ASSERT(1 <= rc);
+                        }
+                        else {
+                            ASSERT_FAIL(rc = Obj::numCodePointsRaw(buf, j));
+                        }
+                    }
+                }
             }
 
             if (verbose) cout << "numCodePointsIfValid -- no length\n";

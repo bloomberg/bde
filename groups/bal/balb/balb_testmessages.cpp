@@ -303,8 +303,12 @@ const char CustomInt::CLASS_NAME[] = "CustomInt";
 
 int CustomString::checkRestrictions(const bsl::string& value)
 {
-    if (8 < bdlde::Utf8Util::numCharacters(value.c_str(), value.length())) {
-        return -1;
+    const char              *invalid = 0;
+    bdlde::Utf8Util::IntPtr  result  = bdlde::Utf8Util::numCodePointsIfValid(
+           &invalid, value.c_str(), value.length());
+
+    if (result < 0 || 8 < result) {
+        return -1;                                                    // RETURN
     }
 
     return 0;
