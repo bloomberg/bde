@@ -176,62 +176,6 @@ bool checkAlpha(const BlobBuffer& blobBuffer)
     return true;
 }
 
-bool fileExists(const char *fileName)
-    // Return 'true' if the specified 'fileName' exists and 'false' otherwise.
-    // Note that 'fileName' may specify a directory.
-{
-#if defined(BSLS_PLATFORM_OS_UNIX)
-    struct stat s;
-    return 0 == ::stat(fileName, &s);
-#else
-    return INVALID_FILE_ATTRIBUTES != GetFileAttributesA(fileName);
-#endif
-}
-
-bool isAtTopLevelDir()
-    // Return 'true' if the current working directory is at the top of the file
-    // system and 'false' otherwise.
-{
-    char cwd[1024];
-    getcwd(cwd, sizeof(cwd));
-
-#if defined(BSLS_PLATFORM_OS_UNIX)
-    return !bsl::strcmp("/", cwd);
-#else
-    const char *pc = bsl::strchr(cwd, ':');
-    pc = pc ? pc + 1 : cwd;
-    return !bsl::strcmp("\\", pc);
-#endif
-}
-
-void moveUpOneDir()
-    // Change the current working directory to the parent of the current one.
-    // The behavior is undefined if we were already at the top level.
-{
-#if defined(BSLS_PLATFORM_OS_UNIX)
-    ::chdir("..");
-#else
-    _chdir("..");
-#endif
-}
-
-void fillSlashes(char *string)
-    // Substitute all '+'s in the specified 'string' with a slash character
-    // appropriate for the OS.
-{
-#if defined(BSLS_PLATFORM_OS_UNIX)
-    const char slash = '/';
-#else
-    const char slash = '\\';
-#endif
-
-    for (; *string; ++string) {
-        if ('+' == *string) {
-            *string = slash;
-        }
-    }
-}
-
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -352,13 +296,6 @@ int main(int argc, char *argv[])
         //: 1 Create a 'Blob' with a 'SimpleBlobBufferFactory' and have it
         //:   create a lot of blobs, write data to them, and read it back
         //:   again.
-        //:
-        //: 2 Open the source for this test driver in this directory, read it
-        //:   all into a blob, then read it again and verify the all the
-        //:   characters in the file match the characters in the blob.
-        //:
-        //: 3 Use 'bsl_cstdio.h' for I/O, to avoid needing to depend on
-        //:   'bdls_filesystemutil', since 'bdlbb' has no dependency on 'bdls'.
         //
         // Testing:
         //   SimpleBlobBufferFactory with Blob
@@ -368,40 +305,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << "CONCERN: INTER-OPERABILITY WITH BLOB\n"
                              "====================================\n";
 
-        enum { bufferSize = 128 };
+        enum { bufferSize = 128, dataSize = 9514 };
 
-        // Move up to the directory containing the 'bde' directory, or fail if
-        // we reach the top level first.
+        bsl::deque<char> data(&sa);
 
-        while (!u::fileExists("bde")) {
-            if (u::isAtTopLevelDir()) {
-                ASSERT(0 && "reached top level without finding 'bde'");
-                break;    // 'fopen' below will fail and test will abort
-            }
-
-            u::moveUpOneDir();
+        bsl::size_t pos = 0;
+        for (bsl::size_t i = 0; i < dataSize; ++i) {
+            pos += i * i;
+            data.push_back("Sphinx of black quartz, judge my vow!"[pos % 37]);
         }
 
-        if (verbose) cout << "Open the test driver.\n";
-
-        char filePath[] = {
-                  "bde+groups+bdl+bdlbb+bdlbb_simpleblobbufferfactory.t.cpp" };
-        u::fillSlashes(filePath);
-        FILE *fp = bsl::fopen(filePath, "rb");
-        if (!fp) {
-            ASSERTV(filePath, 0 && "unable to fopen file");
-            break;
-        }
-
-        if (verbose) cout <<
-                       "Set 'fLen', the length in bytes of the test driver.\n";
-
-        int rc = bsl::fseek(fp, 0, SEEK_END);
-        BSLS_ASSERT(0 == rc);
-        const int fLen = static_cast<int>(bsl::ftell(fp));
-        ASSERTV(fLen, 5 * 1000 < fLen);
-
-        if (verbose) P(fLen);
+        if (verbose) P(dataSize);
 
         for (int ti = 0; ti < 2; ++ti) {
             bool defaultMemory = ti & 1;
@@ -409,9 +323,6 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << (0 == ti ? "" : "\n") << "Pass: " << ti <<
                          (defaultMemory ? " using default memory\n"
                                         : " using memory supplied to c'tor\n");
-
-            bsl::rewind(fp);
-
             if (veryVerbose) cout <<
                          "Create our factory and a blob using that factory.\n";
 
@@ -422,11 +333,12 @@ int main(int argc, char *argv[])
             Blob     blob(&factory, &sa);
 
             if (veryVerbose) cout <<
-                "Traverse the file and load its contents into the blob,\n"
-                "growing as needed.  Do a few sanity checks.\n";
+                "Load contents into the blob, growing as needed.\n"
+                "Do a few sanity checks.\n";
 
             int c, blobLen = 0;
-            while (EOF != (c = getc(fp))) {
+            for (bsl::size_t i = 0; i < dataSize; ++i) {
+                c = data.at(i);
                 ASSERTV(c, blobLen, 0 < c && c < 128);    // ascii
 
                 const int          iBuf  = blobLen / bufferSize;
@@ -442,24 +354,23 @@ int main(int argc, char *argv[])
 
                 buf[iChar] = static_cast<char>(c);
             }
-            ASSERT(EOF == getc(fp));
-            ASSERTV(fLen, blobLen, fLen == blobLen);
-            ASSERTV(fLen, blob.length(), fLen == blob.length());
+            ASSERTV(dataSize, blobLen, dataSize == blobLen);
+            ASSERTV(dataSize, blob.length(), dataSize == blob.length());
 
             if (veryVerbose) cout <<
                 "Examing memory consumption.  Note that the blob itself\n"
                 "allocates memory from 'sa', a different source.  Also note\n"
                 "that since the blob buffers contain shared pointers, the\n"
                 "total memory allocated by the factory's allocator will\n"
-                "exceed 'fLen'.\n";
+                "exceed 'dataSize'.\n";
 
             if (defaultMemory) {
-                ASSERT(da.numBytesInUse() > fLen);
+                ASSERT(da.numBytesInUse() > dataSize);
                 ASSERT(ta.numBytesInUse() == 0);
             }
             else {
                 ASSERT(da.numBytesInUse() == 0);
-                ASSERT(ta.numBytesInUse() > fLen);
+                ASSERT(ta.numBytesInUse() > dataSize);
             }
 
             if (veryVerbose) {
@@ -469,12 +380,11 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) cout <<
-                    "Traverse the file and the blob again, this time\n"
-                    "comparing the file's contents with the contents of the\n"
-                    "blob.\n";
+                    "Traverse the blob again, this time comparing the\n"
+                    "contents of the blob with the data written to it.\n";
 
             int numChars = 0;
-            bsl::rewind(fp);
+            bsl::size_t i = 0;
             for (int iBuf = 0; iBuf < blob.numBuffers(); ++iBuf) {
                 const BlobBuffer&  bBuf   = blob.buffer(iBuf);
                 const char        *buf    = bBuf.data();
@@ -482,15 +392,14 @@ int main(int argc, char *argv[])
                                           ? blob.lastDataBufferLength()
                                           : bBuf.size();
                 for (int ii = 0; ii < bufLen; ++ii, ++numChars) {
-                    const int c = bsl::getc(fp);
+                    const int c = data[i++];
                     ASSERTV(c, iBuf, ii, 0 < c && c < 128);    // ascii
                     ASSERTV(iBuf, ii, c == buf[ii]);
 
                     if (veryVeryVerbose) cout << buf[ii];
                 }
             }
-            ASSERT(EOF == getc(fp))
-            ASSERT(fLen == numChars);
+            ASSERT(dataSize == numChars);
 
             if (0 == ti) {
                 ASSERT(!defaultMemory);
@@ -500,8 +409,6 @@ int main(int argc, char *argv[])
                 ASSERT(0 <  da.numAllocations());
             }
         }
-
-        bsl::fclose(fp);
       } break;
       case 2: {
         // --------------------------------------------------------------------
