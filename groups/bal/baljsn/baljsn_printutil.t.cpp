@@ -25,6 +25,11 @@ using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#   define copysign  _copysign
+#   define copysignf _copysignf
+#endif
+
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
@@ -722,6 +727,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Encode float" << endl;
         {
+            float m0 = copysignf(0.0f, -1.0f);
+
             const struct {
                 int         d_line;
                 float       d_value;
@@ -731,7 +738,7 @@ int main(int argc, char *argv[])
                 //----         -----    ------
 
                 { L_,            0.0f,  "0" },
-                { L_,           -0.0,  "-0" },
+                { L_,             m0,  "-0" },
                 { L_,          0.125f,  "0.125" },
                 { L_,            1.0f,  "1" },
                 { L_,           10.0f,  "10" },
@@ -833,6 +840,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Encode float with maxFloatPrecision option"
                           << endl;
         {
+            float m0 = copysignf(0.0f, -1.0f);
+
             const struct {
                 int         d_line;
                 float       d_value;
@@ -844,8 +853,8 @@ int main(int argc, char *argv[])
 
                 { L_,            0.0, 1, "0" },
                 { L_,            0.0, 2, "0" },
-                { L_,           -0.0, 1, "-0" },
-                { L_,           -0.0, 7, "-0" },
+                { L_,             m0, 1, "-0" },
+                { L_,             m0, 7, "-0" },
                 { L_,            1.0, 1, "1" },
                 { L_,            1.0, 3, "1" },
                 { L_,           10.0, 2, "10" },
@@ -898,6 +907,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Encode double" << endl;
         {
+            double m0 = copysign(0.0, -1.0);
+
             const struct {
                 int         d_line;
                 double      d_value;
@@ -907,7 +918,7 @@ int main(int argc, char *argv[])
                 //----              -----  ------
 
                 { L_,                0.0,  "0" },
-                { L_,               -0.0,  "-0" },
+                { L_,                 m0,  "-0" },
                 { L_,              0.125,  "0.125" },
                 { L_,                1.0,  "1" },
                 { L_,               10.0,  "10" },
@@ -940,6 +951,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Encode double with maxDoublePrecision option"
                           << endl;
         {
+            double m0 = copysign(0.0, -1.0);
+
             const struct {
                 int         d_line;
                 double      d_value;
@@ -951,8 +964,8 @@ int main(int argc, char *argv[])
 
       { L_,                      0.0,  1, "0" },
       { L_,                      0.0,  2, "0" },
-      { L_,                     -0.0,  1, "-0" },
-      { L_,                     -0.0, 17, "-0" },
+      { L_,                       m0,  1, "-0" },
+      { L_,                       m0, 17, "-0" },
       { L_,                      1.0,  1, "1" },
       { L_,                      1.0,  3, "1" },
       { L_,                     10.0,  2, "10" },
