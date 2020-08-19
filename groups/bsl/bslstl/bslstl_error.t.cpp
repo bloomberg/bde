@@ -187,6 +187,108 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
 }
 
 }  // close namespace bsls
+
+namespace {
+
+// The following classes are used to test that assorted virtual overrides work
+// correctly.  They have been moved here from inside 'main()' due to an error
+// in the AIX compiler causing test cases to crash - '{DRQS 162760925}'.
+
+struct concrete_error_category : public bsl::error_category
+    // This class represents a concrete error category.
+{
+    // ACCESSORS
+    native_std::string message(int) const BSLS_KEYWORD_OVERRIDE;
+        // Unused implementation.
+
+    const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+        // Unused implementation.
+};
+
+// ACCESSORS
+native_std::string concrete_error_category::message(int) const
+{
+    ASSERT(false);
+    throw;
+}
+
+const char *concrete_error_category::name() const BSLS_KEYWORD_NOEXCEPT
+{
+    ASSERT(false);
+    return 0;
+}
+
+struct test_error_category : public concrete_error_category
+    // This class overrides virtual methods for testing.
+{
+    // CLASS DATA
+    static bool destructor_called;
+
+    // CREATORS
+    ~test_error_category() BSLS_KEYWORD_OVERRIDE;
+        // Destroy this object.
+
+    // ACCESSORS
+    error_condition default_error_condition(int value) const
+                                   BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+        // Return the result of invoking the base implementation with the
+        // specified 'value' modified.
+
+    bool equivalent(int code, const error_condition&) const
+                                   BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+        // Return whether the specified 'code' is 3.
+
+    bool equivalent(const error_code&, int condition) const
+                                   BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+        // Return whether the specified 'condition' is 2.
+
+    native_std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
+        // Return a string describing the specified 'value' using extra
+        // annotation.
+
+    const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+        // Return a string naming this category.
+};
+
+// CLASS DATA
+bool test_error_category::destructor_called;
+
+// CREATORS
+test_error_category::~test_error_category()
+{
+    destructor_called = true;
+}
+
+// ACCESSORS
+error_condition test_error_category::default_error_condition(int value) const
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return error_category::default_error_condition(value + 1);
+}
+
+bool test_error_category::equivalent(int code, const error_condition&) const
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return 3 == code;
+}
+
+bool test_error_category::equivalent(const error_code&, int condition) const
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return 2 == condition;
+}
+
+native_std::string test_error_category::message(int value) const
+{
+    return native_std::string("M: ") + strerror(value);
+}
+
+const char *test_error_category::name() const BSLS_KEYWORD_NOEXCEPT
+{
+    return "test_error_category";
+}
+
+}  // close anonymous namespace
 }  // close enterprise namespace
 
 // BDE_VERIFY pragma: -NT01  // close namespace comment depends on macro
@@ -251,6 +353,10 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
 // class uniquely identifying the error type.
 //..
     struct ErrorsCategory : public bsl::error_category {
+        // CREATORS
+        ErrorsCategory();
+            // Create an object of this type.
+
         // ACCESSORS
         native_std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
             // Return a string describing the specified 'value'.
@@ -262,6 +368,12 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
         static const bsl::error_category& category();
             // Return a 'const' reference to the singleton of this category.
     };
+
+    // CREATORS
+    inline
+    ErrorsCategory::ErrorsCategory()
+    {
+    }
 
     // ACCESSORS
     inline
@@ -831,24 +943,6 @@ int main(int argc, char *argv[])
             printf("\nTESTING ERROR CATEGORY METHODS"
                    "\n==============================\n");
 
-        struct concrete_error_category : public bsl::error_category {
-            native_std::string message(int) const BSLS_KEYWORD_OVERRIDE
-                // Unused implementation.
-            {
-                ASSERT(false);
-                throw;
-            }
-                // Terminating do-nothing implementation.
-
-            const char *name() const
-            BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE
-                // Unused implementation.
-            {
-                ASSERT(false);
-                return 0;
-            }
-                // Terminating do-nothing implementation.
-        };
 
         if (veryVerbose) {
             printf("default constructor\n");
@@ -861,37 +955,20 @@ int main(int argc, char *argv[])
             printf("virtual destructor\n");
         }
         {
-            static bool destructor_called;
+            test_error_category::destructor_called = false;
             {
-                struct test_error_category : concrete_error_category {
-                    ~test_error_category() BSLS_KEYWORD_OVERRIDE
-                        // Mark that the destructor has been called.
-                    {
-                        destructor_called = true;
-                    }
-                        // Detectable destructor.
-                };
                 test_error_category *pmX = new test_error_category;
                 error_category      *pX = pmX;
-                destructor_called = false;
+                test_error_category::destructor_called = false;
                 delete pX;
             }
-            ASSERT(destructor_called);
+            ASSERT(test_error_category::destructor_called);
         }
 
         if (veryVerbose) {
             printf("default_error_condition\n");
         }
         {
-            struct test_error_category : concrete_error_category {
-                error_condition default_error_condition(
-                   int value) const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE
-                    // Return the result if invoking the base implementation
-                    // with the specified 'value' modified.
-                {
-                    return error_category::default_error_condition(value + 1);
-                }
-            };
             test_error_category mX;
             error_category&     X = mX;
             ASSERT(3 == X.default_error_condition(2).value());
@@ -902,20 +979,6 @@ int main(int argc, char *argv[])
             printf("equivalent\n");
         }
         {
-            struct test_error_category : concrete_error_category {
-                bool equivalent(int code, const error_condition&) const
-                    BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE
-                    // Return whether the specified 'code' is 3.
-                {
-                    return code == 3;
-                }
-                bool equivalent(const error_code&, int condition) const
-                    BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE
-                    // Return whether the specified 'condition' is 2.
-                {
-                    return condition == 2;
-                }
-            };
             {
                 if (veryVerbose) {
                     printf("\tbase implementation\n");
@@ -968,15 +1031,6 @@ int main(int argc, char *argv[])
             printf("message\n");
         }
         {
-            struct test_error_category : concrete_error_category {
-                native_std::string message(
-                                         int value) const BSLS_KEYWORD_OVERRIDE
-                    // Return a string describing the specified 'value' using
-                    // extra annotation.
-                {
-                    return native_std::string("M: ") + strerror(value);
-                }
-            };
             test_error_category mX;
             error_category&     X = mX;
             ASSERT(strstr(X.message(static_cast<int>(errc::no_link)).data(),
@@ -989,14 +1043,6 @@ int main(int argc, char *argv[])
             printf("name\n");
         }
         {
-            struct test_error_category : concrete_error_category {
-                const char *name() const
-                BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE
-                    // Return a string naming this category.
-                {
-                    return "test_error_category";
-                }
-            };
             test_error_category mX;
             error_category&     X = mX;
             ASSERT(0 == strcmp("test_error_category", X.name()));
