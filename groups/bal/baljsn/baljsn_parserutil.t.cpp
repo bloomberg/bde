@@ -2426,6 +2426,14 @@ int main(int argc, char *argv[])
                 {  L_, "\"A\\U7G00B\"",  -1, "A",                     -1, 0  },
                 {  L_, "\"A\\UXXXXB\"",  -1, "A",                     -1, 0  },
 
+                // Values that 'strtol' accepts - '{DRQS 162368243}'.
+                {  L_, "\"\\U0xFF\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\U   4\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\U  -1\"",    -1, ERROR_VALUE,             -1, 0  },
+                {  L_, "\"\\ud83d\\u0xFF\"", -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud83d\\u   4\"", -1, ERROR_VALUE,         -1, 0  },
+                {  L_, "\"\\ud83d\\u  -1\"", -1, ERROR_VALUE,         -1, 0  },
+
                 // These error strings were copied from
                 // 'bdlde_charconvertutf32' test driver.
 

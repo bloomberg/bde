@@ -10,6 +10,7 @@ BSLS_IDENT_RCSID(baljsn_parserutil_cpp,"$Id$ $CSID$")
 #include <bdlde_charconvertutf32.h>
 
 #include <bdlb_chartype.h>
+#include <bdlb_numericparseutil.h>
 #include <bdlb_string.h>
 
 #include <bdldfp_decimalutil.h>
@@ -189,24 +190,21 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
 
                 enum { k_NUM_UNICODE_DIGITS = 4 };
 
-                if (iter + k_NUM_UNICODE_DIGITS >= end) {
+                if (k_NUM_UNICODE_DIGITS >= end - iter) {
                     return -1;                                        // RETURN
                 }
 
                 ++iter;
 
-                char tmp[k_NUM_UNICODE_DIGITS + 1];
-                bsl::strncpy(tmp, iter, k_NUM_UNICODE_DIGITS);
-                tmp[k_NUM_UNICODE_DIGITS] = '\0';
+                unsigned int utf32input = 0;
 
-                char         *last = 0;
-                unsigned int  utf32input;
-
-                utf32input = static_cast<unsigned int>(
-                                                  bsl::strtol(tmp, &last, 16));
-
-                if (last == tmp || *last != '\0') {
-                    return -1;                                        // RETURN
+                for (int i = 0; i < k_NUM_UNICODE_DIGITS; ++i) {
+                    int digit =
+                        bdlb::NumericParseUtil::characterToDigit(iter[i], 16);
+                    if (digit < 0) {
+                        return -1;                                    // RETURN
+                    }
+                    utf32input = (utf32input << 4) + digit;
                 }
 
                 unsigned int first = utf32input;
@@ -235,23 +233,22 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
                         'U' != iter[k_NUM_UNICODE_DIGITS + 1]) {
                         return -1;                                    // RETURN
                     }
+
+                    unsigned int second = 0;
+
                     for (int i = 0; i < k_NUM_UNICODE_DIGITS; ++i) {
-                        if (0 == iter[k_NUM_UNICODE_DIGITS + 2 + i]) {
+                        int digit = bdlb::NumericParseUtil::characterToDigit(
+                            iter[k_NUM_UNICODE_DIGITS + 2 + i], 16);
+                        if (digit < 0) {
                             return -1;                                // RETURN
                         }
+                        second = (second << 4) + digit;
                     }
-                    bsl::strncpy(tmp,
-                                 iter + k_NUM_UNICODE_DIGITS + 2,
-                                 k_NUM_UNICODE_DIGITS);
-                    tmp[k_NUM_UNICODE_DIGITS] = '\0';
-                    unsigned int second = static_cast<unsigned int>(
-                                                  bsl::strtol(tmp, &last, 16));
-                    if (last == tmp || *last != '\0') {
-                        return -1;                                    // RETURN
-                    }
+
                     if (second < 0xDC00 || second > 0xDFFF) {
                         return -1;                                    // RETURN
                     }
+
                     // Combine the two 16-bit halves into one 21-bit whole.
                     utf32input = 0x010000 +
                                     ((first - 0xD800) << 10) +
