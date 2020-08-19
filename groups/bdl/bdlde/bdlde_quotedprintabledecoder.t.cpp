@@ -2821,6 +2821,18 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, 3 == numIn);
                 LOOP_ASSERT(i, 1 == numOut);
             }
+
+            // Test that weird hex fuzz doesn't crash - '{DRQS 162367918}'
+            for (int i = 0x00; i <= 0xFF; ++i) {
+                input[1] = char(i);
+                for (int j = 0x00; j <= 0xFF; ++j) {
+                    input[2] = char(j);
+                    Obj obj(false);
+                    int numOut = -1;
+                    int numIn = -1;
+                    obj.convert(buffer, &numOut, &numIn, input, input + 3);
+                }
+            }
         }
 
         {

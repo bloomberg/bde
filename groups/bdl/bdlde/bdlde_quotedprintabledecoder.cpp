@@ -50,7 +50,7 @@ static const char UC  = QuotedPrintableDecoder::e_UC;
 // use/modify the map below for the relaxed error-reporting and CRLF line break
 // mode (i.e., EQUIVALENCE_CLASS_MAP_CRLF below).
 
-static const char EQUIVALENCE_CLASS_MAP_STRICT[] = {
+static const char EQUIVALENCE_CLASS_MAP_STRICT[256] = {
 //  0   1   2   3   4   5   6   7
     UC_, UC_, UC_, UC_, UC_, UC_, UC_, UC_,  // 000
     UC_, WS_, LC_, UC_, UC_, CR_, UC_, UC_,  // 010  '\t'_, '\n'_, '\r'
@@ -91,7 +91,7 @@ static const char EQUIVALENCE_CLASS_MAP_STRICT[] = {
 // break mode (line breaks are decoded to "\r\n").  The LF line break mode
 // requires only moving element ['\n'] to the LL class.
 
-static const char EQUIVALENCE_CLASS_MAP_CRLF[] = {
+static const char EQUIVALENCE_CLASS_MAP_CRLF[256] = {
 //  0   1   2   3   4   5   6   7
     RC, RC, RC, RC, RC, RC, RC, RC,  // 000
     RC, WS, LC, RC, RC, CR, RC, RC,  // 010  '\t', '\n', '\r'
@@ -106,6 +106,9 @@ static const char EQUIVALENCE_CLASS_MAP_CRLF[] = {
     RC, RC, RC, RC, RC, RC, RC, RC,  // 120
     RC, RC, RC, RC, RC, RC, RC, RC,  // 130
     RC, HX, HX, HX, HX, HX, HX, UC,  // 140  'a'-'f' (\141-\146)
+    UC, UC, UC, UC, UC, UC, UC, UC,  // 150
+    UC, UC, UC, UC, UC, UC, UC, UC,  // 160
+    UC, UC, UC, UC, UC, UC, UC, UC,  // 170
     UC, UC, UC, UC, UC, UC, UC, UC,  // 200
     UC, UC, UC, UC, UC, UC, UC, UC,  // 210
     UC, UC, UC, UC, UC, UC, UC, UC,  // 220
@@ -137,7 +140,7 @@ static const char EQUIVALENCE_CLASS_MAP_CRLF[] = {
 // check, the real value of 0x00 in decondingMap cannot be distinguished from
 // the null values in the same table.
 
-static const unsigned char decodingMap[] = {
+static const unsigned char decodingMap[256] = {
 //  0     1     2     3     4     5     6     7
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // 000
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // 010
@@ -210,7 +213,7 @@ QuotedPrintableDecoder::~QuotedPrintableDecoder()
 
     if (d_equivClass_p != s_defaultEquivClassStrict_p &&
         d_equivClass_p != s_defaultEquivClassCRLF_p) {
-        delete d_equivClass_p;
+        delete [] d_equivClass_p;
     }
 }
 
@@ -279,7 +282,7 @@ int QuotedPrintableDecoder::convert(char       *out,
             }
         }
         else if (e_NEED_HEX_STATE == d_state) {
-            const unsigned char ch = decodingMap[(int)*begin];
+            const unsigned char ch = decodingMap[*begin & 0xff];
             if (ch == (unsigned char)0xFF) {
                 *numOut = numEmitted;
                 d_outputLength += numEmitted;
@@ -332,7 +335,7 @@ int QuotedPrintableDecoder::convert(char       *out,
                 ++begin;
             }
             else {
-                d_hexBuffer = (char)decodingMap[(int)*begin];
+                d_hexBuffer = (char)decodingMap[*begin & 0xff];
                 if (d_hexBuffer == (char)0xFF) {
                     *numOut = numEmitted;
                     d_outputLength += numEmitted;
