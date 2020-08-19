@@ -383,7 +383,7 @@ int ParserUtil::getValue(double *value, bslstl::StringRef data)
      || (0        == tmp && 0 != errno)
      ||  HUGE_VAL == tmp
      || -HUGE_VAL == tmp
-     || !bsl::isdigit(*(dataString.end() - 1))) {
+     || !bdlb::CharType::isDigit(*(dataString.end() - 1))) {
         return -1;                                                    // RETURN
     }
 
@@ -400,7 +400,7 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
     // Extract leading digits and store their range in [valueBegin..valueEnd)
 
     const char *valueBegin = iter;
-    while (iter < end && bsl::isdigit(*iter)) {
+    while (iter < end && bdlb::CharType::isDigit(*iter)) {
         ++iter;
     }
     const char *valueEnd = iter;
@@ -417,7 +417,7 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
     if (iter < end && '.' == *iter) {
 
         fractionalBegin = ++iter;
-        while (iter < end && bsl::isdigit(*iter)) {
+        while (iter < end && bdlb::CharType::isDigit(*iter)) {
             ++iter;
         }
         fractionalEnd = iter;
@@ -428,26 +428,32 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
 
     int  exponent = 0;
     bool isExpNegative = false;
-    if ('E' == static_cast<char>(bsl::toupper(*iter))) {
-
-        ++iter;
+    if (iter < end && 'E' == static_cast<char>(bsl::toupper(*iter))) {
+        if (++iter == end) {
+            return -1;                                                // RETURN
+        }
         if ('-' == *iter) {
             isExpNegative = true;
-            ++iter;
+            if (++iter == end) {
+                return -1;                                            // RETURN
+            }
         }
-        else {
-            if ('+' == *iter) {
-                ++iter;
+        else if ('+' == *iter) {
+            if (++iter == end) {
+                return -1;                                            // RETURN
             }
         }
 
-        while (iter < end && bsl::isdigit(*iter)) {
+        while (iter < end && bdlb::CharType::isDigit(*iter)) {
+            if (exponent > bsl::numeric_limits<int>::max() / 10) {
+                return -1;                                            // RETURN
+            }
             exponent = exponent * 10 + *iter - '0';
             ++iter;
         }
     }
 
-    if (iter < end && !bsl::isdigit(*iter)) {
+    if (iter < end && !bdlb::CharType::isDigit(*iter)) {
         return -1;                                                    // RETURN
     }
 

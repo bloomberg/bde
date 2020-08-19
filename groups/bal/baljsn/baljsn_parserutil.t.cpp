@@ -3221,11 +3221,17 @@ int main(int argc, char *argv[])
     {  L_,         "0x256",         ERROR_VALUE,      false   },
     {  L_,         "JUNK",          ERROR_VALUE,      false   },
     {  L_,         "DEADBEEF",      ERROR_VALUE,      false   },
+
+    {  L_,   "1E",                  ERROR_VALUE,      false   },
+    {  L_,   "1E+",                 ERROR_VALUE,      false   },
+    {  L_,   "1E-",                 ERROR_VALUE,      false   },
+    {  L_,   "1E9999999999",        ERROR_VALUE,      false   },
+    {  L_,   "1E-9999999999",       ERROR_VALUE,      false   },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int     LINE     = DATA[i].d_line;
+                const int    LINE     = DATA[i].d_line;
                 const string INPUT    = DATA[i].d_input_p;
                 const Type   EXP      = DATA[i].d_exp;
                 const bool   IS_VALID = DATA[i].d_isValid;
@@ -3246,6 +3252,16 @@ int main(int argc, char *argv[])
                 LOOP4_ASSERT(LINE, INPUT, EXP, value, EXP == value);
 
                 ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            }
+
+            for (int i = 0; i <= 255; ++i) {
+                char      c        = static_cast<char>(i);
+                StringRef isb(&c, 1);
+                bool      is_valid = '0' <= c && c <= '9';
+                Type      value    = ERROR_VALUE;
+                const int rc       = Util::getValue(&value, isb);
+                ASSERTV(rc, i, is_valid, is_valid == (0 == rc));
+                ASSERTV(value, is_valid, !is_valid || value == i - '0');
             }
         }
       } break;
