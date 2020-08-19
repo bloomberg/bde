@@ -196,23 +196,20 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
 
                 ++iter;
 
-                unsigned int utf32input = 0;
-
-                for (int i = 0; i < k_NUM_UNICODE_DIGITS; ++i) {
-                    int digit =
-                        bdlb::NumericParseUtil::characterToDigit(iter[i], 16);
-                    if (digit < 0) {
-                        return -1;                                    // RETURN
-                    }
-                    utf32input = (utf32input << 4) + digit;
+                bsls::Types::Uint64 digits;
+                bslstl::StringRef   rest;
+                if (bdlb::NumericParseUtil::parseUnsignedInteger(
+                        &digits,
+                        &rest,
+                        bslstl::StringRef(iter, k_NUM_UNICODE_DIGITS),
+                        16,
+                        0xFFFFULL,
+                        k_NUM_UNICODE_DIGITS) != 0 ||
+                    rest.size() > 0) {
+                    return -1;                                        // RETURN
                 }
 
-                unsigned int first = utf32input;
-
-                // Confirm that only the lower two bytes are set.
-
-                BSLS_ASSERT(0 == (first & 0xFF000000)
-                         && 0 == (first & 0x00FF0000));
+                unsigned int utf32input = static_cast<unsigned int>(digits);
 
                 // Value by which to increment 'iter'.  (3 instead of 4 because
                 // 'iter' is incremented at the end of the function.)
@@ -221,6 +218,9 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
                 // Check for supplementary plane encodings.  These consist of a
                 // pair of unicode 16-bit values, the first in 'D800..DBFF' and
                 // the second in 'DC00..DFFF'.
+
+                unsigned int first = utf32input;
+
                 if (0xD800 <= first && first <= 0xDBFF) {
                     // Check that another unicode escape sequence follows.
                     if (iter + 2 * k_NUM_UNICODE_DIGITS + 2 >= end) {
@@ -234,20 +234,20 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
                         return -1;                                    // RETURN
                     }
 
-                    unsigned int second = 0;
-
-                    for (int i = 0; i < k_NUM_UNICODE_DIGITS; ++i) {
-                        int digit = bdlb::NumericParseUtil::characterToDigit(
-                            iter[k_NUM_UNICODE_DIGITS + 2 + i], 16);
-                        if (digit < 0) {
-                            return -1;                                // RETURN
-                        }
-                        second = (second << 4) + digit;
-                    }
-
-                    if (second < 0xDC00 || second > 0xDFFF) {
+                    if (bdlb::NumericParseUtil::parseUnsignedInteger(
+                            &digits,
+                            &rest,
+                            bslstl::StringRef(iter + k_NUM_UNICODE_DIGITS + 2,
+                                              k_NUM_UNICODE_DIGITS),
+                            16,
+                            0xDFFFULL,
+                            k_NUM_UNICODE_DIGITS) != 0 ||
+                        rest.size() > 0 ||
+                        digits < 0xDC00) {
                         return -1;                                    // RETURN
                     }
+
+                    unsigned int second = static_cast<unsigned int>(digits);
 
                     // Combine the two 16-bit halves into one 21-bit whole.
                     utf32input = 0x010000 +
