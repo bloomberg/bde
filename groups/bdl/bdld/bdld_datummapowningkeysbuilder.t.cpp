@@ -7,6 +7,8 @@
 #include <bslma_default.h>               // for testing only
 #include <bslma_defaultallocatorguard.h> // for testing only
 
+#include <bslmf_usesallocator.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -32,8 +34,8 @@ using namespace BloombergLP::bdld;
 // maps (owning keys) of 'Datum' objects.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 4] DatumMapOwningKeysBuilder(bslma::Allocator *);
-// [ 2] DatumMapOwningKeysBuilder(SizeType, SizeType, bslma::Allocator *);
+// [ 4] DatumMapOwningKeysBuilder(const allocator_type& allocator);
+// [ 2] DatumMapOwningKeysBuilder(SizeType, SizeType, const allocator_t&);
 // [ 2] ~DatumMapOwningKeysBuilder();
 //
 // MANIPULATORS
@@ -47,6 +49,8 @@ using namespace BloombergLP::bdld;
 // [ 3] SizeType capacity() const;
 // [ 3] SizeType keysCapacity() const;
 // [ 3] SizeType size() const;
+// [ 3] bslma::Allocator *allocator() const;
+// [ 3] allocator_type get_allocator() const;
 //
 // TRAITS
 // [ 8] bslma::UsesBslmaAllocator
@@ -110,10 +114,18 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
+//                      CONVENIENCE MACROS
+// ----------------------------------------------------------------------------
+
+// For use in ASSERTV macro invocations to print allocator.
+#define ALLOC_OF(EXPR) (EXPR).get_allocator().mechanism()
+
+// ============================================================================
 //                    GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef DatumMapOwningKeysBuilder Obj;
+typedef Obj::allocator_type       AllocType;  // Test 'allocator_type' exists.
 
 DatumMapEntry values[] = {
     DatumMapEntry(StringRef("a"),     Datum::createInteger(1)),
@@ -129,6 +141,13 @@ const size_t KEYS_SIZE    = strlen("a")
                           + strlen("abc")
                           + strlen("abcd")
                           + strlen("abcde");
+
+// ============================================================================
+//                                TYPE TRAITS
+// ----------------------------------------------------------------------------
+
+BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+BSLMF_ASSERT((bsl::uses_allocator<Obj, bsl::allocator<char> >::value));
 
 //=============================================================================
 //               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
@@ -616,22 +635,15 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The constructor correctly sets null values for capacity, keys
         //:   capacity and binds given allocator with created object.
-        //:
-        //: 2 Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Create a 'DatumMapOwningKeysBuilder' object. verify that the
         //:   capacities are represented correctly.  Append few elements to the
         //:   map and verify, that memory has been allocated by the passed
         //:   allocator.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-2)
         //
         // Testing:
-        //   DatumMapOwningKeysBuilder(bslma::Allocator *);
+        //   DatumMapOwningKeysBuilder(const allocator_type& allocator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -658,14 +670,6 @@ int main(int argc, char *argv[])
                 mB.append(values, 1);
                 ASSERT(0 != ta.numBytesInUse());
             }
-
-            if (verbose) cout << "\tNegative Testing." << endl;
-            {
-                bsls::AssertTestHandlerGuard hG;
-
-                ASSERT_FAIL((Obj(0)));
-                ASSERT_PASS((Obj(&ta)));
-            }
         }
       } break;
       case 3: {
@@ -689,10 +693,11 @@ int main(int argc, char *argv[])
         //:    'size' methods return expected values.  (C-1..4)
         //
         // Testing:
-        //    bslma::Allocator *allocator() const;
-        //    SizeType          capacity() const;
-        //    SizeType          keysCapacity() const;
-        //    SizeType          size() const;
+        //   SizeType          capacity() const;
+        //   SizeType          keysCapacity() const;
+        //   SizeType          size() const;
+        //   bslma::Allocator *allocator() const;
+        //   allocator_type    get_allocator() const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "BASIC ACCESSORS" << endl
@@ -703,10 +708,16 @@ int main(int argc, char *argv[])
                     " and 'size'." << endl;
 
         {
-            Obj        mB(0, 0, &defaultAllocator);
+            bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+            bsl::allocator<char> oaa(&oa);
+
+            bslma::DefaultAllocatorGuard dag(&defaultAllocator);
+
+            Obj        mB(0, 0, oaa);
             const Obj& B = mB;
 
-            ASSERT(B.allocator() == &defaultAllocator); // C-1
+            ASSERTV(ALLOC_OF(B),   oaa == B.get_allocator());
+            ASSERTV(B.allocator(), &oa == B.allocator());
         }
 
         {
@@ -715,7 +726,7 @@ int main(int argc, char *argv[])
             Obj        mB(0, 0, &ta);
             const Obj& B = mB;
 
-            ASSERT(B.allocator() == &ta); // C-1
+            ASSERT(&ta == B.get_allocator());
 
             ASSERT(0 == B.capacity());
             ASSERT(0 == B.keysCapacity());
@@ -808,7 +819,7 @@ int main(int argc, char *argv[])
         //:   (C-8)
         //
         // Testing:
-        //   DatumMapOwningKeysBuilder(SizeType, SizeType, bslma::Allocator *);
+        //   DatumMapOwningKeysBuilder(SizeType, SizeType, const allocator_t&);
         //   ~DatumMapOwningKeysBuilder();
         //   void append(const DatumMapEntry *, int);
         //   Datum commit();
@@ -835,10 +846,10 @@ int main(int argc, char *argv[])
                 Obj        mB(0, 0, &ta);
                 const Obj& B = mB;
 
-                ASSERT(0             == B.capacity());
-                ASSERT(0             == B.keysCapacity());
-                ASSERT(0             == ta.numBytesInUse());
-                ASSERT(B.allocator() == &ta);
+                ASSERT(0   == B.capacity());
+                ASSERT(0   == B.keysCapacity());
+                ASSERT(0   == ta.numBytesInUse());
+                ASSERT(&ta == B.get_allocator());
             }
 
             if (verbose) cout <<
@@ -1094,12 +1105,6 @@ int main(int argc, char *argv[])
 
             bsls::AssertTestHandlerGuard hG;
 
-            if (verbose) cout << "\tTesting constructor." << endl;
-            {
-                ASSERT_FAIL((Obj(0, 0, 0)));
-                ASSERT_PASS((Obj(0, 0, &ta)));
-            }
-
             if (verbose) cout << "\tTesting 'append'." << endl;
             {
                 Obj           mB(0, 0, &ta);
@@ -1206,7 +1211,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

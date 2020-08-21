@@ -106,14 +106,14 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bdld_datum.h>
 
+#include <bslma_stdallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_types.h>
 
 namespace BloombergLP {
-
-namespace bslma { class Allocator; }
-
 namespace bdld {
 
                            // =====================
@@ -130,12 +130,14 @@ class DatumMapBuilder {
         // 'SizeType' is an alias for a unsigned integral value, representing
         // the capacity or size of a datum map.
 
+    typedef bsl::allocator<char> allocator_type;
+
   private:
     // DATA
-    DatumMutableMapRef  d_mapping;      // mutable access to the datum map
-    SizeType            d_capacity;     // capacity of the datum map
-    bool                d_sorted;       // underlying map is sorted or not
-    bslma::Allocator   *d_allocator_p;  // allocator for memory
+    DatumMutableMapRef d_mapping;    // mutable access to the datum map
+    SizeType           d_capacity;   // capacity of the datum map
+    bool               d_sorted;     // underlying map is sorted or not
+    allocator_type     d_allocator;  // allocator for memory
 
   private:
     // NOT IMPLEMENTED
@@ -145,21 +147,23 @@ class DatumMapBuilder {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(DatumMapBuilder, bslma::UsesBslmaAllocator);
-        // 'DatumMapBuilder' objects use 'bslma::Allocator'.
+        // 'DatumMapBuilder' is allocator-aware.
 
     // CREATORS
-    explicit DatumMapBuilder(bslma::Allocator *basicAllocator  = 0);
-    explicit DatumMapBuilder(SizeType          initialCapacity,
-                             bslma::Allocator *basicAllocator  = 0);
+    DatumMapBuilder();
+    explicit DatumMapBuilder(const allocator_type &allocator);
+    explicit DatumMapBuilder(
+                           SizeType              initialCapacity,
+                           const allocator_type& allocator = allocator_type());
         // Create a 'DatumMapBuilder' object that will administer the process
         // of building a 'Datum' map.  Optionally specify an 'initialCapacity'
         // for the map.  If 'initialCapacity' is not supplied, the initial
-        // capacity of the map is 0.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+        // capacity of the map is 0.  Optionally specify an 'allocator' (e.g.,
+        // the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.
 
     ~DatumMapBuilder();
-        // Destroy this object. If this object is holding a datum map that has
+        // Destroy this object.  If this object is holding a datum map that has
         // not been adopted, then the datum map is disposed after destroying
         // each of its elements.
 
@@ -167,8 +171,8 @@ class DatumMapBuilder {
     void append(const DatumMapEntry *entries, SizeType size);
         // Append the specified array 'entries' having the specified 'size' to
         // the 'Datum' map being build by this object.  The behavior is
-        // undefined unless and '0 != entries && 0 != size'  and each element
-        // in 'entries' that needs dynamic memory, is allocated with the same
+        // undefined unless '0 != entries && 0 != size' and each element in
+        // 'entries' that needs dynamic memory, is allocated with the same
         // allocator that was used to construct this object.  The behavior is
         // undefined if 'commit' or 'sortAndCommit' has already been called on
         // this object.
@@ -220,6 +224,11 @@ class DatumMapBuilder {
         // constructed, but does indicate at which point additional memory will
         // be required to grow the 'Datum' map being built.
 
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
+
     SizeType size() const;
         // Return the size of the held 'Datum' map.  The behavior is undefined
         // if 'commit' or 'sortAndCommit' has already been called on this
@@ -239,6 +248,12 @@ inline
 DatumMapBuilder::SizeType DatumMapBuilder::capacity() const
 {
     return d_capacity;
+}
+
+inline
+DatumMapBuilder::allocator_type DatumMapBuilder::get_allocator() const
+{
+    return d_allocator;
 }
 
 inline

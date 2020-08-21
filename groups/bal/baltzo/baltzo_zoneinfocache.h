@@ -151,8 +151,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlb_cstringless.h>
 
-#include <bslma_allocator.h>
-#include <bslma_default.h>
+#include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_nestedtraitdeclaration.h>
@@ -166,9 +165,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_map.h>
 
 namespace BloombergLP {
-
-namespace bslma { class Allocator; }
-
 namespace baltzo {
 
                             // ===================
@@ -189,21 +185,25 @@ class ZoneinfoCache {
     //: o is *fully* *thread-safe*
     // For terminology see 'bsldoc_glossary'.
 
+  public:
+    // TYPES
+    typedef bsl::allocator<char> allocator_type;
+
+  private:
     // PRIVATE TYPES
     typedef bsl::map<const char *, Zoneinfo *, bdlb::CStringLess> ZoneinfoMap;
 
     // DATA
-    ZoneinfoMap              d_cache;        // cached time-zone info, indexed
-                                             // by time-zone id
+    ZoneinfoMap             d_cache;      // cached time-zone info, indexed by
+                                          // time-zone id
 
-    Loader                  *d_loader_p;     // loader used to obtain time-zone
-                                             // information (held, not owned)
+    Loader                 *d_loader_p;   // loader used to obtain time-zone
+                                          // information (held, not owned)
 
-    mutable bslmt::RWMutex  d_lock;         // cache access synchronization
+    mutable bslmt::RWMutex  d_lock;       // cache access synchronization
 
-    bslma::Allocator        *d_allocator_p;  // allocator (held, not owned)
+    allocator_type          d_allocator;  // allocator used to supply memory
 
-  private:
     // NOT IMPLEMENTED
     ZoneinfoCache(const ZoneinfoCache&);
     ZoneinfoCache& operator=(const ZoneinfoCache&);
@@ -212,17 +212,19 @@ class ZoneinfoCache {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(ZoneinfoCache,
                                    bslma::UsesBslmaAllocator);
+        // 'ZoneinfoCache' is allocator-aware.
 
     // CREATORS
-    explicit ZoneinfoCache(Loader           *loader,
-                           bslma::Allocator *basicAllocator = 0);
+    explicit ZoneinfoCache(
+                          Loader                *loader,
+                          const allocator_type&  allocator = allocator_type());
         // Create an empty cache of time-zone information that will use the
         // specified 'loader' to populate the cache, as-needed, with time zone
-        // information.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  In order the populate the cache for a time zone
-        // identifier, 'loader' must return a 'Zoneinfo' object that is
-        // well-formed (see 'ZoneinfoUtil::isWellFormed') and whose
+        // information.  Optionally specify an 'allocator' (e.g., the address
+        // of a 'bslma::Allocator' object) to supply memory; otherwise, the
+        // default allocator is used.  In order the populate the cache for a
+        // time zone identifier, 'loader' must return a 'Zoneinfo' object that
+        // is well-formed (see 'ZoneinfoUtil::isWellFormed') and whose
         // 'identifier' matches the supplied time zone identifier.
 
     ~ZoneinfoCache();
@@ -256,6 +258,11 @@ class ZoneinfoCache {
         // Zoneinfo object returned is guaranteed to be well-formed (i.e.,
         // 'ZoneinfoUtil::isWellFormed will return 'true' if called with the
         // returned value), and remain valid for the lifetime of this object.
+
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
 };
 
 // ============================================================================
@@ -268,10 +275,10 @@ class ZoneinfoCache {
 
 // CREATORS
 inline
-ZoneinfoCache::ZoneinfoCache(Loader *loader, bslma::Allocator *basicAllocator)
-: d_cache(basicAllocator)
+ZoneinfoCache::ZoneinfoCache(Loader *loader, const allocator_type&  allocator)
+: d_cache(allocator)
 , d_loader_p(loader)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator(allocator)
 {
     BSLS_ASSERT(0 != loader);
 }
@@ -286,13 +293,19 @@ const Zoneinfo *ZoneinfoCache::getZoneinfo(const char *timeZoneId)
     return getZoneinfo(&rc, timeZoneId);
 }
 
+inline
+ZoneinfoCache::allocator_type ZoneinfoCache::get_allocator() const
+{
+    return d_allocator;
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

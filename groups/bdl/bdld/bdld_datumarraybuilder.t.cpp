@@ -29,14 +29,18 @@ using namespace bsl;
 // arrays of 'Datum' objects.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] explicit DatumArrayBuilder(SizeType, bslma::Allocator *);
+// [ 2] explicit DatumArrayBuilder(allocator_type);
+// [ 2] DatumArrayBuilder(SizeType, allocator_type);
 // [ 2] ~DatumArrayBuilder();
+//
 // MANIPULATORS
 // [ 2] void pushBack(const Datum& value);
 // [ 4] void append(const Datum *, SizeType);
 // [ 2] Datum commit();
+//
 // ACCESSORS
 // [ 3] SizeType capacity() const;
+// [ 3] allocator_type get_allocator() const;
 // [ 3] SizeType size() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -108,12 +112,16 @@ void aSsErT(bool condition, const char *message, int line)
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
 typedef bdld::DatumArrayBuilder Obj;
+typedef Obj::allocator_type     AllocType;
 
 //=============================================================================
 //               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
 namespace {
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -373,8 +381,8 @@ int main(int argc, char *argv[]) {
             const bsl::size_t numValues = sizeof(valuesAppend)
                                           /sizeof(valuesAppend[0]);
 
-            Obj        mBA(0, &ta);
-            Obj        mBB(0, &ta);
+            Obj               mBA(0, &ta);
+            Obj               mBB(0, &ta);
 
             mBA.append(valuesAppend, numValues);
             appendResult = mBA.commit();
@@ -404,19 +412,35 @@ int main(int argc, char *argv[]) {
         //   Verify the basic accessors functionality.
         //
         // Concerns:
-        //: 1 Ensure that basic accessors return valid, expected values.
+        //: 1 The 'capacity' method returns the capacity of the datum-array
+        //:   builder.
+        //:
+        //: 2 The 'get_allocator' method returns the allocator specified at
+        //:   construction, and that is a default allocator if none was
+        //:   specified at construction.
+        //:
+        //: 3 The 'size' method returns the current size of the datum-array
+        //:   builder.
         //
         // Plan:
-        //: 1 Create a 'DatumArrayBuilder' object using the explicit
-        //:   constructor and verify the initial capacity.  (C-1)
+        //: 1 Create a 'DatumArrayBuilder' object.  Append a few elements to
+        //:   the builder and verify that the 'capacity' and 'size' methods
+        //:   return expected values.  (C-1,2)
         //:
-        //: 2 Call 'pushBack' to insert 'Datum' elements to the array and
-        //:   verify that the 'capacity' and 'size' return expected values.
-        //:   (C-1)
+        //: 2 Execute a loop that creates an object but invokes the default
+        //:   constructor differently in each iteration: (a) without passing an
+        //:   allocator, (b) passing a default-constructed allocator explicitly
+        //:   (c) passing the address of a test allocator distinct from the
+        //:   default, and (d) passing in an allocator constructed from the
+        //:   address of a test allocator distinct from the default.  For each
+        //:   of these iterations verify that the correct allocator is returned
+        //:   by 'get_allocator()' and is used when memory is actually
+        //:   allocated.
         //
         // Testing:
-        //   SizeType capacity() const;
-        //   SizeType size() const;
+        //    SizeType       capacity()      const;
+        //    allocator_type get_allocator() const;
+        //    SizeType       size()          const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -465,6 +489,8 @@ int main(int argc, char *argv[]) {
                     const Obj& B = mB;
 
                     ASSERTV(i, B.capacity(), INIT_CAPACITY == B.capacity());
+                    ASSERTV(i, &ta, B.get_allocator().mechanism(),
+                            &ta == B.get_allocator());
                     ASSERTV(i, B.size(),     0             == B.size());
 
                     for (size_t n = 0; n < NUM_PUSH; ++n) {
@@ -474,6 +500,8 @@ int main(int argc, char *argv[]) {
                     }
 
                     ASSERTV(i, B.capacity(), EXP_CAPACITY == B.capacity());
+                    ASSERTV(i, &ta, B.get_allocator().mechanism(),
+                            &ta == B.get_allocator());
                     ASSERTV(i, B.size(),     NUM_PUSH     == B.size());
 
                     result = mB.commit();
@@ -500,6 +528,91 @@ int main(int argc, char *argv[]) {
                 bdld::Datum::destroy(result, &ta);
                 ASSERT(0 == ta.status());
             }
+        }
+
+        if (verbose) cout << "\nTesting construction, allocation, and "
+                          << "'get_allocator'." << endl;
+
+        for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
+
+            const char CONFIG = cfg;  // how we specify the allocator
+
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj                  *objPtr = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
+
+            switch (CONFIG) {
+              case 'a': {
+                objAllocatorPtr = &da;
+                objPtr = new (fa) Obj();
+              } break;
+              case 'b': {
+                objAllocatorPtr = &da;
+                objPtr = new (fa) Obj(Obj::allocator_type());
+              } break;
+              case 'c': {
+                objAllocatorPtr = &sa;
+                objPtr = new (fa) Obj(objAllocatorPtr);
+              } break;
+              case 'd': {
+                objAllocatorPtr = &sa;
+                Obj::allocator_type alloc(objAllocatorPtr);
+                objPtr = new (fa) Obj(alloc);
+              } break;
+              default: {
+                BSLS_ASSERT_OPT(!"Bad allocator config.");
+              } break;
+            }
+
+            Obj&                   mX = *objPtr;  const Obj& X = mX;
+            bslma::TestAllocator&  oa = *objAllocatorPtr;
+            bslma::TestAllocator& noa = (&da == &oa) ? sa : da;
+
+            // Verify the object's 'get_allocator' accessor.
+
+            ASSERTV(CONFIG, &oa, X.get_allocator().mechanism(),
+                    &oa == X.get_allocator());
+
+            // Verify no allocation from the object/non-object allocators.
+
+            ASSERTV(CONFIG,  oa.numBlocksTotal(),
+                    0 ==  oa.numBlocksTotal());
+            ASSERTV(CONFIG, noa.numBlocksTotal(),
+                    0 == noa.numBlocksTotal());
+
+            {
+                // put something in the map to force a single allocation
+                bdld::Datum element(bdld::Datum::createInteger(1));
+
+                mX.append(&element, 1);
+            }
+
+            // Verify no temporary memory is allocated from the object
+            // allocator.
+
+            ASSERTV(CONFIG, oa.numBlocksMax(), 1 == oa.numBlocksMax());
+
+            // Reclaim dynamically allocated object under test.
+
+            fa.deleteObject(objPtr);
+
+            // Verify all memory is released on object destruction.
+
+            ASSERTV(fa.numBlocksInUse(),  0 ==  fa.numBlocksInUse());
+            ASSERTV(oa.numBlocksInUse(),  0 ==  oa.numBlocksInUse());
+            ASSERTV(noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
+
+            // Double check that some object memory was allocated.
+
+            ASSERTV(CONFIG, 1 <= oa.numBlocksTotal());
+
+            // Note that memory should be independently allocated for each
+            // attribute capable of allocating memory.
         }
       } break;
       case 2: {
@@ -581,7 +694,8 @@ int main(int argc, char *argv[]) {
         //:   (C-6,8)
         //
         // Testing:
-        //    explicit DatumArrayBuilder(SizeType, bslma::Allocator *);
+        //    explicit DatumArrayBuilder(SizeType, allocator_type);
+        //    DatumArrayBuilder(SizeType);
         //    ~DatumArrayBuilder();
         //    void pushBack(const Datum& value);
         //    Datum commit();
@@ -605,11 +719,15 @@ int main(int argc, char *argv[]) {
                 Obj        mB(0, 0);
                 const Obj& B = mB;
 
+                ASSERT(&da == B.get_allocator().mechanism());
+
                 ASSERT(0 == B.capacity());
                 ASSERT(0 == da.numAllocations());
                 ASSERT(0 == da.numBytesTotal());
 
                 mB.pushBack(value);
+
+                ASSERT(&da == B.get_allocator().mechanism());
 
                 ASSERT(0 <  B.capacity());
                 ASSERT(1 == da.numAllocations());
@@ -629,11 +747,15 @@ int main(int argc, char *argv[]) {
                 Obj        mB(0, static_cast<bslma::Allocator *>(0));
                 const Obj& B = mB;
 
+                ASSERT(&da == B.get_allocator().mechanism());
+
                 ASSERT(0 == B.capacity());
                 ASSERT(0 == da.numAllocations());
                 ASSERT(0 == da.numBytesTotal());
 
                 mB.pushBack(value);
+
+                ASSERT(&da == B.get_allocator().mechanism());
 
                 ASSERT(0 <  B.capacity());
                 ASSERT(1 == da.numAllocations());
@@ -654,12 +776,16 @@ int main(int argc, char *argv[]) {
                 Obj        mB(0, &oa);
                 const Obj& B = mB;
 
+                ASSERT(&oa == B.get_allocator().mechanism());
+
                 ASSERT(0 == B.capacity());
                 ASSERT(0 == da.numAllocations());
                 ASSERT(0 == oa.numAllocations());
                 ASSERT(0 == oa.numBytesTotal());
 
                 mB.pushBack(value);
+
+                ASSERT(&oa == B.get_allocator().mechanism());
 
                 ASSERT(0 <  B.capacity());
                 ASSERT(0 == da.numAllocations());
@@ -684,10 +810,14 @@ int main(int argc, char *argv[]) {
                     Obj        mB;
                     const Obj& B = mB;
 
+                    ASSERT(&da == B.get_allocator().mechanism());
+
                     ASSERT(0 == da.numAllocations());
                     ASSERT(0 == B.capacity());
 
                     result = mB.commit();
+
+                    ASSERT(&da == B.get_allocator().mechanism());
 
                     ASSERT(0    == da.numAllocations());
                     ASSERT(true == result.isArray());
@@ -711,6 +841,8 @@ int main(int argc, char *argv[]) {
                     Obj        mB(0, 0);
                     const Obj& B = mB;
 
+                    ASSERT(&da == B.get_allocator().mechanism());
+
                     ASSERT(0 == B.capacity());
 
                     mB.pushBack(value);
@@ -719,6 +851,8 @@ int main(int argc, char *argv[]) {
                     ASSERT(0 < B.capacity());
 
                     result = mB.commit();
+
+                    ASSERT(&da == B.get_allocator().mechanism());
 
                     ASSERT(0    == B.capacity());
                     ASSERT(true == result.isArray());
@@ -749,6 +883,8 @@ int main(int argc, char *argv[]) {
 
                     Obj        mB(0, 0);
                     const Obj& B = mB;
+
+                    ASSERT(&da == B.get_allocator().mechanism());
 
                     ASSERT(0 == B.capacity());
 
@@ -791,6 +927,8 @@ int main(int argc, char *argv[]) {
             {
                 Obj        mB(0, 0);
                 const Obj& B = mB;
+
+                ASSERT(&da == B.get_allocator().mechanism());
 
                 ASSERT(0 == B.capacity());
 
@@ -875,7 +1013,7 @@ int main(int argc, char *argv[]) {
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

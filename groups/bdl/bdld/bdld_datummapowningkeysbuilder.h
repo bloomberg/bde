@@ -112,14 +112,15 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bdld_datum.h>
 
+#include <bslma_allocator.h>
+#include <bslma_stdallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_types.h>
 
 namespace BloombergLP {
-
-namespace bslma { class Allocator; }
-
 namespace bdld {
 
                       // ===============================
@@ -137,6 +138,8 @@ class DatumMapOwningKeysBuilder {
         // capacity, *keys-capacity*, size or *keys-size* of a datum-key-owning
         // map.
 
+    typedef bsl::allocator<char> allocator_type;
+
   private:
     // DATA
     DatumMutableMapOwningKeysRef  d_mapping;      // mutable access to the
@@ -152,7 +155,7 @@ class DatumMapOwningKeysBuilder {
     bool                          d_sorted;       // underlying map is sorted
                                                   // or not
 
-    bslma::Allocator             *d_allocator_p;  // pointer to the allocator
+    allocator_type                d_allocator;    // allocator
 
   private:
     // NOT IMPLEMENTED
@@ -163,24 +166,24 @@ class DatumMapOwningKeysBuilder {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(DatumMapOwningKeysBuilder,
                                    bslma::UsesBslmaAllocator);
-        // 'DatumMapOwningKeysBuilder' objects use 'bslma::Allocator'.
+        // 'DatumMapOwningKeysBuilder' is allocator-aware.
 
     // CREATORS
-    explicit DatumMapOwningKeysBuilder(bslma::Allocator *basicAllocator);
+    explicit DatumMapOwningKeysBuilder(const allocator_type& allocator);
         // Create a 'DatumMapOwningKeysBuilder' object that will administer the
         // process of building a 'Datum' map (owning keys) using the specified
-        // 'basicAllocator' to supply memory.  Note that no memory is allocated
-        // until 'append' or 'pushBack' methods are called on this object.  The
-        // behavior is undefined unless '0 != basicAllocator'.
+        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
+        // supply memory.  Note that no memory is allocated until 'append' or
+        // 'pushBack' methods are called on this object.
 
-    DatumMapOwningKeysBuilder(SizeType          initialCapacity,
-                              SizeType          initialKeysCapacity,
-                              bslma::Allocator *basicAllocator);
+    DatumMapOwningKeysBuilder(SizeType              initialCapacity,
+                              SizeType              initialKeysCapacity,
+                              const allocator_type& allocator);
         // Create a 'DatumMapBuilder' object managing the ownership of 'Datum'
         // map (owning keys) having the specified 'initialCapacity' and
         // 'initialKeysCapacity' (in bytes) using the specified
-        // 'basicAllocator' to supply memory.  The behavior is undefined unless
-        // '0 != basicAllocator'.
+        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
+        // supply memory.
 
     ~DatumMapOwningKeysBuilder();
         // Destroy this object.  If this object is holding a datum-key-owning
@@ -237,9 +240,6 @@ class DatumMapOwningKeysBuilder {
         // invocation.
 
     // ACCESSORS
-    bslma::Allocator *allocator() const;
-        // Return the allocator associated with this object.
-
     SizeType capacity() const;
         // Return the capacity of the held 'Datum' map (owning keys).  The
         // behavior is undefined if 'commit' or 'sortAndCommit' has already
@@ -262,6 +262,18 @@ class DatumMapOwningKeysBuilder {
         // Return the size of the held 'Datum' map (owning keys).  The behavior
         // is undefined if 'commit' or 'sortAndCommit' has already been called
         // on this object.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // !DEPRECATED!: Use 'get_allocator()' instead.
+        //
+        // Return 'get_allocator().mechanism()'.
+
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
 };
 
 // ============================================================================
@@ -273,12 +285,6 @@ class DatumMapOwningKeysBuilder {
                       // -------------------------------
 
 // ACCESSORS
-inline
-bslma::Allocator *DatumMapOwningKeysBuilder::allocator() const
-{
-    return d_allocator_p;
-}
-
 inline
 DatumMapOwningKeysBuilder::SizeType DatumMapOwningKeysBuilder::capacity() const
 {
@@ -301,13 +307,28 @@ DatumMapOwningKeysBuilder::SizeType DatumMapOwningKeysBuilder::size() const
     return 0;
 }
 
+                                  // Aspects
+
+inline
+bslma::Allocator *DatumMapOwningKeysBuilder::allocator() const
+{
+    return get_allocator().mechanism();
+}
+
+inline
+DatumMapOwningKeysBuilder::allocator_type
+                               DatumMapOwningKeysBuilder::get_allocator() const
+{
+    return d_allocator;
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

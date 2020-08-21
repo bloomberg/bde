@@ -39,7 +39,7 @@ bsl::ostream& LocalDatetime::print(bsl::ostream& stream,
 
 // FREE OPERATORS
 bsl::ostream& baltzo::operator<<(bsl::ostream&        stream,
-                                 const LocalDatetime& localDatetime)
+                                 const LocalDatetime& object)
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -47,8 +47,8 @@ bsl::ostream& baltzo::operator<<(bsl::ostream&        stream,
 
     bslim::Printer printer(&stream, 0, -1);
     printer.start();
-    printer.printValue(localDatetime.datetimeTz());
-    printer.printValue(localDatetime.timeZoneId().c_str());
+    printer.printValue(object.datetimeTz());
+    printer.printValue(object.timeZoneId().c_str());
     printer.end();
 
     return stream;

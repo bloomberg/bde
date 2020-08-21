@@ -4,6 +4,8 @@
 
 #include <bdlt_datetime.h>
 
+#include <bslim_testutil.h>
+
 #include <bslx_testinstream.h>           // for testing only
 #include <bslx_testinstreamexception.h>  // for testing only
 #include <bslx_testoutstream.h>          // for testing only
@@ -18,15 +20,19 @@
 
 #include <bslmf_assert.h>
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_usesallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
+#include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
@@ -53,7 +59,7 @@ using namespace bsl;
 //: o 'setTimeZoneId'
 //
 // Basic Accessors:
-//: o 'allocator' (orthogonal to value)
+//: o 'get_allocator' (orthogonal to value)
 //: o 'datetimeTz'
 //: o 'timeZoneId'
 //
@@ -84,22 +90,31 @@ using namespace bsl;
 //:   o swap
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [11] static int maxSupportedBdexVersion();
+// [10] static int maxSupportedBdexVersion();
+// [10] static int maxSupportedBdexVersion(int);
 //
 // CREATORS
-// [ 2] baltzo::LocalDatetime(bslma::Allocator *bA = 0);
-// [ 3] baltzo::LocalDatetime(DatetimeTz& d, const char *t, *bA = 0);
-// [ 7] baltzo::LocalDatetime(const baltzo::LocalDatetime& o, *bA = 0);
+// [ 2] LocalDatetime();
+// [ 2] LocalDatetime(const allocator_type& a);
+// [ 2] ~LocalDatetime();
+// [ 3] LocalDatetime(DatetimeTz& d, const StringRef& t, a = { });
+// [ 3] LocalDatetime(DatetimeTz& d, const char *t, a = { });
+// [ 7] LocalDatetime(const LocalDatetime& o, a = { });
+// [11] LocalDatetime(MovableRef<LocalDatetime> o);
+// [11] LocalDatetime(MovableRef<LocalDatetime> o, a);
 //
 // MANIPULATORS
-// [ 9] baltzo::LocalDatetime& operator=(const baltzo::LocalDatetime& rhs);
+// [ 9] LocalDatetime& operator=(const LocalDatetime& rhs);
+// [12] LocalDatetime& operator=(MovableRef<LocalDatetime> rhs);
 // [ 2] setDatetimeTz(const bdlt::DatetimeTz& value);
+// [ 2] setTimeZoneId(const StringRef& value);
 // [ 2] setTimeZoneId(const char *value);
 //
-// [ 8] swap(baltzo::LocalDatetime& other);
+// [ 8] void swap(LocalDatetime& other);
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 //
 // ACCESSORS
+// [ 4] allocator_type get_allocator() const;
 // [ 4] bslma::Allocator *allocator() const;
 // [ 4] const bdlt::DatetimeTz& datetimeTz() const;
 // [ 4] const bsl::string& timeZoneId() const;
@@ -108,15 +123,15 @@ using namespace bsl;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 //
 // FREE OPERATORS
-// [ 6] bool operator==(const baltzo::LocalDatetime& lhs, rhs);
-// [ 6] bool operator!=(const baltzo::LocalDatetime& lhs, rhs);
-// [ 5] operator<<(ostream& s, const baltzo::LocalDatetime& d);
+// [ 6] bool operator==(const LocalDatetime&, const LocalDatetime&);
+// [ 6] bool operator!=(const LocalDatetime&, const LocalDatetime&);
+// [ 5] operator<<(ostream& s, const LocalDatetime& d);
 //
 // FREE FUNCTIONS
-// [ 8] swap(baltzo::LocalDatetime& a, b);
+// [ 8] void swap(LocalDatetime& a, LocalDatetime& b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ 3] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
@@ -129,55 +144,48 @@ using namespace bsl;
 // [ 8] CONCERN: Precondition violations are detected when enabled.
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
-       #M << ": " << M << "\n";                                               \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -187,10 +195,24 @@ static void aSsErT(int c, const char *s, int i) {
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 // ============================================================================
+//                      CONVENIENCE MACROS
+// ----------------------------------------------------------------------------
+
+// For use in ASSERTV macro invocations to print allocator.
+#define ALLOC_OF(EXPR) (EXPR).get_allocator().mechanism()
+
+// ============================================================================
+//                    EXCEPTION TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define EXCEPTION_COUNT bslmaExceptionCounter
+
+// ============================================================================
 //                        GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef baltzo::LocalDatetime   Obj;
+typedef baltzo::LocalDatetime Obj;
+typedef Obj::allocator_type   AllocType;  // Test 'allocator_type' exists.
 
 typedef bslma::TestAllocator TestAllocator;
 typedef bslx::TestInStream   In;
@@ -203,6 +225,8 @@ typedef bslx::TestOutStream  Out;
 // ----------------------------------------------------------------------------
 
 static bool someDiff(const Obj& a, const Obj& b)
+    // Return 'true' if the specified 'a' and 'b' differ in some way and
+    // 'false' otherwise.
 {
     return a.datetimeTz() != b.datetimeTz()
         || a.timeZoneId() != b.timeZoneId();
@@ -214,6 +238,7 @@ static bool someDiff(const Obj& a, const Obj& b)
 
 BSLMF_ASSERT(bslmf::IsBitwiseMoveable<Obj>::value);
 BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+BSLMF_ASSERT((bsl::uses_allocator<Obj, bsl::allocator<char> >::value));
 
 // ============================================================================
 //                     GLOBAL CONSTANTS USED FOR TESTING
@@ -266,7 +291,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 11: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -328,9 +353,791 @@ int main(int argc, char *argv[])
 //..
 
       } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // MOVE-ASSIGNMENT OPERATOR
+        //   Ensure that we can move the value of any object of the class to
+        //   any object of the class, such that the target object subsequently
+        //   has the source value, and there are no additional allocations if
+        //   only one allocator is being used, and the source object is
+        //   unchanged if allocators are different.
+        //
+        // Concerns:
+        //: 1 The move assignment operator can change the value of any
+        //:   modifiable target object to that of any source object.
+        //:
+        //: 2 The allocator used by the target object is unchanged.
+        //:
+        //: 3 Any memory allocation is from the target object's allocator.
+        //:
+        //: 4 The signature and return type are standard.
+        //:
+        //: 5 The reference returned is to the target object (i.e., '*this').
+        //:
+        //: 6 If the allocators are different, the value of the source object
+        //:   is not modified.
+        //:
+        //: 7 If the allocators are the same, no new allocations happen when
+        //:   the move assignment happens.
+        //:
+        //: 8 The allocator used by the source object is unchanged.
+        //:
+        //: 9 Any memory allocation is exception neutral.
+        //:
+        //:10 Assigning an object to itself behaves as expected (alias-safety).
+        //:
+        //:11 Every object releases any allocated memory at destruction.
+        //
+        // Plan:
+        //: 1 Use the address of 'operator=' to initialize a member-function
+        //:   pointer having the appropriate signature and return type for the
+        //:   copy-assignment operator defined in this component.  (C-4)
+        //:
+        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
+        //:   default allocator (note that a ubiquitous test allocator is
+        //:   already installed as the global allocator).
+        //:
+        //: 3 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of (unique) valid object values (one per row) in
+        //:     terms of their individual attributes, including (a) first, the
+        //:     default value, (b) boundary values corresponding to every range
+        //:     of values that each individual attribute can independently
+        //:     attain, and (c) values that should require allocation from each
+        //:     individual attribute that can independently allocate memory.
+        //:
+        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
+        //:     the expectation of memory allocation for all typical
+        //:     implementations of individual attribute types: ('Y') "Yes",
+        //:     ('N') "No", or ('?') "implementation-dependent".
+        //:
+        //: 4 For each row 'R1' (representing a distinct object value, 'V') in
+        //:   the table described in P-3:  (C-1..2, 5..8, 11)
+        //:
+        //:   1 Use the value constructor and a "scratch" allocator to create
+        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
+        //:
+        //:   2 Execute an inner loop that iterates over each row 'R2'
+        //:     (representing a distinct object value, 'W') in the table
+        //:     described in P-3:
+        //:
+        //:   3 For each of the iterations (P-4.2):  (C-1..2, 5..8, 11)
+        //:
+        //:     1 Create a 'bslma::TestAllocator' object, 'oa'.
+        //:
+        //:     2 Use the value constructor and 'oa' to create a modifiable
+        //:       'Obj', 'mX', having the value 'W'.
+        //:
+        //:     3 Assign 'mX' from 'Z' in the presence of injected exceptions
+        //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
+        //:
+        //:     4 Verify that the address of the return value is the same as
+        //:       that of 'mX'.  (C-5)
+        //:
+        //:     5 Use the equality-comparison operator to verify that: (C-1, 6)
+        //:
+        //:       1 The target object, 'mX', now has the same value as that of
+        //:         'Z'.  (C-1)
+        //:
+        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-6)
+        //:
+        //:     6 Use the 'get_allocator' accessor of both 'mX' and 'Z' to
+        //:       verify that the respective allocators used by the target and
+        //:       source objects are unchanged.  (C-2, 7)
+        //:
+        //:     7 Use the appropriate test allocators to verify that:
+        //:       (C-8, 11)
+        //:
+        //:       1 For an object that (a) is initialized with a value that did
+        //:         NOT require memory allocation, and (b) is then assigned a
+        //:         value that DID require memory allocation, the target object
+        //:         DOES allocate memory from its object allocator only
+        //:         (irrespective of the specific number of allocations or the
+        //:         total amount of memory allocated); also cross check with
+        //:         what is expected for 'mX' and 'Z'.
+        //:
+        //:       2 An object that is assigned a value that did NOT require
+        //:         memory allocation, does NOT allocate memory from its object
+        //:         allocator; also cross check with what is expected for 'Z'.
+        //:
+        //:       3 No additional memory is allocated by the source object.
+        //:         (C-8)
+        //:
+        //:       4 All object memory is released when the object is destroyed.
+        //:         (C-11)
+        //:
+        //: 5 Repeat steps similar to those described in P-2 except that, this
+        //:   time, there is no inner loop (as in P-4.2); instead, the source
+        //:   object, 'Z', is a reference to the target object, 'mX', and both
+        //:   'mX' and 'ZZ' are initialized to have the value 'V'.  For each
+        //:   row (representing a distinct object value, 'V') in the table
+        //:   described in P-3:  (C-9)
+        //:
+        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
+        //:
+        //:   2 Use the value constructor and 'oa' to create a modifiable 'Obj'
+        //:     'mX'; also use the value constructor and a distinct "scratch"
+        //:     allocator to create a 'const' 'Obj' 'ZZ'.
+        //:
+        //:   3 Let 'Z' be a reference providing only 'const' access to 'mX'.
+        //:
+        //:   4 Assign 'mX' from 'Z' in the presence of injected exceptions
+        //:     (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
+        //:     (C-9)
+        //:
+        //:   5 Verify that the address of the return value is the same as that
+        //:     of 'mX'.
+        //:
+        //:   6 Use the equality-comparison operator to verify that the
+        //:     target object, 'mX', still has the same value as that of 'ZZ'.
+        //:
+        //:   7 Use the 'get_allocator' accessor of 'mX' to verify that it is
+        //:     still the object allocator.
+        //:
+        //:   8 Use the appropriate test allocators to verify that:
+        //:
+        //:     1 Any memory that is allocated is from the object allocator.
+        //:
+        //:     2 No additional (e.g., temporary) object memory is allocated
+        //:       when assigning an object value that did NOT initially require
+        //:       allocated memory.
+        //:
+        //:     3 All object memory is released when the object is destroyed.
+        //:
+        //: 6 Use the test allocator from P-2 to verify that no memory is ever
+        //:   allocated from the default allocator.  (C-3)
+        //
+        // Testing:
+        //   LocalDatetime& operator=(MovableRef<LocalDatetime> rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "MOVE-ASSIGNMENT OPERATOR" << endl
+                          << "========================" << endl;
+
+        if (verbose) cout <<
+                 "\nAssign the address of the operator to a variable." << endl;
+        {
+            typedef Obj& (Obj::*operatorPtr)(bslmf::MovableRef<Obj>);
+
+            // Verify that the signature and return type are standard.
+
+            operatorPtr operatorAssignment = &Obj::operator=;
+
+            (void)operatorAssignment;  // quash potential compiler warning
+        }
+
+        if (verbose) cout <<
+            "\nCreate a test allocator and install it as the default." << endl;
+
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        if (verbose) cout <<
+           "\nUse a table of distinct object values and expected memory usage."
+                                                                       << endl;
+        bdlt::DatetimeTz defaultDtz;
+
+        bdlt::Datetime   smallDt; smallDt.addMilliseconds(1);
+        bdlt::Datetime    someDt(2011,  5,  3, 15, 32);
+        bdlt::Datetime   largeDt(9999, 12, 31, 23, 59, 59, 999);
+
+        bdlt::DatetimeTz smallDtz(smallDt, -(24 * 60 - 1));
+        bdlt::DatetimeTz  someDtz( someDt, -( 4 * 60 - 0));
+        bdlt::DatetimeTz largeDtz(largeDt,  (24 * 60 - 1));
+
+        const char *defaultTzId = "";
+        const char   *smallTzId = "a";
+        const char   *largeTzId = LONGEST_STRING;
+
+        const struct {
+            int               d_line;  // source line number
+            char              d_mem;   // expected allocation: 'Y', 'N', '?'
+            bdlt::DatetimeTz *d_datetimeTz_p;
+            const char       *d_timeZoneId_p;
+        } DATA[] = {
+
+            //LINE  MEM  DTTZ          TZID
+            //----  ---  -----------   -----------
+
+            // default (must be first)
+            { L_,   'N', &defaultDtz,  defaultTzId },
+
+            // 'datetimeTz'
+            { L_,   'N',   &smallDtz,  defaultTzId },
+            { L_,   'N',    &someDtz,  defaultTzId },
+            { L_,   'N',   &largeDtz,  defaultTzId },
+
+            // 'timeZoneId'
+            { L_,   '?', &defaultDtz,    smallTzId },
+            { L_,   'Y', &defaultDtz,    largeTzId },
+
+            // other
+            { L_,   '?',    &someDtz,    smallTzId },
+            { L_,   'Y',    &someDtz,    largeTzId },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        bool anyObjectMemoryAllocatedFlag = false;  // We later check that
+                                                    // this test allocates
+                                                    // some object memory.
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int               LINE1   =  DATA[ti].d_line;
+            const char              MEMSRC1 =  DATA[ti].d_mem;
+            const bdlt::DatetimeTz& DTTZ1   = *DATA[ti].d_datetimeTz_p;
+            const char *const       TZID1   =  DATA[ti].d_timeZoneId_p;
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            const Obj  Z(DTTZ1, TZID1, &scratch);
+            const Obj ZZ(DTTZ1, TZID1, &scratch);
+
+            if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
+
+            // Ensure the first row of the table contains the
+            // default-constructed value.
+
+            static bool firstFlag = true;
+            if (firstFlag) {
+                ASSERTV(LINE1, Obj(), Z, Obj() == Z);
+                firstFlag = false;
+            }
+
+            // move assignment with the same allocator
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int               LINE2 =  DATA[tj].d_line;
+                const bdlt::DatetimeTz& DTTZ2 = *DATA[tj].d_datetimeTz_p;
+                const char *const       TZID2 =  DATA[tj].d_timeZoneId_p;
+
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                {
+                    // Test move assignment with same allocator.
+
+                    Obj mF(DTTZ1, TZID1, &oa);  const Obj& F = mF;
+                    Obj mX(DTTZ2, TZID2, &oa);  const Obj& X = mX;
+
+                    if (veryVerbose) { T_ P_(LINE2) P_(F) P(X) }
+
+                    ASSERTV(LINE1, LINE2, F, X, (F == X) == (LINE1 == LINE2));
+
+                    bslma::TestAllocatorMonitor oam(&oa);
+
+                    Obj *mR = &(mX = bslmf::MovableRefUtil::move(mF));
+                    ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
+                    ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
+
+                    ASSERTV(LINE1, LINE2, oam.isTotalSame());
+
+                    ASSERTV(LINE1, LINE2, &oa, ALLOC_OF(X),
+                            &oa == X.get_allocator());
+                    ASSERTV(LINE1, LINE2, &oa, ALLOC_OF(F),
+                            &oa == F.get_allocator());
+
+                    anyObjectMemoryAllocatedFlag |= !!oa.numBlocksInUse();
+                }
+
+                // Verify all memory is released on object destruction.
+
+                ASSERTV(LINE1, LINE2, oa.numBlocksInUse(),
+                        0 == oa.numBlocksInUse());
+            }
+
+            // move assignment with different allocator
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int               LINE2   =  DATA[tj].d_line;
+                const char              MEMDST2 =  DATA[tj].d_mem;
+                const bdlt::DatetimeTz& DTTZ2   = *DATA[tj].d_datetimeTz_p;
+                const char *const       TZID2   =  DATA[tj].d_timeZoneId_p;
+
+                bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
+                bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
+
+                {
+                    // Test move assignment with different allocator.
+
+                    Obj mF(DTTZ1, TZID1, &oa1);  const Obj& F = mF;
+                    Obj mX(DTTZ2, TZID2, &oa2);  const Obj& X = mX;
+
+                    if (veryVerbose) { T_ P_(LINE2) P_(F) P(X) }
+
+                    ASSERTV(LINE1, LINE2, F, X, (F == X) == (LINE1 == LINE2));
+
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa2) {
+                        if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                        Obj *mR = &(mX = bslmf::MovableRefUtil::move(mF));
+                        ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
+                        ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
+
+                        ASSERTV(LINE1, LINE2,  Z,   F,  Z == F);
+
+                        ASSERTV(LINE1, LINE2, &oa2, ALLOC_OF(X),
+                               &oa2 == X.get_allocator());
+                        ASSERTV(LINE1, LINE2, &oa1, ALLOC_OF(F),
+                               &oa1 == F.get_allocator());
+
+#ifdef BDE_BUILD_TARGET_EXC
+                        if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
+                            ASSERTV(LINE1, LINE2, 0 < EXCEPTION_COUNT);
+                        }
+#endif
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    anyObjectMemoryAllocatedFlag |= !!oa1.numBlocksInUse();
+                }
+
+                // Verify all memory is released on object destruction.
+
+                ASSERTV(LINE1, LINE2, oa1.numBlocksInUse(),
+                        0 == oa1.numBlocksInUse());
+                ASSERTV(LINE1, LINE2, oa2.numBlocksInUse(),
+                        0 == oa2.numBlocksInUse());
+            }
+
+            // self-assignment
+
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+            {
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                Obj       mX(DTTZ1, TZID1, &oa);  Obj& Z = mX;
+                const Obj ZZ(DTTZ1, TZID1, &scratch);
+
+                ASSERTV(LINE1, ZZ, Z, ZZ == Z);
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                Obj *mR = &(mX = bslmf::MovableRefUtil::move(Z));
+                ASSERTV(LINE1, ZZ,   Z, ZZ == Z);
+                ASSERTV(LINE1, mR, &mX, mR == &mX);
+
+                ASSERTV(LINE1, &oa, ALLOC_OF(Z), &oa == Z.get_allocator());
+
+                ASSERTV(LINE1, oam.isInUseSame());
+
+                ASSERTV(LINE1, 0 == da.numBlocksTotal());
+            }
+
+            // Verify all object memory is released on destruction.
+
+            ASSERTV(LINE1, oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+        }
+
+        // Double check that some object memory was allocated.
+
+        ASSERT(anyObjectMemoryAllocatedFlag);
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // MOVE CONSTRUCTOR
+        //   Ensure that we can create a distinct object of the class from any
+        //   other one, such that the new object has the original value.
+        //   Verify that if the same allocator is used there have been no new
+        //   allocations, and if a different allocator is used the source
+        //   object has the original value.
+        //
+        // Concerns:
+        //: 1 The move constructor (with or without a supplied allocator)
+        //:   creates an object having the same value as the original object
+        //:   started with.
+        //:
+        //: 2 If an allocator is NOT supplied, the allocator of the new object
+        //:   is the same as the original object, and no new allocations occur.
+        //:
+        //: 3 If an allocator is supplied that is the same as the original
+        //:   object, then no new allocations occur.
+        //:
+        //: 4 If an allocator is supplied that is different from the original
+        //:   object, then the original object's value remains unchanged.
+        //:
+        //: 5 Supplying a default-constructed allocator explicitly is the same
+        //:   as supplying the default allocator.
+        //:
+        //: 6 Any memory allocation is from the object allocator.
+        //:
+        //: 7 There is no temporary memory allocation from any allocator.
+        //:
+        //: 8 Every object releases any allocated memory at destruction.
+        //:
+        //: 9 The allocator used by the original object is unchanged.
+        //:
+        //:10 Any memory allocation is exception neutral.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of (unique) valid object values (one per row) in
+        //:     terms of their individual attributes, including (a) first, the
+        //:     default value, (b) boundary values corresponding to every range
+        //:     of values that each individual attribute can independently
+        //:     attain, and (c) values that should require allocation from each
+        //:     individual attribute that can independently allocate memory.
+        //:
+        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
+        //:     the expectation of memory allocation for all typical
+        //:     implementations of individual attribute types: ('Y') "Yes",
+        //:     ('N') "No", or ('?') "implementation-dependent".
+        //:
+        //: 2 For each row (representing a distinct object value, 'V') in the
+        //:   table described in P-1:  (C-1..9)
+        //:
+        //:   1 Use the value constructor and a "scratch" allocator to create
+        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
+        //:
+        //:   2 Execute an inner loop that creates an object by
+        //:     move-constructing from a newly created object with value V,
+        //:     but invokes the move constructor differently in each
+        //:     iteration: (a) using the standard single-argument move
+        //:     constructor, (b) using the extended move constructor with a
+        //:     default-constructed allocator argument (to use the default
+        //:     allocator), (c) using the extended move constructor with the
+        //:     same allocator as the moved-from object, and (d) using the
+        //:     extended move constructor with a different allocator than the
+        //:     moved-from object.
+        //:
+        //: 3 For each of these iterations (P-2.2):
+        //:
+        //:   1 Create four 'bslma::TestAllocator' objects, and install one as
+        //:     the current default allocator (note that a ubiquitous test
+        //:     allocator is already installed as the global allocator).
+        //:
+        //:   2 Dynamically allocate another object 'F" using the 's1'
+        //:     allocator having the same value V, using a distinct allocator
+        //:     for the object's footprint.
+        //:
+        //:   3 Dynamically allocate an object 'X' using the appropriate move
+        //:     constructor to move from 'F', passing as a second argument
+        //:     (a) nothing, (b) 'allocator_type()', (c) '&s1', or (d)
+        //:     'allocator_type(&s2)'.
+        //:
+        //:   4 Record the allocator expected to be used by the new object and
+        //:     how much memory it used before the move constructor.
+        //:
+        //:   5 Verify that space for 2 objects is used in the footprint
+        //:     allocator
+        //:
+        //:   6 Verify that the moved-to object has the expected value 'V' by
+        //:     comparing to 'Z'.
+        //:
+        //:   7 If the allocators of 'F' and 'X' are different, verify that the
+        //:     value of 'F' is still 'V', and that the amount of memory
+        //:     used in the allocator for 'X' is the same as the amount of
+        //:     that was used by 'F'.
+        //:
+        //:   8 If the allocators of 'F' and 'X' are the same, verify that no
+        //:     extra memory was used by the move constructor.
+        //:
+        //:   9 Verify that no memory was used by the move constructor as
+        //:     temporary memory, and no unused allocators have had any memory
+        //:     used.
+        //:
+        //:  10 Delete both dynamically allocated objects and verify that all
+        //:     temporary allocators have had all memory returned to them.
+        //:
+        //: 3 Test again, using the data of P-1, but this time just for the
+        //:   supplied allocator configuration (P-2.2c), and create the object
+        //:   as an automatic variable in the presence of injected exceptions
+        //:   (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).  Do
+        //:   this by creating one object with one test allocator ('s1') and
+        //:   then using the move constructor with a separate test allocator
+        //:   that is injecting exceptions ('s2').
+        //:   (C-10)
+        //
+        // Testing:
+        //   LocalDatetime(MovableRef<LocalDatetime> o);
+        //   LocalDatetime(MovableRef<LocalDatetime> o, a);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "MOVE CONSTRUCTOR" << endl
+                          << "================" << endl;
+
+        if (verbose) cout <<
+           "\nUse a table of distinct object values and expected memory usage."
+                                                                       << endl;
+        bdlt::DatetimeTz defaultDtz;
+
+        bdlt::Datetime   smallDt; smallDt.addMilliseconds(1);
+        bdlt::Datetime    someDt(2011,  5,  3, 15, 32);
+        bdlt::Datetime   largeDt(9999, 12, 31, 23, 59, 59, 999);
+
+        bdlt::DatetimeTz smallDtz(smallDt, -(24 * 60 - 1));
+        bdlt::DatetimeTz  someDtz( someDt, -( 4 * 60 - 0));
+        bdlt::DatetimeTz largeDtz(largeDt,  (24 * 60 - 1));
+
+        const char *defaultTzId = "";
+        const char   *smallTzId = "a";
+        const char   *largeTzId = LONGEST_STRING;
+
+        const struct {
+            int               d_line;  // source line number
+            char              d_mem;   // expected allocation: 'Y', 'N', '?'
+            bdlt::DatetimeTz *d_datetimeTz_p;
+            const char       *d_timeZoneId_p;
+        } DATA[] = {
+
+            //LINE  MEM  DTTZ          TZID
+            //----  ---  -----------   -----------
+
+            // default (must be first)
+            { L_,   'N', &defaultDtz,  defaultTzId },
+
+            // 'datetimeTz'
+            { L_,   'N',   &smallDtz,  defaultTzId },
+            { L_,   'N',    &someDtz,  defaultTzId },
+            { L_,   'N',   &largeDtz,  defaultTzId },
+
+            // 'timeZoneId'
+            { L_,   '?', &defaultDtz,    smallTzId },
+            { L_,   'Y', &defaultDtz,    largeTzId },
+
+            // other
+            { L_,   '?',    &someDtz,    smallTzId },
+            { L_,   'Y',    &someDtz,    largeTzId },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        if (verbose) cout <<
+             "\nCreate objects with various allocator configurations." << endl;
+        {
+            bool anyObjectMemoryAllocatedFlag = false;  // We later check that
+                                                        // this test allocates
+                                                        // some object memory.
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int               LINE =  DATA[ti].d_line;
+                const char              MEM  =  DATA[ti].d_mem;
+                const bdlt::DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz_p;
+                const char *const       TZID =  DATA[ti].d_timeZoneId_p;
+
+                ASSERTV(LINE, MEM, MEM && strchr("YN?", MEM));
+
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                const Obj  Z(DTTZ, TZID, &scratch);
+                const Obj ZZ(DTTZ, TZID, &scratch);
+
+                if (veryVerbose) { T_ P_(Z) P(ZZ) }
+
+                for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
+                    const char CONFIG = cfg;  // how we specify the allocator
+
+                    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                    bslma::TestAllocator s1("supplied",  veryVeryVeryVerbose);
+                    bslma::TestAllocator s2("supplied2", veryVeryVeryVerbose);
+
+                    bslma::DefaultAllocatorGuard dag(&da);
+
+                    Obj *fromPtr = new (fa) Obj(DTTZ, TZID, &s1);
+
+                    Obj&  mF = *fromPtr;  const Obj& F = mF;
+                    Obj  *objPtr = 0;
+
+                    bslma::TestAllocator *objAllocatorPtr = 0;
+                    bsls::Types::Int64    s1Alloc = s1.numBytesInUse();
+                    bsls::Types::Int64    objAlloc;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        // normal move constructor
+                        objAllocatorPtr = &s1;
+                        objAlloc = objAllocatorPtr->numBytesInUse();
+                        objPtr = new (fa) Obj(bslmf::MovableRefUtil::move(mF));
+                      } break;
+                      case 'b': {
+                        // allocator move constructor, default allocator
+                        objAllocatorPtr = &da;
+                        objAlloc = objAllocatorPtr->numBytesInUse();
+                        objPtr = new (fa) Obj(bslmf::MovableRefUtil::move(mF),
+                                              Obj::allocator_type());
+                      } break;
+                      case 'c': {
+                        // allocator move constructor, same allocator
+                        objAllocatorPtr = &s1;
+                        objAlloc = objAllocatorPtr->numBytesInUse();
+                        objPtr = new (fa) Obj(bslmf::MovableRefUtil::move(mF),
+                                              objAllocatorPtr);
+                      } break;
+                      case 'd': {
+                        // allocator move constructor, different allocator
+                        objAllocatorPtr = &s2;
+                        Obj::allocator_type alloc(objAllocatorPtr);
+                        objAlloc = objAllocatorPtr->numBytesInUse();
+                        objPtr = new (fa) Obj(bslmf::MovableRefUtil::move(mF),
+                                              alloc);
+                      } break;
+                      default: {
+                        BSLS_ASSERT_OPT(!"Bad allocator config.");
+                      } break;
+                    }
+                    ASSERTV(LINE, CONFIG, 2*sizeof(Obj) == fa.numBytesInUse());
+
+                    Obj& mX = *objPtr;  const Obj& X = mX;
+
+                    if (veryVerbose) { T_ T_ P_(CONFIG) P(mF) P(X) }
+
+                    bslma::TestAllocator& oa = *objAllocatorPtr;
+
+                    // Ensure the first row of the table contains the
+                    // default-constructed value.
+
+                    static bool firstFlag = true;
+                    if (firstFlag) {
+                        ASSERTV(LINE, CONFIG, Obj(), *objPtr,
+                                Obj() == *objPtr);
+                        firstFlag = false;
+                    }
+
+                    // Verify the value of the object.
+
+                    ASSERTV(LINE, CONFIG, Z, X, Z == X);
+
+                    if (objAllocatorPtr != F.get_allocator()) {
+                        // If the allocators are different, verify that the
+                        // value of 'fX' has not changed.
+
+                        ASSERTV(LINE, CONFIG, Z, F, Z == F);
+
+                         // If memory was used, verify that the same amount was
+                         // used by the moved-to object.
+
+                        bsls::Types::Int64 moveBytesUsed =
+                                   objAllocatorPtr->numBytesInUse() - objAlloc;
+                        ASSERTV(LINE, CONFIG,
+                                 s1.numBytesInUse(), moveBytesUsed,
+                                 s1.numBytesInUse() == moveBytesUsed);
+                    }
+                    else {
+                        // If the allocators are the same, verify that no new
+                        // bytes were allocated by moving.
+
+                        ASSERTV(LINE, CONFIG, s1Alloc, s1.numBytesInUse(),
+                                s1Alloc == s1.numBytesInUse());
+                    }
+
+                    // -------------------------------------------------------
+                    // Verify any attribute allocators are installed properly.
+                    // -------------------------------------------------------
+
+                    ASSERTV(LINE, CONFIG,
+                            &oa == X.timeZoneId().get_allocator());
+
+                    // Also invoke the object's 'get_allocator' accessor, as
+                    // well as that of 'Z'.
+
+                    ASSERTV(LINE, CONFIG, &oa, ALLOC_OF(X),
+                            &oa == X.get_allocator());
+
+                    ASSERTV(LINE, CONFIG, &scratch, ALLOC_OF(Z),
+                            &scratch == Z.get_allocator());
+
+                    // Verify no allocation from the non-object allocators.
+                    if (objAllocatorPtr != &da) {
+                        ASSERTV(LINE, CONFIG, da.numBlocksTotal(),
+                                0 == da.numBlocksTotal());
+                    }
+
+                    if (objAllocatorPtr != &s2) {
+                        ASSERTV(LINE, CONFIG, s2.numBlocksTotal(),
+                                0 == s2.numBlocksTotal());
+                    }
+
+                    // Verify no temporary memory is allocated from the object
+                    // allocator.
+
+                    ASSERTV(LINE, CONFIG, oa.numBlocksTotal(),
+                            oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
+
+
+                    // Verify expected ('Y'/'N') object-memory allocations.
+
+                    if ('?' != MEM) {
+                        ASSERTV(LINE, CONFIG, MEM, oa.numBlocksInUse(),
+                                ('N' == MEM) == (0 == oa.numBlocksInUse()));
+                    }
+
+                    // Record if some object memory was allocated.
+
+                    anyObjectMemoryAllocatedFlag |= !!oa.numBlocksInUse();
+
+                    // Reclaim dynamically allocated objects under test.
+
+                    fa.deleteObject(fromPtr);
+                    fa.deleteObject(objPtr);
+
+                    // Verify all memory is released on object destruction.
+
+                    ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
+                            0 == da.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                            0 == fa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, s1.numBlocksInUse(),
+                            0 == s1.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, s2.numBlocksInUse(),
+                            0 == s2.numBlocksInUse());
+                }  // end foreach configuration
+
+            }  // end foreach row
+
+            // Double check that some object memory was allocated.
+
+            ASSERT(anyObjectMemoryAllocatedFlag);
+
+            // Note that memory should be independently allocated for each
+            // attribute capable of allocating memory.
+        }
+
+        if (verbose) cout << "\nTesting with injected exceptions." << endl;
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int               LINE =  DATA[ti].d_line;
+                const char              MEM  =  DATA[ti].d_mem;
+                const bdlt::DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz_p;
+                const char *const       TZID =  DATA[ti].d_timeZoneId_p;
+
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+                bslma::TestAllocator s1("supplied1", veryVeryVeryVerbose);
+                bslma::TestAllocator s2("supplied2", veryVeryVeryVerbose);
+
+                const Obj Z (DTTZ, TZID, &scratch);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(s2) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                    Obj from(DTTZ, TZID, &s1);
+
+                    Obj obj(bslmf::MovableRefUtil::move(from), &s2);
+                    ASSERTV(LINE, Z, obj, Z == obj);
+
+#ifdef BDE_BUILD_TARGET_EXC
+                    if ('Y' == MEM) {
+                        ASSERTV(LINE, 0 < EXCEPTION_COUNT);
+                    }
+#endif
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(LINE, &scratch, ALLOC_OF(Z),
+                        &scratch == Z.get_allocator());
+                ASSERTV(LINE, da.numBlocksInUse(),
+                        0 == da.numBlocksInUse());
+                ASSERTV(LINE, s1.numBlocksInUse(),
+                        0 == s1.numBlocksInUse());
+                ASSERTV(LINE, s2.numBlocksInUse(),
+                        0 == s2.numBlocksInUse());
+            }
+        }
+      } break;
       case 10: {
         // --------------------------------------------------------------------
-        // BSLX STREAMING
+        // BDEX STREAMING
         //   Ensure that we can serialize the value of any object of the class
         //   via its 'bdexStreamOut' method, and then deserialize that value
         //   back into any object of the class, via its 'bdexStreamIn' method.
@@ -491,12 +1298,13 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   static int maxSupportedBdexVersion();
+        //   static int maxSupportedBdexVersion(int);
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BSLX STREAMING" << endl
+                          << "BDEX STREAMING" << endl
                           << "==============" << endl;
 
         if (verbose) cout <<
@@ -508,15 +1316,18 @@ int main(int argc, char *argv[])
             typedef In&  (Obj::*funcInPtr) (In&,  int);
             typedef Out& (Obj::*funcOutPtr)(Out&, int) const;
             typedef int  (*funcVerPtr)(int);
+            typedef int  (*funcDepPtr)();
 
             funcInPtr  fIn  = &Obj::bdexStreamIn<In>;
             funcOutPtr fOut = &Obj::bdexStreamOut<Out>;
             funcVerPtr fVer =  Obj::maxSupportedBdexVersion;
+            funcDepPtr fDep =  Obj::maxSupportedBdexVersion;
 
             // quash potential compiler warnings
             (void)fIn;
             (void)fOut;
             (void)fVer;
+            (void)fDep;
         }
 
         if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'." << endl;
@@ -524,8 +1335,10 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tusing object syntax:" << endl;
             const Obj X;
             ASSERT(1 == X.maxSupportedBdexVersion(VERSION_SELECTOR));
+            ASSERT(1 == X.maxSupportedBdexVersion());
             if (veryVerbose) cout << "\tusing class method syntax:" << endl;
             ASSERT(1 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
+            ASSERT(1 == Obj::maxSupportedBdexVersion());
         }
 
         // ------------------------------------
@@ -584,7 +1397,7 @@ int main(int argc, char *argv[])
                 ASSERT(&out == &(X.bdexStreamOut(out, version)));
 
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const bsl::size_t LOD = out.length();
 
                 In in(OD, LOD);  ASSERT(in);  ASSERT(!in.isEmpty());
 
@@ -616,22 +1429,23 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ T_ P(ui) }
 
                     bslma::TestAllocator oau("oau", veryVeryVeryVerbose);
-                    Obj       mU(VALUES[ui], &oau); const Obj& U = mU;
-                    const Obj  Z(VALUES[ui], &oau);
+                    Obj                  mU(VALUES[ui], &oau);
+                    const Obj&           U = mU;
+                    const Obj            Z(VALUES[ui], &oau);
+                    Out                  out(1);
 
-                    Out                        out(1);
                     bslma::TestAllocatorMonitor oaum(&oau), dam(&da);
-                    LOOP_ASSERT(ui, &out == &(U.bdexStreamOut(out, version)));
-                    LOOP_ASSERT(ui, oaum.isTotalSame());
-                    LOOP_ASSERT(ui,  dam.isTotalSame());
+                    ASSERTV(ui, &out == &(U.bdexStreamOut(out, version)));
+                    ASSERTV(ui, oaum.isTotalSame());
+                    ASSERTV(ui, dam.isTotalSame());
 
                     const char *const OD  = out.data();
-                    const int         LOD = out.length();
+                    const bsl::size_t LOD = out.length();
 
                     In in(OD, LOD);
 
-                    LOOP_ASSERT(U, in);
-                    LOOP_ASSERT(U, !in.isEmpty());
+                    ASSERTV(U, in);
+                    ASSERTV(U, !in.isEmpty());
 
                     // Verify that each new value overwrites every old value
                     // and that the input stream is emptied, but remains valid.
@@ -641,26 +1455,25 @@ int main(int argc, char *argv[])
 
                         bslma::TestAllocator oav("oav", veryVeryVeryVerbose);
 
-                        Obj mV(VALUES[vi], &oav); const Obj& V = mV;
+                        Obj mV(VALUES[vi], &oav);  const Obj& V = mV;
 
 
                         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oav) {
-                        BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                            BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
 
-                            in.reset();
-                            bslma::TestAllocatorMonitor dam(&da);
-                            LOOP_ASSERT(vi,
-                                        &in == &(mV.bdexStreamIn(in,
-                                                                 version)));
-                            LOOP3_ASSERT(version, ui, vi, dam.isTotalSame());
+                                in.reset();
+                                bslma::TestAllocatorMonitor dam(&da);
+                                ASSERTV(vi,
+                                        &in == &mV.bdexStreamIn(in, version));
+                                ASSERTV(version, ui, vi, dam.isTotalSame());
 
-                        } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+                            } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                        LOOP3_ASSERT(version, ui, vi, U == Z);
-                        LOOP3_ASSERT(version, ui, vi, V == Z);
-                        LOOP3_ASSERT(version, ui, vi, in);
-                        LOOP3_ASSERT(version, ui, vi, in.isEmpty());
+                        ASSERTV(version, ui, vi, U == Z);
+                        ASSERTV(version, ui, vi, V == Z);
+                        ASSERTV(version, ui, vi, in);
+                        ASSERTV(version, ui, vi, in.isEmpty());
                     }
                 }
             }
@@ -673,7 +1486,7 @@ int main(int argc, char *argv[])
 
             Out               out(1);
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
             ASSERT(0 == LOD);
 
             for (int version = 1; version < MAX_VERSION; ++version) {
@@ -681,34 +1494,34 @@ int main(int argc, char *argv[])
 
                 for (int i = 0; i < NUM_VALUES; ++i) {
                     In in(OD, LOD);
-                    LOOP_ASSERT(i, in);
-                    LOOP_ASSERT(i, in.isEmpty());
+                    ASSERTV(i, in);
+                    ASSERTV(i, in.isEmpty());
 
                     // Ensure that reading from an empty or invalid input
                     // stream leaves the stream invalid and the target object
                     // unchanged.
 
                     const Obj X(VALUES[i]);  Obj t1(X), t2(X);
-                                             LOOP_ASSERT(i, X == t1);
-                                             LOOP_ASSERT(i, X == t2);
+                                             ASSERTV(i, X == t1);
+                                             ASSERTV(i, X == t2);
 
                     BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
-                      in.reset();
-                      LOOP_ASSERT(i, in);
+                        in.reset();
+                        ASSERTV(i, in);
 
-                      // read from empty
-                      bslma::TestAllocatorMonitor dam1(&da);
-                      LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, version)));
-                      LOOP_ASSERT(i, dam1.isTotalSame());
-                      LOOP_ASSERT(i, !in);
-                      LOOP_ASSERT(i, X == t1);
+                        // read from empty
+                        bslma::TestAllocatorMonitor dam1(&da);
+                        ASSERTV(i, &in == &(t1.bdexStreamIn(in, version)));
+                        ASSERTV(i, dam1.isTotalSame());
+                        ASSERTV(i, !in);
+                        ASSERTV(i, X == t1);
 
-                      // read from (the now) invalid stream
-                      bslma::TestAllocatorMonitor dam2(&da);
-                      LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, version)));
-                      LOOP_ASSERT(i, dam2.isTotalSame());
-                      LOOP_ASSERT(i, !in);
-                      LOOP_ASSERT(i, X == t2);
+                        // read from (the now) invalid stream
+                        bslma::TestAllocatorMonitor dam2(&da);
+                        ASSERTV(i, &in == &(t2.bdexStreamIn(in, version)));
+                        ASSERTV(i, dam2.isTotalSame());
+                        ASSERTV(i, !in);
+                        ASSERTV(i, X == t2);
 
                     } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                 }
@@ -728,22 +1541,22 @@ int main(int argc, char *argv[])
                                                     veryVeryVeryVerbose);
                     bslma::DefaultAllocatorGuard guard(&da);
 
-                    Obj mU(VALUES[i], &oa); const Obj& U = mU;
+                    Obj mU(VALUES[i], &oa);  const Obj& U = mU;
 
                     Out out(1);
                     out.invalidate();
-                    LOOP_ASSERT(i, !out);
-                    const void  *data  = out.data();
-                    bsl::size_t length = out.length();
+                    ASSERTV(i, !out);
+                    const void  *data   = out.data();
+                    bsl::size_t  length = out.length();
 
                     bslma::TestAllocatorMonitor oam(&oa), dam(&da);
-                    LOOP2_ASSERT(version, i, &out ==
+                    ASSERTV(version, i, &out ==
                                              &(U.bdexStreamOut(out, version)));
-                    LOOP2_ASSERT(version, i, dam.isTotalSame());
-                    LOOP2_ASSERT(version, i, oam.isTotalSame());
-                    LOOP2_ASSERT(version, i, !out);
-                    LOOP2_ASSERT(version, i, data   == out.data());
-                    LOOP2_ASSERT(version, i, length == out.length());
+                    ASSERTV(version, i, dam.isTotalSame());
+                    ASSERTV(version, i, oam.isTotalSame());
+                    ASSERTV(version, i, !out);
+                    ASSERTV(version, i, data   == out.data());
+                    ASSERTV(version, i, length == out.length());
                 }
             }
         }
@@ -776,102 +1589,105 @@ int main(int argc, char *argv[])
 
             Out out(1);
 
-            X1.bdexStreamOut(out, VERSION); const int LOD1 = out.length();
-            X2.bdexStreamOut(out, VERSION); const int LOD2 = out.length();
-            X3.bdexStreamOut(out, VERSION); const int LOD  = out.length();
+            X1.bdexStreamOut(out, VERSION);
+            const bsl::size_t LOD1 = out.length();
+            X2.bdexStreamOut(out, VERSION);
+            const bsl::size_t LOD2 = out.length();
+            X3.bdexStreamOut(out, VERSION);
+            const bsl::size_t LOD  = out.length();
 
             const char *const OD = out.data();
 
-            for (int i = 0; i < LOD; ++i) {
+            for (bsl::size_t i = 0; i < LOD; ++i) {
                 In in(OD, i);
 
                 BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
-                  in.reset();
-                  LOOP_ASSERT(i, in);
-                  LOOP_ASSERT(i, !i == in.isEmpty());
+                    in.reset();
+                    ASSERTV(i, in);
+                    ASSERTV(i, !i == in.isEmpty());
 
-                  Obj t1(W1), t2(W2), t3(W3);
+                    Obj t1(W1), t2(W2), t3(W3);
 
-                  if (i < LOD1) {
-                      bslma::TestAllocatorMonitor dam1(&da);
-                      LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, dam1.isTotalSame());
-                      LOOP_ASSERT(i, !in);
-                      LOOP_ASSERT(i, someDiff(X1, t1));
+                    if (i < LOD1) {
+                        bslma::TestAllocatorMonitor dam1(&da);
+                        ASSERTV(i, &in == &(t1.bdexStreamIn(in, VERSION)));
+                        ASSERTV(i, dam1.isTotalSame());
+                        ASSERTV(i, !in);
+                        ASSERTV(i, someDiff(X1, t1));
 
-                      LOOP_ASSERT(i, bdlt::DatetimeTz::isValid(
+                        ASSERTV(i, bdlt::DatetimeTz::isValid(
                                           t1.datetimeTz().dateTz().localDate(),
                                           t1.datetimeTz().offset()));
 
-                      bslma::TestAllocatorMonitor dam2(&da);
-                      LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, dam2.isTotalSame());
-                      LOOP_ASSERT(i, !in);
-                      LOOP_ASSERT(i, W2 == t2);
+                        bslma::TestAllocatorMonitor dam2(&da);
+                        ASSERTV(i, &in == &(t2.bdexStreamIn(in, VERSION)));
+                        ASSERTV(i, dam2.isTotalSame());
+                        ASSERTV(i, !in);
+                        ASSERTV(i, W2 == t2);
 
-                      bslma::TestAllocatorMonitor dam3(&da);
-                      LOOP_ASSERT(i, &in == &(t3.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, dam3.isTotalSame());
-                      LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
-                  }
-                  else if (i < LOD2) {
-                      bslma::TestAllocatorMonitor dam1(&da);
-                      LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, dam1.isTotalSame());
-                      LOOP_ASSERT(i, in);
-                      LOOP_ASSERT(i, X1 == t1);
+                        bslma::TestAllocatorMonitor dam3(&da);
+                        ASSERTV(i, &in == &(t3.bdexStreamIn(in, VERSION)));
+                        ASSERTV(i, dam3.isTotalSame());
+                        ASSERTV(i, !in);    ASSERTV(i, W3 == t3);
+                    }
+                    else if (i < LOD2) {
+                        bslma::TestAllocatorMonitor dam1(&da);
+                        ASSERTV(i, &in == &(t1.bdexStreamIn(in, VERSION)));
+                        ASSERTV(i, dam1.isTotalSame());
+                        ASSERTV(i, in);
+                        ASSERTV(i, X1 == t1);
 
-                      bslma::TestAllocatorMonitor dam2(&da);
-                      LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, dam2.isTotalSame());
-                      LOOP_ASSERT(i, !in);
-                      LOOP_ASSERT(i, someDiff(X2, t2));
+                        bslma::TestAllocatorMonitor dam2(&da);
+                        ASSERTV(i, &in == &(t2.bdexStreamIn(in, VERSION)));
+                        ASSERTV(i, dam2.isTotalSame());
+                        ASSERTV(i, !in);
+                        ASSERTV(i, someDiff(X2, t2));
 
-                      LOOP_ASSERT(i, bdlt::DatetimeTz::isValid(
+                        ASSERTV(i, bdlt::DatetimeTz::isValid(
                                           t2.datetimeTz().dateTz().localDate(),
                                           t2.datetimeTz().offset()));
 
-                      bslma::TestAllocatorMonitor dam3(&da);
-                      LOOP_ASSERT(i, &in == &(t3.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, dam3.isTotalSame());
-                      LOOP_ASSERT(i, !in);
-                      LOOP_ASSERT(i, W3 == t3);
-                  }
-                  else {
-                      bslma::TestAllocatorMonitor dam1(&da);
-                      LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, dam1.isTotalSame());
-                      LOOP_ASSERT(i, in);
-                      LOOP_ASSERT(i, X1 == t1);
+                        bslma::TestAllocatorMonitor dam3(&da);
+                        ASSERTV(i, &in == &(t3.bdexStreamIn(in, VERSION)));
+                        ASSERTV(i, dam3.isTotalSame());
+                        ASSERTV(i, !in);
+                        ASSERTV(i, W3 == t3);
+                    }
+                    else {
+                        bslma::TestAllocatorMonitor dam1(&da);
+                        ASSERTV(i, &in == &(t1.bdexStreamIn(in, VERSION)));
+                        ASSERTV(i, dam1.isTotalSame());
+                        ASSERTV(i, in);
+                        ASSERTV(i, X1 == t1);
 
-                      bslma::TestAllocatorMonitor dam2(&da);
-                      LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, dam2.isTotalSame());
-                      LOOP_ASSERT(i, in);
-                      LOOP_ASSERT(i, X2 == t2);
+                        bslma::TestAllocatorMonitor dam2(&da);
+                        ASSERTV(i, &in == &(t2.bdexStreamIn(in, VERSION)));
+                        ASSERTV(i, dam2.isTotalSame());
+                        ASSERTV(i, in);
+                        ASSERTV(i, X2 == t2);
 
-                      bslma::TestAllocatorMonitor dam3(&da);
-                      LOOP_ASSERT(i, &in == &(t3.bdexStreamIn(in, VERSION)));
-                      LOOP_ASSERT(i, dam3.isTotalSame());
-                      LOOP_ASSERT(i, !in);
-                      LOOP_ASSERT(i, someDiff(X3, t3));
+                        bslma::TestAllocatorMonitor dam3(&da);
+                        ASSERTV(i, &in == &(t3.bdexStreamIn(in, VERSION)));
+                        ASSERTV(i, dam3.isTotalSame());
+                        ASSERTV(i, !in);
+                        ASSERTV(i, someDiff(X3, t3));
 
-                      LOOP_ASSERT(i, bdlt::DatetimeTz::isValid(
+                        ASSERTV(i, bdlt::DatetimeTz::isValid(
                                           t3.datetimeTz().dateTz().localDate(),
                                           t3.datetimeTz().offset()));
-                  }
+                    }
 
-                  // Check the validity of the target objects, 'tn', with some
-                  // (light) usage (assignment).
+                    // Check the validity of the target objects, 'tn', with
+                    // some (light) usage (assignment).
 
-                                LOOP_ASSERT(i, Y1 != t1);
-                    t1 = Y1;    LOOP_ASSERT(i, Y1 == t1);
+                                ASSERTV(i, Y1 != t1);
+                    t1 = Y1;    ASSERTV(i, Y1 == t1);
 
-                                LOOP_ASSERT(i, Y2 != t2);
-                    t2 = Y2;    LOOP_ASSERT(i, Y2 == t2);
+                                ASSERTV(i, Y2 != t2);
+                    t2 = Y2;    ASSERTV(i, Y2 == t2);
 
-                                LOOP_ASSERT(i, Y3 != t3);
-                    t3 = Y3;    LOOP_ASSERT(i, Y3 == t3);
+                                ASSERTV(i, Y3 != t3);
+                    t3 = Y3;    ASSERTV(i, Y3 == t3);
 
                 } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
             }
@@ -959,10 +1775,16 @@ int main(int argc, char *argv[])
                 Y.datetimeTz().bdexStreamOut(out, 1); // 2. Stream out "new"
                                                       //    value
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const bsl::size_t LOD = out.length();
 
-                Obj t(X);  ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
-                In in(OD, LOD);  ASSERT(in);
+                Obj t(X);
+                ASSERT(W != t);
+                ASSERT(X == t);
+                ASSERT(Y != t);
+
+                In in(OD, LOD);
+                ASSERT(in);
+
                 bslma::TestAllocatorMonitor dam(&da);
                 ASSERT(&in == &(t.bdexStreamIn(in, version)));
                 ASSERT(dam.isTotalSame());
@@ -981,7 +1803,7 @@ int main(int argc, char *argv[])
                                                       //    value
 
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const bsl::size_t LOD = out.length();
 
                 Obj t(X);  ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
                 In in(OD, LOD);  ASSERT(in);
@@ -1003,7 +1825,7 @@ int main(int argc, char *argv[])
                                                       //    value
 
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const bsl::size_t LOD = out.length();
 
                 Obj t(X);  ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
 
@@ -1080,20 +1902,19 @@ int main(int argc, char *argv[])
                 Out outA(1);  outA.putString(X.timeZoneId());
                            X.datetimeTz().bdexStreamOut(outA, VERSION);
 
-                LOOP_ASSERT(i, outA.length() == outO.length());
-                LOOP_ASSERT(i, 0             == memcmp(outO.data(),
-                                                       outA.data(),
-                                                       outA.length()));
+                ASSERTV(i, outA.length() == outO.length());
+                ASSERTV(i, 0             == memcmp(outO.data(),
+                                                   outA.data(),
+                                                   outA.length()));
 
-                Obj mY;  const Obj& Y = mY;
-                In in(outA.data(), outA.length());
+                Obj        mY;  const Obj& Y = mY;
+                In         in(outA.data(), outA.length());
                 ASSERT(&in == &(mY.bdexStreamIn(in, VERSION)));
 
-                LOOP_ASSERT(i, in.isEmpty());
-                LOOP_ASSERT(i, X == Y);
+                ASSERTV(i, in.isEmpty());
+                ASSERTV(i, X == Y);
             }
         }
-
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1106,7 +1927,7 @@ int main(int argc, char *argv[])
         //: 1 The assignment operator can change the value of any modifiable
         //:   target object to that of any source object.
         //:
-        //: 2 The allocator address held by the target object is unchanged.
+        //: 2 The allocator used by the target object is unchanged.
         //:
         //: 3 Any memory allocation is from the target object's allocator.
         //:
@@ -1116,7 +1937,7 @@ int main(int argc, char *argv[])
         //:
         //: 6 The value of the source object is not modified.
         //:
-        //: 7 The allocator address held by the source object is unchanged.
+        //: 7 The allocator used by the source object is unchanged.
         //:
         //: 8 QoI: Assigning a source object having the default-constructed
         //:   value allocates no memory.
@@ -1180,9 +2001,9 @@ int main(int argc, char *argv[])
         //:
         //:       2 'Z' still has the same value as that of 'ZZ'.  (C-6)
         //:
-        //:     6 Use the 'allocator' accessor of both 'mX' and 'Z' to verify
-        //:       that the respective allocator addresses held by the target
-        //:       and source objects are unchanged.  (C-2, 7)
+        //:     6 Use the 'get_allocator' accessor of both 'mX' and 'Z' to
+        //:       verify that the respective allocators used by the target and
+        //:       source objects are unchanged.  (C-2, 7)
         //:
         //:     7 Use the appropriate test allocators to verify that:
         //:       (C-8, 11)
@@ -1230,8 +2051,8 @@ int main(int argc, char *argv[])
         //:   6 Use the equality-comparison operator to verify that the
         //:     target object, 'mX', still has the same value as that of 'ZZ'.
         //:
-        //:   7 Use the 'allocator' accessor of 'mX' to verify that it is still
-        //:     the object allocator.
+        //:   7 Use the 'get_allocator' accessor of 'mX' to verify that it is
+        //:     still the object allocator.
         //:
         //:   8 Use the appropriate test allocators to verify that:
         //:
@@ -1247,7 +2068,11 @@ int main(int argc, char *argv[])
         //:   allocated from the default allocator.  (C-3)
         //
         // Testing:
-        //   operator=(const baltzo::LocalTimeDescriptor& rhs);
+        //   LocalDatetime& operator=(const LocalDatetime& rhs);
+        //   CONCERN: All memory allocation is from the object's allocator.
+        //   CONCERN: All memory allocation is exception neutral.
+        //   CONCERN: Object value is independent of the object allocator.
+        //   CONCERN: There is no temporary allocation from any allocator.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1290,10 +2115,10 @@ int main(int argc, char *argv[])
         const char   *largeTzId = LONGEST_STRING;
 
         const struct {
-            int              d_line;  // source line number
-            char             d_mem;   // expected allocation: 'Y', 'N', '?'
-            bdlt::DatetimeTz *d_datetimeTz;
-            const char      *d_timeZoneId;
+            int               d_line;  // source line number
+            char              d_mem;   // expected allocation: 'Y', 'N', '?'
+            bdlt::DatetimeTz *d_datetimeTz_p;
+            const char       *d_timeZoneId_p;
         } DATA[] = {
 
             //LINE  MEM  DTTZ          TZID
@@ -1321,10 +2146,10 @@ int main(int argc, char *argv[])
                                                     // this test allocates
                                                     // some object memory.
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int              LINE1   =  DATA[ti].d_line;
-            const char             MEMSRC1 =  DATA[ti].d_mem;
-            const bdlt::DatetimeTz& DTTZ1   = *DATA[ti].d_datetimeTz;
-            const char *const      TZID1   =  DATA[ti].d_timeZoneId;
+            const int               LINE1   =  DATA[ti].d_line;
+            const char              MEMSRC1 =  DATA[ti].d_mem;
+            const bdlt::DatetimeTz& DTTZ1   = *DATA[ti].d_datetimeTz_p;
+            const char *const       TZID1   =  DATA[ti].d_timeZoneId_p;
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
@@ -1338,15 +2163,15 @@ int main(int argc, char *argv[])
 
             static bool firstFlag = true;
             if (firstFlag) {
-                LOOP3_ASSERT(LINE1, Obj(), Z, Obj() == Z);
+                ASSERTV(LINE1, Obj(), Z, Obj() == Z);
                 firstFlag = false;
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int              LINE2   =  DATA[tj].d_line;
-                const char             MEMDST2 =  DATA[tj].d_mem;
-                const bdlt::DatetimeTz& DTTZ2   = *DATA[tj].d_datetimeTz;
-                const char *const      TZID2   =  DATA[tj].d_timeZoneId;
+                const int               LINE2   =  DATA[tj].d_line;
+                const char              MEMDST2 =  DATA[tj].d_mem;
+                const bdlt::DatetimeTz& DTTZ2   = *DATA[tj].d_datetimeTz_p;
+                const char *const       TZID2   =  DATA[tj].d_timeZoneId_p;
 
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -1355,8 +2180,7 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ P_(LINE2) P(X) }
 
-                    LOOP4_ASSERT(LINE1, LINE2, Z, X,
-                                 (Z == X) == (LINE1 == LINE2));
+                    ASSERTV(LINE1, LINE2, Z, X, (Z == X) == (LINE1 == LINE2));
 
                     bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
 
@@ -1364,37 +2188,37 @@ int main(int argc, char *argv[])
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                         Obj *mR = &(mX = Z);
-                        LOOP4_ASSERT(LINE1, LINE2,  Z,   X,  Z == X);
-                        LOOP4_ASSERT(LINE1, LINE2, mR, &mX, mR == &mX);
+                        ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
+                        ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                    LOOP4_ASSERT(LINE1, LINE2, ZZ, Z, ZZ == Z);
+                    ASSERTV(LINE1, LINE2, ZZ, Z, ZZ == Z);
 
-                    LOOP4_ASSERT(LINE1, LINE2, &oa, X.allocator(),
-                                 &oa == X.allocator());
-                    LOOP4_ASSERT(LINE1, LINE2, &scratch, Z.allocator(),
-                                 &scratch == Z.allocator());
+                    ASSERTV(LINE1, LINE2, &oa, ALLOC_OF(X),
+                            &oa == X.get_allocator());
+                    ASSERTV(LINE1, LINE2, &scratch, ALLOC_OF(Z),
+                            &scratch == Z.get_allocator());
 
                     if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
-                        LOOP2_ASSERT(LINE1, LINE2, oam.isInUseUp());
+                        ASSERTV(LINE1, LINE2, oam.isInUseUp());
                     }
                     else if ('Y' == MEMDST2) {
-                        LOOP2_ASSERT(LINE1, LINE2, oam.isInUseSame());
+                        ASSERTV(LINE1, LINE2, oam.isInUseSame());
                     }
 
                     // Record if some object memory was allocated.
 
                     anyObjectMemoryAllocatedFlag |= !!oa.numBlocksInUse();
 
-                    LOOP2_ASSERT(LINE1, LINE2, sam.isInUseSame());
+                    ASSERTV(LINE1, LINE2, sam.isInUseSame());
 
-                    LOOP2_ASSERT(LINE1, LINE2, 0 == da.numBlocksTotal());
+                    ASSERTV(LINE1, LINE2, 0 == da.numBlocksTotal());
                 }
 
                 // Verify all memory is released on object destruction.
 
-                LOOP3_ASSERT(LINE1, LINE2, oa.numBlocksInUse(),
-                             0 == oa.numBlocksInUse());
+                ASSERTV(LINE1, LINE2, oa.numBlocksInUse(),
+                        0 == oa.numBlocksInUse());
             }
 
             // self-assignment
@@ -1404,12 +2228,11 @@ int main(int argc, char *argv[])
             {
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                      Obj mX(DTTZ1, TZID1, &oa);
-                const Obj ZZ(DTTZ1, TZID1, &scratch);
-
+                Obj        mX(DTTZ1, TZID1, &oa);
                 const Obj& Z = mX;
+                const Obj  ZZ(DTTZ1, TZID1, &scratch);
 
-                LOOP3_ASSERT(LINE1, ZZ, Z, ZZ == Z);
+                ASSERTV(LINE1, ZZ, Z, ZZ == Z);
 
                 bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
 
@@ -1417,22 +2240,22 @@ int main(int argc, char *argv[])
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                     Obj *mR = &(mX = Z);
-                    LOOP3_ASSERT(LINE1, ZZ,   Z, ZZ == Z);
-                    LOOP3_ASSERT(LINE1, mR, &mX, mR == &mX);
+                    ASSERTV(LINE1, ZZ,   Z, ZZ == Z);
+                    ASSERTV(LINE1, mR, &mX, mR == &mX);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                LOOP3_ASSERT(LINE1, &oa, Z.allocator(), &oa == Z.allocator());
+                ASSERTV(LINE1, &oa, ALLOC_OF(Z), &oa == Z.get_allocator());
 
-                LOOP_ASSERT(LINE1, oam.isInUseSame());
+                ASSERTV(LINE1, oam.isInUseSame());
 
-                LOOP_ASSERT(LINE1, sam.isInUseSame());
+                ASSERTV(LINE1, sam.isInUseSame());
 
-                LOOP_ASSERT(LINE1, 0 == da.numBlocksTotal());
+                ASSERTV(LINE1, 0 == da.numBlocksTotal());
             }
 
             // Verify all object memory is released on destruction.
 
-            LOOP2_ASSERT(LINE1, oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+            ASSERTV(LINE1, oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
         }
 
         // Double check that some object memory was allocated.
@@ -1443,15 +2266,15 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
-        //   Ensure that, when member and free 'swap' are implemented, we can
-        //   exchange the values of any two objects that use the same
-        //   allocator.
+        //   Ensure that the free 'swap' function is implemented and can
+        //   exchange the values of any two objects.  Ensure that member
+        //   'swap' is implemented and can exchange the values of any two
+        //   objects that use the same allocator.
         //
         // Concerns:
         //: 1 Both functions exchange the values of the (two) supplied objects.
         //:
-        //: 2 The common object allocator address held by both objects is
-        //:   unchanged.
+        //: 2 The common object allocator used by both objects is unchanged.
         //:
         //: 3 The member function does not allocate memory from any allocator;
         //:   nor does the free function when the two objects being swapped use
@@ -1508,7 +2331,7 @@ int main(int argc, char *argv[])
         //:
         //:     1 The value is unchanged.  (C-6)
         //:
-        //:     2 The allocator address held by the object is unchanged.
+        //:     2 The allocator used by the object is unchanged.
         //:
         //:     3 There was no additional object memory allocation.
         //:
@@ -1518,9 +2341,9 @@ int main(int argc, char *argv[])
         //:       'Obj', 'mX', from 'XX' (P-4.2).
         //:
         //:     2 Use the value constructor and 'oa' to create a modifiable
-        //:       'Obj', 'mY', and having the value described by 'R2'; also use
-        //:       the copy constructor to create, using a "scratch" allocator,
-        //:       a 'const' 'Obj', 'YY', from 'Y'.
+        //:       'Obj', 'mY', having the value described by 'R2'; also use the
+        //:       copy constructor to create, using a "scratch" allocator, a
+        //:       'const' 'Obj', 'YY', from 'Y'.
         //:
         //:     3 Use, in turn, the member and free 'swap' functions to swap
         //:       the values of 'mX' and 'mY'; verify, after each swap, that:
@@ -1528,8 +2351,8 @@ int main(int argc, char *argv[])
         //:
         //:       1 The values have been exchanged.  (C-1)
         //:
-        //:       2 The common object allocator address held by 'mX' and 'mY'
-        //:         is unchanged in both objects.  (C-2)
+        //:       2 The common object allocator used by 'mX' and 'mY' is
+        //:         unchanged in both objects.  (C-2)
         //:
         //:       3 There was no additional object memory allocation.
         //:
@@ -1573,8 +2396,9 @@ int main(int argc, char *argv[])
         //:   'BSLS_ASSERTTEST_*' macros).  (C-8)
         //
         // Testing:
-        //   void swap(baltzo::LocalTimeDescriptor& other);
-        //   void swap(baltzo::LocalTimeDescriptor& a, b);
+        //   void swap(LocalDatetime& other);
+        //   void swap(LocalDatetime& a, LocalDatetime& b);
+        //   CONCERN: Precondition violations are detected when enabled.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1620,10 +2444,10 @@ int main(int argc, char *argv[])
         const char   *largeTzId = LONGEST_STRING;
 
         const struct {
-            int              d_line;  // source line number
-            char             d_mem;   // expected allocation: 'Y', 'N', '?'
-            bdlt::DatetimeTz *d_datetimeTz;
-            const char      *d_timeZoneId;
+            int               d_line;  // source line number
+            char              d_mem;   // expected allocation: 'Y', 'N', '?'
+            bdlt::DatetimeTz *d_datetimeTz_p;
+            const char       *d_timeZoneId_p;
         } DATA[] = {
 
             //LINE  MEM  DTTZ          TZID
@@ -1651,15 +2475,15 @@ int main(int argc, char *argv[])
                                                     // this test allocates
                                                     // some object memory.
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int              LINE1 =  DATA[ti].d_line;
-            const char             MEM1  =  DATA[ti].d_mem;
-            const bdlt::DatetimeTz& DTTZ1 = *DATA[ti].d_datetimeTz;
-            const char *const      TZID1 =  DATA[ti].d_timeZoneId;
+            const int               LINE1 =  DATA[ti].d_line;
+            const char              MEM1  =  DATA[ti].d_mem;
+            const bdlt::DatetimeTz& DTTZ1 = *DATA[ti].d_datetimeTz_p;
+            const char *const       TZID1 =  DATA[ti].d_timeZoneId_p;
 
             bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                  Obj mW(DTTZ1, TZID1, &oa);  const Obj& W = mW;
+            Obj       mW(DTTZ1, TZID1, &oa);  const Obj& W = mW;
             const Obj XX(W, &scratch);
 
             if (veryVerbose) { T_ P_(LINE1) P_(W) P(XX) }
@@ -1669,7 +2493,7 @@ int main(int argc, char *argv[])
 
             static bool firstFlag = true;
             if (firstFlag) {
-                LOOP3_ASSERT(LINE1, Obj(), W, Obj() == W);
+                ASSERTV(LINE1, Obj(), W, Obj() == W);
                 firstFlag = false;
             }
 
@@ -1679,9 +2503,9 @@ int main(int argc, char *argv[])
 
                 mW.swap(mW);
 
-                LOOP3_ASSERT(LINE1, XX, W, XX == W);
-                LOOP_ASSERT(LINE1, &oa == W.allocator());
-                LOOP_ASSERT(LINE1, oam.isTotalSame());
+                ASSERTV(LINE1, XX, W, XX == W);
+                ASSERTV(LINE1, &oa == W.get_allocator());
+                ASSERTV(LINE1, oam.isTotalSame());
             }
 
             // free function 'swap'
@@ -1690,26 +2514,25 @@ int main(int argc, char *argv[])
 
                 swap(mW, mW);
 
-                LOOP3_ASSERT(LINE1, XX, W, XX == W);
-                LOOP_ASSERT(LINE1, &oa == W.allocator());
-                LOOP_ASSERT(LINE1, oam.isTotalSame());
+                ASSERTV(LINE1, XX, W, XX == W);
+                ASSERTV(LINE1, &oa == W.get_allocator());
+                ASSERTV(LINE1, oam.isTotalSame());
             }
 
             // Verify expected ('Y'/'N') object-memory allocations.
 
             if ('?' != MEM1) {
-                LOOP3_ASSERT(LINE1, MEM1, oa.numBlocksInUse(),
-                           ('N' == MEM1) == (0 == oa.numBlocksInUse()));
+                ASSERTV(LINE1, MEM1, oa.numBlocksInUse(),
+                        ('N' == MEM1) == (0 == oa.numBlocksInUse()));
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int               LINE2 =  DATA[tj].d_line;
-                const bdlt::DatetimeTz& DTTZ2 = *DATA[tj].d_datetimeTz;
-                const char *const       TZID2 =  DATA[tj].d_timeZoneId;
+                const bdlt::DatetimeTz& DTTZ2 = *DATA[tj].d_datetimeTz_p;
+                const char *const       TZID2 =  DATA[tj].d_timeZoneId_p;
 
-                      Obj mX(XX, &oa);  const Obj& X = mX;
-
-                      Obj mY(DTTZ2, TZID2, &oa);  const Obj& Y = mY;
+                Obj       mX(XX, &oa);            const Obj& X = mX;
+                Obj       mY(DTTZ2, TZID2, &oa);  const Obj& Y = mY;
                 const Obj YY(Y, &scratch);
 
                 if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
@@ -1720,11 +2543,11 @@ int main(int argc, char *argv[])
 
                     mX.swap(mY);
 
-                    LOOP4_ASSERT(LINE1, LINE2, YY, X, YY == X);
-                    LOOP4_ASSERT(LINE1, LINE2, XX, Y, XX == Y);
-                    LOOP2_ASSERT(LINE1, LINE2, &oa == X.allocator());
-                    LOOP2_ASSERT(LINE1, LINE2, &oa == Y.allocator());
-                    LOOP2_ASSERT(LINE1, LINE2, oam.isTotalSame());
+                    ASSERTV(LINE1, LINE2, YY, X, YY == X);
+                    ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
+                    ASSERTV(LINE1, LINE2, &oa == X.get_allocator());
+                    ASSERTV(LINE1, LINE2, &oa == Y.get_allocator());
+                    ASSERTV(LINE1, LINE2, oam.isTotalSame());
                 }
 
                 // free function 'swap', same allocator
@@ -1733,11 +2556,11 @@ int main(int argc, char *argv[])
 
                     swap(mX, mY);
 
-                    LOOP4_ASSERT(LINE1, LINE2, XX, X, XX == X);
-                    LOOP4_ASSERT(LINE1, LINE2, YY, Y, YY == Y);
-                    LOOP2_ASSERT(LINE1, LINE2, &oa == X.allocator());
-                    LOOP2_ASSERT(LINE1, LINE2, &oa == Y.allocator());
-                    LOOP2_ASSERT(LINE1, LINE2, oam.isTotalSame());
+                    ASSERTV(LINE1, LINE2, XX, X, XX == X);
+                    ASSERTV(LINE1, LINE2, YY, Y, YY == Y);
+                    ASSERTV(LINE1, LINE2, &oa == X.get_allocator());
+                    ASSERTV(LINE1, LINE2, &oa == Y.get_allocator());
+                    ASSERTV(LINE1, LINE2, oam.isTotalSame());
                 }
             }
 
@@ -1757,15 +2580,15 @@ int main(int argc, char *argv[])
             // 'A' values: Should cause memory allocation if possible.
 
             const bdlt::DatetimeTz A1(bdlt::Datetime(2011, 5, 3, 15), -4 * 60);
-            const char            A2[] = "a_" SUFFICIENTLY_LONG_STRING;
+            const char             A2[] = "a_" SUFFICIENTLY_LONG_STRING;
 
             bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                  Obj mX(&oa);  const Obj& X = mX;
+            Obj       mX(&oa);  const Obj& X = mX;
             const Obj XX(X, &scratch);
 
-                  Obj mY(A1, A2, &oa);  const Obj& Y = mY;
+            Obj       mY(A1, A2, &oa);  const Obj& Y = mY;
             const Obj YY(Y, &scratch);
 
             if (veryVerbose) { T_ P_(X) P(Y) }
@@ -1774,8 +2597,8 @@ int main(int argc, char *argv[])
 
             bslalg::SwapUtil::swap(&mX, &mY);
 
-            LOOP2_ASSERT(YY, X, YY == X);
-            LOOP2_ASSERT(XX, Y, XX == Y);
+            ASSERTV(YY, X, YY == X);
+            ASSERTV(XX, Y, XX == Y);
             ASSERT(oam.isTotalSame());
 
             if (veryVerbose) { T_ P_(X) P(Y) }
@@ -1783,14 +2606,14 @@ int main(int argc, char *argv[])
 
         // Verify no memory is allocated from the default allocator.
 
-        LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 
         if (verbose) cout <<
                    "\nFree 'swap' function with different allocators." << endl;
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int               LINE1 =  DATA[ti].d_line;
-            const bdlt::DatetimeTz& DTTZ1 = *DATA[ti].d_datetimeTz;
-            const char *const       TZID1 =  DATA[ti].d_timeZoneId;
+            const bdlt::DatetimeTz& DTTZ1 = *DATA[ti].d_datetimeTz_p;
+            const char *const       TZID1 =  DATA[ti].d_timeZoneId_p;
 
             bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma::TestAllocator     oa2("object2", veryVeryVeryVerbose);
@@ -1802,8 +2625,8 @@ int main(int argc, char *argv[])
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int               LINE2 =  DATA[tj].d_line;
-                const bdlt::DatetimeTz& DTTZ2 = *DATA[tj].d_datetimeTz;
-                const char *const       TZID2 =  DATA[tj].d_timeZoneId;
+                const bdlt::DatetimeTz& DTTZ2 = *DATA[tj].d_datetimeTz_p;
+                const char *const       TZID2 =  DATA[tj].d_timeZoneId_p;
 
                 Obj mX(XX, &oa);             const Obj& X = mX;
                 Obj mY(DTTZ2, TZID2, &oa2);  const Obj& Y = mY;
@@ -1816,10 +2639,10 @@ int main(int argc, char *argv[])
                 {
                     swap(mX, mY);
 
-                    LOOP4_ASSERT(LINE1, LINE2, YY, X, YY == X);
-                    LOOP4_ASSERT(LINE1, LINE2, XX, Y, XX == Y);
-                    LOOP2_ASSERT(LINE1, LINE2, &oa  == X.allocator());
-                    LOOP2_ASSERT(LINE1, LINE2, &oa2 == Y.allocator());
+                    ASSERTV(LINE1, LINE2, YY, X, YY == X);
+                    ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
+                    ASSERTV(LINE1, LINE2, &oa  == X.get_allocator());
+                    ASSERTV(LINE1, LINE2, &oa2 == Y.get_allocator());
                 }
             }
         }
@@ -1861,8 +2684,8 @@ int main(int argc, char *argv[])
         //: 3 If an allocator IS supplied to the copy constructor, that
         //:   allocator becomes the object allocator for the resulting object.
         //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
+        //: 4 Supplying a default-constructed allocator has the same effect as
+        //:   not supplying an allocator.
         //:
         //: 5 Supplying an allocator to the copy constructor has no effect
         //:   on subsequent object values.
@@ -1878,7 +2701,7 @@ int main(int argc, char *argv[])
         //:
         //:10 The value of the original object is unchanged.
         //:
-        //:11 The allocator address held by the original object is unchanged.
+        //:11 The allocator used by the original object is unchanged.
         //:
         //:12 QoI: Copying an object having the default-constructed value
         //:   allocates no memory.
@@ -1909,8 +2732,8 @@ int main(int argc, char *argv[])
         //:   2 Execute an inner loop creating three distinct objects in turn,
         //:     each using the copy constructor on 'Z' from P-2.1, but
         //:     configured differently: (a) without passing an allocator,
-        //:     (b) passing a null allocator address explicitly, and (c)
-        //:     passing the address of a test allocator distinct from the
+        //:     (b) passing a default-constructed allocator explicitly, and
+        //:     (c) passing the address of a test allocator distinct from the
         //:     default.
         //:
         //:   3 For each of these three iterations (P-2.2):  (C-1..12)
@@ -1932,13 +2755,13 @@ int main(int argc, char *argv[])
         //:
         //:       2 'Z' still has the same value as that of 'ZZ'.  (C-10)
         //:
-        //:     4 Use the 'allocator' accessor of each underlying attribute
+        //:     4 Use the 'get_allocator' accessor of each underlying attribute
         //:       capable of allocating memory to ensure that its object
-        //:       allocator is properly installed; also use the 'allocator'
+        //:       allocator is properly installed; also use the 'get_allocator'
         //:       accessor of 'X' to verify that its object allocator is
-        //:       properly installed, and use the 'allocator' accessor of 'Z'
-        //:       to verify that the allocator address that it holds is
-        //:       unchanged.  (C-6, 11)
+        //:       properly installed, and use the 'get_allocator' accessor of
+        //:       'Z' to verify that the allocator that it holds is unchanged.
+        //:       (C-6, 11)
         //:
         //:     5 Use the appropriate test allocators to verify that:  (C-2..4,
         //:       7..8, 12)
@@ -1968,7 +2791,7 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   baltzo::LocalTimeDescriptor(const LTDescriptor& o, *bA = 0);
+        //   LocalDatetime(const LocalDatetime& o, a = { });
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1994,10 +2817,10 @@ int main(int argc, char *argv[])
         const char   *largeTzId = LONGEST_STRING;
 
         const struct {
-            int              d_line;  // source line number
-            char             d_mem;   // expected allocation: 'Y', 'N', '?'
-            bdlt::DatetimeTz *d_datetimeTz;
-            const char      *d_timeZoneId;
+            int               d_line;  // source line number
+            char              d_mem;   // expected allocation: 'Y', 'N', '?'
+            bdlt::DatetimeTz *d_datetimeTz_p;
+            const char       *d_timeZoneId_p;
         } DATA[] = {
 
             //LINE  MEM  DTTZ          TZID
@@ -2028,14 +2851,15 @@ int main(int argc, char *argv[])
                                                         // this test allocates
                                                         // some object memory.
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int              LINE =  DATA[ti].d_line;
-                const char             MEM  =  DATA[ti].d_mem;
-                const bdlt::DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz;
-                const char *const      TZID =  DATA[ti].d_timeZoneId;
+                const int               LINE =  DATA[ti].d_line;
+                const char              MEM  =  DATA[ti].d_mem;
+                const bdlt::DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz_p;
+                const char *const       TZID =  DATA[ti].d_timeZoneId_p;
 
-                LOOP2_ASSERT(LINE, MEM, MEM && strchr("YN?", MEM));
+                ASSERTV(LINE, MEM, MEM && strchr("YN?", MEM));
 
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
                 const Obj  Z(DTTZ, TZID, &scratch);
                 const Obj ZZ(DTTZ, TZID, &scratch);
 
@@ -2051,8 +2875,8 @@ int main(int argc, char *argv[])
 
                     bslma::DefaultAllocatorGuard dag(&da);
 
-                    Obj                  *objPtr;
-                    bslma::TestAllocator *objAllocatorPtr;
+                    Obj                  *objPtr = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
 
                     switch (CONFIG) {
                       case 'a': {
@@ -2060,7 +2884,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &da;
                       } break;
                       case 'b': {
-                        objPtr = new (fa) Obj(Z, 0);
+                        objPtr = new (fa) Obj(Z, Obj::allocator_type());
                         objAllocatorPtr = &da;
                       } break;
                       case 'c': {
@@ -2068,11 +2892,10 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                        ASSERTV(CONFIG, !"Bad allocator config.");
                       } break;
                     }
-                    LOOP2_ASSERT(LINE, CONFIG,
-                                 sizeof(Obj) == fa.numBytesInUse());
+                    ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
 
                     Obj& mX = *objPtr;  const Obj& X = mX;
 
@@ -2086,51 +2909,50 @@ int main(int argc, char *argv[])
 
                     static bool firstFlag = true;
                     if (firstFlag) {
-                        LOOP4_ASSERT(LINE, CONFIG, Obj(), *objPtr,
-                                     Obj() == *objPtr)
+                        ASSERTV(LINE, CONFIG, Obj(), *objPtr,
+                                Obj() == *objPtr)
                         firstFlag = false;
                     }
 
                     // Verify the value of the object.
 
-                    LOOP4_ASSERT(LINE, CONFIG,  Z, X,  Z == X);
+                    ASSERTV(LINE, CONFIG,  Z, X,  Z == X);
 
                     // Verify that the value of 'Z' has not changed.
 
-                    LOOP4_ASSERT(LINE, CONFIG, ZZ, Z, ZZ == Z);
+                    ASSERTV(LINE, CONFIG, ZZ, Z, ZZ == Z);
 
                     // -------------------------------------------------------
                     // Verify any attribute allocators are installed properly.
                     // -------------------------------------------------------
 
-                    LOOP2_ASSERT(LINE, CONFIG,
-                                 &oa == X.timeZoneId().allocator());
+                    ASSERTV(LINE, CONFIG,
+                            &oa == X.timeZoneId().get_allocator());
 
-                    // Also invoke the object's 'allocator' accessor, as well
-                    // as that of 'Z'.
+                    // Also invoke the object's 'get_allocator' accessor, as
+                    // well as that of 'Z'.
 
-                    LOOP4_ASSERT(LINE, CONFIG, &oa, X.allocator(),
-                                 &oa == X.allocator());
+                    ASSERTV(LINE, CONFIG, &oa, ALLOC_OF(X),
+                            &oa == X.get_allocator());
 
-                    LOOP4_ASSERT(LINE, CONFIG, &scratch, Z.allocator(),
-                                 &scratch == Z.allocator());
+                    ASSERTV(LINE, CONFIG, &scratch, ALLOC_OF(Z),
+                            &scratch == Z.get_allocator());
 
                     // Verify no allocation from the non-object allocator.
-
-                    LOOP3_ASSERT(LINE, CONFIG, noa.numBlocksTotal(),
-                                 0 == noa.numBlocksTotal());
+                    ASSERTV(LINE, CONFIG, noa.numBlocksTotal(),
+                            0 == noa.numBlocksTotal());
 
                     // Verify no temporary memory is allocated from the object
                     // allocator.
 
-                    LOOP4_ASSERT(LINE, CONFIG, oa.numBlocksTotal(),
-                                                           oa.numBlocksInUse(),
-                                 oa.numBlocksTotal() == oa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG,
+                            oa.numBlocksTotal(), oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
 
                     // Verify expected ('Y'/'N') object-memory allocations.
 
                     if ('?' != MEM) {
-                        LOOP4_ASSERT(LINE, CONFIG, MEM, oa.numBlocksInUse(),
+                        ASSERTV(LINE, CONFIG, MEM, oa.numBlocksInUse(),
                                    ('N' == MEM) == (0 == oa.numBlocksInUse()));
                     }
 
@@ -2144,12 +2966,12 @@ int main(int argc, char *argv[])
 
                     // Verify all memory is released on object destruction.
 
-                    LOOP3_ASSERT(LINE, CONFIG, da.numBlocksInUse(),
-                                 0 == da.numBlocksInUse());
-                    LOOP3_ASSERT(LINE, CONFIG, fa.numBlocksInUse(),
-                                 0 == fa.numBlocksInUse());
-                    LOOP3_ASSERT(LINE, CONFIG, sa.numBlocksInUse(),
-                                 0 == sa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
+                            0 == da.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                            0 == fa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, sa.numBlocksInUse(),
+                            0 == sa.numBlocksInUse());
                 }  // end foreach configuration
 
             }  // end foreach row
@@ -2165,14 +2987,15 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with injected exceptions." << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int              LINE =  DATA[ti].d_line;
-                const char             MEM  =  DATA[ti].d_mem;
-                const bdlt::DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz;
-                const char *const      TZID =  DATA[ti].d_timeZoneId;
+                const int               LINE =  DATA[ti].d_line;
+                const char              MEM  =  DATA[ti].d_mem;
+                const bdlt::DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz_p;
+                const char *const       TZID =  DATA[ti].d_timeZoneId_p;
 
                 if (veryVerbose) { T_ P_(MEM) P_(DTTZ) P(TZID) }
 
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
                 const Obj  Z(DTTZ, TZID, &scratch);
                 const Obj ZZ(DTTZ, TZID, &scratch);
 
@@ -2181,25 +3004,21 @@ int main(int argc, char *argv[])
 
                 bslma::DefaultAllocatorGuard dag(&da);
 
-
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                     Obj obj(Z, &sa);
-                    LOOP3_ASSERT(LINE, Z, obj, Z == obj);
+                    ASSERTV(LINE, Z, obj, Z == obj);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                LOOP3_ASSERT(LINE, ZZ, Z, ZZ == Z);
+                ASSERTV(LINE, ZZ, Z, ZZ == Z);
 
-                LOOP3_ASSERT(LINE, &scratch, Z.allocator(),
-                             &scratch == Z.allocator());
-                LOOP2_ASSERT(LINE, da.numBlocksInUse(),
-                             0 == da.numBlocksInUse());
-                LOOP2_ASSERT(LINE, sa.numBlocksInUse(),
-                             0 == sa.numBlocksInUse());
+                ASSERTV(LINE, &scratch, ALLOC_OF(Z),
+                        &scratch == Z.get_allocator());
+                ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+                ASSERTV(LINE, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
             }
         }
-
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -2213,7 +3032,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 All salient attributes participate in the comparison.
         //:
-        //: 3 No non-salient attributes (i.e., 'allocator') participate.
+        //: 3 No non-salient attributes (i.e., 'get_allocator') participate.
         //:
         //: 4 'true  == (X == X)'  (i.e., identity)
         //:
@@ -2286,8 +3105,8 @@ int main(int argc, char *argv[])
         //:   allocated from the default allocator.  (C-11)
         //
         // Testing:
-        //   bool operator==(const baltzo::LocalTimeDescriptor& lhs, rhs);
-        //   bool operator!=(const baltzo::LocalTimeDescriptor& lhs, rhs);
+        //   bool operator==(const LocalDatetime&, const LocalDatetime&);
+        //   bool operator!=(const LocalDatetime&, const LocalDatetime&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2339,8 +3158,8 @@ int main(int argc, char *argv[])
 
         struct {
             int       d_line;           // source line number
-            const T1 *d_datetimeTz;
-            const T2  d_timeZoneId;
+            const T1 *d_datetimeTz_p;
+            const T2  d_timeZoneId_p;
         } DATA[] = {
 
             // The first row of the table below represents an object value
@@ -2363,8 +3182,8 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int LINE1 =  DATA[ti].d_line;
-            const T1& DTTZ1 = *DATA[ti].d_datetimeTz;
-            const T2  TZID1 =  DATA[ti].d_timeZoneId;
+            const T1& DTTZ1 = *DATA[ti].d_datetimeTz_p;
+            const T2  TZID1 =  DATA[ti].d_timeZoneId_p;
 
             if (veryVerbose) { T_ P_(LINE1) P_(DTTZ1) P(TZID1) }
 
@@ -2374,14 +3193,14 @@ int main(int argc, char *argv[])
 
                 const Obj X(DTTZ1, TZID1, &scratch);
 
-                LOOP2_ASSERT(LINE1, X,   X == X);
-                LOOP2_ASSERT(LINE1, X, !(X != X));
+                ASSERTV(LINE1, X,   X == X);
+                ASSERTV(LINE1, X, !(X != X));
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int LINE2 =  DATA[tj].d_line;
-                const T1& DTTZ2 = *DATA[tj].d_datetimeTz;
-                const T2  TZID2 =  DATA[tj].d_timeZoneId;
+                const T1& DTTZ2 = *DATA[tj].d_datetimeTz_p;
+                const T2  TZID2 =  DATA[tj].d_timeZoneId_p;
 
                 if (veryVerbose) {
                                T_ T_ P_(LINE2) P_(DTTZ2) P(TZID2) }
@@ -2412,28 +3231,26 @@ int main(int argc, char *argv[])
 
                     bslma::TestAllocatorMonitor oaxm(&oax), oaym(&oay);
 
-                    LOOP5_ASSERT(LINE1, LINE2, CONFIG, X, Y,  EXP == (X == Y));
-                    LOOP5_ASSERT(LINE1, LINE2, CONFIG, Y, X,  EXP == (Y == X));
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y,  EXP == (X == Y));
+                    ASSERTV(LINE1, LINE2, CONFIG, Y, X,  EXP == (Y == X));
 
-                    LOOP5_ASSERT(LINE1, LINE2, CONFIG, X, Y, !EXP == (X != Y));
-                    LOOP5_ASSERT(LINE1, LINE2, CONFIG, Y, X, !EXP == (Y != X));
+                    ASSERTV(LINE1, LINE2, CONFIG, X, Y, !EXP == (X != Y));
+                    ASSERTV(LINE1, LINE2, CONFIG, Y, X, !EXP == (Y != X));
 
-                    LOOP3_ASSERT(LINE1, LINE2, CONFIG, oaxm.isTotalSame());
-                    LOOP3_ASSERT(LINE1, LINE2, CONFIG, oaym.isTotalSame());
+                    ASSERTV(LINE1, LINE2, CONFIG, oaxm.isTotalSame());
+                    ASSERTV(LINE1, LINE2, CONFIG, oaym.isTotalSame());
 
                     // Double check that some object memory was allocated.
 
-                    LOOP3_ASSERT(LINE1, LINE2, CONFIG,
-                                 1 <= xa.numBlocksInUse());
-                    LOOP3_ASSERT(LINE1, LINE2, CONFIG,
-                                 1 <= ya.numBlocksInUse());
+                    ASSERTV(LINE1, LINE2, CONFIG, 1 <= xa.numBlocksInUse());
+                    ASSERTV(LINE1, LINE2, CONFIG, 1 <= ya.numBlocksInUse());
 
                     // Note that memory should be independently allocated for
                     // each attribute capable of allocating memory.
                 }
             }
 
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
 
       } break;
@@ -2499,7 +3316,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
-        //   operator<<(ostream& s, const baltzo::LocalTimeDescriptor& d);
+        //   operator<<(ostream& s, const LocalDatetime& d);
+        //   CONCERN: All accessor methods are declared 'const'.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2709,21 +3527,21 @@ int main(int argc, char *argv[])
                 // Verify supplied stream is returned by reference.
 
                 if (-9 == L && -9 == SPL) {
-                    LOOP_ASSERT(LINE, &os == &(os << OBJ));
+                    ASSERTV(LINE, &os == &(os << OBJ));
 
                     if (veryVeryVerbose) { T_ T_ Q(operator<<) }
                 }
                 else {
-                    LOOP_ASSERT(LINE, -8 == SPL || -8 != L);
+                    ASSERTV(LINE, -8 == SPL || -8 != L);
 
                     if (-8 != SPL) {
-                        LOOP_ASSERT(LINE, &os == &OBJ.print(os, L, SPL));
+                        ASSERTV(LINE, &os == &OBJ.print(os, L, SPL));
                     }
                     else if (-8 != L) {
-                        LOOP_ASSERT(LINE, &os == &OBJ.print(os, L));
+                        ASSERTV(LINE, &os == &OBJ.print(os, L));
                     }
                     else {
-                        LOOP_ASSERT(LINE, &os == &OBJ.print(os));
+                        ASSERTV(LINE, &os == &OBJ.print(os));
                     }
 
                     if (veryVeryVerbose) { T_ T_ Q(print) }
@@ -2733,7 +3551,7 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) { P(os.str()) }
 
-                LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
+                ASSERTV(LINE, EXP, os.str(), EXP == os.str());
             }
         }
 
@@ -2742,6 +3560,12 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
         //   Ensure each basic accessor properly interprets object state.
+        //
+        //   In case 3 we demonstrated that all basic accessors work properly
+        //   with respect to attributes initialized by the value constructor.
+        //   Here we use the default constructor and primary manipulators,
+        //   which were fully tested in case 2, to further corroborate that
+        //   these accessors are properly interpreting object state.
         //
         // Concerns:
         //: 1 Each accessor returns the value of the corresponding attribute
@@ -2756,12 +3580,6 @@ int main(int argc, char *argv[])
         //:   providing only non-modifiable access.
         //
         // Plan:
-        //   In case 3 we demonstrated that all basic accessors work properly
-        //   with respect to attributes initialized by the value constructor.
-        //   Here we use the default constructor and primary manipulators,
-        //   which were fully tested in case 2, to further corroborate that
-        //   these accessors are properly interpreting object state.
-        //
         //: 1 Create two 'bslma::TestAllocator' objects, and install one as
         //:   the current default allocator (note that a ubiquitous test
         //:   allocator is already installed as the global allocator).
@@ -2785,6 +3603,7 @@ int main(int argc, char *argv[])
         //:     there is no change in total memory allocation.  (C-3..4)
         //
         // Testing:
+        //   allocator_type get_allocator() const;
         //   bslma::Allocator *allocator() const;
         //   const bdlt::DatetimeTz& datetimeTz() const;
         //   const bsl::string& timeZoneId() const;
@@ -2820,6 +3639,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
         bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+        bsl::allocator<char> oaa(&oa);
 
         bslma::DefaultAllocatorGuard dag(&da);
 
@@ -2832,12 +3652,13 @@ int main(int argc, char *argv[])
                 "\nVerify all basic accessors report expected values." << endl;
         {
             const T1& datetimeTz = X.datetimeTz();
-            LOOP2_ASSERT(D1, datetimeTz, D1 == datetimeTz);
+            ASSERTV(D1, datetimeTz, D1 == datetimeTz);
 
             const T2 timeZoneId = X.timeZoneId();
-            LOOP2_ASSERT(D2, timeZoneId, D2 == timeZoneId);
+            ASSERTV(D2, timeZoneId, D2 == timeZoneId);
 
-            ASSERT(&oa == X.allocator());
+            ASSERTV(ALLOC_OF(X),   oaa == X.get_allocator());
+            ASSERTV(X.allocator(), &oa == X.allocator());
         }
 
         if (verbose) cout <<
@@ -2850,7 +3671,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
             const T1& datetimeTz = X.datetimeTz();
-            LOOP2_ASSERT(A1, datetimeTz, A1 == datetimeTz);
+            ASSERTV(A1, datetimeTz, A1 == datetimeTz);
 
             ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
         }
@@ -2862,7 +3683,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
             const T2& timeZoneId = X.timeZoneId();
-            LOOP2_ASSERT(A2, timeZoneId, A2 == timeZoneId);
+            ASSERTV(A2, timeZoneId, A2 == timeZoneId);
 
             ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
@@ -2874,7 +3695,7 @@ int main(int argc, char *argv[])
         // Note that memory should be independently allocated for each
         // attribute capable of allocating memory.
 
-        LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 
       } break;
       case 3: {
@@ -2899,8 +3720,8 @@ int main(int argc, char *argv[])
         //: 5 If an allocator IS supplied to the value constructor, that
         //:   allocator becomes the object allocator for the resulting object.
         //:
-        //: 6 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
+        //: 6 Supplying a default-constructed allocator has the same effect as
+        //:   not supplying an allocator.
         //:
         //: 7 Supplying an allocator to the value constructor has no effect
         //:   on subsequent object values.
@@ -2937,8 +3758,9 @@ int main(int argc, char *argv[])
         //:   1 Execute an inner loop creating three distinct objects, in turn,
         //:     each object having the same value, 'V', but configured
         //:     differently: (a) without passing an allocator, (b) passing a
-        //:     null allocator address explicitly, and (c) passing the address
-        //:     of a test allocator distinct from the default allocator.
+        //:     default-constructed allocator explicitly, and (c) passing the
+        //:     address of a test allocator distinct from the default
+        //:     allocator.
         //:
         //:   2 For each of the three iterations in P-2.1:  (C-1, 4..11)
         //:
@@ -2956,10 +3778,10 @@ int main(int argc, char *argv[])
         //:       verify that all of the attributes of each object have their
         //:       expected values.  (C-1, 7)
         //:
-        //:     4 Use the 'allocator' accessor of each underlying attribute
+        //:     4 Use the 'get_allocator' accessor of each underlying attribute
         //:       capable of allocating memory to ensure that its object
         //:       allocator is properly installed; also invoke the (as yet
-        //:       unproven) 'allocator' accessor of the object under test.
+        //:       unproven) 'get_allocator' accessor of the object under test.
         //:       (C-8)
         //:
         //:     5 Use the appropriate test allocators to verify that:  (C-4..6,
@@ -2990,7 +3812,10 @@ int main(int argc, char *argv[])
         //:   "scratch" allocator.  (C-2, 12)
         //
         // Testing:
-        //   baltzo::LocalDatetime(DatetimeTz& d, const char *t, *bA = 0);
+        //   LocalDatetime(DatetimeTz& d, const StringRef& t, a = { });
+        //   LocalDatetime(DatetimeTz& d, const char *t, a = { });
+        //   CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
+        //   CONCERN: String arguments can be either 'char *' or 'string'.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3016,10 +3841,10 @@ int main(int argc, char *argv[])
         const char   *largeTzId = LONGEST_STRING;
 
         const struct {
-            int                d_line;  // source line number
-            char               d_mem;   // expected allocation: 'Y', 'N', '?'
-            bdlt::DatetimeTz   *d_datetimeTz;
-            const char *const  d_timeZoneId;
+            int               d_line;  // source line number
+            char              d_mem;   // expected allocation: 'Y', 'N', '?'
+            bdlt::DatetimeTz *d_datetimeTz_p;
+            const char       *d_timeZoneId_p;
         } DATA[] = {
 
             //LINE  MEM  DTTZ          TZID
@@ -3050,14 +3875,14 @@ int main(int argc, char *argv[])
                                                         // this test allocates
                                                         // some object memory.
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int              LINE =  DATA[ti].d_line;
-                const char             MEM  =  DATA[ti].d_mem;
-                const bdlt::DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz;
-                const char *const      TZID =  DATA[ti].d_timeZoneId;
+                const int               LINE =  DATA[ti].d_line;
+                const char              MEM  =  DATA[ti].d_mem;
+                const bdlt::DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz_p;
+                const char *const       TZID =  DATA[ti].d_timeZoneId_p;
 
                 if (veryVerbose) { T_ P_(MEM) P_(DTTZ) P(TZID) }
 
-                LOOP2_ASSERT(LINE, MEM, MEM && strchr("YN?", MEM));
+                ASSERTV(LINE, MEM, MEM && strchr("YN?", MEM));
 
                 for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
 
@@ -3080,7 +3905,8 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &da;
                       } break;
                       case 'b': {
-                        objPtr = new (fa) Obj(DTTZ, TZID, 0);
+                        objPtr = new (fa) Obj(DTTZ, TZID,
+                                              Obj::allocator_type());
                         objAllocatorPtr = &da;
                       } break;
                       case 'c': {
@@ -3088,11 +3914,10 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
-                        LOOP2_ASSERT(LINE, CONFIG, !"Bad allocator config.");
+                        ASSERTV(LINE, CONFIG, !"Bad allocator config.");
                       } break;
                     }
-                    LOOP2_ASSERT(LINE, CONFIG,
-                                 sizeof(Obj) == fa.numBytesInUse());
+                    ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
 
                     Obj& mX = *objPtr;  const Obj& X = mX;
 
@@ -3106,8 +3931,8 @@ int main(int argc, char *argv[])
 
                     static bool firstFlag = true;
                     if (firstFlag) {
-                        LOOP4_ASSERT(LINE, CONFIG, Obj(), *objPtr,
-                                     Obj() == *objPtr)
+                        ASSERTV(LINE, CONFIG, Obj(), *objPtr,
+                                Obj() == *objPtr)
                         firstFlag = false;
                     }
 
@@ -3115,40 +3940,40 @@ int main(int argc, char *argv[])
                     // Verify the object's attribute values.
                     // -------------------------------------
 
-                    LOOP4_ASSERT(LINE, CONFIG, DTTZ, X.datetimeTz(),
-                                 DTTZ == X.datetimeTz());
+                    ASSERTV(LINE, CONFIG, DTTZ, X.datetimeTz(),
+                            DTTZ == X.datetimeTz());
 
-                    LOOP4_ASSERT(LINE, CONFIG, TZID, X.timeZoneId(),
-                                 TZID == X.timeZoneId());
+                    ASSERTV(LINE, CONFIG, TZID, X.timeZoneId(),
+                            TZID == X.timeZoneId());
 
                     // -------------------------------------------------------
                     // Verify any attribute allocators are installed properly.
                     // -------------------------------------------------------
 
-                    LOOP2_ASSERT(LINE, CONFIG,
-                                 &oa == X.timeZoneId().allocator());
+                    ASSERTV(LINE, CONFIG,
+                            &oa == X.timeZoneId().get_allocator());
 
-                    // Also invoke the object's 'allocator' accessor.
+                    // Also invoke the object's 'get_allocator' accessor.
 
-                    LOOP4_ASSERT(LINE, CONFIG, &oa, X.allocator(),
-                                 &oa == X.allocator());
+                    ASSERTV(LINE, CONFIG, &oa, ALLOC_OF(X),
+                            &oa == X.get_allocator());
 
                     // Verify no allocation from the non-object allocator.
 
-                    LOOP3_ASSERT(LINE, CONFIG, noa.numBlocksTotal(),
-                                 0 == noa.numBlocksTotal());
+                    ASSERTV(LINE, CONFIG, noa.numBlocksTotal(),
+                            0 == noa.numBlocksTotal());
 
                     // Verify no temporary memory is allocated from the object
                     // allocator.
 
-                    LOOP4_ASSERT(LINE, CONFIG, oa.numBlocksTotal(),
-                                                           oa.numBlocksInUse(),
-                                 oa.numBlocksTotal() == oa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG,
+                            oa.numBlocksTotal(), oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
 
                     // Verify expected ('Y'/'N') object-memory allocations.
 
                     if ('?' != MEM) {
-                        LOOP4_ASSERT(LINE, CONFIG, MEM, oa.numBlocksInUse(),
+                        ASSERTV(LINE, CONFIG, MEM, oa.numBlocksInUse(),
                                    ('N' == MEM) == (0 == oa.numBlocksInUse()));
                     }
 
@@ -3162,12 +3987,12 @@ int main(int argc, char *argv[])
 
                     // Verify all memory is released on object destruction.
 
-                    LOOP3_ASSERT(LINE, CONFIG, da.numBlocksInUse(),
-                                 0 == da.numBlocksInUse());
-                    LOOP3_ASSERT(LINE, CONFIG, fa.numBlocksInUse(),
-                                 0 == fa.numBlocksInUse());
-                    LOOP3_ASSERT(LINE, CONFIG, sa.numBlocksInUse(),
-                                 0 == sa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
+                            0 == da.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                            0 == fa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, sa.numBlocksInUse(),
+                            0 == sa.numBlocksInUse());
 
                 }  // end foreach configuration
 
@@ -3189,10 +4014,10 @@ int main(int argc, char *argv[])
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int              LINE =  DATA[ti].d_line;
-                const char             MEM  =  DATA[ti].d_mem;
-                const bdlt::DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz;
-                const char *const      TZID =  DATA[ti].d_timeZoneId;
+                const int               LINE =  DATA[ti].d_line;
+                const char              MEM  =  DATA[ti].d_mem;
+                const bdlt::DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz_p;
+                const char *const       TZID =  DATA[ti].d_timeZoneId_p;
 
                 if (veryVerbose) { T_ P_(MEM) P_(DTTZ) P(TZID) }
 
@@ -3205,16 +4030,14 @@ int main(int argc, char *argv[])
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                     Obj obj(DTTZ, TZID, &sa);
-                    LOOP3_ASSERT(LINE, DTTZ, obj.datetimeTz(),
-                                 DTTZ == obj.datetimeTz());
-                    LOOP3_ASSERT(LINE, TZID, obj.timeZoneId(),
-                                 TZID == obj.timeZoneId());
+                    ASSERTV(LINE, DTTZ, obj.datetimeTz(),
+                            DTTZ == obj.datetimeTz());
+                    ASSERTV(LINE, TZID, obj.timeZoneId(),
+                            TZID == obj.timeZoneId());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                LOOP2_ASSERT(LINE, da.numBlocksInUse(),
-                             0 == da.numBlocksInUse());
-                LOOP2_ASSERT(LINE, sa.numBlocksInUse(),
-                             0 == sa.numBlocksInUse());
+                ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+                ASSERTV(LINE, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
             }
         }
 
@@ -3239,8 +4062,8 @@ int main(int argc, char *argv[])
         //: 3 If an allocator IS supplied to the default constructor, that
         //:   allocator becomes the object allocator for the resulting object.
         //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
+        //: 4 Supplying a default-constructed allocator has the same effect as
+        //:   not supplying an allocator.
         //:
         //: 5 Supplying an allocator to the default constructor has no effect
         //:   on subsequent object values.
@@ -3276,9 +4099,10 @@ int main(int argc, char *argv[])
         //:
         //: 2 Using a loop-based approach, default-construct three distinct
         //:   objects, in turn, but configured differently: (a) without passing
-        //:   an allocator, (b) passing a null allocator address explicitly,
-        //:   and (c) passing the address of a test allocator distinct from the
-        //:   default.  For each of these three iterations:  (C-1..14)
+        //:   an allocator, (b) passing a default-constructed allocator
+        //:   explicitly, and (c) passing the address of a test allocator
+        //:   distinct from the default.  For each of these three iterations:
+        //:   (C-1..14)
         //:
         //:   1 Create three 'bslma::TestAllocator' objects, and install one as
         //:     as the current default allocator (note that a ubiquitous test
@@ -3288,10 +4112,10 @@ int main(int argc, char *argv[])
         //:     'X', with its object allocator configured appropriately (see
         //:     P-2); use a distinct test allocator for the object's footprint.
         //:
-        //:   3 Use the 'allocator' accessor of each underlying attribute
+        //:   3 Use the 'get_allocator' accessor of each underlying attribute
         //:     capable of allocating memory to ensure that its object
         //:     allocator is properly installed; also invoke the (as yet
-        //:     unproven) 'allocator' accessor of the object under test.
+        //:     unproven) 'get_allocator' accessor of the object under test.
         //:     (C-2..4)
         //:
         //:   4 Use the appropriate test allocators to verify that no memory
@@ -3332,10 +4156,12 @@ int main(int argc, char *argv[])
         //:   (C-15)
         //
         // Testing:
-        //   baltzo::LocalDatetime(bslma::Allocator *bA = 0);
-        //   baltzo::LocalDatetime(DatetimeTz& d, const char *t, *bA = 0);
+        //   LocalDatetime();
+        //   LocalDatetime(const allocator_type& a);
+        //   ~LocalDatetime();
         //   setDatetimeTz(const bdlt::DatetimeTz& value);
         //   setTimeZoneId(const char *value);
+        //   setTimeZoneId(const StringRef& value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3347,18 +4173,18 @@ int main(int argc, char *argv[])
         // 'D' values: These are the default-constructed values.
 
         const bdlt::DatetimeTz D1   = bdlt::DatetimeTz();  // default value
-        const char            D2[] = "";                 // default value
+        const char             D2[] = "";                  // default value
 
         // 'A' values: Should cause memory allocation if possible.
 
         const bdlt::DatetimeTz A1(bdlt::Datetime(2011, 5, 3, 15), -4 * 60);
-        const char            A2[] = "a_" SUFFICIENTLY_LONG_STRING;
+        const char             A2[] = "a_" SUFFICIENTLY_LONG_STRING;
 
         // 'B' values: Should NOT cause allocation (use alternate string type).
 
         const bdlt::Datetime   maxDatetime(9999, 12, 31, 23, 59, 59, 999);
         const bdlt::DatetimeTz B1   = bdlt::DatetimeTz(maxDatetime, 1440 - 1);
-        const char            B2[] = "xyz";
+        const char             B2[] = "xyz";
 
         if (verbose) cout << "\nTesting with various allocator configurations."
                           << endl;
@@ -3390,7 +4216,7 @@ int main(int argc, char *argv[])
                 objAllocatorPtr = &sa;
               } break;
               default: {
-                LOOP_ASSERT(CONFIG, !"Bad allocator config.");
+                ASSERTV(CONFIG, !"Bad allocator config.");
               } break;
             }
 
@@ -3402,27 +4228,23 @@ int main(int argc, char *argv[])
             // Verify any attribute allocators are installed properly.
             // -------------------------------------------------------
 
-            LOOP_ASSERT(CONFIG, &oa == X.timeZoneId().allocator());
+            ASSERTV(CONFIG, &oa == X.timeZoneId().get_allocator());
 
-            // Also invoke the object's 'allocator' accessor.
+            // Also invoke the object's 'get_allocator' accessor.
 
-            LOOP3_ASSERT(CONFIG, &oa, X.allocator(), &oa == X.allocator());
+            ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.get_allocator());
 
             // Verify no allocation from the object/non-object allocators.
 
-            LOOP2_ASSERT(CONFIG,  oa.numBlocksTotal(),
-                         0 ==  oa.numBlocksTotal());
-            LOOP2_ASSERT(CONFIG, noa.numBlocksTotal(),
-                         0 == noa.numBlocksTotal());
+            ASSERTV(CONFIG,  oa.numBlocksTotal(), 0 ==  oa.numBlocksTotal());
+            ASSERTV(CONFIG, noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
 
             // -------------------------------------
             // Verify the object's attribute values.
             // -------------------------------------
 
-            LOOP3_ASSERT(CONFIG, D1, X.datetimeTz(),
-                         D1 == X.datetimeTz());
-            LOOP3_ASSERT(CONFIG, D2, X.timeZoneId(),
-                         D2 == X.timeZoneId());
+            ASSERTV(CONFIG, D1, X.datetimeTz(), D1 == X.datetimeTz());
+            ASSERTV(CONFIG, D2, X.timeZoneId(), D2 == X.timeZoneId());
 
             // -----------------------------------------------------
             // Verify that each attribute is independently settable.
@@ -3433,18 +4255,18 @@ int main(int argc, char *argv[])
                 bslma::TestAllocatorMonitor tam(&oa);
 
                 mX.setDatetimeTz(A1);
-                LOOP_ASSERT(CONFIG, A1 == X.datetimeTz());
-                LOOP_ASSERT(CONFIG, D2 == X.timeZoneId());
+                ASSERTV(CONFIG, A1 == X.datetimeTz());
+                ASSERTV(CONFIG, D2 == X.timeZoneId());
 
                 mX.setDatetimeTz(B1);
-                LOOP_ASSERT(CONFIG, B1 == X.datetimeTz());
-                LOOP_ASSERT(CONFIG, D2 == X.timeZoneId());
+                ASSERTV(CONFIG, B1 == X.datetimeTz());
+                ASSERTV(CONFIG, D2 == X.timeZoneId());
 
                 mX.setDatetimeTz(D1);
-                LOOP_ASSERT(CONFIG, D1 == X.datetimeTz());
-                LOOP_ASSERT(CONFIG, D2 == X.timeZoneId());
+                ASSERTV(CONFIG, D1 == X.datetimeTz());
+                ASSERTV(CONFIG, D2 == X.timeZoneId());
 
-                LOOP_ASSERT(CONFIG, tam.isTotalSame());
+                ASSERTV(CONFIG, tam.isTotalSame());
             }
 
             // 'timeZoneId'
@@ -3454,22 +4276,22 @@ int main(int argc, char *argv[])
 
                     bslma::TestAllocatorMonitor tam(&oa);
                     mX.setTimeZoneId(A2);
-                    LOOP_ASSERT(CONFIG, tam.isInUseUp());
+                    ASSERTV(CONFIG, tam.isInUseUp());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                LOOP_ASSERT(CONFIG, D1 == X.datetimeTz());
-                LOOP_ASSERT(CONFIG, A2 == X.timeZoneId());
+                ASSERTV(CONFIG, D1 == X.datetimeTz());
+                ASSERTV(CONFIG, A2 == X.timeZoneId());
 
                 bslma::TestAllocatorMonitor tam(&oa);
 
                 mX.setTimeZoneId(B2);
-                LOOP_ASSERT(CONFIG, D1 == X.datetimeTz());
-                LOOP_ASSERT(CONFIG, B2 == X.timeZoneId());
+                ASSERTV(CONFIG, D1 == X.datetimeTz());
+                ASSERTV(CONFIG, B2 == X.timeZoneId());
 
                 mX.setTimeZoneId(D2);
-                LOOP_ASSERT(CONFIG, D1 == X.datetimeTz());
-                LOOP_ASSERT(CONFIG, D2 == X.timeZoneId());
+                ASSERTV(CONFIG, D1 == X.datetimeTz());
+                ASSERTV(CONFIG, D2 == X.timeZoneId());
 
-                LOOP_ASSERT(CONFIG, tam.isTotalSame());
+                ASSERTV(CONFIG, tam.isTotalSame());
             }
 
             // Corroborate attribute independence.
@@ -3479,24 +4301,24 @@ int main(int argc, char *argv[])
                 mX.setDatetimeTz(A1);
                 mX.setTimeZoneId(A2);
 
-                LOOP_ASSERT(CONFIG, A1 == X.datetimeTz());
-                LOOP_ASSERT(CONFIG, A2 == X.timeZoneId());
+                ASSERTV(CONFIG, A1 == X.datetimeTz());
+                ASSERTV(CONFIG, A2 == X.timeZoneId());
 
                 // Set all attributes to their 'B' values.
 
                 mX.setDatetimeTz(B1);
-                LOOP_ASSERT(CONFIG, B1 == X.datetimeTz());
-                LOOP_ASSERT(CONFIG, A2 == X.timeZoneId());
+                ASSERTV(CONFIG, B1 == X.datetimeTz());
+                ASSERTV(CONFIG, A2 == X.timeZoneId());
 
                 mX.setTimeZoneId(B2);
-                LOOP_ASSERT(CONFIG, B1 == X.datetimeTz());
-                LOOP_ASSERT(CONFIG, B2 == X.timeZoneId());
+                ASSERTV(CONFIG, B1 == X.datetimeTz());
+                ASSERTV(CONFIG, B2 == X.timeZoneId());
             }
 
             // Verify no temporary memory is allocated from the object
             // allocator.
 
-            LOOP2_ASSERT(CONFIG, oa.numBlocksMax(), 1 == oa.numBlocksMax());
+            ASSERTV(CONFIG, oa.numBlocksMax(), 1 == oa.numBlocksMax());
 
             // Reclaim dynamically allocated object under test.
 
@@ -3504,13 +4326,13 @@ int main(int argc, char *argv[])
 
             // Verify all memory is released on object destruction.
 
-            LOOP_ASSERT(fa.numBlocksInUse(),  0 ==  fa.numBlocksInUse());
-            LOOP_ASSERT(oa.numBlocksInUse(),  0 ==  oa.numBlocksInUse());
-            LOOP_ASSERT(noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
+            ASSERTV(fa.numBlocksInUse(),  0 ==  fa.numBlocksInUse());
+            ASSERTV(oa.numBlocksInUse(),  0 ==  oa.numBlocksInUse());
+            ASSERTV(noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
 
             // Double check that some object memory was allocated.
 
-            LOOP_ASSERT(CONFIG, 1 <= oa.numBlocksTotal());
+            ASSERTV(CONFIG, 1 <= oa.numBlocksTotal());
 
             // Note that memory should be independently allocated for each
             // attribute capable of allocating memory.
@@ -3752,8 +4574,8 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the global allocator.
 
-    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
-                0 == globalAllocator.numBlocksTotal());
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

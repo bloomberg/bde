@@ -99,19 +99,19 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bdld_datum.h>
 
+#include <bslma_stdallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_types.h>
 
 namespace BloombergLP {
-
-namespace bslma { class Allocator; }
-
 namespace bdld {
 
-                         // ========================
-                         // class DatumIntMapBuilder
-                         // ========================
+                          // ========================
+                          // class DatumIntMapBuilder
+                          // ========================
 
 class DatumIntMapBuilder {
     // This 'class' provides a mechanism to build a 'Datum' object having an
@@ -124,16 +124,17 @@ class DatumIntMapBuilder {
         // 'SizeType' is an alias for a unsigned integral value, representing
         // the capacity or size of a datum int-map.
 
+    typedef bsl::allocator<char> allocator_type;
+
   private:
     // DATA
-    DatumMutableIntMapRef  d_mapping;      // mutable access to the datum
-                                           // int-map
+    DatumMutableIntMapRef d_mapping;   // mutable access to the datum int-map
 
-    SizeType               d_capacity;     // capacity of the datum int-map
+    SizeType              d_capacity;  // capacity of the datum int-map
 
-    bool                   d_sorted;       // underlying int-map is sorted
+    bool                  d_sorted;    // underlying int-map is sorted
 
-    bslma::Allocator      *d_allocator_p;  // allocator for memory
+    allocator_type        d_allocator; // allocator for memory
 
   private:
     // NOT IMPLEMENTED
@@ -143,23 +144,24 @@ class DatumIntMapBuilder {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(DatumIntMapBuilder,
-                                                    bslma::UsesBslmaAllocator);
-        // 'DatumIntMapBuilder' objects use 'bslma::Allocator'.
+                                   bslma::UsesBslmaAllocator);
+        // 'DatumIntMapBuilder' is allocator-aware.
 
     // CREATORS
-    explicit DatumIntMapBuilder(bslma::Allocator *basicAllocator  = 0);
-    explicit DatumIntMapBuilder(SizeType          initialCapacity,
-                                bslma::Allocator *basicAllocator  = 0);
+    DatumIntMapBuilder();
+    explicit DatumIntMapBuilder(const allocator_type& allocator);
+    explicit DatumIntMapBuilder(
+                           SizeType              initialCapacity,
+                           const allocator_type& allocator = allocator_type());
         // Create a 'DatumIntMapBuilder' object that will administer the
         // process of building a 'Datum' int-map.  Optionally specify an
         // 'initialCapacity' for the int-map.  If 'initialCapacity' is not
         // supplied, the initial capacity of the int-map is 0.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
+        // object) to supply memory; otherwise, the default allocator is used.
 
     ~DatumIntMapBuilder();
-        // Destroy this object. If this object is holding a datum int-map that
+        // Destroy this object.  If this object is holding a datum int-map that
         // has not been adopted, then the datum int-map is disposed after
         // destroying each of its elements.
 
@@ -167,8 +169,8 @@ class DatumIntMapBuilder {
     void append(const DatumIntMapEntry *entries, SizeType size);
         // Append the specified array 'entries' having the specified 'size' to
         // the 'Datum' int-map being build by this object.  The behavior is
-        // undefined unless and '0 != entries && 0 != size'  and each element
-        // in 'entries' that needs dynamic memory, is allocated with the same
+        // undefined unless '0 != entries && 0 != size' and each element in
+        // 'entries' that needs dynamic memory is allocated with the same
         // allocator that was used to construct this object.  The behavior is
         // undefined if 'commit' or 'sortAndCommit' has already been called on
         // this object.
@@ -221,6 +223,11 @@ class DatumIntMapBuilder {
         // constructed, but does indicate at which point additional memory will
         // be required to grow the 'Datum' int-map being built.
 
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
+
     SizeType size() const;
         // Return the size of the held 'Datum' int-map.  The behavior is
         // undefined if 'commit' or 'sortAndCommit' has already been called on
@@ -231,15 +238,21 @@ class DatumIntMapBuilder {
 //                               INLINE DEFINITIONS
 // ============================================================================
 
-                      // ------------------------
-                      // class DatumIntMapBuilder
-                      // ------------------------
+                          // ------------------------
+                          // class DatumIntMapBuilder
+                          // ------------------------
 
 // ACCESSORS
 inline
 DatumIntMapBuilder::SizeType DatumIntMapBuilder::capacity() const
 {
     return d_capacity;
+}
+
+inline
+DatumIntMapBuilder::allocator_type DatumIntMapBuilder::get_allocator() const
+{
+    return d_allocator;
 }
 
 inline

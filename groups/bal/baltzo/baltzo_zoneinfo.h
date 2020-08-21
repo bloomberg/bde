@@ -243,13 +243,15 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 
 #include <bslma_allocator.h>
-#include <bslma_default.h>
+#include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
@@ -416,16 +418,12 @@ class Zoneinfo {
                           // optional POSIX-like TZ environment string
                           // representing far-reaching times
 
-    bslma::Allocator   *d_allocator_p;
-                          // allocator used to supply memory (held, not
-                          // owned)
-
     // FRIENDS
     friend bool operator==(const Zoneinfo&, const Zoneinfo&);
 
   public:
-    // CLASS METHODS
 #ifndef BDE_OPENSOURCE_PUBLICATION
+    // CLASS METHODS
     static bdlt::EpochUtil::TimeT64 convertToTimeT64(
                                                const bdlt::Datetime& datetime);
         // [!DEPRECATED!]: Do not use.  This method is provided in BDE 2.23 to
@@ -448,6 +446,8 @@ class Zoneinfo {
 #endif
 
     // TYPES
+    typedef bsl::allocator<char> allocator_type;
+
     typedef TransitionSequence::const_iterator TransitionConstIterator;
         // Alias for a bi-directional 'const' iterator over the sequence of
         // transitions maintained by a 'Zoneinfo' object.
@@ -456,27 +456,53 @@ class Zoneinfo {
     BSLMF_NESTED_TRAIT_DECLARATION(Zoneinfo, bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit Zoneinfo(bslma::Allocator *basicAllocator = 0);
+    Zoneinfo();
+    explicit Zoneinfo(const allocator_type& allocator);
         // Create a 'Zoneinfo' object having the values:
         //..
         //  numTransitions() == 0
         //  identifier()     == ""
         //..
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // Optionally specify an 'allocator' (e.g., the address of a
+        // 'bslma::Allocator' object) to supply memory; otherwise, the default
+        // allocator is used.
 
-    Zoneinfo(const Zoneinfo&   original,
-             bslma::Allocator *basicAllocator = 0);
+    Zoneinfo(const Zoneinfo&       original,
+             const allocator_type& allocator = allocator_type());
         // Create a 'Zoneinfo' object having the same value as the specified
-        // 'original' object.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // 'original' object.  Optionally specify an 'allocator' (e.g., the
+        // address of a 'bslma::Allocator' object) to supply memory; otherwise,
+        // the default allocator is used.
+
+    Zoneinfo(bslmf::MovableRef<Zoneinfo> original) BSLS_KEYWORD_NOEXCEPT;
+        // Create a 'Zoneinfo' object having the same value and the same
+        // allocator as the specified 'original' object.  The value of
+        // 'original' becomes unspecified but valid, and its allocator remains
+        // unchanged.
+
+    Zoneinfo(bslmf::MovableRef<Zoneinfo> original,
+             const allocator_type&       allocator);
+        // Create a 'Zoneinfo' object having the same value as the specified
+        // 'original' object, using the specified 'allocator' (e.g., the
+        // address of a 'bslma::Allocator' object) to supply memory.  The
+        // allocator of 'original' remains unchanged.  If 'original' and the
+        // newly created object have the same allocator then the value of
+        // 'original' becomes unspecified but valid, and no exceptions will be
+        // thrown; otherwise 'original' is unchanged and an exception may be
+        // thrown.
 
     // MANIPULATORS
     Zoneinfo& operator=(const Zoneinfo& rhs);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
+
+    Zoneinfo& operator=(bslmf::MovableRef<Zoneinfo> rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a non-'const' reference to this object.  The allocators of
+        // this object and 'rhs' both remain unchanged.  If 'rhs' and this
+        // object have the same allocator then the value of 'rhs' becomes
+        // unspecified but valid, and no exceptions will be thrown; otherwise
+        // 'rhs' is unchanged (and an exception may be thrown).
 
     void addTransition(bdlt::EpochUtil::TimeT64   utcTime,
                        const LocalTimeDescriptor& descriptor);
@@ -505,6 +531,8 @@ class Zoneinfo {
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
+        // !DEPRECATED!: Use 'get_allocator()' instead.
+        //
         // Return the allocator used by this object to supply memory.  Note
         // that if no allocator was supplied at construction the currently
         // installed default allocator is used.
@@ -521,6 +549,11 @@ class Zoneinfo {
         // Return a reference providing non-modifiable access to the first
         // transition contained in this object.  The behavior is undefined
         // unless 'numTransitions() > 0'.
+
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
 
     const bsl::string& identifier() const;
         // Return a reference providing non-modifiable access to the
@@ -667,12 +700,20 @@ namespace baltzo {
 
 // CREATORS
 inline
-Zoneinfo::Zoneinfo(bslma::Allocator *basicAllocator)
-: d_identifier(basicAllocator)
-, d_descriptors(basicAllocator)
-, d_transitions(basicAllocator)
-, d_posixExtendedRangeDescription(basicAllocator)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+Zoneinfo::Zoneinfo()
+: d_identifier()
+, d_descriptors()
+, d_transitions()
+, d_posixExtendedRangeDescription()
+{
+}
+
+inline
+Zoneinfo::Zoneinfo(const allocator_type& allocator)
+: d_identifier(allocator)
+, d_descriptors(allocator)
+, d_transitions(allocator)
+, d_posixExtendedRangeDescription(allocator)
 {
 }
 
@@ -680,7 +721,7 @@ Zoneinfo::Zoneinfo(bslma::Allocator *basicAllocator)
 inline
 Zoneinfo& Zoneinfo::operator=(const Zoneinfo& rhs)
 {
-    Zoneinfo(rhs, d_allocator_p).swap(*this);
+    Zoneinfo(rhs, get_allocator()).swap(*this);
     return *this;
 }
 
@@ -697,7 +738,7 @@ void Zoneinfo::setIdentifier(const char *value)
 {
     BSLS_ASSERT(value);
 
-    bsl::string(value, d_identifier.allocator()).swap(d_identifier);
+    bsl::string(value, get_allocator()).swap(d_identifier);
 }
 
 inline
@@ -719,7 +760,7 @@ void Zoneinfo::setPosixExtendedRangeDescription(const char *value)
 inline
 void Zoneinfo::swap(Zoneinfo& other)
 {
-    BSLS_ASSERT(allocator() == other.allocator());
+    BSLS_ASSERT(get_allocator() == other.get_allocator());
 
     bslalg::SwapUtil::swap(&d_identifier,  &other.d_identifier);
     bslalg::SwapUtil::swap(&d_descriptors, &other.d_descriptors);
@@ -732,7 +773,7 @@ void Zoneinfo::swap(Zoneinfo& other)
 inline
 bslma::Allocator *Zoneinfo::allocator() const
 {
-    return d_allocator_p;
+    return get_allocator().mechanism();
 }
 
 inline
@@ -741,6 +782,12 @@ const ZoneinfoTransition& Zoneinfo::firstTransition() const
     BSLS_ASSERT(numTransitions() > 0);
 
     return d_transitions.front();
+}
+
+inline
+Zoneinfo::allocator_type Zoneinfo::get_allocator() const
+{
+    return d_identifier.get_allocator();
 }
 
 inline
@@ -799,7 +846,7 @@ bool baltzo::operator!=(const Zoneinfo& lhs, const Zoneinfo& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

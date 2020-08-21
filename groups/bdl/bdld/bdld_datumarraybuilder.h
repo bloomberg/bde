@@ -162,8 +162,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bdld_datum.h>
 
-#include <bslma_allocator.h>
-#include <bslma_default.h>
+#include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_nestedtraitdeclaration.h>
@@ -171,9 +170,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_types.h>
 
 namespace BloombergLP {
-
-namespace bslma { class Allocator; }
-
 namespace bdld {
 
                           // =======================
@@ -190,11 +186,13 @@ class DatumArrayBuilder {
         // 'SizeType' is an alias for an unsigned integral value, representing
         // the capacity or length of a datum array.
 
+    typedef bsl::allocator<char> allocator_type;
+
   private:
     // DATA
-    DatumMutableArrayRef  d_array;        // mutable access to the datum array
-    SizeType              d_capacity;     // capacity of the datum array
-    bslma::Allocator     *d_allocator_p;  // allocator for memory
+    DatumMutableArrayRef d_array;      // mutable access to the datum array
+    SizeType             d_capacity;   // capacity of the datum array
+    allocator_type       d_allocator;  // allocator for memory
 
   private:
     // NOT IMPLEMENTED
@@ -205,18 +203,20 @@ class DatumArrayBuilder {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(DatumArrayBuilder,
                                    bslma::UsesBslmaAllocator);
+        // 'DatumArrayBuilder' is allocator-aware.
 
     // CREATORS
-    explicit DatumArrayBuilder(bslma::Allocator *basicAllocator  = 0);
-    explicit DatumArrayBuilder(SizeType          initialCapacity,
-                               bslma::Allocator *basicAllocator  = 0);
+    DatumArrayBuilder();
+    explicit DatumArrayBuilder(const allocator_type& allocator);
+    explicit DatumArrayBuilder(
+                           SizeType              initialCapacity,
+                           const allocator_type& allocator = allocator_type());
         // Create a 'DatumArrayBuilder' object that will administer the process
         // of building a 'Datum' array.  Optionally specify an
         // 'initialCapacity' for the array.  If 'initialCapacity' is not
         // supplied, the initial capacity of the array is 0.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
+        // object) to supply memory; otherwise, the default allocator is used.
 
     ~DatumArrayBuilder();
         // Destroy this object.  If this object is holding a 'Datum' array that
@@ -227,7 +227,7 @@ class DatumArrayBuilder {
     void append(const Datum *values, SizeType length);
         // Append the specified array 'values' having the specified 'length' to
         // the 'Datum' array being built by this object.  The behavior is
-        // undefined unless '0 != length' and '0 != values' and each element in
+        // undefined unless '0 != length && 0 != values' and each element in
         // 'values' that needs dynamic memory, is allocated with the same
         // allocator that was used to construct this object.  The behavior is
         // also undefined if 'commit' has already been called on this object.
@@ -257,10 +257,45 @@ class DatumArrayBuilder {
         // but does indicate at which point additional memory will be required
         // to grow the 'Datum' array being built.
 
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
+
     SizeType size() const;
         // Return the size of the held 'Datum' array.  The behavior is
         // undefined if 'commit' has already been called on this object.
 };
+
+// ============================================================================
+//                               INLINE DEFINITIONS
+// ============================================================================
+
+                           // -----------------------
+                           // class DatumArrayBuilder
+                           // -----------------------
+
+// ACCESSORS
+inline
+DatumArrayBuilder::SizeType DatumArrayBuilder::capacity() const
+{
+    return d_capacity;
+}
+
+inline
+DatumArrayBuilder::allocator_type DatumArrayBuilder::get_allocator() const
+{
+    return d_allocator;
+}
+
+inline
+DatumArrayBuilder::SizeType DatumArrayBuilder::size() const
+{
+    if (d_capacity) {
+        return *d_array.length();                                     // RETURN
+    }
+    return 0;
+}
 
 }  // close package namespace
 }  // close enterprise namespace
@@ -268,7 +303,7 @@ class DatumArrayBuilder {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

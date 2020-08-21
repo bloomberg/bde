@@ -2,10 +2,12 @@
 #include <bdld_datumarraybuilder.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdld_datumarraybuilder_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdld_datumarraybuilder_cpp, "$Id$ $CSID$")
 
 #include <bdld_datum.h>
+
 #include <bsls_assert.h>
+
 #include <bsl_cstring.h>
 #include <bsl_memory.h>
 
@@ -13,6 +15,8 @@ namespace BloombergLP {
 namespace bdld {
 
 namespace {
+
+typedef DatumArrayBuilder::allocator_type allocator_type;
 
 static DatumArrayBuilder::SizeType getNewCapacity(
                                           DatumArrayBuilder::SizeType capacity,
@@ -40,12 +44,12 @@ static DatumArrayBuilder::SizeType getNewCapacity(
 
 static void createArrayStorage(DatumMutableArrayRef        *array,
                                DatumArrayBuilder::SizeType  capacity,
-                               bslma::Allocator            *basicAllocator)
+                               const allocator_type&        allocator)
     // Load the specified 'array' with a reference to a newly created datum
     // array having the specified 'capacity', using the specified
-    // 'basicAllocator'.
+    // 'allocator'.
 {
-    Datum::createUninitializedArray(array, capacity, basicAllocator);
+    Datum::createUninitializedArray(array, capacity, allocator.mechanism());
     // Initialize the memory.
     bsl::uninitialized_fill_n(array->data(), capacity, Datum());
 }
@@ -57,21 +61,26 @@ static void createArrayStorage(DatumMutableArrayRef        *array,
                           // -----------------------
 
 // CREATORS
-DatumArrayBuilder::DatumArrayBuilder(bslma::Allocator *basicAllocator)
+DatumArrayBuilder::DatumArrayBuilder()
 : d_capacity(0)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
-DatumArrayBuilder::DatumArrayBuilder(SizeType          initialCapacity,
-                                     bslma::Allocator *basicAllocator)
+DatumArrayBuilder::DatumArrayBuilder(const allocator_type& allocator)
+: d_capacity(0)
+, d_allocator(allocator)
+{
+}
+
+DatumArrayBuilder::DatumArrayBuilder(SizeType              initialCapacity,
+                                     const allocator_type& allocator)
 : d_capacity(initialCapacity)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator(allocator)
 {
     // If 'initialCapacity' is 0, defer allocation of the array storage until
     // the first call to 'pushBack' or 'append'.
     if (initialCapacity) {
-        createArrayStorage(&d_array, d_capacity, d_allocator_p);
+        createArrayStorage(&d_array, d_capacity, d_allocator);
     }
 }
 
@@ -79,9 +88,9 @@ DatumArrayBuilder::~DatumArrayBuilder()
 {
     if (d_array.data()) {
         for (SizeType i = 0; i < *d_array.length(); ++i) {
-            Datum::destroy(d_array.data()[i], d_allocator_p);
+            Datum::destroy(d_array.data()[i], d_allocator.mechanism());
         }
-        Datum::disposeUninitializedArray(d_array, d_allocator_p);
+        Datum::disposeUninitializedArray(d_array, d_allocator.mechanism());
     }
 }
 
@@ -97,20 +106,20 @@ void DatumArrayBuilder::append(const Datum *values, SizeType length)
 
     // If the initial capacity was zero, create an array with the new capacity.
     if (!d_capacity) {
-        createArrayStorage(&d_array, newCapacity, d_allocator_p);
+        createArrayStorage(&d_array, newCapacity, d_allocator);
         d_capacity = newCapacity;
     }
     else if (d_capacity < newCapacity) {
         // Create a new array with the higher capacity.
         DatumMutableArrayRef array;
-        createArrayStorage(&array, newCapacity, d_allocator_p);
+        createArrayStorage(&array, newCapacity, d_allocator);
 
         // Copy the existing data and dispose the old array.
         *array.length() = *d_array.length();
         bsl::memcpy(array.data(),
                     d_array.data(),
                     sizeof(Datum) * (*d_array.length()));
-        Datum::disposeUninitializedArray(d_array, d_allocator_p);
+        Datum::disposeUninitializedArray(d_array, d_allocator.mechanism());
 
         d_array    = array;
         d_capacity = newCapacity;
@@ -136,25 +145,11 @@ void DatumArrayBuilder::pushBack(const Datum& value)
     append(&value, 1);
 }
 
-// ACCESSORS
-DatumArrayBuilder::SizeType DatumArrayBuilder::capacity() const
-{
-    return d_capacity;
-}
-
-DatumArrayBuilder::SizeType DatumArrayBuilder::size() const
-{
-    if (d_capacity) {
-        return *d_array.length();                                     // RETURN
-    }
-    return 0;
-}
-
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

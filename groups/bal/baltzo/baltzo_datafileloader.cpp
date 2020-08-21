@@ -112,8 +112,13 @@ bool DataFileLoader::isPlausibleZoneinfoRootPath(const char *path)
 }
 
 // CREATORS
-DataFileLoader::DataFileLoader(bslma::Allocator *basicAllocator)
-: d_rootPath(INVALID_PATH, basicAllocator)
+DataFileLoader::DataFileLoader()
+: d_rootPath(INVALID_PATH)
+{
+}
+
+DataFileLoader::DataFileLoader(const allocator_type& allocator)
+: d_rootPath(INVALID_PATH, allocator)
 {
 }
 
@@ -210,7 +215,7 @@ const bsl::string& DataFileLoader::rootPath() const
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

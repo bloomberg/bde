@@ -4,8 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdld_manageddatum_cpp,"$Id$ $CSID$")
 
-#include <bsl_ostream.h>
 #include <bslmf_assert.h>
+#include <bslmf_istriviallycopyable.h>
 
 namespace BloombergLP {
 namespace bdld {
@@ -16,12 +16,13 @@ namespace bdld {
 
 BSLMF_ASSERT(bslma::UsesBslmaAllocator<ManagedDatum>::value);
 BSLMF_ASSERT(bslmf::IsBitwiseMoveable<ManagedDatum>::value);
+BSLMF_ASSERT(!bsl::is_trivially_copyable<ManagedDatum>::value);
 
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

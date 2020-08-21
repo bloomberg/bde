@@ -14,6 +14,7 @@
 #include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_usesallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -23,6 +24,7 @@
 #include <bsl_cstring.h>
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
+#include <bsl_ostream.h> // for 'operator<<'
 
 using namespace BloombergLP;
 using namespace std;
@@ -40,7 +42,8 @@ using namespace std;
 // [ 3] bool isPlausibleZoneinfoRootPath(const char *path);
 //
 // CREATORS
-// [ 2] baltzo::DataFileLoader(bslma::Allocator *basicAllocator = 0);
+// [ 2] baltzo::DataFileLoader();
+// [ 2] baltzo::DataFileLoader(const allocator_type& a);
 // [ 2] ~baltzo::DataFileLoader();
 //
 // MANIPULATORS
@@ -52,6 +55,8 @@ using namespace std;
 // [ 5] int loadTimeZoneFilePath(bsl::string *r, const char  *id) const;
 // [ 4] const bsl::string& rootPath() const;
 // [ 4] bool isRootPathPlausible() const;
+//
+// [ 2] allocator_type get_allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // ============================================================================
@@ -119,9 +124,28 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
 
 // ============================================================================
+//                      CONVENIENCE MACROS
+// ----------------------------------------------------------------------------
+
+#define ALLOC_OF(EXPR) (EXPR).get_allocator().mechanism()
+
+// ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
+
 typedef baltzo::DataFileLoader Obj;
+typedef Obj::allocator_type    AllocType; // Test 'allocator_type' exists
+
+// ============================================================================
+//                                TYPE TRAITS
+// ----------------------------------------------------------------------------
+
+BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+BSLMF_ASSERT((bsl::uses_allocator<Obj, bsl::allocator<char> >::value));
+
+// ============================================================================
+//                   GLOBAL TEST DATA
+// ----------------------------------------------------------------------------
 
 static const char *INVALID_PATH = "! INVALID_FILE_PATH !";
 
@@ -729,10 +753,10 @@ int main(int argc, char *argv[])
             ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID ==
                                               mX.loadTimeZone(&timeZone, "/"));
 
-            if (verbose) cout << "\n\tTest non-existant identifier" << endl;
+            if (verbose) cout << "\n\tTest non-existent identifier" << endl;
 
             ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID ==
-                        mX.loadTimeZone(&timeZone, "Non/Existant/Identifier"));
+                        mX.loadTimeZone(&timeZone, "Non/Existent/Identifier"));
 
             ASSERT(0 == mX.loadTimeZone(&timeZone, AMERICA_NEW_YORK_ID));
 
@@ -1028,7 +1052,7 @@ int main(int argc, char *argv[])
         //----  ----             ------------
 
         { L_,   "",                     false},
-        { L_,   "Nonexistant",          false},
+        { L_,   "Nonexistent",          false},
         { L_,   ".",                    false},
         { L_,   TEST_DIRECTORY,          true},
 
@@ -1086,12 +1110,12 @@ int main(int argc, char *argv[])
         {
             Obj mX;
 
-            if (veryVerbose) cout << "\tNon-existant directory" << endl;
+            if (veryVerbose) cout << "\tNon-existent directory" << endl;
             {
                 ASSERT(false ==
-                     Obj::isPlausibleZoneinfoRootPath("NonExistantDirectory"));
+                     Obj::isPlausibleZoneinfoRootPath("NonExistentDirectory"));
                 ASSERT(0 !=
-                      mX.configureRootPathIfPlausible("NonExistantDirectory"));
+                      mX.configureRootPathIfPlausible("NonExistentDirectory"));
             }
 
             if (veryVerbose) cout << "\tMissing GMT file" << endl;
@@ -1124,24 +1148,29 @@ int main(int argc, char *argv[])
         //: 3 If an allocator is supplied to the default constructor, that
         //:   allocator becomes the object allocator for the resulting object.
         //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
+        //: 4 Supplying a default-constructed allocator address has the same
+        //:   effect as not supplying an allocator.
         //:
         //: 5 Supplying an allocator to the default constructor has no effect
         //:   on subsequent object values.
         //:
         //: 6 Any memory allocation is from the object allocator, which is
-        //:   returned by the 'allocator' accessor method.
+        //:   returned by the 'get_allocator' accessor method.
         //:
         //: 7 Every object releases any allocated memory at destruction.
         //:
         //: 8 'configureRootPath' is able to set the root path to any string
         //:   value.
-        //:
         //
         // Plan:
-        //: 1 Default construct 3 object with different allocator
-        //:   configuration.
+        //: 1 Default construct four objects, in turn, with different allocator
+        //:   configurations:
+        //:   1 without passing an allocator,
+        //:   2 passing a default-constructed allocator explicitly,
+        //:   3 passing the address of a test allocator distinct from the
+        //:     default, and
+        //:   4 passing in an allocator constructed from the address of a test
+        //:     allocator distinct from the default.
         //:
         //: 2 Use the primary manipulators with boundary values and verify the
         //:   object's value.
@@ -1149,9 +1178,11 @@ int main(int argc, char *argv[])
         //: 3 Verify the correct memory allocator is used.
         //
         // Testing:
-        //   baltzo::DataFileLoader(bslma::Allocator *basicAllocator = 0);
-        //   void configureRootPath(const char *path);
+        //   baltzo::DataFileLoader();
+        //   baltzo::DataFileLoader(const allocator_type& a);
         //   ~baltzo::DataFileLoader();
+        //   void configureRootPath(const char *path);
+        //   allocator_type get_allocator() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1167,7 +1198,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with various allocator configurations."
                           << endl;
 
-        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+        for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
             bsls::AssertTestHandlerGuard hG;
 
             const char CONFIG = cfg;  // (how we specify the allocator)
@@ -1178,8 +1209,8 @@ int main(int argc, char *argv[])
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr          = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
 
             switch (CONFIG) {
               case 'a': {
@@ -1187,11 +1218,15 @@ int main(int argc, char *argv[])
                 objAllocatorPtr = &da;
               } break;
               case 'b': {
-                objPtr = new (fa) Obj(0);
+                objPtr = new (fa) Obj(Obj::allocator_type());
                 objAllocatorPtr = &da;
               } break;
               case 'c': {
                 objPtr = new (fa) Obj(&sa);
+                objAllocatorPtr = &sa;
+              } break;
+              case 'd': {
+                objPtr = new (fa) Obj(Obj::allocator_type(&sa));
                 objAllocatorPtr = &sa;
               } break;
               default: {
@@ -1200,8 +1235,8 @@ int main(int argc, char *argv[])
             }
 
             Obj& mX = *objPtr; const Obj& X = mX;
-            bslma::TestAllocator& oa = *objAllocatorPtr;
-            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+            bslma::TestAllocator&  oa = *objAllocatorPtr;
+            bslma::TestAllocator& noa = &da == &oa ? sa : da;
 
             // -------------------------------------
             // Verify the object's attribute values.
@@ -1209,6 +1244,8 @@ int main(int argc, char *argv[])
 
             ASSERT_FAIL(X.rootPath());
             ASSERT_FAIL(X.isRootPathPlausible());
+
+            LOOP3_ASSERT(CONFIG, &oa, ALLOC_OF(X), &oa == X.get_allocator());
 
             // Verify that no memory is allocate by from the non-object
             // allocator.

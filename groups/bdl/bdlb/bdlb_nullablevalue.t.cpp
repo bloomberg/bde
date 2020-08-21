@@ -15,6 +15,7 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_destructorguard.h>
@@ -24,6 +25,7 @@
 
 #include <bslmf_assert.h>
 #include <bslmf_matchanytype.h>
+#include <bslmf_usesallocator.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_nameof.h>
@@ -66,21 +68,21 @@ using bsls::NameOf;
 //
 // CREATORS
 // [ 3] NullableValue();
-// [ 3] NullableValue(bslma::Allocator *basicAllocator);
+// [ 3] NullableValue(const allocator_type& allocator);
 // [ 6] NullableValue(const NullableValue& original);
-// [ 6] NullableValue(const NullableValue& original, *ba);
+// [ 6] NullableValue(const NullableValue& original, allocator);
 // [20] NullableValue(NullableValue&& original);
-// [20] NullableValue(NullableValue&& original, *ba);
+// [20] NullableValue(NullableValue&& original, allocator);
 // [ 9] NullableValue(const TYPE& value);
-// [ 9] NullableValue(const TYPE& value, *ba);
+// [ 9] NullableValue(const TYPE& value, allocator);
 // [22] NullableValue(TYPE&& value);
-// [22] NullableValue(TYPE&& value, *ba);
+// [22] NullableValue(TYPE&& value, allocator);
 // [11] NullableValue(const OTHER_TYPE& value);
-// [11] NullableValue(const OTHER_TYPE& value, *ba);
+// [11] NullableValue(const OTHER_TYPE& value, allocator);
 // [11] NullableValue(const NullableValue<OTHER_TYPE>&o);
-// [11] NullableValue(const NullableValue<OTHER_TYPE>&o, *ba);
+// [11] NullableValue(const NullableValue<OTHER_TYPE>&o, allocator);
 // [26] NullableValue(const NullOptType&);
-// [26] NullableValue(const NullOptType&, *ba);
+// [26] NullableValue(const NullOptType&, allocator);
 // [ 3] ~NullableValue();
 //
 // MANIPULATORS
@@ -3517,7 +3519,7 @@ void TestDriver<TEST_TYPE>::testCase22_withAllocator()
     //
     // Testing:
     //   NullableValue(TYPE&& value);
-    //   NullableValue(TYPE&& value, *ba);
+    //   NullableValue(TYPE&& value, allocator);
     // ------------------------------------------------------------------------
 
     static const char *SPECS[] = {
@@ -4330,7 +4332,7 @@ void TestDriver<TEST_TYPE>::testCase20_withAllocator()
     //
     // Testing:
     //   NullableValue(NullableValue&& original);
-    //   NullableValue(NullableValue&& original, *ba);
+    //   NullableValue(NullableValue&& original, allocator);
     // ------------------------------------------------------------------------
 
     static const char *SPECS[] = {
@@ -4605,6 +4607,9 @@ void TestDriver<TEST_TYPE>::testCase18_withoutAllocator()
     typedef bdlb::NullableValue<TmvipSa<TEST_TYPE> > Obj;
     typedef bsltf::TemplateTestFacility              Util;
 
+    ASSERT(!bslma::UsesBslmaAllocator<Obj>::value);
+    ASSERT(!(bsl::uses_allocator<Obj, bsl::allocator<char> >::value));
+
     const TEST_TYPE v1 = Util::create<TEST_TYPE>(1);
     const TEST_TYPE v2 = Util::create<TEST_TYPE>(2);
     const TEST_TYPE v3 = Util::create<TEST_TYPE>(3);
@@ -4710,6 +4715,9 @@ void TestDriver<TEST_TYPE>::testCase18_withAllocator()
     typedef TmvipAa<TEST_TYPE>                       Helper;
     typedef bdlb::NullableValue<TmvipAa<TEST_TYPE> > Obj;
     typedef bsltf::TemplateTestFacility              Util;
+
+    ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+    ASSERT((bsl::uses_allocator<Obj, bsl::allocator<char> >::value));
 
     const TEST_TYPE v1 = Util::create<TEST_TYPE>(1);
     const TEST_TYPE v2 = Util::create<TEST_TYPE>(2);
@@ -5544,7 +5552,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   NullableValue(const NullOptType&);
-        //   NullableValue(const NullOptType&, *ba);
+        //   NullableValue(const NullOptType&, allocator);
         //   NullableValue& operator=(const NullOptType& rhs);
         // --------------------------------------------------------------------
 
@@ -7561,9 +7569,9 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   NullableValue(const OTHER_TYPE& value);
-        //   NullableValue(const OTHER_TYPE& value, *ba);
+        //   NullableValue(const OTHER_TYPE& value, allocator);
         //   NullableValue(const NullableValue<OTHER_TYPE>&o);
-        //   NullableValue(const NullableValue<OTHER_TYPE>&o, *ba);
+        //   NullableValue(const NullableValue<OTHER_TYPE>&o, allocator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING CONVERSION CONSTRUCTORS"
@@ -8026,7 +8034,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   NullableValue(const TYPE& value);
-        //   NullableValue(const TYPE& value, *ba);
+        //   NullableValue(const TYPE& value, allocator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING VALUE CONSTRUCTORS"
@@ -8081,11 +8089,13 @@ int main(int argc, char *argv[])
             {
                 const Obj A(VALUE1, &oa);
                 ASSERT(VALUE1 == A.value());
+                ASSERT(&oa == A.get_allocator());
                 ASSERT(dam.isTotalSame());         // no temporaries
                 ASSERT(0 == oa.numBlocksTotal());
 
                 const Obj B(VALUE2, &oa);
                 ASSERT(VALUE2 == B.value());
+                ASSERT(&oa == B.get_allocator());
                 ASSERT(dam.isTotalSame());         // no temporaries
                 ASSERT(0 != oa.numBlocksInUse());
             }
@@ -8444,7 +8454,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   NullableValue(const NullableValue& original);
-        //   NullableValue(const NullableValue& original, *ba);
+        //   NullableValue(const NullableValue& original, allocator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING COPY CONSTRUCTOR"
@@ -8857,7 +8867,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   typedef TYPE ValueType;
         //   NullableValue();
-        //   NullableValue(bslma::Allocator *basicAllocator);
+        //   NullableValue(const allocator_type& allocator);
         //   ~NullableValue();
         //   TYPE& makeValue();
         //   TYPE& makeValue(const TYPE& value);

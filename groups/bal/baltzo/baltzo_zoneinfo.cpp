@@ -11,8 +11,6 @@ BSLS_IDENT_RCSID(baltzo_zoneinfo_cpp,"$Id$ $CSID$")
 #include <bdlt_time.h>
 #include <bdlt_timeunitratio.h>
 
-#include <bslma_default.h>
-
 #include <bsls_assert.h>
 #include <bsls_review.h>
 
@@ -144,8 +142,8 @@ bool Zoneinfo::DescriptorLess::operator()(const LocalTimeDescriptor& lhs,
                                // class Zoneinfo
                                // --------------
 
-// CLASS METHODS
 #ifndef BDE_OPENSOURCE_PUBLICATION
+// CLASS METHODS
 bdlt::EpochUtil::TimeT64 Zoneinfo::convertToTimeT64(
                                                 const bdlt::Datetime& datetime)
 {
@@ -160,14 +158,15 @@ int Zoneinfo::convertFromTimeT64(bdlt::Datetime           *result,
 #endif
 
 // CREATORS
-Zoneinfo::Zoneinfo(const Zoneinfo& original, bslma::Allocator *basicAllocator)
-: d_identifier(original.d_identifier, basicAllocator)
-, d_descriptors(original.d_descriptors, basicAllocator)
-, d_transitions(basicAllocator)
+Zoneinfo::Zoneinfo(const Zoneinfo& original, const allocator_type &allocator)
+: d_identifier(original.d_identifier, allocator)
+, d_descriptors(original.d_descriptors, allocator)
+, d_transitions(allocator)
 , d_posixExtendedRangeDescription(original.d_posixExtendedRangeDescription,
-                                  basicAllocator)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+                                  allocator)
 {
+    d_transitions.reserve(original.d_transitions.size());
+
     TransitionConstIterator it  = original.d_transitions.begin();
     TransitionConstIterator end = original.d_transitions.end();
     for (; it != end; ++it) {
@@ -175,12 +174,68 @@ Zoneinfo::Zoneinfo(const Zoneinfo& original, bslma::Allocator *basicAllocator)
     }
 }
 
+Zoneinfo::Zoneinfo(bslmf::MovableRef<Zoneinfo> original) BSLS_KEYWORD_NOEXCEPT
+: d_identifier(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_identifier))
+, d_descriptors(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_descriptors))
+, d_transitions(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_transitions))
+, d_posixExtendedRangeDescription(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_posixExtendedRangeDescription))
+{
+}
+
+Zoneinfo::Zoneinfo(bslmf::MovableRef<Zoneinfo> original,
+                   const allocator_type&       allocator)
+: d_identifier(bslmf::MovableRefUtil::move(
+                   bslmf::MovableRefUtil::access(original).d_identifier),
+               allocator)
+, d_descriptors(allocator)
+, d_transitions(allocator)
+, d_posixExtendedRangeDescription(
+      bslmf::MovableRefUtil::move(bslmf::MovableRefUtil::access(original)
+                                      .d_posixExtendedRangeDescription),
+      allocator)
+{
+    const Zoneinfo& origRef = bslmf::MovableRefUtil::access(original);
+
+    d_transitions.reserve(origRef.d_transitions.size());
+
+    TransitionConstIterator it  = origRef.d_transitions.begin();
+    TransitionConstIterator end = origRef.d_transitions.end();
+    for (; it != end; ++it) {
+        addTransition(it->utcTime(), it->descriptor());
+    }
+}
+
 // MANIPULATORS
+Zoneinfo& Zoneinfo::operator=(bslmf::MovableRef<Zoneinfo> rhs)
+{
+    Zoneinfo &rhsRef = bslmf::MovableRefUtil::access(rhs);
+
+    if (get_allocator() != rhsRef.get_allocator()) {
+        // It's non-trivial to handle the possible exception cases when the
+        // allocators don't match, so we'll defer to the op=(const&).
+
+        *this = rhsRef;
+        return *this;                                                 // RETURN
+    }
+
+    d_identifier  = bslmf::MovableRefUtil::move(rhsRef.d_identifier);
+    d_descriptors = bslmf::MovableRefUtil::move(rhsRef.d_descriptors);
+    d_transitions = bslmf::MovableRefUtil::move(rhsRef.d_transitions);
+
+    d_posixExtendedRangeDescription =
+           bslmf::MovableRefUtil::move(rhsRef.d_posixExtendedRangeDescription);
+
+    return *this;
+}
+
 void Zoneinfo::addTransition(bdlt::EpochUtil::TimeT64   utcTime,
                              const LocalTimeDescriptor& descriptor)
 {
-    typedef bsl::vector<ZoneinfoTransition>::iterator
-                                                            TransitionIterator;
+    typedef bsl::vector<ZoneinfoTransition>::iterator TransitionIterator;
 
     // Insert the description in the set and get back an iterator pointing to
     // the inserted item.
@@ -215,7 +270,6 @@ void Zoneinfo::addTransition(bdlt::EpochUtil::TimeT64   utcTime,
         }
     }
     else {
-
         d_transitions.insert(it, newTransition);
     }
 
@@ -324,14 +378,14 @@ bsl::ostream& baltzo::operator<<(bsl::ostream& stream, const Zoneinfo& object)
 // FREE FUNCTIONS
 void baltzo::swap(Zoneinfo& a, Zoneinfo& b)
 {
-    if (a.allocator() == b.allocator()) {
+    if (a.get_allocator() == b.get_allocator()) {
         a.swap(b);
 
         return;                                                       // RETURN
     }
 
-    Zoneinfo futureA(b, a.allocator());
-    Zoneinfo futureB(a, b.allocator());
+    Zoneinfo futureA(b, a.get_allocator());
+    Zoneinfo futureB(a, b.get_allocator());
 
     futureA.swap(a);
     futureB.swap(b);
@@ -340,7 +394,7 @@ void baltzo::swap(Zoneinfo& a, Zoneinfo& b)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

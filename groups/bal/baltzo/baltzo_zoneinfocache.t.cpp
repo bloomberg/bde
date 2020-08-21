@@ -5,17 +5,20 @@
 #include <baltzo_localtimedescriptor.h>
 #include <baltzo_zoneinfo.h>
 
-#include <bslmt_threadutil.h>
-#include <bslmt_barrier.h>
-
 #include <bdlt_datetime.h>
 #include <bdlt_epochutil.h>
+
+#include <bslim_testutil.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+#include <bslma_testallocatormonitor.h>
+
+#include <bslmt_threadutil.h>
+#include <bslmt_barrier.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -66,39 +69,81 @@ using namespace std;
 //: o ACCESSOR methods are 'const' thread-safe.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] explicit baltzo::ZoneinfoCache(baltzo::Loader   *loader,
-// [ 2] ~baltzo::ZoneinfoCache();
+// [ 3] baltzo::ZoneinfoCache(baltzo::Loader *, const allocator_type&);
+// [ 3] ~baltzo::ZoneinfoCache();
 //
 // MANIPULATORS
-// [ 5] const baltzo::Zoneinfo *getZoneinfo(const char *timeZoneId);
-// [ 4] const baltzo::Zoneinfo *getZoneinfo(int *rc, const char *timeZoneId);
+// [ 6] const baltzo::Zoneinfo *getZoneinfo(const char *timeZoneId);
+// [ 5] const baltzo::Zoneinfo *getZoneinfo(int *rc, const char *timeZoneId);
 //
 // ACCESSORS
 // [ 6] const baltzo::Zoneinfo *lookupZoneinfo(const char *timeZoneId) const;
+// [ 4] allocator_type get_allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 8] USAGE EXAMPLE
-// [ 7] CONCERN: All methods are thread-safe
-// [ 6] CONCERN: ACCESSOR methods are declared 'const'.
-// [ 5] CONCERN: CREATOR & MANIPULATOR parameters are declared 'const'.
-// [ 6] CONCERN: No memory is ever allocated from the global allocator.
-// [ 5] CONCERN: Injected exceptions are safely propagated.
-// [ 6] CONCERN: Precondition violations are detected.
-//=============================================================================
+// [ 9] USAGE EXAMPLE
+// [ 8] CONCERN: All methods are thread-safe
+// [ 7] CONCERN: ACCESSOR methods are declared 'const'.
+// [ 6] CONCERN: CREATOR & MANIPULATOR parameters are declared 'const'.
+// [ 7] CONCERN: No memory is ever allocated from the global allocator.
+// [ 6] CONCERN: Injected exceptions are safely propagated.
+// [ 7] CONCERN: Precondition violations are detected.
+//
+// TEST APPARATUS:
+// [ 2] explicit TestDriverTestLoader(bslma::Allocator *);
+// [ 2] virtual ~TestDriverTestLoader();
+// [ 2] void addTimeZone(const char *, int , bool, const char *);
+// [ 2] void addInvalidTimeZone(const char *);
+// [ 2] virtual int loadTimeZone(baltzo::Zoneinfo *, const bsl::string&);
+// [ 2] const bsl::string& lastRequestedTimeZone() const;
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
+
+namespace {
+
 static bsls::AtomicInt testStatus(0);
-static void aSsErT(int c, const char *s, int i)
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
 #define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
@@ -107,32 +152,12 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-// ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
-                aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"  \
-                          << #J << ": " << J << "\n"; \
-                aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bsl::cout << #I << ": " << I << "\t" \
-                         << #J << ": " << J << "\t" \
-                         << #K << ": " << K << "\n";\
-               aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define T_()  cout << "\t" << flush;          // Print a tab (w/o newline)
-#define L_ __LINE__                           // current Line number
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -142,7 +167,7 @@ typedef baltzo::Zoneinfo            Zone;
 typedef baltzo::LocalTimeDescriptor Desc;
 typedef bsl::shared_ptr<Desc>      DescPtr;
 
-const int U = baltzo::ErrorCode::k_UNSUPPORTED_ID;
+const int UNSUPPORTED_ERR = baltzo::ErrorCode::k_UNSUPPORTED_ID;
 
 // ============================================================================
 //                        GLOBAL CLASSES FOR TESTING
@@ -440,8 +465,8 @@ struct ThreadData {
 
 extern "C" void *workerThread(void *arg)
 {
-    ThreadData *p = (ThreadData*)arg;
-    bslmt::Barrier& barrier = *p->d_barrier_p;
+    ThreadData      *p = (ThreadData*)arg;
+    bslmt::Barrier&  barrier = *p->d_barrier_p;
 
     Obj &mX = *p->d_cache_p; const Obj &X = mX;
 
@@ -594,23 +619,21 @@ int TestLoader::loadTimeZone(baltzo::Zoneinfo *timeZone,
 
 int main(int argc, char *argv[])
 {
-    int             test = argc > 1 ? atoi(argv[1]) : 0;
-    bool         verbose = argc > 2;
-    bool     veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator defaultAllocator;  // To be used to make sure the
                                             // allocator is always passed down
                                             // where necessary.
-
-    bslma::TestAllocator testAllocator;
-    bslma::TestAllocator *Z = &testAllocator;  // To be used to allocate
-                                               // everything in this code.
 
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
@@ -618,8 +641,14 @@ int main(int argc, char *argv[])
         defaultAllocator.setVerbose(true);
     }
 
+    // CONCERN: In no case does memory come from the global allocator.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocatorMonitor gam(&globalAllocator);
+
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -753,7 +782,7 @@ int main(int argc, char *argv[])
 //..
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING CONCURRENT ACCESS
         //
@@ -813,12 +842,12 @@ int main(int argc, char *argv[])
         };
 
         bslmt::Barrier barrier(NUM_THREADS);
-        Obj mX(&testLoader, &testAllocator); const Obj& X = mX;
+        Obj mX(&testLoader, &testAllocator);
         ThreadData args = { &mX, &barrier };
         executeInParallel(NUM_THREADS, workerThread, &args);
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING: 'lookupZoneinfo'
         //
@@ -873,8 +902,10 @@ int main(int argc, char *argv[])
         };
         const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
-        TestDriverTestLoader testLoader(Z);
-        bsl::map<bsl::string, const Zone *> addressMap(Z);
+        bslma::TestAllocator                ta("test", veryVeryVeryVerbose);
+        TestDriverTestLoader                testLoader(&ta);
+        bsl::map<bsl::string, const Zone *> addressMap(&ta);
+
         for (int i = 0; i < NUM_VALUES; ++i) {
             testLoader.addTimeZone(VALUES[i].d_id,
                                    VALUES[i].d_utcOffset,
@@ -883,7 +914,7 @@ int main(int argc, char *argv[])
             addressMap[VALUES[i].d_id] = 0;
         }
 
-        Obj mX(&testLoader, Z); const Obj& X = mX;
+        Obj mX(&testLoader, &ta); const Obj& X = mX;
         for (int i = 0; i < NUM_VALUES; ++i) {
             const int   LINE    = VALUES[i].d_line;
             const char *ID      = VALUES[i].d_id;
@@ -904,14 +935,14 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard hG;
             if (veryVerbose) cout << "\tTest assertions." << endl;
 
-            TestDriverTestLoader testLoader(Z);
-            Obj mX(&testLoader, Z); const Obj& X = mX;
+            TestDriverTestLoader testLoader(&ta);
+            Obj mX(&testLoader, &ta); const Obj& X = mX;
 
             ASSERT_FAIL(X.lookupZoneinfo((const char *)0));
             ASSERT_PASS(X.lookupZoneinfo("abc"));
         }
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING: 'getZoneinfo(const char *)'
         //
@@ -964,7 +995,11 @@ int main(int argc, char *argv[])
         };
         const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
-        TestDriverTestLoader testLoader(Z);
+        bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+        bslma::TestAllocator la("loader", veryVeryVeryVerbose);
+
+        TestDriverTestLoader testLoader(&la);
+
         for (int i = 0; i < NUM_VALUES; ++i) {
             testLoader.addTimeZone(VALUES[i].d_id,
                                    VALUES[i].d_utcOffset,
@@ -975,14 +1010,18 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tTest basic behavior" << endl;
 
-            Obj mX(&testLoader, Z); const Obj& X = mX;
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+            Obj mX(&testLoader, &ta); const Obj& X = mX;
+
+            ASSERTV(&ta, X.get_allocator().mechanism(),
+                    &ta == X.get_allocator().mechanism());
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta) {
                 for (int i = 0; i < NUM_VALUES; ++i) {
                     const int   LINE    = VALUES[i].d_line;
                     const char *ID      = VALUES[i].d_id;
                     const bool  SUCCESS = VALUES[i].d_abbrev != 0;
 
-                    Zone expected(Z); const Zone& EXPECTED = expected;
+                    Zone expected(&ta); const Zone& EXPECTED = expected;
                     testLoader.loadTimeZone(&expected, ID);
 
                     const Zone *result = mX.getZoneinfo(ID);
@@ -996,7 +1035,7 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, 0 == result);
                     }
                     LOOP_ASSERT(LINE, 0 == defaultAllocator.numBytesInUse());
-                    LOOP_ASSERT(LINE, 0 <  testAllocator.numBytesInUse());
+                    LOOP_ASSERT(LINE, 0 <  ta.numBytesInUse());
                 }
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
@@ -1005,14 +1044,14 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard hG;
             if (veryVerbose) cout << "\tTest assertions." << endl;
 
-            TestDriverTestLoader testLoader(Z);
-            Obj mX(&testLoader, Z); const Obj& X = mX;
+            TestDriverTestLoader testLoader(&ta);
+            Obj mX(&testLoader, &ta);
 
             ASSERT_FAIL(mX.getZoneinfo((const char *)0));
             ASSERT_PASS(mX.getZoneinfo("abc"));
         }
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING: 'getZoneinfo(int *, const char *)'
         //
@@ -1104,18 +1143,20 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\tTest returning 'UNSPECIFIED_ID'" << endl;
 
-        bslma::TestAllocator loaderAllocator;
-        TestDriverTestLoader testLoader(&loaderAllocator);
+        bslma::TestAllocator ta("test",   veryVeryVeryVerbose);
+        bslma::TestAllocator la("loader", veryVeryVeryVerbose);
+        TestDriverTestLoader testLoader(&la);
+
         for (int i = 0; i < NUM_VALUES; ++i) {
             const int   LINE    = VALUES[i].d_line;
             const char *ID      = VALUES[i].d_id;
             const bool  SUCCESS = VALUES[i].d_abbrev != 0;
 
-            Obj mX(&testLoader, Z); const Obj& X = mX;
+            Obj mX(&testLoader, &ta);
 
             int rc = INT_MIN;
-            LOOP_ASSERT(LINE, 0 == mX.getZoneinfo(&rc, ID));
-            LOOP_ASSERT(LINE, U == rc);
+            LOOP_ASSERT(LINE, 0               == mX.getZoneinfo(&rc, ID));
+            LOOP_ASSERT(LINE, UNSUPPORTED_ERR == rc                     );
 
             testLoader.addTimeZone(VALUES[i].d_id,
                                    VALUES[i].d_utcOffset,
@@ -1131,7 +1172,11 @@ int main(int argc, char *argv[])
                 cout << "\tTest time zones that are not well defined "
                      << "produce an error." << endl;
 
-            Obj mX(&testLoader, Z); const Obj& X = mX;
+            Obj mX(&testLoader, &ta); const Obj& X = mX;
+
+            ASSERTV(&ta, X.get_allocator().mechanism(),
+                    &ta == X.get_allocator().mechanism());
+
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE    = VALUES[i].d_line;
@@ -1145,13 +1190,13 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, 0 == rc);
                 }
                 else {
-                    LOOP_ASSERT(LINE, 0 == result);
-                    LOOP_ASSERT(LINE, 0 != rc);
-                    LOOP_ASSERT(LINE, U != rc);
-                    LOOP_ASSERT(LINE, INT_MIN != rc);
+                    LOOP_ASSERT(LINE, 0               == result);
+                    LOOP_ASSERT(LINE, 0               != rc    );
+                    LOOP_ASSERT(LINE, UNSUPPORTED_ERR != rc    );
+                    LOOP_ASSERT(LINE, INT_MIN         != rc    );
                 }
                 LOOP_ASSERT(LINE, 0 == defaultAllocator.numBytesInUse());
-                LOOP_ASSERT(LINE, 0 <  testAllocator.numBytesInUse());
+                LOOP_ASSERT(LINE, 0 <  ta.numBytesInUse());
             }
         }
         {
@@ -1181,7 +1226,11 @@ int main(int argc, char *argv[])
                                        0, true, "A");
             }
 
-            Obj mX(&testLoader, Z); const Obj& X = mX;
+            Obj mX(&testLoader, &ta); const Obj& X = mX;
+
+            ASSERTV(&ta, X.get_allocator().mechanism(),
+                    &ta == X.get_allocator().mechanism());
+
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE     = VALUES[i].d_line;
                 const char *CACHE_ID = VALUES[i].d_cacheId;
@@ -1194,16 +1243,18 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, 0 == rc);
                 }
                 else {
-                    LOOP_ASSERT(LINE, 0 == result);
-                    LOOP_ASSERT(LINE, 0 != rc);
-                    LOOP_ASSERT(LINE, U != rc);
-                    LOOP_ASSERT(LINE, INT_MIN != rc);
+                    LOOP_ASSERT(LINE, 0               == result);
+                    LOOP_ASSERT(LINE, 0               != rc    );
+                    LOOP_ASSERT(LINE, UNSUPPORTED_ERR != rc    );
+                    LOOP_ASSERT(LINE, INT_MIN         != rc    );
                 }
                 LOOP_ASSERT(LINE, 0 == defaultAllocator.numBytesInUse());
-                LOOP_ASSERT(LINE, 0 <  testAllocator.numBytesInUse());
+                LOOP_ASSERT(LINE, 0 <  ta.numBytesInUse());
             }
         }
-        ASSERT(0 == testAllocator.numBytesInUse());
+
+        ASSERT(0 == ta.numBytesInUse());
+
         {
             if (veryVerbose)
                 cout << "\tTest 'getZoneinfo' propagates error codes from "
@@ -1226,7 +1277,7 @@ int main(int argc, char *argv[])
 
             enum { ERROR_CODE = 61 };
             ErrorLoader errorLoader(ERROR_CODE);
-            Obj mX(&errorLoader, Z); const Obj& X = mX;
+            Obj mX(&errorLoader, &ta);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE    = VALUES[i].d_line;
@@ -1235,23 +1286,26 @@ int main(int argc, char *argv[])
                 int         rc     = INT_MIN;
 
                 const Zone *result = mX.getZoneinfo(&rc, ID);
-                LOOP_ASSERT(LINE, 0 == result);
-                LOOP_ASSERT(LINE, 0 != rc);
-                LOOP_ASSERT(LINE, U != rc);
-                LOOP_ASSERT(LINE, ERROR_CODE == rc);
+                LOOP_ASSERT(LINE, 0               == result);
+                LOOP_ASSERT(LINE, 0               != rc    );
+                LOOP_ASSERT(LINE, UNSUPPORTED_ERR != rc    );
+                LOOP_ASSERT(LINE, ERROR_CODE      == rc    );
             }
         }
 
-        const bsls::Types::Int64 EXP_NUM_BYTES = testAllocator.numBytesInUse();
+        const bsls::Types::Int64 EXP_NUM_BYTES = ta.numBytesInUse();
         {
             if (veryVerbose) cout << "\tTesting allocation." << endl;
 
-            Obj mX(&testLoader, Z); const Obj& X = mX;
+            Obj mX(&testLoader, &ta); const Obj& X = mX;
+
+            ASSERTV(&ta, X.get_allocator().mechanism(),
+                    &ta == X.get_allocator().mechanism());
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
-            ASSERT(0 == testAllocator.numBytesInUse());
+            ASSERT(0 == ta.numBytesInUse());
 
-            bsls::Types::Int64 lastNumBytes = testAllocator.numBytesInUse();
+            bsls::Types::Int64 lastNumBytes = ta.numBytesInUse();
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE    = VALUES[i].d_line;
                 const char *ID      = VALUES[i].d_id;
@@ -1267,20 +1321,19 @@ int main(int argc, char *argv[])
                 (void)result;
 
                 LOOP_ASSERT(LINE, 0 == defaultAllocator.numBytesInUse());
-                LOOP_ASSERT(LINE,
-                            lastNumBytes < testAllocator.numBytesInUse());
-                lastNumBytes = testAllocator.numBytesInUse();
+                LOOP_ASSERT(LINE, lastNumBytes < ta.numBytesInUse());
+                lastNumBytes = ta.numBytesInUse();
             }
         }
         ASSERT(0 == defaultAllocator.numBytesInUse());
-        ASSERT(EXP_NUM_BYTES == testAllocator.numBytesInUse());
+        ASSERT(EXP_NUM_BYTES == ta.numBytesInUse());
 
         {
             if (veryVerbose) cout << "\tTesting exception neutrality." << endl;
 
-            bslma::TestAllocator testAllocator;
-            Obj mX(&testLoader, Z); const Obj& X = mX;
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+            bslma::TestAllocator ta;
+            Obj mX(&testLoader, &ta);
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta) {
                 for (int i = 0; i < NUM_VALUES; ++i) {
                     const int   LINE    = VALUES[i].d_line;
                     const char *ID      = VALUES[i].d_id;
@@ -1294,10 +1347,10 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, 0 == rc);
                     }
                     else {
-                        LOOP_ASSERT(LINE, 0 == result);
-                        LOOP_ASSERT(LINE, 0 != rc);
-                        LOOP_ASSERT(LINE, U != rc);
-                        LOOP_ASSERT(LINE, INT_MIN != rc);
+                        LOOP_ASSERT(LINE, 0               == result);
+                        LOOP_ASSERT(LINE, 0               != rc    );
+                        LOOP_ASSERT(LINE, UNSUPPORTED_ERR != rc    );
+                        LOOP_ASSERT(LINE, INT_MIN         != rc    );
                     }
                 }
                 ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1307,8 +1360,8 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard hG;
             if (veryVerbose) cout << "\tTest assertions." << endl;
 
-            TestDriverTestLoader testLoader(Z);
-            Obj mX(&testLoader, Z); const Obj& X = mX;
+            TestDriverTestLoader testLoader(&ta);
+            Obj mX(&testLoader, &ta);
 
             int rc;
             ASSERT_FAIL(mX.getZoneinfo(&rc, (const char *)0));
@@ -1316,63 +1369,125 @@ int main(int argc, char *argv[])
             ASSERT_PASS(mX.getZoneinfo(&rc, "abc"));
         }
       } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // BASIC ACCESSORS
+        //
+        // Concerns:
+        //: 1 The 'get_allocator' method returns the allocator specified at
+        //:   construction, and that is the default allocator at the time of
+        //:   object's construction if none was specified at construction.
+        //
+        // Plan:
+        //: 1 Create an object without passing an allocator reference, setup
+        //:   temporary default allocator and verify that 'get_allocator'
+        //:   returns a copy of the default allocator at the time of object's
+        //:   construction.
+        //:
+        //: 2 Create an object specifying the allocator and verify that
+        //:  'get_allocator' returns a copy of the supplied allocator.
+        //
+        // Testing:
+        //   allocator_type get_allocator() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "BASIC ACCESSORS" << endl
+                                  << "===============" << endl;
+
+            bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            TestDriverTestLoader testLoader(&sa);
+
+            Obj        mXD(&testLoader);
+            const Obj& XD = mXD;
+
+            {
+                bslma::TestAllocator         tda("temporary",
+                                                 veryVeryVeryVerbose);
+                bslma::DefaultAllocatorGuard tdag(&tda);
+
+                ASSERTV(&da, XD.get_allocator().mechanism(),
+                        &da == XD.get_allocator().mechanism());
+            }
+
+            Obj        mXS(&testLoader, &sa);
+            const Obj& XS = mXS;
+
+            ASSERTV(&sa, XS.get_allocator().mechanism(),
+                    &sa == XS.get_allocator().mechanism());
+      } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING PRIMARY MANIPULATOR (BOOTSTRAP)
+        // PRIMARY MANIPULATORS
         //
         // Concerns:
         //: 1 A constructed 'baltzo::ZoneinfoCache' object is initialized
         //:   without any time zones in the cache.
         //:
-        //: 2 A first call to 'getZoneinfo' for a time zone identifier, returns
+        //: 2 'baltzo::ZoneinfoCache' object uses allocator specified at the
+        //:   construction to supply memory.
+        //:
+        //: 3 'baltzo::ZoneinfoCache' object uses the default allocator if no
+        //:   allocator was provided at construction.
+        //:
+        //: 4 A first call to 'getZoneinfo' for a time zone identifier, returns
         //:   a newly loaded description using the 'baltzo::Loader' protocol
         //:   supplied at construction.
         //:
-        //: 3 Subsequent calls to 'getZoneinfo' for a successfully loaded time
+        //: 5 Subsequent calls to 'getZoneinfo' for a successfully loaded time
         //:   zone, return that previously cached value.
+        //:
+        //: 6 Allocated memory is released on the object's destruction.
         //
         // Plan:
-        //: 1 Create a default 'baltzo::ZoneinfoCache' object with a
-        //:   test-loader, and verify it makes no attempts to load data.
+        //: 1 Create descriptions for a varied set of time zone values, some of
+        //:   which are not well-defined.  Note that each time zone, for the
+        //:   purpose of this test, is uniquely determined by an identifier and
+        //:   a single transition.
         //:
-        //: 2 Using a table-driven approach
-        //:   1 Create descriptions for a varied set of time zone
-        //:     values, some of which are not well-defined.  Note that each
-        //:     time zone, for the purpose of this test, is uniquely
-        //:     determined by an identifier and a single transition.
+        //: 2 Execute a loop that creates an object but invokes the default
+        //:   constructor differently in each iteration: (a) without passing an
+        //:   allocator, (b) passing a default-constructed allocator explicitly
+        //:   (c) passing the address of a test allocator distinct from the
+        //:   default, and (d) passing in an allocator constructed from the
+        //:   address of a test allocator distinct from the default.
         //:
-        //:   2 Initialize a TestDriverTestLoader with the valid time zones
+        //: 2 For each iteration from P-2:
         //:
-        //:   3 Initialize a 'baltzo::Zoneinfo' object to test.
+        //:   1 Initialize a TestDriverTestLoader with the valid time zones.
         //:
-        //:   4 For each row in the test table:
+        //:   2 Initialize a 'baltzo::Zoneinfo' object to test.
+        //:
+        //:   3 Using the 'get_allocator()' method verify that the expected
+        //:     allocator is assigned to the object.
+        //:
+        //:   4 For each row in the test table from P-1:
+        //:
         //:     1 Call 'getZoneinfo' and verify it returns the either an
         //:       error, if the time zone is not well-formed, or the correct
         //:       Zoneinfo value.
         //:
-        //:     2 That a subsequent call to 'getZoneinfo' returns the same
-        //:       address.
+        //:     2 Verify that memory is allocated by the object's allocator if
+        //:       the time zone is well-formed and no memory is allocated if
+        //:       the time zone is not well-formed.
+        //:
+        //:     3 Verify that a subsequent call to 'getZoneinfo' returns the
+        //:       same address.
+        //:
+        //:   6 Destroy the object and verify that all memory is successfully
+        //:     released.
         //
         // Testing:
-        //   explicit baltzo::ZoneinfoCache(baltzo::Loader *, *ba = 0);
+        //   baltzo::ZoneinfoCache(baltzo::Loader *, const allocator_type&);
         //   ~baltzo::ZoneinfoCache();
         //   const baltzo::Zoneinfo *getZoneinfo(int *, const char *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BOOTSTRAP 'getZoneinfo'" << endl
+        if (verbose) cout << endl << "PRIMARY MANIPULATORS" << endl
                                   << "====================" << endl;
-
-        const char *NO_REQ = TestDriverTestLoader::NO_REQUESTS;
-        {
-            if (veryVerbose) cout << "\tTest default construction" << endl;
-
-            TestDriverTestLoader testLoader(Z);
-            Obj mX(&testLoader, Z); const Obj& X = mX;
-
-            ASSERT(0 == defaultAllocator.numBytesInUse());
-
-            ASSERT(NO_REQ == testLoader.lastRequestedTimeZone());
-        }
 
         struct TimeZoneData {
             int         d_line;       // line number
@@ -1381,7 +1496,6 @@ int main(int argc, char *argv[])
             bool        d_dstFlag;    // dst flag for descriptor
             const char *d_abbrev;     // abbreviation for descriptor, or 0 for
                                       // invalid time zones
-
         } VALUES[] = {
             { L_,  "ID_A",  1, true,  "A" },
             { L_,  "ID_B",  2, false, "B" },
@@ -1393,46 +1507,114 @@ int main(int argc, char *argv[])
         };
         const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
-        TestDriverTestLoader testLoader(Z);
-        for (int i = 0; i < NUM_VALUES; ++i) {
-            testLoader.addTimeZone(VALUES[i].d_id,
-                                   VALUES[i].d_utcOffset,
-                                   VALUES[i].d_dstFlag,
-                                   VALUES[i].d_abbrev);
-        }
+        const char *NO_REQ = TestDriverTestLoader::NO_REQUESTS;
 
-        {
-            if (veryVerbose) cout << "\tTest basic behavior" << endl;
+        for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            Obj mX(&testLoader, Z); const Obj& X = mX;
+            bslma::DefaultAllocatorGuard dag(&da);
 
-            ASSERT(NO_REQ == testLoader.lastRequestedTimeZone());
+            bslma::TestAllocator la("loader", veryVeryVeryVerbose);
+            TestDriverTestLoader testLoader(&la);
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                testLoader.addTimeZone(VALUES[i].d_id,
+                                       VALUES[i].d_utcOffset,
+                                       VALUES[i].d_dstFlag,
+                                       VALUES[i].d_abbrev);
+            }
+
+            const char CONFIG = cfg;  // how we specify the allocator
+
+            Obj                  *objPtr          = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
+
+            switch (CONFIG) {
+              case 'a': {
+                objAllocatorPtr = &da;
+                objPtr = new (fa) Obj(&testLoader);
+              } break;
+              case 'b': {
+                objAllocatorPtr = &da;
+                objPtr = new (fa) Obj(&testLoader, Obj::allocator_type());
+              } break;
+              case 'c': {
+                objAllocatorPtr = &sa;
+                objPtr = new (fa) Obj(&testLoader, objAllocatorPtr);
+              } break;
+              case 'd': {
+                objAllocatorPtr = &sa;
+                const Obj::allocator_type alloc(objAllocatorPtr);
+                objPtr = new (fa) Obj(&testLoader, alloc);
+              } break;
+              default: {
+                BSLS_ASSERT_OPT(!"Bad allocator config.");
+              } break;
+            }
+
+            Obj&                   mX = *objPtr;  const Obj& X = mX;
+            bslma::TestAllocator&  oa = *objAllocatorPtr;
+
+            bslma::TestAllocator& noa = (&da == &oa) ? sa : da;
+                // The other allocator, not used as the object allocator.
+
+            // Verify the object's 'get_allocator' accessor.
+
+            ASSERTV(CONFIG, &oa, X.get_allocator().mechanism(),
+                    &oa == X.get_allocator().mechanism());
+
+            // Verify no allocation from the object/non-object allocators.
+
+            ASSERTV(CONFIG,  oa.numBytesInUse(), 0 ==  oa.numBytesInUse());
+            ASSERTV(CONFIG, noa.numBytesInUse(), 0 == noa.numBytesInUse());
+
+            ASSERT(NO_REQ  == testLoader.lastRequestedTimeZone());
+
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE    = VALUES[i].d_line;
                 const char *ID      = VALUES[i].d_id;
                 const bool  SUCCESS = VALUES[i].d_abbrev != 0;
 
-                Zone expected(Z); const Zone& EXPECTED = expected;
+                bslma::TestAllocator za("zone",   veryVeryVeryVerbose);
+                Zone                 expected(&za);
+                const Zone&          EXPECTED = expected;
                 testLoader.loadTimeZone(&expected, ID);
+
+                const bsls::Types::Int64 NUM_BYTES_IN_USE = oa.numBytesInUse();
 
                 int         rc     = INT_MIN;
                 const Zone *result = mX.getZoneinfo(&rc, ID);
                 ASSERT(ID == testLoader.lastRequestedTimeZone());
+
                 if (SUCCESS) {
-                    LOOP_ASSERT(LINE, 0 != result);
-                    LOOP_ASSERT(LINE, 0 == rc);
-                    LOOP_ASSERT(LINE, EXPECTED == *result);
-                    LOOP_ASSERT(LINE, result   == mX.getZoneinfo(&rc, ID));
+                    ASSERTV(LINE, 0                != result                 );
+                    ASSERTV(LINE, 0                == rc                     );
+                    ASSERTV(LINE, EXPECTED         == *result                );
+                    ASSERTV(LINE, result           == mX.getZoneinfo(&rc, ID));
+                    ASSERTV(LINE, NUM_BYTES_IN_USE <  oa.numBytesInUse()     );
                 }
                 else {
-                    LOOP_ASSERT(LINE, 0 == result);
-                    LOOP_ASSERT(LINE, 0 != rc);
-                    LOOP_ASSERT(LINE, U != rc);
-                    LOOP_ASSERT(LINE, INT_MIN != rc);
+                    ASSERTV(LINE, 0                == result            );
+                    ASSERTV(LINE, 0                != rc                );
+                    ASSERTV(LINE, UNSUPPORTED_ERR  != rc                );
+                    ASSERTV(LINE, INT_MIN          != rc                );
+                    ASSERTV(LINE, NUM_BYTES_IN_USE == oa.numBytesInUse());
                 }
-                LOOP_ASSERT(LINE, 0 == defaultAllocator.numBytesInUse());
-                LOOP_ASSERT(LINE, 0 <  testAllocator.numBytesInUse());
             }
+            ASSERTV(CONFIG,  oa.numBytesInUse(), 0 !=  oa.numBytesInUse());
+            ASSERTV(CONFIG, noa.numBytesInUse(), 0 == noa.numBytesInUse());
+
+            // Reclaim dynamically allocated object under test.
+
+            fa.deleteObject(objPtr);
+
+            // Verify that memory was released correctly.
+
+            ASSERTV(CONFIG, da.numBytesInUse(), 0 == da.numBytesInUse());
+            ASSERTV(CONFIG, fa.numBytesInUse(), 0 == fa.numBytesInUse());
+            ASSERTV(CONFIG, sa.numBytesInUse(), 0 == sa.numBytesInUse());
         }
       } break;
       case 2: {
@@ -1488,19 +1670,22 @@ int main(int argc, char *argv[])
                                   << "======================" << endl;
 
         typedef TestDriverTestLoader TDTL;
+
+        bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+
         {
             if (veryVerbose) cout << "\tDefault constructor" << endl;
 
-            TDTL mX(Z); const TDTL& X = mX;
-            Zone zone(Z);
+            TDTL mX(&ta); const TDTL& X = mX;
+            Zone zone(&ta);
 
             ASSERT(TDTL::NO_REQUESTS == X.lastRequestedTimeZone());
-            ASSERT(                U == mX.loadTimeZone(&zone, "A"));
+            ASSERT(UNSUPPORTED_ERR   == mX.loadTimeZone(&zone, "A"));
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
         }
         ASSERT(0 == defaultAllocator.numBytesInUse());
-        ASSERT(0 == testAllocator.numBytesInUse());
+        ASSERT(0 == ta.numBytesInUse());
 
         struct TimeZoneData {
             int         d_line;       // line number
@@ -1522,7 +1707,7 @@ int main(int argc, char *argv[])
         const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
         if (veryVerbose) cout << "\tManipulators & accessors" << endl;
         {
-            TDTL mX(Z); const TDTL& X = mX;
+            TDTL mX(&ta); const TDTL& X = mX;
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE    = VALUES[i].d_line;
                 const char *ID      = VALUES[i].d_id;
@@ -1539,7 +1724,7 @@ int main(int argc, char *argv[])
                     const char *ABBREV  = VALUES[j].d_abbrev;
                     const int   OFFSET  = VALUES[j].d_utcOffset;
 
-                    Zone result(Z);
+                    Zone result(&ta);
                     int rc = mX.loadTimeZone(&result, ID);
                     LOOP_ASSERT(LINE, ID == X.lastRequestedTimeZone());
 
@@ -1547,8 +1732,7 @@ int main(int argc, char *argv[])
                         P(result);
                     }
                     if (j > i) {
-                        LOOP_ASSERT(LINE,
-                                    U == rc);
+                        LOOP_ASSERT(LINE, UNSUPPORTED_ERR == rc);
                     }
                     else if (INVALID) {
                         LOOP_ASSERT(LINE, 0 == rc);
@@ -1588,10 +1772,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        TestLoader testLoader;
+        TestLoader           testLoader;
+        bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
         bsls::Types::Int64 NB = defaultAllocator.numBytesInUse();
-        Obj mX(&testLoader, Z); const Obj& X = mX;
+        Obj mX(&testLoader, &ta); const Obj& X = mX;
         ASSERT(defaultAllocator.numBytesInUse() == NB);
 
         // Verify the cache returns 0 when the loader is not populated.
@@ -1609,8 +1794,12 @@ int main(int argc, char *argv[])
         const Zone *TZC = mX.getZoneinfo(&rcC, IDC);
         ASSERT(defaultAllocator.numBytesInUse() == NB);
 
-        ASSERT(0 == TZA);  ASSERT(0 == TZB);  ASSERT(0 == TZC);
-        ASSERT(U == RCA);  ASSERT(U == RCB);  ASSERT(U == RCC);
+        ASSERT(0               == TZA);
+        ASSERT(0               == TZB);
+        ASSERT(0               == TZC);
+        ASSERT(UNSUPPORTED_ERR == RCA);
+        ASSERT(UNSUPPORTED_ERR == RCB);
+        ASSERT(UNSUPPORTED_ERR == RCC);
 
         // Fill the loader with sample data.
         const char *ID_ARRAY[] = { IDA, IDB, IDC };
@@ -1619,12 +1808,12 @@ int main(int argc, char *argv[])
         bsls::Types::Int64 firstTimeT =
                                   bdlt::EpochUtil::convertToTimeT64(firstTime);
 
-        bsl::vector<Zone> timeZones(Z);
+        bsl::vector<Zone> timeZones(&ta);
         for (int i = 0; i < 3; ++i) {
-            Zone tz(Z);
+            Zone tz(&ta);
 
             tz.setIdentifier(ID_ARRAY[i]);
-            baltzo::LocalTimeDescriptor desc(i * 60 * 60, true,  "dummy", Z);
+            baltzo::LocalTimeDescriptor desc(i * 60 * 60, true,  "dummy", &ta);
             tz.addTransition(firstTimeT, desc);
             testLoader.setTimeZone(tz);
             timeZones.push_back(tz);
@@ -1650,7 +1839,7 @@ int main(int argc, char *argv[])
                 cout << "\tVerify only well-defined time zones are returned."
                      << endl;
             }
-            Zone tz(Z), result(Z);
+            Zone tz(&ta), result(&ta);
 
             tz.setIdentifier("testId");
             testLoader.setTimeZone(tz);
@@ -1662,7 +1851,7 @@ int main(int argc, char *argv[])
             ASSERT(0 != rc);
             ASSERT(0 == X.lookupZoneinfo("testId"));
 
-            baltzo::LocalTimeDescriptor desc(0, true,  "dummy", Z);
+            baltzo::LocalTimeDescriptor desc(0, true,  "dummy", &ta);
             tz.addTransition(firstTimeT, desc);
 
             testLoader.setTimeZone(tz);
@@ -1681,7 +1870,9 @@ int main(int argc, char *argv[])
       }
     }
 
-    ASSERT(0 == Z->numBytesInUse());
+    // CONCERN: In no case does memory come from the global allocator.
+
+    ASSERT(gam.isTotalSame());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
@@ -1690,7 +1881,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

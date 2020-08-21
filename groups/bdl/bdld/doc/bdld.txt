@@ -65,4 +65,4 @@
 :      Provide a type to represent a user-defined type.
 :
 : 'bdld_manageddatum':
-:      Provide a smart-pointer like manager for a 'Datum' object.
+:      Provide a smart-pointer-like manager for a 'Datum' object.

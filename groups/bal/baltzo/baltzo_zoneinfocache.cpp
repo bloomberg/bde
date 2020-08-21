@@ -2,10 +2,9 @@
 #include <baltzo_zoneinfocache.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(baltzo_zoneinfocache_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(baltzo_zoneinfocache_cpp, "$Id$ $CSID$")
 
 #include <baltzo_errorcode.h>         // for testing only
-#include <baltzo_zoneinfocache.h>
 #include <baltzo_zoneinfoutil.h>
 
 #include <bslmt_readlockguard.h>
@@ -18,7 +17,6 @@ BSLS_IDENT_RCSID(baltzo_zoneinfocache_cpp,"$Id$ $CSID$")
 
 #include <bsls_log.h>
 
-#include <bsl_ostream.h>
 #include <bsl_set.h>
 #include <bsl_string.h>
 
@@ -36,7 +34,7 @@ ZoneinfoCache::~ZoneinfoCache()
                                it != d_cache.end();
                                ++it) {
         BSLS_ASSERT(0 != it->second);
-        d_allocator_p->deleteObject(it->second);
+        d_allocator.mechanism()->deleteObject(it->second);
     }
 }
 
@@ -81,10 +79,11 @@ const Zoneinfo *ZoneinfoCache::getZoneinfo(int *rc, const char *timeZoneId)
         // Create a proctor for the new time zone value.
 
         Zoneinfo *newTimeZonePtr =
-                           new (*d_allocator_p) Zoneinfo(d_allocator_p);
+            new (*(d_allocator.mechanism())) Zoneinfo(d_allocator.mechanism());
 
-        bslma::RawDeleterProctor<Zoneinfo, bslma::Allocator>
-                                        proctor(newTimeZonePtr, d_allocator_p);
+        bslma::RawDeleterProctor<Zoneinfo, bslma::Allocator>  proctor(
+                                                      newTimeZonePtr,
+                                                      d_allocator.mechanism());
 
         *rc = d_loader_p->loadTimeZone(newTimeZonePtr, timeZoneId);
         if (0 != *rc) {
@@ -142,7 +141,7 @@ const Zoneinfo *ZoneinfoCache::lookupZoneinfo(const char *timeZoneId) const
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

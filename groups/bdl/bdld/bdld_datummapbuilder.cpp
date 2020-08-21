@@ -2,12 +2,14 @@
 #include <bdld_datummapbuilder.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdld_datummapbuilder.cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdld_datummapbuilder.cpp, "$Id$ $CSID$")
 
 #include <bdld_datum.h>
-#include <bslma_default.h>
+
 #include <bslmf_assert.h>
+
 #include <bsls_assert.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
 #include <bsl_memory.h>
@@ -17,6 +19,8 @@ namespace BloombergLP {
 namespace bdld {
 
 namespace {
+
+typedef DatumMapBuilder::allocator_type allocator_type;
 
 static DatumMapBuilder::SizeType getNewCapacity(
                                             DatumMapBuilder::SizeType capacity,
@@ -44,11 +48,11 @@ static DatumMapBuilder::SizeType getNewCapacity(
 
 static void createMapStorage(DatumMutableMapRef        *mapping,
                              DatumMapBuilder::SizeType  capacity,
-                             bslma::Allocator          *basicAllocator)
+                             const allocator_type&      allocator)
     // Load the specified 'mapping' with a reference to newly created datum map
-    // having the specified 'capacity', using the specified 'basicAllocator'.
+    // having the specified 'capacity', using the specified 'allocator'.
 {
-    Datum::createUninitializedMap(mapping, capacity, basicAllocator);
+    Datum::createUninitializedMap(mapping, capacity, allocator.mechanism());
     // Initialize the memory.
 
     bsl::uninitialized_fill_n(mapping->data(), capacity, DatumMapEntry());
@@ -79,24 +83,31 @@ static bool compareLess(const DatumMapEntry& lhs, const DatumMapEntry& rhs)
 BSLMF_ASSERT(bslma::UsesBslmaAllocator<DatumMapBuilder>::value);
 
 // CREATORS
-DatumMapBuilder::DatumMapBuilder(bslma::Allocator *basicAllocator)
+DatumMapBuilder::DatumMapBuilder()
 : d_capacity(0)
 , d_sorted(false)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator()
 {
 }
 
-DatumMapBuilder::DatumMapBuilder(SizeType          initialCapacity,
-                                 bslma::Allocator *basicAllocator)
+DatumMapBuilder::DatumMapBuilder(const allocator_type& allocator)
+: d_capacity(0)
+, d_sorted(false)
+, d_allocator(allocator)
+{
+}
+
+DatumMapBuilder::DatumMapBuilder(SizeType              initialCapacity,
+                                 const allocator_type& allocator)
 : d_capacity(initialCapacity)
 , d_sorted(false)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator(allocator)
 {
     // Do not create a datum map, if 'initialCapacity' is 0.  Defer this to the
     // first call to 'pushBack' or 'append'.
 
     if (initialCapacity) {
-        createMapStorage(&d_mapping, d_capacity, d_allocator_p);
+        createMapStorage(&d_mapping, d_capacity, d_allocator);
     }
 }
 
@@ -104,30 +115,30 @@ DatumMapBuilder::~DatumMapBuilder()
 {
     if (d_mapping.data()) {
         for (SizeType i = 0; i < *d_mapping.size(); ++i) {
-            Datum::destroy(d_mapping.data()[i].value(), d_allocator_p);
+            Datum::destroy(d_mapping.data()[i].value(),
+                           d_allocator.mechanism());
         }
-        Datum::disposeUninitializedMap(d_mapping, d_allocator_p);
+        Datum::disposeUninitializedMap(d_mapping, d_allocator.mechanism());
     }
 }
 
 // MANIPULATORS
-void DatumMapBuilder::append(const DatumMapEntry *entries,
-                             SizeType             size)
+void DatumMapBuilder::append(const DatumMapEntry *entries, SizeType size)
 {
     BSLS_ASSERT(0 != entries && 0 != size);
 
     // Get the new map capacity.
 
-    SizeType newCapacity = d_capacity ?
-                      getNewCapacity(d_capacity, *d_mapping.size() + size) :
-                      getNewCapacity(d_capacity, size);
+    SizeType newCapacity =
+        d_capacity ?  getNewCapacity(d_capacity, *d_mapping.size() + size)
+                   :  getNewCapacity(d_capacity, size);
 
     // If the initial capacity was zero, create an empty map with the new
     // capacity.
 
     if (!d_capacity) {
         d_capacity = newCapacity;
-        createMapStorage(&d_mapping, d_capacity, d_allocator_p);
+        createMapStorage(&d_mapping, d_capacity, d_allocator);
         *d_mapping.sorted() = d_sorted;
     }
     if (newCapacity != d_capacity) {
@@ -138,7 +149,7 @@ void DatumMapBuilder::append(const DatumMapEntry *entries,
         // Create a new map with the higher capacity.
 
         DatumMutableMapRef mapping;
-        createMapStorage(&mapping, d_capacity, d_allocator_p);
+        createMapStorage(&mapping, d_capacity, d_allocator);
 
         // Copy the existing data and dispose the old map.
 
@@ -146,7 +157,7 @@ void DatumMapBuilder::append(const DatumMapEntry *entries,
         bsl::memcpy((void *)mapping.data(),
                     d_mapping.data(),
                     sizeof(DatumMapEntry) * (*d_mapping.size()));
-        Datum::disposeUninitializedMap(d_mapping, d_allocator_p);
+        Datum::disposeUninitializedMap(d_mapping, d_allocator.mechanism());
         d_mapping = mapping;
     }
 
@@ -162,12 +173,11 @@ Datum DatumMapBuilder::commit()
 {
     // Make sure the map is sorted.
 
-    BSLS_ASSERT_SAFE(0 == d_capacity ||
-                     false == *d_mapping.sorted() ||
+    BSLS_ASSERT_SAFE(0 == d_capacity || false == *d_mapping.sorted() ||
                      bsl::adjacent_find(d_mapping.data(),
                                         d_mapping.data() + *d_mapping.size(),
-                                        compareGreater)
-                         == d_mapping.data() + *d_mapping.size());
+                                        compareGreater) ==
+                         d_mapping.data() + *d_mapping.size());
 
     Datum result = Datum::adoptMap(d_mapping);
     d_mapping    = DatumMutableMapRef();

@@ -128,8 +128,8 @@ BSLS_IDENT("$Id: $")
 #include <baltzo_zoneinfo.h>
 
 #include <bslma_default.h>
+#include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
-
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsl_iosfwd.h>
@@ -167,15 +167,19 @@ class TestLoader: public Loader {
     TestLoader& operator=(const TestLoader&);
 
   public:
+    // TYPES
+    typedef bsl::allocator<char> allocator_type;
+
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(TestLoader, bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit TestLoader(bslma::Allocator *basicAllocator = 0);
-        // Create a 'TestLoader' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  By default the test loader
-        // will return 'ErrorCode::k_UNSUPPORTED_ID' for all time-zone
+    TestLoader();
+    explicit TestLoader(const allocator_type& allocator);
+        // Create a 'TestLoader' object.  Optionally specify an 'allocator'
+        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.  By default the test
+        // loader will return 'ErrorCode::k_UNSUPPORTED_ID' for all time-zone
         // identifiers.
 
     virtual ~TestLoader();
@@ -208,7 +212,12 @@ class TestLoader: public Loader {
 
     // ACCESSORS
 
-                        // Aspects
+                                   // Aspects
+
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -251,9 +260,22 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestLoader& loader);
 
 // CREATORS
 inline
-TestLoader::TestLoader(bslma::Allocator *basicAllocator)
-: d_timeZones(basicAllocator)
+TestLoader::TestLoader()
+: d_timeZones()
 {
+}
+
+inline
+TestLoader::TestLoader(const allocator_type& allocator)
+: d_timeZones(allocator)
+{
+}
+
+// ACCESSORS
+inline
+TestLoader::allocator_type TestLoader::get_allocator() const
+{
+    return d_timeZones.get_allocator();
 }
 
 }  // close package namespace

@@ -136,12 +136,15 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_swaputil.h>
 
 #include <bslma_allocator.h>
+#include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
@@ -174,6 +177,9 @@ class LocalTimePeriod {
     bdlt::Datetime      d_utcEndTime;    // end of this period
 
   public:
+    // TYPES
+    typedef bsl::allocator<char> allocator_type;
+
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(LocalTimePeriod, bslma::UsesBslmaAllocator);
     BSLMF_NESTED_TRAIT_DECLARATION(LocalTimePeriod, bslmf::IsBitwiseMoveable);
@@ -188,7 +194,8 @@ class LocalTimePeriod {
         // 'false' otherwise.
 
     // CREATORS
-    explicit LocalTimePeriod(bslma::Allocator *basicAllocator = 0);
+    LocalTimePeriod();
+    explicit LocalTimePeriod(const allocator_type& allocator);
         // Create a 'LocalTimePeriod' object having the (default) attribute
         // values:
         //..
@@ -196,30 +203,48 @@ class LocalTimePeriod {
         //  utcStartTime() == bdlt::Datetime()
         //  utcEndTime()   == bdlt::Datetime()
         //..
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // Optionally specify an 'allocator' (e.g., the address of a
+        // 'bslma::Allocator' object) to supply memory; otherwise, the default
+        // allocator is used.
 
-    LocalTimePeriod(const LocalTimeDescriptor&  descriptor,
-                    const bdlt::Datetime&       utcStartTime,
-                    const bdlt::Datetime&       utcEndTime,
-                    bslma::Allocator           *basicAllocator = 0);
-        // Create a 'LocalTimePeriod' object having the specified
-        // 'descriptor', 'utcStartTime', and 'utcEndTime' attribute values.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless
-        // 'utcStartTime == utcEndTime', or if 'utcStartTime' and 'utcEndTime'
-        // are comparable (i.e., neither equals the a default constructed
-        // 'bdlt::DateTime' object) unless 'utcStartTime < utcEndTime'.  (See
-        // the 'isValidUtcStartAndEndTime' method.)
+    LocalTimePeriod(const LocalTimeDescriptor& descriptor,
+                    const bdlt::Datetime&      utcStartTime,
+                    const bdlt::Datetime&      utcEndTime,
+                    const allocator_type&      allocator = allocator_type());
+        // Create a 'LocalTimePeriod' object having the specified 'descriptor',
+        // 'utcStartTime', and 'utcEndTime' attribute values.  Optionally
+        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
+        // object) to supply memory; otherwise, the default allocator is used.
+        // The behavior is undefined unless 'utcStartTime == utcEndTime', or if
+        // 'utcStartTime' and 'utcEndTime' are comparable (i.e., neither equals
+        // the a default constructed 'bdlt::DateTime' object) unless
+        // 'utcStartTime < utcEndTime'.  (See the 'isValidUtcStartAndEndTime'
+        // method.)
 
-    LocalTimePeriod(const LocalTimePeriod&  original,
-                    bslma::Allocator       *basicAllocator = 0);
+    LocalTimePeriod(const LocalTimePeriod& original,
+                    const allocator_type&  allocator = allocator_type());
         // Create a 'LocalTimePeriod' object with the same value as the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+        // specified 'original' object.  Optionally specify an 'allocator'
+        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.
+
+    LocalTimePeriod(bslmf::MovableRef<LocalTimePeriod> original)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+        // Create a 'LocalTimePeriod' object having the same value and the same
+        // allocator as the specified 'original' object.  The value of
+        // 'original' becomes unspecified but valid, and its allocator remains
+        // unchanged.
+
+    LocalTimePeriod(bslmf::MovableRef<LocalTimePeriod> original,
+                    const allocator_type&              allocator);
+        // Create a 'LocalTimePeriod' object having the same value as the
+        // specified 'original' object, using the specified 'allocator' (e.g.,
+        // the address of a 'bslma::Allocator' object) to supply memory.  The
+        // allocator of 'original' remains unchanged.  If 'original' and the
+        // newly created object have the same allocator then the value of
+        // 'original' becomes unspecified but valid, and no exceptions will be
+        // thrown; otherwise 'original' is unchanged and an exception may be
+        // thrown.
 
     ~LocalTimePeriod();
         // Destroy this object.
@@ -228,6 +253,14 @@ class LocalTimePeriod {
     LocalTimePeriod& operator=(const LocalTimePeriod& rhs);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
+
+    LocalTimePeriod& operator=(bslmf::MovableRef<LocalTimePeriod> rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a non-'const' reference to this object.  The allocators of
+        // this object and 'rhs' both remain unchanged.  If 'rhs' and this
+        // object have the same allocator then the value of 'rhs' becomes
+        // unspecified but valid, and no exceptions will be thrown; otherwise
+        // 'rhs' is unchanged (and an exception may be thrown).
 
     void setDescriptor(const LocalTimeDescriptor& value);
         // Set the 'descriptor' attribute to the specified 'value'.
@@ -250,21 +283,26 @@ class LocalTimePeriod {
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the currently
-        // installed default allocator is used.
+        // !DEPRECATED!: Use 'get_allocator()' instead.
+        //
+        // Return 'get_allocator().mechanism()'.
 
     const LocalTimeDescriptor& descriptor() const;
         // Return a reference providing non-modifiable access to the
         // 'descriptor' attribute of this object.
 
-    const bdlt::Datetime& utcStartTime() const;
-        // Return a reference providing non-modifiable access to the
-        // 'utcStartTime' attribute of this object.
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
 
     const bdlt::Datetime& utcEndTime() const;
         // Return a reference providing non-modifiable access to the
         // 'utcEndTime' attribute of this object.
+
+    const bdlt::Datetime& utcStartTime() const;
+        // Return a reference providing non-modifiable access to the
+        // 'utcStartTime' attribute of this object.
 
                         // Aspects
 
@@ -299,7 +337,7 @@ bool operator!=(const LocalTimePeriod& lhs, const LocalTimePeriod& rhs);
     // 'utcStartTime', or 'utcEndTime' attributes are not the same.
 
 std::ostream& operator<<(bsl::ostream&          stream,
-                         const LocalTimePeriod& localTimePeriod);
+                         const LocalTimePeriod& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
     // If 'stream' is not valid on entry, this operation has no effect.  Note
@@ -335,19 +373,27 @@ bool LocalTimePeriod::isValidUtcStartAndEndTime(
 
 // CREATORS
 inline
-LocalTimePeriod::LocalTimePeriod(bslma::Allocator *basicAllocator)
-: d_descriptor(basicAllocator)
+LocalTimePeriod::LocalTimePeriod()
+: d_descriptor()
 , d_utcStartTime()
 , d_utcEndTime()
 {
 }
 
 inline
-LocalTimePeriod::LocalTimePeriod(const LocalTimeDescriptor&  descriptor,
-                                 const bdlt::Datetime&       utcStartTime,
-                                 const bdlt::Datetime&       utcEndTime,
-                                 bslma::Allocator           *basicAllocator)
-: d_descriptor(descriptor, basicAllocator)
+LocalTimePeriod::LocalTimePeriod(const allocator_type& allocator)
+: d_descriptor(allocator)
+, d_utcStartTime()
+, d_utcEndTime()
+{
+}
+
+inline
+LocalTimePeriod::LocalTimePeriod(const LocalTimeDescriptor& descriptor,
+                                 const bdlt::Datetime&      utcStartTime,
+                                 const bdlt::Datetime&      utcEndTime,
+                                 const allocator_type&      allocator)
+: d_descriptor(descriptor, allocator)
 , d_utcStartTime(utcStartTime)
 , d_utcEndTime(utcEndTime)
 {
@@ -355,13 +401,33 @@ LocalTimePeriod::LocalTimePeriod(const LocalTimeDescriptor&  descriptor,
 }
 
 inline
-LocalTimePeriod::LocalTimePeriod(const LocalTimePeriod&  original,
-                                 bslma::Allocator       *basicAllocator)
-: d_descriptor(original.d_descriptor, basicAllocator)
+LocalTimePeriod::LocalTimePeriod(const LocalTimePeriod& original,
+                                 const allocator_type&  allocator)
+: d_descriptor(original.d_descriptor, allocator)
 , d_utcStartTime(original.d_utcStartTime)
 , d_utcEndTime(original.d_utcEndTime)
 {
-    BSLS_ASSERT(isValidUtcStartAndEndTime(d_utcStartTime, d_utcEndTime));
+}
+
+inline
+LocalTimePeriod::LocalTimePeriod(bslmf::MovableRef<LocalTimePeriod> original)
+                                                          BSLS_KEYWORD_NOEXCEPT
+: d_descriptor(bslmf::MovableRefUtil::move(
+                         bslmf::MovableRefUtil::access(original).d_descriptor))
+, d_utcStartTime(bslmf::MovableRefUtil::access(original).d_utcStartTime)
+, d_utcEndTime(bslmf::MovableRefUtil::access(original).d_utcEndTime)
+{
+}
+
+inline
+LocalTimePeriod::LocalTimePeriod(bslmf::MovableRef<LocalTimePeriod> original,
+                                 const allocator_type&              allocator)
+: d_descriptor(bslmf::MovableRefUtil::move(
+                         bslmf::MovableRefUtil::access(original).d_descriptor),
+                         allocator)
+, d_utcStartTime(bslmf::MovableRefUtil::access(original).d_utcStartTime)
+, d_utcEndTime(bslmf::MovableRefUtil::access(original).d_utcEndTime)
+{
 }
 
 inline
@@ -381,6 +447,27 @@ LocalTimePeriod& LocalTimePeriod::operator=(const LocalTimePeriod& rhs)
 }
 
 inline
+LocalTimePeriod& LocalTimePeriod::operator=(
+                                        bslmf::MovableRef<LocalTimePeriod> rhs)
+{
+    LocalTimePeriod& lvalue = rhs;
+
+    // Move 'd_descriptor' first for strong exception guarantee.
+
+    d_descriptor   = bslmf::MovableRefUtil::move(lvalue.d_descriptor);
+    d_utcStartTime = bslmf::MovableRefUtil::move(lvalue.d_utcStartTime);
+    d_utcEndTime   = bslmf::MovableRefUtil::move(lvalue.d_utcEndTime);
+
+    return *this;
+}
+
+inline
+void LocalTimePeriod::setDescriptor(const LocalTimeDescriptor& value)
+{
+    d_descriptor = value;
+}
+
+inline
 void LocalTimePeriod::setUtcStartAndEndTime(const bdlt::Datetime& utcStartTime,
                                             const bdlt::Datetime& utcEndTime)
 {
@@ -391,17 +478,11 @@ void LocalTimePeriod::setUtcStartAndEndTime(const bdlt::Datetime& utcStartTime,
 }
 
 inline
-void LocalTimePeriod::setDescriptor(const LocalTimeDescriptor& value)
-{
-    d_descriptor = value;
-}
-
-inline
 void LocalTimePeriod::swap(LocalTimePeriod& other)
 {
     // 'swap' is undefined for objects with non-equal allocators.
 
-    BSLS_ASSERT(allocator() == other.allocator());
+    BSLS_ASSERT(get_allocator() == other.get_allocator());
 
     bslalg::SwapUtil::swap(&d_descriptor,   &other.d_descriptor);
     bslalg::SwapUtil::swap(&d_utcStartTime, &other.d_utcStartTime);
@@ -412,7 +493,7 @@ void LocalTimePeriod::swap(LocalTimePeriod& other)
 inline
 bslma::Allocator *LocalTimePeriod::allocator() const
 {
-    return d_descriptor.allocator();
+    return get_allocator().mechanism();
 }
 
 inline
@@ -422,15 +503,21 @@ const LocalTimeDescriptor& LocalTimePeriod::descriptor() const
 }
 
 inline
-const bdlt::Datetime& LocalTimePeriod::utcStartTime() const
+LocalTimePeriod::allocator_type LocalTimePeriod::get_allocator() const
 {
-    return d_utcStartTime;
+    return d_descriptor.description().get_allocator();
 }
 
 inline
 const bdlt::Datetime& LocalTimePeriod::utcEndTime() const
 {
     return d_utcEndTime;
+}
+
+inline
+const bdlt::Datetime& LocalTimePeriod::utcStartTime() const
+{
+    return d_utcStartTime;
 }
 
 }  // close package namespace
@@ -454,9 +541,9 @@ bool baltzo::operator!=(const LocalTimePeriod& lhs, const LocalTimePeriod& rhs)
 
 inline
 std::ostream& baltzo::operator<<(bsl::ostream&          stream,
-                                 const LocalTimePeriod& localTimePeriod)
+                                 const LocalTimePeriod& object)
 {
-    return localTimePeriod.print(stream, 0, -1);
+    return object.print(stream, 0, -1);
 }
 
 }  // close enterprise namespace

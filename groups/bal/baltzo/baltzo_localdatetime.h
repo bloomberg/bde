@@ -93,12 +93,15 @@ BSLS_IDENT("$Id: $ $CSID: $")
 #include <bslalg_swaputil.h>
 
 #include <bslma_allocator.h>
+#include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 
 #include <bslx_instreamfunctions.h>
@@ -134,6 +137,9 @@ class LocalDatetime {
     friend void swap(LocalDatetime&, LocalDatetime&);
 
   public:
+    // TYPES
+    typedef bsl::allocator<char> allocator_type;
+
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(LocalDatetime, bslma::UsesBslmaAllocator);
     BSLMF_NESTED_TRAIT_DECLARATION(LocalDatetime, bslmf::IsBitwiseMoveable);
@@ -141,6 +147,17 @@ class LocalDatetime {
     // CLASS METHODS
 
                         // Aspects
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // pending deprecation
+
+    // DEPRECATED METHODS
+    static int maxSupportedBdexVersion();
+        // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
+        //
+        // Return the most current BDEX streaming version number supported by
+        // this class.
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- pending deprecation
 
     static int maxSupportedBdexVersion(int versionSelector);
         // Return the maximum valid BDEX format version, as indicated by the
@@ -154,41 +171,71 @@ class LocalDatetime {
         // containers.
 
     // CREATORS
-    explicit LocalDatetime(bslma::Allocator *basicAllocator = 0);
+    LocalDatetime();
+    explicit LocalDatetime(const allocator_type& allocator);
         // Create a 'LocalDatetime' object having the (default) attribute
         // values:
         //..
         //  datetimeTz() == bdlt::DatetimeTz()
         //  timeZoneId() == ""
         //..
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // Optionally specify an 'allocator' (e.g., the address of a
+        // 'bslma::Allocator' object) to supply memory; otherwise, the default
+        // allocator is used.
 
     LocalDatetime(const bdlt::DatetimeTz&   datetimeTz,
                   const bslstl::StringRef&  timeZoneId,
-                  bslma::Allocator         *basicAllocator = 0);
+                  const allocator_type&     allocator = allocator_type());
     LocalDatetime(const bdlt::DatetimeTz&   datetimeTz,
                   const char               *timeZoneId,
-                  bslma::Allocator         *basicAllocator = 0);
-        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  If 'timeZoneId'
-        // is passed as a null pointer, it is treated as an empty string.
+                  const allocator_type&     allocator = allocator_type());
+        // Create a 'LocalDatetime' object with attribute values set from the
+        // specified 'datetimeTz' and 'timeZoneId'.  Optionally specify an
+        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
+        // supply memory; otherwise, the default allocator is used.  If
+        // 'timeZoneId' is passed as a null pointer, it is treated as an empty
+        // string.
 
     LocalDatetime(const LocalDatetime&  original,
-                  bslma::Allocator     *basicAllocator = 0);
+                  const allocator_type& allocator = allocator_type());
         // Create a 'LocalDatetime' object having the same value as the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+        // specified 'original' object.  Optionally specify an 'allocator'
+        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.
 
-    //! ~LocalDatetime() = default;
+    LocalDatetime(bslmf::MovableRef<LocalDatetime> original)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+        // Create a 'LocalDatetime' object having the same value and the same
+        // allocator as the specified 'original' object.  The value of
+        // 'original' becomes unspecified but valid, and its allocator remains
+        // unchanged.
+
+    LocalDatetime(bslmf::MovableRef<LocalDatetime> original,
+                  const allocator_type&            allocator);
+        // Create a 'LocalDatetime' object having the same value as the
+        // specified 'original' object, using the specified 'allocator' (e.g.,
+        // the address of a 'bslma::Allocator' object) to supply memory.  The
+        // allocator of 'original' remains unchanged.  If 'original' and the
+        // newly created object have the same allocator then the value of
+        // 'original' becomes unspecified but valid, and no exceptions will be
+        // thrown; otherwise 'original' is unchanged and an exception may be
+        // thrown.
+
+    ~LocalDatetime();
         // Destroy this object.
 
     // MANIPULATORS
     LocalDatetime& operator=(const LocalDatetime& rhs);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
+
+    LocalDatetime& operator=(bslmf::MovableRef<LocalDatetime> rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a non-'const' reference to this object.  The allocators of
+        // this object and 'rhs' both remain unchanged.  If 'rhs' and this
+        // object have the same allocator then the value of 'rhs' becomes
+        // unspecified but valid, and no exceptions will be thrown; otherwise
+        // 'rhs' is unchanged (and an exception may be thrown).
 
     void setDatetimeTz(const bdlt::DatetimeTz& value);
         // Set the 'datetimeTz' attribute of this object to the specified
@@ -229,12 +276,21 @@ class LocalDatetime {
         // Return a reference providing non-modifiable access to the
         // 'timeZoneId' attribute of this object.
 
-                        // Aspects
+                                // Aspects
+
+                                // Allocator
 
     bslma::Allocator *allocator() const;
+        // !DEPRECATED!: Use 'get_allocator()' instead.
+        //
+        // Return 'get_allocator().mechanism()'.
+
+    allocator_type get_allocator() const;
         // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the currently
-        // installed default allocator is used.
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
+
+                                // Output
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -263,18 +319,6 @@ class LocalDatetime {
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.  Note that the format is not fully specified, and can change
         // without notice.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // pending deprecation
-
-    // DEPRECATED METHODS
-    static int maxSupportedBdexVersion();
-        // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
-        //
-        // Return the most current BDEX streaming version number supported by
-        // this class.
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED -- pending deprecation
-
 };
 
 // FREE OPERATORS
@@ -290,8 +334,7 @@ bool operator!=(const LocalDatetime& lhs, const LocalDatetime& rhs);
     // have the same value if any of the corresponding values of their
     // 'datetimeTz' or 'timeZoneId' attributes are not the same.
 
-bsl::ostream& operator<<(bsl::ostream&        stream,
-                         const LocalDatetime& localDatetime);
+bsl::ostream& operator<<(bsl::ostream& stream, const LocalDatetime& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference providing
     // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
@@ -326,38 +369,70 @@ int LocalDatetime::maxSupportedBdexVersion(int /* versionSelector */)
 
 // CREATORS
 inline
-LocalDatetime::LocalDatetime(bslma::Allocator *basicAllocator)
+LocalDatetime::LocalDatetime()
 : d_datetimeTz()
-, d_timeZoneId(basicAllocator)
+, d_timeZoneId()
 {
 }
 
 inline
-LocalDatetime::LocalDatetime(const bdlt::DatetimeTz&   datetimeTz,
-                             const bslstl::StringRef&  timeZoneId,
-                             bslma::Allocator         *basicAllocator)
-: d_datetimeTz(datetimeTz)
-, d_timeZoneId(timeZoneId.begin(), timeZoneId.end(), basicAllocator)
+LocalDatetime::LocalDatetime(const allocator_type& allocator)
+: d_datetimeTz()
+, d_timeZoneId(allocator)
 {
 }
 
 inline
-LocalDatetime::LocalDatetime(const bdlt::DatetimeTz&   datetimeTz,
-                             const char               *timeZoneId,
-                             bslma::Allocator         *basicAllocator)
+LocalDatetime::LocalDatetime(const bdlt::DatetimeTz&  datetimeTz,
+                             const bslstl::StringRef& timeZoneId,
+                             const allocator_type&    allocator)
 : d_datetimeTz(datetimeTz)
-, d_timeZoneId(basicAllocator)
+, d_timeZoneId(timeZoneId.begin(), timeZoneId.end(), allocator)
+{
+}
+
+inline
+LocalDatetime::LocalDatetime(const bdlt::DatetimeTz&  datetimeTz,
+                             const char              *timeZoneId,
+                             const allocator_type&    allocator)
+: d_datetimeTz(datetimeTz)
+, d_timeZoneId(allocator)
 {
     if (timeZoneId) {
-        bsl::string(timeZoneId, basicAllocator).swap(d_timeZoneId);
+        bsl::string(timeZoneId, allocator).swap(d_timeZoneId);
     }
 }
 
 inline
 LocalDatetime::LocalDatetime(const LocalDatetime&  original,
-                             bslma::Allocator     *basicAllocator)
+                             const allocator_type& allocator)
 : d_datetimeTz(original.d_datetimeTz)
-, d_timeZoneId(original.d_timeZoneId, basicAllocator)
+, d_timeZoneId(original.d_timeZoneId, allocator)
+{
+}
+
+inline
+LocalDatetime::LocalDatetime(bslmf::MovableRef<LocalDatetime> original)
+                                                          BSLS_KEYWORD_NOEXCEPT
+: d_datetimeTz(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_datetimeTz))
+, d_timeZoneId(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_timeZoneId))
+{
+}
+
+inline
+LocalDatetime::LocalDatetime(bslmf::MovableRef<LocalDatetime> original,
+                             const allocator_type&            allocator)
+: d_datetimeTz(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_datetimeTz))
+, d_timeZoneId(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_timeZoneId), allocator)
+{
+}
+
+inline
+LocalDatetime::~LocalDatetime()
 {
 }
 
@@ -367,6 +442,20 @@ LocalDatetime& LocalDatetime::operator=(const LocalDatetime& rhs)
 {
     d_timeZoneId = rhs.d_timeZoneId;  // first to allow strong guarantee
     d_datetimeTz = rhs.d_datetimeTz;
+    return *this;
+}
+
+inline
+LocalDatetime& LocalDatetime::operator=(bslmf::MovableRef<LocalDatetime> rhs)
+{
+    // Move 'd_timeZoneId' first for strong exception guarantee.
+
+    d_timeZoneId = bslmf::MovableRefUtil::move(
+        bslmf::MovableRefUtil::access(rhs).d_timeZoneId);
+
+    d_datetimeTz = bslmf::MovableRefUtil::move(
+        bslmf::MovableRefUtil::access(rhs).d_datetimeTz);
+
     return *this;
 }
 
@@ -386,7 +475,7 @@ inline
 void LocalDatetime::setTimeZoneId(const char *value)
 {
     if (value) {
-        bsl::string(value, d_timeZoneId.allocator()).swap(d_timeZoneId);
+        bsl::string(value, d_timeZoneId.get_allocator()).swap(d_timeZoneId);
     }
     else {
         d_timeZoneId.clear();
@@ -415,7 +504,7 @@ STREAM& LocalDatetime::bdexStreamIn(STREAM& stream, int version)
 inline
 void LocalDatetime::swap(LocalDatetime& other)
 {
-    BSLS_ASSERT(allocator() == other.allocator());
+    BSLS_ASSERT(get_allocator() == other.get_allocator());
 
     bslalg::SwapUtil::swap(&d_datetimeTz, &other.d_datetimeTz);
     bslalg::SwapUtil::swap(&d_timeZoneId, &other.d_timeZoneId);
@@ -434,13 +523,23 @@ const bsl::string& LocalDatetime::timeZoneId() const
     return d_timeZoneId;
 }
 
-                        // Aspects
+                                // Aspects
+
+                                // Allocator
 
 inline
 bslma::Allocator *LocalDatetime::allocator() const
 {
-    return d_timeZoneId.get_allocator().mechanism();
+    return get_allocator().mechanism();
 }
+
+inline
+LocalDatetime::allocator_type LocalDatetime::get_allocator() const
+{
+    return d_timeZoneId.get_allocator();
+}
+
+                                // Output
 
 template <class STREAM>
 STREAM& LocalDatetime::bdexStreamOut(STREAM& stream, int version) const

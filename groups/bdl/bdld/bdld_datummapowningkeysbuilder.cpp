@@ -87,29 +87,25 @@ BSLMF_ASSERT(bslma::UsesBslmaAllocator<DatumMapOwningKeysBuilder>::value);
 
 // CREATORS
 DatumMapOwningKeysBuilder::DatumMapOwningKeysBuilder(
-                                              bslma::Allocator *basicAllocator)
+                                               const allocator_type& allocator)
 : d_capacity(0)
 , d_keysCapacity(0)
 , d_sorted(false)
-, d_allocator_p(basicAllocator)
+, d_allocator(allocator)
 {
-    BSLS_ASSERT(basicAllocator);
-
     // Do not create a datum map.  Defer this to the first call to 'pushBack'
     // or 'append'.
 }
 
 DatumMapOwningKeysBuilder::DatumMapOwningKeysBuilder(
-                                         SizeType          initialCapacity,
-                                         SizeType          initialKeysCapacity,
-                                         bslma::Allocator *basicAllocator)
+                                     SizeType              initialCapacity,
+                                     SizeType              initialKeysCapacity,
+                                     const allocator_type& allocator)
 : d_capacity(initialCapacity)
 , d_keysCapacity(initialKeysCapacity)
 , d_sorted(false)
-, d_allocator_p(basicAllocator)
+, d_allocator(allocator)
 {
-    BSLS_ASSERT(0 != basicAllocator);
-
     // Do not create a datum map, if 'initialCapacity' and
     // 'initialKeysCapacity' are both 0.  Defer this to the first call to
     // 'pushBack' or 'append'.
@@ -118,7 +114,7 @@ DatumMapOwningKeysBuilder::DatumMapOwningKeysBuilder(
         createMapStorage(&d_mapping,
                          d_capacity,
                          d_keysCapacity,
-                         basicAllocator);
+                         d_allocator.mechanism());
     }
 }
 
@@ -126,9 +122,10 @@ DatumMapOwningKeysBuilder::~DatumMapOwningKeysBuilder()
 {
     if (d_mapping.data()) {
         for (SizeType i = 0; i < *d_mapping.size(); ++i) {
-            Datum::destroy(d_mapping.data()[i].value(), d_allocator_p);
+            Datum::destroy(d_mapping.data()[i].value(),
+                           d_allocator.mechanism());
         }
-        Datum::disposeUninitializedMap(d_mapping, d_allocator_p);
+        Datum::disposeUninitializedMap(d_mapping, d_allocator.mechanism());
     }
 }
 
@@ -173,7 +170,7 @@ void DatumMapOwningKeysBuilder::append(const DatumMapEntry *entries,
         createMapStorage(&d_mapping,
                          d_capacity,
                          d_keysCapacity,
-                         d_allocator_p);
+                         d_allocator.mechanism());
         *d_mapping.sorted() = d_sorted;
     }
 
@@ -189,7 +186,10 @@ void DatumMapOwningKeysBuilder::append(const DatumMapEntry *entries,
 
         DatumMutableMapOwningKeysRef mapping;
 
-        createMapStorage(&mapping, d_capacity, d_keysCapacity, d_allocator_p);
+        createMapStorage(&mapping,
+                         d_capacity,
+                         d_keysCapacity,
+                         d_allocator.mechanism());
 
         // Copy the existing data and dispose the old map.  Copy all the keys
         // in a single operation.
@@ -213,7 +213,7 @@ void DatumMapOwningKeysBuilder::append(const DatumMapEntry *entries,
             keyBegin += key.length();
         }
 
-        Datum::disposeUninitializedMap(d_mapping, d_allocator_p);
+        Datum::disposeUninitializedMap(d_mapping, d_allocator.mechanism());
         d_mapping = mapping;
     }
 
@@ -284,7 +284,7 @@ Datum DatumMapOwningKeysBuilder::sortAndCommit()
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

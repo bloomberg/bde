@@ -13,9 +13,13 @@
 #include <bdlt_epochutil.h>
 #include <bdlt_time.h>
 
+#include <bslim_testutil.h>
 #include <bslma_allocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
+#include <bslmf_assert.h>
+#include <bslmf_usesallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_log.h>
@@ -23,6 +27,7 @@
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
+#include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
 #include <bsls_asserttest.h>
@@ -68,8 +73,9 @@ using namespace bsl;
 //:   or object allocator.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] baltzo::TestLoader(bslma::Allocator *basicAllocator = 0);
-// [ 2] ~baltzo::TestLoader();
+// [ 2] TestLoader();
+// [ 2] TestLoader(const allocator_type& allocator);
+// [ 2] ~TestLoader();
 //
 // MANIPULATORS
 // [ 3] void setTimeZone(const baltzo::Zoneinfo& tz);
@@ -77,6 +83,7 @@ using namespace bsl;
 // [ 3] int loadTimeZone(baltzo::Zoneinfo *result, const char *tzId);
 //
 // ACCESSORS
+// [ 2] allocator_type get_allocator() const;
 // [ 4] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
 // FREE OPERATORS
@@ -91,59 +98,48 @@ using namespace bsl;
 // [ 3] CONCERN: Precondition violations are detected when enabled.
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
-{
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+namespace {
+
+  int testStatus = 0;
+
+  void aSsErT(bool condition, const char *message, int line)
+  {
+    if (condition) {
+      cout << "Error " __FILE__ "(" << line << "): " << message
+           << "    (failed)" << endl;
+
+      if (0 <= testStatus && testStatus <= 100) {
+        ++testStatus;
+      }
     }
-}
+  }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-// ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
 // ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
-#define L_ __LINE__                           // current Line number
+
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -156,6 +152,13 @@ static void aSsErT(int c, const char *s, int i)
 // ----------------------------------------------------------------------------
 typedef baltzo::TestLoader Obj;
 typedef baltzo::ErrorCode  Err;
+
+// ============================================================================
+//                                TYPE TRAITS
+// ----------------------------------------------------------------------------
+
+BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+BSLMF_ASSERT((bsl::uses_allocator<Obj, bsl::allocator<char> >::value));
 
 // ============================================================================
 //                            TEST TIME ZONE DATA
@@ -924,9 +927,10 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // PRINT AND OUTPUT OPERATOR Ensure that the values in the object can
-        // be formatted appropriately on an 'ostream' in some standard,
-        // human-readable form.
+        // PRINT AND OUTPUT OPERATOR
+        //   Ensure that the values in the object can be formatted
+        //   appropriately on an 'ostream' in some standard, human-readable
+        //   form.
         //
         // Concerns:
         //: 1 The 'print' method writes the value to the specified 'ostream'.
@@ -1225,7 +1229,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING MANIPULATORS and ACCESSOR
+        // TESTING MANIPULATORS AND ACCESSORS
         //
         // Concerns:
         //: 1 Objects installed by either of the overloaded 'setTimeZone'
@@ -1267,9 +1271,10 @@ int main(int argc, char *argv[])
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-7)
         //
-        // Testing: void setTimeZone(const baltzo::Zoneinfo& tz); int
-        //   setTimeZone(const char *tzId, const char *data, int count); int
-        //   loadTimeZone(baltzo::Zoneinfo *result, const char *tzId);
+        // Testing:
+        //   void setTimeZone(const baltzo::Zoneinfo& tz);
+        //   int setTimeZone(const char *tzId, const char *data, int count);
+        //   int loadTimeZone(baltzo::Zoneinfo *result, const char *tzId);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING MANIPULATORS AND ACCESSOR"
@@ -1538,9 +1543,10 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // CTOR AND DTOR Ensure that we can use the default constructor to
-        //   create an 'baltzo::TestLoader' object, add 'baltzo::Zoneinfo'
-        //   objects, access added 'baltzo::Zoneinfo' objects, and use the
+        // CTOR AND DTOR
+        //   Ensure that we can use the constructor to create an
+        //   'baltzo::TestLoader' object, add 'baltzo::Zoneinfo' objects,
+        //   access added 'baltzo::Zoneinfo' objects, and use the
         //   destructor to destroy the 'baltzo::TestLoader' object safely.
         //   Although the 'setTimeZone' and 'loadTimeZone' methods are used
         //   here, they are not thoroughly tested until case 3.
@@ -1553,8 +1559,8 @@ int main(int argc, char *argv[])
         //: 2 If an allocator is supplied to the default constructor, that
         //:   allocator becomes the object allocator for the resulting object.
         //:
-        //: 3 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
+        //: 3 Supplying a default-constructed allocator has the same effect as
+        //:   not supplying an allocator.
         //:
         //: 4 Any memory allocation is from the object allocator.
         //:
@@ -1564,15 +1570,20 @@ int main(int argc, char *argv[])
         //:
         //: 7 Verify that no temporary memory is allocated from the object
         //:   allocator.
+        //:
+        //: 8 'get_allocator' returns an allocator equal to the one used to
+        //:   contruct the 'TestLoader'.
         //
         // Plan:
         //: 1 Create a 'baltzo::Zoneinfo' object.
         //:
         //: 2 Using a loop-based approach, default-construct three distinct
         //:   objects in turn, each configured differently: (a) without passing
-        //:   an allocator, (b) passing a null allocator address explicitly,
-        //:   and (c) passing the address of a test allocator distinct from the
-        //:   default.  For each of these three iterations: (C-1,2,3)
+        //:   an allocator, (b) passing a default-constructed allocator
+        //:   explicitly, and (c) passing in an allocator constructed from the
+        //:   address of a test allocator, and (d) passing in an allocator
+        //:   constructed from the address of a test allocator distinct from
+        //:   the default.  For each of these three iterations: (C-1,2,3)
         //:
         //:   1 Create three 'bslma::TestAllocator' objects, and install one as
         //:     as the current default allocator (note that a ubiquitous test
@@ -1582,7 +1593,7 @@ int main(int argc, char *argv[])
         //:     configured appropriately (see P-2) using a distinct test
         //:     allocator for the object's footprint.
         //:
-        //:   3 Use the 'allocator' accessor of each underlying attribute
+        //:   3 Use the 'get_allocator' accessor of each underlying attribute
         //:     capable of allocating memory to ensure that its object
         //:     allocator is properly installed; also apply the (as yet
         //:     unproven) 'allocator' accessor of the object under test.
@@ -1606,13 +1617,15 @@ int main(int argc, char *argv[])
         //:     standard 'BSLMA_TESTALLOCATOR_EXCEPTION*' macros.  (C-6)
         //
         // Testing:
-        //   baltzo::TestLoader(bslma::Allocator *basicAllocator = 0);
-        //   ~baltzo::TestLoader();
+        //   TestLoader();
+        //   TestLoader(const allocator_type& allocator);
+        //   ~TestLoader();
         //   void setTimeZone(const baltzo::Zoneinfo& tz);
+        //   allocator_type get_allocator() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nCTOR AND DOR"
-                          << "\n============" << endl;
+        if (verbose) cout << "\nCTOR AND DTOR"
+                          << "\n=============" << endl;
 
         if (verbose) cout << "\nEstablish suitable member object." << endl;
 
@@ -1633,7 +1646,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with various allocator configurations."
                           << endl;
 
-        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+        for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
 
             const char CONFIG = cfg;  // how we specify the allocator
 
@@ -1645,44 +1658,51 @@ int main(int argc, char *argv[])
 
             bslma::DefaultAllocatorGuard guard(&da);
 
-            Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
 
             switch (CONFIG) {
               case 'a': {
-                objPtr          = new (fa) Obj();
                 objAllocatorPtr = &da;
+                objPtr          = new (fa) Obj();
+
               } break;
               case 'b': {
-                objPtr          = new (fa) Obj(0);
                 objAllocatorPtr = &da;
+                objPtr          = new (fa) Obj(Obj::allocator_type());
               } break;
               case 'c': {
-                objPtr          = new (fa) Obj(&sa);
                 objAllocatorPtr = &sa;
+                objPtr          = new (fa) Obj(objAllocatorPtr);
+              } break;
+              case 'd': {
+                objAllocatorPtr = &sa;
+                Obj::allocator_type alloc(objAllocatorPtr);
+                objPtr = new (fa) Obj(alloc);
               } break;
               default: {
-                LOOP_ASSERT(CONFIG, !"Bad allocator Config.");
+                BSLS_ASSERT_OPT(false && "Bad allocator Config.");
               } break;
             }
 
             if (verbose) Q("Object Constructed");
 
-            Obj&                   mX = *objPtr;
-            bslma::TestAllocator&  oa = *objAllocatorPtr;
-            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+            Obj& mX = *objPtr; const Obj& X = mX;
+
+            bslma::TestAllocator& oa  = *objAllocatorPtr;
+            bslma::TestAllocator& noa = (&da == &oa) ? sa : da;
 
             // -----------------------------------------------------
             // QOA: Default allocated 'TestLoaders' do not allocate.
             // -----------------------------------------------------
 
-            LOOP2_ASSERT(CONFIG,
-                         oa.numBlocksTotal(),
-                         0 == oa.numBlocksTotal());
+            ASSERTV(CONFIG,
+                    oa.numBlocksTotal(),
+                    0 == oa.numBlocksTotal());
 
-            LOOP2_ASSERT(CONFIG,
-                         noa.numBlocksTotal(),
-                         0 == noa.numBlocksTotal());
+            ASSERTV(CONFIG,
+                    noa.numBlocksTotal(),
+                    0 == noa.numBlocksTotal());
 
             // -------------------------------
             // Add a 'baltzo::Zoneinfo' object.
@@ -1690,24 +1710,30 @@ int main(int argc, char *argv[])
             mX.setTimeZone(newYork);
 
             baltzo::Zoneinfo timeZone(Z);
-            int             rc;
+            int              rc;
             rc = mX.loadTimeZone(&timeZone, badId);
             ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, nyId);
             ASSERT(0       == rc);
             ASSERT(newYork == timeZone);
 
+            // -------------------------------------------------------
+            // Verify any attribute allocators are installed properly.
+            // -------------------------------------------------------
+
+            ASSERTV(CONFIG, &oa == X.get_allocator());
+
             // -------------------------------------------------
             // Verify allocation only from the proper allocator.
             // -------------------------------------------------
 
-            LOOP2_ASSERT(CONFIG,
-                         oa.numBlocksTotal(),
-                         0 != oa.numBlocksTotal());
+            ASSERTV(CONFIG,
+                    oa.numBlocksTotal(),
+                    0 != oa.numBlocksTotal());
 
-            LOOP2_ASSERT(CONFIG,
-                         noa.numBlocksTotal(),
-                         0 == noa.numBlocksTotal());
+            ASSERTV(CONFIG,
+                    noa.numBlocksTotal(),
+                    0 == noa.numBlocksTotal());
 
             // ------------------------------------------------
             // Reclaim dynamically allocated object under test.
@@ -1717,21 +1743,21 @@ int main(int argc, char *argv[])
 
             // Verify all memory is released on object destruction.
 
-            LOOP2_ASSERT(CONFIG,
-                         fa.numBlocksInUse(),
-                         0 == fa.numBlocksInUse());
-            LOOP2_ASSERT(CONFIG,
-                         oa.numBlocksInUse(),
-                         0 == oa.numBlocksInUse());
-            LOOP2_ASSERT(CONFIG,
-                         noa.numBlocksInUse(),
-                         0 == noa.numBlocksInUse());
+            ASSERTV(CONFIG,
+                    fa.numBlocksInUse(),
+                    0 == fa.numBlocksInUse());
+            ASSERTV(CONFIG,
+                    oa.numBlocksInUse(),
+                    0 == oa.numBlocksInUse());
+            ASSERTV(CONFIG,
+                    noa.numBlocksInUse(),
+                    0 == noa.numBlocksInUse());
 
             // -------------------------------------------------------------
             // Double check that at least some object memory got allocated
             // (in addition to the block allocated for the map by the CTOR).
             // -------------------------------------------------------------
-            LOOP_ASSERT(CONFIG, 1 <= oa.numBlocksTotal());
+            ASSERTV(CONFIG, 1 <= oa.numBlocksTotal());
         }
 
         if (verbose) cout << "\nTesting with injected exceptions." << endl;

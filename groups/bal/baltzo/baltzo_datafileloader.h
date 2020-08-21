@@ -194,7 +194,7 @@ BSLS_IDENT("$Id: $")
 
 #include <baltzo_loader.h>
 
-#include <bslma_allocator.h>
+#include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_nestedtraitdeclaration.h>
@@ -231,6 +231,9 @@ class DataFileLoader : public Loader {
     DataFileLoader& operator=(const DataFileLoader&);
 
   public:
+    // TYPES
+    typedef bsl::allocator<char> allocator_type;
+
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(DataFileLoader,
                                    bslma::UsesBslmaAllocator);
@@ -246,10 +249,11 @@ class DataFileLoader : public Loader {
         // a complete set of time-zone data.
 
     // CREATORS
-    explicit DataFileLoader(bslma::Allocator *basicAllocator = 0);
-        // Create an unconfigured data-file loader.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+    DataFileLoader();
+    explicit DataFileLoader(const allocator_type& allocator);
+        // Create an unconfigured data-file loader.  Optionally specify an
+        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
+        // supply memory; otherwise, the default allocator is used.
 
     virtual ~DataFileLoader();
         // Destroy this data-file loader.
@@ -300,6 +304,13 @@ class DataFileLoader : public Loader {
         // exists and appears to contain valid Zoneinfo time-zone information
         // files, as determined by calling 'isPlausibleZoneinfoRootPath' on the
         // value returned by the 'rootPath' method.
+
+                        // Aspects
+
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
 };
 
 // ============================================================================
@@ -317,13 +328,21 @@ bool DataFileLoader::isRootPathPlausible() const
     return isPlausibleZoneinfoRootPath(rootPath().c_str());
 }
 
+                        // Aspects
+
+inline
+DataFileLoader::allocator_type DataFileLoader::get_allocator() const
+{
+    return d_rootPath.get_allocator();
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -2,12 +2,14 @@
 #include <bdld_datumintmapbuilder.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdld_datumintmapbuilder.cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdld_datumintmapbuilder.cpp, "$Id$ $CSID$")
 
 #include <bdld_datum.h>
-#include <bslma_default.h>
+
 #include <bslmf_assert.h>
+
 #include <bsls_assert.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
 #include <bsl_memory.h>
@@ -18,6 +20,8 @@ namespace bdld {
 
 namespace {
 
+typedef DatumIntMapBuilder::allocator_type allocator_type;
+
 static DatumIntMapBuilder::SizeType getNewCapacity(
                                          DatumIntMapBuilder::SizeType capacity,
                                          DatumIntMapBuilder::SizeType size)
@@ -26,13 +30,13 @@ static DatumIntMapBuilder::SizeType getNewCapacity(
 {
     // Maximum allowed size (theoretical limit)
     static const DatumIntMapBuilder::SizeType k_MAX_BYTES =
-                      bsl::numeric_limits<DatumIntMapBuilder::SizeType>::max();
+        bsl::numeric_limits<DatumIntMapBuilder::SizeType>::max();
 
     BSLS_ASSERT(size < k_MAX_BYTES / 2);
     (void)k_MAX_BYTES;
 
     capacity = capacity ? capacity : 1;
-    while (capacity < size ) {
+    while (capacity < size) {
         capacity *= 2;
     }
 
@@ -44,12 +48,12 @@ static DatumIntMapBuilder::SizeType getNewCapacity(
 
 static void createMapStorage(DatumMutableIntMapRef        *mapping,
                              DatumIntMapBuilder::SizeType  capacity,
-                             bslma::Allocator             *basicAllocator)
+                             const allocator_type&         allocator)
     // Load the specified 'mapping' with a reference to newly created datum
     // int-map having the specified 'capacity', using the specified
-    // 'basicAllocator'.
+    // 'allocator'.
 {
-    Datum::createUninitializedIntMap(mapping, capacity, basicAllocator);
+    Datum::createUninitializedIntMap(mapping, capacity, allocator.mechanism());
     // Initialize the memory.
 
     bsl::uninitialized_fill_n(mapping->data(), capacity, DatumIntMapEntry());
@@ -82,24 +86,31 @@ static bool compareLess(const DatumIntMapEntry& lhs,
 BSLMF_ASSERT(bslma::UsesBslmaAllocator<DatumIntMapBuilder>::value);
 
 // CREATORS
-DatumIntMapBuilder::DatumIntMapBuilder(bslma::Allocator *basicAllocator)
+DatumIntMapBuilder::DatumIntMapBuilder()
 : d_capacity(0)
 , d_sorted(false)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator()
 {
 }
 
-DatumIntMapBuilder::DatumIntMapBuilder(SizeType          initialCapacity,
-                                       bslma::Allocator *basicAllocator)
+DatumIntMapBuilder::DatumIntMapBuilder(const allocator_type& allocator)
+: d_capacity(0)
+, d_sorted(false)
+, d_allocator(allocator)
+{
+}
+
+DatumIntMapBuilder::DatumIntMapBuilder(SizeType              initialCapacity,
+                                       const allocator_type& allocator)
 : d_capacity(initialCapacity)
 , d_sorted(false)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator(allocator)
 {
     // Do not create a datum int-map, if 'initialCapacity' is 0.  Defer this to
     // the first call to 'pushBack' or 'append'.
 
     if (initialCapacity) {
-        createMapStorage(&d_mapping, d_capacity, d_allocator_p);
+        createMapStorage(&d_mapping, d_capacity, d_allocator);
     }
 }
 
@@ -107,30 +118,30 @@ DatumIntMapBuilder::~DatumIntMapBuilder()
 {
     if (d_mapping.data()) {
         for (SizeType i = 0; i < *d_mapping.size(); ++i) {
-            Datum::destroy(d_mapping.data()[i].value(), d_allocator_p);
+            Datum::destroy(d_mapping.data()[i].value(),
+                           d_allocator.mechanism());
         }
-        Datum::disposeUninitializedIntMap(d_mapping, d_allocator_p);
+        Datum::disposeUninitializedIntMap(d_mapping, d_allocator.mechanism());
     }
 }
 
 // MANIPULATORS
-void DatumIntMapBuilder::append(const DatumIntMapEntry *entries,
-                                SizeType                size)
+void DatumIntMapBuilder::append(const DatumIntMapEntry *entries, SizeType size)
 {
     BSLS_ASSERT(0 != entries && 0 != size);
 
     // Get the new int-map capacity.
 
-    SizeType newCapacity = d_capacity ?
-                      getNewCapacity(d_capacity, *d_mapping.size() + size) :
-                      getNewCapacity(d_capacity, size);
+    SizeType newCapacity =
+        d_capacity ? getNewCapacity(d_capacity, *d_mapping.size() + size)
+                   : getNewCapacity(d_capacity, size);
 
     // If the initial capacity was zero, create an empty int-map with the new
     // capacity.
 
     if (!d_capacity) {
         d_capacity = newCapacity;
-        createMapStorage(&d_mapping, d_capacity, d_allocator_p);
+        createMapStorage(&d_mapping, d_capacity, d_allocator);
         *d_mapping.sorted() = d_sorted;
     }
     if (newCapacity != d_capacity) {
@@ -141,7 +152,7 @@ void DatumIntMapBuilder::append(const DatumIntMapEntry *entries,
         // Create a new int-map with the higher capacity.
 
         DatumMutableIntMapRef mapping;
-        createMapStorage(&mapping, d_capacity, d_allocator_p);
+        createMapStorage(&mapping, d_capacity, d_allocator);
 
         // Copy the existing data and dispose the old int-map.
 
@@ -149,7 +160,7 @@ void DatumIntMapBuilder::append(const DatumIntMapEntry *entries,
         bsl::memcpy(mapping.data(),
                     d_mapping.data(),
                     sizeof(DatumIntMapEntry) * (*d_mapping.size()));
-        Datum::disposeUninitializedIntMap(d_mapping, d_allocator_p);
+        Datum::disposeUninitializedIntMap(d_mapping, d_allocator.mechanism());
         d_mapping = mapping;
     }
 
@@ -165,12 +176,11 @@ Datum DatumIntMapBuilder::commit()
 {
     // Make sure the int-map is sorted.
 
-    BSLS_ASSERT_SAFE(0 == d_capacity ||
-                     false == *d_mapping.sorted() ||
+    BSLS_ASSERT_SAFE(0 == d_capacity || false == *d_mapping.sorted() ||
                      bsl::adjacent_find(d_mapping.data(),
                                         d_mapping.data() + *d_mapping.size(),
-                                        compareGreater)
-                         == d_mapping.data() + *d_mapping.size());
+                                        compareGreater) ==
+                         d_mapping.data() + *d_mapping.size());
 
     Datum result = Datum::adoptIntMap(d_mapping);
     d_mapping    = DatumMutableIntMapRef();

@@ -7,6 +7,8 @@
 
 #include <bslalg_swaputil.h>
 
+#include <bslim_testutil.h>
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -15,8 +17,11 @@
 
 #include <bslmf_assert.h>
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_usesallocator.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_objectbuffer.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 
 #include <bsl_cstdlib.h>     // atoi()
@@ -24,7 +29,10 @@
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
-using namespace bsl;
+using bsl::cout;
+using bsl::cerr;
+using bsl::flush;
+using bsl::endl;
 
 // ============================================================================
 //                             TEST PLAN
@@ -42,7 +50,7 @@ using namespace bsl;
 //: o 'setUtcStartAndEndTime'
 //
 // Basic Accessors:
-//: o 'allocator' (orthogonal to value)
+//: o 'get_allocator' (orthogonal to value)
 //: o 'descriptor'
 //: o 'utcStartTime'
 //: o 'utcEndTime'
@@ -81,98 +89,94 @@ using namespace bsl;
 // [11] bool isValidUtcStartAndEndTime(const bdlt::Datetime& start, end);
 //
 // CREATORS
-// [ 2] baltzo::LocalTimePeriod(bslma::Allocator *bA = 0);
-// [ 3] baltzo::LocalTimePeriod(const LTD& d, const Dt& s, e, Al *bA = 0);
-// [ 7] baltzo::LocalTimePeriod(const LTD& o, Al *ba = 0);
-// [ 2] ~baltzo::LocalTimePeriod();
+// [ 2] LocalTimePeriod(Al a = {});
+// [ 3] LocalTimePeriod(const LTD& d, const Dt& s, e, Al a = {});
+// [ 7] LocalTimePeriod(const Obj& o, Al a = {});
+// [12] LocalTimePeriod(const Obj&& o);
+// [12] LocalTimePeriod(const Obj&& o, Al a = {});
+// [ 2] ~LocalTimePeriod();
 //
 // MANIPULATORS
-// [ 9] operator=(const baltzo::LocalTimePeriod& rhs);
-// [ 2] void setDescriptor(const baltzo::LocalTimeDescriptor& value);
+// [ 9] operator=(const Obj& rhs);
+// [13] operator=(const Obj&& rhs);
+// [ 2] void setDescriptor(const Desc& value);
 // [ 2] void setUtcStartAndEndTime(const bdlt::Datetime& start, end);
 //
-// [ 8] void swap(baltzo::LocalTimePeriod& other);
+// [ 8] void swap(Obj& other);
 //
 // ACCESSORS
 // [ 4] bslma::Allocator *allocator() const;
-// [ 4] const baltzo::LocalTimePeriod& descriptor() const;
+// [ 4] bsl::allocator<char> get_allocator() const;
+// [ 4] const Obj& descriptor() const;
 // [ 4] const bdlt::Datetime& utcStartTime() const;
 // [ 4] const bdlt::Datetime& utcEndTime() const;
 //
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
 // FREE OPERATORS
-// [ 6] bool operator==(const baltzo::LocalTimePeriod& lhs, rhs);
-// [ 6] bool operator!=(const baltzo::LocalTimePeriod& lhs, rhs);
-// [ 5] operator<<(ostream& s, const baltzo::LocalTimePeriod& d);
+// [ 6] bool operator==(const Obj& lhs, rhs);
+// [ 6] bool operator!=(const Obj& lhs, rhs);
+// [ 5] operator<<(ostream& s, const Obj& d);
 //
 // FREE FUNCTIONS
-// [ 8] void swap(baltzo::LocalTimePeriod& a, b);
+// [ 8] void swap(Obj& a, b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: In no case does memory come from the global allocator.
-// [ 3] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
-// [ 5] CONCERN: All accessor methods are declared 'const'.
+// [ 3] CONCERN: All creator/manipulator ref params are 'const' or '&&'.
+// [ 4] CONCERN: All accessor methods are declared 'const'.
 // [ 3] CONCERN: String arguments can be either 'char *' or 'string'.
 // [ 9] CONCERN: All memory allocation is from the object's allocator.
 // [ 9] CONCERN: All memory allocation is exception neutral.
 // [ 9] CONCERN: Object value is independent of the object allocator.
 // [ 9] CONCERN: There is no temporary allocation from any allocator.
-// [ 8] CONCERN: Precondition violations are detected when enabled.
 // [10] Reserved for 'bslx' streaming.
 //
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
-       #M << ": " << M << "\n";                                               \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -185,9 +189,12 @@ static void aSsErT(int c, const char *s, int i) {
 //                        GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef baltzo::LocalTimePeriod Obj;
+typedef baltzo::LocalTimePeriod     Obj;
+typedef baltzo::LocalTimeDescriptor Desc;
+typedef bslmf::MovableRefUtil       MoveUtil;
+typedef bsls::Types::Int64          Int64;
 
-typedef baltzo::LocalTimeDescriptor T1;  // 'descriptor'
+typedef Desc                        T1;  // 'descriptor'
 typedef bdlt::Datetime              T2;  // 'utcStartTime'
 typedef bdlt::Datetime              T3;  // 'utcEndTime'
 
@@ -197,6 +204,7 @@ typedef bdlt::Datetime              T3;  // 'utcEndTime'
 
 BSLMF_ASSERT(bslmf::IsBitwiseMoveable<Obj>::value);
 BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+BSLMF_ASSERT((bsl::uses_allocator<Obj, bsl::allocator<char> >::value));
 
 // ============================================================================
 //                     GLOBAL CONSTANTS USED FOR TESTING
@@ -245,9 +253,9 @@ const int UTC_MAX =  24 * 60 * 60 - 1;
 // First, we define a function that performs a conversion from UTC time to
 // local time:
 //..
-    int convertUtcToLocalTime(bdlt::Datetime                 *result,
-                              const bdlt::Datetime&           utcTime,
-                              const baltzo::LocalTimePeriod&  period)
+    int convertUtcToLocalTime(bdlt::Datetime        *result,
+                              const bdlt::Datetime&  utcTime,
+                              const Obj&             period)
         // Load into the specified 'result' the date-time value corresponding
         // to the specified 'utcTime' in the local time described by the
         // specified 'period'.  Return 0 on success, and a non-zero value if
@@ -296,7 +304,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 12: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -321,9 +329,9 @@ int main(int argc, char *argv[])
 //..
     enum { NEW_YORK_DST_OFFSET = -4 * 60 * 60 };  // -4 hours in seconds
 
-    baltzo::LocalTimeDescriptor edt(NEW_YORK_DST_OFFSET, true, "EDT");
+    Desc edt(NEW_YORK_DST_OFFSET, true, "EDT");
 
-    baltzo::LocalTimePeriod     edt2010(edt,
+    baltzo::LocalTimePeriod    edt2010(edt,
                                        bdlt::Datetime(2010,  3, 14, 7),
                                        bdlt::Datetime(2010, 11,  7, 6));
 
@@ -358,7 +366,838 @@ int main(int argc, char *argv[])
     ASSERT(bdlt::Datetime(2010, 7, 20, 7) == localDatetime);
 //..
 
-    } break;
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // MOVE-ASSIGNMENT OPERATOR
+        //   Ensure that we can assign the value of any object of the class to
+        //   any object of the class, such that the assigned-to object
+        //   subsequently had the value the assign-from object had before the
+        //   assignment.
+        //
+        // Concerns:
+        //: 1 The assignment operator can change the value of any modifiable
+        //:   target object to the original value of any source object.
+        //:
+        //: 2 The allocator used by the target object is unchanged.
+        //:
+        //: 3 Any memory allocation is from the target object's allocator.
+        //:
+        //: 4 The signature and return type are standard.
+        //:
+        //: 5 The reference returned is to the target object (i.e., '*this').
+        //:
+        //: 6 If the allocators don't match, the value of the source object is
+        //:   not modified.
+        //:
+        //: 7 The allocator used by the source object is unchanged.
+        //:
+        //: 8 QoI: Assigning a source object having the default-constructed
+        //:   value allocates no memory.
+        //:
+        //: 9 Any memory allocation is exception neutral.
+        //:
+        //:10 Assigning an object to itself behaves as expected (alias-safety).
+        //:
+        //:11 Every object releases any allocated memory at destruction.
+        //
+        // Plan:
+        //: 1 Use the address of 'operator=' to initialize a member-function
+        //:   pointer having the appropriate signature and return type for the
+        //:   copy-assignment operator defined in this component.  (C-4)
+        //:
+        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
+        //:   default allocator (note that a ubiquitous test allocator is
+        //:   already installed as the global allocator).
+        //:
+        //: 3 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of (unique) valid object values (one per row) in
+        //:     terms of their individual attributes, including (a) first, the
+        //:     default value, (b) boundary values corresponding to every range
+        //:     of values that each individual attribute can independently
+        //:     attain, and (c) values that should require allocation from each
+        //:     individual attribute that can independently allocate memory.
+        //:
+        //:   2 Additionally, provide a column, 'MEM', indicating the
+        //:     expectation of memory allocation for all typical
+        //:     implementations of individual attribute types: ('Y') "Yes", or
+        //:     ('N') "No".
+        //:
+        //: 4 For each row 'R1' (representing a distinct object value, 'V') in
+        //:   the table described in P-3:  (C-1..2, 5..8, 11)
+        //:
+        //:   1 Use the value constructor and a "scratch" allocator to create
+        //:     a 'const' 'Obj', 'ZZ', each having the value 'V'.
+        //:
+        //:   2 Execute an inner loop that iterates over each row 'R2'
+        //:     (representing a distinct object value, 'W') in the table
+        //:     described in P-3:
+        //:
+        //:   3 For each of the iterations (P-4.2):  (C-1..2, 5..8, 11)
+        //:
+        //:     1 Create a 'bslma::TestAllocator' object, 'oa'.
+        //:
+        //:     2 Iterate a 'bool', 'MATCH' from 'false' to 'true'.
+        //:
+        //:     3 Create a reference, 'za', to either 'scratch' or 'oa',
+        //:       depending on 'MATCH'.  'za' will be the allocator with which
+        //:       the 'rhs' value of the move-assign will be created, and
+        //:       depending on 'MATCH' it will either match the allocator of
+        //:       the 'lhs' value.
+        //:
+        //:     4 Use the copy constructor to create a modifiable object 'Z'
+        //:       that is equal to 'ZZ', using the allocator 'za'.
+        //:
+        //:     5 Use the value constructor and 'oa' to create a modifiable
+        //:       'Obj', 'mX', having the value 'W'.
+        //:
+        //:     6 Move-assign 'mX' from 'Z' in the presence of injected
+        //:       exceptions (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
+        //:       macros).
+        //:
+        //:     7 Verify that the address of the return value is the same as
+        //:       that of 'mX'.  (C-5)
+        //:
+        //:     8 Use the equality-comparison operator to verify that: (C-1, 6)
+        //:
+        //:       1 The target object, 'mX', now has the same value as that of
+        //:         'ZZ'.  (C-1)
+        //:
+        //:       2 if the allocators don't match, 'Z' still has the same value
+        //:         as that of 'ZZ'.  (C-6)
+        //:
+        //:     9 Use the 'allocator' and 'get_allocator' accessors of both
+        //:       'mX' and 'Z' to verify that the respective allocator
+        //:       addresses held by the target and source objects are
+        //:       unchanged.  (C-2, 7)
+        //:
+        //:    10 Use the appropriate test allocators to verify that:
+        //:       (C-8, 11)
+        //:
+        //:       1 For an object that (a) is initialized with a value that did
+        //:         NOT require memory allocation, and (b) is then assigned a
+        //:         value that DID require memory allocation, the target object
+        //:         DOES allocate memory from its object allocator only
+        //:         (irrespective of the specific number of allocations or the
+        //:         total amount of memory allocated); also cross check with
+        //:         what is expected for 'mX' and 'Z'.
+        //:
+        //:       2 An object that is assigned a value that did NOT require
+        //:         memory allocation, does NOT allocate memory from its object
+        //:         allocator; also cross check with what is expected for 'Z'.
+        //:
+        //:       3 No additional memory is allocated by the source object.
+        //:         (C-8)
+        //:
+        //:       4 All object memory is released when the object is destroyed.
+        //:         (C-11)
+        //:
+        //: 5 Repeat steps similar to those described in P-2 except that, this
+        //:   time, there is no inner loop (as in P-4.2); instead, the source
+        //:   object, 'Z', is a reference to the target object, 'mX', and both
+        //:   'mX' and 'ZZ' are initialized to have the value 'V'.  For each
+        //:   row (representing a distinct object value, 'V') in the table
+        //:   described in P-3:  (C-9)
+        //:
+        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
+        //:
+        //:   2 Use the value constructor and 'oa' to create a modifiable 'Obj'
+        //:     'mX'; also use the value constructor and a distinct "scratch"
+        //:     allocator to create a 'const' 'Obj' 'ZZ'.
+        //:
+        //:   3 Let 'Z' be a reference providing only 'const' access to 'mX'.
+        //:
+        //:   4 Move-assign 'mX' from 'Z' in the presence of injected
+        //:     exceptions (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
+        //:     macros).  (C-9)
+        //:
+        //:   5 Verify that the address of the return value is the same as that
+        //:     of 'mX'.
+        //:
+        //:   6 Use the equality-comparison operator to verify that the
+        //:     target object, 'mX', still has the same value as that of 'ZZ'.
+        //:
+        //:   7 Use the 'allocator' and 'get_allocator' accessors of 'mX' to
+        //:     verify that it is still the object allocator.
+        //:
+        //:   8 Use the appropriate test allocators to verify that:
+        //:
+        //:     1 Any memory that is allocated is from the object allocator.
+        //:
+        //:     2 No additional (e.g., temporary) object memory is allocated
+        //:       when assigning an object value that did NOT initially require
+        //:       allocated memory.
+        //:
+        //:     3 All object memory is released when the object is destroyed.
+        //:
+        //: 6 Use the test allocator from P-2 to verify that no memory is ever
+        //:   allocated from the default allocator.  (C-3)
+        //
+        // Testing:
+        //   operator=(const Obj&& rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nMOVE-ASSIGNMENT OPERATOR\n"
+                               "========================\n";
+
+        if (verbose) cout <<
+                 "\nAssign the address of the operator to a variable." << endl;
+        {
+            typedef Obj& (Obj::*operatorMovePtr)(bslmf::MovableRef<Obj>);
+
+            // Verify that the signature and return type are standard.
+
+            operatorMovePtr operatorMoveAssignment = &Obj::operator=;
+
+            (void)operatorMoveAssignment;  // quash potential compiler warning
+        }
+
+        if (verbose) cout <<
+            "\nCreate a test allocator and install it as the default." << endl;
+
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        if (verbose) cout <<
+           "\nUse a table of distinct object values and expected memory usage."
+                                                                       << endl;
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+        // Attribute 1 Values: 'descriptor'
+
+        const T1 Adefault(&scratch);
+        const T1 Asmall(UTC_MIN, false, "",             &scratch);
+        const T1 Alarge(UTC_MAX, true,  LONGEST_STRING, &scratch);
+
+        // Attribute 2 Values: 'utcStartTime'
+
+        const T2 Bdefault;
+        const T2 Bsmall(   1,  1,  1,  1,  0,  0, 001);
+        const T2 Blarge(9999, 12, 31, 23, 59, 59, 999);
+
+        // Attribute 3 Values: 'utcEndTime'
+
+        const T3 Cdefault;
+        const T3 Csmall(   1,  1,  1,  1,  0,  0, 001);
+        const T3 Clarge(9999, 12, 31, 23, 59, 59, 999);
+
+        const struct {
+            int       d_line;  // source line number
+            char      d_mem;   // expected allocation: 'Y', 'N', '?'
+            const T1 *d_descriptor_p;
+            const T2 *d_utcStartTime_p;
+            const T3 *d_utcEndTime_p;
+        } DATA[] = {
+            //LINE  MEM    DESCR      START      END
+            //----  ---    -----      -----      ---
+
+            // default (must be first)
+            { L_,   'N',   &Adefault, &Bdefault, &Cdefault },
+
+            // 'descriptor'
+            { L_,   'N',   &Asmall,   &Bdefault, &Cdefault },
+            { L_,   'Y',   &Alarge,   &Bdefault, &Cdefault },
+
+            // 'utcStartTime' and 'utcEndTime'
+            { L_,   'N',   &Adefault, &Bsmall,   &Csmall   },
+            { L_,   'N',   &Adefault, &Bsmall,   &Clarge   },
+            { L_,   'N',   &Adefault, &Blarge,   &Clarge   },
+
+            // other
+            { L_,   'Y',   &Alarge,   &Bsmall,   &Csmall   },
+            { L_,   'Y',   &Alarge,   &Bsmall,   &Clarge   },
+            { L_,   'Y',   &Alarge,   &Blarge,   &Clarge   },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        bool anyObjectMemoryAllocatedFlag = false;  // We later check that
+                                                    // this test allocates
+                                                    // some object memory.
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int  LINE1   =  DATA[ti].d_line;
+            const char MEMSRC1 =  DATA[ti].d_mem;
+            const T1&  DESCR1  = *DATA[ti].d_descriptor_p;
+            const T2&  START1  = *DATA[ti].d_utcStartTime_p;
+            const T3&  END1    = *DATA[ti].d_utcEndTime_p;
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            const Obj ZZ(DESCR1, START1, END1, &scratch);
+
+            if (veryVerbose) { T_ P_(LINE1) P(ZZ) }
+
+            // Ensure the first row of the table contains the
+            // default-constructed value.
+
+            ASSERTV(LINE1, Obj(), ZZ, 0 != ti || Obj() == ZZ);
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int  LINE2   =  DATA[tj].d_line;
+                const char MEMSRC2 =  DATA[tj].d_mem;
+                const T1&  DESCR2  = *DATA[tj].d_descriptor_p;
+                const T2&  START2  = *DATA[tj].d_utcStartTime_p;
+                const T3&  END2    = *DATA[tj].d_utcEndTime_p;
+
+                for (int tk = 0; tk < 2; ++tk) {
+                    const bool MATCH = tk;    // do allocators match?
+
+                    bslma::TestAllocator  oa("object", veryVeryVeryVerbose);
+                    bslma::TestAllocator& za = MATCH ? oa : scratch;
+
+                    Obj Z(ZZ, &za);
+                    ASSERT(ZZ == Z);
+
+                    Obj mX(DESCR2, START2, END2, &oa);  const Obj& X = mX;
+
+                    if (veryVerbose) { T_ P_(LINE2); P_(ZZ); P(X); }
+
+                    ASSERTV(LINE1, LINE2, ZZ, X,
+                                                (ZZ == X) == (LINE1 == LINE2));
+
+                    bslma::TestAllocatorMonitor oam(&oa), sam(&scratch),
+                                                                      zam(&za);
+
+                    int numPasses = 0;
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                        ++numPasses;
+
+                        if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                        Obj *mR = &(mX = MoveUtil::move(Z));
+                        ASSERTV(LINE1, LINE2, ZZ,   X, ZZ == X);
+                        ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    ASSERTV(LINE1, LINE2, ZZ, Z, MATCH || ZZ == Z);
+
+                    ASSERTV(LINE1, LINE2, &oa, &oa == X.get_allocator());
+                    ASSERTV(LINE1, LINE2, &scratch, &za == Z.get_allocator());
+
+                    if (MATCH) {
+                        ASSERT(1 == numPasses);
+                        ASSERTV(LINE1, LINE2,
+                                          'Y' != MEMSRC2 || oam.isInUseDown());
+                    }
+                    else {
+                        ASSERTV(zam.isTotalSame());
+                        ASSERTV(zam.isInUseSame());
+
+                        if ('Y' == MEMSRC1) {
+                            if ('N' == MEMSRC2) {
+                                ASSERTV(LINE1, LINE2, 1 < numPasses);
+                                ASSERTV(LINE1, LINE2, oam.isInUseUp());
+                            }
+                            else {
+                                ASSERTV(LINE1, LINE2, 1 == numPasses);
+                                ASSERTV(LINE1, LINE2, oam.isInUseSame());
+                            }
+                        }
+                    }
+
+                    // Record if some object memory was allocated.
+
+                    anyObjectMemoryAllocatedFlag |= !!oa.numBlocksInUse();
+
+                    ASSERTV(LINE1, LINE2, sam.isInUseSame());
+
+                    ASSERTV(LINE1, LINE2, 0 == da.numBlocksTotal());
+                }
+            }
+
+            // self-assignment
+
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+            {
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                      Obj mX(DESCR1, START1, END1, &oa);
+                const Obj ZZ(DESCR1, START1, END1, &scratch);
+
+                const Obj& Z = mX;
+
+                ASSERTV(LINE1, ZZ, Z, ZZ == Z);
+
+                bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
+
+                int numPasses = 0;
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    ++numPasses;
+
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                    Obj *mR = &(mX = MoveUtil::move(Z));
+                    ASSERTV(LINE1, ZZ,   Z, ZZ == Z);
+                    ASSERTV(LINE1, ZZ,  mX, ZZ == mX);
+                    ASSERTV(LINE1, mR, &mX, mR == &mX);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(1 == numPasses);
+
+                ASSERTV(LINE1, &oa, &oa == Z.get_allocator());
+
+                ASSERTV(LINE1, oam.isInUseSame());
+
+                ASSERTV(LINE1, sam.isInUseSame());
+
+                ASSERTV(LINE1, 0 == da.numBlocksTotal());
+            }
+        }
+
+        // Double check that some object memory was allocated.
+
+        ASSERT(anyObjectMemoryAllocatedFlag);
+
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // MOVE CONSTRUCTOR
+        //   Ensure that we can create a new object of the class from any
+        //   other one, such that the new object has the same value that the
+        //   old one did prior to the move.
+        //
+        // Concerns:
+        //: 1 The move constructor (with or without a supplied allocator)
+        //:   creates an object having the same value as the original value of
+        //:   the supplied original object.
+        //:
+        //: 2 If an allocator is NOT supplied to the move constructor, the
+        //:   allocator of the source object the object allocator for the
+        //:   resulting object.
+        //:
+        //: 3 If an allocator IS supplied to the move constructor, that
+        //:   allocator becomes the object allocator for the resulting object.
+        //:
+        //: 4 Supplying no allocator propagates the allocator to the new
+        //:   object.
+        //:
+        //: 5 Supplying an allocator to the move constructor has no effect
+        //:   on subsequent object values.
+        //:
+        //: 6 Any memory allocation is from the object allocator.
+        //:
+        //: 7 If no allocator is passed, or if an allocator matching that of
+        //:   the source object is passed, no memory allocation takes place.
+        //:
+        //: 8 There is no temporary memory allocation from any allocator.
+        //:
+        //: 9 Every object releases any allocated memory at destruction.
+        //:
+        //:10 If an allocator is supplied that does not match the allocator of
+        //:   the original object, the value of the original object is
+        //:   unchanged.
+        //:
+        //:11 The allocator used by the original object is unchanged.
+        //:
+        //:12 QoI: Moving an object having the default-constructed value
+        //:   allocates no memory.
+        //:
+        //:13 Any memory allocation is exception neutral.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of (unique) valid object values (one per row) in
+        //:     terms of their individual attributes, including (a) first, the
+        //:     default value, (b) boundary values corresponding to every range
+        //:     of values that each individual attribute can independently
+        //:     attain, and (c) values that should require allocation from each
+        //:     individual attribute that can independently allocate memory.
+        //:
+        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
+        //:     the expectation of memory allocation for all typical
+        //:     implementations of individual attribute types: ('Y') "Yes",
+        //:     ('N') "No".
+        //:
+        //: 2 For each row (representing a distinct object value, 'V') in the
+        //:   table described in P-1:  (C-1..12)
+        //:
+        //:   1 Use the value constructor and a "scratch" allocator to create
+        //:     one 'const' 'Obj', 'ZZ', having the value 'V'.
+        //:
+        //:   2 Execute an inner 'config' loop choosing a different way to call
+        //:     the move constructor.
+        //:
+        //:   3 For each of these 'config' iterations (P-2.2):  (C-1..12)
+        //:
+        //:     1 Create four 'bslma::TestAllocator' objects, and install one
+        //:       as the current default allocator (note that a ubiquitous test
+        //:       allocator is already installed as the global allocator).
+        //:
+        //:     2 Create a modifiable object 'Z' with the same value as 'ZZ',
+        //:       and using the allocator 'za'.
+        //:
+        //:     3 Execute an inner loop that creates an object by
+        //:       move-constructing from a newly created object with value V,
+        //:       but invokes the move constructor differently in each
+        //:       iteration: (a) using the standard single-argument move
+        //:       constructor, (b) using the extended move constructor with a
+        //:       default-constructed allocator argument (to use the default
+        //:       allocator), (c) using the extended move constructor with the
+        //:       same allocator as the moved-from object, and (d) using the
+        //:       extended move constructor with a different allocator than the
+        //:       moved-from object.
+        //:
+        //:     3 Use the equality-comparison operator to verify that:
+        //:       (C-1, 5, 10)
+        //:
+        //:       1 The newly constructed object, 'X', has the same value as
+        //:         that of 'ZZ'.  (C-1, 5)
+        //:
+        //:       2 If the new object does not use the same allocator as the
+        //:         original object, the original object is unchanged.
+        //:
+        //:     4 Use the 'allocator' accessor of each underlying attribute
+        //:       capable of allocating memory to ensure that its object
+        //:       allocator is properly installed; also use the 'allocator'
+        //:       accessor of 'X' to verify that its object allocator is
+        //:       properly installed, and use the 'allocator' accessor of 'Z'
+        //:       to verify that the allocator that it holds is unchanged.
+        //:       (C-6, 11)
+        //:
+        //:     5 Use the appropriate test allocators to verify that:  (C-2..4,
+        //:       7..8, 12)
+        //:
+        //:       1 An object that IS expected to allocate memory does so
+        //:         from the object allocator only (irrespective of the
+        //:         specific number of allocations or the total amount of
+        //:         memory allocated).  (C-2, 4)
+        //:
+        //:       2 An object that is expected NOT to allocate memory doesn't.
+        //:         (C-12)
+        //:
+        //:       3 If an allocator was supplied at construction (P-2.1c), the
+        //:         current default allocator doesn't allocate any memory.
+        //:         (C-3)
+        //:
+        //:       4 No temporary memory is allocated from any allocator.
+        //:         (C-7)
+        //:
+        //:       5 All object memory is released when the object is destroyed.
+        //:         (C-8)
+        //:
+        //: 3 Test again, using the data of P-1, but this time just for the
+        //:   supplied allocator configuration (P-2.2c), and create the object
+        //:   as an automatic variable in the presence of injected exceptions
+        //:   (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
+        //:   (C-13)
+        //:
+        //:   1 Observe that no throws happened on a move where the created
+        //:     object uses the same allocator as the original object.
+        //
+        // Testing:
+        //   LocalTimePeriod(const Obj&& o);
+        //   LocalTimePeriod(const Obj&& o, Al a = {});
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nMOVE CONSTRUCTOR\n"
+                               "================\n";
+
+        if (verbose) cout <<
+           "\nUse a table of distinct object values and expected memory usage."
+                                                                       << endl;
+
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+        // Attribute 1 Values: 'descriptor'
+
+        const T1 Adefault(&scratch);
+        const T1 Asmall(UTC_MIN, false, "",             &scratch);
+        const T1 Alarge(UTC_MAX, true,  LONGEST_STRING, &scratch);
+
+        // Attribute 2 Values: 'utcStartTime'
+
+        const T2 Bdefault;
+        const T2 Bsmall(   1,  1,  1,  1,  0,  0, 001);
+        const T2 Blarge(9999, 12, 31, 23, 59, 59, 999);
+
+        // Attribute 3 Values: 'utcEndTime'
+
+        const T3 Cdefault;
+        const T3 Csmall(   1,  1,  1,  1,  0,  0, 001);
+        const T3 Clarge(9999, 12, 31, 23, 59, 59, 999);
+        const struct {
+            int       d_line;  // source line number
+            char      d_mem;   // expected allocation: 'Y', 'N', '?'
+            const T1 *d_descriptor_p;
+            const T2 *d_utcStartTime_p;
+            const T3 *d_utcEndTime_p;
+        } DATA[] = {
+            //LINE  MEM    DESCR      START      END
+            //----  ---    -----      -----      ---
+
+            // default (must be first)
+            { L_,   'N',   &Adefault, &Bdefault, &Cdefault },
+
+            // 'descriptor'
+            { L_,   'N',   &Asmall,   &Bdefault, &Cdefault },
+            { L_,   'Y',   &Alarge,   &Bdefault, &Cdefault },
+
+            // 'utcStartTime' and 'utcEndTime'
+            { L_,   'N',   &Adefault, &Bsmall,   &Csmall   },
+            { L_,   'N',   &Adefault, &Bsmall,   &Clarge   },
+            { L_,   'N',   &Adefault, &Blarge,   &Clarge   },
+
+            // other
+            { L_,   'Y',   &Alarge,   &Bsmall,   &Csmall   },
+            { L_,   'Y',   &Alarge,   &Bsmall,   &Clarge   },
+            { L_,   'Y',   &Alarge,   &Blarge,   &Clarge   },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        if (verbose) cout <<
+             "\nCreate objects with various allocator configurations." << endl;
+        {
+            bool anyObjectMemoryAllocatedFlag = false;  // We later check that
+                                                        // this test allocates
+                                                        // some object memory.
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE  =  DATA[ti].d_line;
+                const char MEM   =  DATA[ti].d_mem;
+                const T1&  DESCR = *DATA[ti].d_descriptor_p;
+                const T2&  START = *DATA[ti].d_utcStartTime_p;
+                const T3&  END   = *DATA[ti].d_utcEndTime_p;
+
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+                const Obj ZZ(DESCR, START, END, &scratch);
+
+                if (veryVerbose) { T_ P(ZZ) }
+
+                bool done = false;
+                for (char cfg = 'a'; !done; ++cfg) {
+                    const char CONFIG = cfg;  // how we specify the allocator
+
+                    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                    bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+                    bslma::TestAllocator za("zobject",   veryVeryVeryVerbose);
+
+                    bslma::DefaultAllocatorGuard dag(&da);
+
+                    bsl::allocator<char> daa(&da);
+                    bsl::allocator<char> saa(&sa);
+                    bsl::allocator<char> zaa(&za);
+
+                    Obj  Z(DESCR, START, END, zaa);
+
+                    const Int64 zaAlloc = za.numBytesInUse();
+
+                    bslma::TestAllocatorMonitor zam(&za);
+
+                    Obj                  *objPtr;
+                    Int64                 objAlloc;
+                    bslma::TestAllocator *objAllocatorPtr;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        objAllocatorPtr = &za;
+                        objAlloc        = objAllocatorPtr->numBytesInUse();
+                        objPtr = new (fa) Obj(MoveUtil::move(Z));
+                      } break;
+                      case 'b': {
+                        objAllocatorPtr = &da;
+                        objAlloc        = objAllocatorPtr->numBytesInUse();
+                        objPtr = new (fa) Obj(MoveUtil::move(Z), 0);
+                      } break;
+                      case 'c': {
+                        objAllocatorPtr = &da;
+                        objAlloc        = objAllocatorPtr->numBytesInUse();
+                        objPtr = new (fa) Obj(MoveUtil::move(Z),
+                                              bsl::allocator<char>());
+                      } break;
+                      case 'd': {
+                        objAllocatorPtr = &da;
+                        objAlloc        = objAllocatorPtr->numBytesInUse();
+                        objPtr = new (fa) Obj(MoveUtil::move(Z), daa);
+                      } break;
+                      case 'e': {
+                        objAllocatorPtr = &sa;
+                        objAlloc        = objAllocatorPtr->numBytesInUse();
+                        objPtr = new (fa) Obj(MoveUtil::move(Z), &sa);
+                      } break;
+                      case 'f': {
+                        objAllocatorPtr = &sa;
+                        objAlloc        = objAllocatorPtr->numBytesInUse();
+                        objPtr = new (fa) Obj(MoveUtil::move(Z), saa);
+                      } break;
+                      case 'g': {
+                        objAllocatorPtr = &za;
+                        objAlloc        = objAllocatorPtr->numBytesInUse();
+                        objPtr = new (fa) Obj(MoveUtil::move(Z), &za);
+                      } break;
+                      case 'h': {
+                        objAllocatorPtr = &za;
+                        objAlloc        = objAllocatorPtr->numBytesInUse();
+                        objPtr = new (fa) Obj(MoveUtil::move(Z), zaa);
+                        done = true;
+                      } break;
+                      default: {
+                        ASSERTV(CONFIG, !"Bad allocator config.");
+                      } break;
+                    }
+                    ASSERTV(LINE, CONFIG,
+                                 sizeof(Obj) == fa.numBytesInUse());
+
+                    Obj& mX = *objPtr;  const Obj& X = mX;
+
+                    if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
+
+                    bslma::TestAllocator&  oa = *objAllocatorPtr;
+
+                    ASSERT(zam.isTotalSame());
+                    ASSERT(zam.isInUseSame());
+
+                    ASSERTV(&oa == &da || 0 == da.numAllocations());
+
+                    // Ensure the first row of the table contains the
+                    // default-constructed value.
+
+                    if (0 == ti) {
+                        ASSERTV(LINE, CONFIG, Obj(), *objPtr,
+                                     Obj() == *objPtr);
+                    }
+
+                    // Verify the value of the object.
+
+                    ASSERTV(LINE, CONFIG, ZZ, Z, ZZ == X);
+                    ASSERTV(LINE, CONFIG, ZZ, Z, &oa == &za || ZZ == Z);
+
+                    // -------------------------------------------------------
+                    // Verify any attribute allocators are installed properly.
+                    // -------------------------------------------------------
+
+                    ASSERTV(LINE, CONFIG,
+                                        &oa == X.descriptor().get_allocator());
+
+                    // Also invoke the object's 'allocator' accessor, as well
+                    // as that of 'Z'.
+
+                    ASSERTV(LINE, CONFIG, &oa, &oa == X.get_allocator());
+
+                    ASSERTV(LINE, CONFIG, &scratch, &za == Z.get_allocator());
+
+                    // Verify no temporary memory was freed from any allocator.
+
+                    bslma::TestAllocator *allocs[] = { &da, &fa, &sa, &za, 0 };
+                    for (bslma::TestAllocator **ppAlloc = allocs;
+                                                          *ppAlloc; ++ppAlloc){
+                        bslma::TestAllocator *alloc = *ppAlloc;
+
+                        ASSERTV(LINE, CONFIG, ppAlloc - allocs,
+                           alloc->numBlocksTotal(), alloc->numBlocksInUse(),
+                           alloc->numBlocksTotal() == alloc->numBlocksInUse());
+                    }
+
+                    // Verify expected object-memory allocations.
+
+                    ASSERTV(LINE, CONFIG, MEM, oa.numBlocksInUse(),
+                                   ('N' == MEM) == (0 == oa.numBlocksInUse()));
+                    ASSERT(da.numBytesInUse() ==
+                                     (&da == &oa && 'Y' == MEM ? zaAlloc : 0));
+                    ASSERT(oa.numBytesInUse() - objAlloc ==
+                                     (&za != &oa && 'Y' == MEM ? zaAlloc : 0));
+
+                    // Record if some object memory was allocated.
+
+                    anyObjectMemoryAllocatedFlag |= !!oa.numBlocksInUse();
+
+                    // Reclaim dynamically allocated object under test.
+
+                    fa.deleteObject(objPtr);
+
+                    // Verify all memory is released on object destruction.
+
+                    ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
+                                 0 == da.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                                 0 == fa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, sa.numBlocksInUse(),
+                                 0 == sa.numBlocksInUse());
+                }  // end foreach configuration
+                ASSERT(done);
+            }  // end foreach row
+
+            // Double check that some object memory was allocated in some row.
+
+            ASSERT(anyObjectMemoryAllocatedFlag);
+
+            // Note that memory should be independently allocated for each
+            // attribute capable of allocating memory.
+        }
+
+        if (verbose) cout << "\nTesting with injected exceptions." << endl;
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE  =  DATA[ti].d_line;
+                const char MEM   =  DATA[ti].d_mem;
+                const T1&  DESCR = *DATA[ti].d_descriptor_p;
+                const T2&  START = *DATA[ti].d_utcStartTime_p;
+                const T3&  END   = *DATA[ti].d_utcEndTime_p;
+
+                const Obj ZZ(DESCR, START, END, &scratch);
+
+                bool done = false;
+                for (char c = 'a'; !done; ++c) {
+                    const char CONFIG = c;
+
+                    bslma::TestAllocator scratch("scratch",
+                                                          veryVeryVeryVerbose);
+                    bslma::TestAllocator za(     "zobject",
+                                                          veryVeryVeryVerbose);
+                    Obj Z(ZZ, &za);
+
+                    ASSERT(ZZ == Z);
+
+                    if (veryVerbose) { T_ P_(CONFIG); P_(MEM); P(ZZ); }
+
+                    bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+                    bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+                    bslma::DefaultAllocatorGuard dag(&da);
+
+                    bslma::TestAllocator& oa = 'a' == CONFIG ? sa : za;
+
+                    int numPasses = 0;
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                        ++numPasses;
+
+                        if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                        ASSERTV(numPasses, ZZ == Z);
+
+                        bsls::ObjectBuffer<Obj> ob;
+                        switch (CONFIG) {
+                          case 'a': {
+                            new (ob.address()) Obj(MoveUtil::move(Z), &sa);
+                          } break;
+                          case 'b': {
+                            new (ob.address()) Obj(MoveUtil::move(Z));
+                          } break;
+                          case 'c': {
+                            new (ob.address()) Obj(MoveUtil::move(Z), &za);
+                            done = true;
+                          } break;
+                          default: {
+                            ASSERTV(CONFIG, !"second switch failed");
+                          }
+                        }
+
+                        Obj& obj = ob.object();
+                        ASSERTV(LINE, ZZ, obj, ZZ == obj);
+                        ASSERT(&oa == obj.get_allocator());
+
+                        obj.~Obj();
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    ASSERTV(&oa == &sa || 1 == numPasses);
+                    ASSERTV(LINE, ZZ, Z, &oa == &za || ZZ == Z);
+
+                    ASSERTV(LINE, &za, &za == Z.get_allocator());
+                }
+            }
+        }
+      } break;
       case 11: {
         // --------------------------------------------------------------------
         // CLASS METHOD 'isValidUtcStartAndEndTime'
@@ -455,8 +1294,8 @@ int main(int argc, char *argv[])
 
         static const struct {
             int       d_line;           // source line number
-            const T2 *d_utcStartTime;
-            const T3 *d_utcEndTime;
+            const T2 *d_utcStartTime_p;
+            const T3 *d_utcEndTime_p;
             bool      d_isValidUtcStartAndEndTime;
         } DATA[] = {
 
@@ -520,8 +1359,8 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  LINE     =  DATA[ti].d_line;
-            const T2&  START    = *DATA[ti].d_utcStartTime;
-            const T3&  END      = *DATA[ti].d_utcEndTime;
+            const T2&  START    = *DATA[ti].d_utcStartTime_p;
+            const T3&  END      = *DATA[ti].d_utcEndTime_p;
             const bool EXPECTED =  DATA[ti].d_isValidUtcStartAndEndTime;
 
             if (veryVerbose) { T_ P_(START) P_(END) P(EXPECTED) }
@@ -535,22 +1374,22 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // BSLX STREAMING
+        // BDEX STREAMING
         //   Ensure that we can serialize the value of any object of the class,
         //   and then deserialize that value back into any object of the class.
         //
         // Concerns:
-        //   N/A
+        //: 1 N/A
         //
         // Plan:
-        //   N/A
+        //: 1 N/A
         //
         // Testing:
-        //   Reserved for 'bslx' streaming.
+        //   Reserved for BDEX streaming.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BSLX STREAMING" << endl
+                          << "BDEX STREAMING" << endl
                           << "==============" << endl;
 
         if (verbose) cout << "Not yet implemented." << endl;
@@ -567,7 +1406,7 @@ int main(int argc, char *argv[])
         //: 1 The assignment operator can change the value of any modifiable
         //:   target object to that of any source object.
         //:
-        //: 2 The allocator address held by the target object is unchanged.
+        //: 2 The allocator used by the target object is unchanged.
         //:
         //: 3 Any memory allocation is from the target object's allocator.
         //:
@@ -577,7 +1416,7 @@ int main(int argc, char *argv[])
         //:
         //: 6 The value of the source object is not modified.
         //:
-        //: 7 The allocator address held by the source object is unchanged.
+        //: 7 The allocator used by the source object is unchanged.
         //:
         //: 8 QoI: Assigning a source object having the default-constructed
         //:   value allocates no memory.
@@ -641,9 +1480,9 @@ int main(int argc, char *argv[])
         //:
         //:       2 'Z' still has the same value as that of 'ZZ'.  (C-6)
         //:
-        //:     6 Use the 'allocator' accessor of both 'mX' and 'Z' to verify
-        //:       that the respective allocator addresses held by the target
-        //:       and source objects are unchanged.  (C-2, 7)
+        //:     6 Use the 'get_allocator' accessor of both 'mX' and 'Z' to
+        //:       verify that the respective allocators held by the target and
+        //:       source objects are unchanged.  (C-2, 7)
         //:
         //:     7 Use the appropriate test allocators to verify that:
         //:       (C-8, 11)
@@ -691,8 +1530,8 @@ int main(int argc, char *argv[])
         //:   6 Use the equality-comparison operator to verify that the
         //:     target object, 'mX', still has the same value as that of 'ZZ'.
         //:
-        //:   7 Use the 'allocator' accessor of 'mX' to verify that it is still
-        //:     the object allocator.
+        //:   7 Use the 'get_allocator' accessor of 'mX' to verify that it is
+        //:     still the object allocator.
         //:
         //:   8 Use the appropriate test allocators to verify that:
         //:
@@ -708,7 +1547,11 @@ int main(int argc, char *argv[])
         //:   allocated from the default allocator.  (C-3)
         //
         // Testing:
-        //   operator=(const baltzo::LocalTimePeriod& rhs);
+        //   operator=(const Obj& rhs);
+        //   CONCERN: All memory allocation is from the object's allocator.
+        //   CONCERN: All memory allocation is exception neutral.
+        //   CONCERN: Object value is independent of the object allocator.
+        //   CONCERN: There is no temporary allocation from any allocator.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -759,9 +1602,9 @@ int main(int argc, char *argv[])
         const struct {
             int       d_line;  // source line number
             char      d_mem;   // expected allocation: 'Y', 'N', '?'
-            const T1 *d_descriptor;
-            const T2 *d_utcStartTime;
-            const T3 *d_utcEndTime;
+            const T1 *d_descriptor_p;
+            const T2 *d_utcStartTime_p;
+            const T3 *d_utcEndTime_p;
         } DATA[] = {
             //LINE  MEM    DESCR      START      END
             //----  ---    -----      -----      ---
@@ -791,9 +1634,9 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  LINE1   =  DATA[ti].d_line;
             const char MEMSRC1 =  DATA[ti].d_mem;
-            const T1&  DESCR1  = *DATA[ti].d_descriptor;
-            const T2&  START1  = *DATA[ti].d_utcStartTime;
-            const T3&  END1    = *DATA[ti].d_utcEndTime;
+            const T1&  DESCR1  = *DATA[ti].d_descriptor_p;
+            const T2&  START1  = *DATA[ti].d_utcStartTime_p;
+            const T3&  END1    = *DATA[ti].d_utcEndTime_p;
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
@@ -814,9 +1657,9 @@ int main(int argc, char *argv[])
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int  LINE2   =  DATA[tj].d_line;
                 const char MEMSRC2 =  DATA[tj].d_mem;
-                const T1&  DESCR2  = *DATA[tj].d_descriptor;
-                const T2&  START2  = *DATA[tj].d_utcStartTime;
-                const T3&  END2    = *DATA[tj].d_utcEndTime;
+                const T1&  DESCR2  = *DATA[tj].d_descriptor_p;
+                const T2&  START2  = *DATA[tj].d_utcStartTime_p;
+                const T3&  END2    = *DATA[tj].d_utcEndTime_p;
 
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -840,10 +1683,9 @@ int main(int argc, char *argv[])
 
                     LOOP4_ASSERT(LINE1, LINE2, ZZ, Z, ZZ == Z);
 
-                    LOOP4_ASSERT(LINE1, LINE2, &oa, X.allocator(),
-                                 &oa == X.allocator());
-                    LOOP4_ASSERT(LINE1, LINE2, &scratch, Z.allocator(),
-                                 &scratch == Z.allocator());
+                    ASSERTV(LINE1, LINE2, &oa, &oa == X.get_allocator());
+                    ASSERTV(LINE1, LINE2, &scratch,
+                                                &scratch == Z.get_allocator());
 
                     if ('N' == MEMSRC2 && 'Y' == MEMSRC1) {
                         LOOP2_ASSERT(LINE1, LINE2, oam.isInUseUp());
@@ -891,7 +1733,7 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE1, mR, &mX, mR == &mX);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                LOOP3_ASSERT(LINE1, &oa, Z.allocator(), &oa == Z.allocator());
+                ASSERTV(LINE1, &oa, &oa == Z.get_allocator());
 
                 LOOP_ASSERT(LINE1, oam.isInUseSame());
 
@@ -920,8 +1762,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Both functions exchange the values of the (two) supplied objects.
         //:
-        //: 2 The common object allocator address held by both objects is
-        //:   unchanged.
+        //: 2 The common object allocator used by both objects is unchanged.
         //:
         //: 3 The member function does not allocate memory from any allocator;
         //:   nor does the free function when the two objects being swapped use
@@ -978,7 +1819,7 @@ int main(int argc, char *argv[])
         //:
         //:     1 The value is unchanged.  (C-6)
         //:
-        //:     2 The allocator address held by the object is unchanged.
+        //:     2 The allocator used by the object is unchanged.
         //:
         //:     3 There was no additional object memory allocation.
         //:
@@ -998,8 +1839,8 @@ int main(int argc, char *argv[])
         //:
         //:       1 The values have been exchanged.  (C-1)
         //:
-        //:       2 The common object allocator address held by 'mX' and 'mY'
-        //:         is unchanged in both objects.  (C-2)
+        //:       2 The common object allocator used by 'mX' and 'mY' is
+        //:         unchanged in both objects.  (C-2)
         //:
         //:       3 There was no additional object memory allocation.
         //:
@@ -1043,8 +1884,8 @@ int main(int argc, char *argv[])
         //:   'BSLS_ASSERTTEST_*' macros).  (C-8)
         //
         // Testing:
-        //   void swap(baltzo::LocalTimePeriod& other);
-        //   void swap(baltzo::LocalTimePeriod& a, b);
+        //   void swap(Obj& other);
+        //   void swap(Obj& a, b);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1056,6 +1897,8 @@ int main(int argc, char *argv[])
         {
             typedef void (Obj::*funcPtr)(Obj&);
             typedef void (*freeFuncPtr)(Obj&, Obj&);
+
+            using namespace baltzo;
 
             // Verify that the signatures and return types are standard.
 
@@ -1098,9 +1941,9 @@ int main(int argc, char *argv[])
         const struct {
             int       d_line;  // source line number
             char      d_mem;   // expected allocation: 'Y', 'N', '?'
-            const T1 *d_descriptor;
-            const T2 *d_utcStartTime;
-            const T3 *d_utcEndTime;
+            const T1 *d_descriptor_p;
+            const T2 *d_utcStartTime_p;
+            const T3 *d_utcEndTime_p;
         } DATA[] = {
             //LINE  MEM    DESCR      START      END
             //----  ---    -----      -----      ---
@@ -1130,9 +1973,9 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  LINE1  =  DATA[ti].d_line;
             const char MEM1   =  DATA[ti].d_mem;
-            const T1&  DESCR1 = *DATA[ti].d_descriptor;
-            const T2&  START1 = *DATA[ti].d_utcStartTime;
-            const T3&  END1   = *DATA[ti].d_utcEndTime;
+            const T1&  DESCR1 = *DATA[ti].d_descriptor_p;
+            const T2&  START1 = *DATA[ti].d_utcStartTime_p;
+            const T3&  END1   = *DATA[ti].d_utcEndTime_p;
 
             bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -1158,7 +2001,7 @@ int main(int argc, char *argv[])
                 mW.swap(mW);
 
                 LOOP3_ASSERT(LINE1, XX, W, XX == W);
-                LOOP_ASSERT(LINE1, &oa == W.allocator());
+                LOOP_ASSERT(LINE1, &oa == W.get_allocator());
                 LOOP_ASSERT(LINE1, oam.isTotalSame());
             }
 
@@ -1169,7 +2012,7 @@ int main(int argc, char *argv[])
                 swap(mW, mW);
 
                 LOOP3_ASSERT(LINE1, XX, W, XX == W);
-                LOOP_ASSERT(LINE1, &oa == W.allocator());
+                LOOP_ASSERT(LINE1, &oa == W.get_allocator());
                 LOOP_ASSERT(LINE1, oam.isTotalSame());
             }
 
@@ -1182,9 +2025,9 @@ int main(int argc, char *argv[])
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int  LINE2  =  DATA[tj].d_line;
-                const T1&  DESCR2 = *DATA[tj].d_descriptor;
-                const T2&  START2 = *DATA[tj].d_utcStartTime;
-                const T3&  END2   = *DATA[tj].d_utcEndTime;
+                const T1&  DESCR2 = *DATA[tj].d_descriptor_p;
+                const T2&  START2 = *DATA[tj].d_utcStartTime_p;
+                const T3&  END2   = *DATA[tj].d_utcEndTime_p;
 
                       Obj mX(XX, &oa);  const Obj& X = mX;
 
@@ -1201,8 +2044,8 @@ int main(int argc, char *argv[])
 
                     LOOP4_ASSERT(LINE1, LINE2, YY, X, YY == X);
                     LOOP4_ASSERT(LINE1, LINE2, XX, Y, XX == Y);
-                    LOOP2_ASSERT(LINE1, LINE2, &oa == X.allocator());
-                    LOOP2_ASSERT(LINE1, LINE2, &oa == Y.allocator());
+                    LOOP2_ASSERT(LINE1, LINE2, &oa == X.get_allocator());
+                    LOOP2_ASSERT(LINE1, LINE2, &oa == Y.get_allocator());
                     LOOP2_ASSERT(LINE1, LINE2, oam.isTotalSame());
                 }
 
@@ -1214,8 +2057,8 @@ int main(int argc, char *argv[])
 
                     LOOP4_ASSERT(LINE1, LINE2, XX, X, XX == X);
                     LOOP4_ASSERT(LINE1, LINE2, YY, Y, YY == Y);
-                    LOOP2_ASSERT(LINE1, LINE2, &oa == X.allocator());
-                    LOOP2_ASSERT(LINE1, LINE2, &oa == Y.allocator());
+                    LOOP2_ASSERT(LINE1, LINE2, &oa == X.get_allocator());
+                    LOOP2_ASSERT(LINE1, LINE2, &oa == Y.get_allocator());
                     LOOP2_ASSERT(LINE1, LINE2, oam.isTotalSame());
                 }
             }
@@ -1269,9 +2112,9 @@ int main(int argc, char *argv[])
                    "\nFree 'swap' function with different allocators." << endl;
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int LINE1  =  DATA[ti].d_line;
-            const T1& DESCR1 = *DATA[ti].d_descriptor;
-            const T2& START1 = *DATA[ti].d_utcStartTime;
-            const T3& END1   = *DATA[ti].d_utcEndTime;
+            const T1& DESCR1 = *DATA[ti].d_descriptor_p;
+            const T2& START1 = *DATA[ti].d_utcStartTime_p;
+            const T3& END1   = *DATA[ti].d_utcEndTime_p;
 
             bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma::TestAllocator     oa2("object2", veryVeryVeryVerbose);
@@ -1283,9 +2126,9 @@ int main(int argc, char *argv[])
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int LINE2  =  DATA[tj].d_line;
-                const T1& DESCR2 = *DATA[tj].d_descriptor;
-                const T2& START2 = *DATA[tj].d_utcStartTime;
-                const T3& END2   = *DATA[tj].d_utcEndTime;
+                const T1& DESCR2 = *DATA[tj].d_descriptor_p;
+                const T2& START2 = *DATA[tj].d_utcStartTime_p;
+                const T3& END2   = *DATA[tj].d_utcEndTime_p;
 
                 Obj mX(XX, &oa);                     const Obj& X = mX;
                 Obj mY(DESCR2, START2, END2, &oa2);  const Obj& Y = mY;
@@ -1300,8 +2143,8 @@ int main(int argc, char *argv[])
 
                     LOOP4_ASSERT(LINE1, LINE2, YY, X, YY == X);
                     LOOP4_ASSERT(LINE1, LINE2, XX, Y, XX == Y);
-                    LOOP2_ASSERT(LINE1, LINE2, &oa  == X.allocator());
-                    LOOP2_ASSERT(LINE1, LINE2, &oa2 == Y.allocator());
+                    LOOP2_ASSERT(LINE1, LINE2, &oa  == X.get_allocator());
+                    LOOP2_ASSERT(LINE1, LINE2, &oa2 == Y.get_allocator());
                 }
             }
         }
@@ -1343,8 +2186,8 @@ int main(int argc, char *argv[])
         //: 3 If an allocator IS supplied to the copy constructor, that
         //:   allocator becomes the object allocator for the resulting object.
         //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
+        //: 4 Supplying a null allocator address or a default-constructed
+        //:   allocator has the same effect as not supplying an allocator.
         //:
         //: 5 Supplying an allocator to the copy constructor has no effect
         //:   on subsequent object values.
@@ -1360,7 +2203,7 @@ int main(int argc, char *argv[])
         //:
         //:10 The value of the original object is unchanged.
         //:
-        //:11 The allocator address held by the original object is unchanged.
+        //:11 The allocator used by the original object is unchanged.
         //:
         //:12 QoI: Copying an object having the default-constructed value
         //:   allocates no memory.
@@ -1390,10 +2233,10 @@ int main(int argc, char *argv[])
         //:
         //:   2 Execute an inner loop creating three distinct objects in turn,
         //:     each using the copy constructor on 'Z' from P-2.1, but
-        //:     configured differently: (a) without passing an allocator,
-        //:     (b) passing a null allocator address explicitly, and (c)
-        //:     passing the address of a test allocator distinct from the
-        //:     default.
+        //:     configured differently: (a) without passing an allocator, (b)
+        //:     passing a null allocator address or a default-constructed
+        //:     allocato explicitly, and (c) passing the address of a test
+        //:     allocator distinct from the default.
         //:
         //:   3 For each of these three iterations (P-2.2):  (C-1..12)
         //:
@@ -1419,8 +2262,8 @@ int main(int argc, char *argv[])
         //:       allocator is properly installed; also use the 'allocator'
         //:       accessor of 'X' to verify that its object allocator is
         //:       properly installed, and use the 'allocator' accessor of 'Z'
-        //:       to verify that the allocator address that it holds is
-        //:       unchanged.  (C-6, 11)
+        //:       to verify that the allocator that it holds is unchanged.
+        //:       (C-6, 11)
         //:
         //:     5 Use the appropriate test allocators to verify that:  (C-2..4,
         //:       7..8, 12)
@@ -1450,7 +2293,7 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   baltzo::LocalTimeDescriptor(const LTDescriptor& o, *bA = 0);
+        //   LocalTimePeriod(const Obj& o, Al a = {});
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1483,9 +2326,9 @@ int main(int argc, char *argv[])
         const struct {
             int       d_line;  // source line number
             char      d_mem;   // expected allocation: 'Y', 'N', '?'
-            const T1 *d_descriptor;
-            const T2 *d_utcStartTime;
-            const T3 *d_utcEndTime;
+            const T1 *d_descriptor_p;
+            const T2 *d_utcStartTime_p;
+            const T3 *d_utcEndTime_p;
         } DATA[] = {
             //LINE  MEM    DESCR      START      END
             //----  ---    -----      -----      ---
@@ -1518,9 +2361,9 @@ int main(int argc, char *argv[])
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int  LINE  =  DATA[ti].d_line;
                 const char MEM   =  DATA[ti].d_mem;
-                const T1&  DESCR = *DATA[ti].d_descriptor;
-                const T2&  START = *DATA[ti].d_utcStartTime;
-                const T3&  END   = *DATA[ti].d_utcEndTime;
+                const T1&  DESCR = *DATA[ti].d_descriptor_p;
+                const T2&  START = *DATA[ti].d_utcStartTime_p;
+                const T3&  END   = *DATA[ti].d_utcEndTime_p;
 
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
                 const Obj  Z(DESCR, START, END, &scratch);
@@ -1528,13 +2371,15 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(Z) P(ZZ) }
 
-                for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+                for (char cfg = 'a'; cfg <= 'e'; ++cfg) {
 
                     const char CONFIG = cfg;  // how we specify the allocator
 
                     bslma::TestAllocator da("default",   veryVeryVeryVerbose);
                     bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
                     bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+                    bsl::allocator<char> saa(&sa);
 
                     bslma::DefaultAllocatorGuard dag(&da);
 
@@ -1551,7 +2396,15 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &da;
                       } break;
                       case 'c': {
+                        objPtr = new (fa) Obj(Z, bsl::allocator<char>());
+                        objAllocatorPtr = &da;
+                      } break;
+                      case 'd': {
                         objPtr = new (fa) Obj(Z, &sa);
+                        objAllocatorPtr = &sa;
+                      } break;
+                      case 'e': {
+                        objPtr = new (fa) Obj(Z, saa);
                         objAllocatorPtr = &sa;
                       } break;
                       default: {
@@ -1566,7 +2419,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
 
                     bslma::TestAllocator&  oa = *objAllocatorPtr;
-                    bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+                    bslma::TestAllocator& noa = &sa == &oa ? da : sa;
 
                     // Ensure the first row of the table contains the
                     // default-constructed value.
@@ -1591,16 +2444,15 @@ int main(int argc, char *argv[])
                     // -------------------------------------------------------
 
                     LOOP2_ASSERT(LINE, CONFIG,
-                                 &oa == X.descriptor().allocator());
+                                 &oa == X.descriptor().get_allocator());
 
                     // Also invoke the object's 'allocator' accessor, as well
                     // as that of 'Z'.
 
-                    LOOP4_ASSERT(LINE, CONFIG, &oa, X.allocator(),
-                                 &oa == X.allocator());
+                    ASSERTV(LINE, CONFIG, &oa, &oa == X.get_allocator());
 
-                    LOOP4_ASSERT(LINE, CONFIG, &scratch, Z.allocator(),
-                                 &scratch == Z.allocator());
+                    ASSERTV(LINE, CONFIG, &scratch,
+                                                &scratch == Z.get_allocator());
 
                     // Verify no allocation from the non-object allocator.
 
@@ -1654,9 +2506,9 @@ int main(int argc, char *argv[])
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int  LINE  =  DATA[ti].d_line;
                 const char MEM   =  DATA[ti].d_mem;
-                const T1&  DESCR = *DATA[ti].d_descriptor;
-                const T2&  START = *DATA[ti].d_utcStartTime;
-                const T3&  END   = *DATA[ti].d_utcEndTime;
+                const T1&  DESCR = *DATA[ti].d_descriptor_p;
+                const T2&  START = *DATA[ti].d_utcStartTime_p;
+                const T3&  END   = *DATA[ti].d_utcEndTime_p;
 
                 if (veryVerbose) { T_ P_(MEM) P_(DESCR) P_(START) P(END) }
 
@@ -1678,8 +2530,7 @@ int main(int argc, char *argv[])
 
                 LOOP3_ASSERT(LINE, ZZ, Z, ZZ == Z);
 
-                LOOP3_ASSERT(LINE, &scratch, Z.allocator(),
-                             &scratch == Z.allocator());
+                ASSERTV(LINE, &scratch, &scratch == Z.get_allocator());
                 LOOP2_ASSERT(LINE, da.numBlocksInUse(),
                              0 == da.numBlocksInUse());
                 LOOP2_ASSERT(LINE, sa.numBlocksInUse(),
@@ -1773,8 +2624,8 @@ int main(int argc, char *argv[])
         //:   allocated from the default allocator.  (C-11)
         //
         // Testing:
-        //   bool operator==(const baltzo::LocalTimeDescriptor& lhs, rhs);
-        //   bool operator!=(const baltzo::LocalTimeDescriptor& lhs, rhs);
+        //   bool operator==(const Obj& lhs, rhs);
+        //   bool operator!=(const Obj& lhs, rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1828,9 +2679,9 @@ int main(int argc, char *argv[])
 
         static const struct {
             int       d_line;           // source line number
-            const T1 *d_descriptor;
-            const T2 *d_utcStartTime;
-            const T3 *d_utcEndTime;
+            const T1 *d_descriptor_p;
+            const T2 *d_utcStartTime_p;
+            const T3 *d_utcEndTime_p;
         } DATA[] = {
 
         // The first row of the table below represents an object value
@@ -1854,9 +2705,9 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  LINE1  = DATA[ti].d_line;
-            const T1  *DESCR1 = DATA[ti].d_descriptor;
-            const T2  *START1 = DATA[ti].d_utcStartTime;
-            const T3  *END1   = DATA[ti].d_utcEndTime;
+            const T1  *DESCR1 = DATA[ti].d_descriptor_p;
+            const T2  *START1 = DATA[ti].d_utcStartTime_p;
+            const T3  *END1   = DATA[ti].d_utcEndTime_p;
 
             if (veryVerbose) { T_ P_(LINE1) P_(*DESCR1) P_(*START1) P(*END1) }
 
@@ -1872,9 +2723,9 @@ int main(int argc, char *argv[])
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int  LINE2  = DATA[tj].d_line;
-                const T1  *DESCR2 = DATA[tj].d_descriptor;
-                const T2  *START2 = DATA[tj].d_utcStartTime;
-                const T3  *END2   = DATA[tj].d_utcEndTime;
+                const T1  *DESCR2 = DATA[tj].d_descriptor_p;
+                const T2  *START2 = DATA[tj].d_utcStartTime_p;
+                const T3  *END2   = DATA[tj].d_utcEndTime_p;
 
                 if (veryVerbose) {
                                T_ T_ P_(LINE2)
@@ -1990,7 +2841,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
-        //   operator<<(ostream& s, const baltzo::LocalTimeDescriptor& d);
+        //   operator<<(ostream& s, const Obj& d);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2001,6 +2852,8 @@ int main(int argc, char *argv[])
                              "the output 'operator<<' to variables." << endl;
         {
             using namespace baltzo;
+            typedef bsl::ostream ostream;
+
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
 
@@ -2013,11 +2866,11 @@ int main(int argc, char *argv[])
             (void)operatorOp;
         }
 
-        const Obj A(baltzo::LocalTimeDescriptor(-7, true,  "MDT"),
+        const Obj A(Desc(-7, true,  "MDT"),
                     bdlt::Datetime(2010,  4, 15,  8),
                     bdlt::Datetime(2010, 12,  8,  9));
 
-        const Obj B(baltzo::LocalTimeDescriptor( 2, false, "IDT"),
+        const Obj B(Desc( 2, false, "IDT"),
                     bdlt::Datetime(2011,  5, 16,  9),
                     bdlt::Datetime(2012,  1,  9, 10));
 
@@ -2220,7 +3073,7 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) { T_ T_ Q(EXP) cout << EXP; }
 
-                ostringstream os;
+                bsl::ostringstream os;
 
                 if (-9 == L && -9 == SPL) {
 
@@ -2253,6 +3106,12 @@ int main(int argc, char *argv[])
         // BASIC ACCESSORS
         //   Ensure each basic accessor properly interprets object state.
         //
+        //   In case 3 we demonstrated that all basic accessors work properly
+        //   with respect to attributes initialized by the value constructor.
+        //   Here we use the default constructor and primary manipulators,
+        //   which were fully tested in case 2, to further corroborate that
+        //   these accessors are properly interpreting object state.
+        //
         // Concerns:
         //: 1 Each accessor returns the value of the corresponding attribute
         //:   of the object.
@@ -2266,12 +3125,6 @@ int main(int argc, char *argv[])
         //:   providing only non-modifiable access.
         //
         // Plan:
-        //   In case 3 we demonstrated that all basic accessors work properly
-        //   with respect to attributes initialized by the value constructor.
-        //   Here we use the default constructor and primary manipulators,
-        //   which were fully tested in case 2, to further corroborate that
-        //   these accessors are properly interpreting object state.
-        //
         //: 1 Create two 'bslma::TestAllocator' objects, and install one as
         //:   the current default allocator (note that a ubiquitous test
         //:   allocator is already installed as the global allocator).
@@ -2302,9 +3155,11 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bslma::Allocator *allocator() const;
-        //   const baltzo::LocalTimePeriod& descriptor() const;
+        //   bsl::allocator<char> get_allocator() const;
+        //   const Obj& descriptor() const;
         //   const bdlt::Datetime& utcStartTime() const;
         //   const bdlt::Datetime& utcEndTime() const;
+        //   CONCERN: All accessor methods are declared 'const'.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2317,89 +3172,113 @@ int main(int argc, char *argv[])
         // 'D' values: These are the default-constructed values.
         // -----------------------------------------------------
 
-        const T1 D1 = baltzo::LocalTimeDescriptor();  // 'descriptor'
-        const T2 D2 = bdlt::Datetime();               // 'utcStartTime'
-        const T3 D3 = bdlt::Datetime();               // 'utcEndTime'
+        const T1 D1 = Desc();              // 'descriptor'
+        const T2 D2 = bdlt::Datetime();    // 'utcStartTime'
+        const T3 D3 = bdlt::Datetime();    // 'utcEndTime'
 
         // -------------------------------------------------------
         // 'A' values: Should cause memory allocation if possible.
         // -------------------------------------------------------
 
-        const T1 A1 = baltzo::LocalTimeDescriptor(
-                                                UTC_MIN,
-                                                true,
-                                                "a_" SUFFICIENTLY_LONG_STRING);
+        const T1 A1 = Desc(UTC_MIN, true, "a_" SUFFICIENTLY_LONG_STRING);
         const T2 A2 = bdlt::Datetime(2010,  4, 15,  8);
         const T3 A3 = bdlt::Datetime(2010, 12,  8,  9);
 
         if (verbose) cout <<
            "\nCreate two test allocators; install one as the default." << endl;
 
-        bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
-
-        bslma::DefaultAllocatorGuard dag(&da);
-
         if (verbose) cout <<
                  "\nCreate an object, passing in the other allocator." << endl;
 
-        Obj mX(&oa);  const Obj& X = mX;
 
-        if (verbose) cout <<
-                "\nVerify all basic accessors report expected values." << endl;
-        {
-            const T1& descriptor = X.descriptor();
-            LOOP2_ASSERT(D1, descriptor, D1 == descriptor);
+        enum { e_NO_ALLOC, e_BSL_ALLOC, e_BSLMA_ALLOC };
 
-            const T2& utcStartTime = X.utcStartTime();
-            LOOP2_ASSERT(D2, utcStartTime, D2 == utcStartTime);
+        for (int ti = 0; ti <= e_BSLMA_ALLOC; ++ti) {
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
 
-            const T3& utcEndTime = X.utcEndTime();
-            LOOP2_ASSERT(D3, utcEndTime, D3 == utcEndTime);
+            bsl::allocator<char> daa(&da);
+            bsl::allocator<char> oaa(&oa);
 
-            ASSERT(&oa == X.allocator());
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            bsls::ObjectBuffer<Obj> footprint;
+
+            switch (ti) {
+              case e_NO_ALLOC: {
+                new (footprint.address()) Obj();
+              } break;
+              case e_BSL_ALLOC: {
+                new (footprint.address()) Obj(oaa);
+              } break;
+              case e_BSLMA_ALLOC: {
+                new (footprint.address()) Obj(&oa);
+              } break;
+            }
+
+            Obj& mX = footprint.object();  const Obj& X = mX;
+
+            if (veryVerbose) cout <<
+                      "\nVerify all basic accessors report expected values.\n";
+            {
+                const T1& descriptor = X.descriptor();
+                LOOP2_ASSERT(D1, descriptor, D1 == descriptor);
+
+                const T2& utcStartTime = X.utcStartTime();
+                LOOP2_ASSERT(D2, utcStartTime, D2 == utcStartTime);
+
+                const T3& utcEndTime = X.utcEndTime();
+                LOOP2_ASSERT(D3, utcEndTime, D3 == utcEndTime);
+
+                ASSERT((e_NO_ALLOC == ti ? daa : oaa) == X.get_allocator());
+                ASSERT((e_NO_ALLOC == ti ? &da : &oa) == X.get_allocator());
+            }
+
+            if (veryVerbose) cout <<
+                  "\nApply primary manipulators and verify expected values.\n";
+
+            if (veryVerbose) { T_ Q(descriptor) }
+            {
+                mX.setDescriptor(A1);
+
+                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
+
+                const T1& descriptor = X.descriptor();
+                LOOP2_ASSERT(A1, descriptor, A1 == descriptor);
+
+                ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
+            }
+
+            if (veryVerbose) { T_ Q(utcStartTime and utcEndTime) }
+            {
+                ASSERT(A2 != A3);
+                mX.setUtcStartAndEndTime(A2, A3);
+
+                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
+
+                const T2& utcStartTime = X.utcStartTime();
+                LOOP2_ASSERT(A2, utcStartTime, A2 == utcStartTime);
+
+                const T3& utcEndTime = X.utcEndTime();
+                LOOP2_ASSERT(A3, utcEndTime, A3 == utcEndTime);
+
+                ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
+            }
+
+            // Double check that some object memory was allocated.
+
+            ASSERT(1 <= (e_NO_ALLOC == ti ? da.numBlocksTotal()
+                                          : oa.numBlocksTotal()));
+
+            // Note that memory should be independently allocated for each
+            // attribute capable of allocating memory.
+
+            if (e_NO_ALLOC != ti) {
+                    LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            }
+
+            mX.~Obj();
         }
-
-        if (verbose) cout <<
-            "\nApply primary manipulators and verify expected values." << endl;
-
-        if (veryVerbose) { T_ Q(descriptor) }
-        {
-            mX.setDescriptor(A1);
-
-            bslma::TestAllocatorMonitor oam(&oa), dam(&da);
-
-            const T1& descriptor = X.descriptor();
-            LOOP2_ASSERT(A1, descriptor, A1 == descriptor);
-
-            ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
-        }
-
-        if (veryVerbose) { T_ Q(utcStartTime and utcEndTime) }
-        {
-            ASSERT(A2 != A3);
-            mX.setUtcStartAndEndTime(A2, A3);
-
-            bslma::TestAllocatorMonitor oam(&oa), dam(&da);
-
-            const T2& utcStartTime = X.utcStartTime();
-            LOOP2_ASSERT(A2, utcStartTime, A2 == utcStartTime);
-
-            const T3& utcEndTime = X.utcEndTime();
-            LOOP2_ASSERT(A3, utcEndTime, A3 == utcEndTime);
-
-            ASSERT(oam.isInUseSame());  ASSERT(dam.isInUseSame());
-        }
-
-        // Double check that some object memory was allocated.
-
-        ASSERT(1 <= oa.numBlocksTotal());
-
-        // Note that memory should be independently allocated for each
-        // attribute capable of allocating memory.
-
-        LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -2463,8 +3342,9 @@ int main(int argc, char *argv[])
         //:   1 Execute an inner loop creating three distinct objects, in turn,
         //:     each object having the same value, 'V', but configured
         //:     differently: (a) without passing an allocator, (b) passing a
-        //:     null allocator address explicitly, and (c) passing the address
-        //:     of a test allocator distinct from the default allocator.
+        //:     null allocator address or a default constructed allocator
+        //:     explicitly, and (c) passing the address of a test allocator
+        //:     distinct from the default allocator.
         //:
         //:   2 For each of the three iterations in P-2.1:  (C-1, 4..11)
         //:
@@ -2521,7 +3401,9 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   baltzo::LocalTimePeriod(const LTD& d, const Dt& s, e, Al *bA = 0);
+        //   LocalTimePeriod(const LTD& d, const Dt& s, e, Al a = {});
+        //   CONCERN: String arguments can be either 'char *' or 'string'.
+        //   CONCERN: All creator/manipulator ref params are 'const' or '&&'.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2546,53 +3428,45 @@ int main(int argc, char *argv[])
             //             ---
 
             // default (must be first)
-            { L_,   'N',   baltzo::LocalTimeDescriptor(),
+            { L_,   'N',   Desc(),
                            bdlt::Datetime(),
                            bdlt::Datetime()
             },
 
             // 'descriptor'
-            { L_,   'N',   baltzo::LocalTimeDescriptor(UTC_MIN, false, ""),
+            { L_,   'N',   Desc(UTC_MIN, false, ""),
                            bdlt::Datetime(),
                            bdlt::Datetime()
             },
-            { L_,   'Y',   baltzo::LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING),
+            { L_,   'Y',   Desc(UTC_MAX, true, LONGEST_STRING),
                            bdlt::Datetime(),
                            bdlt::Datetime()
             },
 
             // 'utcStartTime' and 'utcEndTime'
-            { L_,   'N',   baltzo::LocalTimeDescriptor(),
+            { L_,   'N',   Desc(),
                            bdlt::Datetime(   1,  1,  1,  1,  0,  0, 001),
                            bdlt::Datetime(   1,  1,  1,  1,  0,  0, 001)
             },
-            { L_,   'N',   baltzo::LocalTimeDescriptor(),
+            { L_,   'N',   Desc(),
                            bdlt::Datetime(   1,  1,  1,  1,  0,  0, 001),
                            bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999)
             },
-            { L_,   'N',   baltzo::LocalTimeDescriptor(),
+            { L_,   'N',   Desc(),
                            bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999),
                            bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999)
             },
 
             // other
-            { L_,   'Y',   baltzo::LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING),
+            { L_,   'Y',   Desc(UTC_MAX, true, LONGEST_STRING),
                            bdlt::Datetime(   1,  1,  1,  1,  0,  0, 001),
                            bdlt::Datetime(   1,  1,  1,  1,  0,  0, 001)
             },
-            { L_,   'Y',   baltzo::LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING),
+            { L_,   'Y',   Desc(UTC_MAX, true, LONGEST_STRING),
                            bdlt::Datetime(   1,  1,  1,  1,  0,  0, 001),
                            bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999)
             },
-            { L_,   'Y',   baltzo::LocalTimeDescriptor(UTC_MAX,
-                                                      true,
-                                                      LONGEST_STRING),
+            { L_,   'Y',   Desc(UTC_MAX, true, LONGEST_STRING),
                            bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999),
                            bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999)
             },
@@ -2616,7 +3490,7 @@ int main(int argc, char *argv[])
 
                 LOOP2_ASSERT(LINE, MEM, MEM && strchr("YN?", MEM));
 
-                for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+                for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
 
                     const char CONFIG = cfg;  // how we specify the allocator
 
@@ -2641,6 +3515,13 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &da;
                       } break;
                       case 'c': {
+                        objPtr = new (fa) Obj(DESCR,
+                                              START,
+                                              END,
+                                              bsl::allocator<char>());
+                        objAllocatorPtr = &da;
+                      } break;
+                      case 'd': {
                         objPtr = new (fa) Obj(DESCR, START, END, &sa);
                         objAllocatorPtr = &sa;
                       } break;
@@ -2656,7 +3537,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
 
                     bslma::TestAllocator&  oa = *objAllocatorPtr;
-                    bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+                    bslma::TestAllocator& noa = 'd' != CONFIG ? sa : da;
 
                     // Use untested functionality to help ensure the first row
                     // of the table contains the default-constructed value.
@@ -2686,12 +3567,11 @@ int main(int argc, char *argv[])
                     // -------------------------------------------------------
 
                     LOOP2_ASSERT(LINE, CONFIG,
-                                 &oa == X.descriptor().allocator());
+                                 &oa == X.descriptor().get_allocator());
 
-                    // Also invoke the object's 'allocator' accessor.
+                    // Also invoke the object's 'get_allocator' accessor.
 
-                    LOOP4_ASSERT(LINE, CONFIG, &oa, X.allocator(),
-                                 &oa == X.allocator());
+                    ASSERTV(LINE, CONFIG, &oa, &oa == X.get_allocator());
 
                     // Verify no allocation from the non-object allocator.
 
@@ -2750,11 +3630,11 @@ int main(int argc, char *argv[])
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int                         LINE  = DATA[ti].d_line;
                 const char                        MEM   = DATA[ti].d_mem;
-                const baltzo::LocalTimeDescriptor& DESCR =
+                const Desc&                       DESCR =
                                                          DATA[ti].d_descriptor;
-                const bdlt::Datetime&              START =
+                const bdlt::Datetime&             START =
                                                        DATA[ti].d_utcStartTime;
-                const bdlt::Datetime&              END   =
+                const bdlt::Datetime&             END   =
                                                          DATA[ti].d_utcEndTime;
 
                 if (veryVerbose) { T_ P_(MEM) P_(DESCR) P_(START) P(END) }
@@ -2790,11 +3670,11 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\t'utcStartTime' and 'utcEndTime'"
                                   << endl;
 
-            const baltzo::LocalTimeDescriptor defaultLTD;
-            const bdlt::Datetime              defaultDt;
-            const bdlt::Datetime               someDt(2010,  4, 15,  8);
-            const bdlt::Datetime              earlyDt(2011,  6, 16,  9);
-            const bdlt::Datetime              laterDt(2012,  1, 10, 11);
+            const Desc            defaultLTD;
+            const bdlt::Datetime  defaultDt;
+            const bdlt::Datetime  someDt( 2010,  4, 15,  8);
+            const bdlt::Datetime  earlyDt(2011,  6, 16,  9);
+            const bdlt::Datetime  laterDt(2012,  1, 10, 11);
 
             ASSERT_SAFE_PASS(Obj(defaultLTD, defaultDt, defaultDt));
             ASSERT_SAFE_FAIL(Obj(defaultLTD, defaultDt,    someDt));
@@ -2864,9 +3744,10 @@ int main(int argc, char *argv[])
         //:
         //: 2 Using a loop-based approach, default-construct three distinct
         //:   objects, in turn, but configured differently: (a) without passing
-        //:   an allocator, (b) passing a null allocator address explicitly,
-        //:   and (c) passing the address of a test allocator distinct from the
-        //:   default.  For each of these three iterations:  (C-1..14)
+        //:   an allocator, (b) passing a null allocator address or
+        //:   default-constructed allocator explicitly, and (c) passing the
+        //:   address of a test allocator distinct from the default.  For each
+        //:   of these three iterations: (C-1..14)
         //:
         //:   1 Create three 'bslma::TestAllocator' objects, and install one as
         //:     as the current default allocator (note that a ubiquitous test
@@ -2924,9 +3805,9 @@ int main(int argc, char *argv[])
         //:   (C-15)
         //
         // Testing:
-        //   baltzo::LocalTimePeriod(bslma::Allocator *bA = 0);
-        //   ~baltzo::LocalTimePeriod();
-        //   void setDescriptor(const baltzo::LocalTimeDescriptor& value);
+        //   LocalTimePeriod(Al a = {});
+        //   ~LocalTimePeriod();
+        //   void setDescriptor(const Desc& value);
         //   void setUtcStartAndEndTime(const bdlt::Datetime& start, end);
         // --------------------------------------------------------------------
 
@@ -2938,28 +3819,26 @@ int main(int argc, char *argv[])
 
         // 'D' values: These are the default-constructed values.
 
-        const T1 D1 = baltzo::LocalTimeDescriptor();  // 'descriptor'
+        const T1 D1 = Desc();  // 'descriptor'
         const T2 D2 = bdlt::Datetime();               // 'utcStartTime'
         const T3 D3 = bdlt::Datetime();               // 'utcEndTime'
 
         // 'A' values: Should cause memory allocation if possible.
 
-        const T1 A1 = baltzo::LocalTimeDescriptor(
-                                                UTC_MIN,
-                                                true,
-                                                "a_" SUFFICIENTLY_LONG_STRING);
+        const T1 A1 = Desc(UTC_MIN, true, "a_" SUFFICIENTLY_LONG_STRING);
         const T2 A2 = bdlt::Datetime(2010,  4, 15,  8);
         const T3 A3 = bdlt::Datetime(2010, 12,  8,  9);
 
         // 'B' values: Should NOT cause allocation (use alternate string type).
-        const T1 B1 = baltzo::LocalTimeDescriptor(UTC_MAX, false, "ETD");
+
+        const T1 B1 = Desc(UTC_MAX, false, "ETD");
         const T2 B2 = bdlt::Datetime(2011,  6, 16,  9);
         const T3 B3 = bdlt::Datetime(2012,  1, 10, 11);
 
         if (verbose) cout << "\nTesting with various allocator configurations."
                           << endl;
 
-        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+        for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
 
             const char CONFIG = cfg;  // how we specify the allocator
 
@@ -2982,6 +3861,10 @@ int main(int argc, char *argv[])
                 objAllocatorPtr = &da;
               } break;
               case 'c': {
+                objPtr = new (fa) Obj(bsl::allocator<char>());
+                objAllocatorPtr = &da;
+              } break;
+              case 'd': {
                 objPtr = new (fa) Obj(&sa);
                 objAllocatorPtr = &sa;
               } break;
@@ -2992,17 +3875,17 @@ int main(int argc, char *argv[])
 
             Obj&                   mX = *objPtr;  const Obj& X = mX;
             bslma::TestAllocator&  oa = *objAllocatorPtr;
-            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+            bslma::TestAllocator& noa = 'd' != CONFIG ? sa : da;
 
             // -------------------------------------------------------
             // Verify any attribute allocators are installed properly.
             // -------------------------------------------------------
 
-            LOOP_ASSERT(CONFIG, &oa == X.descriptor().allocator());
+            LOOP_ASSERT(CONFIG, &oa == X.descriptor().get_allocator());
 
-            // Also invoke the object's 'allocator' accessor.
+            // Also invoke the object's 'gt_allocator' accessor.
 
-            LOOP3_ASSERT(CONFIG, &oa, X.allocator(), &oa == X.allocator());
+            LOOP3_ASSERT(CONFIG, &oa, X.allocator(), &oa == X.get_allocator());
 
             // Verify no allocation from the object/non-object allocators.
 
@@ -3184,8 +4067,8 @@ int main(int argc, char *argv[])
 
         // Attribute 1 Values: 'descriptor'
 
-        const T1 D1 = baltzo::LocalTimeDescriptor();     // default value
-        const T1 A1 = baltzo::LocalTimeDescriptor(-4 * 60 * 60, true, "EDT");
+        const T1 D1 = Desc();     // default value
+        const T1 A1 = Desc(-4 * 60 * 60, true, "EDT");
 
         // Attribute 2 Values: 'utcStartTime'
 

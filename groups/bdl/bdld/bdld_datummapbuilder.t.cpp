@@ -31,7 +31,9 @@ using namespace bslstl;
 // maps of 'Datum' objects.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] DatumMapBuilder(SizeType, bslma::Allocator *);
+// [ 2] DatumMapBuilder();
+// [ 2] DatumMapBuilder(allocator_type);
+// [ 2] DatumMapBuilder(SizeType, allocator_type);
 // [ 2] ~DatumMapBuilder();
 //
 // MANIPULATORS
@@ -43,6 +45,7 @@ using namespace bslstl;
 //
 // ACCESSORS
 // [ 3] SizeType capacity() const;
+// [ 3] allocator_type get_allocator() const;
 // [ 3] SizeType size() const;
 //
 // TRAITS
@@ -110,7 +113,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                    GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef DatumMapBuilder Obj;
+typedef DatumMapBuilder     Obj;
+typedef Obj::allocator_type AllocType;
 
 DatumMapEntry values[] = {
     DatumMapEntry(StringRef("first"),  Datum::createInteger(1)),
@@ -287,9 +291,9 @@ int main(int argc, char *argv[])
         //:   status.  (C-1)
         //:
         //: 2 Create a 'DatumMapBuilder' object using specified allocator.
-        //:   Append few elements to the map.  Get a 'Datum' object by calling
-        //:   'sortAndCommit' and verify it's status.  Also verify that the
-        //:   elements in the map have been sorted.  (C-2)
+        //:   Append a few elements to the map.  Get a 'Datum' object by
+        //:   calling 'sortAndCommit' and verify it's status.  Also verify that
+        //:   the elements in the map have been sorted.  (C-2)
         //:
         //: 3 After all objects deletion verify that no memory from specified
         //:   allocator is used.  (C-3)
@@ -310,7 +314,7 @@ int main(int argc, char *argv[])
                 Obj        mB(0, &ta);
 
                 Datum        mD = mB.sortAndCommit();
-                const Datum& D = mD;
+                const Datum& D  = mD;
 
                 ASSERT(true  == D.isMap());
                 ASSERT(0     == D.theMap().size());
@@ -327,7 +331,7 @@ int main(int argc, char *argv[])
                 mB.append(values, NUM_ELEMENTS);
 
                 Datum        mD = mB.sortAndCommit();
-                const Datum& D = mD;
+                const Datum& D  = mD;
 
                 ASSERT(true == D.isMap());
 
@@ -397,7 +401,7 @@ int main(int argc, char *argv[])
             mB.setSorted(true);
 
             Datum        mD = mB.commit();
-            const Datum& D = mD;
+            const Datum& D  = mD;
 
             ASSERT(true  == D.isMap());
             ASSERT(false == D.theMap().isSorted());
@@ -435,7 +439,7 @@ int main(int argc, char *argv[])
             mB.setSorted(true);
 
             Datum        mD = mB.commit();
-            const Datum& D = mD;
+            const Datum& D  = mD;
 
             ASSERT(true == D.isMap());
 
@@ -495,7 +499,7 @@ int main(int argc, char *argv[])
         //: 2 The 'pushBack' method grows the map, only if it is filled to the
         //:   capacity.
         //:
-        //: 3 The 'pushBack' method uses allocator, passed at the construction,
+        //: 3 The 'pushBack' method uses the allocator, passed at construction,
         //:   to grow the map.
         //
         // Plan:
@@ -585,7 +589,11 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The 'capacity' method returns the capacity of the datum map.
         //:
-        //: 2 The 'size' method returns the current size of the datum map.
+        //: 2 The 'get_allocator' method returns the allocator specified at
+        //:   construction, and that is a default allocator if none was
+        //:   specified at construction.
+        //:
+        //: 3 The 'size' method returns the current size of the datum map.
         //
         // Plan:
         //: 1 Create a 'DatumMapBuilder' object. Append few elements to the
@@ -594,11 +602,11 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //    SizeType capacity() const;
+        //    allocator_type get_allocator() const;
         //    SizeType size() const;
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "BASIC ACCESSORS" << endl
-                          << "===============" << endl;
+        if (verbose) cout << "\nBASIC ACCESSORS"
+                          << "\n===============" << endl;
 
         if (verbose) cout << "\nTesting 'capacity' and 'size'." << endl;
         {
@@ -607,24 +615,29 @@ int main(int argc, char *argv[])
             Obj        mB(0, &ta);
             const Obj& B = mB;
 
-            ASSERT(0 == B.capacity());
-            ASSERT(0 == B.size());
+            ASSERT(0   == B.capacity());
+            ASSERT(&ta == B.get_allocator());
+            ASSERT(0   == B.size());
 
             mB.append(values, 1);
 
-            ASSERT(1 == B.capacity());
-            ASSERT(1 == B.size());
+            ASSERT(1   == B.capacity());
+            ASSERT(&ta == B.get_allocator());
+            ASSERT(1   == B.size());
 
             mB.append(values + 1, 1);
 
-            ASSERT(2 == B.capacity());
-            ASSERT(2 == B.size());
+            ASSERT(2   == B.capacity());
+            ASSERT(&ta == B.get_allocator());
+            ASSERT(2   == B.size());
 
             mB.append(values + 2, 3);
 
-            ASSERT(8 == B.capacity());
-            ASSERT(5 == B.size());
+            ASSERT(8   == B.capacity());
+            ASSERT(&ta == B.get_allocator());
+            ASSERT(5   == B.size());
         }
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -634,7 +647,7 @@ int main(int argc, char *argv[])
         //: 1 The constructor correctly sets required capacity and binds given
         //:   allocator with created object.
         //:
-        //: 2 The 'append' method appends 'Datum' value with the specified
+        //: 2 The 'append' method appends a 'Datum' value with the specified
         //:   key to the end of the map.
         //:
         //: 3 The 'append' method grows the map, only if there is no place to
@@ -659,44 +672,55 @@ int main(int argc, char *argv[])
         //:   store required number of elements has been allocated by the
         //:   specified allocator.  (C-1)
         //:
-        //: 2 Create a 'DatumMapBuilder' object.  Append few elements to the
+        //: 2 Execute a loop that creates an object but invokes the default
+        //:   constructor differently in each iteration: (a) without passing an
+        //:   allocator, (b) passing a default-constructed allocator explicitly
+        //:   (c) passing the address of a test allocator distinct from the
+        //:   default, and (d) passing in an allocator constructed from the
+        //:   address of a test allocator distinct from the default.  For each
+        //:   of these iterations verify that the correct allocator is returned
+        //:   by 'get_allocator()' and is used when memory is actually
+        //:   allocated.
+        //:
+        //: 3 Create a 'DatumMapBuilder' object.  Append a few elements to the
         //:   map and verify that the capacity has been increased only if there
         //:   is no place for new items.  Verify that memory is allocated by
         //:   the allocator passed on the builder construction.  (C-3..4)
         //:
-        //: 3 Create a 'DatumMapBuilder' object and get a 'Datum' object by
+        //: 4 Create a 'DatumMapBuilder' object and get a 'Datum' object by
         //:   committing the map.  Verify that acquired object contains empty
         //:   map.  (C-5)
         //:
-        //: 4 Create a 'DatumMapBuilder' object.  Append few elements to the
+        //: 5 Create a 'DatumMapBuilder' object.  Append a few elements to the
         //:   map and get a 'Datum' object by committing it.  Verify that
         //:   received object contains items in the same order as they has been
         //:   passed to the 'append' method.  (C-2,5)
         //:
-        //: 5 Create a 'DatumMapBuilder' object.  Append few elements to the
+        //: 6 Create a 'DatumMapBuilder' object.  Append a few elements to the
         //:   map and let the object leave the scope.  Verify no memory,
         //:   allocated by allocator, given on object creation, is used.  (C-6)
         //:
-        //: 6 Create a 'DatumMapBuilder' object.  Append few elements to the
+        //: 7 Create a 'DatumMapBuilder' object.  Append a few elements to the
         //:   map and get a 'Datum' object by committing it.  Let the builder
         //:   leave the scope.  Verify that 'Datum' object hasn't been changed.
         //:   (C-7)
         //:
-        //: 7 Verify that, in appropriate build modes, defensive checks are
+        //: 8 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid attribute values, but not triggered for
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-8)
         //
         // Testing:
-        //    DatumMapBuilder(SizeType, bslma::Allocator *);
+        //    DatumMapBuilder();
+        //    DatumMapBuilder(allocator_type);
+        //    DatumMapBuilder(SizeType, allocator_type);
         //    ~DatumMapBuilder();
         //    void append(const DatumMapEntry *, int);
         //    Datum commit();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "PRIMARY MANIPULATORS" << endl
-                          << "====================" << endl;
+        if (verbose) cout << "\nPRIMARY MANIPULATORS"
+                          << "\n====================" << endl;
 
         if (verbose) cout << "\nTesting constructor." << endl;
         {
@@ -714,8 +738,11 @@ int main(int argc, char *argv[])
                 Obj        mB(CAPACITY, &ta);
                 const Obj& B = mB;
 
-                ASSERT(CAPACITY            == B.capacity());
-                ASSERT(NUM_ALLOCATED_BYTES == ta.numBytesInUse());
+                ASSERT(CAPACITY == B.capacity());
+                ASSERT(&ta      == B.get_allocator());
+
+                ASSERTV(NUM_ALLOCATED_BYTES, ta.numBytesInUse(),
+                        NUM_ALLOCATED_BYTES == ta.numBytesInUse());
             }
 
 
@@ -728,8 +755,11 @@ int main(int argc, char *argv[])
                 Obj        mB(CAPACITY);
                 const Obj& B = mB;
 
-                ASSERT(CAPACITY            == B.capacity());
-                ASSERT(NUM_ALLOCATED_BYTES == ta.numBytesInUse());
+                ASSERT(CAPACITY == B.capacity());
+                ASSERT(&ta      == B.get_allocator());
+
+                ASSERTV(NUM_ALLOCATED_BYTES, ta.numBytesInUse(),
+                        NUM_ALLOCATED_BYTES == ta.numBytesInUse());
             }
 
             if (verbose) cout <<
@@ -741,9 +771,107 @@ int main(int argc, char *argv[])
                 Obj        mB;
                 const Obj& B = mB;
 
-                ASSERT(0 == B.capacity());
-                ASSERT(0 == ta.numBytesInUse());
+                ASSERT(0   == B.capacity());
+                ASSERT(&ta == B.get_allocator());
+                ASSERT(0   == ta.numBytesInUse());
             }
+
+            if (verbose) cout << "\tTesting constructor with default "
+                              << "capacity and explicit allocator." << endl;
+            {
+                bslma::TestAllocator         ta("test", veryVeryVerbose);
+
+                Obj        mB(&ta);
+                const Obj& B = mB;
+
+                ASSERT(0   == B.capacity());
+                ASSERT(&ta == B.get_allocator());
+                ASSERT(0   == ta.numBytesInUse());
+            }
+        }
+
+        if (verbose) cout << "\nTesting construction, allocation, and "
+                          << "'get_allocator'." << endl;
+
+        for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
+
+            const char CONFIG = cfg;  // how we specify the allocator
+
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj                  *objPtr = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
+
+            switch (CONFIG) {
+              case 'a': {
+                objAllocatorPtr = &da;
+                objPtr = new (fa) Obj();
+              } break;
+              case 'b': {
+                objAllocatorPtr = &da;
+                objPtr = new (fa) Obj(Obj::allocator_type());
+              } break;
+              case 'c': {
+                objAllocatorPtr = &sa;
+                objPtr = new (fa) Obj(objAllocatorPtr);
+              } break;
+              case 'd': {
+                objAllocatorPtr = &sa;
+                Obj::allocator_type alloc(objAllocatorPtr);
+                objPtr = new (fa) Obj(alloc);
+              } break;
+              default: {
+                BSLS_ASSERT_OPT(!"Bad allocator config.");
+              } break;
+            }
+
+            Obj&                   mX = *objPtr;  const Obj& X = mX;
+            bslma::TestAllocator&  oa = *objAllocatorPtr;
+            bslma::TestAllocator& noa = (&da == &oa) ? sa : da;
+
+            // Verify the object's 'get_allocator' accessor.
+
+            ASSERTV(CONFIG, &oa, X.get_allocator().mechanism(),
+                    &oa == X.get_allocator());
+
+            // Verify no allocation from the object/non-object allocators.
+
+            ASSERTV(CONFIG,  oa.numBlocksTotal(), 0 ==  oa.numBlocksTotal());
+            ASSERTV(CONFIG, noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
+
+            {
+                // put something in the map to force a single allocation
+                DatumMapEntry entry(StringRef("entry"),
+                                    Datum::createInteger(1));
+
+                mX.append(&entry, 1);
+            }
+
+            // Verify no temporary memory is allocated from the object
+            // allocator.
+
+            ASSERTV(CONFIG, oa.numBlocksMax(), 1 == oa.numBlocksMax());
+
+            // Reclaim dynamically allocated object under test.
+
+            fa.deleteObject(objPtr);
+
+            // Verify all memory is released on object destruction.
+
+            ASSERTV(fa.numBlocksInUse(),  0 ==  fa.numBlocksInUse());
+            ASSERTV(oa.numBlocksInUse(),  0 ==  oa.numBlocksInUse());
+            ASSERTV(noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
+
+            // Double check that some object memory was allocated.
+
+            ASSERTV(CONFIG, 1 <= oa.numBlocksTotal());
+
+            // Note that memory should be independently allocated for each
+            // attribute capable of allocating memory.
         }
 
         if (verbose) cout << "\nTesting 'append'." << endl;

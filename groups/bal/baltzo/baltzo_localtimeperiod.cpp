@@ -41,14 +41,14 @@ bsl::ostream& LocalTimePeriod::print(bsl::ostream& stream,
 // FREE FUNCTIONS
 void baltzo::swap(LocalTimePeriod& a, LocalTimePeriod& b)
 {
-    if (a.allocator() == b.allocator()) {
+    if (a.get_allocator() == b.get_allocator()) {
         a.swap(b);
 
         return;                                                       // RETURN
     }
 
-    LocalTimePeriod futureA(b, a.allocator());
-    LocalTimePeriod futureB(a, b.allocator());
+    LocalTimePeriod futureA(b, a.get_allocator());
+    LocalTimePeriod futureB(a, b.get_allocator());
 
     futureA.swap(a);
     futureB.swap(b);
