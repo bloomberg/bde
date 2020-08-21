@@ -659,7 +659,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
             static const struct {
                 int  d_line;
                 Mode d_mode;
-            } DATA[] =
+            } OPENMODE_DATA[] =
             {
                 { L_, IosBase::in                                 },
                 { L_, IosBase::out                                },
@@ -669,11 +669,12 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                 { L_, IosBase::out | IosBase::ate                 },
                 { L_, IosBase::in  | IosBase::out | IosBase::ate  }
             };
-            const int NUM__DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_OPENMODE_DATA = sizeof  OPENMODE_DATA /
+                                          sizeof *OPENMODE_DATA;
 
-            for (int i = 0; i != NUM_DATA; ++i) {
-                const int  LINE    = DATA[i].d_line;
-                const Mode MODE    = DATA[i].d_mode;
+            for (int i = 0; i != NUM_OPENMODE_DATA; ++i) {
+                const int  LINE    = OPENMODE_DATA[i].d_line;
+                const Mode MODE    = OPENMODE_DATA[i].d_mode;
                 const char SPEC1[] = "ABCDEFGHIJKLABCDEFGHIJKLABCDEFGHIJKL";
                 const char SPEC2[] = "ABCDEFGHIJKLABCDEF";
 
