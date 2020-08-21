@@ -12,7 +12,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'baljsn' package currently has 13 components having 5 levels of physical
+ The 'baljsn' package currently has 14 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -26,7 +26,8 @@
   3. baljsn_decoder
      baljsn_printutil
 
-  2. baljsn_datumencoderoptions
+  2. baljsn_datumdecoderoptions
+     baljsn_datumencoderoptions
      baljsn_encoderoptions
      baljsn_tokenizer
 
@@ -38,6 +39,9 @@
 
 /Component Synopsis
 /------------------
+: 'baljsn_datumdecoderoptions':
+:      Provide options for decoding JSON into a 'Datum' object.
+:
 : 'baljsn_datumencoderoptions':
 :      Provide an attribute class for specifying Datum<->JSON options.
 :
