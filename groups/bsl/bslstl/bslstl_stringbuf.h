@@ -441,7 +441,7 @@ class basic_stringbuf
         // installed default allocator will be used to supply memory.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
-    basic_stringbuf(basic_stringbuf&& original);
+    basic_stringbuf(basic_stringbuf&&     original);
     basic_stringbuf(basic_stringbuf&&     original,
                     const allocator_type& allocator);
         // Create a 'basic_stringbuf' object having the same value as the
@@ -488,8 +488,15 @@ class basic_stringbuf
         // Return the allocator used by the underlying string to supply memory.
 
     StringType str() const;
-        // Return the currently buffered sequence of characters.
-
+        // Return the currently buffered sequence of characters.  If this
+        // object was created only in input mode, the resultant 'StringType'
+        // contains the character sequence in the range '[eback(), egptr())'.
+        // If 'modeBitMask & ios_base::out' specified at construction is
+        // nonzero then the resultant 'StringType' contains the character
+        // sequence in the range '[pbase(), high_mark)', where 'high_mark'
+        // represents the position one past the highest initialized character
+        // in the buffer.  Otherwise this object has been created in neither
+        // input nor output mode and a zero length 'StringType' is returned.
 };
 
 // FREE FUNCTIONS
@@ -1202,8 +1209,10 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 {
     // Capture the positions for later restoration
 
-    const off_type  inputOffset = rhs.gptr() - rhs.eback();
-    const off_type outputOffset = rhs.pptr() - rhs.pbase();
+    const off_type inputOffset  = rhs.gptr()  - rhs.eback();
+    const off_type inputSize    = rhs.egptr() - rhs.eback();
+    const off_type outputOffset = rhs.pptr()  - rhs.pbase();
+    const off_type outputSize   = rhs.epptr() - rhs.pbase();
 
     this->pubimbue(rhs.getloc());
 
@@ -1213,7 +1222,15 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 
     // Fix the stream-position pointers
 
-    updateStreamPositions(inputOffset, outputOffset);
+    char_type *dataPtr = &d_str[0];
+
+    // Update positions/pointers in the moved-to object
+
+    this->setp(dataPtr, dataPtr + outputSize);
+    this->pbump(static_cast<int>(outputOffset));
+    this->setg(dataPtr,
+               dataPtr + inputOffset,
+               dataPtr + inputSize);
 
     // Reset positions/pointers in the moved-from object
 
@@ -1295,9 +1312,19 @@ inline
 typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
 {
-    return StringType(
-                    d_str.begin(),
-                    d_str.begin() + static_cast<std::ptrdiff_t>(streamSize()));
+    if (d_mode & ios_base::out) {
+        return StringType(d_str.begin(),
+                          d_str.begin()
+                          + static_cast<std::ptrdiff_t>(streamSize()));
+                                                                      // RETURN
+
+    }
+
+    if (d_mode & ios_base::in) {
+        return StringType(this->eback(), this->egptr());              // RETURN
+    }
+
+    return StringType();
 }
 
 }  // close namespace bsl
