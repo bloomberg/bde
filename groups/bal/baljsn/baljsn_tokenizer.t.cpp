@@ -62,6 +62,8 @@ using bsl::endl;
 // [ 3] int value(bslstl::StringRef *data) const;
 // [17] bool utf8ErrorIsSet() const;
 // [17} const char *utf8ErrorMessage(const char *) const;
+// [17] void setAllowNonUtf8StringLiterals(bool);
+// [17] bool allowNonUtf8StringLiterals() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [18] USAGE EXAMPLE
@@ -294,7 +296,7 @@ void confirmStreamBufReset(bsl::streambuf     *sb,
     ASSERTV(LINE, X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
     mX.reset(sb);
-    mX.setAllowNonUTF8Tokens(!checkUtf8);
+    mX.setAllowNonUtf8StringLiterals(!checkUtf8);
 
     for (int i = 0; i < NADV; ++i) {
         ASSERTV(LINE, i, 0 == mX.advanceToNextToken());
@@ -678,6 +680,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   bool utf8ErrorIsSet() const;
         //   const char *utf8ErrorMessage(const char *) const;
+        //   void setAllowNonUtf8StringLiterals(bool);
+        //   bool allowNonUtf8StringLiterals() const;
         // --------------------------------------------------------------------
 
         bslma::TestAllocator sa;
@@ -733,13 +737,15 @@ int main(int argc, char *argv[])
                 Obj mX;  const Obj& X = mX;
                 ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
                 ASSERTV(X.allowStandAloneValues(), X.allowStandAloneValues());
-                ASSERTV(X.allowNonUTF8Tokens(), X.allowNonUTF8Tokens());
+                ASSERTV(X.allowNonUtf8StringLiterals(),
+                                               X.allowNonUtf8StringLiterals());
                 ASSERT(!X.readStatus());
 
                 mX.reset(iss.rdbuf());
-                mX.setAllowNonUTF8Tokens(false);
+                mX.setAllowNonUtf8StringLiterals(false);
 
-                ASSERTV(X.allowNonUTF8Tokens(), !X.allowNonUTF8Tokens());
+                ASSERTV(X.allowNonUtf8StringLiterals(),
+                                              !X.allowNonUtf8StringLiterals());
 
                 ASSERTV(ILINE, JLINE, 0 == mX.advanceToNextToken());
                 ASSERTV(X.tokenType(), Obj::e_ELEMENT_VALUE == X.tokenType());
@@ -787,7 +793,7 @@ int main(int argc, char *argv[])
                 ASSERTV(X.allowStandAloneValues(), X.allowStandAloneValues());
 
                 mX.reset(iss.rdbuf());
-                mX.setAllowNonUTF8Tokens(false);
+                mX.setAllowNonUtf8StringLiterals(false);
 
                 ASSERTV(ILINE, JLINE, 0 != mX.advanceToNextToken());
 
@@ -812,7 +818,7 @@ int main(int argc, char *argv[])
                     iss.str(str);
 
                     mX.reset(iss.rdbuf());
-                    mX.setAllowNonUTF8Tokens(false);
+                    mX.setAllowNonUtf8StringLiterals(false);
                     ASSERTV(ILINE, JLINE, 0 != mX.advanceToNextToken());
 
                     ASSERT(ERROFF  == X.readOffset());
@@ -906,7 +912,7 @@ int main(int argc, char *argv[])
 
 
                 mX.reset(iss.rdbuf());
-                mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+                mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
                 bsl::size_t item_count = 0;
 
@@ -1078,7 +1084,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(is.rdbuf());
-            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+            mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             // NUM_PREADVS advances should be successful.
 
@@ -1255,7 +1261,7 @@ int main(int argc, char *argv[])
                     true == X.allowHeterogenousArrays());
 
             mX.reset(iss.rdbuf());
-            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+            mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             mX.setAllowHeterogenousArrays(ALLOW_HETEROGENOUS_ARRAYS);
             ASSERTV(X.allowHeterogenousArrays(), ALLOW_HETEROGENOUS_ARRAYS,
@@ -1674,7 +1680,7 @@ int main(int argc, char *argv[])
                     true == X.allowStandAloneValues());
 
             mX.reset(iss.rdbuf());
-            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+            mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             mX.setAllowStandAloneValues(ALLOW_STAND_ALONE_VALUES);
             ASSERTV(X.allowStandAloneValues(), ALLOW_STAND_ALONE_VALUES,
@@ -2280,7 +2286,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
-            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+            mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             int rc;
             do {
@@ -2402,7 +2408,7 @@ int main(int argc, char *argv[])
 
             Obj mX(&ta);  const Obj& X = mX;
             mX.reset(is.rdbuf());
-            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+            mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             ASSERTV(0                         == mX.advanceToNextToken());
             ASSERTV(Obj::e_START_OBJECT  == X.tokenType());
@@ -2460,7 +2466,7 @@ int main(int argc, char *argv[])
 
             Obj mX;  const Obj& X = mX;
             mX.reset(is.rdbuf());
-            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+            mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             ASSERTV(0                         == mX.advanceToNextToken());
             ASSERTV(Obj::e_START_OBJECT  == X.tokenType());
@@ -3515,7 +3521,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
-            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+            mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(LINE, i, 0 == mX.advanceToNextToken());
@@ -3859,7 +3865,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
-            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+            mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, 0 == mX.advanceToNextToken());
@@ -4696,7 +4702,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
-            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+            mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, 0 == mX.advanceToNextToken());
@@ -5605,7 +5611,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
-            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+            mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
@@ -6150,7 +6156,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
-            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+            mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
@@ -6917,7 +6923,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
-            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+            mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, LINE, 0 == mX.advanceToNextToken());
@@ -7217,7 +7223,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
             mX.reset(iss.rdbuf());
-            mX.setAllowNonUTF8Tokens(!CHECK_UTF8);
+            mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 
             for (int i = 0; i < PRE_MOVES; ++i) {
                 ASSERTV(i, 0 == mX.advanceToNextToken());

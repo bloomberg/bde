@@ -77,7 +77,7 @@ int Tokenizer::reloadStringBuffer()
     if (d_readStatus || d_bufEndStatus) {
         numRead = 0;
     }
-    else if (d_allowNonUTF8Tokens) {
+    else if (d_allowNonUtf8StringLiterals) {
         numRead = static_cast<bsl::size_t>(
                                       d_streambuf_p->sgetn(&d_stringBuffer[0],
                                                            k_MAX_STRING_SIZE));
@@ -120,7 +120,7 @@ int Tokenizer::expandBufferForLargeValue()
     if (d_readStatus || d_bufEndStatus) {
         numRead = 0;
     }
-    else if (d_allowNonUTF8Tokens) {
+    else if (d_allowNonUtf8StringLiterals) {
         numRead = static_cast<bsl::size_t>(
                              d_streambuf_p->sgetn(&d_stringBuffer[d_valueIter],
                                                   k_MAX_STRING_SIZE));
@@ -165,7 +165,7 @@ int Tokenizer::moveValueCharsToStartAndReloadBuffer()
     if (d_readStatus || d_bufEndStatus) {
         numRead = 0;
     }
-    else if (d_allowNonUTF8Tokens) {
+    else if (d_allowNonUtf8StringLiterals) {
         numRead = static_cast<bsl::size_t>(
                         d_streambuf_p->sgetn(&d_stringBuffer[d_valueIter],
                                              k_MAX_STRING_SIZE - d_valueIter));

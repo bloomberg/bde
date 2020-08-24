@@ -257,7 +257,7 @@ class Tokenizer {
                                             // option for allowing arrays of
                                             // heterogenous values
 
-    bool                d_allowNonUTF8Tokens;
+    bool                d_allowNonUtf8StringLiterals;
                                             // Disables UTF-8 validation
 
     // PRIVATE MANIPULATORS
@@ -334,7 +334,7 @@ class Tokenizer {
         // Note that the reader will not be on a valid node until
         // 'advanceToNextToken' is called.  Note that this function does not
         // change the value of the 'allowStandAloneValues',
-        // 'allowHeterogenousArrays', or 'allowNonUTF8Tokens' options.
+        // 'allowHeterogenousArrays', or 'allowNonUtf8StringLiterals' options.
 
     int advanceToNextToken();
         // Move to the next token in the data steam.  Return 0 on success and a
@@ -364,12 +364,14 @@ class Tokenizer {
         // for arrays having heterogenous values.  By default, the value of the
         // 'allowHeterogenousArrays' option is 'true'.
 
-    void setAllowNonUTF8Tokens(bool value);
-        // Set the 'allowNonUTF8Tokens' option to the specified 'value'.  If
-        // the 'allowNonUTF8Tokens' value is 'true' this tokenizer will check
-        // input for invalid UTF-8, and enter an error mode if any invalid
-        // UTF-8 is encountered, and quit working until 'reset' is called.  By
-        // default, the value of the 'allowNonUTF8Tokens' option is 'false'.
+    void setAllowNonUtf8StringLiterals(bool value);
+        // Set the 'allowNonUtf8StringLiterals' option to the specified
+        // 'value'.  If the 'allowNonUtf8StringLiterals' value is 'false' this
+        // tokenizer will check string literal tokens for invalid UTF-8, enter
+        // an error mode if it encounters a string literal token that has any
+        // content that is not UTF-8, and fail to advance to subsequent tokens
+        // until 'reset' is called.  By default, the value of the
+        // 'allowNonUtf8StringLiterals' option is 'true'.
 
     void setAllowStandAloneValues(bool value);
         // Set the 'allowStandAloneValues' option to the specified 'value'.  If
@@ -385,8 +387,8 @@ class Tokenizer {
         // Return the value of the 'allowHeterogenousArrays' option of this
         // tokenizer.
 
-    bool allowNonUTF8Tokens() const;
-        // Return the value of the 'allowNonUTF8Tokens' option of this
+    bool allowNonUtf8StringLiterals() const;
+        // Return the value of the 'allowNonUtf8StringLiterals' option of this
         // tokenizer.
 
     bool allowStandAloneValues() const;
@@ -473,7 +475,7 @@ Tokenizer::Tokenizer(bslma::Allocator *basicAllocator)
 , d_bufEndStatus(0)
 , d_allowStandAloneValues(true)
 , d_allowHeterogenousArrays(true)
-, d_allowNonUTF8Tokens(true)
+, d_allowNonUtf8StringLiterals(true)
 {
     d_stringBuffer.reserve(k_MAX_STRING_SIZE);
     d_contextStack.clear();
@@ -517,9 +519,9 @@ void Tokenizer::setAllowHeterogenousArrays(bool value)
 }
 
 inline
-void Tokenizer::setAllowNonUTF8Tokens(bool value)
+void Tokenizer::setAllowNonUtf8StringLiterals(bool value)
 {
-    d_allowNonUTF8Tokens = value;
+    d_allowNonUtf8StringLiterals = value;
 }
 
 // ACCESSORS
@@ -536,9 +538,9 @@ bool Tokenizer::allowHeterogenousArrays() const
 }
 
 inline
-bool Tokenizer::allowNonUTF8Tokens() const
+bool Tokenizer::allowNonUtf8StringLiterals() const
 {
-    return d_allowNonUTF8Tokens;
+    return d_allowNonUtf8StringLiterals;
 }
 
 inline
