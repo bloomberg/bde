@@ -177,7 +177,7 @@
 // [ 9] BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 // [11] BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
-// [  ] BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+// [14] BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT
 // [ 8] BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 // [13] BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
@@ -285,6 +285,13 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS =
 
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE_defined =
 #if         defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY_defined =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
                                                                           true;
 #else
                                                                          false;
@@ -1379,7 +1386,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1399,6 +1406,50 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY'
+        //
+        // Concerns:
+        //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY' is defined only
+        //:   when the native standard library provides a baseline of C++17
+        //:   library features (any, optional, variant, string_view).
+        //
+        // Plan:
+        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY' is
+        //:   defined include the appropriate headers and use the expected
+        //:   typenames.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+            "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY'\n"
+            "=========================================================\n");
+
+        if (verbose) {
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY_defined)
+        }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+        {
+            std::any x;
+        }
+        {
+            std::optional<int> x;
+        }
+        {
+            std::string_view x;
+        }
+        {
+            std::variant<int> x;
+        }
+#endif
+
+        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
+
       } break;
       case 13: {
         // --------------------------------------------------------------------

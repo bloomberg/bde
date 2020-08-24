@@ -430,20 +430,23 @@ BSLS_IDENT("$Id: $")
 // below).  This is especially important in BSL when importing standard library
 // functions and types into the 'bsl::' namespace, as is done in 'bsl+bslhdrs'.
 //
-// This macro is defined if *both* of the listed conditions are true:
+// This macro is defined if all of the listed conditions are true:
 //
 //: o The compiler supports C++17 language features.
 //:
-//: o The following functions and types are provided by the native standard
-//:   library in <type_traits>:
+//: o The following headers can be included:
 //:
-//:   o 'conjunction'
-//:   o 'disjunction'
-//:   o 'negation'
+//:   o <any>
+//:   o <optional>
+//:   o <variant>
+//:   o <string_view>
+//:
 //
 // Currently the following compilers will have this macro defined by default:
 //
-//:   o gcc 7, gcc 8, gcc 9, clang 7, clang 8
+//:   o GCC 7
+//:   o clang 7
+//:   o MSVC 2019
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING'
 ///---------------------------------------------------
@@ -1349,6 +1352,7 @@ BSLS_IDENT("$Id: $")
     #if BSLS_COMPILERFEATURES_CPLUSPLUS > 201402L
         #if BSLS_PLATFORM_CMP_VERSION >= 1920  // Visual Studio 2019
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS    1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
         #endif
     #endif
 
