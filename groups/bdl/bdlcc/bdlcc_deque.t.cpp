@@ -1434,7 +1434,7 @@ namespace USAGE_EXAMPLE_2 {
 
 // Then, we define the number of events each thread will push:
 
-    enum { k_NUM_TO_PUSH = 5 };
+    const int k_NUM_TO_PUSH = 5;
 
 // Next, we declare our 'WorkerFunctor' type, that will push 'k_NUM_TO_PUSH'
 // events into the deque.
@@ -5113,7 +5113,7 @@ int main(int argc, char *argv[])
         {
 // Next, in 'main', define the number of threads:
 //..
-    enum { k_NUM_THREADS = 10 };
+    const int k_NUM_THREADS = 10;
 //..
 // Then, declare out 'bdlcc::Deque' object, the set of handles of the
 // subthreads, and our barrier object:

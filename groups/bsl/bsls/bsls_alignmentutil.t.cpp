@@ -229,22 +229,26 @@ bool sameType(T1 t1, T2 t2)
 }
 
 typedef void (*FuncPtr)();
-enum {
-    // Define alignments for kinds of primitive types.
 
-    CHAR_ALIGNMENT        = bsls::AlignmentFromType<char>::VALUE,
-    SHORT_ALIGNMENT       = bsls::AlignmentFromType<short>::VALUE,
-    INT_ALIGNMENT         = bsls::AlignmentFromType<int>::VALUE,
-    LONG_ALIGNMENT        = bsls::AlignmentFromType<long>::VALUE,
-    INT64_ALIGNMENT       = bsls::AlignmentFromType<long long>::VALUE,
-    BOOL_ALIGNMENT        = bsls::AlignmentFromType<bool>::VALUE,
-    WCHAR_T_ALIGNMENT     = bsls::AlignmentFromType<wchar_t>::VALUE,
-    PTR_ALIGNMENT         = bsls::AlignmentFromType<void*>::VALUE,
-    FUNC_PTR_ALIGNMENT    = bsls::AlignmentFromType<FuncPtr>::VALUE,
-    FLOAT_ALIGNMENT       = bsls::AlignmentFromType<float>::VALUE,
-    DOUBLE_ALIGNMENT      = bsls::AlignmentFromType<double>::VALUE,
-    LONG_DOUBLE_ALIGNMENT = bsls::AlignmentFromType<long double>::VALUE
-};
+// Alignments for kinds of primitive types.
+
+static const int CHAR_ALIGNMENT        = bsls::AlignmentFromType<char>::VALUE;
+static const int SHORT_ALIGNMENT       = bsls::AlignmentFromType<short>::VALUE;
+static const int INT_ALIGNMENT         = bsls::AlignmentFromType<int>::VALUE;
+static const int LONG_ALIGNMENT        = bsls::AlignmentFromType<long>::VALUE;
+static const int INT64_ALIGNMENT       =
+                                     bsls::AlignmentFromType<long long>::VALUE;
+static const int BOOL_ALIGNMENT        = bsls::AlignmentFromType<bool>::VALUE;
+static const int WCHAR_T_ALIGNMENT     =
+                                       bsls::AlignmentFromType<wchar_t>::VALUE;
+static const int PTR_ALIGNMENT         = bsls::AlignmentFromType<void*>::VALUE;
+static const int FUNC_PTR_ALIGNMENT    =
+                                       bsls::AlignmentFromType<FuncPtr>::VALUE;
+static const int FLOAT_ALIGNMENT       = bsls::AlignmentFromType<float>::VALUE;
+static const int DOUBLE_ALIGNMENT      =
+                                        bsls::AlignmentFromType<double>::VALUE;
+static const int LONG_DOUBLE_ALIGNMENT =
+                                   bsls::AlignmentFromType<long double>::VALUE;
 
 //=============================================================================
 //                              MAIN PROGRAM

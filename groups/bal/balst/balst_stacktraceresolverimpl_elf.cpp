@@ -3436,7 +3436,7 @@ u::StackTraceResolver::StackTraceResolverImpl(
 // PRIVATE MANIPULATORS
 int u::StackTraceResolver::loadSymbols(int matched)
 {
-    enum { k_SYM_SIZE = sizeof(u::ElfSymbol) };
+    const int k_SYM_SIZE = static_cast<int>(sizeof(u::ElfSymbol));
 
     char *symbolBuf = d_scratchBufA_p;
     char *stringBuf = d_scratchBufB_p;

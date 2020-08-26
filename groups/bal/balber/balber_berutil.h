@@ -591,11 +591,9 @@ struct BerUtil_IntegerImpUtil {
         // used to implement input and output operations on 'bsl::streambuf'
         // objects.
 
-    enum {
-        k_40_BIT_INTEGER_LENGTH = 5
-        // the number of octets used to encode a signed integer value
-        // in 40 bits
-    };
+    // CLASS DATA
+    static const int k_40_BIT_INTEGER_LENGTH = 5;
+        // Number of octets used to encode a signed integer value in 40 bits.
 
     // CLASS METHODS
     static int getNumOctetsToStream(short value);
@@ -1538,12 +1536,9 @@ struct BerUtil_DateAndTimeHeaderImpUtil {
         // used to implement BER encoding and decoding operations for time-zone
         // offset values.
 
-    // TYPES
-    enum {
-        k_HEADER_LENGTH = 2
-        // number of octets used to encode an extended-binary-encoding
-        // header
-    };
+    // CLASS DATA
+    static const int k_HEADER_LENGTH = 2;
+        // Number of octets used to encode an extended-binary-encoding header.
 
     // CLASS METHODS
     static bool isReserved(unsigned char firstByte);

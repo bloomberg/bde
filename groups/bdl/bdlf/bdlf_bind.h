@@ -4776,9 +4776,7 @@ struct Bind_ArgumentMask {
     // place holder is set to 1.  The general definition does not define a
     // mask.
 
-    enum {
-        k_VaL = 0
-    };
+    static const int k_VaL = 0;
 };
 
 template <int INDEX>
@@ -4787,9 +4785,7 @@ struct Bind_ArgumentMask<PlaceHolder<INDEX> > {
     // place-holder at the specified 'INDEX' of bound arguments.  The bit
     // position at 'INDEX' is set to 1.
 
-    enum {
-        k_VaL = 1 << INDEX
-    };
+    static const int k_VaL = 1 << INDEX;
 };
 
 template <class RET, class FUNC, class LIST>
@@ -4802,9 +4798,7 @@ struct Bind_ArgumentMask<Bind<RET, FUNC, LIST> > {
     // masks of the bound arguments together) when there are more than 3 nested
     // binders (this is unfortunately an error with the GNU compiler).
 
-    enum {
-        k_VaL = 1 << 24
-    };
+    static const int k_VaL = 1 << 24;
 };
 
 template <class RET, class FUNC, class LIST>
@@ -4815,9 +4809,7 @@ struct Bind_ArgumentMask<BindWrapper<RET, FUNC, LIST> > {
     // binder with a nested 'BindWrapper' object is treated as non-explicit, in
     // the same way as if the nested binder was of type 'Bind'.
 
-    enum {
-        k_VaL = 1 << 24
-    };
+    static const int k_VaL = 1 << 24;
 };
 
 

@@ -159,7 +159,7 @@ static void printFlags()
     // Print the name of the specified object-like macro named by 'X', and the
     // source it expands to.
 
-    enum { FIRST_LINE = __LINE__ };
+    const int FIRST_LINE = __LINE__;
 
 #if defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
     P_MACRO(BDE_BUILD_TARGET_AGGRESSIVE_INLINE);
@@ -1563,7 +1563,7 @@ static void printFlags()
     D_MACRO(WINVER);
 #endif
 
-    enum { LAST_LINE = __LINE__ };
+    const int LAST_LINE = __LINE__;
 
 
     char STATIC_CHECK[UNDEF_TABLE_SIZE - ((LAST_LINE - FIRST_LINE) / 6)];

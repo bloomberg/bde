@@ -868,9 +868,7 @@ int main(int argc, char *argv[])
         bdlcc::Queue<Worker> doneQueue(&ta);
         Worker::s_doneQueue = &doneQueue;
 
-        enum {
-            NUM_WORKERS_PER_PRODUCER = 1000
-        };
+        const int NUM_WORKERS_PER_PRODUCER = 1000;
 
         bdlmt::MultipriorityThreadPool pool(NUM_POOL_THREADS,
                                             NUM_PRIORITIES,

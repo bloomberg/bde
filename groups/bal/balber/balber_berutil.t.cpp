@@ -3417,9 +3417,7 @@ void Md5StateUtil::append(Md5State *state, const Md5Block& block)
 
 void Md5StateUtil::appendPaddingAndLength(Md5State *state)
 {
-    enum {
-        k_PADDED_SIZE = 56
-    };
+    const int k_PADDED_SIZE = 56;
 
     const bsl::size_t paddingSize =
             state->block().size() < k_PADDED_SIZE

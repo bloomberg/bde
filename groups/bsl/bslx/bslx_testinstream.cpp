@@ -22,13 +22,14 @@ namespace {
 
 typedef MarshallingUtil Util;
 
-enum {
-    // Enumerate the sizes (in bytes) of auxiliary data elements streamed in
-    // from a 'TestInStream'.
-    k_SIZEOF_CODE    = Util::k_SIZEOF_INT8,   // size of type code value
-    k_SIZEOF_VERSION = Util::k_SIZEOF_INT8,   // size of version value
-    k_SIZEOF_ARRLEN  = Util::k_SIZEOF_INT32   // size of array length value
-};
+static const int k_SIZEOF_CODE    = Util::k_SIZEOF_INT8;   // size of type code
+                                                           // value
+static const int k_SIZEOF_VERSION = Util::k_SIZEOF_INT8;   // size of version
+                                                           // value
+static const int k_SIZEOF_ARRLEN  = Util::k_SIZEOF_INT32;  // size of array
+                                                           // length value
+    // The sizes (in bytes) of auxiliary data elements streamed in from a
+    // 'TestInStream'.
 
 }  // close unnamed namespace
 

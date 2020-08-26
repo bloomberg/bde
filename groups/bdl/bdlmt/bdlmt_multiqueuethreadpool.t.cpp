@@ -3000,13 +3000,11 @@ int main(int argc, char *argv[]) {
 
         bslma::TestAllocator ta(veryVeryVerbose);
 
-        enum {
 #ifndef BSLS_PLATFORM_OS_CYGWIN
-            k_NUM_QUEUES = 9
+        const int k_NUM_QUEUES = 9;
 #else
-            k_NUM_QUEUES = 5
+        const int k_NUM_QUEUES = 5;
 #endif
-        };
 
         enum {
             k_MIN_THREADS = 1,

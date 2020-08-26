@@ -160,7 +160,7 @@ typedef bdlma::SequentialPool     Obj;
 
 typedef bsls::Alignment::Strategy Strat;
 
-enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
+static const int k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 enum { k_DEFAULT_SIZE = 256 };  // initial size of the buffer if none specified
 

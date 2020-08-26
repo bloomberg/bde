@@ -477,34 +477,36 @@ struct bdlat_TypeCategory {
         // category tag for the parameterized 'TYPE'.
 
       private:
-        enum {
-            e_IS_ARRAY = bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
-            e_IS_CHOICE = bdlat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
-            e_IS_CUSTOMIZED_TYPE =
-                  bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
-            e_IS_ENUMERATION = bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
-            e_IS_NULLABLE_VALUE =
-                    bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
-            e_IS_SEQUENCE = bdlat_SequenceFunctions::IsSequence<TYPE>::VALUE,
-            e_NUM_CATEGORIES = e_IS_ARRAY
-                             + e_IS_CHOICE
-                             + e_IS_CUSTOMIZED_TYPE
-                             + e_IS_ENUMERATION
-                             + e_IS_NULLABLE_VALUE
-                             + e_IS_SEQUENCE,
-            e_IS_DYNAMIC = e_NUM_CATEGORIES > 1
-                        || bdlat_TypeCategoryDeclareDynamic<TYPE>::VALUE
-        };
+        static const int k_IS_ARRAY =
+                                    bdlat_ArrayFunctions::IsArray<TYPE>::VALUE;
+        static const int k_IS_CHOICE =
+                                  bdlat_ChoiceFunctions::IsChoice<TYPE>::VALUE;
+        static const int k_IS_CUSTOMIZED_TYPE =
+                  bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE;
+        static const int k_IS_ENUMERATION =
+                               bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE;
+        static const int k_IS_NULLABLE_VALUE =
+                    bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE;
+        static const int k_IS_SEQUENCE =
+                              bdlat_SequenceFunctions::IsSequence<TYPE>::VALUE;
+        static const int k_NUM_CATEGORIES = k_IS_ARRAY
+                         + k_IS_CHOICE
+                         + k_IS_CUSTOMIZED_TYPE
+                         + k_IS_ENUMERATION
+                         + k_IS_NULLABLE_VALUE
+                         + k_IS_SEQUENCE;
+        static const int k_IS_DYNAMIC = k_NUM_CATEGORIES > 1
+                              || bdlat_TypeCategoryDeclareDynamic<TYPE>::VALUE;
 
       public:
         enum {
-            e_SELECTION = e_IS_DYNAMIC         ? e_DYNAMIC_CATEGORY
-                        : e_IS_ARRAY           ? e_ARRAY_CATEGORY
-                        : e_IS_CHOICE          ? e_CHOICE_CATEGORY
-                        : e_IS_CUSTOMIZED_TYPE ? e_CUSTOMIZED_TYPE_CATEGORY
-                        : e_IS_ENUMERATION     ? e_ENUMERATION_CATEGORY
-                        : e_IS_NULLABLE_VALUE  ? e_NULLABLE_VALUE_CATEGORY
-                        : e_IS_SEQUENCE        ? e_SEQUENCE_CATEGORY
+            e_SELECTION = k_IS_DYNAMIC         ? e_DYNAMIC_CATEGORY
+                        : k_IS_ARRAY           ? e_ARRAY_CATEGORY
+                        : k_IS_CHOICE          ? e_CHOICE_CATEGORY
+                        : k_IS_CUSTOMIZED_TYPE ? e_CUSTOMIZED_TYPE_CATEGORY
+                        : k_IS_ENUMERATION     ? e_ENUMERATION_CATEGORY
+                        : k_IS_NULLABLE_VALUE  ? e_NULLABLE_VALUE_CATEGORY
+                        : k_IS_SEQUENCE        ? e_SEQUENCE_CATEGORY
                         : e_SIMPLE_CATEGORY
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

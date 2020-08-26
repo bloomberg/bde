@@ -164,7 +164,7 @@ typedef bsl::size_t         St;        // for doc only
 
 static const size_t k_INVALID_INDEX = Util::k_INVALID_INDEX;
 
-enum { k_BITS_PER_UINT64 = Util::k_BITS_PER_UINT64 };
+static const int k_BITS_PER_UINT64 = Util::k_BITS_PER_UINT64;
 
 // For 'k_ALIGNMENT' we want the guaranteed alignment of 'uint64_t' variables.
 // Unfortunately, 'bsls::AlignmentFromType' returns the guaranteed alignment

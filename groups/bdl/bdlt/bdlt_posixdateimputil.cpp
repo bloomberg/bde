@@ -28,21 +28,22 @@ enum {
     k_DECEMBER  = 12
 };
 
-enum {
-    // days of the week used in the implementation
+// days of the week used in the implementation
 
-    k_WEDNESDAY = 4,
-    k_SATURDAY  = 7
-};
+static const int k_WEDNESDAY = 4;
+static const int k_SATURDAY  = 7;
 
-enum {
-    // serial dates used in the implementation
+// serial dates used in the implementation
 
-    k_JAN_01_0001 =       1,  // first day of the value range for serial days
-    k_JAN_01_1601 =  584401,  // first day of the 17th century
-    k_SEP_02_1752 =  639798,  // last day before the 11-day gap
-    k_JAN_01_1753 =  639908   // first day of the year following the 11-day gap
-};
+static const int k_JAN_01_0001 =       1;  // first day of the value range for
+                                           // serial days
+
+static const int k_JAN_01_1601 =  584401;  // first day of the 17th century
+
+static const int k_SEP_02_1752 =  639798;  // last day before the 11-day gap
+
+static const int k_JAN_01_1753 =  639908;  // first day of the year following
+                                           // the 11-day gap
 
 enum {
     // other useful constants
