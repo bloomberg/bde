@@ -38,6 +38,23 @@ BSLS_IDENT("$Id: $")
 // Refer to the details of the JSON encoding format supported by this decoder
 // in the package documentation file (doc/baljsn.txt).
 //
+///'validateInputIsUtf8' Option
+///----------------------------
+// The 'baljsn::DecoderOption' parameter of the 'decode' function has a
+// configuration option named 'validateInputIsUtf8'.  If this option is 'true',
+// the 'decode' function will succeed only if the encoding of the JSON data is
+// UTF-8, which the JSON specification requires.  If the option is 'false',
+// 'decode' will not validate that the encoding of the JSON data is UTF-8, and
+// may succeed even if the data does not satisfy the UTF-8 validity requirement
+// of the JSON specification.  This option primarily affects the acceptance of
+// string literals, which are the parts of JSON documents that may have
+// rational justification for having non-UTF-8, and therefore invalid, content.
+//
+// Ideally, users *should* set 'validateInputIsUtf8' to 'true'.  However, some
+// legacy applications currently might be trafficking in JSON that contains
+// non-UTF-8 with no adverse effects to their clients.  Consequently, this
+// option is 'false' by default to maintain backward compatibility.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
