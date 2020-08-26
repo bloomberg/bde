@@ -142,21 +142,6 @@ bool Zoneinfo::DescriptorLess::operator()(const LocalTimeDescriptor& lhs,
                                // class Zoneinfo
                                // --------------
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-// CLASS METHODS
-bdlt::EpochUtil::TimeT64 Zoneinfo::convertToTimeT64(
-                                                const bdlt::Datetime& datetime)
-{
-    return bdlt::EpochUtil::convertToTimeT64(datetime);
-}
-
-int Zoneinfo::convertFromTimeT64(bdlt::Datetime           *result,
-                                 bdlt::EpochUtil::TimeT64  time)
-{
-    return bdlt::EpochUtil::convertFromTimeT64(result, time);
-}
-#endif
-
 // CREATORS
 Zoneinfo::Zoneinfo(const Zoneinfo& original, const allocator_type &allocator)
 : d_identifier(original.d_identifier, allocator)
