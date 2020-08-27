@@ -739,12 +739,9 @@ struct bsls_Platform_Assert;
 #endif
 
 #if defined(_MSC_VER)
-    #if _M_IX86_FP >= 1
-        #define BSLS_PLATFORM_CPU_SSE  1
-    #endif
-    #if _M_IX86_FP >= 2
-        #define BSLS_PLATFORM_CPU_SSE2 1
-    #endif
+    #define BSLS_PLATFORM_CPU_SSE  1
+    #define BSLS_PLATFORM_CPU_SSE2 1
+    #define BSLS_PLATFORM_CPU_SSE3 1
 #elif defined(__clang__) || defined(__GNUC__) || defined(__EDG__)
     #if defined(__SSE__)
         #define BSLS_PLATFORM_CPU_SSE  1
