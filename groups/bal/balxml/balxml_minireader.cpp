@@ -2150,16 +2150,19 @@ MiniReader::readInput()
         chunkSize = k_MIN_BUFSIZE;
     }
 
-    if (d_parseBuf.size() < (numLeft + chunkSize + 1)) {
-        if (d_parseBuf.capacity() < (numLeft + chunkSize + 1)) {
+    bsl::size_t neededSize = numLeft + chunkSize + 1;
+    if (d_parseBuf.size() < neededSize) {
+        if (d_parseBuf.capacity() < neededSize) {
             // '{DRQS 154828363}' - rebase the pointers on reallocation
+            bsl::size_t newCapacity = bsl::max(2 * d_parseBuf.capacity(),
+                                               neededSize);
             bsl::vector<char> newbuf(d_parseBuf.get_allocator());
-            newbuf.reserve(numLeft + chunkSize + 1);
+            newbuf.reserve(newCapacity);
             newbuf.assign(d_parseBuf.begin(), d_parseBuf.end());
             rebasePointers(&newbuf.front(), newbuf.size());
             d_parseBuf.swap(newbuf);
         }
-        d_parseBuf.resize(numLeft + chunkSize + 1);
+        d_parseBuf.resize(neededSize);
     }
 
     size_t numRead = 0;
