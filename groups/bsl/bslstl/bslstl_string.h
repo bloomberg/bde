@@ -4322,8 +4322,8 @@ basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::operator=(
                      const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>& rhs)
 {
     return privateAssignDispatch(
-                  rhs.begin(),
-                  rhs.end() - rhs.begin(),
+                  rhs.data(),
+                  rhs.size(),
                   "string<...>::operator=(const string&...): string too long");
 }
 
