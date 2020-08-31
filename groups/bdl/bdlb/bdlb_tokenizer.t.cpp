@@ -1467,10 +1467,12 @@ int main(int argc, char **argv)
 
         if (verbose) cout << "\tTesting delimiters preservation" << endl;
         {
-            char ctorInput[255];
-            char resetInput[255];
+            char ctorInput[256];
+            char resetInput[256];
             char delim[1] = { static_cast<char>(0) };
 
+            ctorInput[255]  = 0;
+            resetInput[255] = 0;
             for (int i = 1; i < 256; ++i) {
                 ctorInput[i-1]      = static_cast<char>(i);
                 resetInput[256-i-1] = static_cast<char>(i);

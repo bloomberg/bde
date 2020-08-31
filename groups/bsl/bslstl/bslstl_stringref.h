@@ -996,7 +996,7 @@ inline
 typename StringRefImp<CHAR_TYPE>::const_iterator
     StringRefImp<CHAR_TYPE>::begin() const
 {
-    return Base::begin();
+    return Base::data();
 }
 
 template <class CHAR_TYPE>
@@ -1004,7 +1004,7 @@ inline
 typename StringRefImp<CHAR_TYPE>::const_iterator
     StringRefImp<CHAR_TYPE>::end() const
 {
-    return Base::end();
+    return Base::data() + Base::size();
 }
 
 template <class CHAR_TYPE>

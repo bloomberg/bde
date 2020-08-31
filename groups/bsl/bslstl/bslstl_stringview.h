@@ -1468,7 +1468,7 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::copy(CHAR_TYPE *characterString,
                      native_std::greater_equal<const CHAR_TYPE *>()(
                          characterString, d_start_p + position + numChars));
 
-    CHAR_TRAITS::copy(characterString, d_start_p + position, numChars);
+    CHAR_TRAITS::move(characterString, d_start_p + position, numChars);
 
     return numChars;
 }
