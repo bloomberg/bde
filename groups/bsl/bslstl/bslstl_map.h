@@ -2471,9 +2471,8 @@ inline
 typename add_lvalue_reference<VALUE>::type
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
 {
-    BloombergLP::bslalg::RbTreeNode *node =
-        BloombergLP::bslalg::RbTreeUtil::find(d_tree, this->comparator(), key);
-    if (d_tree.sentinel() == node) {
+    iterator iter = lower_bound(key);
+    if (iter == end() || this->comparator()(key, *iter.node())) {
         BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
 
         ALLOCATOR alloc = nodeFactory().allocator();
@@ -2487,16 +2486,12 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
         // constructor is not available, so 'move' cannot be used directly on a
         // user supplied type.  See internal bug report 99039150.
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        return emplace_hint(iterator(node),
-                            key,
-                            MoveUtil::move(temp.object()))->second;   // RETURN
+        iter = emplace_hint(iter, key, MoveUtil::move(temp.object()));
 #else
-        return emplace_hint(iterator(node),
-                            key,
-                            temp.object())->second;                   // RETURN
+        iter = emplace_hint(iter, key, temp.object());
 #endif
     }
-    return toNode(node)->value().second;
+    return iter->second;
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -2507,9 +2502,8 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
 {
     key_type& lvalue = key;
 
-    BloombergLP::bslalg::RbTreeNode *node =
-     BloombergLP::bslalg::RbTreeUtil::find(d_tree, this->comparator(), lvalue);
-    if (d_tree.sentinel() == node) {
+    iterator iter = lower_bound(lvalue);
+    if (iter == end() || this->comparator()(lvalue, *iter.node())) {
         BloombergLP::bsls::ObjectBuffer<VALUE> temp;  // for default 'VALUE'
 
         ALLOCATOR alloc = nodeFactory().allocator();
@@ -2523,16 +2517,16 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
         // constructor is not available, so 'move' cannot be used directly on a
         // user supplied type.  See internal bug report 99039150.
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        return emplace_hint(iterator(node),
+        iter = emplace_hint(iter,
                             MoveUtil::move(lvalue),
-                            MoveUtil::move(temp.object()))->second;   // RETURN
+                            MoveUtil::move(temp.object()));
 #else
-        return emplace_hint(iterator(node),
+        iter = emplace_hint(iter,
                             lvalue,
-                            temp.object())->second;                   // RETURN
+                            temp.object());
 #endif
     }
-    return toNode(node)->value().second;
+    return iter->second;
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
