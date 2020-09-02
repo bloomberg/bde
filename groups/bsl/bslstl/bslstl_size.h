@@ -28,20 +28,41 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #if 201703L <= BSLS_COMPILERFEATURES_CPLUSPLUS
+# define BSLSTL_SIZE_SIZE_NATIVE 1
+#else
+# define BSLSTL_SIZE_SIZE_NATIVE 0
+#endif
+
+// We have observed that clang-10.0.0 does not suppose 'std::ssize' in C++20,
+// and we are speculating that later releases of the compiler will support it.
+
+#if 202002L <= BSLS_COMPILERFEATURES_CPLUSPLUS &&                             \
+    (!defined(BSLS_PLATFORM_CMP_CLANG) ||                                     \
+        (BSLS_PLATFORM_CMP_CLANG && 100000 < BSLS_PLATFORM_CMP_VERSION))
+# define BSLSTL_SIZE_SSIZE_NATIVE 1
+#else
+# define BSLSTL_SIZE_SSIZE_NATIVE 0
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)    &&                    \
+    201103L <= BSLS_COMPILERFEATURES_SUPPORT_CPLUSPLUS
+# define BSLSTL_SIZE_SSIZE_ADVANCED_IMPL 1
+#else
+# define BSLSTL_SIZE_SSIZE_ADVANCED_IMPL 0
+#endif
+
+#if BSLSTL_SIZE_SIZE_NATIVE
 # include <iterator>    // 'size' in C++17, 'ssize' in C++20
 #endif
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L
+#if !BSLSTL_SIZE_SSIZE_NATIVE
 # include <bsls_keyword.h>
 # include <cstddef>          // 'size_t', 'ptrdiff_t'
-
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)    &&                    \
-     201103L <= BSLS_COMPILERFEATURES_SUPPORT_CPLUSPLUS
-
+# if BSLSTL_SIZE_SSIZE_ADVANCED_IMPL
 #   include <type_traits>    // 'common_type', 'make_signed'
-
 # endif
 #endif
 
@@ -51,7 +72,11 @@ namespace bsl {
                                     // size
                                     // ====
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
+#if BSLSTL_SIZE_SIZE_NATIVE
+
+using std::size;
+
+#else
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
 
@@ -84,19 +109,19 @@ BSLS_KEYWORD_CONSTEXPR std::size_t size(const TYPE (&)[DIMENSION])
     return DIMENSION;
 }
 
-#else
-
-using std::size;
-
 #endif
 
                                     // =====
                                     // ssize
                                     // =====
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)    &&                    \
-     201103L <= BSLS_COMPILERFEATURES_SUPPORT_CPLUSPLUS
+#if BSLSTL_SIZE_SSIZE_NATIVE
+
+using std::ssize;
+
+#else
+
+# if BSLSTL_SIZE_SSIZE_ADVANCED_IMPL
 
 template <class CONTAINER>
 inline
@@ -127,10 +152,6 @@ BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(const TYPE (&)[DIMENSION])
 {
     return DIMENSION;
 }
-
-#else
-
-using std::ssize;
 
 #endif
 
