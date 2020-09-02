@@ -15,20 +15,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test implements a version of the ratio operations
-// introduced into the standard library in C++11 (and 14).  We test to make
-// sure that the operations exist and give sane results.  The tests are not
-// exhaustive.
-//
-// Groups of operations tested:
-// * Basic ratio functionality - numerator/denominator/nested 'type'
-// * SI prefixes - kilo, mega, milli, etc.
-// * Ratio comparisons - less/greater/equal, etc.
-// ** This includes the '_v' inline variables
-// * Ratio operations - add/subtract/multiply/divide, etc.
-// ** There are no '_t' versions of these operations.
 // ----------------------------------------------------------------------------
-// [ 1] '<ratio>' STL header
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -117,17 +104,17 @@ namespace u {
 
 class MyContainer {
     // DATA
-    native_std::size_t d_size;
+    std::size_t d_size;
 
   public:
     // CREATOR
     explicit
-    MyContainer(native_std::size_t value)
+    MyContainer(std::size_t value)
     : d_size(value)
     {}
 
     // ACCESSOR
-    native_std::size_t size() const
+    std::size_t size() const
     {
         return d_size;
     }

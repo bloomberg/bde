@@ -14,8 +14,9 @@ BSLS_IDENT("$Id: $")
 //  ptrdiff_t bslstl::ssize(<container>)
 //
 //@DESCRIPTION: This component provides the free functions 'size' and 'ssize',
-// two overloads of each one, the first to take a contain that has a 'size'
-// accessor, and the second
+// two overloads of each one, the first to take a container that has a 'size'
+// accessor, and the second to take an array, in both cases to return the
+// number of elements in the array or container.
 //
 ///Usage
 ///-----
@@ -29,76 +30,107 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 
 #if 201703L <= BSLS_COMPILERFEATURES_CPLUSPLUS
-# include <string>    // 'size', 'ssize'
+# include <iterator>    // 'size' in C++17, 'ssize' in C++20
 #endif
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS <= 201703L
-  // This is considered pre-C++20 code.  At the time of this writing, the exact
-  // number of '__cplusplus' to check for the 2020 release was unknown.
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L
+# include <bsls_keyword.h>
+# include <cstddef>          // 'size_t', 'ptrdiff_t'
 
-# include <bsls_nativestd.h>
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)    &&                    \
+     201103L <= BSLS_COMPILERFEATURES_SUPPORT_CPLUSPLUS
 
-# include <cstddef>    // 'size_t'
+#   include <type_traits>    // 'common_type', 'make_signed'
 
+# endif
 #endif
 
 namespace bsl {
 
+                                    // ====
+                                    // size
+                                    // ====
+
 #if BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
 
-                                    // ----
-                                    // size
-                                    // ----
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
 
 template <class CONTAINER>
 inline
-native_std::size_t size(const CONTAINER& container)
+BSLS_KEYWORD_CONSTEXPR auto size(const CONTAINER& container) ->
+                                                     decltype(container.size())
     // Return the 'size' field from the specified 'container's 'size' accessor.
 {
     return container.size();
 }
 
-template <class TYPE, native_std::size_t DIMENSION>
+# else
+
+template <class CONTAINER>
 inline
-native_std::size_t size(const TYPE (&array)[DIMENSION])
+BSLS_KEYWORD_CONSTEXPR std::size_t size(const CONTAINER& container)
+    // Return the 'size' field from the specified 'container's 'size' accessor.
+{
+    return container.size();
+}
+
+# endif
+
+template <class TYPE, std::size_t DIMENSION>
+inline
+BSLS_KEYWORD_CONSTEXPR std::size_t size(const TYPE (&)[DIMENSION])
     // Return the dimension of the specified 'array'.
 {
-    (void) array;
-
     return DIMENSION;
 }
 
 #else
 
-using native_std::size;
+using std::size;
 
 #endif
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS <= 201703L
-// This is considered pre-C++20 code.  At the time of this writing, the exact
-// number of '__cplusplus' to check for the 2020 release was unknown.
+                                    // =====
+                                    // ssize
+                                    // =====
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)    &&                    \
+     201103L <= BSLS_COMPILERFEATURES_SUPPORT_CPLUSPLUS
 
 template <class CONTAINER>
 inline
-native_std::ptrdiff_t ssize(const CONTAINER& container)
+BSLS_KEYWORD_CONSTEXPR auto ssize(const CONTAINER& container) ->
+     std::common_type<std::ptrdiff_t,
+                      std::make_signed<decltype(container.size())>::type>::type
     // Return the 'size' field from the specified 'container's 'size' accessor.
 {
     return container.size();
 }
 
-template <class TYPE, native_std::ptrdiff_t DIMENSION>
+# else
+
+template <class CONTAINER>
 inline
-native_std::ptrdiff_t ssize(const TYPE (&array)[DIMENSION])
+BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(const CONTAINER& container)
+    // Return the 'size' field from the specified 'container's 'size' accessor.
+{
+    return container.size();
+}
+
+# endif
+
+template <class TYPE, std::ptrdiff_t DIMENSION>
+inline
+BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(const TYPE (&)[DIMENSION])
     // Return the dimension of the specified 'array'.
 {
-    (void) array;
-
     return DIMENSION;
 }
 
 #else
 
-using native_std::ssize;
+using std::ssize;
 
 #endif
 
