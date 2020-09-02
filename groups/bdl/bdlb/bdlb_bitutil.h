@@ -232,7 +232,7 @@ bool BitUtil::isBitSet(uint32_t value, int index)
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT32);
 
-    return (1 << index) & value;
+    return ((1 << index) & value) != 0;
 }
 
 inline
@@ -241,7 +241,7 @@ bool BitUtil::isBitSet(uint64_t value, int index)
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT64);
 
-    return (static_cast<uint64_t>(1) << index) & value;
+    return ((static_cast<uint64_t>(1) << index) & value) != 0;
 }
 
 inline
