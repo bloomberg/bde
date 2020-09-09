@@ -35,24 +35,24 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-#include <sys/un.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <utime.h>
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <sys/wait.h>
-
+    #include <fcntl.h>
+    #include <sys/socket.h>
+    #include <sys/stat.h>
+    #include <sys/statvfs.h>
+    #include <sys/types.h>
+    #include <sys/un.h>
+    #include <sys/wait.h>
+    #include <unistd.h>
+    #include <utime.h>
 #else // BSLS_PLATFORM_OS_WINDOWS
-
-#include <windows.h>  // for Sleep, GetLastError
-#include <fcntl.h>    // for _O_U16TEXT
-#include <io.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+    #include <windows.h>
+    #include <fcntl.h>    // for _O_U16TEXT
+    #include <io.h>
+    #include <sys/stat.h>
+    #include <sys/types.h>
 #endif
 
 using namespace BloombergLP;
@@ -77,6 +77,7 @@ using namespace bsl;
 // [ 6] Offset getAvailableSpace(FileDescriptor)
 // [ 7] Offset getFileSize(const bsl::string&)
 // [ 7] Offset getFileSize(const char *)
+// [ 7] Offset getFileSize(FileDescriptor)
 // [ 9] FD open(const char *p, bool writable, bool exist, bool append)
 // [10] static Offset getFileSizeLimit()
 // [11] int tryLock(FileDescriptor, bool ) (Unix)
@@ -144,6 +145,12 @@ void aSsErT(bool condition, const char *message, int line)
 #define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define ASSERT_EQ(X,Y) ASSERTV(X,Y,X == Y)
+#define ASSERT_NE(X,Y) ASSERTV(X,Y,X != Y)
+
+#define LOOP_ASSERT_EQ(L,X,Y) ASSERTV(L,X,Y,X == Y)
+#define LOOP_ASSERT_NE(L,X,Y) ASSERTV(L,X,Y,X != Y)
 
 #define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
 #define P            BSLIM_TESTUTIL_P   // Print identifier and value.
@@ -444,6 +451,838 @@ class MMIXRand {
 void NoOpAssertHandler(const char *, const char *, int)
 {
 }
+
+namespace BloombergLP {
+namespace {
+namespace u {
+
+                              // ===============
+                              // struct TestUtil
+                              // ===============
+
+struct TestUtil {
+    // This testing-only utility 'struct' provides a suite of platform-agnostic
+    // file operations that this test driver uses in its implementation.  These
+    // functions are candidates for promotion to the public interface of
+    // 'bdls::FilesystemUtil'.
+
+    // TYPES
+    typedef bdls::FilesystemUtil::FileDescriptor FileDescriptor;
+        // 'FileDescriptor' is an alias for the operating system's native file
+        // descriptor / file handle type.
+
+    typedef bdls::FilesystemUtil::Offset Offset;
+        // 'Offset' is an alias for a signed value, representing the offset of
+        // a location within a file.
+
+    // CLASS METHODS
+    static Offset estimateNumBlocks(const char *path);
+    static Offset estimateNumBlocks(const bsl::string& path);
+        // Return an estimate of the number of physical blocks (sectors on the
+        // storage media) that the file system uses to represent the file at
+        // the specified 'path'.  Return a non-negative number on success, and
+        // a negative number otherwise.  If the 'path' identifies anything
+        // other than a regular file, the return value is unspecified.  Note
+        // that the operating system, file system, storage media, and storage
+        // configuration all affect the estimate this function returns.  The
+        // estimate is usually accurate for Unix and Windows platforms with
+        // non-esoteric, non-networked file systems backed by disk or
+        // solid-state drives.
+
+#if !(defined(BSLS_PLATFORM_OS_WINDOWS) && BSLS_OS_VER_MAJOR < 6)
+    ///Implementation Note
+    ///-------------------
+    // The Windows implementation of this function requires system functions
+    // available in Windows Server 2003, Windows Server 2008, Vista, or later.
+
+    static Offset estimateNumBlocks(FileDescriptor descriptor);
+        // Return an estimate of the number of physical blocks (sectors on the
+        // storage media) that the file system uses to represent the file that
+        // the specified 'descriptor' identifies.  Return a non-negative number
+        // on success, and a negative number otherwise.  If 'descriptor'
+        // identifies anything other than a regular file, the return value is
+        // unspecified.  Note that the operating system, file system, storage
+        // media, and storage configuration all affect the estimate this
+        // function returns.  The estimate is usually accurate for Unix and
+        // Windows platforms with non-esoteric, non-networked file systems
+        // backed by disk or solid-state drives.
+#endif
+
+    static int setFileSize(FileDescriptor descriptor, Offset numBytes);
+        // Set the size of the file the specified 'descriptor' identifies to
+        // the specified 'numBytes' number of bytes.  Return 0 on success, and
+        // a non-zero value otherwise.  In the event of failure, the size and
+        // content of the file are unspecified.  The behavior is undefined if
+        // 'numBytes' is less than 0.
+};
+
+                       // ==============================
+                       // class FileDescriptorCloseGuard
+                       // ==============================
+
+class FileDescriptorCloseGuard {
+    // This class provides a guard that closes a file descriptor on
+    // destruction.
+
+  public:
+    // TYPES
+    typedef bdls::FilesystemUtil::FileDescriptor FileDescriptor;
+        // 'FileDescriptor' is an alias for the operating system's native file
+        // descriptor / file handle type.
+
+  private:
+    // DATA
+    FileDescriptor d_fileDescriptor;
+        // file descriptor to close on destruction
+
+    // NOT IMPLEMENTED
+    FileDescriptorCloseGuard(const FileDescriptorCloseGuard&);
+    FileDescriptorCloseGuard& operator=(const FileDescriptorCloseGuard&);
+
+  public:
+    // CREATORS
+    explicit FileDescriptorCloseGuard(FileDescriptor descriptor);
+        // Create a 'FileDescriptorCloseGuard' object that closes the specified
+        // 'descriptor' on destruction.
+
+    ~FileDescriptorCloseGuard();
+        // Close the 'descriptor' supplied to this object on construction and
+        // destroy this object.
+};
+
+                             // =================
+                             // class RemoveGuard
+                             // =================
+
+class RemoveGuard {
+    // This class provides a guard that removes a named file from the file
+    // system on destruction.
+
+  public:
+    // TYPES
+    typedef bsl::allocator<char> allocator_type;
+        // 'allocator_type' is an alias to the type of allocator that supplies
+        // memory to 'RemoveGuard' objects.
+
+  private:
+    // DATA
+    bsl::string d_path;
+        // path to the regular file to remove on destruction
+
+    // NOT IMPLEMENTED
+    RemoveGuard(const RemoveGuard&);
+    RemoveGuard& operator=(const RemoveGuard&);
+
+  public:
+    // CREATORS
+    explicit RemoveGuard(const bsl::string_view& path,
+                         const allocator_type&   allocator = allocator_type());
+        // Create a 'RemoveGuard' object that removes the file at the specified
+        // 'path' on destruction.  Optionally specify an 'allocator' used to
+        // supply memory; otherwise, the default allocator is used.
+
+    ~RemoveGuard();
+        // Remove the file at the 'path' supplied to this object on
+        // construction, and destroy this object.
+};
+
+#if defined(BSLS_PLATFORM_OS_FREEBSD) \
+ || defined(BSLS_PLATFORM_OS_DARWIN)  \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
+
+                         // =========================
+                         // struct TestUnixFunctionId
+                         // =========================
+
+struct TestUnixFunctionId {
+    // This 'struct' provides a namespace for enumerating a set of
+    // identifiers that denote some functions provided by Unix operating
+    // systems in the large-file environment.
+
+    enum Enum {
+        e_FSTAT
+    };
+};
+
+
+                        // ============================
+                        // struct TestUnixInterfaceCall
+                        // ============================
+
+struct TestUnixInterfaceCall {
+    // This in-core, aggregate-like 'struct' provides a representation of the
+    // arguments of a call to a Unix function in the large-file environment.
+
+    // TYPES
+    typedef TestUnixFunctionId FunctionId;
+        // 'FunctionId' is an alias to an enumeration for a set of identifiers
+        // that denote some functions provided by Unix operating systems in the
+        // large-file environment.
+
+    // PUBLIC DATA
+    FunctionId::Enum d_functionId;
+    union {
+        struct {
+            int          d_fildes;
+            struct stat *d_buf;
+        } d_fstat;
+    };
+
+    // CREATORS
+    TestUnixInterfaceCall();
+        // Create a 'TestUnixInterfaceCall' object having indeterminate value.
+
+    TestUnixInterfaceCall(const TestUnixInterfaceCall& other);
+        // Create a 'TestUnixInterfaceCall' object having the same value as the
+        // specified 'other'.  The behavior is undefined if 'other' has
+        // indeterminate value or the active member of its union does not
+        // correspond to the value of its 'd_functionId' data member.
+
+    // MANIPULATORS
+    TestUnixInterfaceCall& operator=(const TestUnixInterfaceCall& other);
+        // Assign to this object the specified 'other' value and return a
+        // reference to this object.  The behavior is undefined if 'other' has
+        // indeterminate value or the active member of its union does not
+        // correspond to the value of its 'd_functionId' data member.
+};
+
+                      // ================================
+                      // struct TestUnixInterfaceResponse
+                      // ================================
+
+struct TestUnixInterfaceResponse {
+    // This in-core, aggregate-like 'struct' provides a representation of the
+    // results of a call to a Unix function in the large-file environment.
+
+    // TYPES
+    typedef TestUnixFunctionId FunctionId;
+        // 'FunctionId' is an alias to an enumeration for a set of identifiers
+        // that denote some functions provided by Unix operating systems in the
+        // large-file environment.
+
+    // PUBLIC DATA
+    FunctionId::Enum d_functionId;
+    union {
+        struct {
+            int         d_result;
+            struct stat d_buf;
+        } d_fstat;
+    };
+
+    // CREATORS
+    TestUnixInterfaceResponse();
+        // Create a 'TestUnixInterfaceResponse' object having indeterminate
+        // value.
+
+    TestUnixInterfaceResponse(const TestUnixInterfaceResponse& other);
+        // Create a 'TestUnixInterfaceResponse' object having the same value as
+        // the specified 'other'.  The behavior is undefined if 'other' has
+        // indeterminate value or the active member of its union does not
+        // correspond to the value of its 'd_functionId' data member.
+
+    // MANIPULATORS
+    TestUnixInterfaceResponse& operator=(
+                                       const TestUnixInterfaceResponse& other);
+        // Assign to this object the specified 'other' value and return a
+        // reference to this object.  The behavior is undefined if 'other' has
+        // indeterminate value or the active member of its union does not
+        // correspond to the value of its 'd_functionId' data member.
+};
+
+                          // =======================
+                          // class TestUnixInterface
+                          // =======================
+
+class TestUnixInterface {
+    // This mechanism class provides a set of member functions that mock
+    // corresponding Unix system functions in the large-file environment.  It
+    // records the arguments to these functions in a queue, which clients
+    // retrieve with 'popFrontCall', and returns results from a queue that
+    // clients populate with 'pushFrontResponse'.
+
+  public:
+    // TYPES
+    typedef TestUnixInterfaceCall Call;
+        // 'Call' is an alias to an in-core, aggregate-like 'struct' that
+        // provides a representation of the arguments of a call to a Unix
+        // function in the large-file environment.
+
+    typedef TestUnixInterfaceResponse Response;
+        // 'Response' is an alias to an in-core, aggregate-like 'struct' that
+        // provides a representation of the results of a call to a Unix
+        // function in the large-file environment.
+
+    typedef bsl::allocator<char> allocator_type;
+        // 'allocator_type' is an alias to the type of allocator that supplies
+        // memory to 'TestUnixInterface' objects.
+
+  private:
+    // PRIVATE TYPES
+    typedef TestUnixFunctionId FunctionId;
+        // 'FunctionId' is an alias to an enumeration for a set of identifiers
+        // that denote some functions provided by Unix operating systems in the
+        // large-file environment.
+
+    // DATA
+    bsl::deque<Call>     d_calls;
+        // queue of call records that 'fstat' populates and 'popFrontCall'
+        // drains
+
+    bsl::deque<Response> d_responses;
+        // queue of response records that 'pushBackResponse' populates and
+        // 'fstat' drains
+
+    // NOT IMPLEMENTED
+    TestUnixInterface(const TestUnixInterface&);
+    TestUnixInterface& operator=(const TestUnixInterface&);
+
+  public:
+    // CREATORS
+    TestUnixInterface();
+    explicit TestUnixInterface(const allocator_type& allocator);
+        // Create a 'TestUnixInterface' object that has empty call and response
+        // queues.  Optionally specify an 'allocator' used to supply memory;
+        // otherwise, the default allocator is used.
+
+    // MANIPULATORS
+    int fstat(int fildes, struct stat *buf);
+        // Push a 'Call' to the call queue that has a 'FunctionId::e_FSTAT'
+        // 'd_functionId', a 'd_fildes' equal to the specified 'fildes', and a
+        // 'd_buf' equal to the specified 'buf', load the 'd_buf' into 'buf'
+        // and return the 'd_result' of the next queued response.  The behavior
+        // is undefined if the response queue is empty or the 'd_functionId' of
+        // the next queued response is not 'FunctionId::e_FSTAT'.
+
+    void popFrontCall(Call *call);
+        // Load the next queued call into the specified 'call' and remove it
+        // from the queue.  The behavior is undefined if the call queue is
+        // empty.
+
+    void pushBackResponse(const Response& response);
+        // Push the specified 'response' to the response queue.
+
+    // ACCESSORS
+    int numCalls() const;
+        // Return the number of calls in the call queue.
+
+    int numResponses() const;
+        // Return the number of responses in the response queue.
+};
+
+                        // ============================
+                        // struct TestUnixInterfaceUtil
+                        // ============================
+
+struct TestUnixInterfaceUtil {
+    // This utility 'struct' provides an implementation of the requirements for
+    // the 'UNIX_INTERFACE' template parameter of the functions provided by
+    // 'FilesystemUtil_UnixImplUtil' in terms of mock Unix interface calls in
+    // the large-file environment.
+
+    // TYPES
+    typedef struct stat stat;
+        // 'stat' is an alias to the 'stat' 'struct' provided by the
+        // 'sys/stat.h' header.
+
+  private:
+    // CLASS DATA
+    static TestUnixInterface *s_interface_p;
+        // the currently-installed mock Unix interface mechanism
+
+  public:
+    // CLASS METHODS
+    static int fstat(int fildes, stat *buf);
+        // Push a 'Call' to the interface's call queue that has a
+        // 'FunctionId::e_FSTAT' 'd_functionId', a 'd_fildes' equal to the
+        // specified 'fildes', and a 'd_buf' equal to the specified 'buf', load
+        // the 'd_buf' into 'buf' and return the 'd_result' of the interface's
+        // next queued response.  The behavior is undefined if the response
+        // queue is empty or the 'd_functionId' of the next queued response is
+        // not 'FunctionId::e_FSTAT'.
+
+    static void setInterface(TestUnixInterface *interface);
+        // Set the interface to the specified 'interface'.
+
+    static TestUnixInterface *interface();
+        // Return the interface.
+};
+
+#elif defined(BSLS_PLATFORM_OS_UNIX)
+
+                   // =====================================
+                   // struct TestTransitionalUnixFunctionId
+                   // =====================================
+
+struct TestTransitionalUnixFunctionId {
+    // This 'struct' provides a namespace for enumerating a set of
+    // identifiers that denote some functions provided by Unix operating
+    // systems in the transitional-compilation environment.
+
+    enum Enum {
+        e_FSTAT64
+    };
+};
+
+                  // ========================================
+                  // struct TestTransitionalUnixInterfaceCall
+                  // ========================================
+
+struct TestTransitionalUnixInterfaceCall {
+    // This in-core, aggregate-like 'struct' provides a representation of the
+    // arguments of a call to a Unix function in the transitional-compilation
+    // environment.
+
+    // TYPES
+    typedef TestTransitionalUnixFunctionId FunctionId;
+        // 'FunctionId' is an alias to an enumeration for a set of identifiers
+        // that denote some functions provided by Unix operating systems in the
+        // transitional-compilation environment.
+
+    // PUBLIC DATA
+    FunctionId::Enum d_functionId;
+    union {
+        struct {
+            int            d_fildes;
+            struct stat64 *d_buf;
+        } d_fstat64;
+    };
+
+    // CREATORS
+    TestTransitionalUnixInterfaceCall();
+        // Create a 'TestTransitionalUnixInterfaceCall' object having
+        // indeterminate value.
+
+    TestTransitionalUnixInterfaceCall(
+                               const TestTransitionalUnixInterfaceCall& other);
+        // Create a 'TestTransitionalUnixInterfaceCall' object having the same
+        // value as the specified 'other'.  The behavior is undefined if
+        // 'other' has indeterminate value or the active member of its union
+        // does not correspond to the value of its 'd_functionId' data member.
+
+    // MANIPULATORS
+    TestTransitionalUnixInterfaceCall& operator=(
+                               const TestTransitionalUnixInterfaceCall& other);
+        // Assign to this object the specified 'other' value and return a
+        // reference to this object.  The behavior is undefined if 'other' has
+        // indeterminate value or the active member of its union does not
+        // correspond to the value of its 'd_functionId' data member.
+};
+
+                // ============================================
+                // struct TestTransitionalUnixInterfaceResponse
+                // ============================================
+
+struct TestTransitionalUnixInterfaceResponse {
+    // This in-core, aggregate-like 'struct' provides a representation of the
+    // results of a call to a Unix function in the transitional-compilation
+    // environment.
+
+    // TYPES
+    typedef TestTransitionalUnixFunctionId FunctionId;
+        // 'FunctionId' is an alias to an enumeration for a set of identifiers
+        // that denote some functions provided by Unix operating systems in the
+        // transitional-compilation environment.
+
+    // PUBLIC DATA
+    FunctionId::Enum d_functionId;
+    union {
+        struct {
+            int           d_result;
+            struct stat64 d_buf;
+        } d_fstat64;
+    };
+
+    // CREATORS
+    TestTransitionalUnixInterfaceResponse();
+        // Create a 'TestTransitionalUnixInterfaceResponse' object having
+        // indeterminate value.
+
+    TestTransitionalUnixInterfaceResponse(
+                           const TestTransitionalUnixInterfaceResponse& other);
+        // Create a 'TestTransitionalUnixInterfaceResponse' object having the
+        // same value as the specified 'other'.  The behavior is undefined if
+        // 'other' has indeterminate value or the active member of its union
+        // does not correspond to the value of its 'd_functionId' data member.
+
+    // MANIPULATORS
+    TestTransitionalUnixInterfaceResponse& operator=(
+                           const TestTransitionalUnixInterfaceResponse& other);
+        // Assign to this object the specified 'other' value and return a
+        // reference to this object.  The behavior is undefined if 'other' has
+        // indeterminate value or the active member of its union does not
+        // correspond to the value of its 'd_functionId' data member.
+};
+
+                    // ===================================
+                    // class TestTransitionalUnixInterface
+                    // ===================================
+
+class TestTransitionalUnixInterface {
+    // This mechanism class provides a set of member functions that mock
+    // corresponding Unix system functions in the transitional-compilation
+    // environment.  It records the arguments to these functions in a queue,
+    // which clients retrieve with 'popFrontCall', and returns results from a
+    // queue that clients populate with 'pushFrontResponse'.
+
+  public:
+    // TYPES
+    typedef TestTransitionalUnixInterfaceCall     Call;
+        // 'Call' is an alias to an in-core, aggregate-like 'struct' that
+        // provides a representation of the arguments of a call to a Unix
+        // function in the transitional-compilation environment.
+
+    typedef TestTransitionalUnixInterfaceResponse Response;
+        // 'Response' is an alias to an in-core, aggregate-like 'struct' that
+        // provides a representation of the results of a call to a Unix
+        // function in the transitional-compilation environment.
+
+    typedef bsl::allocator<char>                  allocator_type;
+        // 'allocator_type' is an alias to the type of allocator that supplies
+        // memory to 'TestTransitionalUnixInterface' objects.
+
+  private:
+    // PRIVATE TYPES
+    typedef TestTransitionalUnixFunctionId FunctionId;
+        // 'FunctionId' is an alias to an enumeration for a set of identifiers
+        // that denote some functions provided by Unix operating systems in the
+        // transitional-compilation environment.
+
+    // DATA
+    bsl::deque<Call>     d_calls;
+        // queue of call records that 'fstat64' populates and 'popFrontCall'
+        // drains
+
+    bsl::deque<Response> d_responses;
+        // queue of response records that 'pushBackResponse' populates and
+        // 'fstat64' drains
+
+    // NOT IMPLEMENTED
+    TestTransitionalUnixInterface(const TestTransitionalUnixInterface&);
+    TestTransitionalUnixInterface& operator=(
+                                         const TestTransitionalUnixInterface&);
+
+  public:
+    // CREATORS
+    TestTransitionalUnixInterface();
+    explicit TestTransitionalUnixInterface(const allocator_type& allocator);
+        // Create a 'TestTransitionalUnixInterface' object that has empty call
+        // and response queues.  Optionally specify an 'allocator' used to
+        // supply memory; otherwise, the default allocator is used.
+
+    // MANIPULATORS
+    int fstat64(int fildes, struct stat64 *buf);
+        // Push a 'Call' to the call queue that has a 'FunctionId::e_FSTAT64'
+        // 'd_functionId', a 'd_fildes' equal to the specified 'fildes', and a
+        // 'd_buf' equal to the specified 'buf'. Load the 'd_buf' into 'buf'
+        // and return the 'd_result' of the next queued response.  The behavior
+        // is undefined if the response queue is empty or the 'd_functionId' of
+        // the next queued response is not 'FunctionId::e_FSTAT64'.
+
+    void popFrontCall(Call *call);
+        // Load the next queued call into the specified 'call' and remove it
+        // from the queue.  The behavior is undefined if the call queue is
+        // empty.
+
+    void pushBackResponse(const Response& response);
+        // Push the specified 'response' to the response queue.
+
+    // ACCESSORS
+    int numCalls() const;
+        // Return the number of calls in the call queue.
+
+    int numResponses() const;
+        // Return the number of responses in the response queue.
+};
+
+                  // ========================================
+                  // struct TestTransitionalUnixInterfaceUtil
+                  // ========================================
+
+struct TestTransitionalUnixInterfaceUtil {
+    // This utility 'struct' provides an implementation of the requirements for
+    // the 'UNIX_INTERFACE' template parameter of the functions provided by
+    // 'FilesystemUtil_TransitionalUnixImplUtil' in terms of mock Unix
+    // interface calls in the transitional-compilation environment.
+
+    // TYPES
+    typedef struct stat64 stat64;
+        // 'stat' is an alias to the 'stat' 'struct' provided by the
+        // 'sys/stat.h' header.
+
+  private:
+    // CLASS DATA
+    static TestTransitionalUnixInterface *s_interface_p;
+        // the currently-installed mock Unix interface mechanism
+
+  public:
+    // CLASS METHODS
+    static int fstat64(int fildes, stat64 *buf);
+        // Push a 'Call' to the interface's call queue that has a
+        // 'FunctionId::e_FSTAT64' 'd_functionId', a 'd_fildes' equal to the
+        // specified 'fildes', and a 'd_buf' equal to the specified 'buf', load
+        // the 'd_buf' into 'buf' and return the 'd_result' of the interface's
+        // next queued response.  The behavior is undefined if the response
+        // queue is empty or the 'd_functionId' of the next queued response is
+        // not 'FunctionId::e_FSTAT64'.
+
+    static void setInterface(TestTransitionalUnixInterface *interface);
+        // Set the interface to the specified 'interface'.
+
+    static TestTransitionalUnixInterface *interface();
+        // Return the interface.
+};
+
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+
+                        // ============================
+                        // struct TestWindowsFunctionId
+                        // ============================
+
+struct TestWindowsFunctionId {
+    // This 'struct' provides a namespace for enumerating a set of identifiers
+    // that denote some functions provided by Windows.
+
+    // TYPES
+    enum Enum {
+        e_GET_FILE_SIZE,
+        e_GET_LAST_ERROR
+    };
+};
+
+
+                      // ===============================
+                      // struct TestWindowsInterfaceCall
+                      // ===============================
+
+struct TestWindowsInterfaceCall {
+    // This in-core, aggregate-like 'struct' provides a representation of the
+    // arguments of a call to a Windows function.
+
+    // TYPES
+    typedef TestWindowsFunctionId FunctionId;
+        // 'FunctionId' is an alias to an enumeration for a set of identifiers
+        // that denote some functions provided by Windows.
+
+    // PUBLIC DATA
+    FunctionId::Enum d_functionId;
+    union {
+        struct {
+            HANDLE  d_hFile;
+            LPDWORD d_lpFileSizeHigh;
+        } d_getFileSize;
+        struct {
+        } d_getLastError;
+    };
+
+    // CREATORS
+    TestWindowsInterfaceCall();
+        // Create a 'TestWindowsInterfaceCall' object have indeterminate value.
+
+    TestWindowsInterfaceCall(const TestWindowsInterfaceCall& other);
+        // Create a 'TestWindowsInterfaceCall' object having the same value as
+        // the specified 'other'.  The behavior is undefined if 'other' has
+        // indeterminate value or the active member of its union does not
+        // correspond to the value of its 'd_functionId' data member.
+
+    // MANIPULATORS
+    TestWindowsInterfaceCall& operator=(const TestWindowsInterfaceCall& other);
+        // Assign to this object the specified 'other' value and return a
+        // reference to this object.  The behavior is undefined if 'other' has
+        // indeterminate value or the active member of its union does not
+        // correspond to the value of its 'd_functionId' data member.
+};
+
+                    // ===================================
+                    // struct TestWindowsInterfaceResponse
+                    // ===================================
+
+struct TestWindowsInterfaceResponse {
+    // This in-core, aggregate-like 'struct' provides a representation of the
+    // results of a call to a Windows function.
+
+    // TYPES
+    typedef TestWindowsFunctionId FunctionId;
+        // 'FunctionId' is an alias to an enumeration for a set of identifiers
+        // that denote some functions provided by Windows.
+
+    // PUBLIC DATA
+    FunctionId::Enum d_functionId;
+    union {
+        struct {
+            DWORD d_lpFileSizeHigh;
+            DWORD d_result;
+        } d_getFileSize;
+        struct {
+            DWORD d_result;
+        } d_getLastError;
+    };
+
+    // CREATORS
+    TestWindowsInterfaceResponse();
+        // Create a 'TestWindowsInterfaceResponse' object having indeterminate
+        // value.
+
+    TestWindowsInterfaceResponse(const TestWindowsInterfaceResponse& other);
+        // Create a 'TestWindowsInterfaceResponse' object having the same value
+        // as the specified 'other'.  The behavior is undefined if 'other' has
+        // indeterminate value or the active member of its union does not
+        // correspond to the value of its 'd_functionId' data member.
+
+    // MANIPULATORS
+    TestWindowsInterfaceResponse& operator=(
+                                    const TestWindowsInterfaceResponse& other);
+        // Assign to this object the specified 'other' value and return a
+        // reference to this object.  The behavior is undefined if 'other' has
+        // indeterminate value or the active member of its union does not
+        // correspond to the value of its 'd_functionId' data member.
+};
+
+                         // ==========================
+                         // class TestWindowsInterface
+                         // ==========================
+
+class TestWindowsInterface {
+    // This mechanism class provides a set of member functions that mock
+    // corresponding Windows functions.  It records the arguments to these
+    // functions in a queue, which clients retrieve with 'popFrontCall', and
+    // returns results from a queue that clients populate with
+    // 'pushFrontResponse'.
+
+  public:
+    // TYPES
+    typedef TestWindowsInterfaceCall     Call;
+        // 'Call' is an alias to an in-core, aggregate-like 'struct' that
+        // provides a representation of the arguments of a call to a Windows
+        // function.
+
+    typedef TestWindowsInterfaceResponse Response;
+        // 'Response' is an alias to an in-core, aggregate-like 'struct' that
+        // provides a representation of the results of a call to a Windows
+        // function.
+
+    typedef bsl::allocator<char> allocator_type;
+        // 'allocator_type' is an alias to the type of allocator that supplies
+        // memory to 'TestTransitionalUnixInterface' objects.
+
+  private:
+    // PRIVATE TYPES
+    typedef TestWindowsFunctionId FunctionId;
+        // 'FunctionId' is an alias to an enumeration for a set of identifiers
+        // that denote some functions provided by Windows.
+
+    // DATA
+    bsl::deque<Call>     d_calls;
+        // queue of call records that mock Windows functions populate and
+        // 'popFrontCall' drains
+
+    bsl::deque<Response> d_responses;
+        // queue of response records that 'pushBackResponse' populates and
+        // mock Windows functions drain
+
+    // NOT IMPLEMENTED
+    TestWindowsInterface(const TestWindowsInterface&);
+    TestWindowsInterface& operator=(const TestWindowsInterface&);
+
+  public:
+    // CREATORS
+    TestWindowsInterface();
+    explicit TestWindowsInterface(const allocator_type& allocator);
+        // Create a 'TestWindowsInterface' object that has empty call
+        // and response queues.  Optionally specify an 'allocator' used to
+        // supply memory; otherwise, the default allocator is used.
+
+    // MANIPULATORS
+    DWORD GetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
+        // Push a 'Call' to the call queue that has a
+        // 'FunctionId::e_GET_FILE_SIZE' 'd_functionId', a 'd_hFile' equal to
+        // the specified 'hFile', and a 'd_lpFileSizeHigh' equal to the
+        // specified 'lpFileSizeHigh'.  Load the 'd_lpFileSizeHigh' into
+        // 'lpFileSizeHigh' and return the 'd_result' of the next queued
+        // response.  The behavior is undefined if the response queue is empty
+        // or the 'd_functionId' of the next queued response is not
+        // 'FunctionId::e_GET_FILE_SIZE'.
+
+    DWORD GetLastError();
+        // Push a 'Call' to the call queue that has a
+        // 'FunctionId::e_GET_LAST_ERROR' 'd_functionId'.  Return the
+        // 'd_result' of the next queued response.  The behavior is undefined
+        // if the response queue is empty or the 'd_functionId' of the next
+        // queued response is not 'FunctionId::e_GET_LAST_ERROR'.
+
+    void popFrontCall(Call *call);
+        // Load the next queued call into the specified 'call' and remove it
+        // from the queue.  The behavior is undefined if the call queue is
+        // empty.
+
+    void pushBackResponse(const Response& response);
+        // Push the specified 'response' to the response queue.
+
+    // ACCESSORS
+    int numCalls() const;
+        // Return the number of calls in the call queue.
+
+    int numResponses() const;
+        // Return the number of responses in the response queue.
+};
+
+                      // ===============================
+                      // struct TestWindowsInterfaceUtil
+                      // ===============================
+
+struct TestWindowsInterfaceUtil {
+    // This utility 'struct' provides an implementation of the requirements for
+    // the 'WINDOWS_INTERFACE' template parameter of the functions provided by
+    // 'FilesystemUtil_WindowsImplUtil' in terms of mock Windows calls.
+
+    // TYPES
+    typedef DWORD   DWORD;
+        // 'DWORD' is an alias to the unsigned integral 'DWORD' type provided
+        // by the 'windows.h' header.
+
+    typedef ULONG64 ULONG64;
+        // 'ULONG64' is an alias to the unsigned integral 'ULONG64' type
+        // provided by the 'windows.h' header.
+
+  private:
+    // CLASS DATA
+    static TestWindowsInterface *s_interface_p;
+        // the currently-installed mock Windows interface mechanism
+
+  public:
+    // CLASS METHODS
+    static DWORD GetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
+        // Push a 'Call' to the interface's call queue that has a
+        // 'FunctionId::e_GET_FILE_SIZE' 'd_functionId', a 'd_hFile' equal to
+        // the specified 'hFile', and a 'd_lpFileSizeHigh' equal to the
+        // specified 'lpFileSizeHigh'.  Load the 'd_lpFileSizeHigh' into
+        // 'lpFileSizeHigh' and return the 'd_result' of the interface's next
+        // queued response.  The behavior is undefined if the response queue is
+        // empty or the 'd_functionId' of the next queued response is not
+        // 'FunctionId::e_GET_FILE_SIZE'.
+
+    static DWORD GetLastError();
+        // Push a 'Call' to the interface's call queue that has a
+        // 'FunctionId::e_GET_LAST_ERROR' 'd_functionId'.  Return the
+        // 'd_result' of the interface's next queued response.  The behavior is
+        // undefined if the response queue is empty or the 'd_functionId' of
+        // the next queued response is not 'FunctionId::e_GET_LAST_ERROR'.
+
+    static void setInterface(TestWindowsInterface *interface);
+        // Set the interface to the specified 'interface'.
+
+    static TestWindowsInterface *interface();
+        // Return the interface.
+};
+
+#else
+
+#error 'bdls_filesystemutil' does not support this platform.
+
+#endif
+
+}  // close namespace u
+}  // close unnamed namespace
+}  // close enterprise namespace
 
 //=============================================================================
 //                             USAGE EXAMPLES
@@ -1701,8 +2540,7 @@ int main(int argc, char *argv[])
             ASSERT(Obj::exists(testBaseDir));
             ASSERT(Obj::exists(fullPath));
 
-# if defined(BSLS_PLATFORM_OS_CYGWIN) || \
-    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
+# if defined(BSLS_PLATFORM_OS_CYGWIN) || defined(BSLS_PLATFORM_OS_DARWIN)
             struct stat info;
             ASSERT(0 == ::stat(  fullPath.c_str(), &info));
 # else
@@ -1725,8 +2563,7 @@ int main(int argc, char *argv[])
             }
             ASSERT(eqLeafDir);
 
-# if defined(BSLS_PLATFORM_OS_CYGWIN) || \
-    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
+# if defined(BSLS_PLATFORM_OS_CYGWIN) || defined(BSLS_PLATFORM_OS_DARWIN)
             ASSERT(0 == ::stat(  testBaseDir.c_str(), &info));
 # else
             ASSERT(0 == ::stat64(testBaseDir.c_str(), &info));
@@ -1759,8 +2596,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
             ASSERT(Obj::exists(fullPath));
 
-# if defined(BSLS_PLATFORM_OS_CYGWIN) || \
-    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
+# if defined(BSLS_PLATFORM_OS_CYGWIN) || defined(BSLS_PLATFORM_OS_DARWIN)
             struct stat info;
             ASSERT(0 == ::stat(  fullPath.c_str(), &info));
 # else
@@ -1828,8 +2664,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == Obj::close(fd));
 
-# if defined(BSLS_PLATFORM_OS_CYGWIN) || \
-    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
+# if defined(BSLS_PLATFORM_OS_CYGWIN) || defined(BSLS_PLATFORM_OS_DARWIN)
             struct stat info;
             ASSERT(0 == ::stat(  testFile.c_str(), &info));
 # else
@@ -1873,8 +2708,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == Obj::close(fd));
 
-# if defined(BSLS_PLATFORM_OS_CYGWIN) || \
-    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
+# if defined(BSLS_PLATFORM_OS_CYGWIN) || defined(BSLS_PLATFORM_OS_DARWIN)
             struct stat info;
             ASSERT(0 == ::stat(  testFile.c_str(), &info));
 # else
@@ -2721,20 +3555,45 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'getFileSize'
         //
-        // Concern: Returns proper file size for the following:
-        //   1. A normal file.
-        //   2. A normal directory (use empty directory).
-        //   3. A symbolic link (unix only).
-        //   4. Non existent file.
-        //   5. A file using relative path.
+        // Concerns:
+        //: 1 'getFileSize' returns the number of bytes stored any of the
+        //:   following file system constructs:
+        //:   1 a normal file,
+        //:   2 a normal directory (for which it uses an empty directory),
+        //:   3 a symbolic link (on Unix systems only),
+        //:   4 a non-existent file, and
+        //:   5 a normal file accessed through a relative path
+        //:
+        //: 2 The overload of 'getFileSize' that accepts a file descriptor
+        //:   returns the number of bytes stored in the described file.
         //
         // Plan:
-        //   Create the respective files listed in concerns and run
-        //   'getFileSize' on it.
+        //: 1 For each file system construct 'C' in the list of constructs in
+        //:   Concern 1, do the following:
+        //:
+        //:   1 Create an instance of 'C' on the file system having a known
+        //:     size 'S'.
+        //:
+        //:   2 Invoke 'getFileSize' with the name of 'C'.
+        //:
+        //:   3 Observe that 'getFileSize' returns 'S'.
+        //:
+        //: 2 Create a set of temporary files having different sizes on the
+        //:   file system, and for each file 'F' with size 'S', open a file
+        //:   descriptor 'FD' to 'F' and observe that 'getFileSize(FD)' returns
+        //:   'S'.
+        //:
+        //: 3 Verify that all control flow paths of the overload of
+        //:   'getFileSize' that accepts a file descriptor are correct on each
+        //:   platform by using a mock system interface to check the behavior
+        //:   of 'getFileSize' for all possible system responses, for
+        //:   extreme input and output values, and for input values that affect
+        //:   the control flow of the function.
         //
         // Testing:
         //   Offset getFileSize(const bsl::string&)
         //   Offset getFileSize(const char *)
+        //   Offset getFileSize(FileDescriptor)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing 'getFileSize'\n"
@@ -2754,7 +3613,7 @@ int main(int argc, char *argv[])
         Obj::write(fd, buffer, bytes);
         Obj::close(fd);
 
-        // Concern 1
+        // Concern 1.1
 
         {
             if (veryVerbose) cout << "\n1. Normal file" << endl;
@@ -2772,7 +3631,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // Concern 2
+        // Concern 1.2
 
         {
             if (veryVerbose) cout << "\n2. Normal directory" << endl;
@@ -2793,8 +3652,7 @@ int main(int argc, char *argv[])
             // On UNIX use 'stat64' ('stat' on cygwin) as an oracle: the file
             // size of a directory depends on the file system.
 
-#if defined(BSLS_PLATFORM_OS_CYGWIN) || \
-    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
+#if defined(BSLS_PLATFORM_OS_CYGWIN) || defined(BSLS_PLATFORM_OS_DARWIN)
             struct stat oracleInfo;
             int rc = ::stat(dirName.c_str(), &oracleInfo);
             ASSERT(0 == rc);
@@ -2824,8 +3682,15 @@ int main(int argc, char *argv[])
         }
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-        // Concern 3
-        // No symbolic links on windows.
+        // Concern 1.3
+
+        // This block used to claim that there are no symbolic links on
+        // Windows.  However, Windows began supporting symbolic links if the
+        // host uses the NTFS file system as of the release of Vista.
+        //
+        // Still, this test verifies the behavior of 'getFileSize' on a
+        // symbolic link only for non-Windows (which, for BDE, means Unix)
+        // systems.
 
         {
             if (veryVerbose) cout << "\n3. Symbolic Links" << endl;
@@ -2850,7 +3715,7 @@ int main(int argc, char *argv[])
         }
 #endif
 
-        // Concert 4
+        // Concert 1.4
 
         {
             if (veryVerbose) cout << "\n4. Non existent file" << endl;
@@ -2866,7 +3731,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // Concern 5
+        // Concern 1.5
 
         {
             if (veryVerbose) cout << "\n5. Relative Path" << endl;
@@ -2889,6 +3754,666 @@ int main(int argc, char *argv[])
 
             Obj::remove(relFileName);
         }
+
+        // Concern 2
+
+        // The following blocks test the overload of 'getFileSize' that has a
+        // 'Obj::FileDescriptor' parameter.
+
+        // Note that the file having the 'fileName' is removed in the following
+        // blocks of this test case so that those blocks may create a file with
+        // that name if they need to.
+
+        Obj::remove(fileName);
+
+        {
+            // This block tests that 'getFileSize' unconditionally returns a
+            // negative value if one gives it an invalid file handle.
+
+            const Obj::Offset fileSize = Obj::getFileSize(Obj::k_INVALID_FD);
+            ASSERT_EQ(-1, fileSize);
+        }
+
+        // The following blocks terminate the test unless they confirm that the
+        // host file system supports sparse files.  Subsequent blocks of this
+        // test case create large, zero-filled files that may exhaust file
+        // systems unless they compress all-zero files.
+        {
+            Obj::FileDescriptor fd =
+                Obj::open(fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
+            const u::FileDescriptorCloseGuard closeGuard(fd);
+            const u::RemoveGuard              removeGuard(fileName);
+            ASSERT_NE(Obj::k_INVALID_FD, fd);
+
+            const Obj::Offset fileSize = Obj::getFileSize(fd);
+            ASSERT_EQ(0, fileSize);
+            if (0 != fileSize) {
+                break;                                                 // BREAK
+            }
+
+            const Obj::Offset fileNumBlocks =
+                u::TestUtil::estimateNumBlocks(fileName);
+            ASSERT_EQ(0, fileNumBlocks);
+            if (0 != fileNumBlocks) {
+                break;                                                 // BREAK
+            }
+        }
+
+        {
+            Obj::FileDescriptor fd =
+                Obj::open(fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
+            const u::FileDescriptorCloseGuard closeGuard(fd);
+            const u::RemoveGuard              removeGuard(fileName);
+            ASSERT_NE(Obj::k_INVALID_FD, fd);
+
+            const Obj::Offset fileSize = Obj::getFileSize(fd);
+            ASSERT_EQ(0, fileSize);
+            if (0 != fileSize) {
+                break;                                                 // BREAK
+            }
+
+            static const int k_LARGEST_EXPECTED_BLOCK_SIZE = 8192;
+
+            const int setFileSizeRc = u::TestUtil::setFileSize(
+                fd, 2 * k_LARGEST_EXPECTED_BLOCK_SIZE);
+            if (0 != setFileSizeRc) {
+                break;                                                 // BREAK
+            }
+
+            const Obj::Offset newFileSize = Obj::getFileSize(fd);
+            ASSERT_EQ(2 * k_LARGEST_EXPECTED_BLOCK_SIZE, newFileSize);
+
+            const Obj::Offset fileNumBlocks =
+                u::TestUtil::estimateNumBlocks(fileName);
+            ASSERT_EQ(0, fileNumBlocks);
+            if (0 != fileNumBlocks) {
+                break;
+            }
+        }
+
+        {
+            Obj::FileDescriptor fd =
+                Obj::open(fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
+            const u::FileDescriptorCloseGuard closeGuard(fd);
+            const u::RemoveGuard              removeGuard(fileName);
+            ASSERT_NE(Obj::k_INVALID_FD, fd);
+
+            const Obj::Offset fileSize = Obj::getFileSize(fd);
+            ASSERT_EQ(0, fileSize);
+            if (0 != fileSize) {
+                break;                                                 // BREAK
+            }
+
+            static const Obj::Offset k_4_GB_FILE_SIZE =
+                4LL * 1024LL * 1024LL * 1024LL;
+
+            const int setFileSizeRc =
+                u::TestUtil::setFileSize(fd, k_4_GB_FILE_SIZE);
+            if (0 != setFileSizeRc) {
+                break;                                                 // BREAK
+            }
+
+            const Obj::Offset newFileSize = Obj::getFileSize(fd);
+            ASSERT_EQ(k_4_GB_FILE_SIZE, newFileSize);
+
+            const Obj::Offset fileNumBlocks =
+                u::TestUtil::estimateNumBlocks(fileName);
+            ASSERT_EQ(0, fileNumBlocks);
+            if (0 != fileNumBlocks) {
+                break;
+            }
+        }
+
+        {
+            // This block tests that 'FilesystemUtil' measures the sizes of
+            // real files correctly, using sparse files from 0 gigabytes to 8
+            // gigabytes.  Unfortunately, 'FilesystemUtil::getFileSizeLimit'
+            // does not guarantee the file system allows one to create a file
+            // as large as it may suggest.  Empirically, our supported
+            // operating and file systems permit files at least 8 gigabytes in
+            // size.  Follow blocks test 'FilesystemUtil's measurement of files
+            // larger than 8 gigabytes using mock operating-system interfaces.
+
+            const struct {
+                int d_line;
+                    // the line number
+
+                Obj::Offset d_fileSize;
+                    // the size of file to make and then measure
+            } DATA[] = {
+                // LINE   FILE SIZE
+                // ---- -------------
+                { L_   ,           0 },
+                { L_   ,           1 },
+                { L_   ,        1023 },
+                { L_   ,        1024 },
+                { L_   ,        1025 },
+                { L_   ,        8191 },
+                { L_   ,        8192 },
+                { L_   ,        8193 },
+                { L_   ,  0xFFFFFFFE },
+                { L_   ,  0xFFFFFFFF },
+                { L_   , 0x100000000 },
+                { L_   , 0x100000001 },
+                { L_   , 0x1FFFFFFFF },
+                { L_   , 0x200000000 },
+                { L_   , 0x200000001 },
+            };
+
+            static const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int         LINE      = DATA[i].d_line;
+                const Obj::Offset FILE_SIZE = DATA[i].d_fileSize;
+
+                Obj::FileDescriptor fd =
+                    Obj::open(fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
+                const u::FileDescriptorCloseGuard closeGuard(fd);
+                const u::RemoveGuard              removeGuard(fileName);
+                LOOP_ASSERT_NE(LINE, Obj::k_INVALID_FD, fd);
+
+                const Obj::Offset fileSize = Obj::getFileSize(fd);
+                LOOP_ASSERT_EQ(LINE, 0, fileSize);
+                if (0 != fileSize) {
+                    continue;                                       // CONTINUE
+                }
+
+                const int setFileSizeRc =
+                    u::TestUtil::setFileSize(fd, FILE_SIZE);
+                LOOP_ASSERT_EQ(LINE, 0, setFileSizeRc);
+                if (0 != setFileSizeRc) {
+                    continue;                                       // CONTINUE
+                }
+
+                const Obj::Offset newFileSize = Obj::getFileSize(fd);
+                LOOP_ASSERT_EQ(LINE, FILE_SIZE, newFileSize);
+            }
+        }
+
+        // Concern 3
+
+#if defined(BSLS_PLATFORM_OS_FREEBSD) \
+ || defined(BSLS_PLATFORM_OS_DARWIN)  \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
+        {
+            // This block tests all code paths through the Unix implementation
+            // of 'getFileSize', as well as boundary values for its input and
+            // output, using a mock Unix interface.
+
+            using namespace bdls;
+
+            typedef FilesystemUtil_UnixImplUtil    Obj;
+            typedef FilesystemUtil::FileDescriptor FileDescriptor;
+            typedef FilesystemUtil::Offset         Offset;
+
+            typedef u::TestUnixFunctionId        FunctionId;
+            typedef u::TestUnixInterfaceCall     Call;
+            typedef u::TestUnixInterfaceResponse Response;
+            typedef u::TestUnixInterface         Interface;
+            typedef u::TestUnixInterfaceUtil     InterfaceUtil;
+
+            const FileDescriptor INVALID_FD = FilesystemUtil::k_INVALID_FD;
+
+            typedef bsls::Types::Int64 Int64;
+
+            const int   MAX_INT   = bsl::numeric_limits<int>::max();
+            const Int64 MAX_INT64 = bsl::numeric_limits<Int64>::max();
+
+            const struct {
+                int            d_line;
+                    // the line number
+
+                FileDescriptor d_fileDescriptor;
+                    // the argument to 'getFileSize'
+
+                int            d_fildes;
+                    // the expected 'fildes' argument to 'fstat'
+
+                int            d_fstatResult;
+                    // what to return from the mock 'fstat'
+
+                Int64          d_st_size;
+                    // what to load into 'stat' from the mock 'fstat'
+
+                Offset         d_result;
+                    // the expected 'getFileSize' result
+            } DATA[] = {
+                //   LINE                    FSTAT RESULT
+                //  .----                   .------------
+                // /  FILE DESC.  FILDES   /   ST_SIZE     RESULT
+                //-- ----------- -------- --- ---------- ----------
+                { L_, INVALID_FD,      -1, -1,         0,        -1 },
+                { L_, INVALID_FD,      -1, -1,         1,        -1 },
+                { L_, INVALID_FD,      -1, -1, MAX_INT64,        -1 },
+                { L_, INVALID_FD,      -1, -2,         0,        -1 },
+                { L_, INVALID_FD,      -1, -2,         1,        -1 },
+                { L_, INVALID_FD,      -1, -2, MAX_INT64,        -1 },
+                { L_, INVALID_FD,      -1,  0,         0,         0 },
+                { L_, INVALID_FD,      -1,  0,         1,         1 },
+                { L_, INVALID_FD,      -1,  0, MAX_INT64, MAX_INT64 },
+
+                { L_,          0,       0, -1,         0,        -1 },
+                { L_,          0,       0, -1,         1,        -1 },
+                { L_,          0,       0, -1, MAX_INT64,        -1 },
+                { L_,          0,       0, -2,         0,        -1 },
+                { L_,          0,       0, -2,         1,        -1 },
+                { L_,          0,       0, -2, MAX_INT64,        -1 },
+                { L_,          0,       0,  0,         0,         0 },
+                { L_,          0,       0,  0,         1,         1 },
+                { L_,          0,       0,  0, MAX_INT64, MAX_INT64 },
+
+                { L_,          1,       1, -1,         0,        -1 },
+                { L_,          1,       1, -1,         1,        -1 },
+                { L_,          1,       1, -1, MAX_INT64,        -1 },
+                { L_,          1,       1, -2,         0,        -1 },
+                { L_,          1,       1, -2,         1,        -1 },
+                { L_,          1,       1, -2, MAX_INT64,        -1 },
+                { L_,          1,       1,  0,         0,         0 },
+                { L_,          1,       1,  0,         1,         1 },
+                { L_,          1,       1,  0, MAX_INT64, MAX_INT64 },
+
+                { L_,    MAX_INT, MAX_INT, -1,         0,        -1 },
+                { L_,    MAX_INT, MAX_INT, -1,         1,        -1 },
+                { L_,    MAX_INT, MAX_INT, -1, MAX_INT64,        -1 },
+                { L_,    MAX_INT, MAX_INT, -2,         0,        -1 },
+                { L_,    MAX_INT, MAX_INT, -2,         1,        -1 },
+                { L_,    MAX_INT, MAX_INT, -2, MAX_INT64,        -1 },
+                { L_,    MAX_INT, MAX_INT,  0,         0,         0 },
+                { L_,    MAX_INT, MAX_INT,  0,         1,         1 },
+                { L_,    MAX_INT, MAX_INT,  0, MAX_INT64, MAX_INT64 },
+            };
+
+            static const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int            LINE            = DATA[i].d_line;
+                const FileDescriptor FILE_DESCRIPTOR =
+                    DATA[i].d_fileDescriptor;
+                const int    FILDES       = DATA[i].d_fildes;
+                const int    FSTAT_RESULT = DATA[i].d_fstatResult;
+                const Int64  ST_SIZE      = DATA[i].d_st_size;
+                const Offset RESULT       = DATA[i].d_result;
+
+                Response response;
+                response.d_functionId          = FunctionId::e_FSTAT;
+                response.d_fstat.d_result      = FSTAT_RESULT;
+                response.d_fstat.d_buf.st_size = ST_SIZE;
+
+                Interface interface;
+                interface.pushBackResponse(response);
+
+                InterfaceUtil::setInterface(&interface);
+                const Offset result =
+                    Obj::getFileSize<InterfaceUtil>(FILE_DESCRIPTOR);
+                InterfaceUtil::setInterface(0);
+
+                Call call;
+                interface.popFrontCall(&call);
+                ASSERTV(call.d_functionId,
+                        FunctionId::e_FSTAT == call.d_functionId);
+                if (FunctionId::e_FSTAT != call.d_functionId) {
+                    continue;                                       // CONTINUE
+                }
+
+                ASSERTV(LINE, RESULT, result, RESULT == result);
+                ASSERTV(LINE,
+                        FILDES,
+                        call.d_fstat.d_fildes,
+                        FILDES == call.d_fstat.d_fildes);
+            }
+        }
+#elif defined(BSLS_PLATFORM_OS_UNIX)
+        {
+            // This block tets all code paths through the transitional Unix
+            // implementation of 'getFileSize', as well as boundary values for
+            // its input and output, using a mock transitional Unix interface.
+
+            using namespace bdls;
+
+            typedef FilesystemUtil_TransitionalUnixImplUtil Obj;
+            typedef FilesystemUtil::FileDescriptor          FileDescriptor;
+            typedef FilesystemUtil::Offset                  Offset;
+
+            typedef u::TestTransitionalUnixFunctionId        FunctionId;
+            typedef u::TestTransitionalUnixInterfaceCall     Call;
+            typedef u::TestTransitionalUnixInterfaceResponse Response;
+            typedef u::TestTransitionalUnixInterface         Interface;
+            typedef u::TestTransitionalUnixInterfaceUtil     InterfaceUtil;
+
+            const FileDescriptor INVALID_FD = FilesystemUtil::k_INVALID_FD;
+
+            typedef bsls::Types::Int64 Int64;
+
+            const int   MAX_INT   = bsl::numeric_limits<int>::max();
+            const Int64 MAX_INT64 = bsl::numeric_limits<Int64>::max();
+
+            const struct {
+                int            d_line;
+                    // the line number
+
+                FileDescriptor d_fileDescriptor;
+                    // the argument to 'getFileSize'
+
+                int            d_fildes;
+                    // the expected 'fildes' argument to 'fstat64'
+
+                int            d_fstat64Result;
+                    // what to return from the mock 'fstat64'
+
+                Int64          d_st_size;
+                    // what to load into 'stat64' from the mock 'fstat64'
+
+                Offset         d_result;
+                    // the expected 'getFileSize' result
+            } DATA[] = {
+                //   LINE                    FSTAT64 RESULT
+                //  .----                   .--------------
+                // /  FILE DESC.  FILDES   /   ST_SIZE     RESULT
+                //-- ----------- -------- --- ---------- ----------
+                { L_, INVALID_FD,      -1, -1,         0,        -1 },
+                { L_, INVALID_FD,      -1, -1,         1,        -1 },
+                { L_, INVALID_FD,      -1, -1, MAX_INT64,        -1 },
+                { L_, INVALID_FD,      -1, -2,         0,        -1 },
+                { L_, INVALID_FD,      -1, -2,         1,        -1 },
+                { L_, INVALID_FD,      -1, -2, MAX_INT64,        -1 },
+                { L_, INVALID_FD,      -1,  0,         0,         0 },
+                { L_, INVALID_FD,      -1,  0,         1,         1 },
+                { L_, INVALID_FD,      -1,  0, MAX_INT64, MAX_INT64 },
+
+                { L_,          0,       0, -1,         0,        -1 },
+                { L_,          0,       0, -1,         1,        -1 },
+                { L_,          0,       0, -1, MAX_INT64,        -1 },
+                { L_,          0,       0, -2,         0,        -1 },
+                { L_,          0,       0, -2,         1,        -1 },
+                { L_,          0,       0, -2, MAX_INT64,        -1 },
+                { L_,          0,       0,  0,         0,         0 },
+                { L_,          0,       0,  0,         1,         1 },
+                { L_,          0,       0,  0, MAX_INT64, MAX_INT64 },
+
+                { L_,          1,       1, -1,         0,        -1 },
+                { L_,          1,       1, -1,         1,        -1 },
+                { L_,          1,       1, -1, MAX_INT64,        -1 },
+                { L_,          1,       1, -2,         0,        -1 },
+                { L_,          1,       1, -2,         1,        -1 },
+                { L_,          1,       1, -2, MAX_INT64,        -1 },
+                { L_,          1,       1,  0,         0,         0 },
+                { L_,          1,       1,  0,         1,         1 },
+                { L_,          1,       1,  0, MAX_INT64, MAX_INT64 },
+
+                { L_,    MAX_INT, MAX_INT, -1,         0,        -1 },
+                { L_,    MAX_INT, MAX_INT, -1,         1,        -1 },
+                { L_,    MAX_INT, MAX_INT, -1, MAX_INT64,        -1 },
+                { L_,    MAX_INT, MAX_INT, -2,         0,        -1 },
+                { L_,    MAX_INT, MAX_INT, -2,         1,        -1 },
+                { L_,    MAX_INT, MAX_INT, -2, MAX_INT64,        -1 },
+                { L_,    MAX_INT, MAX_INT,  0,         0,         0 },
+                { L_,    MAX_INT, MAX_INT,  0,         1,         1 },
+                { L_,    MAX_INT, MAX_INT,  0, MAX_INT64, MAX_INT64 },
+            };
+
+            static const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int            LINE            = DATA[i].d_line;
+                const FileDescriptor FILE_DESCRIPTOR =
+                    DATA[i].d_fileDescriptor;
+                const int    FILDES         = DATA[i].d_fildes;
+                const int    FSTAT64_RESULT = DATA[i].d_fstat64Result;
+                const Int64  ST_SIZE        = DATA[i].d_st_size;
+                const Offset RESULT         = DATA[i].d_result;
+
+                Response response;
+                response.d_functionId            = FunctionId::e_FSTAT64;
+                response.d_fstat64.d_result      = FSTAT64_RESULT;
+                response.d_fstat64.d_buf.st_size = ST_SIZE;
+
+                Interface interface;
+                interface.pushBackResponse(response);
+
+                InterfaceUtil::setInterface(&interface);
+                const Offset result =
+                    Obj::getFileSize<InterfaceUtil>(FILE_DESCRIPTOR);
+                InterfaceUtil::setInterface(0);
+
+                Call call;
+                interface.popFrontCall(&call);
+                ASSERTV(call.d_functionId,
+                        FunctionId::e_FSTAT64 == call.d_functionId);
+                if (FunctionId::e_FSTAT64 != call.d_functionId) {
+                    continue;                                       // CONTINUE
+                }
+
+                ASSERTV(LINE, RESULT, result, RESULT == result);
+                ASSERTV(LINE,
+                        FILDES,
+                        call.d_fstat64.d_fildes,
+                        FILDES == call.d_fstat64.d_fildes);
+            }
+        }
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+        {
+            // This block tests all code paths through the Windows
+            // implementation of 'getFileSize', as well as boundary values for
+            // its input and output, using a mock Windows interface.
+
+            using namespace bdls;
+
+            typedef FilesystemUtil_WindowsImplUtil Obj;
+            typedef FilesystemUtil::FileDescriptor FileDescriptor;
+            typedef FilesystemUtil::Offset         Offset;
+
+            typedef u::TestWindowsFunctionId        FunctionId;
+            typedef u::TestWindowsInterfaceCall     Call;
+            typedef u::TestWindowsInterfaceResponse Response;
+            typedef u::TestWindowsInterface         Interface;
+            typedef u::TestWindowsInterfaceUtil     InterfaceUtil;
+
+            const FileDescriptor INVALID_FD = FilesystemUtil::k_INVALID_FD;
+
+            enum {
+                NA = 0
+                    // a value that this text block uses to indicate that the
+                    // field is not applicable
+            };
+
+            static const bool F = false;
+            static const bool T = true;
+
+            const struct {
+                int            d_line;
+                    // the line number
+
+                FileDescriptor d_fileDescriptor;
+                    // the argument to 'getFileSize'
+
+                DWORD          d_sizeHigh;
+                    // the high-32 bits to return from 'GetFileSize'
+
+                DWORD          d_sizeLow;
+                    // the low-32 bits to return from 'GetFileSize'
+
+                bool           d_expectGetLastError;
+                    // whether to expect the implementation to call
+                    // 'GetLastError'
+
+                DWORD          d_lastError;
+                    // the value to return from 'GetLastError', if called
+
+                Offset         d_result;
+                    // the expected 'getFileSize' result
+
+            } DATA[] = {
+       //   LINE         EXPECT GET LAST ERROR?       LAST ERROR
+       //  .----         ----------------------.     .----------
+       // /  FILE DESC.  SIZE HIGH   SIZE LOW   \   /         RESULT
+       //-- ----------- ----------- ----------- -- --- ---------------------
+       { L_, INVALID_FD,          0,          0, F, NA,                   0 },
+       { L_, INVALID_FD,          0,          1, F, NA,                   1 },
+       { L_, INVALID_FD,          0, 0xFFFFFFFE, F, NA,          0xFFFFFFFE },
+       { L_, INVALID_FD,          0, 0xFFFFFFFF, T, -1,                  -1 },
+       { L_, INVALID_FD,          0, 0xFFFFFFFF, T,  0,          0xFFFFFFFF },
+       { L_, INVALID_FD,          0, 0xFFFFFFFF, T,  1,                  -1 },
+       { L_, INVALID_FD,          0, 0x9ABCDEF0, F, NA,          0x9ABCDEF0 },
+
+       { L_, INVALID_FD,          1,          0, F, NA,         0x100000000 },
+       { L_, INVALID_FD,          1,          1, F, NA,         0x100000001 },
+       { L_, INVALID_FD,          1, 0xFFFFFFFE, F, NA,         0x1FFFFFFFE },
+       { L_, INVALID_FD,          1, 0xFFFFFFFF, T, -1,                  -1 },
+       { L_, INVALID_FD,          1, 0xFFFFFFFF, T,  0,         0x1FFFFFFFF },
+       { L_, INVALID_FD,          1, 0xFFFFFFFF, T,  1,                  -1 },
+       { L_, INVALID_FD,          1, 0x9ABCDEF0, F, NA,         0x19ABCDEF0 },
+
+       { L_, INVALID_FD, 0xFFFFFFFE,          0, F, NA,  0xFFFFFFFE00000000 },
+       { L_, INVALID_FD, 0xFFFFFFFE,          1, F, NA,  0xFFFFFFFE00000001 },
+       { L_, INVALID_FD, 0xFFFFFFFE, 0xFFFFFFFE, F, NA,  0xFFFFFFFEFFFFFFFE },
+       { L_, INVALID_FD, 0xFFFFFFFE, 0xFFFFFFFF, T, -1,                  -1 },
+       { L_, INVALID_FD, 0xFFFFFFFE, 0xFFFFFFFF, T,  0,  0xFFFFFFFEFFFFFFFF },
+       { L_, INVALID_FD, 0xFFFFFFFE, 0xFFFFFFFF, T,  1,                  -1 },
+       { L_, INVALID_FD, 0xFFFFFFFE, 0x9ABCDEF0, F, NA,  0xFFFFFFFE9ABCDEF0 },
+
+       { L_, INVALID_FD, 0xFFFFFFFF,          0, F, NA,  0xFFFFFFFF00000000 },
+       { L_, INVALID_FD, 0xFFFFFFFF,          1, F, NA,  0xFFFFFFFF00000001 },
+       { L_, INVALID_FD, 0xFFFFFFFF, 0xFFFFFFFE, F, NA,  0xFFFFFFFFFFFFFFFE },
+       { L_, INVALID_FD, 0xFFFFFFFF, 0xFFFFFFFF, T, -1,                  -1 },
+       { L_, INVALID_FD, 0xFFFFFFFF, 0xFFFFFFFF, T,  0,  0xFFFFFFFFFFFFFFFF },
+       { L_, INVALID_FD, 0xFFFFFFFF, 0xFFFFFFFF, T,  1,                  -1 },
+       { L_, INVALID_FD, 0xFFFFFFFF, 0x9ABCDEF0, F, NA,  0xFFFFFFFF9ABCDEF0 },
+
+       { L_, INVALID_FD, 0x12345678,          0, F, NA,  0x1234567800000000 },
+       { L_, INVALID_FD, 0x12345678,          1, F, NA,  0x1234567800000001 },
+       { L_, INVALID_FD, 0x12345678, 0xFFFFFFFE, F, NA,  0x12345678FFFFFFFE },
+       { L_, INVALID_FD, 0x12345678, 0xFFFFFFFF, T, -1,                  -1 },
+       { L_, INVALID_FD, 0x12345678, 0xFFFFFFFF, T,  0,  0x12345678FFFFFFFF },
+       { L_, INVALID_FD, 0x12345678, 0xFFFFFFFF, T,  1,                  -1 },
+       { L_, INVALID_FD, 0x12345678, 0x9ABCDEF0, F, NA,  0x123456789ABCDEF0 },
+
+       { L_,          0,          0,          0, F, NA,                   0 },
+       { L_,          0,          0,          1, F, NA,                   1 },
+       { L_,          0,          0, 0xFFFFFFFE, F, NA,          0xFFFFFFFE },
+       { L_,          0,          0, 0xFFFFFFFF, T, -1,                  -1 },
+       { L_,          0,          0, 0xFFFFFFFF, T,  0,          0xFFFFFFFF },
+       { L_,          0,          0, 0xFFFFFFFF, T,  1,                  -1 },
+       { L_,          0,          0, 0x9ABCDEF0, F, NA,          0x9ABCDEF0 },
+
+       { L_,          0,          1,          0, F, NA,         0x100000000 },
+       { L_,          0,          1,          1, F, NA,         0x100000001 },
+       { L_,          0,          1, 0xFFFFFFFE, F, NA,         0x1FFFFFFFE },
+       { L_,          0,          1, 0xFFFFFFFF, T, -1,                  -1 },
+       { L_,          0,          1, 0xFFFFFFFF, T,  0,         0x1FFFFFFFF },
+       { L_,          0,          1, 0xFFFFFFFF, T,  1,                  -1 },
+       { L_,          0,          1, 0x9ABCDEF0, F, NA,         0x19ABCDEF0 },
+
+       { L_,          0, 0xFFFFFFFE,          0, F, NA,  0xFFFFFFFE00000000 },
+       { L_,          0, 0xFFFFFFFE,          1, F, NA,  0xFFFFFFFE00000001 },
+       { L_,          0, 0xFFFFFFFE, 0xFFFFFFFE, F, NA,  0xFFFFFFFEFFFFFFFE },
+       { L_,          0, 0xFFFFFFFE, 0xFFFFFFFF, T, -1,                  -1 },
+       { L_,          0, 0xFFFFFFFE, 0xFFFFFFFF, T,  0,  0xFFFFFFFEFFFFFFFF },
+       { L_,          0, 0xFFFFFFFE, 0xFFFFFFFF, T,  1,                  -1 },
+       { L_,          0, 0xFFFFFFFE, 0x9ABCDEF0, F, NA,  0xFFFFFFFE9ABCDEF0 },
+
+       { L_,          0, 0xFFFFFFFF,          0, F, NA,  0xFFFFFFFF00000000 },
+       { L_,          0, 0xFFFFFFFF,          1, F, NA,  0xFFFFFFFF00000001 },
+       { L_,          0, 0xFFFFFFFF, 0xFFFFFFFE, F, NA,  0xFFFFFFFFFFFFFFFE },
+       { L_,          0, 0xFFFFFFFF, 0xFFFFFFFF, T, -1,                  -1 },
+       { L_,          0, 0xFFFFFFFF, 0xFFFFFFFF, T,  0,  0xFFFFFFFFFFFFFFFF },
+       { L_,          0, 0xFFFFFFFF, 0xFFFFFFFF, T,  1,                  -1 },
+       { L_,          0, 0xFFFFFFFF, 0x9ABCDEF0, F, NA,  0xFFFFFFFF9ABCDEF0 },
+
+       { L_,          0, 0x12345678,          0, F, NA,  0x1234567800000000 },
+       { L_,          0, 0x12345678,          1, F, NA,  0x1234567800000001 },
+       { L_,          0, 0x12345678, 0xFFFFFFFE, F, NA,  0x12345678FFFFFFFE },
+       { L_,          0, 0x12345678, 0xFFFFFFFF, T, -1,                  -1 },
+       { L_,          0, 0x12345678, 0xFFFFFFFF, T,  0,  0x12345678FFFFFFFF },
+       { L_,          0, 0x12345678, 0xFFFFFFFF, T,  1,                  -1 },
+       { L_,          0, 0x12345678, 0x9ABCDEF0, F, NA,  0x123456789ABCDEF0 }
+            };
+
+            static const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int            LINE = DATA[i].d_line;
+                const FileDescriptor FILE_DESCRIPTOR =
+                    DATA[i].d_fileDescriptor;
+                const DWORD SIZE_HIGH = DATA[i].d_sizeHigh;
+                const DWORD SIZE_LOW  = DATA[i].d_sizeLow;
+                const bool  EXPECT_GET_LAST_ERROR =
+                    DATA[i].d_expectGetLastError;
+                const DWORD  LAST_ERROR = DATA[i].d_lastError;
+                const Offset RESULT     = DATA[i].d_result;
+
+                Response getFileSizeResponse;
+                getFileSizeResponse.d_functionId = FunctionId::e_GET_FILE_SIZE;
+                getFileSizeResponse.d_getFileSize.d_result         = SIZE_LOW;
+                getFileSizeResponse.d_getFileSize.d_lpFileSizeHigh = SIZE_HIGH;
+
+                Interface interface;
+                interface.pushBackResponse(getFileSizeResponse);
+
+                if (EXPECT_GET_LAST_ERROR) {
+                    Response getLastErrorResponse;
+                    getLastErrorResponse.d_functionId =
+                        FunctionId::e_GET_LAST_ERROR;
+                    getLastErrorResponse.d_getLastError.d_result = LAST_ERROR;
+
+                    interface.pushBackResponse(getLastErrorResponse);
+                }
+
+                InterfaceUtil::setInterface(&interface);
+                const Offset result =
+                        Obj::getFileSize<InterfaceUtil>(FILE_DESCRIPTOR);
+                InterfaceUtil::setInterface(0);
+
+                ASSERTV(LINE, RESULT, result, RESULT == result);
+
+                if (EXPECT_GET_LAST_ERROR) {
+                    ASSERTV(LINE,
+                            interface.numCalls(),
+                            2 == interface.numCalls());
+                    if (2 != interface.numCalls()) {
+                        continue;                                   // CONTINUE
+                    }
+                }
+                else {
+                    ASSERTV(LINE,
+                            interface.numCalls(),
+                            1 == interface.numCalls());
+                    if (1 != interface.numCalls()) {
+                        continue;                                   // CONTINUE
+                    }
+                }
+
+                Call getFileSizeCall;
+                interface.popFrontCall(&getFileSizeCall);
+                ASSERTV(LINE,
+                        getFileSizeCall.d_functionId,
+                        FunctionId::e_GET_FILE_SIZE ==
+                            getFileSizeCall.d_functionId);
+                if (FunctionId::e_GET_FILE_SIZE !=
+                    getFileSizeCall.d_functionId) {
+                    continue;                                       // CONTINUE
+                }
+
+                ASSERTV(LINE,
+                        FILE_DESCRIPTOR,
+                        getFileSizeCall.d_getFileSize.d_hFile,
+                        FILE_DESCRIPTOR ==
+                            getFileSizeCall.d_getFileSize.d_hFile);
+
+                if (EXPECT_GET_LAST_ERROR) {
+                    Call getLastErrorCall;
+                    interface.popFrontCall(&getLastErrorCall);
+                    ASSERTV(LINE,
+                            getLastErrorCall.d_functionId,
+                            FunctionId::e_GET_LAST_ERROR ==
+                                getLastErrorCall.d_functionId);
+                    if (FunctionId::e_GET_LAST_ERROR !=
+                        getLastErrorCall.d_functionId) {
+                        continue;                                   // CONTINUE
+                    }
+                }
+            }
+        }
+#endif
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -5617,6 +7142,766 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
+
+namespace BloombergLP {
+namespace {
+namespace u {
+
+                              // ---------------
+                              // struct TestUtil
+                              // ---------------
+
+// CLASS METHODS
+#if defined(BSLS_PLATFORM_OS_FREEBSD) \
+ || defined(BSLS_PLATFORM_OS_DARWIN)  \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
+
+TestUtil::Offset TestUtil::estimateNumBlocks(const char *path)
+{
+    struct stat buf;
+    int rc = ::stat(path, &buf);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    return buf.st_blocks;
+}
+
+TestUtil::Offset TestUtil::estimateNumBlocks(const bsl::string& path)
+{
+    return estimateNumBlocks(path.c_str());
+}
+
+TestUtil::Offset TestUtil::estimateNumBlocks(FileDescriptor descriptor)
+{
+    struct stat buf;
+    int rc = ::fstat(descriptor, &buf);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    return buf.st_blocks;
+}
+
+int TestUtil::setFileSize(FileDescriptor descriptor, Offset numBytes)
+{
+    BSLS_ASSERT(0 <= numBytes);
+
+    int rc = ::ftruncate(descriptor, numBytes);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
+
+#elif defined(BSLS_PLATFORM_OS_UNIX)
+
+TestUtil::Offset TestUtil::estimateNumBlocks(const char *path)
+{
+    struct stat64 buf;
+    int rc = ::stat64(path, &buf);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    return buf.st_blocks;
+}
+
+TestUtil::Offset TestUtil::estimateNumBlocks(const bsl::string& path)
+{
+    return estimateNumBlocks(path.c_str());
+}
+
+TestUtil::Offset TestUtil::estimateNumBlocks(FileDescriptor descriptor)
+{
+    struct stat64 buf;
+    int rc = ::fstat64(descriptor, &buf);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    return buf.st_blocks;
+}
+
+int TestUtil::setFileSize(FileDescriptor descriptor, Offset numBytes)
+{
+    BSLS_ASSERT(0 <= numBytes);
+
+    int rc = ::ftruncate64(descriptor, numBytes);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
+
+
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+
+TestUtil::Offset TestUtil::estimateNumBlocks(const char *path)
+{
+    bsl::wstring utf16Path;
+
+    const int charConvertStatus =
+        bdlde::CharConvertUtf16::utf8ToUtf16(&utf16Path, path);
+    if (0 != charConvertStatus) {
+        return -1;                                                    // RETURN
+    }
+
+    wchar_t volumePathName[MAX_PATH];
+    const BOOL getVolumePathNameStatus =
+        ::GetVolumePathNameW(utf16Path.c_str(), volumePathName, MAX_PATH);
+    if (!getVolumePathNameStatus) {
+        return -1;                                                    // RETURN
+    }
+
+    DWORD ignoredSectorsPerCluster;
+    DWORD bytesPerSector;
+    DWORD ignoredNumberOfFreeClusters;
+    DWORD ignoredTotalNumberOfClusters;
+    const BOOL getDiskFreeSpaceStatus =
+        ::GetDiskFreeSpaceW(volumePathName,
+                            &ignoredSectorsPerCluster,
+                            &bytesPerSector,
+                            &ignoredNumberOfFreeClusters,
+                            &ignoredTotalNumberOfClusters);
+    if (!getDiskFreeSpaceStatus) {
+        return -1;                                                    // RETURN
+    }
+
+    DWORD dwFileSizeHigh32;
+    const DWORD dwFileSizeLow32 =
+        ::GetCompressedFileSizeW(utf16Path.c_str(), &dwFileSizeHigh32);
+
+    if (INVALID_FILE_SIZE == dwFileSizeLow32 && NO_ERROR != ::GetLastError()) {
+        return -1;                                                    // RETURN
+    }
+
+    const ULONG64 ul64FileSizeHigh32 = static_cast<ULONG64>(dwFileSizeHigh32);
+    const ULONG64 ul64FileSizeLow32  = static_cast<ULONG64>(dwFileSizeLow32);
+    const ULONG64 ul64FileSize =
+        (ul64FileSizeHigh32 << 32) | ul64FileSizeLow32;
+
+    const ULONG64 ul64BytesPerSector = static_cast<ULONG64>(bytesPerSector);
+
+    const ULONG64 ul64FileNumSectors =
+        (ul64FileSize / ul64BytesPerSector) +
+        (ul64FileSize % ul64BytesPerSector == 0 ? 0 : 1);
+
+    return ul64FileNumSectors;
+}
+
+TestUtil::Offset TestUtil::estimateNumBlocks(const bsl::string& path)
+{
+    return estimateNumBlocks(path.c_str());
+}
+
+#if BSLS_PLATFORM_OS_VER_MAJOR >= 6
+TestUtil::Offset TestUtil::estimateNumBlocks(FileDescriptor descriptor)
+{
+    FILE_STANDARD_INFO standardFileInfo;
+    const BOOL         getFileInformationStatus =
+        ::GetFileInformationByHandleEx(descriptor,
+                                       FileStandardInfo,
+                                       &standardFileInfo,
+                                       sizeof(standardFileInfo));
+    if (!getFileInformationStatus) {
+        return -1;                                                    // RETURN
+    }
+
+    const ULONG64 ul64NumBlocksLow32 =
+        static_cast<ULONG64>(standardFileInfo.AllocationSize.LowPart);
+    const ULONG64 ul64NumBlocksHigh32 =
+        static_cast<ULONG64>(standardFileInfo.AllocationSize.HighPart);
+
+    const ULONG64 ul64NumBlocks =
+        (ul64NumBlocksHigh32 << 32) | ul64NumBlocksLow32;
+
+    return ul64NumBlocks;
+}
+#endif
+
+int TestUtil::setFileSize(FileDescriptor descriptor, Offset numBytes)
+{
+    BSLS_ASSERT(0 <= numBytes);
+
+    const ULONG64 ul64NumBytes64     = static_cast<ULONG64>(numBytes);
+    const ULONG64 ul64NumBytesHigh32 = (ul64NumBytes64 >> 32) & 0xFFFFFFFF;
+    const ULONG64 ul64NumBytesLow32  = ul64NumBytes64 & 0xFFFFFFFF;
+
+    LONG       lNumBytesHigh32 = static_cast<LONG>(ul64NumBytesHigh32);
+    const LONG lNumBytesLow32  = static_cast<LONG>(ul64NumBytesLow32);
+
+    const DWORD setFilePointerStatus = ::SetFilePointer(
+        descriptor, lNumBytesLow32, &lNumBytesHigh32, FILE_BEGIN);
+
+    if (INVALID_SET_FILE_POINTER == setFilePointerStatus &&
+        NO_ERROR != ::GetLastError()) {
+        return -1;                                                    // RETURN
+    }
+
+    const LONG64 l64NewFilePosition =
+        static_cast<LONG64>(
+            (static_cast<ULONG64>(setFilePointerStatus) << 32)
+            | static_cast<ULONG64>(static_cast<LONG64>(lNumBytesHigh32))
+        );
+
+    if (l64NewFilePosition != numBytes) {
+        return -1;                                                    // RETURN
+    }
+
+    const BOOL setEndOfFileStatus = ::SetEndOfFile(descriptor);
+    if (!setEndOfFileStatus) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
+
+#endif
+
+                       // ------------------------------
+                       // class FileDescriptorCloseGuard
+                       // ------------------------------
+
+// CREATORS
+FileDescriptorCloseGuard::FileDescriptorCloseGuard(FileDescriptor descriptor)
+: d_fileDescriptor(descriptor)
+{
+    BSLS_ASSERT(bdls::FilesystemUtil::k_INVALID_FD != descriptor);
+}
+
+FileDescriptorCloseGuard::~FileDescriptorCloseGuard()
+{
+    int rc = bdls::FilesystemUtil::close(d_fileDescriptor);
+    if (0 != rc) {
+        bsl::cerr << "Failed to close file descriptor: '" << d_fileDescriptor
+                  << "'.\n";
+    }
+}
+
+                      // -------------------------------
+                      // class FileDescriptorRemoveGuard
+                      // -------------------------------
+
+// CREATORS
+RemoveGuard::RemoveGuard(const bsl::string_view& path,
+                         const allocator_type&   allocator)
+: d_path(path, allocator.mechanism())
+{
+}
+
+RemoveGuard::~RemoveGuard()
+{
+    int rc = bdls::FilesystemUtil::remove(d_path);
+    if (0 != rc) {
+        bsl::cerr << "Failed to remove file at path: '" << d_path << "'.\n";
+    }
+}
+
+#if defined(BSLS_PLATFORM_OS_FREEBSD) \
+ || defined(BSLS_PLATFORM_OS_DARWIN)  \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
+
+                        // ----------------------------
+                        // struct TestUnixInterfaceCall
+                        // ----------------------------
+
+// CREATORS
+TestUnixInterfaceCall::TestUnixInterfaceCall()
+{
+}
+
+TestUnixInterfaceCall::TestUnixInterfaceCall(const TestUnixInterfaceCall& other)
+: d_functionId(other.d_functionId)
+{
+    switch (other.d_functionId) {
+      case FunctionId::e_FSTAT: {
+          d_fstat = other.d_fstat;
+      } break;
+    }
+}
+
+// MANIPULATORS
+TestUnixInterfaceCall& TestUnixInterfaceCall::operator=(
+                                            const TestUnixInterfaceCall& other)
+{
+    d_functionId = other.d_functionId;
+
+    switch (other.d_functionId) {
+      case FunctionId::e_FSTAT: {
+          d_fstat = other.d_fstat;
+      } break;
+    }
+
+    return *this;
+}
+
+                      // --------------------------------
+                      // struct TestUnixInterfaceResponse
+                      // --------------------------------
+
+// CREATORS
+TestUnixInterfaceResponse::TestUnixInterfaceResponse()
+{
+}
+
+TestUnixInterfaceResponse::TestUnixInterfaceResponse(
+                                        const TestUnixInterfaceResponse& other)
+: d_functionId(other.d_functionId)
+{
+    switch (other.d_functionId) {
+      case FunctionId::e_FSTAT: {
+          d_fstat = other.d_fstat;
+      } break;
+    }
+}
+
+// MANIPULATORS
+TestUnixInterfaceResponse& TestUnixInterfaceResponse::operator=(
+                                        const TestUnixInterfaceResponse& other)
+{
+    d_functionId = other.d_functionId;
+
+    switch (other.d_functionId) {
+      case FunctionId::e_FSTAT: {
+          d_fstat = other.d_fstat;
+      } break;
+    }
+
+    return *this;
+}
+
+                          // -----------------------
+                          // class TestUnixInterface
+                          // -----------------------
+
+// CREATORS
+TestUnixInterface::TestUnixInterface()
+: d_calls()
+, d_responses()
+{
+}
+
+TestUnixInterface::TestUnixInterface(const allocator_type& allocator)
+: d_calls(allocator.mechanism())
+, d_responses(allocator.mechanism())
+{
+}
+
+// MANIPULATORS
+int TestUnixInterface::fstat(int fildes, struct stat *buf)
+{
+    Call call;
+    call.d_functionId     = FunctionId::e_FSTAT;
+    call.d_fstat.d_fildes = fildes;
+    call.d_fstat.d_buf    = buf;
+    d_calls.push_back(call);
+
+    BSLS_ASSERT(0 < d_responses.size());
+    const Response& response = d_responses.front();
+    BSLS_ASSERT(FunctionId::e_FSTAT == response.d_functionId);
+    const int result = response.d_fstat.d_result;
+    *buf             = response.d_fstat.d_buf;
+    d_responses.pop_front();
+    return result;
+}
+
+void TestUnixInterface::popFrontCall(Call *call)
+{
+    BSLS_ASSERT(0 < d_calls.size());
+    *call = d_calls.front();
+    d_calls.pop_front();
+}
+
+void TestUnixInterface::pushBackResponse(const Response& response)
+{
+    d_responses.push_back(response);
+}
+
+// ACCESSORS
+int TestUnixInterface::numCalls() const
+{
+    return static_cast<int>(d_calls.size());
+}
+
+int TestUnixInterface::numResponses() const
+{
+    return static_cast<int>(d_responses.size());
+}
+
+                        // ----------------------------
+                        // struct TestUnixInterfaceUtil
+                        // ----------------------------
+
+// CLASS DATA
+TestUnixInterface *TestUnixInterfaceUtil::s_interface_p = 0;
+
+// CLASS METHODS
+int TestUnixInterfaceUtil::fstat(int fildes, stat *buf)
+{
+    return s_interface_p->fstat(fildes, buf);
+}
+
+void TestUnixInterfaceUtil::setInterface(TestUnixInterface *interface)
+{
+    s_interface_p = interface;
+}
+
+TestUnixInterface *TestUnixInterfaceUtil::interface()
+{
+    return s_interface_p;
+}
+
+#elif defined(BSLS_PLATFORM_OS_UNIX)
+
+                  // ----------------------------------------
+                  // struct TestTransitionalUnixInterfaceCall
+                  // ----------------------------------------
+
+// CREATORS
+TestTransitionalUnixInterfaceCall::TestTransitionalUnixInterfaceCall()
+{
+}
+
+TestTransitionalUnixInterfaceCall::TestTransitionalUnixInterfaceCall(
+                                const TestTransitionalUnixInterfaceCall& other)
+: d_functionId(other.d_functionId)
+{
+    switch (other.d_functionId) {
+      case FunctionId::e_FSTAT64: {
+          d_fstat64 = other.d_fstat64;
+      } break;
+    }
+}
+
+// MANIPULATORS
+TestTransitionalUnixInterfaceCall&
+TestTransitionalUnixInterfaceCall::operator=(
+                                const TestTransitionalUnixInterfaceCall& other)
+{
+    d_functionId = other.d_functionId;
+
+    switch (other.d_functionId) {
+      case FunctionId::e_FSTAT64: {
+          d_fstat64 = other.d_fstat64;
+      } break;
+    }
+
+    return *this;
+}
+
+                // --------------------------------------------
+                // struct TestTransitionalUnixInterfaceResponse
+                // --------------------------------------------
+
+// CREATORS
+TestTransitionalUnixInterfaceResponse::TestTransitionalUnixInterfaceResponse()
+{
+}
+
+TestTransitionalUnixInterfaceResponse::TestTransitionalUnixInterfaceResponse(
+                            const TestTransitionalUnixInterfaceResponse& other)
+: d_functionId(other.d_functionId)
+{
+    switch (other.d_functionId) {
+      case FunctionId::e_FSTAT64: {
+          d_fstat64 = other.d_fstat64;
+      } break;
+    }
+}
+
+// MANIPULATORS
+TestTransitionalUnixInterfaceResponse&
+TestTransitionalUnixInterfaceResponse::operator=(
+                            const TestTransitionalUnixInterfaceResponse& other)
+{
+    d_functionId = other.d_functionId;
+
+    switch (other.d_functionId) {
+      case FunctionId::e_FSTAT64: {
+          d_fstat64 = other.d_fstat64;
+      } break;
+    }
+
+    return *this;
+}
+
+                    // ------------------------------------
+                    // struct TestTransitionalUnixInterface
+                    // ------------------------------------
+
+// CREATORS
+TestTransitionalUnixInterface::TestTransitionalUnixInterface()
+: d_calls()
+, d_responses()
+{
+}
+
+TestTransitionalUnixInterface::TestTransitionalUnixInterface(
+                                               const allocator_type& allocator)
+: d_calls(allocator.mechanism())
+, d_responses(allocator.mechanism())
+{
+}
+
+// MANIPULATORS
+int TestTransitionalUnixInterface::fstat64(int fildes, struct stat64 *buf)
+{
+    Call call;
+    call.d_functionId       = FunctionId::e_FSTAT64;
+    call.d_fstat64.d_fildes = fildes;
+    call.d_fstat64.d_buf    = buf;
+    d_calls.push_back(call);
+
+    BSLS_ASSERT(0 < d_responses.size());
+    const Response& response = d_responses.front();
+    BSLS_ASSERT(FunctionId::e_FSTAT64 == response.d_functionId);
+    const int result = response.d_fstat64.d_result;
+    *buf             = response.d_fstat64.d_buf;
+    d_responses.pop_front();
+    return result;
+}
+
+void TestTransitionalUnixInterface::popFrontCall(Call *call)
+{
+    BSLS_ASSERT(0 < d_calls.size());
+    *call = d_calls.front();
+    d_calls.pop_front();
+}
+
+void TestTransitionalUnixInterface::pushBackResponse(const Response& response)
+{
+    d_responses.push_back(response);
+}
+
+// ACCESSORS
+int TestTransitionalUnixInterface::numCalls() const
+{
+    return static_cast<int>(d_calls.size());
+}
+
+int TestTransitionalUnixInterface::numResponses() const
+{
+    return static_cast<int>(d_responses.size());
+}
+
+                  // ----------------------------------------
+                  // struct TestTransitionalUnixInterfaceUtil
+                  // ----------------------------------------
+
+// CLASS DATA
+TestTransitionalUnixInterface
+    *TestTransitionalUnixInterfaceUtil::s_interface_p = 0;
+
+// CLASS METHODS
+int TestTransitionalUnixInterfaceUtil::fstat64(int fildes, stat64 *buf)
+{
+    return s_interface_p->fstat64(fildes, buf);
+}
+
+void TestTransitionalUnixInterfaceUtil::setInterface(
+                                      TestTransitionalUnixInterface *interface)
+{
+    s_interface_p = interface;
+}
+
+TestTransitionalUnixInterface *TestTransitionalUnixInterfaceUtil::interface()
+{
+    return s_interface_p;
+}
+
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+
+                      // -------------------------------
+                      // struct TestWindowsInterfaceCall
+                      // -------------------------------
+
+// CREATORS
+TestWindowsInterfaceCall::TestWindowsInterfaceCall()
+{
+}
+
+TestWindowsInterfaceCall::TestWindowsInterfaceCall(
+                                         const TestWindowsInterfaceCall& other)
+: d_functionId(other.d_functionId)
+{
+    switch (other.d_functionId) {
+      case FunctionId::e_GET_FILE_SIZE: {
+        d_getFileSize = other.d_getFileSize;
+      } break;
+      case FunctionId::e_GET_LAST_ERROR: {
+          // Do nothing.
+      } break;
+    }
+}
+
+// MANIPULATORS
+TestWindowsInterfaceCall& TestWindowsInterfaceCall::operator=(
+                                         const TestWindowsInterfaceCall& other)
+{
+    d_functionId = other.d_functionId;
+
+    switch (other.d_functionId) {
+      case FunctionId::e_GET_FILE_SIZE: {
+        d_getFileSize = other.d_getFileSize;
+      } break;
+      case FunctionId::e_GET_LAST_ERROR: {
+      } break;
+    }
+
+    return *this;
+}
+
+                    // -----------------------------------
+                    // struct TestWindowsInterfaceResponse
+                    // -----------------------------------
+
+// CREATORS
+TestWindowsInterfaceResponse::TestWindowsInterfaceResponse()
+{
+};
+
+TestWindowsInterfaceResponse::TestWindowsInterfaceResponse(
+                                     const TestWindowsInterfaceResponse& other)
+: d_functionId(other.d_functionId)
+{
+    switch (other.d_functionId) {
+      case FunctionId::e_GET_FILE_SIZE: {
+          d_getFileSize = other.d_getFileSize;
+      } break;
+      case FunctionId::e_GET_LAST_ERROR: {
+          d_getLastError = other.d_getLastError;
+      } break;
+    }
+}
+
+// MANIPULATORS
+TestWindowsInterfaceResponse& TestWindowsInterfaceResponse::operator=(
+                                     const TestWindowsInterfaceResponse& other)
+{
+    d_functionId = other.d_functionId;
+
+    switch (other.d_functionId) {
+      case FunctionId::e_GET_FILE_SIZE: {
+          d_getFileSize = other.d_getFileSize;
+      } break;
+      case FunctionId::e_GET_LAST_ERROR: {
+          d_getLastError = other.d_getLastError;
+      } break;
+    }
+
+    return *this;
+}
+
+
+                         // --------------------------
+                         // class TestWindowsInterface
+                         // --------------------------
+
+// CREATORS
+TestWindowsInterface::TestWindowsInterface()
+: d_calls()
+, d_responses()
+{
+}
+
+TestWindowsInterface::TestWindowsInterface(const allocator_type& allocator)
+: d_calls(allocator.mechanism())
+, d_responses(allocator.mechanism())
+{
+}
+
+// MANIPULATORS
+DWORD TestWindowsInterface::GetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh)
+{
+    Call call;
+    call.d_functionId = FunctionId::e_GET_FILE_SIZE;
+    call.d_getFileSize.d_hFile = hFile;
+    call.d_getFileSize.d_lpFileSizeHigh = lpFileSizeHigh;
+    d_calls.push_back(call);
+
+    BSLS_ASSERT(0 < d_responses.size());
+    const Response& response = d_responses.front();
+    BSLS_ASSERT(FunctionId::e_GET_FILE_SIZE == response.d_functionId);
+    const DWORD result = response.d_getFileSize.d_result;
+    *lpFileSizeHigh    = response.d_getFileSize.d_lpFileSizeHigh;
+    d_responses.pop_front();
+    return result;
+}
+
+DWORD TestWindowsInterface::GetLastError()
+{
+    Call call;
+    call.d_functionId = FunctionId::e_GET_LAST_ERROR;
+    d_calls.push_back(call);
+
+    BSLS_ASSERT(0 < d_responses.size());
+    const Response& response = d_responses.front();
+    BSLS_ASSERT(FunctionId::e_GET_LAST_ERROR == response.d_functionId);
+    const DWORD result = response.d_getLastError.d_result;
+    d_responses.pop_front();
+    return result;
+}
+
+void TestWindowsInterface::popFrontCall(Call *call)
+{
+    BSLS_ASSERT(0 < d_calls.size());
+    *call = d_calls.front();
+    d_calls.pop_front();
+}
+
+void TestWindowsInterface::pushBackResponse(const Response& response)
+{
+    d_responses.push_back(response);
+}
+
+// ACCESSORS
+int TestWindowsInterface::numCalls() const
+{
+    return d_calls.size();
+}
+
+int TestWindowsInterface::numResponses() const
+{
+    return d_responses.size();
+}
+
+                      // -------------------------------
+                      // struct TestWindowsInterfaceUtil
+                      // -------------------------------
+
+// CLASS DATA
+TestWindowsInterface *TestWindowsInterfaceUtil::s_interface_p = 0;
+
+// CLASS METHODS
+DWORD TestWindowsInterfaceUtil::GetFileSize(HANDLE  hFile,
+                                            LPDWORD lpFileSizeHigh)
+{
+    return s_interface_p->GetFileSize(hFile, lpFileSizeHigh);
+}
+
+DWORD TestWindowsInterfaceUtil::GetLastError()
+{
+    return s_interface_p->GetLastError();
+}
+
+void TestWindowsInterfaceUtil::setInterface(TestWindowsInterface *interface)
+{
+    s_interface_p = interface;
+}
+
+TestWindowsInterface *TestWindowsInterfaceUtil::interface()
+{
+    return s_interface_p;
+}
+
+#endif
+
+}  // close namespace u
+}  // close unnamed namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

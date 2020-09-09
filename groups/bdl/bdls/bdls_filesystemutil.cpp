@@ -74,8 +74,110 @@ enum {
 };
 
 // STATIC HELPER FUNCTIONS
+//
+
+namespace BloombergLP {
+namespace {
+namespace u {
+
+#if defined(BSLS_PLATFORM_OS_FREEBSD) \
+ || defined(BSLS_PLATFORM_OS_DARWIN)  \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
+
+                          // ========================
+                          // struct UnixInterfaceUtil
+                          // ========================
+
+struct UnixInterfaceUtil {
+    // This component-private utility 'struct' provides an implementation of
+    // the requirements for the 'UNIX_INTERFACE' template parameter of the
+    // functions provided by 'FilesystemUtil_UnixImplUtil' in terms of actual
+    // Unix interface calls.
+
+    // TYPES
+    typedef struct stat stat;
+        // 'stat' is an alias to the 'stat' 'struct' provided by the
+        // 'sys/stat.h' header.
+
+    // CLASS METHODS
+    static int fstat(int fildes, stat *buf);
+        // Invoke and return the result of '::fstat(fildes, buf)' with the
+        // specified  'fildes' and 'buf', where '::fstat' is the function
+        // provided by the 'sys/stat.h' header.
+};
+
+#elif defined(BSLS_PLATFORM_OS_UNIX)
+
+                    // ====================================
+                    // struct TransitionalUnixInterfaceUtil
+                    // ====================================
+
+struct TransitionalUnixInterfaceUtil {
+    // This component-private utility 'struct' provides an implementation of
+    // the requirements for the 'UNIX_INTERFACE' template parameter of the
+    // functions provided by 'FilesystemUtil_TransitionalUnixImplUtil' in terms
+    // of actual transitional Unix interface calls.
+
+    // TYPES
+    typedef struct stat64 stat64;
+        // 'stat64' is an alias to the 'stat64' 'struct' provided by the
+        // 'sys/stat.h' header.
+
+    // CLASS METHODS
+    static int fstat64(int fildes, stat64 *buf);
+        // Invoke and return the result of '::fstat64(fildes, buf)' with the
+        // specified 'fildes' and 'buf', where '::fstat64' is the function
+        // provided by the 'sys/stat.h' header.
+};
+
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+
+                        // ===========================
+                        // struct WindowsInterfaceUtil
+                        // ===========================
+
+struct WindowsInterfaceUtil {
+    // This component-private utility 'struct' provides an implementation of
+    // the requirements for the 'WINDOWS_INTERFACE' template parameter of the
+    // functions provided by 'FilesystemUtil_WindowsImplUtil' in terms of
+    // actual Windows interface calls.
+
+    // TYPES
+    typedef DWORD DWORD;
+        // 'DWORD' is an alias to the unsigned integral 'DWORD' type provided
+        // by the 'windows.h' header.
+
+    typedef ULONG64 ULONG64;
+        // 'ULONG64' is an alias to the unsigned integral 'ULONG64' type
+        // provided by the 'windows.h' header.
+
+    // CLASS METHODS
+    static DWORD GetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
+        // Invoke and return the result of
+        // '::GetFileSize(hFile, lpFileSizeHigh)' with the specified 'hFile'
+        // and 'lpFileSizeHigh', where '::GetFileSize' is the function provided
+        // by the 'windows.h' header.
+
+    static DWORD GetLastError();
+        // Invoke and return the result of '::GetLastError()', where
+        // '::GetLastError' is the function provided by the 'windows.h' header.
+};
+
+#else
+
+#error 'bdls_filesystemutil' does not support this platform.
+
+#endif
+
+}  // close namespace u
+}  // close unnamed namespace
+}  // close enterprise namespace
 
 namespace {
+
+                               // ==============
+                               // struct NameRec
+                               // ==============
 
 struct NameRec {
     // This 'struct' is for maintaining file names and whether they are
@@ -151,8 +253,7 @@ bool shortIsDotOrDots(const char *path)
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 
-#if defined(BSLS_PLATFORM_OS_CYGWIN) || \
-    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
+#if defined(BSLS_PLATFORM_OS_CYGWIN) || defined(BSLS_PLATFORM_OS_DARWIN)
 namespace {
     typedef struct stat   StatResult;
 }  // close unnamed namespace
@@ -171,8 +272,7 @@ int performStat(const char *fileName, StatResult *statResult)
     // 'fileName', returning the results in the specified 'statResult'.
 {
 
-#if defined(BSLS_PLATFORM_OS_CYGWIN) || \
-    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
+#if defined(BSLS_PLATFORM_OS_CYGWIN) || defined(BSLS_PLATFORM_OS_DARWIN)
     return stat  (fileName, statResult);
 #else
     return stat64(fileName, statResult);
@@ -187,8 +287,7 @@ int performStat(const char *fileName, StatResult *statResult, bool followLinks)
     // the specified 'followLinks' indicates whether symlinks are to be
     // followed.
 {
-#if defined(BSLS_PLATFORM_OS_CYGWIN) || \
-    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
+#if defined(BSLS_PLATFORM_OS_CYGWIN) || defined(BSLS_PLATFORM_OS_DARWIN)
     return followLinks ?  stat(fileName, statResult)
                        : lstat(fileName, statResult);
 #else
@@ -196,8 +295,6 @@ int performStat(const char *fileName, StatResult *statResult, bool followLinks)
                        : lstat64(fileName, statResult);
 #endif
 }
-
-
 
 extern "C" {
 
@@ -1313,6 +1410,12 @@ FilesystemUtil::Offset FilesystemUtil::getFileSize(const char *path)
     return (highBits << 32) | fileAttribute.nFileSizeLow;
 }
 
+FilesystemUtil::Offset FilesystemUtil::getFileSize(FileDescriptor descriptor)
+{
+    typedef FilesystemUtil_WindowsImplUtil WindowsImplUtil;
+    return WindowsImplUtil::getFileSize<u::WindowsInterfaceUtil>(descriptor);
+}
+
 FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
 {
     // TBD
@@ -2023,6 +2126,19 @@ FilesystemUtil::Offset FilesystemUtil::getFileSize(const char *path)
     return fileStats.st_size;
 }
 
+FilesystemUtil::Offset FilesystemUtil::getFileSize(FileDescriptor descriptor)
+{
+#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
+    typedef FilesystemUtil_UnixImplUtil UnixImplUtil;
+    return UnixImplUtil::getFileSize<u::UnixInterfaceUtil>(descriptor);
+#else
+    typedef FilesystemUtil_TransitionalUnixImplUtil TransitionalUnixImplUtil;
+    return TransitionalUnixImplUtil::getFileSize<
+        u::TransitionalUnixInterfaceUtil>(descriptor);
+#endif
+}
+
 FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
 {
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
@@ -2348,7 +2464,62 @@ FilesystemUtil::makeUnsafeTemporaryFilename(bsl::string             *outPath,
 
 }  // close package namespace
 
+namespace {
+namespace u {
+
+#if defined(BSLS_PLATFORM_OS_FREEBSD) \
+ || defined(BSLS_PLATFORM_OS_DARWIN)  \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
+
+                          // ------------------------
+                          // struct UnixInterfaceUtil
+                          // ------------------------
+
+// CLASS METHODS
+int UnixInterfaceUtil::fstat(int fildes, stat *buf)
+{
+    return ::fstat(fildes, buf);
+}
+
+#elif defined(BSLS_PLATFORM_OS_UNIX)
+
+                    // ------------------------------------
+                    // struct TransitionalUnixInterfaceUtil
+                    // ------------------------------------
+
+int TransitionalUnixInterfaceUtil::fstat64(int fildes, stat64 *buf)
+{
+    return ::fstat64(fildes, buf);
+}
+
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+
+                        // ---------------------------
+                        // struct WindowsInterfaceUtil
+                        // ---------------------------
+
+// CLASS METHODS
+WindowsInterfaceUtil::DWORD WindowsInterfaceUtil::GetFileSize(
+                                                       HANDLE  hFile,
+                                                       LPDWORD lpFileSizeHigh)
+{
+    return ::GetFileSize(hFile, lpFileSizeHigh);
+}
+
+WindowsInterfaceUtil::DWORD WindowsInterfaceUtil::GetLastError()
+{
+    return ::GetLastError();
+}
+
+#else
+
+#error 'bdls_filesystemutil' does not support this platform.
+
+#endif
+
 }  // close enterprise namespace
+}  // close unnamed namespace
+}  // close namespace u
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

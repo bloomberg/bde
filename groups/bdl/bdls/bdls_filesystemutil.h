@@ -311,8 +311,8 @@ struct FilesystemUtil {
         // not be used by client code.
 
     typedef HANDLE FileDescriptor;
-        // 'FileDescriptor' is an alias for the underlying file system's native
-        // file descriptor / file handle type.
+        // 'FileDescriptor' is an alias for the operating system's native file
+        // descriptor / file handle type.
 
     typedef __int64 Offset;
         // 'Offset' is an alias for a signed value, representing the offset of
@@ -326,8 +326,8 @@ struct FilesystemUtil {
 
 #else
     typedef int     FileDescriptor;
-        // 'FileDescriptor' is an alias for the underlying file system's native
-        // file descriptor / file handle type.
+        // 'FileDescriptor' is an alias for the operating system's native file
+        // descriptor / file handle type.
 
 #if defined(BSLS_PLATFORM_OS_FREEBSD) \
  || defined(BSLS_PLATFORM_OS_DARWIN)  \
@@ -732,6 +732,10 @@ struct FilesystemUtil {
         // of a symbolic link is the size of the file or directory to which it
         // points.
 
+    static Offset getFileSize(FileDescriptor descriptor);
+        // Return the size, in bytes, of the file with the specified
+        // 'descriptor', or a negative value if an error occurs.
+
     static Offset getFileSizeLimit();
         // Return the file size limit for this process, 'k_OFFSET_MAX' if no
         // limit is set, or a negative value if an error occurs.  Note that if
@@ -900,6 +904,165 @@ struct FilesystemUtil {
         // the file is undefined.
 };
 
+#if defined(BSLS_PLATFORM_OS_FREEBSD) \
+ || defined(BSLS_PLATFORM_OS_DARWIN)  \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
+
+                     // ==================================
+                     // struct FilesystemUtil_UnixImplUtil
+                     // ==================================
+
+struct FilesystemUtil_UnixImplUtil {
+    // This component-private utility 'struct' provides a namespace for a suite
+    // of functions that 'FilesystemUtil' uses as implementation details.
+    // These functions have a 'UNIX_INTERFACE' template parameter, which
+    // provides access to the entities that large-file environment Unix
+    // systems declare, and that the function implementations need.
+
+    // TYPES
+    typedef FilesystemUtil::FileDescriptor FileDescriptor;
+        // 'FileDescriptor' is an alias for the operating system's native
+        // file descriptor / file handle type.
+
+    typedef FilesystemUtil::Offset Offset;
+        // 'Offset' is an alias for a signed integral type, and represents the
+        // offset of a location in a file.
+
+    // CLASS METHODS
+    template <class UNIX_INTERFACE>
+    static Offset getFileSize(FileDescriptor descriptor);
+        // Return the size, in bytes, of the file with the specified
+        // 'descriptor', or a negative value if an error occurs.  The behavior
+        // is undefined unless the specified 'UNIX_INTERFACE' is a class type
+        // that meets the following requirements:
+        //
+        //: o 'UNIX_INTERFACE::stat' is a type alias to the 'stat' 'struct'
+        //:   provided by the 'sys/stat.h' header.
+        //:
+        //: o 'UNIX_INTERFACE::fstat' is a public, static member function that
+        //:   has 'int (int fildes, stat *buf)' type and whose contract is
+        //:   to return the result of '::fstat(fildes, buf)', where '::fstat'
+        //:   is the function provided by the 'sys/stat.h' header.
+        //
+        // Note that accessing 'fstat' through 'UNIX_INTERFACE' allows tests to
+        // provide a mock Unix interface, and accessing 'stat' through it
+        // allows us to isolate the inclusion of 'sys/stat.h' in the '.cpp'
+        // file.
+};
+
+#elif defined(BSLS_PLATFORM_OS_UNIX)
+
+               // ==============================================
+               // struct FilesystemUtil_TransitionalUnixImplUtil
+               // ==============================================
+
+struct FilesystemUtil_TransitionalUnixImplUtil {
+    // This component-private utility 'struct' provides a namespace for a suite
+    // of functions that 'FilesystemUtil' uses as implementation details.
+    // These functions have a 'UNIX_INTERFACE' template parameter, which
+    // provides access to the entities that transitional-compilation
+    // environment Unix systems declare, and that the function implementations
+    // need.
+    //
+    // Note that many Unix systems provide a "transitional-compilation
+    // environment", which is a compilation mode that supports large, 64-bit
+    // file operations in 32-bit (or 64-bit) programs.  For more information
+    // about this and other large-file compilation modes, please see the
+    // 'lfcompile64' and/or 'lfcompile' manual pages provided with your
+    // operating system.
+
+    // TYPES
+    typedef FilesystemUtil::FileDescriptor FileDescriptor;
+        // 'FileDescriptor' is an alias for the operating system's native file
+        // descriptor / file handle type.
+
+    typedef FilesystemUtil::Offset Offset;
+        // 'Offset' is an alias for a signed integral type, and represents the
+        // offset of a location in a file.
+
+    // CLASS METHODS
+    template <class UNIX_INTERFACE>
+    static Offset getFileSize(FileDescriptor descriptor);
+        // Return the size, in bytes, of the file with the specified
+        // 'descriptor', or a negative value if an error occurs.  The behavior
+        // is undefined unless the specified 'UNIX_INTERFACE' is a class type
+        // that meets the following requirements:
+        //
+        //: o 'UNIX_INTERFACE::stat64' is a type alias to the 'stat64' 'struct'
+        //:   provided by the 'sys/stat.h' header.
+        //:
+        //: o 'UNIX_INTERFACE::fstat64' is a public, static member function
+        //:   that has 'int (int fildes, stat64 *buf)' type and whose contract
+        //:   is to return the result of '::fstat64(fildes, buf)', where
+        //:   '::fstat64' is the function provided by the 'sys/stat.h' header.
+        //
+        // Note that accessing 'fstat64' through 'UNIX_INTERFACE' allows tests
+        // to provide a mock transitional Unix interface, and accessing
+        // 'stat64' through it allows us to isolate the inclusion of
+        // 'sys/stat.h' in the '.cpp' file.
+};
+
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+
+                   // =====================================
+                   // struct FilesystemUtil_WindowsImplUtil
+                   // =====================================
+
+struct FilesystemUtil_WindowsImplUtil {
+    // This component-private utility 'struct' provides a namespace for a suite
+    // of functions that 'FilesystemUtil' uses as implementation details.
+    // These functions have a 'WINDOWS_INTERFACE' template parameter, which
+    // provides access to the entities that Windows systems declare, and that
+    // the function implementations need.
+
+    // TYPES
+    typedef FilesystemUtil::FileDescriptor FileDescriptor;
+        // 'FileDescriptor' is an alias for operating system's native file
+        // descriptor / file handle type.
+
+    typedef FilesystemUtil::Offset Offset;
+        // 'Offset' is an alias for a signed integral type, and represents the
+        // offset of a location in a file.
+
+    // CLASS METHODS
+    template <class WINDOWS_INTERFACE>
+    static Offset getFileSize(FileDescriptor descriptor);
+        // Return the size, in bytes, of the file with the specified
+        // 'descriptor', or a negative value if an error occurs.  The behavior
+        // is undefined unless the specified 'UNIX_INTERFACE' is a class type
+        // that meets the following requirements:
+        //
+        //: o 'WINDOWS_INTERFACE::DWORD' names a type alias to the 'DWORD'
+        //:   type provided by the 'windows.h' header.
+        //:
+        //: o 'WINDOWS_INTERFACE::ULONG64' names a type alias to the 'ULONG64'
+        //:   type provided by the 'windows.h' header.
+        //:
+        //: o 'WINDOWS_INTERFACE::GetFileSize' names a public, static member
+        //:   function that has 'DWORD (HANDLE hFile, LPDWORD lpFileSizeHigh)'
+        //:   type and whose contract is to return the result of
+        //:   '::GetFileSize(hFile, lpFileSizeHigh)', where 'HANDLE',
+        //:   'LPDWORD', and '::GetFileSize' are the corresponding entities
+        //:   declared in the 'windows.h' header.
+        //:
+        //: o 'WINDOWS_INTERFACE::GetLastError()' names a public, static
+        //:    member function that has 'DWORD ()' type and whose contract
+        //:    is to return the result of '::GetLastError()', where
+        //:    '::GetLastError' is the corresponding entity declared in the
+        //:    'windows.h' header.
+        //
+        // Note that accessing 'GetFileSize' and 'GetLastError' through
+        // 'WINDOWS_INTERFACE' allows tests to provide a mock Windows
+        // interface, and accessing 'DWORD' and 'ULONG64' through it allows
+        // us to isolate the inclusion of 'windows.h' in the '.cpp' file.
+};
+
+#else
+
+#error 'bdls_filesystemutil' does not support this platform.
+
+#endif
+
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -1020,6 +1183,117 @@ FilesystemUtil::Offset FilesystemUtil::getAvailableSpace(
 {
     return getAvailableSpace(path.c_str());
 }
+
+#if defined(BSLS_PLATFORM_OS_FREEBSD) \
+ || defined(BSLS_PLATFORM_OS_DARWIN)  \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
+
+                     // ----------------------------------
+                     // struct FilesystemUtil_UnixImplUtil
+                     // ----------------------------------
+
+// CLASS METHODS
+template <class UNIX_INTERFACE>
+FilesystemUtil_UnixImplUtil::Offset FilesystemUtil_UnixImplUtil::getFileSize(
+                                                     FileDescriptor descriptor)
+{
+    typedef typename UNIX_INTERFACE::stat stat;
+
+    stat statResult;
+    const int rc = UNIX_INTERFACE::fstat(descriptor, &statResult);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    return statResult.st_size;
+}
+
+#elif defined(BSLS_PLATFORM_OS_UNIX)
+
+               // ----------------------------------------------
+               // struct FilesystemUtil_TransitionalUnixImplUtil
+               // ----------------------------------------------
+
+// CLASS METHODS
+template <class UNIX_INTERFACE>
+FilesystemUtil_TransitionalUnixImplUtil::Offset
+FilesystemUtil_TransitionalUnixImplUtil::getFileSize(FileDescriptor descriptor)
+{
+    typedef typename UNIX_INTERFACE::stat64 stat64;
+
+    stat64 statResult;
+    const int rc = UNIX_INTERFACE::fstat64(descriptor, &statResult);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    return statResult.st_size;
+}
+
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+
+                   // -------------------------------------
+                   // struct FilesystemUtil_WindowsImplUtil
+                   // -------------------------------------
+
+// CLASS METHODS
+template <class WINDOWS_INTERFACE>
+FilesystemUtil_WindowsImplUtil::Offset
+FilesystemUtil_WindowsImplUtil::getFileSize(FileDescriptor descriptor)
+{
+    typedef typename WINDOWS_INTERFACE::DWORD   DWORD;
+    BSLMF_ASSERT(bsl::is_integral<DWORD>::value);
+    BSLS_ASSERT(0            == bsl::numeric_limits<DWORD>::min());
+    BSLS_ASSERT(0xFFFFFFFFul == bsl::numeric_limits<DWORD>::max());
+
+    typedef typename WINDOWS_INTERFACE::ULONG64 ULONG64;
+    BSLMF_ASSERT(bsl::is_integral<ULONG64>::value);
+    BSLS_ASSERT(0                     == bsl::numeric_limits<ULONG64>::min());
+    BSLS_ASSERT(0xFFFFFFFFFFFFFFFFull == bsl::numeric_limits<ULONG64>::max());
+
+    // The Windows implementation of this function uses 'GetFileSize' on
+    // purpose, even though the Win32 API documentation instructs the reader to
+    // use 'GetFileSizeEx' instead.  'GetFileSizeEx' returns a 'LARGE_INTEGER',
+    // which is a union of two or more layout-incompatible, 64-bit integer
+    // representations, and there is no way to know which member is active.
+    // This forces the programmer to do "union type punning," which is jargon
+    // for invoking undefined behavior by accessing an inactive union member
+    // that is not layout-compatible with the active member.
+    //
+    // 'GetFileSize' has an awkward interface, but it requires no type punning
+    // and isn't deprecated.
+
+    DWORD sizeHigh32Bits;
+    const DWORD sizeLow32Bits =
+        WINDOWS_INTERFACE::GetFileSize(descriptor, &sizeHigh32Bits);
+    // 'GetFileSize' returns the maximum unsigned, 32-bit integer to indicate
+    // that it could not get the file size.  However, this is also a legal
+    // value for the file size's low 32-bits.  To remove the ambiguity,
+    // this function calls 'GetLastError', which returns non-zero to indicate
+    // the last system call had an error, and 0 otherwise.
+
+    static const DWORD k_INVALID_FILE_SIZE = 0xFFFFFFFFul;
+    if (k_INVALID_FILE_SIZE == sizeLow32Bits) {
+        const DWORD lastError = WINDOWS_INTERFACE::GetLastError();
+
+        static const DWORD k_NO_ERROR = 0;
+        if (k_NO_ERROR != lastError) {
+            return -1;                                                // RETURN
+        }
+    }
+
+    const ULONG64 uSizeHigh32Bits = static_cast<ULONG64>(sizeHigh32Bits);
+    const ULONG64 uSizeLow32Bits  = static_cast<ULONG64>(sizeLow32Bits);
+    const ULONG64 uSize64Bits     = (uSizeHigh32Bits << 32) | uSizeLow32Bits;
+
+    return static_cast<Offset>(uSize64Bits);
+}
+
+#else
+
+#error 'bdls_filesytemutil' does not support this platform.
+
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace
