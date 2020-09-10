@@ -249,6 +249,42 @@ void MyClass::manipulator()
 {
 }
 
+//=============================================================================
+//                       TEST DRIVER TEMPLATE
+//-----------------------------------------------------------------------------
+
+template <class TYPE>
+struct TestDriver {
+
+    // TEST CASES
+    static void testCase1();
+        // Test constructors.
+};
+
+                               // ----------
+                               // TEST CASES
+                               // ----------
+template <class TYPE>
+void TestDriver<TYPE>::testCase1()
+{
+    TYPE param = TYPE();
+    Obj  obj(param);
+
+    struct Local {
+        static int sink(Obj obj)
+        {
+            (void) obj;
+            return 4321;
+        }
+        static int sink(...)
+        {
+            return 5678;
+        }
+    };
+
+    ASSERT(4321 == Local::sink(obj));
+}
+
 // ============================================================================
 //                              USAGE EXAMPLES
 // ----------------------------------------------------------------------------
@@ -888,9 +924,10 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The non-'explicit' constructor will safely construct an object
-        //:   for an arbitrary 'int' value.
+        //:   for an arbitrary value of arithmetic type or enum.
         //:
-        //: 2 The object can be copy-constructed and used a function argument.
+        //: 2 The object can be copy-constructed and used as a function
+        //:   argument.
         //:
         //: 3 The destructor, safely destroys the object.
         //
@@ -898,9 +935,9 @@ int main(int argc, char *argv[])
         //: 1 Construct an object 'obj' of type 'bslmf::MatchArithmeticType'
         //:   using an arbitrary integer value.  (C-1)
         //:
-        //: 2 Pass the constructed 'obj' to 'acceptObj' to a locally defined
-        //:   function with a formal parameter of 'MatchArithmeticType', and
-        //:   confirm that the correct function was called.  (C-2)
+        //: 2 Pass the constructed 'obj' to the locally defined function with a
+        //:   formal parameter of 'MatchArithmeticType', and confirm that the
+        //:   correct function was called.  (C-2)
         //:
         //: 3 Allow the constructed object to go out of scope.  (C-3)
         //
@@ -913,23 +950,30 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nVALUE CTOR, COPY CTOR, and DTOR"
                             "\n===============================\n");
 
-        {
-            Obj obj(-1234);
+         TestDriver<                            bool  >::testCase1();
 
-            struct Local {
-                static int sink(Obj obj)
-                {
-                    (void) obj;
-                    return 4321;
-                }
-                static int sink(...)
-                {
-                    return 5678;
-                }
-            };
+         TestDriver<                            char  >::testCase1();
+         TestDriver<                           wchar_t>::testCase1();
 
-            ASSERT(4321 == Local::sink(obj));
-        }
+         TestDriver<          signed            char  >::testCase1();
+         TestDriver<          signed      short int   >::testCase1();
+         TestDriver<          signed            int   >::testCase1();
+         TestDriver<          signed      long  int   >::testCase1();
+         TestDriver<          signed long long  int   >::testCase1();
+
+         TestDriver<        unsigned            char  >::testCase1();
+         TestDriver<        unsigned      short int   >::testCase1();
+         TestDriver<        unsigned            int   >::testCase1();
+         TestDriver<        unsigned      long  int   >::testCase1();
+         TestDriver<        unsigned long long  int   >::testCase1();
+
+         TestDriver<                            float >::testCase1();
+         TestDriver<                            double>::testCase1();
+         TestDriver<                      long  double>::testCase1();
+
+         TestDriver<                            MyEnum>::testCase1();
+
+         TestDriver<MyConvertibleToMatchArithmeticType>::testCase1();
 
       } break;
       case -1: {

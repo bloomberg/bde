@@ -388,6 +388,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslmf_enableif.h>
+#include <bslmf_isarithmetic.h>
+#include <bslmf_isenum.h>
+
 namespace BloombergLP {
 
 namespace bslmf {
@@ -408,7 +412,12 @@ class MatchArithmeticType {
 
   public:
     // CREATORS
-    MatchArithmeticType(int);                                       // IMPLICIT
+    template <class TYPE>
+    MatchArithmeticType(
+         TYPE,
+         typename bsl::enable_if<bsl::is_arithmetic<TYPE>::value
+                              || bsl::is_enum<TYPE>::value>::type* = 0);
+                                                                    // IMPLICIT
         // Conversion constructor.  Does nothing.
 
     //! MatchArithmeticType(const MatchArithmeticType&) = default;
@@ -424,8 +433,12 @@ class MatchArithmeticType {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+template <class TYPE>
 inline
-MatchArithmeticType::MatchArithmeticType(int)
+MatchArithmeticType::MatchArithmeticType(
+                     TYPE,
+                     typename bsl::enable_if<bsl::is_arithmetic<TYPE>::value
+                                          || bsl::is_enum<TYPE>::value>::type*)
 {
 }
 
