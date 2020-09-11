@@ -70,6 +70,7 @@
       bslmf_isbitwiseequalitycomparable
       bslmf_istriviallycopyable
       bslmf_istriviallydefaultconstructible
+      bslmf_matcharithmetictype
       bslmf_usesallocatorargt
 
   14. bslmf_detectnestedtrait
@@ -77,7 +78,6 @@
 
   13. bslmf_invokeresult
       bslmf_isconvertibletoany
-      bslmf_matcharithmetictype
       bslmf_nestedtraitdeclaration
       bslmf_usesallocator
 
