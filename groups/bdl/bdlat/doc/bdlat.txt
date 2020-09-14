@@ -6,9 +6,9 @@
 
 @DESCRIPTION: The 'bdlat' package provides generic functions to work with the
  different concepts of attribute types.  These concepts group common behaviors
- ("array", "choice", "enumeration", "nullable", "selection", "sequence", or
- "value type").  Once a type is made a model of one of these concepts, it can
- be used seamlessly by generic code such as the xml/ber encoders and decoders.
+ ("array", "choice", "enumeration", "nullable", "sequence", or "value type").
+ Once a type is made a model of one of these concepts, it can be used
+ seamlessly by generic code such as the xml/ber encoders and decoders.
  Therefore, whenever a new type needs to be encodable, the codecs themselves do
  not need to be modified, but the type just needs to implement the necessary
  functions to expose the concept.
@@ -19,6 +19,7 @@
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
+
 ..
   6. bdlat_arrayiterators
      bdlat_symbolicconverter

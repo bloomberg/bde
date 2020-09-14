@@ -62,9 +62,9 @@ namespace BloombergLP {
 
 namespace bsls {
 
-                        // =========================
-                        // class AssertTestException
-                        // =========================
+                         // =========================
+                         // class AssertTestException
+                         // =========================
 
 class AssertTestException {
     // This class is an implementation detail of the 'bsls' testing framework
@@ -80,11 +80,12 @@ class AssertTestException {
 
   private:
     // NOT IMPLEMENTED
-    AssertTestException& operator=(const AssertTestException&)
-                                                          BSLS_KEYWORD_DELETED;
+    AssertTestException& operator=(
+                              const AssertTestException&) BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
+    BSLS_KEYWORD_CONSTEXPR
     AssertTestException(const char *expression,
                         const char *filename,
                         int         lineNumber,
@@ -122,18 +123,18 @@ class AssertTestException {
     int lineNumber() const;
         // Return the number of the line within the file 'filename' containing
         // the assertion that failed.
-
 };
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // =========================
-                        // class AssertTestException
-                        // =========================
+                         // =========================
+                         // class AssertTestException
+                         // =========================
 
 // CREATORS
+BSLS_KEYWORD_CONSTEXPR
 inline
 AssertTestException::AssertTestException(const char *expression,
                                          const char *filename,

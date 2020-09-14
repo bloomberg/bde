@@ -109,12 +109,15 @@ WellBehavedMoveOnlyAllocTestType::~WellBehavedMoveOnlyAllocTestType()
 {
     d_allocator_p->deallocate(d_data_p);
 
-    BSLS_ASSERT_OPT(!!d_data_p ==
-                               (bsltf::MoveState::e_NOT_MOVED == d_movedFrom));
+    if ((!!d_data_p) != (bsltf::MoveState::e_NOT_MOVED == d_movedFrom)) {
+        BSLS_ASSERT_INVOKE("!!d_data_p =="
+                           "(bsltf::MoveState::e_NOT_MOVED == d_movedFrom");
+    }            
 
     // Ensure that this objects has not been bitwise moved.
-
-    BSLS_ASSERT_OPT(this == d_self_p);
+    if (this != d_self_p) {
+        BSLS_ASSERT_INVOKE("this != d_self_p");
+    }
 }
 
 // MANIPULATORS

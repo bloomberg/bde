@@ -4,16 +4,23 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsls_assertimputil.h>
 #include <bsls_asserttestexception.h>
-#include <bsls_keyword.h>             // for testing only
+#include <bsls_bsltestutil.h>         // for testing only
 #include <bsls_libraryfeatures.h>
 #include <bsls_log.h>
 #include <bsls_logseverity.h>
 #include <bsls_pointercastutil.h>
 #include <bsls_stackaddressutil.h>
+#include <bsls_types.h>               // for testing only
 
 #include <exception>
+
+#ifdef BSLS_ASSERT_USE_CONTRACTS
+#include <map>
+#include <utility>
+#include <string>
+#include <mutex>
+#endif
 
 namespace BloombergLP {
 
@@ -63,25 +70,6 @@ void printError(const bsls::ReviewViolation& violation)
 }  // close unnamed namespace
 
 namespace bsls {
-
-                           // ---------------------
-                           // class ReviewViolation
-                           // ---------------------
-
-// CREATORS
-ReviewViolation::ReviewViolation(const char *comment,
-                                 const char *fileName,
-                                 int         lineNumber,
-                                 const char *reviewLevel,
-                                 int         count)
-: d_comment_p((comment == 0) ? "" : comment)
-, d_fileName_p((fileName == 0) ? "" : fileName)
-, d_lineNumber(lineNumber)
-, d_reviewLevel_p((reviewLevel == 0) ? "" : reviewLevel)
-, d_count(count)
-{
-}
-
                                 // ------------
                                 // class Review
                                 // ------------
@@ -150,6 +138,33 @@ void Review::invokeHandler(const ReviewViolation& violation)
     violationHandlerPtr(violation);
 }
 
+#ifdef BSLS_ASSERT_USE_CONTRACTS
+void Review::invokeLanguageContractHandler(
+                                      const std::contract_violation &violation)
+{
+    static std::map<std::pair<std::string,int>,
+                              Review::Count>              counts;
+    static std::mutex                                     counts_mutex;
+
+    Review::Count *myCount;
+    {
+        std::lock_guard<std::mutex> guard(counts_mutex);
+        std::pair<const std::string,int> key(violation.file_name(),
+                                             violation.line_number());
+        myCount = &counts[key];
+    }
+    int count = Review::updateCount(myCount);
+
+    BloombergLP::bsls::ReviewViolation bslsViolation(
+        violation.comment().data(),
+        violation.file_name().data(),
+        violation.line_number(),
+        violation.assertion_level().data(),
+        count);
+    BloombergLP::bsls::Review::invokeHandler(bslsViolation);
+}
+#endif
+
                       // Standard Review-Failure Handlers
 
 void Review::failByAbort(const ReviewViolation& violation)
@@ -172,10 +187,10 @@ void Review::failByLog(const ReviewViolation& violation)
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
         const char *stack = "";
 #else
-        char stack[MAX_STACK_SIZE + 1] = { ' ', 0 };        
+        char stack[MAX_STACK_SIZE + 1] = { ' ', 0 };
         bsls::StackAddressUtil::formatCheapStack(&stack[1],MAX_STACK_SIZE);
 #endif
-        
+
         const char *comment = violation.comment();
         if (!comment) {
             comment = "(* Unspecified Comment Text *)";

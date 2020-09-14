@@ -2,8 +2,6 @@
 
 #include <bsls_alignmentimp.h>
 
-#include <bsls_platform.h>
-
 #include <cstddef>     // offsetof() macro
 #include <cstdlib>     // atoi()
 #include <cstring>
@@ -510,7 +508,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(bsls::AlignmentImpPriorityToType<5>::Type(),
                         sameType(bsls::AlignmentImpPriorityToType<5>::Type(),
                                  V));
-            LOOP_ASSERT(bsls::AlignmentImpPriorityToType<6>::Type(),
+            // 'operator<<(ostream&,wchar_t)' was deleted in C++20, so we
+            // shouldn't try to output a default-constructed 'wchar_t' directly
+            LOOP_ASSERT(static_cast<int>(bsls::AlignmentImpPriorityToType<6>
+                                         ::Type()),
                         sameType(bsls::AlignmentImpPriorityToType<6>::Type(),
                                  wchar_t()));
             LOOP_ASSERT(bsls::AlignmentImpPriorityToType<7>::Type(),

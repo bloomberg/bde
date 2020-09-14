@@ -84,7 +84,7 @@ extern "C" typedef int (*printf_t)(const char *, ...);
 //
 ///Example 1: Using a function pointer as a closure parameter
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose there is an event-handling service which requires registration of a
+// Suppose there is an event-handling service that requires registration of a
 // combination of object and closure value, and which invokes a method on the
 // object, passing back the closure.
 //
@@ -102,11 +102,11 @@ extern "C" typedef int (*printf_t)(const char *, ...);
         void eventOccurred() { d_handler_p->handle(d_closure_p); }
     };
 //..
-// Then, we want to define a handler which will receive a function pointer as
+// Then, we want to define a handler that will receive a function pointer as
 // the closure object and invoke it.  In order to do that, we must cast it to a
 // function pointer, but some compilers may not allow it.  We can use
 // 'bsls::PointerCastUtil::cast' to accomplish this:
-// ..
+//..
     struct MyHandler : Handler {
         void handle(void *closure) {
              bsls::PointerCastUtil::cast<void(*)()>(closure)();

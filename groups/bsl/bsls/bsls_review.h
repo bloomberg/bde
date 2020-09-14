@@ -124,15 +124,18 @@ BSLS_IDENT("$Id: $")
 // exactly the same as the assertion level (see 'bsls_assert').  This is so
 // that any introduced review macro will still be enabled (and become an
 // assertion) when it is textually replaced with a 'BSLS_ASSERT'.  This means
-// that first one of the 4 mutually exclusive 'BSLS_ASSERT_LEVEL' macros are
+// that first one of the 7 mutually exclusive 'BSLS_ASSERT_LEVEL' macros are
 // checked to determine the review level:
 //..
-//  MACRO                         BSLS_REVIEW_LEVEL
-//  -----                         ----------------
-//  BSLS_ASSERT_LEVEL_NONE        NONE
-//  BSLS_ASSERT_LEVEL_ASSERT_OPT  REVIEW_OPT
-//  BSLS_ASSERT_LEVEL_ASSERT      REVIEW
-//  BSLS_ASSERT_LEVEL_ASSERT_SAFE REVIEW_SAFE
+//  MACRO                           BSLS_REVIEW_LEVEL
+//  -----                           ----------------
+//  BSLS_ASSERT_LEVEL_ASSUME_SAFE   NONE
+//  BSLS_ASSERT_LEVEL_ASSUME_ASSERT NONE
+//  BSLS_ASSERT_LEVEL_ASSUME_OPT    NONE
+//  BSLS_ASSERT_LEVEL_NONE          NONE
+//  BSLS_ASSERT_LEVEL_ASSERT_OPT    REVIEW_OPT
+//  BSLS_ASSERT_LEVEL_ASSERT        REVIEW
+//  BSLS_ASSERT_LEVEL_ASSERT_SAFE   REVIEW_SAFE
 //..
 // Finally, the default review (and assert) level, if none of the overriding
 // review or assert level macros above are defined, is determined by the build
@@ -220,11 +223,14 @@ BSLS_IDENT("$Id: $")
 //: o 'BDE_BUILD_TARGET_OPT'
 //: o 'BDE_BUILD_TARGET_SAFE'
 //: o 'BDE_BUILD_TARGET_SAFE_2'
-// four (mutually exclusive) component-specific *assertion* *levels*:
+// seven (mutually exclusive) component-specific *assertion* *levels*:
 //: o 'BSLS_ASSERT_LEVEL_ASSERT_SAFE'
 //: o 'BSLS_ASSERT_LEVEL_ASSERT'
 //: o 'BSLS_ASSERT_LEVEL_ASSERT_OPT'
 //: o 'BSLS_ASSERT_LEVEL_NONE'
+//: o 'BSLS_ASSERT_LEVEL_ASSUME_OPT'
+//: o 'BSLS_ASSERT_LEVEL_ASSUME_ASSERT'
+//: o 'BSLS_ASSERT_LEVEL_ASSUME_SAFE'
 // and four (mutually exclusive) component-specific *review* *levels*:
 //: o 'BSLS_REVIEW_LEVEL_REVIEW_SAFE'
 //: o 'BSLS_REVIEW_LEVEL_REVIEW'
@@ -237,16 +243,32 @@ BSLS_IDENT("$Id: $")
 //: o 'BSLS_REVIEW_OPT(boolean-valued expression)'
 // will be enabled (i.e., instantiated).
 //
-// The public interface of this component also provides three additional,
-// intermediate input macros, called *review* *predicates*:
+// The public interface of this component also provides some additional
+// intermediate macros to identify how the various 'BSLS_REVIEW' macros have
+// been instantiated.  These exist for each level and have the following
+// suffixes and meanings:
+//: o 'IS_ACTIVE': Defined if the corresponding level is enabled.
+//: o 'IS_USED': Defined if the expressions for the corresponding level need to
+//:   be valid (i.e., if they are"'ODR-used").
+//
+// Putting that together, these 3 macros are defined if the corresponding macro
+// is enabled:
 //: o 'BSLS_REVIEW_SAFE_IS_ACTIVE'
 //: o 'BSLS_REVIEW_IS_ACTIVE'
 //: o 'BSLS_REVIEW_OPT_IS_ACTIVE'
-// that are derived from the various combinations of the external inputs, and
-// indicate whether each respective kind of (BSLS) review macro is active.
-// These additional "predicate" macros can be used directly by clients of this
-// component to conditionally compile source code other than just (BSLS)
-// reviews, but that should be done with care.
+//
+// Finally, three more macros with the 'IS_USED' suffix are defined when the
+// expression for the corresponding macro is going to be compiled.  This will
+// be true if the macro is enabled or if 'BSLS_REVIEW_VALIDATE_DISABLED_MACROS'
+// has been defined.
+//: o 'BSLS_REVIEW_SAFE_IS_USED'
+//: o 'BSLS_REVIEW_IS_USED'
+//: o 'BSLS_REVIEW_OPT_IS_USED'
+//
+// All of these additional "predicate" macros can be used directly by clients
+// of this component to conditioanlly compile code other than just (BSLS)
+// reviews, but that should be done with care to be sure code compiles and is
+// compatible across all build modes.
 //
 ///Validating Disabled Macro Expressions
 ///- - - - - - - - - - - - - - - - - - -
@@ -366,10 +388,11 @@ BSLS_IDENT("$Id: $")
 // Any explicit setting of the 'BSLS_REVIEW_LEVEL' ("review level") to a level
 // higher than the 'BSLS_ASSERT_LEVEL' ("assert level") will not only enable
 // the 'BSLS_REVIEW' macros at that level, but it will turn all 'BSLS_ASSERT'
-// macros at that level into reviews as well.  Given a task that is built with
-// an assertion level of 'OPT', if you set the review level to 'REVIEW' you
-// will then get logs and notifications of any failed 'BSLS_ASSERT' checks, but
-// those failing checks will not immediately abort your application.
+// macros at that level into reviews as well, and disable any assumption of
+// 'BSLS_ASSERT' assertions.  Given a task that is built with an assertion
+// level of 'OPT', if you set the review level to 'REVIEW' you will then get
+// logs and notifications of any failed 'BSLS_ASSERT' checks, but those failing
+// checks will not immediately abort your application.
 //
 // So the process for deploying an application with a higher assertion level is
 // to follow these steps:
@@ -461,8 +484,8 @@ BSLS_IDENT("$Id: $")
 // For example, consider the function 'myFunc' in the class 'FunctionsV1' that
 // was implemented like this:
 //..
-//  // my_functions.h
-//  // ...
+// my_functions.h
+// ...
 //
 //  class FunctionsV1 {
 //      // ...
@@ -511,10 +534,10 @@ BSLS_IDENT("$Id: $")
 // The solution to this is to *initially* reimplement 'myFunc' using
 // 'BSLS_REVIEW' like this:
 //..
-//  // my_functions.h
-//  // ...
+// my_functions.h
+// ...
 //  #include <bsls_review.h>
-//  // ...
+// ...
 //
 //  class FunctionsV2 {
 //      // ...
@@ -539,7 +562,8 @@ BSLS_IDENT("$Id: $")
 // The log messages you should look for are those produced by 'bsls::Review's
 // default review failure handler and will be similar to:
 //..
-// ... BSLS_REVIEW failure: 'x > 0' Please run "/bb/bin/showfunc.tsk ...
+//  ERROR myfunction.h::17 BSLS_REVIEW failure (level:R-DBG): 'x > 0'
+//                                     Please run "/bb/bin/showfunc.tsk ...
 //..
 // 'showfunc.tsk' is a Bloomberg application that can be used (along with the
 // task binary) to convert the reported stack addresses to a more traditional
@@ -555,10 +579,10 @@ BSLS_IDENT("$Id: $")
 // answer clients expect.  Instead of changing all the clients, we may instead
 // choose to change the function contract (and implemented checks):
 //..
-//  // my_functions.h
-//  // ...
+// my_functions.h
+// ...
 //  #include <bsls_review.h>
-//  // ...
+// ...
 //
 //  class FunctionsV3 {
 //      // ...
@@ -566,7 +590,7 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //
 //      static int myFunc(int x, int y);
-//          // Do something with the specified 'x' and 'y'. The behavior is
+//          // Do something with the specified 'x' and 'y'.  The behavior is
 //          // undefined unless 'x >= 0' and 'y >= 0'.
 //  };
 //
@@ -584,10 +608,10 @@ BSLS_IDENT("$Id: $")
 // transitioning the use of 'bsls_review' to 'bsls_assert'.  We now use our
 // favorite text editor or script to replace "BSLS_REVIEW" with "BSLS_ASSERT":
 //..
-//  // my_functions.h
-//  // ...
+// my_functions.h
+// ...
 //  #include <bsls_assert.h>
-//  // ...
+// ...
 //
 //  class FunctionsV4 {
 //      // ...
@@ -595,7 +619,7 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //
 //      static int myFunc(int x, int y);
-//          // Do something with the specified 'x' and 'y'. The behavior is
+//          // Do something with the specified 'x' and 'y'.  The behavior is
 //          // undefined unless 'x >= 0' and 'y >= 0'.
 //  };
 //
@@ -613,9 +637,71 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assertimputil.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+
+#ifdef BSLS_ASSERT_USE_CONTRACTS
+#include <contract>
+#endif
+
+                       // =============================
+                       // Checks for Pre-Defined macros
+                       // =============================
+
+#if defined(BSLS_REVIEW)
+#error BSLS_REVIEW is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_REVIEW_IMP)
+#error BSLS_REVIEW_REVIEW_IMP is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_REVIEW_COUNT_IMP)
+#error BSLS_REVIEW_REVIEW_COUNT_IMP is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_DISABLED_IMP)
+#error BSLS_REVIEW_DISABLED_IMP is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_INVOKE)
+#error BSLS_REVIEW_INVOKE is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_IS_USED)
+#error BSLS_REVIEW_IS_USED is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_OPT)
+#error BSLS_REVIEW_OPT is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_OPT_IS_USED)
+#error BSLS_REVIEW_OPT_IS_USED is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_SAFE)
+#error BSLS_REVIEW_SAFE is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_IS_USED)
+#error BSLS_REVIEW_SAFE_IS_USED is already defined!
+#endif
 
                      // =================================
                      // (BSLS) "REVIEW" Macro Definitions
@@ -649,35 +735,63 @@ BSLS_IDENT("$Id: $")
     #elif defined(BSLS_ASSERT_LEVEL_ASSERT_OPT)
        #define BSLS_REVIEW_LEVEL_REVIEW_OPT
        #define BSLS_REVIEW_NO_REVIEW_MACROS_DEFINED 0
-    #elif defined(BSLS_ASSERT_LEVEL_NONE)
+    #elif defined(BSLS_ASSERT_LEVEL_NONE) ||                                  \
+          defined(BSLS_ASSERT_LEVEL_ASSUME_SAFE) ||                           \
+          defined(BSLS_ASSERT_LEVEL_ASSUME_ASSERT) ||                         \
+          defined(BSLS_ASSERT_LEVEL_ASSUME_OPT)
        #define BSLS_REVIEW_LEVEL_NONE
        #define BSLS_REVIEW_NO_REVIEW_MACROS_DEFINED 0
     #else
        // Only here, with no explicit review level OR assertion level, does
-       // this macro finally get set to true.
+       // this macro finally get set to true, which will trigger
+       // buildtarget-based logic for macro configuration
        #define BSLS_REVIEW_NO_REVIEW_MACROS_DEFINED 1
     #endif
 #else
     #define BSLS_REVIEW_NO_REVIEW_MACROS_DEFINED 0
 #endif
 
-#define BSLS_REVIEW_INVOKE(X) do {                                            \
+                        // ============================
+                        // BSLS_REVIEW_REVIEW_COUNT_IMP
+                        // ============================
+
+// This macro is defined in order to maintain a static 'count' where a
+// 'BSLS_REVIEW' is used.  When possible, this is done inside a lamba (which
+// will only be invoked when a violation happens) in order to facilitate use
+// within 'constexpr' functions.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
+    #define BSLS_REVIEW_REVIEW_COUNT_IMP                                      \
+        constexpr auto countLambda = []{                                      \
+            static BloombergLP::bsls::Review::Count count = {0};              \
+            return &count;                                                    \
+        };                                                                    \
+        int lastCount = BloombergLP::bsls::Review::updateCount(countLambda());
+#else
+    #define BSLS_REVIEW_REVIEW_COUNT_IMP                                      \
         static BloombergLP::bsls::Review::Count count = {0};                  \
-        int lastCount = BloombergLP::bsls::Review::updateCount(&count);       \
-        BloombergLP::bsls::ReviewViolation violation(                         \
-                                  X,                                          \
-                                  BSLS_ASSERTIMPUTIL_FILE,                    \
-                                  BSLS_ASSERTIMPUTIL_LINE,                    \
-                                  BloombergLP::bsls::Review::k_LEVEL_INVOKE,  \
-                                  lastCount);                                 \
-        BloombergLP::bsls::Review::invokeHandler(violation);                  \
-    } while (false)
+        int lastCount = BloombergLP::bsls::Review::updateCount(&count);
+#endif
+
+                           // ======================
+                           // BSLS_REVIEW_REVIEW_IMP
+                           // ======================
+
+#ifdef BSLS_ASSERT_USE_CONTRACTS
+#define BSLS_REVIEW_REVIEW_IMP(X,LVL) [[ assert check_maybe_continue : X ]]
+
+#ifdef BSLS_REVIEW_VALIDATE_DISABLED_MACROS
+#define BSLS_REVIEW_DISABLED_IMP(X,LVL)   [[ assert ignore : X ]]
+#else
+#define BSLS_REVIEW_DISABLED_IMP(X,LVL)
+#endif
+
+#else // BSLS_ASSERT_USE_CONTRACTS
 
 #define BSLS_REVIEW_REVIEW_IMP(X,LVL) do {                                    \
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                    \
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                               \
-            static BloombergLP::bsls::Review::Count count = {0};              \
-            int lastCount = BloombergLP::bsls::Review::updateCount(&count);   \
+            BSLS_REVIEW_REVIEW_COUNT_IMP;                                     \
             BloombergLP::bsls::ReviewViolation violation(                     \
                                                      #X,                      \
                                                      BSLS_ASSERTIMPUTIL_FILE, \
@@ -688,11 +802,29 @@ BSLS_IDENT("$Id: $")
         }                                                                     \
     } while (false)
 
-#ifdef BSLS_REVIEW_VALIDATE_DISABLED_ASSERTIONS
+#ifdef BSLS_REVIEW_VALIDATE_DISABLED_MACROS
 #define BSLS_REVIEW_DISABLED_IMP(X,LVL) (void)sizeof((X)?true:false)
 #else
 #define BSLS_REVIEW_DISABLED_IMP(X,LVL)
 #endif
+
+#endif
+
+                             // ==================
+                             // BSLS_REVIEW_INVOKE
+                             // ==================
+
+// 'BSLS_REVIEW_INVOKE' is always active.
+#define BSLS_REVIEW_INVOKE(X) do {                                            \
+        BSLS_REVIEW_REVIEW_COUNT_IMP;                                         \
+        BloombergLP::bsls::ReviewViolation violation(                         \
+                                  X,                                          \
+                                  BSLS_ASSERTIMPUTIL_FILE,                    \
+                                  BSLS_ASSERTIMPUTIL_LINE,                    \
+                                  BloombergLP::bsls::Review::k_LEVEL_INVOKE,  \
+                                  lastCount);                                 \
+        BloombergLP::bsls::Review::invokeHandler(violation);                  \
+    } while (false)
 
                               // ================
                               // BSLS_REVIEW_SAFE
@@ -706,6 +838,12 @@ BSLS_IDENT("$Id: $")
            defined(BDE_BUILD_TARGET_SAFE)         )
 
     #define BSLS_REVIEW_SAFE_IS_ACTIVE  // also usable directly in client code
+#endif
+
+// Indicate when 'BSLS_REVIEW_SAFE' arguments will be ODR-used.
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE) ||                                    \
+    defined(BSLS_REVIEW_VALIDATE_DISABLED_MACROS)
+    #define BSLS_REVIEW_SAFE_IS_USED
 #endif
 
 // Define 'BSLS_REVIEW_SAFE' accordingly.
@@ -736,6 +874,12 @@ BSLS_IDENT("$Id: $")
     #define BSLS_REVIEW_IS_ACTIVE       // also usable directly in client code
 #endif
 
+// Indicate when 'BSLS_REVIEW' arguments will be ODR-used.
+#if defined(BSLS_REVIEW_IS_ACTIVE) ||                                         \
+    defined(BSLS_REVIEW_VALIDATE_DISABLED_MACROS)
+    #define BSLS_REVIEW_IS_USED
+#endif
+
 // Define 'BSLS_REVIEW' accordingly.
 
 #if defined(BSLS_REVIEW_IS_ACTIVE)
@@ -756,6 +900,12 @@ BSLS_IDENT("$Id: $")
 
 #if !defined(BSLS_REVIEW_LEVEL_NONE)
     #define BSLS_REVIEW_OPT_IS_ACTIVE   // also usable directly in client code
+#endif
+
+// Indicate when 'BSLS_REVIEW_OPT' arguments will be ODR-used.
+#if defined(BSLS_REVIEW_OPT_IS_ACTIVE) ||                                     \
+    defined(BSLS_REVIEW_VALIDATE_DISABLED_MACROS)
+    #define BSLS_REVIEW_OPT_IS_USED
 #endif
 
 // Define 'BSLS_REVIEW_OPT' accordingly.
@@ -807,6 +957,7 @@ class ReviewViolation {
 
   public:
     // CREATORS
+    BSLS_KEYWORD_CONSTEXPR
     ReviewViolation(const char *comment,
                     const char *fileName,
                     int         lineNumber,
@@ -936,6 +1087,14 @@ class Review {
         // is intended for use by the (BSLS) "REVIEW" macros, but may also be
         // called by clients directly as needed.
 
+#ifdef BSLS_ASSERT_USE_CONTRACTS
+    static void invokeLanguageContractHandler(
+                                     const std::contract_violation& violation);
+        // Call 'invokeHandler' with a 'ReviewViolation' with properties from
+        // the specified 'violation', tracking a 'count' of repeated violations
+        // statically.
+#endif
+
                       // Standard Review-Failure Handlers
 
     static void failByLog(const ReviewViolation& violation);
@@ -1005,6 +1164,22 @@ class ReviewFailureHandlerGuard {
                            // ---------------------
                            // class ReviewViolation
                            // ---------------------
+
+// CREATORS
+BSLS_KEYWORD_CONSTEXPR
+inline
+ReviewViolation::ReviewViolation(const char *comment,
+                                 const char *fileName,
+                                 int         lineNumber,
+                                 const char *reviewLevel,
+                                 int         count)
+: d_comment_p((comment == 0) ? "" : comment)
+, d_fileName_p((fileName == 0) ? "" : fileName)
+, d_lineNumber(lineNumber)
+, d_reviewLevel_p((reviewLevel == 0) ? "" : reviewLevel)
+, d_count(count)
+{
+}
 
 // ACCESSORS
 inline

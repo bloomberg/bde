@@ -2709,7 +2709,7 @@ void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
 
         BloombergLP::bslalg::RbTreeUtil::deleteTree(&d_tree, &nodeFactory());
     }
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if defined(BSLS_ASSERT_SAFE_IS_USED)
     else {
         BSLS_ASSERT_SAFE(0 == d_tree.numNodes());
         BSLS_ASSERT_SAFE(d_tree.firstNode() == d_tree.sentinel());

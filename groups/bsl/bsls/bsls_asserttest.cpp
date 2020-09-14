@@ -5,11 +5,10 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assertimputil.h>
-#include <bsls_asserttestexception.h>
-#include <bsls_bsltestutil.h>   // for testing purposes only
-#include <bsls_platform.h>
+#include <bsls_bsltestutil.h>        // for testing only
 #include <bsls_log.h>
 #include <bsls_logseverity.h>
+#include <bsls_macroincrement.h>     // for testing only
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -212,9 +211,9 @@ bool extractTestedComponentName(const char **testedComponentName,
 
 namespace bsls {
 
-                            // ----------------
-                            // class AssertTest
-                            // ----------------
+                              // ----------------
+                              // class AssertTest
+                              // ----------------
 
 // CLASS METHODS
 bool AssertTest::isValidAssertBuild(const char *specString)
@@ -224,6 +223,7 @@ bool AssertTest::isValidAssertBuild(const char *specString)
           case 'S':
           case 'A':
           case 'O':
+          case 'I':
             return '\0' == specString[1]
                 || ('2' == specString[1] && '\0' == specString[2]);   // RETURN
         }
@@ -238,7 +238,8 @@ bool AssertTest::isValidExpected(char specChar)
 
 bool AssertTest::isValidExpectedLevel(char specChar)
 {
-    return 'S' == specChar || 'A' == specChar || 'O' == specChar;
+    return 'S' == specChar || 'A' == specChar || 'O' == specChar || 'I' ==
+                                                                      specChar;
 }
 
                             // Testing Apparatus
@@ -354,6 +355,7 @@ bool AssertTest::catchProbeRaw(
         return false;                                                 // RETURN
     }
 
+#if defined(BSLS_ASSERTTEST_CAN_CHECK_LEVELS)
     if (checkLevel)
     {
         const char *level = caughtException.level();
@@ -395,9 +397,18 @@ bool AssertTest::catchProbeRaw(
                 return false;                                         // RETURN
             }
             break;
+        case 'I':
+            // Any level that is enabled might prevent execution from reaching
+            // a 'BSLS_ASSERT_INVOKE', so all levels are allowed
+            break;
         }
     }
-
+#else
+    // Currently we are not able to extract level properly from a CPP20
+    // contract violation.
+    (void)checkLevel;
+    (void)caughtException;
+#endif // BSLS_ASSERTTEST_CAN_CHECK_LEVELS
     return true;
 }
 

@@ -705,7 +705,7 @@ struct vector_ForwardIteratorForPtrs<TARGET, ITERATOR, false> {
     typedef vector_UintPtrConversionIterator<TARGET *, ITERATOR> type;
 };
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if defined(BSLS_ASSERT_SAFE_IS_USED)
 
 template <class BSLSTL_ITERATOR>
 struct Vector_IsRandomAccessIterator :
@@ -3151,7 +3151,7 @@ void Vector_PushProctor<VALUE_TYPE,ALLOCATOR>::release()
     d_target_p = 0;
 }
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if defined(BSLS_ASSERT_SAFE_IS_USED)
                         // -----------------------
                         // class Vector_RangeCheck
                         // -----------------------

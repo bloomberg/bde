@@ -534,7 +534,7 @@ int generateZoneDesignator(char                            *buffer,
     return static_cast<int>(p - buffer);
 }
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if defined(BSLS_ASSERT_SAFE_IS_USED)
 static
 int generatedLengthForDateTzObject(
                                  int                             defaultLength,

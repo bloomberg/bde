@@ -12,6 +12,7 @@ BSLS_IDENT("$Id: $")
 //@MACROS:
 //  BSLS_ANNOTATION_ALLOC_SIZE(x): optimize when returning memory
 //  BSLS_ANNOTATION_ALLOC_SIZE_MUL(x, y): optimize when returning memory
+//  BSLS_ANNOTATION_ANALYZER_NORETURN: analyzers treat function as noreturn
 //  BSLS_ANNOTATION_ERROR("msg"): emit error message and fail compilation
 //  BSLS_ANNOTATION_WARNING("msg"): emit warning message during compilation
 //  BSLS_ANNOTATION_PRINTF(s, n): validate 'printf' format and arguments
@@ -157,6 +158,16 @@ BSLS_IDENT("$Id: $")
 // such as throwing an exception or aborting the process.
 //
 //..
+//  BSLS_ANNOTATION_ANALYZER_NORETURN
+//..
+// This annotation is used to tell static analyzers (particularly clang-tidy)
+// that they should not consider situations where the specified function
+// returns normally.  This annotation does not have any impact on actual
+// generated code (where 'BSLS_ANNOTATION_NORETURN' might) and should be used
+// in cases where a function cannot be marked '[[noreturn]]' but should be
+// treated as such anyway.
+//
+//..
 //  BSLS_ANNOTATION_FALLTHROUGH
 //..
 // This annotation should be placed as a the statement before a 'case' in a
@@ -242,8 +253,8 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_WARNING(x)
 #endif
 
-#if (defined(BSLS_PLATFORM_CMP_GNU) &&                                       \
-    BSLS_PLATFORM_CMP_VER_MAJOR >= 40300) ||                                 \
+#if (defined(BSLS_PLATFORM_CMP_GNU) &&                                        \
+    BSLS_PLATFORM_CMP_VER_MAJOR >= 40300) ||                                  \
     defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLS_ANNOTATION_ALLOC_SIZE(x) __attribute__((__alloc_size__(x)))
     #define BSLS_ANNOTATION_ALLOC_SIZE_MUL(x, y) \
@@ -269,8 +280,8 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_DEPRECATED
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU)   ||                                      \
-    defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
+#if defined(BSLS_PLATFORM_CMP_GNU)   ||                                       \
+    defined(BSLS_PLATFORM_CMP_CLANG) ||                                       \
     defined(BSLS_PLATFORM_CMP_IBM)
     #define BSLS_ANNOTATION_FORMAT(arg) __attribute__((format_arg(arg)))
 #else
@@ -286,9 +297,9 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_NULL_TERMINATED_AT(x)
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU)   ||                                      \
-    defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
-    defined(BSLS_PLATFORM_CMP_HP)    ||                                      \
+#if defined(BSLS_PLATFORM_CMP_GNU)   ||                                       \
+    defined(BSLS_PLATFORM_CMP_CLANG) ||                                       \
+    defined(BSLS_PLATFORM_CMP_HP)    ||                                       \
     defined(BSLS_PLATFORM_CMP_IBM)
     #define BSLS_ANNOTATION_PRINTF(fmt, arg) \
                                       __attribute__((format(printf, fmt, arg)))
@@ -325,6 +336,17 @@ BSLS_IDENT("$Id: $")
 #else
     #define BSLS_ANNOTATION_NORETURN
 #endif
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#if __has_feature(attribute_analyzer_noreturn)
+    #define BSLS_ANNOTATION_ANALYZER_NORETURN                                 \
+                                             __attribute__((analyzer_noreturn))
+#endif
+#endif
+#if !defined(BSLS_ANNOTATION_ANALYZER_NORETURN)
+    #define BSLS_ANNOTATION_ANALYZER_NORETURN
+#endif
+
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH)
     #define BSLS_ANNOTATION_FALLTHROUGH [[ fallthrough ]]

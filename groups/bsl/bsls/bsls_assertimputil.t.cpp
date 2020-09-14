@@ -21,8 +21,9 @@ using namespace BloombergLP;
 // [-1] void AssertImpUtil::failByAbort();
 // [-2] void AssertImpUtil::failBySleep();
 //-----------------------------------------------------------------------------
-// [ 1] USAGE EXAMPLE: myAbort
-// [ 2] USAGE EXAMPLE: mySleep
+// [ 1] BSLS_ASSERT_USE_CONTRACTS
+// [ 2] USAGE EXAMPLE: myAbort
+// [ 3] USAGE EXAMPLE: mySleep
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
     printf( "TEST %s CASE %d\n", __FILE__, test);
 
     switch (test) { case 0:  // zero is always the leading case
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #2
         //
@@ -153,7 +154,7 @@ int main(int argc, char *argv[])
         // mySleep();
 
       } break;
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #1
         //
@@ -174,6 +175,27 @@ int main(int argc, char *argv[])
 
         // myAbort();
 
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // BSLS_ASSERT_USE_CONTRACTS
+        //
+        // Concerns:
+        //: 1 This macro is only definable when the platform and other compiler
+        //:   options support language level contracts.
+        //
+        // Plan:
+        //: 1 TBD: This test driver will need to be expanded in the future,
+        //:   although the testing will likely have to remain in '#if 0'
+        //:   guarded blocks because it involves testing that compilation fails
+        //:   when the use of language contracts is not viable.
+        //
+        // Testing:
+        //   BSLS_ASSERT_USE_CONTRACTS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nBSLS_ASSERT_USE_CONTRACTS"
+                             "\n=========================\n" );
       } break;
       case -1: {
         // --------------------------------------------------------------------

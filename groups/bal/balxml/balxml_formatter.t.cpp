@@ -789,7 +789,8 @@ int main(int argc, char *argv[])
             }
         }
 
-#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE) &&                                   \
+    !defined(BSLS_ASSERT_SAFE_IS_ASSUMED)
         // non-generated enum
         {
             Test value = TEST_A;

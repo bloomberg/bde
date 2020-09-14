@@ -872,7 +872,8 @@ int main(int argc, char *argv[])
                 script.push_back(DATA_NO_POST[i]);
                 script.push_back(TestImpl::k_GET);
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE) ||                                    \
+    defined(BSLS_ASSERT_SAFE_IS_ASSUMED)
                 script.push_back(TestImpl::k_GET);
 #endif
 
@@ -902,7 +903,8 @@ int main(int argc, char *argv[])
                 script.push_back(DATA_POST[i]);
                 script.push_back(TestImpl::k_GET);
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE) ||                                    \
+    defined(BSLS_ASSERT_SAFE_IS_ASSUMED)
                 script.push_back(TestImpl::k_GET);
 #endif
 
@@ -933,7 +935,8 @@ int main(int argc, char *argv[])
                 script.push_back(DATA_WRITE[i]);
                 script.push_back(TestImpl::k_GET);
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE) ||                                    \
+    defined(BSLS_ASSERT_SAFE_IS_ASSUMED)
                 script.push_back(TestImpl::k_GET);
 #endif
 
@@ -996,7 +999,8 @@ int main(int argc, char *argv[])
                 script.push_back(0);
                 script.push_back(DATA_INITIAL[i]);
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE) ||                                    \
+    defined(BSLS_ASSERT_SAFE_IS_ASSUMED)
                 script.push_back(TestImpl::k_GET);
 #endif
 
@@ -1115,7 +1119,8 @@ int main(int argc, char *argv[])
                 script.push_back(0);
                 script.push_back(DATA_NO_POST[i]);
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE) ||                                    \
+    defined(BSLS_ASSERT_SAFE_IS_ASSUMED)
                 script.push_back(TestImpl::k_GET);
 #endif
 
@@ -1144,7 +1149,8 @@ int main(int argc, char *argv[])
                 script.push_back(0);
                 script.push_back(DATA_POST[i]);
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE) ||                                    \
+    defined(BSLS_ASSERT_SAFE_IS_ASSUMED)
                 script.push_back(TestImpl::k_GET);
 #endif
 
@@ -1627,7 +1633,8 @@ int main(int argc, char *argv[])
                   script.push_back( 11);
                   script.push_back(TestImpl::k_UNLOCK);
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE) ||                                    \
+    defined(BSLS_ASSERT_SAFE_IS_ASSUMED)
                   script.push_back(TestImpl::k_GET);
 #endif
 
@@ -1652,7 +1659,8 @@ int main(int argc, char *argv[])
                   script.push_back(  1);
                   script.push_back(101);
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE) ||                                    \
+    defined(BSLS_ASSERT_SAFE_IS_ASSUMED)
                   script.push_back(TestImpl::k_GET);
 #endif
 
@@ -1679,7 +1687,8 @@ int main(int argc, char *argv[])
                   script.push_back(TestImpl::k_ADD);
                   script.push_back(100);
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE) ||                                    \
+    defined(BSLS_ASSERT_SAFE_IS_ASSUMED)
                   script.push_back(TestImpl::k_GET);
 #endif
 

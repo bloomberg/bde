@@ -253,7 +253,8 @@ HashTable<TYPE, HASHER>::HashTable(const TYPE *valuesArray,
     for (unsigned i = 0; i < numValues; ++i) {
         const TYPE& value = d_values[i];
         size_t idx;
-        BSLS_ASSERT_OPT(!lookup(&idx, value, d_hasher(value)));
+        bool result = lookup(&idx, value, d_hasher(value));
+        BSLS_ASSERT_OPT(!result);
         d_bucketArray[idx] = &d_values[i];
     }
 }

@@ -146,6 +146,7 @@ int main(int argc, char *argv[])
 }
 
 
+//--------------------------------------------------------------------GENERATOR
 // The following 'bash' script generates all of the checks for the macros that
 // are defined in 'bsls_asserttest.h', 'bsls_assert.h', and 'bsls_review.h' or
 // undefined in 'bsls_asserttest_macroreset.h', 'bsls_assert_macroreset.h', and
@@ -157,26 +158,23 @@ int main(int argc, char *argv[])
 //  RESETHEADERS=( bsls_asserttest_macroreset.h )
 //  RESETHEADERS+=( bsls_assert_macroreset.h bsls_review_macroreset.h )
 //
-//  UNDEFINED=( $(cat ${HEADERS[@]} | grep "^#\\s*undef" |
+//  UNDEFINED=( $(cat ${HEADERS[@]} | grep "^\\s*#\\s*undef" |
 //                    sed -e "s/.*undef //") )
 //
 //  DEFINED=( $(cat ${HEADERS[@]} ${RESETHEADERS} |
-//                  egrep "^#\\s*(define|undef)" |
-//                  sed -e "s/.*define //" -e "s/.*undef //" -e "s/[( ].*//" |
-//                  grep -v "TESTDRIVER_GUARD" |
-//                  egrep -v "(^BDE_ASSERT)|(^BSL_ASSERT)|(MACRORESET)" |
-//                  sort -u)
-//              )
+//            egrep "^\\s*#\\s*(define|undef)" |
+//            sed -e "s/.*define //" -e "s/.*undef //" -e "s/[( ].*//" |
+//            grep -v "TESTDRIVER_GUARD" |
+//            egrep -v "(^BDE_ASSERT)|(^BSL_ASSERT)|(MACRORESET)|(CONTRACTS)" |
+//            sort -u) )
 //
 //  MACROS=( $(for M in ${DEFINED[@]} ${UNDEFINED[@]} ; do echo "${M}" ; done |
 //                 sort | uniq -u ) )
 //
-//  echo "    // Generated checks."
-//
 //  for M in "${MACROS[@]}" ; do
 //      cat <<EOF
 //      #ifdef ${M}
-//          ASSERT(!"${M} is already defined!");
+//          ASSERT(!"${M} is defined!");
 //      #endif
 //  EOF
 //  done
@@ -200,9 +198,8 @@ int main(int argc, char *argv[])
 //      #endif
 //  EOF
 //  done
-//
-//  echo "    // End of generated checks."
 //..
+//----------------------------------------------------------------END GENERATOR
 
 void testMacroHandling()
 {
@@ -215,171 +212,252 @@ void testMacroHandling()
         ASSERT(!"INCLUDED_BSLS_ASSERTTEST_MACRORESET is NOT defined!");
     #endif
 
-    // Generated checks.
+//--------------------------------------------------------------------GENERATED
     #ifdef BDE_BUILD_TARGET_DBG
-        ASSERT(!"BDE_BUILD_TARGET_DBG is already defined!");
+        ASSERT(!"BDE_BUILD_TARGET_DBG is defined!");
     #endif
     #ifdef BDE_BUILD_TARGET_OPT
-        ASSERT(!"BDE_BUILD_TARGET_OPT is already defined!");
+        ASSERT(!"BDE_BUILD_TARGET_OPT is defined!");
     #endif
     #ifdef BDE_BUILD_TARGET_SAFE
-        ASSERT(!"BDE_BUILD_TARGET_SAFE is already defined!");
+        ASSERT(!"BDE_BUILD_TARGET_SAFE is defined!");
     #endif
     #ifdef BDE_BUILD_TARGET_SAFE_2
-        ASSERT(!"BDE_BUILD_TARGET_SAFE_2 is already defined!");
+        ASSERT(!"BDE_BUILD_TARGET_SAFE_2 is defined!");
     #endif
     #ifdef BSLS_ASSERT
-        ASSERT(!"BSLS_ASSERT is already defined!");
+        ASSERT(!"BSLS_ASSERT is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_FAIL
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_FAIL is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_FAIL is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_FAIL_RAW
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_FAIL_RAW is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_FAIL_RAW is defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL is defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL_RAW is defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_INVOKE_PASS
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_INVOKE_PASS is defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_INVOKE_PASS_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_INVOKE_PASS_RAW is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_OPT_FAIL
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_FAIL is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_FAIL is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_OPT_PASS
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_PASS is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_PASS is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_PASS
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_PASS is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_PASS is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_PASS_RAW
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_PASS_RAW is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_PASS_RAW is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_FAIL
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_FAIL is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_FAIL is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_PASS
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_PASS is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_PASS is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW
-        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_BRUTE_FORCE_IMP
-        ASSERT(!"BSLS_ASSERTTEST_BRUTE_FORCE_IMP is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_BRUTE_FORCE_IMP is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW
-        ASSERT(!"BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW is defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_CAN_CHECK_LEVELS
+        ASSERT(!"BSLS_ASSERTTEST_CAN_CHECK_LEVELS is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_CHECK_LEVEL
-        ASSERT(!"BSLS_ASSERTTEST_CHECK_LEVEL is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_CHECK_LEVEL is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_CHECK_LEVEL_ARG
-        ASSERT(!"BSLS_ASSERTTEST_CHECK_LEVEL_ARG is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_CHECK_LEVEL_ARG is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_DISABLED_IMP
-        ASSERT(!"BSLS_ASSERTTEST_DISABLED_IMP is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_DISABLED_IMP is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_IS_ACTIVE
-        ASSERT(!"BSLS_ASSERTTEST_IS_ACTIVE is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_IS_ACTIVE is defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG
-        ASSERT(!"BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG is already defined!");
+        ASSERT(!"BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG is defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_VALIDATE_DISABLED_MACROS
+        ASSERT(!"BSLS_ASSERTTEST_VALIDATE_DISABLED_MACROS is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_ASSERT
+        ASSERT(!"BSLS_ASSERT_ASSERT is defined!");
     #endif
     #ifdef BSLS_ASSERT_ASSERT_IMP
-        ASSERT(!"BSLS_ASSERT_ASSERT_IMP is already defined!");
+        ASSERT(!"BSLS_ASSERT_ASSERT_IMP is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_ASSUME_IMP
+        ASSERT(!"BSLS_ASSERT_ASSUME_IMP is defined!");
     #endif
     #ifdef BSLS_ASSERT_DISABLED_IMP
-        ASSERT(!"BSLS_ASSERT_DISABLED_IMP is already defined!");
+        ASSERT(!"BSLS_ASSERT_DISABLED_IMP is defined!");
     #endif
     #ifdef BSLS_ASSERT_INVOKE
-        ASSERT(!"BSLS_ASSERT_INVOKE is already defined!");
+        ASSERT(!"BSLS_ASSERT_INVOKE is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_INVOKE_NORETURN
+        ASSERT(!"BSLS_ASSERT_INVOKE_NORETURN is defined!");
     #endif
     #ifdef BSLS_ASSERT_IS_ACTIVE
-        ASSERT(!"BSLS_ASSERT_IS_ACTIVE is already defined!");
+        ASSERT(!"BSLS_ASSERT_IS_ACTIVE is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_IS_ASSUMED
+        ASSERT(!"BSLS_ASSERT_IS_ASSUMED is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_IS_REVIEW
+        ASSERT(!"BSLS_ASSERT_IS_REVIEW is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_IS_USED
+        ASSERT(!"BSLS_ASSERT_IS_USED is defined!");
     #endif
     #ifdef BSLS_ASSERT_LEVEL_ASSERT
-        ASSERT(!"BSLS_ASSERT_LEVEL_ASSERT is already defined!");
+        ASSERT(!"BSLS_ASSERT_LEVEL_ASSERT is defined!");
     #endif
     #ifdef BSLS_ASSERT_LEVEL_ASSERT_OPT
-        ASSERT(!"BSLS_ASSERT_LEVEL_ASSERT_OPT is already defined!");
+        ASSERT(!"BSLS_ASSERT_LEVEL_ASSERT_OPT is defined!");
     #endif
     #ifdef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-        ASSERT(!"BSLS_ASSERT_LEVEL_ASSERT_SAFE is already defined!");
+        ASSERT(!"BSLS_ASSERT_LEVEL_ASSERT_SAFE is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_LEVEL_ASSUME_ASSERT
+        ASSERT(!"BSLS_ASSERT_LEVEL_ASSUME_ASSERT is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_LEVEL_ASSUME_OPT
+        ASSERT(!"BSLS_ASSERT_LEVEL_ASSUME_OPT is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_LEVEL_ASSUME_SAFE
+        ASSERT(!"BSLS_ASSERT_LEVEL_ASSUME_SAFE is defined!");
     #endif
     #ifdef BSLS_ASSERT_LEVEL_NONE
-        ASSERT(!"BSLS_ASSERT_LEVEL_NONE is already defined!");
+        ASSERT(!"BSLS_ASSERT_LEVEL_NONE is defined!");
     #endif
     #ifdef BSLS_ASSERT_OPT
-        ASSERT(!"BSLS_ASSERT_OPT is already defined!");
+        ASSERT(!"BSLS_ASSERT_OPT is defined!");
     #endif
     #ifdef BSLS_ASSERT_OPT_IS_ACTIVE
-        ASSERT(!"BSLS_ASSERT_OPT_IS_ACTIVE is already defined!");
+        ASSERT(!"BSLS_ASSERT_OPT_IS_ACTIVE is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_OPT_IS_ASSUMED
+        ASSERT(!"BSLS_ASSERT_OPT_IS_ASSUMED is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_OPT_IS_REVIEW
+        ASSERT(!"BSLS_ASSERT_OPT_IS_REVIEW is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_OPT_IS_USED
+        ASSERT(!"BSLS_ASSERT_OPT_IS_USED is defined!");
     #endif
     #ifdef BSLS_ASSERT_SAFE
-        ASSERT(!"BSLS_ASSERT_SAFE is already defined!");
+        ASSERT(!"BSLS_ASSERT_SAFE is defined!");
     #endif
     #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-        ASSERT(!"BSLS_ASSERT_SAFE_IS_ACTIVE is already defined!");
+        ASSERT(!"BSLS_ASSERT_SAFE_IS_ACTIVE is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_SAFE_IS_ASSUMED
+        ASSERT(!"BSLS_ASSERT_SAFE_IS_ASSUMED is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_SAFE_IS_REVIEW
+        ASSERT(!"BSLS_ASSERT_SAFE_IS_REVIEW is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_SAFE_IS_USED
+        ASSERT(!"BSLS_ASSERT_SAFE_IS_USED is defined!");
+    #endif
+    #ifdef BSLS_ASSERT_VALIDATE_DISABLED_MACROS
+        ASSERT(!"BSLS_ASSERT_VALIDATE_DISABLED_MACROS is defined!");
     #endif
     #ifdef BSLS_REVIEW
-        ASSERT(!"BSLS_REVIEW is already defined!");
+        ASSERT(!"BSLS_REVIEW is defined!");
     #endif
     #ifdef BSLS_REVIEW_DISABLED_IMP
-        ASSERT(!"BSLS_REVIEW_DISABLED_IMP is already defined!");
+        ASSERT(!"BSLS_REVIEW_DISABLED_IMP is defined!");
     #endif
     #ifdef BSLS_REVIEW_INVOKE
-        ASSERT(!"BSLS_REVIEW_INVOKE is already defined!");
+        ASSERT(!"BSLS_REVIEW_INVOKE is defined!");
     #endif
     #ifdef BSLS_REVIEW_IS_ACTIVE
-        ASSERT(!"BSLS_REVIEW_IS_ACTIVE is already defined!");
+        ASSERT(!"BSLS_REVIEW_IS_ACTIVE is defined!");
+    #endif
+    #ifdef BSLS_REVIEW_IS_USED
+        ASSERT(!"BSLS_REVIEW_IS_USED is defined!");
     #endif
     #ifdef BSLS_REVIEW_LEVEL_NONE
-        ASSERT(!"BSLS_REVIEW_LEVEL_NONE is already defined!");
+        ASSERT(!"BSLS_REVIEW_LEVEL_NONE is defined!");
     #endif
     #ifdef BSLS_REVIEW_LEVEL_REVIEW
-        ASSERT(!"BSLS_REVIEW_LEVEL_REVIEW is already defined!");
+        ASSERT(!"BSLS_REVIEW_LEVEL_REVIEW is defined!");
     #endif
     #ifdef BSLS_REVIEW_LEVEL_REVIEW_OPT
-        ASSERT(!"BSLS_REVIEW_LEVEL_REVIEW_OPT is already defined!");
+        ASSERT(!"BSLS_REVIEW_LEVEL_REVIEW_OPT is defined!");
     #endif
     #ifdef BSLS_REVIEW_LEVEL_REVIEW_SAFE
-        ASSERT(!"BSLS_REVIEW_LEVEL_REVIEW_SAFE is already defined!");
+        ASSERT(!"BSLS_REVIEW_LEVEL_REVIEW_SAFE is defined!");
     #endif
     #ifdef BSLS_REVIEW_OPT
-        ASSERT(!"BSLS_REVIEW_OPT is already defined!");
+        ASSERT(!"BSLS_REVIEW_OPT is defined!");
     #endif
     #ifdef BSLS_REVIEW_OPT_IS_ACTIVE
-        ASSERT(!"BSLS_REVIEW_OPT_IS_ACTIVE is already defined!");
+        ASSERT(!"BSLS_REVIEW_OPT_IS_ACTIVE is defined!");
+    #endif
+    #ifdef BSLS_REVIEW_OPT_IS_USED
+        ASSERT(!"BSLS_REVIEW_OPT_IS_USED is defined!");
+    #endif
+    #ifdef BSLS_REVIEW_REVIEW_COUNT_IMP
+        ASSERT(!"BSLS_REVIEW_REVIEW_COUNT_IMP is defined!");
     #endif
     #ifdef BSLS_REVIEW_REVIEW_IMP
-        ASSERT(!"BSLS_REVIEW_REVIEW_IMP is already defined!");
+        ASSERT(!"BSLS_REVIEW_REVIEW_IMP is defined!");
     #endif
     #ifdef BSLS_REVIEW_SAFE
-        ASSERT(!"BSLS_REVIEW_SAFE is already defined!");
+        ASSERT(!"BSLS_REVIEW_SAFE is defined!");
     #endif
     #ifdef BSLS_REVIEW_SAFE_IS_ACTIVE
-        ASSERT(!"BSLS_REVIEW_SAFE_IS_ACTIVE is already defined!");
+        ASSERT(!"BSLS_REVIEW_SAFE_IS_ACTIVE is defined!");
+    #endif
+    #ifdef BSLS_REVIEW_SAFE_IS_USED
+        ASSERT(!"BSLS_REVIEW_SAFE_IS_USED is defined!");
+    #endif
+    #ifdef BSLS_REVIEW_VALIDATE_DISABLED_MACROS
+        ASSERT(!"BSLS_REVIEW_VALIDATE_DISABLED_MACROS is defined!");
     #endif
     #ifdef INCLUDED_BSLS_ASSERT
-        ASSERT(!"INCLUDED_BSLS_ASSERT is already defined!");
+        ASSERT(!"INCLUDED_BSLS_ASSERT is defined!");
     #endif
     #ifdef INCLUDED_BSLS_ASSERTTEST
-        ASSERT(!"INCLUDED_BSLS_ASSERTTEST is already defined!");
+        ASSERT(!"INCLUDED_BSLS_ASSERTTEST is defined!");
     #endif
     #ifdef INCLUDED_BSLS_REVIEW
-        ASSERT(!"INCLUDED_BSLS_REVIEW is already defined!");
+        ASSERT(!"INCLUDED_BSLS_REVIEW is defined!");
     #endif
 
     #define BDE_BUILD_TARGET_DBG 17
@@ -390,6 +468,10 @@ void testMacroHandling()
     #define BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG 17
     #define BSLS_ASSERTTEST_ASSERT_FAIL 17
     #define BSLS_ASSERTTEST_ASSERT_FAIL_RAW 17
+    #define BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL 17
+    #define BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL_RAW 17
+    #define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS 17
+    #define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS_RAW 17
     #define BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG 17
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL 17
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW 17
@@ -404,36 +486,59 @@ void testMacroHandling()
     #define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW 17
     #define BSLS_ASSERTTEST_BRUTE_FORCE_IMP 17
     #define BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW 17
+    #define BSLS_ASSERTTEST_CAN_CHECK_LEVELS 17
     #define BSLS_ASSERTTEST_CHECK_LEVEL 17
     #define BSLS_ASSERTTEST_CHECK_LEVEL_ARG 17
     #define BSLS_ASSERTTEST_DISABLED_IMP 17
     #define BSLS_ASSERTTEST_IS_ACTIVE 17
     #define BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG 17
+    #define BSLS_ASSERTTEST_VALIDATE_DISABLED_MACROS 17
+    #define BSLS_ASSERT_ASSERT 17
     #define BSLS_ASSERT_ASSERT_IMP 17
+    #define BSLS_ASSERT_ASSUME_IMP 17
     #define BSLS_ASSERT_DISABLED_IMP 17
     #define BSLS_ASSERT_INVOKE 17
+    #define BSLS_ASSERT_INVOKE_NORETURN 17
     #define BSLS_ASSERT_IS_ACTIVE 17
+    #define BSLS_ASSERT_IS_ASSUMED 17
+    #define BSLS_ASSERT_IS_REVIEW 17
+    #define BSLS_ASSERT_IS_USED 17
     #define BSLS_ASSERT_LEVEL_ASSERT 17
     #define BSLS_ASSERT_LEVEL_ASSERT_OPT 17
     #define BSLS_ASSERT_LEVEL_ASSERT_SAFE 17
+    #define BSLS_ASSERT_LEVEL_ASSUME_ASSERT 17
+    #define BSLS_ASSERT_LEVEL_ASSUME_OPT 17
+    #define BSLS_ASSERT_LEVEL_ASSUME_SAFE 17
     #define BSLS_ASSERT_LEVEL_NONE 17
     #define BSLS_ASSERT_OPT 17
     #define BSLS_ASSERT_OPT_IS_ACTIVE 17
+    #define BSLS_ASSERT_OPT_IS_ASSUMED 17
+    #define BSLS_ASSERT_OPT_IS_REVIEW 17
+    #define BSLS_ASSERT_OPT_IS_USED 17
     #define BSLS_ASSERT_SAFE 17
     #define BSLS_ASSERT_SAFE_IS_ACTIVE 17
+    #define BSLS_ASSERT_SAFE_IS_ASSUMED 17
+    #define BSLS_ASSERT_SAFE_IS_REVIEW 17
+    #define BSLS_ASSERT_SAFE_IS_USED 17
+    #define BSLS_ASSERT_VALIDATE_DISABLED_MACROS 17
     #define BSLS_REVIEW 17
     #define BSLS_REVIEW_DISABLED_IMP 17
     #define BSLS_REVIEW_INVOKE 17
     #define BSLS_REVIEW_IS_ACTIVE 17
+    #define BSLS_REVIEW_IS_USED 17
     #define BSLS_REVIEW_LEVEL_NONE 17
     #define BSLS_REVIEW_LEVEL_REVIEW 17
     #define BSLS_REVIEW_LEVEL_REVIEW_OPT 17
     #define BSLS_REVIEW_LEVEL_REVIEW_SAFE 17
     #define BSLS_REVIEW_OPT 17
     #define BSLS_REVIEW_OPT_IS_ACTIVE 17
+    #define BSLS_REVIEW_OPT_IS_USED 17
+    #define BSLS_REVIEW_REVIEW_COUNT_IMP 17
     #define BSLS_REVIEW_REVIEW_IMP 17
     #define BSLS_REVIEW_SAFE 17
     #define BSLS_REVIEW_SAFE_IS_ACTIVE 17
+    #define BSLS_REVIEW_SAFE_IS_USED 17
+    #define BSLS_REVIEW_VALIDATE_DISABLED_MACROS 17
     #define INCLUDED_BSLS_ASSERT 17
     #define INCLUDED_BSLS_ASSERTTEST 17
     #define INCLUDED_BSLS_REVIEW 17
@@ -464,6 +569,18 @@ void testMacroHandling()
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_FAIL_RAW
         ASSERT(!"BSLS_ASSERTTEST_ASSERT_FAIL_RAW is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL_RAW is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_INVOKE_PASS
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_INVOKE_PASS is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_INVOKE_PASS_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_INVOKE_PASS_RAW is still defined!");
     #endif
     #ifdef BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG
         ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG is still defined!");
@@ -507,6 +624,9 @@ void testMacroHandling()
     #ifdef BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW
         ASSERT(!"BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW is still defined!");
     #endif
+    #ifdef BSLS_ASSERTTEST_CAN_CHECK_LEVELS
+        ASSERT(!"BSLS_ASSERTTEST_CAN_CHECK_LEVELS is still defined!");
+    #endif
     #ifdef BSLS_ASSERTTEST_CHECK_LEVEL
         ASSERT(!"BSLS_ASSERTTEST_CHECK_LEVEL is still defined!");
     #endif
@@ -522,8 +642,17 @@ void testMacroHandling()
     #ifdef BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG
         ASSERT(!"BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG is still defined!");
     #endif
+    #ifdef BSLS_ASSERTTEST_VALIDATE_DISABLED_MACROS
+        ASSERT(!"BSLS_ASSERTTEST_VALIDATE_DISABLED_MACROS is still defined!");
+    #endif
+    #ifdef BSLS_ASSERT_ASSERT
+        ASSERT(!"BSLS_ASSERT_ASSERT is still defined!");
+    #endif
     #ifdef BSLS_ASSERT_ASSERT_IMP
         ASSERT(!"BSLS_ASSERT_ASSERT_IMP is still defined!");
+    #endif
+    #ifdef BSLS_ASSERT_ASSUME_IMP
+        ASSERT(!"BSLS_ASSERT_ASSUME_IMP is still defined!");
     #endif
     #ifdef BSLS_ASSERT_DISABLED_IMP
         ASSERT(!"BSLS_ASSERT_DISABLED_IMP is still defined!");
@@ -531,8 +660,20 @@ void testMacroHandling()
     #ifdef BSLS_ASSERT_INVOKE
         ASSERT(!"BSLS_ASSERT_INVOKE is still defined!");
     #endif
+    #ifdef BSLS_ASSERT_INVOKE_NORETURN
+        ASSERT(!"BSLS_ASSERT_INVOKE_NORETURN is still defined!");
+    #endif
     #ifdef BSLS_ASSERT_IS_ACTIVE
         ASSERT(!"BSLS_ASSERT_IS_ACTIVE is still defined!");
+    #endif
+    #ifdef BSLS_ASSERT_IS_ASSUMED
+        ASSERT(!"BSLS_ASSERT_IS_ASSUMED is still defined!");
+    #endif
+    #ifdef BSLS_ASSERT_IS_REVIEW
+        ASSERT(!"BSLS_ASSERT_IS_REVIEW is still defined!");
+    #endif
+    #ifdef BSLS_ASSERT_IS_USED
+        ASSERT(!"BSLS_ASSERT_IS_USED is still defined!");
     #endif
     #ifdef BSLS_ASSERT_LEVEL_ASSERT
         ASSERT(!"BSLS_ASSERT_LEVEL_ASSERT is still defined!");
@@ -543,6 +684,15 @@ void testMacroHandling()
     #ifdef BSLS_ASSERT_LEVEL_ASSERT_SAFE
         ASSERT(!"BSLS_ASSERT_LEVEL_ASSERT_SAFE is still defined!");
     #endif
+    #ifdef BSLS_ASSERT_LEVEL_ASSUME_ASSERT
+        ASSERT(!"BSLS_ASSERT_LEVEL_ASSUME_ASSERT is still defined!");
+    #endif
+    #ifdef BSLS_ASSERT_LEVEL_ASSUME_OPT
+        ASSERT(!"BSLS_ASSERT_LEVEL_ASSUME_OPT is still defined!");
+    #endif
+    #ifdef BSLS_ASSERT_LEVEL_ASSUME_SAFE
+        ASSERT(!"BSLS_ASSERT_LEVEL_ASSUME_SAFE is still defined!");
+    #endif
     #ifdef BSLS_ASSERT_LEVEL_NONE
         ASSERT(!"BSLS_ASSERT_LEVEL_NONE is still defined!");
     #endif
@@ -552,11 +702,32 @@ void testMacroHandling()
     #ifdef BSLS_ASSERT_OPT_IS_ACTIVE
         ASSERT(!"BSLS_ASSERT_OPT_IS_ACTIVE is still defined!");
     #endif
+    #ifdef BSLS_ASSERT_OPT_IS_ASSUMED
+        ASSERT(!"BSLS_ASSERT_OPT_IS_ASSUMED is still defined!");
+    #endif
+    #ifdef BSLS_ASSERT_OPT_IS_REVIEW
+        ASSERT(!"BSLS_ASSERT_OPT_IS_REVIEW is still defined!");
+    #endif
+    #ifdef BSLS_ASSERT_OPT_IS_USED
+        ASSERT(!"BSLS_ASSERT_OPT_IS_USED is still defined!");
+    #endif
     #ifdef BSLS_ASSERT_SAFE
         ASSERT(!"BSLS_ASSERT_SAFE is still defined!");
     #endif
     #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
         ASSERT(!"BSLS_ASSERT_SAFE_IS_ACTIVE is still defined!");
+    #endif
+    #ifdef BSLS_ASSERT_SAFE_IS_ASSUMED
+        ASSERT(!"BSLS_ASSERT_SAFE_IS_ASSUMED is still defined!");
+    #endif
+    #ifdef BSLS_ASSERT_SAFE_IS_REVIEW
+        ASSERT(!"BSLS_ASSERT_SAFE_IS_REVIEW is still defined!");
+    #endif
+    #ifdef BSLS_ASSERT_SAFE_IS_USED
+        ASSERT(!"BSLS_ASSERT_SAFE_IS_USED is still defined!");
+    #endif
+    #ifdef BSLS_ASSERT_VALIDATE_DISABLED_MACROS
+        ASSERT(!"BSLS_ASSERT_VALIDATE_DISABLED_MACROS is still defined!");
     #endif
     #ifdef BSLS_REVIEW
         ASSERT(!"BSLS_REVIEW is still defined!");
@@ -569,6 +740,9 @@ void testMacroHandling()
     #endif
     #ifdef BSLS_REVIEW_IS_ACTIVE
         ASSERT(!"BSLS_REVIEW_IS_ACTIVE is still defined!");
+    #endif
+    #ifdef BSLS_REVIEW_IS_USED
+        ASSERT(!"BSLS_REVIEW_IS_USED is still defined!");
     #endif
     #ifdef BSLS_REVIEW_LEVEL_NONE
         ASSERT(!"BSLS_REVIEW_LEVEL_NONE is still defined!");
@@ -588,6 +762,12 @@ void testMacroHandling()
     #ifdef BSLS_REVIEW_OPT_IS_ACTIVE
         ASSERT(!"BSLS_REVIEW_OPT_IS_ACTIVE is still defined!");
     #endif
+    #ifdef BSLS_REVIEW_OPT_IS_USED
+        ASSERT(!"BSLS_REVIEW_OPT_IS_USED is still defined!");
+    #endif
+    #ifdef BSLS_REVIEW_REVIEW_COUNT_IMP
+        ASSERT(!"BSLS_REVIEW_REVIEW_COUNT_IMP is still defined!");
+    #endif
     #ifdef BSLS_REVIEW_REVIEW_IMP
         ASSERT(!"BSLS_REVIEW_REVIEW_IMP is still defined!");
     #endif
@@ -596,6 +776,12 @@ void testMacroHandling()
     #endif
     #ifdef BSLS_REVIEW_SAFE_IS_ACTIVE
         ASSERT(!"BSLS_REVIEW_SAFE_IS_ACTIVE is still defined!");
+    #endif
+    #ifdef BSLS_REVIEW_SAFE_IS_USED
+        ASSERT(!"BSLS_REVIEW_SAFE_IS_USED is still defined!");
+    #endif
+    #ifdef BSLS_REVIEW_VALIDATE_DISABLED_MACROS
+        ASSERT(!"BSLS_REVIEW_VALIDATE_DISABLED_MACROS is still defined!");
     #endif
     #ifdef INCLUDED_BSLS_ASSERT
         ASSERT(!"INCLUDED_BSLS_ASSERT is still defined!");
@@ -606,7 +792,7 @@ void testMacroHandling()
     #ifdef INCLUDED_BSLS_REVIEW
         ASSERT(!"INCLUDED_BSLS_REVIEW is still defined!");
     #endif
-    // End of generated checks.
+//----------------------------------------------------------------END GENERATED
 }
 
 // ----------------------------------------------------------------------------

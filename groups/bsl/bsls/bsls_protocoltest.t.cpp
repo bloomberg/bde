@@ -133,9 +133,9 @@ ProtocolClass::~ProtocolClass()
 // automatically from 'ProtocolClass').  This special base class implements
 // boilerplate code and provides useful functionality for testing of protocols.
 //..
-// ============================================================================
+// ========================================================================
 //                  GLOBAL CLASSES/TYPEDEFS FOR TESTING
-// ----------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     const char *bar(char const *, char const *) { return markDone(); }

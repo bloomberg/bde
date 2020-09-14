@@ -90,6 +90,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_annotation.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_linkcoercion.h>
 #include <bsls_platform.h>
 
                  // =========================================
@@ -108,10 +109,8 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
-
 namespace BloombergLP {
 namespace bsls {
-
                         // ===========================
                         // Assert Macro Support Macros
                         // ===========================
@@ -131,6 +130,55 @@ namespace bsls {
 #define BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
 
 #endif
+
+                         // =========================
+                         // BSLS_ASSERT_USE_CONTRACTS
+                         // =========================
+// Language-level contracts can be turned on with the external control macro
+// 'BSLS_ASSERT_USE_CONTRACTS' when running on a compiler that supports this.
+// Note that mixing builds where language contracts are supported and those
+// where they are not is not ABI-compatible, so we enforce that this does not
+// happen with a link coercion.  Note also that this is likely not to be
+// ABI-compatible between distinct flavours of language level contracts in the
+// future, so we will coerce the use of distinct names to protect against mixed
+// builds.
+
+#ifdef BSLS_ASSERT_USE_CONTRACTS
+
+// The Lock3 branch of GCC supports a contract implementation sufficient to
+// build 'bsls_assert' and 'bsls_review' on.  Full documentation for the
+// extensions it makes available can be found at
+// 'https://github.com/lock3/gcc/wiki/contracts'.
+
+#if !defined(__cpp_contracts_literal_semantics)
+#error BSLS_ASSERT_USE_CONTRACTS requires compiler contract support           \
+    (__cpp_contracts_literal_semantics)
+#endif
+
+#ifndef BSLS_ASSERT_NORETURN_INVOKE_HANDLER
+// 'bsls_assert' with language-level contracts will use a non-continuing
+// contract mode, so we can no longer support a returning violation handler.
+#define BSLS_ASSERT_NORETURN_INVOKE_HANDLER
+#endif
+
+struct AssertImpUtil_UseContractsCpp20 {
+    static const int s_isAssertUseContracts;
+};
+typedef AssertImpUtil_UseContractsCpp20 AssertImpUtil_UseContracts;
+
+#else
+
+struct AssertImpUtil_UseContractsNo {
+    static const int s_isAssertUseContracts;
+};
+typedef AssertImpUtil_UseContractsNo AssertImpUtil_UseContracts;
+
+#endif
+
+BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
+                     const int,
+                     bsls_assertimputil_coerce_use_contracts,
+                     bsls::AssertImpUtil_UseContracts::s_isAssertUseContracts);
 
                             // ====================
                             // struct AssertImpUtil

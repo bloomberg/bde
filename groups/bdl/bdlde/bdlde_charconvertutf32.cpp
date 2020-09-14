@@ -806,7 +806,7 @@ bool isIllegalFourOctetValue(unsigned int uc)
     return uc > 0x10ffff;
 }
 
-#if defined(BSLS_ASSERT_IS_ACTIVE)
+#if defined(BSLS_ASSERT_IS_USED)
 static inline
 bool isLegalUtf32ErrorWord(unsigned int uc)
     // Return 'true' if the specified 32-bit value 'uc' is legal to be

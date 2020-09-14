@@ -4,12 +4,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsls_assertimputil.h>
 #include <bsls_asserttestexception.h>
+#include <bsls_bsltestutil.h>          // for testing only
 #include <bsls_libraryfeatures.h>
 #include <bsls_log.h>
 #include <bsls_logseverity.h>
 #include <bsls_pointercastutil.h>
+#include <bsls_unspecifiedbool.h>      // for testing only
+#include <bsls_types.h>                // for testing only
 
 #include <exception>
 
@@ -23,8 +25,38 @@ BSLS_IDENT("$Id$ $CSID$")
 #define BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 #endif
 
+                         // -------------------------
+                         // Language Contract Support
+                         // -------------------------
+
+#ifdef BSLS_ASSERT_USE_CONTRACTS
+
+void handle_contract_violation(const std::contract_violation &violation)
+    // Call 'bsls::Review::invokeLanguageContractHandler' or
+    // 'bsls::Assert::invokeLanguageContractHandler' based on the semantic of
+    // the specified 'violation'.  Note that this is the replacable function
+    // that the Lock3 GCC compiler will look for when handling a contract
+    // violation (see 'https://github.com/lock3/gcc/wiki/contracts').  Also
+    // note that any component above 'bsls_assert' cannot define its own
+    // violation handler, and components below 'bsls_assert' should not do so
+    // outside of their test drivers (see 'bsls_review.t').
+{
+    if (violation.continuation_mode() ==
+                   std::contract_violation_continuation_mode::MAYBE_CONTINUE) {
+        BloombergLP::bsls::Review::invokeLanguageContractHandler(violation);
+    }
+    else {
+        BloombergLP::bsls::Assert::invokeLanguageContractHandler(violation);
+    }
+}
+
+#endif
+
 namespace BloombergLP {
 
+                              // ---------------
+                              // Local Utilities
+                              // ---------------
 namespace {
 
 static
@@ -187,12 +219,10 @@ Assert::ViolationHandler Assert::violationHandler()
 
 Assert::Handler Assert::failureHandler()
 {
-    if (violationHandler() != &failOnViolation)
-    {
+    if (violationHandler() != &failOnViolation) {
         return NULL;                                                  // RETURN
     }
-    else
-    {
+    else {
         // BDE_VERIFY pragma: push
         // BDE_VERIFY pragma: -CC01 // AIX only allows this as a C-Style cast
         return (Handler) bsls::AtomicOperations::getPtrAcquire(
@@ -269,6 +299,20 @@ void Assert::invokeHandlerNoReturn(const bsls::AssertViolation &violation)
     failByAbort(violation);
 }
 
+#ifdef BSLS_ASSERT_USE_CONTRACTS
+void Assert::invokeLanguageContractHandler(
+                                      const std::contract_violation &violation)
+{
+    BloombergLP::bsls::AssertViolation bslsViolation(
+        violation.comment().data(),
+        violation.file_name().data(),
+        violation.line_number(),
+        violation.assertion_level().data());
+    BloombergLP::bsls::Assert::invokeHandler(bslsViolation);
+}
+#endif
+
+
                     // Assertion Handler Policy Enforcement
 
 bool Assert::abortUponReturningAssertionFailureHandler()
@@ -296,6 +340,11 @@ bool Assert::abortUponReturningAssertionFailureHandler()
 
 void Assert::permitOutOfPolicyReturningFailureHandler()
 {
+#if defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)
+    BSLS_ASSERT_INVOKE("BSLS_ASSERT return policy cannot be overridden with "
+                       "BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER "
+                       "defined");
+#endif
     g_permitReturningHandlerRuntimeFlag = true;
 }
 
@@ -415,12 +464,10 @@ AssertFailureHandlerGuard::AssertFailureHandlerGuard(
 
 AssertFailureHandlerGuard::~AssertFailureHandlerGuard()
 {
-    if (d_legacyOriginal != NULL)
-    {
+    if (d_legacyOriginal != NULL) {
         Assert::setFailureHandlerRaw(d_legacyOriginal);
     }
-    else
-    {
+    else {
         Assert::setViolationHandlerRaw(d_original);
     }
 }

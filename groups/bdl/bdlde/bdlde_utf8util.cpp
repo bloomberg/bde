@@ -69,7 +69,7 @@ enum {
     k_SURROGATE                    = Utf8Util::k_SURROGATE
 };
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if defined(BSLS_ASSERT_SAFE_IS_USED)
 
 bool isValidUtf8CodePoint(const char *sequence)
     // Return 'true' if 'sequence' points to a valid UTF-8 code point and
@@ -89,7 +89,7 @@ bool isValidUtf8CodePoint(const char *sequence)
            (sequence[0] & k_FOURBYTEHEAD_TEST)  == k_FOURBYTEHEAD_RES )))));
 }
 
-#endif // defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#endif // defined(BSLS_ASSERT_SAFE_IS_USED)
 
 int utf8Size(char character)
     // Return the length of the UTF-8 code point for which the specified

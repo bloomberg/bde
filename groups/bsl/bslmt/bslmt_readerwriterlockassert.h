@@ -382,7 +382,7 @@ BSLS_IDENT("$Id: $")
                __LINE__,                                                      \
                bsls::Assert::k_LEVEL_OPT); } while (false)
 #else
-    #define BSLMT_LOCKASSERT_IS_LOCKED_OPT(rwLock_p) ((void) 0)
+    #define BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT(rwLock_p) ((void) 0)
 #endif
 
 // ----------------------------------------------------------------------------
@@ -421,7 +421,8 @@ BSLS_IDENT("$Id: $")
           __LINE__,                                                           \
           bsls::Assert::k_LEVEL_OPT); } while (false)
 #else
-    #define BSLMT_LOCKASSERT_IS_LOCKED_READ_OPT(rwLock_p) ((void) 0)
+    #define BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT(rwLock_p)         \
+                                                                     ((void) 0)
 #endif
 
 // ----------------------------------------------------------------------------
@@ -460,7 +461,8 @@ BSLS_IDENT("$Id: $")
         __LINE__,                                                             \
         bsls::Assert::k_LEVEL_OPT); } while (false)
 #else
-    #define BSLMT_LOCKASSERT_IS_LOCKED_WRITE_OPT(rwLock_p) ((void) 0)
+    #define BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT(rwLock_p)        \
+                                                                     ((void) 0)
 #endif
 
 // ----------------------------------------------------------------------------
@@ -491,10 +493,10 @@ struct ReaderWriterLockAssert_Imp {
         // source file that called the macro, 'line' is the line number in the
         // file where the macro was called, and 'level' is one of the
         // 'bslsAssert::k_LEVEL_*' string literals.  This function is intended
-        // to implement 'BSLMT_READERWRITELOCKASSERT_IS_LOCKED',
-        // 'BSLMT_READERWRITELOCKASSERT_IS_LOCKED_SAFE', and
-        // 'BSLMT_READERWRITELOCKASSERT_IS_LOCKED_OPT' and should not otherwise
-        // be called directly.
+        // to implement 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED',
+        // 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE', and
+        // 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT' and should not
+        // otherwise be called directly.
 
     template <class RW_LOCK>
     static void assertIsLockedRead(RW_LOCK    *rwLock,
@@ -509,9 +511,9 @@ struct ReaderWriterLockAssert_Imp {
         // the macro, 'line' is the line number in the file where the macro was
         // called, and 'level' is one of the 'bslsAssert::k_LEVEL_*' string
         // literals.  This function is intended to implement
-        // 'BSLMT_READERWRITELOCKASSERT_IS_LOCKED_READ',
-        // 'BSLMT_READERWRITELOCKASSERT_IS_LOCKED_READ_SAFE', and
-        // 'BSLMT_READERWRITELOCKASSERT_IS_LOCKED_READ_OPT' and should not
+        // 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ',
+        // 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE', and
+        // 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT' and should not
         // otherwise be called directly.
 
     template <class RW_LOCK>
@@ -527,9 +529,9 @@ struct ReaderWriterLockAssert_Imp {
         // the macro, 'line' is the line number in the file where the macro was
         // called, and 'level' is one of the 'bsls::Assert::k_LEVEL_*' string
         // literals.  This function is intended to implement
-        // 'BSLMT_WRITEERWRITELOCKASSERT_IS_LOCKED_READ',
-        // 'BSLMT_WRITEERWRITELOCKASSERT_IS_LOCKED_READ_SAFE', and
-        // 'BSLMT_WRITEERWRITELOCKASSERT_IS_LOCKED_READ_OPT' and should not
+        // 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ',
+        // 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE', and
+        // 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT' and should not
         // otherwise be called directly.
 
     static bool isValidLevel(const char *level);

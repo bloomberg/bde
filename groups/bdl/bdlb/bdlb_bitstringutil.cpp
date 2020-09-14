@@ -163,7 +163,7 @@ class BitPtrDiff {
 
     // FRIENDS
     friend bool operator> (const BitPtrDiff&, const BitPtrDiff&);
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if defined(BSLS_ASSERT_SAFE_IS_USED)
     friend bool operator< (const BitPtrDiff&, const BitPtrDiff&);
     friend bool operator<=(const BitPtrDiff&, const BitPtrDiff&);
     friend bool operator>=(const BitPtrDiff&, const BitPtrDiff&);
@@ -251,7 +251,7 @@ bool operator>(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
           (lhs.d_hi == rhs.d_hi && lhs.d_lo > rhs.d_lo);
 }
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if defined(BSLS_ASSERT_SAFE_IS_USED)
 inline
 bool operator<(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
     // Return 'true' if the specified 'lhs' is less than the specified 'rhs',
@@ -617,7 +617,7 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::left(
         return;                                                       // RETURN
     }
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if defined(BSLS_ASSERT_SAFE_IS_USED)
     {
         const BitPtr     dst(dstBitString, dstIndex);
         const BitPtr     src(srcBitString, srcIndex);
@@ -717,7 +717,7 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::right(
         return;                                                       // RETURN
     }
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if defined(BSLS_ASSERT_SAFE_IS_USED)
     {
         const BitPtr     dst(dstBitString, dstIndex);
         const BitPtr     src(srcBitString, srcIndex);
@@ -1311,7 +1311,7 @@ void BitStringUtil::copyRaw(uint64_t       *dstBitString,
     BSLS_ASSERT(dstBitString);
     BSLS_ASSERT(srcBitString);
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if defined(BSLS_ASSERT_SAFE_IS_USED)
     {
         const BitPtr     dst(dstBitString, dstIndex);
         const BitPtr     src(srcBitString, srcIndex);
@@ -1407,7 +1407,7 @@ void BitStringUtil::swapRaw(uint64_t *bitString1,
     int rem2   =  k_BITS_PER_UINT64 - pos2;        // bits from 'pos2' to end
                                                    // of word
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if defined(BSLS_ASSERT_SAFE_IS_USED)
     {
         // No overlap is allowed.
 

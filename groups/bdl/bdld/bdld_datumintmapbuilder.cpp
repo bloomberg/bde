@@ -59,7 +59,7 @@ static void createMapStorage(DatumMutableIntMapRef        *mapping,
     bsl::uninitialized_fill_n(mapping->data(), capacity, DatumIntMapEntry());
 }
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#ifdef BSLS_ASSERT_SAFE_IS_USED
 static bool compareGreater(const DatumIntMapEntry& lhs,
                            const DatumIntMapEntry& rhs)
     // Return 'true' if key in the specified 'lhs' is greater than key in the

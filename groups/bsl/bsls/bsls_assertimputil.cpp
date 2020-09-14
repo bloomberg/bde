@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_bsltestutil.h>        // for testing only
+
 #include <exception>
 
 #include <cstdio>
@@ -31,6 +33,21 @@ extern "C" {
 
 namespace BloombergLP {
 namespace bsls {
+
+                         // -------------------------
+                         // BSLS_ASSERT_USE_CONTRACTS
+                         // -------------------------
+
+#ifdef BSLS_ASSERT_USE_CONTRACTS
+
+const int bsls::AssertImpUtil_UseContractsCpp20::s_isAssertUseContracts = 1;
+
+#else
+
+const int bsls::AssertImpUtil_UseContractsNo::s_isAssertUseContracts = 1;
+
+#endif
+
 
                             // --------------------
                             // struct AssertImpUtil

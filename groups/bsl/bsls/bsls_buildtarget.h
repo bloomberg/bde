@@ -97,9 +97,14 @@ BSLS_IDENT("$Id: $")
 // There is no usage example for this component since it is not meant for
 // direct client use.
 
+#include <bsls_linkcoercion.h>
 #include <bsls_platform.h>
 
 namespace BloombergLP {
+
+// ============================================================================
+//                           BDE_BUILD_TARGET_EXC/BDE_BUILD_TARGET_NO_EXC
+// ============================================================================
 
 // Default to an exception-enabled build unless 'BDE_BUILD_TARGET_NO_EXC' is
 // defined.
@@ -136,6 +141,15 @@ typedef BuildTargetExcNo BuildTargetExc;
 
 #endif
 
+BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
+                                     const int,
+                                     bsls_buildtarget_coerce_exc,
+                                     bsls::BuildTargetExc::s_isBuildTargetExc);
+
+// ============================================================================
+//                           BDE_BUILD_TARGET_MT/BDE_BUILD_TARGET_NO_MT
+// ============================================================================
+
 // Default to a threaded (MT) build unless 'BDE_BUILD_TARGET_NO_MT' is defined.
 
 #ifndef BDE_BUILD_TARGET_NO_MT
@@ -169,6 +183,13 @@ typedef BuildTargetMtNo BuildTargetMt;
 }  // close package namespace
 
 #endif
+
+BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
+                                       const int,
+                                       bsls_buildtarget_coerce_mt,
+                                       bsls::BuildTargetMt::s_isBuildTargetMt);
+
+
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ============================================================================

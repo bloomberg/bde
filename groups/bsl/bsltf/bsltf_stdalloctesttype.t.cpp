@@ -344,6 +344,7 @@ int main(int argc, char *argv[])
             // last part of this test case, as it will exit the process on
             // success without returning control to this test case.
 
+#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
             if (verbose) printf("\n");
             {
                 bsls::AssertFailureHandlerGuard hG(&exitHandler);
@@ -355,6 +356,7 @@ int main(int argc, char *argv[])
                 ASSERTV("The preceding destructor should 'exit' the process",
                         false);
             }
+#endif // BSLS_ASSERT_OPT_IS_ACTIVE
 
             scratch.deallocate(reinterpret_cast<void*>(arr));
         }

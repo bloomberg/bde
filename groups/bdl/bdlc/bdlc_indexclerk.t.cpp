@@ -431,7 +431,8 @@ Obj g(const char *spec)
 //        Additional Functionality Needed to Complete Usage Test Case
 // ----------------------------------------------------------------------------
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE) ||                                    \
+    defined(BSLS_ASSERT_SAFE_IS_ASSUMED)
 const bool safe = true;
 #else
 const bool safe = false;

@@ -553,7 +553,7 @@ bslma::Allocator *ConcurrentPool::allocator() const
 inline
 void *operator new(bsl::size_t size, BloombergLP::bdlma::ConcurrentPool& pool)
 {
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if defined(BSLS_ASSERT_SAFE_IS_USED)
     // gcc-4.8.1 introduced a new warning for unused typedefs, so this typedef
     // should only be present in SAFE mode builds (where it is used).
 

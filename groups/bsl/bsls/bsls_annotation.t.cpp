@@ -103,6 +103,7 @@
 //                                            T warn not   15twn
 //  16 BSLS_ANNOTATION_FALLTHROUGH            F warn not   16fwn
 //  17 BSLS_ANNOTATION_NORETURN               F error      17fe
+//  18 BSLS_ANNOTATION_ANALYZER_NORETURN      F warn       18f
 //..
 // Note that all annotations are defined as empty unless one is on a conforming
 // compiler (e.g., 'BSLS_PLATFORM_CMP_GNU' is defined).  Also note that there
