@@ -2898,12 +2898,13 @@ class HashTable {
    && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
                   bslalg::BidirectionalLink *>::type
     find(const LOOKUP_KEY& key) const
-        // Return the address of a link whose key has the same value as the
+        // Return the address of a link whose key is equivalent to the
         // specified 'key' (according to this hash-table's 'comparator'), and a
         // null pointer value if no such link exists.  If this hash-table
         // contains more than one element having the supplied 'key', return the
         // first such element (from the contiguous sequence of elements having
-        // the same key).
+        // the same key). The behavior is undefined unless 'key' is equivalent
+        // to the elements of at most one equivalent-key group.
         {
             return bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                              d_anchor,
@@ -2926,7 +2927,7 @@ class HashTable {
         // having the same key as the specified 'first' node (according to this
         // hash-table's 'comparator'), and a null pointer value if all nodes
         // following 'first' hold values with the same key as 'first'.  The
-        // behavior is undefined unless 'first' is a link in this hash- table.
+        // behavior is undefined unless 'first' is a link in this hash-table.
         // Note that this hash-table ensures all elements having the same key
         // form a contiguous sequence.
 
@@ -2941,14 +2942,15 @@ class HashTable {
         // Load into the specified 'first' and 'last' pointers the respective
         // addresses of the first and last link (in the list of elements owned
         // by this hash table) where the contained elements have a key that
-        // compares equal to the specified 'key' using the 'comparator' of this
+        // is equivalent to the specified 'key' using the 'comparator' of this
         // hash-table, and null pointer values if there are no elements
         // matching 'key'.  Note that the output values will form a closed
         // range, where both 'first' and 'last' point to links satisfying the
         // predicate (rather than a semi-open range where 'last' would point to
         // the element following the range).  Also note that this hash-table
         // ensures all elements having the same key form a contiguous sequence.
-        //
+        // The behavior is undefined unless 'key' is equivalent to the elements
+        // of at most one equivalent-key group.
         // Note: implemented inline due to Sun CC compilation error.
         {
             BSLS_ASSERT_SAFE(first);

@@ -1396,8 +1396,8 @@ class unordered_set {
         // Return an iterator providing modifiable access to the 'value_type'
         // object in this unordered set that is equivalent to the specified
         // 'key', if such an entry exists, and the past-the-end ('end')
-        // iterator otherwise.  Note that the behaviour is undefined unless the
-        // value being searched for matches at most one key in the container.
+        // iterator otherwise.  The behaviour is undefined unless 'key' is
+        // equivalent to at most one element in this unordered set.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1422,11 +1422,10 @@ class unordered_set {
         // positioned at the start of the sequence, and the second is
         // positioned one past the end of the sequence.  If this unordered set
         // contains no 'value_type' objects equivalent to 'key', then the two
-        // returned iterators will have the same value.  Note that since an 
-        // unordered set maintains unique keys, the range will contain at most
-        // one element.  Note that the behaviour is undefined unless the value
-        // being searched for matches at most one key in the container.
-
+        // returned iterators will have the same value.  The behaviour is
+        // undefined unless 'key' is equivalent to at most one element in this
+        // unordered set.  Note that since an unordered set maintains unique
+        // keys, the range will contain at most one element.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1434,8 +1433,8 @@ class unordered_set {
 
             HashTableLink *first = d_impl.find(key);
             return first
-                 ? ResultType(iterator(first), iterator(first->nextLink()))
-                 : ResultType(iterator(0),     iterator(0));
+                   ? ResultType(iterator(first), iterator(first->nextLink()))
+                   : ResultType(iterator(0),     iterator(0));
         }
 
     pair<iterator, iterator> equal_range(const key_type& key);
@@ -1527,10 +1526,8 @@ class unordered_set {
         // Return an iterator providing non-modifiable access to the
         // 'value_type' object in this unordered set that is equivalent to the
         // specified 'key', if such an entry exists, and the past-the-end
-        // ('end') iterator otherwise.  Note that the behaviour is undefined
-        // unless the value being searched for matches at most one key in the
-        // container.
-
+        // ('end') iterator otherwise.  The behaviour is undefined unless 'key'
+        // is equivalent to at most one element in this unordered set.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1549,12 +1546,11 @@ class unordered_set {
         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
                       size_type>::type
     count(const LOOKUP_KEY& key) const
-        // Return the number of 'value_type' objects within this unordred set
+        // Return the number of 'value_type' objects within this unordered set
         // that are equivalent to the specified 'key'.  Note that since an
         // unordered set maintains unique keys, the returned value will be
-        // either 0 or 1.  Note that the behaviour is undefined unless the
-        // value being searched for matches at most one key in the container.
-
+        // either 0 or 1.  The behaviour is undefined unless 'key' is
+        // equivalent to at most one element in this unordered set.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {
@@ -1562,7 +1558,7 @@ class unordered_set {
         }
 
     size_type count(const key_type& key) const;
-        // Return the number of 'value_type' objects within this unordred set
+        // Return the number of 'value_type' objects within this unordered set
         // that are equivalent to the specified 'key'.  Note that since an
         // unordered set maintains unique keys, the returned value will be
         // either 0 or 1.
@@ -1579,11 +1575,10 @@ class unordered_set {
         // positioned at the start of the sequence and the second iterator is
         // positioned one past the end of the sequence.  If this unordered set
         // contains no 'value_type' objects equivalent to 'key', then the two
-        // returned iterators will have the same value.  Note that since an
-        // unordered set maintains unique keys, the range will contain at most
-        // one element.  Note that the behaviour is undefined unless the value
-        // being searched for matches at most one key in the container.
-
+        // returned iterators will have the same value.  The behaviour is
+        // undefined unless 'key' is equivalent to at most one element in this
+        // unordered set.  Note that since an unordered set maintains unique
+        // keys, the range will contain at most one element.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {

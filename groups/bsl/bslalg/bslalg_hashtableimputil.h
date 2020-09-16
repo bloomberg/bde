@@ -873,10 +873,10 @@ BidirectionalLink *HashTableImpUtil::find(
 template <class KEY_CONFIG, class LOOKUP_KEY, class KEY_EQUAL>
 inline
 BidirectionalLink *HashTableImpUtil::findTransparent(
-  const HashTableAnchor& anchor,
-  const LOOKUP_KEY&      key,
-  const KEY_EQUAL&       equalityFunctor,
-  native_std::size_t     hashCode)
+                                        const HashTableAnchor& anchor,
+                                        const LOOKUP_KEY&      key,
+                                        const KEY_EQUAL&       equalityFunctor,
+                                        native_std::size_t     hashCode)
 {
     BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
     BSLS_ASSERT_SAFE(anchor.bucketArraySize());

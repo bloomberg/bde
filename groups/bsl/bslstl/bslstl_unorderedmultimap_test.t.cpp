@@ -6867,7 +6867,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
     //   bsl::pair<const_iter, const_iter> equal_range(const key_type&) const;
     //   iterator find(const key_type& key);
     //   const_iterator find(const key_type& key) const;
-    //
     // ------------------------------------------------------------------------
 
     typedef bsl::pair<Iter, Iter>   Range;

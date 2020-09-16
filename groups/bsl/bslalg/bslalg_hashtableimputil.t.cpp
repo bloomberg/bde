@@ -257,12 +257,15 @@ struct Equals {
 
 
 struct IntHolder {
-    int d_value;   // PUBLIC DATA
+    // PUBLIC DATA
+    int d_value;
+
     explicit IntHolder(int v) : d_value(v) {}
 };
 
 struct TransparentEquals {
     typedef void is_transparent;
+
     bool operator()(const int& lhs, const IntHolder& rhs) const
     {
         return lhs == rhs.d_value;
