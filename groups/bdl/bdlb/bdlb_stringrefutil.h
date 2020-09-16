@@ -7,6 +7,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utility functions on 'bslstl::StringRef'-erenced strings.
 //
+//@DEPRECATED: Use bdlb_stringviewutil instead.
+//
 //@CLASSES:
 //  bdlb::StringRefUtil: namespace for functions on 'bslstl::StringRef' strings
 //
@@ -31,9 +33,7 @@ BSLS_IDENT("$Id: $")
 ///Function Synopsis
 ///-----------------
 // The table below provides an outline of the functions provided by this
-// component.  Most functions take arguments of 'const bslstl::StringRef&';
-// however, the '*trim' functions take 'bslstl::StringRef *', arguments that
-// specify both input and output.
+// component.
 //..
 //  Function                   Purpose
 //  -------------------------- --------------------------------------------
@@ -55,9 +55,7 @@ BSLS_IDENT("$Id: $")
 //
 // Since 'bslstl::StringRef' objects know the length of the referent data these
 // utility functions can make certain performance improvements over the
-// classic, similarly named C language functions.  In particular, the 'ltrim'
-// and 'trim' functions can change the state of their argument, rather than
-// copying data over leading whitespace.  See {Example 1: Trimming Whitespace}.
+// classic, similarly named C language functions.
 //
 ///Character Encoding
 ///------------------
@@ -338,6 +336,14 @@ bool StringRefUtil::areEqualCaseless(const bslstl::StringRef& lhs,
     return 0 == lowerCaseCmp(lhs, rhs);
 }
 
+                        // Trim
+
+inline
+bslstl::StringRef StringRefUtil::trim(const bslstl::StringRef& string)
+{
+    return ltrim(rtrim(string));
+}
+
                         // Substring
 
 inline
@@ -348,14 +354,6 @@ bslstl::StringRef StringRefUtil::substr(const bslstl::StringRef& string,
     BSLS_ASSERT(position <= string.length());
 
     return bslstl::StringRef(string, position, numChars);
-}
-
-                        // Trim
-
-inline
-bslstl::StringRef StringRefUtil::trim(const bslstl::StringRef& string)
-{
-    return ltrim(rtrim(string));
 }
 
 }  // close package namespace

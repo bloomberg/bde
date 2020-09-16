@@ -30,6 +30,7 @@ bdlb_randomdevice
 bdlb_scopeexit
 bdlb_string
 bdlb_stringrefutil
+bdlb_stringviewutil
 bdlb_testinputiterator
 bdlb_tokenizer
 bdlb_topologicalsortutil

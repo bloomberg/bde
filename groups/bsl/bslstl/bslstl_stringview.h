@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //  bsl::string_view: 'typedef' for 'bsl::basic_string_view<char>'
 //  bsl::wstring_view: 'typedef' for 'bsl::basic_string_view<wchar_t>'
 //
-//@SEE_ALSO: ISO C++ Standard, Section
+//@SEE_ALSO: ISO C++ Standard, bdlb_stringviewutil
 //
 //@DESCRIPTION: This component defines a single class template
 // 'bsl::basic_string_view' and aliases for ordinary and wide character
