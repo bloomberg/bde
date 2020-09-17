@@ -1035,7 +1035,7 @@ class unordered_multiset
         // positioned one past the end of the sequence.  If this unordered
         // multiset contains no 'value_type' objects equivalent to the 'key',
         // then the two returned iterators will have the same value.  The
-        // behaviour is undefined unless 'key' is equivalent to the elements of
+        // behavior is undefined unless 'key' is equivalent to the elements of
         // at most one equivalent-key group in this unordered multiset.
         //
         // Note: implemented inline due to Sun CC compilation error.
@@ -1099,7 +1099,7 @@ class unordered_multiset
         // 'value_type' object in the sequence of all the value elements of
         // this unordered multiset equivalent to the specified 'key', if such
         // entries exist, and the past-the-end ('end') iterator otherwise.  The
-        // behaviour is undefined unless 'key' is equivalent to the elements of
+        // behavior is undefined unless 'key' is equivalent to the elements of
         // at most one equivalent-key group in this unordered multiset.
         //
         // Note: implemented inline due to Sun CC compilation error.
@@ -1586,7 +1586,7 @@ class unordered_multiset
         // 'value_type' object in the sequence of all the value elements of
         // this unordered multiset equivalent to the specified 'key', if such
         // entries exist, and the past-the-end ('end') iterator otherwise.  The
-        // behaviour is undefined unless 'key' is equivalent to the elements of
+        // behavior is undefined unless 'key' is equivalent to the elements of
         // at most one equivalent-key group in this unordered multiset.
         //
         // Note: implemented inline due to Sun CC compilation error.
@@ -1607,7 +1607,7 @@ class unordered_multiset
                       size_type>::type
     count(const LOOKUP_KEY& key) const
         // Return the number of 'value_type' objects within this unordered
-        // multiset that are equivalent to the specified 'key'.  The behaviour
+        // multiset that are equivalent to the specified 'key'.  The behavior
         // is undefined unless 'key' is equivalent to the elements of at most
         // one equivalent-key group in this unordered multiset.
         //
@@ -1647,7 +1647,7 @@ class unordered_multiset
         // positioned one past the end of the sequence.  If this unordered
         // multiset contains no 'value_type' objects equivalent to the 'key',
         // then the two returned iterators will have the same value.  The
-        // behaviour is undefined unless 'key' is equivalent to the elements of
+        // behavior is undefined unless 'key' is equivalent to the elements of
         // at most one equivalent-key group in this unordered multiset.
         //
         // Note: implemented inline due to Sun CC compilation error.

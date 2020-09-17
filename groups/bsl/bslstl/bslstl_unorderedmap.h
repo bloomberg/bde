@@ -1481,7 +1481,7 @@ class unordered_map {
         // Return an iterator providing modifiable access to the 'value_type'
         // object in this unordered map with a key equivalent to the specified
         // 'key', if such an entry exists, and the past-the-end iterator
-        // ('end') otherwise.  The behaviour is undefined unless 'key' is
+        // ('end') otherwise.  The behavior is undefined unless 'key' is
         // equivalent to the key of at most one element in this unordered map.
         //
         // Note: implemented inline due to Sun CC compilation error.
@@ -1653,8 +1653,8 @@ class unordered_map {
         // of the sequence, and the second is positioned one past the end of
         // the sequence.  If this unordered map contains no 'value_type' object
         // having 'key', then the two returned iterators will have the same
-        // value, 'end()'. The behaviour is undefined unless 'key' is
-        // equivalent to at most one key in the unordered map. Note that since
+        // value, 'end()'.  The behavior is undefined unless 'key' is
+        // equivalent to at most one key in this unordered map. Note that since
         // an unordered map maintains unique keys, the range will contain at
         // most one element.
         //
@@ -1784,9 +1784,9 @@ class unordered_map {
                       size_type>::type
     count(const LOOKUP_KEY& key) const
         // Return the number of 'value_type' objects within this unordered map
-        // that have a key equivalent to the specified 'key'.  The behaviour is
-        // undefined unless 'key' is equivalent to at most one key in the
-        // unordered map. Note that since an unordered map maintains unique
+        // that have a key equivalent to the specified 'key'.  The behavior is
+        // undefined unless 'key' is equivalent to at most one key in this
+        // unordered map.  Note that since an unordered map maintains unique
         // keys, the returned value will be either 0 or 1.
         //
         // Note: implemented inline due to Sun CC compilation error.
@@ -1817,8 +1817,8 @@ class unordered_map {
         // positioned one past the end of the sequence.  If this unordered map
         // contains no 'value_type' objects having a key equivalent to 'key',
         // then the two returned iterators will have the same value, 'end()'.
-        // The behaviour is undefined unless 'key' is equivalent to at most one
-        // key in the unordered map.  Note that since an unordered map
+        // The behavior is undefined unless 'key' is equivalent to at most one
+        // key in this unordered map.  Note that since an unordered map
         // maintains unique keys, the range will contain at most one element.
         //
         // Note: implemented inline due to Sun CC compilation error.
@@ -1851,8 +1851,8 @@ class unordered_map {
         // Return an iterator providing non-modifiable access to the
         // 'value_type' object in this unordered map with a key equivalent to
         // the specified 'key', if such an entry exists, and the past-the-end
-        // iterator ('end') otherwise.  The behaviour is undefined unless 'key'
-        // is equivalent to at most one key in the unordered map.
+        // iterator ('end') otherwise.  The behavior is undefined unless 'key'
+        // is equivalent to at most one key in this unordered map.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {

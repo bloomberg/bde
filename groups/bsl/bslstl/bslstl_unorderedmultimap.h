@@ -981,7 +981,7 @@ class unordered_multimap {
         // positioned one past the end of the sequence.  If this unordered
         // multimap contains no 'value_type' objects with a key equivalent to
         // 'key', then the two returned iterators will have the same value.
-        // The behaviour is undefined unless 'key' is equivalent to the key of
+        // The behavior is undefined unless 'key' is equivalent to the key of
         // the elements of at most one equivalent-key group in this unordered
         // multimap.
         //
@@ -1048,7 +1048,7 @@ class unordered_multimap {
         // 'value_type' object in the sequence of all the 'value_type' objects
         // of this unordered multimap with a key equivalent to the specified
         // 'key', if such entries exist, and the past-the-end ('end') iterator
-        // otherwise.  The behaviour is undefined unless 'key' is equivalent to
+        // otherwise.  The behavior is undefined unless 'key' is equivalent to
         // the key of the elements of at most one equivalent-key group in this
         // unordered multimap.
         //
@@ -1328,7 +1328,7 @@ class unordered_multimap {
         // Return an iterator providing modifiable access to the first
         // 'value_type' object in this unordered multimap whose key is
         // equivalent to the specified 'key', if such an entry exists, and the
-        // past-the-end ('end') iterator otherwise.  The behaviour is undefined
+        // past-the-end ('end') iterator otherwise.  The behavior is undefined
         // unless 'key' is equivalent to the key of the elements of at most one
         // equivalent-key group in this unordered multimap.
         //
@@ -1350,7 +1350,7 @@ class unordered_multimap {
                       size_type>::type
     count(const LOOKUP_KEY& key) const
         // Return the number of 'value_type' objects in this unordered multimap
-        // with a key equivalent to the specified 'key'.  The behaviour is
+        // with a key equivalent to the specified 'key'.  The behavior is
         // undefined unless 'key' is equivalent to the key of the elements of
         // at most one equivalent-key group in this unordered multimap.
         //
@@ -1391,7 +1391,7 @@ class unordered_multimap {
         // positioned one past the end of the sequence.  If this unordered
         // multimap contains no 'value_type' objects with a key equivalent to
         // 'key', then the two returned iterators will have the same value.
-        // The behaviour is undefined unless 'key' is equivalent to the key of
+        // The behavior is undefined unless 'key' is equivalent to the key of
         // the elements of at most one equivalent-key group in this unordered
         // multimap.
         //

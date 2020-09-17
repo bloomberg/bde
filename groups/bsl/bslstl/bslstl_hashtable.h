@@ -2903,7 +2903,7 @@ class HashTable {
         // null pointer value if no such link exists.  If this hash-table
         // contains more than one element having the supplied 'key', return the
         // first such element (from the contiguous sequence of elements having
-        // the same key). The behavior is undefined unless 'key' is equivalent
+        // the same key).  The behavior is undefined unless 'key' is equivalent
         // to the elements of at most one equivalent-key group.
         {
             return bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
@@ -2944,13 +2944,14 @@ class HashTable {
         // by this hash table) where the contained elements have a key that
         // is equivalent to the specified 'key' using the 'comparator' of this
         // hash-table, and null pointer values if there are no elements
-        // matching 'key'.  Note that the output values will form a closed
-        // range, where both 'first' and 'last' point to links satisfying the
-        // predicate (rather than a semi-open range where 'last' would point to
-        // the element following the range).  Also note that this hash-table
-        // ensures all elements having the same key form a contiguous sequence.
-        // The behavior is undefined unless 'key' is equivalent to the elements
-        // of at most one equivalent-key group.
+        // matching 'key'.  The behavior is undefined unless 'key' is
+        // equivalent to the elements of at most one equivalent-key group.
+        // Note that the output values will form a closed range, where both
+        // 'first' and 'last' point to links satisfying the predicate (rather
+        // than a semi-open range where 'last' would point to the element
+        // following the range).  Also note that this hash-table ensures all
+        // elements having the same key form a contiguous sequence.
+        //
         // Note: implemented inline due to Sun CC compilation error.
         {
             BSLS_ASSERT_SAFE(first);
