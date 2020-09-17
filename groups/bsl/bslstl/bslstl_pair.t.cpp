@@ -178,9 +178,10 @@ using bsls::NameOf;
 // [15] tuple_element<>::type& get<INDEX, T1, T2>(bsl::pair<T1, T2>& p)
 // [15] tuple_element<>::type& get<TYPE, T1, T2>(bsl::pair<T1, T2>& p)
 // [17] template <class U1, class U2> operator std::tuple<U1&, U2&>()
+// [26] template <class U1, class U2> pair(U1&& a, U2&& b);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [26] USAGE EXAMPLE
+// [27] USAGE EXAMPLE
 // [ 3] Type Traits
 // [ 7] Concern: Can create a pointer-to-member for 'first' and 'second'
 // [ 8] Concern: Can assign to a 'pair' of references
@@ -193,6 +194,7 @@ using bsls::NameOf;
 // [23] Concern: 'pair' constructors SFINAE when required by standard
 // [24] Concern: construct from '0' as null pointer literal
 // [25] Concern: 'return' by brace initialization
+// [26] Concern: can construct pair of objects that are not copyable
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -2495,10 +2497,12 @@ class ManagedWrapper {
 //-----------------------------------------------------------------------------
 class NonCopyable131875306 {
 private:
-	int val;
-	NonCopyable131875306 (const NonCopyable131875306 &rhs) : val(rhs.val) {}
+    int d_val;
+    NonCopyable131875306 (const NonCopyable131875306 &rhs) : d_val(rhs.d_val) {}
+        // Assign to this object the value of the specified 'rhs' object.
 public:
-	NonCopyable131875306(int i) : val(i) {}
+    NonCopyable131875306(int i) : d_val(i) {}
+        // Construct an object containing a copy of the int 'i'
 };
 
 //=============================================================================
@@ -5591,6 +5595,29 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 27: {
         // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+
+        usageExample();
+
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
         // TESTING FIX FOR DRQS 131875306
         //  This test case concerns report that a user was unable to emplace
         //  a non-copyable type into a bsl::unordered_map.  The fix was to 
@@ -5616,29 +5643,6 @@ int main(int argc, char *argv[])
             // This would fail to compile, reporting an attempt to access
             // private constructors prior to applying the patch for the ticket
             // above.
-      } break;
-      case 26: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============\n");
-
-        usageExample();
-
       } break;
       case 25: {
         // --------------------------------------------------------------------

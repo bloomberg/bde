@@ -1224,8 +1224,8 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
                                 && bsl::is_convertible<PARAM_2,
                                      BloombergLP::bslma::Allocator *>::value),
                                  void *>::type = 0)
-    : FirstBase(BSLS_COMPILERFEATURES_FORWARD(PARAM_1, a))
-    , SecondBase(BSLS_COMPILERFEATURES_FORWARD(PARAM_2, b))
+    : FirstBase(native_std::forward<PARAM_1>(a))
+    , SecondBase(native_std::forward<PARAM_2>(b))
     {
         // The implementation is placed here in the class definition to work
         // around a Microsoft C++ compiler (MSVC 2010) bug where the definition
