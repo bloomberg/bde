@@ -1324,8 +1324,8 @@ int Encoder::encode(bsl::streambuf        *streamBuf,
      && bdlat_TypeCategory::e_CHOICE_CATEGORY != category
      && bdlat_TypeCategory::e_ARRAY_CATEGORY != category) {
         logStream()
-                 << "Encoded object must be a Sequence, Choice, or Array type."
-                 << bsl::endl;
+            << "Encoded object must be a Sequence, Choice, or Array type."
+            << bsl::endl;
         return -1;                                                    // RETURN
     }
 
@@ -1334,13 +1334,25 @@ int Encoder::encode(bsl::streambuf        *streamBuf,
 
     const int rc = Encoder_EncodeImplUtil::encode(
         &d_logStream, &outputStream, value, options);
-    if (!rc) {
-        Encoder_EncodeImplUtil::closeDocument(&outputStream, options);
+    if (0 != rc) {
+        streamBuf->pubsync();
+        return rc;                                                    // RETURN
+    }
+
+    Encoder_EncodeImplUtil::closeDocument(&outputStream, options);
+
+    if (!outputStream) {
+        logStream()
+            << "An error occurred when writing to the supplied output stream"
+               " or stream buffer."
+            << bsl::endl;
+        streamBuf->pubsync();
+        return -1;                                                    // RETURN
     }
 
     streamBuf->pubsync();
 
-    return rc;
+    return 0;
 }
 
 template <class TYPE>

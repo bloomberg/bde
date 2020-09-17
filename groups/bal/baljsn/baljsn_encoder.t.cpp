@@ -224,13 +224,59 @@ struct TestUtil {
                       const bslstl::StringRef&           EXPECTED_JSON_STRING);
 };
 
+                // ==============================================
+                // class AssertEncodingOverflowIsDetectedFunction
+                // ==============================================
+
+class AssertEncodingOverflowIsDetectedFunction {
+  private:
+    // PRIVATE CLASS METHODS
+    static void assertExpectations(
+                        bdlsb::FixedMemOutStreamBuf *streamBuf,
+                        const int                    rc,
+                        const baljsn::Encoder&       encoder,
+                        const int                    LINE,
+                        const int                    SUCCESS,
+                        const bslstl::StringRef&     EXPECTED_JSON_STRING,
+                        const bslstl::StringRef&     EXPECTED_LOGGED_MESSAGES);
+        // Assert that the content of the specified 'streamBuf' is equal to
+        // the specified 'EXPECTED_JSON_STRING', that the specified 'rc' is
+        // 0 if the specified 'SUCCESS' is true, that 'rc' is non-zero if
+        // 'SUCCESS' is false, and that the 'loggedMessages' of the specified
+        // 'encoder' is equal to the specified 'EXPECTED_LOGGED_MESSAGES'.
+
+  public:
+    // CREATORS
+    AssertEncodingOverflowIsDetectedFunction();
+        // Create an 'AssertEncodingOverflowIsDetectedFunction' object.
+
+    // ACCESSORS
+    template <class VALUE_TYPE>
+    void operator()(const int                LINE,
+                    const VALUE_TYPE&        VALUE,
+                    const int                BUFFER_SIZE,
+                    const bool               SUCCESS,
+                    const bslstl::StringRef& EXPECTED_JSON_STRING,
+                    const bslstl::StringRef& EXPECTED_LOGGED_MESSAGES) const;
+        // Assert that encoding the specified 'VALUE' using 'baljsn::Encoder'
+        // and a stream buffer that fails after its output sequence exceeds the
+        // specified 'BUFFER_SIZE' number of bytes succeeds if the specified
+        // 'SUCCESS' flag is 'true', and fails otherwise.  Then, in any case,
+        // assert that the content of the stream buffer is equal to the
+        // specified 'EXPECTED_JSON_STRING', and the content of the
+        // 'loggedMessages' of the 'baljsn::Encoder' is equal to the specified
+        // 'EXPECTED_LOGGED_MESSAGES'.
+};
+
                    // =======================================
                    // class AssertEncodedValueIsEqualFunction
                    // =======================================
 
 class AssertEncodedValueIsEqualFunction {
-
   public:
+    // CREATORS
+    AssertEncodedValueIsEqualFunction();
+
     // ACCESSORS
     template <class VALUE_TYPE>
     void operator()(
@@ -246,7 +292,6 @@ class AssertEncodedValueIsEqualFunction {
                              // ==================
 
 class Enumeration0 {
-
   public:
     // CREATORS
     Enumeration0();
@@ -463,7 +508,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -574,6 +619,125 @@ int main(int argc, char *argv[])
 
     ASSERT(EXP_OUTPUT == os.str());
 //..
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING ENCODING OVERFLOW DETECTION
+        //   This case tests that 'baljsn::Encoder::encode' returns a non-zero
+        //   value if the supplied stream or stream buffer indicates an error
+        //   occurs during any output operation.
+        //
+        // Concerns:
+        //: 1 If all output operations on the supplied stream or stream buffer
+        //:   succeed, the encoder returns a 0 value, successfully encodes the
+        //:   JSON representation of the supplied value to the stream or stream
+        //:   buffer, and has no logged messages.
+        //:
+        //: 2 If any output operation on the supplied stream or stream buffer
+        //:   fails, the encoder returns a non-zero value, encodes a prefix of
+        //:   the JSON representation of the supplied value -- up to and
+        //:   including all successfully written characters -- to the stream or
+        //:   stream buffer, and has logged messages.
+        //
+        // Plan:
+        //: 1 Create 2 's_baltst::SimpleRequest' objects, 'obj0' and 'obj1',
+        //:   that have different values for their attributes so that they
+        //:   will encode to JSON representations that have different lengths.
+        //:
+        //: 2 For both objects 'obj0' and 'obj1', do the following:
+        //:
+        //:   1 Identify the length 'L' of the JSON representation of the
+        //:     object.
+        //:
+        //:   2 Initialize output stream buffers that fail after 0, 1, 2,
+        //:     L - 2, and L - 1 bytes have been written, respectively.
+        //:
+        //:   3 Encode the object to the output sequence of each stream buffer.
+        //:
+        //:   4 Observe that the encoding operation fails, a prefix of the
+        //:     encoded data is in the output sequence of the stream buffer,
+        //:     and that the encoder's logged messages contain a description of
+        //:     the error.
+        //:
+        //:   5 Initialize a second set of output stream buffers that fail
+        //:     after L, L + 1, and L + 2 bytes have been written,
+        //:     respectively.
+        //:
+        //:   6 Encode the object to the output sequence of each stream buffer.
+        //:
+        //:   7 Observe that the encoding operation succeeds, the full JSON
+        //:     representation of the object is in the output sequence of the
+        //:     stream buffer, and that the encoder's logged messages are
+        //:     empty.
+        //
+        // Testing:
+        //   int encode(*streamBuf, value, options);
+        //   int encode(*streamBuf, value, *options);
+        //   int encode(stream, value, options);
+        //   int encode(stream, value, *options);
+        //   int encode(*streamBuf, value);
+        //   int encode(stream, value);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "TESTING ENCODING OVERFLOW DETECTION"
+                 << endl
+                 << "==================================="
+                 << endl;
+
+        u::AssertEncodingOverflowIsDetectedFunction t;
+
+        static const bool F = false;
+        static const bool T = true;
+
+        static const char *const ERROR =
+            "An error occurred when writing to the supplied output stream or"
+            " stream buffer.\n";
+
+        s_baltst::SimpleRequest obj0;
+        obj0.data()           = "";
+        obj0.responseLength() = 0;
+
+        s_baltst::SimpleRequest obj1;
+        obj1.data()           = "Lorem ipsum dolor sit amet.";
+        obj1.responseLength() = 42;
+
+        //            OBJECT
+        //           .------
+        //          /    BUFFER SIZE
+        //   LINE  /    .-----------
+        //  .---- /    /   ENCODING SUCCEEDS  EXPECTED ERROR MESSAGE
+        //  |    /    /   .-----------------  ----------------------.
+        //  |   /    /   /     EXPECTED STREAM BUFFER CONTENTS       \
+        // -- ----- --- -- --------------------------------------- -------
+        t( L_, obj0,  0, F, ""                                    , ERROR );
+        t( L_, obj0,  1, F, "{"                                   , ERROR );
+        t( L_, obj0,  2, F, "{\""                                 , ERROR );
+        t( L_, obj0, 28, F, "{\"data\":\"\",\"responseLength\":"  , ERROR );
+        t( L_, obj0, 29, F, "{\"data\":\"\",\"responseLength\":0" , ERROR );
+        t( L_, obj0, 30, T, "{\"data\":\"\",\"responseLength\":0}", ""    );
+        t( L_, obj0, 31, T, "{\"data\":\"\",\"responseLength\":0}", ""    );
+
+        t( L_, obj1,  0, F, ""                                    , ERROR );
+        t( L_, obj1,  1, F, "{"                                   , ERROR );
+        t( L_, obj1,  2, F, "{"
+                                "\""                              , ERROR );
+        t( L_, obj1, 57, F, "{"
+                                "\"data\":\"Lorem ipsum dolor"
+                                           " sit amet.\","
+                                "\"responseLength\":42"           , ERROR );
+        t( L_, obj1, 58, T, "{"
+                                "\"data\":\"Lorem ipsum dolor"
+                                           " sit amet.\","
+                                "\"responseLength\":42"
+                            "}"                                   , ""    );
+        t( L_, obj1, 59, T, "{"
+                                "\"data\":\"Lorem ipsum dolor"
+                                           " sit amet.\","
+                                "\"responseLength\":42"
+                            "}"                                   , ""    );
+
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -3759,9 +3923,177 @@ void TestUtil::assertEncodedValueIsEqual(
     LOOP1_ASSERT_EQ(LINE, EXPECTED_JSON_STRING, jsonStringRef);
 }
 
-                   // ---------------------------------------
-                   // class AssertEncodedValueIsEqualFunction
-                   // ---------------------------------------
+               // ----------------------------------------------
+               // class AssertEncodingOverflowIsDetectedFunction
+               // ----------------------------------------------
+
+// PRIVATE CLASS METHODS
+void AssertEncodingOverflowIsDetectedFunction::assertExpectations(
+                         bdlsb::FixedMemOutStreamBuf *streamBuf,
+                         const int                    rc,
+                         const baljsn::Encoder&       encoder,
+                         const int                    LINE,
+                         const int                    SUCCESS,
+                         const bslstl::StringRef&     EXPECTED_JSON_STRING,
+                         const bslstl::StringRef&     EXPECTED_LOGGED_MESSAGES)
+{
+        if (SUCCESS) {
+            LOOP1_ASSERT_EQ(LINE, 0, rc);
+        }
+        else {
+            LOOP1_ASSERT_NE(LINE, 0, rc);
+        }
+
+        const bsl::streampos streamBufPosition =
+            streamBuf->pubseekoff(0, bsl::ios_base::cur);
+
+        const bslstl::StringRef jsonString(streamBuf->data(),
+                                           streamBufPosition);
+
+        LOOP1_ASSERT_EQ(LINE, EXPECTED_JSON_STRING, jsonString);
+
+        LOOP1_ASSERT_EQ(
+            LINE, EXPECTED_LOGGED_MESSAGES, encoder.loggedMessages());
+}
+
+
+// CREATORS
+AssertEncodingOverflowIsDetectedFunction::
+    AssertEncodingOverflowIsDetectedFunction()
+{
+}
+
+// ACCESSORS
+template <class VALUE_TYPE>
+void AssertEncodingOverflowIsDetectedFunction::operator()(
+                       const int                LINE,
+                       const VALUE_TYPE&        VALUE,
+                       const int                BUFFER_SIZE,
+                       const bool               SUCCESS,
+                       const bslstl::StringRef& EXPECTED_JSON_STRING,
+                       const bslstl::StringRef& EXPECTED_LOGGED_MESSAGES) const
+{
+    // Assert the expectations of this object for each overload of
+    // 'baljsn::Encoder::encode'.
+
+    {
+        baljsn::Encoder encoder;
+
+        bsl::vector<char>           buffer(BUFFER_SIZE);
+        bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(), BUFFER_SIZE);
+        baljsn::EncoderOptions      encoderOptions;
+
+        const int rc = encoder.encode(&streamBuffer, VALUE, encoderOptions);
+
+        assertExpectations(&streamBuffer,
+                           rc,
+                           encoder,
+                           LINE,
+                           SUCCESS,
+                           EXPECTED_JSON_STRING,
+                           EXPECTED_LOGGED_MESSAGES);
+    }
+
+    {
+        baljsn::Encoder encoder;
+
+        bsl::vector<char>           buffer(BUFFER_SIZE);
+        bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(), BUFFER_SIZE);
+        baljsn::EncoderOptions      encoderOptions;
+
+        int rc = encoder.encode(&streamBuffer, VALUE, &encoderOptions);
+
+        assertExpectations(&streamBuffer,
+                           rc,
+                           encoder,
+                           LINE,
+                           SUCCESS,
+                           EXPECTED_JSON_STRING,
+                           EXPECTED_LOGGED_MESSAGES);
+    }
+
+    {
+        baljsn::Encoder encoder;
+
+        bsl::vector<char>           buffer(BUFFER_SIZE);
+        bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(), BUFFER_SIZE);
+        bsl::ostream                stream(&streamBuffer);
+        baljsn::EncoderOptions      encoderOptions;
+
+        int rc = encoder.encode(stream, VALUE, encoderOptions);
+
+        assertExpectations(&streamBuffer,
+                           rc,
+                           encoder,
+                           LINE,
+                           SUCCESS,
+                           EXPECTED_JSON_STRING,
+                           EXPECTED_LOGGED_MESSAGES);
+    }
+
+    {
+        baljsn::Encoder encoder;
+
+        bsl::vector<char>           buffer(BUFFER_SIZE);
+        bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(), BUFFER_SIZE);
+        bsl::ostream                stream(&streamBuffer);
+        baljsn::EncoderOptions      encoderOptions;
+
+        int rc = encoder.encode(stream, VALUE, &encoderOptions);
+
+        assertExpectations(&streamBuffer,
+                           rc,
+                           encoder,
+                           LINE,
+                           SUCCESS,
+                           EXPECTED_JSON_STRING,
+                           EXPECTED_LOGGED_MESSAGES);
+    }
+
+    {
+        baljsn::Encoder encoder;
+
+        bsl::vector<char>           buffer(BUFFER_SIZE);
+        bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(), BUFFER_SIZE);
+
+        int rc = encoder.encode(&streamBuffer, VALUE);
+
+        assertExpectations(&streamBuffer,
+                           rc,
+                           encoder,
+                           LINE,
+                           SUCCESS,
+                           EXPECTED_JSON_STRING,
+                           EXPECTED_LOGGED_MESSAGES);
+    }
+
+    {
+        baljsn::Encoder encoder;
+
+        bsl::vector<char>           buffer(BUFFER_SIZE);
+        bdlsb::FixedMemOutStreamBuf streamBuffer(buffer.data(), BUFFER_SIZE);
+        bsl::ostream                stream(&streamBuffer);
+
+        int rc = encoder.encode(stream, VALUE);
+
+        assertExpectations(&streamBuffer,
+                           rc,
+                           encoder,
+                           LINE,
+                           SUCCESS,
+                           EXPECTED_JSON_STRING,
+                           EXPECTED_LOGGED_MESSAGES);
+    }
+}
+
+                  // ---------------------------------------
+                  // class AssertEncodedValueIsEqualFunction
+                  // ---------------------------------------
+
+// CREATORS
+AssertEncodedValueIsEqualFunction::AssertEncodedValueIsEqualFunction()
+{
+}
 
 // ACCESSORS
 template <class VALUE_TYPE>
