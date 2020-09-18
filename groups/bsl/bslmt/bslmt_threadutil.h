@@ -282,6 +282,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutilimpl_pthread.h>
 #include <bslmt_threadutilimpl_win32.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 
@@ -767,10 +769,11 @@ int bslmt::ThreadUtil::create(Handle                  *handle,
 }
 
 inline
-int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
-                                           ThreadFunction           function,
-                                           void                    *userData,
-                                           bslma::Allocator        *allocator)
+int bslmt::ThreadUtil::createWithAllocator(
+                                 Handle                             *handle,
+                                 ThreadFunction                      function,
+                                 void                               *userData,
+                                 BSLA_MAYBE_UNUSED bslma::Allocator *allocator)
 {
     BSLS_ASSERT_SAFE(handle);
     BSLS_ASSERT_OPT(allocator);

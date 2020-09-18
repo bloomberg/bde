@@ -12,6 +12,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_qlock_cpp,"$Id$ $CSID$")
 
+#include <bsla_maybeunused.h>
 #include <bsls_assert.h>
 #include <bslma_default.h>
 #include <bslma_newdeleteallocator.h>
@@ -121,7 +122,8 @@ TlsKey *initializeSemaphoreTLSKey()
 {
     TlsKey *key = new (semaphoreAllocator()) TlsKey;
 
-    int rc  = bslmt::ThreadUtil::createKey(key, &deleteThreadLocalSemaphore);
+    BSLA_MAYBE_UNUSED int rc =
+                bslmt::ThreadUtil::createKey(key, &deleteThreadLocalSemaphore);
     BSLS_ASSERT_OPT(rc == 0);
 
     void *oldKey =
