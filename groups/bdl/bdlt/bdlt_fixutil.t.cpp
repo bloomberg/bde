@@ -2181,6 +2181,19 @@ if (veryVerbose)
             }
         }
 
+        // Read overflow - {DRQS 163929029}.  May need sanitizer to detect.
+        if (verbose) cout << "\nSanitizer Test Cases." << endl;
+        {
+            bdlt::Time mX;
+            char S[] = { '1', '1', ':', '1', '1', ':', '1' };
+            ASSERTV(0 != Util::parse(&mX, S, int(sizeof(S))));
+        }
+        {
+            bdlt::Time mX;
+            char S[] = { '1', '2', ':', '5', '1', '-', '1', '2' };
+            ASSERTV(0 == Util::parse(&mX, S, int(sizeof(S))));
+        }
+
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertTestHandlerGuard hG;

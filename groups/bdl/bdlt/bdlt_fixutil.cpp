@@ -229,7 +229,7 @@ int parseTimezoneOffset(const char **nextPos,
         return -1;                                                    // RETURN
     }
 
-    if (':' == *p) {
+    if (p < end && ':' == *p) {
         ++p;  // skip ':'
 
         if (end - p < 2) {
@@ -309,12 +309,13 @@ int parseTime(const char **nextPos,
     int millisecond = 0;
     int microsecond = 0;
     bool hasLeapSecond = false;
+
     if (p < end && ':' == *p) {
         // We have seconds.
 
         ++p;  // skip ':'
 
-        if (0 != asciiToInt(&p, &second, p, p + 2)) {
+        if (end - p < 2 || 0 != asciiToInt(&p, &second, p, p + 2)) {
             return -1;                                                // RETURN
         }
 
