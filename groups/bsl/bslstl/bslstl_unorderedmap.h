@@ -1654,9 +1654,9 @@ class unordered_map {
         // the sequence.  If this unordered map contains no 'value_type' object
         // having 'key', then the two returned iterators will have the same
         // value, 'end()'.  The behavior is undefined unless 'key' is
-        // equivalent to at most one key in this unordered map. Note that since
-        // an unordered map maintains unique keys, the range will contain at
-        // most one element.
+        // equivalent to at most one key in this unordered map.  Note that
+        // since an unordered map maintains unique keys, the range will contain
+        // at most one element.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {

@@ -2941,8 +2941,8 @@ class HashTable {
               const LOOKUP_KEY&           key) const
         // Load into the specified 'first' and 'last' pointers the respective
         // addresses of the first and last link (in the list of elements owned
-        // by this hash table) where the contained elements have a key that
-        // is equivalent to the specified 'key' using the 'comparator' of this
+        // by this hash table) where the contained elements have a key that is
+        // equivalent to the specified 'key' using the 'comparator' of this
         // hash-table, and null pointer values if there are no elements
         // matching 'key'.  The behavior is undefined unless 'key' is
         // equivalent to the elements of at most one equivalent-key group.

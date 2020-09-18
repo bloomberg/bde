@@ -1550,7 +1550,7 @@ class unordered_set {
         // that are equivalent to the specified 'key'.  The behavior is
         // undefined unless 'key' is equivalent to at most one element in this
         // unordered set.  Note that since an unordered set maintains unique
-        // keys, the returned value will be either 0 or 1.  
+        // keys, the returned value will be either 0 or 1.
         //
         // Note: implemented inline due to Sun CC compilation error.
         {

@@ -1473,7 +1473,7 @@ void testTransparentComparator(Container& container,
     }
 
     ASSERT(expectedConversionCount == existingKey.conversionCount());
-    ASSERT(EXPECTED_C == 
+    ASSERT(EXPECTED_C ==
      static_cast<Count>(bsl::distance(EXISTING_ER.first, EXISTING_ER.second)));
 
     for (Iterator it = EXISTING_ER.first; it != EXISTING_ER.second; ++it) {
@@ -7684,7 +7684,7 @@ int main(int argc, char *argv[])
                                  "==============================" "\n");
 
         typedef bsl::unordered_multiset<int>            NonTransparentMultiset;
-        typedef bsl::unordered_multiset<int, 
+        typedef bsl::unordered_multiset<int,
             TransparentHasher, TransparentComparator>   TransparentMultiset;
 
         const int DATA[] = { 0, 1, 2, 3, 4 };
