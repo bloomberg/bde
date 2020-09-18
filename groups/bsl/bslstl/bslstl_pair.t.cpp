@@ -5634,8 +5634,7 @@ int main(int argc, char *argv[])
         //:   should a further regression introduce a similar problem.
         //
         // Testing:
-        //  1 Concern: Concern: can construct pair of objects that are not
-        //    copyable
+        //  1 Concern: can construct pair of objects that are not copyable
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING FIX FOR DRQS 131875306"
