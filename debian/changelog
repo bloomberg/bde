@@ -1,11 +1,25 @@
-bsl-internal (3.61.0.0) unstable; urgency=low
+bsl-internal (3.63.0.0) unstable; urgency=low
 
+  * 2d8eb0954 Bumped version to 3.63.0.0
+  * 4b5c854b6 BSLS_ASSERT_LEVEL_ASSUME* and constexpr BSLS_ASSERT/BSLS_REVIEW initial version
+  * cdd237c9e Bumped version to 3.62.0.0
+  * ff4f1b9f6 Merge pull request #2929 from osubbotin/review/add-ufids-drqs-163623970
+  * 5d3203978 Merge pull request #2926 from mmaguir1/mmaguir1_DRQS_163343501_windows_warning_C4800
+  * 59ac30f4d Merge pull request #2879 from mclow3/drqs-118577170
+  * aa1c93633 Merge pull request #2922 from hrosen4/balxml_minireader-too-much-allocation
+  * 4c8715d45 Remove deprecated conversions from baltzo_zoneinfo. (#2892)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 18 Sep 2020 12:14:50 -0400
+
+bsl-internal (3.61.0.0) git; urgency=low
+
+  * a8e484bcb Changelog for version 3.61.0.0
   * ad483fd26 Bumped version to 3.61.0.0
   * 3086bd9fd Merge pull request #2902 from mgiroux/add-missing-initializer-baljsn_datumutil.t.cpp
   * 316dfa919 Merge pull request #2801 from mgiroux/document-duplicated-key-behavior-for-baljsn_datumutil-drqs159746247
   * 4f1d99efb Merge pull request #2890 from hrosen4/swapbytes-ub_drqs-162500976
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 21 Aug 2020 15:49:55 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 21 Aug 2020 15:52:22 -0400
 
 bsl-internal (3.60.0.1) git; urgency=low
 
