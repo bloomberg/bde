@@ -657,6 +657,7 @@ BSL_OVERRIDES_STD mode"
                                        // but not very user friendly
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
@@ -1021,6 +1022,31 @@ class unordered_multiset
         // container is empty after this call, but allocated memory may be
         // retained for future use.
 
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      pair<iterator, iterator> >::type
+    equal_range(const LOOKUP_KEY& key)
+        // Return a pair of iterators providing modifiable access to the
+        // sequence of 'value_type' objects in this unordered multiset
+        // equivalent to the specified 'key', where the first iterator is
+        // positioned at the start of the sequence, and the second is
+        // positioned one past the end of the sequence.  If this unordered
+        // multiset contains no 'value_type' objects equivalent to the 'key',
+        // then the two returned iterators will have the same value.  The
+        // behavior is undefined unless 'key' is equivalent to the elements of
+        // at most one equivalent-key group in this unordered multiset.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            typedef bsl::pair<iterator, iterator> ResultType;
+            HashTableLink *first;
+            HashTableLink *last;
+            d_impl.findRange(&first, &last, key);
+            return ResultType(iterator(first), iterator(last));
+        }
+
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this unordered multiset
@@ -1063,9 +1089,27 @@ class unordered_multiset
         // position is at or before the 'last' position in the sequence
         // provided by this container.
 
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      iterator>::type
+    find(const LOOKUP_KEY& key)
+        // Return an iterator providing modifiable access to the first
+        // 'value_type' object in the sequence of all the value elements of
+        // this unordered multiset equivalent to the specified 'key', if such
+        // entries exist, and the past-the-end ('end') iterator otherwise.  The
+        // behavior is undefined unless 'key' is equivalent to the elements of
+        // at most one equivalent-key group in this unordered multiset.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            return iterator(d_impl.find(key));
+        }
+
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the first
-        // 'value_type' object in the sequence of all the value-elements of
+        // 'value_type' object in the sequence of all the value elements of
         // this unordered multiset equivalent to the specified 'key', if such
         // entries exist, and the past-the-end ('end') iterator otherwise.
 
@@ -1532,15 +1576,89 @@ class unordered_multiset
         // multiset to generate a hash value (of type 'size_t') for a
         // 'key_type' object.
 
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      const_iterator>::type
+    find(const LOOKUP_KEY& key) const
+        // Return an iterator providing non-modifiable access to the first
+        // 'value_type' object in the sequence of all the value elements of
+        // this unordered multiset equivalent to the specified 'key', if such
+        // entries exist, and the past-the-end ('end') iterator otherwise.  The
+        // behavior is undefined unless 'key' is equivalent to the elements of
+        // at most one equivalent-key group in this unordered multiset.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            return const_iterator(d_impl.find(key));
+        }
+
     const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object in the sequence of all the value-elements of
+        // 'value_type' object in the sequence of all the value elements of
         // this unordered multiset equivalent to the specified 'key', if such
         // entries exist, and the past-the-end ('end') iterator otherwise.
+
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      size_type>::type
+    count(const LOOKUP_KEY& key) const
+        // Return the number of 'value_type' objects within this unordered
+        // multiset that are equivalent to the specified 'key'.  The behavior
+        // is undefined unless 'key' is equivalent to the elements of at most
+        // one equivalent-key group in this unordered multiset.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
+
+            size_type result = 0;
+            for (HashTableLink *cursor = d_impl.find(key);
+                 cursor;
+                 ++result, cursor = cursor->nextLink()) {
+
+                BNode *cursorNode = static_cast<BNode *>(cursor);
+                if (!this->key_eq()(
+                         key,
+                         ListConfiguration::extractKey(cursorNode->value()))) {
+                    break;
+                }
+            }
+            return result;
+        }
 
     size_type count(const key_type& key) const;
         // Return the number of 'value_type' objects within this unordered
         // multiset that are equivalent to the specified 'key'.
+
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      pair<const_iterator, const_iterator> >::type
+    equal_range(const LOOKUP_KEY& key) const
+        // Return a pair of iterators providing non-modifiable access to the
+        // sequence of 'value_type' objects in this unordered multiset
+        // equivalent to the specified 'key', where the first iterator is
+        // positioned at the start of the sequence, and the second is
+        // positioned one past the end of the sequence.  If this unordered
+        // multiset contains no 'value_type' objects equivalent to the 'key',
+        // then the two returned iterators will have the same value.  The
+        // behavior is undefined unless 'key' is equivalent to the elements of
+        // at most one equivalent-key group in this unordered multiset.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            typedef bsl::pair<const_iterator, const_iterator> ResultType;
+            HashTableLink *first;
+            HashTableLink *last;
+            d_impl.findRange(&first, &last, key);
+            return ResultType(const_iterator(first), const_iterator(last));
+        }
+
 
     pair<const_iterator, const_iterator> equal_range(
                                                     const key_type& key) const;
@@ -1613,7 +1731,7 @@ bool operator==(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
                 const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'unordered_multiset' objects have the
-    // same value if they have the same number of value-elements, and for each
+    // same value if they have the same number of value elements, and for each
     // value-element that is contained in 'lhs' there is a value-element
     // contained in 'rhs' having the same value, and vice-versa.  Note that
     // this method requires that the (template parameter) type 'KEY' be
@@ -1625,7 +1743,7 @@ bool operator!=(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'unordered_multiset' objects do
     // not have the same value if they do not have the same number of
-    // value-elements, or that for some value-element contained in 'lhs' there
+    // value elements, or that for some value-element contained in 'lhs' there
     // is not a value-element in 'rhs' having the same value, and vice-versa.
     // Note that this method requires that the (template parameter) type 'KEY'
     // and be 'equality-comparable' (see {Requirements on 'KEY'}).

@@ -968,6 +968,32 @@ class unordered_multimap {
         // object will be empty after this call, but allocated memory may be
         // retained for future use.
 
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      pair<iterator, iterator> >::type
+    equal_range(const LOOKUP_KEY& key)
+        // Return a pair of iterators providing modifiable access to the
+        // sequence of 'value_type' objects in this unordered multimap with a
+        // key equivalent to the specified 'key', where the first iterator is
+        // positioned at the start of the sequence, and the second is
+        // positioned one past the end of the sequence.  If this unordered
+        // multimap contains no 'value_type' objects with a key equivalent to
+        // 'key', then the two returned iterators will have the same value.
+        // The behavior is undefined unless 'key' is equivalent to the key of
+        // the elements of at most one equivalent-key group in this unordered
+        // multimap.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            typedef bsl::pair<iterator, iterator> ResultType;
+            HashTableLink *first;
+            HashTableLink *last;
+            d_impl.findRange(&first, &last, key);
+            return ResultType(iterator(first), iterator(last));
+        }
+
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this unordered multimap with a
@@ -1011,6 +1037,25 @@ class unordered_multimap {
         // unordered multimap or are the 'end' iterator, and the 'first'
         // position is at or before the 'last' position in the sequence
         // provided by this container.
+
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      iterator>::type
+    find(const LOOKUP_KEY& key)
+        // Return an iterator providing modifiable access to the first
+        // 'value_type' object in the sequence of all the 'value_type' objects
+        // of this unordered multimap with a key equivalent to the specified
+        // 'key', if such entries exist, and the past-the-end ('end') iterator
+        // otherwise.  The behavior is undefined unless 'key' is equivalent to
+        // the key of the elements of at most one equivalent-key group in this
+        // unordered multimap.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            return iterator(d_impl.find(key));
+        }
 
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the first
@@ -1274,15 +1319,90 @@ class unordered_multimap {
         // multimap to generate a hash value (of type 'size_type') for a
         // 'key_type' object.
 
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      const_iterator>::type
+    find(const LOOKUP_KEY& key) const
+        // Return an iterator providing modifiable access to the first
+        // 'value_type' object in this unordered multimap whose key is
+        // equivalent to the specified 'key', if such an entry exists, and the
+        // past-the-end ('end') iterator otherwise.  The behavior is undefined
+        // unless 'key' is equivalent to the key of the elements of at most one
+        // equivalent-key group in this unordered multimap.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            return const_iterator(d_impl.find(key));
+        }
+
     const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the sequence of 'value_type' objects of this
         // unordered multimap with a key equivalent to the specified 'key', if
         // such entries exist, and the past-the-end ('end') iterator otherwise.
 
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      size_type>::type
+    count(const LOOKUP_KEY& key) const
+        // Return the number of 'value_type' objects in this unordered multimap
+        // with a key equivalent to the specified 'key'.  The behavior is
+        // undefined unless 'key' is equivalent to the key of the elements of
+        // at most one equivalent-key group in this unordered multimap.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            typedef ::BloombergLP::bslalg::BidirectionalNode<value_type> BNode;
+
+            size_type result = 0;
+            for (HashTableLink *cursor = d_impl.find(key);
+                 cursor;
+                 ++result, cursor = cursor->nextLink())
+            {
+                BNode *cursorNode = static_cast<BNode *>(cursor);
+                if (!this->key_eq()(
+                         key,
+                         ListConfiguration::extractKey(cursorNode->value()))) {
+
+                    break;
+                }
+            }
+            return result;
+        }
+
     size_type count(const key_type& key) const;
         // Return the number of 'value_type' objects in this unordered multimap
         // with a key equivalent to the specified 'key'.
+
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      pair<const_iterator, const_iterator> >::type
+    equal_range(const LOOKUP_KEY& key) const
+        // Return a pair of iterators providing non-modifiable access to the
+        // sequence of 'value_type' objects in this unordered multimap with a
+        // key equivalent to the specified 'key', where the first iterator is
+        // positioned at the start of the sequence, and the second is
+        // positioned one past the end of the sequence.  If this unordered
+        // multimap contains no 'value_type' objects with a key equivalent to
+        // 'key', then the two returned iterators will have the same value.
+        // The behavior is undefined unless 'key' is equivalent to the key of
+        // the elements of at most one equivalent-key group in this unordered
+        // multimap.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            typedef bsl::pair<const_iterator, const_iterator> ResultType;
+            HashTableLink *first;
+            HashTableLink *last;
+            d_impl.findRange(&first, &last, key);
+            return ResultType(const_iterator(first), const_iterator(last));
+        }
 
     pair<const_iterator, const_iterator> equal_range(
                                                     const key_type& key) const;

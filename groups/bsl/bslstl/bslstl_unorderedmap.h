@@ -1472,6 +1472,23 @@ class unordered_map {
         // at or before the 'last' position in the iteration sequence provided
         // by this container.
 
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      iterator>::type
+    find(const LOOKUP_KEY& key)
+        // Return an iterator providing modifiable access to the 'value_type'
+        // object in this unordered map with a key equivalent to the specified
+        // 'key', if such an entry exists, and the past-the-end iterator
+        // ('end') otherwise.  The behavior is undefined unless 'key' is
+        // equivalent to the key of at most one element in this unordered map.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            return iterator(d_impl.find(key));
+        }
+
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the 'value_type'
         // object in this unordered map with a key equivalent to the specified
@@ -1624,6 +1641,33 @@ class unordered_map {
         // 'copy-constructible' (see {Requirements on 'value_type'}).
 #endif
 
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                       pair<iterator, iterator> >::type
+    equal_range(const LOOKUP_KEY& key)
+        // Return a pair of iterators providing modifiable access to the
+        // sequence of 'value_type' objects in this unordered map having the
+        // specified 'key', where the first iterator is positioned at the start
+        // of the sequence, and the second is positioned one past the end of
+        // the sequence.  If this unordered map contains no 'value_type' object
+        // having 'key', then the two returned iterators will have the same
+        // value, 'end()'.  The behavior is undefined unless 'key' is
+        // equivalent to at most one key in this unordered map.  Note that
+        // since an unordered map maintains unique keys, the range will contain
+        // at most one element.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            typedef bsl::pair<iterator, iterator> ResultType;
+
+            HashTableLink *first = d_impl.find(key);
+            return first
+                     ? ResultType(iterator(first), iterator(first->nextLink()))
+                     : ResultType(iterator(0),     iterator(0));
+        }
+
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this unordered map having the
@@ -1733,6 +1777,23 @@ class unordered_map {
         // unordered map.  The behavior is undefined unless
         // 'index < bucket_count()'.
 
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      size_type>::type
+    count(const LOOKUP_KEY& key) const
+        // Return the number of 'value_type' objects within this unordered map
+        // that have a key equivalent to the specified 'key'.  The behavior is
+        // undefined unless 'key' is equivalent to at most one key in this
+        // unordered map.  Note that since an unordered map maintains unique
+        // keys, the returned value will be either 0 or 1.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            return d_impl.find(key) != 0;
+        }
+
     size_type count(const key_type& key) const;
         // Return the number of 'value_type' objects contained within this
         // unordered map having the specified 'key'.  Note that since an
@@ -1742,6 +1803,33 @@ class unordered_map {
     bool empty() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this unordered map contains no elements, and
         // 'false' otherwise.
+
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      pair<const_iterator, const_iterator> >::type
+    equal_range(const LOOKUP_KEY& key) const
+        // Return a pair of iterators providing non-modifiable access to the
+        // sequence of 'value_type' objects in this unordered map with a key
+        // equivalent to specified 'key', where the first iterator is
+        // positioned at the start of the sequence, and the second is
+        // positioned one past the end of the sequence.  If this unordered map
+        // contains no 'value_type' objects having a key equivalent to 'key',
+        // then the two returned iterators will have the same value, 'end()'.
+        // The behavior is undefined unless 'key' is equivalent to at most one
+        // key in this unordered map.  Note that since an unordered map
+        // maintains unique keys, the range will contain at most one element.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            typedef bsl::pair<const_iterator, const_iterator> ResultType;
+
+            HashTableLink *first = d_impl.find(key);
+            return first
+                     ? ResultType(iterator(first), iterator(first->nextLink()))
+                     : ResultType(iterator(0),     iterator(0));
+        }
 
     pair<const_iterator, const_iterator> equal_range(
                                                     const key_type& key) const;
@@ -1753,6 +1841,23 @@ class unordered_map {
         // having 'key', then the two returned iterators will have the same
         // value, 'end()'.  Note that since an unordered map maintains unique
         // keys, the range will contain at most one element.
+
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      const_iterator>::type
+    find(const LOOKUP_KEY& key) const
+        // Return an iterator providing non-modifiable access to the
+        // 'value_type' object in this unordered map with a key equivalent to
+        // the specified 'key', if such an entry exists, and the past-the-end
+        // iterator ('end') otherwise.  The behavior is undefined unless 'key'
+        // is equivalent to at most one key in this unordered map.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            return const_iterator(d_impl.find(key));
+        }
 
     const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the
@@ -2538,9 +2643,8 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
     typedef bsl::pair<iterator, iterator> ResultType;
 
     HashTableLink *first = d_impl.find(key);
-    return first
-         ? ResultType(iterator(first), iterator(first->nextLink()))
-         : ResultType(iterator(0),     iterator(0));
+    return first ? ResultType(iterator(first), iterator(first->nextLink()))
+                 : ResultType(iterator(0),     iterator(0));
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -2712,7 +2816,6 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_size(
 
     return d_impl.countElementsInBucket(index);
 }
-
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline

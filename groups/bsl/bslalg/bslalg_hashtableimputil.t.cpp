@@ -52,6 +52,7 @@ using namespace BloombergLP::bslalg;
 // [10] remove(HashTableAnchor *a, BidirectionalLink *l, size_t  h);
 // [10] bucketContainsLink(const Bucket& b, BidirectionalLink *l);
 // [ 9] find(const HashTableAnchor& a, KeyType& key, comparator, size_t h);
+// [12] findTransparent(const HashTableAnchor& a, key, comparator, size_t h);
 // [ 8] rehash(  HashTableAnchor *a, BidirectionalLink *r, const HASHER& h);
 // [ 7] isWellFormed(const HashTableAnchor& anchor, bslma::Allocator *a = 0);
 // [ 6] insertAtPosition(Anchor *a, Link *l, size_t h, Link  *p);
@@ -253,6 +254,28 @@ struct Equals {
         return lhs == rhs;
     }
 };
+
+
+struct IntHolder {
+    // PUBLIC DATA
+    int d_value;
+
+    explicit IntHolder(int v) : d_value(v) {}
+};
+
+struct TransparentEquals {
+    typedef void is_transparent;
+
+    bool operator()(const int& lhs, const IntHolder& rhs) const
+    {
+        return lhs == rhs.d_value;
+    }
+    bool operator()(const IntHolder& lhs, const int& rhs) const
+    {
+        return lhs.d_value == rhs;
+    }
+};
+
 
 bool listMatches(Link *first,
                  Link *last,
@@ -676,7 +699,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -756,6 +779,120 @@ int main(int argc, char *argv[])
         ASSERT(0 == hs.count("ruff"));
         ASSERT(0 == hs.count("chomp"));
 //..
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'findTransparent'
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING 'findTransparent'\n"
+                            "=========================\n");
+
+        bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard defaultGuard(&da);
+
+        bslma::TestAllocator oa("objectAllocator", veryVeryVeryVerbose);
+
+        typedef BidirectionalNode<int> IntNode;
+        typedef TestSetKeyPolicy<int>  TestPolicy;
+        typedef NodeUtil<int>          IntNodeUtil;
+
+#define CREATE(octal) IntNode *node ## octal = IntNodeUtil::create(octal, &oa)
+
+        CREATE(000);
+        CREATE(010);
+        CREATE(020);
+        CREATE(030);
+
+        CREATE(004);
+        CREATE(014);
+        CREATE(024);
+        CREATE(034);
+
+        CREATE(001);
+        CREATE(011);
+
+        CREATE(002);
+        CREATE(012);
+        CREATE(022);
+        CREATE(032);
+
+#undef CREATE
+
+        Bucket buckets[8];
+        memset(buckets, 0, sizeof(buckets));
+
+        Anchor anchor(buckets, 2, 0);    const Anchor& ANCHOR = anchor;
+        Mod8Hasher hasher;
+
+        Obj::insertAtBackOfBucket(&anchor, node000, 0);
+        Obj::insertAtBackOfBucket(&anchor, node010, 0);
+        Obj::insertAtBackOfBucket(&anchor, node020, 0);
+        Obj::insertAtBackOfBucket(&anchor, node030, 0);
+
+        Obj::insertAtBackOfBucket(&anchor, node001, 1);
+        Obj::insertAtBackOfBucket(&anchor, node011, 1);
+
+        Obj::insertAtBackOfBucket(&anchor, node002, 0);
+        Obj::insertAtBackOfBucket(&anchor, node012, 0);
+        Obj::insertAtBackOfBucket(&anchor, node022, 0);
+        Obj::insertAtBackOfBucket(&anchor, node032, 0);
+
+        Obj::insertAtBackOfBucket(&anchor, node004, 0);
+        Obj::insertAtBackOfBucket(&anchor, node014, 0);
+        Obj::insertAtBackOfBucket(&anchor, node024, 0);
+        Obj::insertAtBackOfBucket(&anchor, node034, 0);
+
+        ASSERT(0 == node001->previousLink());
+        ASSERT(0 == node034->nextLink());
+        ASSERT(14 == countElements(node001, node034));
+        ASSERT(14 == countElements(anchor.listRootAddress()));
+
+        ASSERT(12 == buckets[0].countElements());
+        ASSERT(2  == buckets[1].countElements());
+
+        ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
+
+        ASSERT(node014 == (Obj::findTransparent<TestPolicy>(
+                                                           ANCHOR,
+                                                           IntHolder(014),
+                                                           TransparentEquals(),
+                                                           0)));
+
+        Link *links[035];
+        memset(links, 0, sizeof(links));
+
+        links[000] = node000;
+        links[010] = node010;
+        links[020] = node020;
+        links[030] = node030;
+
+        links[001] = node001;
+        links[011] = node011;
+
+        links[002] = node002;
+        links[012] = node012;
+        links[022] = node022;
+        links[032] = node032;
+
+        links[004] = node004;
+        links[014] = node014;
+        links[024] = node024;
+        links[034] = node034;
+
+        for (int i = 0; i < ARRAY_LENGTH(links); ++i) {
+            ASSERTV(i, links[i] == (Obj::findTransparent<TestPolicy>(
+                                                           ANCHOR,
+                                                           IntHolder(i),
+                                                           TransparentEquals(),
+                                                           i % 2)));
+        }
+
+        for (int i = 0; i < ARRAY_LENGTH(links); ++i) {
+            if (links[i]) {
+                oa.deallocate(links[i]);
+            }
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------

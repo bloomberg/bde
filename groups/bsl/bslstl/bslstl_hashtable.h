@@ -1517,9 +1517,11 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_addlvaluereference.h>
 #include <bslmf_assert.h>
 #include <bslmf_conditional.h>
+#include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isfunction.h>
 #include <bslmf_ispointer.h>
+#include <bslmf_istransparentpredicate.h>
 #include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
@@ -2890,6 +2892,27 @@ class HashTable {
         // Return the address of the first element in this hash table, or a
         // null pointer value if this hash table is empty.
 
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+                  bslalg::BidirectionalLink *>::type
+    find(const LOOKUP_KEY& key) const
+        // Return the address of a link whose key is equivalent to the
+        // specified 'key' (according to this hash-table's 'comparator'), and a
+        // null pointer value if no such link exists.  If this hash-table
+        // contains more than one element having the supplied 'key', return the
+        // first such element (from the contiguous sequence of elements having
+        // the same key).  The behavior is undefined unless 'key' is equivalent
+        // to the elements of at most one equivalent-key group.
+        {
+            return bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                             d_anchor,
+                                             key,
+                                             d_parameters.comparator(),
+                                             d_parameters.hashCodeForKey(key));
+        }
+
     bslalg::BidirectionalLink *find(const KeyType& key) const;
         // Return the address of a link whose key has the same value as the
         // specified 'key' (according to this hash-table's 'comparator'), and a
@@ -2904,9 +2927,39 @@ class HashTable {
         // having the same key as the specified 'first' node (according to this
         // hash-table's 'comparator'), and a null pointer value if all nodes
         // following 'first' hold values with the same key as 'first'.  The
-        // behavior is undefined unless 'first' is a link in this hash- table.
+        // behavior is undefined unless 'first' is a link in this hash-table.
         // Note that this hash-table ensures all elements having the same key
         // form a contiguous sequence.
+
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+                   void>::type
+    findRange(bslalg::BidirectionalLink **first,
+              bslalg::BidirectionalLink **last,
+              const LOOKUP_KEY&           key) const
+        // Load into the specified 'first' and 'last' pointers the respective
+        // addresses of the first and last link (in the list of elements owned
+        // by this hash table) where the contained elements have a key that is
+        // equivalent to the specified 'key' using the 'comparator' of this
+        // hash-table, and null pointer values if there are no elements
+        // matching 'key'.  The behavior is undefined unless 'key' is
+        // equivalent to the elements of at most one equivalent-key group.
+        // Note that the output values will form a closed range, where both
+        // 'first' and 'last' point to links satisfying the predicate (rather
+        // than a semi-open range where 'last' would point to the element
+        // following the range).  Also note that this hash-table ensures all
+        // elements having the same key form a contiguous sequence.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+        {
+            BSLS_ASSERT_SAFE(first);
+            BSLS_ASSERT_SAFE(last);
+
+            *first = this->find(key);
+            *last  = *first ? this->findEndOfRange(*first) : 0;
+        }
 
     void findRange(bslalg::BidirectionalLink **first,
                    bslalg::BidirectionalLink **last,
@@ -2915,7 +2968,7 @@ class HashTable {
         // addresses of the first and last link (in the list of elements owned
         // by this hash table) where the contained elements have a key that
         // compares equal to the specified 'key' using the 'comparator' of this
-        // hash-table, and null pointers values if there are no elements
+        // hash-table, and null pointer values if there are no elements
         // matching 'key'.  Note that the output values will form a closed
         // range, where both 'first' and 'last' point to links satisfying the
         // predicate (rather than a semi-open range where 'last' would point to
@@ -7020,7 +7073,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findEndOfRange(
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 void
-HashTable< KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findRange(
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findRange(
                                          bslalg::BidirectionalLink **first,
                                          bslalg::BidirectionalLink **last,
                                          const KeyType&              key) const
@@ -7029,9 +7082,7 @@ HashTable< KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findRange(
     BSLS_ASSERT_SAFE(last);
 
     *first = this->find(key);
-    *last  = *first
-           ? this->findEndOfRange(*first)
-           : 0;
+    *last  = *first ? this->findEndOfRange(*first) : 0;
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
