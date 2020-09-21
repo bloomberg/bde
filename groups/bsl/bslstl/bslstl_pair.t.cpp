@@ -178,7 +178,6 @@ using bsls::NameOf;
 // [15] tuple_element<>::type& get<INDEX, T1, T2>(bsl::pair<T1, T2>& p)
 // [15] tuple_element<>::type& get<TYPE, T1, T2>(bsl::pair<T1, T2>& p)
 // [17] template <class U1, class U2> operator std::tuple<U1&, U2&>()
-// [26] template <class U1, class U2> pair(U1&& a, U2&& b);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [27] USAGE EXAMPLE
@@ -2498,12 +2497,15 @@ class ManagedWrapper {
 class NonCopyable131875306 {
 private:
     int d_val;
-    NonCopyable131875306 (const NonCopyable131875306 &rhs)
-        : d_val(rhs.d_val) {}
+    NonCopyable131875306 (const NonCopyable131875306 &rhs);
         // Assign to this object the value of the specified 'rhs' object.
+
 public:
     explicit NonCopyable131875306(int i) : d_val(i) {}
         // Construct an object containing a copy of the specified int 'i'
+
+    int get () const { return d_val; }
+        // return the contained value
 };
 
 //=============================================================================
@@ -5634,17 +5636,21 @@ int main(int argc, char *argv[])
         //:   should a further regression introduce a similar problem.
         //
         // Testing:
-        //  1 Concern: can construct pair of objects that are not copyable
+        //: 1 Concern: can construct pair of objects that are not copyable
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING FIX FOR DRQS 131875306"
                             "\n==============================\n");
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        typedef bsl::pair<int, NonCopyable131875306> Obj;
-        Obj o(1,2);
-            // This would fail to compile, reporting an attempt to access
+        bsl::pair<NonCopyable131875306, int> o1(1,2);
+        bsl::pair<int, NonCopyable131875306> o2(1,2);
+            // These would fail to compile, reporting an attempt to access
             // private constructors prior to applying the patch for the ticket
             // above.
+        ASSERT(1 == o1.first.get());
+        ASSERT(2 == o1.second);
+        ASSERT(1 == o2.first);
+        ASSERT(2 == o2.second.get());
 #endif
       } break;
       case 25: {
