@@ -2497,8 +2497,9 @@ class ManagedWrapper {
 class NonCopyable131875306 {
 private:
     int d_val;
+
+    // NOT IMPLEMENTED
     NonCopyable131875306 (const NonCopyable131875306 &rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 public:
     explicit NonCopyable131875306(int i) : d_val(i) {}
@@ -5636,7 +5637,7 @@ int main(int argc, char *argv[])
         //:   should a further regression introduce a similar problem.
         //
         // Testing:
-        //: 1 Concern: can construct pair of objects that are not copyable
+        //   Concern: can construct pair of objects that are not copyable
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING FIX FOR DRQS 131875306"
