@@ -512,35 +512,57 @@ int main(int argc, char *argv[])
             bool d_success;
             const char *d_extension;
         } DATA [] = {
-            // 1. Relative and absolute paths
-            {L_, "hello.txt", 0, true, ".txt"},
-            {L_, "hello", 0, false, ""},
-            {L_, "/a/b/c.txt", 1, true, ".txt"},
-            {L_, "/a/b/c", 1, false, ""},
-            // 2. Empty path
-            {L_, "", 0, false, ""},
-            // 3. Paths with multiple dots
-            {L_, "/a.c/b.d/aa.jpg.txt", 1, true, ".txt"},
-            {L_, "a/b/./d.dd/c.txt", 0, true, ".txt"},
-            {L_, "/a/b.c.d.e.a.m.cpp", 1, true, ".cpp"},
-            // 4. "." and ".."
-            {L_, "a/..", 0, false, ""},
-            {L_, ".", 0, false, ""},
-            {L_, "/a/b.txt/.", 0, false, ""},
-            {L_, "/a.txt/b.txt/..", 0, false, ""},
-            // 5. First '.' is ignored
-            {L_, ".profile", 0, false, ""},
-            {L_, ".profile.backup", 0, true, ".backup"},
-            {L_, "/a/.txt", 1, false, ""},
-            // 6. Dots in parent directories
-            {L_, "/a/b.c/a", 1, false, ""},
-            {L_, "a.txt/b", 0, false, ""},
-            // 7. Consistency with 'getLeaf'
-            {L_, "/a.txt/", 1, true, ".txt"},
-            {L_, "a.exe/", 0, true, ".exe"},
-            // 8. Empty extensions
-            {L_, "hello.", 0, true, "."},
-            {L_, "/a/b/c/d.", 1, true, "."}
+// 1. Relative and absolute paths
+{L_, "hello.txt",           0, true,  ".txt"   },
+{L_, "hello",               0, false, ""       },
+{L_, "/a/b/c.txt",          1, true,  ".txt"   },
+{L_, "/a/b/c",              1, false, ""       },
+// 2. Empty path
+{L_, "",                    0, false, ""       },
+// 3. Paths with multiple dots
+{L_, "/a.c/b.d/aa.jpg.txt", 1, true,  ".txt"   },
+{L_, "a/b/./d.dd/c.txt",    0, true,  ".txt"   },
+{L_, "/a/b.c.d.e.a.m.cpp",  1, true,  ".cpp"   },
+// 4. "." and ".."
+{L_, "a/..",                0, false, ""       },
+{L_, ".",                   0, false, ""       },
+{L_, "/a/b.txt/.",          0, false, ""       },
+{L_, "/a.txt/b.txt/..",     0, false, ""       },
+// 5. First '.' is ignored
+{L_, ".profile",            0, false, ""       },
+{L_, ".profile.backup",     0, true,  ".backup"},
+{L_, "/a/.txt",             1, false, ""       },
+// 6. Dots in parent directories
+{L_, "/a/b.c/a",            1, false, ""       },
+{L_, "a.txt/b",             0, false, ""       },
+// 7. Consistency with 'getLeaf'
+{L_, "/a.txt/",             1, true,  ".txt"   },
+{L_, "a.exe/",              0, true,  ".exe"   },
+// 8. Empty extensions
+{L_, "hello.",              0, true,  "."      },
+{L_, "/a/b/c/d.",           1, true,  "."      },
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+// 1. [Windows] Relative and absolute paths
+{L_, "c:\\\\b\\a.txt",      3, true,  ".txt"   },
+{L_, "\\\\serv\\c",         7, false, ""       },
+// 3. [Windows] Paths with multiple dots
+{L_, "\\\\a.txt",           8, false, ""       },
+{L_, "c:\\\\a.b\\b.txt",    3, true,  ".txt"   },
+// 4. [Windows] "." and ".."
+{L_, "a\\..",               0, false, ""       },
+{L_, "c:\\\\a.txt\\.",      3, false, ""       },
+{L_, "c:\\\\a.txt\\..",     3, false, ""       },
+// 5. [Windows] First '.' is ignored
+{L_, "d:\\\\b\\.txt",       3, false, ""       },
+// 6. [Windows] Dots in parent directories
+{L_, "\\\\a\\b.c\\a",       4, false, ""       },
+{L_, "a.txt\\b",            0, false, ""       },
+// 7. [Windows] Consistency with 'getLeaf'
+{L_, "c:\\\\a.txt\\",       3, true,  ".txt"   },
+{L_, "a.exe\\",             0, true,  ".exe"   },
+// 8. [Windows] Empty extensions
+{L_, "\\\\a\\b\\c\\d.",     4, true,  "."      }
+#endif
         };
 
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
