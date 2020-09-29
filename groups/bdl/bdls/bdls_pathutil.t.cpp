@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch(test) { case 0:
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -454,6 +454,146 @@ int main(int argc, char *argv[])
     #endif
 //..
       } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING: 'getExtension'
+        //
+        // Concerns:
+        //: 1 The 'getExtension' method accepts absolute and relative paths.
+        //:
+        //: 2 The 'getExtension' method accepts empty paths and returns an
+        //:   empty extension in that case.
+        //:
+        //: 3 The 'getExtension' method is able to find the extension even
+        //:   in filenames that contain multiple dots.
+        //:
+        //: 4 The 'getExtension' method does not find extensions in the special
+        //:   files '.' and '..'
+        //:
+        //: 5 In the case that the leaf of the path begins with a dot ('.'),
+        //:   it is ignored as a character for considering what the path is.
+        //:
+        //: 6 The 'getExtension' method is not tricked by dots in the
+        //:     directory names containing the path
+        //:
+        //: 7 The 'getExtension' method behaviour is consistent with that of
+        //:   the 'getLeaf' method ("a.txt/" *has* an extension)
+        //:
+        //: 8 The 'getExtension' method correctly identifies empty extensions
+        //:
+        //: 9 Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create a table of test input values and expected results
+        //:
+        //: 2 Iterate over this table verifying that 'getExtension' produces
+        //:   the expected results with
+        //:     - the explicit negative value of the 'rootEnd'
+        //:     - the default value of the 'rootEnd'
+        //:     - the explicit correct value of the 'rootEnd
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones.  (C-9)
+        //
+        // Testing:
+        //   void getExtension(bsl::string*, const StringRef&, int);
+        // --------------------------------------------------------------------
+        
+        if (verbose) {
+            cout << "TESTING: getExtension" << endl
+                 << "=====================" << endl;
+        }
+
+        static const struct {
+            int d_line;
+            const char* d_path;
+            int d_root;
+            bool d_success;
+            const char *d_extension;
+        } DATA [] = {
+// 1. Relative and absolute paths
+{L_, "hello.txt",           0, true,  ".txt"   },
+{L_, "hello",               0, false, ""       },
+{L_, "/a/b/c.txt",          1, true,  ".txt"   },
+{L_, "/a/b/c",              1, false, ""       },
+// 2. Empty path
+{L_, "",                    0, false, ""       },
+// 3. Paths with multiple dots
+{L_, "/a.c/b.d/aa.jpg.txt", 1, true,  ".txt"   },
+{L_, "a/b/./d.dd/c.txt",    0, true,  ".txt"   },
+{L_, "/a/b.c.d.e.a.m.cpp",  1, true,  ".cpp"   },
+// 4. "." and ".."
+{L_, "a/..",                0, false, ""       },
+{L_, ".",                   0, false, ""       },
+{L_, "/a/b.txt/.",          0, false, ""       },
+{L_, "/a.txt/b.txt/..",     0, false, ""       },
+// 5. First '.' is ignored
+{L_, ".profile",            0, false, ""       },
+{L_, ".profile.backup",     0, true,  ".backup"},
+{L_, "/a/.txt",             1, false, ""       },
+// 6. Dots in parent directories
+{L_, "/a/b.c/a",            1, false, ""       },
+{L_, "a.txt/b",             0, false, ""       },
+// 7. Consistency with 'getLeaf'
+{L_, "/a.txt/",             1, true,  ".txt"   },
+{L_, "a.exe/",              0, true,  ".exe"   },
+// 8. Empty extensions
+{L_, "hello.",              0, true,  "."      },
+{L_, "/a/b/c/d.",           1, true,  "."      },
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+// 1. [Windows] Relative and absolute paths
+{L_, "c:\\\\b\\a.txt",      3, true,  ".txt"   },
+{L_, "\\\\serv\\c",         7, false, ""       },
+// 3. [Windows] Paths with multiple dots
+{L_, "\\\\a.txt",           8, false, ""       },
+{L_, "c:\\\\a.b\\b.txt",    3, true,  ".txt"   },
+// 4. [Windows] "." and ".."
+{L_, "a\\..",               0, false, ""       },
+{L_, "c:\\\\a.txt\\.",      3, false, ""       },
+{L_, "c:\\\\a.txt\\..",     3, false, ""       },
+// 5. [Windows] First '.' is ignored
+{L_, "d:\\\\b\\.txt",       3, false, ""       },
+// 6. [Windows] Dots in parent directories
+{L_, "\\\\a\\b.c\\a",       4, false, ""       },
+{L_, "a.txt\\b",            0, false, ""       },
+// 7. [Windows] Consistency with 'getLeaf'
+{L_, "c:\\\\a.txt\\",       3, true,  ".txt"   },
+{L_, "a.exe\\",             0, true,  ".exe"   },
+// 8. [Windows] Empty extensions
+{L_, "\\\\a\\b\\c\\d.",     4, true,  "."      }
+#endif
+        };
+
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (size_t i = 0; i < NUM_DATA; ++i) {
+            const int               LINE      = DATA[i].d_line;
+            const bslstl::StringRef PATH      = DATA[i].d_path;
+            const int               ROOT      = DATA[i].d_root;
+            const bool              SUCCESS   = DATA[i].d_success;
+            const bslstl::StringRef EXTENSION = DATA[i].d_extension;
+
+            // Explicit negative 'rootEnd'
+            bsl::string extension;
+            int result = bdls::PathUtil::getExtension(&extension, DATA[i].d_path, -1);
+            ASSERTV(LINE, SUCCESS, result == 0, SUCCESS == (result == 0));
+            ASSERTV(LINE, EXTENSION, extension, EXTENSION == extension);
+
+            // Implicit negative 'rootEnd' (default value)
+            extension.clear();
+            result = bdls::PathUtil::getExtension(&extension, DATA[i].d_path);
+            ASSERTV(LINE, SUCCESS, result == 0, SUCCESS == (result == 0));
+            ASSERTV(LINE, EXTENSION, extension, EXTENSION == extension);
+
+            // Explicit non-negative 'rootEnd'
+            extension.clear();
+            result = bdls::PathUtil::getExtension(&extension, DATA[i].d_path, ROOT);
+            ASSERTV(LINE, SUCCESS, result == 0, SUCCESS == (result == 0));
+            ASSERTV(LINE, EXTENSION, extension, EXTENSION == extension);
+        }
+
+    }; break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING: 'splitFilename'

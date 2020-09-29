@@ -360,6 +360,32 @@ int PathUtil::getLeaf(bsl::string              *leaf,
     return 0;
 }
 
+int PathUtil::getExtension(bsl::string             *extension,
+                           const bslstl::StringRef& path,
+                           int                      rootEnd)
+{
+    BSLS_ASSERT(extension);
+    bsl::string leaf;
+    int hasLeaf = PathUtil::getLeaf(&leaf, path, rootEnd);
+    
+    if (hasLeaf != 0) {
+        return -1;                                                        // RETURN
+    }
+
+    if (leaf == "." || leaf == "..") {
+        return -1;                                                        // RETURN
+    }
+
+    bsl::size_t lastDotIndex = leaf.find_last_of(".");
+
+    if (lastDotIndex == 0 || lastDotIndex == bsl::string::npos) {
+        return -1;                                                        // RETURN
+    }
+
+    extension->assign(&leaf[lastDotIndex], leaf.size() - lastDotIndex);
+    return 0;                                                             // RETURN
+}
+
 int PathUtil::getDirname(bsl::string              *dirname,
                          const bslstl::StringRef&  path,
                          int                       rootEnd)

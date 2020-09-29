@@ -48,6 +48,7 @@ BSLS_IDENT("$Id: $")
 //            Path: "/foo/bar/myfile.txt"
 //            Root: "/"                       # the starting separator(s)
 //  Leaf(Basename): "myfile.txt"
+//       Extension: ".txt"
 //         Dirname: "/foo/bar/"
 //..
 //
@@ -117,6 +118,33 @@ BSLS_IDENT("$Id: $")
 //  "/tmp/foo/"                     "foo"
 //  "/tmp/"                         "tmp"
 //  "/"                             Not Present
+//..
+//
+///Extension
+///- - - - - - 
+// An extension is a suffix of a leaf that begins with a dot and that does
+// not contain additional dots. There are a few caveats. The special leaf
+// names "." and ".." are considered to not have extensions. Furthermore,
+// if a leaf's name begins with a dot, such dot is not considered when
+// determining the extension. For example, the leaf ".bashrc" does not have
+// an extension, but ".bbprofile.log" does, and its extension is ".log".
+// We will say that a path has an extension if it has a leaf and its leaf
+// has an extension. Note that for consistency reasons, our implementation
+// differs from other standard implementations in the same way 'getLeaf'
+// does: the path "/foo/bar.txt/" is considered to have an extension and
+// its extension is ".txt". Examples:
+//..
+//  Path                            Extension
+//  ----                            -------
+//  "/tmp/foo/bar.txt"              ".txt"
+//  "/tmp/foo/bar"                  Not Present
+//  "/tmp/foo/bar.longextension"    ".longextension"
+//  "/a/b.txt/"                     ".txt"
+//  "/a/b.txt/."                    Not present
+//  "/a.txt/b.txt/.."               Not present
+//  "/a/.profile"                   Not present
+//  "/a/.profile.backup"            ".backup"
+//  "foo.txt"                       ".txt"
 //..
 //
 ///Dirname
@@ -347,6 +375,17 @@ struct PathUtil {
         // leaf.  Note that 'getBasename' is a synonym for 'getLeaf'.  See
         // {Parsing and Performance ('rootEn'd argument)}.  See also
         // {Terminology} for the definition of leaf and root.
+
+    static int getExtension(bsl::string             *extension,
+                            const bslstl::StringRef& path,
+                            int                      rootEnd = -1);
+        // Load into the specified 'extension' the extension of 'path'.
+        // If the optionally specified 'rootEnd' offset is non-negative,
+        // it is taken as the position in 'path' of the character
+        // following the root. Return 0 if the path has an extension,
+        // and a non-zero value otherwise. See {Parsing and Performance
+        // ('rootEnd' argument)}.  See also {Terminology} for the definitions
+        // of extension and root.
 
     static int getRoot(bsl::string              *root,
                        const bslstl::StringRef&  path,
