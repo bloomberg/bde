@@ -24,7 +24,12 @@ BSLS_IDENT("$Id$ $CSID$")
 // if that JSON string were decoded back into a 'Datum' object, the resulting
 // 'Datum' would not be equal to the original value.  For example, a 'Datum'
 // containing an integer would be encoded into a JSON number, and then decoded
-// back into a 'Datum' using 'double' to represent that number.
+// back into a 'Datum' using 'double' to represent that number.  Note that
+// 'DatumUtil' uses a *more permissive* parser for numerical values than the
+// strict JSON standard specifies.  In particular, it is possible to parse
+// 'NaN', 'Inf', or 'Infinity' into the corresponding 'double' values even
+// though the JSON standard does not permit this, so applications should be
+// ready to handle these kinds of values.
 //
 // Clients wishing to ensure that encoding and then decoding results in a
 // 'Datum' equal to the original value should use only 'Datum' types natively

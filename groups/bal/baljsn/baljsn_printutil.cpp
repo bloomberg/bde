@@ -131,7 +131,6 @@ int PrintUtil::printString(bsl::ostream&            stream,
           }
         }
         ++iter;
-
     }
 
     stream.write(currentStart, end - currentStart);

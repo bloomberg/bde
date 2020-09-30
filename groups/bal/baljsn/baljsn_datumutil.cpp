@@ -4,24 +4,30 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <baljsn_parserutil.h>
 #include <baljsn_simpleformatter.h>
 #include <baljsn_tokenizer.h>
 
 #include <bdlb_chartype.h>
 #include <bdlb_numericparseutil.h>
+
 #include <bdld_datum.h>
 #include <bdld_datumarraybuilder.h>
 #include <bdld_datummapowningkeysbuilder.h>
 #include <bdld_manageddatum.h>
+
 #include <bdlde_utf8util.h>
+
 #include <bdlma_bufferedsequentialallocator.h>
+
 #include <bdlsb_memoutstreambuf.h>
+
+#include <bsls_alignedbuffer.h>
 
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 #include <bsl_string.h>
 #include <bsl_unordered_set.h>
-#include <bsls_alignedbuffer.h>
 
 namespace BloombergLP {
 namespace baljsn {
@@ -166,122 +172,6 @@ static int decodeArray(bdld::ManagedDatum *result,
     return 0;
 }
 
-static int extractString(bsl::string       *stringValue,
-                         bslstl::StringRef  readBuffer)
-    // Extract into the specified '*stringValue' the interpreted value of the
-    // string in the specified 'readBuffer'.
-{
-    bsl::size_t cursor = 0;
-    if ('"' != readBuffer[cursor]) {
-        return -1;                                                    // RETURN
-    }
-    else {
-        ++cursor;
-    }
-
-    bool finished        = false;
-    bool isEscapedChar   = false;
-    bool isUnicodeEscape = false;
-    int  unicodeValue    = 0;
-    char unicodePos      = 0;
-
-    while (!finished) {
-        const bsl::size_t readSize = readBuffer.size();
-
-        while (!finished && cursor < readSize) {
-            const char currentChar = readBuffer[cursor];
-
-            if (isUnicodeEscape) {
-                if (currentChar >= '0' && currentChar <= '9') {
-                    unicodeValue = (16 * unicodeValue) + (currentChar - '0');
-                }
-                else if (currentChar >= 'A' && currentChar <= 'F') {
-                    unicodeValue =
-                                (16 * unicodeValue) + (10 + currentChar - 'A');
-                }
-                else if (currentChar >= 'a' && currentChar <= 'f') {
-                    unicodeValue =
-                                (16 * unicodeValue) + (10 + currentChar - 'a');
-                }
-                else {
-                    // Invalid unicode escape sequence
-                    return -1;                                        // RETURN
-                }
-
-                ++unicodePos;
-
-                if (4 == unicodePos) {
-                    isUnicodeEscape = false;
-                    int rc          = bdlde::Utf8Util::appendUtf8Character(
-                                 stringValue, unicodeValue);
-                    if (0 != rc) {
-                        // Invalid UTF8 sequence
-                        return -1;                                    // RETURN
-                    }
-                }
-            }
-            else if (isEscapedChar) {
-                isEscapedChar = false;
-
-                switch (currentChar) {
-                  case '"':   // FALL THROUGH
-                  case '\\':  // FALL THROUGH
-                  case '/':
-                    stringValue->push_back(currentChar);
-                    break;
-                  case 'b':
-                    stringValue->push_back('\b');
-                    break;
-                  case 'f':
-                    stringValue->push_back('\f');
-                    break;
-                  case 'n':
-                    stringValue->push_back('\n');
-                    break;
-                  case 'r':
-                    stringValue->push_back('\r');
-                    break;
-                  case 't':
-                    stringValue->push_back('\t');
-                    break;
-                  case 'u':
-                    isUnicodeEscape = true;
-                    unicodeValue    = 0;
-                    unicodePos      = 0;
-                    break;
-                  default:
-                    // Invalid escape sequence
-                    return -1;                                        // RETURN
-                }
-            }
-            else if ('\\' == currentChar) {
-                isEscapedChar = true;
-            }
-            else if ('"' == currentChar) {
-                finished = true;
-            }
-            else {
-                if (bdlb::CharType::isCntrl(currentChar)) {
-                    // un-escaped control sequence
-                    return -1;                                        // RETURN
-                }
-
-                stringValue->push_back(currentChar);
-            }
-
-            ++cursor;
-        }
-
-        // If we have no data, bail out
-        if (!finished && cursor >= readBuffer.length()) {
-            // Run out of data
-            return -1;                                                // RETURN
-        }
-    }
-
-    return 0;
-}
-
 static int extractValue(bdld::ManagedDatum *result,
                         baljsn::Tokenizer  *tokenizer)
     // Extract into the specified '*result' the current value in the specified
@@ -303,8 +193,11 @@ static int extractValue(bdld::ManagedDatum *result,
     if ('"' == value[0]) {
         bsl::string str(result->allocator());
 
-        if (0 == extractString(&str, value)) {
+        if (0 == ParserUtil::getValue(&str, value)) {
             result->adopt(bdld::Datum::copyString(str, result->allocator()));
+        }
+        else {
+            return -1;                                                // RETURN
         }
 
         return 0;                                                     // RETURN
@@ -450,8 +343,12 @@ static int encodeValue(SimpleFormatter    *formatter,
         result = 0;
       } break;
       case bdld::Datum::e_STRING: {
-        formatter->addValue(datum.theString());
-        result = 0;
+        if (0 != formatter->addValue(datum.theString())) {
+            result = -1;
+        }
+        else {
+            result = 0;
+        }
       } break;
       case bdld::Datum::e_BOOLEAN: {
         formatter->addValue(datum.theBoolean());
@@ -516,6 +413,7 @@ int DatumUtil::decode(bdld::ManagedDatum         *result,
         buffer.buffer(), sizeof(buffer));
 
     baljsn::Tokenizer tokenizer(&bsa);
+    tokenizer.setAllowNonUTF8Tokens(false);
     tokenizer.reset(jsonBuffer);
 
     // Advance from e_BEGIN

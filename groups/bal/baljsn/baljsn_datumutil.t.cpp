@@ -10,6 +10,8 @@
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_ostream.h>
+#include <bsl_string.h>
+#include <bsl_unordered_set.h>
 
 #include <bslim_testutil.h>
 
@@ -21,6 +23,7 @@
 #include <bsls_alignedbuffer.h>
 #include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bdld_datum.h>
@@ -257,7 +260,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocatorMonitor gam(&ga);
 
     switch (test) { case 0:
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -456,6 +459,1198 @@ int main(int argc, char *argv[])
 // Notice that the 'type' of "age" is 'double', since "age" was encoded as a
 // number, and 'double' is the supported representation of a JSON number (see
 // {'Supported Types'}).
+      } break;
+      case 7: {
+        //---------------------------------------------------------------------
+        // JSON VALIDATION SUITE TEST
+        //   This case tests that the 'decode' methods give correct results
+        //   on the JSON validation suite at
+        //   https://github.com/nst/JSONTestSuite.
+        //
+        // Concerns:
+        //: 1 The 'decode' method returns the expected result for the
+        //:   validation suite entries.
+        //
+        // Plan:
+        //: 1 'decode' all the validation suite strings into 'Datum's, and
+        //:   compare the return code with the source string validity.
+        //
+        // Testing:
+        //---------------------------------------------------------------------
+
+
+        // Test data generated from https://github.com/nst/JSONTestSuite (MIT
+        // License)
+        // Generation done by the
+        // https://bbgithub.dev.bloomberg.com/mgiroux/JSONTestSuite fork's
+        // `cpp-test-data-converter.pl` script.
+        struct {
+            int         d_line;
+            const char *d_testName;        // name of the test file
+            const char *d_JSON;            // JSON contents of the test
+            bool        d_isValid;         // 'true' if d_JSON is valid JSON
+        } DATA[] = {
+            { L_, "n_array_1_true_without_comma.json",
+              "[1 true]",
+              false }
+          , { L_, "n_array_a_invalid_utf8.json",
+              "[a\345]",
+              false }
+          , { L_, "n_array_colon_instead_of_comma.json",
+              "[\"\": 1]",
+              false }
+          , { L_, "n_array_comma_after_close.json",
+              "[\"\"],",
+              false }
+          , { L_, "n_array_comma_and_number.json",
+              "[,1]",
+              false }
+          , { L_, "n_array_double_comma.json",
+              "[1,,2]",
+              false }
+          , { L_, "n_array_double_extra_comma.json",
+              "[\"x\",,]",
+              false }
+          , { L_, "n_array_extra_close.json",
+              "[\"x\"]]",
+              false }
+          , { L_, "n_array_extra_comma.json",
+              "[\"\",]",
+              false }
+          , { L_, "n_array_incomplete.json",
+              "[\"x\"",
+              false }
+          , { L_, "n_array_incomplete_invalid_value.json",
+              "[x",
+              false }
+          , { L_, "n_array_inner_array_no_comma.json",
+              "[3[4]]",
+              false }
+          , { L_, "n_array_invalid_utf8.json",
+              "[\377]",
+              false }
+          , { L_, "n_array_items_separated_by_semicolon.json",
+              "[1:2]",
+              false }
+          , { L_, "n_array_just_comma.json",
+              "[,]",
+              false }
+          , { L_, "n_array_just_minus.json",
+              "[-]",
+              false }
+          , { L_, "n_array_missing_value.json",
+              "[   , \"\"]",
+              false }
+          , { L_, "n_array_newlines_unclosed.json",
+              "[\"a\","
+              "4"
+              ",1,",
+              false }
+          , { L_, "n_array_number_and_comma.json",
+              "[1,]",
+              false }
+          , { L_, "n_array_number_and_several_commas.json",
+              "[1,,]",
+              false }
+          , { L_, "n_array_spaces_vertical_tab_formfeed.json",
+              "[\"\013a\"\\f]",
+              false }
+          , { L_, "n_array_star_inside.json",
+              "[*]",
+              false }
+          , { L_, "n_array_unclosed.json",
+              "[\"\"",
+              false }
+          , { L_, "n_array_unclosed_trailing_comma.json",
+              "[1,",
+              false }
+          , { L_, "n_array_unclosed_with_new_lines.json",
+              "[1,"
+              "1"
+              ",1",
+              false }
+          , { L_, "n_array_unclosed_with_object_inside.json",
+              "[{}",
+              false }
+          , { L_, "n_incomplete_false.json",
+              "[fals]",
+              false }
+          , { L_, "n_incomplete_null.json",
+              "[nul]",
+              false }
+          , { L_, "n_incomplete_true.json",
+              "[tru]",
+              false }
+          , { L_, "n_multidigit_number_then_00.json",
+              "123\000",
+              false }
+          , { L_, "n_number_++.json",
+              "[++1234]",
+              false }
+          , { L_, "n_number_+1.json",
+              "[+1]",
+              false }
+          , { L_, "n_number_+Inf.json",
+              "[+Inf]",
+              false }
+          , { L_, "n_number_-01.json",
+              "[-01]",
+              false }
+          , { L_, "n_number_-1.0..json",
+              "[-1.0.]",
+              false }
+          , { L_, "n_number_-2..json",
+              "[-2.]",
+              false }
+          , { L_, "n_number_-NaN.json",
+              "[-NaN]",
+              false }
+          , { L_, "n_number_.-1.json",
+              "[.-1]",
+              false }
+          , { L_, "n_number_.2e-3.json",
+              "[.2e-3]",
+              false }
+          , { L_, "n_number_0.1.2.json",
+              "[0.1.2]",
+              false }
+          , { L_, "n_number_0.3e+.json",
+              "[0.3e+]",
+              false }
+          , { L_, "n_number_0.3e.json",
+              "[0.3e]",
+              false }
+          , { L_, "n_number_0.e1.json",
+              "[0.e1]",
+              false }
+          , { L_, "n_number_0_capital_E+.json",
+              "[0E+]",
+              false }
+          , { L_, "n_number_0_capital_E.json",
+              "[0E]",
+              false }
+          , { L_, "n_number_0e+.json",
+              "[0e+]",
+              false }
+          , { L_, "n_number_0e.json",
+              "[0e]",
+              false }
+          , { L_, "n_number_1.0e+.json",
+              "[1.0e+]",
+              false }
+          , { L_, "n_number_1.0e-.json",
+              "[1.0e-]",
+              false }
+          , { L_, "n_number_1.0e.json",
+              "[1.0e]",
+              false }
+          , { L_, "n_number_1_000.json",
+              "[1 000.0]",
+              false }
+          , { L_, "n_number_1eE2.json",
+              "[1eE2]",
+              false }
+          , { L_, "n_number_2.e+3.json",
+              "[2.e+3]",
+              false }
+          , { L_, "n_number_2.e-3.json",
+              "[2.e-3]",
+              false }
+          , { L_, "n_number_2.e3.json",
+              "[2.e3]",
+              false }
+          , { L_, "n_number_9.e+.json",
+              "[9.e+]",
+              false }
+          , { L_, "n_number_expression.json",
+              "[1+2]",
+              false }
+          , { L_, "n_number_hex_1_digit.json",
+              "[0x1]",
+              false }
+          , { L_, "n_number_hex_2_digits.json",
+              "[0x42]",
+              false }
+          , { L_, "n_number_Inf.json",
+              "[Inf]",
+              false }
+          , { L_, "n_number_infinity.json",
+              "[Infinity]",
+              false }
+          , { L_, "n_number_invalid+-.json",
+              "[0e+-1]",
+              false }
+          , { L_, "n_number_invalid-negative-real.json",
+              "[-123.123foo]",
+              false }
+          , { L_, "n_number_invalid-utf-8-in-bigger-int.json",
+              "[123\345]",
+              false }
+          , { L_, "n_number_invalid-utf-8-in-exponent.json",
+              "[1e1\345]",
+              false }
+          , { L_, "n_number_invalid-utf-8-in-int.json",
+              "[0\345]",
+              false }
+          , { L_, "n_number_minus_infinity.json",
+              "[-Infinity]",
+              false }
+          , { L_, "n_number_minus_sign_with_trailing_garbage.json",
+              "[-foo]",
+              false }
+          , { L_, "n_number_minus_space_1.json",
+              "[- 1]",
+              false }
+          , { L_, "n_number_NaN.json",
+              "[NaN]",
+              false }
+          , { L_, "n_number_neg_int_starting_with_zero.json",
+              "[-012]",
+              false }
+          , { L_, "n_number_neg_real_without_int_part.json",
+              "[-.123]",
+              false }
+          , { L_, "n_number_neg_with_garbage_at_end.json",
+              "[-1x]",
+              false }
+          , { L_, "n_number_real_garbage_after_e.json",
+              "[1ea]",
+              false }
+          , { L_, "n_number_real_with_invalid_utf8_after_e.json",
+              "[1e\345]",
+              false }
+          , { L_, "n_number_real_without_fractional_part.json",
+              "[1.]",
+              false }
+          , { L_, "n_number_starting_with_dot.json",
+              "[.123]",
+              false }
+          , { L_, "n_number_U+FF11_fullwidth_digit_one.json",
+              "[\357\274\221]",
+              false }
+          , { L_, "n_number_with_alpha.json",
+              "[1.2a-3]",
+              false }
+          , { L_, "n_number_with_alpha_char.json",
+              "[1.8011670033376514H-308]",
+              false }
+          , { L_, "n_number_with_leading_zero.json",
+              "[012]",
+              false }
+          , { L_, "n_object_bad_value.json",
+              "[\"x\", truth]",
+              false }
+          , { L_, "n_object_bracket_key.json",
+              "{[: \"x\"}",
+              false }
+          , { L_, "n_object_comma_instead_of_colon.json",
+              "{\"x\", null}",
+              false }
+          , { L_, "n_object_double_colon.json",
+              "{\"x\"::\"b\"}",
+              false }
+          , { L_, "n_object_emoji.json",
+              "{\360\237\207\250\360\237\207\255}",
+              false }
+          , { L_, "n_object_garbage_at_end.json",
+              "{\"a\":\"a\" 123}",
+              false }
+          , { L_, "n_object_key_with_single_quotes.json",
+              "{key: \047value\047}",
+              false }
+          , { L_,
+              "n_object_lone_continuation_byte_in_key_and_trailing_comma.json",
+              "{\"\271\":\"0\",}",
+              false }
+          , { L_, "n_object_missing_colon.json",
+              "{\"a\" b}",
+              false }
+          , { L_, "n_object_missing_key.json",
+              "{:\"b\"}",
+              false }
+          , { L_, "n_object_missing_semicolon.json",
+              "{\"a\" \"b\"}",
+              false }
+          , { L_, "n_object_missing_value.json",
+              "{\"a\":",
+              false }
+          , { L_, "n_object_no-colon.json",
+              "{\"a\"",
+              false }
+          , { L_, "n_object_non_string_key.json",
+              "{1:1}",
+              false }
+          , { L_, "n_object_non_string_key_but_huge_number_instead.json",
+              "{9999E9999:1}",
+              false }
+          , { L_, "n_object_repeated_null_null.json",
+              "{null:null,null:null}",
+              false }
+          , { L_, "n_object_several_trailing_commas.json",
+              "{\"id\":0,,,,,}",
+              false }
+          , { L_, "n_object_single_quote.json",
+              "{\047a\047:0}",
+              false }
+          , { L_, "n_object_trailing_comma.json",
+              "{\"id\":0,}",
+              false }
+          , { L_, "n_object_trailing_comment.json",
+              "{\"a\":\"b\"}/**/",
+              false }
+          , { L_, "n_object_trailing_comment_open.json",
+              "{\"a\":\"b\"}/**//",
+              false }
+          , { L_, "n_object_trailing_comment_slash_open.json",
+              "{\"a\":\"b\"}//",
+              false }
+          , { L_, "n_object_trailing_comment_slash_open_incomplete.json",
+              "{\"a\":\"b\"}/",
+              false }
+          , { L_, "n_object_two_commas_in_a_row.json",
+              "{\"a\":\"b\",,\"c\":\"d\"}",
+              false }
+          , { L_, "n_object_unquoted_key.json",
+              "{a: \"b\"}",
+              false }
+          , { L_, "n_object_unterminated-value.json",
+              "{\"a\":\"a",
+              false }
+          , { L_, "n_object_with_single_string.json",
+              "{ \"foo\" : \"bar\", \"a\" }",
+              false }
+          , { L_, "n_object_with_trailing_garbage.json",
+              "{\"a\":\"b\"}#",
+              false }
+          , { L_, "n_single_space.json",
+              " ",
+              false }
+          , { L_, "n_string_1_surrogate_then_escape.json",
+              "[\"\\uD800\\\"]",
+              false }
+          , { L_, "n_string_1_surrogate_then_escape_u.json",
+              "[\"\\uD800\\u\"]",
+              false }
+          , { L_, "n_string_1_surrogate_then_escape_u1.json",
+              "[\"\\uD800\\u1\"]",
+              false }
+          , { L_, "n_string_1_surrogate_then_escape_u1x.json",
+              "[\"\\uD800\\u1x\"]",
+              false }
+          , { L_, "n_string_accentuated_char_no_quotes.json",
+              "[\303\251]",
+              false }
+          , { L_, "n_string_backslash_00.json",
+              "[\"\\\000\"]",
+              false }
+          , { L_, "n_string_escape_x.json",
+              "[\"\\x00\"]",
+              false }
+          , { L_, "n_string_escaped_backslash_bad.json",
+              "[\"\\\\\\\"]",
+              false }
+          , { L_, "n_string_escaped_ctrl_char_tab.json",
+              "[\"\\\t\"]",
+              false }
+          , { L_, "n_string_escaped_emoji.json",
+              "[\"\\\360\237\214\200\"]",
+              false }
+          , { L_, "n_string_incomplete_escape.json",
+              "[\"\\\"]",
+              false }
+          , { L_, "n_string_incomplete_escaped_character.json",
+              "[\"\\u00A\"]",
+              false }
+          , { L_, "n_string_incomplete_surrogate.json",
+              "[\"\\uD834\\uDd\"]",
+              false }
+          , { L_, "n_string_incomplete_surrogate_escape_invalid.json",
+              "[\"\\uD800\\uD800\\x\"]",
+              false }
+          , { L_, "n_string_invalid-utf-8-in-escape.json",
+              "[\"\\u\345\"]",
+              false }
+          , { L_, "n_string_invalid_backslash_esc.json",
+              "[\"\\a\"]",
+              false }
+          , { L_, "n_string_invalid_unicode_escape.json",
+              "[\"\\uqqqq\"]",
+              false }
+          , { L_, "n_string_invalid_utf8_after_escape.json",
+              "[\"\\\345\"]",
+              false }
+          , { L_, "n_string_leading_uescaped_thinspace.json",
+              "[\\u0020\"asd\"]",
+              false }
+          , { L_, "n_string_no_quotes_with_bad_escape.json",
+              "[\\n]",
+              false }
+          , { L_, "n_string_single_doublequote.json",
+              "\"",
+              false }
+          , { L_, "n_string_single_quote.json",
+              "[\047single quote\047]",
+              false }
+          , { L_, "n_string_single_string_no_double_quotes.json",
+              "abc",
+              false }
+          , { L_, "n_string_start_escape_unclosed.json",
+              "[\"\\",
+              false }
+          , { L_, "n_string_unescaped_crtl_char.json",
+              "[\"a\000a\"]",
+              false }
+          , { L_, "n_string_unescaped_newline.json",
+              "[\"new\n"
+        "line\"]",
+              false }
+          , { L_, "n_string_unescaped_tab.json",
+              "[\"\t\"]",
+              false }
+          , { L_, "n_string_unicode_CapitalU.json",
+              "\"\\UA66D\"",
+              false }
+          , { L_, "n_string_with_trailing_garbage.json",
+              "\"\"x",
+              false }
+          , { L_, "n_structure_angle_bracket_..json",
+              "<.\076",
+              false }
+          , { L_, "n_structure_angle_bracket_null.json",
+              "[<null\076]",
+              false }
+          , { L_, "n_structure_array_trailing_garbage.json",
+              "[1]x",
+              false }
+          , { L_, "n_structure_array_with_extra_array_close.json",
+              "[1]]",
+              false }
+          , { L_, "n_structure_array_with_unclosed_string.json",
+              "[\"asd]",
+              false }
+          , { L_, "n_structure_ascii-unicode-identifier.json",
+              "a\303\245",
+              false }
+          , { L_, "n_structure_capitalized_True.json",
+              "[True]",
+              false }
+          , { L_, "n_structure_close_unopened_array.json",
+              "1]",
+              false }
+          , { L_, "n_structure_comma_instead_of_closing_brace.json",
+              "{\"x\": true,",
+              false }
+          , { L_, "n_structure_double_array.json",
+              "[][]",
+              false }
+          , { L_, "n_structure_end_array.json",
+              "]",
+              false }
+          , { L_, "n_structure_incomplete_UTF8_BOM.json",
+              "\357\273{}",
+              false }
+          , { L_, "n_structure_lone-invalid-utf-8.json",
+              "\345",
+              false }
+          , { L_, "n_structure_lone-open-bracket.json",
+              "[",
+              false }
+          , { L_, "n_structure_no_data.json",
+              "",
+              false }
+          , { L_, "n_structure_null-byte-outside-string.json",
+              "[\000]",
+              false }
+          , { L_, "n_structure_number_with_trailing_garbage.json",
+              "2@",
+              false }
+          , { L_, "n_structure_object_followed_by_closing_object.json",
+              "{}}",
+              false }
+          , { L_, "n_structure_object_unclosed_no_value.json",
+              "{\"\":",
+              false }
+          , { L_, "n_structure_object_with_comment.json",
+              "{\"a\":/*comment*/\"b\"}",
+              false }
+          , { L_, "n_structure_object_with_trailing_garbage.json",
+              "{\"a\": true} \"x\"",
+              false }
+          , { L_, "n_structure_open_array_apostrophe.json",
+              "[\047",
+              false }
+          , { L_, "n_structure_open_array_comma.json",
+              "[,",
+              false }
+          , { L_, "n_structure_open_array_open_object.json",
+              "[{",
+              false }
+          , { L_, "n_structure_open_array_open_string.json",
+              "[\"a",
+              false }
+          , { L_, "n_structure_open_array_string.json",
+              "[\"a\"",
+              false }
+          , { L_, "n_structure_open_object.json",
+              "{",
+              false }
+          , { L_, "n_structure_open_object_close_array.json",
+              "{]",
+              false }
+          , { L_, "n_structure_open_object_comma.json",
+              "{,",
+              false }
+          , { L_, "n_structure_open_object_open_array.json",
+              "{[",
+              false }
+          , { L_, "n_structure_open_object_open_string.json",
+              "{\"a",
+              false }
+          , { L_, "n_structure_open_object_string_with_apostrophes.json",
+              "{\047a\047",
+              false }
+          , { L_, "n_structure_open_open.json",
+              "[\"\\{[\"\\{[\"\\{[\"\\{",
+              false }
+          , { L_, "n_structure_single_eacute.json",
+              "\351",
+              false }
+          , { L_, "n_structure_single_star.json",
+              "*",
+              false }
+          , { L_, "n_structure_trailing_#.json",
+              "{\"a\":\"b\"}#{}",
+              false }
+          , { L_, "n_structure_U+2060_word_joined.json",
+              "[\342\201\240]",
+              false }
+          , { L_, "n_structure_uescaped_LF_before_string.json",
+              "[\\u000A\"\"]",
+              false }
+          , { L_, "n_structure_unclosed_array.json",
+              "[1",
+              false }
+          , { L_, "n_structure_unclosed_array_partial_null.json",
+              "[ false, nul",
+              false }
+          , { L_, "n_structure_unclosed_array_unfinished_false.json",
+              "[ true, fals",
+              false }
+          , { L_, "n_structure_unclosed_array_unfinished_true.json",
+              "[ false, tru",
+              false }
+          , { L_, "n_structure_unclosed_object.json",
+              "{\"asd\":\"asd\"",
+              false }
+          , { L_, "n_structure_unicode-identifier.json",
+              "\303\245",
+              false }
+          , { L_, "n_structure_UTF8_BOM_no_data.json",
+              "\357\273\277",
+              false }
+          , { L_, "n_structure_whitespace_formfeed.json",
+              "[\014]",
+              false }
+          , { L_, "n_structure_whitespace_U+2060_word_joiner.json",
+              "[\342\201\240]",
+              false }
+          , { L_, "y_array_arraysWithSpaces.json",
+              "[[]   ]",
+              true }
+          , { L_, "y_array_empty-string.json",
+              "[\"\"]",
+              true }
+          , { L_, "y_array_empty.json",
+              "[]",
+              true }
+          , { L_, "y_array_ending_with_newline.json",
+              "[\"a\"]\n",
+              true }
+          , { L_, "y_array_false.json",
+              "[false]",
+              true }
+          , { L_, "y_array_heterogeneous.json",
+              "[null, 1, \"1\", {}]",
+              true }
+          , { L_, "y_array_null.json",
+              "[null]",
+              true }
+          , { L_, "y_array_with_1_and_newline.json",
+              "[1\n"
+        "]",
+              true }
+          , { L_, "y_array_with_leading_space.json",
+              " [1]",
+              true }
+          , { L_, "y_array_with_several_null.json",
+              "[1,null,null,null,2]",
+              true }
+          , { L_, "y_array_with_trailing_space.json",
+              "[2] ",
+              true }
+          , { L_, "y_number.json",
+              "[123e65]",
+              true }
+          , { L_, "y_number_0e+1.json",
+              "[0e+1]",
+              true }
+          , { L_, "y_number_0e1.json",
+              "[0e1]",
+              true }
+          , { L_, "y_number_after_space.json",
+              "[ 4]",
+              true }
+          , { L_, "y_number_double_close_to_zero.json",
+              "[-0.00000000000000000000000000"
+        "000000000000000000000000000000"
+        "0000000000000000000001]",
+              true }
+          , { L_, "y_number_int_with_exp.json",
+              "[20e1]",
+              true }
+          , { L_, "y_number_minus_zero.json",
+              "[-0]",
+              true }
+          , { L_, "y_number_negative_int.json",
+              "[-123]",
+              true }
+          , { L_, "y_number_negative_one.json",
+              "[-1]",
+              true }
+          , { L_, "y_number_negative_zero.json",
+              "[-0]",
+              true }
+          , { L_, "y_number_real_capital_e.json",
+              "[1E22]",
+              true }
+          , { L_, "y_number_real_capital_e_neg_exp.json",
+              "[1E-2]",
+              true }
+          , { L_, "y_number_real_capital_e_pos_exp.json",
+              "[1E+2]",
+              true }
+          , { L_, "y_number_real_exponent.json",
+              "[123e45]",
+              true }
+          , { L_, "y_number_real_fraction_exponent.json",
+              "[123.456e78]",
+              true }
+          , { L_, "y_number_real_neg_exp.json",
+              "[1e-2]",
+              true }
+          , { L_, "y_number_real_pos_exponent.json",
+              "[1e+2]",
+              true }
+          , { L_, "y_number_simple_int.json",
+              "[123]",
+              true }
+          , { L_, "y_number_simple_real.json",
+              "[123.456789]",
+              true }
+          , { L_, "y_object.json",
+              "{\"asd\":\"sdf\", \"dfg\":\"fgh\"}",
+              true }
+          , { L_, "y_object_basic.json",
+              "{\"asd\":\"sdf\"}",
+              true }
+          , { L_, "y_object_duplicated_key.json",
+              "{\"a\":\"b\",\"a\":\"c\"}",
+              true }
+          , { L_, "y_object_duplicated_key_and_value.json",
+              "{\"a\":\"b\",\"a\":\"b\"}",
+              true }
+          , { L_, "y_object_empty.json",
+              "{}",
+              true }
+          , { L_, "y_object_empty_key.json",
+              "{\"\":0}",
+              true }
+          , { L_, "y_object_escaped_null_in_key.json",
+              "{\"foo\\u0000bar\": 42}",
+              true }
+          , { L_, "y_object_extreme_numbers.json",
+              "{ \"min\": -1.0e+28, \"max\": 1.0e"
+        "+28 }",
+              true }
+          , { L_, "y_object_long_strings.json",
+              "{\"x\":[{\"id\": \"xxxxxxxxxxxxxxxx"
+        "xxxxxxxxxxxxxxxxxxxxxxxx\"}], \""
+        "id\": \"xxxxxxxxxxxxxxxxxxxxxxxx"
+        "xxxxxxxxxxxxxxxx\"}",
+              true }
+          , { L_, "y_object_simple.json",
+              "{\"a\":[]}",
+              true }
+          , { L_, "y_object_string_unicode.json",
+              "{\"title\":\"\\u041f\\u043e\\u043b\\u"
+        "0442\\u043e\\u0440\\u0430 \\u0417\\"
+        "u0435\\u043c\\u043b\\u0435\\u043a\\"
+        "u043e\\u043f\\u0430\" }",
+              true }
+          , { L_, "y_object_with_newlines.json",
+              "{\n"
+        "\"a\": \"b\"\n"
+        "}",
+              true }
+          , { L_, "y_string_1_2_3_bytes_UTF-8_sequences.json",
+              "[\"\\u0060\\u012a\\u12AB\"]",
+              true }
+          , { L_, "y_string_accepted_surrogate_pair.json",
+              "[\"\\uD801\\udc37\"]",
+              true }
+          , { L_, "y_string_accepted_surrogate_pairs.json",
+              "[\"\\ud83d\\ude39\\ud83d\\udc8d\"]",
+              true }
+          , { L_, "y_string_allowed_escapes.json",
+              "[\"\\\"\\\\\\/\\b\\f\\n\\r\\t\"]",
+              true }
+          , { L_, "y_string_backslash_and_u_escaped_zero.json",
+              "[\"\\\\u0000\"]",
+              true }
+          , { L_, "y_string_backslash_doublequotes.json",
+              "[\"\\\"\"]",
+              true }
+          , { L_, "y_string_comments.json",
+              "[\"a/*b*/c/*d//e\"]",
+              true }
+          , { L_, "y_string_double_escape_a.json",
+              "[\"\\\\a\"]",
+              true }
+          , { L_, "y_string_double_escape_n.json",
+              "[\"\\\\n\"]",
+              true }
+          , { L_, "y_string_escaped_control_character.json",
+              "[\"\\u0012\"]",
+              true }
+          , { L_, "y_string_escaped_noncharacter.json",
+              "[\"\\uFFFF\"]",
+              true }
+          , { L_, "y_string_in_array.json",
+              "[\"asd\"]",
+              true }
+          , { L_, "y_string_in_array_with_leading_space.json",
+              "[ \"asd\"]",
+              true }
+          , { L_, "y_string_last_surrogates_1_and_2.json",
+              "[\"\\uDBFF\\uDFFF\"]",
+              true }
+          , { L_, "y_string_nbsp_uescaped.json",
+              "[\"new\\u00A0line\"]",
+              true }
+          , { L_, "y_string_nonCharacterInUTF-8_U+10FFFF.json",
+              "[\"\364\217\277\277\"]",
+              true }
+          , { L_, "y_string_nonCharacterInUTF-8_U+FFFF.json",
+              "[\"\357\277\277\"]",
+              true }
+          , { L_, "y_string_null_escape.json",
+              "[\"\\u0000\"]",
+              true }
+          , { L_, "y_string_one-byte-utf-8.json",
+              "[\"\\u002c\"]",
+              true }
+          , { L_, "y_string_pi.json",
+              "[\"\317\200\"]",
+              true }
+          , { L_, "y_string_reservedCharacterInUTF-8_U+1BFFF.json",
+              "[\"\360\233\277\277\"]",
+              true }
+          , { L_, "y_string_simple_ascii.json",
+              "[\"asd \"]",
+              true }
+          , { L_, "y_string_space.json",
+              "\" \"",
+              true }
+          , { L_, "y_string_surrogates_U+1D11E_MUSICAL_SYMBOL_G_CLEF.json",
+              "[\"\\uD834\\uDd1e\"]",
+              true }
+          , { L_, "y_string_three-byte-utf-8.json",
+              "[\"\\u0821\"]",
+              true }
+          , { L_, "y_string_two-byte-utf-8.json",
+              "[\"\\u0123\"]",
+              true }
+          , { L_, "y_string_u+2028_line_sep.json",
+              "[\"\342\200\250\"]",
+              true }
+          , { L_, "y_string_u+2029_par_sep.json",
+              "[\"\342\200\251\"]",
+              true }
+          , { L_, "y_string_uEscape.json",
+              "[\"\\u0061\\u30af\\u30EA\\u30b9\"]",
+              true }
+          , { L_, "y_string_uescaped_newline.json",
+              "[\"new\\u000Aline\"]",
+              true }
+          , { L_, "y_string_unescaped_char_delete.json",
+              "[\"\177\"]",
+              true }
+          , { L_, "y_string_unicode.json",
+              "[\"\\uA66D\"]",
+              true }
+          , { L_, "y_string_unicode_2.json",
+              "[\"\342\215\202\343\210\264\342\215\202\"]",
+              true }
+          , { L_, "y_string_unicode_escaped_double_quote.json",
+              "[\"\\u0022\"]",
+              true }
+          , { L_, "y_string_unicode_U+10FFFE_nonchar.json",
+              "[\"\\uDBFF\\uDFFE\"]",
+              true }
+          , { L_, "y_string_unicode_U+1FFFE_nonchar.json",
+              "[\"\\uD83F\\uDFFE\"]",
+              true }
+          , { L_, "y_string_unicode_U+200B_ZERO_WIDTH_SPACE.json",
+              "[\"\\u200B\"]",
+              true }
+          , { L_, "y_string_unicode_U+2064_invisible_plus.json",
+              "[\"\\u2064\"]",
+              true }
+          , { L_, "y_string_unicode_U+FDD0_nonchar.json",
+              "[\"\\uFDD0\"]",
+              true }
+          , { L_, "y_string_unicode_U+FFFE_nonchar.json",
+              "[\"\\uFFFE\"]",
+              true }
+          , { L_, "y_string_unicodeEscapedBackslash.json",
+              "[\"\\u005C\"]",
+              true }
+          , { L_, "y_string_utf8.json",
+              "[\"\342\202\254\360\235\204\236\"]",
+              true }
+          , { L_, "y_string_with_del_character.json",
+              "[\"a\177a\"]",
+              true }
+          , { L_, "y_structure_lonely_false.json",
+              "false",
+              true }
+          , { L_, "y_structure_lonely_int.json",
+              "42",
+              true }
+          , { L_, "y_structure_lonely_negative_real.json",
+              "-0.1",
+              true }
+          , { L_, "y_structure_lonely_null.json",
+              "null",
+              true }
+          , { L_, "y_structure_lonely_string.json",
+              "\"asd\"",
+              true }
+          , { L_, "y_structure_lonely_true.json",
+              "true",
+              true }
+          , { L_, "y_structure_string_empty.json",
+              "\"\"",
+              true }
+          , { L_, "y_structure_trailing_newline.json",
+              "[\"a\"]\n",
+              true }
+          , { L_, "y_structure_true_in_array.json",
+              "[true]",
+              true }
+          , { L_, "y_structure_whitespace_array.json",
+              " [] ",
+              true }
+
+          // Additional test case, not actually from test suite.
+          , { L_, "y_henry_verschell_smiley_surrogate_smiley.json",
+              "\"\xF0\x9F\x98\x80"
+              "\\ud83d\\ude00\"",
+              true }
+        };
+
+        const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+        struct {
+            int         d_line;
+            const char *d_testName;  // name of the test file
+            const char *d_reason;    // reason this test is whitelisted
+        } WHITELIST_DATA[] = {
+            { L_, "n_array_comma_after_close.json", "TBD" }
+          , { L_, "n_array_double_comma.json", "TBD" }
+          , { L_, "n_multidigit_number_then_00.json", "TBD" }
+          , { L_, "n_number_+1.json", "TBD" }
+          , { L_, "n_number_+Inf.json", "TBD" }
+          , { L_, "n_number_-01.json", "TBD" }
+          , { L_, "n_number_-2..json", "TBD" }
+          , { L_, "n_number_-NaN.json", "TBD" }
+          , { L_, "n_number_.2e-3.json", "TBD" }
+          , { L_, "n_number_0.e1.json", "TBD" }
+          , { L_, "n_number_2.e+3.json", "TBD" }
+          , { L_, "n_number_2.e-3.json", "TBD" }
+          , { L_, "n_number_2.e3.json", "TBD" }
+#if !(defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_MSVC))
+          , { L_, "n_number_hex_1_digit.json", "TBD" }
+          , { L_, "n_number_hex_2_digits.json", "TBD" }
+#endif
+          , { L_, "n_number_Inf.json", "TBD" }
+          , { L_, "n_number_infinity.json", "TBD" }
+          , { L_, "n_number_minus_infinity.json", "TBD" }
+          , { L_, "n_number_NaN.json", "TBD" }
+          , { L_, "n_number_neg_int_starting_with_zero.json", "TBD" }
+          , { L_, "n_number_neg_real_without_int_part.json", "TBD" }
+          , { L_, "n_number_real_without_fractional_part.json", "TBD" }
+          , { L_, "n_number_starting_with_dot.json", "TBD" }
+          , { L_, "n_number_with_leading_zero.json", "TBD" }
+          , { L_, "n_object_double_colon.json", "TBD" }
+          , { L_, "n_object_trailing_comment.json", "TBD" }
+          , { L_, "n_object_trailing_comment_open.json", "TBD" }
+          , { L_, "n_object_trailing_comment_slash_open.json", "TBD" }
+          , { L_, "n_object_trailing_comment_slash_open_incomplete.json",
+              "TBD" }
+          , { L_, "n_object_two_commas_in_a_row.json", "TBD" }
+          , { L_, "n_object_with_trailing_garbage.json", "TBD" }
+          , { L_, "n_string_unescaped_newline.json", "TBD" }
+          , { L_, "n_string_unescaped_tab.json", "TBD" }
+          , { L_, "n_string_unicode_CapitalU.json", "TBD" }
+          , { L_, "n_string_with_trailing_garbage.json", "TBD" }
+          , { L_, "n_structure_array_trailing_garbage.json", "TBD" }
+          , { L_, "n_structure_double_array.json", "TBD" }
+          , { L_, "n_structure_object_with_trailing_garbage.json", "TBD" }
+          , { L_, "n_structure_trailing_#.json", "TBD" }
+          , { L_, "n_structure_whitespace_formfeed.json", "TBD" }
+        };
+
+        const int NUM_WHITELIST_DATA =
+            sizeof(WHITELIST_DATA) / sizeof(*WHITELIST_DATA);
+
+        bsl::unordered_set<bsl::string> whitelist;
+
+        for (int ti = 0; ti < NUM_WHITELIST_DATA; ++ti) {
+            whitelist.insert(WHITELIST_DATA[ti].d_testName);
+        }
+
+        if (verbose)
+            cout << "\nTest decoding JSON test suite test cases."
+                 << endl;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE      = DATA[ti].d_line;
+            const char *TEST_NAME = DATA[ti].d_testName;
+            const char *JSON      = DATA[ti].d_JSON;
+            const bool  IS_VALID  = DATA[ti].d_isValid;
+            const bool  IS_WHITELISTED =
+                (whitelist.find(TEST_NAME) != whitelist.end());
+
+            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+            bslma::TestAllocatorMonitor tam(&ta);
+
+            MD result(&ta);
+
+            bdlsb::FixedMemInStreamBuf isb(JSON, bsl::strlen(JSON));
+            bsl::ostringstream         os(&ta);
+
+            int rc = Util::decode(&result, &os, &isb);
+
+            if (veryVerbose) {
+                if (IS_VALID && (0 == rc)) {
+                    bsl::string encoded;
+                    int         encodeRC;
+
+                    encodeRC = Util::encode(&encoded, *result);
+
+                    cout << "ROUND TRIP: " << LINE << "\n"
+                         << "\t" << "TEST_NAME :  "   << TEST_NAME << "\n"
+                         << "\t" << "JSON      :    "   << JSON << "\n"
+                         << "\t" << "result    :    "   << result << "\n"
+                         << "\t" << "encodeRC :    "   << encodeRC << "\n"
+                         << "\t" << "ENCODED   :   \""  << encoded << "\"\n";
+                }
+            }
+
+            if (IS_VALID != (0 == rc)) {
+                if (!IS_WHITELISTED) {
+                    cout << "FAILED: " << LINE << "\n"
+                         << "\t" << "TEST_NAME: " << TEST_NAME << "\n"
+                         << "\t" << "JSON   : "   << JSON << "\n"
+                         << "\t" << "result : "   << result << "\n";
+
+                    ASSERTV(LINE,
+                            rc,
+                            IS_VALID,
+                            IS_VALID == (rc == 0));
+                }
+            }
+            else if (IS_WHITELISTED) {
+                ASSERTV("UNEXPECTED WHITELIST ENTRY RESULT",
+                        LINE,
+                        TEST_NAME,
+                        IS_VALID,
+                        rc,
+                        false);
+            }
+        }
+
+        // Reproduce the "n_structure_100000_opening_arrays.json"
+        // test case, which is too large to be placed in the DATA
+        // array.
+
+        {
+            const int   LINE      = __LINE__;
+            const char *TEST_NAME = "n_structure_100000_opening_arrays.json";
+            const bool  IS_VALID  = false;
+            const bool  IS_WHITELISTED =
+                (whitelist.find(TEST_NAME) != whitelist.end());
+
+            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+            bslma::TestAllocatorMonitor tam(&ta);
+
+            bsl::string JSON(&ta);
+            const int TARGET_SIZE = 100000;
+            // Over-reserve, since our construction loop is likely to
+            // overshoot.
+            JSON.reserve(TARGET_SIZE + 1000);
+            while (JSON.length() < TARGET_SIZE) {
+                JSON+="[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[";
+            }
+
+            MD result(&ta);
+
+            bdlsb::FixedMemInStreamBuf isb(JSON.c_str(), JSON.length());
+            bsl::ostringstream         os(&ta);
+
+            int rc = Util::decode(&result, &os, &isb);
+
+            if (veryVerbose) {
+                if (IS_VALID && (0 == rc)) {
+                    bsl::string encoded;
+                    int         encodeRC;
+
+                    encodeRC = Util::encode(&encoded, *result);
+
+                    cout << "ROUND TRIP: " << LINE << "\n"
+                         << "\t" << "TEST_NAME :  "   << TEST_NAME << "\n"
+                         << "\t" << "JSON      :    "   << JSON << "\n"
+                         << "\t" << "result    :    "   << result << "\n"
+                         << "\t" << "encodeRC :    "   << encodeRC << "\n"
+                         << "\t" << "ENCODED   :   \""  << encoded << "\"\n";
+                }
+            }
+
+            if (IS_VALID != (0 == rc)) {
+                if (!IS_WHITELISTED) {
+                    cout << "FAILED: " << LINE << "\n"
+                         << "\t" << "TEST_NAME: " << TEST_NAME << "\n"
+                         << "\t" << "JSON   : "   << JSON << "\n"
+                         << "\t" << "result : "   << result << "\n";
+
+                    ASSERTV(LINE,
+                            rc,
+                            IS_VALID,
+                            IS_VALID == (rc == 0));
+                }
+            }
+            else if (IS_WHITELISTED) {
+                ASSERTV("UNEXPECTED WHITELIST ENTRY RESULT",
+                        LINE,
+                        TEST_NAME,
+                        IS_VALID,
+                        rc,
+                        false);
+            }
+        }
+
+        // Reproduce the "n_structure_open_array_object.json"
+        // test case, which is too large to be placed in the DATA
+        // array.
+
+        {
+            const int   LINE      = __LINE__;
+            const char *TEST_NAME = "n_structure_open_array_object.json";
+            const bool  IS_VALID  = false;
+            const bool  IS_WHITELISTED =
+                (whitelist.find(TEST_NAME) != whitelist.end());
+
+            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+            bslma::TestAllocatorMonitor tam(&ta);
+
+            bsl::string JSON(&ta);
+            const int TARGET_SIZE = 250000;
+            // Over-reserve, since our construction loop is likely to
+            // overshoot.
+            JSON.reserve(TARGET_SIZE + 1000);
+            while (JSON.length() < TARGET_SIZE) {
+                JSON += "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":";
+            }
+
+            MD result(&ta);
+
+            bdlsb::FixedMemInStreamBuf isb(JSON.c_str(), JSON.length());
+            bsl::ostringstream         os(&ta);
+
+            int rc = Util::decode(&result, &os, &isb);
+
+            if (veryVerbose) {
+                if (IS_VALID && (0 == rc)) {
+                    bsl::string encoded;
+                    int         encodeRC;
+
+                    encodeRC = Util::encode(&encoded, *result);
+
+                    cout << "ROUND TRIP: " << LINE << "\n"
+                         << "\t" << "TEST_NAME :  "   << TEST_NAME << "\n"
+                         << "\t" << "JSON      :    "   << JSON << "\n"
+                         << "\t" << "result    :    "   << result << "\n"
+                         << "\t" << "encodeRC :    "   << encodeRC << "\n"
+                         << "\t" << "ENCODED   :   \""  << encoded << "\"\n";
+                }
+            }
+
+            if (IS_VALID != (0 == rc)) {
+                if (!IS_WHITELISTED) {
+                    cout << "FAILED: " << LINE << "\n"
+                         << "\t" << "TEST_NAME: " << TEST_NAME << "\n"
+                         << "\t" << "JSON   : "   << JSON << "\n"
+                         << "\t" << "result : "   << result << "\n";
+
+                    ASSERTV(LINE,
+                            rc,
+                            IS_VALID,
+                            IS_VALID == (rc == 0));
+                }
+            }
+            else if (IS_WHITELISTED) {
+                ASSERTV("UNEXPECTED WHITELIST ENTRY RESULT",
+                        LINE,
+                        TEST_NAME,
+                        IS_VALID,
+                        rc,
+                        false);
+            }
+        }
       } break;
       case 6: {
         //---------------------------------------------------------------------
@@ -1078,6 +2273,7 @@ int main(int argc, char *argv[])
         {
          //   L  d_json_p                d_rc d_dpth d_datum
          //   -- --------                ---- ------ -------
+            // null value tests.
             { L_, "",                     -1,     0, m()                     },
             { L_, "n",                    -2,     0, m()                     },
             { L_, "nu",                   -2,     0, m()                     },
@@ -1085,14 +2281,39 @@ int main(int argc, char *argv[])
             { L_, "null",                  0,     0, m()                     },
             { L_, WS "null",               0,     0, m()                     },
             { L_, "null" WS,               0,     0, m()                     },
+            // Numeric value tests.
             { L_, "1",                     0,     0, m(1.0)                  },
             { L_, WS "1",                  0,     0, m(1.0)                  },
             { L_, "1" WS,                  0,     0, m(1.0)                  },
             { L_, "2.5",                   0,     0, m(2.5)                  },
+            // String value tests.
             { L_, "\"hello\"",             0,     0, m("hello")              },
             { L_, WS "\"hello\"",          0,     0, m("hello")              },
             { L_, WS "\"hello\"" WS,       0,     0, m("hello")              },
             { L_, "\"hello",              -1,     0, m()                     },
+            // Check handling of upper surrogate without following lower.
+            { L_, "\"\\ud83d\"",          -2,     0, m()                     },
+            { L_, "\"\\ud83d\\ud83d\"",   -2,     0, m()                     },
+            { L_, "\"\\ud83da\"",         -2,     0, m()                     },
+            { L_, "\"\\ud83d\n\"",        -2,     0, m()                     },
+            // Check handling of upper surrogate followed by all possible
+            // escaped characters
+            { L_, "\"\\ud83d\\\"\"",      -2,     0, m()                     },
+            { L_, "\"\\ud83d\\\\\"",      -2,     0, m()                     },
+            { L_, "\"\\ud83d\\/\"",       -2,     0, m()                     },
+            { L_, "\"\\ud83d\\b\"",       -2,     0, m()                     },
+            { L_, "\"\\ud83d\\f\"",       -2,     0, m()                     },
+            { L_, "\"\\ud83d\\n\"",       -2,     0, m()                     },
+            { L_, "\"\\ud83d\\r\"",       -2,     0, m()                     },
+            { L_, "\"\\ud83d\\t\"",       -2,     0, m()                     },
+            { L_, "\"\\ud83d\\u\"",       -2,     0, m()                     },
+            { L_, "\"\\ud83d\\u0001\"",   -2,     0, m()                     },
+            // Check handling of lower surrogate without preceding upper.
+            { L_, "\"\\ude00\"",          -2,     0, m()                     },
+            { L_, "\"\\u0001\\ude00\"",   -2,     0, m()                     },
+            // Check handling of valid surrogate pair (smiley).
+            { L_, "\"\\ud83d\\ude00\"",    0,     0, m("\xF0\x9F\x98\x80")   },
+            // Test bool values, valid or not.
             { L_, "t",                    -2,     0, m()                     },
             { L_, "tr",                   -2,     0, m()                     },
             { L_, "tru",                  -2,     0, m()                     },
@@ -1102,6 +2323,7 @@ int main(int argc, char *argv[])
             { L_, "true" WS,               0,     0, m(true)                 },
             { L_, "false",                 0,     0, m(false)                },
             { L_, "fals",                 -2,     0, m()                     },
+            // Array/Object tests
             { L_, "[]",                    0,     0, m.a()                   },
             { L_, "[}",                   -2,     0, m.a()                   },
             { L_, "{]",                   -2,     0, m.a()                   },
