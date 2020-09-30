@@ -25,7 +25,12 @@
 // succeeds.  Due to the limitations of the testing framework, there is no way
 // to turn compile-time failures into runtime failures.  Note that we don't
 // intend to test the correctness of the implementation of C++ features, but
-// just the fact that features are supported.
+// just the fact that features are supported.  However, if a feature
+// is known to be buggy or incomplete in some implementations such that it is
+// not useful to us, the corresponding macro should be turned off for that
+// platform. For these cases, this test driver may contain a minimal test of
+// that feature that ensure that the Bloomberg use of the feature is supported
+// on any platform that defines that macro.
 //-----------------------------------------------------------------------------
 // [31] BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 // [23] BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
@@ -317,7 +322,7 @@ namespace initializer_feature_test {
 // The following code demonstrates a bug with Oracle CC 12.4, where the
 // 'initializer_list' method dominates another single-argument method in
 // overload resolution, despite not having a suitable conversion to the
-// required 'initalizer_list' instantiation, and so rejecting a valid call.
+// required 'initializer_list' instantiation, and so rejecting a valid call.
 // The 'use' function is invoked directly from the test case in 'main'.
 
 struct object {
@@ -378,7 +383,7 @@ void OverloadForNullptr(void *) {}
 
 namespace {
 
-// Check support for the perfect forwaring idiom
+// Check support for the perfect forwarding idiom
 //
 template <class TYPE>
 struct my_remove_reference {
@@ -525,7 +530,7 @@ struct Wrapper {
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 // The next test exposes a bug specific to the CC 12.6 beta compiler, when
-// reference-collapsing lvalue-references with rvalue-refences provided in a
+// reference-collapsing lvalue-references with rvalue-references provided in a
 // non-deducing context.  This test also relies on alias templates to set up
 // the error condition, but it prevents us migrating code from C++03 -> C++11
 // with our move-emulation library.
@@ -684,7 +689,7 @@ struct ConstexprConst {
 
     template<class TYPE>
     static TYPE&& declval();
-        // Return an rvalue-reference to the (temmplate parameter) 'TYPE'.
+        // Return an rvalue-reference to the (template parameter) 'TYPE'.
         // Note that this function is never defined, and should be called only
         // from unevaluated contexts, such as 'decltype' and 'sizeof'.
 
@@ -1044,11 +1049,10 @@ class NeverCopied {
     // PRIVATE CREATORS
     explicit NeverCopied(int v) : d_data(v) { }
 
-public:
-    // CLASS MEMBERS
+  public:
+    // CLASS METHODS
     static NeverCopied factory1(int v);
-        // Return an object by value constructed direction within the 'return'
-        // statement.  A compiler for which
+        // Return 'NeverCopied(v)' by value.  A compiler for which
         // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is true will create
         // no copies in the process of returning the prvalue.
 
@@ -1064,14 +1068,16 @@ public:
 
     // CREATORS
     NeverCopied(const NeverCopied&, int *alloc = 0)
+        // "Extended" copy constructor (which is also the move constructor)
+        // that is never called.  Note that some compilers (e.g., xlC) will
+        // elide some calls to a regular copy constructor, but not to an
+        // extended copy constructor like this one.
         : d_data(alloc ? *alloc : 0) { ASSERT(NOT_COPIED); }
-        // "Extended" copy/move constructor that is never called. Note that
-        // some compilers (e.g., xlC) will elide some calls to a regular copy
-        // constructor, but not to an extended copy constructor like this one.
 
     // MANIPULATORS
     NeverCopied& operator=(const NeverCopied&)
-        // Copy/move assignment is never called.
+        // Copy assignment operator (which is also the move assignment
+        // operator) that is never called.
         { ASSERT(NOT_COPIED); return *this; }
 
     // ACCESSORS
@@ -1094,19 +1100,26 @@ const NeverCopied NeverCopied::factory3(int v) {
 }
 
 class NCWrapper {
-    // Instances of this class wrap a 'NeverCopied' object. The constructor
-    // uses the 'NeverCopied' factory and ensures that initializing the
-    // wrapped value can be done without making a copy.
+    // Instances of this class wrap a 'NeverCopied' object. The constructors
+    // use the 'NeverCopied' factory methods and ensure that initializing the
+    // wrapped value is done without making a copy.
 
     NeverCopied d_data;
 
-public:
+  public:
     explicit NCWrapper(int v)
-        // Construct the data member by calling 'NeverCopied::factory2'
+        // Create an 'NCWrapper' by initializing its data member from
+        // 'NeverCopied::factory1(v)'
+        : d_data(NeverCopied::factory1(v)) { }
+
+    NCWrapper(int v, int)
+        // Create an 'NCWrapper' by initializing its data member from
+        // 'NeverCopied::factory2(v)'
         : d_data(NeverCopied::factory2(v)) { }
 
-    explicit NCWrapper(int v, int)
-        // Construct the data member by calling 'NeverCopied::factory3'
+    NCWrapper(int v, int, int)
+        // Create an 'NCWrapper' by initializing its data member from
+        // 'NeverCopied::factory3(v)'
         : d_data(NeverCopied::factory3(v)) { }
 
     int value() const { return d_data.value(); }
@@ -1745,7 +1758,7 @@ int main(int argc, char *argv[])
 // (the output is read by humans who are good at finding the line that
 // actually emitted the text), sometimes programs read other programs' output.
 // In such cases the precise values for the line numbers may matter.  This
-// example demonstrates the two ways our currectly suported C++ compilers
+// example demonstrates the two ways our correctly supported C++ compilers
 // generate line numbers in multi-line macro expansion contexts (from the
 // '__LINE__' macro), and how the presence (or absence) of the macro
 // 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST' indicates which method the
@@ -1792,7 +1805,7 @@ int main(int argc, char *argv[])
 //..
 // Finally note that WG14 N2322 defines this behavior is *unspecified*,
 // therefore it is in the realm of possibilities, although not likely (in C++
-// compilers) that further, more complicated or even indeterminite behaviors
+// compilers) that further, more complicated or even indeterminate behaviors
 // may arise.
 #undef THATS_MY_LINE
       } break;
@@ -1811,7 +1824,7 @@ int main(int argc, char *argv[])
         // Also note that there are more distinct '__LINE__' use scenarios for
         // which WG14 N2322 gives recommendations.  Our code is affected by one
         // of those only, hence we have one macro in the header, and test for
-        // that one use case only ('__LINE__' subsitution value in replacement
+        // that one use case only ('__LINE__' substitution value in replacement
         // text of a macro that is invoked in a multiline manner).  There has
         // been an experiment done for the other major case, see the
         // conclusions within the test case.  There are no tests or compiler
@@ -1923,17 +1936,17 @@ int main(int argc, char *argv[])
         //:   'const' qualification.
         //
         // Plan
-        //: 1 For concern 1, create a class, 'NeverCopied', which asserts
+        //: 1 For concern 1, create a class, 'NeverCopied', that asserts
         //:   failure if its copy/move constructor or assignment operator are
         //:   called.  Create a static 'factory1' method for 'NeverCopied'
-        //:   which returns a 'NeverCopied' object by value and initializes
-        //:   its return value directly in the 'return' statement. Call the
-        //:   'factory' method and verify that the no-copy assertion is not
-        //:   tripped.  Add a static 'factory2' method such that
-        //:   'NeverCopied::factory2' returns the result of of calling,
-        //:   'NeverCopied::factory1'. Call 'factory2' and verify that the
-        //:   no-copy assertion is still not tripped, even across multiple
-        //:   levels of function calls.
+        //:   which returns a 'NeverCopied' object by value, constructing and
+        //:   returning the 'NeverCopied' object in a single 'return'
+        //:   statement.  Call the 'factory' method and verify that the
+        //:   no-copy assertion is not tripped.  Add a static 'factory2'
+        //:   method such that 'NeverCopied::factory2' returns the result
+        //:   of calling, 'NeverCopied::factory1'. Call 'factory2' and verify
+        //:   that the no-copy assertion is still not tripped, even across
+        //:   multiple levels of function calls.
         //:
         //: 2 For concern 2, create an instance of a 'NeverCopied' object
         //:   initialized by calling 'NeverCopied::factory2()' as the
@@ -1948,9 +1961,8 @@ int main(int argc, char *argv[])
         //:   is not tripped.
         //:
         //: 4 For concern 4, initialize a 'const NeverCopied' object using
-        //:   'factory2' and verify that the no-copy assertion is not
-        //:   tripped.  Create a static 'factory3' method
-        //:   returning a 'const
+        //:   'factory2' and verify that the no-copy assertion is not tripped.
+        //:   Create a static 'factory3' method returning a 'const
         //:   NeverCopied' object and use this overload to initialize a
         //:   non-const 'NeverCopied' object; again, the no-copy assertion
         //:   should not be tripped.  Repeat step 3 using an overload for
@@ -1971,14 +1983,17 @@ int main(int argc, char *argv[])
         // Step 1:
         (void) NeverCopied::factory1(8);
         (void) NeverCopied::factory2(9);
+        (void) NeverCopied::factory3(10);
 
         // Step 2:
 
-        // Direct initailization
+        // Direct initialization
+        NeverCopied z(NeverCopied::factory1(1));
+        ASSERT(1 == z.value());
         NeverCopied a(NeverCopied::factory2(10));
         ASSERT(10 == a.value());
 
-        // Copy initialization (should have same samantics as direct in this
+        // Copy initialization (should have same semantics as direct in this
         // case).
         NeverCopied b = NeverCopied::factory2(11);
         ASSERT(11 == b.value());
@@ -1987,6 +2002,8 @@ int main(int argc, char *argv[])
         // NCWrapper member initialization
         NCWrapper c(12);
         ASSERT(12 == c.value());
+        NCWrapper h(17, 0);
+        ASSERT(17 == h.value());
 
         // Step 4:
         const NeverCopied d(NeverCopied::factory2(13));
@@ -1997,8 +2014,8 @@ int main(int argc, char *argv[])
         ASSERT(15 == f.value());
         NeverCopied g = NeverCopied::factory3(16);
         ASSERT(16 == g.value());
-        NCWrapper h(17, 0);
-        ASSERT(17 == h.value());
+        NCWrapper j(18, 0, 0);
+        ASSERT(18 == j.value());
 
 #endif
       } break;
@@ -2692,7 +2709,7 @@ will not improve the flavor.
         //
         // Plan:
         //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT' is defined then
-        //:   compile code that uses 'noexecpt' in various contexts.
+        //:   compile code that uses 'noexcept' in various contexts.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
@@ -3140,7 +3157,7 @@ will not improve the flavor.
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
