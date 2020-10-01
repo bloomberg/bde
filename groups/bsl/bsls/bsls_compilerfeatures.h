@@ -352,7 +352,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally note that WG14 N2322 defines this behavior is *unspecified*,
 // therefore it is in the realm of possibilities, although not likely (in C++
-// compilers) that further, more complicated or even indeterminite behaviors
+// compilers) that further, more complicated or even indeterminate behaviors
 // may arise.
 //
 ///Bugs in Compilers

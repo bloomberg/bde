@@ -36,7 +36,7 @@
 // [23] BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
 // [32] BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
 // [ 1] BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-// [10] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+// [19] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 // [24] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // [25] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
 // [26] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
@@ -74,6 +74,18 @@
 // [  ] BSLS_COMPILERFEATURES_FORWARD
 // ----------------------------------------------------------------------------
 // [33] USAGE EXAMPLE
+
+#ifdef BDE_VERIFY
+// Suppress some pedantic bde_verify checks in this test driver
+#pragma bde_verify -FD01   // Function must have contract
+#pragma bde_verify -MN01   // Class data members must be private
+#pragma bde_verify -MN03   // Constant member names must begin w/s_ or k_
+#pragma bde_verify -FE01   // Exception type is not derived from std::exception
+#pragma bde_verify -FABC01 // Function not in alphanumeric order
+#pragma bde_verify -TY02   // Template parameter uses single-letter name
+#pragma bde_verify -FD03   // Parameter is not documented in function contract
+#pragma bde_verify -IND01  // Possibly mis-indented line
+#endif
 
 using namespace BloombergLP;
 
@@ -147,7 +159,7 @@ template <class TYPE> using alias_template2 = alias_base<char, TYPE>;
 
 int x; // not constant
 struct A {
-    constexpr A(bool b) : d_m(b?42:x) { }
+    constexpr explicit A(bool b) : d_m(b?42:x) { }
     int d_m;
 };
 
@@ -234,7 +246,7 @@ bool isSameType(LHSTYPE&, RHSTYPE&)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
 struct ClassWithDefaultOps {
-    ClassWithDefaultOps(int value) : d_value(value) {}
+    explicit ClassWithDefaultOps(int value) : d_value(value) {}
     ClassWithDefaultOps() = default;
     ClassWithDefaultOps(const ClassWithDefaultOps &) = default;
     ClassWithDefaultOps& operator=(const ClassWithDefaultOps &) = default;
@@ -266,9 +278,9 @@ template <class ELEMENT>
 struct SmartPtrWithSfinaeConstructor {
     // CREATORS
     template <class ANY_TYPE, typename Meta<ANY_TYPE>::type * = nullptr>
-    SmartPtrWithSfinaeConstructor(ANY_TYPE *ptr);
+    SmartPtrWithSfinaeConstructor(ANY_TYPE *ptr);                   // IMPLICIT
 
-    SmartPtrWithSfinaeConstructor(nullptr_t) {}
+    SmartPtrWithSfinaeConstructor(nullptr_t) {}                     // IMPLICIT
 };
 
 void test_default_template_args() {
@@ -427,7 +439,7 @@ TYPE my_factory(ARG&& arg)
 struct RvalueArg {};
 
 struct RvalueTest {
-    RvalueTest(RvalueArg const &) {}
+    RvalueTest(RvalueArg const &) {}                                // IMPLICIT
 };
 
 
@@ -841,13 +853,13 @@ class MyType {
 
   public:
     MyType() { addToLiveCount(); }
-    MyType(int) { addToLiveCount(); }
-    MyType(const MyType&) { addToLiveCount(); }
+    MyType(int) { addToLiveCount(); }                               // IMPLICIT
+    MyType(const MyType&) { addToLiveCount(); }                     // IMPLICIT
     ~MyType() { --s_liveCount; }
 };
 
 struct MyWrapper {
-    MyWrapper(std::initializer_list<MyType>) {}
+    MyWrapper(std::initializer_list<MyType>) {}                     // IMPLICIT
 };
 
 int MyType::s_liveCount = 0;
@@ -947,10 +959,10 @@ void runTest() {
 
     switch (i)
     {
-    case 4: [[fallthrough]];
-    case 7:
+      case 4: [[fallthrough]];
+      case 7:
         return;                                                       // RETURN
-    default:
+      default:
         return;                                                       // RETURN
     }
 }
@@ -1016,13 +1028,13 @@ void bar() noexcept
 {
 }
 
-template <typename U, typename V>
+template <class U, class V>
 struct is_same
 {
     static const bool value = false;
 };
 
-template <typename T>
+template <class T>
 struct is_same<T,T>
 {
     static const bool value = true;
@@ -1052,27 +1064,27 @@ class NeverCopied {
   public:
     // CLASS METHODS
     static NeverCopied factory1(int v);
-        // Return 'NeverCopied(v)' by value.  A compiler for which
+        // Return 'NeverCopied' by value.  A compiler for which
         // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is true will create
         // no copies in the process of returning the prvalue.
 
     static NeverCopied factory2(int v);
-        // Return 'factory1(v)'.  A compiler for which
+        // Return 'factory1'.  A compiler for which
         // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is true will create
         // no copies in the process of returning the prvalue.
 
     static const NeverCopied factory3(int v);
-        // Return 'factory1(v)' as a const prvalue.  A compiler for which
+        // Return 'factory1' as a const prvalue.  A compiler for which
         // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is true will create
         // no copies in the process of returning the prvalue.
 
     // CREATORS
-    NeverCopied(const NeverCopied&, int *alloc = 0)
+    NeverCopied(const NeverCopied&, int *allocator = 0)
         // "Extended" copy constructor (which is also the move constructor)
         // that is never called.  Note that some compilers (e.g., xlC) will
         // elide some calls to a regular copy constructor, but not to an
         // extended copy constructor like this one.
-        : d_data(alloc ? *alloc : 0) { ASSERT(NOT_COPIED); }
+        : d_data(allocator ? *allocator : 0) { ASSERT(NOT_COPIED); }
 
     // MANIPULATORS
     NeverCopied& operator=(const NeverCopied&)
@@ -1100,7 +1112,7 @@ const NeverCopied NeverCopied::factory3(int v) {
 }
 
 class NCWrapper {
-    // Instances of this class wrap a 'NeverCopied' object. The constructors
+    // Instances of this class wrap a 'NeverCopied' object.The constructors
     // use the 'NeverCopied' factory methods and ensure that initializing the
     // wrapped value is done without making a copy.
 
@@ -1109,24 +1121,24 @@ class NCWrapper {
   public:
     explicit NCWrapper(int v)
         // Create an 'NCWrapper' by initializing its data member from
-        // 'NeverCopied::factory1(v)'
+        // 'NeverCopied::factory1()'
         : d_data(NeverCopied::factory1(v)) { }
 
     NCWrapper(int v, int)
         // Create an 'NCWrapper' by initializing its data member from
-        // 'NeverCopied::factory2(v)'
+        // 'NeverCopied::factory2()'
         : d_data(NeverCopied::factory2(v)) { }
 
     NCWrapper(int v, int, int)
         // Create an 'NCWrapper' by initializing its data member from
-        // 'NeverCopied::factory3(v)'
+        // 'NeverCopied::factory3()'
         : d_data(NeverCopied::factory3(v)) { }
 
     int value() const { return d_data.value(); }
 };
 
 #endif
-}
+}  // close namespace test_case_31
 
 // ============================================================================
 //                              HELPER FUNCTIONS
@@ -1849,8 +1861,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-             "\nTESTING 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST'"
-             "\n===================================================\n");
+            "\nTESTING 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST'"
+            "\n===================================================\n");
 
         if (veryVerbose) printf("'__LINE__' in substitution\n");
         {
@@ -1870,7 +1882,7 @@ int main(int argc, char *argv[])
                    (k_LINE_MACRO - k_LINE_BEFORE),
                    (k_LINE_MACRO - k_LINE_BEFORE) == 1);  // C-1
 #else
-           ASSERTV(k_LINE_MACRO, k_LINE_BEFORE,
+            ASSERTV(k_LINE_MACRO, k_LINE_BEFORE,
                    (k_LINE_MACRO - k_LINE_BEFORE),
                    (k_LINE_MACRO - k_LINE_BEFORE) == 4);  // C-2
 #endif
@@ -1885,7 +1897,7 @@ int main(int argc, char *argv[])
         // not lost to time, but no attempt will be made to indicate that
         // behavior as a compiler feature as none of our code is affected by
         // it, and none of us has seen production code ever been affected by
-        // it.  This variablity is also simple to work around by placing the
+        // it.  This variability is also simple to work around by placing the
         // macro invocation with the '__LINE__' argument into another macro,
         // thereby changing the rules that apply.
         //..
@@ -1999,7 +2011,7 @@ int main(int argc, char *argv[])
         ASSERT(11 == b.value());
 
         // Step 3:
-        // NCWrapper member initialization
+        // 'NCWrapper' member initialization
         NCWrapper c(12);
         ASSERT(12 == c.value());
         NCWrapper h(17, 0);
@@ -2036,8 +2048,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-           "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES'"
-           "\n======================================================\n");
+            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES'"
+            "\n======================================================\n");
 
         using namespace test_case_30;
 
@@ -2071,8 +2083,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-           "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS'"
-           "\n===================================================\n");
+            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS'"
+            "\n===================================================\n");
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS)
         if (verbose) printf("Feature not supported in this configuration.\n");
@@ -2157,7 +2169,7 @@ will not improve the flavor.
         ASSERTV(caughtBadException, caughtBadException);
 #endif
       } break;
-    case 27: {
+      case 27: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED'
         //
@@ -2187,7 +2199,7 @@ will not improve the flavor.
 #endif
 
       } break;
-    case 26: {
+      case 26: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH'
         //
@@ -2217,7 +2229,7 @@ will not improve the flavor.
 #endif
 
       } break;
-    case 25: {
+      case 25: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD'
         //
@@ -2248,7 +2260,7 @@ will not improve the flavor.
 #endif
 
       } break;
-    case 24: {
+      case 24: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN'
         //
@@ -2407,8 +2419,8 @@ will not improve the flavor.
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-             "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'"
-             "\n==========================================================\n");
+            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'"
+            "\n==========================================================\n");
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
         if (verbose) printf("Feature not supported in this configuration.\n");
@@ -2533,8 +2545,8 @@ will not improve the flavor.
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-             "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'"
-             "\n==========================================================\n");
+            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'"
+            "\n==========================================================\n");
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
         if (verbose) printf("Feature not supported in this configuration.\n");
@@ -2587,8 +2599,8 @@ will not improve the flavor.
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-              "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'"
-              "\n=========================================================\n");
+            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'"
+            "\n=========================================================\n");
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         if (verbose) printf("Feature not supported in this configuration.\n");
@@ -2652,8 +2664,8 @@ will not improve the flavor.
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-              "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT'"
-              "\n=========================================================\n");
+            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT'"
+            "\n=========================================================\n");
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
         if (verbose) printf("Feature not supported in this configuration.\n");
@@ -2872,8 +2884,8 @@ will not improve the flavor.
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-              "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS'"
-              "\n=========================================================\n");
+            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS'"
+            "\n=========================================================\n");
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS)
         if (verbose) printf("Feature not supported in this configuration.\n");
@@ -2957,9 +2969,9 @@ will not improve the flavor.
         decltype(obj1)                       obj2; (void) obj2;
         decltype(u::testFuncForDecltype(10)) obj3; (void) obj3;
 
-        const short  s = 1000;
-        const double d = 3.2;
-        const auto maxVal = u::my_max(s, d);
+        const short  s      = 1000;
+        const double d      = 3.2;
+        const auto   maxVal = u::my_max(s, d);
 
         ASSERT(u::isSameType(maxVal, d));
         ASSERT(maxVal == s);
@@ -3123,10 +3135,10 @@ will not improve the flavor.
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
         if (verbose) printf("Feature not supported in this configuration.\n");
 #else
-        my_own_int intObj; (void) intObj;
-        alias_nontemplate nontemplateObj; (void) nontemplateObj;
-        alias_template1<char> templateObj1; (void) templateObj1;
-        alias_template2<char> templateObj2; (void) templateObj2;
+        my_own_int            intObj;         (void) intObj;
+        alias_nontemplate     nontemplateObj; (void) nontemplateObj;
+        alias_template1<char> templateObj1;   (void) templateObj1;
+        alias_template2<char> templateObj2;   (void) templateObj2;
 #endif
       } break;
       default: {
