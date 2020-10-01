@@ -28,8 +28,8 @@
 // just the fact that features are supported.  However, if a feature
 // is known to be buggy or incomplete in some implementations such that it is
 // not useful to us, the corresponding macro should be turned off for that
-// platform. For these cases, this test driver may contain a minimal test of
-// that feature that ensure that the Bloomberg use of the feature is supported
+// platform.  For these cases, this test driver may contain a minimal test of
+// that feature that ensures that the Bloomberg use of the feature is supported
 // on any platform that defines that macro.
 //-----------------------------------------------------------------------------
 // [31] BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
@@ -1049,8 +1049,8 @@ namespace test_case_31 {
 #ifdef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 
 class NeverCopied {
-    // Instances of this class can be constructed only using the 'factory'
-    // method and must never be copied or moved.  This class is used to test
+    // Instances of this class can be constructed only using the factory
+    // methods and must never be copied or moved.  This class is used to test
     // guaranteed copy elision.
 
     enum { NOT_COPIED = false };
@@ -1064,19 +1064,19 @@ class NeverCopied {
   public:
     // CLASS METHODS
     static NeverCopied factory1(int v);
-        // Return 'NeverCopied' by value.  A compiler for which
-        // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is true will create
-        // no copies in the process of returning the prvalue.
+        // Return a 'NeverCopied' object by value.  A compiler for which
+        // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is defined will
+        // create no copies in the process of returning the prvalue.
 
     static NeverCopied factory2(int v);
-        // Return 'factory1'.  A compiler for which
-        // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is true will create
-        // no copies in the process of returning the prvalue.
+        // Return 'factory1(v)'.  A compiler for which
+        // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is defined will
+        // create no copies in the process of returning the prvalue.
 
     static const NeverCopied factory3(int v);
-        // Return 'factory1' as a const prvalue.  A compiler for which
-        // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is true will create
-        // no copies in the process of returning the prvalue.
+        // Return 'factory1(v)' as a const prvalue.  A compiler for which
+        // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is defined will
+        // create no copies in the process of returning the prvalue.
 
     // CREATORS
     NeverCopied(const NeverCopied&, int *allocator = 0)
@@ -1097,22 +1097,22 @@ class NeverCopied {
 };
 
 NeverCopied NeverCopied::factory1(int v) {
-    // RVO and copy elision prevent copy from being made.
+    // RVO and copy elision prevent a copy from being made.
     return NeverCopied(v);
 }
 
 NeverCopied NeverCopied::factory2(int v) {
-    // RVO and copy elision prevent copy from being made.
+    // RVO and copy elision prevent a copy from being made.
     return factory1(v);
 }
 
 const NeverCopied NeverCopied::factory3(int v) {
-    // RVO and copy elision prevent copy from being made.
+    // RVO and copy elision prevent a copy from being made.
     return factory1(v);
 }
 
 class NCWrapper {
-    // Instances of this class wrap a 'NeverCopied' object.The constructors
+    // Instances of this class wrap a 'NeverCopied' object.  The constructors
     // use the 'NeverCopied' factory methods and ensure that initializing the
     // wrapped value is done without making a copy.
 
@@ -1121,17 +1121,17 @@ class NCWrapper {
   public:
     explicit NCWrapper(int v)
         // Create an 'NCWrapper' by initializing its data member from
-        // 'NeverCopied::factory1()'
+        // 'NeverCopied::factory1()'.
         : d_data(NeverCopied::factory1(v)) { }
 
     NCWrapper(int v, int)
         // Create an 'NCWrapper' by initializing its data member from
-        // 'NeverCopied::factory2()'
+        // 'NeverCopied::factory2()'.
         : d_data(NeverCopied::factory2(v)) { }
 
     NCWrapper(int v, int, int)
         // Create an 'NCWrapper' by initializing its data member from
-        // 'NeverCopied::factory3()'
+        // 'NeverCopied::factory3()'.
         : d_data(NeverCopied::factory3(v)) { }
 
     int value() const { return d_data.value(); }
@@ -1770,7 +1770,7 @@ int main(int argc, char *argv[])
 // (the output is read by humans who are good at finding the line that
 // actually emitted the text), sometimes programs read other programs' output.
 // In such cases the precise values for the line numbers may matter.  This
-// example demonstrates the two ways our correctly supported C++ compilers
+// example demonstrates the two ways our currently supported C++ compilers
 // generate line numbers in multi-line macro expansion contexts (from the
 // '__LINE__' macro), and how the presence (or absence) of the macro
 // 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST' indicates which method the
@@ -1815,7 +1815,7 @@ int main(int argc, char *argv[])
           ASSERT(A_LINE + 4 == LINE_FROM_MACRO);
       #endif
 //..
-// Finally note that WG14 N2322 defines this behavior is *unspecified*,
+// Finally note that WG14 N2322 defines this behavior as *unspecified*,
 // therefore it is in the realm of possibilities, although not likely (in C++
 // compilers) that further, more complicated or even indeterminate behaviors
 // may arise.
@@ -1951,22 +1951,22 @@ int main(int argc, char *argv[])
         //: 1 For concern 1, create a class, 'NeverCopied', that asserts
         //:   failure if its copy/move constructor or assignment operator are
         //:   called.  Create a static 'factory1' method for 'NeverCopied'
-        //:   which returns a 'NeverCopied' object by value, constructing and
+        //:   that returns a 'NeverCopied' object by value, constructing and
         //:   returning the 'NeverCopied' object in a single 'return'
         //:   statement.  Call the 'factory' method and verify that the
         //:   no-copy assertion is not tripped.  Add a static 'factory2'
         //:   method such that 'NeverCopied::factory2' returns the result
-        //:   of calling, 'NeverCopied::factory1'. Call 'factory2' and verify
+        //:   of calling, 'NeverCopied::factory1'.  Call 'factory2' and verify
         //:   that the no-copy assertion is still not tripped, even across
         //:   multiple levels of function calls.
         //:
         //: 2 For concern 2, create an instance of a 'NeverCopied' object
         //:   initialized by calling 'NeverCopied::factory2()' as the
         //:   constructor argument and verify that the no-copy assertion is
-        //:   not tripped. Repeat using the '=' form of initialization (i.e.,
-        //:   'NeverCopied x = NeverCopied::factory2()'.
+        //:   not tripped.  Repeat using the '=' form of initialization (i.e.,
+        //:   'NeverCopied x = NeverCopied::factory2()').
         //:
-        //: 3 For concern 3, create a class, 'NCWrapper' containing a data
+        //: 3 For concern 3, create a class, 'NCWrapper', containing a data
         //:   member of type 'NeverCopied'.  Initialize the data member in the
         //:   constructor's member-initializer list using
         //:   'NeverCopied::factory2'.  Verify that the non-copied assertion
@@ -2007,6 +2007,8 @@ int main(int argc, char *argv[])
 
         // Copy initialization (should have same semantics as direct in this
         // case).
+        NeverCopied w = NeverCopied::factory1(19);
+        ASSERT(19 == w.value());
         NeverCopied b = NeverCopied::factory2(11);
         ASSERT(11 == b.value());
 

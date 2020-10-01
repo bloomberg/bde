@@ -350,7 +350,7 @@ BSLS_IDENT("$Id: $")
 //        assert(A_LINE + 4 == LINE_FROM_MACRO);
 //    #endif
 //..
-// Finally note that WG14 N2322 defines this behavior is *unspecified*,
+// Finally note that WG14 N2322 defines this behavior as *unspecified*,
 // therefore it is in the realm of possibilities, although not likely (in C++
 // compilers) that further, more complicated or even indeterminate behaviors
 // may arise.
@@ -809,11 +809,11 @@ BSLS_IDENT("$Id: $")
 #  define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 # endif
 # if BSLS_PLATFORM_CMP_VERSION >= 50000
-#    define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+//   GCC provides this support prior to C++17, independent of language dialect.
 #    ifndef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 #        define BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 #    endif
-//   GCC provides this support prior to C++17, independent of language dialect.
+#    define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
 # endif
 // GCC -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
 # if defined(__GXX_EXPERIMENTAL_CXX0X__)
@@ -1201,8 +1201,8 @@ BSLS_IDENT("$Id: $")
 # if BSLS_PLATFORM_CMP_VERSION >= 0x5140
 #   define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     // CC 12.4 will overly aggressively match an initializer list when it sees
-    // brace initalization, leading to rejection of valid code when there is no
-    // valid initializer list conversion, but another method creating a
+    // brace initialization, leading to rejection of valid code when there is
+    // no valid initializer list conversion, but another method creating a
     // temporary object from the braced arguments should have been chosen.
 
 #   define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
