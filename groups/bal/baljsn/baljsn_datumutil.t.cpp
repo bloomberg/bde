@@ -1364,8 +1364,8 @@ int main(int argc, char *argv[])
         struct {
             int         d_line;
             const char *d_testName;  // name of the test file
-            const char *d_reason;    // reason this test is whitelisted
-        } WHITELIST_DATA[] = {
+            const char *d_reason;    // reason this test is allowed to fail
+        } ALLOWED_FAILURE_LIST_DATA[] = {
             { L_, "n_array_comma_after_close.json", "TBD" }
           , { L_, "n_array_double_comma.json", "TBD" }
           , { L_, "n_multidigit_number_then_00.json", "TBD" }
@@ -1411,13 +1411,15 @@ int main(int argc, char *argv[])
           , { L_, "n_structure_whitespace_formfeed.json", "TBD" }
         };
 
-        const int NUM_WHITELIST_DATA =
-            sizeof(WHITELIST_DATA) / sizeof(*WHITELIST_DATA);
+        const int NUM_ALLOWED_FAILURE_LIST_DATA =
+            sizeof(ALLOWED_FAILURE_LIST_DATA) /
+            sizeof(*ALLOWED_FAILURE_LIST_DATA);
 
-        bsl::unordered_set<bsl::string> whitelist;
+        bsl::unordered_set<bsl::string> allowedFailureList;
 
-        for (int ti = 0; ti < NUM_WHITELIST_DATA; ++ti) {
-            whitelist.insert(WHITELIST_DATA[ti].d_testName);
+        for (int ti = 0; ti < NUM_ALLOWED_FAILURE_LIST_DATA; ++ti) {
+            allowedFailureList.insert(
+                ALLOWED_FAILURE_LIST_DATA[ti].d_testName);
         }
 
         if (verbose)
@@ -1429,8 +1431,9 @@ int main(int argc, char *argv[])
             const char *TEST_NAME = DATA[ti].d_testName;
             const char *JSON      = DATA[ti].d_JSON;
             const bool  IS_VALID  = DATA[ti].d_isValid;
-            const bool  IS_WHITELISTED =
-                (whitelist.find(TEST_NAME) != whitelist.end());
+            const bool  IS_ALLOWED_FAILURE_LISTED =
+                (allowedFailureList.find(TEST_NAME) !=
+                 allowedFailureList.end());
 
             bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
             bslma::TestAllocatorMonitor tam(&ta);
@@ -1459,7 +1462,7 @@ int main(int argc, char *argv[])
             }
 
             if (IS_VALID != (0 == rc)) {
-                if (!IS_WHITELISTED) {
+                if (!IS_ALLOWED_FAILURE_LISTED) {
                     cout << "FAILED: " << LINE << "\n"
                          << "\t" << "TEST_NAME: " << TEST_NAME << "\n"
                          << "\t" << "JSON   : "   << JSON << "\n"
@@ -1471,8 +1474,8 @@ int main(int argc, char *argv[])
                             IS_VALID == (rc == 0));
                 }
             }
-            else if (IS_WHITELISTED) {
-                ASSERTV("UNEXPECTED WHITELIST ENTRY RESULT",
+            else if (IS_ALLOWED_FAILURE_LISTED) {
+                ASSERTV("UNEXPECTED ALLOWED_FAILURE_LIST ENTRY RESULT",
                         LINE,
                         TEST_NAME,
                         IS_VALID,
@@ -1489,8 +1492,9 @@ int main(int argc, char *argv[])
             const int   LINE      = __LINE__;
             const char *TEST_NAME = "n_structure_100000_opening_arrays.json";
             const bool  IS_VALID  = false;
-            const bool  IS_WHITELISTED =
-                (whitelist.find(TEST_NAME) != whitelist.end());
+            const bool  IS_ALLOWED_FAILURE_LISTED =
+                (allowedFailureList.find(TEST_NAME) !=
+                 allowedFailureList.end());
 
             bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
             bslma::TestAllocatorMonitor tam(&ta);
@@ -1537,7 +1541,7 @@ int main(int argc, char *argv[])
             }
 
             if (IS_VALID != (0 == rc)) {
-                if (!IS_WHITELISTED) {
+                if (!IS_ALLOWED_FAILURE_LISTED) {
                     cout << "FAILED: " << LINE << "\n"
                          << "\t" << "TEST_NAME: " << TEST_NAME << "\n"
                          << "\t" << "JSON   : "   << JSON << "\n"
@@ -1549,8 +1553,8 @@ int main(int argc, char *argv[])
                             IS_VALID == (rc == 0));
                 }
             }
-            else if (IS_WHITELISTED) {
-                ASSERTV("UNEXPECTED WHITELIST ENTRY RESULT",
+            else if (IS_ALLOWED_FAILURE_LISTED) {
+                ASSERTV("UNEXPECTED ALLOWED_FAILURE_LIST ENTRY RESULT",
                         LINE,
                         TEST_NAME,
                         IS_VALID,
@@ -1567,8 +1571,9 @@ int main(int argc, char *argv[])
             const int   LINE      = __LINE__;
             const char *TEST_NAME = "n_structure_open_array_object.json";
             const bool  IS_VALID  = false;
-            const bool  IS_WHITELISTED =
-                (whitelist.find(TEST_NAME) != whitelist.end());
+            const bool  IS_ALLOWED_FAILURE_LISTED =
+                (allowedFailureList.find(TEST_NAME) !=
+                 allowedFailureList.end());
 
             bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
             bslma::TestAllocatorMonitor tam(&ta);
@@ -1630,7 +1635,7 @@ int main(int argc, char *argv[])
             }
 
             if (IS_VALID != (0 == rc)) {
-                if (!IS_WHITELISTED) {
+                if (!IS_ALLOWED_FAILURE_LISTED) {
                     cout << "FAILED: " << LINE << "\n"
                          << "\t" << "TEST_NAME: " << TEST_NAME << "\n"
                          << "\t" << "JSON   : "   << JSON << "\n"
@@ -1642,8 +1647,8 @@ int main(int argc, char *argv[])
                             IS_VALID == (rc == 0));
                 }
             }
-            else if (IS_WHITELISTED) {
-                ASSERTV("UNEXPECTED WHITELIST ENTRY RESULT",
+            else if (IS_ALLOWED_FAILURE_LISTED) {
+                ASSERTV("UNEXPECTED ALLOWED_FAILURE_LIST ENTRY RESULT",
                         LINE,
                         TEST_NAME,
                         IS_VALID,
