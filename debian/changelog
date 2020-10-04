@@ -1,5 +1,14 @@
-bsl-internal (3.63.0.0) unstable; urgency=low
+bsl-internal (3.64.0.0) unstable; urgency=low
 
+  * 4e28c4e9b Bumped version to 3.64.0.0
+  * 9e46559c2 Merge pull request #2946 from bvaldiviesom/feature/add-bdls-pathutil-getextension
+  * 1eb1a56f3 Merge pull request #2808 from mclow3/drqs-113474532
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 4 Oct 2020 07:18:14 -0400
+
+bsl-internal (3.63.0.0) git; urgency=low
+
+  * 547cf08da Changelog for version 3.63.0.0
   * 2d8eb0954 Bumped version to 3.63.0.0
   * 4b5c854b6 BSLS_ASSERT_LEVEL_ASSUME* and constexpr BSLS_ASSERT/BSLS_REVIEW initial version
   * cdd237c9e Bumped version to 3.62.0.0
@@ -9,7 +18,7 @@ bsl-internal (3.63.0.0) unstable; urgency=low
   * aa1c93633 Merge pull request #2922 from hrosen4/balxml_minireader-too-much-allocation
   * 4c8715d45 Remove deprecated conversions from baltzo_zoneinfo. (#2892)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 18 Sep 2020 12:14:50 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 18 Sep 2020 12:21:46 -0400
 
 bsl-internal (3.61.0.0) git; urgency=low
 
