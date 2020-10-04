@@ -11,7 +11,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 37 components having 4 levels of physical
+ The 'bdlb' package currently has 38 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -51,7 +51,7 @@
      bdlb_random
      bdlb_randomdevice
      bdlb_scopeexit
-     bdlb_stringrefutil                                    !DEPRECATED!
+     bdlb_stringrefutil                                  !DEPRECATED!
      bdlb_stringviewutil
      bdlb_testinputiterator
      bdlb_tokenizer
@@ -154,7 +154,7 @@
 : 'bdlb_string':
 :      Provide utility functions on C-style and 'STL' strings.
 :
-: 'bdlb_stringrefutil':                                    !DEPRECATED!
+: 'bdlb_stringrefutil':                                  !DEPRECATED!
 :      Provide utility functions on 'bslstl::StringRef'-erenced strings.
 :
 : 'bdlb_stringviewutil':

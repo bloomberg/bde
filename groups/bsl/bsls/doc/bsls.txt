@@ -18,26 +18,25 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 76 components having 14 levels of physical
+ The 'bsls' package currently has 76 components having 16 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
-
 ..
-  14. bsls_byteorder
+  16. bsls_byteorder
 
-  13. bsls_alignedbuffer
+  15. bsls_alignedbuffer
       bsls_alignment
       bsls_byteorderutil
       bsls_platformutil                                  !DEPRECATED!
       bsls_systemtime
 
-  12. bsls_alignmentutil
+  14. bsls_alignmentutil
       bsls_bslexceptionutil
       bsls_stopwatch
       bsls_timeinterval
 
-  11. bsls_asserttest
+  13. bsls_asserttest
       bsls_byteorderutil_impl                                         !PRIVATE!
       bsls_exceptionutil
       bsls_nameof
@@ -45,13 +44,19 @@
       bsls_spinlock
       bsls_timeutil
 
-  10. bsls_assert
+  12. bsls_assert
 
-   9. bsls_review
+  11. bsls_bsllock
+      bsls_review
+
+  10. bsls_atomic
+      bsls_bslonce
+      bsls_log
+
+   9. bsls_atomicoperations
 
    8. bsls_atomicoperations_sparc32_sun_cc                            !PRIVATE!
       bsls_atomicoperations_sparc64_sun_cc                            !PRIVATE!
-      bsls_log
       bsls_objectbuffer
       bsls_protocoltest
 
@@ -68,12 +73,10 @@
       bsls_annotation                                    !DEPRECATED!
       bsls_atomicoperations_powerpc32_aix_xlc                         !PRIVATE!
       bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
-      bsls_bsllock
       bsls_keyword
       bsls_nullptr
 
-   5. bsls_atomic
-      bsls_atomicoperations_all_all_clangintrinsics                   !PRIVATE!
+   5. bsls_atomicoperations_all_all_clangintrinsics                   !PRIVATE!
       bsls_atomicoperations_all_all_gccintrinsics                     !PRIVATE!
       bsls_atomicoperations_arm_all_gcc                               !PRIVATE!
       bsls_atomicoperations_ia64_hp_acc                               !PRIVATE!
@@ -83,12 +86,10 @@
       bsls_atomicoperations_x64_win_msvc                              !PRIVATE!
       bsls_atomicoperations_x86_all_gcc                               !PRIVATE!
       bsls_atomicoperations_x86_win_msvc                              !PRIVATE!
-      bsls_bslonce
       bsls_compilerfeatures
 
    4. bsls_assert_macroreset                                          !PRIVATE!
       bsls_asserttest_macroreset                                      !PRIVATE!
-      bsls_atomicoperations
       bsls_atomicoperations_default                                   !PRIVATE!
       bsls_buildtarget
       bsls_int64                                         !DEPRECATED!
