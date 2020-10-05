@@ -11,6 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS
 //  BSLS_COMPILERFEATURES_CPLUSPLUS: Portable version of '__cplusplus'
+//  BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION: flag for return optimization
 //  BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS: compiler bug
 //  BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST: __LINE__ value for multi-line
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: flag for alias templates
@@ -70,12 +71,25 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_CPLUSPLUS':
 //:     This macro provides a portable way to determine the version of the C++
 //:     standard mode that is being used.  In general, this has the same value
-//:     as the stanard '__cplusplus' macro, but on some compilers with some
+//:     as the standard '__cplusplus' macro, but on some compilers with some
 //:     settings the standard macro does not get assigned the correct value.
 //:     The values generally set (as defined in the C++ standard) are the year
 //:     and month when the standard was completed, and the value of this macro
 //:     should be compared with the appropriate constants -- '199711L',
 //:     '201103L', '201402L', '201703L', etc.
+//:
+//: 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION'
+//:     This macro is defined if the compiler always elides all copies (or
+//:     moves) when returning a prvalue expression from a function and using
+//:     that expression to initialize a class object of the same type
+//:     (ignoring cv qualifications).  Specifically, given the function,
+//:     'Thing funcReturningThing() { return Thing(ctor-args...); }', the
+//:     return value is always initialized with '(ctor-args...)'; no copy is
+//:     performed in the return statement.  Additionally,
+//:     'Thing var(funcReturningThing())' always constructs 'var' directly
+//:     from the return expression of 'funcReturningThing()'; again, no copies
+//:     are involved.  The semantics of these optimizations are guaranteed in
+//:     C++17 and later, but are optional in previous versions of C++.
 //:
 //: 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS':
 //:     The 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS' macro
@@ -291,7 +305,7 @@ BSLS_IDENT("$Id: $")
 // (the output is read by humans who are good at finding the line that
 // actually emitted the text), sometimes programs read other programs' output.
 // In such cases the precise values for the line numbers may matter.  This
-// example demonstrates the two ways our currectly suported C++ compilers
+// example demonstrates the two ways our currently supported C++ compilers
 // generate line numbers in multi-line macro expansion contexts (from the
 // '__LINE__' macro), and how the presence (or absence) of the macro
 // 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST' indicates which method the
@@ -336,9 +350,9 @@ BSLS_IDENT("$Id: $")
 //        assert(A_LINE + 4 == LINE_FROM_MACRO);
 //    #endif
 //..
-// Finally note that WG14 N2322 defines this behavior is *unspecified*,
+// Finally note that WG14 N2322 defines this behavior as *unspecified*,
 // therefore it is in the realm of possibilities, although not likely (in C++
-// compilers) that further, more complicated or even indeterminite behaviors
+// compilers) that further, more complicated or even indeterminate behaviors
 // may arise.
 //
 ///Bugs in Compilers
@@ -737,10 +751,14 @@ BSLS_IDENT("$Id: $")
 // Use the standard compiler-independent feature-test macros (SD-6) for
 // compilers that support them.  This support will be mandated by C++20, and it
 // is expected that, at some point, future compilers will need only these
-// universal definitions, and the platoform-specific detection below will need
+// universal definitions, and the platform-specific detection below will need
 // no further maintenance.
 #if defined(__cpp_unicode_characters) && defined(__cpp_unicode_literals)
 # define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+#endif
+
+#if defined(__cpp_guaranteed_copy_elision)
+# define BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 #endif
 
 // ============================================================================
@@ -791,8 +809,11 @@ BSLS_IDENT("$Id: $")
 #  define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 # endif
 # if BSLS_PLATFORM_CMP_VERSION >= 50000
+//   GCC provides this support prior to C++17, independent of language dialect.
+#    ifndef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#        define BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#    endif
 #    define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
-//   GCC provides this support prior to C++17, independant of language dialect.
 # endif
 // GCC -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
 # if defined(__GXX_EXPERIMENTAL_CXX0X__)
@@ -860,6 +881,9 @@ BSLS_IDENT("$Id: $")
 // http://clang.llvm.org/docs/LanguageExtensions.html
 #if defined(BSLS_PLATFORM_CMP_CLANG)
 // Clang supported
+#ifndef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#    define BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#endif
 #define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
 #define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
@@ -1018,6 +1042,9 @@ BSLS_IDENT("$Id: $")
 // 2013 supports deleted functions in principle, the only use we had caused a
 // C1001 compiler internal error.  Also note that the variable template C++14
 // compiler feature is supported since the 2015 update 2 compiler.
+#    ifndef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#        define BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+#    endif
 #   define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #   define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #   define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
@@ -1174,8 +1201,8 @@ BSLS_IDENT("$Id: $")
 # if BSLS_PLATFORM_CMP_VERSION >= 0x5140
 #   define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     // CC 12.4 will overly aggressively match an initializer list when it sees
-    // brace initalization, leading to rejection of valid code when there is no
-    // valid initializer list conversion, but another method creating a
+    // brace initialization, leading to rejection of valid code when there is
+    // no valid initializer list conversion, but another method creating a
     // temporary object from the braced arguments should have been chosen.
 
 #   define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
@@ -1208,15 +1235,15 @@ BSLS_IDENT("$Id: $")
     // CC 12.4 'constexpr' implementation almost satisfies our testing, but the
     // compiler crashes when for some rare-but-reasonable data structures.  CC
     // 12.5 has different corner cases, although we are still trying to track
-    // down a narrowed test case.  Both 12.5 and 12.6 have a regresion compared
-    // to 12.4 though with the (implicit) 'constexpr' constructors of
+    // down a narrowed test case.  Both 12.5 and 12.6 have a regression
+    // compared to 12.4 though with the (implicit) 'constexpr' constructors of
     // aggregates that have dependent base classes, such as most type traits.
 
 #   define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
-    // CC 12.4, CC 12.5, and 12.6 all fail in a very specific way, which
-    // unfortuntely breaks for 'shared_ptr' in a way that is widely used.  Note
-    // that the version check assumes the next revision of the compiler will
-    // have this fix, or the test driver will force us to update again.
+    // CC 12.4, CC 12.5, and 12.6 all fail in a very specific way, which,
+    // unfortunately, breaks for 'shared_ptr' in a way that is widely used.
+    // Note that the version check assumes the next revision of the compiler
+    // will have this fix, or the test driver will force us to update again.
 # endif
 
 # if BSLS_PLATFORM_CMP_VERSION < 0x5160
@@ -1250,7 +1277,7 @@ BSLS_IDENT("$Id: $")
 //              DISABLE FEATURES REMOVED BY LATER STANDARDS
 // ============================================================================
 
-// Undefine macros defined for earlier dialacts (including C++98) that are
+// Undefine macros defined for earlier dialects (including C++98) that are
 // removed from later editions of the C++ Standard.
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
