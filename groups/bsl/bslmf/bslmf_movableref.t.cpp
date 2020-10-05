@@ -31,7 +31,7 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 4] MovableRef<TYPE>::operator TYPE&() const;
 // [ 5] TYPE& access(TYPE& lvalue);
-// [ 5] TYPE& access(MovableRef<TYPE>& lvalue);
+// [ 5] TYPE& access(MovableRef<TYPE> lvalue);
 // [ 3] MovableRef<TYPE> move(TYPE& lvalue);
 // [ 3] MovableRef<remove_reference<T>::type> move(MovableRef<T> ref);
 // [  ] enable_if<true> move_if_noexcept(TYPE& lvalue);
@@ -476,6 +476,17 @@ class TestMoving {
     const int  *getPointer() const { return this->d_pointer; }
         // Return the held pointer.
 };
+
+template <class TYPE>
+bool testForwardRefArgument(BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) arg)
+    // Move from specified 'arg', which must be of type
+    // 'MovableRef<TestMoving>'. This function tests that 'MovableRef'
+    // arguments can be passed and used through forwarding references.
+{
+    TestMoving moveTo(bslmf::MovableRefUtil::move(arg));
+    // Return true if 'arg' was moved from
+    return 0 == bslmf::MovableRefUtil::access(arg).getPointer();
+}
 
 //=============================================================================
 //              TEST VOCABULARY FOR BSL_IS_NOTHROW_MOVE_CONSTRUCTIBLE
@@ -1298,6 +1309,9 @@ int main(int argc, char *argv[])
         //:   implementation.
         //: 2 A function can be overloaded for 'const TYPE&', 'TYPE&', and
         //:   'MovableRef<TYPE>' and be called appropriately.
+        //: 3 A function taking an parameter of type
+        //:   'BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)' can be called with an
+        //:   argument of type 'MovableRef<SomeType>'.
         //
         // Plan:
         //: 1 Call an overloaded function taking a 'MovableRef<TYPE>' argument
@@ -1307,6 +1321,9 @@ int main(int argc, char *argv[])
         //:   one of the two lvalue overloads is called.
         //: 2 Calling the overloaded function from the previous item and
         //:   confirming the result also addresses this concern.
+        //: 3 Call a function template taking a
+        //:   'BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)', passing lvalues as
+        //:   well as the result of 'MovableRefUtil::move'.
         //
         // Testing:
         //   bslmf::MovableRef<TYPE> VS. RVALUE
@@ -1324,6 +1341,9 @@ int main(int argc, char *argv[])
         ASSERT(!TestMovableRefArgument<Vector<int> >::test(Vector<int>()));
         ASSERT(!TestMovableRefArgument<TestMoving>::test(TestMoving()));
 #endif
+        TestMoving tm;
+        ASSERT(testForwardRefArgument(bslmf::MovableRefUtil::move(tm)));
+
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -1331,7 +1351,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 'MovableRefUtil::access()' yields an lvalue reference the object
-        //:   referenced by an lvalue or a 'MovableRef<TYPE>'.
+        //:   referenced by an lvalue or a (possibly const) 'MovableRef<TYPE>'.
         //
         // Plan:
         //: 1 Call a function taking a 'MovableRef<TYPE>' argument and verify
@@ -1340,7 +1360,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   TYPE& access(TYPE& lvalue);
-        //   TYPE& access(MovableRef<TYPE>& lvalue);
+        //   TYPE& access(MovableRef<TYPE> lvalue);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'MovableRefUtil::access'"
@@ -1349,8 +1369,18 @@ int main(int argc, char *argv[])
             int  value(19);
             int *address(MovableAddress<int>::get(
                                           bslmf::MovableRefUtil::move(value)));
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+            const
+#endif
+            bslmf::MovableRef<int> ref(bslmf::MovableRefUtil::move(value));
+
             ASSERT(&value == address);
             ASSERT(&value == &bslmf::MovableRefUtil::access(value));
+            ASSERT(&value == &bslmf::MovableRefUtil::access(ref));
+            ASSERT(&value == &bslmf::MovableRefUtil::access(
+                                          bslmf::MovableRefUtil::move(value)));
+            ASSERT(&value == &bslmf::MovableRefUtil::access(ref));
         }
         {
             Vector<int>  value;
@@ -1359,20 +1389,32 @@ int main(int argc, char *argv[])
             ASSERT(&value == address);
             ASSERT(&value == &bslmf::MovableRefUtil::access(value));
         }
+        {
+            const int value(19);
+            const int *address(MovableAddress<const int>::get(
+                                          bslmf::MovableRefUtil::move(value)));
+
+            ASSERT(&value == address);
+            ASSERT(&value == &bslmf::MovableRefUtil::access(value));
+            ASSERT(&value == &bslmf::MovableRefUtil::access(
+                                          bslmf::MovableRefUtil::move(value)));
+        }
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING 'MovableRef<TYPE>::operator TYPE&'
         //
         // Concerns:
-        //: 1 'MovableRef<TYPE>' converts to an lvalue reference of type
+        //: 1 'const MovableRef<TYPE>' converts to an lvalue reference of type
         //:   'TYPE&' and that the address of the referenced object is
         //:    identical to the address of the original object.
+        //: 2 If 'TYPE' is const, then the resulting lvalue is const.
         //
         // Plan:
         //: 1 Use 'MovableRefUtil::move()' with an lvalue, initialize a
         //:   'MovableRef<T>', convert the result to an lvalue reference, and
         //:   check that the addresses are identical.
+        //: 2 Repeat step 1 with const 'T' types.
         //
         // Testing:
         //   MovableRef<TYPE>::operator TYPE&() const;
@@ -1383,6 +1425,9 @@ int main(int argc, char *argv[])
 
         {
             int                    value(17);
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+            const
+#endif
             bslmf::MovableRef<int> rvalue(bslmf::MovableRefUtil::move(value));
             int&                   lvalue(rvalue);
             ASSERT(&value == &lvalue);
@@ -1400,6 +1445,13 @@ int main(int argc, char *argv[])
                                            bslmf::MovableRefUtil::move(value));
             TestMoving&                   lvalue(rvalue);
             ASSERT(value.getAddress() == lvalue.getAddress());
+        }
+        {
+            const int                    value(17);
+            bslmf::MovableRef<const int> rvalue(
+                                           bslmf::MovableRefUtil::move(value));
+            const int&                   lvalue(rvalue);
+            ASSERT(&value == &lvalue);
         }
       } break;
       case 3: {
@@ -1537,8 +1589,13 @@ int main(int argc, char *argv[])
         int&                   reference(rvalue);
         int&                   lvalue0(bslmf::MovableRefUtil::access(rvalue));
         int&                   lvalue1(bslmf::MovableRefUtil::access(value));
+        int&                   lvalue2(bslmf::MovableRefUtil::access(
+                                          bslmf::MovableRefUtil::move(value)));
+
+        ASSERT(&reference == &value);
         ASSERT(&reference == &lvalue0);
         ASSERT(&reference == &lvalue1);
+        ASSERT(&reference == &lvalue2);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

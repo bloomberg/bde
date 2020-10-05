@@ -562,27 +562,22 @@ struct MovableRefUtil {
 
   public:
     // CLASS METHODS
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class TYPE>
-    static TYPE& access(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT;
-        // Return a reference to the specified 'lvalue'.  This overload of
-        // access is used when accessing an argument passed by
-        // 'bslma::MovableRef<TYPE>' with a C++11 implementation: the 'TYPE&&'
-        // argument is a movable l-value.
-        //
-        // Please see the component-level documentation for more information on
-        // this function.
-
+    static TYPE& access(TYPE& ref) BSLS_KEYWORD_NOEXCEPT;
     template <class TYPE>
-    static TYPE& access(MovableRef<TYPE>& lvalue) BSLS_KEYWORD_NOEXCEPT;
-        // Return a reference to the object referenced by the specified
-        // 'lvalue' object.  This reference might be obtained by a conversion
-        // of 'lvalue' to 'TYPE&' in contexts where a conversion is viable.
-        // When a conversion isn't applicable, e.g., when caling a member of
-        // 'TYPE', the reference can be accessed using 'access()'.  Since the
-        // same notation should be applicable to the C++03 'MovableRef<TYPE>'
-        // objects and a C++11 r-value reference 'TYPE&&', a member function
-        // cannot be used directly.  Note that this overload will never deduce
-        // the argument with a C++11 implementation.
+    static TYPE& access(MovableRef<TYPE> ref) BSLS_KEYWORD_NOEXCEPT;
+#else
+    template <class TYPE>
+    static typename bsl::remove_reference<TYPE>::type&
+    access(TYPE&& ref) BSLS_KEYWORD_NOEXCEPT;
+#endif
+        // Return an lvalue reference to the object referenced by the specified
+        // 'ref' object.  This function is used to provide a uniform interface
+        // to members of an object reference by 'ref', regardless of whether
+        // 'ref' is an 'MovableRef' or lvalue reference and whether the
+        // compiler supports C++11 rvalue references.  This function is
+        // unnecessary (but allowed) when simply converting 'ref' to 'TYPE&'.
         //
         // Please see the component-level documentation for more information on
         // this function.
@@ -679,17 +674,26 @@ MovableRef<TYPE>::operator TYPE&() const {
 //                          struct MovableRefUtil
 // ----------------------------------------------------------------------------
 
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 template <class TYPE>
-inline
-TYPE& MovableRefUtil::access(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT {
-    return lvalue;
+TYPE& MovableRefUtil::access(TYPE& ref) BSLS_KEYWORD_NOEXCEPT
+{
+    return ref;
 }
 
 template <class TYPE>
-inline
-TYPE& MovableRefUtil::access(MovableRef<TYPE>& lvalue) BSLS_KEYWORD_NOEXCEPT {
-    return lvalue;
+TYPE& MovableRefUtil::access(MovableRef<TYPE> ref) BSLS_KEYWORD_NOEXCEPT
+{
+    return ref;
 }
+#else
+template <class TYPE>
+typename bsl::remove_reference<TYPE>::type&
+MovableRefUtil::access(TYPE&& ref) BSLS_KEYWORD_NOEXCEPT
+{
+    return ref;
+}
+#endif
 
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 template <class TYPE>
