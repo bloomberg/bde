@@ -534,11 +534,17 @@ template <class TYPE>
 inline
 const char *bdlat_TypeName_Imp::className(const TYPE *object)
 {
+    const int k_HAS_BASIC_CHOICE_TRAIT =
+                     bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE;
+    const int k_HAS_BASIC_SEQUENCE_TRAIT =
+                   bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicSequence>::VALUE;
+    const int k_HAS_BASIC_CUSTOMIZED_TYPE_TRAIT =
+             bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicCustomizedType>::VALUE;
+
     enum {
-        HAS_CLASS_NAME =
-             bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE
-           | bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicSequence>::VALUE
-           | bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicCustomizedType>::VALUE,
+        HAS_CLASS_NAME = k_HAS_BASIC_CHOICE_TRAIT
+                       | k_HAS_BASIC_SEQUENCE_TRAIT
+                       | k_HAS_BASIC_CUSTOMIZED_TYPE_TRAIT,
 
         IS_BASIC_ENUMERATION =
                 bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE,
