@@ -212,7 +212,7 @@ const char ConfigSchema::TEXT[] =
 "      </xs:element>\n"
 "      <xs:element name='DatetimeFractionalSecondPrecision' type='xs:int'\n"
 "            minOccurs='0' maxOccurs='1'\n"
-"            default='6'\n"
+"            default='3'\n"
 "            bdem:allowsDirectManipulation='0'>\n"
 "        <xs:annotation>\n"
 "          <xs:documentation>\n"
