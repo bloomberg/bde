@@ -10,7 +10,6 @@
             "debug-mode"       : false,
             "options"          : [
                 "-nodefinc",
-                "-cc /opt/swt/install/gcc-4.9.2/bin/g++",
                 "-cl='set ident_header bsls_ident'"
             ],
             "header-paths"     : [
