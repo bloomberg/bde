@@ -909,22 +909,35 @@ struct allocator_traits {
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslma_allocatortraits.h
+#ifndef BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT
+#define BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT 14
+#endif
+#ifndef BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A
+#define BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT
+#endif
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 0
     template <class ELEMENT_TYPE>
     static void construct(ALLOCATOR_TYPE&  basicAllocator,
                           ELEMENT_TYPE    *elementAddr);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 0
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 1
     template <class ELEMENT_TYPE, class Args_01>
     static void construct(ALLOCATOR_TYPE&  basicAllocator,
                           ELEMENT_TYPE    *elementAddr,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 1
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 2
     template <class ELEMENT_TYPE, class Args_01,
                                   class Args_02>
     static void construct(ALLOCATOR_TYPE&  basicAllocator,
                           ELEMENT_TYPE    *elementAddr,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 2
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 3
     template <class ELEMENT_TYPE, class Args_01,
                                   class Args_02,
                                   class Args_03>
@@ -933,7 +946,9 @@ struct allocator_traits {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 3
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 4
     template <class ELEMENT_TYPE, class Args_01,
                                   class Args_02,
                                   class Args_03,
@@ -944,7 +959,9 @@ struct allocator_traits {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 4
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 5
     template <class ELEMENT_TYPE, class Args_01,
                                   class Args_02,
                                   class Args_03,
@@ -957,7 +974,9 @@ struct allocator_traits {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 5
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 6
     template <class ELEMENT_TYPE, class Args_01,
                                   class Args_02,
                                   class Args_03,
@@ -972,7 +991,9 @@ struct allocator_traits {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 6
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 7
     template <class ELEMENT_TYPE, class Args_01,
                                   class Args_02,
                                   class Args_03,
@@ -989,7 +1010,9 @@ struct allocator_traits {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 7
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 8
     template <class ELEMENT_TYPE, class Args_01,
                                   class Args_02,
                                   class Args_03,
@@ -1008,7 +1031,9 @@ struct allocator_traits {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 8
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 9
     template <class ELEMENT_TYPE, class Args_01,
                                   class Args_02,
                                   class Args_03,
@@ -1029,7 +1054,9 @@ struct allocator_traits {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 9
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 10
     template <class ELEMENT_TYPE, class Args_01,
                                   class Args_02,
                                   class Args_03,
@@ -1052,7 +1079,9 @@ struct allocator_traits {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 10
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 11
     template <class ELEMENT_TYPE, class Args_01,
                                   class Args_02,
                                   class Args_03,
@@ -1077,7 +1106,9 @@ struct allocator_traits {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 11
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 12
     template <class ELEMENT_TYPE, class Args_01,
                                   class Args_02,
                                   class Args_03,
@@ -1104,7 +1135,9 @@ struct allocator_traits {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 12
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 13
     template <class ELEMENT_TYPE, class Args_01,
                                   class Args_02,
                                   class Args_03,
@@ -1133,7 +1166,9 @@ struct allocator_traits {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 13
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 14
     template <class ELEMENT_TYPE, class Args_01,
                                   class Args_02,
                                   class Args_03,
@@ -1164,6 +1199,7 @@ struct allocator_traits {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14);
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_A >= 14
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -1384,16 +1420,29 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                                             ELEMENT_TYPE    *elementAddr,
                                             Args&&...        arguments)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
     privateConstruct(basicAllocator,
                      elementAddr,
                      BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
-    // basicAllocator.construct(
-    //     elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+#else
+    // Cannot sniff out whether 'basicAllocator.construct(...)' is valid in
+    // C++03, but allocators are required to have a 'construct' method, so
+    // just call it.
+    basicAllocator.construct(
+        elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+#endif
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslma_allocatortraits.h
+#ifndef BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT
+#define BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT 14
+#endif
+#ifndef BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B
+#define BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT
+#endif
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 0
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE>
 inline
@@ -1401,10 +1450,17 @@ void
 allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                                             ELEMENT_TYPE    *elementAddr)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr);
+#else
     basicAllocator.construct(
         elementAddr);
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 0
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 1
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class Args_01>
 inline
@@ -1413,10 +1469,18 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                                             ELEMENT_TYPE    *elementAddr,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 1
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 2
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class Args_01,
                               class Args_02>
@@ -1427,11 +1491,20 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 2
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 3
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class Args_01,
                               class Args_02,
@@ -1444,12 +1517,22 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                      BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 3
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 4
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class Args_01,
                               class Args_02,
@@ -1464,13 +1547,24 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                      BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
                      BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 4
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 5
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class Args_01,
                               class Args_02,
@@ -1487,14 +1581,26 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
                      BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
                      BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
                      BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 5
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 6
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class Args_01,
                               class Args_02,
@@ -1513,6 +1619,16 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -1520,8 +1636,11 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                      BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
                      BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
                      BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 6
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 7
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class Args_01,
                               class Args_02,
@@ -1542,6 +1661,17 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -1550,8 +1680,11 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                      BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
                      BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
                      BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 7
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 8
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class Args_01,
                               class Args_02,
@@ -1574,6 +1707,18 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -1583,8 +1728,11 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                      BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
                      BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
                      BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 8
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 9
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class Args_01,
                               class Args_02,
@@ -1609,6 +1757,19 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -1619,8 +1780,11 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                      BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
                      BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
                      BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 9
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 10
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class Args_01,
                               class Args_02,
@@ -1647,6 +1811,20 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -1658,8 +1836,11 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                      BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
                      BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
                      BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 10
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 11
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class Args_01,
                               class Args_02,
@@ -1688,6 +1869,21 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_11, arguments_11));
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -1700,8 +1896,11 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                      BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
                      BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10),
                      BSLS_COMPILERFEATURES_FORWARD(Args_11, arguments_11));
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 11
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 12
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class Args_01,
                               class Args_02,
@@ -1732,6 +1931,22 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_11, arguments_11),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_12, arguments_12));
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -1745,8 +1960,11 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                      BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10),
                      BSLS_COMPILERFEATURES_FORWARD(Args_11, arguments_11),
                      BSLS_COMPILERFEATURES_FORWARD(Args_12, arguments_12));
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 12
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 13
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class Args_01,
                               class Args_02,
@@ -1779,6 +1997,23 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_11, arguments_11),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_12, arguments_12),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_13, arguments_13));
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -1793,8 +2028,11 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                      BSLS_COMPILERFEATURES_FORWARD(Args_11, arguments_11),
                      BSLS_COMPILERFEATURES_FORWARD(Args_12, arguments_12),
                      BSLS_COMPILERFEATURES_FORWARD(Args_13, arguments_13));
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 13
 
+#if BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 14
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class Args_01,
                               class Args_02,
@@ -1829,6 +2067,24 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_11, arguments_11),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_12, arguments_12),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_13, arguments_13),
+                     BSLS_COMPILERFEATURES_FORWARD(Args_14, arguments_14));
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01),
                      BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02),
@@ -1844,7 +2100,9 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                      BSLS_COMPILERFEATURES_FORWARD(Args_12, arguments_12),
                      BSLS_COMPILERFEATURES_FORWARD(Args_13, arguments_13),
                      BSLS_COMPILERFEATURES_FORWARD(Args_14, arguments_14));
+#endif
 }
+#endif  // BSLMA_ALLOCATORTRAITS_VARIADIC_LIMIT_B >= 14
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -1857,8 +2115,14 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                                             ELEMENT_TYPE    *elementAddr,
                           BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+    privateConstruct(basicAllocator,
+                     elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+#else
     basicAllocator.construct(
         elementAddr, BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
+#endif
 }
 // }}} END GENERATED CODE
 #endif
