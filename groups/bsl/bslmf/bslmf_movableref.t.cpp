@@ -29,19 +29,25 @@ using namespace BloombergLP;
 //                                   Overview
 //                                   --------
 // ----------------------------------------------------------------------------
-// [ 4] MovableRef<TYPE>::operator TYPE&() const;
-// [ 5] TYPE& access(TYPE& lvalue);
-// [ 5] TYPE& access(MovableRef<TYPE> lvalue);
-// [ 3] MovableRef<TYPE> move(TYPE& lvalue);
-// [ 3] MovableRef<remove_reference<T>::type> move(MovableRef<T> ref);
+// [ 6] MovableRef<TYPE>::operator TYPE&() const;
+// [ 7] TYPE& MovableRefUtil::access(TYPE& lvalue);
+// [ 7] TYPE& MovableRefUtil::access(MovableRef<TYPE> lvalue);
+// [ 5] MovableRef<TYPE> MovableRefUtil::move(TYPE& lvalue);
+// [ 5] MovableRef<RemoveRef<T>::type> MovableRefUtil::move(MovableRef<T> ref);
 // [  ] enable_if<true> move_if_noexcept(TYPE& lvalue);
 // [  ] enable_if<false> move_if_noexcept(TYPE& lvalue);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] MovableRef<TYPE>
-// [ 6] MovableRef<TYPE> VS. RVALUE
-// [ 7] EXTENDING 'bsl::is_nothrow_move_constructible'
-// [ 8] USAGE EXAMPLE
+// [ 3] MovableRefUtil::IsLvalueReference<TYPE>
+// [ 3] MovableRefUtil::IsMovableReference<TYPE>
+// [ 3] MovableRefUtil::IsReference<TYPE>
+// [ 4] MovableRefUtil::RemoveReference<TYPE>
+// [ 4] MovableRefUtil::AddLvalueReference<TYPE>
+// [ 4] MovableRefUtil::AddMovableReference<TYPE>
+// [ 8] MovableRef<TYPE> VS. RVALUE
+// [ 9] EXTENDING 'bsl::is_nothrow_move_constructible'
+// [10] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -114,7 +120,7 @@ namespace {
 //:   transfer their internal representation to another object in some
 //:   situations.  To become move-enabled a class needs to implement, at
 //:   least, a move constructor.  It should probably also implement a move
-//:   assignment.
+//:   assignment operator.
 //: 2 Users of a potentially move-enabled class may take advantage of moving
 //:   objects by explicitly indicating that ownership of resources may be
 //:   transferred.  When using C++11 the compiler can automatically detect
@@ -337,7 +343,7 @@ namespace {
     void Vector<TYPE>::push_back(const TYPE& value)
     {
         if (this->d_end == this->d_endBuffer) {
-            this->reserve(this->size()? int(1.5 * this->size()): 4);
+            this->reserve(this->size()? 2 * this->size() : 4);
         }
         ASSERT(this->d_end != this->d_endBuffer);
         new(this->d_end) TYPE(value);
@@ -1015,7 +1021,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 8: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1089,7 +1095,7 @@ int main(int argc, char *argv[])
 // no need for conditional compilation in when using 'MovableRef<TYPE>' while
 // move semantics is enabled in both modes.
       } break;
-      case 7: {
+      case 9: {
         // --------------------------------------------------------------------
         // EXTENDING 'bsl::is_nothrow_move_constructible'
         //   Ensure the 'bsl::is_nothrow_move_constructible' metafunction
@@ -1299,7 +1305,7 @@ int main(int argc, char *argv[])
                                                   true);
 
       } break;
-      case 6: {
+      case 8: {
         // --------------------------------------------------------------------
         // MOVABLEREF<TYPE> VS. RVALUE
         //
@@ -1309,7 +1315,7 @@ int main(int argc, char *argv[])
         //:   implementation.
         //: 2 A function can be overloaded for 'const TYPE&', 'TYPE&', and
         //:   'MovableRef<TYPE>' and be called appropriately.
-        //: 3 A function taking an parameter of type
+        //: 3 A function taking a parameter of type
         //:   'BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)' can be called with an
         //:   argument of type 'MovableRef<SomeType>'.
         //
@@ -1345,7 +1351,7 @@ int main(int argc, char *argv[])
         ASSERT(testForwardRefArgument(bslmf::MovableRefUtil::move(tm)));
 
       } break;
-      case 5: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING 'MovableRefUtil::access'
         //
@@ -1359,8 +1365,8 @@ int main(int argc, char *argv[])
         //:   lvalue reference with the same address as the original object.
         //
         // Testing:
-        //   TYPE& access(TYPE& lvalue);
-        //   TYPE& access(MovableRef<TYPE> lvalue);
+        //   TYPE& MovableRefUtil::access(TYPE& lvalue);
+        //   TYPE& MovableRefUtil::access(MovableRef<TYPE> lvalue);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'MovableRefUtil::access'"
@@ -1390,7 +1396,7 @@ int main(int argc, char *argv[])
             ASSERT(&value == &bslmf::MovableRefUtil::access(value));
         }
         {
-            const int value(19);
+            const int  value(19);
             const int *address(MovableAddress<const int>::get(
                                           bslmf::MovableRefUtil::move(value)));
 
@@ -1400,14 +1406,14 @@ int main(int argc, char *argv[])
                                           bslmf::MovableRefUtil::move(value)));
         }
       } break;
-      case 4: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING 'MovableRef<TYPE>::operator TYPE&'
         //
         // Concerns:
-        //: 1 'const MovableRef<TYPE>' converts to an lvalue reference of type
-        //:   'TYPE&' and that the address of the referenced object is
-        //:    identical to the address of the original object.
+        //: 1 (Possibly const) 'MovableRef<TYPE>' converts to an lvalue
+        //:   reference of type 'TYPE&' and that the address of the referenced
+        //:   object is identical to the address of the original object.
         //: 2 If 'TYPE' is const, then the resulting lvalue is const.
         //
         // Plan:
@@ -1454,7 +1460,7 @@ int main(int argc, char *argv[])
             ASSERT(&value == &lvalue);
         }
       } break;
-      case 3: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING 'MovableRefUtil::move'
         //
@@ -1487,8 +1493,8 @@ int main(int argc, char *argv[])
         //:   than a substitution macro, to make it clear what we are testing.
         //
         // Testing:
-        //   MovableRef<TYPE> move(TYPE& lvalue);
-        //   MovableRef<remove_reference<T>::type> move(MovableRef<T> ref);
+        //      MovableRef<TYPE> MovableRefUtil::move(TYPE& lvalue);
+        //      MovableRef<RemoveRef<T>::type> move(MovableRef<T> ref);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'MovableRefUtil::move'"
@@ -1527,9 +1533,143 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TRANSFORMATION TRAITS
+        //
+        // Concerns:
+        //: 1 'MovableRefUtil::RemoveReference<TYPE>::type' evaluates to
+        //:   'TYPE' if 'TYPE' is not a reference and to the type it refers to
+        //:   if 'TYPE' is a reference.
+        //: 2 'MovableRefUtil::AddLvalueReference<TYPE>::type' evaluates to
+        //:   'TYPE&' if 'TYPE' is not a reference and to 'T1&' if 'TYPE' is a
+        //:   (movable or lvalue) reference to 'T1'.
+        //: 3 'MovableRefUtil::AddMovableReference<TYPE>::type' evaluates to
+        //:   'MovableRef<TYPE>' if 'TYPE' is not a reference, 'T1&' if 'TYPE'
+        //:   is an lvalue reference to 'T1', and 'MovableRef<T1>' if 'TYPE'
+        //:   is a movable reference to 'T1'.
+        //: 4 In C++03, 'MovableRef<TYPE>' is an object type that simulates a
+        //:   reference type.  Ensure that these three traits work correctly
+        //:   for 'const MovableRef<TYPE>' and reference to 'MovableRef' types.
+        //
+        // Plan:
+        //: 1 Use a compile-time table where the first column is the type to
+        //:   test and the other tree columns are the expected types of the
+        //:   three traits being tested here.  Each row tests a different
+        //:   type.  Test that each trait evaluation is the same as the
+        //:   expected type for that column.
+        //
+        // Testing:
+        //      MovableRefUtil::RemoveReference<TYPE>
+        //      MovableRefUtil::AddLvalueReference<TYPE>
+        //      MovableRefUtil::AddMovableReference<TYPE>
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTRANSFORMATION TRAITS"
+                            "\n=====================\n");
+
+        typedef bslmf::MovableRefUtil Util;
+
+#define MR bslmf::MovableRef
+
+#define TEST(T, REMREF, ADDLVR, ADDMR) do {                                   \
+        ASSERTV(#T, (bsl::is_same<REMREF,                                     \
+                                  Util::RemoveReference<T >::type>::value));  \
+        ASSERTV(#T, (bsl::is_same<ADDLVR,                                     \
+                                Util::AddLvalueReference<T >::type>::value)); \
+        ASSERTV(#T, (bsl::is_same<ADDMR,                                      \
+                               Util::AddMovableReference<T >::type>::value)); \
+    } while (false)
+
+        //   TYPE                  RemRef      AddLvRef     AddMovRef
+        //   --------------------  ----------  -----------  --------------
+        TEST(int                 , int       , int&       , MR<int>       );
+        TEST(const int           , const int , const int& , MR<const int> );
+        TEST(TestMoving          , TestMoving, TestMoving&, MR<TestMoving>);
+        TEST(int&                , int       , int&       , int&          );
+        TEST(const int&          , const int , const int& , const int&    );
+        TEST(TestMoving&         , TestMoving, TestMoving&, TestMoving&   );
+        TEST(MR<int>             , int       , int&       , MR<int>       );
+        TEST(MR<TestMoving>      , TestMoving, TestMoving&, MR<TestMoving>);
+        TEST(MR<const int>       , const int , const int& , MR<const int> );
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        // Test reference-to-MovableRef only for C++03
+        TEST(MR<int>&            , int       , int&       , MR<int>       );
+        TEST(const MR<const int> , const int , const int& , MR<const int> );
+        TEST(const MR<const int>&, const int , const int& , MR<const int> );
+#endif
+
+#undef TEST
+#undef MR
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // PREDICATE TRAITS
+        //
+        // Concerns:
+        //: 1 'MovableRefUtil::IsLvalueReference<TYPE>::value' evaluates to
+        //:   true iff 'TYPE' is an lvalue reference.
+        //: 2 'MovableRefUtil::IsMovableReference<TYPE>::value' evaluates to
+        //:   true iff 'TYPE' is an rvalue reference (C++11 and later) or a
+        //:   specialization of 'MovableRef' (C++03)'.
+        //: 3 'MovableRefUtil::IsReference<TYPE>::value' evaluates to true iff
+        //:   either 'IsLvalueReference<TYPE>' or 'IsMovableReference<TYPE>'
+        //:   are true.
+        //: 4 In C++03, 'MovableRef<TYPE>' is an object type that simulates a
+        //:   reference type.  Ensure that these three traits work correctly
+        //:   for 'const MovableRef<TYPE>' and reference to 'MovableRef' types.
+        //
+        // Plan:
+        //: 1 Use a compile-time table where the first column is the type to
+        //:   test and the other tree columns are the expected values of the
+        //:   three traits being tested here.  Each row tests a different
+        //:   type.  Test that each trait results in the same value as the
+        //:   expected value for that column.
+        //
+        // Testing:
+        //      MovableRefUtil::IsLvalueReference<TYPE>
+        //      MovableRefUtil::IsMovableReference<TYPE>
+        //      MovableRefUtil::IsReference<TYPE>
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nPREDICATE TRAITS"
+                            "\n================\n");
+
+        typedef bslmf::MovableRefUtil Util;
+
+#define TEST(T, IS_LVREF, IS_MREF, IS_REF) do {                          \
+        ASSERTV(#T, ! (IS_LVREF && IS_MREF));                            \
+        ASSERTV(#T, IS_REF == (IS_LVREF || IS_MREF));                    \
+        ASSERTV(#T, IS_LVREF == (Util::IsLvalueReference<T >::value));   \
+        ASSERTV(#T, IS_MREF == (Util::IsMovableReference<T >::value));   \
+        ASSERTV(#T, IS_REF == (Util::IsReference<T >::value));           \
+    } while (false)
+
+        //   TYPE                                  IsLv   IsMov  IsRef
+        //   -----------------------------------   -----  -----  -----
+        TEST(int                                 , false, false, false);
+        TEST(const int                           , false, false, false);
+        TEST(TestMoving                          , false, false, false);
+        TEST(int&                                , true , false, true );
+        TEST(const int&                          , true , false, true );
+        TEST(TestMoving&                         , true , false, true );
+        TEST(bslmf::MovableRef<int>              , false, true , true );
+        TEST(bslmf::MovableRef<TestMoving>       , false, true , true );
+        TEST(bslmf::MovableRef<const int>        , false, true , true );
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        // Test reference-to-MovableRef only for C++03
+        TEST(bslmf::MovableRef<int>&             , false, true , true );
+        TEST(const bslmf::MovableRef<const int>  , false, true , true );
+        TEST(const bslmf::MovableRef<const int>& , false, true , true );
+#endif
+
+#undef TEST
+
+      } break;
       case 2: {
         // --------------------------------------------------------------------
-        // MOVABLEREF<TYPE>
+        // 'MovableRef<TYPE>'
         //
         // Concerns:
         //: 1 'MovableRef<TYPE>' exists and in case of using a C++11
@@ -1543,8 +1683,8 @@ int main(int argc, char *argv[])
         //   MovableRef<TYPE>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nMOVABLEREF<TYPE>"
-                            "\n================\n");
+        if (verbose) printf("\n'MovableRef<TYPE>'"
+                            "\n==================\n");
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         ASSERT((bsl::is_same<bslmf::MovableRef<int>, int&&>::value));
@@ -1596,6 +1736,18 @@ int main(int argc, char *argv[])
         ASSERT(&reference == &lvalue0);
         ASSERT(&reference == &lvalue1);
         ASSERT(&reference == &lvalue2);
+
+        typedef bslmf::MovableRefUtil Util;
+
+        ASSERT(!Util::IsLvalueReference<int>::value);
+        ASSERT(!Util::IsMovableReference<int>::value);
+        ASSERT(!Util::IsReference<int>::value);
+        ASSERT( Util::IsLvalueReference<int&>::value);
+        ASSERT(!Util::IsMovableReference<int&>::value);
+        ASSERT( Util::IsReference<int&>::value);
+        ASSERT(!Util::IsLvalueReference<bslmf::MovableRef<int> >::value);
+        ASSERT( Util::IsMovableReference<bslmf::MovableRef<int> >::value);
+        ASSERT( Util::IsReference<bslmf::MovableRef<int> >::value);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
