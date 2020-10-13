@@ -130,10 +130,9 @@ namespace BALL_USAGE_EXAMPLE_1 {
 // realistic example, there would be no explicit distinction between "parent"
 // and "child" categories, but rather as categories are dynamically
 // administered by the user, newly created categories would pick up the changes
-// made to existing parents.  As a practical matter, beginning of the function
-// 'main' constitute the "usage" that the user must master to *install* the
-// callback; the rest of this example merely illustrates the *consequences* of
-// installing the callback.
+// made to existing parents.  As a practical matter, the beginning of the
+// function 'main' constitute the "usage" to *install* the callback; the rest
+// of this example merely illustrates the *consequences* of that.
 //
 // First, we load the logger manager 'configuration' with the desired "payload"
 // function, 'ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues',

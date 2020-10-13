@@ -1366,24 +1366,24 @@ class InputSeqConstIterator {
     // Input iterators are not value-semantic types.  In particular, if two
     // iterators compare equal and both are incremented, they need not continue
     // to compare equal.  We allow only one "active" iterator on a given
-    // sequence.  We keep track of the active iterator by keeping a master
-    // iterator in the container.  The 'd_master' member of valid iterator will
-    // point to the master and its 'd_imp' member will have the same value as
-    // the master.  If a valid iterator is copied by copy construction or
-    // assignment, then both the original and copy are valid.  However, as soon
-    // as one is incremented, the 'd_imp' of other one will no longer match the
-    // master, making it invalid.  As a special case, an iterator with a null
-    // master is valid but not incrementable.  These special iterators are used
-    // for the 'end' iterator and for the return of the post-increment
-    // operator.
+    // sequence.  We keep track of the active iterator by keeping a main
+    // iterator in the container.  The 'd_main' member of valid iterator will
+    // point to the main iterator and its 'd_imp' member will have the same
+    // value as the main iterator.  If a valid iterator is copied by copy
+    // construction or assignment, then both the original and copy are valid.
+    // However, as soon as one is incremented, the 'd_imp' of other one will no
+    // longer match the main iterator, making it invalid.  As a special case,
+    // an iterator with a null main iterator is valid but not incrementable.
+    // These special iterators are used for the 'end' iterator and for the
+    // return of the post-increment operator.
 
-    BaseIterType *d_master_p;
+    BaseIterType *d_main_p;
     BaseIterType  d_imp;
 
     InputSeqConstIterator(BaseIterType *m, BaseIterType i)
-    : d_master_p(m), d_imp(i)
+    : d_main_p(m), d_imp(i)
         // Construct an iterator using the specified 'm' as the address of the
-        // master iterator and the specified 'i' as the initial iterator
+        // main iterator and the specified 'i' as the initial iterator
         // position.  If 'm' is null, then the resulting iterator is valid, but
         // may not be incremented.  If 'm' is non-null and '*m' does not equal
         // 'i', then the resulting iterator is invalid -- it may not be
@@ -1411,13 +1411,13 @@ class InputSeqConstIterator {
     InputSeqConstIterator& operator++()
         // Pre-increment this object.
     {
-        ASSERT(d_master_p && d_imp == *d_master_p);  // test if incrementable
-        if (!(d_master_p && d_imp == *d_master_p)) {
-            // Continue test despite error by creating self-mastered iterator.
+        ASSERT(d_main_p && d_imp == *d_main_p);  // test if incrementable
+        if (!(d_main_p && d_imp == *d_main_p)) {
+            // Continue test despite error by making iterator its own main.
             // This assignment also prevents cascade errors.
-            d_master_p = &d_imp;
+            d_main_p = &d_imp;
         }
-        d_imp = ++*d_master_p;
+        d_imp = ++*d_main_p;
         return *this;
     }
 
@@ -1435,7 +1435,7 @@ class InputSeqConstIterator {
     reference operator*() const
         // Dereference this iterator.
     {
-        ASSERT( ! d_master_p || d_imp == *d_master_p); // test if valid
+        ASSERT( ! d_main_p || d_imp == *d_main_p); // test if valid
         return *d_imp;
     }
 
@@ -1452,8 +1452,7 @@ bool operator==(InputSeqConstIterator<TYPE> lhs,
                 InputSeqConstIterator<TYPE> rhs)
 {
     return (lhs.d_imp == rhs.d_imp &&
-                    (lhs.d_master_p == rhs.d_master_p || 0 == lhs.d_master_p ||
-                                                         0 == rhs.d_master_p));
+            (lhs.d_main_p == rhs.d_main_p || !lhs.d_main_p || !rhs.d_main_p));
 }
 
 template <class TYPE>
@@ -1473,7 +1472,7 @@ class InputSeq {
 
     // DATA
     RandSeq<TYPE>                                  d_value;
-    mutable typename RandSeq<TYPE>::const_iterator d_masterIter;
+    mutable typename RandSeq<TYPE>::const_iterator d_mainIter;
 
   public:
     // TYPES
@@ -1518,8 +1517,8 @@ template <class TYPE>
 inline
 InputSeqConstIterator<TYPE> InputSeq<TYPE>::begin() const
 {
-    d_masterIter = d_value.begin();
-    return InputSeqConstIterator<TYPE>(&d_masterIter, d_masterIter);
+    d_mainIter = d_value.begin();
+    return InputSeqConstIterator<TYPE>(&d_mainIter, d_mainIter);
 }
 
 template <class TYPE>

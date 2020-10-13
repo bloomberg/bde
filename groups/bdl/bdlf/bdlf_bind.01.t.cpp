@@ -1521,7 +1521,7 @@ using namespace bdlf::PlaceHolders;
 // ----------------------------------------------------------------------------
 namespace BDLF_BIND_USAGE_EXAMPLE_FROM_OTHER_TEST_DRIVERS {
 
-int onMasterCommand(const int&, int& stream, int *counter = 0)
+int onCommand(const int&, int& stream, int *counter = 0)
 {
     if (counter) {
         ++ *counter;
@@ -1588,7 +1588,7 @@ DEFINE_TEST_CASE(8) {
                                           bdlf::PlaceHolder<2>,
                                           int*> LIST;
             typedef int (*FUNC)(const int &, int &, int *);
-            bdlf::Bind<bslmf::Nil, FUNC, LIST> b(&onMasterCommand,
+            bdlf::Bind<bslmf::Nil, FUNC, LIST> b(&onCommand,
                                                  LIST(_1, _2, &extra));
 
             // Make sure the binder works properly.
@@ -1600,21 +1600,21 @@ DEFINE_TEST_CASE(8) {
 
             // Make sure an equivalent binder constructed with BindUtil::bind
             // works similarly.
-            ASSERT(0 == bdlf::BindUtil::bind(&onMasterCommand, _1, _2, &extra)
+            ASSERT(0 == bdlf::BindUtil::bind(&onCommand, _1, _2, &extra)
                                             (prefix, stream));
             ASSERT(2 == extra);
             ASSERT(2 == stream);
 
             extra = 0, stream = 0, prefix = 0;
             ASSERT(0 == bdlf::BindUtil::bindS(Z0,
-                                              &onMasterCommand,
+                                              &onCommand,
                                               _1,
                                               _2,
                                               &extra)(prefix, stream));
             ASSERT(1 == extra);
             ASSERT(1 == stream);
             ASSERT(0 == bdlf::BindUtil::bindS(Z0,
-                                              &onMasterCommand,
+                                              &onCommand,
                                               _1,
                                               _2,
                                               &extra)(prefix, stream));

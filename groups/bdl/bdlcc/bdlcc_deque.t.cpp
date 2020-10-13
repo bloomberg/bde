@@ -3344,8 +3344,8 @@ volatile Int64              pusherTotals[        NUM_PUSHERS];
 bdlcc::Deque<Item>          deque(HIGH_WATER_MARK,
                                   &bslma::NewDeleteAllocator::singleton());
 
-bsls::AtomicInt             seedMaster(123456789);
-bsls::AtomicInt             pusherIdxMaster(0);
+bsls::AtomicInt             seedMain(123456789);
+bsls::AtomicInt             pusherIdxMain(0);
 
 bslmt::Barrier              barrier(NUM_PUSHERS + NUM_POPPERS);
 
@@ -3356,8 +3356,8 @@ struct PusherThread {
 
 void PusherThread::operator()()
 {
-    u::RandGen   randGenerator(seedMaster += 987654321);
-    Item         item       = { pusherIdxMaster++, 0 };
+    u::RandGen   randGenerator(seedMain += 987654321);
+    Item         item       = { pusherIdxMain++, 0 };
     Int64        localTotal = 0;
 
     barrier.wait();
@@ -3398,7 +3398,7 @@ struct PopperThread {
 
 void PopperThread::operator()()
 {
-    int        seed = seedMaster += 987654321;
+    int        seed = seedMain += 987654321;
     u::RandGen randGen(seed);
 
     Int64 localTotalsByPusher[NUM_PUSHERS] = { 0 };

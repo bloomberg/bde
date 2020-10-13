@@ -19,11 +19,10 @@ BSLS_IDENT("$Id: $")
 // malicious input that could cause Denial of Service (DoS) attacks.  It is
 // based on one of the finalists for the SHA-3 cryptographic hash standard.
 // Full details of the hash function can be found here:
-// https://131002.net/siphash/siphash.pdf This particular implementation has
-// been derived from Howard Hinnant's work here:
-// https://github.com/HowardHinnant/hash_append/blob/master/siphash.h and as
-// much of the original code as possible, including comment headers, has been
-// preserved.
+// '{https://131002.net/siphash/siphash.pdf}'.  This particular implementation
+// has been derived from 'siphash.h' in Howard Hinnant's work here:
+// '{https://github.com/HowardHinnant/hash_append}' and as much of the original
+// code as possible, including comment headers, has been preserved.
 //
 // This class satisfies the requirements for seeded 'bslh' hashing algorithms,
 // defined in 'bslh_seededhash.h'.  More information can be found in the

@@ -332,14 +332,14 @@ namespace Usage {
 // Next, we use the 'GUARD' macro to serialize the initialization of
 // 'threadIdx' and the 'x' array.  We call 'bsl::srand' and 'bsl::rand', which
 // are not thread-safe, so the calls to them must be mutex-guarded.  Because
-// all access to 'masterThreadIdx' is guarded by the 'GUARD' call, it does not
+// all access to 'mainThreadIdx' is guarded by the 'GUARD' call, it does not
 // need to be an atomic variable.
 //..
             {
                 GUARD;
 
-                static int masterThreadIdx = 0;
-                threadIdx = masterThreadIdx++;
+                static int mainThreadIdx = 0;
+                threadIdx = mainThreadIdx++;
 
                 unsigned randSeed = (1234567891 + threadIdx) * 3333333333U;
                 bsl::srand(randSeed);
