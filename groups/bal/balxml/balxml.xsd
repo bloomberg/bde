@@ -23,8 +23,10 @@
       <xs:documentation>
         Enumeration of encoding style (COMPACT or PRETTY).
 
-        This struct is generated using baexml_generateoptions.pl
-
+        The generated C++ code for this schema element is created by using
+        bas_codegen.pl, run by balxml/code_from_xsd.pl. The resulting C++ code
+        must be hand edited to reflect the fact that
+        'COMPACT == BAEXML_COMPACT' and 'PRETTY == BAEXML_PRETTY'.
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base='xs:string'>
@@ -46,6 +48,11 @@
         the output.  Note that 'InitialIndentLevel', 'SpacesPerLevel', and
         'WrapColumn' are ignored when 'EncodingStyle' is COMPACT (this is
         the default).
+
+        The generated C++ code for this schema element is created by using
+        bas_codegen.pl, run by balxml/code_from_xsd.pl. The resulting C++ code
+        must be hand edited to make 'DatetimeFractionalSecondPrecision' default
+        to 3 rather than 6.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
@@ -220,6 +227,9 @@
     <xs:annotation>
       <xs:documentation>
         Options for controlling the XML decoding process.
+
+        The generated C++ code for this schema element is created by using
+        bas_codegen.pl, run by balxml/code_from_xsd.pl with no hand-editing.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>

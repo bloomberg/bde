@@ -1,33 +1,28 @@
 // balxml_configschema.cpp   -*-C++-*-   GENERATED FILE -- DO NOT EDIT
 
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
-
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balxml_configschema_cpp,"$Id$ $CSID$")
 
 #include <balxml_configschema.h>
 
 namespace BloombergLP {
+namespace balxml {
 
 // CONSTANTS
 
-const char balxml::ConfigSchema::TEXT[] =
+const char ConfigSchema::TEXT[] =
 "<?xml version='1.0' encoding='UTF-8'?>\n"
 "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
 "           xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
-"           bdem:package='baexml'\n"
+"           bdem:package='balxml'\n"
 "           elementFormDefault='qualified'>\n"
 "\n"
-"  <!-- NOTE: Do not run bas_codegen.pl directly on this file.\n"
-"       Instead, run baexml_generateoptions.pl.  The latter script will\n"
-"       massage the output so that the classes are prefixed with 'baexml_'\n"
-"       instead of being put into a 'baexml' namespace.\n"
+"  <!--\n"
+"  This file outlines the schema for encoding and decoding options used to\n"
+"  generate and parse XML documents.  This component can be used to validate\n"
+"  xml that can be parsed into the corresponding bde value objects, but it does\n"
+"  not fully capture the behavior of those components and cannot be used to\n"
+"  regenerate them (with bas_codegen.pl) correctly.\n"
 "  -->\n"
 "\n"
 "  <xs:annotation>\n"
@@ -41,11 +36,15 @@ const char balxml::ConfigSchema::TEXT[] =
 "      <xs:documentation>\n"
 "        Enumeration of encoding style (COMPACT or PRETTY).\n"
 "\n"
-"        This struct is generated using baexml_generateoptions.pl\n"
-"\n"
+"        The generated C++ code for this schema element is created by using\n"
+"        bas_codegen.pl, run by balxml/code_from_xsd.pl. The resulting C++ code\n"
+"        must be hand edited to reflect the fact that\n"
+"        'COMPACT == BAEXML_COMPACT' and 'PRETTY == BAEXML_PRETTY'.\n"
 "      </xs:documentation>\n"
 "    </xs:annotation>\n"
 "    <xs:restriction base='xs:string'>\n"
+"      <xs:enumeration value='COMPACT'/>\n"
+"      <xs:enumeration value='PRETTY'/>\n"
 "      <xs:enumeration value='BAEXML_COMPACT'/>\n"
 "      <xs:enumeration value='BAEXML_PRETTY'/>\n"
 "    </xs:restriction>\n"
@@ -63,8 +62,10 @@ const char balxml::ConfigSchema::TEXT[] =
 "        'WrapColumn' are ignored when 'EncodingStyle' is COMPACT (this is\n"
 "        the default).\n"
 "\n"
-"        This class is generated using baexml_generateoptions.pl\n"
-"\n"
+"        The generated C++ code for this schema element is created by using\n"
+"        bas_codegen.pl, run by balxml/code_from_xsd.pl. The resulting C++ code\n"
+"        must be hand edited to make 'DatetimeFractionalSecondPrecision' default\n"
+"        to 3 rather than 6.\n"
 "      </xs:documentation>\n"
 "    </xs:annotation>\n"
 "    <xs:sequence>\n"
@@ -84,7 +85,6 @@ const char balxml::ConfigSchema::TEXT[] =
 "            bdem:allowsDirectManipulation='0'>\n"
 "        <xs:annotation>\n"
 "          <xs:documentation>location of the schema</xs:documentation>\n"
-"\n"
 "        </xs:annotation>\n"
 "      </xs:element>\n"
 "      <xs:element name='Tag' type='xs:string'\n"
@@ -98,7 +98,7 @@ const char balxml::ConfigSchema::TEXT[] =
 "      <xs:element name='FormattingMode' type='xs:int'\n"
 "            minOccurs='0' maxOccurs='1'\n"
 "            default='0'\n"
-"            bdem:cppdefault='bdlat_FormattingMode::DEFAULT'\n"
+"            bdem:cppdefault='bdlat_FormattingMode::e_DEFAULT'\n"
 "            bdem:cpptype='int'\n"
 "            bdem:allocatesMemory='0'\n"
 "            bdem:allowsDirectManipulation='0'>\n"
@@ -167,7 +167,7 @@ const char balxml::ConfigSchema::TEXT[] =
 "      <xs:element name='EncodingStyle'\n"
 "                  type='EncodingStyle'\n"
 "                  minOccurs='0'\n"
-"                  default='BAEXML_COMPACT'\n"
+"                  default='COMPACT'\n"
 "                  bdem:allowsDirectManipulation='0'>\n"
 "        <xs:annotation>\n"
 "          <xs:documentation>\n"
@@ -187,7 +187,10 @@ const char balxml::ConfigSchema::TEXT[] =
 "        </xs:annotation>\n"
 "      </xs:element>\n"
 "      <xs:element name='OutputXMLHeader' type='xs:boolean'\n"
-"                  minOccurs='0' maxOccurs='1' default='true'>\n"
+"                  minOccurs='0' maxOccurs='1'\n"
+"                  default='true'\n"
+"                  bdem:allocatesMemory='0'\n"
+"                  bdem:allowsDirectManipulation='0'>\n"
 "        <xs:annotation>\n"
 "          <xs:documentation>\n"
 "            This option controls if the baexml encoder should output the XML\n"
@@ -196,7 +199,10 @@ const char balxml::ConfigSchema::TEXT[] =
 "        </xs:annotation>\n"
 "      </xs:element>\n"
 "      <xs:element name='OutputXSIAlias' type='xs:boolean'\n"
-"                  minOccurs='0' maxOccurs='1' default='true'>\n"
+"                  minOccurs='0' maxOccurs='1'\n"
+"                  default='true'\n"
+"                  bdem:allocatesMemory='0'\n"
+"                  bdem:allowsDirectManipulation='0'>\n"
 "        <xs:annotation>\n"
 "          <xs:documentation>\n"
 "            This option controls if the baexml encoder should output the XSI\n"
@@ -215,6 +221,18 @@ const char balxml::ConfigSchema::TEXT[] =
 "          </xs:documentation>\n"
 "        </xs:annotation>\n"
 "      </xs:element>\n"
+"      <xs:element name='UseZAbbreviationForUtc' type='xs:boolean'\n"
+"            minOccurs='0' maxOccurs='1'\n"
+"            default='false'\n"
+"            bdem:allocatesMemory='0'\n"
+"            bdem:allowsDirectManipulation='0'>\n"
+"        <xs:annotation>\n"
+"          <xs:documentation>\n"
+"            This option control whether 'Z' should be used for the zone\n"
+"            designator of 'DateTz' or instead of '+00:00' (specific to UTC).\n"
+"          </xs:documentation>\n"
+"        </xs:annotation>\n"
+"      </xs:element>\n"
 "    </xs:sequence>\n"
 "  </xs:complexType>\n"
 "\n"
@@ -222,7 +240,11 @@ const char balxml::ConfigSchema::TEXT[] =
 "    <xs:annotation>\n"
 "      <xs:documentation>\n"
 "        Options for controlling the XML decoding process.\n"
+"\n"
+"        The generated C++ code for this schema element is created by using\n"
+"        bas_codegen.pl, run by balxml/code_from_xsd.pl with no hand-editing.\n"
 "      </xs:documentation>\n"
+"\n"
 "    </xs:annotation>\n"
 "    <xs:sequence>\n"
 "      <xs:element name='MaxDepth' type='xs:int'\n"
@@ -236,7 +258,7 @@ const char balxml::ConfigSchema::TEXT[] =
 "      <xs:element name='FormattingMode' type='xs:int'\n"
 "            minOccurs='0' maxOccurs='1'\n"
 "            default='0'\n"
-"            bdem:cppdefault='bdlat_FormattingMode::DEFAULT'\n"
+"            bdem:cppdefault='bdlat_FormattingMode::e_DEFAULT'\n"
 "            bdem:cpptype='int'\n"
 "            bdem:allocatesMemory='0'\n"
 "            bdem:allowsDirectManipulation='0'>\n"
@@ -261,10 +283,14 @@ const char balxml::ConfigSchema::TEXT[] =
 "</xs:schema>\n"
 ;
 
+}  // close namespace balxml
 }  // close enterprise namespace
 
+// BAS_CODEGEN RUN BY code_from_xsd.pl RUN ON Mon Oct 12 11:49:24 EDT 2020
+// GENERATED BY BLP_BAS_CODEGEN_2020.10.05
+
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
