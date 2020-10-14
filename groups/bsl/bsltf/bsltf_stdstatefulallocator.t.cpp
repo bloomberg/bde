@@ -154,7 +154,7 @@ void aSsErT(bool condition, const char *message, int line)
 // TBD
 // For specific test cases, remove 'bsltf::TemplateTestFacility::FunctionPtr'
 // from the list of types to test on Linux to avoid:
-//   collect2: error: /opt/swt/bin/gnm returned 1 exit status
+//   collect2: error: /opt/bb/bin/gnm returned 1 exit status
 // which occurs when 'gnm' is run on 'bsltf_stdstatefulallocator.t.cpp.1.o'.
 // Also see 'bslstl_deque.t.cpp'.
 
