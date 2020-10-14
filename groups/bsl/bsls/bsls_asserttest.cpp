@@ -128,7 +128,7 @@ bool extractTestedComponentName(const char **testedComponentName,
         if (suffixLen >= len) {
             continue;  // Filename is no longer than suffix
         }
-        if (0 == strncmp(end - suffixLen, suffix, suffixLen)) {
+        if (0 == std::strncmp(end - suffixLen, suffix, suffixLen)) {
             // Found matching suffix
             cut = suffixLen;
             break;
@@ -269,9 +269,9 @@ bool AssertTest::catchProbe(char                        expectedResult,
         // Two component filenames match if they are the same component name,
         // regardless of path, and regardless of file-extension.
 
-        if (thisNameLength != exceptionNameLength
-         || 0 != strncmp(thisComponent, exceptionComponent, thisNameLength)) {
-
+        if (thisNameLength != exceptionNameLength ||
+            0 != std::strncmp(
+                     thisComponent, exceptionComponent, thisNameLength)) {
             printf("Failure in component %.*s but expected component %.*s\n",
                    exceptionNameLength,
                    exceptionComponent,
@@ -315,8 +315,8 @@ bool AssertTest::catchProbeRaw(
         switch (expectedLevel)
         {
           case 'S':
-            if (strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
-                strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
+            if (std::strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
+                std::strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
             {
                 printf("Expected SAFE failure but got level:%s\n",level);
                 return false;                                         // RETURN
@@ -326,10 +326,10 @@ bool AssertTest::catchProbeRaw(
             // if built in safe mode it's possible for a 'BSLS_ASSERT_SAFE' to
             // prevent execution from reaching a 'BSLS_ASSERT', so both levels
             // are allowed
-            if (strcmp(level,bsls::Review::k_LEVEL_REVIEW) != 0 &&
-                strcmp(level,bsls::Assert::k_LEVEL_ASSERT) != 0 &&
-                strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
-                strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
+            if (std::strcmp(level,bsls::Review::k_LEVEL_REVIEW) != 0 &&
+                std::strcmp(level,bsls::Assert::k_LEVEL_ASSERT) != 0 &&
+                std::strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
+                std::strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
             {
                 printf("Expected ASSERT failure but got level:%s\n",level);
                 return false;                                         // RETURN
@@ -339,12 +339,12 @@ bool AssertTest::catchProbeRaw(
             // if built in safe mode it's possible for a 'BSLS_ASSERT_SAFE' or
             // 'BSLS_ASSERT' to prevent execution from reaching a
             // 'BSLS_ASSERT_OPT', so all levels are allowed
-            if (strcmp(level,bsls::Review::k_LEVEL_OPT) != 0 &&
-                strcmp(level,bsls::Assert::k_LEVEL_OPT) != 0 &&
-                strcmp(level,bsls::Review::k_LEVEL_REVIEW) != 0 &&
-                strcmp(level,bsls::Assert::k_LEVEL_ASSERT) != 0 &&
-                strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
-                strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
+            if (std::strcmp(level,bsls::Review::k_LEVEL_OPT) != 0 &&
+                std::strcmp(level,bsls::Assert::k_LEVEL_OPT) != 0 &&
+                std::strcmp(level,bsls::Review::k_LEVEL_REVIEW) != 0 &&
+                std::strcmp(level,bsls::Assert::k_LEVEL_ASSERT) != 0 &&
+                std::strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
+                std::strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
             {
                 printf("Expected OPT failure but got level:%s\n",level);
                 return false;                                         // RETURN
