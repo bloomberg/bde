@@ -119,6 +119,7 @@ in BSL_OVERRIDES_STD mode"
 #include <bslmf_removecv.h>
 
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 #include <bsls_util.h>
@@ -218,8 +219,12 @@ class HashTableBucketIterator {
     //~HashTableBucketIterator() = default;
 
     // MANIPULATORS
-    //HashTableBucketIterator& operator=(const HashTableBucketIterator&)
-    //                                                               = default;
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    HashTableBucketIterator& operator=(const HashTableBucketIterator& rhs)
+                                                                     = default;
+        // Assign to this object the value of the specified 'rhs', and return
+        // a reference providing modifiable access to this object.
+#endif
 
     HashTableBucketIterator& operator++();
         // Move this iterator to the next element in the hash table bucket and

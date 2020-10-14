@@ -9,8 +9,10 @@
 #include <bslma_testallocator.h>          // for testing only
 #include <bslma_testallocatorexception.h> // for testing only
 #include <bslmf_movableref.h>             // for testing only
+
 #include <bsls_alignmentutil.h>           // for testing only
 #include <bsls_bsltestutil.h>             // for testing only
+#include <bsls_compilerfeatures.h>
 #include <bsls_objectbuffer.h>            // for testing only
 #include <bsls_platform.h>                // for testing only
 #include <bsls_stopwatch.h>               // for testing only
@@ -568,6 +570,13 @@ class BitwiseMoveableTestType : public TestType {
     : TestType(original, ba)
     {
     }
+
+    // MANIPULATORS
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    BitwiseMoveableTestType(const BitwiseMoveableTestType& original) = default;
+        // Create a 'name' object having the value of the specified 'original'
+        // object.
+#endif
 };
 
 // TRAITS
@@ -608,6 +617,14 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
     : TestTypeNoAlloc(original.datum())
     {
     }
+
+    // MANIPULATORS
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    BitwiseCopyableTestType& operator=(const BitwiseCopyableTestType& rhs)
+                                                                     = default;
+        // Assign to this object the value of the specified 'rhs', and return
+        // a reference providing modifiable access to this object.
+#endif
 };
 
 // TRAITS

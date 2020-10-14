@@ -17,6 +17,7 @@
 #include <bslmf_assert.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_review.h>
 
 #include <bslx_testinstream.h>
@@ -232,7 +233,11 @@ class Swappable {
     }
 
     // MANIPULATORS
-    // Swappable& operator=(const Swappable&);  // default
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    Swappable& operator=(const Swappable& rhs) = default;
+        // Assign to this object the value of the specified 'rhs', and return
+        // a reference providing modifiable access to this object.
+#endif
 
     // ACCESSORS
     int value() const

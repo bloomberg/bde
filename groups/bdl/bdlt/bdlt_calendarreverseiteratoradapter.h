@@ -230,6 +230,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bsls_compilerfeatures.h>
+
 namespace BloombergLP {
 namespace bdlt {
 
@@ -271,13 +273,15 @@ class CalendarReverseIteratorAdapter {
         // the forward sequence (or that follows, in the backward sequence) the
         // element referred to by the specified 'value'.
 
-//! CalendarReverseIteratorAdapter(
-//!                  const CalendarReverseIteratorAdapter& original) = default;
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    CalendarReverseIteratorAdapter(
+                  const CalendarReverseIteratorAdapter& original) = default;
         // Create a 'CalendarReverseIteratorAdapter' object having the value of
         // the specified 'original' object.
 
-//! ~CalendarReverseIteratorAdapter() = default;
+     ~CalendarReverseIteratorAdapter() = default;
         // Destroy this 'CalendarReverseIteratorAdapter' object.
+#endif
 
     // MANIPULATORS
     CalendarReverseIteratorAdapter& operator=(

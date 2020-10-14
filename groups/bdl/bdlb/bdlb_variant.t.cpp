@@ -26,6 +26,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -637,6 +638,12 @@ class TestString {
         return *this;
     }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    TestString& operator=(const TestString& rhs) = default;
+        // Assign to this object the value of the specified 'rhs', and return
+        // a reference providing modifiable access to this object.
+#endif
+
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version)
     {
@@ -973,6 +980,13 @@ struct Copyable {
         bsl::memset(this, 0,  sizeof(*this));
         d_arguments[0] = !!value;
     }
+
+    // MANIPULATORS
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    Copyable& operator=(const Copyable& rhs) = default;
+        // Assign to this object the value of the specified 'rhs', and return
+        // a reference providing modifiable access to this object.
+#endif
 };
 
 // PUBLIC CLASS DATA

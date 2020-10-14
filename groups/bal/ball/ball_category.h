@@ -108,6 +108,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
@@ -286,13 +287,18 @@ class CategoryHolder {
     // levels of that category; (3) if the next pointer is non-null, then the
     // holder pointed to holds the same category and threshold.  Instances of
     // this class must be *statically* initializable.  Hence, the data members
-    // are 'public', and no constructors or destructor are defined.
+    // are 'public', and automatically generated constructors and destructor
+    // are used.
     //
     // This class should *not* be used directly by client code.  It is an
     // implementation detail of the 'ball' logging system.
 
     // NOT IMPLEMENTED
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+    CategoryHolder& operator=(const CategoryHolder&) = delete;
+#else
     CategoryHolder& operator=(const CategoryHolder&);
+#endif
 
     typedef bsls::AtomicOperations                       AtomicOps;
     typedef bsls::AtomicOperations::AtomicTypes::Int     AtomicInt;

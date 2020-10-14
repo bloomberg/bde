@@ -28,6 +28,7 @@
 #include <bslmf_usesallocator.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
@@ -2495,7 +2496,9 @@ class Swappable {
     }
 
     // MANIPULATORS
-    // Swappable& operator=(const Swappable&);  // default
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    Swappable& operator=(const Swappable&) = default;
+#endif
 
     // ACCESSORS
     int value() const
