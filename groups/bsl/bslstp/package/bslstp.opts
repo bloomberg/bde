@@ -1,5 +1,0 @@
-*        _     OPTS_FILE    = bslstp.opts
-
-# disable BSL_OVERRIDE_STD
-!! *     _     BSL_STD_FLAG =
-

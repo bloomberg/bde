@@ -1,5 +1,0 @@
-*                       _       OPTS_FILE       = bblscm.opts
-
-unix-SunOS-*-*-*                    _   STL_CXXFLAGS    = -library=no%rwtools7
-!! unix-SunOS-sparc-5.10-cc-5.12.4  _   STL_CXXFLAGS    =
-!! unix-SunOS-*-*-gcc               _   STL_CXXFLAGS    =

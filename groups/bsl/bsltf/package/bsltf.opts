@@ -1,4 +1,0 @@
-*                       _       OPTS_FILE       = bsltf.opts
-
-# /bigobj is required to build the test driver of bsltf_allocemplacabletesttype
-++ windows-*-*-*-cl-15.00  _  TESTDRIVER_BDEBUILD_CXXFLAGS  =  /bigobj
