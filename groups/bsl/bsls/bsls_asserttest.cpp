@@ -10,9 +10,11 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_logseverity.h>
 #include <bsls_macroincrement.h>     // for testing only
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
+using std::printf;
 
 //-----------------------------------------------------------------------------
 // STATIC HELPER FUNCTIONS
@@ -56,21 +58,21 @@ void printError(const char *text, const char *file, int line)
 }
 
 static
-bool isPathSeparator(char c)
-    // Return 'true' if the specified 'c' is a valid path separator on the
-    // current platform, otherwise return 'false'.
+const char *stripPath(const char* filename)
+    // Return a pointer to the first character of the specified 'filename'
+    // after the last path delimiter.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    static const char pathSeparators[] = { ':', '/', '\\' };
+    static const char pathSeparators[] = ":/\\";
 #else
-    static const char pathSeparators[] = { '/' };
+    static const char pathSeparators[] = "/";
 #endif
-    for (int i = 0; i != sizeof(pathSeparators); ++i) {
-        if (pathSeparators[i] == c) {
-            return true;                                              // RETURN
-        }
+    const char *delim_p;
+    while ((delim_p = std::strpbrk(filename, pathSeparators))) {
+        filename = delim_p + 1;
     }
-    return false;
+
+    return filename;
 }
 
 static
@@ -87,121 +89,72 @@ bool extractTestedComponentName(const char **testedComponentName,
     // where the subordinate part begins with "test") it is the parent
     // component.  Note that this sub-string will *not* be null-terminated.
 {
-    // A component filename is a filename ending in one of the following set of
-    // file extensions: '.h', '.cpp', '.t.cpp', '.g.cpp'.  The component name
-    // is the component filename minus the extension and any leading pathname.
+    // A component filename is a filename ending in one of the following set
+    // of file extensions: '.h', '.cpp', '.t.cpp', '.g.cpp', sometimes with
+    // the suffix '_cpp03' before the extension and/or the suffix '_test'.
+    // The component name is the component filename minus the extension, any
+    // suffix, and any pathname.
 
-    // The basic algorithm searches for the end of the 'filename' and then
-    // iterates backwards.  First we verify that the filename has a valid
-    // extension for a component: '.cpp', '.t.cpp', '.g.cpp' or '.h'.  Then we
-    // keep searching backwards for the first path separator, which will depend
-    // on the filesystem the compiler is running on.  The string between the
-    // last path separator (if any) and the period starting the file extension
-    // mark out the component name to be returned.
+    // Suffixes in descending order of length
+    static const char *const suffixes[] = {
+        "_cpp03.t.cpp",
+        "_cpp03.g.cpp",
+        "_cpp03.cpp",
+        "_cpp03.h",
+        ".t.cpp",
+        ".g.cpp",
+        ".cpp",
+        ".h"
+    };
 
-    // After the full component name is found check to see if it is a
-    // subordinate test component and remove the '_test.*' part if it is.
+    static const int numSuffixes = sizeof(suffixes) / sizeof(suffixes[0]);
 
     if (!testedComponentName || !length || !filename) {
         printf("passed at least one null pointer\n");
         return false;                                                 // RETURN
     }
 
-    const char *end = filename;
-    for (; *end; ++end) {
-        // Find the end of the string.
-    }
-    if (3 > (end - filename)) {
-        printf("filename is too short\n");
-        return false;                                                 // RETURN
-    }
+    // Discard path
+    filename = stripPath(filename);
+    std::size_t len = std::strlen(filename);
+    const char *end = filename + len;
 
-    --end;
-    if ('h' == *end) {
-        if ('.' != *--end) {
-            printf("filename is not a header\n");
-            return false;                                             // RETURN
+    // Iterate through the suffixes. When one matches the end of the filename,
+    // strip it off and stop iterating.  If none match, return error.
+    std::size_t cut = 0;
+    for (int i = 0; i < numSuffixes; ++i) {
+        const char* suffix = suffixes[i];
+        std::size_t suffixLen = std::strlen(suffix);
+        if (suffixLen >= len) {
+            continue;  // Filename is no longer than suffix
         }
-    }
-    else if ('p' == *end) {
-        if (4 > (end - filename)) {
-            printf("filename is not long enough for a .cpp\n");
-            return false;                                             // RETURN
-        }
-
-        if ('p' != *--end) {
-            printf("filename is not a .cpp(1)\n");
-            return false;                                             // RETURN
-        }
-
-        if ('c' != *--end) {
-            printf("filename is not a .cpp(2)\n");
-            return false;                                             // RETURN
-        }
-
-        if ('.' != *--end) {
-            printf("filename is not a .cpp(3)\n");
-            return false;                                             // RETURN
-        }
-
-        if (2 < (end - filename)) {
-            const char *cursor     = end;
-            char        testsuffix = *--cursor;
-            if ('t' == testsuffix || 'g' == testsuffix) {
-                if ('.' == *--cursor) {
-                     end = cursor;
-                }
-            }
-        }
-    }
-    else {
-        printf("filename is not recognized\n");
-        return false;                                                 // RETURN
-    }
-
-    const char *cursor = end;
-    while (cursor != filename) {
-        --cursor;
-        if (isPathSeparator(*cursor)) {
-            ++cursor;
+        if (0 == std::strncmp(end - suffixLen, suffix, suffixLen)) {
+            // Found matching suffix
+            cut = suffixLen;
             break;
         }
     }
 
-    // after
-    int underscorecount = 0;
-    for (const char *c = cursor; c != end; ++c)
-    {
-        if (*c  == '_') { ++underscorecount; }
+    if (cut) {
+        end -= cut;
+    }
+    else {
+        printf("filename does not name a component\n");
+        return false;                                                 // RETURN
     }
 
-    if (underscorecount >= 2)
-    {
-        // this is a subordinate component.
-
-        const char *subordcursor = end;
-        while (subordcursor != cursor) {
-            --subordcursor;
-            if (*subordcursor == '_') {
-                ++subordcursor;
-                break;
-            }
-        }
-
-        if (end - subordcursor >= 4
-            && subordcursor[0] == 't'
-            && subordcursor[1] == 'e'
-            && subordcursor[2] == 's'
-            && subordcursor[3] == 't')
-        {
-            // This is a subordinate test component.
-            end = subordcursor;
-            --end;
-        }
+    // If filename has two or more underscores and last underscore is followed
+    // by the word "test", then cut from the last underscore onward.
+    const char* firstUnderscore = std::strchr(filename, '_');
+    const char* lastUnderscore  = (firstUnderscore ?
+                                   std::strrchr(filename, '_') : 0);
+    if (firstUnderscore != lastUnderscore &&
+        0 == std::strncmp(lastUnderscore + 1, "test", 4)) {
+        end = lastUnderscore;
     }
 
-    *testedComponentName = cursor;
-    *length = static_cast<int>(end - cursor);
+    *testedComponentName = filename;
+    *length = static_cast<int>(end - filename);
     return true;
 }
 
@@ -316,9 +269,9 @@ bool AssertTest::catchProbe(char                        expectedResult,
         // Two component filenames match if they are the same component name,
         // regardless of path, and regardless of file-extension.
 
-        if (thisNameLength != exceptionNameLength
-         || 0 != strncmp(thisComponent, exceptionComponent, thisNameLength)) {
-
+        if (thisNameLength != exceptionNameLength ||
+            0 != std::strncmp(
+                     thisComponent, exceptionComponent, thisNameLength)) {
             printf("Failure in component %.*s but expected component %.*s\n",
                    exceptionNameLength,
                    exceptionComponent,
@@ -362,8 +315,8 @@ bool AssertTest::catchProbeRaw(
         switch (expectedLevel)
         {
           case 'S':
-            if (strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
-                strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
+            if (std::strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
+                std::strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
             {
                 printf("Expected SAFE failure but got level:%s\n",level);
                 return false;                                         // RETURN
@@ -373,10 +326,10 @@ bool AssertTest::catchProbeRaw(
             // if built in safe mode it's possible for a 'BSLS_ASSERT_SAFE' to
             // prevent execution from reaching a 'BSLS_ASSERT', so both levels
             // are allowed
-            if (strcmp(level,bsls::Review::k_LEVEL_REVIEW) != 0 &&
-                strcmp(level,bsls::Assert::k_LEVEL_ASSERT) != 0 &&
-                strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
-                strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
+            if (std::strcmp(level,bsls::Review::k_LEVEL_REVIEW) != 0 &&
+                std::strcmp(level,bsls::Assert::k_LEVEL_ASSERT) != 0 &&
+                std::strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
+                std::strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
             {
                 printf("Expected ASSERT failure but got level:%s\n",level);
                 return false;                                         // RETURN
@@ -386,12 +339,12 @@ bool AssertTest::catchProbeRaw(
             // if built in safe mode it's possible for a 'BSLS_ASSERT_SAFE' or
             // 'BSLS_ASSERT' to prevent execution from reaching a
             // 'BSLS_ASSERT_OPT', so all levels are allowed
-            if (strcmp(level,bsls::Review::k_LEVEL_OPT) != 0 &&
-                strcmp(level,bsls::Assert::k_LEVEL_OPT) != 0 &&
-                strcmp(level,bsls::Review::k_LEVEL_REVIEW) != 0 &&
-                strcmp(level,bsls::Assert::k_LEVEL_ASSERT) != 0 &&
-                strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
-                strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
+            if (std::strcmp(level,bsls::Review::k_LEVEL_OPT) != 0 &&
+                std::strcmp(level,bsls::Assert::k_LEVEL_OPT) != 0 &&
+                std::strcmp(level,bsls::Review::k_LEVEL_REVIEW) != 0 &&
+                std::strcmp(level,bsls::Assert::k_LEVEL_ASSERT) != 0 &&
+                std::strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
+                std::strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
             {
                 printf("Expected OPT failure but got level:%s\n",level);
                 return false;                                         // RETURN
