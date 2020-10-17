@@ -1,10 +1,22 @@
-bsl-internal (3.64.0.0) unstable; urgency=low
+bsl-internal (3.65.0.0) unstable; urgency=low
 
+  * 6d09952d3 Bumped version to 3.65.0.0
+  * 3899fabdb Merge pull request #2956 from phalpern/bsls_asserttest-cpp11_sim
+  * 8ebb30417 Merge pull request #7 from mgiroux/bsls_asserttest-cpp11_sim
+  * 4cc83be3c Merge pull request #2967 from pwainwri/swt-deprecation
+  * 8a4c431bb Merge pull request #2959 from bchapman/balxml_configschema-regenerate-drqs-163748896
+  * 81e73ce71 Merge pull request #2948 from phalpern/phalpern/guaranteed_copy_elision
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 17 Oct 2020 12:45:10 -0400
+
+bsl-internal (3.64.0.0) git; urgency=low
+
+  * 6b16c2029 Changelog for version 3.64.0.0
   * 4e28c4e9b Bumped version to 3.64.0.0
   * 9e46559c2 Merge pull request #2946 from bvaldiviesom/feature/add-bdls-pathutil-getextension
   * 1eb1a56f3 Merge pull request #2808 from mclow3/drqs-113474532
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 4 Oct 2020 07:18:14 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 4 Oct 2020 07:20:05 -0400
 
 bsl-internal (3.63.0.0) git; urgency=low
 
