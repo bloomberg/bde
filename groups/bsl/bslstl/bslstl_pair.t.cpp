@@ -180,7 +180,7 @@ using bsls::NameOf;
 // [17] template <class U1, class U2> operator std::tuple<U1&, U2&>()
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [26] USAGE EXAMPLE
+// [27] USAGE EXAMPLE
 // [ 3] Type Traits
 // [ 7] Concern: Can create a pointer-to-member for 'first' and 'second'
 // [ 8] Concern: Can assign to a 'pair' of references
@@ -193,6 +193,7 @@ using bsls::NameOf;
 // [23] Concern: 'pair' constructors SFINAE when required by standard
 // [24] Concern: construct from '0' as null pointer literal
 // [25] Concern: 'return' by brace initialization
+// [26] Concern: can construct pair of objects that are not copyable
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -2487,6 +2488,25 @@ class ManagedWrapper {
     {
     }
 
+};
+
+
+//=============================================================================
+//          HELPER CLASS TO TEST CONVERTING CONSTRUCTOR
+//-----------------------------------------------------------------------------
+class NonCopyable131875306 {
+private:
+    int d_val;
+
+    // NOT IMPLEMENTED
+    NonCopyable131875306 (const NonCopyable131875306 &rhs);
+
+public:
+    explicit NonCopyable131875306(int i) : d_val(i) {}
+        // Construct an object containing a copy of the specified int 'i'
+
+    int get () const { return d_val; }
+        // return the contained value
 };
 
 //=============================================================================
@@ -5577,7 +5597,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -5599,6 +5619,40 @@ int main(int argc, char *argv[])
 
         usageExample();
 
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // TESTING FIX FOR DRQS 131875306
+        //  This test case concerns report that a user was unable to emplace
+        //  a non-copyable type into a bsl::unordered_map.  The fix was to
+        //  rework the constraints on the converting constructor for
+        //  'bsl::pair'.
+        //
+        // Concerns:
+        //: 1 Pre-existing code does not fail to compile with thes changes.
+        //
+        // Plan:
+        //: 1 Provide a minimal code example of the kind of valid code that was
+        //:   surprisingly failing to compile.  This test remains as a canary
+        //:   should a further regression introduce a similar problem.
+        //
+        // Testing:
+        //   Concern: can construct pair of objects that are not copyable
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING FIX FOR DRQS 131875306"
+                            "\n==============================\n");
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        bsl::pair<NonCopyable131875306, int> o1(1,2);
+        bsl::pair<int, NonCopyable131875306> o2(1,2);
+            // These would fail to compile, reporting an attempt to access
+            // private constructors prior to applying the patch for the ticket
+            // above.
+        ASSERT(1 == o1.first.get());
+        ASSERT(2 == o1.second);
+        ASSERT(1 == o2.first);
+        ASSERT(2 == o2.second.get());
+#endif
       } break;
       case 25: {
         // --------------------------------------------------------------------

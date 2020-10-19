@@ -1216,15 +1216,16 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     BSLS_KEYWORD_CONSTEXPR
     pair(PARAM_1&& a,
          PARAM_2&& b,
-         typename bsl::enable_if<bsl::is_convertible<PARAM_1, T1>::value
-                              && bsl::is_convertible<PARAM_2, T2>::value
+         typename bsl::enable_if<
+                               native_std::is_constructible<T1, PARAM_1>::value
+                            && native_std::is_constructible<T2, PARAM_2>::value
                               && !(bsl::is_pointer<typename
                                    bsl::remove_reference<PARAM_2>::type>::value
                                 && bsl::is_convertible<PARAM_2,
                                      BloombergLP::bslma::Allocator *>::value),
                                  void *>::type = 0)
-    : FirstBase(BSLS_COMPILERFEATURES_FORWARD(PARAM_1, a))
-    , SecondBase(BSLS_COMPILERFEATURES_FORWARD(PARAM_2, b))
+    : FirstBase(native_std::forward<PARAM_1>(a))
+    , SecondBase(native_std::forward<PARAM_2>(b))
     {
         // The implementation is placed here in the class definition to work
         // around a Microsoft C++ compiler (MSVC 2010) bug where the definition
