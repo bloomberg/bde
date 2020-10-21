@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 # define BSLSTL_SIZE_SIZE_NATIVE 0
 #endif
 
-// We have observed that clang-10.0.0 does not suppose 'std::ssize' in C++20,
+// We have observed that clang-10.0.0 does not support 'std::ssize' in C++20,
 // and we are speculating that later releases of the compiler will support it.
 
 #if 202002L <= BSLS_COMPILERFEATURES_CPLUSPLUS &&                             \
@@ -126,8 +126,8 @@ using std::ssize;
 template <class CONTAINER>
 inline
 BSLS_KEYWORD_CONSTEXPR auto ssize(const CONTAINER& container) ->
-     std::common_type<std::ptrdiff_t,
-                      std::make_signed<decltype(container.size())>::type>::type
+             std::common_type_t<std::ptrdiff_t,
+                                std::make_signed_t<decltype(container.size())>>
     // Return the 'size' field from the specified 'container's 'size' accessor.
 {
     return container.size();
