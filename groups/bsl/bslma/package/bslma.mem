@@ -6,6 +6,7 @@ bslma_autodestructor
 bslma_autorawdeleter
 bslma_bufferallocator
 bslma_constructionutil
+bslma_constructionutil_cpp03
 bslma_deallocatorguard
 bslma_deallocatorproctor
 bslma_default

@@ -51,6 +51,13 @@ BSLS_IDENT("$Id: $")
 //                                                movable trait", or
 //                                                "TYPE is bitwise movable"
 //..
+// This component provides full support for in-place construction of objects
+// such that the object type's allocator policy is respected and all arguments
+// are perfectly forwarded to the appropriate constructor.  This component also
+// provides partial support for the C++20 'std::make_obj_using_allocator'
+// utility via the (overloaded) 'bslma::ConstructionUtil::make' method.
+// Currently, 'make' supports only default construction and construction from
+// one (non-allocator) argument.
 //
 ///Usage
 ///-----
@@ -136,7 +143,7 @@ BSLS_IDENT("$Id: $")
 //      BSLMF_NESTED_TRAIT_DECLARATION(MyContainer, bslma::UsesBslmaAllocator);
 //
 //      // CREATORS
-//      MyContainer(bslma::Allocator *basicAllocator = 0);
+//      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
 //          // Create a container with a default-constructed element.
 //          // Optionally specify a 'basicAllocator' used to supply memory.  If
 //          // 'basicAllocator' is 0, the currently installed default allocator
@@ -190,6 +197,12 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this object.
 //
 //      // MANIPULATORS
+//      MyContainer& operator=(const TYPE& rhs);
+//      MyContainer& operator=(const MyContainer& rhs);
+//          // Assign to this object the value of the specified 'rhs' object,
+//          // and return a reference providing modifiable access to this
+//          // object.
+//
 //      TYPE& front()
 //          // Return a non-'const' reference to the element contained in this
 //          // object.
@@ -284,10 +297,27 @@ BSLS_IDENT("$Id: $")
 //      d_allocator_p->deallocate(d_value_p);
 //  }
 //..
+// Next, the assignment operator needs to assign the value without modifying
+// the allocator.
+//..
+//  template <class TYPE>
+//  MyContainer<TYPE>& MyContainer<TYPE>::operator=(const TYPE& rhs)
+//  {
+//      *d_value_p = rhs;
+//      return *this;
+//  }
+//
+//  template <class TYPE>
+//  MyContainer<TYPE>& MyContainer<TYPE>::operator=(const MyContainer& rhs)
+//  {
+//      *d_value_p = *rhs.d_value_p;
+//      return *this;
+//  }
+//..
 // Finally, we perform a simple test of 'MyContainer', instantiating it with
 // element type 'int':
 //..
-//  int usageExample1()
+//  int main()
 //  {
 //      bslma::TestAllocator testAlloc;
 //      MyContainer<int>     C1(123, &testAlloc);
@@ -301,6 +331,7 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
+//
 ///Example 2: 'bslma' Allocator Propagation
 ///- - - - - - - - - - - - - - - - - - - -
 // This example demonstrates that 'MyContainer' does indeed propagate the
@@ -339,6 +370,7 @@ BSLS_IDENT("$Id: $")
 //          // installed default allocator is used.
 //      : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
+//          (void) original;
 //          // ...
 //      }
 //
@@ -362,12 +394,10 @@ BSLS_IDENT("$Id: $")
 // the original object.  Moreover, we verify that the element stored in the
 // copy also uses the default allocator:
 //..
-//  #include <bslmf_issame.h>
-//
-//  int usageExample2()
+//  int main()
 //  {
 //      bslma::TestAllocator testAlloc;
-//      MyContainer<MyType> C1(&testAlloc);
+//      MyContainer<MyType>  C1(&testAlloc);
 //      assert(C1.allocator()         == &testAlloc);
 //      assert(C1.front().allocator() == &testAlloc);
 //
@@ -378,6 +408,177 @@ BSLS_IDENT("$Id: $")
 //      assert(C2.front().allocator() == bslma::Default::defaultAllocator());
 //
 //      return 0;
+//  }
+//..
+//
+///Example 3: Constructing into Non-heap Memory
+///- - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates using 'bslma::ConstructionUtil::make' to
+// implement a simple wrapper class that contains a single item that might or
+// might not use the 'bslma' allocator protocol.
+//
+// First, we define a wrapper class that holds an object and a functor and
+// calls the functor (called the listener) each time the wrapped object is
+// changed.  We store the object directly as a member variable, instead of
+// using an uninitialized buffer, to avoid a separate construction step:
+//..
+//  template <class TYPE, class FUNC>
+//  class MyTriggeredWrapper {
+//      // This class is a wrapper around an object of the specified 'TYPE'
+//      // that triggers a call to an object, called the "listener", of the
+//      // specified 'FUNC' invocable type whenever the wrapped object is
+//      // changed.
+//
+//      // DATA
+//      TYPE d_value;
+//      FUNC d_listener;
+//
+//    public:
+//      // CREATORS
+//      explicit MyTriggeredWrapper(const FUNC&       f,
+//                                  bslma::Allocator *basicAllocator = 0);
+//      MyTriggeredWrapper(const TYPE&       v,
+//                         const FUNC&       f,
+//                         bslma::Allocator *basicAllocator = 0);
+//          // Create an object with the specified 'f' as the listener to be
+//          // called when a change is triggered.  Optionally specify 'v' as
+//          // the wrapped value; otherwise the wrapped value is default
+//          // constructed.  Optionally specify 'basicAllocator' to supply
+//          // memory; otherwise the current default allocator is used.  If
+//          // 'TYPE' is not allocator aware, 'basicAllocator' is ignored.
+//
+//      MyTriggeredWrapper(const MyTriggeredWrapper&  original,
+//                         bslma::Allocator          *basicAllocator = 0);
+//          // Create a copy of the specified 'original'.  Optionally specify
+//          // 'basicAllocator' to supply memory; otherwise the current
+//          // default allocator is used.
+//
+//      ~MyTriggeredWrapper()
+//          // Destroy the wrapped object and listener.
+//      {
+//      }
+//
+//      // MANIPULATORS
+//      MyTriggeredWrapper& operator=(const TYPE& rhs);
+//      MyTriggeredWrapper& operator=(const MyTriggeredWrapper& rhs);
+//          // Assign the wrapped value to the value of the specified 'rhs',
+//          // invoke the listener with the new value, and return a reference
+//          // providing modifiable access to this object.  Note that the
+//          // listener itself is not assigned.
+//
+//      void setValue(const TYPE& value);
+//          // Set the wrapped value to the specified 'value' and invoke the
+//          // listener with the new value.
+//
+//      // ACCESSORS
+//      const TYPE& value() const
+//          // Return a reference providing read-only access to the wrapped
+//          // value.
+//      {
+//          return d_value;
+//      }
+//
+//      const FUNC& listener() const
+//          // Return a reference providing read-only access to the listener.
+//      {
+//          return d_listener;
+//      }
+//  };
+//..
+// Next, we define the constructors such that they initialize 'd_value' using
+// the specified allocator if and only if 'TYPE' accepts an allocator.  The
+// 'bslma::ConstructionUtil::make' family of functions encapsulate all of the
+// metaprogramming that detects whether or not 'TYPE' uses an allocator and,
+// if so, which construction protocol it uses (allocator at the front or at
+// the back of the argument list), making all three constructors straight-
+// forward:
+//..
+//  template <class TYPE, class FUNC>
+//  MyTriggeredWrapper<TYPE, FUNC>::MyTriggeredWrapper(
+//                                            const FUNC&       f,
+//                                            bslma::Allocator *basicAllocator)
+//  : d_value(bslma::ConstructionUtil::make<TYPE>(basicAllocator))
+//  , d_listener(f)
+//  {
+//  }
+//
+//  template <class TYPE, class FUNC>
+//  MyTriggeredWrapper<TYPE, FUNC>::MyTriggeredWrapper(
+//                                            const TYPE&       v,
+//                                            const FUNC&       f,
+//                                            bslma::Allocator *basicAllocator)
+//  : d_value(bslma::ConstructionUtil::make<TYPE>(basicAllocator, v))
+//  , d_listener(f)
+//  {
+//  }
+//
+//  template <class TYPE, class FUNC>
+//  MyTriggeredWrapper<TYPE, FUNC>::MyTriggeredWrapper(
+//                                   const MyTriggeredWrapper&  other,
+//                                   bslma::Allocator          *basicAllocator)
+//  : d_value(bslma::ConstructionUtil::make<TYPE>(basicAllocator,
+//                                                other.value()))
+//  , d_listener(other.d_listener)
+//  {
+//  }
+//..
+// Note that, in order for 'd_value' to be constructed with the correct
+// allocator, the compiler must construct the result returned by 'make'
+// directly into the 'd_value' variable, an optimization formerly known prior
+// to C++17 as "copy elision".  This optimization is required by the C++17
+// standard and is optional in pre-2017 standards, but is implemented in all
+// of the compilers for which this component is expected to be used at
+// Bloomberg.
+//
+// Next, we implement the assignment operators, which simply call 'setValue':
+//..
+//  template <class TYPE, class FUNC>
+//  MyTriggeredWrapper<TYPE, FUNC>&
+//  MyTriggeredWrapper<TYPE, FUNC>::operator=(const TYPE& rhs)
+//  {
+//      setValue(rhs);
+//      return *this;
+//  }
+//
+//  template <class TYPE, class FUNC>
+//  MyTriggeredWrapper<TYPE, FUNC>&
+//  MyTriggeredWrapper<TYPE, FUNC>::operator=(const MyTriggeredWrapper& rhs)
+//  {
+//      setValue(rhs.value());
+//      return *this;
+//  }
+//..
+// Then, we implement 'setValue', which calls the listener after modifying the
+// value:
+//..
+//  template <class TYPE, class FUNC>
+//  void MyTriggeredWrapper<TYPE, FUNC>::setValue(const TYPE& value)
+//  {
+//      d_value = value;
+//      d_listener(d_value);
+//  }
+//..
+// Finally, we check our work by creating a listener for 'MyContainer<int>'
+// that stores its last-seen value in a known location and a wrapper around
+// 'MyContainer<int>' to test it:
+//..
+//  int lastSeen = 0;
+//  void myListener(const MyContainer<int>& c)
+//  {
+//      lastSeen = c.front();
+//  }
+//
+//  void main()
+//  {
+//      bslma::TestAllocator testAlloc;
+//      MyTriggeredWrapper<MyContainer<int>,
+//                         void (*)(const MyContainer<int>&)>
+//                           wrappedContainer(myListener, &testAlloc);
+//      assert(&testAlloc == wrappedContainer.value().allocator());
+//
+//      wrappedContainer = MyContainer<int>(99);
+//
+//      assert(99 == lastSeen);
 //  }
 //..
 
@@ -415,6 +616,15 @@ BSLS_IDENT("$Id: $")
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslma_destructorproctor.h>
 #endif
+
+#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// Include version that can be compiled with C++03
+// Generated on Mon Oct  5 16:41:00 2020
+// Command line: sim_cpp11_features.pl bslma_constructionutil.h
+# define COMPILING_BSLMA_CONSTRUCTIONUTIL_H
+# include <bslma_constructionutil_cpp03.h>
+# undef COMPILING_BSLMA_CONSTRUCTIONUTIL_H
+#else
 
 namespace BloombergLP {
 namespace bslma {
@@ -456,7 +666,7 @@ struct ConstructionUtil {
     static void construct(TARGET_TYPE *address, bslma::Allocator *allocator);
     template <class TARGET_TYPE>
     static void construct(TARGET_TYPE *address, void *allocator);
-        // Create a default-constructed object of (template parameter) type
+        // Create a default-constructed object of (template parameter)
         // 'TARGET_TYPE' at the specified 'address'.  If 'allocator' is of type
         // 'bslma::Allocator' and 'TARGET_TYPE' supports 'bslma'-style
         // allocation, 'allocator' is passed to the default constructor.  If
@@ -480,7 +690,7 @@ struct ConstructionUtil {
     template <class TARGET_TYPE>
     static void
     construct(TARGET_TYPE *address, void *, TARGET_TYPE& original);
-        // Create an object of (template parameter) type 'TARGET_TYPE', having
+        // Create an object of (template parameter) 'TARGET_TYPE', having
         // the same value as the specified 'original' object, at the specified
         // 'address'.  If 'allocator' is of type 'bslma::Allocator' and
         // 'TARGET_TYPE' supports 'bslma'-style allocation, 'allocator' is
@@ -501,7 +711,7 @@ struct ConstructionUtil {
     static void construct(TARGET_TYPE                    *address,
                           void                           *allocator,
                           bslmf::MovableRef<TARGET_TYPE>  original);
-        // Create an object of (template parameter) type 'TARGET_TYPE', having
+        // Create an object of (template parameter) 'TARGET_TYPE', having
         // the same value as the specified 'original' object, at the specified
         // 'address'.  'original' is left in a valid but unspecified state.  If
         // the specified 'allocator' is of type 'bslma::Allocator' and
@@ -516,659 +726,32 @@ struct ConstructionUtil {
         // template parameters.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=15
-    template <class TARGET_TYPE, class Arg1, class... Args>
+    template <class TARGET_TYPE, class ARG1, class... ARGS>
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator,
-                          Arg1&&            argument,
-                          Args&&...         arguments);
-    template <class TARGET_TYPE, class Arg1, class... Args>
+                          ARG1&&            argument,
+                          ARGS&&...         arguments);
+    template <class TARGET_TYPE, class ARG1, class... ARGS>
     static void construct(TARGET_TYPE *address,
                           void        *allocator,
-                          Arg1&&       argument,
-                          Args&&...    arguments);
-        // Create an object of (template parameter) type 'TARGET_TYPE' at
-        // the specified 'address', constructed by forwarding the specified
-        // 'argument' and the (variable number of) additional 'arguments' to
-        // the corresponding constructor of 'TARGET_TYPE'.  If 'allocator' is
-        // of type 'bslma::Allocator' and 'TARGET_TYPE' supports 'bslma'-style
-        // allocation, the allocator is passed to the constructor (as the last
-        // argument).  If the constructor throws, the memory at 'address' is
-        // left in an unspecified state.
-#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-// {{{ BEGIN GENERATED CODE
-// The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslma_constructionutil.h
-    template <class TARGET_TYPE, class Arg1>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08,
-                                             class Args_09>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08,
-                                             class Args_09,
-                                             class Args_10>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08,
-                                             class Args_09,
-                                             class Args_10,
-                                             class Args_11>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08,
-                                             class Args_09,
-                                             class Args_10,
-                                             class Args_11,
-                                             class Args_12>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08,
-                                             class Args_09,
-                                             class Args_10,
-                                             class Args_11,
-                                             class Args_12,
-                                             class Args_13>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08,
-                                             class Args_09,
-                                             class Args_10,
-                                             class Args_11,
-                                             class Args_12,
-                                             class Args_13,
-                                             class Args_14>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08,
-                                             class Args_09,
-                                             class Args_10,
-                                             class Args_11,
-                                             class Args_12,
-                                             class Args_13,
-                                             class Args_14,
-                                             class Args_15>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15);
-
-    template <class TARGET_TYPE, class Arg1>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08,
-                                             class Args_09>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08,
-                                             class Args_09,
-                                             class Args_10>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08,
-                                             class Args_09,
-                                             class Args_10,
-                                             class Args_11>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08,
-                                             class Args_09,
-                                             class Args_10,
-                                             class Args_11,
-                                             class Args_12>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08,
-                                             class Args_09,
-                                             class Args_10,
-                                             class Args_11,
-                                             class Args_12,
-                                             class Args_13>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08,
-                                             class Args_09,
-                                             class Args_10,
-                                             class Args_11,
-                                             class Args_12,
-                                             class Args_13,
-                                             class Args_14>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14);
-
-    template <class TARGET_TYPE, class Arg1, class Args_01,
-                                             class Args_02,
-                                             class Args_03,
-                                             class Args_04,
-                                             class Args_05,
-                                             class Args_06,
-                                             class Args_07,
-                                             class Args_08,
-                                             class Args_09,
-                                             class Args_10,
-                                             class Args_11,
-                                             class Args_12,
-                                             class Args_13,
-                                             class Args_14,
-                                             class Args_15>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15);
-
-#else
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class TARGET_TYPE, class Arg1, class... Args>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
-    template <class TARGET_TYPE, class Arg1, class... Args>
-    static void construct(TARGET_TYPE *address,
-                          void        *allocator,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument,
-                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
-// }}} END GENERATED CODE
+                          ARG1&&       argument,
+                          ARGS&&...    arguments);
+        // Create an object of (template parameter) 'TARGET_TYPE' at the
+        // specified 'address', constructed by forwarding the specified
+        // 'argument' and the (variable number of) additional specified
+        // 'arguments' to the corresponding constructor of 'TARGET_TYPE'.  If
+        // the specified 'allocator' is of type 'bslma::Allocator *' and
+        // 'TARGET_TYPE' supports 'bslma'-style allocation, the allocator is
+        // passed to the constructor (as the last argument).  If the
+        // constructor throws, the memory at 'address' is left in an
+        // unspecified state.
 #endif
 
     template <class TARGET_TYPE, class ALLOCATOR>
     static void destructiveMove(TARGET_TYPE *address,
                                 ALLOCATOR   *allocator,
                                 TARGET_TYPE *original);
-        // Create an object of (template parameter) type 'TARGET_TYPE' at the
+        // Create an object of (template parameter) 'TARGET_TYPE' at the
         // specified 'address' having the same value as the object at the
         // specified 'original' address, propagating the specified 'allocator'
         // to the moved object if 'TARGET_TYPE' uses 'bslma'-style allocation
@@ -1187,8 +770,44 @@ struct ConstructionUtil {
         // (i.e., a slicing move) where 'TARGET_TYPE' has a non-'virtual'
         // destructor and is not bitwise-movable, then 'original' will be only
         // partially destroyed.
-};
 
+#if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+    template <class TARGET_TYPE>
+    static TARGET_TYPE make(bslma::Allocator *allocator);
+    template <class TARGET_TYPE>
+    static TARGET_TYPE make(void             *allocator);
+        // Return, by value, an object of the specified (template parameter)
+        // 'TARGET_TYPE', having default value.  If the specified 'allocator'
+        // is a pointer to a class derived from 'bslma::Allocator *' and
+        // 'TARGET_TYPE' supports 'bslma'-style allocation, 'allocator' is
+        // propagated to the newly created object; otherwise, 'allocator' is
+        // ignored.  Note that this method is available only for compilers that
+        // reliably implement copy/move elision (i.e., RVO) on the returned
+        // object.  This copy/move elision is required starting with C++17 and
+        // is widely implemented, though optional, prior to C++17.
+
+    template <class TARGET_TYPE, class ANY_TYPE>
+    static TARGET_TYPE make(
+                        bslma::Allocator                            *allocator,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE)  argument);
+    template <class TARGET_TYPE,class ANY_TYPE>
+    static TARGET_TYPE make(
+                        void                                        *allocator,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE)  argument);
+        // Return, by value, an object of the specified (template parameter)
+        // 'TARGET_TYPE', constructed from the specified 'argument'.  If the
+        // specified 'allocator' is a pointer to a class derived from
+        // 'bslma::Allocator *' and 'TARGET_TYPE' supports 'bslma'-style
+        // allocation, 'allocator' is propagated to the newly created object;
+        // otherwise, 'allocator' is ignored.  Note that this method is
+        // available only for compilers that reliably implement copy/move
+        // elision (i.e., RVO) on the returned object.  This copy/move elision
+        // is required starting with C++17 and is widely implemented, though
+        // optional, prior to C++17.
+
+#endif // defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+
+};
                         // ===========================
                         // struct ConstructionUtil_Imp
                         // ===========================
@@ -1228,11 +847,11 @@ struct ConstructionUtil_Imp {
     static void construct(
              TARGET_TYPE *address,
              bsl::integral_constant<int, e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *);
-        // Construct a default instance of (template parameter) type
-        // 'TARGET_TYPE' that has a trivial default constructor, at the
-        // specified 'address'.  If the constructor throws, the memory at
-        // 'address' is left in an unspecified state.  Note that the behavior
-        // is undefined if 'TARGET_TYPE' supports 'bslma'-style allocators.
+        // Construct a default instance of (template parameter) 'TARGET_TYPE'
+        // that has a trivial default constructor, at the specified 'address'.
+        // If the constructor throws, the memory at 'address' is left in an
+        // unspecified state.  Note that the behavior is undefined if
+        // 'TARGET_TYPE' supports 'bslma'-style allocators.
 
     // In order to implement:
     //   'allocator_traits<A>::construct(m, p, rv)'
@@ -1251,7 +870,7 @@ struct ConstructionUtil_Imp {
     construct(TARGET_TYPE        *address,
               bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
               const TARGET_TYPE&  original);
-        // Create an object of a bitwise copyable (template parameter) type
+        // Create an object of a bitwise copyable (template parameter)
         // 'TARGET_TYPE' at the specified 'address', with the same value as the
         // specified 'original' object.  If the constructor throws, the memory
         // at 'address' is left in an unspecified state.  Note that the
@@ -1271,7 +890,7 @@ struct ConstructionUtil_Imp {
              TARGET_TYPE                                            *address,
              bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
              bslmf::MovableRef<TARGET_TYPE>                          original);
-        // Create an object of a bitwise moveable (template parameter) type
+        // Create an object of a bitwise moveable (template parameter)
         // 'TARGET_TYPE' at the specified 'address', with the same value as the
         // specified 'original' object.  If the constructor throws, the memory
         // at 'address' is left in an unspecified state.  Note that the
@@ -1286,1324 +905,58 @@ struct ConstructionUtil_Imp {
     //   'allocator_traits<A>::construct(m, p, args)'
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=15
-    template <class TARGET_TYPE, class... Args>
+    template <class TARGET_TYPE, class... ARGS>
     static void construct(
                   TARGET_TYPE      *address,
                   bslma::Allocator *allocator,
                   bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  Args&&...         arguments);
-    template <class TARGET_TYPE, class... Args>
+                  ARGS&&...         arguments);
+    template <class TARGET_TYPE, class... ARGS>
     static void construct(
                   TARGET_TYPE      *address,
                   bslma::Allocator *allocator,
                   bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  Args&&...         arguments);
-        // TBD: fix comment
-        // Construct an object of (template parameter) type 'TARGET_TYPE',
-        // that supports 'bslma'-style allocators, at the specified 'address',
+                  ARGS&&...         arguments);
+        // Construct an object at the specified 'address' having the specified
+        // (template parameter) 'TARGET_TYPE' that supports 'bslma'-style
+        // allocators.  Invoke the constructor of 'TARGET_TYPE' using the
+        // specified 'arguments'.  For the 'e_USES_BSLMA_ALLOCATOR_TRAITS'
+        // overload, the specified 'allocator' is passed as an additional last
+        // argument to the constructor.  For the
+        // 'e_USES_ALLOCATOR_ARG_T_TRAITS' overload, the 'allocator' is passed
+        // as the second argument to the constructor, preceded by
+        // 'bsl::allocator_arg'.  If the constructor throws, the memory at
+        // 'address' is left in an uninitialized state.
+
+    template <class TARGET_TYPE, class... ARGS>
+    static void construct(TARGET_TYPE      *address,
+                          bslma::Allocator *allocator,
+                          bsl::integral_constant<int, e_NIL_TRAITS> *,
+                          ARGS&&...         arguments);
+
+    template <class TARGET_TYPE, class... ARGS>
+    static void construct(TARGET_TYPE      *address,
+                          bsl::integral_constant<int, e_NIL_TRAITS> *,
+                          ARGS&&...         arguments);
+        // Construct an object of (template parameter) 'TARGET_TYPE', that does
+        // not support 'bslma'-style allocators, at the specified 'address',
         // invoking the constructor of 'TARGET_TYPE' corresponding to the
-        // specified 'arguments'.  If 'allocator' is of type
-        // 'bslma::Allocator', the allocator is passed to the constructor.  If
-        // the constructor throws, the memory at 'address' is left in an
-        // unspecified state.
-
-    template <class TARGET_TYPE, class... Args>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                          Args&&...         arguments);
-
-    template <class TARGET_TYPE, class... Args>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                          Args&&...         arguments);
-        // Construct an object of (template parameter) type 'TARGET_TYPE',
-        // that does not support 'bslma'-style allocators, at the specified
-        // 'address', invoking the constructor of 'TARGET_TYPE' corresponding
-        // to the specified 'arguments'.  If the constructor throws, the memory
-        // at 'address' is left in an unspecified state.
-#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-// {{{ BEGIN GENERATED CODE
-// The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslma_constructionutil.h
-    template <class TARGET_TYPE>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *);
-
-    template <class TARGET_TYPE, class Args_01>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12,
-                                 class Args_13>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12,
-                                 class Args_13,
-                                 class Args_14>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12,
-                                 class Args_13,
-                                 class Args_14,
-                                 class Args_15>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15);
-
-    template <class TARGET_TYPE>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *);
-
-    template <class TARGET_TYPE, class Args_01>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12,
-                                 class Args_13>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12,
-                                 class Args_13,
-                                 class Args_14>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12,
-                                 class Args_13,
-                                 class Args_14,
-                                 class Args_15>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15);
-
-    template <class TARGET_TYPE>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *);
-
-    template <class TARGET_TYPE, class Args_01>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12,
-                                 class Args_13>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12,
-                                 class Args_13,
-                                 class Args_14>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12,
-                                 class Args_13,
-                                 class Args_14,
-                                 class Args_15>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15);
-
-
-    template <class TARGET_TYPE>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *);
-
-    template <class TARGET_TYPE, class Args_01>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12,
-                                 class Args_13>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12,
-                                 class Args_13,
-                                 class Args_14>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14);
-
-    template <class TARGET_TYPE, class Args_01,
-                                 class Args_02,
-                                 class Args_03,
-                                 class Args_04,
-                                 class Args_05,
-                                 class Args_06,
-                                 class Args_07,
-                                 class Args_08,
-                                 class Args_09,
-                                 class Args_10,
-                                 class Args_11,
-                                 class Args_12,
-                                 class Args_13,
-                                 class Args_14,
-                                 class Args_15>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15);
-
-#else
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class TARGET_TYPE, class... Args>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
-    template <class TARGET_TYPE, class... Args>
-    static void construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
-
-    template <class TARGET_TYPE, class... Args>
-    static void construct(TARGET_TYPE      *address,
-                          bslma::Allocator *allocator,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
-
-    template <class TARGET_TYPE, class... Args>
-    static void construct(TARGET_TYPE      *address,
-                          bsl::integral_constant<int, e_NIL_TRAITS> *,
-                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
-// }}} END GENERATED CODE
+        // specified 'arguments'.  If the constructor throws, the memory at
+        // 'address' is left in an unspecified state.
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
     template <class TARGET_TYPE>
     static void defaultConstructScalar(bsl::false_type, TARGET_TYPE *address);
-        // Value-initialize a scalar object of the (template parameter) type
-        // 'TARGET_TYPE' at the specifified 'address'.  The unused
+        // Value-initialize a scalar object of the (template parameter)
+        // 'TARGET_TYPE' at the specified 'address'.  The unused
         // 'bsl::false_type' value indicates that the scalar 'TARGET_TYPE' is
         // not a pointer-to-member.
 
     template <class TARGET_TYPE>
     static void defaultConstructScalar(bsl::true_type, TARGET_TYPE *address);
         // Value-initialize a pointer-to-member at the specified 'address' to
-        // the null pointer value.  Note that early version of the Microsoft
+        // the null pointer value.  Note that early versions of the Microsoft
         // Visual C++ compiler would fail to initialize such an object when
         // requested with the simple value-initialization syntax of
         // 'new (address) TYPE();', requiring this additional workaround.
@@ -2611,11 +964,11 @@ struct ConstructionUtil_Imp {
 
     template <class TARGET_TYPE, class ALLOCATOR>
     static void destructiveMove(
-                       TARGET_TYPE *address,
-                       ALLOCATOR   *allocator,
-                       bsl::integral_constant<int, e_BITWISE_MOVABLE_TRAITS> *,
-                       TARGET_TYPE *original);
-        // Move the bitwise movable object of (template parameter) type
+              TARGET_TYPE                                           *address,
+              ALLOCATOR                                             *allocator,
+              bsl::integral_constant<int, e_BITWISE_MOVABLE_TRAITS> *,
+              TARGET_TYPE                                           *original);
+        // Move the bitwise movable object of (template parameter)
         // 'TARGET_TYPE' at the specified 'original' address to the specified
         // 'address', eliding the call to the move constructor and destructor
         // in favor of performing a bitwise copy.  The behavior is undefined
@@ -2624,11 +977,12 @@ struct ConstructionUtil_Imp {
         // memory.
 
     template <class TARGET_TYPE, class ALLOCATOR>
-    static void destructiveMove(TARGET_TYPE *address,
-                                ALLOCATOR   *allocator,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                                TARGET_TYPE *original);
-        // Create an object of (template parameter) type 'TARGET_TYPE' at the
+    static void destructiveMove(
+                          TARGET_TYPE                               *address,
+                          ALLOCATOR                                 *allocator,
+                          bsl::integral_constant<int, e_NIL_TRAITS> *,
+                          TARGET_TYPE                               *original);
+        // Create an object of (template parameter) 'TARGET_TYPE' at the
         // specified 'address' having the same value as the object at the
         // specified 'original' address, propagating the specified 'allocator'
         // to the moved object if 'TARGET_TYPE' uses 'bslma'-style allocation
@@ -2645,6 +999,48 @@ struct ConstructionUtil_Imp {
         // 'TARGET_TYPE' (i.e., a slicing move) where 'TARGET_TYPE' has a
         // non-'virtual' destructor, then 'original' will be only partially
         // destroyed.
+
+#if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+    template <class TARGET_TYPE>
+    static TARGET_TYPE make(
+         bslma::Allocator                                           *allocator,
+         bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *);
+    template <class TARGET_TYPE>
+    static TARGET_TYPE make(
+         bslma::Allocator                                           *allocator,
+         bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *);
+    template <class TARGET_TYPE>
+    static TARGET_TYPE make(bslma::Allocator *allocator,
+                            bsl::integral_constant<int, e_NIL_TRAITS> *);
+        // Return, by value, a default-constructed object of the specified
+        // (template parameter) 'TARGET_TYPE', using the specified 'allocator'
+        // to supply memory.  The 'integral_constant' pointer argument is used
+        // to dispatch on various traits so that the correct constructor is
+        // invoked for the specified 'TARGET_TYPE'.
+
+    template <class TARGET_TYPE, class ANY_TYPE>
+    static TARGET_TYPE make(
+         bslma::Allocator                                           *allocator,
+         bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
+         BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE)                 argument);
+    template <class TARGET_TYPE, class ANY_TYPE>
+    static TARGET_TYPE make(
+         bslma::Allocator                                           *allocator,
+         bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
+         BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE)                 argument);
+    template <class TARGET_TYPE, class ANY_TYPE>
+    static TARGET_TYPE make(
+                        bslma::Allocator                            *allocator,
+                        bsl::integral_constant<int, e_NIL_TRAITS>   *,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE)  argument);
+        // Return, by value, an object of the specified (template parameter)
+        // 'TARGET_TYPE', constructed from the specified 'argument' object,
+        // using the specified 'allocator' to supply memory.  The
+        // 'integral_constant' pointer argument is used to dispatch on various
+        // traits so that the correct constructor is invoked for the specified
+        // 'TARGET_TYPE'.
+
+#endif // defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
 
     template <class TARGET_TYPE>
     static void *voidify(TARGET_TYPE *address);
@@ -2809,13 +1205,13 @@ void ConstructionUtil::construct(TARGET_TYPE                    *address,
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=15
-template <class TARGET_TYPE, class Arg1, class... Args>
+template <class TARGET_TYPE, class ARG1, class... ARGS>
 inline
 void
 ConstructionUtil::construct(TARGET_TYPE      *address,
                             bslma::Allocator *allocator,
-                            Arg1&&            argument1,
-                            Args&&...         arguments)
+                            ARG1&&            argument1,
+                            ARGS&&...         arguments)
 {
     enum {
         k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
@@ -2827,1268 +1223,23 @@ ConstructionUtil::construct(TARGET_TYPE      *address,
     Imp::construct(address,
                    allocator,
                    (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
+                   BSLS_COMPILERFEATURES_FORWARD(ARG1,argument1),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS,arguments)...);
 }
 
-template <class TARGET_TYPE, class Arg1, class... Args>
+template <class TARGET_TYPE, class ARG1, class... ARGS>
 inline
 void
 ConstructionUtil::construct(TARGET_TYPE *address,
                             void        *,
-                            Arg1&&       argument1,
-                            Args&&...    arguments)
+                            ARG1&&       argument1,
+                            ARGS&&...    arguments)
 {
     ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                             BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
+                             BSLS_COMPILERFEATURES_FORWARD(ARG1,argument1),
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS,arguments)...);
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
-#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-// {{{ BEGIN GENERATED CODE
-// The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslma_constructionutil.h
-template <class TARGET_TYPE, class Arg1>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08,
-                                         class Args_09>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08,
-                                         class Args_09,
-                                         class Args_10>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08,
-                                         class Args_09,
-                                         class Args_10,
-                                         class Args_11>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08,
-                                         class Args_09,
-                                         class Args_10,
-                                         class Args_11,
-                                         class Args_12>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08,
-                                         class Args_09,
-                                         class Args_10,
-                                         class Args_11,
-                                         class Args_12,
-                                         class Args_13>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08,
-                                         class Args_09,
-                                         class Args_10,
-                                         class Args_11,
-                                         class Args_12,
-                                         class Args_13,
-                                         class Args_14>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_14,arguments_14));
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08,
-                                         class Args_09,
-                                         class Args_10,
-                                         class Args_11,
-                                         class Args_12,
-                                         class Args_13,
-                                         class Args_14,
-                                         class Args_15>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_14,arguments_14),
-                   BSLS_COMPILERFEATURES_FORWARD(Args_15,arguments_15));
-}
-
-template <class TARGET_TYPE, class Arg1>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08,
-                                         class Args_09>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08,
-                                         class Args_09,
-                                         class Args_10>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08,
-                                         class Args_09,
-                                         class Args_10,
-                                         class Args_11>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08,
-                                         class Args_09,
-                                         class Args_10,
-                                         class Args_11,
-                                         class Args_12>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08,
-                                         class Args_09,
-                                         class Args_10,
-                                         class Args_11,
-                                         class Args_12,
-                                         class Args_13>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08,
-                                         class Args_09,
-                                         class Args_10,
-                                         class Args_11,
-                                         class Args_12,
-                                         class Args_13,
-                                         class Args_14>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_14,arguments_14));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Arg1, class Args_01,
-                                         class Args_02,
-                                         class Args_03,
-                                         class Args_04,
-                                         class Args_05,
-                                         class Args_06,
-                                         class Args_07,
-                                         class Args_08,
-                                         class Args_09,
-                                         class Args_10,
-                                         class Args_11,
-                                         class Args_12,
-                                         class Args_13,
-                                         class Args_14,
-                                         class Args_15>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_14,arguments_14),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_15,arguments_15));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-#else
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-template <class TARGET_TYPE, class Arg1, class... Args>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE      *address,
-                            bslma::Allocator *allocator,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
-{
-    enum {
-        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
-                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
-                 ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
-                 : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
-                : Imp::e_NIL_TRAITS
-    };
-    Imp::construct(address,
-                   allocator,
-                   (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                   BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
-}
-
-template <class TARGET_TYPE, class Arg1, class... Args>
-inline
-void
-ConstructionUtil::construct(TARGET_TYPE *address,
-                            void        *,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(Arg1) argument1,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
-{
-    ::new (Imp::voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Arg1,argument1),
-                             BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-// }}} END GENERATED CODE
 #endif
 
 template <class TARGET_TYPE, class ALLOCATOR>
@@ -4112,6 +1263,68 @@ ConstructionUtil::destructiveMove(TARGET_TYPE *address,
                          (bsl::integral_constant<int, k_VALUE>*)0,
                          original);
 }
+
+#if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+// Suppress bde_verify warnings about return-by-value in this region.
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -AR01: Type using allocator is returned by value
+
+template <class TARGET_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil::make(bslma::Allocator *allocator)
+{
+    enum {
+        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
+                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
+                   ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
+                   : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
+                : Imp::e_NIL_TRAITS
+    };
+
+    return Imp::make<TARGET_TYPE>(allocator,
+                                  (bsl::integral_constant<int, k_VALUE> *) 0);
+}
+
+template <class TARGET_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil::make(void *)
+{
+    return TARGET_TYPE();
+}
+
+template <class TARGET_TYPE, class ANY_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil::make(bslma::Allocator                            *allocator,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE)  argument)
+{
+    enum {
+        k_VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
+                ? (bslmf::UsesAllocatorArgT<TARGET_TYPE>::value
+                   ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
+                   : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
+                : Imp::e_NIL_TRAITS
+    };
+
+    return Imp::make<TARGET_TYPE>(allocator,
+                                  (bsl::integral_constant<int, k_VALUE> *) 0,
+                                  BSLS_COMPILERFEATURES_FORWARD(ANY_TYPE,
+                                                                argument));
+}
+
+template <class TARGET_TYPE, class ANY_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil::make(void                                        *,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE)  argument)
+{
+    return TARGET_TYPE(BSLS_COMPILERFEATURES_FORWARD(ANY_TYPE, argument));
+}
+
+// BDE_VERIFY pragma: pop
+#endif // defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
 
                        // ---------------------------
                        // struct ConstructionUtil_Imp
@@ -4148,10 +1361,11 @@ ConstructionUtil_Imp::construct(
 
 template <class TARGET_TYPE>
 inline
-void ConstructionUtil_Imp::construct(TARGET_TYPE       *address,
-                                     bslma::Allocator *,
-                      bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
-                                     const TARGET_TYPE& original)
+void ConstructionUtil_Imp::construct(
+              TARGET_TYPE                                            *address,
+              bslma::Allocator                                       *,
+              bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
+              const TARGET_TYPE&                                      original)
 {
     construct(address,
               (bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS>*)0,
@@ -4160,9 +1374,10 @@ void ConstructionUtil_Imp::construct(TARGET_TYPE       *address,
 
 template <class TARGET_TYPE>
 inline
-void ConstructionUtil_Imp::construct(TARGET_TYPE       *address,
-                      bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
-                                     const TARGET_TYPE& original)
+void ConstructionUtil_Imp::construct(
+              TARGET_TYPE                                            *address,
+              bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
+              const TARGET_TYPE&                                      original)
 {
     ::new (voidify(address)) TARGET_TYPE(original);
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
@@ -4174,7 +1389,7 @@ void ConstructionUtil_Imp::construct(
               TARGET_TYPE                                            *address,
               bslma::Allocator                                       *,
               bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
-              bslmf::MovableRef<TARGET_TYPE>                         original)
+              bslmf::MovableRef<TARGET_TYPE>                          original)
 {
     construct(address,
               (bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS>*)0,
@@ -4184,2280 +1399,71 @@ void ConstructionUtil_Imp::construct(
 template <class TARGET_TYPE>
 inline
 void ConstructionUtil_Imp::construct(
-               TARGET_TYPE                                           *address,
-               bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
-               bslmf::MovableRef<TARGET_TYPE>                         original)
+              TARGET_TYPE                                            *address,
+              bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
+              bslmf::MovableRef<TARGET_TYPE>                          original)
 {
     ::new (voidify(address)) TARGET_TYPE(BSLS_COMPILERFEATURES_FORWARD(
         TARGET_TYPE, bslmf::MovableRefUtil::move(original)));
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=15
-template <class TARGET_TYPE, class... Args>
+template <class TARGET_TYPE, class... ARGS>
 inline
 void
 ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  Args&&...         arguments)
+         TARGET_TYPE                                                *address,
+         bslma::Allocator                                           *allocator,
+         bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
+         ARGS&&...                                                   arguments)
 {
     ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args,arguments)..., allocator);
+                  BSLS_COMPILERFEATURES_FORWARD(ARGS,arguments)..., allocator);
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 
-template <class TARGET_TYPE, class... Args>
+template <class TARGET_TYPE, class... ARGS>
 inline
 void
 ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  Args&&...         arguments)
+         TARGET_TYPE                                                *address,
+         bslma::Allocator                                           *allocator,
+         bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
+         ARGS&&...                                                   arguments)
 {
     ::new (voidify(address)) TARGET_TYPE(
                              bsl::allocator_arg,
                              allocator,
-                             BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS,arguments)...);
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 
-template <class TARGET_TYPE, class... Args>
+template <class TARGET_TYPE, class... ARGS>
 inline
 void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                                Args&&...         arguments)
+ConstructionUtil_Imp::construct(
+                          TARGET_TYPE                               *address,
+                          bslma::Allocator                          *,
+                          bsl::integral_constant<int, e_NIL_TRAITS> *,
+                          ARGS&&...                                  arguments)
 {
     construct(address,
               (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
+              BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
 }
 
-template <class TARGET_TYPE, class... Args>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                                Args&&...         arguments)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-// {{{ BEGIN GENERATED CODE
-// The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslma_constructionutil.h
-template <class TARGET_TYPE>
+template <class TARGET_TYPE, class... ARGS>
 inline
 void
 ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *)
+                          TARGET_TYPE                               *address,
+                          bsl::integral_constant<int, e_NIL_TRAITS> *,
+                          ARGS&&...                                  arguments)
 {
     ::new (voidify(address)) TARGET_TYPE(
-                  allocator);
+                             BSLS_COMPILERFEATURES_FORWARD(ARGS,arguments)...);
     BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
-
-template <class TARGET_TYPE, class Args_01>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12,
-                             class Args_13>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12,
-                             class Args_13,
-                             class Args_14>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_14,arguments_14),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12,
-                             class Args_13,
-                             class Args_14,
-                             class Args_15>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_14,arguments_14),
-                  BSLS_COMPILERFEATURES_FORWARD(Args_15,arguments_15),
-                  allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12,
-                             class Args_13>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12,
-                             class Args_13,
-                             class Args_14>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_14,arguments_14));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12,
-                             class Args_13,
-                             class Args_14,
-                             class Args_15>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_14,arguments_14),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_15,arguments_15));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0);
-}
-
-template <class TARGET_TYPE, class Args_01>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01));
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-              BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02));
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-              BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-              BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03));
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-              BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-              BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-              BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04));
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-              BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-              BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-              BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-              BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05));
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-              BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-              BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-              BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-              BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-              BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06));
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-              BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-              BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-              BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-              BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-              BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-              BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07));
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-              BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-              BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-              BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-              BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-              BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-              BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-              BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08));
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-              BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-              BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-              BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-              BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-              BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-              BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-              BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-              BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09));
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-              BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-              BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-              BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-              BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-              BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-              BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-              BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-              BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-              BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10));
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-              BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-              BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-              BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-              BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-              BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-              BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-              BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-              BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-              BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-              BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11));
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-              BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-              BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-              BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-              BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-              BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-              BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-              BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-              BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-              BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-              BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-              BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12));
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12,
-                             class Args_13>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-              BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-              BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-              BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-              BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-              BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-              BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-              BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-              BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-              BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-              BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-              BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-              BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13));
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12,
-                             class Args_13,
-                             class Args_14>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-              BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-              BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-              BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-              BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-              BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-              BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-              BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-              BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-              BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-              BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-              BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-              BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13),
-              BSLS_COMPILERFEATURES_FORWARD(Args_14,arguments_14));
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12,
-                             class Args_13,
-                             class Args_14,
-                             class Args_15>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-              BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-              BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-              BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-              BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-              BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-              BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-              BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-              BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-              BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-              BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-              BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-              BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13),
-              BSLS_COMPILERFEATURES_FORWARD(Args_14,arguments_14),
-              BSLS_COMPILERFEATURES_FORWARD(Args_15,arguments_15));
-}
-
-template <class TARGET_TYPE>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             );
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12,
-                             class Args_13>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12,
-                             class Args_13,
-                             class Args_14>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_14,arguments_14));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class Args_01,
-                             class Args_02,
-                             class Args_03,
-                             class Args_04,
-                             class Args_05,
-                             class Args_06,
-                             class Args_07,
-                             class Args_08,
-                             class Args_09,
-                             class Args_10,
-                             class Args_11,
-                             class Args_12,
-                             class Args_13,
-                             class Args_14,
-                             class Args_15>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_11) arguments_11,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_12) arguments_12,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_13) arguments_13,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_14) arguments_14,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_15) arguments_15)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                          BSLS_COMPILERFEATURES_FORWARD(Args_01,arguments_01),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_02,arguments_02),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_03,arguments_03),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_04,arguments_04),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_05,arguments_05),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_06,arguments_06),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_07,arguments_07),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_08,arguments_08),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_09,arguments_09),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_10,arguments_10),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_11,arguments_11),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_12,arguments_12),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_13,arguments_13),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_14,arguments_14),
-                          BSLS_COMPILERFEATURES_FORWARD(Args_15,arguments_15));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-#else
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-template <class TARGET_TYPE, class... Args>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                  BSLS_COMPILERFEATURES_FORWARD(Args,arguments)..., allocator);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class... Args>
-inline
-void
-ConstructionUtil_Imp::construct(
-                  TARGET_TYPE      *address,
-                  bslma::Allocator *allocator,
-                  bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             bsl::allocator_arg,
-                             allocator,
-                             BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-
-template <class TARGET_TYPE, class... Args>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bslma::Allocator *,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
-{
-    construct(address,
-              (bsl::integral_constant<int, e_NIL_TRAITS> *)0,
-              BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
-}
-
-template <class TARGET_TYPE, class... Args>
-inline
-void
-ConstructionUtil_Imp::construct(TARGET_TYPE      *address,
-                                bsl::integral_constant<int, e_NIL_TRAITS> *,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
-{
-    ::new (voidify(address)) TARGET_TYPE(
-                             BSLS_COMPILERFEATURES_FORWARD(Args,arguments)...);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-}
-// }}} END GENERATED CODE
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
@@ -6483,28 +1489,30 @@ ConstructionUtil_Imp::defaultConstructScalar(bsl::true_type,
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
 void
-ConstructionUtil_Imp::destructiveMove(TARGET_TYPE *address,
-                                      ALLOCATOR   *,
-                       bsl::integral_constant<int, e_BITWISE_MOVABLE_TRAITS> *,
-                                      TARGET_TYPE *original)
+ConstructionUtil_Imp::destructiveMove(
+               TARGET_TYPE                                           *address,
+               ALLOCATOR                                             *,
+               bsl::integral_constant<int, e_BITWISE_MOVABLE_TRAITS> *,
+               TARGET_TYPE                                           *original)
 {
-    if (bsl::is_fundamental<TARGET_TYPE>::value
-     || bsl::is_pointer<TARGET_TYPE>::value) {
-         ::new (voidify(address)) TARGET_TYPE(*original);
-         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
-     }
-     else {
-         memcpy((void *)address, original, sizeof *original);
-     }
+    if (bsl::is_fundamental<TARGET_TYPE>::value ||
+        bsl::is_pointer<TARGET_TYPE>::value) {
+        ::new (voidify(address)) TARGET_TYPE(*original);
+        BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
+    }
+    else {
+        memcpy(address, original, sizeof *original);
+    }
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
 void
-ConstructionUtil_Imp::destructiveMove(TARGET_TYPE *address,
-                                      ALLOCATOR   *allocator,
-                                   bsl::integral_constant<int, e_NIL_TRAITS> *,
-                                      TARGET_TYPE *original)
+ConstructionUtil_Imp::destructiveMove(
+                          TARGET_TYPE                               *address,
+                          ALLOCATOR                                 *allocator,
+                          bsl::integral_constant<int, e_NIL_TRAITS> *,
+                          TARGET_TYPE                               *original)
 {
     // TBD: should be ok with C++03 as well, but need to test edge cases first
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
@@ -6517,6 +1525,78 @@ ConstructionUtil_Imp::destructiveMove(TARGET_TYPE *address,
     DestructionUtil::destroy(original);
 }
 
+#if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+// Suppress bde_verify warnings about return-by-value in this region.
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -AR01: Type using allocator is returned by value
+
+template <class TARGET_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil_Imp::make(
+         bslma::Allocator                                           *allocator,
+         bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *)
+{
+    return TARGET_TYPE(allocator);
+}
+
+template <class TARGET_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil_Imp::make(
+         bslma::Allocator                                           *allocator,
+         bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *)
+{
+    return TARGET_TYPE(bsl::allocator_arg, allocator);
+}
+
+template <class TARGET_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil_Imp::make(bslma::Allocator                          *,
+                           bsl::integral_constant<int, e_NIL_TRAITS> *)
+{
+    return TARGET_TYPE();
+}
+
+template <class TARGET_TYPE, class ANY_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil_Imp::make(
+         bslma::Allocator                                           *allocator,
+         bsl::integral_constant<int, e_USES_BSLMA_ALLOCATOR_TRAITS> *,
+         BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE)                 argument)
+{
+    return TARGET_TYPE(BSLS_COMPILERFEATURES_FORWARD(ANY_TYPE, argument),
+                       allocator);
+}
+
+template <class TARGET_TYPE, class ANY_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil_Imp::make(
+         bslma::Allocator                                           *allocator,
+         bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS> *,
+         BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE)                 argument)
+{
+    return TARGET_TYPE(bsl::allocator_arg, allocator,
+                       BSLS_COMPILERFEATURES_FORWARD(ANY_TYPE, argument));
+}
+
+template <class TARGET_TYPE, class ANY_TYPE>
+inline
+TARGET_TYPE
+ConstructionUtil_Imp::make(
+                         bslma::Allocator                            *,
+                         bsl::integral_constant<int, e_NIL_TRAITS>   *,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE)  argument)
+{
+    return TARGET_TYPE(BSLS_COMPILERFEATURES_FORWARD(ANY_TYPE, argument));
+}
+
+// BDE_VERIFY pragma: pop
+#endif // defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+
 template <class TARGET_TYPE>
 inline
 void *ConstructionUtil_Imp::voidify(TARGET_TYPE *address)
@@ -6527,6 +1607,8 @@ void *ConstructionUtil_Imp::voidify(TARGET_TYPE *address)
 
 }  // close package namespace
 }  // close enterprise namespace
+
+#endif // End C++11 code
 
 #endif
 
