@@ -5,7 +5,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide 'size' and 'ssize' free functions
+//@PURPOSE: Provide 'size' and 'ssize' free functions.
 //
 //@FUNCTIONS:
 //  size_t bsl::size(<array>)
@@ -22,8 +22,196 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1:
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: A 'Stack' class
+/// - - - - - - - - - - - - -
+// Suppose we want to create a 'Stack' template class that contains a
+// fixed-length container whose elements can be accessed via 'operator[]'.  The
+// contained container could be a 'vector', 'deque', 'std::array', or a raw
+// array.
+//
+// For the 'vector', 'deque', and 'std::array', we can call
+// '<container>.size()' to the get the capacity of the fixed-length container,
+// but that won't work in the case of a raw array, so we use 'bsl::size'.
+//
+// First, we we declare the 'class':
+//..
+//  template <class CONTAINER, class ELEMENT = typename CONTAINER::value_type>
+//  class Stack {
+//      // TYPES
+//      typedef ELEMENT value_type;
+//
+//      // DATA
+//      CONTAINER      d_container;
+//      std::size_t    d_numElements;
+//
+//    public:
+//      // CREATORS
+//      Stack();
+//          // Create a 'Stack'.  Use this constructor when the type of
+//          // 'CONTAINER' default-constructs to the desired length.
+//
+//      explicit
+//      Stack(std::size_t initialSize);
+//          // Create a 'Stack'.  Use this constructor when the type of
+//          // 'CONTAINER' default constructs to 0 length, and has a
+//          // single-argument constructor that takes a 'size_t' to grow it to
+//          // the specified 'initialSize'.
+//
+//      Stack(const Stack& original);
+//          // Copy this 'Stack' from the specified 'original'.
+//
+//      // ~Stack() = default;
+//
+//      // MANIPULATORS
+//      void push(const value_type& value);
+//          // Push the specified 'value' onto the stack.  The behavior is
+//          // undefined if the stack is full.
+//
+//      value_type pop();
+//          // Pop the value from the top of the stack and return it.  The
+//          // behavior is undefined if the stack is empty.
+//
+//      // ACCESSOR
+//      std::size_t size() const;
+//          // Return the number of elements stored in the stack.
+//
+//      const value_type& top() const;
+//          // Return a reference to the object at the top of the stack.
+//
+//      BSLS_KEYWORD_CONSTEXPR std::size_t capacity() const;
+//          // Return the capacity of the stack.
+//  };
+//..
+// Next, we declare all the methods other than 'capacity()':
+//..
+//  // CREATORS
+//  template <class CONTAINER, class ELEMENT>
+//  Stack<CONTAINER, ELEMENT>::Stack()
+//  : d_numElements(0)
+//  {}
+//
+//  template <class CONTAINER, class ELEMENT>
+//  Stack<CONTAINER, ELEMENT>::Stack(std::size_t initialSize)
+//  : d_container(initialSize)
+//  , d_numElements(0)
+//  {}
+//
+//  template <class CONTAINER, class ELEMENT>
+//  Stack<CONTAINER, ELEMENT>::Stack(const Stack& original)
+//  : d_numElements(0)
+//  {
+//      for (std::size_t uu = 0; uu < original.size(); ++uu) {
+//          d_container[uu] = original.d_container[uu];
+//      }
+//
+//      d_numElements = original.d_numElements;
+//  }
+//
+//  // MANIPULATORS
+//  template <class CONTAINER, class ELEMENT>
+//  void Stack<CONTAINER, ELEMENT>::push(const value_type& value)
+//  {
+//      assert(d_numElements < this->capacity());
+//
+//      d_container[d_numElements++] = value;
+//  }
+//
+//  template <class CONTAINER, class ELEMENT>
+//  typename Stack<CONTAINER, ELEMENT>::value_type
+//  Stack<CONTAINER, ELEMENT>::pop()
+//  {
+//      assert(0 < d_numElements);
+//
+//      return d_container[--d_numElements];
+//  }
+//
+//  // ACCESSORS
+//  template <class CONTAINER, class ELEMENT>
+//  std::size_t Stack<CONTAINER, ELEMENT>::size() const
+//  {
+//      return d_numElements;
+//  }
+//
+//  template <class CONTAINER, class ELEMENT>
+//  const typename Stack<CONTAINER, ELEMENT>::value_type&
+//  Stack<CONTAINER, ELEMENT>::top() const
+//  {
+//      assert(0 < d_numElements);
+//
+//      return d_container[d_numElements - 1];
+//  }
+//..
+// Now, we declare 'capacity' and use 'bsl::size' to get the length of the
+// owned 'd_container'.
+//
+//  template <class CONTAINER, class ELEMENT>
+//  inline
+//  BSLS_KEYWORD_CONSTEXPR std::size_t
+//  Stack<CONTAINER, ELEMENT>::capacity() const
+//  {
+//      return bsl::size(d_container);
+//  }
+//..
+// Finally, in 'main', we use our new class based on several types of owned
+// 'CONTAINER's: raw array, 'bsl::vector', 'bsl::deque', and 'bsl::array'.
+//..
+//  typedef int Array[10];
+//  Stack<Array, int> aStack;
+//
+//  assert(aStack.capacity() == 10);
+//  assert(aStack.size() == 0);
+//
+//  aStack.push(5);
+//  aStack.push(7);
+//  aStack.push(2);
+//
+//  assert(aStack.size() == 3);
+//
+//  assert(2 == aStack.top());
+//  assert(2 == aStack.pop());
+//
+//  Stack<bsl::vector<int> > vStack(10);
+//
+//  assert(vStack.capacity() == 10);
+//  assert(vStack.size() == 0);
+//
+//  vStack.push(5);
+//  vStack.push(7);
+//  vStack.push(2);
+//
+//  assert(vStack.size() == 3);
+//
+//  assert(2 == vStack.top());
+//  assert(2 == vStack.pop());
+//
+//  Stack<bsl::deque<int> > dStack(10);
+//
+//  assert(dStack.capacity() == 10);
+//  assert(dStack.size() == 0);
+//
+//  dStack.push(5);
+//  dStack.push(7);
+//  dStack.push(2);
+//
+//  assert(dStack.size() == 3);
+//
+//  assert(2 == dStack.top());
+//  assert(2 == dStack.pop());
+//
+//  Stack<bsl::array<int, 10> > baStack;
+//
+//  assert(baStack.capacity() == 10);
+//  assert(baStack.size() == 0);
+//
+//  baStack.push(5);
+//  baStack.push(7);
+//  baStack.push(2);
+//
+//  assert(baStack.size() == 3);
+//
+//  assert(2 == baStack.top());
+//  assert(2 == baStack.pop());
+//..
 
 #include <bslscm_version.h>
 
