@@ -32,6 +32,10 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_forwarditerator.h>
 #include <bslstl_bidirectionaliterator.h>
 #include <bslstl_randomaccessiterator.h>
+
+// Also need 'size' and 'ssize'.
+
+#include <bslstl_size.h>
 #endif
 
 #endif

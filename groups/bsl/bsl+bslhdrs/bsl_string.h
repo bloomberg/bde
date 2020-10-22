@@ -33,6 +33,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_iterator.h>
 #include <bslstl_string.h>
 #include <bslstl_stringref.h>
+#include <bslstl_size.h>
 #endif
 
 #endif

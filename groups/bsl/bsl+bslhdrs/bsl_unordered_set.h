@@ -48,6 +48,7 @@ BSLS_IDENT("$Id: $")
 // requirement the following inclusion is added.
 
 # include <bslstl_iterator.h>
+# include <bslstl_size.h>
 # include <bslstl_unorderedmultiset.h>
 # include <bslstl_unorderedset.h>
 #endif  // BSL_OVERRIDES_STD
