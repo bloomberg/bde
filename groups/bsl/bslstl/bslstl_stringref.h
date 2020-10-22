@@ -1132,10 +1132,10 @@ inline
 bool StringRefImp_CompareUtil::compareEqual(const StringRefImp<CHAR_TYPE>& a,
                                             const StringRefImp<CHAR_TYPE>& b)
 {
-    return a.length() == b.length()
-          && 0 == native_std::memcmp(a.data(),
-                                     b.data(),
-                                     a.length() * sizeof(CHAR_TYPE));
+    return a.length() == b.length() &&
+           (0 == a.length() ||
+            0 == native_std::memcmp(
+                     a.data(), b.data(), a.length() * sizeof(CHAR_TYPE)));
 }
 
 template <class CHAR_TYPE>
