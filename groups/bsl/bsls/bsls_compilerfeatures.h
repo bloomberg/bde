@@ -51,6 +51,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params
 //  BSLS_COMPILERFEATURES_FORWARD_REF(T): argument of type 'T' to be forwarded
 //  BSLS_COMPILERFEATURES_FORWARD(T,V): Forward argument 'V' of type 'T'
+//  BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS: user-defined literals
 //
 //@SEE_ALSO: bsls_platform
 //
@@ -844,6 +845,7 @@ BSLS_IDENT("$Id: $")
 #    define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #    define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 #    define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#    define BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS
 #  endif
 #  if BSLS_PLATFORM_CMP_VERSION >= 50000
 #    define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
@@ -927,6 +929,9 @@ BSLS_IDENT("$Id: $")
 // Clang 3.1
 #if __has_feature(cxx_constexpr)
 #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+#endif
+#if __has_feature(cxx_user_literals)
+#define BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS
 #endif
 // clang 3.4
 #if __has_feature(cxx_relaxed_constexpr)
@@ -1053,6 +1058,7 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 #   define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 #   define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#   define BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS
 # endif
 
 // Not only does Microsoft not always report the language dialect properly in
@@ -1149,10 +1155,12 @@ BSLS_IDENT("$Id: $")
 //#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 #endif
 // (not yet supported in xlC)
+//https://www.ibm.com/support/knowledgecenter/SSGH3R_16.1.0/com.ibm.xlcpp161.aix.doc/language_ref/cpp11_support.html
 //#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 //#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 //#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
 //#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+//#define BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS
 
 // Not yet tested for support
 // # define BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
@@ -1222,6 +1230,9 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
     // CC 12.4 has problems partially ordering template parameter packs that
     // typically result in failing to compile with ambiguity errors.
+
+#   define BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS
+    // https://docs.oracle.com/cd/E60778_01/html/E60742/gkeza.html
 # endif
 
 # if BSLS_PLATFORM_CMP_VERSION == 0x5150

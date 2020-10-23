@@ -25,13 +25,13 @@ BSLS_IDENT("$Id: $")
 // this value as two fields: seconds and nanoseconds.  In the "canonical
 // representation" of a time interval, the 'seconds' field may have any 64-bit
 // signed integer value, with the 'nanoseconds' field limited to the range
-// '[ -999999999..999999999 ]', and with the additional constraint that the two
-// fields are either both non-negative or both non-positive.  When setting the
-// value of a time interval via its two-field representation, any integer value
-// may be used in either field, with the constraint that the resulting number
-// of seconds be representable as a 64-bit signed integer.  Similarly, the two
-// field values may be accessed in the canonical representation using the
-// 'seconds' and 'nanoseconds' methods.
+// '[ -999,999,999..999,999,999 ]', and with the additional constraint that the
+// two fields are either both non-negative or both non-positive.  When setting
+// the value of a time interval via its two-field representation, any integer
+// value may be used in either field, with the constraint that the resulting
+// number of seconds be representable as a 64-bit signed integer.  Similarly,
+// the two field values may be accessed in the canonical representation using
+// the 'seconds' and 'nanoseconds' methods.
 //
 // Binary arithmetic and relational operators taking two 'bsls::TimeInterval'
 // objects, or a 'bsls::TimeInterval' object and a 'double', are provided.  A
@@ -39,6 +39,31 @@ BSLS_IDENT("$Id: $")
 // to a 'bsls::TimeInterval' object before performing the operation.  Under
 // such circumstances, the fractional part of the 'double', if any, is rounded
 // to the nearest whole number of nanoseconds.
+//
+///User-Defined Literals
+///---------------------
+// The user-defined literal 'operator"" _h', 'operator"" _min',
+// 'operator"" _s', 'operator"" _ms', 'operator"" _us' and 'operator"" _ns' are
+// declared for the 'TimeInterval'.  These suffixes can be applied to integer
+// literals and allow to create an object, representing the specified number of
+// hours, minutes, seconds, milliseconds, microseconds or nanoseconds
+// respectively:
+//..
+//  bsls::TimeInterval i0 = 10_h;
+//  assert(36000   == i0.seconds()    );
+//  assert(0       == i0.nanoseconds());
+//
+//  bsls::TimeInterval i1 = 10001_ms;
+//  assert(10      == i1.seconds()    );
+//  assert(1000000 == i1.nanoseconds());
+//
+//  bsls::TimeInterval i2 = 100_ns;
+//  assert(0       == i2.seconds()    );
+//  assert(100     == i2.nanoseconds());
+//..
+//
+// Note that user defined literals can be used only if the compiler supports
+// the C++11 standard.
 //
 ///Usage
 ///-----
@@ -88,8 +113,18 @@ BSLS_IDENT("$Id: $")
 //..
 
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 #include <bsls_types.h>
+
+#ifndef BSL_OVERRIDES_STD
+#if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <chrono>
+#include <type_traits>
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#endif  // BSL_OVERRIDES_STD
 
 #include <iosfwd>
 #include <limits.h>  // 'LLONG_MIN', 'LLONG_MAX'
@@ -97,9 +132,107 @@ BSLS_IDENT("$Id: $")
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -FABC01  // 'add*' operations are ordered by time unit
 
+#ifndef BSL_OVERRIDES_STD
+#if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#define BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#endif  // BSL_OVERRIDES_STD
+
 namespace BloombergLP {
 namespace bsls {
 
+#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+
+                  // =======================================
+                  // template struct TimeInterval_IsDuration
+                  // =======================================
+
+template <class TYPE>
+struct TimeInterval_IsDuration : std::false_type {
+    // Template metafunction to determine if the specified 'TYPE' is a
+    // 'std::chrono::duration'.
+};
+
+template <class REP, class PER>
+struct TimeInterval_IsDuration<std::chrono::duration<REP, PER> >
+                                                             : std::true_type {
+    // Template metafunction specialization for 'std::chrono::duration' types.
+};
+
+                   // =============================
+                   // struct TimeInterval_RepTraits
+                   // =============================
+
+template <class REP>
+struct TimeInterval_RepTraits {
+    // Trait metafunction that determines whether the specified 'REP' type is
+    // considered a floating point type.
+
+    static const bool k_IS_FLOAT =
+                              std::is_floating_point<REP>::value
+                           || std::chrono::treat_as_floating_point<REP>::value;
+    // This compile time constant is 'true' if the 'REP' (template type
+    // argument) is indicated to be a floating point type by the underlying
+    // library.  Otherwise, if the underlying library does not consider 'REP'
+    // floating point anywhere (see note), 'k_IS_FLOAT' is 'false'.  Note that
+    // to cover all scenarios we need to examine *two* traits.  The first one
+    // that tells if the representation type is a floating point (arithmetic)
+    // type or not (from '<type_traits>'), and another that tells that
+    // representation type is considered a floating point type from the
+    // 'std::chrono' perspective.  Formally the second one just duplicates the
+    // first one, but *in theory* either can be specialized to be true,
+    // independently.  Also note that conversions from 'std::chrono::duration'
+    // with a floating point representation to 'bsls::TimeInterval' are *not*
+    // supported for now.
+};
+
+                   // ==================================
+                   // struct TimeInterval_DurationTraits
+                   // ==================================
+
+template <class REP, class PERIOD>
+struct TimeInterval_DurationTraits {
+    // Trait metafunction that determines whether the
+    // 'std::chrono::duration<REP, PERIOD>' object can be converted to
+    // 'bsls::TimeInterval' either implicitly or explicitly.
+
+    static const bool k_IS_FLOAT    = TimeInterval_RepTraits<REP>::k_IS_FLOAT;
+        // This compile time constant is 'true' if the 'REP' (template type
+        // argument) is indicated to be a floating point type by the underlying
+        // library.  Otherwise, if the underlying library does not consider
+        // 'REP' floating point anywhere (see 'TimeInterval_RepTraits'),
+        // 'k_IS_FLOAT' is 'false'.
+
+    static const bool k_IS_IMPLICIT = (std::nano::den % PERIOD::den == 0);
+        // This compile time constant is 'true' if any possible value of an
+        // 'std::chrono::duration<REP, PERIOD> object will be represented by
+        // integer nanoseconds (fractions of nanoseconds are not required).
+        // Otherwise this value is 'false'.
+
+    static const bool k_IMPLICIT_CONVERSION_ENABLED =
+                                                 !k_IS_FLOAT &&  k_IS_IMPLICIT;
+        // This compile time constant is 'true' if
+        // 'std::chrono::duration<REP, PERIOD>' objects will be implicitly
+        // converted to 'TimeInterval', and 'false' otherwise.  This value is
+        // intended to be used with 'enable_if' to enable implicitly converting
+        // function overloads.  Note that this boolean value is mutually
+        // exclusive with 'k_EXPLICIT_CONVERION_ENABLED' as in they will never
+        // be both 'true' for the same 'REP" and 'PERIOD', but they may be both
+        // 'false' for floats.
+
+    static const bool k_EXPLICIT_CONVERSION_ENABLED =
+                                                 !k_IS_FLOAT && !k_IS_IMPLICIT;
+        // This compile time constant is 'true' if
+        // 'std::chrono::duration<REP, PERIOD>' objects can be explicitly
+        // converted to 'TimeInterval', and 'false' otherwise.  This value is
+        // intended to be used with 'enable_if' to enable explicitly converting
+        // function overloads.  Note that this boolean value is mutually
+        // exclusive with 'k_IMPLICIT_CONVERION_ENABLED' as in they will never
+        // be both 'true' for the same 'REP" and 'PERIOD', but they may be both
+        // 'false' for floats.
+};
+
+#endif
                         // ==================
                         // class TimeInterval
                         // ==================
@@ -109,8 +242,8 @@ class TimeInterval {
     // with nanosecond resolution.  In the "canonical representation" of a time
     // interval, the 'seconds' field may have any 64-bit signed integer value,
     // with the 'nanoseconds' field limited to the range
-    // '[ -999999999..999999999 ]', and with the additional constraint that the
-    // two fields are either both non-negative or both non-positive.
+    // '[ -999,999,999..999,999,999 ]', and with the additional constraint that
+    // the two fields are either both non-negative or both non-positive.
 
     // PRIVATE TYPES
     enum {
@@ -136,6 +269,7 @@ class TimeInterval {
     int                d_nanoseconds;  // field for nanoseconds
 
     // PRIVATE CLASS METHODS
+    BSLS_KEYWORD_CONSTEXPR
     static bool isSumValidInt64(bsls::Types::Int64 lhs,
                                 bsls::Types::Int64 rhs);
         // Return 'true' if the sum of the specified 'lhs' and 'rhs' can be
@@ -143,6 +277,7 @@ class TimeInterval {
 
   public:
     // CLASS METHODS
+    BSLS_KEYWORD_CONSTEXPR
     static bool isValid(bsls::Types::Int64 seconds,
                         int                nanoseconds);
         // Return 'true' if a valid 'TimeInterval' can be constructed from the
@@ -165,10 +300,12 @@ class TimeInterval {
         // containers.
 
     // CREATORS
+    BSLS_KEYWORD_CONSTEXPR
     TimeInterval();
         // Create a time interval having the value of 0 seconds and 0
         // nanoseconds.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     TimeInterval(bsls::Types::Int64 seconds, int nanoseconds);
         // Create a time interval having the value given by the sum of the
         // specified integral number of 'seconds' and 'nanoseconds'.  The
@@ -185,6 +322,35 @@ class TimeInterval {
         // behavior is undefined unless the total number of seconds in the
         // resulting time interval can be represented with a 64-bit signed
         // integer.
+
+#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+    template <class REP_TYPE, class PERIOD_TYPE>
+    BSLS_KEYWORD_CONSTEXPR_RELAXED TimeInterval(
+        const std::chrono::duration<REP_TYPE, PERIOD_TYPE>& duration,
+    typename std::enable_if<TimeInterval_DurationTraits<
+                                   REP_TYPE,
+                                   PERIOD_TYPE>::k_IMPLICIT_CONVERSION_ENABLED,
+                            int>::type * = 0);
+    template <class REP_TYPE, class PERIOD_TYPE>
+    explicit BSLS_KEYWORD_CONSTEXPR_RELAXED TimeInterval(
+        const std::chrono::duration<REP_TYPE, PERIOD_TYPE>& duration,
+    typename std::enable_if<TimeInterval_DurationTraits<
+                                   REP_TYPE,
+                                   PERIOD_TYPE>::k_EXPLICIT_CONVERSION_ENABLED,
+                            int>::type * = 0);
+        // Create a time interval having the value represented by the specified
+        // 'duration'.  Only integer representations of 'duration' are
+        // supported (i.e. 'REP_TYPE' is integer). If the 'duration' can be
+        // represented *exactly* by an integer nanoseconds this constructor
+        // will be implicit.  Otherwise, the constructor will be explicit.  The
+        // behavior is undefined unless the 'duration' can be converted to a
+        // valid 'TimeInterval' object, whose 'seconds' field may have any
+        // 64-bit signed integer value and 'nanoseconds' field limited to the
+        // range '[ -999,999,999..999,999,999 ]'.  Note that the current
+        // implementation of the lossy conversions (e.g., fractions of a
+        // nanosecond) truncates the values towards zero, however this behavior
+        // may change without notice in the future, so *do not* rely on this.
+#endif
 
     //! TimeInterval(const TimeInterval& original) = default;
         // Create a time interval having the value of the specified 'original'
@@ -251,6 +417,7 @@ class TimeInterval {
 
                                   // Add Operations
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     TimeInterval& addDays(bsls::Types::Int64 days);
         // Add to this time interval the number of seconds represented by the
         // specified integral number of 'days', and return a reference
@@ -260,6 +427,7 @@ class TimeInterval {
         // represented with 64-bit signed integers.  Note that 'days' may be
         // negative.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     TimeInterval& addHours(bsls::Types::Int64 hours);
         // Add to this time interval the number of seconds represented by the
         // specified integral number of 'hours', and return a reference
@@ -269,6 +437,7 @@ class TimeInterval {
         // represented with 64-bit signed integers.  Note that 'hours' may be
         // negative.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     TimeInterval& addMinutes(bsls::Types::Int64 minutes);
         // Add to this time interval the number of seconds represented by the
         // specified integral number of 'minutes', and return a reference
@@ -278,6 +447,7 @@ class TimeInterval {
         // represented with 64-bit signed integers.  Note that 'minutes' may be
         // negative.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     TimeInterval& addSeconds(bsls::Types::Int64 seconds);
         // Add to this time interval the specified integral number of
         // 'seconds', and return a reference providing modifiable access to
@@ -308,38 +478,45 @@ class TimeInterval {
 
                                   // Set Operations
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     void setTotalDays(bsls::Types::Int64 days);
         // Set the overall value of this object to indicate the specified
         // integral number of 'days'.  The behavior is undefined unless the
         // number of seconds in 'days' can be represented with a 64-bit signed
         // integer.  Note that 'days' may be negative.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     void setTotalHours(bsls::Types::Int64 hours);
         // Set the overall value of this object to indicate the specified
         // integral number of 'hours'.  The behavior is undefined unless the
         // number of seconds in 'hours' can be represented with a 64-bit signed
         // integer.  Note that 'hours' may be negative.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     void setTotalMinutes(bsls::Types::Int64 minutes);
         // Set the overall value of this object to indicate the specified
         // integral number of 'minutes'.  The behavior is undefined unless the
         // number of seconds in 'minutes' can be represented with a 64-bit
         // signed integer.  Note that 'minutes' may be negative.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     void setTotalSeconds(bsls::Types::Int64 seconds);
         // Set the overall value of this object to indicate the specified
         // integral number of 'seconds'.  Note that 'seconds' may be negative.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     void setTotalMilliseconds(bsls::Types::Int64 milliseconds);
         // Set the overall value of this object to indicate the specified
         // integral number of 'milliseconds'.  Note that 'milliseconds' may be
         // negative.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     void setTotalMicroseconds(bsls::Types::Int64 microseconds);
         // Set the overall value of this object to indicate the specified
         // integral number of 'microseconds'.  Note that 'microseconds' may be
         // negative.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     void setTotalNanoseconds(bsls::Types::Int64 nanoseconds);
         // Set the overall value of this object to indicate the specified
         // integral number of 'nanoseconds'.  Note that 'nanoseconds' may be
@@ -350,12 +527,34 @@ class TimeInterval {
     TimeInterval& addInterval(bsls::Types::Int64 seconds, int nanoseconds = 0);
         // Add to this time interval the specified integral number of
         // 'seconds', and the optionally specified integral number of
-        // 'nanoseconds' If unspecified, 'nanoseconds' is 0.  Return a
+        // 'nanoseconds'.  If unspecified, 'nanoseconds' is 0.  Return a
         // reference providing modifiable access to this object.  The behavior
         // is undefined unless 'seconds() + seconds', and the total number of
         // seconds in the resulting time interval, can both be represented with
         // 64-bit signed integers.
 
+#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+    template <class REP_TYPE, class PERIOD_TYPE>
+    BSLS_KEYWORD_CONSTEXPR_RELAXED TimeInterval&
+    addDuration(const std::chrono::duration<REP_TYPE, PERIOD_TYPE>& duration,
+                typename std::enable_if<
+                    TimeInterval_DurationTraits<REP_TYPE, PERIOD_TYPE>::
+                                                 k_IMPLICIT_CONVERSION_ENABLED,
+                    int>::type * = 0);
+        // Add to this time interval the specified 'duration'.  Return a
+        // reference providing modifiable access to this object.  The behavior
+        // is undefined unless the 'duration' can be converted to a valid
+        // 'TimeInterval' object, whose 'seconds' field may have any
+        // 64-bit signed integer value and 'nanoseconds' field limited to the
+        // range '[ -999,999,999..999,999,999 ]'.  Also the behavior is
+        // undefined unless the total number of seconds in the resulting time
+        // interval can be represented with 64-bit signed integer.  Note that
+        // this operation is allowed only if representation type of the
+        // 'duration' is not a floating point type and the 'duration' itself
+        // can be *exactly* represented by an integer nanoseconds.
+#endif
+
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     void setInterval(bsls::Types::Int64 seconds, int nanoseconds = 0);
         // Set this time interval to have the value given by the sum of the
         // specified integral number of 'seconds', and the optionally specified
@@ -366,6 +565,7 @@ class TimeInterval {
         // sign or magnitude of either argument except that they must not
         // violate the method's preconditions.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     void setIntervalRaw(bsls::Types::Int64 seconds, int nanoseconds = 0);
         // Set this time interval to have the value given by the sum of the
         // specified integral number of 'seconds', and the optionally specified
@@ -373,7 +573,7 @@ class TimeInterval {
         // form a canonical representation of a time interval (see
         // {Representation}).  If unspecified, 'nanoseconds' is 0.  The
         // behavior is undefined unless
-        // '-999999999 <= nanoseconds <= 999999999' and 'seconds' and
+        // '-999,999,999 <= nanoseconds <= +999,999,999' and 'seconds' and
         // 'nanoseconds' are either both non-negative or both non-positive.
         // Note that this function provides a subset of the defined behavior of
         // 'setInterval' chosen to minimize runtime performance cost.
@@ -394,52 +594,78 @@ class TimeInterval {
         // value-semantic types and containers.
 
     // ACCESSORS
+    BSLS_KEYWORD_CONSTEXPR
     int nanoseconds() const;
         // Return the nanoseconds field in the canonical representation of the
         // value of this time interval.
 
+    BSLS_KEYWORD_CONSTEXPR
     bsls::Types::Int64 seconds() const;
         // Return the seconds field in the canonical representation of the
         // value of this time interval.
 
+    BSLS_KEYWORD_CONSTEXPR
     bsls::Types::Int64 totalDays() const;
         // Return the value of this time interval as an integral number of
         // days, rounded towards zero.  Note that the return value may be
         // negative.
 
+    BSLS_KEYWORD_CONSTEXPR
     bsls::Types::Int64 totalHours() const;
         // Return the value of this time interval as an integral number of
         // hours, rounded towards zero.  Note that the return value may be
         // negative.
 
+    BSLS_KEYWORD_CONSTEXPR
     bsls::Types::Int64 totalMinutes() const;
         // Return the value of this time interval as an integral number of
         // minutes, rounded towards zero.  Note that the return value may be
         // negative.
 
+    BSLS_KEYWORD_CONSTEXPR
     bsls::Types::Int64 totalSeconds() const;
         // Return the value of this time interval as an integral number of
         // seconds, rounded towards zero.  Note that the return value may be
         // negative.  Also note that this method returns the same value as
         // 'seconds'.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     bsls::Types::Int64 totalMilliseconds() const;
         // Return the value of this time interval as an integral number of
         // milliseconds, rounded towards zero.  The behavior is undefined
         // unless the number of milliseconds can be represented with a 64-bit
         // signed integer.  Note that the return value may be negative.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     bsls::Types::Int64 totalMicroseconds() const;
         // Return the value of this time interval as an integral number of
         // microseconds, rounded towards zero.  The behavior is undefined
         // unless the number of microseconds can be represented with a 64-bit
         // signed integer.  Note that the return value may be negative.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     bsls::Types::Int64 totalNanoseconds() const;
         // Return the value of this time interval as an integral number of
         // nanoseconds.  The behavior is undefined unless the number of
         // nanoseconds can be represented using a 64-bit signed integer.  Note
         // that the return value may be negative.
+
+#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+    template <class DURATION_TYPE>
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
+    typename std::enable_if<
+              TimeInterval_IsDuration<DURATION_TYPE>::value &&
+              !TimeInterval_RepTraits<typename DURATION_TYPE::rep>::k_IS_FLOAT,
+              DURATION_TYPE>::type
+    asDuration() const;
+        // Return the value of this time interval as a 'std::chrono::duration'
+        // object.   This function participates in overloading if
+        // 'DURATION_TYPE' is actually an 'std::chrono:duration' instance, and
+        // if it has *not* a floating point representation.  The behavior is
+        // undefined unless the total number of nanoseconds can be represented
+        // using a 'DURATION_TYPE'.  Note that the return value may be
+        // negative.
+#endif
 
     double totalSecondsAsDouble() const;
         // Return the value of this time interval as a real number of seconds.
@@ -461,7 +687,7 @@ class TimeInterval {
         // information on BDEX streaming of value-semantic types and
         // containers.
 
-    native_std::ostream& print(native_std::ostream& stream,
+    std::ostream& print(std::ostream& stream,
                                int                  level          = 0,
                                int                  spacesPerLevel = 4) const;
         // Write the value of this object to the specified output 'stream' in a
@@ -504,6 +730,41 @@ class TimeInterval {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 };
+
+#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+
+                       // =============================
+                       // class TimeInterval_ChronoUtil
+                       // =============================
+
+struct TimeInterval_ChronoUtil {
+    // This 'struct' provides a namespace for functions that check if
+    // 'std::chrono::duration' values can be safely converted to the
+    // corresponding 'TimeInterval' values and vice versa.
+
+    // CLASS METHODS
+    template <class REP, class PERIOD>
+    static
+    bool isInTimeIntervalRange(
+                           const std::chrono::duration<REP, PERIOD>& duration);
+        // Return 'true' if the specified 'duration' is within the valid range
+        // of 'TimeInterval', and 'false' otherwise.
+
+    template <class DURATION_TYPE>
+    static bool isInDurationRange(
+         bsls::Types::Int64 seconds,
+         int                nanoseconds,
+         typename std::enable_if<TimeInterval_IsDuration<DURATION_TYPE>::value,
+                                 int>::type * = 0);
+        // Return 'true' if the sum of the specified 'seconds' and
+        // 'nanoseconds' is within the valid range of the (template parameter)
+        // 'DURATION_TYPE', which should be a specialization of
+        // 'std::chrono::duration', and 'false' otherwise.  Note that this
+        // function participates in the overload set if and only if
+        // 'DURATION_TYPE' is an instance of 'std::chrono::duration'.
+};
+
+#endif
 
 // FREE OPERATORS
 TimeInterval operator+(const TimeInterval& lhs, const TimeInterval& rhs);
@@ -566,14 +827,66 @@ bool operator>=(double lhs, const TimeInterval& rhs);
     // is undefined unless operands of type 'double' can be converted to valid
     // 'TimeInterval' objects.
 
-native_std::ostream& operator<<(native_std::ostream& stream,
-                                const TimeInterval&  timeInterval);
+std::ostream& operator<<(std::ostream&       stream,
+                         const TimeInterval& timeInterval);
     // Write the value of the specified 'timeInterval' to the specified output
     // 'stream' in a single-line format, and return a reference providing
     // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
     // operation has no effect.  Note that this human-readable format is not
     // fully specified and can change without notice.  Also note that this
     // method has the same behavior as 'object.print(stream, 0, -1)'.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)  && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
+inline namespace literals {
+inline namespace TimeIntervalLiterals {
+
+BSLS_KEYWORD_CONSTEXPR_RELAXED
+TimeInterval operator ""_h(  unsigned long long int hours);
+    // This user defined literal operator converts the specified 'hours' value
+    // to the respective 'TimeInterval' value.  The behavior is undefined
+    // unless the specified number of hours can be converted to valid
+    // 'TimeInterval' object.  (See the
+    // "User-Defined Literals" section in the component-level documentation.)
+
+BSLS_KEYWORD_CONSTEXPR_RELAXED
+TimeInterval operator ""_min(unsigned long long int minutes);
+    // This user defined literal operator converts the specified 'minutes'
+    // value to the respective 'TimeInterval' value.  The behavior is undefined
+    // unless the specified number of minutes can be converted to valid
+    // 'TimeInterval' object.  (See the
+    // "User-Defined Literals" section in the component-level documentation.)
+
+BSLS_KEYWORD_CONSTEXPR_RELAXED
+TimeInterval operator ""_s(  unsigned long long int seconds);
+    // This user defined literal operator converts the specified 'seconds'
+    // value to the respective 'TimeInterval' value.  The behavior is undefined
+    // unless the specified number of seconds can be converted to valid
+    // 'TimeInterval' object.  (See the
+    // "User-Defined Literals" section in the component-level documentation.)
+
+BSLS_KEYWORD_CONSTEXPR_RELAXED
+TimeInterval operator ""_ms( unsigned long long int milliseconds);
+    // This user defined literal operator converts the specified 'milliseconds'
+    // value to the respective 'TimeInterval' value.  (See the
+    // "User-Defined Literals" section in the component-level documentation.)
+
+BSLS_KEYWORD_CONSTEXPR_RELAXED
+TimeInterval operator ""_us( unsigned long long int microseconds);
+    // This user defined literal operator converts the specified 'microseconds'
+    // value to the respective 'TimeInterval' value.  (See the
+    // "User-Defined Literals" section in the component-level documentation.)
+
+BSLS_KEYWORD_CONSTEXPR_RELAXED
+TimeInterval operator ""_ns( unsigned long long int nanoseconds);
+    // This user defined literal operator converts the specified 'nanoseconds'
+    // value to the respective 'TimeInterval' value.  (See the
+    // "User-Defined Literals" section in the component-level documentation.)
+
+}  // close TimeIntervalLiterals namespace
+}  // close literals namespace
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE &&
+        // BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS
 
 // ============================================================================
 //                         INLINE DEFINITIONS
@@ -583,6 +896,14 @@ native_std::ostream& operator<<(native_std::ostream& stream,
                         // class TimeInterval
                         // ------------------
 
+// PRIVATE CLASS METHODS
+inline BSLS_KEYWORD_CONSTEXPR
+bool TimeInterval::isSumValidInt64(bsls::Types::Int64 lhs,
+                                   bsls::Types::Int64 rhs)
+{
+    return lhs > 0 ? LLONG_MAX - lhs >= rhs : LLONG_MIN - lhs <= rhs;
+}
+
 // CLASS METHODS
 inline
 int TimeInterval::maxSupportedBdexVersion(int /* versionSelector */)
@@ -590,7 +911,7 @@ int TimeInterval::maxSupportedBdexVersion(int /* versionSelector */)
     return 1;
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR
 bool TimeInterval::isValid(bsls::Types::Int64 seconds,
                            int                nanoseconds)
 {
@@ -598,19 +919,73 @@ bool TimeInterval::isValid(bsls::Types::Int64 seconds,
 }
 
 // CREATORS
-inline
+inline BSLS_KEYWORD_CONSTEXPR
 TimeInterval::TimeInterval()
 : d_seconds(0)
 , d_nanoseconds(0)
 {
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 TimeInterval::TimeInterval(bsls::Types::Int64 seconds,
                            int                nanoseconds)
+: d_seconds(0)
+, d_nanoseconds(0)
 {
+    // A seemingly redundant initializer list is needed since members must be
+    // initialized by mem-initializer in 'constexpr' constructor.
+
     setInterval(seconds, nanoseconds);
 }
+
+#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+template <class REP_TYPE, class PERIOD_TYPE>
+inline
+BSLS_KEYWORD_CONSTEXPR_RELAXED
+TimeInterval::TimeInterval(
+    const std::chrono::duration<REP_TYPE, PERIOD_TYPE>& duration,
+    typename std::enable_if<TimeInterval_DurationTraits<
+                                   REP_TYPE,
+                                   PERIOD_TYPE>::k_IMPLICIT_CONVERSION_ENABLED,
+                            int>::type *)
+{
+    BSLS_ASSERT((
+        TimeInterval_ChronoUtil::isInTimeIntervalRange<REP_TYPE, PERIOD_TYPE>(
+                                                                   duration)));
+    using SecondsRatio = std::ratio<1>;
+    using TimeIntervalSeconds =
+                     std::chrono::duration<bsls::Types::Int64, SecondsRatio>;
+    using TimeIntervalNanoseconds = std::chrono::duration<int, std::nano>;
+
+    const bsls::Types::Int64 k_SECONDS     =
+             std::chrono::duration_cast<TimeIntervalSeconds>(duration).count();
+    const int                k_NANOSECONDS =
+            std::chrono::duration_cast<TimeIntervalNanoseconds>(
+                            duration - TimeIntervalSeconds(k_SECONDS)).count();
+    setInterval(k_SECONDS, k_NANOSECONDS);
+}
+
+template <class REP_TYPE, class PERIOD_TYPE>
+inline
+BSLS_KEYWORD_CONSTEXPR_RELAXED
+TimeInterval::TimeInterval(
+    const std::chrono::duration<REP_TYPE, PERIOD_TYPE>& duration,
+    typename std::enable_if<TimeInterval_DurationTraits<
+                                   REP_TYPE,
+                                   PERIOD_TYPE>::k_EXPLICIT_CONVERSION_ENABLED,
+                            int>::type *)
+{
+    BSLS_ASSERT((
+        TimeInterval_ChronoUtil::isInTimeIntervalRange<REP_TYPE, PERIOD_TYPE>(
+                                                                   duration)));
+    const bsls::Types::Int64 k_SECONDS     =
+            std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+    const int                k_NANOSECONDS = static_cast<int>(
+        std::chrono::duration_cast<std::chrono::nanoseconds>(
+                          duration - std::chrono::seconds(k_SECONDS)).count());
+    setInterval(k_SECONDS, k_NANOSECONDS);
+}
+#endif
 
 // MANIPULATORS
 inline
@@ -633,7 +1008,6 @@ TimeInterval& TimeInterval::operator+=(double rhs)
     return *this;
 }
 
-
 inline
 TimeInterval& TimeInterval::operator-=(const TimeInterval& rhs)
 {
@@ -651,7 +1025,7 @@ TimeInterval& TimeInterval::operator-=(double rhs)
 
                                   // Add Operations
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 TimeInterval& TimeInterval::addDays(bsls::Types::Int64 days)
 {
     BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_DAY >= days &&
@@ -660,7 +1034,7 @@ TimeInterval& TimeInterval::addDays(bsls::Types::Int64 days)
     return addSeconds(days * k_SECONDS_PER_DAY);
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 TimeInterval& TimeInterval::addHours(bsls::Types::Int64 hours)
 {
     BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_HOUR >= hours &&
@@ -669,13 +1043,31 @@ TimeInterval& TimeInterval::addHours(bsls::Types::Int64 hours)
     return addSeconds(hours * k_SECONDS_PER_HOUR);
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 TimeInterval& TimeInterval::addMinutes(bsls::Types::Int64 minutes)
 {
     BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_MINUTE >= minutes &&
                      LLONG_MIN / k_SECONDS_PER_MINUTE <= minutes);
 
     return addSeconds(minutes * k_SECONDS_PER_MINUTE);
+}
+
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
+TimeInterval& TimeInterval::addSeconds(bsls::Types::Int64 seconds)
+{
+    BSLS_ASSERT_SAFE(isSumValidInt64(seconds, d_seconds));
+
+    d_seconds += seconds;
+    if (d_seconds > 0 && d_nanoseconds < 0) {
+        --d_seconds;
+        d_nanoseconds += k_NANOSECS_PER_SEC;
+    }
+    else if (d_seconds < 0 && d_nanoseconds > 0) {
+        ++d_seconds;
+        d_nanoseconds -= k_NANOSECS_PER_SEC;
+    }
+
+    return *this;
 }
 
 inline
@@ -703,7 +1095,7 @@ TimeInterval& TimeInterval::addNanoseconds(bsls::Types::Int64 nanoseconds)
 
                                   // Set Operations
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 void TimeInterval::setTotalDays(bsls::Types::Int64 days)
 {
     BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_DAY >= days &&
@@ -712,7 +1104,7 @@ void TimeInterval::setTotalDays(bsls::Types::Int64 days)
     return setTotalSeconds(days * k_SECONDS_PER_DAY);
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 void TimeInterval::setTotalHours(bsls::Types::Int64 hours)
 {
     BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_HOUR >= hours &&
@@ -721,7 +1113,7 @@ void TimeInterval::setTotalHours(bsls::Types::Int64 hours)
     return setTotalSeconds(hours * k_SECONDS_PER_HOUR);
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 void TimeInterval::setTotalMinutes(bsls::Types::Int64 minutes)
 {
     BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_MINUTE >= minutes &&
@@ -730,14 +1122,14 @@ void TimeInterval::setTotalMinutes(bsls::Types::Int64 minutes)
     return setTotalSeconds(minutes * k_SECONDS_PER_MINUTE);
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 void TimeInterval::setTotalSeconds(bsls::Types::Int64 seconds)
 {
     d_seconds     = seconds;
     d_nanoseconds = 0;
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 void TimeInterval::setTotalMilliseconds(bsls::Types::Int64 milliseconds)
 {
     setInterval(                  milliseconds / k_MILLISECS_PER_SEC,
@@ -745,7 +1137,7 @@ void TimeInterval::setTotalMilliseconds(bsls::Types::Int64 milliseconds)
                                                      k_NANOSECS_PER_MILLISEC));
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 void TimeInterval::setTotalMicroseconds(bsls::Types::Int64 microseconds)
 {
     setInterval(                  microseconds / k_MICROSECS_PER_SEC,
@@ -754,14 +1146,65 @@ void TimeInterval::setTotalMicroseconds(bsls::Types::Int64 microseconds)
 
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 void TimeInterval::setTotalNanoseconds(bsls::Types::Int64 nanoseconds)
 {
     setInterval(                 nanoseconds / k_NANOSECS_PER_SEC,
                 static_cast<int>(nanoseconds % k_NANOSECS_PER_SEC));
 }
 
+#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+template <class REP_TYPE, class PERIOD_TYPE>
 inline
+BSLS_KEYWORD_CONSTEXPR_RELAXED TimeInterval&
+TimeInterval::addDuration(
+       const std::chrono::duration<REP_TYPE, PERIOD_TYPE>& duration,
+       typename std::enable_if<TimeInterval_DurationTraits<
+                                   REP_TYPE,
+                                   PERIOD_TYPE>::k_IMPLICIT_CONVERSION_ENABLED,
+                               int>::type *)
+{
+    BSLS_ASSERT((
+        TimeInterval_ChronoUtil::isInTimeIntervalRange<REP_TYPE, PERIOD_TYPE>(
+                                                                   duration)));
+
+    const bsls::Types::Int64 k_SECONDS     =
+            std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+    const int                k_NANOSECONDS = static_cast<int>(
+                          std::chrono::duration_cast<std::chrono::nanoseconds>(
+                          duration - std::chrono::seconds(k_SECONDS)).count());
+    return addInterval(k_SECONDS, k_NANOSECONDS);
+}
+#endif
+
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
+void TimeInterval::setInterval(bsls::Types::Int64 seconds,
+                               int                nanoseconds)
+{
+    BSLS_ASSERT(isValid(seconds, nanoseconds));
+
+    d_seconds = seconds;
+    if (nanoseconds >= k_NANOSECS_PER_SEC
+     || nanoseconds <= -k_NANOSECS_PER_SEC) {
+        d_seconds += nanoseconds / k_NANOSECS_PER_SEC;
+        d_nanoseconds = static_cast<int>(nanoseconds % k_NANOSECS_PER_SEC);
+    }
+    else {
+        d_nanoseconds = static_cast<int>(nanoseconds);
+    }
+
+    if (d_seconds > 0 && d_nanoseconds < 0) {
+        --d_seconds;
+        d_nanoseconds += k_NANOSECS_PER_SEC;
+    }
+    else if (d_seconds < 0 && d_nanoseconds > 0) {
+        ++d_seconds;
+        d_nanoseconds -= k_NANOSECS_PER_SEC;
+    }
+
+}
+
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 void TimeInterval::setIntervalRaw(bsls::Types::Int64 seconds,
                                   int                nanoseconds)
 {
@@ -807,43 +1250,43 @@ STREAM& TimeInterval::bdexStreamIn(STREAM& stream, int version)
 }
 
 // ACCESSORS
-inline
+inline BSLS_KEYWORD_CONSTEXPR
 int TimeInterval::nanoseconds() const
 {
     return d_nanoseconds;
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR
 bsls::Types::Int64 TimeInterval::seconds() const
 {
     return d_seconds;
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR
 bsls::Types::Int64 TimeInterval::totalDays() const
 {
     return d_seconds / k_SECONDS_PER_DAY;
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR
 bsls::Types::Int64 TimeInterval::totalHours() const
 {
     return d_seconds / k_SECONDS_PER_HOUR;
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR
 bsls::Types::Int64 TimeInterval::totalMinutes() const
 {
     return d_seconds / k_SECONDS_PER_MINUTE;
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR
 bsls::Types::Int64 TimeInterval::totalSeconds() const
 {
     return d_seconds;
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 bsls::Types::Int64 TimeInterval::totalMilliseconds() const
 {
     BSLS_ASSERT_SAFE(LLONG_MAX / k_MILLISECS_PER_SEC >= d_seconds &&
@@ -856,7 +1299,7 @@ bsls::Types::Int64 TimeInterval::totalMilliseconds() const
          + d_nanoseconds / k_NANOSECS_PER_MILLISEC;
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 bsls::Types::Int64 TimeInterval::totalMicroseconds() const
 {
     BSLS_ASSERT_SAFE(LLONG_MAX / k_MICROSECS_PER_SEC >= d_seconds &&
@@ -868,7 +1311,7 @@ bsls::Types::Int64 TimeInterval::totalMicroseconds() const
          + d_nanoseconds / k_NANOSECS_PER_MICROSEC;
 }
 
-inline
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
 bsls::Types::Int64 TimeInterval::totalNanoseconds() const
 {
     BSLS_ASSERT_SAFE(LLONG_MAX / k_NANOSECS_PER_SEC >= d_seconds &&
@@ -878,6 +1321,32 @@ bsls::Types::Int64 TimeInterval::totalNanoseconds() const
 
     return d_seconds * k_NANOSECS_PER_SEC + d_nanoseconds;
 }
+
+#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+template <class DURATION_TYPE>
+inline
+BSLS_KEYWORD_CONSTEXPR_RELAXED
+typename std::enable_if<
+              TimeInterval_IsDuration<DURATION_TYPE>::value &&
+              !TimeInterval_RepTraits<typename DURATION_TYPE::rep>::k_IS_FLOAT,
+              DURATION_TYPE>::type
+TimeInterval::asDuration() const
+{
+    using SecondsRatio = std::ratio<1>;
+    using TimeIntervalSeconds =
+                       std::chrono::duration<bsls::Types::Int64, SecondsRatio>;
+    using TimeIntervalNanoseconds = std::chrono::duration<int, std::nano>;
+
+    BSLS_ASSERT(TimeInterval_ChronoUtil::isInDurationRange<DURATION_TYPE>(
+                                                               d_seconds,
+                                                               d_nanoseconds));
+
+    return (std::chrono::duration_cast<DURATION_TYPE>(TimeIntervalSeconds(
+                                                                    d_seconds))
+          + std::chrono::duration_cast<DURATION_TYPE>(TimeIntervalNanoseconds(
+                                                              d_nanoseconds)));
+}
+#endif
 
 inline
 double TimeInterval::totalSecondsAsDouble() const
@@ -931,6 +1400,60 @@ STREAM& TimeInterval::streamOut(STREAM& stream) const
 }
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
+
+#ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
+
+                      // -----------------------------
+                      // class TimeInterval_ChronoUtil
+                      // -----------------------------
+
+// CLASS METHODS
+template <class REP, class PERIOD>
+bool TimeInterval_ChronoUtil::isInTimeIntervalRange(
+                            const std::chrono::duration<REP, PERIOD>& duration)
+{
+    std::chrono::duration<long double> minValue =
+                                 std::chrono::duration<long double>(LLONG_MIN);
+    --minValue;
+    std::chrono::duration<long double> maxValue =
+                                 std::chrono::duration<long double>(LLONG_MAX);
+    ++maxValue;
+    const std::chrono::duration<long double> safeDuration =
+               std::chrono::duration_cast<std::chrono::duration<long double> >(
+                                                                     duration);
+
+    return (safeDuration >= minValue && safeDuration <= maxValue);
+}
+
+template <class DURATION_TYPE>
+bool TimeInterval_ChronoUtil::isInDurationRange(
+         bsls::Types::Int64 seconds,
+         int                nanoseconds,
+         typename std::enable_if<TimeInterval_IsDuration<DURATION_TYPE>::value,
+                                 int>::type *)
+{
+    using SecondsRatio = std::ratio<1>;
+    using TimeIntervalSeconds =
+                       std::chrono::duration<bsls::Types::Int64, SecondsRatio>;
+    using TimeIntervalNanoseconds = std::chrono::duration<int, std::nano>;
+    using Period = typename DURATION_TYPE::period;
+    using LongDoubleTo = std::chrono::duration<long double, Period>;
+
+    const LongDoubleTo MIN_VALUE =
+                std::chrono::duration_cast<LongDoubleTo>(DURATION_TYPE::min());
+
+    const LongDoubleTo MAX_VALUE =
+                std::chrono::duration_cast<LongDoubleTo>(DURATION_TYPE::max());
+
+    const LongDoubleTo value = std::chrono::duration_cast<LongDoubleTo>(
+                                                  TimeIntervalSeconds(seconds))
+                             + std::chrono::duration_cast<LongDoubleTo>(
+                                         TimeIntervalNanoseconds(nanoseconds));
+
+    return (MIN_VALUE <= value && value <= MAX_VALUE);
+}
+
+#endif  // BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
 
 }  // close package namespace
 
@@ -1105,6 +1628,70 @@ bool bsls::operator>=(double lhs, const TimeInterval& rhs)
     return TimeInterval(lhs) >= rhs;
 }
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)  && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
+
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
+bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _h(
+                                                  unsigned long long int hours)
+{
+    BSLS_ASSERT((LLONG_MAX/3600) >= hours);
+    return TimeInterval(static_cast<bsls::Types::Int64>(hours*3600), 0);
+}
+
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
+bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _min(
+                                                unsigned long long int minutes)
+{
+    BSLS_ASSERT((LLONG_MAX/60) >= minutes);
+    return TimeInterval(static_cast<bsls::Types::Int64>(minutes*60), 0);
+}
+
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
+bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _s(
+                                                unsigned long long int seconds)
+{
+    BSLS_ASSERT(LLONG_MAX > seconds);
+    return TimeInterval(static_cast<bsls::Types::Int64>(seconds), 0);
+}
+
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
+bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _ms(
+                                           unsigned long long int milliseconds)
+{
+    const bsls::Types::Int64 k_MILLISECS_PER_SEC     = 1000;
+    const bsls::Types::Int64 k_NANOSECS_PER_MILLISEC = 1000000;
+
+    return TimeInterval(milliseconds / k_MILLISECS_PER_SEC,
+                        static_cast<int>((milliseconds % k_MILLISECS_PER_SEC) *
+                                         k_NANOSECS_PER_MILLISEC));
+}
+
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
+bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _us(
+                                           unsigned long long int microseconds)
+{
+    const bsls::Types::Int64 k_MICROSECS_PER_SEC     = 1000000;
+    const bsls::Types::Int64 k_NANOSECS_PER_MICROSEC = 1000;
+
+    return TimeInterval(microseconds / k_MICROSECS_PER_SEC,
+                        static_cast<int>((microseconds % k_MICROSECS_PER_SEC) *
+                                         k_NANOSECS_PER_MICROSEC));
+}
+
+inline BSLS_KEYWORD_CONSTEXPR_RELAXED
+bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _ns(
+                                            unsigned long long int nanoseconds)
+{
+    const bsls::Types::Int64 k_NANOSECS_PER_SEC = 1000000000;
+
+    return TimeInterval(nanoseconds / k_NANOSECS_PER_SEC,
+                        static_cast<int>(nanoseconds % k_NANOSECS_PER_SEC));
+}
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE &&
+        // BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS
+
 // BDE_VERIFY pragma: pop
 
 // IMPLEMENTATION NOTE: A 'is_trivially_copyable' trait declaration has been
@@ -1125,11 +1712,12 @@ bool bsls::operator>=(double lhs, const TimeInterval& rhs)
 
 }  // close enterprise namespace
 
+#undef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

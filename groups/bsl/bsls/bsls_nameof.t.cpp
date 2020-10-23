@@ -3,7 +3,6 @@
 #include <bsls_nameof.h>
 
 #include <bsls_bsltestutil.h>
-#include <bsls_stopwatch.h>
 
 #include <cstring>
 #include <string>
@@ -90,6 +89,15 @@ static bool veryVeryVeryVerbose;
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace bsls {
+
+struct Stopwatch {
+};
+        
+}
+}
 
 // First, your test driver must have the following 'using' statements so that
 // the template class 'NameOf' and the template function 'nameOfType' can be
