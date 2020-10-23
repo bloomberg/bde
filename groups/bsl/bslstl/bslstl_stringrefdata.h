@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 // classes.
 //
 // Objects of our 'String' and 'StringRef' classes need to be convertible to
-// each other.  However only one of these classes can depend on the definition
+// each other.  However, only one of these classes can depend on the definition
 // of the other one, otherwise they will be cyclically dependent.
 //
 // First, we define a hypothetical 'String' class, whose implementation is
@@ -78,46 +78,45 @@ BSLS_IDENT("$Id: $")
 //      typedef const char *const_iterator;
 //
 //      String(bslstl::StringRefData<char> const& stringRef)
-//          : d_begin_p(stringRef.begin())
-//          , d_end_p(stringRef.end())
-//      {
-//      }
+//      : d_begin_p(stringRef.data())
+//      , d_end_p(stringRef.data() + stringRef.length())
+//      {}
 //
-//      const_iterator begin() const
+//      const char *data() const
 //      {
 //          return d_begin_p;
 //      }
 //
-//      const_iterator end() const
+//      native_std::size_t length() const
 //      {
-//          return d_end_p;
+//          return static_cast<native_std::size_t>(d_end_p - d_begin_p);
 //      }
 //  };
 //..
 // Notice that the constructor of 'String' takes a 'bslstl::StringRefData'
-// argument and then uses its members 'begin' and 'end' to initialize the
+// argument and then uses its members 'data' and 'length' to initialize the
 // string object.
 //
-// Then, we define a hypothetical 'StringRef' class, whose can be initialized
-// either with a 'String' object (to enable the conversion from 'String' to
-// 'StringRef') or with two 'const char *' pointers:
+// Then, we define a hypothetical 'StringRef' class, whose instances can be
+// initialized either with a 'String' object (to enable the conversion from
+// 'String' to 'StringRef') or with two 'const char *' pointers:
 //..
 //  class StringRef : public bslstl::StringRefData<char>
 //  {
 //    public:
 //      StringRef(const char *begin, const char *end)
-//          : bslstl::StringRefData<char>(begin, end)
+//      : bslstl::StringRefData<char>(begin, end)
 //      {}
 //
 //      StringRef(const String& str)
-//          : bslstl::StringRefData<char>(&*str.begin(), &*str.end())
+//      : bslstl::StringRefData<char>(str.data(), str.data() + str.length())
 //      {}
 //  };
 //
 //  }  // close namespace Usage
 //..
 // Note that 'StringRef' also derives from 'bslstl::StringRefData' so that an
-// object of 'StringRef' can be passed to the constructor of 'String' as
+// object of 'StringRef' can be passed to the constructor of 'String' as a
 // reference to 'bslstl::StringRefData', which enables the conversion from
 // 'StringRef' to 'String'.
 //
@@ -133,10 +132,10 @@ BSLS_IDENT("$Id: $")
 //  String     strObj = strRef;     // convert 'StringRef' to 'String'
 //  StringRef  strRf2 = strObj;     // convert 'String' to 'StringRef'
 //
-//  assert(&*strObj.begin() == strRef.begin());
-//  assert(&*strObj.end()   == strRef.end());
-//  assert(&*strObj.begin() == strRf2.begin());
-//  assert(&*strObj.end()   == strRf2.end());
+//  assert(strObj.data()   == strRef.data());
+//  assert(strObj.length() == strRef.length());
+//  assert(strObj.data()   == strRf2.data());
+//  assert(strObj.length() == strRf2.length());
 //..
 
 #include <bslscm_version.h>

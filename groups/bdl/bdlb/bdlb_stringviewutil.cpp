@@ -105,29 +105,30 @@ int StringViewUtil::upperCaseCmp(const bsl::string_view& lhs,
 
 bsl::string_view StringViewUtil::ltrim(const bsl::string_view& string)
 {
-    bsl::string_view::const_iterator       itr    = string.begin();
-    bsl::string_view::const_iterator const end    = string.end();
-    bsl::size_t                            length = string.length();
+    bsl::string_view::size_type       index  = 0;
+    const bsl::string_view::size_type length = string.length();
 
-    while (end != itr && u_isWhitespace(static_cast<unsigned char>(*itr))) {
-        ++itr;
-        --length;
+    while (index < length &&
+           u_isWhitespace(static_cast<unsigned char>(string[index]))) {
+        ++index;
     }
 
-    return bsl::string_view(itr, length);
+    return bsl::string_view(string.data() + index, length - index);
 }
 
 bsl::string_view StringViewUtil::rtrim(const bsl::string_view& string)
 {
+    const char *begin = string.data();
+    const char *end   = begin + string.length();
 
-    int index = static_cast<int>(string.length()) - 1;
-    while(   0 <= index
-          && u_isWhitespace(static_cast<unsigned char>(string[index])))
-    {
-        --index;
+    while (begin < end &&
+           u_isWhitespace(static_cast<unsigned char>(*(end - 1)))) {
+        --end;
     }
 
-    return bsl::string_view(string.data(), index + 1);
+    return bsl::string_view(
+                        begin,
+                        static_cast<bsl::string_view::size_type>(end - begin));
 }
 
                         // Find 'subString'
@@ -145,7 +146,8 @@ bsl::string_view StringViewUtil::strstr(const bsl::string_view& string,
         return u_NOT_FOUND;                                           // RETURN
     }
 
-    const char * const end = string.end() - subStrLength + 1;
+    const char * const end =
+                          string.data() + (string.length() - subStrLength + 1);
 
     for (const char *cur = string.data(); cur < end; ++cur) {
         if (0 == bsl::memcmp(cur, subStr.data(), subStrLength)) {
@@ -169,7 +171,8 @@ bsl::string_view StringViewUtil::strstrCaseless(const bsl::string_view& string,
         return u_NOT_FOUND;                                           // RETURN
     }
 
-    const char * const end = string.end() - subStrLength + 1;
+    const char * const end =
+                          string.data() + (string.length() - subStrLength + 1);
 
     for (const char *cur = string.data(); cur < end; ++cur) {
          if (0 == lowerCaseCmp(
@@ -185,18 +188,19 @@ bsl::string_view StringViewUtil::strstrCaseless(const bsl::string_view& string,
 bsl::string_view StringViewUtil::strrstr(const bsl::string_view& string,
                                          const bsl::string_view& subStr)
 {
+    const bsl::size_t strLength    = string.length();
     const bsl::size_t subStrLength = subStr.length();
 
     if (0 == subStrLength) {
-        return bsl::string_view(string.end(), 0);                     // RETURN
+        return bsl::string_view(string.data() + strLength, 0);        // RETURN
     }
 
     if (string.length() < subStrLength) {
         return u_NOT_FOUND;                                           // RETURN
     }
 
-    const bsl::size_t  count = string.length() - subStrLength + 1;
-    const char        *cur   = string.end()    - subStrLength;
+    const bsl::size_t  count = strLength - subStrLength + 1;
+    const char        *cur   = string.data() + strLength - subStrLength;
 
     for (bsl::size_t i = 0; i < count; ++i, --cur) {
         if (0 == bsl::memcmp(cur, subStr.data(), subStrLength)) {
@@ -211,18 +215,19 @@ bsl::string_view StringViewUtil::strrstrCaseless(
                                                 const bsl::string_view& string,
                                                 const bsl::string_view& subStr)
 {
+    const bsl::size_t strLength    = string.length();
     const bsl::size_t subStrLength = subStr.length();
 
     if (0 == subStrLength) {
-        return bsl::string_view(string.end(), 0);                     // RETURN
+        return bsl::string_view(string.data() + strLength, 0);        // RETURN
     }
 
     if (string.length() < subStrLength) {
         return u_NOT_FOUND;                                           // RETURN
     }
 
-    const bsl::size_t  count = string.length() - subStrLength + 1;
-    const char        *cur   = string.end()    - subStrLength;
+    const bsl::size_t  count = strLength - subStrLength + 1;
+    const char        *cur   = string.data() + strLength - subStrLength;
 
     for (bsl::size_t i = 0; i < count; ++i, --cur) {
         if (0 == lowerCaseCmp(

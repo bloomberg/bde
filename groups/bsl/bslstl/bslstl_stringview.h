@@ -283,7 +283,7 @@ class basic_string_view {
     typedef value_type&                            reference;
     typedef const value_type&                      const_reference;
     typedef const value_type                      *const_iterator;
-    typedef const_iterator                        *iterator;
+    typedef const_iterator                         iterator;
 
     typedef bsl::reverse_iterator<iterator>        reverse_iterator;
     typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;

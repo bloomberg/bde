@@ -33,8 +33,8 @@ using namespace BloombergLP;
 // Primary Manipulators: none
 //
 // Basic Accessors:
-//: o begin
-//: o end
+//: o data
+//: o length
 //
 // Certain standard value-semantic-type test cases are omitted:
 //: o [10] -- BSLX streaming is not (yet) implemented for this class.
@@ -58,15 +58,15 @@ using namespace BloombergLP;
 //
 // CREATORS
 // [ 2] bslstl::StringRefData();
-// [ 2] bslstl::StringRefData(const char *begin, const char *end);
+// [ 3] bslstl::StringRefData(const char *begin, const char *end);
 // [ 7] bslstl::StringRefData(const bslstl::StringRefData& other);
 //
 // MANIPULATORS
 // [ 9] operator=(const bslstl::StringRefData& other);
 //
 // ACCESSORS
-// [ 3] const_iterator begin() const;
-// [ 3] const_iterator end() const;
+// [ 4] const CHAR_TYPE *data() const;
+// [ 4] size_type length() const;
 //
 // FREE OPERATORS
 // [ 5] bool operator==(const StringRefData& lhs, rhs);
@@ -173,7 +173,7 @@ inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
 // classes.
 //
 // Objects of our 'String' and 'StringRef' classes need to be
-// convertible to each other.  However only one of these classes can depend on
+// convertible to each other.  However, only one of these classes can depend on
 // the definition of the other one, otherwise they will be cyclically
 // dependent.
 //
@@ -193,39 +193,38 @@ class String {
     typedef const char *const_iterator;
 
     String(bslstl::StringRefData<char> const& stringRef)
-        : d_begin_p(stringRef.begin())
-        , d_end_p(stringRef.end())
-    {
-    }
+    : d_begin_p(stringRef.data())
+    , d_end_p(stringRef.data() + stringRef.length())
+    {}
 
-    const_iterator begin() const
+    const char *data() const
     {
         return d_begin_p;
     }
 
-    const_iterator end() const
+    native_std::size_t length() const
     {
-        return d_end_p;
+        return static_cast<native_std::size_t>(d_end_p - d_begin_p);
     }
 };
 //..
 // Notice that the constructor of 'String' takes a 'bslstl::StringRefData'
-// argument and then uses its members 'begin' and 'end' to initialize the
+// argument and then uses its members 'data' and 'length' to initialize the
 // string object.
 //
-// Then, we define a hypothetical 'StringRef' class, whose can be initialized
-// either with a 'String' object (to enable the conversion from 'String' to
-// 'StringRef') or with two 'const char *' pointers:
+// Then, we define a hypothetical 'StringRef' class, whose instances can be
+// initialized either with a 'String' object (to enable the conversion from
+// 'String' to 'StringRef') or with two 'const char *' pointers:
 //..
 class StringRef : public bslstl::StringRefData<char>
 {
   public:
     StringRef(const char *begin, const char *end)
-        : bslstl::StringRefData<char>(begin, end)
+    : bslstl::StringRefData<char>(begin, end)
     {}
 
     StringRef(const String& str)
-        : bslstl::StringRefData<char>(&*str.begin(), &*str.end())
+    : bslstl::StringRefData<char>(str.data(), str.data() + str.length())
     {}
 };
 
@@ -244,10 +243,12 @@ bool operator==(const bslstl::StringRefData<CHAR_TYPE>& lhs,
                 const bslstl::StringRefData<CHAR_TYPE>& rhs)
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'bslstl::StringRefData' objects have
-    // the same value if the corresponding values of their 'begin' and 'end'
-    // attributes are the same.
+    // the same value if they have the same length, and the characters at each
+    // respective position have the same value according to 'CHAR_TRAITS::eq'.
 {
-    return lhs.begin() == rhs.begin() && lhs.end() == rhs.end();
+    typedef typename bslstl::StringRefData<CHAR_TYPE>::traits_type Traits;
+    return lhs.size() == rhs.size()
+        && 0 == Traits::compare(lhs.data(), rhs.data(), lhs.size());
 }
 
 template <class CHAR_TYPE>
@@ -255,8 +256,8 @@ bool operator!=(const bslstl::StringRefData<CHAR_TYPE>& lhs,
                 const bslstl::StringRefData<CHAR_TYPE>& rhs)
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'bslstl::StringRefData' objects
-    // do not have the same value if the corresponding values of their 'begin'
-    // and 'end' attributes are not the same.
+    // do not have the same value if they have different lengths or characters
+    // at any respective position have different values.
 {
     return !(lhs == rhs);
 }
@@ -299,7 +300,7 @@ int main(int argc, char *argv[])
                             "\n=====================\n");
 
 // Note that 'StringRef' also derives from 'bslstl::StringRefData' so that an
-// object of 'StringRef' can be passed to the constructor of 'String' as
+// object of 'StringRef' can be passed to the constructor of 'String' as a
 // reference to 'bslstl::StringRefData', which enables the conversion from
 // 'StringRef' to 'String'.
 //
@@ -315,10 +316,10 @@ StringRef  strRef(str, str + sizeof(str));
 String     strObj = strRef;     // convert 'StringRef' to 'String'
 StringRef  strRf2 = strObj;     // convert 'String' to 'StringRef'
 
-ASSERT(&*strObj.begin() == strRef.begin());
-ASSERT(&*strObj.end()   == strRef.end());
-ASSERT(&*strObj.begin() == strRf2.begin());
-ASSERT(&*strObj.end()   == strRf2.end());
+ASSERT(strObj.data()   == strRef.data());
+ASSERT(strObj.length() == strRef.length());
+ASSERT(strObj.data()   == strRf2.data());
+ASSERT(strObj.length() == strRf2.length());
 //..
       } break;
       case 12: {
@@ -348,8 +349,9 @@ ASSERT(&*strObj.end()   == strRf2.end());
           {
               typedef bslstl::StringRefData<char>    RefData;
 
-              const char data[] = "123456789012345678901234567890";
-              native_std::size_t numLetters = (sizeof(data) / sizeof(*data)) - 1;
+              const char         data[]     = "123456789012345678901234567890";
+              native_std::size_t numLetters =
+                                            (sizeof(data) / sizeof(*data)) - 1;
               ASSERT(0 != data[numLetters - 1]);
               ASSERT(0 == data[numLetters    ]);
 
@@ -380,8 +382,10 @@ ASSERT(&*strObj.end()   == strRf2.end());
           {
               typedef bslstl::StringRefData<wchar_t> WRefData;
 
-              const wchar_t data[] = L"123456789012345678901234567890";
-              native_std::size_t numLetters = (sizeof(data) / sizeof(*data)) - 1;
+              const wchar_t      data[]     =
+                                             L"123456789012345678901234567890";
+              native_std::size_t numLetters =
+                                            (sizeof(data) / sizeof(*data)) - 1;
               ASSERT(0 != data[numLetters - 1]);
               ASSERT(0 == data[numLetters    ]);
 
@@ -652,18 +656,22 @@ ASSERT(&*strObj.end()   == strRf2.end());
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int LINE = DATA[i].d_line;
-            const char *STR = DATA[i].d_str;
+            const int                 LINE   = DATA[i].d_line;
+            const char               *STR    = DATA[i].d_str;
+            const native_std::size_t  LENGTH = strlen(STR);
 
-            bslstl::StringRefData<char> X(STR, STR + strlen(STR));
+            bslstl::StringRefData<char> X(STR, STR + LENGTH);
             bslstl::StringRefData<char> Y;
+
+            LOOP_ASSERT(LINE, STR    == X.data()  );
+            LOOP_ASSERT(LINE, LENGTH == X.length());
+            LOOP_ASSERT(LINE, 0      == Y.data()  );
+            LOOP_ASSERT(LINE, 0      == Y.length());
 
             Y = X;
 
-            LOOP_ASSERT(LINE, Y.begin() == STR);
-            LOOP_ASSERT(LINE, Y.end() - Y.begin()
-                                       == static_cast<ptrdiff_t>(strlen(STR)));
-            LOOP_ASSERT(LINE, *Y.end() == '\0');
+            LOOP_ASSERT(LINE, X.data()   == Y.data()  );
+            LOOP_ASSERT(LINE, X.length() == Y.length());
         }
 
       } break;
@@ -841,16 +849,19 @@ ASSERT(&*strObj.end()   == strRf2.end());
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int LINE = DATA[i].d_line;
-            const char *STR = DATA[i].d_str;
+            const int                 LINE   = DATA[i].d_line;
+            const char               *STR    = DATA[i].d_str;
+            const native_std::size_t  LENGTH = strlen(STR);
 
-            bslstl::StringRefData<char> X(STR, STR + strlen(STR));
+            bslstl::StringRefData<char> X(STR, STR + LENGTH);
+
+            LOOP_ASSERT(LINE, STR    == X.data()  );
+            LOOP_ASSERT(LINE, LENGTH == X.length());
+
             bslstl::StringRefData<char> Y(X);
 
-            LOOP_ASSERT(LINE, Y.begin() == STR);
-            LOOP_ASSERT(LINE, Y.end() - Y.begin()
-                                       == static_cast<ptrdiff_t>(strlen(STR)));
-            LOOP_ASSERT(LINE, *Y.end() == '\0');
+            LOOP_ASSERT(LINE, STR    == Y.data()  );
+            LOOP_ASSERT(LINE, LENGTH == Y.length());
         }
       } break;
       case 6: {
@@ -964,8 +975,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int LINE = DATA[i].d_line;
-            const char *STR = DATA[i].d_str;
+            const int   LINE = DATA[i].d_line;
+            const char *STR  = DATA[i].d_str;
 
             bslstl::StringRefData<char> X(STR, STR + strlen(STR));
             bslstl::StringRefData<char> Y(STR, STR + strlen(STR));
@@ -1061,8 +1072,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
         //:     there is no change in total memory allocation.  (C-3..4)
         //
         // Testing:
-        //   const_iterator begin() const;
-        //   const_iterator end() const;
+        //   const CHAR_TYPE *data() const;
+        //   size_type length() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBASIC ACCESSORS"
@@ -1087,14 +1098,14 @@ ASSERT(&*strObj.end()   == strRf2.end());
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int LINE = DATA[i].d_line;
-            const char *STR = DATA[i].d_str;
+            const int                 LINE   = DATA[i].d_line;
+            const char               *STR    = DATA[i].d_str;
+            const native_std::size_t  LENGTH = strlen(STR);
 
-            bslstl::StringRefData<char> Y(STR, STR + strlen(STR));
-            LOOP_ASSERT(LINE, Y.begin() == STR);
-            LOOP_ASSERT(LINE, Y.end() - Y.begin()
-                                       == static_cast<ptrdiff_t>(strlen(STR)));
-            LOOP_ASSERT(LINE, *Y.end() == '\0');
+            bslstl::StringRefData<char> Y(STR, STR + LENGTH);
+
+            LOOP_ASSERT(LINE, STR    == Y.data());
+            LOOP_ASSERT(LINE, LENGTH == Y.length());
         }
 
       } break;
@@ -1245,14 +1256,14 @@ ASSERT(&*strObj.end()   == strRf2.end());
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int LINE = DATA[i].d_line;
-            const char *STR = DATA[i].d_str;
+            const int                 LINE   = DATA[i].d_line;
+            const char               *STR    = DATA[i].d_str;
+            const native_std::size_t  LENGTH = strlen(STR);
 
-            bslstl::StringRefData<char> Y(STR, STR + strlen(STR));
-            LOOP_ASSERT(LINE, Y.begin() == STR);
-            LOOP_ASSERT(LINE, Y.end() - Y.begin()
-                                       == static_cast<ptrdiff_t>(strlen(STR)));
-            LOOP_ASSERT(LINE, *Y.end() == '\0');
+            bslstl::StringRefData<char> Y(STR, STR + LENGTH);
+
+            LOOP_ASSERT(LINE, STR    == Y.data());
+            LOOP_ASSERT(LINE, LENGTH == Y.length());
         }
 
       } break;
@@ -1378,8 +1389,9 @@ ASSERT(&*strObj.end()   == strRf2.end());
         if (veryVerbose) printf("\tTesting the default constructor\n");
 
         bslstl::StringRefData<char> X;
-        ASSERT(X.begin() == 0);
-        ASSERT(X.end() == 0);
+
+        ASSERT(0 == X.data());
+        ASSERT(0 == X.length());
 
       } break;
       case 1: {
@@ -1435,8 +1447,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
         if (veryVerbose) printf("\ta. Check initial value of 'w'.\n");
 
-        ASSERT(D1 == W.begin());
-        ASSERT(D2 == W.end());
+        ASSERT(D1 == W.data()             );
+        ASSERT(D2 == W.data() + W.length());
 
         if (veryVerbose) printf(
                                "\tb. Try equality operators: 'w' <op> 'w'.\n");
@@ -1452,8 +1464,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
         if (veryVerbose) printf("\ta. Check initial value of 'x'.\n");
 
-        ASSERT(D1 == X.begin());
-        ASSERT(D2 == X.end());
+        ASSERT(D1 == X.data()             );
+        ASSERT(D2 == X.data() + X.length());
 
         if (veryVerbose) printf(
                           "\tb. Try equality operators: 'x' <op> 'w', 'x'.\n");
@@ -1470,8 +1482,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
         if (veryVerbose) printf("\ta. Check new value of 'x'.\n");
 
-        ASSERT(A1 == X.begin());
-        ASSERT(A2 == X.end());
+        ASSERT(A1 == X.data()             );
+        ASSERT(A2 == X.data() + X.length());
 
         if (veryVerbose) printf(
                           "\tb. Try equality operators: 'x' <op> 'w', 'x'.\n");
@@ -1488,8 +1500,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
         if (veryVerbose) printf("\ta. Check initial value of 'y'.\n");
 
-        ASSERT(A1 == Y.begin());
-        ASSERT(A2 == Y.end());
+        ASSERT(A1 == Y.data()             );
+        ASSERT(A2 == Y.data() + Y.length());
 
         if (veryVerbose) printf(
                       "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'\n");
@@ -1507,8 +1519,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
         if (veryVerbose) printf("\ta. Check initial value of 'z'.\n");
 
-        ASSERT(A1 == Z.begin());
-        ASSERT(A2 == Z.end());
+        ASSERT(A1 == Z.data()             );
+        ASSERT(A2 == Z.data() + Z.length());
 
         if (veryVerbose) printf(
                 "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'.\n");
@@ -1527,8 +1539,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
         if (veryVerbose) printf("\ta. Check new value of 'z'.\n");
 
-        ASSERT(D1 == Z.begin());
-        ASSERT(D2 == Z.end());
+        ASSERT(D1 == Z.data()             );
+        ASSERT(D2 == Z.data() + Z.length());
 
         if (veryVerbose) printf(
                 "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'.\n");
@@ -1546,8 +1558,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
         if (veryVerbose) printf("\ta. Check new value of 'w'.\n");
 
-        ASSERT(A1 == W.begin());
-        ASSERT(A2 == W.end());
+        ASSERT(A1 == W.data()             );
+        ASSERT(A2 == W.data() + W.length());
 
         if (veryVerbose) printf(
                 "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'.\n");
@@ -1565,8 +1577,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
         if (veryVerbose) printf("\ta. Check new value of 'w'.\n");
 
-        ASSERT(D1 == W.begin());
-        ASSERT(D2 == W.end());
+        ASSERT(D1 == W.data()             );
+        ASSERT(D2 == W.data() + W.length());
 
         if (veryVerbose) printf(
                 "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'.\n");
@@ -1584,8 +1596,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
         if (veryVerbose) printf("\ta. Check (same) value of 'x'.\n");
 
-        ASSERT(A1 == X.begin());
-        ASSERT(A2 == X.end());
+        ASSERT(A1 == X.data()             );
+        ASSERT(A2 == X.data() + X.length());
 
         if (veryVerbose) printf(
                 "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'.\n");
