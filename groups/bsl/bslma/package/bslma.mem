@@ -1,6 +1,7 @@
 bslma_allocator
 bslma_allocatoradaptor
 bslma_allocatortraits
+bslma_allocatortraits_cpp03
 bslma_autodeallocator
 bslma_autodestructor
 bslma_autorawdeleter
@@ -20,6 +21,7 @@ bslma_infrequentdeleteblocklist
 bslma_mallocfreeallocator
 bslma_managedallocator
 bslma_managedptr
+bslma_managedptr_cpp03
 bslma_managedptr_factorydeleter
 bslma_managedptr_members
 bslma_managedptr_pairproxy
@@ -28,11 +30,13 @@ bslma_newdeleteallocator
 bslma_rawdeleterguard
 bslma_rawdeleterproctor
 bslma_sequentialallocator
+bslma_sequentialpool
 bslma_sharedptrinplacerep
+bslma_sharedptrinplacerep_cpp03
 bslma_sharedptroutofplacerep
 bslma_sharedptrrep
-bslma_sequentialpool
 bslma_stdallocator
+bslma_stdallocator_cpp03
 bslma_stdtestallocator
 bslma_testallocator
 bslma_testallocatorexception

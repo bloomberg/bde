@@ -17,12 +17,13 @@ bdlb_hashutil
 bdlb_indexspan
 bdlb_indexspanstringutil
 bdlb_indexspanutil
+bdlb_literalutil
 bdlb_nullableallocatedvalue
 bdlb_nullablevalue
+bdlb_nullablevalue_cpp03
 bdlb_nullopt
 bdlb_nulloutputiterator
 bdlb_numericparseutil
-bdlb_literalutil
 bdlb_print
 bdlb_printmethods
 bdlb_random

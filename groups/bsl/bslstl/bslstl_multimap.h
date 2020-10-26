@@ -566,6 +566,15 @@ BSL_OVERRIDES_STD mode"
 # include <initializer_list>
 #endif
 
+#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// Include version that can be compiled with C++03
+// Generated on Fri Oct 23 15:03:34 2020
+// Command line: sim_cpp11_features.pl bslstl_multimap.h
+# define COMPILING_BSLSTL_MULTIMAP_H
+# include <bslstl_multimap_cpp03.h>
+# undef COMPILING_BSLSTL_MULTIMAP_H
+#else
+
 namespace bsl {
 
                              // ==============
@@ -1150,44 +1159,6 @@ class multimap {
         // 'VALUE'}).  The behavior is undefined unless 'hint' is an iterator
         // in the range '[begin() .. end()]' (both endpoints included).
 
-#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-// {{{ BEGIN GENERATED CODE
-// The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=2 bslstl_multimap.h
-    iterator emplace();
-
-    template <class Args_1>
-    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1);
-
-    template <class Args_1,
-              class Args_2>
-    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2);
-
-
-    iterator emplace_hint(const_iterator hint);
-
-    template <class Args_1>
-    iterator emplace_hint(const_iterator hint,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1);
-
-    template <class Args_1,
-              class Args_2>
-    iterator emplace_hint(const_iterator hint,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2);
-
-#else
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class... Args>
-    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
-
-    template <class... Args>
-    iterator emplace_hint(const_iterator hint,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
-
-// }}} END GENERATED CODE
 #endif
 
     iterator erase(const_iterator position);
@@ -2371,242 +2342,6 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
     return iterator(node);
 }
 
-#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-// {{{ BEGIN GENERATED CODE
-// The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=2 bslstl_multimap.h
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
-                               )
-{
-    bool leftChild;
-
-    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
-        );
-
-    BloombergLP::bslalg::RbTreeNode *insertLocation =
-        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(
-                               &leftChild,
-                               &d_tree,
-                               this->comparator(),
-                               static_cast<const Node *>(node)->value().first);
-
-    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                              insertLocation,
-                                              leftChild,
-                                              node);
-    return iterator(node);
-}
-
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-template <class Args_1>
-inline
-typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
-{
-    bool leftChild;
-
-    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
-        BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1));
-
-    BloombergLP::bslalg::RbTreeNode *insertLocation =
-        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(
-                               &leftChild,
-                               &d_tree,
-                               this->comparator(),
-                               static_cast<const Node *>(node)->value().first);
-
-    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                              insertLocation,
-                                              leftChild,
-                                              node);
-    return iterator(node);
-}
-
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-template <class Args_1,
-          class Args_2>
-inline
-typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
-{
-    bool leftChild;
-
-    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
-        BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
-        BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2));
-
-    BloombergLP::bslalg::RbTreeNode *insertLocation =
-        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(
-                               &leftChild,
-                               &d_tree,
-                               this->comparator(),
-                               static_cast<const Node *>(node)->value().first);
-
-    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                              insertLocation,
-                                              leftChild,
-                                              node);
-    return iterator(node);
-}
-
-
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint)
-{
-    bool leftChild;
-
-    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
-        );
-
-    BloombergLP::bslalg::RbTreeNode *hintNode =
-                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
-
-    BloombergLP::bslalg::RbTreeNode *insertLocation =
-        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(
-                                &leftChild,
-                                &d_tree,
-                                this->comparator(),
-                                static_cast<const Node *>(node)->value().first,
-                                hintNode);
-
-    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                              insertLocation,
-                                              leftChild,
-                                              node);
-    return iterator(node);
-}
-
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-template <class Args_1>
-inline
-typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
-{
-    bool leftChild;
-
-    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
-        BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1));
-
-    BloombergLP::bslalg::RbTreeNode *hintNode =
-                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
-
-    BloombergLP::bslalg::RbTreeNode *insertLocation =
-        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(
-                                &leftChild,
-                                &d_tree,
-                                this->comparator(),
-                                static_cast<const Node *>(node)->value().first,
-                                hintNode);
-
-    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                              insertLocation,
-                                              leftChild,
-                                              node);
-    return iterator(node);
-}
-
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-template <class Args_1,
-          class Args_2>
-inline
-typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
-{
-    bool leftChild;
-
-    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
-        BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
-        BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2));
-
-    BloombergLP::bslalg::RbTreeNode *hintNode =
-                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
-
-    BloombergLP::bslalg::RbTreeNode *insertLocation =
-        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(
-                                &leftChild,
-                                &d_tree,
-                                this->comparator(),
-                                static_cast<const Node *>(node)->value().first,
-                                hintNode);
-
-    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                              insertLocation,
-                                              leftChild,
-                                              node);
-    return iterator(node);
-}
-
-#else
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-template <class... Args>
-inline
-typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace(
-                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
-{
-    bool leftChild;
-
-    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
-        BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
-
-    BloombergLP::bslalg::RbTreeNode *insertLocation =
-        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(
-                               &leftChild,
-                               &d_tree,
-                               this->comparator(),
-                               static_cast<const Node *>(node)->value().first);
-
-    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                              insertLocation,
-                                              leftChild,
-                                              node);
-    return iterator(node);
-}
-
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-template <class... Args>
-inline
-typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
-                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
-{
-    bool leftChild;
-
-    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
-        BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
-
-    BloombergLP::bslalg::RbTreeNode *hintNode =
-                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
-
-    BloombergLP::bslalg::RbTreeNode *insertLocation =
-        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(
-                                &leftChild,
-                                &d_tree,
-                                this->comparator(),
-                                static_cast<const Node *>(node)->value().first,
-                                hintNode);
-
-    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                              insertLocation,
-                                              leftChild,
-                                              node);
-    return iterator(node);
-}
-
-// }}} END GENERATED CODE
 #endif
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -2949,6 +2684,8 @@ struct UsesBslmaAllocator<bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR> >
 }  // close namespace bslma
 
 }  // close enterprise namespace
+
+#endif // End C++11 code
 
 #endif
 

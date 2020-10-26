@@ -1,7 +1,7 @@
 bslmf_addconst
 bslmf_addcv
-bslmf_addpointer
 bslmf_addlvaluereference
+bslmf_addpointer
 bslmf_addreference
 bslmf_addrvaluereference
 bslmf_addvolatile
@@ -14,11 +14,13 @@ bslmf_detectnestedtrait
 bslmf_enableif
 bslmf_forwardingtype
 bslmf_functionpointertraits
+bslmf_functionpointertraits_cpp03
 bslmf_haspointersemantics
 bslmf_if
 bslmf_integersequence
 bslmf_integralconstant
 bslmf_invokeresult
+bslmf_invokeresult_cpp03
 bslmf_isarithmetic
 bslmf_isarray
 bslmf_isbitwiseequalitycomparable
@@ -59,6 +61,7 @@ bslmf_movableref
 bslmf_nestedtraitdeclaration
 bslmf_nil
 bslmf_nthparameter
+bslmf_nthparameter_cpp03
 bslmf_removeconst
 bslmf_removecv
 bslmf_removecvq
@@ -67,8 +70,8 @@ bslmf_removepointer
 bslmf_removereference
 bslmf_removevolatile
 bslmf_resulttype
-bslmf_switch
 bslmf_selecttrait
+bslmf_switch
 bslmf_tag
 bslmf_typelist
 bslmf_usesallocator

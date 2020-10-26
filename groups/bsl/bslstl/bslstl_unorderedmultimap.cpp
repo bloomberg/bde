@@ -11,6 +11,7 @@ namespace bsl
 {
 
 }  // close namespace bsl
+
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

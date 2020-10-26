@@ -611,6 +611,15 @@ BSL_OVERRIDES_STD mode"
 # include <initializer_list>
 #endif
 
+#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// Include version that can be compiled with C++03
+// Generated on Fri Oct 23 15:03:39 2020
+// Command line: sim_cpp11_features.pl bslstl_unorderedmultimap.h
+# define COMPILING_BSLSTL_UNORDEREDMULTIMAP_H
+# include <bslstl_unorderedmultimap_cpp03.h>
+# undef COMPILING_BSLSTL_UNORDEREDMULTIMAP_H
+#else
+
 namespace bsl {
 
 template <class KEY,
@@ -1200,44 +1209,6 @@ class unordered_multimap {
         // unless 'hint' is an iterator in the range '[begin() .. end()]' (both
         // endpoints included).
 
-#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-// {{{ BEGIN GENERATED CODE
-// The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=2 bslstl_unorderedmultimap.h
-    iterator emplace();
-
-    template <class Args_1>
-    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1);
-
-    template <class Args_1,
-              class Args_2>
-    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2);
-
-
-    iterator emplace_hint(const_iterator hint);
-
-    template <class Args_1>
-    iterator emplace_hint(const_iterator hint,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1);
-
-    template <class Args_1,
-              class Args_2>
-    iterator emplace_hint(const_iterator hint,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2);
-
-#else
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class... Args>
-    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
-
-    template <class... Args>
-    iterator emplace_hint(const_iterator hint,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
-
-// }}} END GENERATED CODE
 #endif
 
     void max_load_factor(float newLoadFactor);
@@ -1796,112 +1767,6 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
     return iterator(d_impl.emplaceWithHint(hint.node(),
                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
 }
-#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-// {{{ BEGIN GENERATED CODE
-// The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=2 bslstl_unorderedmultimap.h
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
-                               )
-{
-    return iterator(d_impl.emplace(
-                                ));
-
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class Args_1>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
-{
-    return iterator(d_impl.emplace(
-                               BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1)));
-
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class Args_1,
-          class Args_2>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
-{
-    return iterator(d_impl.emplace(
-                               BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2)));
-
-}
-
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
-                                                           const_iterator hint)
-{
-    return iterator(d_impl.emplaceWithHint(hint.node()));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class Args_1>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
-                                                           const_iterator hint,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
-{
-    return iterator(d_impl.emplaceWithHint(hint.node(),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1)));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class Args_1,
-          class Args_2>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
-                                                           const_iterator hint,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
-{
-    return iterator(d_impl.emplaceWithHint(hint.node(),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
-                               BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2)));
-}
-
-#else
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class... Args>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
-                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
-{
-    return iterator(d_impl.emplace(
-                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
-
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class... Args>
-inline
-typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
-                                                           const_iterator hint,
-                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
-{
-    return iterator(d_impl.emplaceWithHint(hint.node(),
-                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...));
-}
-// }}} END GENERATED CODE
 #endif
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -2459,6 +2324,8 @@ struct IsBitwiseMoveable<
 
 }
 }  // close enterprise namespace
+
+#endif // End C++11 code
 
 #endif
 
