@@ -226,6 +226,46 @@ struct BlobUtil {
         // lexicographically less than 'b', and a positive value if 'a' is
         // lexicographically greater than 'b'.
 
+    static int appendBufferIfValid(Blob *dest, const BlobBuffer& buffer);
+        // Append the specified 'buffer' after the last buffer of the specified
+        // 'dest' if the resulting total size of the 'dest' and the resulting
+        // total number of buffers in this blob are less than 'INT_MAX'.
+        // Return zero on success, and a non-zero value (with no effect)
+        // otherwise.  The length of the 'dest' is unaffected.
+
+    static int appendDataBufferIfValid(Blob *dest, const BlobBuffer& buffer);
+        // Append the specified 'buffer' after the last *data* buffer of the
+        // specified 'dest' if the 'buffer' has non-zero size and the resulting
+        // total size of the 'dest' and the resulting total number of buffers
+        // in this blob are less than 'INT_MAX'.  Return zero on success, and a
+        // non-zero value (with no effect) otherwise.  The last data buffer of
+        // the 'dest' is trimmed, if necessary.  The length of the 'dest' is
+        // incremented by the size of 'buffer'.
+
+    static int insertBufferIfValid(Blob              *dest,
+                                   int                index,
+                                   const BlobBuffer&  buffer);
+        // Insert the specified 'buffer' at the specified 'index' in the
+        // specified 'dest' if '0 <= index <= dest->numBuffers()' and the
+        // resulting total size of the 'dest' and the resulting total number of
+        // buffers in this blob are less than 'INT_MAX'.  Return zero on
+        // success, and a non-zero value (with no effect) otherwise.  Increment
+        // the length of the 'dest by the size of the 'buffer' if 'buffer' is
+        // inserted *before* the logical end of the 'dest'.  The length of the
+        // 'dest' is _unchanged_ if inserting at a position following all data
+        // buffers (e.g., inserting into an empty blob or inserting a buffer to
+        // increase capacity); in that case, the blob length must be changed by
+        // an explicit call to 'setLength'.  Buffers at 'index' and higher
+        // positions (if any) are shifted up by one index position.
+
+    static int prependDataBufferIfValid(Blob *dest, const BlobBuffer& buffer);
+        // Insert the specified 'buffer' before the beginning of the specified
+        // 'dest' if the 'buffer' has non-zero size and the resulting total
+        // size of the 'dest' and the resulting total number of buffers in this
+        // blob are less than 'INT_MAX'.  Return zero on success, and a
+        // non-zero value (with no effect) otherwise.  The length of the 'dest'
+        // is incremented by the length of the prepended buffer.
+
     // ---------- DEPRECATED FUNCTIONS ------------- //
 
     // DEPRECATED FUNCTIONS: basicAllocator is no longer used
@@ -497,6 +537,58 @@ int BlobUtil::write(STREAM&     stream,
 
     BSLS_ASSERT(bytesRemaining == 0);
     return 0;
+}
+
+inline
+int BlobUtil::appendBufferIfValid(Blob *dest, const BlobBuffer& buffer)
+{
+    if (dest->totalSize() < INT_MAX - buffer.size()
+    && (dest->numBuffers() < INT_MAX - 1)) {
+        dest->appendBuffer(buffer);
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
+
+inline
+int BlobUtil::appendDataBufferIfValid(Blob *dest, const BlobBuffer& buffer)
+{
+    int bufferSize = buffer.size();
+    if ((0 < bufferSize)
+     && (dest->totalSize() < INT_MAX - bufferSize)
+     && (dest->numBuffers() < INT_MAX - 1)) {
+        dest->appendDataBuffer(buffer);
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
+
+inline
+int BlobUtil::insertBufferIfValid(Blob              *dest,
+                                  int                index,
+                                  const BlobBuffer&  buffer)
+{
+    if (0 <= index
+     && dest->numBuffers() >= index
+     && (dest->totalSize() < INT_MAX - buffer.size())
+     && (dest->numBuffers() < INT_MAX - 1)) {
+        dest->insertBuffer(index, buffer);
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
+
+inline
+int BlobUtil::prependDataBufferIfValid(Blob *dest, const BlobBuffer& buffer)
+{
+    int bufferSize = buffer.size();
+    if ((0 < bufferSize)
+     && (dest->totalSize() < INT_MAX - bufferSize)
+     && (dest->numBuffers() < INT_MAX - 1)) {
+        dest->prependDataBuffer(buffer);
+        return 0;                                                     // RETURN
+    }
+    return -1;
 }
 
                          // --------------------------

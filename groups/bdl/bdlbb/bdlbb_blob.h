@@ -216,13 +216,15 @@ BSLS_IDENT("$Id: $")
 // for application utilities):
 //..
 //  void prependProlog(bdlbb::Blob        *blob,
-//                     const bsl::string&  prolog,
+//                     const char         *prolog,
+//                     int                 length,
 //                     bslma::Allocator   *allocator = 0);
-//      // Prepend the specified 'prolog' to the specified 'blob', using the
-//      // optionally specified 'allocator' to supply any memory (or the
-//      // currently installed default allocator if 'allocator' is 0).  The
-//      // behavior is undefined unless 'blob' points to an initialized
-//      // 'bdlbb::Blob' instance.
+//      // Prepend the specified 'prolog' of the specified 'length' to the
+//      // specified 'blob', using the optionally specified 'allocator' to
+//      // supply any memory (or the currently installed default allocator if
+//      // 'allocator' is 0).  The behavior is undefined unless 'blob' points
+//      // to an initialized 'bdlbb::Blob' instance and
+//      // 'length < INT_MAX - sizeof(int)'.
 //
 //  template <class DELETER>
 //  void composeMessage(bdlbb::Blob        *blob,
@@ -258,23 +260,26 @@ BSLS_IDENT("$Id: $")
 // 'insertBuffer' could be as follows:
 //..
 //  void prependProlog(bdlbb::Blob        *blob,
-//                     const bsl::string&  prolog,
+//                     const char         *prolog,
+//                     int                 length,
 //                     bslma::Allocator   *allocator)
 //  {
-//      BSLS_ASSERT(blob);
+//      assert(blob);
+//      assert(length < INT_MAX - static_cast<int>(sizeof(int)));
 //
 //      (void)allocator;
 //
-//      int prologLength = prolog.length();
-//      SimpleBlobBufferFactory fa(prologLength + sizeof(int));
-//      bdlbb::BlobBuffer prologBuffer;
+//      int                     prologBufferSize =
+//                                      static_cast<int>(length + sizeof(int));
+//      SimpleBlobBufferFactory fa(prologBufferSize);
+//      bdlbb::BlobBuffer       prologBuffer;
 //      fa.allocate(&prologBuffer);
 //
-//      bslx::MarshallingUtil::putInt32(prologBuffer.data(), prologLength);
+//      bslx::MarshallingUtil::putInt32(prologBuffer.data(), length);
 //      bsl::memcpy(prologBuffer.data() + sizeof(int),
-//                  prolog.c_str(),
-//                  prologLength);
-//      BSLS_ASSERT(prologBuffer.size() == prologLength + sizeof(int));
+//                  prolog,
+//                  length);
+//      assert(prologBuffer.size() == prologBufferSize);
 //
 //      blob->prependDataBuffer(prologBuffer);
 //  }
@@ -296,19 +301,20 @@ BSLS_IDENT("$Id: $")
 //..
 //  template <class DELETER>
 //  void composeMessage(bdlbb::Blob        *blob,
-//                      const bsl::string&  prolog,
+//                      const char         *prolog,
+//                      int                 prologLength,
 //                      char * const       *vectors,
 //                      const int          *vectorSizes,
 //                      int                 numVectors,
 //                      const DELETER&      deleter,
 //                      bslma::Allocator   *allocator)
 //  {
-//      BSLS_ASSERT(blob);
-//      BSLS_ASSERT(vectors);
-//      BSLS_ASSERT(0 <= numVectors);
+//      assert(blob);
+//      assert(vectors);
+//      assert(0 <= numVectors);
 //
 //      blob->removeAll();
-//      prependProlog(blob, prolog, allocator);
+//      prependProlog(blob, prolog, prologLength, allocator);
 //
 //      for (int i = 0; i < numVectors; ++i) {
 //          bsl::shared_ptr<char> shptr(vectors[i], deleter, allocator);
@@ -329,8 +335,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  int timestampMessage(bdlbb::Blob *blob, bslma::Allocator *allocator)
 //  {
-//      BSLS_ASSERT(blob);
-//      BSLS_ASSERT(0 < blob->numDataBuffers());
+//      assert(blob);
+//      assert(0 < blob->numDataBuffers());
 //
 //      bdlbb::BlobBuffer buffer;
 //      bdlt::Datetime now = bdlt::CurrentTime::utc();
@@ -341,12 +347,12 @@ BSLS_IDENT("$Id: $")
 //
 //      bslx::ByteOutStream bdexStream(20150826);
 //      now.bdexStreamOut(bdexStream, 1);
-//      BSLS_ASSERT(bdexStream);
-//      BSLS_ASSERT(bdexStream.length() < 128);
+//      assert(bdexStream);
+//      assert(bdexStream.length() < 128);
 //      bsl::memcpy(timestampBuffer.data(),
 //                  bdexStream.data(),
 //                  bdexStream.length());
-//      timestampBuffer.setSize(bdexStream.length());
+//      timestampBuffer.setSize(static_cast<int>(bdexStream.length()));
 //..
 // Now that we have fabricated the buffer holding the current data and time, we
 // must insert it into the blob after the first buffer (i.e., before the buffer
@@ -361,7 +367,7 @@ BSLS_IDENT("$Id: $")
 //          blob->appendDataBuffer(timestampBuffer);
 //      }
 //
-//      return bdexStream.length();
+//      return static_cast<int>(bdexStream.length());
 //  }
 //..
 // Note that the call to 'appendDataBuffer' also takes care of the possibility
@@ -673,15 +679,19 @@ class Blob {
 
     void appendBuffer(const BlobBuffer& buffer);
         // Append the specified 'buffer' after the last buffer of this blob.
-        // The length of this blob is unaffected.  Note that this operation is
-        // equivalent to 'insert(numBuffers(), buffer)', but is more efficient.
+        // The length of this blob is unaffected.  The behavior is undefined
+        // unless the total size of the resulting blob and the total number of
+        // buffers in this blob are less than 'INT_MAX'.  Note that this
+        // operation is equivalent to 'insert(numBuffers(), buffer)', but is
+        // more efficient.
 
     void appendDataBuffer(const BlobBuffer& buffer);
         // Append the specified 'buffer' after the last *data* buffer of this
         // blob; the last data buffer is trimmed, if necessary.  The length of
         // this blob is incremented by the size of 'buffer'.  The behavior is
-        // undefined unless '0 < buffer.size()'.  Note that this operation is
-        // equivalent to:
+        // undefined unless '0 < buffer.size()' and the total size of the
+        // resulting blob and the total number of buffers in this blob are less
+        // than 'INT_MAX'.  Note that this operation is equivalent to:
         //..
         //  const int n = blob.length();
         //  blob.trimLastDataBuffer();
@@ -700,13 +710,17 @@ class Blob {
         // length must be changed by an explicit call to 'setLength'.  Buffers
         // at 'index' and higher positions (if any) are shifted up by one index
         // position.  The behavior is undefined unless
-        // '0 <= index <= numBuffers()'.
+        // '0 <= index <= numBuffers()' and the total size of the resulting
+        // blob and the total number of buffers in this blob are less than
+        // 'INT_MAX'.
 
     void prependDataBuffer(const BlobBuffer& buffer);
         // Insert the specified 'buffer' before the beginning of this blob.
         // The length of this blob is incremented by the length of the
         // prepended buffer.  The behavior is undefined unless
-        // '0 < buffer.size()'.  Note that this operation is equivalent to:
+        // '0 < buffer.size()' and the total size of the resulting blob and the
+        // total number of buffers in this blob are less than 'INT_MAX'.  Note
+        // that this operation is equivalent to:
         //..
         //  const int n = blob.length();
         //  blob.insert(0, buffer);
@@ -790,7 +804,9 @@ class Blob {
 
     void moveAndAppendDataBuffers(Blob *srcBlob);
         // Move the data buffers held by the specified 'srcBlob' to this blob
-        // appending them to the current data buffers of this blob.
+        // appending them to the current data buffers of this blob.  The
+        // behavior is undefined the total size of the resulting blob and the
+        // total number of buffers in this blob are less than 'INT_MAX'.
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
