@@ -979,6 +979,15 @@ BSL_OVERRIDES_STD mode"
 # include <initializer_list>
 #endif
 
+#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// Include version that can be compiled with C++03
+// Generated on Fri Oct 23 15:03:40 2020
+// Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
+# define COMPILING_BSLSTL_UNORDEREDMAP_H
+# include <bslstl_unorderedmap_cpp03.h>
+# undef COMPILING_BSLSTL_UNORDEREDMAP_H
+#else
+
 namespace bsl {
 
                            // ===================
@@ -1395,47 +1404,6 @@ class unordered_map {
         // endpoints included).  Note that 'hint' is ignored (other than
         // possibly asserting its validity in some build modes).
 
-#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-// {{{ BEGIN GENERATED CODE
-// The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=2 --output=tmpout.h tmp.h
-    pair<iterator, bool> emplace(
-                              );
-
-    template <class Args_1>
-    pair<iterator, bool> emplace(
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1);
-
-    template <class Args_1,
-              class Args_2>
-    pair<iterator, bool> emplace(
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2);
-
-
-    iterator emplace_hint(const_iterator hint);
-
-    template <class Args_1>
-    iterator emplace_hint(const_iterator hint,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1);
-
-    template <class Args_1,
-              class Args_2>
-    iterator emplace_hint(const_iterator hint,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2);
-
-#else
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class... Args>
-    pair<iterator, bool> emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
-
-    template <class... Args>
-    iterator emplace_hint(const_iterator hint,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
-// }}} END GENERATED CODE
 #endif
 
     iterator erase(const_iterator position);
@@ -2349,159 +2317,6 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-// {{{ BEGIN GENERATED CODE
-// The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=2 --output=tmpout.h tmp.h
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-bsl::pair<
-         typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
-         bool>
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
-                               )
-{
-    typedef bsl::pair<iterator, bool> ResultType;
-
-    bool isInsertedFlag = false;
-
-    HashTableLink *result = d_impl.emplaceIfMissing(
-                                 &isInsertedFlag);
-
-    return ResultType(iterator(result), isInsertedFlag);
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class Args_1>
-bsl::pair<
-         typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
-         bool>
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
-{
-    typedef bsl::pair<iterator, bool> ResultType;
-
-    bool isInsertedFlag = false;
-
-    HashTableLink *result = d_impl.emplaceIfMissing(
-                                 &isInsertedFlag,
-                                BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1));
-
-    return ResultType(iterator(result), isInsertedFlag);
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class Args_1,
-          class Args_2>
-bsl::pair<
-         typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
-         bool>
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
-{
-    typedef bsl::pair<iterator, bool> ResultType;
-
-    bool isInsertedFlag = false;
-
-    HashTableLink *result = d_impl.emplaceIfMissing(
-                                 &isInsertedFlag,
-                                BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2));
-
-    return ResultType(iterator(result), isInsertedFlag);
-}
-
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
-                                                const_iterator)
-{
-
-    bool isInsertedFlag = false;
-
-    HashTableLink *result = d_impl.emplaceIfMissing(
-                                 &isInsertedFlag);
-
-    return iterator(result);
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class Args_1>
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
-                                                const_iterator,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
-{
-
-    bool isInsertedFlag = false;
-
-    HashTableLink *result = d_impl.emplaceIfMissing(
-                                 &isInsertedFlag,
-                                BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1));
-
-    return iterator(result);
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class Args_1,
-          class Args_2>
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
-                                                const_iterator,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
-{
-
-    bool isInsertedFlag = false;
-
-    HashTableLink *result = d_impl.emplaceIfMissing(
-                                 &isInsertedFlag,
-                                BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2));
-
-    return iterator(result);
-}
-
-#else
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class... Args>
-bsl::pair<
-         typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
-         bool>
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
-                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
-{
-    typedef bsl::pair<iterator, bool> ResultType;
-
-    bool isInsertedFlag = false;
-
-    HashTableLink *result = d_impl.emplaceIfMissing(
-                                 &isInsertedFlag,
-                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
-
-    return ResultType(iterator(result), isInsertedFlag);
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-template <class... Args>
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
-                                                const_iterator,
-                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
-{
-
-    bool isInsertedFlag = false;
-
-    HashTableLink *result = d_impl.emplaceIfMissing(
-                                 &isInsertedFlag,
-                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
-
-    return iterator(result);
-}
-// }}} END GENERATED CODE
 #endif
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -3009,6 +2824,8 @@ struct IsBitwiseMoveable<
 
 }  // close namespace bslma
 }  // close enterprise namespace
+
+#endif // End C++11 code
 
 #endif
 

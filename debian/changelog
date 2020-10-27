@@ -1,4 +1,4 @@
-bsl-internal (3.65.0.0) unstable; urgency=low
+bsl-internal (999999.3.65.0.0) unstable; urgency=low
 
   * 6d09952d3 Bumped version to 3.65.0.0
   * 3899fabdb Merge pull request #2956 from phalpern/bsls_asserttest-cpp11_sim

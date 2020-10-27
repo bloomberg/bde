@@ -133,6 +133,7 @@ size_t HashTable_ImpDetails::nextPrime(size_t n)
 
 }  // close package namespace
 }  // close enterprise namespace
+
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

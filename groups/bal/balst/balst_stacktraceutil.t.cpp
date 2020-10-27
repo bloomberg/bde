@@ -28,6 +28,7 @@
 #include <bslmt_threadutil.h>
 
 #include <bsls_atomic.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_log.h>
 #include <bsls_platform.h>
 #include <bsls_spinlock.h>
@@ -1233,9 +1234,15 @@ void case_5_top(bool demangle, bool useTestAllocator)
 
                 recursersFound += isMatch;
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
                 const char *sfnMatch = funcFrame
                                      ? "bslstl_function.h"
                                      : "balst_stacktraceutil.t.cpp";
+#else
+                const char *sfnMatch = funcFrame
+                                     ? "bslstl_function_cpp03.h"
+                                     : "balst_stacktraceutil.t.cpp";
+#endif
                 const char *sfn = st[i].sourceFileName().c_str();
 
                 if (!(FORMAT_ELF && !FORMAT_DWARF &&
