@@ -1,5 +1,6 @@
 bslh_defaulthashalgorithm
 bslh_defaultseededhashalgorithm
+bslh_fibonaccibadhashwrapper
 bslh_hash
 bslh_hashoptional
 bslh_hashvariant
