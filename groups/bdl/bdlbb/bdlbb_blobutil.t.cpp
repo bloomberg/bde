@@ -542,28 +542,21 @@ int main(int argc, char *argv[])
                 // these buffers during testing. Only their sizes are valuable
                 // for our test.
 
-                bdlbb::BlobBuffer boundaryBuffer;
-                bdlbb::BlobBuffer invalidBuffer;
-                bdlbb::BlobBuffer definitelyInvalidBuffer;
+                bdlbb::BlobBuffer maximalValidBuffer;
+                bdlbb::BlobBuffer tinyBuffer;
 
-                boundaryBuffer.setSize(         INT_MAX - DST.totalSize() - 1);
-                invalidBuffer.setSize(          INT_MAX - DST.totalSize()    );
-                definitelyInvalidBuffer.setSize(INT_MAX                      );
+                maximalValidBuffer.setSize(INT_MAX - DST.totalSize());
+                tinyBuffer.setSize(1);
 
-                result = utilFunction(&dst, definitelyInvalidBuffer);
-
-                ASSERT(FAILURE == result);
-                ASSERT(MODEL   == DST   );
-
-                result = utilFunction(&dst, invalidBuffer);
-
-                ASSERT(FAILURE == result);
-                ASSERT(MODEL   == DST   );
-
-                (model.*memberFunction)(boundaryBuffer);
-                result = utilFunction(&dst, boundaryBuffer);
+                (model.*memberFunction)(maximalValidBuffer);
+                result = utilFunction(&dst, maximalValidBuffer);
 
                 ASSERT(SUCCESS == result);
+                ASSERT(MODEL   == DST   );
+
+                result = utilFunction(&dst, tinyBuffer);
+
+                ASSERT(FAILURE == result);
                 ASSERT(MODEL   == DST   );
             }
 
@@ -622,35 +615,26 @@ int main(int argc, char *argv[])
                     ASSERT(SUCCESS == result);
                     ASSERT(MODEL   == DST   );
 
-                    bdlbb::BlobBuffer boundaryBuffer;
-                    bdlbb::BlobBuffer invalidBuffer;
-                    bdlbb::BlobBuffer definitelyInvalidBuffer;
+                    bdlbb::BlobBuffer maximalValidBuffer;
+                    bdlbb::BlobBuffer tinyBuffer;
 
-                    boundaryBuffer.setSize(INT_MAX - DST.totalSize() - 1);
-                    invalidBuffer.setSize( INT_MAX - DST.totalSize());
-                    definitelyInvalidBuffer.setSize(INT_MAX);
+                    maximalValidBuffer.setSize(INT_MAX - DST.totalSize());
+                    tinyBuffer.setSize(1);
 
-                    result = Util::insertBufferIfValid(
-                                                      &dst,
-                                                      POSITION,
-                                                      definitelyInvalidBuffer);
 
-                    ASSERT(FAILURE == result);
-                    ASSERT(MODEL   == DST   );
-
+                    model.insertBuffer(POSITION, maximalValidBuffer);
                     result = Util::insertBufferIfValid(&dst,
                                                        POSITION,
-                                                       invalidBuffer);
-
-                    ASSERT(FAILURE == result);
-                    ASSERT(MODEL   == DST   );
-
-                    model.insertBuffer(POSITION, boundaryBuffer);
-                    result = Util::insertBufferIfValid(&dst,
-                                                       POSITION,
-                                                       boundaryBuffer);
+                                                       maximalValidBuffer);
 
                     ASSERT(SUCCESS == result);
+                    ASSERT(MODEL   == DST   );
+
+                    result = Util::insertBufferIfValid(&dst,
+                                                       POSITION,
+                                                       tinyBuffer);
+
+                    ASSERT(FAILURE == result);
                     ASSERT(MODEL   == DST   );
                 }
             }
@@ -698,20 +682,21 @@ int main(int argc, char *argv[])
                 // In addition to total size of the blob, return value of
                 // 'Blob::numBuffers()' can also be overflowed.  The safe
                 // functions must prevent such situations (i.e. the number of
-                // buffers in blob must *not* exceed 'INT_MAX - 1' value) so we
+                // buffers in blob must *not* exceed 'INT_MAX' value) so we
                 // have to check it.  To simulate this scenario we need to
-                // create a blob with 'INT_MAX - 1' buffers.  But since it
-                // consumes a lot of resources, we comment out this test.  The
-                // manual test was performed.
+                // create a blob with 'INT_MAX' buffers.  But since it consumes
+                // a lot of resources, we comment out this test.  The manual
+                // test was performed.
 
                 // bdlbb::Blob        blob;
                 // const bdlbb::Blob& BLOB = blob;
                 //
-                // for (int i = 0; i < INT_MAX - 1; ++i) {
+                // for (int i = 0; i < INT_MAX; ++i) {
                 //     blob.appendBuffer(EMPTY);
                 // }
                 //
-                // ASSERT(INT_MAX - 1 == BLOB.numBuffers());
+                // ASSERT(INT_MAX == BLOB.numBuffers());
+                // ASSERT(0       == BLOB.totalSize() );
                 //
                 // const int APPEND_RESULT =
                 //        Util::appendBufferIfValid(     &blob,    TINY_DUMMY);

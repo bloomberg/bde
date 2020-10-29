@@ -1751,7 +1751,7 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard hG;
 
             const ObjBuffer EMPTY;
-            const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX - 2);
+            const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX - 1);
             const ObjBuffer TINY_DUMMY(bsl::shared_ptr<char>(),           1);
 
             {
@@ -1773,13 +1773,13 @@ int main(int argc, char *argv[])
 
             // In addition to "d_totalSize", return value of 'numBuffers()' can
             // also be overflowed.  To simulate such scenario we need to create
-            // a blob with 'INT_MAX - 1' buffers.  But since it consumes a lot
-            // of resources, we comment out this test.  The manual test was
+            // a blob with 'INT_MAX' buffers.  But since it consumes a lot of
+            // resources, we comment out this test.  The manual test was
             // performed.
 
             // {
             //     Obj mX;
-            //     for (int i = 0; i < INT_MAX - 2; ++i) {
+            //     for (int i = 0; i < INT_MAX - 1; ++i) {
             //         mX.appendBuffer(EMPTY);
             //     }
             //
@@ -2152,8 +2152,8 @@ int main(int argc, char *argv[])
         {
             bsls::AssertTestHandlerGuard hG;
             const ObjBuffer EMPTY;
-            const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX - 1);
-            const ObjBuffer TINY_DUMMY(bsl::shared_ptr<char>(),           1);
+            const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX);
+            const ObjBuffer TINY_DUMMY(bsl::shared_ptr<char>(),       1);
 
             {
                 Obj mX;
@@ -2174,13 +2174,13 @@ int main(int argc, char *argv[])
 
             // In addition to "d_totalSize", return value of 'numBuffers()' can
             // also be overflowed.  To simulate such scenario we need to create
-            // a blob with 'INT_MAX - 1' buffers.  But since it consumes a lot
-            // of resources, we comment out this test.  The manual test was
+            // a blob with 'INT_MAX' buffers.  But since it consumes a lot of
+            // resources, we comment out this test.  The manual test was
             // performed.
 
             // {
             //     Obj mX;
-            //     for (int i = 0; i < INT_MAX - 2; ++i) {
+            //     for (int i = 0; i < INT_MAX - 1; ++i) {
             //         mX.appendBuffer(EMPTY);
             //     }
             //     ASSERT_PASS(mX.appendDataBuffer(TINY_DUMMY));
@@ -2189,7 +2189,7 @@ int main(int argc, char *argv[])
             //
             // {
             //     Obj mX;
-            //     for (int i = 0; i < INT_MAX - 2; ++i) {
+            //     for (int i = 0; i < INT_MAX - 1; ++i) {
             //         mX.appendBuffer(EMPTY);
             //     }
             //
@@ -2669,8 +2669,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tNegative Testing." << endl;
         {
             bsls::AssertTestHandlerGuard hG;
-            const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX - 1);
-            const ObjBuffer TINY_DUMMY(bsl::shared_ptr<char>(),           1);
+            const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX);
+            const ObjBuffer TINY_DUMMY(bsl::shared_ptr<char>(),       1);
 
             {
                 Obj mX;
@@ -2682,13 +2682,13 @@ int main(int argc, char *argv[])
 
             // In addition to "d_totalSize", return value of 'numBuffers()' can
             // also be overflowed.  To simulate such scenario we need to create
-            // a blob with 'INT_MAX - 1' buffers.  But since it consumes a lot
-            // of resources, we comment out this test.  The manual test was
+            // a blob with 'INT_MAX' buffers.  But since it consumes a lot of
+            // resources, we comment out this test.  The manual test was
             // performed.
 
             // {
             //     Obj mX;
-            //     for (int i = 0; i < INT_MAX - 2; ++i) {
+            //     for (int i = 0; i < INT_MAX - 1; ++i) {
             //         mX.appendBuffer(EMPTY);
             //     }
             //     ASSERT_PASS(mX.appendBuffer(TINY_DUMMY));
@@ -2835,8 +2835,8 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard hG;
 
             const ObjBuffer EMPTY;
-            const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX - 1);
-            const ObjBuffer TINY_DUMMY(bsl::shared_ptr<char>(),           1);
+            const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX);
+            const ObjBuffer TINY_DUMMY(bsl::shared_ptr<char>(),       1);
             {
                 Obj mX;
                 (void) mX;
@@ -2850,13 +2850,13 @@ int main(int argc, char *argv[])
 
             // In addition to "d_totalSize", return value of 'numBuffers()' can
             // also be overflowed.  To simulate such scenario we need to create
-            // a blob with 'INT_MAX - 1' buffers.  But since it consumes a lot
-            // of resources, we comment out this test.  The manual test was
+            // a blob with 'INT_MAX' buffers.  But since it consumes a lot of
+            // resources, we comment out this test.  The manual test was
             // performed.
 
             // {
             //     Obj mX;
-            //     for (int i = 0; i < INT_MAX - 2; ++i) {
+            //     for (int i = 0; i < INT_MAX - 1; ++i) {
             //         mX.insertBuffer(0, EMPTY);
             //     }
             //     ASSERT_PASS(mX.insertBuffer(0, TINY_DUMMY));

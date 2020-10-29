@@ -681,9 +681,9 @@ class Blob {
         // Append the specified 'buffer' after the last buffer of this blob.
         // The length of this blob is unaffected.  The behavior is undefined
         // unless the total size of the resulting blob and the total number of
-        // buffers in this blob are less than 'INT_MAX'.  Note that this
-        // operation is equivalent to 'insert(numBuffers(), buffer)', but is
-        // more efficient.
+        // buffers in this blob are less than or equal to 'INT_MAX'.  Note that
+        // this operation is equivalent to 'insert(numBuffers(), buffer)', but
+        // is more efficient.
 
     void appendDataBuffer(const BlobBuffer& buffer);
         // Append the specified 'buffer' after the last *data* buffer of this
@@ -691,7 +691,8 @@ class Blob {
         // this blob is incremented by the size of 'buffer'.  The behavior is
         // undefined unless '0 < buffer.size()' and the total size of the
         // resulting blob and the total number of buffers in this blob are less
-        // than 'INT_MAX'.  Note that this operation is equivalent to:
+        // than or equal to 'INT_MAX'.  Note that this operation is equivalent
+        // to:
         //..
         //  const int n = blob.length();
         //  blob.trimLastDataBuffer();
@@ -711,16 +712,16 @@ class Blob {
         // at 'index' and higher positions (if any) are shifted up by one index
         // position.  The behavior is undefined unless
         // '0 <= index <= numBuffers()' and the total size of the resulting
-        // blob and the total number of buffers in this blob are less than
-        // 'INT_MAX'.
+        // blob and the total number of buffers in this blob are less than or
+        // equal to 'INT_MAX'.
 
     void prependDataBuffer(const BlobBuffer& buffer);
         // Insert the specified 'buffer' before the beginning of this blob.
         // The length of this blob is incremented by the length of the
         // prepended buffer.  The behavior is undefined unless
         // '0 < buffer.size()' and the total size of the resulting blob and the
-        // total number of buffers in this blob are less than 'INT_MAX'.  Note
-        // that this operation is equivalent to:
+        // total number of buffers in this blob are less than or equal to
+        // 'INT_MAX'.  Note that this operation is equivalent to:
         //..
         //  const int n = blob.length();
         //  blob.insert(0, buffer);
