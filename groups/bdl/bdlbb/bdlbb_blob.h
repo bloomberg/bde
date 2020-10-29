@@ -806,8 +806,8 @@ class Blob {
         // Move the data buffers held by the specified 'srcBlob' to this blob
         // appending them to the current data buffers of this blob.  The
         // behavior is undefined unless the total size of the resulting blob
-        // and the total number of buffers in this blob are less than
-        // 'INT_MAX'.
+        // and the total number of buffers in this blob are less than or
+        // equal to 'INT_MAX'.
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
