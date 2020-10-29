@@ -18,6 +18,7 @@ BSLS_IDENT_RCSID(bdlbb_blob_cpp, "$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
+#include <bsls_review.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>    // INT_MAX
@@ -462,7 +463,7 @@ void Blob::appendBuffer(const BlobBuffer& buffer)
 void Blob::appendDataBuffer(const BlobBuffer& buffer)
 {
     const int bufferSize = buffer.size();
-    BSLS_ASSERT(0 < bufferSize);
+    BSLS_REVIEW_OPT(0 < bufferSize);
     BSLS_ASSERT(d_totalSize < INT_MAX - bufferSize);
     BSLS_ASSERT(numBuffers() < INT_MAX - 1);
 

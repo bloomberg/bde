@@ -2160,7 +2160,6 @@ int main(int argc, char *argv[])
                 (void) mX;
 
                 ASSERT_PASS(mX.appendDataBuffer(HUGE_DUMMY));
-                ASSERT_FAIL(mX.appendDataBuffer(EMPTY     ));
                 ASSERT_FAIL(mX.appendDataBuffer(TINY_DUMMY));
             }
 
