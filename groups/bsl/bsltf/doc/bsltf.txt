@@ -13,29 +13,29 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsltf' package currently has 32 components having 5 levels of physical
+ The 'bsltf' package currently has 35 components having 6 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  5. bsltf_convertiblevaluewrapper
+  6. bsltf_convertiblevaluewrapper
      bsltf_stdstatefulallocator
      bsltf_streamutil
      bsltf_testvaluesarray
 
-  4. bsltf_templatetestfacility
+  5. bsltf_templatetestfacility
 
-  3. bsltf_allocemplacabletesttype
+  4. bsltf_allocemplacabletesttype
      bsltf_emplacabletesttype
 
-  2. bsltf_allocargumenttype
+  3. bsltf_allocargumenttype
      bsltf_argumenttype
      bsltf_movablealloctesttype
      bsltf_movabletesttype
      bsltf_moveonlyalloctesttype
      bsltf_wellbehavedmoveonlyalloctesttype
 
-  1. bsltf_allocbitwisemoveabletesttype
+  2. bsltf_allocbitwisemoveabletesttype
      bsltf_alloctesttype
      bsltf_bitwisecopyabletesttype
      bsltf_bitwisemoveabletesttype
@@ -54,6 +54,10 @@
      bsltf_stdalloctesttype
      bsltf_stdtestallocator
      bsltf_uniontesttype
+
+  1. bsltf_stdallocatoradaptor_cpp03                                  !PRIVATE!
+     bsltf_stdstatefulallocator_cpp03                                 !PRIVATE!
+     bsltf_stdtestallocator_cpp03                                     !PRIVATE!
 ..
 
 /Component Synopsis
@@ -130,14 +134,23 @@
 : 'bsltf_stdallocatoradaptor':
 :      Provide a mechanism to propagate standard allocator state.
 :
+: 'bsltf_stdallocatoradaptor_cpp03':                                  !PRIVATE!
+:      Provide C++03 implementation for bsltf_stdallocatoradaptor.h
+:
 : 'bsltf_stdalloctesttype':
 :      Provide a class for testing that allocates with standard allocator
 :
 : 'bsltf_stdstatefulallocator':
 :      Provide a minimal standard compliant allocator.
 :
+: 'bsltf_stdstatefulallocator_cpp03':                                 !PRIVATE!
+:      Provide C++03 implementation for bsltf_stdstatefulallocator.h
+:
 : 'bsltf_stdtestallocator':
 :      Provide a minimal standard compliant allocator.
+:
+: 'bsltf_stdtestallocator_cpp03':                                     !PRIVATE!
+:      Provide C++03 implementation for bsltf_stdtestallocator.h
 :
 : 'bsltf_streamutil':
 :      Provide streaming output operators for bsltf-defined types.

@@ -16,28 +16,28 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslma' package currently has 39 components having 8 levels of physical
+ The 'bslma' package currently has 44 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  8. bslma_managedptr
+  9. bslma_managedptr
      bslma_stdallocator
      bslma_stdtestallocator
 
-  7. bslma_constructionutil
+  8. bslma_constructionutil
      bslma_managedptr_factorydeleter                                  !PRIVATE!
      bslma_managedptr_members                                         !PRIVATE!
      bslma_sequentialallocator                           !DEPRECATED!
 
-  6. bslma_autorawdeleter
+  7. bslma_autorawdeleter
      bslma_destructorproctor
      bslma_sequentialpool                                !DEPRECATED!
      bslma_sharedptrinplacerep
      bslma_sharedptroutofplacerep
      bslma_testallocatormonitor
 
-  5. bslma_allocatoradaptor
+  6. bslma_allocatoradaptor
      bslma_autodeallocator
      bslma_autodestructor
      bslma_deallocatorguard
@@ -53,20 +53,26 @@
      bslma_rawdeleterproctor
      bslma_sharedptrrep
 
-  4. bslma_default
+  5. bslma_default
      bslma_testallocator
 
-  3. bslma_bufferallocator                               !DEPRECATED!
+  4. bslma_bufferallocator                               !DEPRECATED!
      bslma_mallocfreeallocator
      bslma_managedallocator                              !DEPRECATED!
      bslma_newdeleteallocator
      bslma_testallocatorexception
      bslma_usesbslmaallocator
 
-  2. bslma_allocator
+  3. bslma_allocator
 
-  1. bslma_allocatortraits
+  2. bslma_allocatortraits
      bslma_deleterhelper
+
+  1. bslma_allocatortraits_cpp03                                      !PRIVATE!
+     bslma_constructionutil_cpp03                                     !PRIVATE!
+     bslma_managedptr_cpp03                                           !PRIVATE!
+     bslma_sharedptrinplacerep_cpp03                                  !PRIVATE!
+     bslma_stdallocator_cpp03                                         !PRIVATE!
 ..
 
 /Component Synopsis
@@ -79,6 +85,9 @@
 :
 : 'bslma_allocatortraits':
 :      Provide a uniform interface to standard allocator types.
+:
+: 'bslma_allocatortraits_cpp03':                                      !PRIVATE!
+:      Provide C++03 implementation for bslma_allocatortraits.h
 :
 : 'bslma_autodeallocator':
 :      Provide a range proctor to managed a block of memory.
@@ -94,6 +103,9 @@
 :
 : 'bslma_constructionutil':
 :      Provide methods to construct arbitrarily-typed objects uniformly.
+:
+: 'bslma_constructionutil_cpp03':                                     !PRIVATE!
+:      Provide C++03 implementation for bslma_constructionutil.h
 :
 : 'bslma_deallocatorguard':
 :      Provide a guard to unconditionally manage a block of memory.
@@ -134,6 +146,9 @@
 : 'bslma_managedptr':
 :      Provide a managed pointer class.
 :
+: 'bslma_managedptr_cpp03':                                           !PRIVATE!
+:      Provide C++03 implementation for bslma_managedptr.h
+:
 : 'bslma_managedptr_factorydeleter':                                  !PRIVATE!
 :      Provide a factory-based deleter for the managed pointer class.
 :
@@ -164,6 +179,9 @@
 : 'bslma_sharedptrinplacerep':
 :      Provide an in-place implementation of 'bslma::SharedPtrRep'.
 :
+: 'bslma_sharedptrinplacerep_cpp03':                                  !PRIVATE!
+:      Provide C++03 implementation for bslma_sharedptrinplacerep.h
+:
 : 'bslma_sharedptroutofplacerep':
 :      Provide an out-of-place implementation of 'bslma::SharedPtrRep'.
 :
@@ -172,6 +190,9 @@
 :
 : 'bslma_stdallocator':
 :      Provide an STL-compatible proxy for 'bslma::Allocator' objects.
+:
+: 'bslma_stdallocator_cpp03':                                         !PRIVATE!
+:      Provide C++03 implementation for bslma_stdallocator.h
 :
 : 'bslma_stdtestallocator':
 :      Provide stl-compatible, 'bslma'-style allocator to track usage.

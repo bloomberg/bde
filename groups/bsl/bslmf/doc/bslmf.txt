@@ -52,20 +52,20 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 77 components having 18 levels of physical
+ The 'bslmf' package currently has 80 components having 19 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  18. bslmf_util
+  19. bslmf_util
 
-  17. bslmf_movableref
+  18. bslmf_movableref
 
-  16. bslmf_isbitwisemoveable
+  17. bslmf_isbitwisemoveable
       bslmf_iscopyconstructible
       bslmf_isnothrowmoveconstructible
 
-  15. bslmf_forwardingtype
+  16. bslmf_forwardingtype
       bslmf_haspointersemantics
       bslmf_isbitwiseequalitycomparable
       bslmf_istriviallycopyable
@@ -73,29 +73,29 @@
       bslmf_matcharithmetictype
       bslmf_usesallocatorargt
 
-  14. bslmf_detectnestedtrait
+  15. bslmf_detectnestedtrait
       bslmf_isenum
 
-  13. bslmf_invokeresult
+  14. bslmf_invokeresult
       bslmf_isconvertibletoany
       bslmf_nestedtraitdeclaration
       bslmf_usesallocator
 
-  12. bslmf_isconvertible
+  13. bslmf_isconvertible
 
-  11. bslmf_enableif
+  12. bslmf_enableif
 
-  10. bslmf_isfundamental
+  11. bslmf_isfundamental
 
-   9. bslmf_isarithmetic
+  10. bslmf_isarithmetic
 
-   8. bslmf_isintegral
+   9. bslmf_isintegral
       bslmf_ismemberpointer
 
-   7. bslmf_addcv
+   8. bslmf_addcv
       bslmf_ismemberobjectpointer
 
-   6. bslmf_addconst
+   7. bslmf_addconst
       bslmf_addvolatile
       bslmf_decay
       bslmf_isempty
@@ -103,7 +103,7 @@
       bslmf_ispolymorphic
       bslmf_removepointer
 
-   5. bslmf_isclass
+   6. bslmf_isclass
       bslmf_isfloatingpoint
       bslmf_isfunction
       bslmf_ispointer
@@ -111,7 +111,7 @@
       bslmf_memberfunctionpointertraits
       bslmf_removecvq
 
-   4. bslmf_addpointer
+   5. bslmf_addpointer
       bslmf_addreference
       bslmf_functionpointertraits
       bslmf_if                                           !DEPRECATED!
@@ -120,7 +120,7 @@
       bslmf_removecv
       bslmf_selecttrait
 
-   3. bslmf_addlvaluereference
+   4. bslmf_addlvaluereference
       bslmf_addrvaluereference
       bslmf_arraytopointer
       bslmf_conditional
@@ -138,7 +138,7 @@
       bslmf_switch
       bslmf_typelist
 
-   2. bslmf_isarray
+   3. bslmf_isarray
       bslmf_islvaluereference
       bslmf_ispair
       bslmf_isrvaluereference
@@ -147,10 +147,14 @@
       bslmf_nil
       bslmf_tag
 
-   1. bslmf_allocatorargt
+   2. bslmf_allocatorargt
       bslmf_assert
       bslmf_integralconstant
       bslmf_voidtype
+
+   1. bslmf_functionpointertraits_cpp03                               !PRIVATE!
+      bslmf_invokeresult_cpp03                                        !PRIVATE!
+      bslmf_nthparameter_cpp03                                        !PRIVATE!
 ..
 
 /Component Synopsis
@@ -203,6 +207,9 @@
 : 'bslmf_functionpointertraits':
 :      Provide a meta-function for determining function pointer traits.
 :
+: 'bslmf_functionpointertraits_cpp03':                                !PRIVATE!
+:      Provide C++03 implementation for bslmf_functionpointertraits.h
+:
 : 'bslmf_haspointersemantics':
 :      Provide a type trait for pointer semantics.
 :
@@ -217,6 +224,9 @@
 :
 : 'bslmf_invokeresult':
 :      Determine the result type of an invocable expression.
+:
+: 'bslmf_invokeresult_cpp03':                                         !PRIVATE!
+:      Provide C++03 implementation for bslmf_invokeresult.h
 :
 : 'bslmf_isarithmetic':
 :      Provide a compile-time check for determining arithmetic types.
@@ -337,6 +347,9 @@
 :
 : 'bslmf_nthparameter':
 :      Metafunction to return the Nth type parameter in a parameter pack
+:
+: 'bslmf_nthparameter_cpp03':                                         !PRIVATE!
+:      Provide C++03 implementation for bslmf_nthparameter.h
 :
 : 'bslmf_removeconst':
 :      Provide a meta-function for removing top-level 'const'-qualifier.

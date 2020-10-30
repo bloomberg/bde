@@ -17,101 +17,121 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 82 components having 9 levels of physical
+ The 'bslstl' package currently has 101 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  9. bslstl_ownerless
-     bslstl_typeindex
+  10. bslstl_ownerless
+      bslstl_typeindex
 
-  8. bslstl_map_test1                                                 !PRIVATE!
-     bslstl_map_test2                                                 !PRIVATE!
-     bslstl_map_test3                                                 !PRIVATE!
-     bslstl_multimap_test                                             !PRIVATE!
-     bslstl_multiset_test                                             !PRIVATE!
-     bslstl_set_test                                                  !PRIVATE!
-     bslstl_sharedptr
+   9. bslstl_map_test1                                                !PRIVATE!
+      bslstl_map_test2                                                !PRIVATE!
+      bslstl_map_test3                                                !PRIVATE!
+      bslstl_multimap_test                                            !PRIVATE!
+      bslstl_multiset_test                                            !PRIVATE!
+      bslstl_set_test                                                 !PRIVATE!
+      bslstl_sharedptr
 
-  7. bslstl_map
-     bslstl_multimap
-     bslstl_multiset
-     bslstl_set
+   8. bslstl_map
+      bslstl_multimap
+      bslstl_multiset
+      bslstl_set
 
-  6. bslstl_boyermoorehorspoolsearcher
-     bslstl_istringstream
-     bslstl_mapcomparator
-     bslstl_ostringstream
-     bslstl_queue
-     bslstl_setcomparator
-     bslstl_stack
-     bslstl_stringstream
-     bslstl_treenodepool
-     bslstl_unorderedmap_test                                         !PRIVATE!
-     bslstl_unorderedmultimap_test                                    !PRIVATE!
-     bslstl_unorderedmultiset_test                                    !PRIVATE!
-     bslstl_unorderedset_test                                         !PRIVATE!
+   7. bslstl_boyermoorehorspoolsearcher
+      bslstl_istringstream
+      bslstl_mapcomparator
+      bslstl_ostringstream
+      bslstl_queue
+      bslstl_setcomparator
+      bslstl_stack
+      bslstl_stringstream
+      bslstl_treenodepool
+      bslstl_unorderedmap_test                                        !PRIVATE!
+      bslstl_unorderedmultimap_test                                   !PRIVATE!
+      bslstl_unorderedmultiset_test                                   !PRIVATE!
+      bslstl_unorderedset_test                                        !PRIVATE!
 
-  5. bslstl_bitset
-     bslstl_defaultsearcher
-     bslstl_deque
-     bslstl_hashtable_test1                                           !PRIVATE!
-     bslstl_hashtable_test2                                           !PRIVATE!
-     bslstl_string_test                                               !PRIVATE!
-     bslstl_stringbuf
-     bslstl_stringref
-     bslstl_treenode
-     bslstl_unorderedmap
-     bslstl_unorderedmultimap
-     bslstl_unorderedmultiset
-     bslstl_unorderedset
+   6. bslstl_bitset
+      bslstl_defaultsearcher
+      bslstl_deque
+      bslstl_hashtable_test1                                          !PRIVATE!
+      bslstl_hashtable_test2                                          !PRIVATE!
+      bslstl_string_test                                              !PRIVATE!
+      bslstl_stringbuf
+      bslstl_stringref
+      bslstl_treenode
+      bslstl_unorderedmap
+      bslstl_unorderedmultimap
+      bslstl_unorderedmultiset
+      bslstl_unorderedset
 
-  4. bslstl_function_test                                             !PRIVATE!
-     bslstl_hashtable
-     bslstl_randomaccessiterator
-     bslstl_string
-     bslstl_systemerror
+   5. bslstl_function_test                                            !PRIVATE!
+      bslstl_hashtable
+      bslstl_randomaccessiterator
+      bslstl_string
+      bslstl_systemerror
 
-  3. bslstl_algorithmworkaround
-     bslstl_bidirectionaliterator
-     bslstl_error
-     bslstl_function
-     bslstl_hashtablebucketiterator
-     bslstl_hashtableiterator
-     bslstl_priorityqueue
-     bslstl_stringrefdata
+   4. bslstl_algorithmworkaround
+      bslstl_bidirectionaliterator
+      bslstl_error
+      bslstl_function
+      bslstl_hashtablebucketiterator
+      bslstl_hashtableiterator
+      bslstl_priorityqueue
+      bslstl_stringrefdata
 
-  2. bslstl_array
-     bslstl_bidirectionalnodepool
-     bslstl_chrono
-     bslstl_errc
-     bslstl_forwarditerator
-     bslstl_iteratorutil
-     bslstl_list
-     bslstl_pair
-     bslstl_stringview
-     bslstl_treeiterator
-     bslstl_vector
+   3. bslstl_array
+      bslstl_bidirectionalnodepool
+      bslstl_chrono
+      bslstl_errc
+      bslstl_forwarditerator
+      bslstl_iteratorutil
+      bslstl_list
+      bslstl_pair
+      bslstl_stringview
+      bslstl_treeiterator
+      bslstl_vector
 
-  1. bslstl_algorithm
-     bslstl_allocator                                    !DEPRECATED!
-     bslstl_allocatortraits                              !DEPRECATED!
-     bslstl_badweakptr
-     bslstl_complex
-     bslstl_equalto
-     bslstl_hash
-     bslstl_iosfwd
-     bslstl_iserrorcodeenum
-     bslstl_iserrorconditionenum
-     bslstl_iterator
-     bslstl_ratio
-     bslstl_referencewrapper
-     bslstl_sharedptrallocateinplacerep
-     bslstl_sharedptrallocateoutofplacerep
-     bslstl_simplepool
-     bslstl_stdexceptutil
-     bslstl_unorderedmapkeyconfiguration
-     bslstl_unorderedsetkeyconfiguration
+   2. bslstl_algorithm
+      bslstl_allocator                                   !DEPRECATED!
+      bslstl_allocatortraits                             !DEPRECATED!
+      bslstl_badweakptr
+      bslstl_complex
+      bslstl_equalto
+      bslstl_hash
+      bslstl_iosfwd
+      bslstl_iserrorcodeenum
+      bslstl_iserrorconditionenum
+      bslstl_iterator
+      bslstl_ratio
+      bslstl_referencewrapper
+      bslstl_sharedptrallocateinplacerep
+      bslstl_sharedptrallocateoutofplacerep
+      bslstl_simplepool
+      bslstl_stdexceptutil
+      bslstl_unorderedmapkeyconfiguration
+      bslstl_unorderedsetkeyconfiguration
+
+   1. bslstl_bidirectionalnodepool_cpp03                              !PRIVATE!
+      bslstl_deque_cpp03                                              !PRIVATE!
+      bslstl_function_cpp03                                           !PRIVATE!
+      bslstl_hashtable_cpp03                                          !PRIVATE!
+      bslstl_list_cpp03                                               !PRIVATE!
+      bslstl_map_cpp03                                                !PRIVATE!
+      bslstl_multimap_cpp03                                           !PRIVATE!
+      bslstl_multiset_cpp03                                           !PRIVATE!
+      bslstl_priorityqueue_cpp03                                      !PRIVATE!
+      bslstl_queue_cpp03                                              !PRIVATE!
+      bslstl_set_cpp03                                                !PRIVATE!
+      bslstl_sharedptr_cpp03                                          !PRIVATE!
+      bslstl_stack_cpp03                                              !PRIVATE!
+      bslstl_treenodepool_cpp03                                       !PRIVATE!
+      bslstl_unorderedmap_cpp03                                       !PRIVATE!
+      bslstl_unorderedmultimap_cpp03                                  !PRIVATE!
+      bslstl_unorderedmultiset_cpp03                                  !PRIVATE!
+      bslstl_unorderedset_cpp03                                       !PRIVATE!
+      bslstl_vector_cpp03                                             !PRIVATE!
 ..
 
 /Component Synopsis
@@ -140,6 +160,9 @@
 : 'bslstl_bidirectionalnodepool':
 :      Provide efficient creation of nodes used in a node-based container.
 :
+: 'bslstl_bidirectionalnodepool_cpp03':                               !PRIVATE!
+:      Provide C++03 implementation for bslstl_bidirectionalnodepool.h
+:
 : 'bslstl_bitset':
 :      Provide an STL-compliant bitset class.
 :
@@ -158,6 +181,9 @@
 : 'bslstl_deque':
 :      Provide an STL-compliant deque class.
 :
+: 'bslstl_deque_cpp03':                                               !PRIVATE!
+:      Provide C++03 implementation for bslstl_deque.h
+:
 : 'bslstl_equalto':
 :      Provide a binary functor conforming to the C++11 'equal_to' spec.
 :
@@ -173,6 +199,9 @@
 : 'bslstl_function':
 :      Provide a polymorphic function object with a specific prototype.
 :
+: 'bslstl_function_cpp03':                                            !PRIVATE!
+:      Provide C++03 implementation for bslstl_function.h
+:
 : 'bslstl_function_test':                                             !PRIVATE!
 :      Provide support for the 'bslstl_function_test.t.cpp' test driver.
 :
@@ -181,6 +210,9 @@
 :
 : 'bslstl_hashtable':
 :      Provide a hash-container with support for duplicate values.
+:
+: 'bslstl_hashtable_cpp03':                                           !PRIVATE!
+:      Provide C++03 implementation for bslstl_hashtable.h
 :
 : 'bslstl_hashtable_test1':                                           !PRIVATE!
 :      Provide support for the 'bslstl_hashtable.t.cpp' test driver.
@@ -215,8 +247,14 @@
 : 'bslstl_list':
 :      Provide an STL-compliant list class.
 :
+: 'bslstl_list_cpp03':                                                !PRIVATE!
+:      Provide C++03 implementation for bslstl_list.h
+:
 : 'bslstl_map':
 :      Provide an STL-compliant map class.
+:
+: 'bslstl_map_cpp03':                                                 !PRIVATE!
+:      Provide C++03 implementation for bslstl_map.h
 :
 : 'bslstl_map_test1':                                                 !PRIVATE!
 :      Provide support for the 'bslstl_map.t.cpp' test driver.
@@ -233,11 +271,17 @@
 : 'bslstl_multimap':
 :      Provide an STL-compliant multimap class.
 :
+: 'bslstl_multimap_cpp03':                                            !PRIVATE!
+:      Provide C++03 implementation for bslstl_multimap.h
+:
 : 'bslstl_multimap_test':                                             !PRIVATE!
 :      Provide support for the 'bslstl_multimap.t.cpp' test driver.
 :
 : 'bslstl_multiset':
 :      Provide an STL-compliant multiset class.
+:
+: 'bslstl_multiset_cpp03':                                            !PRIVATE!
+:      Provide C++03 implementation for bslstl_multiset.h
 :
 : 'bslstl_multiset_test':                                             !PRIVATE!
 :      Provide support for the 'bslstl_multiset.t.cpp' test driver.
@@ -254,8 +298,14 @@
 : 'bslstl_priorityqueue':
 :      Provide container adapter class template 'priority_queue'.
 :
+: 'bslstl_priorityqueue_cpp03':                                       !PRIVATE!
+:      Provide C++03 implementation for bslstl_priorityqueue.h
+:
 : 'bslstl_queue':
 :      Provide container adapter class template 'queue'.
+:
+: 'bslstl_queue_cpp03':                                               !PRIVATE!
+:      Provide C++03 implementation for bslstl_queue.h
 :
 : 'bslstl_randomaccessiterator':
 :      Provide a template to create STL-compliant random access iterators.
@@ -269,6 +319,9 @@
 : 'bslstl_set':
 :      Provide an STL-compliant set class.
 :
+: 'bslstl_set_cpp03':                                                 !PRIVATE!
+:      Provide C++03 implementation for bslstl_set.h
+:
 : 'bslstl_set_test':                                                  !PRIVATE!
 :      Provide support for the 'bslstl_set.t.cpp' test driver.
 :
@@ -277,6 +330,9 @@
 :
 : 'bslstl_sharedptr':
 :      Provide a generic reference-counted shared pointer wrapper.
+:
+: 'bslstl_sharedptr_cpp03':                                           !PRIVATE!
+:      Provide C++03 implementation for bslstl_sharedptr.h
 :
 : 'bslstl_sharedptrallocateinplacerep':
 :      Provide an in-place implementation of 'bslma::SharedPtrRep'.
@@ -289,6 +345,9 @@
 :
 : 'bslstl_stack':
 :      Provide an STL-compliant stack class.
+:
+: 'bslstl_stack_cpp03':                                               !PRIVATE!
+:      Provide C++03 implementation for bslstl_stack.h
 :
 : 'bslstl_stdexceptutil':
 :      Provide a utility to throw standard exceptions.
@@ -326,11 +385,17 @@
 : 'bslstl_treenodepool':
 :      Provide efficient creation of nodes used in tree-based container.
 :
+: 'bslstl_treenodepool_cpp03':                                        !PRIVATE!
+:      Provide C++03 implementation for bslstl_treenodepool.h
+:
 : 'bslstl_typeindex':
 :      Provide an value-semantic type to represent 'type_info' objects.
 :
 : 'bslstl_unorderedmap':
 :      Provide an STL-compliant 'unordered_map' container.
+:
+: 'bslstl_unorderedmap_cpp03':                                        !PRIVATE!
+:      Provide C++03 implementation for bslstl_unorderedmap.h
 :
 : 'bslstl_unorderedmap_test':                                         !PRIVATE!
 :      Provide support for the 'bslstl_unorderedmap.t.cpp' test driver.
@@ -341,17 +406,26 @@
 : 'bslstl_unorderedmultimap':
 :      Provide an STL-compliant 'unordered_multimap' container.
 :
+: 'bslstl_unorderedmultimap_cpp03':                                   !PRIVATE!
+:      Provide C++03 implementation for bslstl_unorderedmultimap.h
+:
 : 'bslstl_unorderedmultimap_test':                                    !PRIVATE!
 :      Provide support for the 'bslstl_unorderedmultimap.t.cpp' test driver.
 :
 : 'bslstl_unorderedmultiset':
 :      Provide an STL-compliant 'unordered_multiset' container.
 :
+: 'bslstl_unorderedmultiset_cpp03':                                   !PRIVATE!
+:      Provide C++03 implementation for bslstl_unorderedmultiset.h
+:
 : 'bslstl_unorderedmultiset_test':                                    !PRIVATE!
 :      Provide support for the 'bslstl_unorderedmultiset.t.cpp' test driver.
 :
 : 'bslstl_unorderedset':
 :      Provide an STL-compliant 'unordered_set' container.
+:
+: 'bslstl_unorderedset_cpp03':                                        !PRIVATE!
+:      Provide C++03 implementation for bslstl_unorderedset.h
 :
 : 'bslstl_unorderedset_test':                                         !PRIVATE!
 :      Provide support for the 'bslstl_unorderedset.t.cpp' test driver.
@@ -361,3 +435,6 @@
 :
 : 'bslstl_vector':
 :      Provide an STL-compliant vector class.
+:
+: 'bslstl_vector_cpp03':                                              !PRIVATE!
+:      Provide C++03 implementation for bslstl_vector.h

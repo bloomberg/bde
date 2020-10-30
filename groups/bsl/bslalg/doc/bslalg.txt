@@ -25,34 +25,34 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslalg' package currently has 38 components having 8 levels of physical
+ The 'bslalg' package currently has 40 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  8. bslalg_dequeprimitives
+  9. bslalg_dequeprimitives
      bslalg_rbtreeutil
 
-  7. bslalg_arrayprimitives
+  8. bslalg_arrayprimitives
 
-  6. bslalg_autoarraymovedestructor
+  7. bslalg_autoarraymovedestructor
      bslalg_hashtableimputil
 
-  5. bslalg_autoarraydestructor
+  6. bslalg_autoarraydestructor
      bslalg_hashtableanchor
 
-  4. bslalg_arraydestructionprimitives
+  5. bslalg_arraydestructionprimitives
      bslalg_bidirectionalnode
      bslalg_constructorproxy
      bslalg_dequeiterator
 
-  3. bslalg_hashtablebucket
+  4. bslalg_hashtablebucket
      bslalg_rangecompare
      bslalg_scalarprimitives
      bslalg_selecttrait                                  !DEPRECATED!
      bslalg_typetraits                                   !DEPRECATED!
 
-  2. bslalg_autoscalardestructor
+  3. bslalg_autoscalardestructor
      bslalg_bidirectionallinklistutil
      bslalg_rbtreeanchor
      bslalg_typetraitbitwisecopyable                     !DEPRECATED!
@@ -64,7 +64,7 @@
      bslalg_typetraitpair                                !DEPRECATED!
      bslalg_typetraitusesbslmaallocator                  !DEPRECATED!
 
-  1. bslalg_bidirectionallink
+  2. bslalg_bidirectionallink
      bslalg_containerbase
      bslalg_dequeimputil
      bslalg_functoradapter
@@ -75,6 +75,9 @@
      bslalg_scalardestructionprimitives                  !DEPRECATED!
      bslalg_swaputil
      bslalg_typetraitnil                                 !DEPRECATED!
+
+  1. bslalg_arrayprimitives_cpp03                                     !PRIVATE!
+     bslalg_dequeprimitives_cpp03                                     !PRIVATE!
 ..
 
 /Component Synopsis
@@ -84,6 +87,9 @@
 :
 : 'bslalg_arrayprimitives':
 :      Provide primitive algorithms that operate on arrays.
+:
+: 'bslalg_arrayprimitives_cpp03':                                     !PRIVATE!
+:      Provide C++03 implementation for bslalg_arrayprimitives.h
 :
 : 'bslalg_autoarraydestructor':
 :      Provide a proctor for destroying arrays.
@@ -117,6 +123,9 @@
 :
 : 'bslalg_dequeprimitives':
 :      Provide primitive algorithms that operate on deques.
+:
+: 'bslalg_dequeprimitives_cpp03':                                     !PRIVATE!
+:      Provide C++03 implementation for bslalg_dequeprimitives.h
 :
 : 'bslalg_functoradapter':
 :      Provide an utility that adapts callable objects to functors.
