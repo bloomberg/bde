@@ -1,5 +1,17 @@
-bsl-internal (999999.3.65.0.0) unstable; urgency=low
+bsl-internal (3.66.0.0) unstable; urgency=low
 
+  * cccbaa1d0 Bumped version to 3.66.0.0
+  * cb519c8d8 Merge pull request #2984 from bde/revert-2974-bslma_constructionutil-destructiveMove
+  * 69218c22d Safe versions of buffer insert functions have been added to 'bdlbb:Blob' (#2937)
+  * 56a8e2ba0 Merge pull request #2964 from mgiroux/apply-sim_cpp11-drqs161239121
+  * 41a77e4c9 Merge pull request #2976 from rkhlebnikov/drqs-164239441-fix-memcmp-ub
+  * 2dec39c5b Merge pull request #2891 from mclow3/drqs-131875306
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 30 Oct 2020 17:11:59 -0400
+
+bsl-internal (3.65.0.0) git; urgency=low
+
+  * abf2afd23 Changelog for version 3.65.0.0
   * 6d09952d3 Bumped version to 3.65.0.0
   * 3899fabdb Merge pull request #2956 from phalpern/bsls_asserttest-cpp11_sim
   * 8ebb30417 Merge pull request #7 from mgiroux/bsls_asserttest-cpp11_sim
@@ -7,7 +19,7 @@ bsl-internal (999999.3.65.0.0) unstable; urgency=low
   * 8a4c431bb Merge pull request #2959 from bchapman/balxml_configschema-regenerate-drqs-163748896
   * 81e73ce71 Merge pull request #2948 from phalpern/phalpern/guaranteed_copy_elision
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 17 Oct 2020 12:45:10 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 17 Oct 2020 12:46:21 -0400
 
 bsl-internal (3.64.0.0) git; urgency=low
 
