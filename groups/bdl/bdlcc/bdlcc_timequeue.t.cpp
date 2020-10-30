@@ -19,6 +19,7 @@
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
+#include <bsls_systemtime.h>
 
 #include <bdlf_bind.h>
 
@@ -135,6 +136,18 @@ typedef bdlcc::TimeQueue<const char*>     Obj;
 typedef bdlcc::TimeQueueItem<const char*> Item;
 typedef bsls::Types::IntPtr               IntPtr;
 typedef bsls::Types::UintPtr              UintPtr;
+
+namespace {
+namespace u {
+
+bsls::TimeInterval now()
+    // Return the current time, as a 'TimeInterval'.
+{
+    return bsls::SystemTime::nowRealtimeClock();
+}
+
+}  // close namespace u
+}  // close unnamed namespace
 
                               // ================
                               // class TestString
@@ -794,10 +807,10 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
     {
         d_connections.push_back(connection);
         int isNewTop = 0;
-        connection->d_timerId = d_timeQueue.add(bdlt::CurrentTime::now() +
-                                                                   d_ioTimeout,
-                                                connection,
-                                                &isNewTop);
+        connection->d_timerId = d_timeQueue.add(
+                                        bdlt::CurrentTime::now() + d_ioTimeout,
+                                        connection,
+                                        &isNewTop);
         if (isNewTop) {
             bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
             d_timerChangedCond.signal();
@@ -855,10 +868,10 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 
         int isNewTop = 0;
 
-        connection->d_timerId = d_timeQueue.add(bdlt::CurrentTime::now() +
-                                                                   d_ioTimeout,
-                                                connection,
-                                                &isNewTop);
+        connection->d_timerId = d_timeQueue.add(
+                                        bdlt::CurrentTime::now() + d_ioTimeout,
+                                        connection,
+                                        &isNewTop);
         if (isNewTop) {
             bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
             d_timerChangedCond.signal();
@@ -879,7 +892,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
                 bsls::TimeInterval minTime;
                 int newLength;
 
-                d_timeQueue.popLE(bdlt::CurrentTime::now(),
+                d_timeQueue.popLE(bsls::SystemTime::nowRealtimeClock(),
                                   &expiredTimers,
                                   &newLength,
                                   &minTime );
@@ -1416,8 +1429,8 @@ int main(int argc, char *argv[])
                 cout << "\tAdd, remove, and re-add itesm to the queue" << endl;
             }
 
-            bsls::TimeInterval futureTime = bdlt::CurrentTime::now() +
-                                           bsls::TimeInterval(600, 0);
+            bsls::TimeInterval futureTime = u::now() +
+                                                    bsls::TimeInterval(600, 0);
 
             Obj x(&ta);
 
@@ -1667,7 +1680,7 @@ int main(int argc, char *argv[])
             TestLockObject mL(&X, &numDestructions, veryVerbose);
             const TestLockObject& L = mL;
 
-            const bsls::TimeInterval NOW = bdlt::CurrentTime::now();
+            const bsls::TimeInterval NOW = u::now();
             const bsls::TimeInterval T1  = NOW + bsls::TimeInterval(1.0);
             const bsls::TimeInterval T2  = NOW + bsls::TimeInterval(2.0);
             const bsls::TimeInterval T3  = NOW + bsls::TimeInterval(3.0);
@@ -3264,7 +3277,7 @@ int main(int argc, char *argv[])
 
         {
             Obj x1(&ta);
-            const bsls::TimeInterval TA = bdlt::CurrentTime::now();
+            const bsls::TimeInterval TA = u::now();
             const bsls::TimeInterval TB = TA + 1;
             const bsls::TimeInterval TC = TB + 1;
             const bsls::TimeInterval TD = TC + 1;
@@ -3338,7 +3351,7 @@ int main(int argc, char *argv[])
 
         {
             Obj x1(&ta);
-            const bsls::TimeInterval TA = bdlt::CurrentTime::now();
+            const bsls::TimeInterval TA = u::now();
             const bsls::TimeInterval TB = TA + 1;
             const bsls::TimeInterval TC = TB + 1;
             const bsls::TimeInterval TD = TC + 1;
@@ -3499,12 +3512,12 @@ int main(int argc, char *argv[])
         const int NUM_TOTAL_ITERATIONS =
                                    NUM_OUTER_ITERATIONS * NUM_INNER_ITERATIONS;
 
-        bsls::TimeInterval         TIME = bdlt::CurrentTime::now();
-        int                       isNewTop;
+        bsls::TimeInterval         TIME = u::now();
+        int                        isNewTop;
         bsls::TimeInterval         newMinTime;
-        int                       newLength;
-        vector<int>               handles(NUM_TOTAL_ITERATIONS);
-        vector<Item>              items(NUM_TOTAL_ITERATIONS);
+        int                        newLength;
+        vector<int>                handles(NUM_TOTAL_ITERATIONS);
+        vector<Item>               items(NUM_TOTAL_ITERATIONS);
         vector<bsls::TimeInterval> timers(NUM_TOTAL_ITERATIONS, TIME);
         vector<bsls::TimeInterval> popTimes(NUM_OUTER_ITERATIONS, TIME);
 

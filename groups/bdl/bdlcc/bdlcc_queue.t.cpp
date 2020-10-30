@@ -21,9 +21,9 @@
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
 #include <bsls_atomic.h>
+#include <bsls_systemtime.h>
 
 #include <bdlf_bind.h>
-#include <bdlt_currenttime.h>
 #include <bdlb_random.h>
 
 #include <bslma_default.h>
@@ -180,6 +180,18 @@ static const int MICRO_DECI_SEC =    10000;
 // ============================================================================
 //              SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
 // ----------------------------------------------------------------------------
+
+namespace {
+namespace u {
+
+bsls::TimeInterval now()
+    // Return the current time, as a 'TimeInterval'.
+{
+    return bsls::SystemTime::nowRealtimeClock();
+}
+
+}  // close namespace u
+}  // close unnamed namespace
 
 namespace BloombergLP {
 namespace bslma {
@@ -712,13 +724,13 @@ class TestClass13 {      // this class is a functor passed to thread::create
 
         // have everything time out 2 seconds after thread object creation
 
-        d_timeout = bdlt::CurrentTime::now() + bsls::TimeInterval(4.0);
+        d_timeout = u::now() + bsls::TimeInterval(4.0);
     }
 
     ~TestClass13()
         // make sure we did not wait until timeout
     {
-        ASSERT(bdlt::CurrentTime::now() < d_timeout);
+        ASSERT(u::now() < d_timeout);
     }
 
     void operator()()
@@ -779,12 +791,12 @@ class TestClass12 {      // this class is a functor passed to thread::create
 
         // have everything time out 4 seconds after thread object creation
 
-        d_timeout = bdlt::CurrentTime::now() + bsls::TimeInterval(4.0);
+        d_timeout = u::now() + bsls::TimeInterval(4.0);
     }
     ~TestClass12()
         // make sure we did not wait until timeout
     {
-        ASSERT(bdlt::CurrentTime::now() < d_timeout);
+        ASSERT(u::now() < d_timeout);
     }
 
     void operator()()
@@ -939,7 +951,7 @@ class TestClass5back {
         d_barrier_p->wait();
         d_timeoutFlag = d_queue_p->timedPushBack(
                                          d_toBeInserted,
-                                         bdlt::CurrentTime::now() + d_timeout);
+                                         u::now() + d_timeout);
         d_waitingFlag = 0;
 
         d_barrier_p->wait();
@@ -947,7 +959,7 @@ class TestClass5back {
         d_barrier_p->wait();
         d_timeoutFlag = d_queue_p->timedPushBack(
                                          d_toBeInserted,
-                                         bdlt::CurrentTime::now() + d_timeout);
+                                         u::now() + d_timeout);
         d_waitingFlag = 0;
     }
 
@@ -995,7 +1007,7 @@ class TestClass5front {
         d_barrier_p->wait();
         d_timeoutFlag = d_queue_p->timedPushFront(
                                          d_toBeInserted,
-                                         bdlt::CurrentTime::now() + d_timeout);
+                                         u::now() + d_timeout);
         d_waitingFlag = 0;
 
         d_barrier_p->wait();
@@ -1003,7 +1015,7 @@ class TestClass5front {
         d_barrier_p->wait();
         d_timeoutFlag = d_queue_p->timedPushFront(
                                          d_toBeInserted,
-                                         bdlt::CurrentTime::now() + d_timeout);
+                                         u::now() + d_timeout);
         d_waitingFlag = 0;
     }
 
@@ -1163,17 +1175,13 @@ class TestClass3back {
 
         d_waitingFlag = 1;
         d_barrier_p->wait();
-        d_timeoutFlag = d_queue_p->timedPopBack(
-                                         &result,
-                                         bdlt::CurrentTime::now() + d_timeout);
+        d_timeoutFlag = d_queue_p->timedPopBack(&result, u::now() + d_timeout);
         d_waitingFlag = 0;
 
         d_barrier_p->wait();
         d_waitingFlag = 1;
         d_barrier_p->wait();
-        d_timeoutFlag = d_queue_p->timedPopBack(
-                                         &result,
-                                         bdlt::CurrentTime::now() + d_timeout);
+        d_timeoutFlag = d_queue_p->timedPopBack(&result, u::now() + d_timeout);
         d_waitingFlag = 0;
         if (0 == d_timeoutFlag) {
             ASSERT(result == d_expected);
@@ -1219,17 +1227,15 @@ class TestClass3front {
 
         d_waitingFlag = 1;
         d_barrier_p->wait();
-        d_timeoutFlag = d_queue_p->timedPopFront(
-                                         &result,
-                                         bdlt::CurrentTime::now() + d_timeout);
+        d_timeoutFlag = d_queue_p->timedPopFront(&result,
+                                                 u::now() + d_timeout);
         d_waitingFlag = 0;
 
         d_barrier_p->wait();
         d_waitingFlag = 1;
         d_barrier_p->wait();
-        d_timeoutFlag = d_queue_p->timedPopFront(
-                                         &result,
-                                         bdlt::CurrentTime::now() + d_timeout);
+        d_timeoutFlag = d_queue_p->timedPopFront(&result,
+                                                 u::now() + d_timeout);
         d_waitingFlag = 0;
         if (0 == d_timeoutFlag) {
             ASSERT(result == d_expected);
@@ -1255,17 +1261,17 @@ struct TestStruct3 {
 
         d_queue_p->removeAll();
 
-        bsls::TimeInterval start = bdlt::CurrentTime::now();
+        bsls::TimeInterval start = u::now();
         int sts = d_queue_p->timedPopFront(&result,
                                             start + d_timeout);
-        bsls::TimeInterval end = bdlt::CurrentTime::now();
+        bsls::TimeInterval end = u::now();
         ASSERT(0 != sts);
         ASSERT(end >= start + d_timeout);
 
-        start = bdlt::CurrentTime::now();
+        start = u::now();
         sts = d_queue_p->timedPopBack(&result,
                                        start + d_timeout);
-        end = bdlt::CurrentTime::now();
+        end = u::now();
         ASSERT(0 != sts);
         ASSERT(end >= start + d_timeout);
     }
@@ -2150,10 +2156,9 @@ int main(int argc, char *argv[])
         vector<Element> v;
         bslmt::ThreadUtil::Handle handle;
         bslmt::Barrier barrier(2);
-        bsls::TimeInterval timeout =
-                            bdlt::CurrentTime::now() + bsls::TimeInterval(4.0);
+        bsls::TimeInterval timeout = u::now() + bsls::TimeInterval(4.0);
 
-        ASSERT(bdlt::CurrentTime::now() < timeout);
+        ASSERT(u::now() < timeout);
 
         ASSERT(0 == mX.length());
 
@@ -2204,7 +2209,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(sts, THREAD_EXIT_3 == sts);
         }
 
-        ASSERT(bdlt::CurrentTime::now() < timeout);
+        ASSERT(u::now() < timeout);
       }  break;
       case 11: {
         // --------------------------------------------------------------------
@@ -2236,10 +2241,9 @@ int main(int argc, char *argv[])
         // so have a pessimistic timeout time -- normally this will take MUCH
         // less than 9 seconds.
 
-        bsls::TimeInterval timeout = bdlt::CurrentTime::now()
-                                   + bsls::TimeInterval(9.0);
+        bsls::TimeInterval timeout = u::now() + bsls::TimeInterval(9.0);
 
-        ASSERT(bdlt::CurrentTime::now() < timeout);
+        ASSERT(u::now() < timeout);
 
         ASSERT(0 == mX.length());
 
@@ -2284,7 +2288,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(sts, !sts);
         }
 
-        ASSERT(bdlt::CurrentTime::now() < timeout);
+        ASSERT(u::now() < timeout);
       }  break;
       case 10: {
         // --------------------------------------------------------------------
@@ -2762,12 +2766,11 @@ int main(int argc, char *argv[])
 
                 barrier.wait();
                 if (-1 != HIGH_WATER_MARK) {
-                    bsls::TimeInterval now = bdlt::CurrentTime::now();
+                    bsls::TimeInterval now = u::now();
                     barrier.wait();
                     bslmt::ThreadUtil::microSleep(T);
 
-                    bsls::TimeInterval elapsed =
-                                                bdlt::CurrentTime::now() - now;
+                    bsls::TimeInterval elapsed = u::now() - now;
                     if (elapsed < T4) {
                         LOOP_ASSERT(i, 0 != testObj.waitingFlag() );
                         LOOP_ASSERT(i, VA == x.popBack() );
@@ -2840,12 +2843,11 @@ int main(int argc, char *argv[])
 
                 barrier.wait();
                 if (-1 != HIGH_WATER_MARK) {
-                    bsls::TimeInterval now = bdlt::CurrentTime::now();
+                    bsls::TimeInterval now = u::now();
                     barrier.wait();
                     bslmt::ThreadUtil::microSleep(T);
 
-                    bsls::TimeInterval elapsed =
-                                                bdlt::CurrentTime::now() - now;
+                    bsls::TimeInterval elapsed = u::now() - now;
                     if (elapsed < T4) {
                         LOOP_ASSERT(i, 0 != testObj.waitingFlag() );
                         LOOP_ASSERT(i, VA == x.popFront() );
@@ -3102,7 +3104,7 @@ int main(int argc, char *argv[])
             ASSERT(0 != testObj.timeOutFlag());
 
             barrier.wait();
-            bsls::TimeInterval now = bdlt::CurrentTime::now();
+            bsls::TimeInterval now = u::now();
             barrier.wait();
             bslmt::ThreadUtil::microSleep(T);
 
@@ -3111,7 +3113,7 @@ int main(int argc, char *argv[])
 
             x.pushBack( VA ); // this should unlock the timedPopBack in testObj
 
-            bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+            bsls::TimeInterval elapsed = u::now() - now;
             if (elapsed < T4) {
                 while ( 0 != testObj.waitingFlag() ) {
                     bslmt::ThreadUtil::yield();
@@ -3153,7 +3155,7 @@ int main(int argc, char *argv[])
             ASSERT(0 != testObj.timeOutFlag());
 
             barrier.wait();
-            bsls::TimeInterval now = bdlt::CurrentTime::now();
+            bsls::TimeInterval now = u::now();
             barrier.wait();
             bslmt::ThreadUtil::microSleep(T);
 
@@ -3161,7 +3163,7 @@ int main(int argc, char *argv[])
 
             x.pushFront( VA );
 
-            bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+            bsls::TimeInterval elapsed = u::now() - now;
             if (elapsed < T4) {
                 while ( 0 != testObj.waitingFlag() ) {
                     bslmt::ThreadUtil::yield();
@@ -3604,23 +3606,19 @@ int main(int argc, char *argv[])
             Element front, back;
             int    result;
 
-            result = x1.timedPopFront(
-                        &front, bdlt::CurrentTime::now().addMilliseconds(250));
+            result = x1.timedPopFront(&front, u::now().addMilliseconds(250));
             ASSERT(0 != result);
 
             x1.pushBack(VA);
-            result = x1.timedPopFront(
-                        &front, bdlt::CurrentTime::now().addMilliseconds(250));
+            result = x1.timedPopFront(&front, u::now().addMilliseconds(250));
             ASSERT(0 == result);
             ASSERT(VA == front);
 
-            result = x1.timedPopBack(
-                         &back, bdlt::CurrentTime::now().addMilliseconds(250));
+            result = x1.timedPopBack(&back, u::now().addMilliseconds(250));
             ASSERT(0 != result);
 
             x1.pushBack(VB);
-            result = x1.timedPopBack(
-                         &back, bdlt::CurrentTime::now().addMilliseconds(250));
+            result = x1.timedPopBack(&back, u::now().addMilliseconds(250));
             ASSERT(0 == result);
             ASSERT(VB == back);
         }
@@ -3835,7 +3833,7 @@ int main(int argc, char *argv[])
             Consumer cons;
             cons.d_queue = &queue;
 
-            double startTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
+            double startTime = u::now().totalSecondsAsDouble();
 
             bslmt::ThreadGroup tgroup;
 
@@ -3848,8 +3846,7 @@ int main(int argc, char *argv[])
 
             if (verbose) {
                 cout << "Total seconds = "
-                     << bdlt::CurrentTime::now().totalSecondsAsDouble() -
-                                                             startTime << endl;
+                     << u::now().totalSecondsAsDouble() - startTime << endl;
             }
         } // for w
       } break;

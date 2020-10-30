@@ -19,14 +19,14 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
-#include <bsls_atomic.h>
 
-#include <bdlt_currenttime.h> // For test only
 #include <bslmt_barrier.h>    // For test only
 #include <bslmt_latch.h>    // For test only
 #include <bslmt_lockguard.h>  // For test only
@@ -1471,7 +1471,8 @@ int main(int argc, char *argv[])
                     args.d_stopSig = 0;
                     x.enqueueJob(TestJobFunction1, &args);
                     while ( !args.d_startSig ) {
-                        bsls::TimeInterval timeout = bdlt::CurrentTime::now();
+                        bsls::TimeInterval timeout =
+                                          bsls::SystemTime::nowRealtimeClock();
                         timeout.addSeconds(TIMEOUT);
                         if (0 != startCond.timedWait(&mutex, timeout)) {
                             bsl::cout << "Case 5: Thread start failure.  "
@@ -1548,7 +1549,8 @@ int main(int argc, char *argv[])
                     args.d_stopSig = 0;
                     x.enqueueJob(TestJobFunction1, &args);
                     while ( !args.d_startSig ) {
-                        bsls::TimeInterval timeout = bdlt::CurrentTime::now();
+                        bsls::TimeInterval timeout =
+                                          bsls::SystemTime::nowRealtimeClock();
                         timeout.addSeconds(TIMEOUT);
                         if (0 != startCond.timedWait(&mutex, timeout)) {
                             bsl::cout << "Case 5: Thread start failure.  "

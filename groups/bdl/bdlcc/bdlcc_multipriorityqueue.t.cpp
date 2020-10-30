@@ -10,8 +10,6 @@
 
 #include <bdlcc_multipriorityqueue.h>
 
-#include <bdlt_currenttime.h>
-
 #include <bslim_testutil.h>    // streaming of bsltf types
 
 #include <bslmt_barrier.h>
@@ -22,6 +20,7 @@
 #include <bslmt_testutil.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
+#include <bsls_systemtime.h>
 
 #include <bslma_allocator.h>
 #include <bslma_defaultallocatorguard.h>
@@ -185,6 +184,16 @@ typedef bdlcc::MultipriorityQueue<double>       Dobj;
 typedef bdlcc::MultipriorityQueue<int>          Iobj;
 typedef bdlcc::MultipriorityQueue<bsl::string>  Sobj;
 typedef bsls::Types::Int64                      Int64;
+
+namespace u {
+
+bsls::TimeInterval now()
+    // Return the current time, as a 'TimeInterval'.
+{
+    return bsls::SystemTime::nowRealtimeClock();
+}
+
+}  // close namespace u
 
 }  // close unnamed namespace
 
@@ -1030,7 +1039,7 @@ struct ProducerThread {
 
         if (veryVerbose) {
             OUTPUT_GUARD;
-            double doneTime = bdlt::CurrentTime::now().totalSecondsAsDouble() -
+            double doneTime = u::now().totalSecondsAsDouble() -
                                                                testStartedTime;
             cout << "Producer finishing after " << doneTime << " seconds" <<
                                                                         endl;
@@ -1100,7 +1109,7 @@ struct ConsumerThread {
 
         if (veryVerbose) {
             OUTPUT_GUARD;
-            double doneTime = bdlt::CurrentTime::now().totalSecondsAsDouble() -
+            double doneTime = u::now().totalSecondsAsDouble() -
                                                                testStartedTime;
             cout << "Consumer done after " << doneTime << " seconds" << endl;
         }
@@ -1146,7 +1155,7 @@ struct ProducerThread {
 
         if (veryVerbose) {
             OUTPUT_GUARD;
-            double doneTime = bdlt::CurrentTime::now().totalSecondsAsDouble() -
+            double doneTime = u::now().totalSecondsAsDouble() -
                                                                testStartedTime;
             cout << "Producer finishing after " << doneTime << " seconds" <<
                                                                           endl;
@@ -1211,7 +1220,7 @@ struct ConsumerThread {
 
         if (veryVerbose) {
             OUTPUT_GUARD;
-            double doneTime = bdlt::CurrentTime::now().totalSecondsAsDouble() -
+            double doneTime = u::now().totalSecondsAsDouble() -
                                                                testStartedTime;
             cout << "Consumer done after " << doneTime << " seconds" << endl;
         }
@@ -1952,7 +1961,7 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::microSleep(10 * 1000);
         }
 
-        testStartedTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
+        testStartedTime = u::now().totalSecondsAsDouble();
         producerBarrier.wait();
 
         producerGroup.joinAll();
@@ -1960,7 +1969,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             OUTPUT_GUARD;
             cout << "Producers joined after " <<
-                bdlt::CurrentTime::now().totalSecondsAsDouble() -
+                            u::now().totalSecondsAsDouble() -
                                              testStartedTime << " sec" << endl;
         }
 
@@ -1973,7 +1982,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             OUTPUT_GUARD;
             cout << "Consumers joined after " <<
-                bdlt::CurrentTime::now().totalSecondsAsDouble() -
+                             u::now().totalSecondsAsDouble() -
                                              testStartedTime << " sec" << endl;
         }
 
@@ -2136,7 +2145,7 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::microSleep(10 * 1000);
         }
 
-        testStartedTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
+        testStartedTime = u::now().totalSecondsAsDouble();
         producerBarrier.wait();
 
         producerGroup.joinAll();
@@ -2144,7 +2153,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             OUTPUT_GUARD;
             cout << "Producers joined after " <<
-                bdlt::CurrentTime::now().totalSecondsAsDouble() -
+                            u::now().totalSecondsAsDouble() -
                                              testStartedTime << " sec" << endl;
         }
 
@@ -2156,9 +2165,8 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) {
             cout << "Consumers joined after " <<
-                bdlt::CurrentTime::now().totalSecondsAsDouble() -
-                    testStartedTime << " sec, " << outPairVecIdx << " items" <<
-                                                                          endl;
+                      u::now().totalSecondsAsDouble() - testStartedTime
+                              << " sec, " << outPairVecIdx << " items" << endl;
         }
 
         ASSERT(k_NUM_PRODUCERS * numItemsPerProducer == outPairVecIdx);

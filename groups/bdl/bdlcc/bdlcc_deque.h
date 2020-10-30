@@ -132,7 +132,7 @@ BSLS_IDENT("$Id: $")
 // based.  If the clock type indicated at construction is
 // 'bsls::SystemClockType::e_REALTIME', time should be expressed as an absolute
 // offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch used in
-// 'bdlt::CurrentTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
+// 'bdlt::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
 // type indicated at construction is 'bsls::SystemClockType::e_MONOTONIC', time
 // should be expressed as an absolute offset since the epoch of this clock
 // (which matches the epoch used in
@@ -963,7 +963,8 @@ class Deque {
 
     bsls::SystemClockType::Enum clockType() const;
         // Return the system clock type used for timing 'timed*' operations on
-        // this object.
+        // this object (see {Supported Clock-Types} in the component
+        // documentation).
 
     size_type highWaterMark() const;
         // Return the high-water mark value for this container.

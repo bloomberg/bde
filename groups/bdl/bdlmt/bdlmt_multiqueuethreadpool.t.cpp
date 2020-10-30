@@ -12,9 +12,9 @@
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
+#include <bsls_systemtime.h>
 
 #include <bsls_timeinterval.h>
-#include <bdlt_currenttime.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -470,7 +470,7 @@ void deferredDeleteQueue(Obj *pObj, int id, bslmt::Latch *waitLatch)
 }
 
 double now() {
-    return bdlt::CurrentTime::now().totalSecondsAsDouble();
+    return bsls::SystemTime::nowRealtimeClock().totalSecondsAsDouble();
 }
 
 // ============================================================================
@@ -1537,9 +1537,9 @@ int main(int argc, char *argv[]) {
             bsl::vector<bsl::string> fileList(FILES, FILES + k_NUM_FILES, &ta);
             bsl::set<bsl::string>    resultSet;
 
-            bsls::TimeInterval start = bdlt::CurrentTime::now();
+            bsls::TimeInterval start = bsls::SystemTime::nowRealtimeClock();
             fastSearch(wordList, fileList, resultSet);
-            bsls::TimeInterval stop = bdlt::CurrentTime::now();
+            bsls::TimeInterval stop = bsls::SystemTime::nowRealtimeClock();
 
 //            ASSERT(3 == resultSet.size())
 
@@ -2966,7 +2966,7 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == tp.start());
         int queue = tp.createQueue();
 
-        double startTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
+        double startTime = now();
 
         StressJob s;
         s.s_count = 0;
@@ -2979,7 +2979,7 @@ int main(int argc, char *argv[]) {
 
         tp.stop();
 
-        double endTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
+        double endTime = now();
         if (verbose) {
             cout << "Stress test, " << k_JOB_COUNT << " jobs, completed in " <<
                                         (endTime - startTime) << " seconds\n";

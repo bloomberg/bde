@@ -280,7 +280,8 @@ class Throttle {
         // permitted to the specified 'nanosecondsPerAction', and the maximum
         // number of simultaneous actions allowed to the specified
         // 'maxSimultaneousActions'.  Optionally specify 'clockType' to
-        // indicate which system clock will be used to measure time.  If
+        // indicate the system clock that will be used to measure time (see
+        // {Supported Clock-Types} in the component documentation).  If
         // 'clockType' is not supplied the monotonic system clock is used.  The
         // configured throttle will over time limit the average number of
         // actions permitted to a rate of '1 / nanosecondsPerAction'.  If

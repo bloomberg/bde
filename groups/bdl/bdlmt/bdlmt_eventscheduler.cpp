@@ -66,6 +66,7 @@ class EventSchedulerTestTimeSource_Data {
     mutable bslmt::Mutex d_currentTimeMutex;  // mutex used to synchronize
                                               // 'd_currentTime' access
 
+  private:
     // NOT IMPLEMENTED
     EventSchedulerTestTimeSource_Data(
                                      const EventSchedulerTestTimeSource_Data&);
@@ -774,7 +775,7 @@ bsls::TimeInterval EventSchedulerTestTimeSource::advanceTime(
 }
 
 // ACCESSORS
-bsls::TimeInterval EventSchedulerTestTimeSource::now()
+bsls::TimeInterval EventSchedulerTestTimeSource::now() const
 {
     return d_data_p->currentTime();
 }

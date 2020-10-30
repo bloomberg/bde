@@ -99,11 +99,11 @@ BSLS_IDENT("$Id: $")
 // If the clock type indicated at construction is
 // 'bsls::SystemClockType::e_REALTIME', time should be expressed as an absolute
 // offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch used in
-// 'bdlt::CurrentTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
+// 'bdlt::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
 // type indicated at construction is 'bsls::SystemClockType::e_MONOTONIC', time
 // should be expressed as an absolute offset since the epoch of this clock
 // (which matches the epoch used in
-// 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bdlt::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 // The current epoch time for a particular 'bdlmt::TimerEventScheduler'
 // instance according to the correct clock is available via the
@@ -134,7 +134,7 @@ BSLS_IDENT("$Id: $")
 //
 // Note that the initial value of
 // 'bdlt::TimerEventSchedulerTestTimeSource::now' is intentionally not
-// synchronized with 'bdlt::CurrentTime::now'.  All test events scheduled for a
+// synchronized with 'bdlt::SystemTime::now'.  All test events scheduled for a
 // 'bdlmt::TimerEventScheduler' that is instrumented with a
 // 'bdlt::TimerEventSchedulerTestTimeSource' should be scheduled in terms of an
 // offset from whatever arbitrary time is reported by

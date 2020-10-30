@@ -114,6 +114,7 @@ BSLS_IDENT("$Id: $")
 //   bsls::AtomicInt     urgentJobsDone;
 //   bsls::AtomicInt lessUrgentJobsDone;
 //
+//   inline
 //   extern "C" void *urgentJob(void *)
 //   {
 //       bslmt::ThreadUtil::microSleep(10000);          // 10 mSec
@@ -147,7 +148,8 @@ BSLS_IDENT("$Id: $")
 //       bdlmt::MultipriorityThreadPool pool(20,  // # of threads
 //                                         2);  // # of priorities
 //
-//       bsls::TimeInterval finishTime = bdlt::CurrentTime::now() + 0.5;
+//       bsls::TimeInterval finishTime =
+//                                  bsls::SystemTime::nowRealtimeClock() + 0.5;
 //       pool.startThreads();
 //..
 // We use 1 as our less urgent priority, leaving 0 as our urgent priority:
@@ -159,7 +161,7 @@ BSLS_IDENT("$Id: $")
 //           pool.enqueueJob(&urgentJob, (void *) 0, 0);         // urgent
 //       }
 //
-//       bslmt::ThreadUtil::sleep(finishTime - bdlt::CurrentTime::now());
+//       bslmt::ThreadUtil::sleepUntil(finishTime);
 //       pool.shutdown();
 //
 //       bsl::cout << "Jobs done: urgent: " << urgentJobsDone <<
@@ -335,39 +337,55 @@ BSLS_IDENT("$Id: $")
 //..
 // and in the main program:
 //..
-//         for (int i = 0; TOP_NUMBER > i; ++i) {
-//             isStillPrime[i] = true;
-//             scannedTo[i] = 0;
-//         }
+//      bsls::TimeInterval startTime = bsls::SystemTime::nowRealtimeClock();
 //
-//         scannedTo[0] = TOP_NUMBER + 1;
-//         scannedTo[1] = TOP_NUMBER + 1;
+//      for (int i = 0; TOP_NUMBER > i; ++i) {
+//          isStillPrime[i] = true;
+//          scannedTo[i] = 0;
+//      }
 //
-//         maxPrimeFound = 2;
-//         primeNumbers[0] = 2;
-//         numPrimeNumbers = 1;
-//         doneFlag = false;
+//      scannedTo[0] = TOP_NUMBER + 1;
+//      scannedTo[1] = TOP_NUMBER + 1;
 //
-//         bdlmt::MultipriorityThreadPool threadPool(20, NUM_PRIORITIES);
-//         threadPool.startThreads();
+//      maxPrimeFound = 2;
+//      primeNumbers[0] = 2;
+//      numPrimeNumbers = 1;
+//      doneFlag = false;
 //
-//         Functor f(2);
-//         threadPool.enqueueJob(f, 0);
+//      threadPool =
+//          new (ta) bdlmt::MultipriorityThreadPool(20, NUM_PRIORITIES, &ta);
+//      threadPool->startThreads();
 //
-//         doneBarrier.wait();
+//      bsls::TimeInterval startJobs = bsls::SystemTime::nowRealtimeClock();
 //
-//         threadPool.shutdown();
+//      Functor f(2);
+//      threadPool->enqueueJob(f, 0);
 //
-//         if (verbose) {
-//             printf("%d prime numbers below %d:", (int) numPrimeNumbers,
-//                                                  TOP_NUMBER);
+//      doneBarrier.wait();
 //
-//             for (int i = 0; numPrimeNumbers > i; ++i) {
-//                 printf("%s%4d", 0 == i % 10 ? "\n    " : ", ",
-//                                                          primeNumbers[i]);
-//             }
-//             printf("\n");
-//         }
+//      bsls::TimeInterval finish = bsls::SystemTime::nowRealtimeClock();
+//
+//      threadPool->shutdown();
+//      ta.deleteObjectRaw(threadPool);
+//
+//      if (verbose) {
+//          bsls::TimeInterval endTime = bsls::SystemTime::nowRealtimeClock();
+//
+//          double elapsed      = (endTime - startTime).totalSecondsAsDouble();
+//          double elapsedNoInit = (finish - startJobs).totalSecondsAsDouble();
+//
+//          printf("Runtime: %g seconds, %g seconds w/o init & cleanup\n",
+//                                                     elapsed, elapsedNoInit);
+//
+//          printf("%d prime numbers below %d:", (int) numPrimeNumbers,
+//                                                            TOP_NUMBER);
+//
+//          for (int i = 0; numPrimeNumbers > i; ++i) {
+//              printf("%s%4d", 0 == i % 10 ? "\n    " : ", ",
+//                     primeNumbers[i]);
+//          }
+//          printf("\n");
+//      }
 //..
 
 #include <bdlscm_version.h>

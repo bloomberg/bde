@@ -27,9 +27,9 @@
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_turnstile.h>
+#include <bsls_systemtime.h>
 
 #include <bdlf_bind.h>
-#include <bdlt_currenttime.h>
 #include <bdlb_random.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -153,6 +153,18 @@ typedef bdlcc::FixedQueue<Element*> Obj;
 // ============================================================================
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
 // ----------------------------------------------------------------------------
+
+namespace {
+namespace u {
+
+bsls::TimeInterval now()
+    // Return the current time, as a 'TimeInterval'.
+{
+    return bsls::SystemTime::nowRealtimeClock();
+}
+
+}  // close namespace u
+}  // close unnamed namespace
 
 namespace Backoff {
 
@@ -1713,8 +1725,7 @@ int main(int argc, char *argv[])
 
             // Now the queue should become non-full and the pusher should be
             // woken up and able to push into it
-            ASSERT(0 ==
-                   sema.timedWait(bdlt::CurrentTime::now().addSeconds(1)));
+            ASSERT(0 == sema.timedWait(u::now().addSeconds(1)));
 
             ASSERT(k_QUEUE_LENGTH == queue.length());
 
@@ -1733,8 +1744,7 @@ int main(int argc, char *argv[])
 
             // Now the queue should become non-full and the pusher should be
             // woken up and able to push into it
-            ASSERT(0 ==
-                   sema.timedWait(bdlt::CurrentTime::now().addSeconds(1)));
+            ASSERT(0 == sema.timedWait(u::now().addSeconds(1)));
 
             ASSERT(k_QUEUE_LENGTH == queue.length());
 
@@ -1749,8 +1759,7 @@ int main(int argc, char *argv[])
 
             // pop an item to unblock the pusher
             ExceptionTester test = queue.popFront();
-            ASSERT(0 ==
-                   sema.timedWait(bdlt::CurrentTime::now().addSeconds(1)));
+            ASSERT(0 == sema.timedWait(u::now().addSeconds(1)));
             LOOP_ASSERT(numCaught, 1 == numCaught);
 
             LOOP_ASSERT(queue.length(), 0 == queue.length());

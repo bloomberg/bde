@@ -9,8 +9,7 @@
 #include <bslmt_testutil.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
-
-#include <bdlt_currenttime.h>
+#include <bsls_systemtime.h>
 
 #include <bslalg_typetraitbitwisecopyable.h>
 #include <bslalg_typetraitbitwisemoveable.h>
@@ -870,6 +869,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, bsltf::MoveState::Enum x)
 
 namespace u {
 
+bsls::TimeInterval now()
+    // Return the current time, as a 'TimeInterval'.
+{
+    return bsls::SystemTime::nowRealtimeClock();
+}
+
 template <class TYPE>
 struct HasWellBehavedMove : public bsl::is_trivially_copyable<TYPE>
 {};
@@ -1659,9 +1664,9 @@ class TimedPopRecordBack {
 
         // no one's pushing this time, pop will tame out
 
-        bsls::TimeInterval start = bdlt::CurrentTime::now();
+        bsls::TimeInterval start = u::now();
         int timeoutFlag = d_deque_p->timedPopBack(&result, start + d_timeout);
-        bsls::TimeInterval end   = bdlt::CurrentTime::now();
+        bsls::TimeInterval end   = u::now();
 
         ASSERT(0 != timeoutFlag);
         ASSERT(end >= start + d_timeout);
@@ -1675,14 +1680,14 @@ class TimedPopRecordBack {
         d_barrier_p->wait();
 
         int numThrows = -1;
-        start = bdlt::CurrentTime::now();
+        start = u::now();
         BEGIN_EXCEP_TEST_OBJ(ELEMENT, *d_deque_p) {
             ++numThrows;
 
             timeoutFlag = d_deque_p->timedPopBack(&result,
                                                   start + d_timeout);
         } END_EXCEP_TEST_OBJ
-        end   = bdlt::CurrentTime::now();
+        end   = u::now();
         ASSERTV(numThrows, expAssignMove, !PLAT_EXC ||
                 (!u::IsAllocating<ELEMENT>::value ||
                              (u::IsMoveAware<ELEMENT>::value && expAssignMove))
@@ -1745,9 +1750,9 @@ class TimedPopRecordFront {
 
         // no one's pushing this time, pop will tame out
 
-        bsls::TimeInterval start = bdlt::CurrentTime::now();
+        bsls::TimeInterval start = u::now();
         int timeoutFlag = d_deque_p->timedPopFront(&result, start + d_timeout);
-        bsls::TimeInterval end   = bdlt::CurrentTime::now();
+        bsls::TimeInterval end   = u::now();
 
         ASSERT(0 != timeoutFlag);
         ASSERT(end >= start + d_timeout);
@@ -1761,14 +1766,14 @@ class TimedPopRecordFront {
         d_barrier_p->wait();
 
         int numThrows = -1;
-        start = bdlt::CurrentTime::now();
+        start = u::now();
         BEGIN_EXCEP_TEST_OBJ(ELEMENT, *d_deque_p) {
             ++numThrows;
 
             timeoutFlag = d_deque_p->timedPopFront(&result,
                                                    start + d_timeout);
         } END_EXCEP_TEST_OBJ
-        end   = bdlt::CurrentTime::now();
+        end   = u::now();
         ASSERTV(numThrows, expAssignMove, !PLAT_EXC ||
                 (!u::IsAllocating<ELEMENT>::value ||
                              (u::IsMoveAware<ELEMENT>::value && expAssignMove))
@@ -1842,10 +1847,10 @@ void testTimedPushPopMove()
         // First push, will succeed without timeout.
 
         Int64 tana = ta.numAllocations();
-        bsls::TimeInterval start = bdlt::CurrentTime::now();
+        bsls::TimeInterval start = u::now();
         int rc = x.timedPushBack(bslmf::MovableRefUtil::move(vA),
                                  start + T3);
-        bsls::TimeInterval end = bdlt::CurrentTime::now();
+        bsls::TimeInterval end = u::now();
         ASSERT(0 == rc);
         ASSERT(end < start + T3);
         ASSERTV(ta.numAllocations() - tana,
@@ -1859,10 +1864,10 @@ void testTimedPushPopMove()
 
         tana = ta.numAllocations();
         ASSERT(1 == X.length());
-        start = bdlt::CurrentTime::now();
+        start = u::now();
         rc = x.timedPushBack(bslmf::MovableRefUtil::move(vB),
                              start + T3);
-        end   = bdlt::CurrentTime::now();
+        end   = u::now();
         ASSERT(0 != rc);
         ASSERT(end >= start + T3);
         ASSERTV(ta.numAllocations() - tana, 0 == ta.numAllocations() - tana);
@@ -1906,10 +1911,10 @@ void testTimedPushPopMove()
         // First push, will succeed without timeout.
 
         Int64 tana = ta.numAllocations();
-        bsls::TimeInterval start = bdlt::CurrentTime::now();
+        bsls::TimeInterval start = u::now();
         int rc = x.timedPushFront(bslmf::MovableRefUtil::move(vA),
                                   start + T3);
-        bsls::TimeInterval end = bdlt::CurrentTime::now();
+        bsls::TimeInterval end = u::now();
         ASSERT(0 == rc);
         ASSERT(end < start + T3);
         ASSERTV(ta.numAllocations() - tana,
@@ -1923,10 +1928,10 @@ void testTimedPushPopMove()
 
         tana = ta.numAllocations();
         ASSERT(1 == X.length());
-        start = bdlt::CurrentTime::now();
+        start = u::now();
         rc = x.timedPushFront(bslmf::MovableRefUtil::move(vB),
                               start + T3);
-        end   = bdlt::CurrentTime::now();
+        end   = u::now();
         ASSERT(0 != rc);
         ASSERT(end >= start + T3);
         ASSERTV(ta.numAllocations() - tana, 0 == ta.numAllocations() - tana);
@@ -3843,13 +3848,13 @@ class HighWaterMarkFunctor {
     {
         // have everything time out 2 seconds after thread object creation
 
-        d_timeout = bdlt::CurrentTime::now() + bsls::TimeInterval(4.0);
+        d_timeout = u::now() + bsls::TimeInterval(4.0);
     }
 
     ~HighWaterMarkFunctor()
         // make sure we did not wait until timeout
     {
-        ASSERT(bdlt::CurrentTime::now() < d_timeout);
+        ASSERT(u::now() < d_timeout);
     }
 
     void operator()()
@@ -3951,7 +3956,7 @@ void highWaterMarkTest()
         bdlcc::Deque<ELEMENT> mX(4, &ta);
         const bdlcc::Deque<ELEMENT>& X = mX;
 
-        bsls::TimeInterval start = bdlt::CurrentTime::now();
+        bsls::TimeInterval start = u::now();
 
         ASSERT(0 == X.length());
 
@@ -3995,7 +4000,7 @@ void highWaterMarkTest()
         // On Solaris, each sleep could potentially take 2 seconds, but
         // usually it will be much, much less.
 
-        ASSERT(bdlt::CurrentTime::now() < start + bsls::TimeInterval(10.1));
+        ASSERT(u::now() < start + bsls::TimeInterval(10.1));
     }
 
     ASSERTV(ta.numBlocksInUse(), 0 == ta.numBlocksInUse());
@@ -4030,13 +4035,13 @@ class EmptyDequeFunctor {
     {
         // have everything time out 4 seconds after thread object creation
 
-        d_timeout = bdlt::CurrentTime::now() + bsls::TimeInterval(4.0);
+        d_timeout = u::now() + bsls::TimeInterval(4.0);
     }
 
     ~EmptyDequeFunctor()
         // make sure we did not wait until timeout
     {
-        ASSERT(bdlt::CurrentTime::now() < d_timeout);
+        ASSERT(u::now() < d_timeout);
     }
 
     void operator()()
@@ -4626,8 +4631,7 @@ class TimedHWMRecordBack {
     {
         waitingFlag = 1;
         ASSERT(0 == d_deque_p->timedPushBack(
-                                        d_toBeInserted,
-                                        bdlt::CurrentTime::now() + d_timeout));
+                                        d_toBeInserted, u::now() + d_timeout));
     }
 };
 
@@ -4655,9 +4659,8 @@ class TimedHWMRecordFront {
         // Do the 'timedPushFront' with the values specified at construction.
     {
         waitingFlag = 1;
-        ASSERT(0 == d_deque_p->timedPushFront(
-                                        d_toBeInserted,
-                                        bdlt::CurrentTime::now() + d_timeout));
+        ASSERT(0 == d_deque_p->timedPushFront(d_toBeInserted,
+                                              u::now() + d_timeout));
     }
 };
 
@@ -4789,9 +4792,9 @@ class TimedPopRecordBack {
 
         // no one's pushing this time, pop will tame out
 
-        bsls::TimeInterval start = bdlt::CurrentTime::now();
+        bsls::TimeInterval start = u::now();
         d_timeoutFlag = d_deque_p->timedPopBack(&result, start + d_timeout);
-        bsls::TimeInterval end   = bdlt::CurrentTime::now();
+        bsls::TimeInterval end   = u::now();
 
         ASSERT(end >= start + d_timeout);
         ASSERT('Z' == result.data());    // not assigned to
@@ -4802,12 +4805,12 @@ class TimedPopRecordBack {
 
         d_barrier_p->wait();
 
-        start = bdlt::CurrentTime::now();
+        start = u::now();
         BEGIN_EXCEP_TEST_OBJ(AElement, *d_deque_p) {
             d_timeoutFlag = d_deque_p->timedPopBack(&result,
                                                     start + d_timeout);
         } END_EXCEP_TEST_OBJ
-        end   = bdlt::CurrentTime::now();
+        end   = u::now();
 
         ASSERT(end <  start + d_timeout);
 
@@ -4870,9 +4873,9 @@ class TimedPopRecordFront {
 
         // no one's pushing this time, pop will tame out
 
-        bsls::TimeInterval start = bdlt::CurrentTime::now();
+        bsls::TimeInterval start = u::now();
         d_timeoutFlag = d_deque_p->timedPopFront(&result, start + d_timeout);
-        bsls::TimeInterval end   = bdlt::CurrentTime::now();
+        bsls::TimeInterval end   = u::now();
 
         ASSERT(end >= start + d_timeout);
         ASSERT('Z' == result.data());    // not assigned to
@@ -4883,12 +4886,12 @@ class TimedPopRecordFront {
 
         d_barrier_p->wait();
 
-        start = bdlt::CurrentTime::now();
+        start = u::now();
         BEGIN_EXCEP_TEST_OBJ(AElement, *d_deque_p) {
             d_timeoutFlag = d_deque_p->timedPopFront(&result,
                                                      start + d_timeout);
         } END_EXCEP_TEST_OBJ
-        end   = bdlt::CurrentTime::now();
+        end   = u::now();
 
         ASSERT(end <  start + d_timeout);
 
@@ -6638,10 +6641,9 @@ int main(int argc, char *argv[])
         // so have a pessimistic timeout time -- normally this will take MUCH
         // less than 9 seconds.
 
-        bsls::TimeInterval timeout = bdlt::CurrentTime::now() +
-                                                       bsls::TimeInterval(9.0);
+        bsls::TimeInterval timeout = u::now() + bsls::TimeInterval(9.0);
 
-        ASSERT(bdlt::CurrentTime::now() < timeout);
+        ASSERT(u::now() < timeout);
 
         ASSERT(0 == mX.length());
 
@@ -6686,7 +6688,7 @@ int main(int argc, char *argv[])
             ASSERTV(sts, !sts);
         }
 
-        ASSERT(bdlt::CurrentTime::now() < timeout);
+        ASSERT(u::now() < timeout);
       }  break;
       case 9: {
         // --------------------------------------------------------------------
@@ -7259,7 +7261,7 @@ int main(int argc, char *argv[])
             sw.start(true);
 
             AElement ret(VC, &ta);
-            ASSERT(0 != x.timedPopBack(&ret, bdlt::CurrentTime::now()+T1));
+            ASSERT(0 != x.timedPopBack(&ret, u::now()+T1));
             ASSERT(VC == ret);
 
             sw.stop();
@@ -7276,8 +7278,7 @@ int main(int argc, char *argv[])
                 // should not block
 
                 BEGIN_EXCEP_TEST_OBJ(AElement, x) {
-                    ASSERT(0 == x.timedPushBack(
-                                          VA, bdlt::CurrentTime::now() + T10));
+                    ASSERT(0 == x.timedPushBack(VA, u::now() + T10));
                 } END_EXCEP_TEST_OBJ
             }
 
@@ -7293,7 +7294,7 @@ int main(int argc, char *argv[])
             sw.reset();
             sw.start(true);
 
-            ASSERT(0 != x.timedPushBack(VC, bdlt::CurrentTime::now() + T1));
+            ASSERT(0 != x.timedPushBack(VC, u::now() + T1));
 
             sw.stop();
 
@@ -7324,7 +7325,7 @@ int main(int argc, char *argv[])
             sw.start(true);
 
             ret.setData(VC.data());
-            ASSERT(0 == x.timedPopBack(&ret, bdlt::CurrentTime::now()+T10));
+            ASSERT(0 == x.timedPopBack(&ret, u::now()+T10));
             ASSERT(VA == ret);
 
             sw.stop();
@@ -7345,7 +7346,7 @@ int main(int argc, char *argv[])
             sw.start(true);
 
             ret.setData(VC.data());
-            ASSERT(0 == x.timedPopBack(&ret, bdlt::CurrentTime::now()+T10));
+            ASSERT(0 == x.timedPopBack(&ret, u::now()+T10));
             ASSERT(VB == ret);
 
             sw.stop();
@@ -7374,7 +7375,7 @@ int main(int argc, char *argv[])
             sw.start(true);
 
             AElement ret(VC, &ta);
-            ASSERT(0 != x.timedPopFront(&ret, bdlt::CurrentTime::now()+T1));
+            ASSERT(0 != x.timedPopFront(&ret, u::now()+T1));
             ASSERT(VC == ret);
 
             sw.stop();
@@ -7391,8 +7392,7 @@ int main(int argc, char *argv[])
                 // should not block
 
                 BEGIN_EXCEP_TEST_OBJ(AElement, x) {
-                    ASSERT(0 == x.timedPushFront(
-                                          VA, bdlt::CurrentTime::now() + T10));
+                    ASSERT(0 == x.timedPushFront(VA, u::now() + T10));
                 } END_EXCEP_TEST_OBJ
             }
 
@@ -7408,7 +7408,7 @@ int main(int argc, char *argv[])
             sw.reset();
             sw.start(true);
 
-            ASSERT(0 != x.timedPushFront(VC, bdlt::CurrentTime::now() + T1));
+            ASSERT(0 != x.timedPushFront(VC, u::now() + T1));
 
             sw.stop();
 
@@ -7439,7 +7439,7 @@ int main(int argc, char *argv[])
             sw.start(true);
 
             ret.setData(VC.data());
-            ASSERT(0 == x.timedPopFront(&ret, bdlt::CurrentTime::now()+T10));
+            ASSERT(0 == x.timedPopFront(&ret, u::now()+T10));
             ASSERT(VA == ret);
 
             sw.stop();
@@ -7460,7 +7460,7 @@ int main(int argc, char *argv[])
             sw.start(true);
 
             ret.setData(VC.data());
-            ASSERT(0 == x.timedPopFront(&ret, bdlt::CurrentTime::now()+T10));
+            ASSERT(0 == x.timedPopFront(&ret, u::now()+T10));
             ASSERT(VB == ret);
 
             sw.stop();
@@ -7521,9 +7521,7 @@ int main(int argc, char *argv[])
                             it = p->end();
                         }
 
-                        ASSERT(0 == x.timedPopFront(
-                                                &v[ii],
-                                                bdlt::CurrentTime::now()+T10));
+                        ASSERT(0 == x.timedPopFront(&v[ii], u::now()+T10));
                         {
                             AObj::Proctor p(&x);
                             ASSERT(p->end() == it);
@@ -7536,9 +7534,7 @@ int main(int argc, char *argv[])
                             it = p->begin();
                         }
 
-                        ASSERT(0 == x.timedPopBack(
-                                                &v[ii],
-                                                bdlt::CurrentTime::now()+T10));
+                        ASSERT(0 == x.timedPopBack(&v[ii], u::now()+T10));
                         {
                             AObj::Proctor p(&x);
                             ASSERT(p->begin() == it);
@@ -7813,18 +7809,18 @@ int main(int argc, char *argv[])
             ASSERT(0 == x.length());
 
             Element            result = -5;
-            bsls::TimeInterval start = bdlt::CurrentTime::now();
+            bsls::TimeInterval start = u::now();
             int                sts = x.timedPopFront(&result, start + timeOut);
-            bsls::TimeInterval end = bdlt::CurrentTime::now();
+            bsls::TimeInterval end = u::now();
             ASSERT(0 != sts);
             ASSERT(end >= start + timeOut);
             ASSERT(-5 == result);    // not assigned to
 
             ASSERT(0 == x.length());
 
-            start = bdlt::CurrentTime::now();
+            start = u::now();
             sts = x.timedPopBack(&result, start + timeOut);
-            end = bdlt::CurrentTime::now();
+            end = u::now();
             ASSERT(0 != sts);
             ASSERT(end >= start + timeOut);
             ASSERT(-5 == result);    // not assigned to
@@ -8441,22 +8437,22 @@ int main(int argc, char *argv[])
             int     result;
 
             result = x1.timedPopFront( &front,
-                                bdlt::CurrentTime::now().addMilliseconds(250));
+                                       u::now().addMilliseconds(250));
             ASSERT(0 != result);
 
             x1.pushBack(VA);
             result = x1.timedPopFront( &front,
-                                bdlt::CurrentTime::now().addMilliseconds(250));
+                                       u::now().addMilliseconds(250));
             ASSERT(0 == result);
             ASSERT(VA == front);
 
             result = x1.timedPopBack( &back,
-                                bdlt::CurrentTime::now().addMilliseconds(250));
+                                      u::now().addMilliseconds(250));
             ASSERT(0 != result);
 
             x1.pushBack(VB);
             result = x1.timedPopBack( &back,
-                                bdlt::CurrentTime::now().addMilliseconds(250));
+                                      u::now().addMilliseconds(250));
             ASSERT(0 == result);
             ASSERT(VB == back);
         }

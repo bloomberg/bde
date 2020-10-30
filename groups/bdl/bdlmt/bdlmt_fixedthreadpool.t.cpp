@@ -15,7 +15,6 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bdlt_currenttime.h>
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 

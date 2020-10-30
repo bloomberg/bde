@@ -19,8 +19,7 @@
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
 #include <bslmt_qlock.h>
-
-#include <bdlt_currenttime.h>
+#include <bsls_systemtime.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>
@@ -150,6 +149,16 @@ int veryVerbose;
 int veryVeryVerbose;
 int veryVeryVeryVerbose;
 
+namespace u {
+
+inline
+double nowAsDouble()
+    // Return the current time, as a 'TimeInterval'.
+{
+    return bsls::SystemTime::nowRealtimeClock().totalSecondsAsDouble();
+}
+
+}  // close namespace u
 }  // close unnamed namespace
 
 // ============================================================================
@@ -680,7 +689,8 @@ int main(int argc, char *argv[])
                                             2,   // priorities
                                             &ta);
 
-        bsls::TimeInterval finishTime = bdlt::CurrentTime::now() + 0.5;
+        bsls::TimeInterval finishTime =
+                                    bsls::SystemTime::nowRealtimeClock() + 0.5;
         pool.startThreads();
 
         for (int i = 0; 100 > i; ++i) {
@@ -691,7 +701,7 @@ int main(int argc, char *argv[])
             pool.enqueueJob(&urgentJob, (void *) 0, 0); // urgent priority
         }
 
-        bslmt::ThreadUtil::sleep(finishTime - bdlt::CurrentTime::now());
+        bslmt::ThreadUtil::sleepUntil(finishTime);
         pool.shutdown();
 
         if (verbose) {
@@ -709,7 +719,7 @@ int main(int argc, char *argv[])
 
         using namespace MULTIPRIORITYTHREADPOOL_CASE_12;
 
-        double startTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
+        bsls::TimeInterval startTime = bsls::SystemTime::nowRealtimeClock();
 
         for (int i = 0; TOP_NUMBER > i; ++i) {
             isStillPrime[i] = true;
@@ -728,23 +738,26 @@ int main(int argc, char *argv[])
             new (ta) bdlmt::MultipriorityThreadPool(20, NUM_PRIORITIES, &ta);
         threadPool->startThreads();
 
-        double startJobs = bdlt::CurrentTime::now().totalSecondsAsDouble();
+        bsls::TimeInterval startJobs = bsls::SystemTime::nowRealtimeClock();
 
         Functor f(2);
         threadPool->enqueueJob(f, 0);
 
         doneBarrier.wait();
 
-        double finish = bdlt::CurrentTime::now().totalSecondsAsDouble();
+        bsls::TimeInterval finish = bsls::SystemTime::nowRealtimeClock();
 
         threadPool->shutdown();
         ta.deleteObjectRaw(threadPool);
 
         if (verbose) {
-            double now = bdlt::CurrentTime::now().totalSecondsAsDouble();
+            bsls::TimeInterval endTime = bsls::SystemTime::nowRealtimeClock();
+
+            double elapsed      = (endTime - startTime).totalSecondsAsDouble();
+            double elapsedNoInit = (finish - startJobs).totalSecondsAsDouble();
+
             printf("Runtime: %g seconds, %g seconds w/o init & cleanup\n",
-                   now - startTime,
-                   finish - startJobs);
+                                                       elapsed, elapsedNoInit);
 
             printf("%d prime numbers below %d:", (int) numPrimeNumbers,
                                                               TOP_NUMBER);
@@ -893,7 +906,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == Worker::s_time);
 
         barrier.wait();         // set all producer threads loose
-        double startTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
+        double startTime = u::nowAsDouble();
 
         for (int i = 0; NUM_PRODUCER_THREADS > i; ++i) {
             bslmt::ThreadUtil::join(handles[i]);
@@ -906,8 +919,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << doneQueue.queue().length() << " mini-jobs processed in " <<
-                bdlt::CurrentTime::now().totalSecondsAsDouble() - startTime <<
-                                                                " seconds\n";
+                                  u::nowAsDouble() - startTime << " seconds\n";
             cout << "Atomictime = " << Worker::s_time << endl;
         }
 

@@ -325,7 +325,8 @@ class Barrier {
         // Create a barrier that requires the specified 'numThreads' to
         // unblock.  Optionally specify a 'clockType' indicating the type of
         // the system clock against which the 'bsls::TimeInterval' timeouts
-        // passed to the 'timedWait' method are to be interpreted.  If
+        // passed to the 'timedWait' method are to be interpreted (see
+        // {Supported Clock-Types} in the component documentation).  If
         // 'clockType' is not specified then the realtime system clock is used.
         // The behavior is undefined unless '0 < numThreads'.
 

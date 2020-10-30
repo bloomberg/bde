@@ -118,11 +118,11 @@ BSLS_IDENT("$Id: $")
 // If the clock type indicated at construction is
 // 'bsls::SystemClockType::e_REALTIME', time should be expressed as an absolute
 // offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch used in
-// 'bdlt::CurrentTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
+// 'bdlt::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
 // type indicated at construction is 'bsls::SystemClockType::e_MONOTONIC', time
 // should be expressed as an absolute offset since the epoch of this clock
 // (which matches the epoch used in
-// 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bdlt::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 // The current epoch time for a particular 'bdlmt::EventScheduler' instance
 // according to the correct clock is available via the
@@ -150,10 +150,10 @@ BSLS_IDENT("$Id: $")
 // on the instance supplied to the 'bdlmt::EventSchedulerTestTimeSource'.
 //
 // Note that the initial value of 'bdlt::EventSchedulerTestTimeSource::now' is
-// intentionally not synchronized with 'bdlt::CurrentTime::now'.  All test
-// events scheduled for a 'bdlmt::EventScheduler' that is instrumented with a
-// 'bdlt::EventSchedulerTestTimeSource' should be scheduled in terms of an
-// offset from whatever arbitrary time is reported by
+// intentionally not synchronized with 'bsls::SystemTime::nowRealtimeClock'.
+// All test events scheduled for a 'bdlmt::EventScheduler' that is instrumented
+// with a 'bdlt::EventSchedulerTestTimeSource' should be scheduled in terms of
+// an offset from whatever arbitrary time is reported by
 // 'bdlt::EventSchedulerTestTimeSource'.  See Example 3 below for an
 // illustration of how this is done.
 //
@@ -168,11 +168,11 @@ BSLS_IDENT("$Id: $")
 // scheduler to call that as a recurring event.
 //..
 //   bsls::AtomicInt  g_data;  // Some global data we want to track
-//   typedef pair<bdlt::Datetime, int> Value;
+//   typedef pair<bsls::TimeInterval, int> Value;
 //
 //   void saveData(vector<Value> *array)
 //   {
-//      array->push_back(Value(bdlt::CurrentTime::utc(), g_data));
+//      array->push_back(Value(bsls::SystemTime::nowRealtimeClock(), g_data));
 //   }
 //..
 // We allow the scheduler to run for a short time while changing this value and
@@ -184,23 +184,25 @@ BSLS_IDENT("$Id: $")
 //   scheduler.scheduleRecurringEvent(bsls::TimeInterval(1.5),
 //                                  bdlf::BindUtil::bind(&saveData, &values)));
 //   scheduler.start();
-//   bdlt::Datetime start = bdlt::CurrentTime::utc();
-//   while ((bdlt::CurrentTime::utc() - start).totalSeconds() < 7) {
+//   bsls::TimeInterval start = bsls::SystemTime::nowRealtimeClock();
+//   while ((bsls::SystemTime::nowRealtimeClock() -
+//                                         start).totalSecondsAsDouble() < 7) {
 //     ++g_data;
 //   }
 //   scheduler.stop();
 //   assert(values.size() >= 4);
-//   for (int i = 0; i < values.size(); ++i) {
-//     bsl::cout << "At " << values[i].first << " g_data was "
-//               << values[i].second << bsl::endl;
+//   for (int i = 0; i < (int) values.size(); ++i) {
+//       cout << "At " << bdlt::EpochUtil::convertFromTimeInterval(
+//                                                          values[i].first) <<
+//               " g_data was " << values[i].second << endl;
 //   }
 //..
 // This will display, e.g.:
 //..
-//     At 06MAY2008_21:19:17.092 g_data was 816196
-//     At 06MAY2008_21:19:18.592 g_data was 1620749
-//     At 06MAY2008_21:19:20.092 g_data was 2443358
-//     At 06MAY2008_21:19:21.592 g_data was 3267721
+//  At 26OCT2020_23:51:51.097283 g_data was 8008406
+//  At 26OCT2020_23:51:52.597287 g_data was 16723918
+//  At 26OCT2020_23:51:54.097269 g_data was 24563722
+//  At 26OCT2020_23:51:55.597262 g_data was 30291748
 //..
 //
 ///Example 2: Server Timeouts
@@ -962,6 +964,7 @@ class EventSchedulerTestTimeSource {
 
   public:
     // CREATORS
+    explicit
     EventSchedulerTestTimeSource(EventScheduler *scheduler);
         // Construct a test time-source object that will control the
         // "system-time" observed by the specified 'scheduler'.  Initialize
@@ -978,7 +981,7 @@ class EventSchedulerTestTimeSource {
         // the range that can be represented with a 'bsls::TimeInterval'.
 
     // ACCESSORS
-    bsls::TimeInterval now();
+    bsls::TimeInterval now() const;
         // Return this object's current-time value.  Upon construction, this
         // method will return an arbitrary value.  Subsequent calls to
         // 'advanceTime' will adjust the arbitrary value forward.

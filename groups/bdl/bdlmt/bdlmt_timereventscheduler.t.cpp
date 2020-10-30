@@ -12,12 +12,11 @@
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
-
-#include <bsls_atomic.h>
-#include <bsls_review.h>
-
 #include <bslmt_barrier.h>
 #include <bslmt_threadgroup.h>
+#include <bsls_atomic.h>
+#include <bsls_review.h>
+#include <bsls_systemtime.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -25,7 +24,6 @@
 #include <bdlb_bitutil.h>
 #include <bsl_climits.h>        // for 'CHAR_BIT'
 #include <bdlt_datetime.h>
-#include <bdlt_currenttime.h>
 #include <bdlt_timeunitratio.h>
 
 #include <bslmt_timedsemaphore.h>
@@ -328,7 +326,7 @@ static inline double dnow()
 {
     // current time as a double
 
-    return bdlt::CurrentTime::now().totalSecondsAsDouble();
+    return bsls::SystemTime::nowRealtimeClock().totalSecondsAsDouble();
 }
 
 void noop()
@@ -422,7 +420,7 @@ class TestClass {
       d_executionTime(executionTime),
       d_line(line),
       d_delayed(false),
-      d_referenceTime(bdlt::CurrentTime::now()),
+      d_referenceTime(bsls::SystemTime::nowRealtimeClock()),
       d_globalLastExecutionTime(globalLastExecutionTime),
       d_assertOnFailure(assertOnFailure),
       d_failures(0)
@@ -442,7 +440,7 @@ class TestClass {
       d_executionTime(executionTime),
       d_line(line),
       d_delayed(false),
-      d_referenceTime(bdlt::CurrentTime::now()),
+      d_referenceTime(bsls::SystemTime::nowRealtimeClock()),
       d_globalLastExecutionTime(globalLastExecutionTime),
       d_assertOnFailure(assertOnFailure),
       d_failures(0)
@@ -470,7 +468,7 @@ class TestClass {
         // On execution, it print an error if it has not been executed at
         // expected time.  It also updates any relevant class data.
     {
-        bsls::TimeInterval now = bdlt::CurrentTime::now();
+        bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
         if (veryVerbose) {
             printMutex.lock();
             cout << (d_isClock ? "CLOCK" : "EVENT") << " specified at line "
@@ -507,7 +505,7 @@ class TestClass {
             sleepUntilMs(d_executionTime / 1000);
         }
 
-        now = bdlt::CurrentTime::now();
+        now = bsls::SystemTime::nowRealtimeClock();
         *d_globalLastExecutionTime = now;
 
         // if this is a clock, update the expected time for the *next*
@@ -977,7 +975,7 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
             return d_timeList;
         }
         static double timeofday() {
-            return bdlt::CurrentTime::now().totalSecondsAsDouble();
+            return dnow();
         }
         void callback() {
             d_timeList.push_back(timeofday());
@@ -999,7 +997,7 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
             return d_timeList;
         }
         static double timeofday() {
-            return bdlt::CurrentTime::now().totalSecondsAsDouble();
+            return dnow();
         }
         void callback() {
             d_timeList.push_back(timeofday());
@@ -1008,7 +1006,7 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_14
     const double Fastfunctor::TOLERANCE = Slowfunctor::SLEEP_SECONDS * 3;
 
     template<class _Tp>
-    inline const _Tp
+    const _Tp
     abs(const _Tp& __a) {
         return 0 <= __a ? __a : - __a;
     }
@@ -1037,7 +1035,7 @@ void scheduleEvent(Obj             *scheduler,
 
     while (true) {
         Obj::Handle handle = scheduler->scheduleEvent(
-                              bdlt::CurrentTime::now(),
+                              bsls::SystemTime::nowRealtimeClock(),
                               bdlf::BindUtil::bind(&countInvoked, numInvoked));
         if (Obj::e_INVALID_HANDLE == handle) {
             break;
@@ -1122,12 +1120,13 @@ void *workerThread11(void *arg)
       // even numbered threads run 'case 0:'
       case 0: {
           for (int i = 0; i< NUM_ITERATIONS; ++i) {
-              bsls::TimeInterval now = bdlt::CurrentTime::now();
+              bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
               x.scheduleEvent(now + T6,
                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                      &testObj[id]));
               x.cancelAllEvents();
-              bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+              bsls::TimeInterval elapsed =
+                                    bsls::SystemTime::nowRealtimeClock() - now;
               if (!testTimingFailure) {
                   // This logic is such that if testTimingFailure is false,
                   // then we can *guarantee* that no job should have been able
@@ -1143,12 +1142,13 @@ void *workerThread11(void *arg)
       // odd numbered threads run 'case 1:'
       case 1: {
           for (int i = 0; i< NUM_ITERATIONS; ++i) {
-              bsls::TimeInterval now = bdlt::CurrentTime::now();
+              bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
               x.startClock(T6,
                            bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                   &testObj[id]));
               x.cancelAllClocks();
-              bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+              bsls::TimeInterval elapsed =
+                                    bsls::SystemTime::nowRealtimeClock() - now;
               if (!testTimingFailure) {
                   // This logic is such that if testTimingFailure is false,
                   // then we can *guarantee* that no job should have been able
@@ -1204,7 +1204,7 @@ void *workerThread10(void *arg)
               printMutex.unlock();
           }
           for (int i = 0; i< NUM_ITERATIONS; ++i) {
-              bsls::TimeInterval now = bdlt::CurrentTime::now();
+              bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
               Handle h =
                   x.scheduleEvent(now + T6,
                                   bdlf::MemFnUtil::memFn(&TestClass1::callback,
@@ -1220,7 +1220,8 @@ void *workerThread10(void *arg)
                   // to generate an error unless we can *guarantee* that the
                   // 'cancelEvent' should have succeeded.
 
-                  bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+                  bsls::TimeInterval elapsed =
+                                    bsls::SystemTime::nowRealtimeClock() - now;
                   LOOP3_ASSERTT(id, i, (int*)h, elapsed < T6);
                   testTimingFailure = (elapsed >= T6);
               }
@@ -1236,7 +1237,7 @@ void *workerThread10(void *arg)
               printMutex.unlock();
           }
           for (int i = 0; i< NUM_ITERATIONS; ++i) {
-              bsls::TimeInterval now = bdlt::CurrentTime::now();
+              bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
               Handle h =
                   x.startClock(T6,
                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
@@ -1252,7 +1253,8 @@ void *workerThread10(void *arg)
                   // to generate an error unless we can *guarantee* that the
                   // 'cancelClock' should have succeeded.
 
-                  bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+                  bsls::TimeInterval elapsed =
+                                    bsls::SystemTime::nowRealtimeClock() - now;
                   LOOP3_ASSERTT(id, i, (int*)h, elapsed < T6);
                   testTimingFailure = (elapsed >= T6);
               }
@@ -1361,7 +1363,8 @@ void startStopConcurrencyTest()
     ASSERT(0 == x.start());
 
     // Job should have been executed
-    rc = jobSema.timedWait(bsls::SystemTime::nowMonotonicClock().addSeconds(1));
+    rc = jobSema.timedWait(
+                          bsls::SystemTime::nowMonotonicClock().addSeconds(1));
     ASSERT(0 == rc);
 
     // all done; cleanup
@@ -1403,7 +1406,7 @@ void schedulingCallback(Obj        *scheduler,
     scheduler->startClock(T2, bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                      clock));
 
-    scheduler->scheduleEvent(bdlt::CurrentTime::now() + T4,
+    scheduler->scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T4,
                              bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                     event));
 }
@@ -1424,7 +1427,7 @@ void test7_a()
 
     TestClass1 event;
     TestClass1 clock;
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     x.scheduleEvent(
                 now + T2,
                 bdlf::BindUtil::bind(&schedulingCallback, &x, &event, &clock));
@@ -1454,14 +1457,14 @@ void test7_b()
     TestClass1 testObj;
 
     Handle handleToBeCancelled =
-        x.scheduleEvent(bdlt::CurrentTime::now() + T,
+        x.scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T,
                         bdlf::BindUtil::bind(&cancelEventCallback,
                                              &x,
                                              &handleToBeCancelled,
                                              1,
                                              -1));
 
-    x.scheduleEvent(bdlt::CurrentTime::now() + T2,
+    x.scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T2,
                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
     myMicroSleep(T6, 0);  // let testObj's callback be pending
@@ -1494,10 +1497,10 @@ void test7_c()
     TestClass1 testObj1;
     TestClass1 testObj2;
 
-    x.scheduleEvent(bdlt::CurrentTime::now() + T,
+    x.scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T,
                     bdlf::BindUtil::bind(&cancelAllEventsCallback, &x, 1));
 
-    x.scheduleEvent(bdlt::CurrentTime::now() + T2,
+    x.scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T2,
                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
 
     myMicroSleep(T6, 0); // let testObj1's callback be pending
@@ -1535,7 +1538,7 @@ void test7_d()
                                                           1,
                                                           0));
 
-    x.scheduleEvent(bdlt::CurrentTime::now() + T2,
+    x.scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T2,
                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
     myMicroSleep(T6, 0);   // let testObj1's callback be pending
@@ -1567,7 +1570,7 @@ void test7_e()
 
     x.startClock(T, bdlf::BindUtil::bind(&cancelAllClocksCallback, &x, 1));
 
-    x.scheduleEvent(bdlt::CurrentTime::now() + T2,
+    x.scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T2,
                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
     myMicroSleep(T6, 0); // let testObj1's callback be pending
@@ -1600,13 +1603,13 @@ void test7_f()
         bsl::shared_ptr<int> ptr1; ptr1.createInplace(&ta, 1);
         bsl::shared_ptr<int> ptr2; ptr2.createInplace(&ta, 2);
 
-        h1 = x.scheduleEvent(bdlt::CurrentTime::now() + T,
+        h1 = x.scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T,
                              bdlf::BindUtil::bind(
                                                  &cancelEventCallbackWithState,
                                                  &x,
                                                  &h1,
                                                  ptr1));
-        h2 = x.scheduleEvent(bdlt::CurrentTime::now() + T,
+        h2 = x.scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T,
                              bdlf::BindUtil::bind(
                                                  &cancelEventCallbackWithState,
                                                  &x,
@@ -1614,7 +1617,7 @@ void test7_f()
                                                  ptr2));
     }
 
-    x.scheduleEvent(bdlt::CurrentTime::now() + T3,
+    x.scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T3,
                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
     myMicroSleep(T10, 0);
@@ -1646,13 +1649,13 @@ void test6_a()
     TestClass1 testObj1;
     TestClass1 testObj2;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     x.startClock(T3, bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
 
     x.startClock(T5, bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2));
 
     sleepUntilMs(T / 1000);
-    bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+    bsls::TimeInterval elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T2) {
         // put a little margin between this and the first clock (T3).
 
@@ -1688,7 +1691,7 @@ void test6_b()
     TestClass1 testObj2;
     TestClass1 testObj3;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     x.startClock(T,
                  bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1),
                  now - T3);
@@ -1750,7 +1753,7 @@ void test6_c()
     TestClass1 testObj2;
     TestClass1 testObj3;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     x.startClock(T,
                  bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1),
                  now - T2);
@@ -1823,12 +1826,12 @@ void test3_a()
     Obj x(&ta); x.start();
     TestClass1 testObj;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     Handle h = x.scheduleEvent(now + T5,
                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                       &testObj));
     sleepUntilMs(T / 1000);
-    bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+    bsls::TimeInterval elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T2) {
         ASSERT( 0 == x.cancelEvent(h) );
         myMicroSleep(T6, 0);
@@ -1853,7 +1856,7 @@ void test3_b()
     TestClass1 testObj1(T10);
     TestClass1 testObj2;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     (void)x.scheduleEvent(now + T,
                           bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                  &testObj1));
@@ -1866,7 +1869,7 @@ void test3_b()
     myMicroSleep(T3, 0);
     ASSERT( 0 != x.cancelEvent(h2) );
 
-    if ((bdlt::CurrentTime::now() - now).totalSecondsAsDouble() < 1.29) {
+    if (dnow() - now.totalSecondsAsDouble() < 1.29) {
         ASSERT( 0 == testObj2.numExecuted() );
     }
     x.stop();
@@ -1890,7 +1893,7 @@ void test3_c()
     TestClass1 testObj1(T10);
     TestClass1 testObj2;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     (void)x.scheduleEvent(now + T,
                           bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                  &testObj1));
@@ -1920,7 +1923,7 @@ void test3_d()
     Obj x(&ta); x.start();
     TestClass1 testObj;
     Handle handleToBeCancelled;
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     handleToBeCancelled = x.scheduleEvent(
                        now + T2,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
@@ -1928,7 +1931,7 @@ void test3_d()
     // It could possibly happen that testObj has already been scheduled for
     // execution, and thus the following cancelEvent will fail.  Make sure that
     // does not happen.
-    bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+    bsls::TimeInterval elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T) {
         x.scheduleEvent(now + T,
                         bdlf::BindUtil::bind(&cancelEventCallback,
@@ -1959,7 +1962,7 @@ void test3_e()
     Obj x(&ta); x.start();
     TestClass1 testObj;
     Handle handleToBeCancelled;
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     handleToBeCancelled = x.scheduleEvent(
                       now + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
@@ -1987,7 +1990,7 @@ void test3_f()
 
     bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta); x.start();
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     Handle handleToBeCancelled =
         x.scheduleEvent(now + T,
                         bdlf::BindUtil::bind(&cancelEventCallback,
@@ -2017,7 +2020,7 @@ void test3_g()
 
     TestClass1 testObj;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     Handle handleToBeCancelled = x.scheduleEvent(
                       now + T2,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
@@ -2062,11 +2065,12 @@ bool testCallbacks(int                  *failures,
 {
     bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
-    bsls::TimeInterval globalLastExecutionTime = bdlt::CurrentTime::now();
+    bsls::TimeInterval globalLastExecutionTime =
+                                          bsls::SystemTime::nowRealtimeClock();
 
     bool assertOnFailure = (failures == 0);
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
 
     // the assumption is this loop will complete in insignificant time
     for (int i = 0; i < NUM_DATA; ++i) {
@@ -2108,7 +2112,7 @@ bool testCallbacks(int                  *failures,
     double delta = .5;
     myMicroSleep((int) ((totalTime + delta) * DECI_SEC_IN_MICRO_SEC), 0);
     x.stop();
-    double finishTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
+    double finishTime = dnow();
     finishTime = (finishTime - now.totalSecondsAsDouble()) * 10 - delta;
     // if the 'microSleep' function slept for exactly how long we asked it to,
     // 'finishTime' should equal totalTime, but myMicroSleep often lags.  By a
@@ -2188,7 +2192,7 @@ void test1_a()
     TestClass1 testObj1;
     TestClass1 testObj2;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     x.startClock(T3, bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
 
     x.scheduleEvent(now + T6,
@@ -2198,7 +2202,7 @@ void test1_a()
     makeSureTestObjectIsExecuted(testObj1, mT, 100);
     x.stop();
 
-    bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+    bsls::TimeInterval elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     const int NEXEC1 = testObj1.numExecuted();
     const int NEXEC2 = testObj2.numExecuted();
     if (elapsed < T6) {
@@ -2284,7 +2288,7 @@ void test1_c()
 
     TestClass1 testObj;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     Handle h = x.startClock(T3,
                             bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                    &testObj));
@@ -2294,7 +2298,7 @@ void test1_c()
     int nExec = testObj.numExecuted();
     LOOP_ASSERT(nExec, 1 <= nExec);
 
-    bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+    bsls::TimeInterval elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T6) {
         ASSERT( 0 == x.cancelClock(h) );
         ASSERT( 0 != x.cancelClock(h) );
@@ -2326,7 +2330,7 @@ void test1_d()
     TestClass1 testObj2;
     TestClass1 testObj3;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     Handle h1 = x.scheduleEvent(now + T,
                                 bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                        &testObj1));
@@ -2337,7 +2341,7 @@ void test1_d()
                                 bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                        &testObj3));
     x.cancelAllEvents();
-    bsls::TimeInterval elapsed = bdlt::CurrentTime::now();
+    bsls::TimeInterval elapsed = bsls::SystemTime::nowRealtimeClock();
 
     // It is possible that h1 (more likely), h2, or h3 (less likely) have run
     // before they got cancelled because of delays.  (Happened once on xlC-8.2i
@@ -2386,7 +2390,7 @@ void test1_e()
 
     TestClass1 testObj;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     Handle h = x.scheduleEvent(now + T2,
                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                       &testObj));
@@ -2414,13 +2418,13 @@ void test1_f()
 
     TestClass1 testObj;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     Handle h = x.scheduleEvent(now + T2,
                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                       &testObj));
 
     sleepUntilMs(T / 1000);
-    bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+    bsls::TimeInterval elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T2) {
         ASSERT( 0 == x.cancelEvent(h) );
         ASSERT( 0 != x.cancelEvent(h) );
@@ -2455,11 +2459,11 @@ void test1_g()
     TestClass1 testObj1;
     TestClass1 testObj2;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     x.startClock(T3, bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
     x.scheduleEvent(now + T3,
                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2));
-    bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+    bsls::TimeInterval elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T3) {
         ASSERT(1 == x.numEvents());
         ASSERT(1 == x.numClocks());
@@ -2467,14 +2471,14 @@ void test1_g()
 
     sleepUntilMs(T2 / 1000);
     int nExec = testObj1.numExecuted();
-    elapsed = bdlt::CurrentTime::now() - now;
+    elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T3) {
         LOOP_ASSERT(nExec, 0 == nExec);
         ASSERT(1 == x.numEvents());
         // ASSERT(1 == x.numClocks());
     }
     nExec = testObj2.numExecuted();
-    elapsed = bdlt::CurrentTime::now() - now;
+    elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T3) {
         LOOP_ASSERT(nExec, 0 == nExec);
         ASSERT(1 == x.numEvents());
@@ -2484,7 +2488,7 @@ void test1_g()
     sleepUntilMs(T2 / 1000);
     makeSureTestObjectIsExecuted(testObj1, mT, 100);
     nExec = testObj1.numExecuted();
-    elapsed = bdlt::CurrentTime::now() - now;
+    elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T5) {
         LOOP_ASSERT(nExec, 1 == nExec);
     }
@@ -2498,7 +2502,7 @@ void test1_g()
     sleepUntilMs(T / 1000);
     makeSureTestObjectIsExecuted(testObj1, mT, 100, 1);
     nExec = testObj1.numExecuted();
-    elapsed = bdlt::CurrentTime::now() - now;
+    elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T8) {
         LOOP_ASSERT(nExec, 2 == nExec)
     } else {
@@ -2528,9 +2532,9 @@ void test1_h()
 
     TestClass1 testObj;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     x.startClock(T3, bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
-    bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+    bsls::TimeInterval elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T3) {
         ASSERT(0 == x.numEvents());
         ASSERT(1 == x.numClocks());
@@ -2538,7 +2542,7 @@ void test1_h()
 
     sleepUntilMs(T2 / 1000);
     int nExec = testObj.numExecuted();
-    elapsed = bdlt::CurrentTime::now() - now;
+    elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T3) {
         LOOP_ASSERT(nExec, 0 == nExec);
     }
@@ -2548,7 +2552,7 @@ void test1_h()
     sleepUntilMs(T2 / 1000);
     makeSureTestObjectIsExecuted(testObj, mT, 100, nExec);
     nExec = testObj.numExecuted();
-    elapsed = bdlt::CurrentTime::now() - now;
+    elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T6) {
         LOOP_ASSERT(nExec, 1 == nExec);
     }
@@ -2587,12 +2591,12 @@ void test1_i()
     TestClass1 testObj1;
     TestClass1 testObj2;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     x.scheduleEvent(now + T4,
                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
     x.scheduleEvent(now + T6,
                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2));
-    bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+    bsls::TimeInterval elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T3) {
         ASSERT(2 == x.numEvents());
     }
@@ -2600,14 +2604,14 @@ void test1_i()
 
     sleepUntilMs(T2 / 1000);
     int nExec = testObj1.numExecuted();
-    elapsed = bdlt::CurrentTime::now() - now;
+    elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T3) {
         LOOP_ASSERT(nExec, 0 == nExec);
         ASSERT(2 == x.numEvents());
         ASSERT(0 == x.numClocks());
     }
     nExec = testObj2.numExecuted();
-    elapsed = bdlt::CurrentTime::now() - now;
+    elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T5) {
         LOOP_ASSERT(nExec, 0 == nExec);
         ASSERT(2 - testObj1.numExecuted() == x.numEvents());
@@ -2619,7 +2623,7 @@ void test1_i()
     nExec = testObj1.numExecuted();
     LOOP_ASSERT(nExec, 1 == nExec);
     nExec = testObj2.numExecuted();
-    elapsed = bdlt::CurrentTime::now() - now;
+    elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T5) {
         LOOP_ASSERT(nExec, 0 == nExec);
         ASSERT(1 == x.numEvents());
@@ -2658,7 +2662,7 @@ void test1_j()
     const Key K1(123);
     const Key K2(456);
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     double start = dnow();
     Handle h = x.scheduleEvent(now + T2,
                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
@@ -2705,10 +2709,10 @@ void test1_k()
 
     TestClass1 testObj;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
     x.scheduleEvent(now + T2,
                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
-    bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+    bsls::TimeInterval elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T2) {
         ASSERT(1 == x.numEvents());
     }
@@ -2716,7 +2720,7 @@ void test1_k()
 
     sleepUntilMs(T / 1000);
     int nExec = testObj.numExecuted();
-    elapsed = bdlt::CurrentTime::now() - now;
+    elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     // myMicroSleep could have overslept, especially if load is high
     if (elapsed < T2) {
         LOOP_ASSERT(nExec, 0 == nExec);
@@ -3179,7 +3183,7 @@ int main(int argc, char *argv[])
 
         TestClass1 testObj;
 
-        x.scheduleEvent(bdlt::CurrentTime::now() + T,
+        x.scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T,
                         bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                &testObj));
 
@@ -3273,7 +3277,7 @@ int main(int argc, char *argv[])
         TestClass1 testObj;
 
         x.scheduleEvent(
-                      bdlt::CurrentTime::now() + T,
+                      bsls::SystemTime::nowRealtimeClock() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
         myMicroSleep(T2, 0);
@@ -3404,7 +3408,7 @@ int main(int argc, char *argv[])
         Obj mX;
         Func::s_scheduler = &mX;
 
-        bsls::TimeInterval now = bdlt::CurrentTime::now();
+        bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
 
         for (int i = 0; i < 10; ++i) {
             Obj::Handle handle =
@@ -3455,7 +3459,7 @@ int main(int argc, char *argv[])
         Func::s_scheduler = &mX;
         Func::s_numEvents = 0;
 
-        bsls::TimeInterval now = bdlt::CurrentTime::now();
+        bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
 
         for (int i = 0; i < 7; ++i) {
             ++Func::s_numEvents;
@@ -3519,7 +3523,7 @@ int main(int argc, char *argv[])
         int sts = scheduler.start(attr);
         ASSERT(!sts);
 
-        scheduler.scheduleEvent(bdlt::CurrentTime::now() +
+        scheduler.scheduleEvent(bsls::SystemTime::nowRealtimeClock() +
                                                      bsls::TimeInterval(0.1),
                                 r);
 
@@ -3571,7 +3575,8 @@ int main(int argc, char *argv[])
             scheduler.startClock(bsls::TimeInterval(CLOCKTIME1),
                                  bdlf::MemFnUtil::memFn(&Slowfunctor::callback,
                                                         &sf));
-            bsls::TimeInterval afterStarted = bdlt::CurrentTime::now();
+            bsls::TimeInterval afterStarted =
+                                          bsls::SystemTime::nowRealtimeClock();
 
             scheduler.scheduleEvent(
                           afterStarted + bsls::TimeInterval(2.0),
@@ -3925,13 +3930,14 @@ int main(int argc, char *argv[])
 
           TestClass1 testObj;
 
-          bsls::TimeInterval now = bdlt::CurrentTime::now();
+          bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
           Handle h = x.scheduleEvent(
                       now + T2,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
           myMicroSleep(T, 0);
-          bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+          bsls::TimeInterval elapsed =
+                                    bsls::SystemTime::nowRealtimeClock() - now;
           if (elapsed < T2) {
               nExec = testObj.numExecuted();
               LOOP_ASSERT(nExec, 0 == nExec);
@@ -3963,14 +3969,15 @@ int main(int argc, char *argv[])
 
           TestClass1 testObj;
 
-          bsls::TimeInterval now = bdlt::CurrentTime::now();
+          bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
           Handle h = x.scheduleEvent(
                        now + T2,
                        bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj),
                        key);
 
           myMicroSleep(T, 0);
-          bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+          bsls::TimeInterval elapsed =
+                                    bsls::SystemTime::nowRealtimeClock() - now;
           if (elapsed < T2) {
               nExec = testObj.numExecuted();
               LOOP_ASSERT(nExec, 0 == nExec);
@@ -4042,7 +4049,7 @@ int main(int argc, char *argv[])
         const bsls::TimeInterval T(1 * DECI_SEC);
         const int T4 = 4 * DECI_SEC_IN_MICRO_SEC;
         TestClass1 testObj;
-        x.scheduleEvent(bdlt::CurrentTime::now() + T,
+        x.scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T,
                         bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                &testObj));
         myMicroSleep(T4, 0);
@@ -4110,7 +4117,7 @@ int main(int argc, char *argv[])
         const bsls::TimeInterval T(1 * DECI_SEC);
         const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
         TestClass1 testObj;
-        x.scheduleEvent(bdlt::CurrentTime::now() + T,
+        x.scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T,
                         bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                &testObj));
         myMicroSleep(T2, 0);
@@ -4196,7 +4203,7 @@ int main(int argc, char *argv[])
 
             TestClass1 testObj;
             x.scheduleEvent(
-                      bdlt::CurrentTime::now() + T,
+                      bsls::SystemTime::nowRealtimeClock() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
             myMicroSleep(T2, 0);
             makeSureTestObjectIsExecuted(testObj, mT, 100);
@@ -4225,7 +4232,7 @@ int main(int argc, char *argv[])
 
             TestClass1 testObj;
             x.scheduleEvent(
-                      bdlt::CurrentTime::now() + T,
+                      bsls::SystemTime::nowRealtimeClock() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
             myMicroSleep(T2, 0);
             makeSureTestObjectIsExecuted(testObj, mT, 100);
@@ -4258,7 +4265,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == x.start());
             x.scheduleEvent(
-                      bdlt::CurrentTime::now() + T,
+                      bsls::SystemTime::nowRealtimeClock() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
             myMicroSleep(T2, 0);
             makeSureTestObjectIsExecuted(testObj, mT, 100);
@@ -4268,7 +4275,7 @@ int main(int argc, char *argv[])
             nExec = testObj.numExecuted();
             ASSERT(0 == x.start());
             x.scheduleEvent(
-                      bdlt::CurrentTime::now() + T,
+                      bsls::SystemTime::nowRealtimeClock() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
             myMicroSleep(T2, 0);
             makeSureTestObjectIsExecuted(testObj, mT, 100, nExec);
@@ -4278,7 +4285,7 @@ int main(int argc, char *argv[])
             nExec = testObj.numExecuted();
             ASSERT(0 == x.start());
             x.scheduleEvent(
-                      bdlt::CurrentTime::now() + T,
+                      bsls::SystemTime::nowRealtimeClock() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
             myMicroSleep(T2, 0);
             makeSureTestObjectIsExecuted(testObj, mT, 100, nExec);
@@ -4303,7 +4310,7 @@ int main(int argc, char *argv[])
             // Make sure that scheduler is stopped.
             TestClass1 testObj;
             x.scheduleEvent(
-                      bdlt::CurrentTime::now() + T,
+                      bsls::SystemTime::nowRealtimeClock() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
             myMicroSleep(T3, 0);
             ASSERT(0 == testObj.numExecuted());
@@ -4325,7 +4332,7 @@ int main(int argc, char *argv[])
 
             TestClass1 testObj;
             ASSERT(0 == x.start());
-            bsls::TimeInterval now = bdlt::CurrentTime::now();
+            bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
             x.scheduleEvent(
                       now + T4,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
@@ -4335,7 +4342,8 @@ int main(int argc, char *argv[])
             // Make sure that scheduler is stopped, but allow for the
             // possibility that myMicroSleep overslept and apply defensive
             // techniques.
-            bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+            bsls::TimeInterval elapsed =
+                                    bsls::SystemTime::nowRealtimeClock() - now;
             if (elapsed < T4) {
                 myMicroSleep(T3, 0);
                 ASSERT(0 == testObj.numExecuted());
@@ -4344,7 +4352,7 @@ int main(int argc, char *argv[])
             // Make *really* sure that scheduler is stopped.
             int numExecutedUnchanged = testObj.numExecuted();
             x.scheduleEvent(
-                      bdlt::CurrentTime::now() + T,
+                      bsls::SystemTime::nowRealtimeClock() + T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
             myMicroSleep(T3, 0);
             ASSERT(numExecutedUnchanged == testObj.numExecuted());
@@ -4389,7 +4397,7 @@ int main(int argc, char *argv[])
 
         TestClass1 testObj;
 
-        x.scheduleEvent(bdlt::CurrentTime::now() + T,
+        x.scheduleEvent(bsls::SystemTime::nowRealtimeClock() + T,
                         bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                &testObj));
 
@@ -4617,13 +4625,14 @@ int main(int argc, char *argv[])
             x.start();
             TestClass1 testObj;
 
-            bsls::TimeInterval now = bdlt::CurrentTime::now();
+            bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
             Handle h = x.startClock(
                       T2,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
             sleepUntilMs(T / 1000);
-            bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+            bsls::TimeInterval elapsed =
+                                    bsls::SystemTime::nowRealtimeClock() - now;
             if (elapsed < T2) {
                 ASSERT(0 == x.cancelClock(h));
                 myMicroSleep(T3, 0);
@@ -4647,7 +4656,7 @@ int main(int argc, char *argv[])
             TestClass1 testObj1(T10);
             TestClass1 testObj2;
 
-            bsls::TimeInterval now = bdlt::CurrentTime::now();
+            double start = dnow();
             (void)x.startClock(
                      T,
                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
@@ -4659,8 +4668,7 @@ int main(int argc, char *argv[])
             x.start();
             myMicroSleep(T3, 0);
             ASSERT(0 == x.cancelClock(h2));
-            bool cancelledInTime =
-                (bdlt::CurrentTime::now() - now).totalSecondsAsDouble() < 0.99;
+            bool cancelledInTime = dnow() - start < 0.99;
             myMicroSleep(T20, 0);
             if (cancelledInTime) {
                 LOOP_ASSERT(testObj2.numExecuted(),
@@ -4685,15 +4693,14 @@ int main(int argc, char *argv[])
 
             TestClass1 testObj(T5);
 
-            bsls::TimeInterval now = bdlt::CurrentTime::now();
+            double start = dnow();
             Handle h = x.startClock(
                       T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
             myMicroSleep(T2, 0);
             ASSERT(0 == x.cancelClock(h));
-            if ((bdlt::CurrentTime::now() - now).totalSecondsAsDouble() <
-                0.59) {
+            if (dnow() - start < 0.59) {
                 ASSERT(0 == testObj.numExecuted());
                 myMicroSleep(T5, 0);
                 makeSureTestObjectIsExecuted(testObj, mT, 100);
@@ -4718,7 +4725,7 @@ int main(int argc, char *argv[])
 
             TestClass1 testObj(T5);
 
-            bsls::TimeInterval now = bdlt::CurrentTime::now();
+            double start = dnow();
             Handle h = x.startClock(
                       T,
                       bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
@@ -4727,8 +4734,7 @@ int main(int argc, char *argv[])
             int wait = 1;
             ASSERT(0 == x.cancelClock(h, wait));
             int numEx = testObj.numExecuted();
-            if ((bdlt::CurrentTime::now() - now).totalSecondsAsDouble() <
-                                                                        0.59) {
+            if (dnow() - start < 0.59) {
                 LOOP_ASSERT(testObj.numExecuted(), 1 == numEx);
             }
             myMicroSleep(T5, 0);
@@ -4800,7 +4806,7 @@ int main(int argc, char *argv[])
           TestClass1 testObj2;
           TestClass1 testObj3;
 
-          bsls::TimeInterval now = bdlt::CurrentTime::now();
+          bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
           Handle h1 = x.scheduleEvent(
                      now + T,
                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
@@ -4849,7 +4855,7 @@ int main(int argc, char *argv[])
 
               Obj x(&ta);
 
-              bsls::TimeInterval now = bdlt::CurrentTime::now();
+              bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
               x.scheduleEvent(now - (T2 + T),
                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                      &testObj0));
@@ -4866,7 +4872,7 @@ int main(int argc, char *argv[])
                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                      &testObj3));
 
-              now = bdlt::CurrentTime::now();
+              double start = dnow();
               x.start();
               myMicroSleep(T3, 0); // give enough time to put on pending list
               x.cancelAllEvents();
@@ -4876,8 +4882,7 @@ int main(int argc, char *argv[])
                   }
                   continue;   // events did not get on pending list, start over
               }
-              if ((bdlt::CurrentTime::now() -
-                                          now).totalSecondsAsDouble() > 0.59) {
+              if (dnow() - start > 0.59) {
                   if (veryVerbose || MAX_LOOP == ii) {
                       P_(L_) Q(Overslept);
                   }
@@ -4930,7 +4935,7 @@ int main(int argc, char *argv[])
               TestClass1 testObj1(T10);
               TestClass1 testObj2;
               TestClass1 testObj3;
-              bsls::TimeInterval now = bdlt::CurrentTime::now();
+              bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
               x.scheduleEvent(now - (T + T2),
                               bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                      &testObj0));
@@ -4955,7 +4960,7 @@ int main(int argc, char *argv[])
                   }
                   continue;
               }
-              if (bdlt::CurrentTime::now() - now >= T6) {
+              if (bsls::SystemTime::nowRealtimeClock() - now >= T6) {
                   if (verbose || MAX_LOOP == ii) {
                       P_(L_) Q(Overslept);
                   }

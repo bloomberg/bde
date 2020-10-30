@@ -100,7 +100,8 @@ class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
         // Create a timed semaphore initially having a count of 0.  Optionally
         // specify a 'clockType' indicating the type of the system clock
         // against which the 'bsls::TimeInterval' timeouts passed to the
-        // 'timedWait' method are to be interpreted.  If 'clockType' is not
+        // 'timedWait' method are to be interpreted (see {Supported
+        // Clock-Types} in the component documentation).  If 'clockType' is not
         // specified then the realtime system clock is used.
 
     explicit
@@ -110,7 +111,8 @@ class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
         // Create a timed semaphore initially having the specified 'count'.
         // Optionally specify a 'clockType' indicating the type of the system
         // clock against which the 'bsls::TimeInterval' timeouts passed to the
-        // 'timedWait' method are to be interpreted.  If 'clockType' is not
+        // 'timedWait' method are to be interpreted (see {Supported
+        // Clock-Types} in the component documentation).  If 'clockType' is not
         // specified then the realtime system clock is used.
 
     ~TimedSemaphoreImpl();
