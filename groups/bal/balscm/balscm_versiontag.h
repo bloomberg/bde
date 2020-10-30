@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 #define BAL_VERSION_MAJOR 3
     // BAL release major version
 
-#define BAL_VERSION_MINOR 65
+#define BAL_VERSION_MINOR 66
     // BAL release major version
 
 #define BAL_VERSION BSL_MAKE_VERSION(BAL_VERSION_MAJOR, \
