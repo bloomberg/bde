@@ -108,7 +108,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_atomicoperations.h>
-#include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
@@ -294,11 +294,7 @@ class CategoryHolder {
     // implementation detail of the 'ball' logging system.
 
     // NOT IMPLEMENTED
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
-    CategoryHolder& operator=(const CategoryHolder&) = delete;
-#else
-    CategoryHolder& operator=(const CategoryHolder&);
-#endif
+    CategoryHolder& operator=(const CategoryHolder&) BSLS_KEYWORD_DELETED;
 
     typedef bsls::AtomicOperations                       AtomicOps;
     typedef bsls::AtomicOperations::AtomicTypes::Int     AtomicInt;

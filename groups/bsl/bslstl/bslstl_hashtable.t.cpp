@@ -26,8 +26,8 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
-#include <bsls_compilerfeatures.h>
 #include <bsls_exceptionutil.h>
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -2064,7 +2064,7 @@ class MostEvilTestType {
 
   private:
     // NOT IMPLEMENTED
-    void operator=(MostEvilTestType&); // = delete
+    void operator=(MostEvilTestType&) BSLS_KEYWORD_DELETED;
 
     void operator&();  // = delete;
 
@@ -2084,14 +2084,12 @@ class MostEvilTestType {
         // Create an 'AwkwardMaplikeElement' object having the specified
         // 'value' as its 'data'.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-    explicit MostEvilTestType(const MostEvilTestType& original) = default;
+    // explicit MostEvilTestType(const MostEvilTestType& original) = default;
         // Create a 'MostEvilTestType' object having the same 'data' value as
         // the specified 'original'.
 
-    ~MostEvilTestType() = default;
+    // ~MostEvilTestType() = default;
         // Destroy this object.
-#endif
 
     // MANIPULATORS
     void setData(int value);
