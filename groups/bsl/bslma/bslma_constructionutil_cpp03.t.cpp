@@ -16,7 +16,7 @@
 // minimal 'main' program that tests nothing and is not '#include'd in the
 // original.
 //
-// Generated on Wed Oct 21 17:30:57 2020
+// Generated on Wed Oct 21 17:32:43 2020
 // Command line: sim_cpp11_features.pl bslma_constructionutil.t.cpp
 
 // Expanded test driver only when compiling bslma_constructionutil.cpp

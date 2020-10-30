@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Wed Oct 14 18:17:09 2020
+// Generated on Fri Oct 30 10:08:29 2020
 // Command line: sim_cpp11_features.pl bslma_constructionutil.h
 
 #ifdef COMPILING_BSLMA_CONSTRUCTIONUTIL_H
@@ -829,24 +829,23 @@ struct ConstructionUtil {
                                 ALLOCATOR   *allocator,
                                 TARGET_TYPE *original);
         // Create an object of (template parameter) 'TARGET_TYPE' at the
-        // specified 'address' having the same value as the object at the
-        // specified 'original' address, propagating the specified 'allocator'
-        // to the moved object if 'TARGET_TYPE' uses 'bslma'-style allocation
-        // and the (template parameter) type 'ALLOCATOR' is implicitly
-        // convertible to 'bslma::Allocator', and destroy 'original'.  If the
-        // move constructor throws an exception, the memory at 'address' is
-        // left in an unspecified state and 'original' is left in a valid but
-        // unspecified state.  The behavior is undefined unless either
-        // 'TARGET_TYPE' does not support 'bslma'-style allocation or
-        // 'original' uses 'allocator' to supply memory.  Note that this class
-        // method is equivalent to move-constructing an object at 'address'
-        // from '*original' and then destroying 'original', except that this
-        // method elides the calls to the constructor and destructor for
-        // objects that are bitwise movable.  Also note that if 'original'
-        // actually points to an object of a type derived from 'TARGET_TYPE'
-        // (i.e., a slicing move) where 'TARGET_TYPE' has a non-'virtual'
-        // destructor and is not bitwise-movable, then 'original' will be only
-        // partially destroyed.
+        // specified 'address' by moving from the specified 'original' object,
+        // then destroy 'original'.  The specified 'allocator' is unused
+        // (except possibly in precondition checks).  The constructed object
+        // will have the same allocator (if any) as 'original'.  If
+        // 'bslmf::IsBitwiseMoveable<TARGET_TYPE>::value' is 'true', then the
+        // entire operation is a simple 'memcpy' -- no constructors or
+        // destructors are invoked; otherwise, this method move-constructs an
+        // object at 'address' from the object at 'original' then invokes the
+        // destructor on 'original'.  If the move constructor throws an
+        // exception, the memory at 'address' is left in an uninitialized state
+        // and 'original' is left in a valid but unspecified state.  The
+        // behavior is undefined unless either 'TARGET_TYPE' does not support
+        // 'bslma'-style allocation or 'original' uses 'allocator' to supply
+        // memory.  Note that if 'original' points to an object of a type
+        // derived from 'TARGET_TYPE' (i.e., a slicing move) where
+        // 'TARGET_TYPE' has a non-'virtual' destructor, then 'original' will
+        // be only partially destroyed.
 
 #if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
     template <class TARGET_TYPE>
@@ -2411,9 +2410,10 @@ struct ConstructionUtil_Imp {
         // Move the bitwise movable object of (template parameter)
         // 'TARGET_TYPE' at the specified 'original' address to the specified
         // 'address', eliding the call to the move constructor and destructor
-        // in favor of performing a bitwise copy.  The behavior is undefined
-        // unless either 'TARGET_TYPE' does not support 'bslma'-style
-        // allocation or 'original' uses the specified 'allocator' to supply
+        // in favor of performing a bitwise copy.  The specified 'allocator'
+        // argument is ignored (except possibly for precondition checks).  The
+        // behavior is undefined unless either 'TARGET_TYPE' does not support
+        // 'bslma'-style allocation or 'original' uses 'allocator' to supply
         // memory.
 
     template <class TARGET_TYPE, class ALLOCATOR>
@@ -2423,19 +2423,16 @@ struct ConstructionUtil_Imp {
                           bsl::integral_constant<int, e_NIL_TRAITS> *,
                           TARGET_TYPE                               *original);
         // Create an object of (template parameter) 'TARGET_TYPE' at the
-        // specified 'address' having the same value as the object at the
-        // specified 'original' address, propagating the specified 'allocator'
-        // to the moved object if 'TARGET_TYPE' uses 'bslma'-style allocation
-        // and the (template parameter) type 'ALLOCATOR' is implicitly
-        // convertible to 'bslma::Allocator', and destroy 'original'.  If the
-        // move constructor throws an exception, the memory at 'address' is
-        // left in an unspecified state and 'original' is left in a valid but
-        // unspecified state.  The behavior is undefined unless either
-        // 'TARGET_TYPE' does not support 'bslma'-style allocation or
-        // 'original' uses 'allocator' to supply memory.  Note that this class
-        // method is equivalent to move-constructing an object at 'address'
-        // from '*original' and then destroying 'original'.  Also note that if
-        // 'original' actually points to an object of a type derived from
+        // specified 'address' by move construction from the specified
+        // 'original' object, then destroy 'original'.  The specified
+        // 'allocator' is unused (except possibly in precondition checks).  The
+        // constructed object will have the same allocator (if any) as
+        // 'original'.  If the move constructor throws an exception, the memory
+        // at 'address' is left in an uninitialized state and 'original' is
+        // left in a valid but unspecified state.  The behavior is undefined
+        // unless either 'TARGET_TYPE' does not support 'bslma'-style
+        // allocation or 'original' uses 'allocator' to supply memory.  Note
+        // that, if 'original' points to an object of a type derived from
         // 'TARGET_TYPE' (i.e., a slicing move) where 'TARGET_TYPE' has a
         // non-'virtual' destructor, then 'original' will be only partially
         // destroyed.
@@ -6557,14 +6554,15 @@ ConstructionUtil_Imp::destructiveMove(
                           bsl::integral_constant<int, e_NIL_TRAITS> *,
                           TARGET_TYPE                               *original)
 {
-    // TBD: should be ok with C++03 as well, but need to test edge cases first
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    // TBD: Eventually, we can add a precondition that 'allocator' matches
+    // 'original->allocator()', but that is not universally detectable right
+    // now, as not all allocator-aware types provide an 'allocator()' method.
+    //..
+    // BSLS_ASSERT(allocator == original->allocator());
+
     ConstructionUtil::construct(address,
                                 allocator,
                                 bslmf::MovableRefUtil::move(*original));
-#else
-    ConstructionUtil::construct(address, allocator, *original);
-#endif
     DestructionUtil::destroy(original);
 }
 
