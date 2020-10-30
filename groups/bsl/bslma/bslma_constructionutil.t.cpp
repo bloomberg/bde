@@ -1289,18 +1289,6 @@ struct IsPair<my_PairBB<T1, T2> > : bsl::true_type {};
     // that the 'd_value' and 'd_allocator_p' members store the specified
     // 'expVal' and 'expAlloc' values after 'op' has been evaluated.
 
-#define TEST_DMV(typeNum, op, expVal, expAlloc) do {                          \
-    typedef my_Class ## typeNum Type;                                         \
-    int const CCI = Type::s_copyConstructorInvocations;                       \
-    int const MCI = Type::s_moveConstructorInvocations;                       \
-    TEST_OP(typeNum, op, expVal, expAlloc);                                   \
-    ASSERT(CCI == Type::s_copyConstructorInvocations);                        \
-    ASSERT(MCI + 1 == Type::s_moveConstructorInvocations);                    \
-  } while (false)
-    // This macro does everything that 'TEST_OP' does and also verifies that no
-    // copy constructors are invoked and exactly one move constructor is
-    // invoked for the class under test.
-
 #define TEST_PAIR(op, expVal0, expA0, expVal1, expA1) {                       \
     static const int EXP_VAL0 = (expVal0);                                    \
     bslma::Allocator *const EXP_ALLOC0 = (expA0);                             \
@@ -3718,11 +3706,14 @@ int main(int argc, char *argv[])
         int                  *const XA = &dummyAllocator;
 
         if (verbose) printf("Value and allocator testing.\n");
+
+        // my_Class #  Operation                            Val Alloc
+        // ==========  ==================================== === =====
         {
             my_ClassDef  rawBuf;
             my_Class1   *srcPtr = rawBuf.as<my_Class1>();
             Util::construct(srcPtr, TA, V1);
-            TEST_DMV(1, destructiveMove(objPtr, TA, srcPtr),  1, 0);
+            TEST_OP(1, destructiveMove(objPtr, TA, srcPtr),  1, 0);
             ASSERT(k_DESTROYED == rawBuf.d_value);
             ASSERT(0           == rawBuf.d_allocator_p);
         }
@@ -3730,7 +3721,7 @@ int main(int argc, char *argv[])
             my_ClassDef  rawBuf;
             my_Class2   *srcPtr = rawBuf.as<my_Class2>();
             Util::construct(srcPtr, TA, V2);
-            TEST_DMV(2, destructiveMove(objPtr, TA, srcPtr),  2, TA);
+            TEST_OP(2, destructiveMove(objPtr, TA, srcPtr),  2, TA);
             ASSERT(k_DESTROYED == rawBuf.d_value);
             ASSERT(0           == rawBuf.d_allocator_p);
         }
@@ -3738,7 +3729,7 @@ int main(int argc, char *argv[])
             my_ClassDef  rawBuf;
             my_Class2a  *srcPtr = rawBuf.as<my_Class2a>();
             Util::construct(srcPtr, TA, V2A);
-            TEST_DMV(2a, destructiveMove(objPtr, TA, srcPtr), 0x2a, TA);
+            TEST_OP(2a, destructiveMove(objPtr, TA, srcPtr), 0x2a, TA);
             ASSERT(k_DESTROYED == rawBuf.d_value);
             ASSERT(0           == rawBuf.d_allocator_p);
         }
@@ -3746,7 +3737,6 @@ int main(int argc, char *argv[])
             my_ClassDef  rawBuf;
             my_Class3   *srcPtr = rawBuf.as<my_Class3>();
             Util::construct(srcPtr, TA, V3);
-            // my_Class3 has no move constructor, so move == copy.
             TEST_OP(3, destructiveMove(objPtr, TA, srcPtr),  3, TA);
             ASSERT(k_DESTROYED == rawBuf.d_value);
             ASSERT(0           == rawBuf.d_allocator_p);
@@ -3755,7 +3745,7 @@ int main(int argc, char *argv[])
             my_ClassDef  rawBuf;
             my_Class1   *srcPtr = rawBuf.as<my_Class1>();
             Util::construct(srcPtr, TA, V1);
-            TEST_DMV(1, destructiveMove(objPtr, XA, srcPtr),  1, 0);
+            TEST_OP(1, destructiveMove(objPtr, XA, srcPtr),  1, 0);
             ASSERT(k_DESTROYED == rawBuf.d_value);
             ASSERT(0           == rawBuf.d_allocator_p);
         }
@@ -3763,7 +3753,10 @@ int main(int argc, char *argv[])
             my_ClassDef  rawBuf;
             my_Class2   *srcPtr = rawBuf.as<my_Class2>();
             Util::construct(srcPtr, TA, V2);
-            TEST_DMV(2, destructiveMove(objPtr, TA, srcPtr),  2, TA);
+            // Must use 'TA' so that behavior is the same in C++98 mode (copy,
+            // uses default allocator) and C++11 mode (move, copies '*srcPtr'
+            // allocator).
+            TEST_OP(2, destructiveMove(objPtr, TA, srcPtr),  2, TA);
             ASSERT(k_DESTROYED == rawBuf.d_value);
             ASSERT(0           == rawBuf.d_allocator_p);
         }
@@ -3771,7 +3764,10 @@ int main(int argc, char *argv[])
             my_ClassDef  rawBuf;
             my_Class2a  *srcPtr = rawBuf.as<my_Class2a>();
             Util::construct(srcPtr, TA, V2A);
-            TEST_DMV(2a, destructiveMove(objPtr, TA, srcPtr), 0x2a, TA);
+            // Must use 'TA' so that behavior is the same in C++98 mode (copy,
+            // uses default allocator) and C++11 mode (move, copies '*srcPtr'
+            // allocator).
+            TEST_OP(2a, destructiveMove(objPtr, TA, srcPtr), 0x2a, TA);
             ASSERT(k_DESTROYED == rawBuf.d_value);
             ASSERT(0           == rawBuf.d_allocator_p);
         }
@@ -3779,7 +3775,9 @@ int main(int argc, char *argv[])
             my_ClassDef  rawBuf;
             my_Class3   *srcPtr = rawBuf.as<my_Class3>();
             Util::construct(srcPtr, TA, V3);
-            // my_Class3 has no move constructor, so move == copy.
+            // Must use 'TA' so that behavior is the same in C++98 mode (copy,
+            // uses default allocator) and C++11 mode (move, copies '*srcPtr'
+            // allocator).
             TEST_OP(3, destructiveMove(objPtr, TA, srcPtr),  3, TA);
             ASSERT(k_DESTROYED == rawBuf.d_value);
             ASSERT(0           == rawBuf.d_allocator_p);
