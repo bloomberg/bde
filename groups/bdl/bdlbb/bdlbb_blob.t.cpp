@@ -545,9 +545,9 @@ class NullDeleter {
         // Prepend the specified 'prolog' of the specified 'length' to the
         // specified 'blob', using the optionally specified 'allocator' to
         // supply any memory (or the currently installed default allocator if
-        // 'allocator' is 0).  The behavior is undefined unless 'blob' points
-        // to an initialized 'bdlbb::Blob' instance and
-        // 'length < INT_MAX - sizeof(int)'.
+        // 'allocator' is 0).  The behavior is undefined unless
+        // 'blob->totalSize() <= INT_MAX - length - sizeof(int)' and
+        // 'blob->numBuffers() < INT_MAX'.
 
     template <class DELETER>
     void composeMessage(bdlbb::Blob        *blob,
@@ -588,7 +588,9 @@ class NullDeleter {
                        bslma::Allocator   *allocator)
     {
         BSLS_ASSERT(blob);
-        BSLS_ASSERT(length < INT_MAX - static_cast<int>(sizeof(int)));
+        BSLS_ASSERT(blob->totalSize() <=
+                             INT_MAX - length - static_cast<int>(sizeof(int)));
+        BSLS_ASSERT(blob->numBuffers() < INT_MAX);
 
         (void)allocator;
 
