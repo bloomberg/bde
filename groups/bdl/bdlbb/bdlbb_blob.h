@@ -222,9 +222,9 @@ BSLS_IDENT("$Id: $")
 //      // Prepend the specified 'prolog' of the specified 'length' to the
 //      // specified 'blob', using the optionally specified 'allocator' to
 //      // supply any memory (or the currently installed default allocator if
-//      // 'allocator' is 0).  The behavior is undefined unless 'blob' points
-//      // to an initialized 'bdlbb::Blob' instance and
-//      // 'length < INT_MAX - sizeof(int)'.
+//      // 'allocator' is 0).  The behavior is undefined unless
+//      // 'blob->totalSize() <= INT_MAX - length - sizeof(int)' and
+//      // 'blob->numBuffers() < INT_MAX'.
 //
 //  template <class DELETER>
 //  void composeMessage(bdlbb::Blob        *blob,
@@ -265,7 +265,9 @@ BSLS_IDENT("$Id: $")
 //                     bslma::Allocator   *allocator)
 //  {
 //      assert(blob);
-//      assert(length < INT_MAX - static_cast<int>(sizeof(int)));
+//      assert(blob->totalSize() <=
+//                           INT_MAX - length - static_cast<int>(sizeof(int)));
+//      assert(blob->numBuffers() < INT_MAX);
 //
 //      (void)allocator;
 //
@@ -680,18 +682,17 @@ class Blob {
     void appendBuffer(const BlobBuffer& buffer);
         // Append the specified 'buffer' after the last buffer of this blob.
         // The length of this blob is unaffected.  The behavior is undefined
-        // unless the total size of the resulting blob and the total number of
-        // buffers in this blob are less than 'INT_MAX'.  Note that this
-        // operation is equivalent to 'insert(numBuffers(), buffer)', but is
-        // more efficient.
+        // unless neither the total size of the resulting blob nor its total
+        // number of buffers exceeds 'INT_MAX'.  Note that this operation is
+        // equivalent to 'insert(numBuffers(), buffer)', but is more efficient.
 
     void appendDataBuffer(const BlobBuffer& buffer);
         // Append the specified 'buffer' after the last *data* buffer of this
         // blob; the last data buffer is trimmed, if necessary.  The length of
         // this blob is incremented by the size of 'buffer'.  The behavior is
-        // undefined unless '0 < buffer.size()' and the total size of the
-        // resulting blob and the total number of buffers in this blob are less
-        // than 'INT_MAX'.  Note that this operation is equivalent to:
+        // undefined unless '0 < buffer.size()' and neither the total size of
+        // the resulting blob nor its total number of buffers exceeds
+        // 'INT_MAX'.  Note that this operation is equivalent to:
         //..
         //  const int n = blob.length();
         //  blob.trimLastDataBuffer();
@@ -710,17 +711,16 @@ class Blob {
         // length must be changed by an explicit call to 'setLength'.  Buffers
         // at 'index' and higher positions (if any) are shifted up by one index
         // position.  The behavior is undefined unless
-        // '0 <= index <= numBuffers()' and the total size of the resulting
-        // blob and the total number of buffers in this blob are less than
-        // 'INT_MAX'.
+        // '0 <= index <= numBuffers()' and neither the total size of the
+        // resulting blob nor its total number of buffers exceeds 'INT_MAX'.
 
     void prependDataBuffer(const BlobBuffer& buffer);
         // Insert the specified 'buffer' before the beginning of this blob.
         // The length of this blob is incremented by the length of the
         // prepended buffer.  The behavior is undefined unless
-        // '0 < buffer.size()' and the total size of the resulting blob and the
-        // total number of buffers in this blob are less than 'INT_MAX'.  Note
-        // that this operation is equivalent to:
+        // '0 < buffer.size()' and neither the total size of the resulting blob
+        // nor its total number of buffers exceeds 'INT_MAX'.  Note that this
+        // operation is equivalent to:
         //..
         //  const int n = blob.length();
         //  blob.insert(0, buffer);

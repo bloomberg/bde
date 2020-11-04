@@ -453,8 +453,8 @@ Blob& Blob::operator=(bslmf::MovableRef<Blob> rhs)
 
 void Blob::appendBuffer(const BlobBuffer& buffer)
 {
-    BSLS_ASSERT(d_totalSize < INT_MAX - buffer.size());
-    BSLS_ASSERT(numBuffers() < INT_MAX - 1);
+    BSLS_ASSERT(d_totalSize <= INT_MAX - buffer.size());
+    BSLS_ASSERT(numBuffers() < INT_MAX);
 
     d_buffers.push_back(buffer);
     d_totalSize += buffer.size();
@@ -464,8 +464,8 @@ void Blob::appendDataBuffer(const BlobBuffer& buffer)
 {
     const int bufferSize = buffer.size();
     BSLS_REVIEW_OPT(0 < bufferSize);
-    BSLS_ASSERT(d_totalSize < INT_MAX - bufferSize);
-    BSLS_ASSERT(numBuffers() < INT_MAX - 1);
+    BSLS_ASSERT(d_totalSize <= INT_MAX - bufferSize);
+    BSLS_ASSERT(numBuffers() < INT_MAX);
 
     const int oldDataLength = d_dataLength;
 
@@ -525,8 +525,8 @@ void Blob::insertBuffer(int index, const BlobBuffer& buffer)
     BSLS_ASSERT(index <= static_cast<int>(d_buffers.size()));
 
     const int bufferSize = buffer.size();
-    BSLS_ASSERT(d_totalSize < INT_MAX - bufferSize);
-    BSLS_ASSERT(numBuffers() < INT_MAX - 1);
+    BSLS_ASSERT(d_totalSize <= INT_MAX - bufferSize);
+    BSLS_ASSERT(numBuffers() < INT_MAX);
 
     d_buffers.insert(d_buffers.begin() + index, buffer);
     d_totalSize += bufferSize;
@@ -543,8 +543,8 @@ void Blob::prependDataBuffer(const BlobBuffer& buffer)
 {
     const int bufferSize = buffer.size();
     BSLS_ASSERT(0 < bufferSize);
-    BSLS_ASSERT(d_totalSize < INT_MAX - bufferSize);
-    BSLS_ASSERT(numBuffers() < INT_MAX - 1);
+    BSLS_ASSERT(d_totalSize <= INT_MAX - bufferSize);
+    BSLS_ASSERT(numBuffers() < INT_MAX);
 
     d_buffers.insert(d_buffers.begin(), buffer);
     if (0 != d_dataLength) {
@@ -762,8 +762,8 @@ void Blob::moveAndAppendDataBuffers(Blob *srcBlob)
 
     trimLastDataBuffer();  // Note that this call may update 'd_totalSize'.
 
-    BSLS_ASSERT(d_totalSize < INT_MAX - srcBlob->totalSize());
-    BSLS_ASSERT(numBuffers() < INT_MAX - srcBlob->numBuffers());
+    BSLS_ASSERT(d_totalSize <= INT_MAX - srcBlob->totalSize());
+    BSLS_ASSERT(numBuffers() <= INT_MAX - srcBlob->numBuffers());
 
     const int numSrcDataBuffers = srcBlob->numDataBuffers();
     const int numDstDataBuffers = numDataBuffers();
