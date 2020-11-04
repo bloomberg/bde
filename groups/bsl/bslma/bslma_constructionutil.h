@@ -1501,7 +1501,9 @@ ConstructionUtil_Imp::destructiveMove(
         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
     }
     else {
-        memcpy(address, original, sizeof *original);
+        // voidify(address) is used here to suppress compiler warning
+        // "-Wclass-memaccess".
+        memcpy(voidify(address), original, sizeof *original);
     }
 }
 

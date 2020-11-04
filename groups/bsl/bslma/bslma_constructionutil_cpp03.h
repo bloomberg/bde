@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Wed Oct 14 18:17:09 2020
+// Generated on Tue Nov  3 14:32:23 2020
 // Command line: sim_cpp11_features.pl bslma_constructionutil.h
 
 #ifdef COMPILING_BSLMA_CONSTRUCTIONUTIL_H
@@ -6544,7 +6544,9 @@ ConstructionUtil_Imp::destructiveMove(
         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
     }
     else {
-        memcpy(address, original, sizeof *original);
+        // voidify(address) is used here to suppress compiler warning
+        // "-Wclass-memaccess".
+        memcpy(voidify(address), original, sizeof *original);
     }
 }
 
