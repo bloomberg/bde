@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+
 namespace BloombergLP {
 namespace bslstl {
 
@@ -20,6 +22,8 @@ operator+(const StringRefImp<wchar_t>& lhs, const StringRefImp<wchar_t>& rhs);
 
 }  // close package namespace
 }  // close enterprise namespace
+
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2019 Bloomberg Finance L.P.
