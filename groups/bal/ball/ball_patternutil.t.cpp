@@ -1,6 +1,7 @@
 // ball_patternutil.t.cpp                                             -*-C++-*-
 #include <ball_patternutil.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
@@ -324,6 +325,137 @@ bool isMatch(const char *input, const char *pattern)
 }
 
 }  // close namespace BALL_PATTERNUTIL_TEST_CASE_2
+
+//=============================================================================
+//                              FUZZ TESTING
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
+// on how to build and run with fuzz testing enabled.
+//-----------------------------------------------------------------------------
+
+#ifdef BDE_ACTIVATE_FUZZ_TESTING
+#define main test_driver_main
+#endif
+
+extern "C"
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+    // Use the specified 'data' array of 'size' bytes as input to methods of
+    // this component and return zero.
+{
+    const char *FUZZ   = reinterpret_cast<const char *>(data);
+    int         LENGTH = static_cast<int>(size);
+    int         test   = 0;
+
+    if (LENGTH > 0) {
+        // Use first fuzz byte to select the test case.
+        test = (*FUZZ++ & 0xFF) % 100;
+        --LENGTH;
+    }
+
+    switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING 'isValidPattern'
+        //
+        // Plan:
+        //   Apply 'isValidPattern' to fuzz data and verify that the result is
+        //   correct by using a local implementation of pattern validation.
+        //
+        // Testing:
+        //   static bool isValidPattern(const char *pattern);
+        // --------------------------------------------------------------------
+
+        // We want null-terminated data.
+        const char *END = bsl::find(FUZZ, FUZZ + LENGTH, '\0');
+        if (FUZZ + LENGTH == END) {
+            break;
+        }
+
+        // Test the pattern for validity.  This is an "oracle", written
+        // without reference to the code in the component.
+        const char *PATTERN = FUZZ;
+        bool valid = true;
+        for (const char *f = PATTERN; valid && *f; ++f) {
+            if ('\\' == *f) {
+                if ('\\' != f[1] && '*' != f[1]) {
+                    valid = false;
+                }
+                else {
+                    ++f;
+                }
+            }
+            else if ('*' == *f && '\0' != f[1]) {
+                valid = false;
+            }
+        }
+
+        // Apply the component method to the fuzz data and verify the result.
+        bool result = Util::isValidPattern(PATTERN);
+        ASSERTV(PATTERN, result, valid, valid == result);
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // TESTING 'isMatch'
+        //
+        // Plan:
+        //   Apply 'isValidPattern' and 'isMatch' to fuzz data and verify that
+        //   the result is correct by using a local implementation of matching
+        //   input against patterns.
+        //
+        // Testing:
+        //   static bool isMatch(const char *inputString, const char *pattern);
+        // --------------------------------------------------------------------
+
+        // We want two pieces of null-terminated data.
+        const char *PATTERN = FUZZ;
+        const char *END = bsl::find(FUZZ, FUZZ + LENGTH, '\0');
+        if (FUZZ + LENGTH == END) {
+            break;
+        }
+        const char *INPUT = PATTERN + 1;
+        END = bsl::find(INPUT, FUZZ + LENGTH, '\0');
+        if (FUZZ + LENGTH == END) {
+            break;
+        }
+
+        // Test whether the input is matched by the pattern.  This is an
+        // "oracle" implementation, written without reference to the
+        // implementation in the componnet.
+        bool valid = Util::isValidPattern(PATTERN);
+        bool match = valid;
+        for (int pi = 0, ii = 0; match; ++pi, ++ii) {
+            char c = PATTERN[pi];
+            if ('*' == c) {
+                break;
+            }
+            if ('\\' == c) {
+                c = PATTERN[++pi];
+            }
+            if (INPUT[ii] != c) {
+                match = false;
+            }
+            if ('\0' == c) {
+                break;
+            }
+        }
+
+        // Apply the component method to the fuzz data and verify the result.
+        bool result = Util::isMatch(INPUT, PATTERN);
+        ASSERTV(PATTERN, INPUT, valid, match, result, match == result);
+      } break;
+      default: {
+      } break;
+    }
+
+    if (testStatus > 0) {
+        BSLS_ASSERT_INVOKE("FUZZ TEST FAILURES");
+    }
+
+    return 0;
+}
 
 //=============================================================================
 //                              MAIN PROGRAM

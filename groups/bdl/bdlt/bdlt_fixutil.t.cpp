@@ -13,6 +13,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_review.h>
 
+#include <bslx_testinstream.h>
+
 #include <bsl_cctype.h>      // 'isdigit'
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -638,6 +640,459 @@ bool containsOnlyDigits(const char *string)
     }
 
     return true;
+}
+
+//=============================================================================
+//                              FUZZ TESTING
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
+// on how to build and run with fuzz testing enabled.
+//-----------------------------------------------------------------------------
+
+#ifdef BDE_ACTIVATE_FUZZ_TESTING
+#define main test_driver_main
+#endif
+
+extern "C"
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+    // Use the specified 'data' array of 'size' bytes as input to methods of
+    // this component and return zero.
+{
+    const char *FUZZ   = reinterpret_cast<const char *>(data);
+    int         LENGTH = static_cast<int>(size);
+    int         test   = 0;
+
+    if (LENGTH > 0) {
+        // Use first fuzz byte to select the test case.
+        test = (*FUZZ++ & 0xFF) % 100;
+        --LENGTH;
+    }
+
+    switch (test) { case 0:  // Zero is always the leading case.
+      case 9: {
+        // --------------------------------------------------------------------
+        // PARSE: DATETIME & DATETIMETZ
+        //
+        // Plan:
+        //   Parse a 'Datetime' object and a 'DatetimeTz' object from the fuzz
+        //   data directly and from the fuzz represented as a string reference.
+        //   The correctness of the parsing is not verified.
+        //
+        // Testing:
+        //   int parse(Datetime *, const char *, int);
+        //   int parse(DatetimeTz *, const char *, int);
+        //   int parse(Datetime *result, const StringRef& string);
+        //   int parse(DatetimeTz *result, const StringRef& string);
+        // --------------------------------------------------------------------
+
+        bdlt::Datetime mX;
+        Util::parse(&mX, FUZZ, LENGTH);
+        Util::parse(&mX, StrRef(FUZZ, LENGTH));
+
+        bdlt::DatetimeTz mXZ;
+        Util::parse(&mXZ, FUZZ, LENGTH);
+        Util::parse(&mXZ, StrRef(FUZZ, LENGTH));
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // PARSE: TIME & TIMETZ
+        //
+        // Plan:
+        //   Parse a 'Time' object and a 'TimeTz' object from the fuzz data
+        //   directly and from the fuzz represented as a string reference.  The
+        //   correctness of the parsing is not verified.
+        //
+        // Testing:
+        //   int parse(Time *, const char *, int);
+        //   int parse(TimeTz *, const char *, int);
+        //   int parse(Time *result, const StringRef& string);
+        //   int parse(TimeTz *result, const StringRef& string);
+        // --------------------------------------------------------------------
+
+        bdlt::Time mX;
+        Util::parse(&mX, FUZZ, LENGTH);
+        Util::parse(&mX, StrRef(FUZZ, LENGTH));
+
+        bdlt::TimeTz mXZ;
+        Util::parse(&mXZ, FUZZ, LENGTH);
+        Util::parse(&mXZ, StrRef(FUZZ, LENGTH));
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // PARSE: DATE & DATETZ
+        //
+        // Plan:
+        //   Parse a 'Date' object and a 'DateTz' object from the fuzz data
+        //   directly and from the fuzz represented as a string reference.  The
+        //   correctness of the parsing is not verified.
+        //
+        // Testing:
+        //   int parse(Date *, const char *, int);
+        //   int parse(DateTz *, const char *, int);
+        //   int parse(Date *result, const StringRef& string);
+        //   int parse(DateTz *result, const StringRef& string);
+        // --------------------------------------------------------------------
+
+        bdlt::Date mX;
+        Util::parse(&mX, FUZZ, LENGTH);
+        Util::parse(&mX, StrRef(FUZZ, LENGTH));
+
+        bdlt::DateTz mXZ;
+        Util::parse(&mXZ, FUZZ, LENGTH);
+        Util::parse(&mXZ, StrRef(FUZZ, LENGTH));
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // GENERATE 'DatetimeTz'
+        //
+        // Plan:
+        //   Create a 'TestInStream' using the fuzz data as a source, create a
+        //   configuration object using the first byte of the stream, attempt
+        //   to stream in a 'DatetimeTz' object from the stream, and if
+        //   successful, call a variety of 'generate' methods on the object.
+        //   The correctness of the generation is not verified.
+        //
+        // Testing:
+        //   int generate(char *, int, const DatetimeTz&);
+        //   int generate(char *, int, const DatetimeTz&, const Config&);
+        //   int generate(string *, const DatetimeTz&);
+        //   int generate(string *, const DatetimeTz&, const Config&);
+        //   ostream generate(ostream&, const DatetimeTz&);
+        //   ostream generate(ostream&, const DatetimeTz&, const Config&);
+        //   int generateRaw(char *, const DatetimeTz&);
+        //   int generateRaw(char *, const DatetimeTz&, const Config&);
+        // --------------------------------------------------------------------
+
+        bslx::TestInStream in(FUZZ, LENGTH);
+        in.setQuiet(true);
+
+        Config        mC;       // default configuartion
+        const Config& C = mC;
+        Config        mCF;      // fuzzed configuration
+        const Config& CF = mCF;
+
+        unsigned char f = 0;
+        in.getUint8(f);
+        mCF.setUseZAbbreviationForUtc(0 != (f & 1));
+        mCF.setFractionalSecondPrecision((f / 2) % 7);
+
+        bdlt::DatetimeTz        mXZ;
+        const bdlt::DatetimeTz& XZ = mXZ;
+
+        if (mXZ.bdexStreamIn(in, mXZ.maxSupportedBdexVersion(20200917))) {
+            char              buffer[Util::k_MAX_STRLEN + 1];
+            bsl::string       s;
+            bsl::stringstream out;
+
+            Util::generateRaw(buffer, XZ);
+            Util::generateRaw(buffer, XZ, C);
+            Util::generateRaw(buffer, XZ, CF);
+            Util::generate(&s, XZ);
+            Util::generate(&s, XZ, C);
+            Util::generate(&s, XZ, CF);
+            Util::generate(out, XZ);
+            Util::generate(out, XZ, C);
+            Util::generate(out, XZ, CF);
+
+            for (int i = 0; i <= Util::k_MAX_STRLEN + 1; ++i) {
+                Util::generate(buffer, i, XZ);
+                Util::generate(buffer, i, XZ, C);
+                Util::generate(buffer, i, XZ, CF);
+            }
+        }
+      } break;
+      case 5: {
+        // GENERATE 'TimeTz'
+        bslx::TestInStream in(FUZZ, LENGTH);
+        in.setQuiet(true);
+
+        Config        mC;       // default configuartion
+        const Config& C = mC;
+        Config        mCF;      // fuzzed configuration
+        const Config& CF = mCF;
+
+        unsigned char f = 0;
+        in.getUint8(f);
+        mCF.setUseZAbbreviationForUtc(0 != (f & 1));
+        mCF.setFractionalSecondPrecision((f / 2) % 7);
+
+        bdlt::TimeTz        mXZ;
+        const bdlt::TimeTz& XZ = mXZ;
+
+        if (mXZ.bdexStreamIn(in, mXZ.maxSupportedBdexVersion(20200917))) {
+            char              buffer[Util::k_MAX_STRLEN + 1];
+            bsl::string       s;
+            bsl::stringstream out;
+
+            Util::generateRaw(buffer, XZ);
+            Util::generateRaw(buffer, XZ, C);
+            Util::generateRaw(buffer, XZ, CF);
+            Util::generate(&s, XZ);
+            Util::generate(&s, XZ, C);
+            Util::generate(&s, XZ, CF);
+            Util::generate(out, XZ);
+            Util::generate(out, XZ, C);
+            Util::generate(out, XZ, CF);
+
+            for (int i = 0; i <= Util::k_MAX_STRLEN + 1; ++i) {
+                Util::generate(buffer, i, XZ);
+                Util::generate(buffer, i, XZ, C);
+                Util::generate(buffer, i, XZ, CF);
+            }
+        }
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // GENERATE 'DateTz'
+        //
+        // Plan:
+        //   Create a 'TestInStream' using the fuzz data as a source, create a
+        //   configuration object using the first byte of the stream, attempt
+        //   to stream in a 'DateTz' object from the stream, and if successful,
+        //   call a variety of 'generate' methods on the object.  The
+        //   correctness of the generation is not verified.
+        //
+        // Testing:
+        //   int generate(char *, int, const DateTz&);
+        //   int generate(char *, int, const DateTz&, const Config&);
+        //   int generate(string *, const DateTz&);
+        //   int generate(string *, const DateTz&, const Config&);
+        //   ostream generate(ostream&, const DateTz&);
+        //   ostream generate(ostream&, const DateTz&, const Config&);
+        //   int generateRaw(char *, const DateTz&);
+        //   int generateRaw(char *, const DateTz&, const Config&);
+        // --------------------------------------------------------------------
+
+        bslx::TestInStream in(FUZZ, LENGTH);
+        in.setQuiet(true);
+
+        Config        mC;       // default configuartion
+        const Config& C = mC;
+        Config        mCF;      // fuzzed configuration
+        const Config& CF = mCF;
+
+        unsigned char f = 0;
+        in.getUint8(f);
+        mCF.setUseZAbbreviationForUtc(0 != (f & 1));
+        mCF.setFractionalSecondPrecision((f / 2) % 7);
+
+        bdlt::DateTz        mXZ;
+        const bdlt::DateTz& XZ = mXZ;
+
+        if (mXZ.bdexStreamIn(in, mXZ.maxSupportedBdexVersion(20200917))) {
+            char              buffer[Util::k_MAX_STRLEN + 1];
+            bsl::string       s;
+            bsl::stringstream out;
+
+            Util::generateRaw(buffer, XZ);
+            Util::generateRaw(buffer, XZ, C);
+            Util::generateRaw(buffer, XZ, CF);
+            Util::generate(&s, XZ);
+            Util::generate(&s, XZ, C);
+            Util::generate(&s, XZ, CF);
+            Util::generate(out, XZ);
+            Util::generate(out, XZ, C);
+            Util::generate(out, XZ, CF);
+
+            for (int i = 0; i <= Util::k_MAX_STRLEN + 1; ++i) {
+                Util::generate(buffer, i, XZ);
+                Util::generate(buffer, i, XZ, C);
+                Util::generate(buffer, i, XZ, CF);
+            }
+        }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // GENERATE 'Datetime'
+        //
+        // Plan:
+        //   Create a 'TestInStream' using the fuzz data as a source, create a
+        //   configuration object using the first byte of the stream, attempt
+        //   to stream in a 'Datetime' object from the stream, and if
+        //   successful, call a variety of 'generate' methods on the object.
+        //   The correctness of the generation is not verified.
+        //
+        // Testing:
+        //   int generate(char *, int, const Datetime&);
+        //   int generate(char *, int, const Datetime&, const Config&);
+        //   int generate(string *, const Datetime&);
+        //   int generate(string *, const Datetime&, const Config&);
+        //   ostream generate(ostream&, const Datetime&);
+        //   ostream generate(ostream&, const Datetime&, const Config&);
+        //   int generateRaw(char *, const Datetime&);
+        //   int generateRaw(char *, const Datetime&, const Config&);
+        // --------------------------------------------------------------------
+
+        bslx::TestInStream in(FUZZ, LENGTH);
+        in.setQuiet(true);
+
+        Config        mC;       // default configuartion
+        const Config& C = mC;
+        Config        mCF;      // fuzzed configuration
+        const Config& CF = mCF;
+
+        unsigned char f = 0;
+        in.getUint8(f);
+        mCF.setUseZAbbreviationForUtc(0 != (f & 1));
+        mCF.setFractionalSecondPrecision((f / 2) % 7);
+
+        bdlt::Datetime        mXZ;
+        const bdlt::Datetime& XZ = mXZ;
+
+        if (mXZ.bdexStreamIn(in, mXZ.maxSupportedBdexVersion(20200917))) {
+            char              buffer[Util::k_MAX_STRLEN + 1];
+            bsl::string       s;
+            bsl::stringstream out;
+
+            Util::generateRaw(buffer, XZ);
+            Util::generateRaw(buffer, XZ, C);
+            Util::generateRaw(buffer, XZ, CF);
+            Util::generate(&s, XZ);
+            Util::generate(&s, XZ, C);
+            Util::generate(&s, XZ, CF);
+            Util::generate(out, XZ);
+            Util::generate(out, XZ, C);
+            Util::generate(out, XZ, CF);
+
+            for (int i = 0; i <= Util::k_MAX_STRLEN + 1; ++i) {
+                Util::generate(buffer, i, XZ);
+                Util::generate(buffer, i, XZ, C);
+                Util::generate(buffer, i, XZ, CF);
+            }
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // GENERATE 'Time'
+        //
+        // Plan:
+        //   Create a 'TestInStream' using the fuzz data as a source, create a
+        //   configuration object using the first byte of the stream, attempt
+        //   to stream in a 'Time' object from the stream, and if successful
+        //   call a variety of 'generate' methods on the object.  The
+        //   correctness of the generation is not verified.
+        //
+        // Testing:
+        //   int generate(char *, int, const Time&);
+        //   int generate(char *, int, const Time&, const Config&);
+        //   int generate(string *, const Time&);
+        //   int generate(string *, const Time&, const Config&);
+        //   ostream generate(ostream&, const Time&);
+        //   ostream generate(ostream&, const Time&, const Config&);
+        //   int generateRaw(char *, const Time&);
+        //   int generateRaw(char *, const Time&, const Config&);
+        // --------------------------------------------------------------------
+
+        bslx::TestInStream in(FUZZ, LENGTH);
+        in.setQuiet(true);
+
+        Config        mC;       // default configuartion
+        const Config& C = mC;
+        Config        mCF;      // fuzzed configuration
+        const Config& CF = mCF;
+
+        unsigned char f = 0;
+        in.getUint8(f);
+        mCF.setUseZAbbreviationForUtc(0 != (f & 1));
+        mCF.setFractionalSecondPrecision((f / 2) % 7);
+
+        bdlt::Time        mXZ;
+        const bdlt::Time& XZ = mXZ;
+
+        if (mXZ.bdexStreamIn(in, mXZ.maxSupportedBdexVersion(20200917))) {
+            char              buffer[Util::k_MAX_STRLEN + 1];
+            bsl::string       s;
+            bsl::stringstream out;
+
+            Util::generateRaw(buffer, XZ);
+            Util::generateRaw(buffer, XZ, C);
+            Util::generateRaw(buffer, XZ, CF);
+            Util::generate(&s, XZ);
+            Util::generate(&s, XZ, C);
+            Util::generate(&s, XZ, CF);
+            Util::generate(out, XZ);
+            Util::generate(out, XZ, C);
+            Util::generate(out, XZ, CF);
+
+            for (int i = 0; i <= Util::k_MAX_STRLEN + 1; ++i) {
+                Util::generate(buffer, i, XZ);
+                Util::generate(buffer, i, XZ, C);
+                Util::generate(buffer, i, XZ, CF);
+            }
+        }
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // GENERATE 'Date'
+        //
+        // Plan:
+        //   Create a 'TestInStream' using the fuzz data as a source, create a
+        //   configuration object using the first byte of the stream, attempt
+        //   to stream in a 'Date' object from the stream, and if successful,
+        //   call a variety of 'generate' methods on the object.  The
+        //   correctness of the generation is not verified.
+        //
+        // Testing:
+        //   int generate(char *, int, const Date&);
+        //   int generate(char *, int, const Date&, const Config&);
+        //   int generate(string *, const Date&);
+        //   int generate(string *, const Date&, const Config&);
+        //   ostream generate(ostream&, const Date&);
+        //   ostream generate(ostream&, const Date&, const Config&);
+        //   int generateRaw(char *, const Date&);
+        //   int generateRaw(char *, const Date&, const Config&);
+        // --------------------------------------------------------------------
+
+        bslx::TestInStream in(FUZZ, LENGTH);
+        in.setQuiet(true);
+
+        Config        mC;       // default configuartion
+        const Config& C = mC;
+        Config        mCF;      // fuzzed configuration
+        const Config& CF = mCF;
+
+        unsigned char f = 0;
+        in.getUint8(f);
+        mCF.setUseZAbbreviationForUtc(0 != (f & 1));
+        mCF.setFractionalSecondPrecision((f / 2) % 7);
+
+        bdlt::Date        mXZ;
+        const bdlt::Date& XZ = mXZ;
+
+        if (mXZ.bdexStreamIn(in, mXZ.maxSupportedBdexVersion(20200917))) {
+            char              buffer[Util::k_MAX_STRLEN + 1];
+            bsl::string       s;
+            bsl::stringstream out;
+
+            Util::generateRaw(buffer, XZ);
+            Util::generateRaw(buffer, XZ, C);
+            Util::generateRaw(buffer, XZ, CF);
+            Util::generate(&s, XZ);
+            Util::generate(&s, XZ, C);
+            Util::generate(&s, XZ, CF);
+            Util::generate(out, XZ);
+            Util::generate(out, XZ, C);
+            Util::generate(out, XZ, CF);
+
+            for (int i = 0; i <= Util::k_MAX_STRLEN + 1; ++i) {
+                Util::generate(buffer, i, XZ);
+                Util::generate(buffer, i, XZ, C);
+                Util::generate(buffer, i, XZ, CF);
+            }
+        }
+      } break;
+      default: {
+      } break;
+    }
+
+    if (testStatus > 0) {
+        BSLS_ASSERT_INVOKE("FUZZ TEST FAILURES");
+    }
+
+    return 0;
 }
 
 //=============================================================================
