@@ -13,6 +13,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_objectbuffer.h>
 
 #include <limits.h>
 #include <stdio.h>
@@ -702,8 +703,12 @@ int main(int argc, char *argv[])
         const int D = 0;
         const int A = INT_MIN;
         const int B = INT_MAX;
+        const int C = 3;
 
-        Obj mX; const Obj& X = mX;
+        bsls::ObjectBuffer<Obj> oBuffer;
+        Obj& mX = oBuffer.object(); const Obj& X = mX;
+        new (&mX) Obj();
+
         ASSERTV(X.data(), D == X.data());
 
         mX.setData(A);
@@ -712,8 +717,23 @@ int main(int argc, char *argv[])
         mX.setData(B);
         ASSERTV(X.data(), B == X.data());
 
+        mX.setData(C);
+        ASSERTV(X.data(), C == X.data());
 
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedFrom());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedInto());
 
+        mX.~Obj();
+
+        ASSERTV(X.data(), C != X.data());
+        const int xValue = X.data();
+        ASSERT(xValue < 1000 || 1000 < xValue);
+        const int fValue = X.movedFrom();
+        ASSERT(fValue < 1000 || 1000 < fValue);
+        const int iValue = X.movedInto();
+        ASSERT(iValue < 1000 || 1000 < iValue);
+
+        if (verbose) { P_(xValue); P_(fValue); P(iValue); }
       } break;
       case 1: {
         // --------------------------------------------------------------------

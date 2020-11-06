@@ -712,8 +712,10 @@ int main(int argc, char *argv[])
         const int D = 0;
         const int A = INT_MIN;
         const int B = INT_MAX;
+        const int C = 3;
 
         Obj mX; const Obj& X = mX;
+
         ASSERTV(X.data(), D == X.data());
 
         mX.setData(A);
@@ -722,6 +724,16 @@ int main(int argc, char *argv[])
         mX.setData(B);
         ASSERTV(X.data(), B == X.data());
 
+        mX.setData(C);
+        ASSERTV(X.data(), C == X.data());
+
+        mX.~Obj();
+
+        ASSERTV(X.data(), C != X.data());
+        const int xValue = X.data();
+        ASSERT(xValue < 1000 || 1000 < xValue);
+
+        if (verbose) P(xValue);
       } break;
       case 1: {
         // --------------------------------------------------------------------

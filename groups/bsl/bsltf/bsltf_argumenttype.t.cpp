@@ -12,6 +12,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>  // for usage example only
+#include <bsls_objectbuffer.h>
 
 #include <limits.h>
 #include <stdio.h>
@@ -49,7 +50,7 @@ using namespace BloombergLP::bsltf;
 // [  ] ArgumentType(int data);
 // [  ] ArgumentType(const ArgumentType& original);
 // [  ] ArgumentType(bslmf::MovableRef<ArgumentType> original);
-// [  ] ~ArgumentType();
+// [14] ~ArgumentType();
 //
 // MANIPULATORS
 // [ 9] ArgumentType& operator=(const ArgumentType& rhs);
@@ -61,7 +62,7 @@ using namespace BloombergLP::bsltf;
 // [13] MoveState::Enum movedFrom() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [14] USAGE EXAMPLE
+// [15] USAGE EXAMPLE
 // [ *] CONCERN: No memory is ever allocated.
 
 // ============================================================================
@@ -289,7 +290,7 @@ int main(int argc, char *argv[])
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -310,6 +311,43 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
         usageExample();
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING DESTRUCTOR SABOTAGE
+        //
+        // Concern:
+        //: 1 That the destructor sets state of the object to one that cannot
+        //:   be mistake for a valid value.
+        //
+        // Plan:
+        //: 1 Create and destroy an object in a 'bsls::ObjectBuffer', and
+        //:   observe that the value is out of bounds.
+        //
+        // Testing:
+        //   ~ArgumentType();
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING DESTRUCTOR SABOTAGE\n"
+                            "===========================\n");
+
+        bsls::ObjectBuffer<Obj> oBuffer;
+        Obj& mX = oBuffer.object();    const Obj& X = mX;
+
+        new (&mX) Obj(3);
+        ASSERT(3 == X);
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedFrom());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedInto());
+        mX.~Obj();
+
+        const int xValue = X;
+        ASSERT(xValue < 1000 || 1000 < xValue);
+        const int fValue = X.movedFrom();
+        ASSERT(fValue < 1000 || 1000 < fValue);
+        const int iValue = X.movedInto();
+        ASSERT(iValue < 1000 || 1000 < iValue);
+
+        if (verbose) { P_(xValue); P_(fValue); P(iValue); }
       } break;
       case 13: {
         // --------------------------------------------------------------------
