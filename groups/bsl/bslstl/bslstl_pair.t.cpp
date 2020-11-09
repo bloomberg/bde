@@ -284,10 +284,8 @@ class Base {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     ~Base() = default;
         // Destroy this object.
-#endif
 
     // MANIPULATORS
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     Base& operator=(const Base&) = default;
         // Assign to this object the value of the specified 'rhs', and return
         // a reference providing modifiable access to this object.
@@ -2340,10 +2338,8 @@ class my_NoAllocString : public my_AllocArgString<bsl::allocator<char> >
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     ~my_NoAllocString() = default;
         // Destroy this object.
-#endif
 
     // MANIPULATORS
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     my_NoAllocString& operator=(const my_NoAllocString& rhs) = default;
         // Assign to this object the value of the specified 'rhs', and return
         // a reference providing modifiable access to this object.

@@ -2495,8 +2495,8 @@ class Swappable {
     {
     }
 
-    // MANIPULATORS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    // MANIPULATORS
     Swappable& operator=(const Swappable&) = default;
 #endif
 

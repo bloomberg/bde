@@ -2066,17 +2066,18 @@ class MostEvilTestType {
     // NOT IMPLEMENTED
     void operator=(MostEvilTestType&) BSLS_KEYWORD_DELETED;
 
-    void operator&();  // = delete;
+    void operator&() BSLS_KEYWORD_DELETED;
 
     template<class ANY_TYPE>
-    void operator,(const ANY_TYPE&); // = delete;
+    void operator,(const ANY_TYPE&) BSLS_KEYWORD_DELETED;
 
     template<class ANY_TYPE>
-    void operator,(ANY_TYPE&); // = delete;
+    void operator,(ANY_TYPE&) BSLS_KEYWORD_DELETED;
 
-    static void* operator new(std::size_t size); // = delete
-    static void* operator new(std::size_t size, void *ptr); // = delete
-    static void operator delete(void *ptr); // = delete
+    static void* operator new(std::size_t size) BSLS_KEYWORD_DELETED;
+    static void* operator new(std::size_t size, void *ptr)
+                                                          BSLS_KEYWORD_DELETED;
+    static void operator delete(void *ptr) BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS

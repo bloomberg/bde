@@ -232,8 +232,8 @@ class Swappable {
         ++Swappable::s_numObjectsCreated;
     }
 
-    // MANIPULATORS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    // MANIPULATORS
     Swappable& operator=(const Swappable& rhs) = default;
         // Assign to this object the value of the specified 'rhs', and return
         // a reference providing modifiable access to this object.

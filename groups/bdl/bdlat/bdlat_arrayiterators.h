@@ -206,8 +206,8 @@ class BackInsertIterator
         // 'array'.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-    BackInsertIterator(const BackInsertIterator& other) = default;
-        // Construct a copy of the specified 'other'.
+    BackInsertIterator(const BackInsertIterator& original) = default;
+        // Construct a copy of the specified 'original'.
 #endif
 
 #ifdef DOXYGEN // Compiler-generated functions:

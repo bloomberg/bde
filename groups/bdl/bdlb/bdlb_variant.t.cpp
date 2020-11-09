@@ -981,8 +981,8 @@ struct Copyable {
         d_arguments[0] = !!value;
     }
 
-    // MANIPULATORS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    // MANIPULATORS
     Copyable& operator=(const Copyable& rhs) = default;
         // Assign to this object the value of the specified 'rhs', and return
         // a reference providing modifiable access to this object.

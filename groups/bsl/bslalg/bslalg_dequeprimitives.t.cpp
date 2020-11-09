@@ -571,11 +571,12 @@ class BitwiseMoveableTestType : public TestType {
     {
     }
 
-    // MANIPULATORS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-    BitwiseMoveableTestType(const BitwiseMoveableTestType& original) = default;
-        // Create a 'name' object having the value of the specified 'original'
-        // object.
+    // MANIPULATORS
+    BitwiseMoveableTestType& operator=(const BitwiseMoveableTestType& rhs)
+                                                                     = default;
+        // Assign to this object the value of the specified 'rhs', and return
+        // a reference providing modifiable access to this object.
 #endif
 };
 
@@ -618,8 +619,8 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
     {
     }
 
-    // MANIPULATORS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    // MANIPULATORS
     BitwiseCopyableTestType& operator=(const BitwiseCopyableTestType& rhs)
                                                                      = default;
         // Assign to this object the value of the specified 'rhs', and return
