@@ -9,6 +9,7 @@ bslstl_bidirectionalnodepool
 bslstl_bidirectionalnodepool_cpp03
 bslstl_bitset
 bslstl_boyermoorehorspoolsearcher
+bslstl_charconv
 bslstl_chrono
 bslstl_complex
 bslstl_defaultsearcher
