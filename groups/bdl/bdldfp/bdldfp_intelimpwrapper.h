@@ -64,7 +64,8 @@ BSLS_IDENT("$Id$")
 #    if !(defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU))  \
      && !(defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG))\
      && !defined(BSLS_PLATFORM_OS_WINDOWS)
-#      define __thread
+#      undef  BID_THREAD
+#      define BID_THREAD
 #      define __QNX__
 #      define BDLDFP_INTELIMPWRAPPER_FAKE_DEFINE_QNX
 #    endif
