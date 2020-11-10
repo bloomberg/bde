@@ -72,6 +72,7 @@ BSLS_IDENT("$Id$")
 #    if !(defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU))  \
      && !(defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG))\
      && !defined(BSLS_PLATFORM_OS_WINDOWS)
+// Prevent the intel dfp library from using thread-local storage
 #      undef  BID_THREAD
 #      define BID_THREAD
 #      define __QNX__
