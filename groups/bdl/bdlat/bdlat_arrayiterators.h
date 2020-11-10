@@ -139,6 +139,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_bdeatoverrides.h>
 #include <bdlat_valuetypefunctions.h>
 
+#include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 
 #include <bsl_iterator.h>
@@ -204,10 +205,12 @@ class BackInsertIterator
         // Construct a back-insertion iterator to manipulate the specified
         // 'array'.
 
-#ifdef DOXYGEN // Compiler-generated functions:
-    BackInsertIterator(const BackInsertIterator& other);
-        // Construct a copy of the specified 'other'.
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    BackInsertIterator(const BackInsertIterator& original) = default;
+        // Construct a copy of the specified 'original'.
+#endif
 
+#ifdef DOXYGEN // Compiler-generated functions:
     ~BackInsertIterator();
         // Destroy this iterator
 #endif

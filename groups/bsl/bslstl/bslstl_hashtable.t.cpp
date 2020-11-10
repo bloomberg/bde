@@ -27,6 +27,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_exceptionutil.h>
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -2063,19 +2064,20 @@ class MostEvilTestType {
 
   private:
     // NOT IMPLEMENTED
-    void operator=(MostEvilTestType&); // = delete
+    void operator=(MostEvilTestType&) BSLS_KEYWORD_DELETED;
 
-    void operator&();  // = delete;
-
-    template<class ANY_TYPE>
-    void operator,(const ANY_TYPE&); // = delete;
+    void operator&() BSLS_KEYWORD_DELETED;
 
     template<class ANY_TYPE>
-    void operator,(ANY_TYPE&); // = delete;
+    void operator,(const ANY_TYPE&) BSLS_KEYWORD_DELETED;
 
-    static void* operator new(std::size_t size); // = delete
-    static void* operator new(std::size_t size, void *ptr); // = delete
-    static void operator delete(void *ptr); // = delete
+    template<class ANY_TYPE>
+    void operator,(ANY_TYPE&) BSLS_KEYWORD_DELETED;
+
+    static void* operator new(std::size_t size) BSLS_KEYWORD_DELETED;
+    static void* operator new(std::size_t size, void *ptr)
+                                                          BSLS_KEYWORD_DELETED;
+    static void operator delete(void *ptr) BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS

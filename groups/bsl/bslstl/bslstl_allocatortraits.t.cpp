@@ -481,6 +481,12 @@ class FunkyPointer
     // Construct from null pointer
     FunkyPointer(int FunkyPointer::*) : d_imp(0) { }                // IMPLICIT
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    FunkyPointer& operator=(const FunkyPointer& rhs) = default;
+        // Assign to this object the value of the specified 'rhs', and return
+        // a reference providing modifiable access to this object.
+#endif
+
     TYPE& operator*() const { return *d_imp; }
     TYPE* operator->() const { return d_imp; }
 };

@@ -524,6 +524,12 @@ int testEndToEndArray(typename bsl::add_lvalue_reference<TP>::type arg,
         , d_copies(original.d_copies + 1)
         { }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+        ArgType& operator=(const ArgType& rhs) = default;
+            // Assign to this object the value of the specified 'rhs', and
+            // return a reference providing modifiable access to this object.
+#endif
+
         int copies() const { return d_copies; }
             // Return the number of copies that this object is from the
             // original.
