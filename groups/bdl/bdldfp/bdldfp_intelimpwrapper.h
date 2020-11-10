@@ -60,11 +60,21 @@ BSLS_IDENT("$Id$")
 // '__QNX__' so that the intel library includes '<fenv.h>'.  As a result, if
 // we're not using GCC or Clang on Linux, we pretend to be "QNX", since the
 // Intel library has the right options chosen for that.
+//
+// 20201110 - hrosen4 - We should revisit this BID_THREAD logic eventually.
+// Our production Sun compiler now supports '__thread', and IBM claims to
+// support it when thread-local storage is enabled by option (which our build
+// systems do not).  The Intel DFP library uses thread-local storage, when
+// available, for global variables related to rounding mode and such, and the
+// 'bdldfp' library does not modify or provide access to those, so this is not
+// urgent.
 
 #    if !(defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU))  \
      && !(defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG))\
      && !defined(BSLS_PLATFORM_OS_WINDOWS)
-#      define __thread
+// Prevent the intel dfp library from using thread-local storage
+#      undef  BID_THREAD
+#      define BID_THREAD
 #      define __QNX__
 #      define BDLDFP_INTELIMPWRAPPER_FAKE_DEFINE_QNX
 #    endif
