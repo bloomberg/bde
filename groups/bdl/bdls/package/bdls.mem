@@ -1,6 +1,10 @@
 bdls_fdstreambuf
 bdls_filedescriptorguard
 bdls_filesystemutil
+bdls_filesystemutil_uniximputil
+bdls_filesystemutil_unixplatform
+bdls_filesystemutil_transitionaluniximputil
+bdls_filesystemutil_windowsimputil
 bdls_memoryutil
 bdls_osutil
 bdls_pathutil

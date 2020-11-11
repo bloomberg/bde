@@ -12,6 +12,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 
+#include <bdls_filesystemutil_uniximputil.h>
+#include <bdls_filesystemutil_unixplatform.h>
+#include <bdls_filesystemutil_transitionaluniximputil.h>
+#include <bdls_filesystemutil_windowsimputil.h>
 #include <bdls_memoryutil.h>
 #include <bdls_pathutil.h>
 
@@ -68,21 +72,45 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp, "$Id$ $CSID$")
 # include <sys/uio.h>
 #endif
 
+// MACROS
+#if defined(BSLS_PLATFORM_OS_UNIX)                           \
+ && (   defined(BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF) \
+     || defined(BDLS_FILESYSTEMUTIL_UNIXPLATFORM_32_BIT_OFF))
+    // If the current platform is a Unix, and either has a 64-bit 'off_t' type,
+    // or a 32-bit 'off_t' type and no 'off64_t' type, use the standard Unix
+    // file-system functions and types.
+# define U_USE_UNIX_FILE_SYSTEM_INTERFACE
+
+#elif defined(BSLS_PLATFORM_OS_UNIX) \
+   && defined(BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF64)
+    // Otherwise, if the current platform is a Unix and has a 64-bit 'off64_t'
+    // type and 'xxx64'-suffixed functions, use these non-standard,
+    // 'xxx64'-suffixed, file-system functions and types where appropriate.
+    // Note that these functions are deprecated in many modern Unixes, but are
+    // nevertheless required for 64-bit file-offset support in some 32-bit
+    // build modes on some Unixes.
+# define U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE
+
+#elif defined(BSLS_PLATFORM_OS_UNIX)
+    // Otherwise, 'bdls_filesystemutil' supports no other Unix.  Note that some
+    // non-Unix systems, like Windows, are supported.  Further, note that
+    // 'bdls_filesystemutil' does not consider Windows a Unix even though its
+    // Universal C Runtime layer supports a subset of the POSIX interface.
+# error "'bdls_filesystemutil' does not support this platform."
+#endif
+
 // PRIVATE CONSTANTS
 enum {
     k_UNKNOWN_ERROR = 127
 };
 
 // STATIC HELPER FUNCTIONS
-//
-
 namespace BloombergLP {
 namespace {
 namespace u {
 
-#if defined(BSLS_PLATFORM_OS_FREEBSD) \
- || defined(BSLS_PLATFORM_OS_DARWIN)  \
- || defined(BSLS_PLATFORM_OS_CYGWIN)
+#if defined(BSLS_PLATFORM_OS_UNIX) \
+ && defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
 
                           // ========================
                           // struct UnixInterfaceUtil
@@ -95,18 +123,60 @@ struct UnixInterfaceUtil {
     // Unix interface calls.
 
     // TYPES
-    typedef struct stat stat;
+    typedef ::off_t off_t;
+        // 'off_t' is an alias to the 'off_t' type provided by the
+        // 'sys/types.h' header.  It is a signed integral type used to
+        // represent quantities of bytes.  Note that, depending on the build
+        // configuration, this type may have 32 or 64 bits.
+
+    typedef struct ::stat stat;
         // 'stat' is an alias to the 'stat' 'struct' provided by the
         // 'sys/stat.h' header.
 
+    typedef ::time_t time_t;
+        // 'time_t' is an alias to the 'time_t' type provided by the
+        // 'sys/types.h' header.  It represents a time point as number of
+        // seconds since January 1st 1970 in Coordinated Universal Time.
+
     // CLASS METHODS
+    static time_t get_st_mtime(const stat& stat);
+        // Return the value of the 'st_mtime' data member of the specified
+        // 'stat' struct.  Note that, on some Unix platforms and some build
+        // configurations, the 'stat' struct does not have an 'st_mtime' field,
+        // and 'st_mtime' is a macro that emulates the access of the field.
+        // For more information, please see the specification of the
+        // 'sys/stat.h' header from IEEE Std 1003.1-2017, which provides
+        // information about the evolution of the 'stat' struct in the POSIX
+        // specification.
+
+    static off_t get_st_size(const stat& stat);
+        // Return the value of the 'st_size' data member of the specified
+        // 'stat' struct.  Note that this function is provided in order to
+        // create a consistent interface for accessing the data members of a
+        // 'stat' struct with 'get_st_mtime'.
+
     static int fstat(int fildes, stat *buf);
         // Invoke and return the result of '::fstat(fildes, buf)' with the
         // specified  'fildes' and 'buf', where '::fstat' is the function
         // provided by the 'sys/stat.h' header.
 };
 
-#elif defined(BSLS_PLATFORM_OS_UNIX)
+                             // ==================
+                             // struct UnixImpUtil
+                             // ==================
+
+typedef bdls::FilesystemUtil_UnixImpUtil<UnixInterfaceUtil> UnixImpUtil;
+    // 'UnixImpUtil' is an alias to an utility 'struct' that provides the
+    // implementations of some of 'bdls::FilesystemUtil's functions for Unix
+    // systems.  Note that this 'struct' is a specialization of a utility class
+    // template that defines some file-system operations in terms of a
+    // parameterized Unix-interface utility.  This alias instantiates that
+    // template with a 'struct' that provides actual Unix interface calls.  The
+    // utility class template parameterizes its Unix interface in order to
+    // permit tests to instantiate the template with mock Unix interfaces.
+
+#elif defined(BSLS_PLATFORM_OS_UNIX) \
+   && defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
 
                     // ====================================
                     // struct TransitionalUnixInterfaceUtil
@@ -115,20 +185,63 @@ struct UnixInterfaceUtil {
 struct TransitionalUnixInterfaceUtil {
     // This component-private utility 'struct' provides an implementation of
     // the requirements for the 'UNIX_INTERFACE' template parameter of the
-    // functions provided by 'FilesystemUtil_TransitionalUnixImplUtil' in terms
+    // functions provided by 'FilesystemUtil_TransitionalUnixImpUtil' in terms
     // of actual transitional Unix interface calls.
 
     // TYPES
+    typedef ::off64_t off64_t;
+        // 'off_t' is an alias to the 'off_t' type provided by the
+        // 'sys/types.h' header.  It is a signed integral type used to
+        // represent quantities of bytes.
+
     typedef struct stat64 stat64;
         // 'stat64' is an alias to the 'stat64' 'struct' provided by the
         // 'sys/stat.h' header.
 
+    typedef ::time_t time_t;
+        // 'time_t' is an alias to the 'time_t' type provided by the
+        // 'sys/types.h' header.  It represents a time point as number of
+        // seconds since January 1st 1970 in Coordinated Universal Time.
+
     // CLASS METHODS
+    static time_t get_st_mtime(const stat64& stat);
+        // Return the value of the 'st_mtime' data member of the specified
+        // 'stat' struct.  Note that, on some Unix platforms and some build
+        // configurations, the 'stat' struct does not have an 'st_mtime' field,
+        // and 'st_mtime' is a macro that emulates the access of the field.
+        // For more information, please see the specification of the
+        // 'sys/stat.h' header from IEEE Std 1003.1-2017, which provides
+        // information about the evolution of the 'stat' struct in the POSIX
+        // specification.
+
+    static off64_t get_st_size(const stat64& stat);
+        // Return the value of the 'st_size' data member of the specified
+        // 'stat' struct.  Note that this function is provided in order to
+        // create a consistent interface for accessing the data members of a
+        // 'stat' struct with 'get_st_mtime'.
+
     static int fstat64(int fildes, stat64 *buf);
         // Invoke and return the result of '::fstat64(fildes, buf)' with the
         // specified 'fildes' and 'buf', where '::fstat64' is the function
         // provided by the 'sys/stat.h' header.
 };
+
+                       // ==============================
+                       // struct TransitionalUnixImpUtil
+                       // ==============================
+
+typedef bdls::FilesystemUtil_TransitionalUnixImpUtil<
+    TransitionalUnixInterfaceUtil>
+    TransitionalUnixImpUtil;
+    // 'TransitionalUnixImpUtil' is an alias to an utility 'struct' that
+    // provides the implementations of some of 'bdls::FilesystemUtil's
+    // functions for transitional Unix systems.  Note that this 'struct' is a
+    // specialization of a utility class template that defines some file-system
+    // operations in terms of a parameterized Unix-interface utility.  This
+    // alias instantiates that template with a 'struct' that provides actual
+    // Unix interface calls.  The utility class template parameterizes its Unix
+    // interface in order to permit tests to instantiate the template with mock
+    // Unix interfaces.
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
@@ -139,34 +252,98 @@ struct TransitionalUnixInterfaceUtil {
 struct WindowsInterfaceUtil {
     // This component-private utility 'struct' provides an implementation of
     // the requirements for the 'WINDOWS_INTERFACE' template parameter of the
-    // functions provided by 'FilesystemUtil_WindowsImplUtil' in terms of
+    // functions provided by 'FilesystemUtil_WindowsImpUtil' in terms of
     // actual Windows interface calls.
 
     // TYPES
-    typedef DWORD DWORD;
+    typedef ::BOOL BOOL;
+        // 'BOOL' is an alias to the unsigned integral 'BOOL' type provided
+        // by the 'windows.h' header.
+
+    typedef ::DWORD DWORD;
         // 'DWORD' is an alias to the unsigned integral 'DWORD' type provided
         // by the 'windows.h' header.
 
-    typedef ULONG64 ULONG64;
+    typedef ::FILETIME FILETIME;
+        // 'FILETIME' is an alias to the 'FILETIME' struct provided by the
+        // 'windows.h' header.
+
+    typedef ::HANDLE HANDLE;
+        // 'HANDLE' is an alias to the 'HANDLE' type provided by the
+        // 'windows.h' header.
+
+    typedef ::INT64 INT64;
+        // 'INT64' is an alias to the signed integral 'INT64' type provided by
+        // the 'windows.h' header.
+
+    typedef ::LPDWORD LPDWORD;
+        // 'LPDWORD' is an alias to the 'LPDWORD' type provided by the
+        // 'windows.h' header.
+
+    typedef ::LPFILETIME LPFILETIME;
+        // 'LPFILETIME' is an alias to the 'LPFILETIME' type provided by the
+        // 'windows.h' header.
+
+    typedef ::LPSYSTEMTIME LPSYSTEMTIME;
+        // 'LPSYSTEMTIME' is an alias to the 'LPSYSTEMTIME' type provided by
+        // the 'windows.h' header.
+
+    typedef ::SYSTEMTIME SYSTEMTIME;
+        // 'SYSTEMTIME' is an alias to the 'SYSTEMTIME' struct provided by the
+        // 'windows.h' header.
+
+    typedef ::ULONG64 ULONG64;
         // 'ULONG64' is an alias to the unsigned integral 'ULONG64' type
         // provided by the 'windows.h' header.
 
     // CLASS METHODS
+    static BOOL FileTimeToSystemTime(const FILETIME *lpFileTime,
+                                     LPSYSTEMTIME    lpSystemTime);
+        // Invoke and return the result of
+        // '::FileTimeToSystemTime(lpFileTime, lpSystemTime)' with the
+        // specified 'lpFileTime' and 'lpSystemTime', where
+        // '::FileTimeToSystemTime' is the function provided by the 'windows.h'
+        // header.
+
     static DWORD GetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
         // Invoke and return the result of
         // '::GetFileSize(hFile, lpFileSizeHigh)' with the specified 'hFile'
         // and 'lpFileSizeHigh', where '::GetFileSize' is the function provided
         // by the 'windows.h' header.
 
+    static BOOL GetFileTime(HANDLE     hFile,
+                            LPFILETIME lpCreationTime,
+                            LPFILETIME lpLastAccessTime,
+                            LPFILETIME lpLastWriteTime);
+        // Invoke and return the result of '::GetFileTime(hFile,
+        // lpCreationTime, lpLastAccessTime, lpLastWriteTime)' with the
+        // specified 'hFile', 'lpCreationTime', 'lpLasAccessTime', and
+        // 'lpLastWriteTime', where '::GetFileTime' is the function provided by
+        // the 'windows.h' header.
+
     static DWORD GetLastError();
         // Invoke and return the result of '::GetLastError()', where
         // '::GetLastError' is the function provided by the 'windows.h' header.
 };
 
+                           // =====================
+                           // struct WindowsImpUtil
+                           // =====================
+
+typedef bdls::FilesystemUtil_WindowsImpUtil<WindowsInterfaceUtil>
+    WindowsImpUtil;
+    // 'WindowsImpUtil' is an alias to an utility 'struct' that provides the
+    // implementations of some of 'bdls::FilesystemUtil's functions for Windows
+    // systems.  Note that this 'struct' is a specialization of a utility class
+    // template that defines some file-system operations in terms of a
+    // parameterized Windows-interface utility.  This alias instantiates that
+    // template with a 'struct' that provides actual Windows interface calls.
+    // The utility class template parameterizes its Windows interface in order
+    // to permit tests to instantiate the template with mock Windows
+    // interfaces.
+
 #else
-
-#error 'bdls_filesystemutil' does not support this platform.
-
+# error "'bdls_filesystemutil' does not support this platform."
 #endif
 
 }  // close namespace u
@@ -252,32 +429,30 @@ bool shortIsDotOrDots(const char *path)
 }
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
-
-#if defined(BSLS_PLATFORM_OS_CYGWIN) || defined(BSLS_PLATFORM_OS_DARWIN)
+# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
 namespace {
-    typedef struct stat   StatResult;
+    typedef struct ::stat   StatResult;
 }  // close unnamed namespace
-
-#else
-
+# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
 namespace {
-    typedef struct stat64 StatResult;
+    typedef struct ::stat64 StatResult;
 }  // close unnamed namespace
-
-#endif
+# else
+#  error "'bdls_filesystemutil' does not support this platform."
+# endif
 
 static inline
 int performStat(const char *fileName, StatResult *statResult)
     // Run the appropriate 'stat' or 'stat64' function on the specified
     // 'fileName', returning the results in the specified 'statResult'.
 {
-
-#if defined(BSLS_PLATFORM_OS_CYGWIN) || defined(BSLS_PLATFORM_OS_DARWIN)
-    return stat  (fileName, statResult);
-#else
-    return stat64(fileName, statResult);
-#endif
-
+# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
+    return ::stat  (fileName, statResult);
+# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+    return ::stat64(fileName, statResult);
+# else
+#  error "'bdls_filesystemutil' does not support this platform."
+# endif
 }
 
 static inline
@@ -287,13 +462,15 @@ int performStat(const char *fileName, StatResult *statResult, bool followLinks)
     // the specified 'followLinks' indicates whether symlinks are to be
     // followed.
 {
-#if defined(BSLS_PLATFORM_OS_CYGWIN) || defined(BSLS_PLATFORM_OS_DARWIN)
-    return followLinks ?  stat(fileName, statResult)
-                       : lstat(fileName, statResult);
-#else
-    return followLinks ?  stat64(fileName, statResult)
-                       : lstat64(fileName, statResult);
-#endif
+# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
+    return followLinks ?  ::stat(fileName, statResult)
+                       : ::lstat(fileName, statResult);
+# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+    return followLinks ?  ::stat64(fileName, statResult)
+                       : ::lstat64(fileName, statResult);
+# else
+#  error "'bdls_filesystemutil' does not support this platform."
+# endif
 }
 
 extern "C" {
@@ -318,7 +495,7 @@ int bloombergLP_bdls_FileSystemUtil_isNotFilePermissionsError(
     // open one of the files, which may manifest as one of the following 3
     // values.
 
-#ifdef BSLS_PLATFORM_OS_SOLARIS
+# ifdef BSLS_PLATFORM_OS_SOLARIS
 
     // The Solaris 'glob' function sometimes tries to treat files as
     // directories, which normally aborts the traversal.  So on Solaris we
@@ -328,7 +505,7 @@ int bloombergLP_bdls_FileSystemUtil_isNotFilePermissionsError(
     if (ENOTDIR == errorNum) {
         return 0;                                                     // RETURN
     }
-#endif
+# endif
 
     return EPERM != errorNum && EACCES != errorNum && ENOENT != errorNum;
 }
@@ -1004,6 +1181,16 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
     return 0;
 }
 
+int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
+                                            FileDescriptor  descriptor)
+{
+    BSLS_ASSERT(time);
+    typedef FilesystemUtil_WindowsImpUtil<u::WindowsInterfaceUtil>
+        WindowsImpUtil;
+
+    return WindowsImpUtil::getLastModificationTime(time, descriptor);
+}
+
 int FilesystemUtil::visitPaths(
                            const char                              *patternStr,
                            const bsl::function<void(const char*)>&  visitor)
@@ -1412,8 +1599,7 @@ FilesystemUtil::Offset FilesystemUtil::getFileSize(const char *path)
 
 FilesystemUtil::Offset FilesystemUtil::getFileSize(FileDescriptor descriptor)
 {
-    typedef FilesystemUtil_WindowsImplUtil WindowsImplUtil;
-    return WindowsImplUtil::getFileSize<u::WindowsInterfaceUtil>(descriptor);
+    return u::WindowsImpUtil::getFileSize(descriptor);
 }
 
 FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
@@ -1538,20 +1724,22 @@ FilesystemUtil::FileDescriptor FilesystemUtil::open(
     }
 
     if (useExtendedOpen) {
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
- || defined(BSLS_PLATFORM_OS_CYGWIN)
+# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
         return ::open(path, oflag, extendedFlags);                    // RETURN
-#else
-        return open64(path, oflag, extendedFlags);                    // RETURN
-#endif
+# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+        return ::open64(path, oflag, extendedFlags);                  // RETURN
+# else
+#  error "'bdls_filesystemutil' does not support this platform."
+# endif
     }
     else {
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
- || defined(BSLS_PLATFORM_OS_CYGWIN)
+# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
         return ::open(path, oflag);                                   // RETURN
-#else
-        return open64(path, oflag);                                   // RETURN
-#endif
+# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+        return ::open64(path, oflag);                                 // RETURN
+# else
+#  error "'bdls_filesystemutil' does not support this platform."
+# endif
     }
 }
 
@@ -1572,28 +1760,29 @@ FilesystemUtil::Offset FilesystemUtil::seek(FileDescriptor descriptor,
                                             int            whence)
 {
     switch (whence) {
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
- || defined(BSLS_PLATFORM_OS_CYGWIN)
+# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
       case e_SEEK_FROM_BEGINNING: {
-        return lseek(descriptor, offset, SEEK_SET);                   // RETURN
+        return ::lseek(descriptor, offset, SEEK_SET);                 // RETURN
       }
       case e_SEEK_FROM_CURRENT: {
-        return lseek(descriptor, offset, SEEK_CUR);                   // RETURN
+        return ::lseek(descriptor, offset, SEEK_CUR);                 // RETURN
       }
       case e_SEEK_FROM_END: {
-        return lseek(descriptor, offset, SEEK_END);                   // RETURN
+        return ::lseek(descriptor, offset, SEEK_END);                 // RETURN
       }
-#else
+# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
       case e_SEEK_FROM_BEGINNING: {
-        return lseek64(descriptor, offset, SEEK_SET);                 // RETURN
+        return ::lseek64(descriptor, offset, SEEK_SET);               // RETURN
       }
       case e_SEEK_FROM_CURRENT: {
-        return lseek64(descriptor, offset, SEEK_CUR);                 // RETURN
+        return ::lseek64(descriptor, offset, SEEK_CUR);               // RETURN
       }
       case e_SEEK_FROM_END: {
-        return lseek64(descriptor, offset, SEEK_END);                 // RETURN
+        return ::lseek64(descriptor, offset, SEEK_END);               // RETURN
       }
-#endif
+# else
+#  error "'bdls_filesystemutil' does not support this platform."
+# endif
       default: {
         return -1;                                                    // RETURN
       }
@@ -1713,12 +1902,13 @@ int FilesystemUtil::map(FileDescriptor   descriptor,
         protect |= PROT_EXEC;
     }
 
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
- || defined(BSLS_PLATFORM_OS_CYGWIN)
-    *address = mmap(0, size, protect, MAP_SHARED, descriptor, offset);
-#else
-    *address = mmap64(0, size, protect, MAP_SHARED, descriptor, offset);
-#endif
+# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
+    *address = ::mmap(0, size, protect, MAP_SHARED, descriptor, offset);
+# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+    *address = ::mmap64(0, size, protect, MAP_SHARED, descriptor, offset);
+# else
+#  error "'bdls_filesystemutil' does not support this platform."
+# endif
 
     if (MAP_FAILED == *address) {
         *address = NULL;
@@ -1835,6 +2025,21 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
     time->addSeconds(fileStats.st_mtime);
     return 0;
 }
+
+int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
+                                            FileDescriptor  descriptor)
+{
+    BSLS_ASSERT(time);
+# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
+    return u::UnixImpUtil::getLastModificationTime(time, descriptor);
+# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+    return u::TransitionalUnixImpUtil::getLastModificationTime(time,
+                                                               descriptor);
+# else
+#  error "'bdls_filesystemutil' does not support this platform."
+# endif
+}
+
 
 int FilesystemUtil::visitPaths(
                              const char                               *pattern,
@@ -2074,14 +2279,15 @@ FilesystemUtil::getAvailableSpace(const char *path)
 {
     BSLS_ASSERT(path);
 
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
- || defined(BSLS_PLATFORM_OS_CYGWIN)
-    struct statvfs buffer;
-    int rc = statvfs(path, &buffer);
-#else
-    struct statvfs64 buffer;
-    int rc = statvfs64(path, &buffer);
-#endif
+# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
+    struct ::statvfs buffer;
+    int rc = ::statvfs(path, &buffer);
+# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+    struct ::statvfs64 buffer;
+    int rc = ::statvfs64(path, &buffer);
+# else
+#  error "'bdls_filesystemutil' does not support this platform."
+# endif
     if (rc) {
         return -1;                                                    // RETURN
     }
@@ -2096,14 +2302,15 @@ FilesystemUtil::getAvailableSpace(const char *path)
 FilesystemUtil::Offset
 FilesystemUtil::getAvailableSpace(FileDescriptor descriptor)
 {
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
- || defined(BSLS_PLATFORM_OS_CYGWIN)
-    struct statvfs buffer;
-    int rc = fstatvfs(descriptor, &buffer);
-#else
-    struct statvfs64 buffer;
-    int rc = fstatvfs64(descriptor, &buffer);
-#endif
+# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
+    struct ::statvfs buffer;
+    int rc = ::fstatvfs(descriptor, &buffer);
+# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+    struct ::statvfs64 buffer;
+    int rc = ::fstatvfs64(descriptor, &buffer);
+# else
+#  error "'bdls_filesystemutil' does not support this platform."
+# endif
     if (rc) {
         return -1;                                                    // RETURN
     }
@@ -2128,27 +2335,26 @@ FilesystemUtil::Offset FilesystemUtil::getFileSize(const char *path)
 
 FilesystemUtil::Offset FilesystemUtil::getFileSize(FileDescriptor descriptor)
 {
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
- || defined(BSLS_PLATFORM_OS_CYGWIN)
-    typedef FilesystemUtil_UnixImplUtil UnixImplUtil;
-    return UnixImplUtil::getFileSize<u::UnixInterfaceUtil>(descriptor);
-#else
-    typedef FilesystemUtil_TransitionalUnixImplUtil TransitionalUnixImplUtil;
-    return TransitionalUnixImplUtil::getFileSize<
-        u::TransitionalUnixInterfaceUtil>(descriptor);
-#endif
+# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
+    return u::UnixImpUtil::getFileSize(descriptor);
+# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+    return u::TransitionalUnixImpUtil::getFileSize(descriptor);
+# else
+#  error "'bdls_filesystemutil' does not support this platform."
+# endif
 }
 
 FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
 {
-#if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
- || defined(BSLS_PLATFORM_OS_CYGWIN)
-    struct rlimit rl, rlMax, rlInf;
-    int rc = getrlimit(RLIMIT_FSIZE, &rl);
-#else
-    struct rlimit64 rl, rlMax, rlInf;
-    int rc = getrlimit64(RLIMIT_FSIZE, &rl);
-#endif
+# if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
+    struct ::rlimit rl, rlMax, rlInf;
+    int rc = ::getrlimit(RLIMIT_FSIZE, &rl);
+# elif defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+    struct ::rlimit64 rl, rlMax, rlInf;
+    int rc = ::getrlimit64(RLIMIT_FSIZE, &rl);
+# else
+#  error "'bdls_filesystemutil' does not support this platform."
+# endif
 
     // Often, 'rl.rlim_cur' is an unsigned 64 bit, while 'Offset' is signed, so
     // 'rl.rlim_cur' may have a larger value than can be represented by an
@@ -2467,25 +2673,65 @@ FilesystemUtil::makeUnsafeTemporaryFilename(bsl::string             *outPath,
 namespace {
 namespace u {
 
-#if defined(BSLS_PLATFORM_OS_FREEBSD) \
- || defined(BSLS_PLATFORM_OS_DARWIN)  \
- || defined(BSLS_PLATFORM_OS_CYGWIN)
+#if defined(BSLS_PLATFORM_OS_UNIX) \
+ && defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
 
                           // ------------------------
                           // struct UnixInterfaceUtil
                           // ------------------------
 
 // CLASS METHODS
+UnixInterfaceUtil::time_t UnixInterfaceUtil::get_st_mtime(const stat& stat)
+{
+    // Note that 'st_mtime' is actually the name of a macro in some build
+    // configurations in some Unix systems.  For more information, please see
+    // the specification of the 'sys/stat.h' header from the IEEE Std
+    // 1003.1-2017, which provides information about the evolution of the
+    // 'stat' struct in the POSIX specification.
+
+    return stat.st_mtime;
+}
+
+UnixInterfaceUtil::off_t UnixInterfaceUtil::get_st_size(const stat& stat)
+{
+    // Note that 'st_size' is generally not a macro, and this function is
+    // provided for the sake of consistency.
+
+    return stat.st_size;
+}
+
 int UnixInterfaceUtil::fstat(int fildes, stat *buf)
 {
     return ::fstat(fildes, buf);
 }
 
-#elif defined(BSLS_PLATFORM_OS_UNIX)
+#elif defined(BSLS_PLATFORM_OS_UNIX) \
+   && defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
 
                     // ------------------------------------
                     // struct TransitionalUnixInterfaceUtil
                     // ------------------------------------
+
+TransitionalUnixInterfaceUtil::time_t
+TransitionalUnixInterfaceUtil::get_st_mtime(const stat64& stat)
+{
+    // Note that 'st_mtime' is actually the name of a macro in some build
+    // configurations in some Unix systems.  For more information, please see
+    // the specification of the 'sys/stat.h' header from the IEEE Std
+    // 1003.1-2017, which provides information about the evolution of the
+    // 'stat' struct in the POSIX specification.
+
+    return stat.st_mtime;
+}
+
+TransitionalUnixInterfaceUtil::off64_t
+TransitionalUnixInterfaceUtil::get_st_size(const stat64& stat)
+{
+    // Note that 'st_size' is generally not a macro, and this function is
+    // provided for the sake of consistency.
+
+    return stat.st_size;
+}
 
 int TransitionalUnixInterfaceUtil::fstat64(int fildes, stat64 *buf)
 {
@@ -2499,11 +2745,27 @@ int TransitionalUnixInterfaceUtil::fstat64(int fildes, stat64 *buf)
                         // ---------------------------
 
 // CLASS METHODS
+WindowsInterfaceUtil::BOOL WindowsInterfaceUtil::FileTimeToSystemTime(
+                                                  const FILETIME *lpFileTime,
+                                                  LPSYSTEMTIME    lpSystemTime)
+{
+    return ::FileTimeToSystemTime(lpFileTime, lpSystemTime);
+}
+
 WindowsInterfaceUtil::DWORD WindowsInterfaceUtil::GetFileSize(
                                                        HANDLE  hFile,
                                                        LPDWORD lpFileSizeHigh)
 {
     return ::GetFileSize(hFile, lpFileSizeHigh);
+}
+
+WindowsInterfaceUtil::BOOL
+WindowsInterfaceUtil::GetFileTime(HANDLE     hFile,
+                                  LPFILETIME lpCreationTime,
+                                  LPFILETIME lpLastAccessTime,
+                                  LPFILETIME lpLastWriteTime){
+    return ::GetFileTime(
+        hFile, lpCreationTime, lpLastAccessTime, lpLastWriteTime);
 }
 
 WindowsInterfaceUtil::DWORD WindowsInterfaceUtil::GetLastError()
@@ -2512,14 +2774,12 @@ WindowsInterfaceUtil::DWORD WindowsInterfaceUtil::GetLastError()
 }
 
 #else
-
-#error 'bdls_filesystemutil' does not support this platform.
-
+# error "'bdls_filesystemutil' does not support this platform."
 #endif
 
-}  // close enterprise namespace
-}  // close unnamed namespace
 }  // close namespace u
+}  // close unnamed namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
