@@ -1,5 +1,17 @@
-bsl-internal (3.66.0.0) unstable; urgency=low
+bsl-internal (3.67.0.0) unstable; urgency=low
 
+  * da03213fd Bumped version to 3.67.0.0
+  * 4300d9681 Merge pull request #2999 from jdevenpo/xlc16-sljit-platform-detection
+  * e3f4b0b35 Merge pull request #2980 from dsokolov7/review/bde-implicit-copy-constructor-drqs-157823946
+  * 59fe5fd5f Merge pull request #2996 from hrosen4/inteldfp_thread-drqs_164390534
+  * 28fa3efc4 Merge pull request #2990 from cwilson/bslstl_stringref-guard-explicit-instantiation-drqs-164345695
+  * b0b5b1fc7 Merge pull request #2983 from dsokolov7/review/bde-int-max-sized-buffers-drqs-157652377
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 13 Nov 2020 15:03:30 -0500
+
+bsl-internal (3.66.0.0) git; urgency=low
+
+  * 7c80b47e6 Changelog for version 3.66.0.0
   * cccbaa1d0 Bumped version to 3.66.0.0
   * cb519c8d8 Merge pull request #2984 from bde/revert-2974-bslma_constructionutil-destructiveMove
   * 69218c22d Safe versions of buffer insert functions have been added to 'bdlbb:Blob' (#2937)
@@ -7,7 +19,7 @@ bsl-internal (3.66.0.0) unstable; urgency=low
   * 41a77e4c9 Merge pull request #2976 from rkhlebnikov/drqs-164239441-fix-memcmp-ub
   * 2dec39c5b Merge pull request #2891 from mclow3/drqs-131875306
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 30 Oct 2020 17:11:59 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 30 Oct 2020 17:17:16 -0400
 
 bsl-internal (3.65.0.0) git; urgency=low
 
