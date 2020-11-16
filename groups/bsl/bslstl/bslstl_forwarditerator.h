@@ -192,12 +192,10 @@ class ForwardIterator
         // compiler generated.
 
     // MANIPULATORS
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-    ForwardIterator& operator=(const ForwardIterator& rhs) = default;
+    //! ForwardIterator& operator=(const ForwardIterator& rhs);
         // Copy the value of the specified 'rhs' to this iterator.  Return a
         // reference to this modifiable object.  Note that this method's
         // definition is compiler generated.
-#endif
 
     ForwardIterator& operator++();
         // Increment to the next element.  Return a reference to this

@@ -190,8 +190,6 @@ in BSL_OVERRIDES_STD mode"
 
 #include <bslmf_removecv.h>
 
-#include <bsls_compilerfeatures.h>
-
 #include <iterator>
 
 #include <cstddef>  // 'ptrdiff_t'
@@ -269,13 +267,10 @@ class BidirectionalIterator
         // compiler generated.
 
     // MANIPULATORS
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-    BidirectionalIterator& operator=(const BidirectionalIterator& rhs)
-                                                                     = default;
+    //! BidirectionalIterator& operator=(const BidirectionalIterator& rhs);
         // Copy the value of the specified 'rhs' to this iterator.  Return a
         // reference to this modifiable object.  Note that this method's
         // definition is compiler generated.
-#endif
 
     BidirectionalIterator& operator++();
         // Increment to the next element.  Return a reference to this
