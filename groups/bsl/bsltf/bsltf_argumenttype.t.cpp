@@ -15,6 +15,7 @@
 #include <bsls_objectbuffer.h>
 
 #include <limits.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -151,10 +152,42 @@ const DefaultDataRow DEFAULT_DATA[] =
 const size_t DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
 //=============================================================================
+//                            FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+namespace {
+namespace u {
+
+unsigned numBitsChanged(const void *segmentA,
+                        const void *segmentB,
+                        size_t      size)
+    // Compare the specified memory segments 'segmentA' and 'segmentB', both of
+    // specified 'size' bytes, and return the number of bits that differ
+    // between them.
+{
+    const unsigned char *a = static_cast<const unsigned char *>(segmentA);
+    const unsigned char *b = static_cast<const unsigned char *>(segmentB);
+
+    unsigned ret = 0;
+    for (const unsigned char *end = a + size; a < end; ++a, ++b) {
+        for (unsigned diff = *a ^ *b; diff; diff >>= 1) {
+            ret += diff & 1;
+        }
+    }
+
+    return ret;
+}
+
+}  // close namespace u
+}  // close unnamed namespace
+
+//=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 namespace {
+namespace u {
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -256,6 +289,8 @@ namespace {
         // forwardData(A22, A21);
     }
 //..
+
+}  // close namespace u
 }  // close unnamed namespace
 
 //=============================================================================
@@ -310,7 +345,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-        usageExample();
+        u::usageExample();
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -331,23 +366,30 @@ int main(int argc, char *argv[])
         if (verbose) printf("TESTING DESTRUCTOR SABOTAGE\n"
                             "===========================\n");
 
-        bsls::ObjectBuffer<Obj> oBuffer;
-        Obj& mX = oBuffer.object();    const Obj& X = mX;
+        bsls::ObjectBuffer<Obj> xBuffer, yBuffer;
+        Obj& mX = xBuffer.object();    const Obj& X = mX;
+        Obj& mY = yBuffer.object();    const Obj& Y = mY;
 
-        new (&mX) Obj(3);
+        new (xBuffer.address()) Obj(3);
         ASSERT(3 == X);
         ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedFrom());
         ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedInto());
+
+        new (yBuffer.address()) Obj(3);
+        ASSERT(3 == Y);
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == Y.movedFrom());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == Y.movedInto());
+
+        ASSERT(X == Y);
+
         mX.~Obj();
 
-        const int xValue = X;
-        ASSERT(xValue < 1000 || 1000 < xValue);
-        const int fValue = X.movedFrom();
-        ASSERT(fValue < 1000 || 1000 < fValue);
-        const int iValue = X.movedInto();
-        ASSERT(iValue < 1000 || 1000 < iValue);
+        const unsigned changed = u::numBitsChanged(xBuffer.address(),
+                                                   yBuffer.address(),
+                                                   sizeof(xBuffer));
+        ASSERT(changed >= (sizeof(xBuffer) * 8) / 4);
 
-        if (verbose) { P_(xValue); P_(fValue); P(iValue); }
+        mY.~Obj();
       } break;
       case 13: {
         // --------------------------------------------------------------------

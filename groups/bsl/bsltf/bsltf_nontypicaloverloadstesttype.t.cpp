@@ -16,8 +16,9 @@
 #include <new>
 
 #include <limits.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 using namespace BloombergLP;
 using namespace BloombergLP::bsltf;
@@ -164,6 +165,36 @@ const DefaultValueRow DEFAULT_VALUES[] =
 };
 
 const int DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES;
+
+//=============================================================================
+//                            FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+namespace {
+namespace u {
+
+unsigned numBitsChanged(const void *segmentA,
+                        const void *segmentB,
+                        size_t      size)
+    // Compare the specified memory segments 'segmentA' and 'segmentB', both of
+    // specified 'size' bytes, and return the number of bits that differ
+    // between them.
+{
+    const unsigned char *a = static_cast<const unsigned char *>(segmentA);
+    const unsigned char *b = static_cast<const unsigned char *>(segmentB);
+
+    unsigned ret = 0;
+    for (const unsigned char *end = a + size; a < end; ++a, ++b) {
+        for (unsigned diff = *a ^ *b; diff; diff >>= 1) {
+            ret += diff & 1;
+        }
+    }
+
+    return ret;
+}
+
+}  // close namespace u
+}  // close unnamed namespace
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -714,7 +745,11 @@ int main(int argc, char *argv[])
         const int B = INT_MAX;
         const int C = 3;
 
-        Obj mX; const Obj& X = mX;
+        // We can't use 'bsls::ObjectBuffer' because placement 'new' has been
+        // disabled for 'Obj'.
+
+        Obj mX;    const Obj& X = mX;
+        Obj mY;    const Obj& Y = mY;
 
         ASSERTV(X.data(), D == X.data());
 
@@ -727,13 +762,30 @@ int main(int argc, char *argv[])
         mX.setData(C);
         ASSERTV(X.data(), C == X.data());
 
+        mY.setData(C);
+        ASSERTV(Y.data(), C == Y.data());
+
+        ASSERT(X == Y);
+
+        unsigned changed = u::numBitsChanged(bsls::Util::addressOf(mX),
+                                             bsls::Util::addressOf(mY),
+                                             sizeof(mX));
+        ASSERT(0 == changed);
+
         mX.~Obj();
 
-        ASSERTV(X.data(), C != X.data());
-        const int xValue = X.data();
-        ASSERT(xValue < 1000 || 1000 < xValue);
+        changed = u::numBitsChanged(bsls::Util::addressOf(mX),
+                                    bsls::Util::addressOf(mY),
+                                    sizeof(mX));
+        ASSERT(changed >= (sizeof(mX) * 8) / 4);
 
-        if (verbose) P(xValue);
+        // 'mX' is a non-allocating type.  Restore its state to what it was
+        // before destruction so we won't have problems when it goes out of
+        // scope and is destroyed.
+
+        ::memcpy(bsls::Util::addressOf(mX),
+                 bsls::Util::addressOf(mY),
+                 sizeof(mX));
       } break;
       case 1: {
         // --------------------------------------------------------------------

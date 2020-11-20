@@ -196,6 +196,29 @@ struct op_not_equal_exist
 
 }  // close namespace check
 
+namespace u {
+
+unsigned numBitsChanged(const void *segmentA,
+                        const void *segmentB,
+                        size_t      size)
+    // Compare the specified memory segments 'segmentA' and 'segmentB', both of
+    // specified 'size' bytes, and return the number of bits that differ
+    // between them.
+{
+    const unsigned char *a = static_cast<const unsigned char *>(segmentA);
+    const unsigned char *b = static_cast<const unsigned char *>(segmentB);
+
+    unsigned ret = 0;
+    for (const unsigned char *end = a + size; a < end; ++a, ++b) {
+        for (unsigned diff = *a ^ *b; diff; diff >>= 1) {
+            ret += diff & 1;
+        }
+    }
+
+    return ret;
+}
+
+}  // close namespace u
 }  // close unnamed namespace
 
 //=============================================================================
@@ -697,9 +720,13 @@ int main(int argc, char *argv[])
         const int B = INT_MAX;
         const int C = 3;
 
-        bsls::ObjectBuffer<Obj> oBuffer;
-        Obj& mX = oBuffer.object(); const Obj& X = mX;
-        new (&mX) Obj();
+        bsls::ObjectBuffer<Obj> xBuffer, yBuffer;
+
+        new (xBuffer.address()) Obj();
+        new (yBuffer.address()) Obj();
+
+        Obj& mX = xBuffer.object();    const Obj& X = mX;
+        Obj& mY = yBuffer.object();    const Obj& Y = mY;
 
         ASSERTV(X.data(), D == X.data());
 
@@ -712,13 +739,19 @@ int main(int argc, char *argv[])
         mX.setData(C);
         ASSERTV(X.data(), C == X.data());
 
+        mY.setData(C);
+        ASSERTV(Y.data(), C == Y.data());
+
+        ASSERT(X.data() == Y.data());
+
         mX.~Obj();
 
-        ASSERTV(X.data(), C != X.data());
-        const int xValue = X.data();
-        ASSERT(xValue < 1000 || 1000 < xValue);
+        const unsigned changed = u::numBitsChanged(xBuffer.address(),
+                                                   yBuffer.address(),
+                                                   sizeof(xBuffer));
+        ASSERT(changed >= (sizeof(xBuffer) * 8) / 4);
 
-        if (verbose) P(xValue);
+        mY.~Obj();
       } break;
       case 1: {
         // --------------------------------------------------------------------
