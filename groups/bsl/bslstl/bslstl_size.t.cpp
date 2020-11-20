@@ -256,7 +256,7 @@ class MyContainer {
         return d_container[d_numElements - 1];
     }
 //..
-// Now, we declare 'capacity' and use 'bsl::size' to get the size of the
+// Now, we define 'capacity' and use 'bsl::size' to get the size of the
 // underlying 'd_container'.
 //
 // Note that the underlying container object never grows or shrinks after
