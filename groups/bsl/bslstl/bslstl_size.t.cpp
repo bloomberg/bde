@@ -19,6 +19,13 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
+// [ 2] size_t size(const CONTAINER&);
+// [ 2] ptrdiff_t ssize(const CONTAINER&);
+// [ 3] size_t size(const TYPE (&)[DIMENSION]);
+// [ 3] ptrdiff_t ssize(const TYPE (&)[DIMENSION]);
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 4] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -140,24 +147,26 @@ class MyContainer {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: A 'Stack' class
-/// - - - - - - - - - - - - -
-// Suppose we want to create a 'Stack' template class that contains a
+///Example 1: Using 'bsl::size' to Implement a 'Stack' Class Template
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to create a 'Stack' class template that contains a
 // fixed-length container whose elements can be accessed via 'operator[]'.  The
-// contained container could be a 'vector', 'deque', 'std::array', or a raw
-// array.
+// underlying container could be a 'bsl::vector', 'bsl::deque', 'bsl::array',
+// or a raw array.
 //
-// For the 'vector', 'deque', and 'std::array', we can call
-// '<container>.size()' to the get the capacity of the fixed-length container,
-// but that won't work in the case of a raw array, so we use 'bsl::size'.
+// For 'bsl::vector', 'bsl::deque', and 'bsl::array', we can call
+// '<container>.size()' to get the capacity of the fixed-length container, but
+// that won't work in the case of a raw array, so we use 'bsl::size'.
 //
-// First, we we declare the 'class':
+// First, we we declare the 'Stack' class templte:
 //..
     template <class CONTAINER, class ELEMENT = typename CONTAINER::value_type>
     class Stack {
-        // TYPES
+      public:
+        // PUBLIC TYPES
         typedef ELEMENT value_type;
 
+      private:
         // DATA
         CONTAINER      d_container;
         std::size_t    d_numElements;
@@ -165,42 +174,41 @@ class MyContainer {
       public:
         // CREATORS
         Stack();
-            // Create a 'Stack'.  Use this constructor when the type of
-            // 'CONTAINER' default-constructs to the desired length.
+            // Create a 'Stack'.  Use this constructor when the 'CONTAINER'
+            // type default-constructs to the desired length.
 
         explicit
         Stack(std::size_t initialSize);
-            // Create a 'Stack'.  Use this constructor when the type of
-            // 'CONTAINER' default constructs to 0 length, and has a
-            // single-argument constructor that takes a 'size_t' to grow it to
-            // the specified 'initialSize'.
+            // Create a 'Stack'.  Use this constructor when the 'CONTAINER'
+            // type default constructs to 0 length, and has a single-argument
+            // constructor that takes a 'size_t' to grow it to the specified
+            // 'initialSize'.
 
-        Stack(const Stack& original);
-            // Copy this 'Stack' from the specified 'original'.
-
+        // Stack(const Stack&) = default;
         // ~Stack() = default;
 
         // MANIPULATORS
         void push(const value_type& value);
-            // Push the specified 'value' onto the stack.  The behavior is
+            // Push the specified 'value' onto this stack.  The behavior is
             // undefined if the stack is full.
 
         value_type pop();
-            // Pop the value from the top of the stack and return it.  The
-            // behavior is undefined if the stack is empty.
+            // Pop the element from the top of this stack and return it.  The
+            // behavior is undefined if this stack is empty.
 
         // ACCESSOR
         std::size_t size() const;
             // Return the number of elements stored in the stack.
 
         const value_type& top() const;
-            // Return a reference to the object at the top of the stack.
+            // Return a 'const' reference to the element at the top of this
+            // stack.  The behavior is undefined if this 'Stack' is empty.
 
         BSLS_KEYWORD_CONSTEXPR std::size_t capacity() const;
             // Return the capacity of the stack.
     };
 //..
-// Next, we declare all the methods other than 'capacity()':
+// Next, we define all the methods other than 'capacity()':
 //..
     // CREATORS
     template <class CONTAINER, class ELEMENT>
@@ -213,17 +221,6 @@ class MyContainer {
     : d_container(initialSize)
     , d_numElements(0)
     {}
-
-    template <class CONTAINER, class ELEMENT>
-    Stack<CONTAINER, ELEMENT>::Stack(const Stack& original)
-    : d_numElements(0)
-    {
-        for (std::size_t uu = 0; uu < original.size(); ++uu) {
-            d_container[uu] = original.d_container[uu];
-        }
-
-        d_numElements = original.d_numElements;
-    }
 
     // MANIPULATORS
     template <class CONTAINER, class ELEMENT>
@@ -259,9 +256,17 @@ class MyContainer {
         return d_container[d_numElements - 1];
     }
 //..
-// Now, we declare 'capacity' and use 'bsl::size' to get the length of the
-// owned 'd_container'.
+// Now, we declare 'capacity' and use 'bsl::size' to get the size of the
+// underlying 'd_container'.
 //
+// Note that the underlying container object never grows or shrinks after
+// construction, it has a fixed size throughout the lifetime of the 'Stack'.
+// If it has a 'capacity' greater than its size, it never makes a difference
+// here.
+//
+// So if the 'CONTAINER' is 'bsl::vector', 'stack.capacity()' returns
+// 'd_container.size()', not 'd_container.capacity()'.
+//..
     template <class CONTAINER, class ELEMENT>
     inline
     BSLS_KEYWORD_CONSTEXPR std::size_t
@@ -278,22 +283,22 @@ void usage()
     typedef int Array[10];
     Stack<Array, int> aStack;
 
-    ASSERT(aStack.capacity() == 10);
-    ASSERT(aStack.size() == 0);
+    ASSERT(10 == aStack.capacity());
+    ASSERT( 0 == aStack.size());
 
     aStack.push(5);
     aStack.push(7);
     aStack.push(2);
 
-    ASSERT(aStack.size() == 3);
+    ASSERT(3 == aStack.size());
 
     ASSERT(2 == aStack.top());
     ASSERT(2 == aStack.pop());
 
     Stack<bsl::vector<int> > vStack(10);
 
-    ASSERT(vStack.capacity() == 10);
-    ASSERT(vStack.size() == 0);
+    ASSERT(10 == vStack.capacity());
+    ASSERT( 0 == vStack.size());
 
     vStack.push(5);
     vStack.push(7);
@@ -306,28 +311,28 @@ void usage()
 
     Stack<bsl::deque<int> > dStack(10);
 
-    ASSERT(dStack.capacity() == 10);
-    ASSERT(dStack.size() == 0);
+    ASSERT(10 == dStack.capacity());
+    ASSERT( 0 == dStack.size());
 
     dStack.push(5);
     dStack.push(7);
     dStack.push(2);
 
-    ASSERT(dStack.size() == 3);
+    ASSERT(3 == dStack.size());
 
     ASSERT(2 == dStack.top());
     ASSERT(2 == dStack.pop());
 
     Stack<bsl::array<int, 10> > baStack;
 
-    ASSERT(baStack.capacity() == 10);
-    ASSERT(baStack.size() == 0);
+    ASSERT(10 == baStack.capacity());
+    ASSERT( 0 == baStack.size());
 
     baStack.push(5);
     baStack.push(7);
     baStack.push(2);
 
-    ASSERT(baStack.size() == 3);
+    ASSERT(3 == baStack.size());
 
     ASSERT(2 == baStack.top());
     ASSERT(2 == baStack.pop());
@@ -360,6 +365,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Compile and run the usage example.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) printf("TEST USAGE EXAMPLE\n"
@@ -430,11 +438,11 @@ int main(int argc, char *argv[])
         // TEST CONTAINER SIZE CALLS
         //
         // Concern:
-        //: 1 That the functions under test can access the 'size' accessor of
-        //:   a container.
+        //: 1 That the functions under test return the number of elements in a
+        //:   container that provides a 'size' accessor.
         //
         // Plan:
-        //: 1 Create a type, 'MyContainer' in the unnamed namespace.
+        //: 1 Create a type, 'MyContainer', in the unnamed namespace.
         //:
         //: 2 Create an object of type 'MyContainer'.
         //:

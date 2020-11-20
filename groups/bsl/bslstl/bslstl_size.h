@@ -5,41 +5,43 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide 'size' and 'ssize' free functions.
+//@PURPOSE: Provide C++ Standard-compliant 'size' and 'ssize' free functions.
 //
 //@FUNCTIONS:
-//  size_t bsl::size(<array>)
-//  size_t bsl::size(<container>)
-//  ptrdiff_t bslstl::ssize(<array>)
-//  ptrdiff_t bslstl::ssize(<container>)
+//  bsl::size_t bsl::size(<array>)
+//  bsl::size_t bsl::size(<container>)
+//  bsl::ptrdiff_t bsl::ssize(<array>)
+//  bsl::ptrdiff_t bsl::ssize(<container>)
 //
-//@DESCRIPTION: This component provides the free functions 'size' and 'ssize',
-// two overloads of each one, the first to take a container that has a 'size'
-// accessor, and the second to take an array, in both cases to return the
-// number of elements in the array or container.
+//@DESCRIPTION: This component provides the free functions 'bsl::size' and
+// 'bsl::ssize', two overloads of each one, the first to take a container that
+// has a 'size' accessor, and the second to take an array, in both cases to
+// return the number of elements in the array or container.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: A 'Stack' class
-/// - - - - - - - - - - - - -
-// Suppose we want to create a 'Stack' template class that contains a
+///Example 1: Using 'bsl::size' to Implement a 'Stack' Class Template
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to create a 'Stack' class template that contains a
 // fixed-length container whose elements can be accessed via 'operator[]'.  The
-// contained container could be a 'vector', 'deque', 'std::array', or a raw
-// array.
+// underlying container could be a 'bsl::vector', 'bsl::deque', 'bsl::array',
+// or a raw array.
 //
-// For the 'vector', 'deque', and 'std::array', we can call
-// '<container>.size()' to the get the capacity of the fixed-length container,
-// but that won't work in the case of a raw array, so we use 'bsl::size'.
+// For 'bsl::vector', 'bsl::deque', and 'bsl::array', we can call
+// '<container>.size()' to get the capacity of the fixed-length container, but
+// that won't work in the case of a raw array, so we use 'bsl::size'.
 //
-// First, we we declare the 'class':
+// First, we we declare the 'Stack' class templte:
 //..
 //  template <class CONTAINER, class ELEMENT = typename CONTAINER::value_type>
 //  class Stack {
-//      // TYPES
+//    public:
+//      // PUBLIC TYPES
 //      typedef ELEMENT value_type;
 //
+//    private:
 //      // DATA
 //      CONTAINER      d_container;
 //      std::size_t    d_numElements;
@@ -47,42 +49,41 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      // CREATORS
 //      Stack();
-//          // Create a 'Stack'.  Use this constructor when the type of
-//          // 'CONTAINER' default-constructs to the desired length.
+//          // Create a 'Stack'.  Use this constructor when the 'CONTAINER'
+//          // type default-constructs to the desired length.
 //
 //      explicit
 //      Stack(std::size_t initialSize);
-//          // Create a 'Stack'.  Use this constructor when the type of
-//          // 'CONTAINER' default constructs to 0 length, and has a
-//          // single-argument constructor that takes a 'size_t' to grow it to
-//          // the specified 'initialSize'.
+//          // Create a 'Stack'.  Use this constructor when the 'CONTAINER'
+//          // type default constructs to 0 length, and has a single-argument
+//          // constructor that takes a 'size_t' to grow it to the specified
+//          // 'initialSize'.
 //
-//      Stack(const Stack& original);
-//          // Copy this 'Stack' from the specified 'original'.
-//
+//      // Stack(const Stack&) = default;
 //      // ~Stack() = default;
 //
 //      // MANIPULATORS
 //      void push(const value_type& value);
-//          // Push the specified 'value' onto the stack.  The behavior is
+//          // Push the specified 'value' onto this stack.  The behavior is
 //          // undefined if the stack is full.
 //
 //      value_type pop();
-//          // Pop the value from the top of the stack and return it.  The
-//          // behavior is undefined if the stack is empty.
+//          // Pop the element from the top of this stack and return it.  The
+//          // behavior is undefined if this stack is empty.
 //
 //      // ACCESSOR
 //      std::size_t size() const;
 //          // Return the number of elements stored in the stack.
 //
 //      const value_type& top() const;
-//          // Return a reference to the object at the top of the stack.
+//          // Return a 'const' reference to the element at the top of this
+//          // stack.  The behavior is undefined if this 'Stack' is empty.
 //
 //      BSLS_KEYWORD_CONSTEXPR std::size_t capacity() const;
 //          // Return the capacity of the stack.
 //  };
 //..
-// Next, we declare all the methods other than 'capacity()':
+// Next, we define all the methods other than 'capacity()':
 //..
 //  // CREATORS
 //  template <class CONTAINER, class ELEMENT>
@@ -95,17 +96,6 @@ BSLS_IDENT("$Id: $")
 //  : d_container(initialSize)
 //  , d_numElements(0)
 //  {}
-//
-//  template <class CONTAINER, class ELEMENT>
-//  Stack<CONTAINER, ELEMENT>::Stack(const Stack& original)
-//  : d_numElements(0)
-//  {
-//      for (std::size_t uu = 0; uu < original.size(); ++uu) {
-//          d_container[uu] = original.d_container[uu];
-//      }
-//
-//      d_numElements = original.d_numElements;
-//  }
 //
 //  // MANIPULATORS
 //  template <class CONTAINER, class ELEMENT>
@@ -141,9 +131,17 @@ BSLS_IDENT("$Id: $")
 //      return d_container[d_numElements - 1];
 //  }
 //..
-// Now, we declare 'capacity' and use 'bsl::size' to get the length of the
-// owned 'd_container'.
+// Now, we declare 'capacity' and use 'bsl::size' to get the size of the
+// underlying 'd_container'.
 //
+// Note that the underlying container object never grows or shrinks after
+// construction, it has a fixed size throughout the lifetime of the 'Stack'.
+// If it has a 'capacity' greater than its size, it never makes a difference
+// here.
+//
+// So if the 'CONTAINER' is 'bsl::vector', 'stack.capacity()' returns
+// 'd_container.size()', not 'd_container.capacity()'.
+//..
 //  template <class CONTAINER, class ELEMENT>
 //  inline
 //  BSLS_KEYWORD_CONSTEXPR std::size_t
@@ -158,22 +156,22 @@ BSLS_IDENT("$Id: $")
 //  typedef int Array[10];
 //  Stack<Array, int> aStack;
 //
-//  assert(aStack.capacity() == 10);
-//  assert(aStack.size() == 0);
+//  assert(10 == aStack.capacity());
+//  assert( 0 == aStack.size());
 //
 //  aStack.push(5);
 //  aStack.push(7);
 //  aStack.push(2);
 //
-//  assert(aStack.size() == 3);
+//  assert(3 == aStack.size());
 //
 //  assert(2 == aStack.top());
 //  assert(2 == aStack.pop());
 //
 //  Stack<bsl::vector<int> > vStack(10);
 //
-//  assert(vStack.capacity() == 10);
-//  assert(vStack.size() == 0);
+//  assert(10 == vStack.capacity());
+//  assert( 0 == vStack.size());
 //
 //  vStack.push(5);
 //  vStack.push(7);
@@ -186,28 +184,28 @@ BSLS_IDENT("$Id: $")
 //
 //  Stack<bsl::deque<int> > dStack(10);
 //
-//  assert(dStack.capacity() == 10);
-//  assert(dStack.size() == 0);
+//  assert(10 == dStack.capacity());
+//  assert( 0 == dStack.size());
 //
 //  dStack.push(5);
 //  dStack.push(7);
 //  dStack.push(2);
 //
-//  assert(dStack.size() == 3);
+//  assert(3 == dStack.size());
 //
 //  assert(2 == dStack.top());
 //  assert(2 == dStack.pop());
 //
 //  Stack<bsl::array<int, 10> > baStack;
 //
-//  assert(baStack.capacity() == 10);
-//  assert(baStack.size() == 0);
+//  assert(10 == baStack.capacity());
+//  assert( 0 == baStack.size());
 //
 //  baStack.push(5);
 //  baStack.push(7);
 //  baStack.push(2);
 //
-//  assert(baStack.size() == 3);
+//  assert(3 == baStack.size());
 //
 //  assert(2 == baStack.top());
 //  assert(2 == baStack.pop());
@@ -272,7 +270,8 @@ template <class CONTAINER>
 inline
 BSLS_KEYWORD_CONSTEXPR auto size(const CONTAINER& container) ->
                                                      decltype(container.size())
-    // Return the 'size' field from the specified 'container's 'size' accessor.
+    // Return the size of the specified 'container'.  The 'CONTAINER' template
+    // parameter type must provide a 'size' accessor.
 {
     return container.size();
 }
@@ -282,7 +281,8 @@ BSLS_KEYWORD_CONSTEXPR auto size(const CONTAINER& container) ->
 template <class CONTAINER>
 inline
 BSLS_KEYWORD_CONSTEXPR std::size_t size(const CONTAINER& container)
-    // Return the 'size' field from the specified 'container's 'size' accessor.
+    // Return the size of the specified 'container'.  The 'CONTAINER' template
+    // parameter type must provide a 'size' accessor.
 {
     return container.size();
 }
@@ -292,7 +292,7 @@ BSLS_KEYWORD_CONSTEXPR std::size_t size(const CONTAINER& container)
 template <class TYPE, std::size_t DIMENSION>
 inline
 BSLS_KEYWORD_CONSTEXPR std::size_t size(const TYPE (&)[DIMENSION])
-    // Return the dimension of the specified 'array'.
+    // Return the dimension of the specified array argument.
 {
     return DIMENSION;
 }
@@ -316,7 +316,8 @@ inline
 BSLS_KEYWORD_CONSTEXPR auto ssize(const CONTAINER& container) ->
              std::common_type_t<std::ptrdiff_t,
                                 std::make_signed_t<decltype(container.size())>>
-    // Return the 'size' field from the specified 'container's 'size' accessor.
+    // Return the size of the specified 'container'.  The 'CONTAINER' template
+    // parameter type must provide a 'size' accessor.
 {
     return container.size();
 }
@@ -326,7 +327,8 @@ BSLS_KEYWORD_CONSTEXPR auto ssize(const CONTAINER& container) ->
 template <class CONTAINER>
 inline
 BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(const CONTAINER& container)
-    // Return the 'size' field from the specified 'container's 'size' accessor.
+    // Return the size of the specified 'container'.  The 'CONTAINER' template
+    // parameter type must provide a 'size' accessor.
 {
     return container.size();
 }
@@ -336,7 +338,7 @@ BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(const CONTAINER& container)
 template <class TYPE, std::ptrdiff_t DIMENSION>
 inline
 BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(const TYPE (&)[DIMENSION])
-    // Return the dimension of the specified 'array'.
+    // Return the dimension of the specified array argument.
 {
     return DIMENSION;
 }
@@ -344,6 +346,10 @@ BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(const TYPE (&)[DIMENSION])
 #endif
 
 }  // close namespace bsl
+
+#undef BSLSTL_SIZE_SIZE_NATIVE
+#undef BSLSTL_SIZE_SSIZE_NATIVE
+#undef BSLSTL_SIZE_SSIZE_ADVANCED_IMPL
 
 #endif
 

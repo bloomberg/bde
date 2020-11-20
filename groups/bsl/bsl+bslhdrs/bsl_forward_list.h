@@ -28,8 +28,8 @@ BSLS_IDENT("$Id: $")
 
 # include <bslstl_iterator.h>
 
-// According to C++20 standard, 'size' and 'ssize' must be available when
-// <forward_list> is included.
+// According to C++20 Standard, 'size' and 'ssize' must be available when
+// '<forward_list>' is included.
 
 # include <bslstl_size.h>
 #endif
