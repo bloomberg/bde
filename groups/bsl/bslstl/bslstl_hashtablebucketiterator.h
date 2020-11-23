@@ -157,12 +157,13 @@ class HashTableBucketIterator {
     // node.
 
     // PRIVATE TYPES
-    typedef typename bsl::remove_cv<VALUE_TYPE>::type        NcType;
-    typedef HashTableBucketIterator<NcType, DIFFERENCE_TYPE> NcIter;
+    typedef typename bsl::remove_cv<VALUE_TYPE>::type             NonConstType;
+    typedef HashTableBucketIterator<NonConstType, DIFFERENCE_TYPE>
+                                                                  NonConstIter;
 
   public:
     // PUBLIC TYPES
-    typedef NcType                            value_type;
+    typedef NonConstType                      value_type;
     typedef DIFFERENCE_TYPE                   difference_type;
     typedef VALUE_TYPE                       *pointer;
     typedef VALUE_TYPE&                       reference;
@@ -200,7 +201,7 @@ class HashTableBucketIterator {
         // that this constructor is an implementation detail and is not part of
         // the C++ standard.
 
-    HashTableBucketIterator(const NcIter& original);                // IMPLICIT
+    HashTableBucketIterator(const NonConstIter& original);          // IMPLICIT
         // Create an iterator at the same position as the specified 'original'
         // iterator.  Note that this constructor enables converting from
         // modifiable to 'const' iterator types.
@@ -209,17 +210,25 @@ class HashTableBucketIterator {
     //                                                               = default;
         // Create an iterator having the same value as the specified
         // 'original'.  Note that this operation is either defined by the
-        // constructor taking 'NcIter' (if 'NcType' is the same as
+        // constructor taking 'NonConstIter' (if 'NonConstType' is the same as
         // 'VALUE_TYPE'), or generated automatically by the compiler.  Also
         // note that this constructor cannot be defined explicitly (without
         // using 'bsls::enableif') to avoid a duplicate declaration when
-        // 'NcType' is the same as 'VALUE_TYPE'.
+        // 'NonConstType' is the same as 'VALUE_TYPE'.
 
     //~HashTableBucketIterator() = default;
 
     // MANIPULATORS
     //HashTableBucketIterator& operator=(const HashTableBucketIterator&)
     //                                                               = default;
+
+    HashTableBucketIterator& operator=(const NonConstIter& rhs);
+        // Copy the value of the specified 'rhs' of another (compatible)
+        // 'HashTableBucketIterator' type, (e.g., a mutable iterator of the
+        // same type) to this iterator.  Return a reference to this modifiable
+        // object.  Note that this method may be the copy-assignment operator
+        // (inhibiting the implicit declaration of a copy-assignment operator
+        // above), or may be an additional overload.
 
     HashTableBucketIterator& operator++();
         // Move this iterator to the next element in the hash table bucket and
@@ -311,8 +320,13 @@ operator++(HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>& iterator,
     // bucket.  Note that 'iter' is invalidated when the underlying hash table
     // is rehashed.
 
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
 
-// INLINE FUNCTION DEFINITIONS
+                        //------------------------------
+                        // class HashTableBucketIterator
+                        //------------------------------
 
 //CREATORS
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
@@ -346,13 +360,24 @@ HashTableBucketIterator(bslalg::BidirectionalLink     *node,
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
 HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>::
-HashTableBucketIterator(const NcIter& original)
+HashTableBucketIterator(const NonConstIter& original)
 : d_node_p(original.node())
 , d_bucket_p(original.bucket())
 {
 }
 
 // MANIPULATORS
+template <class VALUE_TYPE, class DIFFERENCE_TYPE>
+inline
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE> &
+HashTableBucketIterator<VALUE_TYPE, DIFFERENCE_TYPE>::operator=(
+                                                       const NonConstIter& rhs)
+{
+    d_node_p = rhs.node();
+    d_bucket_p = rhs.bucket();
+    return *this;
+}
+
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 inline
 void

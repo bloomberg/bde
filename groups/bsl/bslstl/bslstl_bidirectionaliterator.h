@@ -224,10 +224,14 @@ class BidirectionalIterator
     //..
 
     // PRIVATE TYPES
-    typedef typename bsl::remove_cv<T>::type UnCvqT;   // value type without
-                                                       // 'const' and
-                                                       // 'volatile'
-                                                       // qualifications
+    typedef typename bsl::remove_cv<T>::type UnCvqT;  // value type without
+                                                      // 'const' and
+                                                      // 'volatile'
+                                                      // qualifications
+
+    typedef BidirectionalIterator<UnCvqT, ITER_IMP, TAG_TYPE>
+                                                 BidirectionalNonConstIterator;
+
   public:
     // TYPES
     typedef UnCvqT                           value_type;
@@ -254,13 +258,13 @@ class BidirectionalIterator
         // 'original' iterator.  Note that this method's definition is compiler
         // generated.
 
-    BidirectionalIterator(
-                 const BidirectionalIterator<UnCvqT,ITER_IMP,TAG_TYPE>& other);
-        // Construct a bidirectional iterator from another (compatible)
-        // 'BidirectionalIterator' type, e.g., a mutable iterator of the same
-        // type.  Note that this constructor may be the copy constructor
-        // (inhibiting the implicit declaration of a copy constructor above),
-        // or may be an additional overload.
+    BidirectionalIterator(const BidirectionalNonConstIterator& other);
+        // Construct a bidirectional iterator from the specified 'other'
+        // iterator of another (compatible) 'BidirectionalIterator' type, e.g.,
+        // a mutable iterator of the same type.  Note that this constructor may
+        // be the copy constructor (inhibiting the implicit declaration of a
+        // copy constructor above), or may be an additional overload.
+
 
     //! ~BidirectionalIterator();
         // Destroy this iterator.  Note that this method's definition is
@@ -271,6 +275,14 @@ class BidirectionalIterator
         // Copy the value of the specified 'rhs' to this iterator.  Return a
         // reference to this modifiable object.  Note that this method's
         // definition is compiler generated.
+
+    BidirectionalIterator& operator=(const BidirectionalNonConstIterator& rhs);
+        // Copy the value of the specified 'rhs' of another (compatible)
+        // 'BidirectionalIterator' type, (e.g., a mutable iterator of the same
+        // type) to this iterator.  Return a reference to this modifiable
+        // object.  Note that this method may be the copy-assignment operator
+        // (inhibiting the implicit declaration of a copy-assignment operator
+        // above), or may be an additional overload.
 
     BidirectionalIterator& operator++();
         // Increment to the next element.  Return a reference to this
@@ -324,9 +336,9 @@ operator--(BidirectionalIterator<T,ITER_IMP,TAG_TYPE>& iter, int);
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                //-----------------------------------
+                //----------------------------
                 // class BidirectionalIterator
-                //-----------------------------------
+                //----------------------------
 
 // CREATORS
 template <class T, class ITER_IMP, class TAG_TYPE>
@@ -347,12 +359,23 @@ BidirectionalIterator(const ITER_IMP& implementation)
 template <class T, class ITER_IMP, class TAG_TYPE>
 inline
 BidirectionalIterator<T,ITER_IMP,TAG_TYPE>::BidirectionalIterator(
-                  const BidirectionalIterator<UnCvqT,ITER_IMP,TAG_TYPE>& other)
+                                    const BidirectionalNonConstIterator& other)
 : ForwardIterator<T,ITER_IMP,TAG_TYPE>(other.imp())
 {
 }
 
 // MANIPULATORS
+template <class T, class ITER_IMP, class TAG_TYPE>
+inline
+BidirectionalIterator<T,ITER_IMP,TAG_TYPE> &
+BidirectionalIterator<T,ITER_IMP,TAG_TYPE>::operator=(
+                                      const BidirectionalNonConstIterator& rhs)
+{
+    ForwardIterator<T,ITER_IMP,TAG_TYPE>::operator=(rhs);
+    return *this;
+}
+
+
 template <class T, class ITER_IMP, class TAG_TYPE>
 inline
 BidirectionalIterator<T,ITER_IMP,TAG_TYPE>&

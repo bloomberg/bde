@@ -144,10 +144,12 @@ class ForwardIterator
 #endif
 
     // PRIVATE TYPES
-    typedef typename bsl::remove_cv<T>::type UnCvqT;   // value type without
-                                                       // 'const' and
-                                                       // 'volatile'
-                                                       // qualifications
+    typedef typename bsl::remove_cv<T>::type UnCvqT;  // value type without
+                                                      // 'const' and 'volatile'
+                                                      // qualifications
+
+    typedef ForwardIterator<UnCvqT, ITER_IMP, TAG_TYPE>
+                                             ForwardNonConstIterator;
 
   private:
     // DATA
@@ -180,12 +182,12 @@ class ForwardIterator
         // 'original' iterator.  Note that this method's definition is compiler
         // generated.
 
-    ForwardIterator(const ForwardIterator<UnCvqT,ITER_IMP,TAG_TYPE>& other);
-        // Construct a forward iterator from another (compatible)
-        // 'ForwardIterator' type, e.g., a mutable iterator of the same type.
-        // Note that this constructor may be the copy constructor (inhibiting
-        // the implicit declaration of a copy constructor above), or may be an
-        // additional overload.
+    ForwardIterator(const ForwardNonConstIterator& other);
+        // Construct a forward iterator from the specified 'other' iterator of
+        // another (compatible) 'ForwardIterator' type, e.g., a mutable
+        // iterator of the same type.  Note that this constructor may be the
+        // copy constructor (inhibiting the implicit declaration of a copy
+        // constructor above), or may be an additional overload.
 
     //! ~ForwardIterator();
         // Destroy this iterator.  Note that this method's definition is
@@ -196,6 +198,14 @@ class ForwardIterator
         // Copy the value of the specified 'rhs' to this iterator.  Return a
         // reference to this modifiable object.  Note that this method's
         // definition is compiler generated.
+
+    ForwardIterator& operator=(const ForwardNonConstIterator& rhs);
+        // Copy the value of the specified 'rhs' of another (compatible)
+        // 'ForwardIterator' type, (e.g., a mutable iterator of the same type)
+        // to this iterator.  Return a reference to this modifiable object.
+        // Note that this method may be the copy-assignment operator
+        // (inhibiting the implicit declaration of a copy-assignment operator
+        // above), or may be an additional overload.
 
     ForwardIterator& operator++();
         // Increment to the next element.  Return a reference to this
@@ -252,9 +262,9 @@ operator++(ForwardIterator<T,ITER_IMP,TAG_TYPE>& iter, int);
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        //-----------------------------
+                        //----------------------
                         // class ForwardIterator
-                        //-----------------------------
+                        //----------------------
 
 // CREATORS
 template <class T, class ITER_IMP, class TAG_TYPE>
@@ -275,12 +285,22 @@ ForwardIterator(const ITER_IMP& implementation)
 template <class T, class ITER_IMP, class TAG_TYPE>
 inline
 ForwardIterator<T,ITER_IMP,TAG_TYPE>::
-ForwardIterator(const ForwardIterator<UnCvqT,ITER_IMP,TAG_TYPE>& other)
+ForwardIterator(const ForwardNonConstIterator& other)
 : d_imp(other.imp())
 {
 }
 
 // MANIPULATORS
+template <class T, class ITER_IMP, class TAG_TYPE>
+inline
+ForwardIterator<T,ITER_IMP,TAG_TYPE> &
+ForwardIterator<T,ITER_IMP,TAG_TYPE>::operator=(
+                                            const ForwardNonConstIterator& rhs)
+{
+    d_imp = rhs.imp();
+    return *this;
+}
+
 template <class T, class ITER_IMP, class TAG_TYPE>
 inline
 ForwardIterator<T,ITER_IMP,TAG_TYPE>&
