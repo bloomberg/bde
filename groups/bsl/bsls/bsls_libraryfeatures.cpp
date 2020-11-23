@@ -16,7 +16,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // Since the tool chain does not provide explicit information about library
 // features, this component infers that information heuristically from the
 // values of various compiler flags and flags set by the 'bsls_platform' and
-// 'bsls_compilerfeature' components.  The inference rules were determined
+// 'bsls_compilerfeatures' components.  The inference rules were determined
 // empirically: the test driver program was tested on supported platforms for a
 // variety of compiler versions (and, with 'gcc', with and without the '-std'
 // compiler option).  The flag for each feature (e.g.,
@@ -207,6 +207,15 @@ BSLS_IDENT("$Id$ $CSID$")
     #endif
 
 #endif
+
+namespace BloombergLP {
+#define STRINGIFY2(a) #a
+#define STRINGIFY(a) STRINGIFY2(a)
+
+const char *BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME =
+                             "BSLS_LIBRARYFEATURES_ABI_CHECK: "
+                             STRINGIFY(BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME);
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2017 Bloomberg Finance L.P.

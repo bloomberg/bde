@@ -69,15 +69,32 @@ BSLS_IDENT("$Id: $")
 // whereas 'std' symbols may or may not be aliases for symbols in the 'bsl'
 // namespace, depending on build configuration.
 //
-///Converse Logic
-///--------------
-// These macros describe features empirically observed in typical
-// platform/compiler/library combinations used in BDE distributions.  The
-// definition of any of these macros imply that a resource is available; the
-// converse is *not* guaranteed.  If a macro is not defined, the associated
-// resource may or may not exist in the library.  Additionally, the resource
-// may exist but may be of too early an implementation to be of use to the
-// clients of this component.
+///Guarding Against Mixing C++ Versions
+///------------------------------------
+// This component defines a "link-coercion" symbol that prevents linking a
+// translation unit (that includes this header, possibly indirectly) built
+// against one version of the C++ Standard with a translation unit (also
+// including this header) built against another version of the Standard.  For
+// example, attempting to link objects built with C++14 with those built with
+// C+++17 will result in a link-time failure.  Because BDE supports a variety
+// of features that are enabled depending on the C++ version for which code is
+// built, it is generally not safe to link code built with one version of C++
+// with code built with another version.  For example, in C++11 there are move
+// constructor signatures, whereas in C++03 there are not, and linking code
+// that views the set of constructors for a type differently is an ODR
+// violation.  The link-coercion symbol that enforces this is meant to provide
+// users a single, easy-to-comprehend link-time error, rather than having bugs
+// potentially manifest at runtime in ways that are difficult to diagnose.
+//
+///Converse Logic Is Not Symmetric
+///-------------------------------
+// The macros defined by this component describe features empirically observed
+// in typical platform/compiler/library combinations used in BDE distributions.
+// The definition of any of these macros implies that a resource is available,
+// however, the converse is *not* guaranteed.  If a macro is not defined, the
+// associated resource may or may not exist in the library.  For example, the
+// resource may exist but may be of too early an implementation to be of use to
+// clients of BDE, so in that case the associated macro would *not* be defined.
 //
 ///'BSLS_LIBRARYFEATURES_HAS_C90_GETS'
 ///-----------------------------------
@@ -217,7 +234,7 @@ BSLS_IDENT("$Id: $")
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR' macro is defined if the
 // 'auto_ptr' class template (defined in '<memory>') is provided by the native
 // standard library.  This macro is expected to be defined for all
-// libaries/platforms at least until the introduction of C++17 to our build
+// libraries/platforms at least until the introduction of C++17 to our build
 // systems.
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'
@@ -882,8 +899,9 @@ BSLS_IDENT("$Id: $")
 // versions of the native standard library that provide a 'tuple' type, *and*
 // those that do not.  Of course, in the later case the interface that returns
 
-#include <bsls_platform.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
+#include <bsls_linkcoercion.h>
 
 // ============================================================================
 //                     STANDARD LIBRARY DETECTION
@@ -1135,7 +1153,7 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
     #if __cplusplus >= 201103L
-        // It would be simpler if we could simply identify as the corresping
+        // It would be simpler if we could simply identify as the corresponding
         // gcc library version: CC CMP_VERSION libstdc++ version
         // 12.4     0x5130          4.8.4
         // 12.5     0x5140          5.1.0
@@ -1335,7 +1353,7 @@ BSLS_IDENT("$Id: $")
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR 1
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION    1
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE                  1
-            // Note that earlier verions have 'tuple' but this macro also
+            // Note that earlier versions have 'tuple' but this macro also
             // requires the definition of the
             // 'BSLS_COMPILER_FEATURES_HAS_VARIADIC_TEMPLATES' macro.
         #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY       1
@@ -1396,6 +1414,32 @@ BSLS_IDENT("$Id: $")
     // 'auto_ptr' is removed from C++17, so undefine for any standard version
     // identifier greater than that of C++14.
 #endif
+
+// ============================================================================
+//                         DEFINE LINK-COERCION SYMBOL
+// ----------------------------------------------------------------------------
+
+// Catch attempts to link C++14 objects with C++17 objects (for example).
+
+#if   defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+#define BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME bsls_libraryfeatures_CPP17_ABI
+#elif defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY)
+#define BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME bsls_libraryfeatures_CPP14_ABI
+#elif defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#define BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME bsls_libraryfeatures_CPP11_ABI
+#else
+#define BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME bsls_libraryfeatures_CPP03_ABI
+#endif
+
+namespace BloombergLP {
+
+extern const char *BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME;
+BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
+                           const char *,
+                           bsls_libraryfeatures_assertion,
+                           BloombergLP::BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME)
+
+}  // close enterprise namespace
 
 #endif // INCLUDED_BSLS_LIBRARYFEATURES
 

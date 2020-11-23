@@ -197,7 +197,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_linkcoercion.h>
 #include <bsls_nativestd.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
@@ -232,8 +231,6 @@ using native_std::operator>=;
 }
 #define BSLSTL_STRING_VIEW_IS_ALIASED
 
-#define BSLSTL_STRING_VIEW_LINKER_CHECK_NAME bslstl_stringview_POST_cpp17_ABI
-
 #elif defined(BSLS_PLATFORM_OS_LINUX)
 // Must be disabled to allow matrix and nightly builds.
 //#error "BDE requires at least C++17 for ABI compatibility on Linux systems."
@@ -241,8 +238,6 @@ using native_std::operator>=;
 #endif  // BDE_DISABLE_CPP17_ABI
 
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
-
-#define BSLSTL_STRING_VIEW_LINKER_CHECK_NAME bslstl_stringview_PRE_cpp17_ABI
 
 namespace bsl {
 // Import 'char_traits' into the 'bsl' namespace so that 'basic_string_view'
@@ -1106,7 +1101,7 @@ void hashAppend(
     // function violates the BDE coding standard, adding a function for a
     // namespace for a different package, and none of the function parameters
     // are from this package either.  This is necessary in order to provide an
-    // implementation of 'bslh::hashAppend' for thwe (native) standard library
+    // implementation of 'bslh::hashAppend' for the (native) standard library
     // 'string_view' type as we are not allowed to add overloads directly into
     // namespace 'std', and this component essentially provides the interface
     // between 'bsl' and 'std' string types.
@@ -2453,15 +2448,7 @@ void bslh::hashAppend(
 
 }  // close enterprise namespace
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
-namespace BloombergLP {
 
-extern const char *BSLSTL_STRING_VIEW_LINKER_CHECK_NAME;
-BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
-                      const char *,
-                      bslstl_stringview_assertion,
-                      BloombergLP::BSLSTL_STRING_VIEW_LINKER_CHECK_NAME)
-
-}  // close enterprise namespace
 #endif
 
 // ----------------------------------------------------------------------------
