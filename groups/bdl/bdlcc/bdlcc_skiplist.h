@@ -167,167 +167,203 @@ BSLS_IDENT("$Id: $")
 // synchronization.
 //
 //..
-// class SimpleScheduler
-// {
-//    // DATA
-//    typedef bdlcc::SkipList<bdlt::Datetime, bsl::function<void()> > List;
+//  class SimpleScheduler
+//  {
+//      // TYPES
+//      typedef bdlcc::SkipList<bdlt::Datetime, bsl::function<void()> > List;
 //
-//    List                     d_list;
-//    bslmt::ThreadUtil::Handle d_dispatcher;
-//    bslmt::Condition          d_notEmptyCond;
-//    bslmt::Mutex              d_condMutex;
-//    volatile bool            d_doneFlag;
+//      // DATA
+//      List                       d_list;
+//      bslmt::ThreadUtil::Handle  d_dispatcher;
+//      bslmt::Condition           d_notEmptyCond;
+//      bslmt::Condition           d_emptyCond;
+//      bslmt::Barrier             d_startBarrier;
+//      bslmt::Mutex               d_condMutex;
+//      volatile int               d_doneFlag;
 //
-//    // PRIVATE METHODS
-//    void dispatcherThread()
-//    {
-//        while (!d_doneFlag) {
-//            List::PairHandle firstItem;
-//            if (0 == d_list.front(&firstItem)) {
-//                // The list is not empty.
+//    private:
+//      // NOT IMPLEMENTED
+//      SimpleScheduler(const SimpleScheduler&);
 //
-//                bsls::TimeInterval when;
-//                bdlt::IntervalConversionUtil::convertToTimeInterval(&when,
-//                               firstItem.key() -
-//                               bdlt::CurrentTime::utc());
-//                if (when.totalSecondsAsDouble() <= 0) {
-//                    // Execute now and remove from schedule, then iterate.
+//    private:
+//      // PRIVATE MANIPULATORS
+//      void dispatcherThread()
+//          // Run a thread that executes functions off 'd_list'.
+//      {
+//          d_startBarrier.wait();
 //
-//                    d_list.remove(firstItem);
-//                    firstItem.data()();
-//                }
-//                else {
-//                    // Wait until the first scheduled item is due (no
-//                    // problem if we wake up early, since we'll just check
-//                    // the list and go back to sleep).
+//          while (!d_doneFlag) {
+//              List::PairHandle firstItem;
+//              if (0 == d_list.front(&firstItem)) {
+//                  // The list is not empty.
 //
-//                    d_condMutex.lock();
-//                    List::PairHandle newFirst;
-//                    if (!d_doneFlag && (0 != d_list.front(&newFirst) ||
+//                  bsls::TimeInterval when =
+//                      bdlt::IntervalConversionUtil::convertToTimeInterval(
+//                                 firstItem.key() - bdlt::CurrentTime::utc());
+//                  if (when.totalSecondsAsDouble() <= 0) {
+//                      // Execute now and remove from schedule, then iterate.
+//
+//                      d_list.remove(firstItem);
+//                      firstItem.data()();
+//
+//                      List::PairHandle tmpItem;
+//
+//                      bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
+//
+//                      if (0 == d_list.length()) {
+//                          d_emptyCond.broadcast();
+//                      }
+//                  }
+//                  else {
+//                      // Wait until the first scheduled item is due.
+//
+//                      bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
+//                      List::PairHandle newFirst;
+//                      if (!d_doneFlag && (0 != d_list.front(&newFirst) ||
 //                                        newFirst.key() == firstItem.key())) {
-//                        d_notEmptyCond.timedWait(&d_condMutex,
-//                                                  bdlt::CurrentTime::now() +
-//                                                                      when);
-//                    }
-//                    d_condMutex.unlock();
-//                }
-//            }
-//            else {
-//                // The list is empty; wait on the condition variable.
+//                          d_notEmptyCond.timedWait(&d_condMutex,
+//                                            bdlt::CurrentTime::now() + when);
+//                      }
+//                  }
+//              }
+//              else {
+//                  // The list is empty; wait on the condition variable.
 //
-//                d_condMutex.lock();
-//                if (d_list.isEmpty() && !d_doneFlag) {
-//                   d_notEmptyCond.wait(&d_condMutex);
-//                }
-//                d_condMutex.unlock();
-//            }
+//                  bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
+//                  if (d_list.isEmpty() && !d_doneFlag) {
+//                      d_notEmptyCond.wait(&d_condMutex);
+//                  }
+//              }
+//          }
+//      }
 //
-//            // When firstItem goes out of scope here, it releases the
-//            // associated resources in the Skip List.
-//        }
-//    }
+//    public:
+//      // CREATORS
+//      explicit
+//      SimpleScheduler(bslma::Allocator *basicAllocator = 0)
+//      : d_list(basicAllocator)
+//      , d_startBarrier(2)
+//      , d_doneFlag(false)
+//          // Creator.
+//      {
+//          int rc = bslmt::ThreadUtil::create(
+//                  &d_dispatcher,
+//                  bdlf::BindUtil::bind(&SimpleScheduler::dispatcherThread,
+//                                          this));
+//          BSLS_ASSERT(0 == rc);  (void)rc;
+//          d_startBarrier.wait();
+//      }
 //
-//  public:
-//    // CREATORS
-//    SimpleScheduler(bslma::Allocator *basicAllocator = 0)
-//    : d_list(basicAllocator)
-//    , d_doneFlag(false)
-//    {
-//        int rc = bslmt::ThreadUtil::create(
-//                    &d_dispatcher,
-//                    bdlf::BindUtil::bind(&SimpleScheduler::dispatcherThread,
-//                                        this));
-//        BSLS_ASSERT_SAFE(0 == rc);
-//    }
+//      ~SimpleScheduler()
+//          // d'tor
+//      {
+//          stop();
+//      }
 //
-//    ~SimpleScheduler()
-//    {
-//        stop();
-//    }
+//      // MANIPULATORS
+//      void drain()
+//          // Block until the scheduler has no jobs.
+//      {
+//          bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
 //
-//    // MANIPULATORS
-//    void stop()
-//    {
-//        // NOTE: this method will deadlock if invoked from an event callback
-//        bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
-//        if (bslmt::ThreadUtil::invalidHandle() != d_dispatcher) {
-//            bslmt::ThreadUtil::Handle dispatcher = d_dispatcher;
-//            d_doneFlag = true;
-//            d_notEmptyCond.signal();
-//            {
-//                bslmt::UnLockGuard<bslmt::Mutex> g(&d_condMutex);
-//                bslmt::ThreadUtil::join(dispatcher);
-//            }
-//            d_dispatcher = bslmt::ThreadUtil::invalidHandle();
-//        }
-//    }
+//          while (!d_doneFlag && 0 != d_list.length()) {
+//              d_emptyCond.wait(&d_condMutex);
+//          }
+//      }
 //
-//    void scheduleEvent(const bsl::function<void()>& event,
-//                       const bdlt::Datetime& when)
-//    {
-//        // Use 'addR' since this event will probably be placed near the end
-//        // of the list.
+//      void scheduleEvent(const bsl::function<void()>& event,
+//                         const bdlt::Datetime&        when)
+//          // Schedule the specified 'event' to occur at the specified 'when'.
+//      {
+//          // Use 'addR' since this event will probably be placed near the end
+//          // of the list.
 //
-//        bool newFrontFlag;
-//        d_list.addR(when, event, &newFrontFlag);
-//        if (newFrontFlag) {
-//            // This event is scheduled before all other events.  Wake up
-//            // the dispatcher thread.
+//          bool newFrontFlag;
+//          d_list.addR(when, event, &newFrontFlag);
+//          if (newFrontFlag) {
+//              // This event is scheduled before all other events.  Wake up
+//              // the dispatcher thread.
 //
-//            d_condMutex.lock();
-//            d_notEmptyCond.signal();
-//            d_condMutex.unlock();
-//        }
-//    }
-// };
+//              d_notEmptyCond.signal();
+//          }
+//      }
+//
+//      void stop()
+//          // Stop the scheduler.
+//      {
+//          bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
+//
+//          d_list.removeAll();
+//
+//          d_doneFlag = true;
+//          d_notEmptyCond.signal();
+//          d_emptyCond.broadcast();
+//
+//          if (bslmt::ThreadUtil::invalidHandle() != d_dispatcher) {
+//              bslmt::ThreadUtil::Handle dispatcher = d_dispatcher;
+//              {
+//                  bslmt::LockGuardUnlock<bslmt::Mutex> g(&d_condMutex);
+//                  bslmt::ThreadUtil::join(dispatcher);
+//              }
+//              d_dispatcher = bslmt::ThreadUtil::invalidHandle();
+//          }
+//      }
+//  };
 //..
 // We can verify the correct behavior of 'SimpleScheduler'.  First, we need a
 // wrapper around vector<int>::push_back, since this function is overloaded and
 // cannot be bound directly:
 //..
-// void pushBackWrapper(bsl::vector<int> *vector, int item)
-// {
-//     vector->push_back(item);
-// }
+//  void pushBackWrapper(bsl::vector<int> *vector, int item)
+//      // Push the specified 'item' onto the specified 'vector'.
+//  {
+//      vector->push_back(item);
+//  }
 //..
-// Now verify that the scheduler executes events when expected:
+// Now, in 'main', verify that the scheduler executes events when expected:
 //..
-// SimpleScheduler scheduler;
+//  SimpleScheduler      scheduler;
 //
-// bsl::vector<int> values;
+//  bsl::vector<int>     values;
 //
-// bdlt::Datetime now = bdlt::CurrentTime::utc();
-// bdlt::Datetime scheduleTime = now;
+//  const bdlt::Datetime start = bdlt::CurrentTime::utc();
+//  bdlt::Datetime       scheduleTime;
+//..
+// Add events out of sequence and ensure they are executed in the proper order.
+//..
+//  scheduleTime = start;
+//  scheduleTime.addMilliseconds(2250);
+//  scheduler.scheduleEvent(bdlf::BindUtil::bind(&pushBackWrapper, &values, 2),
+//                          scheduleTime);
 //
-// // Add events out of sequence and ensure they are executed
-// // in the proper order:
+//  scheduleTime = start;
+//  scheduleTime.addMilliseconds(750);
+//  scheduler.scheduleEvent(bdlf::BindUtil::bind(&pushBackWrapper, &values, 0),
+//                          scheduleTime);
 //
-// scheduleTime.addMilliseconds(1500);
-// scheduler.scheduleEvent(bdlf::BindUtil::bind(
-//                         &vector<int>::push_back, &values, 1),
-//                         scheduleTime);
+//  scheduleTime = start;
+//  scheduleTime.addMilliseconds(1500);
+//  scheduler.scheduleEvent(bdlf::BindUtil::bind(&pushBackWrapper, &values, 1),
+//                          scheduleTime);
 //
-// scheduleTime = now;
-// scheduleTime.addMilliseconds(750);
-// scheduler.scheduleEvent(bdlf::BindUtil::bind(
-//                         &vector<int>::push_back, &values, 0),
-//                         scheduleTime);
+//  assert(values.empty());
 //
-// scheduleTime = now;
-// scheduleTime.addMilliseconds(2250);
-// scheduler.scheduleEvent(bdlf::BindUtil::bind(
-//                         &vector<int>::push_back, &values, 2),
-//                         scheduleTime);
-// assert(values.isEmpty());
-// scheduleTime.addMilliseconds(250);
-// while (bdlt::CurrentTime::utc() < scheduleTime) {
-//     bslmt::ThreadUtil::microSleep(10000);
-// }
-// scheduler.stop();
-// assert(3 == values.size());
-// assert(0 == values[0]);
-// assert(1 == values[1]);
-// assert(2 == values[2]);
+//  scheduler.drain();
+//
+//  bdlt::Datetime finish = bdlt::CurrentTime::utc();
+//
+//  assert(3 == values.size());
+//  assert(0 == values[0]);
+//  assert(1 == values[1]);
+//  assert(2 == values[2]);
+//
+//  const double elapsed = bdlt::IntervalConversionUtil::convertToTimeInterval(
+//                                      finish - start).totalSecondsAsDouble();
+//
+//  assert(2.25 <= elapsed);
+//  assert(elapsed < 2.75);
+//..
+// Note that the destructor of 'scheduler' will call 'stop()'.
 //..
 
 #include <bdlscm_version.h>
@@ -338,6 +374,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutil.h>
 
 #include <bsls_atomic.h>
+#include <bsls_util.h>
 
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
@@ -976,7 +1013,7 @@ class SkipList {
         // key is not less than the specified 'key' at each level in the list,
         // found by searching the list from the front (in ascending order of
         // key value); if no such node exists at a given level, the
-        // head-of-list sentinel is populated for that level.  This method must
+        // tail-of-list sentinel is populated for that level.  This method must
         // be called under the lock.
 
     void lookupImpLowerBoundR(Node *location[], const KEY& key) const;
@@ -984,7 +1021,7 @@ class SkipList {
         // key is not less than the specified 'key' at each level in the list,
         // found by searching the list from the back (in descending order of
         // key value); if no such node exists at a given level, the
-        // head-of-list sentinel is populated for that level.  This method must
+        // tail-of-list sentinel is populated for that level.  This method must
         // be called under the lock.
 
     void lookupImpUpperBound(Node *location[], const KEY& key) const;
@@ -1279,21 +1316,20 @@ class SkipList {
         // already been removed from the list.
 
     int removeAll(bsl::vector<PairHandle> *removed = 0);
-        // Remove all items from this list.  Load into the optionally specified
-        // 'removed' vector handles that can be used to refer to the removed
-        // items.  Note that the items in 'removed' will be in ascending order
-        // by key value.  Note also that all references in 'removed' must be
-        // released (i.e., destroyed) before this skip list is destroyed.
-        // Return the number of items that were removed from this list.
+        // Remove all items from this list.  Optionally specify 'removed', a
+        // vector to which to append handles to the removed nodes.  The items
+        // appended to 'removed' will be in ascending order by key value.
+        // Return the number of items that were removed from this list.  Note
+        // that all references in 'removed' must be released (i.e., destroyed)
+        // before this skip list is destroyed.
 
     int removeAllRaw(bsl::vector<Pair *> *removed);
-        // Remove all items from this list.  Load into the specified 'removed'
+        // Remove all items from this list.  Append to the specified 'removed'
         // vector pointers that can be used to refer to the removed items.
         // *Each* such pointer must be released (using 'releaseReferenceRaw')
-        // when it is no longer needed.  Note that the pairs in 'removed' will
-        // be in ascending order by key value.  Note also that all references
-        // must be released before this skip list is destroyed.  Return the
-        // number of items that were removed from this list.
+        // when it is no longer needed.  The pairs appended to 'removed' will
+        // be in ascending order by key value.  Return the number of items that
+        // were removed from this list.
 
                          // Update Methods
 
@@ -1785,14 +1821,16 @@ void SkipList_NodeCreationHelper<KEY, DATA>::construct(const KEY&  key,
 {
     BSLS_ASSERT(d_node_p);
 
-    bslalg::ScalarPrimitives::copyConstruct(&d_node_p->d_key,
-                                            key,
-                                            d_allocator_p);
+    bslalg::ScalarPrimitives::copyConstruct(
+                                         BSLS_UTIL_ADDRESSOF(d_node_p->d_key),
+                                         key,
+                                         d_allocator_p);
     d_keyFlag = true;
 
-    bslalg::ScalarPrimitives::copyConstruct(&d_node_p->d_data,
-                                            data,
-                                            d_allocator_p);
+    bslalg::ScalarPrimitives::copyConstruct(
+                                         BSLS_UTIL_ADDRESSOF(d_node_p->d_data),
+                                         data,
+                                         d_allocator_p);
 
     d_node_p = 0;
 }
@@ -2236,7 +2274,7 @@ int SkipList<KEY, DATA>::updateNodeR(bool       *newFrontFlag,
 
     if (!allowDuplicates) {
         Node *p = location[0];
-        if (p != d_head_p && p != node && p->d_key == newKey) {
+        if (p != d_tail_p && p != node && p->d_key == newKey) {
             return e_DUPLICATE;                                       // RETURN
         }
     }
@@ -2292,7 +2330,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNodeR(const KEY& key) const
     lookupImpLowerBoundR(locator, key);
 
     Node *p = locator[0];
-    if (p != d_head_p && p->d_key == key) {
+    if (p != d_tail_p && p->d_key == key) {
         p->incrementRefCount();
         return p;                                                     // RETURN
     }
@@ -2399,6 +2437,8 @@ void SkipList<KEY, DATA>::lookupImpLowerBound(Node       *location[],
         }
         location[k] = q;
     }
+
+    BSLS_ASSERT_SAFE(d_head_p != location[0]);
 }
 
 template<class KEY, class DATA>
@@ -2414,6 +2454,8 @@ void SkipList<KEY, DATA>::lookupImpLowerBoundR(Node       *location[],
         }
         location[k] = q;
     }
+
+    BSLS_ASSERT_SAFE(d_head_p != location[0]);
 }
 
 template<class KEY, class DATA>
@@ -2430,6 +2472,8 @@ void SkipList<KEY, DATA>::lookupImpUpperBound(Node       *location[],
 
         location[k] = q;
     }
+
+    BSLS_ASSERT_SAFE(d_head_p != location[0]);
 }
 
 template<class KEY, class DATA>
@@ -2445,6 +2489,8 @@ void SkipList<KEY, DATA>::lookupImpUpperBoundR(Node       *location[],
         }
         location[k] = q;
     }
+
+    BSLS_ASSERT_SAFE(d_head_p != location[0]);
 }
 
 template<class KEY, class DATA>
@@ -2625,6 +2671,7 @@ SkipList<KEY, DATA>::operator=(const SkipList& rhs)
     LockGuard rhsGuard(&rhs.d_lock);
 
     bsl::vector<PairHandle> rhsElements;
+    rhsElements.reserve(rhs.d_length);
     for (Node *node = rhs.d_head_p->d_ptrs[0].d_next_p;
          node && node != rhs.d_tail_p;
          node = node->d_ptrs[0].d_next_p)
