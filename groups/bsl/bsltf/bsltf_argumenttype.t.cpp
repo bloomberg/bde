@@ -162,7 +162,7 @@ unsigned numBitsChanged(const void *segmentA,
                         const void *segmentB,
                         size_t      size)
     // Compare the specified memory segments 'segmentA' and 'segmentB', both of
-    // specified 'size' bytes, and return the number of bits that differ
+    // the specified 'size' bytes, and return the number of bits that differ
     // between them.
 {
     const unsigned char *a = static_cast<const unsigned char *>(segmentA);
@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
         //
         // Concern:
         //: 1 That the destructor sets state of the object to one that cannot
-        //:   be mistake for a valid value.
+        //:   be mistaken for a valid value.
         //
         // Plan:
         //: 1 Create and destroy an object in a 'bsls::ObjectBuffer', and
@@ -367,29 +367,37 @@ int main(int argc, char *argv[])
                             "===========================\n");
 
         bsls::ObjectBuffer<Obj> xBuffer, yBuffer;
-        Obj& mX = xBuffer.object();    const Obj& X = mX;
-        Obj& mY = yBuffer.object();    const Obj& Y = mY;
 
         new (xBuffer.address()) Obj(3);
+        Obj& mX = xBuffer.object();    const Obj& X = mX;
         ASSERT(3 == X);
         ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedFrom());
         ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedInto());
 
         new (yBuffer.address()) Obj(3);
+        Obj& mY = yBuffer.object();    const Obj& Y = mY;
         ASSERT(3 == Y);
         ASSERT(bsltf::MoveState::e_NOT_MOVED == Y.movedFrom());
         ASSERT(bsltf::MoveState::e_NOT_MOVED == Y.movedInto());
 
         ASSERT(X == Y);
 
+        unsigned changed = u::numBitsChanged(xBuffer.address(),
+                                             yBuffer.address(),
+                                             sizeof(xBuffer));
+        ASSERT(0 == changed);
+
         mX.~Obj();
 
-        const unsigned changed = u::numBitsChanged(xBuffer.address(),
-                                                   yBuffer.address(),
-                                                   sizeof(xBuffer));
+        changed = u::numBitsChanged(xBuffer.address(),
+                                    yBuffer.address(),
+                                    sizeof(xBuffer));
         ASSERT(changed >= (sizeof(xBuffer) * 8) / 4);
 
         mY.~Obj();
+        ASSERT(0 == u::numBitsChanged(xBuffer.address(),
+                                      yBuffer.address(),
+                                      sizeof(xBuffer)));
       } break;
       case 13: {
         // --------------------------------------------------------------------

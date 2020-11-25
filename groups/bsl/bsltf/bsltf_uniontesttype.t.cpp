@@ -162,7 +162,7 @@ unsigned numBitsChanged(const void *segmentA,
                         const void *segmentB,
                         size_t      size)
     // Compare the specified memory segments 'segmentA' and 'segmentB', both of
-    // specified 'size' bytes, and return the number of bits that differ
+    // the specified 'size' bytes, and return the number of bits that differ
     // between them.
 {
     const unsigned char *a = static_cast<const unsigned char *>(segmentA);
@@ -710,14 +710,22 @@ int main(int argc, char *argv[])
 
         ASSERT(X == Y);
 
+        unsigned changed = u::numBitsChanged(xBuffer.address(),
+                                             yBuffer.address(),
+                                             sizeof(xBuffer));
+        ASSERT(0 == changed);
+
         mX.~Obj();
 
-        const unsigned changed = u::numBitsChanged(xBuffer.address(),
-                                                   yBuffer.address(),
-                                                   sizeof(xBuffer));
+        changed = u::numBitsChanged(xBuffer.address(),
+                                    yBuffer.address(),
+                                    sizeof(xBuffer));
         ASSERT(changed >= (sizeof(xBuffer) * 8) / 4);
 
         mY.~Obj();
+        ASSERT(0 == u::numBitsChanged(xBuffer.address(),
+                                      yBuffer.address(),
+                                      sizeof(xBuffer)));
       } break;
       case 1: {
         // --------------------------------------------------------------------

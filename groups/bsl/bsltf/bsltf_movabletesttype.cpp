@@ -64,12 +64,12 @@ MovableTestType::MovableTestType(
 MovableTestType::~MovableTestType()
 {
     BSLS_ASSERT_OPT(bsltf::MoveState::e_MOVED != d_movedFrom || 0 == d_data);
-
-    d_data = ~d_data & 0xf0f0f0f0;
-    std::memset(&d_movedFrom, 0xa5, sizeof(d_movedFrom));
-    std::memset(&d_movedInto, 0xa5, sizeof(d_movedInto));
-
     BSLS_ASSERT_OPT(this == d_self_p);
+
+    const int oldData = d_data;
+
+    std::memset(this, 0xa5, sizeof(*this));
+    d_data = ~oldData & 0xf0f0f0f0;
 }
 
 // MANIPULATORS

@@ -177,7 +177,7 @@ unsigned numBitsChanged(const void *segmentA,
                         const void *segmentB,
                         size_t      size)
     // Compare the specified memory segments 'segmentA' and 'segmentB', both of
-    // specified 'size' bytes, and return the number of bits that differ
+    // the specified 'size' bytes, and return the number of bits that differ
     // between them.
 {
     const unsigned char *a = static_cast<const unsigned char *>(segmentA);
@@ -745,11 +745,13 @@ int main(int argc, char *argv[])
         const int B = INT_MAX;
         const int C = 3;
 
-        // We can't use 'bsls::ObjectBuffer' because placement 'new' has been
-        // disabled for 'Obj'.
+        bsls::ObjectBuffer<Obj> xBuffer, yBuffer;
 
-        Obj mX;    const Obj& X = mX;
-        Obj mY;    const Obj& Y = mY;
+        ::new ((void *) xBuffer.address()) Obj();
+        ::new ((void *) yBuffer.address()) Obj();
+
+        Obj& mX = xBuffer.object();    const Obj& X = mX;
+        Obj& mY = yBuffer.object();    const Obj& Y = mY;
 
         ASSERTV(X.data(), D == X.data());
 
@@ -779,13 +781,10 @@ int main(int argc, char *argv[])
                                     sizeof(mX));
         ASSERT(changed >= (sizeof(mX) * 8) / 4);
 
-        // 'mX' is a non-allocating type.  Restore its state to what it was
-        // before destruction so we won't have problems when it goes out of
-        // scope and is destroyed.
-
-        ::memcpy(bsls::Util::addressOf(mX),
-                 bsls::Util::addressOf(mY),
-                 sizeof(mX));
+        mY.~Obj();
+        ASSERT(0 == u::numBitsChanged(xBuffer.address(),
+                                      yBuffer.address(),
+                                      sizeof(xBuffer)));
       } break;
       case 1: {
         // --------------------------------------------------------------------
