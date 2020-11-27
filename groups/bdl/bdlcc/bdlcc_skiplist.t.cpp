@@ -127,21 +127,28 @@ typedef bsls::Types::IntPtr         IntPtr;
 
 #define U_RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 
-// TTF::MethodPtr is problematic to get working with 'operator<' and it's not
-// worth the trouble.
+    // This macro is 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE' with a
+    // couple of problematic types removed.  The removed types were hard to
+    // accomodate because 'bdlcc::SkipList' lacks a 'comparator' functor
+    // template parameter to override the use of 'operator<'.
+    //
+    // MISSING:
+    //: o 'const char *'
+    //: o bsltf::TemplateTestFacility::MethodPtr
 
 #define U_TEST_TYPES_PRIMITIVE                                                \
         signed char,                                                          \
         size_t,                                                               \
-        const char *,                                                         \
         bsltf::TemplateTestFacility::ObjectPtr,                               \
         bsltf::TemplateTestFacility::FunctionPtr
-    // This macro refers to all of the primitive test types defined in template
-    // test facility other than 'MethodPtr.  Note that it can be used as the
-    // last argument to the 'U_RUN_EACH_TYPE' macro.
 
     // The Windows compiler was complaining that this test driver was too big,
-    // so define out own, smaller, 'U_WINDOWS_TEST_TYPES_USER_DEFINED':
+    // so define our own, smaller, 'U_WINDOWS_TEST_TYPES_USER_DEFINED':
+    //
+    // MISSING:
+    //: o bsltf::SimpleTestType
+    //: o bsltf::BitwiseCopyableTestType
+    //: o bsltf::MovableTestType
 
 #define U_WINDOWS_TEST_TYPES_USER_DEFINED                                     \
     bsltf::EnumeratedTestType::Enum,                                          \
@@ -151,11 +158,6 @@ typedef bsls::Types::IntPtr         IntPtr;
     bsltf::AllocBitwiseMoveableTestType,                                      \
     bsltf::MovableAllocTestType,                                              \
     bsltf::NonTypicalOverloadsTestType
-
-    // MISSING:
-    //: o bsltf::SimpleTestType
-    //: o bsltf::BitwiseCopyableTestType
-    //: o bsltf::MovableTestType
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 # define U_TEST_TYPES_REGULAR                                                 \
