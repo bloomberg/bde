@@ -13,19 +13,27 @@
 #include <bslim_testutil.h>
 
 #include <bsls_assert.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_review.h>
 
-#include <bsl_iostream.h>
+#include <bsl_algorithm.h>
+#include <bsl_cctype.h>    // isgraph(), isalpha()
+#include <bsl_cstdint.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>   // atoi()
 #include <bsl_cstring.h>   // memset()
-#include <bsl_cctype.h>    // isgraph()
 #include <bsl_climits.h>   // INT_MAX
+#include <bsl_fstream.h>
+#include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
-
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::ends;
+using bsl::flush;
 
 //=============================================================================
 //                             TEST PLAN
@@ -326,6 +334,47 @@ To contact the writer of this column: Chet Currier in New York\n\
 //                           TEST HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+namespace {
+namespace u {
+
+inline
+bool notBase64(char c)
+    // Return 'true' if the specified 'c' is valid base 64 character or part of
+    // a CRLF.
+{
+    unsigned char uc = c;
+    return !(bsl::isalnum(uc) || bsl::strchr("+/=\n\r", uc));
+}
+
+inline
+bool notBase64NotCRLF(char c)
+    // Return 'true' if the specified 'c' is valid base 64 character.
+{
+    unsigned char uc = c;
+    return !(bsl::isalnum(uc) || bsl::strchr("+/=", uc));
+}
+
+inline
+bool notBase64NotEquals(char c)
+    // Return 'true' if the specified 'c' is valid base 64 character or a CRLF
+    // but not '='.
+{
+    unsigned char uc = c;
+    return !(bsl::isalnum(uc) || bsl::strchr("+/\n\r", uc));
+}
+
+inline
+bool notBase64NotEqualsOrCRLF(char c)
+    // Return 'true' if the specified 'c' is valid base 64 character and not a
+    // CRLF or '='.
+{
+    unsigned char uc = c;
+    return !(bsl::isalnum(uc) || bsl::strchr("+/", uc));
+}
+
+}  // close namespace u
+}  // close unnamed namespace
+
                         // ==============
                         // Function myMin
                         // ==============
@@ -341,7 +390,9 @@ T myMin(const T& a, const T& b)
                         // Function printCharN
                         // ===================
 
-ostream& printCharN(ostream& output, const char* sequence, int length)
+bsl::ostream& printCharN(bsl::ostream& output,
+                         const char* sequence,
+                         int length)
     // Print the specified character 'sequence' of specified 'length' to the
     // specified 'stream' and return a reference to the modifiable 'stream'
     // (if a character is not graphical, its hexadecimal code is printed
@@ -361,6 +412,19 @@ ostream& printCharN(ostream& output, const char* sequence, int length)
         }
     }
     return output << flush;
+}
+
+                        // ==================
+                        // Function showCharN
+                        // ==================
+
+bsl::string showCharN(const char  *sequence,
+                      bsl::size_t  length)
+{
+    bsl::ostringstream oss;
+    printCharN(oss, sequence, static_cast<int>(length));
+
+    return oss.str();
 }
 
                         // =================
@@ -908,8 +972,7 @@ int u_Base64Decoder_Test::convert(char       *out,
 
     if (e_INPUT_STATE == d_state) {
         while (18 >= d_bitsInStack && begin != end) {
-            const unsigned char byte = static_cast<const unsigned char>(
-                                                                       *begin);
+            const unsigned char byte = *begin;
 
             ++begin;
             ++*numIn;
@@ -955,8 +1018,7 @@ int u_Base64Decoder_Test::convert(char       *out,
     }
     if (e_NEED_EQUAL_STATE == d_state) {
         while (begin != end) {
-            const unsigned char byte = static_cast<const unsigned char>(
-                                                                       *begin);
+            const unsigned char byte = *begin;
 
             ++begin;
             ++*numIn;
@@ -974,8 +1036,7 @@ int u_Base64Decoder_Test::convert(char       *out,
     }
     if (e_SOFT_DONE_STATE == d_state) {
         while (begin != end) {
-            const unsigned char byte = static_cast<const unsigned char>(
-                                                                       *begin);
+            const unsigned char byte = *begin;
 
             ++begin;
             ++*numIn;
@@ -1022,7 +1083,391 @@ int u_Base64Decoder_Test::endConvert(char *out, int *numOut, int maxNumOut)
     return e_ERROR_STATE == d_state ? -1 : d_bitsInStack / 8;
 }
 
+int run = 0;
+
+namespace u {
+
+void checkBase64(const char *begin, const char *end, bsl::size_t lineLength)
+    // Check that the specfied sequence '[ begin, end )' is 100% valid base 64
+    // characters, with CRLF's exactly where they're expected given the
+    // specified 'lineLength'.
+{
+    if (0 == lineLength) {
+        const char *preEqualsEnd = bsl::max(begin, end - 2);
+        ASSERT(0 == bsl::count_if(begin,
+                                  preEqualsEnd,
+                                  &u::notBase64NotEqualsOrCRLF));
+        ASSERT(0 == bsl::count_if(preEqualsEnd,
+                                  end,
+                                  &u::notBase64NotCRLF));
+    }
+    else {
+        const char *preEqualsEnd = bsl::max(begin, end - 4), *pc = begin;
+        while (pc < preEqualsEnd) {
+            const char *lineEnd = bsl::min(preEqualsEnd, pc + lineLength);
+            ASSERT(0 == bsl::count_if(pc,
+                                      lineEnd,
+                                      &u::notBase64NotEqualsOrCRLF));
+            pc = lineEnd;
+
+            if (pc < preEqualsEnd) {
+                ASSERTV(*pc, '\r' == *pc);
+                ++pc;
+            }
+            if (pc < preEqualsEnd) {
+                ASSERTV(*pc, '\n' == *pc);
+                ++pc;
+            }
+        }
+        ASSERT(0 == bsl::count_if(pc,
+                                  end,
+                                  &u::notBase64));
+        if (begin < end) {
+            ASSERTV(run, showCharN(begin, end - begin),
+                                           '\r' != end[-1] && '\n' != end[-1]);
+        }
+    }
+}
+
+}  // close namespace u
 }  // close unnamed namespace
+
+//=============================================================================
+//                              FUZZ TESTING
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
+// on how to build and run with fuzz testing enabled.
+//-----------------------------------------------------------------------------
+
+#ifdef BDE_ACTIVATE_FUZZ_TESTING
+#define main test_driver_main
+#endif
+
+using bsl::uint8_t;
+
+extern "C"
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+    // Use the specified 'data' array of 'size' bytes as input to methods of
+    // this component and return zero.
+{
+    const char *FUZZ   = reinterpret_cast<const char *>(data);
+    int         LENGTH = static_cast<int>(size);
+    int         test;
+
+    if (FUZZ && LENGTH) {
+        test = 1 + static_cast<unsigned char>(*FUZZ) % 99;
+        ++FUZZ;
+        --LENGTH;
+    }
+    else {
+        test = 0;
+    }
+
+    const char  GARBAGE = char(0xaf);
+
+    switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING WITHOUT MAXNUMOUT
+        //
+        // Concerns:
+        //: 1 That object under test works properly with a varient of values
+        //:   passed to the 'lineLength' parameter, and with tha parameter
+        //:   allowed to default to 76.
+        //:
+        //: 2 That at most 2 '=' characters occur in the output, and that, if
+        //:   present, they are at the end (possibly divided by a CRLF).
+        //:
+        //: 3 That CRLF's are present, or not, exactly as dictated by the
+        //:   'lineLength' argument.
+        //:
+        //: 4 Test only with 'maxNumOut' not specified.
+        //
+        // Plan:
+        //: 1 Test the binary input with a variety of values passed to the
+        //:   'lineLength' parameter (and nothing specified for the 'maxNumOut'
+        //:   parameter:
+        //:   o Test the case where no value is passed to the 'lineLength'
+        //:     parameter, interpreted as a value of 76.
+        //:   o Test 0, which means no CRLF's are inserted.
+        //:   o Test a variety of positive values, including very low values.
+        //:
+        //: 2 Call 'checkBase64' at the end to verify that that the output
+        //:   is a valid base64 encoding, with CRLF's exactly where they're
+        //:   expected.
+        //:
+        //: 3 Allocate the segment of memory to write to using 'malloc' so that
+        //:   the address santizer will detect out of bounds access.
+        //
+        // Testing:
+        //   FUZZ TESTING WITHOUT MAXNUMOUT
+        //   int encodedLength(int);
+        //   int encodedLength(int, int);
+        //   int convert(OUT, int *, int *, IN, IN);
+        //   int endConvert(OUT, int *);
+        // --------------------------------------------------------------------
+
+        bool passArg;
+        int LINE_LENGTH;
+        {
+            if (!LENGTH) {
+                LINE_LENGTH = 76;
+                passArg = false;
+            }
+            else {
+                const unsigned llRoot = *FUZZ++ & 0xff;
+                --LENGTH;
+                passArg = true;
+
+                LINE_LENGTH = (llRoot < 100)
+                            ? llRoot
+                            : (llRoot << 4);
+            }
+        }
+
+        const char * const begin = FUZZ;
+        const char * const end   = FUZZ + LENGTH;
+
+        const bool leftOver    = LENGTH % 3;
+        const int  outLength   = passArg
+                               ? Obj::encodedLength(LENGTH, LINE_LENGTH)
+                               : Obj::encodedLength(LENGTH);
+        ASSERT(0 != LINE_LENGTH || 0 == outLength % 4);
+        char       *outBuf = static_cast<char *>(bsl::malloc(outLength+1));
+        const char *outBegin = outBuf;
+        const char *outEnd = outBuf + outLength;
+
+        bsl::fill(outBuf, outBuf + outLength + 1, GARBAGE);
+
+        char *out = outBuf;
+
+        bsls::ObjectBuffer<Obj> ob;
+        if (passArg) {
+            new (ob.address()) Obj(LINE_LENGTH);
+        }
+        else {
+            new (ob.address()) Obj();
+        }
+        Obj& mX = ob.object();    const Obj& X = mX;
+
+        int numOut, numIn;
+
+        int rc = mX.convert(out, &numOut, &numIn, begin, end);
+        ASSERT(0 <= rc);
+        ASSERT(0 <= numOut);
+        ASSERT(numOut <= outLength);
+
+        out += numOut;
+
+        ASSERT(outBuf <= out);
+        ASSERT(out <= outBuf + outLength);
+        ASSERT(0 <= numIn);
+        ASSERT(numIn <= LENGTH);
+
+        ASSERT(!leftOver || numOut < outLength);
+
+        ASSERT(0 == bsl::count_if(outBuf,
+                                  outBuf + numOut,
+                                  &u::notBase64NotEquals));
+        u::checkBase64(outBuf, outBuf + numOut, LINE_LENGTH);
+
+        int endNumOut;
+        rc = mX.endConvert(out, &endNumOut);
+        ASSERT(0 == rc && X.isDone());
+        ASSERT(0 <= endNumOut);
+        ASSERT(outLength == numOut + endNumOut);
+        ASSERT(0 == bsl::count_if(outBegin, outEnd, &u::notBase64));
+        ASSERT(!leftOver == (0 == bsl::count_if(outBegin,
+                                                outEnd,
+                                                &u::notBase64NotEquals)));
+        ASSERT(0 != LINE_LENGTH || 0 == bsl::count_if(outBegin,
+                                                      outEnd,
+                                                      &u::notBase64NotCRLF));
+        u::checkBase64(outBuf, outBuf + outLength, LINE_LENGTH);
+        ASSERT(GARBAGE == outBuf[outLength]);
+        ASSERT(leftOver == (0 < bsl::count(outBuf, outBuf + outLength, '=')));
+
+        free(outBuf);
+        mX.~Obj();
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING WITH MAXNUMOUT
+        //
+        // Concerns:
+        //: 1 That object under test works properly with a varient of values
+        //:   passed to the 'lineLength' parameter, and with tha parameter
+        //:   allowed to default to 76.
+        //:
+        //: 2 That at most 2 '=' characters occur in the output, and that, if
+        //:   present, they are at the end (possibly divided by a CRLF).
+        //:
+        //: 3 That CRLF's are present, or not, exactly as dictated by the
+        //:   'lineLength' argument.
+        //:
+        //: 4 Test with a variety of values of 'maxNumOut', including 0,
+        //:   specified to 'convert', and variety not including 0 specified to
+        //:   'endConvert'.
+        //
+        // Plan:
+        //: 1 Test the binary input with a variety of values passed to the
+        //:   'lineLength' parameter.
+        //:   o Test the case where no value is passed to the 'lineLength'
+        //:     parameter, interpreted as a value of 76.
+        //:   o Test 0, which means no CRLF's are inserted.
+        //:   o Test a variety of positive values, including very low values.
+        //:   o Test with a variety of values passed to the 'maxNumOut'
+        //:     parameter (don't pass 0 to 'endNumOut', that would not be in
+        //:     contract.
+        //:
+        //: 2 Call 'checkBase64' at the end to verify that that the output
+        //:   is a valid base64 encoding, with CRLF's exactly where they're
+        //:   expected.
+        //:
+        //: 3 Allocate the segment of memory to write to using 'malloc' so that
+        //:   the address santizer will detect out of bounds access.
+        //
+        // Testing:
+        //   FUZZ TESTING WITH MAXNUMOUT
+        //   int encodedLength(int);
+        //   int encodedLength(int, int);
+        //   int convert(OUT, int *, int *, IN, IN, int);
+        //   int endConvert(OUT, int *, int);
+        // --------------------------------------------------------------------
+
+        bool passArg;
+        int LINE_LENGTH;
+        int maxNumOut;
+        {
+            if (!LENGTH) {
+                LINE_LENGTH = 76;
+                passArg = false;
+                maxNumOut = 1;
+            }
+            else {
+                const unsigned llRoot = *FUZZ++ & 0xff;
+                --LENGTH;
+                passArg = true;
+
+                LINE_LENGTH = (llRoot < 100)
+                            ? llRoot
+                            : (llRoot << 4);
+
+                if (LENGTH) {
+                    maxNumOut = *FUZZ++ & 0xff;
+                    --LENGTH;
+                }
+                else {
+                    maxNumOut = 1;
+                }
+            }
+        }
+
+        const char * const begin = FUZZ;
+        const char * const end   = FUZZ + LENGTH;
+
+        const bool leftOver     = LENGTH % 3;
+        const int  outLength    = passArg
+                                ? Obj::encodedLength(LENGTH, LINE_LENGTH)
+                                : Obj::encodedLength(LENGTH);
+        ASSERT(0 != LINE_LENGTH || 0 == outLength % 4);
+        char       *outBuf = static_cast<char *>(bsl::malloc(outLength+1));
+        const char *outBegin = outBuf;
+
+        bsl::fill(outBuf, outBuf + outLength + 1, GARBAGE);
+
+        bsls::ObjectBuffer<Obj> ob;
+        if (passArg) {
+            new (ob.address()) Obj(LINE_LENGTH);
+        }
+        else {
+            new (ob.address()) Obj();
+        }
+        Obj& mX = ob.object();    const Obj& X = mX;
+
+        int numOut, numIn, endNumOut;
+
+        const char *beginIn = begin;
+        int  rc;
+        int  outSoFar = 0;
+        char *out     = outBuf;
+        do {
+            rc = mX.convert(out, &numOut, &numIn, beginIn, end, maxNumOut);
+            ASSERT(0 <= rc);
+            ASSERT(0 == rc || 0 <= maxNumOut);
+            ASSERT(0 <= numOut);
+            ASSERT(numOut <= maxNumOut || maxNumOut < 0);
+
+            out += numOut;
+
+            ASSERT(outBuf <= out);
+            ASSERT(out <= outBuf + outLength);
+            ASSERT(0 <= numIn);
+
+            outSoFar += numOut;
+            beginIn  += numIn;
+
+            ASSERTV(numIn, maxNumOut, numIn <= maxNumOut + 4 || maxNumOut < 0);
+
+            ASSERT(outSoFar <= outLength);
+            ASSERT(beginIn <= end);
+
+            ASSERT(!leftOver || outSoFar < outLength);
+            ASSERT(!leftOver || out < outBuf + outLength);
+        } while (beginIn < end);
+        ASSERT(end == beginIn);
+        ASSERT(0 == bsl::count_if(outBuf,
+                                  outBuf + outSoFar,
+                                  &u::notBase64NotEquals));
+
+        if (0 == maxNumOut) {
+            maxNumOut = 1;
+        }
+
+        int numEndConvertCalls = 0;
+        do {
+            ++numEndConvertCalls;
+
+            rc = mX.endConvert(out, &endNumOut, maxNumOut);
+            if (0 != rc) {
+                ASSERT(0 < endNumOut);
+                ASSERT(endNumOut == maxNumOut);
+            }
+
+            outSoFar += endNumOut;
+            out      += endNumOut;
+
+            ASSERT(0 == bsl::count_if(outBegin,
+                                      outBegin + outSoFar,
+                                      &u::notBase64));
+        } while (rc);
+        ASSERTV(maxNumOut, outSoFar, numEndConvertCalls, X.isDone());
+
+        ASSERTV(run, LINE_LENGTH, maxNumOut, numEndConvertCalls,
+                                                           outLength, outSoFar,
+                                                    outLength == outSoFar);
+        u::checkBase64(outBuf, outBuf + outSoFar, LINE_LENGTH);
+        ASSERT(GARBAGE == outBuf[outLength]);
+        ASSERT(leftOver == (0 < bsl::count(outBuf, outBuf + outSoFar, '=')));
+
+        free(outBuf);
+        mX.~Obj();
+      } break;
+      default: {
+      } break;
+    }
+
+    if (testStatus > 0) {
+        BSLS_ASSERT_INVOKE("FUZZ TEST FAILURES");
+    }
+
+    ++run;
+
+    return 0;
+}
 
 // ============================================================================
 //                         SUPPORT FOR USAGE EXAMPLE
@@ -1235,8 +1680,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "ESTING OPTIONAL NUMIN, NUMOUT" << endl
-                          << "=============================" << endl;
+                          << "TESTING OPTIONAL NUMIN, NUMOUT" << endl
+                          << "==============================" << endl;
 
         if (veryVerbose) {
             P_(int('+')); P((void*)'+');
@@ -1258,7 +1703,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTry '::printCharN' test helper function."
                                                                        << endl;
         {
-            ostringstream out;
+            bsl::ostringstream out;
 
             const char in[] = "a" "\x00" "b" "\x07" "c" "\x08" "d" "\x0F"
                               "e" "\x10" "f" "\x80" "g" "\xFF";
@@ -2166,10 +2611,9 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, 5 == obj.maxLineLength());
             }
         }
-
       } break;
       case 8: {
-// TBD ???
+// TBD?
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -3401,7 +3845,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
         if (verbose) cout << "\nTry '::printCharN' test helper function."
                                                                        << endl;
         {
-            ostringstream out;
+            bsl::ostringstream out;
 
             const char  in[] = "a" "\x00" "b" "\x07" "c" "\x08" "d" "\x0F"
                                "e" "\x10" "f" "\x80" "g" "\xFF";

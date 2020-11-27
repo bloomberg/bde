@@ -14,14 +14,21 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_testallocator.h>
 #include <bsls_review.h>
+#include <bsls_types.h>
 
-#include <bsl_iostream.h>
+#include <bsl_algorithm.h>
+#include <bsl_cctype.h>
+#include <bsl_cstdint.h>
 #include <bsl_cstdlib.h>   // atoi()
 #include <bsl_cstring.h>   // memset()
 #include <bsl_cctype.h>    // isgraph()
 #include <bsl_climits.h>   // INT_MIN
+#include <bsl_fstream.h>
+#include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_vector.h>
 
 #include <stdio.h>
 
@@ -30,7 +37,11 @@
 #undef GS
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::ends;
+using bsl::flush;
 
 //=============================================================================
 //                             TEST PLAN
@@ -455,11 +466,16 @@ const char BLOOMBERG_NEWS[] =
 //                           TEST HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+int verbose = 0;
+int veryVerbose = 0;
+int veryVeryVerbose = 0;
+int veryVeryVeryVerbose = 0;
+
                         // =========================
                         // operator<< for enum State
                         // =========================
 
-ostream& operator<<(ostream& stream, State enumerator)
+bsl::ostream& operator<<(bsl::ostream& stream, State enumerator)
     // Write the ascii representation of the specified State 'enumerator'
     // to the specified output 'stream'.
 {
@@ -482,7 +498,9 @@ T myMin(const T& a, const T& b)
                         // Function printCharN
                         // ===================
 
-ostream& printCharN(ostream& output, const char* sequence, int length)
+bsl::ostream& printCharN(bsl::ostream& output,
+                         const char* sequence,
+                         int length)
     // Print the specified character 'sequence' of specified 'length' to the
     // specified 'output' and return a reference to the modifiable 'stream'
     // (if a character is not graphical, its hexadecimal code is printed
@@ -502,6 +520,19 @@ ostream& printCharN(ostream& output, const char* sequence, int length)
         }
     }
     return output << flush;
+}
+
+                        // ==================
+                        // Function showCharN
+                        // ==================
+
+bsl::string showCharN(const char  *sequence,
+                      bsl::size_t  length)
+{
+    bsl::ostringstream oss;
+    printCharN(oss, sequence, static_cast<int>(length));
+
+    return oss.str();
 }
 
                         // =================
@@ -1020,6 +1051,7 @@ bool isState(Obj *object, int state)
 // ============================================================================
 //                         SUPPORT FOR USAGE EXAMPLE
 // ----------------------------------------------------------------------------
+
 namespace BloombergLP {
 
 int streamEncoder(bsl::ostream& os, bsl::istream& is)
@@ -1199,6 +1231,702 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
 }
 
 }  // close enterprise namespace
+
+                        // ---------------------------
+                        // Functions Used by Fuzz Test
+                        // ---------------------------
+
+namespace {
+namespace u {
+
+inline
+bool notBase64(char c)
+    // Return 'true' if the specified 'c' is not valid character in a base 64
+    // sequence, and not white space.
+{
+    unsigned char uc = c;
+    bool ret = !uc || !(bsl::isalnum(uc) || bsl::strchr("+/= \t\r\n\v\f", uc));
+    return ret;
+}
+
+inline
+bool notBase64NotEquals(char c)
+    // Return 'true' if the specified 'c' is not valid character in a base 64
+    // sequence, not white space, and not '='
+{
+    unsigned char uc = c;
+    bool ret = !uc || !(bsl::isalnum(uc) || bsl::strchr("+/ \t\r\n\v\f", uc));
+    return ret;
+}
+
+inline
+bool base64OrEquals(char c)
+    // Return 'true' if the specified 'c' is a valid character in a base 64
+    // sequence and not white space.
+{
+    unsigned char uc = c;
+    bool ret = uc && (bsl::isalnum(uc) || bsl::strchr("+/=", uc));
+    return ret;
+}
+
+}  // close namespace u
+}  // close unnamed namespace
+
+//=============================================================================
+//                              FUZZ TESTING
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
+// on how to build and run with fuzz testing enabled.
+//-----------------------------------------------------------------------------
+
+#ifdef BDE_ACTIVATE_FUZZ_TESTING
+#define main test_driver_main
+#endif
+
+using bsl::uint8_t;
+
+extern "C"
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+    // Use the specified 'data' array of 'size' bytes as input to methods of
+    // this component and return zero.
+{
+    static int run = 0;
+
+    typedef bsl::size_t    size_t;
+
+    const char *FUZZ    = reinterpret_cast<const char *>(data);
+    int         LENGTH  = static_cast<int>(size);
+    int         test;
+
+    if (FUZZ && LENGTH) {
+        test = 1 + static_cast<unsigned char>(*FUZZ) % 99;
+        ++FUZZ;
+        --LENGTH;
+    }
+    else {
+        test = 0;
+    }
+
+    switch (test) { case 0:  // Zero is always the leading case.
+      case 3: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING PERMUTATIONS OF VALID INPUT
+        //
+        // Concern:
+        //: 1 That the component under test can handle randomly generated base
+        //:   64 input, also with noise inserted into it.
+        //:
+        //: 2 Test that the component ignores all white space inserted into an
+        //:   otherwise valid base 64 input stream, even with error checking
+        //:   enabled.
+        //:
+        //: 3 Test that the component ignores non-whitespace invalid base 64
+        //:   characters inserted into the input when error checking is
+        //:   disabled.
+        //:
+        //: 4 That the presence of non-whitespace invalid base 64 characters
+        //:   causes an error if error checking is enabled.
+        //
+        // Plan:
+        //: 1 First, use the 'bdlde::Base64Encoder' to translate the fuzz input
+        //:   into a completely valid base 64 sequence.
+        //:
+        //: 2 Use the decoder to translate the base 64 sequence back into a
+        //:   binary sequence, and verify that it matches the fuzz input.
+        //:
+        //: 3 Create a version of the valid base 64 input with random white
+        //:   space inserted it, decode that with error checking enabled, and
+        //:   observe that the result still matches the fuzz input.
+        //:
+        //: 4 Create a version of the valid base 64 input with random bytes
+        //:   that are not white space and not valid base 64 characters
+        //:   inserted into it.
+        //:   o Decode that with error checking disabled, and observe that the
+        //:     inserted characters are ignored and the result matches the fuzz
+        //:     input.
+        //:
+        //:   o Decode that with error checking enabled, and observed that an
+        //:     error status is returned.
+        //:
+        //: 5 Create a version of the valid base 64 input except with an '='
+        //:   character inserted at random places, decode it with error
+        //:   checking enabled, and observe that an invalid status is returned.
+        //
+        // Testing:
+        //   FUZZ TESTING
+        //   Obj(bool);
+        //   int convert(OUT, int *, int *, IN, IN);
+        //   int endConvert(OUT);
+        //   int endConvert(OUT, int *);
+        // --------------------------------------------------------------------
+
+        if (veryVerbose) cout << "FUZZ TESTING PERMUTATIONS OF VALID INPUT\n"
+                                 "========================================\n";
+
+        const char * const begin = FUZZ;
+        const char * const end   = FUZZ + LENGTH;
+
+        if (veryVerbose) P(run);
+
+        if (veryVerbose) cout <<
+                       "Create 'base64Input', valid base 64 input sequence,\n"
+                                          " and permute it in various ways.\n";
+
+        bsl::vector<char> base64Input;
+        const char        GARBAGE = char(0xa5);
+        int               base64Size =
+                                   bdlde::Base64Encoder::encodedLength(LENGTH);
+
+        {
+            bdlde::Base64Encoder encoder;
+
+            base64Size = bdlde::Base64Encoder::encodedLength(LENGTH);
+            base64Input.resize(base64Size + 1, GARBAGE);
+
+            char *out = base64Input.data();
+            int numOut, numIn;
+            int rc = encoder.convert(out, &numOut, &numIn, begin, end);
+            ASSERT(0 == rc);
+            ASSERT(LENGTH == numIn);
+            ASSERT(numOut <= base64Size);
+
+            int endNumOut;
+
+            rc = encoder.endConvert(out + numOut, &endNumOut);
+            ASSERT(0 == rc && encoder.isDone());
+            ASSERTV(numOut, endNumOut, base64Size,
+                                             numOut + endNumOut == base64Size);
+            ASSERT(0 == base64Size || GARBAGE != base64Input[base64Size - 1]);
+            ASSERT(GARBAGE == base64Input[base64Size]);
+
+            base64Input.resize(base64Size);
+        }
+
+        if (veryVerbose) cout <<
+           "Decode 'base64Input' back into binary, compare with fuzz input.\n";
+
+        bsl::vector<char> binaryOutput;
+        binaryOutput.resize(LENGTH + 1, GARBAGE);
+
+        int numOut, numIn, endNumOut;
+
+        {
+            Obj mX(true);    const Obj& X = mX;
+            char *out = binaryOutput.data();
+
+            int rc = mX.convert(out,
+                                &numOut,
+                                &numIn,
+                                base64Input.begin(),
+                                base64Input.end());
+            ASSERT(0 == rc);
+            ASSERT(base64Size == numIn);
+            ASSERT(numOut <= LENGTH);
+
+            rc = mX.endConvert(out + numOut);
+            ASSERT(0 == rc);
+            ASSERT(X.isDone());
+
+            ASSERT(GARBAGE == binaryOutput[LENGTH]);
+
+            ASSERT(0 == bsl::memcmp(begin, binaryOutput.data(), LENGTH));
+        }
+
+        if (veryVerbose) cout << "Create 'noisyInput', which is\n"
+                             " 'base64Input' with random white space added\n.";
+
+        bsl::vector<char> noisyInput;
+        noisyInput.reserve(base64Size * 2);
+
+        {
+            bsl::vector<char> whiteNoise;
+            for (int ii = 0; ii < 256; ++ii) {
+                if (bsl::isspace(ii)) {
+                    whiteNoise.push_back(char(ii));
+                }
+            }
+
+            for (unsigned b64Idx = 0, fuzzIdx = 0; b64Idx < base64Input.size();
+                                  ++b64Idx, fuzzIdx = (fuzzIdx + 1) % LENGTH) {
+                unsigned fuzz     = FUZZ[fuzzIdx] & 0xff;
+                bool     order    = fuzz & 1;
+                size_t   noiseIdx = (fuzz >> 1) % whiteNoise.size();
+
+                if (order) {
+                    noisyInput.push_back(base64Input[b64Idx]);
+                    noisyInput.push_back(whiteNoise[noiseIdx]);
+                }
+                else {
+                    noisyInput.push_back(whiteNoise[noiseIdx]);
+                    noisyInput.push_back(base64Input[b64Idx]);
+                }
+            }
+        }
+        ASSERT(base64Input.size() * 2 == noisyInput.size());
+
+        binaryOutput.clear();
+        binaryOutput.resize(LENGTH + 1, GARBAGE);
+
+        if (veryVerbose) cout << "Decode 'noisyInput' with error checking\n"
+                              " enabled, observe output matches fuzz input.\n";
+
+        {
+            Obj mX(true);    const Obj& X = mX;
+            char *out = binaryOutput.data();
+
+            int rc = mX.convert(out,
+                                &numOut,
+                                &numIn,
+                                noisyInput.begin(),
+                                noisyInput.end());
+            ASSERT(0 == rc);
+            ASSERT(base64Size * 2 == numIn);
+            ASSERT(numOut <= LENGTH);
+
+            out += numOut;
+
+            rc = mX.endConvert(out, &endNumOut);
+            ASSERT(0 == rc);
+            ASSERT(X.isDone());
+
+            ASSERTV(numOut, endNumOut, LENGTH, numOut + endNumOut == LENGTH);
+
+            ASSERT(GARBAGE == binaryOutput[LENGTH]);
+
+            bool match = 0 == bsl::memcmp(begin, binaryOutput.data(), LENGTH);
+            ASSERTV(numOut, endNumOut, LENGTH, match);
+            if (!match) {
+                cout <<         "begin:               ";
+                printCharN(cout, begin, LENGTH);
+                cout <<         "binaryOutput.data(): ";
+                printCharN(cout, binaryOutput.data(), LENGTH);
+            }
+        }
+
+        if (veryVerbose) cout << "Re-create 'noisyInput' containing\n"
+                    " 'nastyNoise', random noise characters that are neither\n"
+                                     " valid base 64 input nor white space.\n";
+
+        {
+            bsl::vector<char> nastyNoise;
+            for (int ii = 0; ii < 256; ++ii) {
+                if (!bsl::isalnum(ii) && !bsl::isspace(ii) && '+' != ii &&
+                                                      '/' != ii && '=' != ii) {
+                    nastyNoise.push_back(char(ii));
+                }
+            }
+
+            noisyInput.clear();
+            for (unsigned b64Idx = 0, fuzzIdx = 0; b64Idx < base64Input.size();
+                                  ++b64Idx, fuzzIdx = (fuzzIdx + 1) % LENGTH) {
+                unsigned fuzz     = data[fuzzIdx];
+                bool     order    = fuzz & 1;
+                fuzz              >>= 1;
+                size_t   noiseIdx = ((fuzz << 14) | (fuzz << 7) | fuzz)
+                                                           % nastyNoise.size();
+
+                if (order) {
+                    noisyInput.push_back(base64Input[b64Idx]);
+                    noisyInput.push_back(nastyNoise[noiseIdx]);
+                }
+                else {
+                    noisyInput.push_back(nastyNoise[noiseIdx]);
+                    noisyInput.push_back(base64Input[b64Idx]);
+                }
+            }
+        }
+
+        if (veryVerbose) cout << "Decode 'noisyInput'.  The result depends\n"
+                                  " upon whether error checking is enabled.\n";
+
+        for (unsigned errorCheck = 0; errorCheck < 2; ++errorCheck) {
+            binaryOutput.clear();
+            binaryOutput.resize(LENGTH + 1, GARBAGE);
+
+            Obj mX(0 != errorCheck);    const Obj& X = mX;
+            char *outBuf = binaryOutput.data();
+            char *out    = outBuf;
+
+            int rc = mX.convert(out,
+                                &numOut,
+                                &numIn,
+                                noisyInput.begin(),
+                                noisyInput.end());
+            if (errorCheck) {
+                // Error checking is enabled.  We should get a failing error
+                // status.
+
+                ASSERT(0 != rc || noisyInput.empty());
+
+                (void) mX.endConvert(out);    // Just observe that it doesn't
+                                              // fail any asserts.
+
+                continue;
+            }
+
+            // Error checking is disabled.  The nasty noise should be ignored
+            // and we get a correct result.
+
+            ASSERT(0 == rc);
+            ASSERT(base64Size * 2 == numIn);
+            ASSERT(numOut <= LENGTH);
+
+            out += numOut;
+
+            rc = mX.endConvert(out, &endNumOut);
+            ASSERT(0 == rc);
+            ASSERT(X.isDone());
+
+            ASSERTV(numOut, endNumOut, LENGTH, numOut + endNumOut == LENGTH);
+
+            ASSERT(GARBAGE == binaryOutput[LENGTH]);
+
+            ASSERTV(showCharN(begin, LENGTH), showCharN(outBuf, LENGTH),
+                         0 == bsl::memcmp(begin, binaryOutput.data(), LENGTH));
+        }
+
+        binaryOutput.clear();
+        binaryOutput.resize(LENGTH + 1, GARBAGE);
+
+        if (veryVerbose) cout << "Add an inappropriate '=' to 'base64Input',\n"
+                 " decode the result with error checking enabled and observe\n"
+                                              " that the error is detected.\n";
+
+        noisyInput = base64Input;
+        noisyInput.insert(noisyInput.begin(), 3, 'A');
+        for (int ii = 0; ii <= static_cast<int>(noisyInput.size()) - 2; ++ii) {
+            for (int errorI = 0; errorI < 2; ++errorI) {
+                binaryOutput.clear();
+                binaryOutput.resize(LENGTH + 4, GARBAGE);
+
+                noisyInput.insert(noisyInput.begin() + ii, '=');
+
+                Obj mX(0 != errorI);    const Obj& X = mX;
+                char *out = binaryOutput.data();
+
+                int rc = mX.convert(out,
+                                    &numOut,
+                                    &numIn,
+                                    noisyInput.begin(),
+                                    noisyInput.end());
+                out += numOut;
+
+                int rc2 = 0;
+                if (0 == rc) {
+                    rc2 = mX.endConvert(out, &numOut);
+                    out += numOut;
+                }
+                ASSERTV(rc, rc2, 0 != rc || 0 != rc2);
+                ASSERT(!X.isDone());
+                ASSERT(GARBAGE == *out);
+                ASSERT(out - binaryOutput.data() <= LENGTH + 3);
+
+                noisyInput.erase(noisyInput.begin() + ii);
+            }
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING RAW FUZZ INPUT
+        //
+        // Concern:
+        //: 1 That completely random input fed into 'convert' either returns an
+        //:   error status or successfully converts the input.
+        //:
+        //: 2 If the random input is a valid base 64 sequence, it will be
+        //:   successfully parsed.
+        //
+        // Plan:
+        //: 1 Calculate 'valid', indicating that the sequence consists of
+        //:   nothing but alphanumerics, white space, '+', or '/'.  This will
+        //:   always be a valid base 64 encodings (there are some encodings
+        //:   with '=' signs in them that are valid sequences, where 'valid'
+        //:   will not be set).
+        //:
+        //: 2 Iterate 4 times through all combinations of the boolean flags
+        //:   'checkErr', which determines whether error checking is enabled,
+        //:   and 'topOff', which determines whether a few extra characters
+        //:   should be added to the input to render the number of significant
+        //:   characters to be a multiple of 4.
+        //:
+        //: 3 Call 'convert' on the fuzz input.  If 'valid' is 'true', it
+        //:   should succeed.
+        //:
+        //: 4 Even though the first call succeeded, it doesn't mean that the
+        //:   decoder is in a state ready for 'endConvert' to succeed if
+        //:   called.  If 'topOff' is 'true', decoder a few more bytes so that
+        //:   the number of significant bytes parsed will be a multiple of 4.
+        //:
+        //: 5 Call 'endConvert', and observe if it succeeded.
+        //:
+        //: 6 If the conversion succeeded, encode the result and see if it
+        //:   matches the fuzz input, reduced to just the significant
+        //:   characters.
+        //
+        // Testing:
+        //   FUZZ TESTING RAW FUZZ INPUT
+        //   Obj(bool);
+        //   int convert(OUT, int *, int *, IN, IN);
+        //   int endConvert(OUT, int *);
+        // --------------------------------------------------------------------
+
+        if (veryVerbose) cout << "FUZZ TESTING RAW FUZZ INPUT\n"
+                                 "===========================\n";
+
+        const char GARBAGE = char(0xa5);
+
+        bool valid = 0 == bsl::count_if(FUZZ,
+                                        FUZZ + LENGTH,
+                                        &u::notBase64NotEquals);
+
+        const bsl::size_t numSignificantChars = bsl::count_if(
+                                                       FUZZ,
+                                                       FUZZ + LENGTH,
+                                                       &u::base64OrEquals);
+        const int         left = (4 - numSignificantChars % 4) % 4;
+
+        for (int flags = 0; flags < 4; ++flags) {
+            const bool checkErr = flags & 1;
+            const bool topOff   = flags & 2;
+
+            if (0 == left && topOff) {
+                continue;
+            }
+
+            bsl::vector<char> binaryOutput;
+            binaryOutput.resize(4 * LENGTH + 1, GARBAGE);
+
+            Obj mX(checkErr);    const Obj& X = mX;
+            char *out = binaryOutput.data();
+
+            int rc, rc2 = 0, numOut, numIn, endNumOut = 0, outSoFar = 0;
+            rc = mX.convert(out,
+                            &numOut,
+                            &numIn,
+                            FUZZ,
+                            FUZZ + LENGTH);
+            ASSERTV(run, showCharN(FUZZ, LENGTH), rc, valid,
+                                                            0 == rc || !valid);
+            ASSERT(numOut <= LENGTH);
+            ASSERT(numIn  <= LENGTH);
+            ASSERT(numIn  == LENGTH || 0 != rc);
+            outSoFar += numOut;
+            out += numOut;
+
+            ASSERT(numIn == LENGTH || 0 != rc);
+
+            // A base 64 sequence is not correct unless the number of
+            // significant characters is divisible by 4.  So if 'topOff', add
+            // valid characters until the total consumed is divisible by 4.
+            // Note that that won't necessarily make the input valid,
+            // especially if an '=' is in the input.
+
+            const char *pattern = "AAA";
+            if (topOff) {
+                rc2 = mX.convert(out,
+                                 &numOut,
+                                 &numIn,
+                                 pattern,
+                                 pattern + left);
+                ASSERT(0 == rc2 || !valid);
+                out += numOut;
+                outSoFar += numOut;
+                ASSERT(left == numIn || !valid);
+            }
+
+            int rc3 = mX.endConvert(out, &endNumOut);
+            ASSERTV(run, 0 == rc3 || !valid || (left && !topOff));
+            ASSERTV(run, X.isDone() || 0 != rc3);
+            outSoFar += endNumOut;
+            out      += endNumOut;
+
+            ASSERT(outSoFar <= 4 * LENGTH);
+            ASSERT(GARBAGE == binaryOutput[outSoFar]);
+            ASSERT(GARBAGE == *out);
+
+            if (0 == rc && 0 == rc2 && 0 == rc3) {
+                bsl::vector<char> significantInput;
+                for (const char *pc = FUZZ; pc < FUZZ + LENGTH; ++pc) {
+                    if (u::base64OrEquals(*pc)) {
+                        significantInput.push_back(*pc);
+                    }
+                }
+                if (topOff) {
+                    significantInput.insert(significantInput.end(), left, 'A');
+                }
+
+                bsl::vector<char> encoded;
+                encoded.resize(significantInput.size() + 1, GARBAGE);
+                out = encoded.data();
+
+                bdlde::Base64Encoder encoder(0);
+                int rc4 = encoder.convert(out,
+                                          &numOut,
+                                          &numIn,
+                                          binaryOutput.begin(),
+                                          binaryOutput.begin() + outSoFar);
+                ASSERT(0 == rc4);
+                out += numOut;
+
+                rc4 = encoder.endConvert(out, &numOut);
+                ASSERT(0 == rc4);
+                out += numOut;
+                bsl::size_t outLen = out - encoded.data();
+
+                ASSERTV(showCharN(encoded.data(), outLen),
+                        showCharN(significantInput.data(),
+                                  significantInput.size()),
+                                 significantInput.size(), out - encoded.data(),
+                                            significantInput.size() == outLen);
+                ASSERTV(left, GARBAGE == *out);
+
+                ASSERT(0 == bsl::memcmp(significantInput.data(),
+                                        encoded.data(),
+                                        significantInput.size()));
+            }
+        }
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // FUZZ TESTING MASSAGED FUZZ INPUT
+        //
+        // Concern:
+        //: 1 That if we massage the fuzz input into a form that's always
+        //:   correct base 64 input, the decoder always successfully decodes
+        //:   it.
+        //
+        // Plan:
+        //: 1 Loop through the fuzz input, transforming each byte into a base
+        //:   64 character.
+        //:
+        //: 2 If necessary, add a few bytes to make sure the length of the base
+        //:   64 sequence is a multiple of 4 bytes long.
+        //:
+        //: 3 Decode the sequence, which should work.
+        //:
+        //: 4 Taking the binary output of the decoding, and encode it, and
+        //:   check that the result matches the base 64 sequence we began with.
+        //
+        // Testing:
+        //   FUZZ TESTING RAW FUZZ INPUT
+        //   Obj(bool);
+        //   int convert(OUT, int *, int *, IN, IN);
+        //   int endConvert(OUT, int *);
+        // --------------------------------------------------------------------
+
+        if (veryVerbose) cout << "FUZZ TESTING RAW FUZZ INPUT\n"
+                                 "===========================\n";
+
+        const char GARBAGE = char(0xa5);
+
+        bsl::vector<char> binaryOutput;
+        binaryOutput.resize(4 * LENGTH + 1, GARBAGE);
+
+        bsl::vector<char> inputVec;
+        inputVec.reserve(LENGTH + 3);
+        for (const char *pc = FUZZ; pc < FUZZ + LENGTH; ++pc) {
+            int c = (*pc & 0x3f) ^ ((*pc >> 6) & 3);
+            if (c < 26) {
+                inputVec.push_back(char('A' + c));
+            }
+            else if (c < 52) {
+                inputVec.push_back(char('a' + c - 26));
+            }
+            else if (c < 62) {
+                inputVec.push_back(char('0' + c - 52));
+            }
+            else if (c < 63) {
+                inputVec.push_back('/');
+            }
+            else {
+                inputVec.push_back('+');
+            }
+        }
+
+        {
+            const char *pattern = "A==";
+            size_t      toFill  = (4 - inputVec.size() % 4) % 4;
+
+            inputVec.insert(inputVec.end(), pattern, pattern + toFill);
+        }
+
+        binaryOutput.clear();
+        binaryOutput.resize(LENGTH + 4, GARBAGE);
+
+        {
+            Obj mX(true);    const Obj& X = mX;
+            char *out = binaryOutput.data();
+
+            int numOut, numIn, endNumOut = 0;
+            int rc = mX.convert(out,
+                                &numOut,
+                                &numIn,
+                                inputVec.begin(),
+                                inputVec.end());
+            ASSERTV(run, showCharN(inputVec.data(), inputVec.size()), rc,
+                                                                      0 == rc);
+            if (0 != rc) {
+                inputVec.push_back(0);
+                cout << inputVec.data();
+                inputVec.resize(inputVec.size() - 1);
+            }
+            ASSERT(numOut <= LENGTH + 4);
+
+            rc = mX.endConvert(out + numOut, &endNumOut);
+            ASSERT(0 == rc);
+            ASSERT(X.isDone());
+
+            ASSERT(numOut + endNumOut < LENGTH + 4);
+            ASSERT(GARBAGE == binaryOutput[numOut + endNumOut]);
+            binaryOutput.resize(numOut + endNumOut);
+
+            ASSERT(static_cast<int>(inputVec.size()) ==
+                           bdlde::Base64Encoder::encodedLength(
+                                    static_cast<int>(binaryOutput.size()), 0));
+
+            bdlde::Base64Encoder encoder(0);
+            const bdlde::Base64Encoder& ENCODER = encoder;
+
+            bsl::vector<char> secondInput;
+            secondInput.resize(inputVec.size() + 1, GARBAGE);
+
+            out = secondInput.data();
+            rc = encoder.convert(out,
+                                 &numOut,
+                                 &numIn,
+                                 binaryOutput.begin(),
+                                 binaryOutput.end());
+            ASSERT(0 == rc);
+            ASSERT(numOut <= static_cast<int>(inputVec.size()));
+
+            rc = encoder.endConvert(out + numOut, &endNumOut);
+            ASSERT(0 == rc);
+            ASSERT(ENCODER.isDone());
+            ASSERT(numOut + endNumOut == static_cast<int>(inputVec.size()));
+            ASSERT(GARBAGE == secondInput[numOut + endNumOut]);
+            secondInput.resize(numOut + endNumOut);
+
+            ASSERT(0 == bsl::count_if(secondInput.begin(),
+                                      secondInput.end(),
+                                      &u::notBase64));
+            ASSERT(inputVec == secondInput);
+        }
+      } break;
+      default: {
+      } break;
+    }
+
+    if (testStatus > 0) {
+        BSLS_ASSERT_INVOKE("FUZZ TEST FAILURES");
+    }
+
+    ++run;
+
+    return 0;
+}
 
 // ============================================================================
 //                                TEST CASES
@@ -5377,7 +6105,7 @@ DEFINE_TEST_CASE(1)
         if (verbose) cout << "\nTry '::printCharN' test helper function."
                                                                        << endl;
         {
-            ostringstream out;
+            bsl::ostringstream out;
 
             const char in[] = "a" "\x00" "b" "\x07" "c" "\x08" "d" "\x0F"
                               "e" "\x10" "f" "\x80" "g" "\xFF";
@@ -5601,10 +6329,10 @@ DEFINE_TEST_CASE(1)
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
-    int veryVeryVeryVerbose = argc > 5;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -5612,6 +6340,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
+
 #define CASE(NUMBER)                                                          \
   case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose,        \
                                                     veryVeryVeryVerbose); break
