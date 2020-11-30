@@ -38,9 +38,9 @@ namespace BloombergLP {
 // represents three attribute values:
 //   * count of nodes available for use
 //         ('(d_state & k_AVAILABLE_MASK) >> k_AVAILABLE_SHIFT'),
-//   * count of threads attempting to use an available node (this value is not
-//         accessed except as a check for zero or one ('d_state & k_USE_MASK')
-//   * and number of threads allocating new nodes
+//   * count of threads attempting to use an available node
+//         ('d_state & k_USE_MASK').
+//   * and whether a thread is attempting to allocate
 //         ('d_state & k_ALLOCATE_MASK').
 //
 // The dequeueing of a node is governed by the state value in the node.
@@ -49,10 +49,11 @@ namespace BloombergLP {
 //   * deciding to use an existing node or allocate a new node,
 //   * and inserting a new node.
 // The approach to resolving these issues is to maintain an available count in
-// 'd_state' and, when inserting, allow only one thread to have access to
-// 'd_nextWrite'.  To accomplish the single access to 'd_nextWrite' goal, the
-// count of the number of threads attempting to use and allocate nodes are
-// tracked in 'd_state'.
+// 'd_state' and, when inserting a new node, allow only one thread to have
+// access to 'd_nextWrite'.  To accomplish the single access to 'd_nextWrite'
+// goal, the count of the number of threads attempting to use existing nodes
+// and allocate new nodes (only one thread is allowed to allocate at any time)
+// are tracked in 'd_state'.
 //
 // The available count is a semaphore-like count.  When the available count is
 // greater than zero and there are no threads attempting to allocate, a push

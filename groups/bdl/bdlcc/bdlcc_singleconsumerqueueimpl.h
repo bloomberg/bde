@@ -40,7 +40,15 @@ BSLS_IDENT("$Id: $")
 // blocked in 'popFront' when the queue is dequeue disabled return from
 // 'popFront' immediately and return an error code.
 //
-///Exception safety
+///Allocator Requirements
+///----------------------
+// Access to the allocator supplied to the constructor is internally
+// synchronized by this component.  If allocations performed by this component
+// must be synchronized with external allocations (performed outside of this
+// component), that synchronization must be guaranteed by the user.  Using a
+// thread-safe allocator is the common way to satisfy this requirement.
+//
+///Exception Safety
 ///----------------
 // A 'bdlcc::SingleConsumerQueueImpl' is exception neutral, and all of the
 // methods of 'bdlcc::SingleConsumerQueueImpl' provide the basic exception
@@ -84,10 +92,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bdlma_infrequentdeleteblocklist.h>
+
 #include <bslalg_scalarprimitives.h>
 
-#include <bslma_deallocatorproctor.h>
-#include <bslma_default.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_movableref.h>
@@ -104,43 +112,6 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlcc {
-
-            // ==================================================
-            // class SingleConsumerQueueImpl_ReleaseAllRawProctor
-            // ==================================================
-
-template <class TYPE>
-class SingleConsumerQueueImpl_ReleaseAllRawProctor {
-    // This class implements a proctor that, unless its 'release' method has
-    // previously been invoked, automatically invokes 'releaseAllRaw' on a
-    // 'TYPE' upon destruction.
-
-    // DATA
-    TYPE *d_queue_p;  // managed queue
-
-    // NOT IMPLEMENTED
-    SingleConsumerQueueImpl_ReleaseAllRawProctor();
-    SingleConsumerQueueImpl_ReleaseAllRawProctor(
-                          const SingleConsumerQueueImpl_ReleaseAllRawProctor&);
-    SingleConsumerQueueImpl_ReleaseAllRawProctor& operator=(
-                          const SingleConsumerQueueImpl_ReleaseAllRawProctor&);
-
-  public:
-    // CREATORS
-    explicit
-    SingleConsumerQueueImpl_ReleaseAllRawProctor(TYPE *queue);
-        // Create a 'removeAll' proctor that conditionally manages the
-        // specified 'queue' (if non-zero).
-
-    ~SingleConsumerQueueImpl_ReleaseAllRawProctor();
-        // Destroy this object and, if 'release' has not been invoked, invoke
-        // the managed queue's 'releaseAllRaw' method.
-
-    // MANIPULATORS
-    void release();
-        // Release from management the queue currently managed by this proctor.
-        // If no queue, this method has no effect.
-};
 
              // ================================================
              // class SingleConsumerQueueImpl_MarkReclaimProctor
@@ -185,11 +156,11 @@ class SingleConsumerQueueImpl_MarkReclaimProctor {
 
 template <class TYPE>
 class SingleConsumerQueueImpl_PopCompleteGuard {
-    // This class implements a guard automatically invokes 'popComplete' on the
-    // managed queue upon destruction.
+    // This class implements a guard that automatically invokes 'popComplete'
+    // on the managed queue upon destruction.
 
     // DATA
-    TYPE *d_queue_p;  // managed queue owning the managed node
+    TYPE *d_queue_p;  // managed queue
 
     // NOT IMPLEMENTED
     SingleConsumerQueueImpl_PopCompleteGuard();
@@ -207,6 +178,35 @@ class SingleConsumerQueueImpl_PopCompleteGuard {
     ~SingleConsumerQueueImpl_PopCompleteGuard();
         // Destroy this object and invoke the 'popComplete' method on the
         // managed queue.
+};
+
+             // ===============================================
+             // class SingleConsumerQueueImpl_AllocateLockGuard
+             // ===============================================
+
+template <class TYPE>
+class SingleConsumerQueueImpl_AllocateLockGuard {
+    // This class implements a guard that automatically invokes
+    // 'releaseAllocateLock' on the managed queue upon destruction.
+
+    // DATA
+    TYPE *d_queue_p;  // managed queue
+
+    // NOT IMPLEMENTED
+    SingleConsumerQueueImpl_AllocateLockGuard();
+    SingleConsumerQueueImpl_AllocateLockGuard(
+                             const SingleConsumerQueueImpl_AllocateLockGuard&);
+    SingleConsumerQueueImpl_AllocateLockGuard& operator=(
+                             const SingleConsumerQueueImpl_AllocateLockGuard&);
+
+  public:
+    // CREATORS
+    explicit SingleConsumerQueueImpl_AllocateLockGuard(TYPE *queue);
+        // Create a 'releaseAllocateLock' guard managing the specified 'queue'.
+
+    ~SingleConsumerQueueImpl_AllocateLockGuard();
+        // Destroy this object and invoke the managed queue's
+       // 'releaseAllocateLock' method.
 };
 
                       // =============================
@@ -237,11 +237,27 @@ class SingleConsumerQueueImpl {
         e_RECLAIM                // node suffered exception while being written
     };
 
-    // The following constants are used to maintain the queue's 'd_state'
-    // attribute values for:
-    //   * number of threads allocating a new node,
-    //   * number of threads attempting to use an existing node,
-    //   * and number of nodes available for use.
+    static const bsl::size_t k_ALLOCATION_BATCH_SIZE = 8;
+                                 // number of nodes to allocate during a
+                                 // 'pushBack' when no nodes are available for
+                                 // reuse
+
+    // The queus's state is maintained in 'd_state' whose bits have the
+    // following meaning (and can be maintained by the constants below):
+    //..
+    //  63          19 18   0
+    // +-----------+--+-----+
+    // | available |a | use |
+    // +-----------+--+-----+
+    //..
+    //
+    //:  * available:    the number of nodes available for use, which becomes
+    //:                  negative when an allocation is needed
+    //:
+    //:  * a (allocate): a bit indicating a thread is holding the allocation
+    //:                  lock
+    //:
+    //:  * use:          number of threads attempting to use existing nodes
     //
     // The 'k_*_MASK' constants define the layout of the attributes, the
     // 'k_*_INC' constants are used to modify the 'd_state' attributes, and the
@@ -249,13 +265,13 @@ class SingleConsumerQueueImpl {
     //
     // See *Implementation* *Note* for further details.
 
-    static const bsls::Types::Int64 k_ALLOCATE_MASK     = 0x0000000000003fffLL;
-    static const bsls::Types::Int64 k_ALLOCATE_INC      = 0x0000000000000001LL;
-    static const bsls::Types::Int64 k_USE_MASK          = 0x000000000fffc000LL;
-    static const bsls::Types::Int64 k_USE_INC           = 0x0000000000004000LL;
-    static const bsls::Types::Int64 k_AVAILABLE_MASK    = 0xfffffffff0000000LL;
-    static const bsls::Types::Int64 k_AVAILABLE_INC     = 0x0000000010000000LL;
-    static const int                k_AVAILABLE_SHIFT   = 28;
+    static const bsls::Types::Int64 k_ALLOCATE_MASK     = 0x0000000000080000LL;
+    static const bsls::Types::Int64 k_ALLOCATE_INC      = 0x0000000000080000LL;
+    static const bsls::Types::Int64 k_USE_MASK          = 0x000000000007ffffLL;
+    static const bsls::Types::Int64 k_USE_INC           = 0x0000000000000001LL;
+    static const bsls::Types::Int64 k_AVAILABLE_MASK    = 0xfffffffffff00000LL;
+    static const bsls::Types::Int64 k_AVAILABLE_INC     = 0x0000000000100000LL;
+    static const int                k_AVAILABLE_SHIFT   = 20;
 
     // PRIVATE TYPES
     typedef typename ATOMIC_OP::AtomicTypes::Int     AtomicInt;
@@ -271,53 +287,48 @@ class SingleConsumerQueueImpl {
         AtomicPointer         d_next;   // pointer to next node
     };
 
-    typedef QueueNode<TYPE> Node;
+    typedef QueueNode<TYPE>                  Node;
+    typedef bdlma::InfrequentDeleteBlockList Allocator;
 
     // DATA
-    AtomicPointer       d_nextWrite;         // pointer to next write to node
+    AtomicPointer     d_nextWrite;         // pointer to next write to node
 
-    AtomicPointer       d_nextRead;          // pointer to next read from node
+    AtomicPointer     d_nextRead;          // pointer to next read from node
 
-    MUTEX               d_readMutex;         // used with 'd_readCondition' to
-                                             // block until an element is
-                                             // available for popping
+    MUTEX             d_readMutex;         // used with 'd_readCondition' to
+                                           // block until an element is
+                                           // available for popping
 
-    CONDITION           d_readCondition;     // condition variable for popping
-                                             // thread
+    CONDITION         d_readCondition;     // condition variable for popping
+                                           // thread
 
-    MUTEX               d_writeMutex;        // during allocation, used to
-                                             // synchronize threads access to
-                                             // 'd_nextWrite'
+    MUTEX             d_writeMutex;        // during allocation, used to
+                                           // synchronize threads access to
+                                           // 'd_nextWrite'
 
-    AtomicInt64         d_capacity;          // capacity of this queue
+    AtomicInt64       d_capacity;          // capacity of this queue
 
-    mutable MUTEX       d_emptyMutex;        // blocking point for consumer
-                                             // during 'waitUntilEmpty'
+    mutable MUTEX     d_emptyMutex;        // blocking point for consumer
+                                           // during 'waitUntilEmpty'
 
-    mutable CONDITION   d_emptyCondition;    // condition variable for consumer
-                                             // during 'waitUntilEmpty'
+    mutable CONDITION d_emptyCondition;    // condition variable for consumer
+                                           // during 'waitUntilEmpty'
 
-    AtomicInt64         d_state;             // bit pattern representing the
-                                             // state of the queue (see
-                                             // implementation notes)
+    AtomicInt64       d_state;             // bit pattern representing the
+                                           // state of the queue (see
+                                           // implementation notes)
 
-    AtomicUint          d_popFrontDisabled;  // is queue pop disabled and
-                                             // generation count; see
-                                             // *Implementation* *Note*
+    AtomicUint        d_popFrontDisabled;  // is queue pop disabled and
+                                           // generation count; see
+                                           // *Implementation* *Note*
 
-    AtomicUint          d_pushBackDisabled;  // is queue push disabled and
-                                             // generation count; see
-                                             // *Implementation* *Note*
+    AtomicUint        d_pushBackDisabled;  // is queue push disabled and
+                                           // generation count; see
+                                           // *Implementation* *Note*
 
-    bslma::Allocator   *d_allocator_p;       // allocator, held not owned
+    Allocator         d_allocator;         // allocator
 
     // FRIENDS
-    friend class SingleConsumerQueueImpl_ReleaseAllRawProctor<
-                                          SingleConsumerQueueImpl<TYPE,
-                                                                  ATOMIC_OP,
-                                                                  MUTEX,
-                                                                  CONDITION> >;
-
     friend class SingleConsumerQueueImpl_MarkReclaimProctor<
                            SingleConsumerQueueImpl<TYPE,
                                                    ATOMIC_OP,
@@ -334,11 +345,24 @@ class SingleConsumerQueueImpl {
                                                                   MUTEX,
                                                                   CONDITION> >;
 
+    friend class SingleConsumerQueueImpl_AllocateLockGuard<
+                                          SingleConsumerQueueImpl<TYPE,
+                                                                  ATOMIC_OP,
+                                                                  MUTEX,
+                                                                  CONDITION> >;
+
     // PRIVATE CLASS METHODS
     static bsls::Types::Int64 available(bsls::Types::Int64 state);
         // Return the available attribute from the specified 'state'.
 
     // PRIVATE MANIPULATORS
+    void incrementUntil(AtomicUint *value, unsigned int bitValue);
+        // If the specified 'value' does not have its lowest-order bit set to
+        // the value of the specified 'bitValue', increment 'value' until it
+        // does.  Note that this method is used to modify the generation counts
+        // stored in 'd_popFrontDisabled' and 'd_pushBackDisabled'.  See
+        // *Implementation* *Note* for further details.
+
     void markReclaim(Node *node);
         // Mark the specified 'node' as a node to be reclaimed.
 
@@ -352,17 +376,11 @@ class SingleConsumerQueueImpl {
         // Return a pointer to the node to assign the value being pushed into
         // this queue, or 0 if 'isPushBackDisabled()'.
 
-    void incrementUntil(AtomicUint *value, unsigned int bitValue);
-        // If the specified 'value' does not have its lowest-order bit set to
-        // the value of the specified 'bitValue', increment 'value' until it
-        // does.  Note that this method is used to modify the generation counts
-        // stored in 'd_popFrontDisabled' and 'd_pushBackDisabled'.  See
-        // *Implementation* *Note* for further details.
-
-    void releaseAllRaw();
-        // Return all memory to the allocator.  This method is intended to be
-        // used by the destructor and to avoid a memory leak when there is an
-        // exception during construction.
+    void releaseAllocateLock();
+        // Remove the allocation lock indicator from 'd_state'.  This method is
+        // intended to be used to remove the allocation lock indicator from
+        // 'd_state' when there is an exception during allocation and the
+        // locked state is set (i.e., 'pushBackHelper').
 
     // NOT IMPLEMENTED
     SingleConsumerQueueImpl(const SingleConsumerQueueImpl&);
@@ -517,34 +535,6 @@ class SingleConsumerQueueImpl {
 //                             INLINE DEFINITIONS
 // ============================================================================
 
-            // --------------------------------------------------
-            // class SingleConsumerQueueImpl_ReleaseAllRawProctor
-            // --------------------------------------------------
-
-// CREATORS
-template <class TYPE>
-SingleConsumerQueueImpl_ReleaseAllRawProctor<TYPE>::
-                      SingleConsumerQueueImpl_ReleaseAllRawProctor(TYPE *queue)
-: d_queue_p(queue)
-{
-}
-
-template <class TYPE>
-SingleConsumerQueueImpl_ReleaseAllRawProctor<TYPE>::
-                                ~SingleConsumerQueueImpl_ReleaseAllRawProctor()
-{
-    if (d_queue_p) {
-        d_queue_p->releaseAllRaw();
-    }
-}
-
-// MANIPULATORS
-template <class TYPE>
-void SingleConsumerQueueImpl_ReleaseAllRawProctor<TYPE>::release()
-{
-    d_queue_p = 0;
-}
-
              // ------------------------------------------------
              // class SingleConsumerQueueImpl_MarkReclaimProctor
              // ------------------------------------------------
@@ -593,6 +583,25 @@ SingleConsumerQueueImpl_PopCompleteGuard<TYPE>::
     d_queue_p->popComplete(true);
 }
 
+          // ------------------------------------------------------
+          // class SingleConsumerQueueImpl_AllocateLockGuardProctor
+          // ------------------------------------------------------
+
+// CREATORS
+template <class TYPE>
+SingleConsumerQueueImpl_AllocateLockGuard<TYPE>::
+                         SingleConsumerQueueImpl_AllocateLockGuard(TYPE *queue)
+: d_queue_p(queue)
+{
+}
+
+template <class TYPE>
+SingleConsumerQueueImpl_AllocateLockGuard<TYPE>::
+                                   ~SingleConsumerQueueImpl_AllocateLockGuard()
+{
+    d_queue_p->releaseAllocateLock();
+}
+
                       // -----------------------------
                       // class SingleConsumerQueueImpl
                       // -----------------------------
@@ -606,6 +615,22 @@ bsls::Types::Int64 SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
 }
 
 // PRIVATE MANIPULATORS
+template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+void SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
+                     ::incrementUntil(AtomicUint *value, unsigned int bitValue)
+{
+    unsigned int state = ATOMIC_OP::getUintAcquire(value);
+    if (bitValue != (state & 1)) {
+        unsigned int expState;
+        do {
+            expState = state;
+            state = ATOMIC_OP::testAndSwapUintAcqRel(value,
+                                                     state,
+                                                     state + 1);
+        } while (state != expState && (bitValue == (state & 1)));
+    }
+}
+
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 void SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
                                                       ::markReclaim(Node *node)
@@ -662,35 +687,114 @@ typename SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::Node *
         return 0;                                                     // RETURN
     }
 
-    // Fast path requires an available node and needs to indicate a thread is
-    // intending to use an existing node.
+    // Fast path requires an available node ('-k_AVAILABLE_INC') and needs to
+    // indicate a thread is intending to use an existing node ('k_USE_INC').
 
     bsls::Types::Int64 state = ATOMIC_OP::addInt64NvAcqRel(
                                                   &d_state,
                                                   k_USE_INC - k_AVAILABLE_INC);
 
-    if (0 > state || 0 < (state & k_ALLOCATE_MASK)) {
-
+    if (state < 0 || 0 != (state & k_ALLOCATE_MASK)) {
         // The determination to use an existing node was premature, undo the
         // indication.
 
-        state = ATOMIC_OP::addInt64NvAcqRel(&d_state, -k_USE_INC);
+        state = ATOMIC_OP::addInt64NvAcqRel(&d_state,
+                                            k_AVAILABLE_INC - k_USE_INC);
 
         bsls::Types::Int64 expState;
+
         do {
-            if (0 > state && 0 == (state & k_USE_MASK)) {
-                expState = state;
+            expState = state;
+            if (state >= k_AVAILABLE_INC && 0 == (state & k_ALLOCATE_MASK)) {
+                // The are now sufficient available nodes to reserve one.  This
+                // can be due to an allocation completing or a node being made
+                // available by the consumer.
+
+                state = ATOMIC_OP::testAndSwapInt64AcqRel(
+                                          &d_state,
+                                          state,
+                                          state + k_USE_INC - k_AVAILABLE_INC);
+            }
+            else if (   0 == (  (state >> k_AVAILABLE_SHIFT)
+                              + (state & k_USE_MASK))
+                     && 0 == (state & k_ALLOCATE_MASK)) {
+                // '-AVAILABLE == USE' indicates all threads will wait for the
+                // allocation, so attempt to become the allocating thread.
+                // Note that 'AVAILABLE < 0 && -AVAILABLE != USE' indicates the
+                // temporary state where threads are still completing the
+                // re-use of an existing node or there are available nodes to
+                // be re-used (nodes were allocated or made available by the
+                // consumer).  If threads are still completing the re-use of an
+                // existing node, ownership of 'd_nextWrite' can not be
+                // guaranteed by setting the allocation lock.
+
                 state = ATOMIC_OP::testAndSwapInt64AcqRel(
                                                        &d_state,
                                                        state,
-                                                       state + k_AVAILABLE_INC
-                                                             + k_ALLOCATE_INC);
-            }
-            else if (0 <= state && 0 == (state & k_ALLOCATE_MASK)) {
-                expState = state;
-                state = ATOMIC_OP::testAndSwapInt64AcqRel(&d_state,
-                                                          state,
-                                                          state + k_USE_INC);
+                                                       state + k_ALLOCATE_INC);
+                if (expState == state) {
+                    // This thread is the only thread acccessing 'd_nextWrite'.
+                    // Allocate new nodes and insert them.  The variables 'a'
+                    // and 'b' in the below are pointers to 'Node' as per the
+                    // following diagram.
+                    //..
+                    //  d_nextWrite
+                    //       |
+                    //       V
+                    //     +---+     +---+
+                    // --> |   | --> |   | -->
+                    //     +---+     +---+
+                    //       ^         ^
+                    //       |         |
+                    //       a         b
+                    //..
+
+                    SingleConsumerQueueImpl_AllocateLockGuard<
+                              SingleConsumerQueueImpl<TYPE,
+                                                      ATOMIC_OP,
+                                                      MUTEX,
+                                                      CONDITION> > guard(this);
+
+                    Node *a = static_cast<Node *>(
+                                       ATOMIC_OP::getPtrAcquire(&d_nextWrite));
+
+                    Node *b = static_cast<Node *>(
+                                         ATOMIC_OP::getPtrAcquire(&a->d_next));
+
+                    Node *nodes = static_cast<Node *>(
+                              d_allocator.allocate(  sizeof(Node)
+                                                   * k_ALLOCATION_BATCH_SIZE));
+                    for (bsl::size_t i = 0;
+                         i < k_ALLOCATION_BATCH_SIZE - 1;
+                         ++i) {
+                        Node *n = nodes + i;
+                        ATOMIC_OP::initInt(&n->d_state, e_WRITABLE);
+                        ATOMIC_OP::initPointer(&n->d_next, n + 1);
+                    }
+                    {
+                        Node *n = nodes + k_ALLOCATION_BATCH_SIZE - 1;
+                        ATOMIC_OP::initInt(&n->d_state, e_WRITABLE);
+                        ATOMIC_OP::initPointer(&n->d_next, b);
+                    }
+
+                    ATOMIC_OP::setPtrRelease(&a->d_next,   nodes);
+                    ATOMIC_OP::setPtrRelease(&d_nextWrite, nodes);
+
+                    ATOMIC_OP::addInt64AcqRel(&d_capacity,
+                                              k_ALLOCATION_BATCH_SIZE);
+
+                    // Reserve one node for this thread and make the other
+                    // nodes available to other threads.
+
+                    ATOMIC_OP::addInt64AcqRel(
+                              &d_state,
+                              k_AVAILABLE_INC * (k_ALLOCATION_BATCH_SIZE - 1));
+
+                    return a;                                         // RETURN
+                }
+
+                expState = ~state;  // cause the 'while' to fail and remain in
+                                    // this loop
             }
             else {
                 bslmt::ThreadUtil::yield();
@@ -702,77 +806,103 @@ typename SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::Node *
         } while (state != expState);
     }
 
-    Node *nextWrite;
+    Node *nextWrite =
+                   static_cast<Node *>(ATOMIC_OP::getPtrAcquire(&d_nextWrite));
 
-    if (0 <= state) {
-        // Note that there are no threads attempting to allocate new nodes.
-
-        nextWrite = static_cast<Node *>(
-                                       ATOMIC_OP::getPtrAcquire(&d_nextWrite));
-        Node *expNextWrite;
-        do {
-            expNextWrite = nextWrite;
-            Node *next = static_cast<Node *>(ATOMIC_OP::getPtrAcquire(
+    Node *expNextWrite;
+    do {
+        expNextWrite = nextWrite;
+        Node *next = static_cast<Node *>(ATOMIC_OP::getPtrAcquire(
                                                           &nextWrite->d_next));
 
-            nextWrite = static_cast<Node *>(ATOMIC_OP::testAndSwapPtrAcqRel(
+        nextWrite = static_cast<Node *>(ATOMIC_OP::testAndSwapPtrAcqRel(
                                                                   &d_nextWrite,
                                                                   nextWrite,
                                                                   next));
-        } while (nextWrite != expNextWrite);
+    } while (nextWrite != expNextWrite);
 
-        ATOMIC_OP::addInt64AcqRel(&d_state, -k_USE_INC);
-    }
-    else {
-        // Note that there are no threads attempting to use available nodes.
-
-        Node *n = static_cast<Node *>(d_allocator_p->allocate(sizeof(Node)));
-
-        ATOMIC_OP::initInt(&n->d_state, e_WRITABLE);
-
-        {
-            bslmt::LockGuard<MUTEX> guard(&d_writeMutex);
-
-            // Note that this is the *only* thread accessing 'd_nextWrite'.
-
-            nextWrite = static_cast<Node *>(
-                                       ATOMIC_OP::getPtrAcquire(&d_nextWrite));
-
-            ATOMIC_OP::setPtrRelease(&n->d_next,
-                                     static_cast<Node *>(
-                                                      ATOMIC_OP::getPtrAcquire(
-                                                         &nextWrite->d_next)));
-            ATOMIC_OP::setPtrRelease(&nextWrite->d_next, n);
-            ATOMIC_OP::setPtrRelease(&d_nextWrite, n);
-
-            ATOMIC_OP::addInt64AcqRel(&d_capacity, 1);
-        }
-
-        ATOMIC_OP::addInt64AcqRel(&d_state, -k_ALLOCATE_INC);
-    }
+    ATOMIC_OP::addInt64AcqRel(&d_state, -k_USE_INC);
 
     return nextWrite;
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+inline
 void SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
-                     ::incrementUntil(AtomicUint *value, unsigned int bitValue)
+                                                        ::releaseAllocateLock()
 {
-    unsigned int state = ATOMIC_OP::getUintAcquire(value);
-    if (bitValue != (state & 1)) {
-        unsigned int expState;
-        do {
-            expState = state;
-            state = ATOMIC_OP::testAndSwapUintAcqRel(value,
-                                                     state,
-                                                     state + 1);
-        } while (state != expState && (bitValue == (state & 1)));
-    }
+    ATOMIC_OP::addInt64AcqRel(&d_state, -k_ALLOCATE_INC);
+}
+
+// CREATORS
+template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
+                      SingleConsumerQueueImpl(bslma::Allocator *basicAllocator)
+: d_readMutex()
+, d_readCondition()
+, d_writeMutex()
+, d_emptyMutex()
+, d_emptyCondition()
+, d_allocator(basicAllocator)
+{
+    ATOMIC_OP::initInt64(&d_capacity, 0);
+    ATOMIC_OP::initInt64(&d_state,    0);
+
+    ATOMIC_OP::initUint(&d_popFrontDisabled, 0);
+    ATOMIC_OP::initUint(&d_pushBackDisabled, 0);
+
+    ATOMIC_OP::initPointer(&d_nextWrite, 0);
+
+    Node *n = static_cast<Node *>(d_allocator.allocate(sizeof(Node)));
+    ATOMIC_OP::initInt(&n->d_state, e_WRITABLE);
+    ATOMIC_OP::initPointer(&n->d_next, n);
+
+    ATOMIC_OP::setPtrRelease(&d_nextWrite, n);
+    ATOMIC_OP::setPtrRelease(&d_nextRead,  n);
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
-void SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
-                                                              ::releaseAllRaw()
+SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
+                      SingleConsumerQueueImpl(bsl::size_t       capacity,
+                                              bslma::Allocator *basicAllocator)
+: d_readMutex()
+, d_readCondition()
+, d_writeMutex()
+, d_emptyMutex()
+, d_emptyCondition()
+, d_allocator(basicAllocator)
+{
+    ATOMIC_OP::initInt64(&d_capacity, 0);
+    ATOMIC_OP::initInt64(&d_state,    0);
+
+    ATOMIC_OP::initUint(&d_popFrontDisabled, 0);
+    ATOMIC_OP::initUint(&d_pushBackDisabled, 0);
+
+    ATOMIC_OP::initPointer(&d_nextWrite, 0);
+
+    Node *nodes = static_cast<Node *>(d_allocator.allocate(  sizeof(Node)
+                                                           * (capacity + 1)));
+    for (bsl::size_t i = 0; i < capacity; ++i) {
+        Node *n = nodes + i;
+        ATOMIC_OP::initInt(&n->d_state, e_WRITABLE);
+        ATOMIC_OP::initPointer(&n->d_next, n + 1);
+    }
+    {
+        Node *n = nodes + capacity;
+        ATOMIC_OP::initInt(&n->d_state, e_WRITABLE);
+        ATOMIC_OP::initPointer(&n->d_next, nodes);
+    }
+
+    ATOMIC_OP::setPtrRelease(&d_nextWrite, nodes);
+    ATOMIC_OP::setPtrRelease(&d_nextRead,  nodes);
+
+    ATOMIC_OP::addInt64AcqRel(&d_capacity, capacity);
+    ATOMIC_OP::addInt64AcqRel(&d_state, k_AVAILABLE_INC * capacity);
+}
+
+template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
+                                                     ~SingleConsumerQueueImpl()
 {
     Node *end = static_cast<Node *>(ATOMIC_OP::getPtrAcquire(&d_nextWrite));
 
@@ -787,106 +917,13 @@ void SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
                 at->d_value.object().~TYPE();
             }
 
-            d_allocator_p->deallocate(at);
-
             at = next;
         }
 
         if (e_READABLE == ATOMIC_OP::getIntAcquire(&at->d_state)) {
             at->d_value.object().~TYPE();
         }
-
-        d_allocator_p->deallocate(at);
     }
-}
-
-// CREATORS
-template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
-SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
-                      SingleConsumerQueueImpl(bslma::Allocator *basicAllocator)
-: d_readMutex()
-, d_readCondition()
-, d_writeMutex()
-, d_emptyMutex()
-, d_emptyCondition()
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    ATOMIC_OP::initInt64(&d_capacity, 0);
-    ATOMIC_OP::initInt64(&d_state,    0);
-
-    ATOMIC_OP::initUint(&d_popFrontDisabled, 0);
-    ATOMIC_OP::initUint(&d_pushBackDisabled, 0);
-
-    ATOMIC_OP::initPointer(&d_nextWrite, 0);
-
-    SingleConsumerQueueImpl_ReleaseAllRawProctor<SingleConsumerQueueImpl <
-                                                    TYPE,
-                                                    ATOMIC_OP,
-                                                    MUTEX,
-                                                    CONDITION> > proctor(this);
-
-    Node *n = static_cast<Node *>(d_allocator_p->allocate(sizeof(Node)));
-    ATOMIC_OP::initInt(&n->d_state, e_WRITABLE);
-    ATOMIC_OP::initPointer(&n->d_next, n);
-
-    ATOMIC_OP::setPtrRelease(&d_nextWrite, n);
-    ATOMIC_OP::setPtrRelease(&d_nextRead,  n);
-
-    proctor.release();
-}
-
-template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
-SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
-                      SingleConsumerQueueImpl(bsl::size_t       capacity,
-                                              bslma::Allocator *basicAllocator)
-: d_readMutex()
-, d_readCondition()
-, d_writeMutex()
-, d_emptyMutex()
-, d_emptyCondition()
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    ATOMIC_OP::initInt64(&d_capacity, 0);
-    ATOMIC_OP::initInt64(&d_state,    0);
-
-    ATOMIC_OP::initUint(&d_popFrontDisabled, 0);
-    ATOMIC_OP::initUint(&d_pushBackDisabled, 0);
-
-    ATOMIC_OP::initPointer(&d_nextWrite, 0);
-
-    SingleConsumerQueueImpl_ReleaseAllRawProctor<SingleConsumerQueueImpl <
-                                                    TYPE,
-                                                    ATOMIC_OP,
-                                                    MUTEX,
-                                                    CONDITION> > proctor(this);
-
-    Node *n = static_cast<Node *>(d_allocator_p->allocate(sizeof(Node)));
-    ATOMIC_OP::initInt(&n->d_state, e_WRITABLE);
-    ATOMIC_OP::initPointer(&n->d_next, n);
-
-    ATOMIC_OP::setPtrRelease(&d_nextWrite, n);
-    ATOMIC_OP::setPtrRelease(&d_nextRead,  n);
-
-    for (bsl::size_t i = 0; i < capacity; ++i) {
-        Node *nn = static_cast<Node *>(d_allocator_p->allocate(sizeof(Node)));
-        ATOMIC_OP::initInt(&nn->d_state, e_WRITABLE);
-        ATOMIC_OP::initPointer(&nn->d_next,
-                               static_cast<Node *>(ATOMIC_OP::getPtrAcquire(
-                                                                 &n->d_next)));
-        ATOMIC_OP::setPtrRelease(&n->d_next, nn);
-    }
-
-    ATOMIC_OP::addInt64AcqRel(&d_capacity, capacity);
-    ATOMIC_OP::addInt64AcqRel(&d_state, k_AVAILABLE_INC * capacity);
-
-    proctor.release();
-}
-
-template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
-SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
-                                                     ~SingleConsumerQueueImpl()
-{
-    releaseAllRaw();
 }
 
 // MANIPULATORS
@@ -969,7 +1006,7 @@ int SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::pushBack(
 
     bslalg::ScalarPrimitives::copyConstruct(target->d_value.address(),
                                             value,
-                                            d_allocator_p);
+                                            allocator());
 
     proctor.release();
 
@@ -1004,7 +1041,7 @@ int SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::pushBack(
     TYPE& dummy = value;
     bslalg::ScalarPrimitives::moveConstruct(target->d_value.address(),
                                             dummy,
-                                            d_allocator_p);
+                                            allocator());
 
     proctor.release();
 
@@ -1215,7 +1252,7 @@ template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 bslma::Allocator *SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                                               allocator() const
 {
-    return d_allocator_p;
+    return d_allocator.allocator();
 }
 
 }  // close package namespace

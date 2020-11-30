@@ -50,7 +50,15 @@ BSLS_IDENT("$Id: $")
 // (see 'bslma_usesbslmaallocator') so that the allocator of the queue is
 // propagated to the elements contained in the queue.
 //
-///Exception safety
+///Allocator Requirements
+///----------------------
+// Access to the allocator supplied to the constructor is internally
+// synchronized by this component.  If allocations performed by this component
+// must be synchronized with external allocations (performed outside of this
+// component), that synchronization must be guaranteed by the user.  Using a
+// thread-safe allocator is the common way to satisfy this requirement.
+//
+///Exception Safety
 ///----------------
 // A 'bdlcc::SingleConsumerQueue' is exception neutral, and all of the methods
 // of 'bdlcc::SingleConsumerQueue' provide the basic exception safety guarantee

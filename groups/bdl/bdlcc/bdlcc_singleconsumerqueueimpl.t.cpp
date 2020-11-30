@@ -102,7 +102,7 @@ using namespace bsl;
 // [10] CONCERN: 'popFront' and 'tryPopFront' honor move-semantics
 // [11] CONCERN: template requirements
 // [12] CONCERN: ordering guarantee
-// ----------------------------------------------------------------------------
+// [13] CONCERN: concurrent allocations
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -435,6 +435,86 @@ public:
     }
 };
 
+                   // ===================================
+                   // class ConcurrencyDetectionAllocator
+                   // ===================================
+
+class ConcurrencyDetectionAllocator : public bslma::Allocator {
+    // This class implements an allocator that detects concurrent allocation
+    // requests.
+
+    // DATA
+    bsls::AtomicInt   d_count;
+    bslma::Allocator *d_allocator_p;
+
+    // NOT IMPLEMENTED
+    ConcurrencyDetectionAllocator(const ConcurrencyDetectionAllocator&);
+    ConcurrencyDetectionAllocator& operator=(
+                                         const ConcurrencyDetectionAllocator&);
+
+  public:
+    // CREATORS
+    explicit ConcurrencyDetectionAllocator(Allocator *basicAllocator = 0);
+        // Create an allocator that detects concurrent allocations.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    ~ConcurrencyDetectionAllocator();
+        // Destroy this allocator.
+
+    // MANIPULATORS
+    void *allocate(bsls::Types::size_type numBytes);
+        // Return a newly allocated block of memory of (at least) the specified
+        // 'numBytes'.  If 'size' is 0, a null pointer is returned with no
+        // effect.  The behavior is undefined unless '0 <= size'.  Note that
+        // the alignment of the address returned is the maximum alignment for
+        // any fundamental type defined for the calling platform.
+
+    void deallocate(void *address);
+        // Return the memory block at the specified 'address' back to this
+        // allocator.  If 'address' is 0, this function has no effect.  The
+        // behavior is undefined unless 'address' was allocated using this
+        // allocator object and has not already been deallocated.
+};
+
+                   // -----------------------------------
+                   // class ConcurrencyDetectionAllocator
+                   // -----------------------------------
+
+// CREATORS
+ConcurrencyDetectionAllocator::ConcurrencyDetectionAllocator(
+                                              bslma::Allocator *basicAllocator)
+: d_count(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+ConcurrencyDetectionAllocator::~ConcurrencyDetectionAllocator()
+{
+}
+
+// MANIPULATORS
+void *ConcurrencyDetectionAllocator::allocate(bsls::Types::size_type numBytes)
+{
+    ++d_count;
+
+    ASSERT(1 == d_count);
+
+    void *p = d_allocator_p->allocate(numBytes);
+
+    bslmt::ThreadUtil::yield();
+
+    --d_count;
+
+    return p;
+}
+
+void ConcurrencyDetectionAllocator::deallocate(void *address)
+{
+    d_allocator_p->deallocate(address);
+}
+
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -597,8 +677,12 @@ void setWatchdogText(const char *value)
     memcpy(s_watchdogText, value, strlen(value) + 1);
 }
 
-extern "C" void *watchdog(void *)
+extern "C" void *watchdog(void *text)
 {
+    if (text) {
+        setWatchdogText(static_cast<const char *>(text));
+    }
+
     const int MAX = 100;  // one iteration is a decisecond
 
     int count = 0;
@@ -805,6 +889,63 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 13: {
+        // ---------------------------------------------------------
+        // Concurrent Allocation Test
+        //   The queue synchronizes access to the allocator.  This issue was
+        //   raised in DRQS 160661580.
+        //
+        // Concerns:
+        //: 1 The queue synchronizes access to the allocator.
+        //
+        // Plan:
+        //: 1 Using a special allocator to detect concurrent access, create
+        //:   multiple threads that invoke 'pushBack'.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: concurrent allocations
+        // ---------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "Concurrent Allocation Test" << endl
+                          << "==========================" << endl;
+
+        const int numPushThread = 3;
+
+        bslmt::ThreadUtil::Handle              watchdogHandle;
+        bsl::vector<bslmt::ThreadUtil::Handle> pushHandle(numPushThread);
+
+        s_continue = 4;
+
+        ConcurrencyDetectionAllocator alloc;
+
+        // For convenience, the machinery from the Ordering Guarantee test is
+        // reused.
+
+        OrderingObj mX(&alloc);
+
+        setWatchdogText("concurrent allocation");
+        bslmt::ThreadUtil::create(&watchdogHandle, watchdog, 0);
+
+        for (int i = 0; i < numPushThread; ++i) {
+            bslmt::ThreadUtil::create(&pushHandle[i], orderingPush, &mX);
+        }
+
+        bslmt::ThreadUtil::microSleep(1000000);
+        s_continue = 2;
+
+        mX.disablePushBack();
+
+        setWatchdogText("concurrent allocation: join push");
+        for (int i = 0; i < numPushThread; ++i){
+            bslmt::ThreadUtil::join(pushHandle[i]);
+        }
+
+        s_continue = 0;
+
+        setWatchdogText("concurrent allocation: join watchdog");
+        bslmt::ThreadUtil::join(watchdogHandle);
+      } break;
       case 12: {
         // ---------------------------------------------------------
         // Ordering Guarantee Test
@@ -837,7 +978,10 @@ int main(int argc, char *argv[])
                           << "Ordering Guarantee Test" << endl
                           << "=======================" << endl;
 
+        if (veryVerbose) cout << "Testing SPSC." << endl;
         orderingGuaranteeTest(1, 1);  // SPSC
+
+        if (veryVerbose) cout << "Testing MPSC." << endl;
         orderingGuaranteeTest(4, 1);  // MPSC
       } break;
       case 11: {
@@ -1464,7 +1608,7 @@ int main(int argc, char *argv[])
             mX.pushBack(value);
 
             ASSERT(     2 == X.numElements());
-            ASSERT(na + 4 == sa.numAllocations());
+            ASSERT(na + 3 == sa.numAllocations());
             ASSERT(nd     == sa.numDeallocations());
 
             int numException = 0;
@@ -1483,12 +1627,12 @@ int main(int argc, char *argv[])
             // The test allocator increments the number of allocations and then
             // throws the exception.
 
-            ASSERT(na + 5 == sa.numAllocations());
+            ASSERT(na + 4 == sa.numAllocations());
             ASSERT(nd + 1 == sa.numDeallocations());
 
             mX.tryPopFront(&value);
 
-            ASSERT(na + 6 == sa.numAllocations());
+            ASSERT(na + 5 == sa.numAllocations());
             ASSERT(nd + 3 == sa.numDeallocations());
 
             ASSERT(0 == X.numElements());
@@ -1499,7 +1643,7 @@ int main(int argc, char *argv[])
             // Since the queue is empty, only the element should have
             // allocated.
 
-            ASSERT(na + 7 == sa.numAllocations());
+            ASSERT(na + 6 == sa.numAllocations());
             ASSERT(nd + 3 == sa.numDeallocations());
         }
 #endif
@@ -1773,19 +1917,19 @@ int main(int argc, char *argv[])
             Obj mX(1);  const Obj& X = mX;
             ASSERT(&defaultAllocator == X.allocator());
             ASSERT(0 == X.numElements());
-            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 1 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(1 == X.numElements());
-            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 1 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
-            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
-            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -1794,23 +1938,23 @@ int main(int argc, char *argv[])
             const Obj& X = mX;
             ASSERT(&defaultAllocator == X.allocator());
             ASSERT(0 == X.numElements());
-            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 1 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(1 == X.numElements());
-            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 1 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
-            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 1 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
-            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 1 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(4 == X.numElements());
-            ASSERT(allocations + 5 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -1819,24 +1963,25 @@ int main(int argc, char *argv[])
 
             Obj mX(2, &sa);  const Obj& X = mX;
             ASSERT(&sa == X.allocator());
-            ASSERT(0 == X.numElements());
+
+            ASSERT(          0 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(3 == sa.numAllocations());
+            ASSERT(          1 == sa.numAllocations());
 
             mX.pushBack(0);
-            ASSERT(1 == X.numElements());
+            ASSERT(          1 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(3 == sa.numAllocations());
+            ASSERT(          1 == sa.numAllocations());
 
             mX.pushBack(0);
-            ASSERT(2 == X.numElements());
+            ASSERT(          2 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(3 == sa.numAllocations());
+            ASSERT(          1 == sa.numAllocations());
 
             mX.pushBack(0);
-            ASSERT(3 == X.numElements());
+            ASSERT(          3 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(4 == sa.numAllocations());
+            ASSERT(          2 == sa.numAllocations());
         }
 
         if (verbose) cout << "\nTesting exception behavior." << endl;
@@ -2200,11 +2345,11 @@ int main(int argc, char *argv[])
 
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
-            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
-            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -2221,11 +2366,11 @@ int main(int argc, char *argv[])
 
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
-            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
-            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -2246,12 +2391,12 @@ int main(int argc, char *argv[])
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(3 == sa.numAllocations());
+            ASSERT(2 == sa.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(4 == sa.numAllocations());
+            ASSERT(2 == sa.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -2272,12 +2417,12 @@ int main(int argc, char *argv[])
             mX.pushBack(longString);
             ASSERT(2 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(5 == sa.numAllocations());
+            ASSERT(4 == sa.numAllocations());
 
             mX.pushBack(longString);
             ASSERT(3 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(7 == sa.numAllocations());
+            ASSERT(5 == sa.numAllocations());
         }
 
         if (verbose) cout << "\nTesting 'pushBack'." << endl;
@@ -2338,13 +2483,13 @@ int main(int argc, char *argv[])
             mX.pushBack(value);
             mX.pushBack(value);
 
-            ASSERT(      2 == X.numElements());
-            ASSERT(na +  4 == sa.numAllocations());
-            ASSERT(nd      == sa.numDeallocations());
+            ASSERT(     2 == X.numElements());
+            ASSERT(na + 3 == sa.numAllocations());
+            ASSERT(nd     == sa.numDeallocations());
 
             int numException = 0;
 
-            sa.setAllocationLimit(1);
+            sa.setAllocationLimit(0);
             try {
                 mX.pushBack(value);
             } catch (BloombergLP::bslma::TestAllocatorException& e) {
@@ -2353,37 +2498,78 @@ int main(int argc, char *argv[])
             sa.setAllocationLimit(-1);
 
             ASSERT(1 == numException);
-            ASSERT(2 == X.numElements());
 
             // The test allocator increments the number of allocations and then
             // throws the exception.
 
-            ASSERT(      2 == X.numElements());
-            ASSERT(na +  6 == sa.numAllocations());
-            ASSERT(nd      == sa.numDeallocations());
+            ASSERT(     2 == X.numElements());
+            ASSERT(na + 4 == sa.numAllocations());
+            ASSERT(nd     == sa.numDeallocations());
 
             mX.pushBack(value);
 
-            ASSERT(      3 == X.numElements());
-            ASSERT(na +  8 == sa.numAllocations());
-            ASSERT(nd      == sa.numDeallocations());
+            ASSERT(     3 == X.numElements());
+            ASSERT(na + 5 == sa.numAllocations());
+            ASSERT(nd     == sa.numDeallocations());
 
             mX.popFront(&value);
 
-            ASSERT(      2 == X.numElements());
-            ASSERT(na +  9 == sa.numAllocations());
-            ASSERT(nd +  2 == sa.numDeallocations());
+            ASSERT(     2 == X.numElements());
+            ASSERT(na + 6 == sa.numAllocations());
+            ASSERT(nd + 2  == sa.numDeallocations());
 
             mX.popFront(&value);
 
-            ASSERT(      1 == X.numElements());
-            ASSERT(na + 10 == sa.numAllocations());
-            ASSERT(nd +  4 == sa.numDeallocations());
+            ASSERT(     1 == X.numElements());
+            ASSERT(na + 7 == sa.numAllocations());
+            ASSERT(nd + 4 == sa.numDeallocations());
 
             int rv = mX.tryPopFront(&value);
 
             ASSERT(e_SUCCESS == rv);
             ASSERT(        0 == X.numElements());
+            ASSERT(   na + 8 == sa.numAllocations());
+            ASSERT(   nd + 6 == sa.numDeallocations());
+        }
+        {
+            // white-box test to verify an exception during allocation does not
+            // lock the queue in a state where additional 'pushBack' can not
+            // complete
+
+            bslmt::ThreadUtil::Handle watchdogHandle;
+
+            s_continue = 1;
+
+            bslmt::ThreadUtil::create(
+                               &watchdogHandle,
+                               watchdog,
+                               const_cast<char *>("'pushBack' allocate flag"));
+
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            Obj mX(&sa);  const Obj& X = mX;
+
+            {
+                int numException = 0;
+
+                sa.setAllocationLimit(0);
+
+                try {
+                    mX.pushBack(0);
+                } catch (BloombergLP::bslma::TestAllocatorException& e) {
+                    ++numException;
+                }
+                ASSERT(1 == numException);
+
+                sa.setAllocationLimit(-1);
+            }
+
+            mX.pushBack(1);
+            ASSERT(1 == X.numElements());
+
+            s_continue = 0;
+
+            bslmt::ThreadUtil::join(watchdogHandle);
         }
 #endif
 
@@ -2451,13 +2637,13 @@ int main(int argc, char *argv[])
             mX.pushBack(value);
             mX.pushBack(value);
 
-            ASSERT(      2 == X.numElements());
-            ASSERT(na +  4 == sa.numAllocations());
-            ASSERT(nd      == sa.numDeallocations());
+            ASSERT(     2 == X.numElements());
+            ASSERT(na + 3 == sa.numAllocations());
+            ASSERT(nd     == sa.numDeallocations());
 
             int numException = 0;
 
-            sa.setAllocationLimit(1);
+            sa.setAllocationLimit(0);
             try {
                 mX.pushBack(value);
             } catch (BloombergLP::bslma::TestAllocatorException& e) {
@@ -2466,26 +2652,25 @@ int main(int argc, char *argv[])
             sa.setAllocationLimit(-1);
 
             ASSERT(1 == numException);
-            ASSERT(2 == X.numElements());
 
             // The test allocator increments the number of allocations and then
             // throws the exception.
 
-            ASSERT(      2 == X.numElements());
-            ASSERT(na +  6 == sa.numAllocations());
-            ASSERT(nd      == sa.numDeallocations());
+            ASSERT(     2 == X.numElements());
+            ASSERT(na + 4 == sa.numAllocations());
+            ASSERT(nd     == sa.numDeallocations());
 
             mX.pushBack(value);
 
-            ASSERT(      3 == X.numElements());
-            ASSERT(na +  8 == sa.numAllocations());
-            ASSERT(nd      == sa.numDeallocations());
+            ASSERT(     3 == X.numElements());
+            ASSERT(na + 5 == sa.numAllocations());
+            ASSERT(nd     == sa.numDeallocations());
 
             mX.removeAll();
 
-            ASSERT(      0 == X.numElements());
-            ASSERT(na +  8 == sa.numAllocations());
-            ASSERT(nd +  3 == sa.numDeallocations());
+            ASSERT(     0 == X.numElements());
+            ASSERT(na + 5 == sa.numAllocations());
+            ASSERT(nd + 3 == sa.numDeallocations());
         }
 #endif
 
@@ -2565,7 +2750,7 @@ int main(int argc, char *argv[])
             mX.pushBack(value);
 
             ASSERT(     2 == X.numElements());
-            ASSERT(na + 4 == sa.numAllocations());
+            ASSERT(na + 3 == sa.numAllocations());
             ASSERT(nd     == sa.numDeallocations());
 
             int numException = 0;
@@ -2579,17 +2764,18 @@ int main(int argc, char *argv[])
             sa.setAllocationLimit(-1);
 
             ASSERT(1 == numException);
-            ASSERT(1 == X.numElements());
 
             // The test allocator increments the number of allocations and then
             // throws the exception.
 
-            ASSERT(na + 5 == sa.numAllocations());
+            ASSERT(1 == X.numElements());
+
+            ASSERT(na + 4 == sa.numAllocations());
             ASSERT(nd + 1 == sa.numDeallocations());
 
             mX.popFront(&value);
 
-            ASSERT(na + 6 == sa.numAllocations());
+            ASSERT(na + 5 == sa.numAllocations());
             ASSERT(nd + 3 == sa.numDeallocations());
 
             ASSERT(0 == X.numElements());
@@ -2600,7 +2786,7 @@ int main(int argc, char *argv[])
             // Since the queue is empty, only the element should have
             // allocated.
 
-            ASSERT(na + 7 == sa.numAllocations());
+            ASSERT(na + 6 == sa.numAllocations());
             ASSERT(nd + 3 == sa.numDeallocations());
         }
 #endif
