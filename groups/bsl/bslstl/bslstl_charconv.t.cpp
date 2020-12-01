@@ -1160,6 +1160,8 @@ int main(int argc, char *argv[])
 #undef H
 #undef O
 
+        const Int64 int64Min = std::numeric_limits<Int64>::min();
+
         if (verbose) printf("quality tests (not testing for accuracy)\n");
 
         for (int di = 0; di < k_NUM_DATA; ++di) {
@@ -1230,7 +1232,9 @@ int main(int argc, char *argv[])
                     ASSERT(toCharsBuffer < result.ptr);
                     ASSERT(result.ptr < toCharsBuffer + sizeof(toCharsBuffer));
 
-                    svalue = -svalue;
+                    if (int64Min != svalue) {    // prevent undefined behavior
+                        svalue = -svalue;
+                    }
                 }
 
                 char toCharsBufferS[66];
@@ -1245,18 +1249,23 @@ int main(int argc, char *argv[])
                     ASSERT(bsl::ErrcEnum() == resultS.ec);
                     ASSERT(resultS.ptr <
                                       toCharsBufferS + sizeof(toCharsBufferS));
-                    ASSERT(resultS.ptr - toCharsBufferS ==
+                    ASSERTV(LINE, value, svalue, base, 1ULL << 63,
+                                                resultS.ptr - toCharsBufferS ==
                                                    result.ptr - toCharsBuffer);
-                    ASSERT(!std::memcmp(toCharsBuffer,
-                                        toCharsBufferS,
-                                        result.ptr - toCharsBuffer));
+                    ASSERTV(LINE, value, svalue, base,
+                                     !std::memcmp(toCharsBuffer,
+                                                  toCharsBufferS,
+                                                  result.ptr - toCharsBuffer));
 
                     if (0 == svalue) {
                         continue;
                     }
 
-                    svalue = -svalue;
-                    ASSERT(svalue < 0);
+
+                    if (int64Min != svalue) {    // prevent undefined behavior
+                        svalue = -svalue;
+                    }
+                    ASSERTV(LINE, value, svalue, base, svalue < 0);
                 }
 
                 resultS = bsl::to_chars(toCharsBufferS,
@@ -1315,8 +1324,12 @@ int main(int argc, char *argv[])
                                        10);
                 ASSERT(bsl::ErrcEnum() == result.ec);
                 *result.ptr = 0;
-                ASSERTV(LINE, !std::strcmp(sprintfBuffer,
-                                           toCharsBuffer));
+                ASSERTV(LINE, sprintfBuffer, toCharsBuffer,
+                                   !std::strcmp(sprintfBuffer, toCharsBuffer));
+
+                if (int64Min == sValue) {
+                    break;    // prevent undefined behavior
+                }
             }
 
             sprintf(sprintfBuffer, "%llo", VALUE);
