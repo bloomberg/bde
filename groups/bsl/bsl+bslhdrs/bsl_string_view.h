@@ -20,7 +20,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BSL_OVERRIDES_STD
 
-#include <bslstl_size.h>
 #include <bslstl_stringview.h>
 
 #endif

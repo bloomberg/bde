@@ -32,7 +32,6 @@ BSLS_IDENT("$Id: $")
 
 # include <bslstl_iterator.h>
 # include <bslstl_list.h>
-# include <bslstl_size.h>
 #endif
 
 #endif

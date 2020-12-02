@@ -27,11 +27,6 @@ BSLS_IDENT("$Id: $")
 // requirement the following inclusion is added.
 
 # include <bslstl_iterator.h>
-
-// According to C++20 Standard, 'size' and 'ssize' must be available when
-// '<forward_list>' is included.
-
-# include <bslstl_size.h>
 #endif
 
 namespace bsl {

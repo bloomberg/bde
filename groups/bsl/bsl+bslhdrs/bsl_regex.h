@@ -84,12 +84,6 @@ namespace bsl {
 
 }  // close package namespace
 
-#ifndef BSL_OVERRIDES_STD
-// Also need 'size' and 'ssize'.
-
-#include <bslstl_size.h>
-#endif
-
 #endif
 
 // ----------------------------------------------------------------------------
