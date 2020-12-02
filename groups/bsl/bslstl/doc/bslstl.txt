@@ -110,7 +110,6 @@
       bslstl_sharedptrallocateinplacerep
       bslstl_sharedptrallocateoutofplacerep
       bslstl_simplepool
-      bslstl_size
       bslstl_stdexceptutil
       bslstl_unorderedmapkeyconfiguration
       bslstl_unorderedsetkeyconfiguration
@@ -347,9 +346,6 @@
 :
 : 'bslstl_simplepool':
 :      Provide efficient allocation of memory blocks for a specific type.
-:
-: 'bslstl_size':
-:      Provide 'size' and 'ssize' free functions.
 :
 : 'bslstl_stack':
 :      Provide an STL-compliant stack class.
