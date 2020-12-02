@@ -2077,7 +2077,15 @@ class MostEvilTestType {
     static void* operator new(std::size_t size) BSLS_KEYWORD_DELETED;
     static void* operator new(std::size_t size, void *ptr)
                                                           BSLS_KEYWORD_DELETED;
-    static void operator delete(void *ptr) BSLS_KEYWORD_DELETED;
+
+    // PRIVATE CLASS METHODS
+    static void operator delete(void *ptr);
+        // This method is called by 'operator new' if the constructor throws,
+        // to free the footprint memory.  This should never be called, since
+        // 'operator new' is not defined, but due to a compiler bug on AIX and
+        // Windows, it is referred to, but never called, if the destructor is
+        // non-trivial, resulting in link failures unless this method is
+        // defined.  So we booby-trap this method with an assert.
 
   public:
     // CREATORS
@@ -3203,8 +3211,13 @@ const bsltf::NonEqualComparableTestType& AwkwardMaplikeElement::key() const
                        // class MostEvilTestType
                        // ----------------------
 
-// CREATORS
+// PRIVATE CLASS METHODS
+void MostEvilTestType::operator delete(void *)
+{
+    BSLS_ASSERT_INVOKE_NORETURN("should never be called");
+}
 
+// CREATORS
 inline
 MostEvilTestType::MostEvilTestType(int value)
 : d_data(value)
