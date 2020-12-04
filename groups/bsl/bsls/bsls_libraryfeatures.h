@@ -76,8 +76,8 @@ BSLS_IDENT("$Id: $")
 // against one version of the C++ Standard with a translation unit (also
 // including this header) built against another version of the Standard.  For
 // example, attempting to link objects built with C++14 with those built with
-// C+++17 will result in a link-time failure.  Because BDE supports a variety
-// of features that are enabled depending on the C++ version for which code is
+// C++17 will result in a link-time failure.  Because BDE supports a variety of
+// features that are enabled depending on the C++ version for which code is
 // built, it is generally not safe to link code built with one version of C++
 // with code built with another version.  For example, in C++11 there are move
 // constructor signatures, whereas in C++03 there are not, and linking code
