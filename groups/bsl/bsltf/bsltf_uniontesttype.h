@@ -114,14 +114,16 @@ bool operator!=(const UnionTestType& lhs, const UnionTestType& rhs);
 // CREATORS
 inline
 UnionTestType::UnionTestType()
-: d_data(0)
+: d_double(0.0)
 {
+    d_data = 0;
 }
 
 inline
 UnionTestType::UnionTestType(int value)
-: d_data(value)
+: d_double(0.0)
 {
+    d_data = value;
 }
 
 // MANIPULATORS
