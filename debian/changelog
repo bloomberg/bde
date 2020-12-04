@@ -1,11 +1,18 @@
-bsl-internal (3.68.0.0) unstable; urgency=low
+bsl-internal (3.68.0.1) unstable; urgency=low
 
+  * c5f3d02b8 Merge pull request #3023 from cwilson/bsls_libraryfeatures-fix-typo
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Fri, 4 Dec 2020 10:57:49 -0500
+
+bsl-internal (3.68.0.0) git; urgency=low
+
+  * eb29fb202 Changelog for version 3.68.0.0
   * 829b63316 Bumped version to 3.68.0.0
   * 11b7e5f50 Merge pull request #3013 from mgiroux/remove-commented-error-directive
   * f59b0b95d define link-coercion symbol per C++ library version (DRQS 164353299) (#2998)
   * a75d802c4 Merge pull request #3002 from mgiroux/revert-iterator-copy-ctor-changes-drqs157823946
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Dec 2020 08:46:25 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Dec 2020 10:14:02 -0500
 
 bsl-internal (3.67.0.0) git; urgency=low
 
