@@ -2114,12 +2114,9 @@ int main(int argc, char *argv[])
         //:     o 'bit_and'
         //:     o 'bit_or'
         //:     o 'bit_xor'
-        //:     o 'cref'
         //:     o 'is_bind_expression'
         //:     o 'is_placeholder'
         //:     o 'mem_fn'
-        //:     o 'ref'
-        //:     o 'reference_wrapper'
         //:
         //:   o Functions defined in '<iomanip>'
         //:     o 'get_money'
@@ -2192,14 +2189,6 @@ int main(int argc, char *argv[])
         testSimpleUniformRandomNumberGenerator();
         useCpp11Algorithms();
         useTypeIndex();
-
-        {
-            int x;
-            std::reference_wrapper<int>       mX = std::ref(x);
-            std::reference_wrapper<const int> X  = std::cref(x);
-            (void)mX;
-            (void)X;
-        }
 #endif
 
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
