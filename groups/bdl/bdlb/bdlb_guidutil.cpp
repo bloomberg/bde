@@ -5,14 +5,20 @@
 BSLS_IDENT_RCSID(RCSid_bdlb_guidutil_cpp,"$Id$ $CSID$")
 
 #include <bdlb_guid.h>
+#include <bdlb_pcgrandomgenerator.h>
 #include <bdlb_randomdevice.h>
 
-#include <bslmf_assert.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_once.h>
+
+#include <bsls_assert.h>
 #include <bsls_byteorder.h>
 #include <bsls_platform.h>
 
+#include <bsl_cstdio.h>
 #include <bsl_cstring.h>
-#include <bsl_iostream.h>
+#include <bsl_ctime.h>
 #include <bsl_sstream.h>
 
 namespace BloombergLP {
@@ -109,9 +115,43 @@ int vaildateGuidString(bslstl::StringRef guidString)
     return 0;
 }
 
+void makeRfc4122Compliant(unsigned char *bytes, const unsigned char *end)
+    // Make the buffer starting at the specified 'bytes' and ending at the
+    // address just before the specified 'end' comply with RFC 4122 version 4.
+    // The behavior is undefined unless 'bytes <= end' and the size of the
+    // buffer defined by 'end - bytes' is a non-negative multiple of
+    // 'Guid::k_GUID_NUM_BYTES'.
+{
+    BSLS_ASSERT(bytes);
+    BSLS_ASSERT(end);
+    BSLS_ASSERT(bytes <= end);
+    BSLS_ASSERT(0 == (end - bytes) % Guid::k_GUID_NUM_BYTES);
+
+    typedef unsigned char Uchar;
+    while (bytes < end) {
+        bytes[6] = Uchar(0x40 | (bytes[6] & 0x0F));
+        bytes[8] = Uchar(0x80 | (bytes[8] & 0x3F));
+        bytes += Guid::k_GUID_NUM_BYTES;
+    }
+}
+
 }  // close unnamed namespace
 
 // CLASS METHODS
+void GuidUtil::generate(unsigned char *result, bsl::size_t numGuids)
+{
+    BSLS_ASSERT(result);
+
+    unsigned char *bytes = result;
+    unsigned char *end   = bytes + numGuids * Guid::k_GUID_NUM_BYTES;
+    if (0 == RandomDevice::getRandomBytesNonBlocking(bytes, end - bytes)) {
+        makeRfc4122Compliant(bytes, end);
+    }
+    else {
+        generateNonSecure(result, numGuids);
+    }
+}
+
 Guid GuidUtil::generate()
 {
     Guid result;
@@ -119,22 +159,46 @@ Guid GuidUtil::generate()
     return result;
 }
 
-void GuidUtil::generate(unsigned char *result, bsl::size_t numGuids)
+void GuidUtil::generateNonSecure(unsigned char *result, bsl::size_t numGuids)
 {
-    unsigned char *bytes = result;
-    unsigned char *end = bytes + numGuids * Guid::k_GUID_NUM_BYTES;
-    RandomDevice::getRandomBytesNonBlocking(bytes, end - bytes);
-    while (bytes != end) {
-        typedef unsigned char uc;
-        bytes[6] = uc(0x40 | (bytes[6] & 0x0F));
-        bytes[8] = uc(0x80 | (bytes[8] & 0x3F));
-        bytes += Guid::k_GUID_NUM_BYTES;
+    BSLS_ASSERT(result);
+
+    static bdlb::PcgRandomGenerator *pcgSingletonPtr;
+    static bslmt::Mutex             *pcgMutexPtr;
+    BSLMT_ONCE_DO {
+        bsl::uint64_t state;
+        if (0 !=
+            RandomDevice::getRandomBytes(
+                reinterpret_cast<unsigned char *>(&state), sizeof(state))) {
+            //  fallback state; address of 'printf' to get an arbitrary value
+            state = bsl::time(0) ^ reinterpret_cast<intptr_t>(&bsl::printf);
+        }
+        static bdlb::PcgRandomGenerator pcgSingleton(state, 0);
+        pcgSingletonPtr = &pcgSingleton;
+        static bslmt::Mutex pcgMutex;
+        pcgMutexPtr = &pcgMutex;
     }
+
+    unsigned char *bytes = result;
+    unsigned char *end   = bytes + numGuids * Guid::k_GUID_NUM_BYTES;
+    {
+        bslmt::LockGuard<bslmt::Mutex> guard(pcgMutexPtr);
+
+        for (unsigned char *current = result; current < end;
+             current += sizeof(bsl::uint32_t)) {
+            const bsl::uint32_t randomInt = pcgSingletonPtr->generate();
+            bsl::memcpy(current, &randomInt, sizeof(bsl::uint32_t));
+        }
+    }
+
+    makeRfc4122Compliant(bytes, end);
 }
 
-void GuidUtil::generate(Guid *result, bsl::size_t numGuids)
+Guid GuidUtil::generateNonSecure()
 {
-    generate(reinterpret_cast<unsigned char *>(result), numGuids);
+    Guid result;
+    generateNonSecure(&result);
+    return result;
 }
 
 bsls::Types::Uint64 GuidUtil::getLeastSignificantBits(const Guid& guid)
@@ -157,9 +221,6 @@ int GuidUtil::guidFromString(Guid *result, bslstl::StringRef guidString)
     if (0 != valid) {
         return -1;                                                    // RETURN
     }
-    // CHECK ASCII
-    BSLS_ASSERT('f' - 'a' == 5);
-    BSLS_ASSERT('F' - 'A' == 5);
 
     unsigned char        t_guid[Guid::k_GUID_NUM_BYTES];
     const unsigned char *curr_p =

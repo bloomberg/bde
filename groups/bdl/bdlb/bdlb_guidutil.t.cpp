@@ -10,6 +10,7 @@
 #include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -35,8 +36,8 @@ using namespace bsl;
 // responsibility of the generators themselves.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [1] void generate(Guid *out, size_t cnt)
-// [1] void generate(unsigned char *out, size_t cnt)
+// [1] void generate(Guid *out, size_t numGuids)
+// [1] void generate(unsigned char *out, size_t numGuids)
 // [1] Guid generate()
 // [2] int getVersion(const Guid& guid)
 // [3] int guidFromString(Guid *result, StrRef guidString)
@@ -45,8 +46,12 @@ using namespace bsl;
 // [4] bsl::string guidToString(const Guid& guid)
 // [5] Uint64 getMostSignificantBits(const Guid& guid)
 // [6] Uint64 getLeastSignificantBits(const Guid& guid)
+// [7] void generateNonSecure(Guid *result, size_t numGuids)
+// [7] void generateNonSecure(unsigned char *result, size_t numGuids)
+// [7] Guid generateNonSecure()
+// [8] MULTI-THREADING TEST CASE
 // ----------------------------------------------------------------------------
-// [7] USAGE EXAMPLE
+// [9] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -178,6 +183,39 @@ const Element &V0 = VALUES[0],            // V0, V1, ... are used in
               &V7 = VALUES[7],
               &V8 = VALUES[8];
 
+namespace {
+
+struct ThreadData {
+    bool d_veryVerbose;
+};
+
+extern "C" void *threadFunction(void *data)
+{
+    ThreadData& threadData = *(ThreadData *) data;
+    bool veryVerbose       = threadData.d_veryVerbose;
+
+    ASSERT(Util::generateNonSecure() != Util::generateNonSecure());
+
+    const int NUM_GUIDS = 200;
+    Obj guids1[NUM_GUIDS] = {};
+    Obj guids2[NUM_GUIDS] = {};
+    Util::generateNonSecure(guids1, NUM_GUIDS);
+    Util::generateNonSecure(guids2, NUM_GUIDS);
+    for (int i = 0; i < NUM_GUIDS; ++i) {
+        if (veryVerbose) { P_(i) P(guids1[i]) P(guids2[i]); }
+        ASSERT(guids1[i] != guids2[i]);
+    }
+
+    unsigned char buffer1[NUM_GUIDS * Obj::k_GUID_NUM_BYTES] = {};
+    unsigned char buffer2[NUM_GUIDS * Obj::k_GUID_NUM_BYTES] = {};
+    Util::generateNonSecure(buffer1, NUM_GUIDS);
+    Util::generateNonSecure(buffer2, NUM_GUIDS);
+    ASSERT(0 != bsl::memcmp(buffer1, buffer2, NUM_GUIDS * NUM_GUIDS));
+
+    return (void *) 0;
+}
+}  // close unnamed namespace
+
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -295,7 +333,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
     switch (test)  { case 0:
-      case 7: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -328,6 +366,146 @@ int main(int argc, char *argv[])
         ASSERT(e1 < e2 || e2 < e1);
         ASSERT(e2 < e3 || e3 < e2);
         ASSERT(e1 < e3 || e3 < e1);
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING 'generateNonSecure' FROM MULTIPLE THREADS
+        //
+        // Concerns:
+        //: 1 Calls to 'generateNonSecure' in separate threads behave
+        //:   correctly.
+        //
+        // Plan:
+        //: 1 Create multiple threads.
+        //:
+        //: 2 Exercise all 'generateNonSecure' methods in multiple threads to
+        //:   test that there is no deadlock and sane results are produced.
+        //
+        // Testing:
+        //   MULTI-THREADING TEST CASE
+        // --------------------------------------------------------------------
+        if (verbose) cout
+               << endl
+               << "TESTING 'generateNonSecure' FROM MULTIPLE THREADS"
+               << endl
+               << "================================================="
+               << endl;
+
+        ThreadData threadData;
+        threadData.d_veryVerbose = veryVerbose;
+
+        const int                 NUM_THREADS = 20;
+        bslmt::ThreadUtil::Handle handles[NUM_THREADS];
+
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            ASSERT(0 == bslmt::ThreadUtil::create(
+                            &handles[i], &threadFunction, &threadData));
+        }
+
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
+        }
+
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING 'generateNonSecure'
+        //
+        // Concerns:
+        //: 1 A single GUID can be passed and loaded.
+        //: 2 If 'numGuids' is passed, 'numGuids' GUIDs are returned.
+        //: 3 The correct type of GUID is returned.
+        //: 4 Memory outside the designated range is left unchanged.
+        //
+        // Plan:
+        //: 1 Call the 'generateNonSecure' method with 'numGuids' set to 1, and
+        //:   call the single-value 'generateNonSecure' method.  (C-1)
+        //:
+        //: 2 Call the 'generateNonSecure' method with different 'numGuids'
+        //:   values.  (C-2)
+        //:
+        //: 3 Check the internal structure of returned GUIDs to verify that
+        //:   they are the right type.  (C-3)
+        //:
+        //: 4 Inspect memory areas just before and after the region that
+        //:   receives GUIDs to verify that it is unchanged.  (C-4)
+        //
+        // Testing:
+        //   void generateNonSecure(Guid *result, size_t numGuids)
+        //   void generateNonSecure(unsigned char *result, size_t numGuids)
+        //   Guid generateNonSecure()
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING 'generateNonSecure'" << endl
+                          << "===========================" << endl;
+        enum  { NUM_ITERS = 15 };
+
+        // Create arrays two larger to allow checking for overflows at both
+        // ends.
+        Obj guids[NUM_ITERS + 2];
+        Obj prevGuids[NUM_ITERS + 2];
+        cout << dec;
+        bsl::memset(guids, 0, sizeof(guids));
+        if (veryVerbose) {
+            cout << endl
+                 << "A single GUID can be passed and loaded." << endl
+                 << "---------------------------------------" << endl;
+        }
+        for (bsl::size_t i = 1; i < NUM_ITERS + 1; ++i) {
+            if (0 == i % 3) {
+                Util::generateNonSecure(&guids[i], 1);
+            }
+            else if (1 == i % 3) {
+                Util::generateNonSecure(
+                    reinterpret_cast<unsigned char *>(&guids[i]), 1);
+            }
+            else if (2 == i % 3) {
+                guids[i] = Util::generateNonSecure();
+            }
+            prevGuids[i] = guids[i];
+            if (veryVerbose) { P_(i) P(guids[i]); }
+            bsl::size_t j;
+            for (j = 1; j <= i; ++j) {
+                if (veryVeryVerbose) { P_(j) P(guids[j]); }
+                ASSERTV(i, j, guids[j]     != Obj());
+                ASSERTV(i, j, prevGuids[j] == guids[j]);
+            }
+            for (; j < NUM_ITERS + 2; ++j) {
+                if (veryVeryVerbose) { P_(j) P(guids[j]); }
+                ASSERTV(i, j, guids[j] == Obj());
+            }
+            ASSERTV(i, guids[0] == Obj());
+        }
+
+        if (veryVerbose) {
+            cout << endl
+                 << "Get multiple generateNonSecure (PCG) GUIDs." << endl
+                 << "-------------------------------------------" << endl;
+        }
+        for (int i = 1; i < NUM_ITERS + 1; ++i) {
+            bsl::memset(guids, 0, sizeof(guids));
+            if (i & 1) {
+                Util::generateNonSecure(guids + 1, i - 1);
+            }
+            else {
+                Util::generateNonSecure(
+                    reinterpret_cast<unsigned char *>(guids + 1), i - 1);
+            }
+            if (veryVerbose)  {
+                int idx = i ? i - 1 : 0;
+                P_(idx) P(guids[idx]);
+            }
+            int j;
+            for (j = 1; j < i; ++j) {
+                if (veryVeryVerbose)  { P_(j) P(guids[j]); }
+                ASSERTV(i, j, guids[j] != Obj());
+            }
+            for (; j < NUM_ITERS + 1; ++j) {
+                if (veryVeryVerbose)  { P_(j) P(guids[j]); }
+                ASSERTV(i, j, guids[j] == Obj());
+            }
+            ASSERTV(i, guids[0] == Obj());
+        }
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -660,8 +838,8 @@ int main(int argc, char *argv[])
         //:   receives GUIDs to verify that it is unchanged.
         //
         // Testing:
-        //   void generate(Guid *out, size_t cnt)
-        //   void generate(unsigned char *out, size_t cnt)
+        //   void generate(Guid *out, size_t numGuids)
+        //   void generate(unsigned char *out, size_t numGuids)
         //   Guid generate()
         // --------------------------------------------------------------------
         if (verbose) cout << endl
@@ -693,12 +871,12 @@ int main(int argc, char *argv[])
             bsl::size_t j;
             for (j = 0; j <= i; ++j) {
                 if (veryVeryVerbose) { P_(j) P(guids[j]); }
-                LOOP2_ASSERT(i, j, guids[j]      != Obj());
-                LOOP2_ASSERT(i, j, prev_guids[j] == guids[j]);
+                ASSERTV(i, j, guids[j]      != Obj());
+                ASSERTV(i, j, prev_guids[j] == guids[j]);
             }
             for (; j < NUM_ITERS + 1; ++j) {
                 if (veryVeryVerbose) { P_(j) P(guids[j]); }
-                LOOP2_ASSERT(i, j, guids[j] == Obj());
+                ASSERTV(i, j, guids[j] == Obj());
             }
         }
         if (veryVerbose) {
@@ -721,11 +899,11 @@ int main(int argc, char *argv[])
             bsl::size_t j;
             for (j = 0; j < i; ++j) {
                 if (veryVeryVerbose)  { P_(j) P(guids[j]); }
-                LOOP2_ASSERT(i, j, guids[j] != Obj());
+                ASSERTV(i, j, guids[j] != Obj());
             }
             for (; j < NUM_ITERS + 1; ++j) {
                 if (veryVeryVerbose)  { P_(j) P(guids[j]); }
-                LOOP2_ASSERT(i, j, guids[j] == Obj());
+                ASSERTV(i, j, guids[j] == Obj());
             }
         }
       } break;

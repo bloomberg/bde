@@ -11,7 +11,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 39 components having 5 levels of physical
+ The 'bdlb' package currently has 40 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -47,6 +47,7 @@
      bdlb_literalutil
      bdlb_nullopt
      bdlb_nulloutputiterator
+     bdlb_pcgrandomgenerator
      bdlb_print
      bdlb_random
      bdlb_randomdevice
@@ -106,7 +107,7 @@
 :      Provide a value-semantic type for Globally Unique Identifiers.
 :
 : 'bdlb_guidutil':
-:      Provide functions that produce Universally Unique Identifiers.
+:      Provide functions that produce Globally Unique Identifiers.
 :
 : 'bdlb_hashutil':
 :      Provide a utility of hash functions.
@@ -140,6 +141,9 @@
 :
 : 'bdlb_numericparseutil':
 :      Provide conversions from text into fundamental numeric types.
+:
+: 'bdlb_pcgrandomgenerator':
+:      Provide a class to generate random numbers using the PCG algorithm.
 :
 : 'bdlb_print':
 :      Provide platform-independent stream utilities.

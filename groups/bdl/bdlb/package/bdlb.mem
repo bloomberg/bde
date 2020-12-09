@@ -24,6 +24,7 @@ bdlb_nullablevalue_cpp03
 bdlb_nullopt
 bdlb_nulloutputiterator
 bdlb_numericparseutil
+bdlb_pcgrandomgenerator
 bdlb_print
 bdlb_printmethods
 bdlb_random

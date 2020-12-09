@@ -29,12 +29,14 @@ using namespace bsl;
 //                             --------
 // The component under test is a utility that defines two overloads of a
 // function.  One overload is more general and is used to implement the other.
-// The more general overload is tested first, albeit in within the same test
-// case as the other.
+// The more general overload is tested first, albeit within the same test case
+// as the other.  The component also defines a function that generates random
+// numbers using the PCG algorithm.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 2] static int generate15(int *nextSeed, int seed);
 // [ 2] static int generate15(int *seed);
+// [ 2] static bsl::uint32_t generatePcg(PcgRandomGenerator *generator);
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 // [ 1] BREATHING TEST
@@ -246,22 +248,50 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Given the same seed, the same random sequence is generated.
+        //:
         //: 2 Given a different seed, a different random sequence is generated.
+        //:
         //: 3 Both overloads of 'generate15' have the same behavior with
         //:   respect to seed.
         //
         // Plan:
-        //: 1 Generate three sequences of some significant number of random
-        //:   values.
-        //: 2 Let sequences 1 and 2 be generated starting with the same seed,
-        //:   and sequence 3 be generated with a different seed.
-        //: 3 Ensure that sequences 1 and 2 are identical and different from
-        //:   sequence 3.
-        //: 4 Repeat using the second overload of 'generate15'.
+        //: 1 Seed test for 'generate15':
+        //:
+        //:   1 Generate three sequences of some significant number of random
+        //:     values.
+        //:
+        //:   2 Let sequences 1 and 2 be generated starting with the same seed,
+        //:     and sequence 3 be generated with a different seed.
+        //:
+        //:   3 Ensure that sequences 1 and 2 are identical and different from
+        //:     sequence 3.
+        //:
+        //:   4 Repeat using the second overload of 'generate15'.
+        //:
+        //: 2 Seed test for 'generatePcg':
+        //:
+        //:   1 Generate five sequences of some significant number of random
+        //:     values.
+        //:
+        //:   2 Let sequences 1 and 2 be generated starting with the same state
+        //:     and stream selector.
+        //:
+        //:   3 Let sequence 3 be generated starting with the same state, but
+        //:     with a different stream selector compared to sequence 1.
+        //:
+        //:   4 Let sequence 4 be generated starting with a different state,
+        //:     but the same stream selector as sequence 1.
+        //:
+        //:   5 Let sequence 5 be generated starting with a different state and
+        //:     a different stream selector compared to sequence 1.
+        //:
+        //:   6 Ensure that sequence 1 and 2 are identical, and different from
+        //:     sequences 3, 4, and 5.
         //
         // Testing:
         //   static int generate15(int *nextSeed, int seed);
         //   static int generate15(int *seed);
+        //   static bsl::uint32_t generatePcg(PcgRandomGenerator *generator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\n" "SEED TEST" "\n"
@@ -301,6 +331,40 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::memcmp(sequence1, sequence2, sizeof(sequence1)));
             ASSERT(0 != bsl::memcmp(sequence2, sequence3, sizeof(sequence2)));
         }
+
+        if (veryVerbose) { cout << "\ngeneratePcg" << bsl::endl; }
+        {
+            bsl::uint32_t sequences[5][32];
+
+            bdlb::PcgRandomGenerator pcg1(555, 1);
+            bdlb::PcgRandomGenerator pcg2(555, 1);
+            bdlb::PcgRandomGenerator pcg3(555, 2);
+            bdlb::PcgRandomGenerator pcg4(556, 1);
+            bdlb::PcgRandomGenerator pcg5(556, 2);
+
+            for (int i = 0; i < 32; ++i) {
+
+                sequences[0][i] = bdlb::Random::generatePcg(&pcg1);
+                sequences[1][i] = bdlb::Random::generatePcg(&pcg2);
+                sequences[2][i] = bdlb::Random::generatePcg(&pcg3);
+                sequences[3][i] = bdlb::Random::generatePcg(&pcg4);
+                sequences[4][i] = bdlb::Random::generatePcg(&pcg5);
+
+                if (veryVerbose) {
+                    T_ P_(sequences[0][i]) P_(sequences[1][i])
+                        P_(sequences[2][i]) P_(sequences[3][i])
+                            P_(sequences[4][i])
+                }
+            }
+            ASSERT(0 == bsl::memcmp(
+                            sequences[0], sequences[1], sizeof(sequences[0])));
+            ASSERT(0 != bsl::memcmp(
+                            sequences[0], sequences[2], sizeof(sequences[0])));
+            ASSERT(0 != bsl::memcmp(
+                            sequences[0], sequences[3], sizeof(sequences[0])));
+            ASSERT(0 != bsl::memcmp(
+                            sequences[0], sequences[4], sizeof(sequences[0])));
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -312,8 +376,11 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Confirm that the distribution of 0- and 1- bits in a sequence
+        //: 1 Confirm that the distribution of 0 and 1 bits in a sequence
         //:   generated by 'generate15' is roughly equal.
+        //:
+        //: 2 Confirm that the distribution of 0 and 1 bits in a sequence
+        //:   generated by 'generatePcg' is roughly equal.
         //
         // Testing:
         //   BREATHING TEST
@@ -323,30 +390,57 @@ int main(int argc, char *argv[])
                                   "==============" "\n";
 
         enum { NUM_ITERATIONS = 2000 };
+        {
+            int seed = 0;
+            int numOnes  = 0;
 
-        int seed = 0;
-        int cnt  = 0;
+            for (int i = 0; i < NUM_ITERATIONS; ++i) {
+                int rand = bdlb::Random::generate15(&seed);
+                ASSERT(rand < 0x10000);
+                ASSERT(rand >= 0);
 
-        for (int i = 0; i < NUM_ITERATIONS; ++i) {
-            int rand = bdlb::Random::generate15(&seed);
-            ASSERT(rand < 0x10000);
-            ASSERT(rand >= 0);
+                if (veryVerbose) {
+                    if (0 == i % 100) {
+                        T_ P_(i) P_(seed) P(rand);
+                    }
+                }
 
-            if (veryVerbose) {
-                if (0 == i % 100) {
-                    T_ P_(i) P_(seed) P(rand);
+                for (int b = 0; b < 15; ++b) {
+                    numOnes += rand & 1;
+                    rand >>= 1;
                 }
             }
 
-            for (int b = 0; b < 15; ++b) {
-                cnt   += rand & 1;
-                rand >>= 1;
-            }
+            double expected = (NUM_ITERATIONS * 15) / 2;
+            ASSERT(numOnes < (expected * 1.1));
+            ASSERT(numOnes > (expected * 0.9));
         }
 
-        double expected = (NUM_ITERATIONS * 15) / 2;
-        ASSERT(cnt < (expected * 1.1));
-        ASSERT(cnt > (expected * 0.9));
+        {
+            int numOnes  = 0;
+
+            uint64_t state = 123;
+            uint64_t streamSelector = 456;
+            bdlb::PcgRandomGenerator pcg(state, streamSelector);
+            T_ P_(state) P_(streamSelector);
+            for (int i = 0; i < NUM_ITERATIONS; ++i) {
+                uint32_t rand = bdlb::Random::generatePcg(&pcg);
+                if (veryVerbose) {
+                    if (0 == i % 100) {
+                      T_ P_(i) P(rand);
+                    }
+                }
+
+                for (int b = 0; b < 32; ++b) {
+                    numOnes += rand & 1;
+                    rand >>= 1;
+                }
+            }
+
+            double expected = (NUM_ITERATIONS * 32) / 2;
+            ASSERT(numOnes < (expected * 1.1));
+            ASSERT(numOnes > (expected * 0.9));
+        }
 
       } break;
       default: {

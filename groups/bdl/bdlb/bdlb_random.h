@@ -18,13 +18,16 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::Random: namespace for a suite of random-number generation procedures
 //
+//@SEE_ALSO: bdlb_pcgrandomgenerator
+//
 //@DESCRIPTION: This component provides a utility 'struct', 'bdlb::Random',
-// that is a namespace for a suite of function used to efficiently generate
+// that is a namespace for a suite of functions used to efficiently generate
 // random numbers over a specific range of values.  The seed (or current state)
-// is maintained externally.  Two variants of each random number generator are
-// provided: one has a single [in/out] seed parameter, which is first used then
-// updated; the other takes the current seed as an [input] parameter, and
-// stores a new seed in an [output] parameter.
+// is maintained externally.  Two variants of a 15-bit random number generator
+// are provided: one has a single [in/out] seed parameter, which is first used
+// then updated; the other takes the current seed as an [input] parameter, and
+// stores a new seed in an [output] parameter.  A third generator produces
+// 32-bit random numbers employing the PCG algorithm.
 //
 ///Usage
 ///-----
@@ -130,8 +133,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bdlb_pcgrandomgenerator.h>
+
 #include <bsls_assert.h>
 #include <bsls_review.h>
+
+#include <bsl_cstdint.h>
 
 namespace BloombergLP {
 namespace bdlb {
@@ -153,6 +160,10 @@ struct Random {
         // Return a 15-bit random number in the range '[ 0 .. 32,767 ]'
         // generated from the specified 'seed', and load into 'seed' a value
         // suitable for generating the next random number.
+
+    static bsl::uint32_t generatePcg(PcgRandomGenerator *generator);
+        // Return the next unsigned 32-bit random number generated from the
+        // specified PCG-based 'generator'.
 };
 
 // ============================================================================
@@ -185,6 +196,14 @@ int Random::generate15(int *seed)
     BSLS_ASSERT(seed);
 
     return generate15(seed, *seed);
+}
+
+inline
+bsl::uint32_t Random::generatePcg(PcgRandomGenerator *generator)
+{
+    BSLS_ASSERT(generator);
+
+    return generator->generate();
 }
 
 }  // close package namespace
