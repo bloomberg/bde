@@ -53,9 +53,24 @@ namespace BloombergLP {
 //   * readable ('e_READABLE'),
 //   * readable and the single producer is waiting to write here
 //         ('e_READABLE_AND_BLOCKED'),
-//   * writable ('e_WRITABLE'), and
-//   * writable and the single consumer is waiting to read here
-//         ('e_WRITABLE_AND_BLOCKED'),
+//   * writable ('e_WRITABLE'),
+//   * *first* writable node and the queue is empty
+//         ('e_WRITABLE_AND_EMPTY'), and
+//   * *first* writable node, queue is empty, and the single consumer is
+//         waiting to read here ('e_WRITABLE_AND_BLOCKED').
+//
+// Finally, a generation count for the number of times this queue has been
+// empty is maintained ('d_emptyGeneration').  This count is incremented
+// whenever the queue becomes empty and whenever the queue leaves the empty
+// state.  When this count is even, the queue is empty.  When this count is
+// odd, the queue is not empty.  Note that the consuming thread and producing
+// thread may both increment this value concurrently, and it is the combination
+// of the consumer marking the queue as empty by setting a node's state *to*
+// 'e_WRITABLE_AND_EMPTY' (and incrementing 'd_emptyGeneration') and the
+// producer marking the queue as no longer empty by setting a node's state
+// *from* 'e_WRITABLE_AND_EMPTY' (and incrementing 'd_emptyGeneration') that
+// together form an "empty generation" for this queue (as a combined increment
+// of 2).
 
 }  // close enterprise namespace
 

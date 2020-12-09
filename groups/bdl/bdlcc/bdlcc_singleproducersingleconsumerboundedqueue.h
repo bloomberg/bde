@@ -266,9 +266,18 @@ class SingleProducerSingleConsumerBoundedQueue {
         // this implementation of the queue.
 
         e_READABLE,              // node can be read
-        e_READABLE_AND_BLOCKED,  // node can be read and has blocked writer
+
+        e_READABLE_AND_BLOCKED,  // node can be read and has blocked producer
+
         e_WRITABLE,              // node can be written
-        e_WRITABLE_AND_BLOCKED   // node can be written and has blocked reader
+
+        e_WRITABLE_AND_EMPTY,    // node can be written, queue is empty and
+                                 // this is the *first* writable node
+
+        e_WRITABLE_AND_BLOCKED   // node can be written, queue is empty, this
+                                 // is the *first* writable node, and the
+                                 // consumer is blocked waiting for this node
+                                 // to be readable
     };
 
     // PRIVATE TYPES
@@ -301,9 +310,10 @@ class SingleProducerSingleConsumerBoundedQueue {
     mutable AtomicUint        d_emptyCount;      // count of threads in
                                                  // 'waitUntilEmpty'
 
-    AtomicUint                d_emptyGeneration; // generation count of a
-                                                 // method causing the queue to
-                                                 // be empty
+    AtomicUint                d_emptyGeneration; // generation count for the
+                                                 // empty queue state, queue is
+                                                 // empty whenever least
+                                                 // significant bit is zero
 
     const char                d_popPad[  bslmt::Platform::e_CACHE_LINE_SIZE
                                        - sizeof(AtomicUint64)
@@ -668,8 +678,15 @@ void SingleProducerSingleConsumerBoundedQueue<TYPE>::popComplete(Node   *node,
         d_pushCondition.signal();
     }
 
-    if (e_WRITABLE ==
-                    AtomicOp::getUintAcquire(&d_popElement_p[index].d_state)) {
+    // If the node subsequent to 'node' is writable, the queue is empty and the
+    // node subsequent to 'node' must be marked as 'e_WRITABLE_AND_EMPTY'.
+
+    nodeState = AtomicOp::testAndSwapUintAcqRel(&d_popElement_p[index].d_state,
+                                                e_WRITABLE,
+                                                e_WRITABLE_AND_EMPTY);
+    if (e_WRITABLE == nodeState) {
+        // The queue is empty, increment the empty generation count.
+
         AtomicOp::addUintAcqRel(&d_emptyGeneration, 1);
         if (0 < AtomicOp::getUintAcquire(&d_emptyCount)) {
             {
@@ -702,22 +719,22 @@ int SingleProducerSingleConsumerBoundedQueue<TYPE>::popFrontImp(TYPE *value,
     // Note that 'e_WRITABLE_AND_BLOCKED != nodeState' since this is the one
     // consumer.
 
-    if (e_WRITABLE == nodeState) {
+    if (e_WRITABLE_AND_EMPTY == nodeState) {
         if (isTry) {
             return e_EMPTY;                                           // RETURN
         }
 
         bslmt::ThreadUtil::yield();
         nodeState = AtomicOp::getUintAcquire(&node.d_state);
-        if (e_WRITABLE == nodeState) {
+        if (e_WRITABLE_AND_EMPTY == nodeState) {
             bslmt::LockGuard<bslmt::Mutex> guard(&d_popMutex);
 
             nodeState = AtomicOp::testAndSwapUintAcqRel(
                                                        &node.d_state,
-                                                       e_WRITABLE,
+                                                       nodeState,
                                                        e_WRITABLE_AND_BLOCKED);
 
-            while ((   e_WRITABLE             == nodeState
+            while ((   e_WRITABLE_AND_EMPTY   == nodeState
                     || e_WRITABLE_AND_BLOCKED == nodeState)
                    && disabledGen ==
                           AtomicOp::getUintAcquire(&d_popDisabledGeneration)) {
@@ -725,7 +742,7 @@ int SingleProducerSingleConsumerBoundedQueue<TYPE>::popFrontImp(TYPE *value,
                 if (rv) {
                     AtomicOp::testAndSwapUintAcqRel(&node.d_state,
                                                     e_WRITABLE_AND_BLOCKED,
-                                                    e_WRITABLE);
+                                                    e_WRITABLE_AND_EMPTY);
                     return e_FAILED;                                  // RETURN
                 }
                 nodeState = AtomicOp::getUint(&node.d_state);
@@ -734,11 +751,11 @@ int SingleProducerSingleConsumerBoundedQueue<TYPE>::popFrontImp(TYPE *value,
             // The following checks for disablement being the cause of exiting
             // the 'while' loop.
 
-            if (   e_WRITABLE             == nodeState
+            if (   e_WRITABLE_AND_EMPTY   == nodeState
                 || e_WRITABLE_AND_BLOCKED == nodeState) {
                 AtomicOp::testAndSwapUintAcqRel(&node.d_state,
                                                 e_WRITABLE_AND_BLOCKED,
-                                                e_WRITABLE);
+                                                e_WRITABLE_AND_EMPTY);
                 return e_DISABLED;                                    // RETURN
             }
         }
@@ -903,12 +920,21 @@ void SingleProducerSingleConsumerBoundedQueue<TYPE>::pushComplete(
                                                                  Node   *node,
                                                                  Uint64  index)
 {
+
     Uint nodeState = AtomicOp::swapUintAcqRel(&node->d_state, e_READABLE);
     if (e_WRITABLE_AND_BLOCKED == nodeState) {
+        // Queue is no longer empty and the consumer is blocked.
+
+        AtomicOp::addUintAcqRel(&d_emptyGeneration, 1);
         {
             bslmt::LockGuard<bslmt::Mutex> guard(&d_popMutex);
         }
         d_popCondition.signal();
+    }
+    else if (e_WRITABLE_AND_EMPTY == nodeState) {
+        // Queue is no longer empty.
+
+        AtomicOp::addUintAcqRel(&d_emptyGeneration, 1);
     }
 
     ++index;
@@ -949,7 +975,8 @@ SingleProducerSingleConsumerBoundedQueue<TYPE>::
 
     d_pushElement_p = d_popElement_p;
 
-    for (bsl::size_t i = 0; i < d_popCapacity; ++i) {
+    AtomicOp::initUint(&d_popElement_p[0].d_state, e_WRITABLE_AND_EMPTY);
+    for (bsl::size_t i = 1; i < d_popCapacity; ++i) {
         AtomicOp::initUint(&d_popElement_p[i].d_state, e_WRITABLE);
     }
 }
@@ -1007,6 +1034,29 @@ void SingleProducerSingleConsumerBoundedQueue<TYPE>::removeAll()
         nodeState = AtomicOp::getUintAcquire(&d_popElement_p[index].d_state);
     }
 
+    // If the node subsequent to the last removed element is writable, the
+    // queue is empty and the node subsequent to the last removed element' must
+    // be marked as 'e_WRITABLE_AND_EMPTY'.
+
+    nodeState = AtomicOp::testAndSwapUintAcqRel(&d_popElement_p[index].d_state,
+                                                e_WRITABLE,
+                                                e_WRITABLE_AND_EMPTY);
+
+    if (e_WRITABLE == nodeState) {
+        // The queue is empty, increment the empty generation count.
+
+        AtomicOp::addUintAcqRel(&d_emptyGeneration, 1);
+    }
+    else {
+        // A 'removeAll' makes the queue empty.  Since there has been a
+        // 'pushBack' before the queue could be marked empty ('e_WRITABLE !=
+        // nodeState'), increase the empty generation by 2 to note the queue
+        // was empty at some point during this method call but is no longer
+        // empty (1 for becoming empty, 1 for leaving the empty state).
+
+        AtomicOp::addUintAcqRel(&d_emptyGeneration, 2);
+    }
+
     AtomicOp::setUint64Release(&d_popIndex, index);
 
     {
@@ -1014,7 +1064,6 @@ void SingleProducerSingleConsumerBoundedQueue<TYPE>::removeAll()
     }
     d_pushCondition.signal();
 
-    AtomicOp::addUintAcqRel(&d_emptyGeneration, 1);
     if (0 < AtomicOp::getUintAcquire(&d_emptyCount)) {
         {
             bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
@@ -1098,10 +1147,7 @@ template <class TYPE>
 inline
 bool SingleProducerSingleConsumerBoundedQueue<TYPE>::isEmpty() const
 {
-    Node& node      = d_popElement_p[AtomicOp::getUint64Acquire(&d_popIndex)];
-    Uint  nodeState = AtomicOp::getUintAcquire(&node.d_state);
-
-    return e_WRITABLE == nodeState || e_WRITABLE_AND_BLOCKED == nodeState;
+    return 0 == (AtomicOp::getUintAcquire(&d_emptyGeneration) & 1);
 }
 
 template <class TYPE>
@@ -1162,7 +1208,7 @@ int SingleProducerSingleConsumerBoundedQueue<TYPE>::waitUntilEmpty() const
         return e_DISABLED;                                            // RETURN
     }
 
-    if (isEmpty()) {
+    if (0 == (initEmptyGen & 1)) {
         AtomicOp::addUintAcqRel(&d_emptyCount, -1);
         return e_SUCCESS;                                             // RETURN
     }
