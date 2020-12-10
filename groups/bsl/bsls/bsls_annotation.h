@@ -331,6 +331,8 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
     #define BSLS_ANNOTATION_NORETURN [[ noreturn ]]
+#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+    #define BSLS_ANNOTATION_NORETURN __attribute__((noreturn))
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
     #define BSLS_ANNOTATION_NORETURN __declspec(noreturn)
 #else
