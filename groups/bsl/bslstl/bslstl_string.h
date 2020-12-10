@@ -4309,7 +4309,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
             privateAssignDispatch(
                   lvalue.data(),
                   lvalue.size(),
-                  "string<...>::operator=(const string&...): string too long");
+                  "string<...>::operator=(MovableRef<...>): string too long");
         }
     }
     return *this;
@@ -4324,7 +4324,7 @@ basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::operator=(
     return privateAssignDispatch(
                   rhs.data(),
                   rhs.size(),
-                  "string<...>::operator=(const string&...): string too long");
+                  "string<>::operator=(basic_string_view&): string too long");
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
