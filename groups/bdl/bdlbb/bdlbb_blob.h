@@ -575,23 +575,22 @@ class Blob {
     // DATA
     bsl::vector<BlobBuffer>  d_buffers;             // buffer sequence
 
-    int                      d_totalSize;           // capacity of blob
-                                                    // (in bytes)
+    int                      d_totalSize;           // capacity of blob (in
+                                                    // bytes)
 
-    int                      d_dataLength;          // length (in bytes)
-                                                    // of user-managed
-                                                    // data
+    int                      d_dataLength;          // length (in bytes) of
+                                                    // user-managed data
 
-    int                      d_dataIndex;           // index of the last
-                                                    // data buffer
+    int                      d_dataIndex;           // index of the last data
+                                                    // buffer, or -1 if the
+                                                    // blob has no data buffers
 
-    int                      d_preDataIndexLength;  // sum of the lengths
-                                                    // of all data
-                                                    // buffers, excluding
-                                                    // the last one
+    int                      d_preDataIndexLength;  // sum of the lengths of
+                                                    // all data buffers,
+                                                    // excluding the last one
 
-    BlobBufferFactory       *d_bufferFactory_p;     // factory used to
-                                                    // grow blob (held)
+    BlobBufferFactory       *d_bufferFactory_p;     // factory used to grow
+                                                    // blob (held)
 
     // FRIENDS
     friend bool operator==(const Blob&, const Blob&);
@@ -600,7 +599,16 @@ class Blob {
   private:
     // PRIVATE MANIPULATORS
     void slowSetLength(int length);
-        // "Slow" setLength.
+        // Set the length of this blob to the specified 'length' and, if
+        // 'length' is greater than its total size, grow this blob by appending
+        // buffers allocated using this object's underlying
+        // 'BlobBufferFactory'.  This function implements the "slow-path" for
+        // 'setLength', handling the cases where the supplied 'length' is lies
+        // beyond the boundaries of the last data buffer. The behavior is
+        // undefined if 'length' is a negative value, if the new length
+        // requires growing the blob and this blob has no underlying factory,
+        // or if the 'lenght' lies within the boundaries of the last data
+        // buffer.
 
     // PRIVATE ACCESSORS
     int assertInvariants() const;
@@ -1019,7 +1027,7 @@ int Blob::numBuffers() const
 inline
 int Blob::numDataBuffers() const
 {
-    return d_dataLength != 0 ? d_dataIndex + 1 : 0;
+    return d_dataIndex + 1;
 }
 
 inline
