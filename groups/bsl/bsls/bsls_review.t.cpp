@@ -1932,7 +1932,7 @@ void test_case_10() {
         //
         // Concerns:
         //: 1 The 'BSLS_REVIEW' macros should compile when used in a function
-        //:   marked with 'BSLS_KEYWORD_CONSTEXPR_RELAXED'.
+        //:   marked with 'BSLS_KEYWORD_CONSTEXPR_CPP14'.
         //
         // Plan:
         //: 1 Functions defined earlier must compile and be executable in
