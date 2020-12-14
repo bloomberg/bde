@@ -1,5 +1,9 @@
 bdlc_bitarray
 bdlc_compactedarray
+bdlc_flathashmap
+bdlc_flathashset
+bdlc_flathashtable
+bdlc_flathashtable_groupcontrol
 bdlc_hashtable
 bdlc_indexclerk
 bdlc_packedintarray

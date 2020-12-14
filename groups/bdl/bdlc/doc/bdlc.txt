@@ -9,15 +9,20 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlc' package currently has 7 components having 2 levels of physical
+ The 'bdlc' package currently has 11 components having 3 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
+  3. bdlc_flathashmap
+     bdlc_flathashset
+
   2. bdlc_compactedarray
+     bdlc_flathashtable
      bdlc_packedintarrayutil
 
   1. bdlc_bitarray
+     bdlc_flathashtable_groupcontrol
      bdlc_hashtable
      bdlc_indexclerk
      bdlc_packedintarray
@@ -31,6 +36,18 @@
 :
 : 'bdlc_compactedarray':
 :      Provide a compacted array of 'const' user-defined objects.
+:
+: 'bdlc_flathashmap':
+:      Provide an open-addressed unordered map container.
+:
+: 'bdlc_flathashset':
+:      Provide an open-addressed unordered set container.
+:
+: 'bdlc_flathashtable':
+:      Provide an open-addressed hash table like Abseil 'flat_hash_map'.
+:
+: 'bdlc_flathashtable_groupcontrol':
+:      Provide inquiries to a flat hash table group of control values.
 :
 : 'bdlc_hashtable':
 :      Provide a double-hashed table with utility.
