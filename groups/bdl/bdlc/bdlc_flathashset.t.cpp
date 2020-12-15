@@ -40,6 +40,7 @@
 #include <bsltf_nondefaultconstructibletesttype.h>
 #include <bsltf_nonoptionalalloctesttype.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_functional.h>
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #include <bsl_initializer_list.h>
@@ -835,30 +836,38 @@ void testCase2InsertMove(int id, bool allocates, bool moveable)
     }
 }
 
+static unsigned int s_antiOptimization = 0;
+
 template <class SET>
 bsls::TimeInterval performanceFindPresent(SET *set)
     // For the specified 'set', insert a large number of values and then invoke
     // 'find()' with values matching those inserted.  Return the duration of
     // the 'find()' invocations.
 {
-    const int NUM_ITER = 21;
-    const int MAX      = 4096;
+    const int NUM_TRIAL = 101;
+    const int MAX       = 4096;
+    const int NUM_ITER  = 4096 * 128 / MAX;
 
     for (int i = 0; i < MAX; ++i) {
         set->insert(i);
     }
 
     bsl::vector<bsls::TimeInterval> results;
-    for (int iter = 0; iter < NUM_ITER; ++iter) {
-        bsls::TimeInterval start = bsls::SystemTime::nowMonotonicClock();
+    for (int trial = 0; trial < NUM_TRIAL; ++trial) {
+        for (int iter = 0; iter < NUM_ITER; ++iter) {
+            bsls::TimeInterval start = bsls::SystemTime::nowMonotonicClock();
 
-        for (int i = 0; i < MAX; ++i) {
-            set->find((i * 7) & (MAX - 1));
+            for (int i = 0; i < MAX; ++i) {
+                s_antiOptimization += *set->find((i * 7) & (MAX - 1));
+            }
+
+            results.push_back(bsls::SystemTime::nowMonotonicClock() - start);
         }
-
-        results.push_back(bsls::SystemTime::nowMonotonicClock() - start);
     }
-    return results[NUM_ITER / 2];
+
+    bsl::sort(results.begin(), results.end());
+
+    return results[NUM_TRIAL / 2];
 }
 
 template <class SET>
@@ -867,24 +876,32 @@ bsls::TimeInterval performanceFindNotPresent(SET *set)
     // 'find()' with values not matching those inserted.  Return the duration
     // of the 'find()' invocations.
 {
-    const int NUM_ITER = 21;
-    const int MAX      = 4096;
+    const int NUM_TRIAL = 101;
+    const int MAX       = 4096;
+    const int NUM_ITER  = 4096 * 128 / MAX;
 
     for (int i = 0; i < MAX; ++i) {
         set->insert(i * 2);
     }
 
     bsl::vector<bsls::TimeInterval> results;
-    for (int iter = 0; iter < NUM_ITER; ++iter) {
-        bsls::TimeInterval start = bsls::SystemTime::nowMonotonicClock();
+    for (int trial = 0; trial < NUM_TRIAL; ++trial) {
+        for (int iter = 0; iter < NUM_ITER; ++iter) {
+            bsls::TimeInterval start = bsls::SystemTime::nowMonotonicClock();
 
-        for (int i = 0; i < MAX; ++i) {
-            set->find(((i * 7) & (MAX - 1)) * 2 + 1);
+            for (int i = 0; i < MAX; ++i) {
+                if (set->end() == set->find(((i * 7) & (MAX - 1)) * 2 + 1)) {
+                    ++s_antiOptimization;
+                }
+            }
+
+            results.push_back(bsls::SystemTime::nowMonotonicClock() - start);
         }
-
-        results.push_back(bsls::SystemTime::nowMonotonicClock() - start);
     }
-    return results[NUM_ITER / 2];
+
+    bsl::sort(results.begin(), results.end());
+
+    return results[NUM_TRIAL / 2];
 }
 
 // ============================================================================
@@ -4185,6 +4202,10 @@ int main(int argc, char *argv[])
                  << 100.0 * (y - x) / x
                  << "% faster than unordered for find when not present"
                  << endl;
+        }
+
+        if (veryVeryVeryVerbose) {
+            cout << "anti-optimization: " << s_antiOptimization << endl;
         }
       } break;
       default: {
