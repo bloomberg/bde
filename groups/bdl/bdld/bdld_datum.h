@@ -60,6 +60,20 @@ BSLS_IDENT("$Id$ $CSID$")
 // value of an object of the type is independent of any modifiable state that
 // is not owned exclusively by that object." (see {'bsldoc_glossary'}).
 //
+///Immutability
+///------------
+// 'Datum' objects are generally immutable, meaning the value stored inside a
+// 'Datum' object cannot be changed *except* through the assignment operation.
+// A 'Datum' is copy-assignable, so a 'Datum' object can assigned another
+// 'Datum' object'. On assignment, a 'Datum' object is "shallow-copied".
+// Meaning that the footprint of original 'Datum' object is copied into the
+// footprint of the destination 'Datum' object, but if the 'Datum' refers to
+// dynamically allocated memory, only the value of the address is copied (not
+// the contents of the dynamic allocation). 'Datum' also exposes a 'clone'
+// method to "deep-copy" 'Datum' objects, so that any externally allocated
+// memory (except user defined types) is cloned and not shared like
+// copy-assignment. See also {Deep Copying}.
+//
 ///Memory Management
 ///-----------------
 // A primary design goal for 'Datum' is space-efficiency, particularly on
@@ -88,6 +102,34 @@ BSLS_IDENT("$Id$ $CSID$")
 // In order to create a 'Datum' object a client calls one of the 'create*'
 // static methods on the 'Datum' class.  In order to release the data a
 // 'Datum' holds, a client calls 'destroy'.
+//
+// Copying, or copy assigning a 'Datum' object to another behaves just like
+// copying a raw pointer.  This copy does not allocate or deallocate data.
+// That also means assigning to a datum object is not safe if the 'Datum' being
+// assigned to refers to dynamically allocated memory, and there isn't a (user
+// controlled) strategy in place to release that memory.
+//
+/// Deep Copying
+///- - - - - - -
+// 'Datum' exposes a 'clone' method that "deep-copies" 'Datum' objects, so that
+// any dynamically or externally referenced memory is cloned and not shared
+// like it would be when using a copy or copy-assignment operation.  The
+// exception is {User Defined Types} as they are opaque, so 'Datum' has no way
+// to deep-copy them.
+//
+// The purpose of 'clone' is to create an independent copy of the content of
+// any 'Datum', which also includes 'Datum' values where 'isExternalreference'
+// returns 'true' (except of course UDTs, as mentioned above).  Cloning a
+// reference to a string results in an owned string, not a reference to a
+// string, with the cloned 'Datum' object's 'isExternalReference' returning
+// 'false'.  When cloning a map with keys that are references to external
+// strings the clone will have deep copies of those string keys, it will become
+// a map with owned keys.  This behavior is intentional.  The deep-copy
+// operation ('clone') is designed to ensure that the lifetime of the new clone
+// does not, in any way, depend on the lifetime of the original 'Datum', or any
+// data that 'Datum' may have referenced.  So (except for UDTs), if a 'Datum'
+// is cloned, the original 'Datum' can be destroyed without any effect on the
+// cloned 'Datum'.
 //
 ///Creating a Datum that Requires No Allocation
 /// - - - - - - - - - - - - - - - - - - - - - -
@@ -141,6 +183,9 @@ BSLS_IDENT("$Id$ $CSID$")
 // For aggregate types -- i.e., maps and arrays -- 'destroy' will recursively
 // call 'destroy' on the 'Datum' objects that compose the aggregate.  The
 // exception to this is references to external arrays (discussed below).
+//
+// The 'destroy' method does not nothing for {User Defined Types} as they are
+// opaque, unknown, for 'Datum'.
 //
 ///References to External Strings and Arrays
 ///- - - - - - - - - - - - - - - - - - - - -
@@ -220,17 +265,22 @@ BSLS_IDENT("$Id$ $CSID$")
 //:   memory allocation.  Note that for externally represented string or
 //:   arrays, meta-data may still need to be allocated.
 //
-///User Defined Data
-///- - - - - - - - -
+///User Defined Types
+/// - - - - - - - - -
 // 'Datum' exposes a type 'DatumUdt' with which a user can arbitrarily expand
 // the set of types a 'Datum' can support.  A 'DatumUdt' object hold a void
-// pointer, and an an integer identifying the type.  A 'DatumUdt' object is
+// pointer, and an integer value identifying the type.  A 'DatumUdt' object is
 // always treated as an external reference, and the memory it refers to is not
-// released by 'Datum::destroy'.  The meaning of the integer type identifier is
-// determined by the application, which is responsible for ensuring the set of
-// "user-defined" type identifiers remains unique.
+// released by 'Datum::destroy', or deep-copied by 'clone'.  The meaning of the
+// integer type identifier is determined by the application, which is
+// responsible for ensuring the set of "user-defined" type identifiers remains
+// unique.  From the viewpoint of 'Datum' a UDT is an opaque pointer with an
+// integer value that holds no defined meaning.  In that sense it is more akin
+// akin to a 'void' pointer than to any of the other kind of values a 'Datum'
+// may hold.  All knowledge of what the pointer and integer value means is
+// elsewhere, in the application that created the UDT.
 //
-///Map and IntMap types
+///Map and IntMap Types
 /// - - - - - - - - - -
 // Datum provides two 'map' types, map (datatype 'e_MAP') and int-map (
 // datatype 'e_INT_MAP').  These types provide a mapping of key to value, as
@@ -1600,7 +1650,10 @@ class Datum {
 
     Datum clone(bslma::Allocator *basicAllocator) const;
         // Return a datum holding a "deep-copy" of this object, using the
-        // specified 'basicAllocator' to supply memory.
+        // specified 'basicAllocator' to supply memory.  This method creates an
+        // independent deep-copy of the data of this object, including any
+        // referenced data, with the exception of {User Defined Types}.  For
+        // further information see {Deep Copying}.
 
                                // Type-Identifiers
 
@@ -4733,7 +4786,7 @@ bsl::ostream& bdld::operator<<(bsl::ostream& stream, const DatumMapRef& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

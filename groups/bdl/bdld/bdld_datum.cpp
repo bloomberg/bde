@@ -89,17 +89,6 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 // length) and binary values are stored directly in the 14 bytes of available
 // storage.
 //
-///Immutability
-///------------
-// 'Datum' is immutable.  Thus the value stored inside a 'Datum' object cannot
-// be changed.  However, 'Datum' is copy-assignable.  So a 'Datum' object can
-// be copied by another 'Datum' object.  'Datum' objects are "shallow-copied".
-// This means that memory held inside a 'Datum' object is copied bitwise on a
-// copy-assignment; any pointer to dynamically allocated memory is also copied
-// bitwise.  'Datum' exposes a 'clone' method to "deep-copy" 'Datum' objects,
-// so that any dynamically allocated memory is cloned and not shared like copy-
-// assignment.
-//
 ///Further Notes
 ///-------------
 // * On 32-bit platforms, memory is allocated in 'copyString' only if the
@@ -1630,7 +1619,7 @@ bool bdld::operator==(const DatumIntMapRef& lhs, const DatumIntMapRef& rhs)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -43,10 +43,14 @@ BSLS_IDENT("$Id$ $CSID$")
 //:  o 'ostream' Printing
 //
 // In other words, the syntax of 'ManagedDatum' is *regular*, but not all of
-// its copy behavior is value-semantic.  Specifically, for certain values
-// (i.e., those where 'isExternalReference' is 'true') 'ManagedDatum' performs
-// a shallow copy (copying the reference rather than the value), which is
-// inconsistent with value-semantics.
+// its copy behavior is value-semantic.  Specifically, for User Defined Types
+// (i.e., those that 'bdld::Datum::clone' does not deep-copy) 'ManagedDatum'
+// performs a shallow copy (copying the reference rather than the value), which
+// is inconsistent with value-semantics.  For *all* other types 'ManagedDatum'
+// copy operations (copy construction, copy assignment, and non-member 'swap'
+// when the allocators differ) will deep-copy the value using 'Datum::clone,
+// which creates a completely independent copy, with independent lifetime, by
+// duplicating all data, even referenced data (except for UDTs).
 //
 // Note that a default constructed 'ManagedDatum', or a 'ManagedDatum' on which
 // 'release' has been called, will have the null 'Datum' value.
@@ -252,7 +256,9 @@ class ManagedDatum {
         // Create a 'ManagedDatum' object having the same value as the
         // specified 'original' object.  Optionally specify an 'allocator'
         // (e.g., the address of a 'bslma::Allocator' object) used to supply
-        // memory; otherwise, the default allocator is used.
+        // memory; otherwise, the default allocator is used.  This operation
+        // performs a 'clone' of the underlying 'Datum', see {Value Semantics}
+        // for more detail.
 
     ~ManagedDatum();
         // Destroy this object and release all dynamically allocated memory
@@ -261,7 +267,9 @@ class ManagedDatum {
     // MANIPULATORS
     ManagedDatum& operator=(const ManagedDatum& rhs);
         // Assign to this object the value of the specified 'rhs' object, and
-        // return a non-'const' reference to this object.
+        // return a non-'const' reference to this object.  This operation
+        // performs a 'clone' of the underlying 'Datum', see {Value Semantics}
+        // for more detail.
 
     void adopt(const Datum& obj);
         // Take ownership of the specified 'obj' and destroy the 'Datum'
@@ -357,7 +365,10 @@ bsl::ostream& operator<<(bsl::ostream& stream, const ManagedDatum& rhs);
 void swap(ManagedDatum& a, ManagedDatum& b);
     // Exchange the values of the specified 'a' and 'b' objects.  This function
     // provides the no-throw exception-safety guarantee if the two objects were
-    // created with the same allocator and the basic guarantee otherwise.
+    // created with the same allocator and the basic guarantee otherwise.  Note
+    // that in case the allocators are different this function places a *clone*
+    // of 'a' into 'b', and vice versa.  See {Value Semantics} on details of
+    // the cloning that may happen.
 
 // ============================================================================
 //                             INLINE DEFINITIONS

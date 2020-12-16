@@ -1607,7 +1607,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: Unexpected 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     srand(static_cast<unsigned int>(time(static_cast<time_t *>(0))));
@@ -3031,6 +3031,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == oa.numBlocksInUse()); // non allocating type
                     ASSERT(0 == ca.numBlocksInUse()); // non allocating type
 
+                    ASSERT(false == DC.isExternalReference());
                     ASSERT(true  == DC.isBoolean());
                     ASSERT(VALUE == DC.theBoolean());
 
@@ -3073,6 +3074,8 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == oa.numBlocksInUse()); // non allocating type
                     ASSERT(0 == ca.numBlocksInUse()); // non allocating type
+
+                    ASSERT(false == DC.isExternalReference());
 
                     Datum::destroy(D, &oa);
                     Datum::destroy(DC, &ca);
@@ -3117,6 +3120,7 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == da.numBlocksInUse());
 
+                    ASSERT(false == DC.isExternalReference());
                     ASSERT(true  == DC.isDatetime());
                     ASSERT(VALUE == DC.theDatetime());
 
@@ -3171,6 +3175,7 @@ int main(int argc, char *argv[])
 
                     ASSERT(bytesInUse == ca.numBytesInUse());
 
+                    ASSERT(false == DC.isExternalReference());
                     ASSERT(true  == DC.isDatetimeInterval());
                     ASSERT(VALUE == DC.theDatetimeInterval());
 
@@ -3232,13 +3237,16 @@ int main(int argc, char *argv[])
                     const Datum DC = D.clone(&ca);
 
                     ASSERT(bytesInUse == ca.numBytesInUse());
-                    ASSERT(true       == DC.isDecimal64());
+
+                    ASSERT(false == DC.isExternalReference());
+                    ASSERT(true  == DC.isDecimal64());
 
                     if (EQUAL) {
                         ASSERT(VALUE == DC.theDecimal64());
                     } else {
                         ASSERT(VALUE != DC.theDecimal64());
                     }
+
                     Datum::destroy(D, &oa);
                     Datum::destroy(DC, &ca);
 
@@ -3301,13 +3309,15 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == ca.numBlocksInUse()); // non allocating type
 
-                    ASSERT(true == DC.isDouble());
+                    ASSERT(false == DC.isExternalReference());
+                    ASSERT(true  == DC.isDouble());
 
                     if (EQUAL) {
                         ASSERT(VALUE == DC.theDouble());
                     } else {
                         ASSERT(VALUE != DC.theDouble());
                     }
+
                     Datum::destroy(D, &oa);
                     Datum::destroy(DC, &ca);
 
@@ -3353,7 +3363,8 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == ca.numBlocksInUse()); // non allocating type
 
-                    ASSERT(true == DC.isError());
+                    ASSERT(false == DC.isExternalReference());
+                    ASSERT(true  == DC.isError());
                     ASSERT(DatumError(ERROR) == DC.theError());
 
                     Datum::destroy(D, &oa);
@@ -3387,7 +3398,9 @@ int main(int argc, char *argv[])
                         const Datum DC = D.clone(&ca);
 
                         ASSERT(bytesInUse == ca.numBytesInUse());
-                        ASSERT(true == DC.isError());
+
+                        ASSERT(false == DC.isExternalReference());
+                        ASSERT(true  == DC.isError());
                         ASSERT(DatumError(ERROR, MESSAGE) == DC.theError());
 
                         Datum::destroy(D, &oa);
@@ -3436,6 +3449,7 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == ca.numBlocksInUse()); // non allocating type
 
+                    ASSERT(false == DC.isExternalReference());
                     ASSERT(true  == DC.isInteger());
                     ASSERT(VALUE == DC.theInteger());
 
@@ -3492,6 +3506,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == ca.numBlocksInUse()); // non allocating type
 #endif  // BSLS_PLATFORM_CPU_64_BIT
 
+                    ASSERT(false == DC.isExternalReference());
                     ASSERT(true  == DC.isInteger64());
                     ASSERT(VALUE == DC.theInteger64());
 
@@ -3517,7 +3532,9 @@ int main(int argc, char *argv[])
                 const Datum DC = D.clone(&ca);
 
                 ASSERT(0 == ca.numBlocksInUse()); // non allocating type
-                ASSERT(true == DC.isNull());
+
+                ASSERT(false == DC.isExternalReference());
+                ASSERT(true  == DC.isNull());
 
                 Datum::destroy(D, &oa);
                 Datum::destroy(DC, &ca);
@@ -3565,8 +3582,8 @@ int main(int argc, char *argv[])
 
                         const Datum D = Datum::createStringRef(STRING, &oa);
 
-                        ASSERT(true   == D.isString());
                         ASSERT(true   == D.isExternalReference());
+                        ASSERT(true   == D.isString());
                         ASSERT(STRING == D.theString());
 
                         const Datum DC = D.clone(&ca);
@@ -3587,8 +3604,8 @@ int main(int argc, char *argv[])
                         }
 #endif // BSLS_PLATFORM_CPU_32_BIT
 
-                        ASSERT(true   == DC.isString());
                         ASSERT(false  == DC.isExternalReference());
+                        ASSERT(true   == DC.isString());
                         ASSERT(STRING == DC.theString());
 
                         Datum::destroy(D, &oa);
@@ -3631,6 +3648,7 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == ca.numBlocksInUse()); // non allocating type
 
+                    ASSERT(false == DC.isExternalReference());
                     ASSERT(true  == DC.isTime());
                     ASSERT(VALUE == DC.theTime());
 
@@ -3656,6 +3674,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 
+                ASSERT(true  == D.isExternalReference());
                 ASSERT(true  == D.isUdt());
                 ASSERT(VALUE == D.theUdt());
 
@@ -3663,6 +3682,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == ca.numBlocksInUse()); // non allocating type
 
+                ASSERT(true  == DC.isExternalReference());
                 ASSERT(true  == DC.isUdt());
                 ASSERT(VALUE == DC.theUdt());
 
@@ -3691,7 +3711,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_CPU_32_BIT
                     ASSERT(0 != bytesInUse);   // always allocate
 #else  // BSLS_PLATFORM_CPU_32_BIT
-                    if (i<=13) {
+                    if (i <= 13) {
                         ASSERT(0 == bytesInUse);
                     } else {
                         ASSERT(0 != bytesInUse);
@@ -3707,15 +3727,16 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_CPU_32_BIT
                     ASSERT(0 != bytesInUse);   // always allocate
 #else  // BSLS_PLATFORM_CPU_32_BIT
-                    if (i<=13) {
+                    if (i <= 13) {
                         ASSERT(0 == bytesInUse);
                     } else {
                         ASSERT(0 != bytesInUse);
                     }
 #endif // BSLS_PLATFORM_CPU_32_BIT
 
-                    ASSERT(true == DC.isBinary());
-                    ASSERT(REF  == DC.theBinary());
+                    ASSERT(false == DC.isExternalReference());
+                    ASSERT(true  == DC.isBinary());
+                    ASSERT(REF   == DC.theBinary());
 
                     Datum::destroy(D, &oa);
                     Datum::destroy(DC, &ca);
@@ -3771,8 +3792,9 @@ int main(int argc, char *argv[])
                         ASSERT(0 != bytesInUse);
                     }
 
-                    ASSERT(true == DC.isString());
-                    ASSERT(REF  == DC.theString());
+                    ASSERT(false == DC.isExternalReference());
+                    ASSERT(true  == DC.isString());
+                    ASSERT(REF   == DC.theString());
 
                     Datum::destroy(D, &oa);
                     Datum::destroy(DC, &ca);
@@ -3805,12 +3827,15 @@ int main(int argc, char *argv[])
             const Datum DC = D.clone(&ca);
 
             ASSERT(bytesInUse == ca.numBytesInUse());
-            ASSERT(true == DC.isArray());
-            ASSERT(REF  == DC.theArray());
+
+            ASSERT(false == DC.isExternalReference());
+            ASSERT(true  == DC.isArray());
+            ASSERT(REF   == DC.theArray());
 
             Datum::destroy(D, &oa);
             Datum::destroy(DC, &ca);
         }
+
         {
             // Testing cloning of a non-empty array
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -3841,8 +3866,10 @@ int main(int argc, char *argv[])
             const Datum DC = D.clone(&ca);
 
             ASSERT(bytesInUse == ca.numBytesInUse());
-            ASSERT(true == DC.isArray());
-            ASSERT(REF  == DC.theArray());
+
+            ASSERT(false == DC.isExternalReference());
+            ASSERT(true  == DC.isArray());
+            ASSERT(REF   == DC.theArray());
 
             Datum::destroy(D, &oa);
             Datum::destroy(DC, &ca);
@@ -3869,9 +3896,11 @@ int main(int argc, char *argv[])
             const Datum DC = D.clone(&ca);
 
             ASSERT(bytesInUse == ca.numBytesInUse());
-            ASSERT(true   == DC.isMap());
+
+            ASSERT(false == DC.isExternalReference());
+            ASSERT(true  == DC.isMap());
             // Empty maps never owns the keys.
-            ASSERT(false  == DC.theMap().ownsKeys());
+            ASSERT(false == DC.theMap().ownsKeys());
             ASSERT(D.theMap() == DC.theMap());
 
             Datum::destroy(D, &oa);
@@ -3910,8 +3939,10 @@ int main(int argc, char *argv[])
             const Datum DC = D.clone(&ca);
 
             ASSERT(0    != ca.numBytesInUse());
-            ASSERT(true == DC.isMap());
-            ASSERT(true == DC.theMap().ownsKeys());
+
+            ASSERT(false == DC.isExternalReference());
+            ASSERT(true  == DC.isMap());
+            ASSERT(true  == DC.theMap().ownsKeys());
             ASSERT(D.theMap() == DC.theMap());
 
             Datum::destroy(D, &oa);
@@ -3940,8 +3971,9 @@ int main(int argc, char *argv[])
             const Datum DC = D.clone(&ca);
 
             ASSERT(bytesInUse == ca.numBytesInUse());
+
+            ASSERT(false == DC.isExternalReference());
             ASSERT(true  == DC.isMap());
-            // Empty maps never owns the keys.
             ASSERT(false == DC.theMap().ownsKeys());
             ASSERT(D.theMap() == DC.theMap());
 
@@ -4005,8 +4037,10 @@ int main(int argc, char *argv[])
             const Datum DC = D.clone(&ca);
 
             ASSERT(bytesInUse == ca.numBytesInUse());
-            ASSERT(true == DC.isMap());
-            ASSERT(true == DC.theMap().ownsKeys());
+
+            ASSERT(false == DC.isExternalReference());
+            ASSERT(true  == DC.isMap());
+            ASSERT(true  == DC.theMap().ownsKeys());
             ASSERT(D.theMap() == DC.theMap());
 
             Datum::destroy(D, &oa);
@@ -4055,8 +4089,10 @@ int main(int argc, char *argv[])
 
             const Datum DC = D.clone(&ca);
 
-            ASSERT(0            != ca.numBytesInUse());
-            ASSERT(true         == DC.isArray());
+            ASSERT(0 != ca.numBytesInUse());
+
+            ASSERT(false == DC.isExternalReference());
+            ASSERT(true  == DC.isArray());
             ASSERT(D.theArray() == DC.theArray());
 
             Datum::destroy(D, &oa);
@@ -4104,8 +4140,10 @@ int main(int argc, char *argv[])
 
             const Datum DC = D.clone(&ca);
 
-            ASSERT(0          != ca.numBytesInUse());
-            ASSERT(true       == DC.isMap());
+            ASSERT(0 != ca.numBytesInUse());
+
+            ASSERT(false == DC.isExternalReference());
+            ASSERT(true  == DC.isMap());
             ASSERT(D.theMap() == DC.theMap());
 
             Datum::destroy(D, &oa);
@@ -11390,7 +11428,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

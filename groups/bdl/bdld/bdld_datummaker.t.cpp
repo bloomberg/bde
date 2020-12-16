@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
         //: 2 The 'ref' method will create a reference to a string of length
         //:   greater than 64KiB where the length will not fit into a 16bit
         //:   integer.  On 32bit platforms the 'Datum' will need to allocate a
-        //:   string reference to accomodate for a count with more than 16bit.
+        //:   string reference to accommodate for a count with more than 16bit.
         //:   Check that the allocator of the 'DatumMaker' is used for that.
         //:
         //
