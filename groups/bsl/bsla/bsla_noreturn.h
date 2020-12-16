@@ -97,6 +97,10 @@ BSLS_IDENT("$Id: $")
     #define BSLA_NORETURN [[ noreturn ]]
 
     #define BSLA_NORETURN_IS_ACTIVE 1
+#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+    #define BSLA_NORETURN __attribute__((noreturn))
+
+    #define BSLA_NORETURN_IS_ACTIVE 1
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
     #define BSLA_NORETURN __declspec(noreturn)
 
