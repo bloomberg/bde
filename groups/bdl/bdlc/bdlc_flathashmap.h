@@ -37,6 +37,17 @@ BSLS_IDENT("$Id: $")
 // Google's open source 'raw_hash_set.h' file at:
 // https://github.com/abseil/abseil-cpp/blob/master/absl/container/internal.
 //
+///Performance Caveats
+///-------------------
+// 'bdlc::FlatHashMap' is recommended for Intel platforms *only* (i.e., Linux
+// and Windows, and pre-ARM Macs); on platforms using other processors (i.e.,
+// Sun and AIX), 'bdlc::FlatHashMap' may have slower performance than
+// 'bsl::unordered_map'.  However, note that 'bdlc::FlatHashMap' will use
+// significantly less memory than 'bsl::unordered_map' on *all* platforms.
+// Given the Intel-only performance caveat, it is recommended to benchmark
+// before using 'bdlc::FlatHashMap' -- particulary on non-Intel production
+// environments.
+//
 ///Interface Differences with 'unordered_map'
 ///------------------------------------------
 // A 'bdlc::FlatHashMap' meets most of the requirements of an unordered

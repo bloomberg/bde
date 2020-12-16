@@ -36,6 +36,17 @@ BSLS_IDENT("$Id: $")
 // Google's open source 'raw_hash_set.h' file at:
 // https://github.com/abseil/abseil-cpp/blob/master/absl/container/internal.
 //
+///Performance Caveats
+///-------------------
+// 'bdlc::FlatHashSet' is recommended for Intel platforms *only* (i.e., Linux
+// and Windows, and pre-ARM Macs); on platforms using other processors (i.e.,
+// Sun and AIX), 'bdlc::FlatHashSet' may have slower performance than
+// 'bsl::unordered_set'.  However, note that 'bdlc::FlatHashSet' will use
+// significantly less memory than 'bsl::unordered_set' on *all* platforms.
+// Given the Intel-only performance caveat, it is recommended to benchmark
+// before using 'bdlc::FlatHashSet' -- particulary on non-Intel production
+// environments.
+//
 ///Interface Differences with 'bsl::unordered_set'
 ///-----------------------------------------------
 // A 'bdlc::FlatHashSet' meets most of the requirements of an unordered
