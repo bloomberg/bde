@@ -910,6 +910,11 @@ struct Printer_Helper {
                          int                            spacesPerLevel,
                          bslmf::SelectTraitCase<bsl::is_fundamental>);
     static void printRaw(bsl::ostream&                  stream,
+                         unsigned char                  data,
+                         int                            level,
+                         int                            spacesPerLevel,
+                         bslmf::SelectTraitCase<bsl::is_fundamental>);
+    static void printRaw(bsl::ostream&                  stream,
                          bool                           data,
                          int                            level,
                          int                            spacesPerLevel,

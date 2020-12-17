@@ -212,6 +212,24 @@ void Printer_Helper::printRaw(bsl::ostream&                  stream,
     }
 }
 
+void Printer_Helper::printRaw(
+                    bsl::ostream&                               stream,
+                    unsigned char                               data,
+                    int                                         ,
+                    int                                         spacesPerLevel,
+                    bslmf::SelectTraitCase<bsl::is_fundamental> )
+{
+    {
+        FormatGuard guard(&stream);
+        stream << bsl::hex << bsl::showbase
+               << static_cast<bsls::Types::UintPtr>(data);
+    }
+
+    if (spacesPerLevel >= 0) {
+        stream << '\n';
+    }
+}
+
 void Printer_Helper::printRaw(bsl::ostream&                  stream,
                               bool                           data,
                               int                            ,

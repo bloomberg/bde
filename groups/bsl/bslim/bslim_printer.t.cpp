@@ -3170,7 +3170,8 @@ int main(int argc, char *argv[])
         //:   null pointer.  For each set of values in the table, ensure that
         //:   the actual output of 'printOrNull' when called with a null
         //:   pointer of type 'void *', 'const void *', 'const char *',
-        //:  'int *' and 'HasPrint *' is the same as the expected output.
+        //:   'const unsigned char *', 'int *', and 'HasPrint *' is the same as
+        //:   the expected output.
         //
         // Testing:
         //   void printOrNull(const TYPE& data, const char *name) const;
@@ -3200,7 +3201,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
 
-                ostringstream vOut, cvOut, vvOut, vcvOut, cOut, iOut, uOut;
+                ostringstream vOut, cvOut, vvOut, vcvOut,
+                              cOut, ucOut, iOut, uOut;
 
                 void *data = 0;
 
@@ -3210,6 +3212,8 @@ int main(int argc, char *argv[])
                 pCV.printOrNull(static_cast<const void *>(data), 0);
                 Obj pC(&cOut, LEVEL, SPL);
                 pC.printOrNull(static_cast<const char *>(data), 0);
+                Obj pUC(&ucOut, LEVEL, SPL);
+                pUC.printOrNull(static_cast<const unsigned char *>(data), 0);
                 Obj pI(&iOut, LEVEL, SPL);
                 pI.printOrNull(static_cast<int *>(data), 0);
                 Obj pU(&uOut, LEVEL, SPL);
@@ -3238,6 +3242,15 @@ int main(int argc, char *argv[])
                 // const char *
                 {
                     const bsl::string& ACTUAL = cOut.str();
+                    if (veryVeryVerbose) {
+                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << "\n"
+                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << "\n";
+                    }
+                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+                }
+                // const unsigned char *
+                {
+                    const bsl::string& ACTUAL = ucOut.str();
                     if (veryVeryVerbose) {
                         cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << "\n"
                              << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << "\n";
@@ -3319,10 +3332,15 @@ int main(int argc, char *argv[])
         //:   output.
         //: 3 Create a table having fields for line number, level, spaces per
         //:   level, and expected output of 'printOrNull' when called with a
+        //:   'const unsigned char *'.  For each set of values in the table,
+        //:   ensure that the actual output of 'printOrNull' is the same as the
+        //:   expected output.
+        //: 4 Create a table having fields for line number, level, spaces per
+        //:   level, and expected output of 'printOrNull' when called with a
         //:   'int *'.  For each set of values in the table, ensure that the
         //:   actual output of 'printOrNull' is the same as the expected
         //:   output.
-        //: 4 Create a table having fields for line number, level, spaces per
+        //: 5 Create a table having fields for line number, level, spaces per
         //:   level, and expected output of 'printOrNull' when called with a
         //:   'HasPrint *'.  For each set of values in the table, ensure that
         //:   the actual output of 'printOrNull' is the same as the expected
@@ -3420,6 +3438,47 @@ int main(int argc, char *argv[])
                 ostringstream  out;
                 const char    *data = "testing char *";
                 Obj            p(&out, LEVEL, SPL);
+                p.printOrNull(data, 0);
+
+                char buf[999];
+                snprintf(buf, 999, DATA[i].d_expected.c_str(), *data);
+                const bsl::string  EXPECTED(buf);
+                const bsl::string& ACTUAL = out.str();
+
+                if (veryVeryVerbose) {
+                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << "\n"
+                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << "\n";
+                }
+                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+            }
+        }
+        {
+            if (verbose) cout << "const unsigned char *\n"
+                                 "---------------------\n";
+            static const struct {
+                int         d_lineNum;        // source line number
+                int         d_level;          // indentation level
+                int         d_spacesPerLevel; // spaces per indentation level
+                bsl::string d_expected;       // expected output format
+            } DATA[] = {
+                //LINE  LEVEL SPL EXPECTED OUTPUT
+                //----  ----- --- --------------
+                { L_,    2,    2, "      0x%x\n" },
+                { L_,    2,   -2, " 0x%x"        },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA;  ++i) {
+                const int LINE  = DATA[i].d_lineNum;
+                const int LEVEL = DATA[i].d_level;
+                const int SPL   = DATA[i].d_spacesPerLevel;
+
+                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
+
+                ostringstream           out;
+                const unsigned char data1[] = "testing unsigned char *";
+                const unsigned char *data = data1;
+                Obj                     p(&out, LEVEL, SPL);
                 p.printOrNull(data, 0);
 
                 char buf[999];
