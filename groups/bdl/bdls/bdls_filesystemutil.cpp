@@ -2564,6 +2564,17 @@ int FilesystemUtil::growFile(FileDescriptor         descriptor,
     {
         return -1;                                                    // RETURN
     }
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    if (!FlushFileBuffers(descriptor)) {
+        return -1;                                                    // RETURN
+    }
+#else
+    if (0 != fsync(descriptor)) {
+        return errno;                                                 // RETURN
+    }
+#endif
+
     return 0;
 }
 
