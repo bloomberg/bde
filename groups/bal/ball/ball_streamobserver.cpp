@@ -26,18 +26,11 @@ namespace ball {
                            // class StreamObserver
                            // --------------------
 
-// CREATORS
-StreamObserver::~StreamObserver()
+// CLASS METHODS
+void StreamObserver::logRecordDefault(bsl::ostream& stream,
+                                      const Record& record)
 {
-}
-
-// MANIPULATORS
-void StreamObserver::publish(const bsl::shared_ptr<const Record>& record,
-                             const Context&)
-{
-    BSLS_ASSERT(record);
-
-    const RecordAttributes& fixedFields = record->fixedFields();
+    const RecordAttributes& fixedFields = record.fixedFields();
 
     Severity::Level severityLevel = (Severity::Level)fixedFields.severity();
 
@@ -50,33 +43,62 @@ void StreamObserver::publish(const bsl::shared_ptr<const Record>& record,
                                                     bufferSize,
                                                     fractionalSecondPrecision);
 
-    bslstl::StringRef message = fixedFields.messageRef();
-
-    const ball::UserFields& customFields = record->customFields();
+    bslstl::StringRef        message        = fixedFields.messageRef();
+    const ball::UserFields& customFields    = record.customFields();
     const int               numCustomFields = customFields.length();
+
+    stream << '\n';
+
+    stream.write(buffer, numBytesWritten);
+
+    stream << ' '
+           << fixedFields.processID()          << ' '
+           << fixedFields.threadID()           << ' '
+           << Severity::toAscii(severityLevel) << ' '
+           << fixedFields.fileName()           << ' '
+           << fixedFields.lineNumber()         << ' '
+           << fixedFields.category()           << ' ';
+
+    stream.write(message.data(), message.length());
+    stream << ' ';
+
+    for (int i = 0; i < numCustomFields; ++i) {
+        stream << customFields[i] << ' ';
+    }
+
+    stream << '\n' << bsl::flush;
+}
+
+// CREATORS
+StreamObserver::StreamObserver(bsl::ostream          *stream,
+                               const allocator_type&  allocator)
+: d_stream_p(stream)
+, d_mutex()
+, d_formatter(&StreamObserver::logRecordDefault)
+{
+    BSLS_ASSERT(d_stream_p);
+}
+
+StreamObserver::~StreamObserver()
+{
+}
+
+// MANIPULATORS
+void StreamObserver::publish(const bsl::shared_ptr<const Record>& record,
+                             const Context&)
+{
+    BSLS_ASSERT(record);
 
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    *d_stream_p << '\n';
+    d_formatter(*d_stream_p, *record.get());
+}
 
-    d_stream_p->write(buffer, numBytesWritten);
-
-    *d_stream_p << ' '
-                << fixedFields.processID()          << ' '
-                << fixedFields.threadID()           << ' '
-                << Severity::toAscii(severityLevel) << ' '
-                << fixedFields.fileName()           << ' '
-                << fixedFields.lineNumber()         << ' '
-                << fixedFields.category()           << ' ';
-
-    d_stream_p->write(message.data(), message.length());
-    *d_stream_p << ' ';
-
-    for (int i = 0; i < numCustomFields; ++i) {
-        *d_stream_p << customFields[i] << ' ';
-    }
-
-    *d_stream_p << '\n' << bsl::flush;
+void StreamObserver::setRecordFormatFunctor(
+                                          const RecordFormatFunctor& formatter)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+    d_formatter = formatter;
 }
 
 }  // close package namespace

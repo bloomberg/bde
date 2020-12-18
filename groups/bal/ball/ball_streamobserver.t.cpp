@@ -4,6 +4,7 @@
 #include <ball_context.h>
 #include <ball_record.h>
 #include <ball_recordattributes.h>
+#include <ball_recordstringformatter.h>
 #include <ball_severity.h>
 #include <ball_userfields.h>
 
@@ -47,6 +48,7 @@ using namespace bsl;
 // MANIPULATORS
 // [ 2] virtual void publish(const shared_ptr<const Record>&, Context&);
 // [ 2] virtual void releaseRecords();
+// [ 2] void setRecordFormatFunctor(const RecordFormatFunctor& functor);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] USAGE EXAMPLE
@@ -140,6 +142,9 @@ int main(int argc, char *argv[])
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
@@ -183,15 +188,21 @@ int main(int argc, char *argv[])
         //: 1 Log record is correctly formatted.
         //:
         //: 2 Formatted log record is written to the output stream.
+        //:
+        //: 3 'setRecordFormatFunctor' can change the format effectively.
         //
         // Plan:
         //: 1 Create the observer object and publish log record.
+        //:
+        //: 2 Use 'setRecordFormatFunctor' manipulator to affect output format
+        //:   and verify that it has changed where expected.
         //
         // Testing:
         //   StreamObserver(bsl::ostream *stream)
         //   virtual ~StreamObserver()
         //   virtual void publish(const shared_ptr<const Record>&, Context&);
         //   virtual void releaseRecords();
+        //   void setRecordFormatFunctor(const RecordFormatFunctor& functor);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING PRIMARY MANIPULATORS"
                           << "\n============================" << endl;
@@ -200,12 +211,16 @@ int main(int argc, char *argv[])
             Obj mX(&bsl::cout);
         }
 
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
+
         if (verbose) cout << "Publish a single message." << endl;
         {
-            bsl::ostringstream os;
-            Obj mX(&os);
-
-            ball::RecordAttributes fixed;
+            bslma::TestAllocator   testAllocator("objectAllocator",
+                                                 veryVeryVeryVerbose);
+            bsl::ostringstream     os;
+            Obj::allocator_type    oa(&testAllocator);
+            Obj                    mX(&os, oa);
+            ball::RecordAttributes fixed(&testAllocator);
 
             bdlt::Datetime timestamp(2017, 4, 1);
             fixed.setTimestamp(timestamp);
@@ -226,6 +241,41 @@ int main(int argc, char *argv[])
 
             ASSERTV(os.str(),
                     "\n01APR2017_00:00:00.000 1 2 INFO test.cpp 189"
+                    "  Log Message \n"
+                    == os.str());
+        }
+
+        if (verbose) cout << "Publish formatted message." << endl;
+        {
+            bslma::TestAllocator   testAllocator("objectAllocator",
+                                                 veryVeryVeryVerbose);
+            bsl::ostringstream     os;
+            Obj::allocator_type    oa(&testAllocator);
+            Obj                    mX(&os, oa);
+            ball::RecordAttributes fixed(&testAllocator);
+
+            bdlt::Datetime timestamp(2017, 4, 1);
+            fixed.setTimestamp(timestamp);
+            fixed.setProcessID(1);
+            fixed.setThreadID(2);
+            fixed.setSeverity(ball::Severity::e_INFO);
+            fixed.setFileName("test.cpp");
+            fixed.setLineNumber(189);
+            fixed.setMessage("Log Message");
+
+            bsl::shared_ptr<ball::Record> record;
+            record.createInplace();
+            record->setFixedFields(fixed);
+
+            mX.setRecordFormatFunctor(ball::RecordStringFormatter(
+                                            "\n%d %p:%t %s %f:%l %c %m %u\n"));
+
+            mX.publish(record, ball::Context(ball::Transmission::e_PASSTHROUGH,
+                                             0,
+                                             1));
+
+            ASSERTV(os.str(),
+                    "\n01APR2017_00:00:00.000 1:2 INFO test.cpp:189"
                     "  Log Message \n"
                     == os.str());
         }

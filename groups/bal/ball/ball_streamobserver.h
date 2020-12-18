@@ -33,6 +33,46 @@ BSLS_IDENT("$Id: $")
 // It is not recommended to construct this observer with file-based streams due
 // to lack of any file rotation functionality.
 //
+///Log Record Formatting
+///---------------------
+// By default, the output format of published log records is:
+//..
+//  DATE_TIME PID THREAD-ID SEVERITY FILE LINE CATEGORY MESSAGE USER-FIELDS
+//..
+// where 'DATE' and 'TIME' are of the form 'DDMonYYYY' and 'HH:MM:SS.mmm',
+// respectively ('Mon' being the 3-letter abbreviation for the month).  For
+// example, assuming that no user-defined fields are present, a log record
+// will have the following appearance when the default format is in effect:
+//..
+//  18MAY2005_18:58:12.076 7959 1 WARN ball_streamobserver2.t.cpp 404 TEST hi!
+//..
+// The default format can be overridden by supplying a suitable formatting
+// functor to 'setRecordFormatFunctor'.  For example, an instance of
+// 'ball::RecordStringFormatter' conveniently provides such a functor:
+//..
+//  streamObserver.setRecordFormatFunctor(
+//              ball::RecordStringFormatter("\n%I %p:%t %s %f:%l %c %m %u\n"));
+//..
+// The above statement will cause subsequent records to be logged in a format
+// that is almost identical to the default format except that the timestamp
+// attribute will be written in ISO 8601 format.  See
+// {'ball_recordstringformatter'} for information on how format specifications
+// are defined and interpreted.
+//
+// Note that the observer emits newline characters at the beginning and at the
+// end of a log record by default, so the user needs to add them explicitly to
+// the format string to preserve this behavior.
+//
+// Also note that in the sample message above the timestamp has millisecond
+// precision ('18MAY2005_18:58:12.076').  If microsecond precision is desired
+// instead, consider using either the '%D' or '%O' format specification
+// supported by 'ball_recordstringformatter'.
+//
+///Thread Safety
+///-------------
+// All methods of 'ball::StreamObserver' are thread-safe, and can be called
+// concurrently by multiple threads.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -72,12 +112,19 @@ BSLS_IDENT("$Id: $")
 
 #include <ball_observer.h>
 
+#include <bslma_allocator.h>
+#include <bslma_stdallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
+
 #include <bslmt_mutex.h>
 
 #include <bsls_assert.h>
 #include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
+#include <bsl_functional.h>
 
 namespace BloombergLP {
 namespace ball {
@@ -95,19 +142,48 @@ class StreamObserver : public Observer {
     // that it receives to an instance of 'bsl::ostream' supplied at
     // construction.
 
+  public:
+    // TYPES
+    typedef bsl::function<void(bsl::ostream&, const Record&)>
+                                                           RecordFormatFunctor;
+        // 'RecordFormatFunctor' is an alias for the type of the functor used
+        // for formatting log records to a stream.
+
+    typedef bsl::allocator<char> allocator_type;
+
+  private:
     // DATA
-    bsl::ostream *d_stream_p;  // output sink for log records
-    bslmt::Mutex  d_mutex;     // serializes concurrent calls to 'publish'
+    bsl::ostream        *d_stream_p;   // output sink for log records
+
+    bslmt::Mutex         d_mutex;      // serializes concurrent calls to
+                                       // 'publish'
+
+    RecordFormatFunctor  d_formatter;  // formatting functor used when writing
+                                       // to log file
 
     // NOT IMPLEMENTED
     StreamObserver(const StreamObserver&);
     StreamObserver& operator=(const StreamObserver&);
 
+    // CLASS METHODS
+    static
+    void logRecordDefault(bsl::ostream& stream, const Record& record);
+        // Write the specified log 'record' to the specified output 'stream'
+        // using the default record format of this stream observer.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StreamObserver, bslma::UsesBslmaAllocator);
+
   public:
     // CREATORS
-    explicit StreamObserver(bsl::ostream *stream);
+    explicit
+    StreamObserver(bsl::ostream          *stream,
+                   const allocator_type&  allocator = allocator_type());
         // Create a stream observer that transmits log records to the specified
-        // 'stream'.
+        // 'stream'.  Optionally specify an 'allocator' (e.g., the address of a
+        // 'bslma::Allocator' object) to supply memory; otherwise, the default
+        // allocator is used.  Note that a default record format is in effect
+        // for stream logging (see 'setLogFileFunctor').
 
     virtual ~StreamObserver();
         // Destroy this stream observer.
@@ -127,6 +203,16 @@ class StreamObserver : public Observer {
         // to the 'publish' method, and is held by this observer.  Note that
         // this operation should be called if resources underlying the
         // previously provided shared-pointers must be released.
+
+    void setRecordFormatFunctor(const RecordFormatFunctor& formatter);
+        // Set the formatting functor used when writing records to the log file
+        // of this file observer to the specified 'formatter' functor.  Note
+        // that a default format ("\n%d %p %t %s %f %l %c %m %u\n") is in
+        // effect until this method is called (see
+        // 'ball_recordstringformatter').  Also note that the observer emits
+        // newline characters at the beginning and at the end of a log record
+        // by default, so the user needs to add them explicitly to the format
+        // string to preserve this behavior.
 };
 
 // ============================================================================
@@ -136,14 +222,6 @@ class StreamObserver : public Observer {
                            // --------------------
                            // class StreamObserver
                            // --------------------
-
-// CREATORS
-inline
-StreamObserver::StreamObserver(bsl::ostream *stream)
-: d_stream_p(stream)
-{
-    BSLS_ASSERT(d_stream_p);
-}
 
 // MANIPULATORS
 inline
