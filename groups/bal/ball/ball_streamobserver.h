@@ -19,11 +19,13 @@ BSLS_IDENT("$Id: $")
 //                ( ball::StreamObserver )
 //                 `--------------------'
 //                           |              ctor
+//                           |              setRecordFormatFunctor
 //                           V
 //                    ,--------------.
 //                   ( ball::Observer )
 //                    `--------------'
 //                                          publish
+//                                          releaseRecords
 //                                          dtor
 //..
 // 'ball::StreamObserver' is a concrete class derived from 'ball::Observer'
