@@ -31,6 +31,7 @@
   3. bdlb_bitmaskutil
      bdlb_guidutil
      bdlb_printmethods
+     bdlb_random
      bdlb_string
 
   2. bdlb_algorithmworkaroundutil
@@ -49,7 +50,6 @@
      bdlb_nulloutputiterator
      bdlb_pcgrandomgenerator
      bdlb_print
-     bdlb_random
      bdlb_randomdevice
      bdlb_scopeexit
      bdlb_stringrefutil                                  !DEPRECATED!

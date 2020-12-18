@@ -22,7 +22,7 @@
      bdlc_packedintarrayutil
 
   1. bdlc_bitarray
-     bdlc_flathashtable_groupcontrol
+     bdlc_flathashtable_groupcontrol                                  !PRIVATE!
      bdlc_hashtable
      bdlc_indexclerk
      bdlc_packedintarray
@@ -46,7 +46,7 @@
 : 'bdlc_flathashtable':
 :      Provide an open-addressed hash table like Abseil 'flat_hash_map'.
 :
-: 'bdlc_flathashtable_groupcontrol':
+: 'bdlc_flathashtable_groupcontrol':                                  !PRIVATE!
 :      Provide inquiries to a flat hash table group of control values.
 :
 : 'bdlc_hashtable':
