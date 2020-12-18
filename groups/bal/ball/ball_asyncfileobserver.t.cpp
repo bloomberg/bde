@@ -6,6 +6,7 @@
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_streamobserver.h>
 
+#include <bdlf_bind.h>    
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
 #include <bdls_processutil.h>
@@ -18,13 +19,12 @@
 #include <bdlt_localtimeoffset.h>
 
 #include <bslim_testutil.h>
-
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
-
 #include <bslmf_nestedtraitdeclaration.h>
-
+#include <bslmt_barrier.h>
+#include <bslmt_threadutil.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -283,6 +283,25 @@ class TempDirectoryGuard {
         return d_dirName;
     }
 };
+
+bsl::shared_ptr<ball::Record> createRecord(const bsl::string&     message,
+                                           ball::Severity::Level  severity,
+                                           bslma::Allocator      *allocator)
+{
+    bsl::shared_ptr<ball::Record> result =
+        bsl::allocate_shared<ball::Record>(allocator);
+
+    result->fixedFields().setCategory("asyncfileobserver.t");
+    result->fixedFields().setFileName(__FILE__);
+    result->fixedFields().setLineNumber(__LINE__);
+    result->fixedFields().setMessage(message.c_str());
+    result->fixedFields().setProcessID(bdls::ProcessUtil::getProcessId());
+    result->fixedFields().setThreadID(bslmt::ThreadUtil::selfIdAsUint64());
+    result->fixedFields().setSeverity(severity);
+    result->fixedFields().setTimestamp(bdlt::CurrentTime::utc());
+    
+    return result;    
+}
 
 bsl::string::size_type replaceSecondSpace(bsl::string *input, char value)
     // Replace the second space character (' ') in the specified 'input' string
@@ -605,6 +624,37 @@ extern "C" void *workerThread2(void *arg)
 
 }  // close namespace BALL_ASYNCFILEOBSERVER_TEST_CONCURRENCY
 
+namespace BALL_ASYNCFILEOBSERVER_RELEASERECORDS_TEST {
+
+void publisher(ball::AsyncFileObserver *observer,
+               bsls::AtomicInt         *releaseCounter,
+               bslmt::Barrier          *barrier)
+{
+    bsl::shared_ptr<ball::Record> record = createRecord(
+        "test", ball::Severity::e_ERROR, bslma::Default::allocator());
+
+    ball::Context context;
+    barrier->wait();
+    while (*releaseCounter > 0) {
+        observer->publish(record, context);
+    }
+    barrier->wait();
+}
+
+void releaser(ball::AsyncFileObserver *observer,
+              bsls::AtomicInt         *releaseCounter,
+              bslmt::Barrier          *barrier)
+{    
+    barrier->wait();
+    while (*releaseCounter > 0) {
+        observer->releaseRecords();
+        bslmt::ThreadUtil::microSleep(0, 1);
+        (*releaseCounter)--;
+    }
+    barrier->wait();
+}
+}
+    
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -623,7 +673,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator *Z = &allocator;
 
     switch (test) { case 0:
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -775,6 +825,57 @@ int main(int argc, char *argv[])
 //..
 
       } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING DEADLOCK ON RELEASERECORDS (DRQS 164688087)
+        //
+        // Concerns:
+        //:  1 
+        //
+        // Plan:
+        //:  1 
+        //
+        // Testing:
+        //   CONCERN: CONCURRENT PUBLICATION
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << "\nTESTING DEADLOCK ON RELEASERECORDS (DRQS 164688087)"
+                 << "\n==================================================="
+                 << endl;
+
+        // Create an observer with a very small queue size.
+        Obj mX(ball::Severity::e_FATAL, false, 2); 
+
+        TempDirectoryGuard tempDirGuard;
+
+        bsl::string fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "asyncfileobserver.t.cpp.case.11");
+        mX.enableFileLogging(fileName.c_str());
+        mX.startPublicationThread();
+        
+        using namespace BALL_ASYNCFILEOBSERVER_RELEASERECORDS_TEST;      
+
+        bslmt::Barrier barrier(3);
+        bsls::AtomicInt releaseCounter(1000);
+
+        bsl::function<void()> publisherFunctor =
+            bdlf::BindUtil::bind(&publisher, &mX, &releaseCounter, &barrier);
+        bsl::function<void()> releaserFunctor =
+            bdlf::BindUtil::bind(&releaser, &mX, &releaseCounter, &barrier);
+
+        bslmt::ThreadUtil::Handle publishThread, releaseThread;
+        bslmt::ThreadUtil::create(&publishThread, publisherFunctor);
+        bslmt::ThreadUtil::create(&releaseThread, releaserFunctor);
+
+        barrier.wait();
+        barrier.wait();
+        
+        bslmt::ThreadUtil::join(publishThread);
+        bslmt::ThreadUtil::join(releaseThread);
+        
+        mX.stopPublicationThread();
+        
+      } break;        
       case 11: {
         // --------------------------------------------------------------------
         // TESTING 'recordQueueLength'
