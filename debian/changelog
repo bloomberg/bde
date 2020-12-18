@@ -1,8 +1,17 @@
-bsl-internal (3.68.0.1) unstable; urgency=low
+bsl-internal (3.69.0.0) unstable; urgency=low
 
+  * 46373f997 Bumped version to 3.69.0.0
+  * 9aa7acbdc Merge pull request #3050 from jberne4/legacy_attribute_noreturn
+  * b4105b072 Merge pull request #3049 from mclow3/removeStackCompare
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 18 Dec 2020 11:12:36 -0500
+
+bsl-internal (3.68.0.1) git; urgency=low
+
+  * 5db54b356 Changelog for version 3.68.0.1
   * c5f3d02b8 Merge pull request #3023 from cwilson/bsls_libraryfeatures-fix-typo
 
- -- Henry Verschell <hverschell@bloomberg.net>  Fri, 4 Dec 2020 10:57:49 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Dec 2020 11:02:17 -0500
 
 bsl-internal (3.68.0.0) git; urgency=low
 
