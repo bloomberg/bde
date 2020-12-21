@@ -74,7 +74,9 @@ StreamObserver::StreamObserver(bsl::ostream          *stream,
                                const allocator_type&  allocator)
 : d_stream_p(stream)
 , d_mutex()
-, d_formatter(&StreamObserver::logRecordDefault)
+, d_formatter(bsl::allocator_arg_t(),
+              allocator,
+              &StreamObserver::logRecordDefault)
 {
     BSLS_ASSERT(d_stream_p);
 }

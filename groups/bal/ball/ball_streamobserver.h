@@ -173,10 +173,10 @@ class StreamObserver : public Observer {
         // Write the specified log 'record' to the specified output 'stream'
         // using the default record format of this stream observer.
 
+  public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(StreamObserver, bslma::UsesBslmaAllocator);
 
-  public:
     // CREATORS
     explicit
     StreamObserver(bsl::ostream          *stream,
