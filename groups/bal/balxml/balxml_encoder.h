@@ -328,6 +328,7 @@ class Encoder_Context {
     // also contains methods for switching between pretty formatting and
     // compact formatting, based on the encoding options.
 
+    // DATA
     Formatter  *d_formatter;
     Encoder    *d_encoder;
 
@@ -339,68 +340,90 @@ class Encoder_Context {
     // CREATORS
     Encoder_Context(Formatter *formatter, Encoder *encoder);
 
-    // ACCESSORS
-    int status() const
-    {
-        return d_formatter->status();
-    }
-
-    const EncoderOptions& encoderOptions() const
-    {
-        return *d_encoder->options();
-    }
-
     // MANIPULATORS
-    bsl::ostream& rawOutputStream()
-    {
-        return d_formatter->rawOutputStream();
-    }
+    template <class NAME_TYPE, class VALUE_TYPE>
+    void addAttribute(const NAME_TYPE& name, const VALUE_TYPE& value);
 
-    void invalidate()
-    {
-        rawOutputStream().setstate(bsl::ios_base::failbit);
-    }
+    template<class NAME_TYPE, class VALUE_TYPE>
+    void addAttribute(const NAME_TYPE&  name,
+                      const VALUE_TYPE& value,
+                      int               formattingMode);
+
+    template <class NAME_TYPE>
+    void closeElement(const NAME_TYPE& name);
+
+    void invalidate();
 
     ErrorInfo::Severity logError(const char               *text,
                                  const bslstl::StringRef&  tag,
                                  int                       formattingMode,
-                                 int                       index = -1)
-    {
-        return d_encoder->logError(text, tag, formattingMode, index);
-    }
-
-    template <class TYPE>
-    static void encode(const TYPE& object);
-
-    // HELPER FUNCTIONS
-    template<class NAME_TYPE, class VALUE_TYPE>
-    void addAttribute(const NAME_TYPE&  name,
-                      const VALUE_TYPE& value,
-                      int               formattingMode)
-    {
-        d_formatter->addAttribute(name, value, formattingMode);
-    }
-
-    template <class NAME_TYPE, class VALUE_TYPE>
-    void addAttribute(const NAME_TYPE& name, const VALUE_TYPE& value)
-    {
-        d_formatter->addAttribute(name,
-                                  value,
-                                  bdlat_FormattingMode::e_DEFAULT);
-    }
+                                 int                       index = -1);
 
     template <class NAME_TYPE>
-    void openElement(const NAME_TYPE& name)
-    {
-        d_formatter->openElement(name);
-    }
+    void openElement(const NAME_TYPE& name);
 
-    template <class NAME_TYPE>
-    void closeElement(const NAME_TYPE& name)
-    {
-        d_formatter->closeElement(name);
-    }
+    bsl::ostream& rawOutputStream();
 
+    // ACCESSORS
+    const EncoderOptions& encoderOptions() const;
+
+    int status() const;
+};
+
+                  // =======================================
+                  // struct Encoder_OptionsCompatibilityUtil
+                  // =======================================
+
+struct Encoder_OptionsCompatibilityUtil {
+    // Component-private 'struct'.  Do not use.
+    //
+    // This struct provides a namespace for a suite of functions used to
+    // compute the options for the underlying XML formatter used by the
+    // encoder, given the encoder's options.
+
+  private:
+    // PRIVATE CLASS METHODS
+    static int getFormatterInitialIndentLevel(
+                                         const EncoderOptions& encoderOptions);
+        // Return the value of the 'InitialIndentLevel' field for a
+        // 'FormatterOptions' object that corresponds to the specified
+        // 'encoderOptions', which is 0 if the 'EncodingStyle' of
+        // 'encoderOptions' is 'EncodingStyle::e_COMPACT', and is the value of
+        // 'InitialIndentLevel' of 'encoderOptions' otherwise.
+
+    static int getFormatterSpacesPerLevel(
+                                         const EncoderOptions& encoderOptions);
+        // Return the value of the 'SpacesPerLevel' field for a
+        // 'FormatterOptions' object that corresponds to the specified
+        // 'encoderOptions', which is 0 if the 'EncodingStyle' of
+        // 'encoderOptions' is 'EncodingStyle::e_COMPACT', and is the value of
+        // 'SpacesPerLevel' of 'encoderOptions' otherwise.
+
+    static int getFormatterWrapColumn(const EncoderOptions& encoderOptions);
+        // Return the value of the 'WrapColumn' field for a
+        // 'FormatterOptions' object that corresponds to the specified
+        // 'encoderOptions', which is -1 if the 'EncodingStyle' of
+        // 'encoderOptions' is 'EncodingStyle::e_COMPACT', and is the value of
+        // 'WrapColumn' of 'encoderOptions' otherwise.
+
+  public:
+    // CLASS METHODS
+    static void getFormatterOptions(
+                                int                   *formatterIndentLevel,
+                                int                   *formatterSpacesPerLevel,
+                                int                   *formatterWrapColumn,
+                                EncoderOptions        *formatterOptions,
+                                const EncoderOptions&  encoderOptions);
+        // Load to the specified 'formatterIndentLevel',
+        // 'formatterSpacesPerLevel', and 'formatterWrapColumn', the number of
+        // spaces to indent the first element in the XML document, the number
+        // of spaces to use for indenting each level of nesting in the
+        // document, and the maximum horizontal column number after which the
+        // encoder should insert a line break, respectively, based on the
+        // specified 'encoderOptions'.  Load to the specified
+        // 'formatterOptions' the options that the formatter should use to emit
+        // XML, based on the 'encoderOptions'.  The behavior is undefined
+        // unless 'formatterOptions' has the default value.
 };
 
                          // ==========================
@@ -832,12 +855,14 @@ struct Encoder_SequenceFirstPass_addAttributeImpProxy {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                   // --------------------------------------
-                   // class baexml::BerEncoder::MemOutStream
-                   // --------------------------------------
+namespace balxml {
+
+                       // ------------------------------
+                       // class BerEncoder::MemOutStream
+                       // ------------------------------
 
 inline
-balxml::Encoder::MemOutStream::MemOutStream(bslma::Allocator *basicAllocator)
+Encoder::MemOutStream::MemOutStream(bslma::Allocator *basicAllocator)
 : bsl::ostream(0)
 , d_sb(bslma::Default::allocator(basicAllocator))
 {
@@ -846,25 +871,24 @@ balxml::Encoder::MemOutStream::MemOutStream(bslma::Allocator *basicAllocator)
 
 // MANIPULATORS
 inline
-void balxml::Encoder::MemOutStream::reset()
+void Encoder::MemOutStream::reset()
 {
     d_sb.reset();
 }
 
 // ACCESSORS
 inline
-const char *balxml::Encoder::MemOutStream::data() const
+const char *Encoder::MemOutStream::data() const
 {
     return d_sb.data();
 }
 
 inline
-int balxml::Encoder::MemOutStream::length() const
+int Encoder::MemOutStream::length() const
 {
     return (int)d_sb.length();
 }
 
-namespace balxml {
                                // -------------
                                // class Encoder
                                // -------------
@@ -922,12 +946,23 @@ template <class TYPE>
 inline
 int Encoder::encode(bsl::streambuf *buffer, const TYPE& object)
 {
-    bool bCompact = isCompact();
+    int indentLevel    = 0;
+    int spacesPerLevel = 0;
+    int wrapColumn     = 0;
+
+    EncoderOptions formatterEncoderOptions;
+    Encoder_OptionsCompatibilityUtil::getFormatterOptions(
+        &indentLevel,
+        &spacesPerLevel,
+        &wrapColumn,
+        &formatterEncoderOptions,
+        *d_options);
 
     Formatter formatter(buffer,
-         bCompact ?  0 : d_options->initialIndentLevel(),
-         bCompact ?  0 : d_options->spacesPerLevel(),
-         bCompact ? -1 : d_options->wrapColumn());
+                        formatterEncoderOptions,
+                        indentLevel,
+                        spacesPerLevel,
+                        wrapColumn);
 
     const int rc = encode(formatter, object);
 
@@ -947,12 +982,23 @@ template <class TYPE>
 inline
 bsl::ostream& Encoder::encode(bsl::ostream& stream, const TYPE& object)
 {
-    bool bCompact = isCompact();
+    int indentLevel    = 0;
+    int spacesPerLevel = 0;
+    int wrapColumn     = 0;
+
+    EncoderOptions formatterEncoderOptions;
+    Encoder_OptionsCompatibilityUtil::getFormatterOptions(
+        &indentLevel,
+        &spacesPerLevel,
+        &wrapColumn,
+        &formatterEncoderOptions,
+        *d_options);
 
     Formatter formatter(stream,
-         bCompact ?  0 : d_options->initialIndentLevel(),
-         bCompact ?  0 : d_options->spacesPerLevel(),
-         bCompact ? -1 : d_options->wrapColumn());
+                        formatterEncoderOptions,
+                        indentLevel,
+                        spacesPerLevel,
+                        wrapColumn);
 
     encode(formatter, object);
 
@@ -1035,6 +1081,79 @@ int Encoder::encode(Formatter& formatter, const TYPE& object)
       } break;
     }
     return rc;
+}
+
+                           // ---------------------
+                           // class Encoder_Context
+                           // ---------------------
+
+// MANIPULATORS
+template <class NAME_TYPE, class VALUE_TYPE>
+inline
+void Encoder_Context::addAttribute(const NAME_TYPE&  name,
+                                   const VALUE_TYPE& value)
+{
+    d_formatter->addAttribute(name,
+                              value,
+                              bdlat_FormattingMode::e_DEFAULT);
+}
+
+template <class NAME_TYPE, class VALUE_TYPE>
+inline
+void Encoder_Context::addAttribute(const NAME_TYPE&  name,
+                                   const VALUE_TYPE& value,
+                                   int               formattingMode)
+{
+    d_formatter->addAttribute(name, value, formattingMode);
+}
+
+template <class NAME_TYPE>
+inline
+void Encoder_Context::closeElement(const NAME_TYPE& name)
+{
+    d_formatter->closeElement(name);
+}
+
+inline
+void Encoder_Context::invalidate()
+{
+    rawOutputStream().setstate(bsl::ios_base::failbit);
+}
+
+inline
+ErrorInfo::Severity Encoder_Context::logError(
+                                      const char               *text,
+                                      const bslstl::StringRef&  tag,
+                                      int                       formattingMode,
+                                      int                       index)
+{
+    return d_encoder->logError(text, tag, formattingMode, index);
+}
+
+template <class NAME_TYPE>
+inline
+void Encoder_Context::openElement(const NAME_TYPE& name)
+{
+    d_formatter->openElement(name);
+}
+
+inline
+bsl::ostream& Encoder_Context::rawOutputStream()
+{
+    return d_formatter->rawOutputStream();
+}
+
+// ACCESSORS
+inline
+const EncoderOptions& Encoder_Context::encoderOptions() const
+{
+    return *d_encoder->options();
+}
+
+inline
+int Encoder_Context::status() const
+{
+    return d_formatter->status();
 }
 
                          // --------------------------

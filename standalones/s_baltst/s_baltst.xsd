@@ -116,6 +116,18 @@
         <xs:attribute name='attribute2' type='xs:string'/>
     </xs:complexType>
 
+    <xs:complexType name='MySequenceWithDecimalAttribute'>
+      <xs:attribute name='attribute1' type='xs:decimal'/>
+    </xs:complexType>
+
+    <xs:complexType name='MySequenceWithDoubleAttribute'>
+      <xs:attribute name='attribute1' type='xs:double'/>
+    </xs:complexType>
+
+    <xs:complexType name='MySequenceWithPrecisionDecimalAttribute'>
+      <xs:attribute name='attribute1' type='xs:precisionDecimal'/>
+    </xs:complexType>
+
     <xs:complexType name='MySequenceWithNillable'>
         <xs:sequence>
             <xs:element name='attribute1' type='xs:int'/>
@@ -546,6 +558,12 @@
     <xs:element name='MySequenceWithArray' type='MySequenceWithArray'/>
     <xs:element name='MySequenceWithAttributes'
                 type='MySequenceWithAttributes'/>
+    <xs:element name='MySequenceWithDecimalAttribute'
+                type='MySequenceWithDecimalAttribute'/>
+    <xs:element name='MySequenceWithDoubleAttribute'
+                type='MySequenceWithDoubleAttribute'/>
+    <xs:element name='MySequenceWithPrecisionDecimalAttribute'
+                type='MySequenceWithPrecisionDecimalAttribute'/>
     <xs:element name='MySequenceWithNillable'
                 type='MySequenceWithNillable'/>
     <xs:element name='MySequenceWithNillables'

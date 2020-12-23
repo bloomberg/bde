@@ -18,20 +18,19 @@ BSLS_IDENT_RCSID(balxml_encoder_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 
 namespace BloombergLP {
+namespace balxml {
 
-                   // --------------------------------------
-                   // class baexml::BerEncoder::MemOutStream
-                   // --------------------------------------
+                        // ---------------------------
+                        // class Encoder::MemOutStream
+                        // ---------------------------
 
-balxml::Encoder::MemOutStream::~MemOutStream()
+Encoder::MemOutStream::~MemOutStream()
 {
 }
 
-namespace balxml {
-
-                       // -------------
-                       // class Encoder
-                       // -------------
+                               // -------------
+                               // class Encoder
+                               // -------------
 
 Encoder::Encoder(const EncoderOptions *options,
                  bslma::Allocator     *basicAllocator)
@@ -100,6 +99,195 @@ Encoder_Context::Encoder_Context(
 , d_encoder(encoder)
 {
 }
+
+                  // ---------------------------------------
+                  // struct Encoder_OptionsCompatibilityUtil
+                  // ---------------------------------------
+
+// PRIVATE CLASS METHODS
+int Encoder_OptionsCompatibilityUtil::getFormatterInitialIndentLevel(
+                                         const balxml::EncoderOptions& options)
+{
+    BSLMF_ASSERT(2 == balxml::EncodingStyle::NUM_ENUMERATORS);
+
+    int result = 0;
+
+    switch (options.encodingStyle()) {
+      case balxml::EncodingStyle::e_COMPACT: {
+        result = 0;
+      } break;
+      case balxml::EncodingStyle::e_PRETTY: {
+        result = options.initialIndentLevel();
+      } break;
+    }
+
+    return result;
+}
+
+int Encoder_OptionsCompatibilityUtil::getFormatterSpacesPerLevel(
+                                         const balxml::EncoderOptions& options)
+{
+    BSLMF_ASSERT(2 == balxml::EncodingStyle::NUM_ENUMERATORS);
+
+    int result = 0;
+
+    switch (options.encodingStyle()) {
+      case balxml::EncodingStyle::e_COMPACT: {
+        result = 0;
+      } break;
+      case balxml::EncodingStyle::e_PRETTY: {
+        result = options.spacesPerLevel();
+      } break;
+    }
+
+    return result;
+}
+
+int Encoder_OptionsCompatibilityUtil::getFormatterWrapColumn(
+                                         const balxml::EncoderOptions& options)
+{
+    BSLMF_ASSERT(2 == balxml::EncodingStyle::NUM_ENUMERATORS);
+
+    int result = 0;
+
+    switch (options.encodingStyle()) {
+      case balxml::EncodingStyle::e_COMPACT: {
+        result = -1;
+      } break;
+      case balxml::EncodingStyle::e_PRETTY: {
+        result = options.wrapColumn();
+      } break;
+    }
+
+    return result;
+}
+
+// CLASS METHODS
+void Encoder_OptionsCompatibilityUtil::getFormatterOptions(
+                                int                   *formatterIndentLevel,
+                                int                   *formatterSpacesPerLevel,
+                                int                   *formatterWrapColumn,
+                                EncoderOptions        *formatterOptions,
+                                const EncoderOptions&  encoderOptions)
+{
+    BSLS_ASSERT_OPT(formatterIndentLevel);
+    BSLS_ASSERT_OPT(formatterSpacesPerLevel);
+    BSLS_ASSERT_OPT(formatterWrapColumn);
+    BSLS_ASSERT_OPT(formatterOptions);
+    BSLS_ASSERT_OPT(EncoderOptions() == *formatterOptions);
+
+    BSLMF_ASSERT(16 == EncoderOptions::NUM_ATTRIBUTES);
+
+    *formatterIndentLevel    = getFormatterInitialIndentLevel(encoderOptions);
+    *formatterSpacesPerLevel = getFormatterSpacesPerLevel(encoderOptions);
+    *formatterWrapColumn     = getFormatterWrapColumn(encoderOptions);
+
+    // TODO: A prior version of this component's implementation failed to
+    // forward all encoder options other than 'InitialIndentLevel',
+    // 'SpacesPerLevel', and 'WrapColumn' to the formatter[1].  As a result,
+    // the formatter used the default values of these options.
+    //
+    // This function now forwards 'MaxDecimalTotalDigits' and
+    // 'MaxDecimalFractionDigits' to the formatter, but does not yet forward
+    // 'DatetimeFractionalSecondPrecision', 'AllowControlCharacters', nor
+    // 'UseZAbbreviationForUtc'[2].  Since changing the implementation to
+    // (correctly) forward these arguments can result in observable and non-
+    // backward-compatible changes to the results of encoding some values, this
+    // component elects to not forward these options at this time.
+    //
+    // [1] Note that this component only uses the formatter to emit the XML
+    // header, open elements, close elements, and emit attributes.  In
+    // particular, this component directly invokes 'TypesPrintUtil' operations,
+    // with correct option forwarding, to emit scalar values that are not
+    // attributes.  This may account for encoder behavior that appears
+    // surprisingly correct in light of this bug.
+    //
+    // [2] The formatter uses no other options from the encoder options as of
+    // Wednesday, December 16 2020.
+
+    const EncoderOptions defaultEncoderOptions;
+
+    // 1. ObjectNamespace
+    formatterOptions->setObjectNamespace(encoderOptions.objectNamespace());
+
+    // 2. SchemaLocation
+    formatterOptions->setSchemaLocation(encoderOptions.schemaLocation());
+
+    // 3. Tag
+    formatterOptions->setTag(encoderOptions.tag());
+
+    // 4. FormattingMode
+    formatterOptions->setFormattingMode(encoderOptions.formattingMode());
+
+    // 5. InitialIndentLevel
+    formatterOptions->setInitialIndentLevel(
+        encoderOptions.initialIndentLevel());
+
+    // 6. SpacesPerLevel
+    formatterOptions->setSpacesPerLevel(encoderOptions.spacesPerLevel());
+
+    // 7. WrapColumn
+    formatterOptions->setWrapColumn(encoderOptions.wrapColumn());
+
+    // 8. DatetimeFractionalSecondPrecision
+    // TODO: Replace the following code:
+    //..
+    formatterOptions->setDatetimeFractionalSecondPrecision(
+          defaultEncoderOptions.datetimeFractionalSecondPrecision());
+    //..
+    // with:
+    //..
+    //  formatterOptions->setDatetimeFractionalSecondPrecision(
+    //        encoderOptions.datetimeFractionalSecondPrecision());
+    //..
+    //
+
+    // 9. MaxDecimalTotalDigits
+    formatterOptions->setMaxDecimalTotalDigits(
+          encoderOptions.maxDecimalTotalDigits());
+
+    // 10. MaxDecimalFractionDigits
+    formatterOptions->setMaxDecimalFractionDigits(
+          encoderOptions.maxDecimalFractionDigits());
+
+    // 11. SignificantDoubleDigits
+    formatterOptions->setSignificantDoubleDigits(
+        encoderOptions.significantDoubleDigits());
+
+    // 12. EncodingStyle
+    formatterOptions->setEncodingStyle(encoderOptions.encodingStyle());
+
+    // 13. AllowControlCharacters
+    // TODO: Replace the following code:
+    //..
+    formatterOptions->setAllowControlCharacters(
+          defaultEncoderOptions.allowControlCharacters());
+    //..
+    // with:
+    //..
+    //  formatterOptions->setAllowControlCharacters(
+    //        encoderOptions.allowControlCharacters());
+    //..
+
+    // 14. OutputXMLHeader
+    formatterOptions->setOutputXMLHeader(encoderOptions.outputXMLHeader());
+
+    // 15. OutputXSIAlias
+    formatterOptions->setOutputXSIAlias(encoderOptions.outputXSIAlias());
+
+    // 16. UseZAbbreviationForUtc
+    // TODO: Replace the following code:
+    //..
+    formatterOptions->setUseZAbbreviationForUtc(
+          defaultEncoderOptions.useZAbbreviationForUtc());
+    //..
+    // with:
+    //..
+    //  formatterOptions->setUseZAbbreviationForUtc(
+    //        encoderOptions.useZAbbreviationForUtc());
+    //..
+}
+
 
                          // --------------------------
                          // class Encoder_EncodeObject

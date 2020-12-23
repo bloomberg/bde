@@ -17,6 +17,9 @@
 #include <s_baltst_mysequencewithanonymouschoice.h>
 #include <s_baltst_mysequencewithanonymouschoicechoice.h>
 #include <s_baltst_mysequencewithattributes.h>
+#include <s_baltst_mysequencewithdecimalattribute.h>
+#include <s_baltst_mysequencewithdoubleattribute.h>
+#include <s_baltst_mysequencewithprecisiondecimalattribute.h>
 #include <s_baltst_mysequencewithnillables.h>
 #include <s_baltst_mysequencewithnullables.h>
 #include <s_baltst_mysimplecontent.h>
@@ -57,6 +60,7 @@
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -5945,6 +5949,135 @@ class GenerateXmlElement {
 //                            BEGIN TEST APPARATUS
 // ----------------------------------------------------------------------------
 
+                  // ========================================
+                  // class MakeMySequenceWithDecimalAttribute
+                  // ========================================
+
+class MakeMySequenceWithDecimalAttribute {
+  public:
+    // CREATORS
+    MakeMySequenceWithDecimalAttribute() {}
+
+    // ACCESSORS
+    s_baltst::MySequenceWithDecimalAttribute operator()(double value) const
+    {
+        s_baltst::MySequenceWithDecimalAttribute result;
+        result.attribute1() = value;
+        return result;
+    }
+};
+
+                  // =======================================
+                  // class MakeMySequenceWithDoubleAttribute
+                  // =======================================
+
+class MakeMySequenceWithDoubleAttribute {
+  public:
+    // CREATORS
+    MakeMySequenceWithDoubleAttribute() {}
+
+    // ACCESSORS
+    s_baltst::MySequenceWithDoubleAttribute operator()(double value) const
+    {
+        s_baltst::MySequenceWithDoubleAttribute result;
+        result.attribute1() = value;
+        return result;
+    }
+};
+
+             // =================================================
+             // class MakeMySequenceWithPrecisionDecimalAttribute
+             // =================================================
+
+class MakeMySequenceWithPrecisionDecimalAttribute {
+  public:
+    // CREATORS
+    MakeMySequenceWithPrecisionDecimalAttribute() {}
+
+    // ACCESSORS
+    s_baltst::MySequenceWithPrecisionDecimalAttribute operator()(
+                                          const bdldfp::Decimal64& value) const
+    {
+        s_baltst::MySequenceWithPrecisionDecimalAttribute result;
+        result.attribute1() = value;
+        return result;
+    }
+};
+
+                            // ====================
+                            // class TestCase16Test
+                            // ====================
+
+class TestCase16Test {
+  public:
+    // CREATORS
+    TestCase16Test() {}
+
+    // ACCESSORS
+    template <class TYPE>
+    void operator()(int                             line,
+                    const bdlb::NullableValue<int>& maxDecimalTotalDigits,
+                    const bdlb::NullableValue<int>& maxDecimalFractionDigits,
+                    const TYPE&                     object,
+                    const bsl::string&              expectedResult) const
+    {
+        balxml::EncoderOptions options;
+        options.setTag("tag");
+        options.setMaxDecimalTotalDigits(maxDecimalTotalDigits);
+        options.setMaxDecimalFractionDigits(maxDecimalFractionDigits);
+        options.setOutputXMLHeader(false);
+        options.setOutputXSIAlias(false);
+
+        balxml::Encoder encoder(&options);
+
+        bdlsb::MemOutStreamBuf streambuf;
+
+        int rc = encoder.encode(&streambuf, object);
+        ASSERTV(line, rc, 0 == rc);
+        if (0 != rc) {
+            return;                                                   // RETURN
+        }
+
+        const bsl::string_view result(streambuf.data(), streambuf.length());
+
+        ASSERTV(line, expectedResult, result, expectedResult == result);
+    }
+
+    template <class TYPE>
+    void operator()(
+                 int                             line,
+                 const bdlb::NullableValue<int>& maxDecimalTotalDigits,
+                 const bdlb::NullableValue<int>& maxDecimalFractionDigits,
+                 const TYPE&                     object,
+                 const bsl::string&              expectedResult,
+                 const bsl::string&              alternateExpectedResult) const
+    {
+        balxml::EncoderOptions options;
+        options.setTag("tag");
+        options.setMaxDecimalTotalDigits(maxDecimalTotalDigits);
+        options.setMaxDecimalFractionDigits(maxDecimalFractionDigits);
+        options.setOutputXMLHeader(false);
+        options.setOutputXSIAlias(false);
+
+        balxml::Encoder encoder(&options);
+
+        bdlsb::MemOutStreamBuf streambuf;
+
+        int rc = encoder.encode(&streambuf, object);
+        ASSERTV(line, rc, 0 == rc);
+        if (0 != rc) {
+            return;                                                   // RETURN
+        }
+
+        const bsl::string_view result(streambuf.data(), streambuf.length());
+        ASSERTV(line,
+                expectedResult,
+                alternateExpectedResult,
+                result,
+                expectedResult == result || alternateExpectedResult == result);
+    }
+};
+
                        // ==============================
                        // class TestCase14RowProtocolImp
                        // ==============================
@@ -6279,7 +6412,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -6297,6 +6430,605 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEnd of Test." << endl;
       } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING DECIMAL ATTRIBUTE ENCODING
+        //   This case tests that the "MaxDecimalTotalDigits" and
+        //   "MaxDecimalFractionDigits" options apply when
+        //   encoding attributes of sequence types that are represented by
+        //   'double's and have the 'bdlat_FormattingMode::e_DEC' formatting
+        //   mode.
+        //
+        // Concerns:
+        //: 1 If neither option is set, decimal-formatted, 'double'-valued
+        //:   attributes are encoded as if "MaxDecimalTotalDigits" were 16
+        //:   and "MaxDecimalFractionDigits" were 12.
+        //:
+        //: 2 Neither option affects the number of digits in the encoding of
+        //:   the non-fractional component of such an attribute (i.e. neither
+        //:   option affects the number of digits that can appear to the left
+        //:   of the decimal point.)
+        //:
+        //: 3 The encoding of such an attribute always includes at least 1
+        //:   fractional digit, even if the values of the options would
+        //:   otherwise prohibit it.
+        //:
+        //: 4 The total number of fractional digits in the encoding of
+        //:   such an attribute is exactly equal to the difference between
+        //:   "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits", or 1,
+        //:   whichever is greater.
+        //:
+        //: 5 If the value of the fractional component of the attribute can be
+        //:   represented in fewer than the number of digits alloted, the
+        //:   remaining digits are filled with zeroes.
+        //:
+        //: 6 Neither option affects the encoding of 'double'-valued attributes
+        //:   with the 'bdlat_FormattingMode::e_DEFAULT' formatting mode.
+        //:
+        //: 7 Neither option affects the encoding of 'bdldfp::Decimal64'-valued
+        //:   attributes with any formatting mode.
+        //:
+        // Plan:
+        //: 1 Define a set N of numbers that can be exactly represented by
+        //:   the IEEE 754-2008 64-bit binary floating-point format, and that
+        //:   have different numbers of digits in their decimal representation.
+        //:   (Selecting positive and negative powers of 2 works.)
+        //:
+        //: 2 For each number n in N, enumerate several permutations of values
+        //:   for "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits" and
+        //:   perform the following:
+        //:
+        //:   1 Encode an object having a 'double'-valued, decimal-formatted
+        //:     attribute with the value n.
+        //:
+        //:   2 Verify that the encoding of the attribute satisfies the
+        //:     constraints defined in the concerns.
+        //:
+        //:   3 Encode an object having a 'double'-valued, default-formatted
+        //:     attribute with the value n.
+        //:
+        //:   4 Verify that the encoding of the attribute is not affected by
+        //:     the value of "MaxDecimalTotalDigits" or
+        //:     "MaxDecimalFractionDigits".  (Notice that the encoding of the
+        //:     attribute satisfies the constraints defined in the W3C XML
+        //:     specification for 'double' values.)
+        //:
+        //: 3 Define a set P of numbers that can be exactly represented by the
+        //:   IEEE 754-2008 64-bit *decimal* floating-point format, and that
+        //:   have different numbers of digits in their decimal representation.
+        //:   (Selecting positive and negative powers of 10 with different
+        //:   amounts of precision works.)
+        //:
+        //: 4 For each number p in P, enumerate several permutations of
+        //:   values for "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits"
+        //:   and perform the following:
+        //:
+        //:   5 Encode an object having a 'bdldfp::Decimal64'-valued,
+        //:     default-formatted attribute with the value p.
+        //:
+        //:   6 Verify that the encoding of the attribute is not affected
+        //:     by the value of "MaxDecimalTotalDigits" or
+        //:     "MaxDecimalFractionDigits".  (Notice that the encoding of the
+        //:     attribute satisfies the constraints defined in the W3C XML
+        //:     specification for 'precisionDecimal' values.)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Decimal Attribute Encoding"
+                          << "\n==================================" << endl;
+
+        const MakeMySequenceWithDecimalAttribute          de;
+        const MakeMySequenceWithDoubleAttribute           du;
+        const MakeMySequenceWithPrecisionDecimalAttribute pd;
+
+        const TestCase16Test t;
+
+        const bdlb::NullableValue<int> N;
+
+#define L L_
+#define A(X) "<tag attribute1=\"" #X "\"/>"
+#define DD BDLDFP_DECIMAL_DD
+
+// LINE  MAX DECIMAL TOTAL DIGITS
+//.---- .------------------------
+//|    /  MAX DECIMAL FRACTION DIGITS
+//|   /  .---------------------------
+//|  /  /       OBJECT TO ENCODE                EXPECTED XML OUTPUT
+//- -- -- --------------------------- ---------------------------------------
+t(L, N, N, de(1.52587890625e-05     ), A(                  0.000015258789062)
+                                     , A(                  0.000015258789063));
+t(L, N, N, de(3.0517578125e-05      ), A(                  0.000030517578125));
+t(L, N, N, de(6.103515625e-05       ), A(                  0.000061035156250));
+t(L, N, N, de(1.220703125e-04       ), A(                  0.000122070312500));
+t(L, N, N, de(2.44140625e-04        ), A(                  0.000244140625000));
+t(L, N, N, de(4.8828125e-04         ), A(                  0.000488281250000));
+t(L, N, N, de(9.765625e-04          ), A(                  0.000976562500000));
+t(L, N, N, de(1.953125e-03          ), A(                  0.001953125000000));
+t(L, N, N, de(3.90625e-03           ), A(                  0.003906250000000));
+t(L, N, N, de(7.8125e-03            ), A(                  0.007812500000000));
+t(L, N, N, de(1.5625e-02            ), A(                  0.015625000000000));
+t(L, N, N, de(3.125e-02             ), A(                  0.031250000000000));
+t(L, N, N, de(6.25e-02              ), A(                  0.062500000000000));
+t(L, N, N, de(1.25e-01              ), A(                  0.125000000000000));
+t(L, N, N, de(2.5e-1                ), A(                  0.250000000000000));
+t(L, N, N, de(5e-1                  ), A(                  0.500000000000000));
+t(L, N, N, de(                   1.0), A(                  1.000000000000000));
+t(L, N, N, de(                   8.0), A(                  8.000000000000000));
+t(L, N, N, de(                  64.0), A(                 64.000000000000000));
+t(L, N, N, de(                 128.0), A(                128.000000000000000));
+t(L, N, N, de(                1024.0), A(               1024.00000000000000 ));
+t(L, N, N, de(               16384.0), A(              16384.0000000000000  ));
+t(L, N, N, de(              131072.0), A(             131072.000000000000   ));
+t(L, N, N, de(             1048576.0), A(            1048576.00000000000    ));
+t(L, N, N, de(            16777216.0), A(           16777216.0000000000     ));
+t(L, N, N, de(           134217728.0), A(          134217728.000000000      ));
+t(L, N, N, de(          1073741824.0), A(         1073741824.00000000       ));
+t(L, N, N, de(         17179869184.0), A(        17179869184.0000000        ));
+t(L, N, N, de(        137438953472.0), A(       137438953472.000000         ));
+t(L, N, N, de(       1099511627776.0), A(      1099511627776.00000          ));
+t(L, N, N, de(      17592186044416.0), A(     17592186044416.0000           ));
+t(L, N, N, de(     140737488355328.0), A(    140737488355328.000            ));
+t(L, N, N, de(    1125899906842624.0), A(   1125899906842624.00             ));
+t(L, N, N, de(   18014398509481984.0), A(  18014398509481984.0              ));
+t(L, N, N, de(  144115188075855870.0), A( 144115188075855872.0              ));
+
+t(L, N, 0, de(1.52587890625e-05     ), A(                  0.0              ));
+t(L, N, 0, de(3.0517578125e-05      ), A(                  0.0              ));
+t(L, N, 0, de(6.103515625e-05       ), A(                  0.0              ));
+t(L, N, 0, de(1.220703125e-04       ), A(                  0.0              ));
+t(L, N, 0, de(2.44140625e-04        ), A(                  0.0              ));
+t(L, N, 0, de(4.8828125e-04         ), A(                  0.0              ));
+t(L, N, 0, de(9.765625e-04          ), A(                  0.0              ));
+t(L, N, 0, de(1.953125e-03          ), A(                  0.0              ));
+t(L, N, 0, de(3.90625e-03           ), A(                  0.0              ));
+t(L, N, 0, de(7.8125e-03            ), A(                  0.0              ));
+t(L, N, 0, de(1.5625e-02            ), A(                  0.0              ));
+t(L, N, 0, de(3.125e-02             ), A(                  0.0              ));
+t(L, N, 0, de(6.25e-02              ), A(                  0.1              ));
+t(L, N, 0, de(1.25e-01              ), A(                  0.1              ));
+t(L, N, 0, de(2.5e-1                ), A(                  0.2              )
+                                     , A(                  0.3              ));
+t(L, N, 0, de(5e-1                  ), A(                  0.5              ));
+t(L, N, 0, de(                   1.0), A(                  1.0              ));
+t(L, N, 0, de(                   8.0), A(                  8.0              ));
+t(L, N, 0, de(                  64.0), A(                 64.0              ));
+t(L, N, 0, de(                 128.0), A(                128.0              ));
+t(L, N, 0, de(                1024.0), A(               1024.0              ));
+t(L, N, 0, de(               16384.0), A(              16384.0              ));
+t(L, N, 0, de(              131072.0), A(             131072.0              ));
+t(L, N, 0, de(             1048576.0), A(            1048576.0              ));
+t(L, N, 0, de(            16777216.0), A(           16777216.0              ));
+t(L, N, 0, de(           134217728.0), A(          134217728.0              ));
+t(L, N, 0, de(          1073741824.0), A(         1073741824.0              ));
+t(L, N, 0, de(         17179869184.0), A(        17179869184.0              ));
+t(L, N, 0, de(        137438953472.0), A(       137438953472.0              ));
+t(L, N, 0, de(       1099511627776.0), A(      1099511627776.0              ));
+t(L, N, 0, de(      17592186044416.0), A(     17592186044416.0              ));
+t(L, N, 0, de(     140737488355328.0), A(    140737488355328.0              ));
+t(L, N, 0, de(    1125899906842624.0), A(   1125899906842624.0              ));
+t(L, N, 0, de(   18014398509481984.0), A(  18014398509481984.0              ));
+t(L, N, 0, de(  144115188075855870.0), A( 144115188075855872.0              ));
+
+t(L, N, 1, de(1.52587890625e-05     ), A(                  0.0              ));
+t(L, N, 1, de(3.0517578125e-05      ), A(                  0.0              ));
+t(L, N, 1, de(6.103515625e-05       ), A(                  0.0              ));
+t(L, N, 1, de(1.220703125e-04       ), A(                  0.0              ));
+t(L, N, 1, de(2.44140625e-04        ), A(                  0.0              ));
+t(L, N, 1, de(4.8828125e-04         ), A(                  0.0              ));
+t(L, N, 1, de(9.765625e-04          ), A(                  0.0              ));
+t(L, N, 1, de(1.953125e-03          ), A(                  0.0              ));
+t(L, N, 1, de(3.90625e-03           ), A(                  0.0              ));
+t(L, N, 1, de(7.8125e-03            ), A(                  0.0              ));
+t(L, N, 1, de(1.5625e-02            ), A(                  0.0              ));
+t(L, N, 1, de(3.125e-02             ), A(                  0.0              ));
+t(L, N, 1, de(6.25e-02              ), A(                  0.1              ));
+t(L, N, 1, de(1.25e-01              ), A(                  0.1              ));
+t(L, N, 1, de(2.5e-1                ), A(                  0.2              )
+                                     , A(                  0.3              ));
+t(L, N, 1, de(5e-1                  ), A(                  0.5              ));
+t(L, N, 1, de(                   1.0), A(                  1.0              ));
+t(L, N, 1, de(                   8.0), A(                  8.0              ));
+t(L, N, 1, de(                  64.0), A(                 64.0              ));
+t(L, N, 1, de(                 128.0), A(                128.0              ));
+t(L, N, 1, de(                1024.0), A(               1024.0              ));
+t(L, N, 1, de(               16384.0), A(              16384.0              ));
+t(L, N, 1, de(              131072.0), A(             131072.0              ));
+t(L, N, 1, de(             1048576.0), A(            1048576.0              ));
+t(L, N, 1, de(            16777216.0), A(           16777216.0              ));
+t(L, N, 1, de(           134217728.0), A(          134217728.0              ));
+t(L, N, 1, de(          1073741824.0), A(         1073741824.0              ));
+t(L, N, 1, de(         17179869184.0), A(        17179869184.0              ));
+t(L, N, 1, de(        137438953472.0), A(       137438953472.0              ));
+t(L, N, 1, de(       1099511627776.0), A(      1099511627776.0              ));
+t(L, N, 1, de(      17592186044416.0), A(     17592186044416.0              ));
+t(L, N, 1, de(     140737488355328.0), A(    140737488355328.0              ));
+t(L, N, 1, de(    1125899906842624.0), A(   1125899906842624.0              ));
+t(L, N, 1, de(   18014398509481984.0), A(  18014398509481984.0              ));
+t(L, N, 1, de(  144115188075855870.0), A( 144115188075855872.0              ));
+
+t(L,12, 8, de(1.52587890625e-05     ), A(                  0.00001526       ));
+t(L,12, 8, de(3.0517578125e-05      ), A(                  0.00003052       ));
+t(L,12, 8, de(6.103515625e-05       ), A(                  0.00006104       ));
+t(L,12, 8, de(1.220703125e-04       ), A(                  0.00012207       ));
+t(L,12, 8, de(2.44140625e-04        ), A(                  0.00024414       ));
+t(L,12, 8, de(4.8828125e-04         ), A(                  0.00048828       ));
+t(L,12, 8, de(9.765625e-04          ), A(                  0.00097656       ));
+t(L,12, 8, de(1.953125e-03          ), A(                  0.00195312       )
+                                     , A(                  0.00195313       ));
+t(L,12, 8, de(3.90625e-03           ), A(                  0.00390625       ));
+t(L,12, 8, de(7.8125e-03            ), A(                  0.00781250       ));
+t(L,12, 8, de(1.5625e-02            ), A(                  0.01562500       ));
+t(L,12, 8, de(3.125e-02             ), A(                  0.03125000       ));
+t(L,12, 8, de(6.25e-02              ), A(                  0.06250000       ));
+t(L,12, 8, de(1.25e-01              ), A(                  0.12500000       ));
+t(L,12, 8, de(2.5e-1                ), A(                  0.25000000       ));
+t(L,12, 8, de(5e-1                  ), A(                  0.50000000       ));
+t(L,12, 8, de(                   1.0), A(                  1.00000000       ));
+t(L,12, 8, de(                   8.0), A(                  8.00000000       ));
+t(L,12, 8, de(                  64.0), A(                 64.00000000       ));
+t(L,12, 8, de(                 128.0), A(                128.00000000       ));
+t(L,12, 8, de(                1024.0), A(               1024.00000000       ));
+t(L,12, 8, de(               16384.0), A(              16384.0000000        ));
+t(L,12, 8, de(              131072.0), A(             131072.000000         ));
+t(L,12, 8, de(             1048576.0), A(            1048576.00000          ));
+t(L,12, 8, de(            16777216.0), A(           16777216.0000           ));
+t(L,12, 8, de(           134217728.0), A(          134217728.000            ));
+t(L,12, 8, de(          1073741824.0), A(         1073741824.00             ));
+t(L,12, 8, de(         17179869184.0), A(        17179869184.0              ));
+t(L,12, 8, de(        137438953472.0), A(       137438953472.0              ));
+t(L,12, 8, de(       1099511627776.0), A(      1099511627776.0              ));
+t(L,12, 8, de(      17592186044416.0), A(     17592186044416.0              ));
+t(L,12, 8, de(     140737488355328.0), A(    140737488355328.0              ));
+t(L,12, 8, de(    1125899906842624.0), A(   1125899906842624.0              ));
+t(L,12, 8, de(   18014398509481984.0), A(  18014398509481984.0              ));
+t(L,12, 8, de(  144115188075855870.0), A( 144115188075855872.0              ));
+
+t(L, N, N, du(1.1920928955078125e-07), A(1.192092895507812e-07)
+                                     , A(1.192092895507813e-07));
+t(L, N, N, du(2.384185791015625e-07 ), A(2.384185791015625e-07));
+t(L, N, N, du(1.52587890625e-05     ), A(1.52587890625e-05    ));
+t(L, N, N, du(2.44140625e-04        ), A(0.000244140625       ));
+t(L, N, N, du(3.90625e-03           ), A(0.00390625           ));
+t(L, N, N, du(6.25e-02              ), A(0.0625               ));
+t(L, N, N, du(5e-1                  ), A(0.5                  ));
+t(L, N, N, du(                   1.0), A(                1    ));
+t(L, N, N, du(                1024.0), A(             1024    ));
+t(L, N, N, du(            16777216.0), A(         16777216    ));
+t(L, N, N, du(        137438953472.0), A(     137438953472    ));
+t(L, N, N, du(    1125899906842624.0), A( 1125899906842624    ));
+t(L, N, N, du(   18014398509481984.0), A(1.801439850948198e+16));
+t(L, N, 0, du(1.1920928955078125e-07), A(1.192092895507812e-07)
+                                     , A(1.192092895507813e-07));
+t(L, N, 0, du(2.384185791015625e-07 ), A(2.384185791015625e-07));
+t(L, N, 0, du(1.52587890625e-05     ), A(1.52587890625e-05    ));
+t(L, N, 0, du(2.44140625e-04        ), A(0.000244140625       ));
+t(L, N, 0, du(3.90625e-03           ), A(0.00390625           ));
+t(L, N, 0, du(6.25e-02              ), A(0.0625               ));
+t(L, N, 0, du(                   1.0), A(                1    ));
+t(L, N, 0, du(                1024.0), A(             1024    ));
+t(L, N, 0, du(            16777216.0), A(         16777216    ));
+t(L, N, 0, du(        137438953472.0), A(     137438953472    ));
+t(L, N, 0, du(    1125899906842624.0), A( 1125899906842624    ));
+t(L, N, 0, du(   18014398509481984.0), A(1.801439850948198e+16));
+t(L, N, 1, du(1.1920928955078125e-07), A(1.192092895507812e-07)
+                                     , A(1.192092895507813e-07));
+t(L, N, 1, du(2.384185791015625e-07 ), A(2.384185791015625e-07));
+t(L, N, 1, du(1.52587890625e-05     ), A(1.52587890625e-05    ));
+t(L, N, 1, du(2.44140625e-04        ), A(0.000244140625       ));
+t(L, N, 1, du(3.90625e-03           ), A(0.00390625           ));
+t(L, N, 1, du(6.25e-02              ), A(0.0625               ));
+t(L, N, 1, du(                   1.0), A(                1    ));
+t(L, N, 1, du(                1024.0), A(             1024    ));
+t(L, N, 1, du(            16777216.0), A(         16777216    ));
+t(L, N, 1, du(        137438953472.0), A(     137438953472    ));
+t(L, N, 1, du(    1125899906842624.0), A( 1125899906842624    ));
+t(L, N, 1, du(   18014398509481984.0), A(1.801439850948198e+16));
+t(L,12, 8, du(1.1920928955078125e-07), A(1.192092895507812e-07)
+                                     , A(1.192092895507813e-07));
+t(L,12, 8, du(2.384185791015625e-07 ), A(2.384185791015625e-07));
+t(L,12, 8, du(1.52587890625e-05     ), A(1.52587890625e-05    ));
+t(L,12, 8, du(2.44140625e-04        ), A(0.000244140625       ));
+t(L,12, 8, du(3.90625e-03           ), A(0.00390625           ));
+t(L,12, 8, du(6.25e-02              ), A(0.0625               ));
+t(L,12, 8, du(                   1.0), A(                1    ));
+t(L,12, 8, du(                1024.0), A(             1024    ));
+t(L,12, 8, du(            16777216.0), A(         16777216    ));
+t(L,12, 8, du(        137438953472.0), A(     137438953472    ));
+t(L,12, 8, du(    1125899906842624.0), A( 1125899906842624    ));
+t(L,12, 8, du(   18014398509481984.0), A(1.801439850948198e+16));
+
+t(L, N, N, pd(DD(             0.001)), A(               0.001 ));
+t(L, N, N, pd(DD(             0.01 )), A(               0.01  ));
+t(L, N, N, pd(DD(             0.1  )), A(               0.1   ));
+t(L, N, N, pd(DD(             1.0  )), A(               1.0   ));
+t(L, N, N, pd(DD(             1.00 )), A(               1.00  ));
+t(L, N, N, pd(DD(             1.000)), A(               1.000 ));
+t(L, N, 0, pd(DD(             0.001)), A(               0.001 ));
+t(L, N, 0, pd(DD(             0.01 )), A(               0.01  ));
+t(L, N, 0, pd(DD(             0.1  )), A(               0.1   ));
+t(L, N, 0, pd(DD(             1.0  )), A(               1.0   ));
+t(L, N, 0, pd(DD(             1.00 )), A(               1.00  ));
+t(L, N, 0, pd(DD(             1.000)), A(               1.000 ));
+t(L, N, 1, pd(DD(             0.001)), A(               0.001 ));
+t(L, N, 1, pd(DD(             0.01 )), A(               0.01  ));
+t(L, N, 1, pd(DD(             0.1  )), A(               0.1   ));
+t(L, N, 1, pd(DD(             1.0  )), A(               1.0   ));
+t(L, N, 1, pd(DD(             1.00 )), A(               1.00  ));
+t(L, N, 1, pd(DD(             1.000)), A(               1.000 ));
+t(L, N, 2, pd(DD(             1.0  )), A(               1.0   ));
+t(L, N, 2, pd(DD(             1.00 )), A(               1.00  ));
+t(L, N, 2, pd(DD(             1.000)), A(               1.000 ));
+t(L, 3, 2, pd(DD(             0.001)), A(               0.001 ));
+t(L, 3, 2, pd(DD(             0.01 )), A(               0.01  ));
+t(L, 3, 2, pd(DD(             0.1  )), A(               0.1   ));
+t(L, 3, 2, pd(DD(             1.0  )), A(               1.0   ));
+t(L, 3, 2, pd(DD(             1.00 )), A(               1.00  ));
+t(L, 3, 2, pd(DD(             1.000)), A(               1.000 ));
+
+#undef DD
+#undef A
+#undef L
+
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING FORMATTER OPTION CALCULATION
+        //   This case tests that 'balxml::Encoder' correctly calculates the
+        //   options to use for its internal XML formatter.
+        //
+        // Concerns:
+        //: 1 If the encoding style is compact, the formatter's initial indent
+        //:   level, spaces per level, and wrap column are 0, 0, and -1,
+        //:   respectively, regardless of what the values for those fields are
+        //:   in the encoder's options.
+        //:
+        //: 2 If the encoding style is pretty, the formatter's initial indent
+        //:   level, spaces per level, and wrap column are equal to the
+        //:   respective values from the encoder's options.
+        //:
+        //: 3 The encoder forwards the values of all other options to the
+        //:   formatter except: "DatetimeFractionalSecondPrecision",
+        //:   "AllowControlCharacters", and "UseZAbbreviationForUtc".  Note
+        //:   that this is to maintain bug-compatibility with a prior version
+        //:   of this component that did not correctly forward the encoder's
+        //:   options to the formatter.
+        //:
+        // Plan:
+        //: 1 Calculate the formatter options from the default encoder options
+        //:   and verify that the formatter options' initial indent level is 0,
+        //:   its spaces per level is 0, and its wrap column is -1.
+        //:
+        //: 2 Calculate the formatter options from a set of encoder options
+        //:   with a compact encoding style, as well as an initial indent
+        //:   level, spaces per level, and a wrap column all set to 10.  Verify
+        //:   that the formatter options' initial indent level is 0, its spaces
+        //:   per level is 0, and its wrap column is -1.
+        //:
+        //: 3 Calculate the formatter options from a set of encoder options
+        //:   with pretty encoding style and all other options default. Verify
+        //:   that the formatter options' initial indent level is 0, its spaces
+        //:   per level if 4, and its wrap column is 80.
+        //:
+        //: 4 Calculate the formatter options from a set of encoder options
+        //:   with pretty encoding style, as well as an initial indent level,
+        //:   spaces per level, and wrap column all set to 10.  Verify that the
+        //:   formatter options' initial indent level, spaces per level, and
+        //:   wrap column are likewise all 10.
+        //:
+        //: 5 Calculate the formatter options from a set of encoder options
+        //:   having each option set to a non-default value.  Verify that all
+        //:   of the formatter's options have the corresponding non-default
+        //:   value, except for "DatetimeFractionalSecondPrecision",
+        //:   "AllowControlCharacters", and "UseZAbbreviationForUtc", which
+        //:   have their respective default values.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Formatter Option Calculation"
+                          << "\n====================================" << endl;
+
+        typedef balxml::Encoder_OptionsCompatibilityUtil Util;
+
+        {
+            EncoderOptions encoderOptions;
+
+            int formatterIndentLevel    = 0;
+            int formatterSpacesPerLevel = 0;
+            int formatterWrapColumn     = 0;
+
+            EncoderOptions formatterOptions;
+
+            Util::getFormatterOptions(&formatterIndentLevel,
+                                      &formatterSpacesPerLevel,
+                                      &formatterWrapColumn,
+                                      &formatterOptions,
+                                      encoderOptions);
+
+            ASSERT(0 == formatterIndentLevel);
+            ASSERT(0 == formatterSpacesPerLevel);
+            ASSERT(-1 == formatterWrapColumn);
+        }
+
+        {
+            EncoderOptions encoderOptions;
+            encoderOptions.setEncodingStyle(balxml::EncodingStyle::e_COMPACT);
+            encoderOptions.setInitialIndentLevel(10);
+            encoderOptions.setSpacesPerLevel(10);
+            encoderOptions.setWrapColumn(10);
+
+            int formatterIndentLevel    = 0;
+            int formatterSpacesPerLevel = 0;
+            int formatterWrapColumn     = 0;
+
+            EncoderOptions formatterOptions;
+
+            Util::getFormatterOptions(&formatterIndentLevel,
+                                      &formatterSpacesPerLevel,
+                                      &formatterWrapColumn,
+                                      &formatterOptions,
+                                      encoderOptions);
+
+            ASSERT(0 == formatterIndentLevel);
+            ASSERT(0 == formatterSpacesPerLevel);
+            ASSERT(-1 == formatterWrapColumn);
+        }
+
+        {
+            EncoderOptions encoderOptions;
+            encoderOptions.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
+
+            int formatterIndentLevel    = 0;
+            int formatterSpacesPerLevel = 0;
+            int formatterWrapColumn     = 0;
+
+            EncoderOptions formatterOptions;
+
+            Util::getFormatterOptions(&formatterIndentLevel,
+                                      &formatterSpacesPerLevel,
+                                      &formatterWrapColumn,
+                                      &formatterOptions,
+                                      encoderOptions);
+
+            ASSERT(0 == formatterIndentLevel);
+            ASSERT(4 == formatterSpacesPerLevel);
+            ASSERT(80 == formatterWrapColumn);
+        }
+
+        {
+            EncoderOptions encoderOptions;
+            encoderOptions.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
+            encoderOptions.setInitialIndentLevel(10);
+            encoderOptions.setSpacesPerLevel(10);
+            encoderOptions.setWrapColumn(10);
+
+            int formatterIndentLevel    = 0;
+            int formatterSpacesPerLevel = 0;
+            int formatterWrapColumn     = 0;
+
+            EncoderOptions formatterOptions;
+
+            Util::getFormatterOptions(&formatterIndentLevel,
+                                      &formatterSpacesPerLevel,
+                                      &formatterWrapColumn,
+                                      &formatterOptions,
+                                      encoderOptions);
+
+            ASSERT(10 == formatterIndentLevel);
+            ASSERT(10 == formatterSpacesPerLevel);
+            ASSERT(10 == formatterWrapColumn);
+        }
+
+        {
+            EncoderOptions encoderOptions;
+            encoderOptions.setObjectNamespace("notDefault");
+            encoderOptions.setSchemaLocation("notDefault");
+            encoderOptions.setTag("notDefault");
+            encoderOptions.setFormattingMode(12345);
+            // skip initial indent level
+            // skip spaces per level
+            // skip wrap column
+            encoderOptions.setMaxDecimalTotalDigits(12345);
+            encoderOptions.setMaxDecimalFractionDigits(12345);
+            encoderOptions.setSignificantDoubleDigits(12345);
+            // skip encoding style
+            encoderOptions.setAllowControlCharacters(true);
+            encoderOptions.setOutputXMLHeader(false);
+            encoderOptions.setOutputXSIAlias(false);
+            encoderOptions.setDatetimeFractionalSecondPrecision(12345);
+            encoderOptions.setUseZAbbreviationForUtc(true);
+
+            // Assert that none of the options set above are equal to their
+            // default values.
+            const EncoderOptions defaultOptions;
+
+            ASSERT(defaultOptions.objectNamespace() !=
+                   encoderOptions.objectNamespace());
+            ASSERT(defaultOptions.schemaLocation() !=
+                   encoderOptions.schemaLocation());
+            ASSERT(defaultOptions.tag() != encoderOptions.tag());
+            ASSERT(defaultOptions.formattingMode() !=
+                   encoderOptions.formattingMode());
+            ASSERT(defaultOptions.maxDecimalTotalDigits() !=
+                   encoderOptions.maxDecimalTotalDigits());
+            ASSERT(defaultOptions.maxDecimalFractionDigits() !=
+                   encoderOptions.maxDecimalFractionDigits());
+            ASSERT(defaultOptions.significantDoubleDigits() !=
+                   encoderOptions.significantDoubleDigits());
+            ASSERT(defaultOptions.allowControlCharacters() !=
+                   encoderOptions.allowControlCharacters());
+            ASSERT(defaultOptions.outputXMLHeader() !=
+                   encoderOptions.outputXMLHeader());
+            ASSERT(defaultOptions.outputXSIAlias() !=
+                   encoderOptions.outputXSIAlias());
+            ASSERT(defaultOptions.datetimeFractionalSecondPrecision() !=
+                   encoderOptions.datetimeFractionalSecondPrecision());
+            ASSERT(defaultOptions.useZAbbreviationForUtc() !=
+                   encoderOptions.useZAbbreviationForUtc());
+
+            int formatterIndentLevel    = 0;
+            int formatterSpacesPerLevel = 0;
+            int formatterWrapColumn     = 0;
+
+            EncoderOptions formatterOptions;
+
+            Util::getFormatterOptions(&formatterIndentLevel,
+                                      &formatterSpacesPerLevel,
+                                      &formatterWrapColumn,
+                                      &formatterOptions,
+                                      encoderOptions);
+
+
+            ASSERT("notDefault" == formatterOptions.objectNamespace());
+            ASSERT(defaultOptions.objectNamespace() !=
+                   formatterOptions.objectNamespace());
+
+            ASSERT("notDefault" == formatterOptions.schemaLocation());
+            ASSERT(defaultOptions.schemaLocation() !=
+                   formatterOptions.schemaLocation());
+
+            ASSERT("notDefault" == formatterOptions.tag());
+            ASSERT(defaultOptions.tag() != formatterOptions.tag());
+
+            ASSERT(12345 == formatterOptions.formattingMode());
+            ASSERT(defaultOptions.formattingMode() !=
+                   formatterOptions.formattingMode());
+
+            ASSERT(12345 == formatterOptions.maxDecimalTotalDigits());
+            ASSERT(defaultOptions.maxDecimalTotalDigits() !=
+                   formatterOptions.maxDecimalTotalDigits());
+
+            ASSERT(12345 == formatterOptions.maxDecimalFractionDigits());
+            ASSERT(defaultOptions.maxDecimalFractionDigits() !=
+                   formatterOptions.maxDecimalFractionDigits());
+
+            ASSERT(12345 == formatterOptions.significantDoubleDigits());
+            ASSERT(defaultOptions.significantDoubleDigits() !=
+                   formatterOptions.significantDoubleDigits());
+
+            // AllowControlCharacters should be defaulted.
+            ASSERT(false == formatterOptions.allowControlCharacters());
+            ASSERT(defaultOptions.allowControlCharacters() ==
+                   formatterOptions.allowControlCharacters());
+
+            ASSERT(false == formatterOptions.outputXMLHeader());
+            ASSERT(defaultOptions.outputXMLHeader() !=
+                   formatterOptions.outputXMLHeader());
+
+            ASSERT(false == formatterOptions.outputXSIAlias());
+            ASSERT(defaultOptions.outputXSIAlias() !=
+                   formatterOptions.outputXSIAlias());
+
+            // DatetimeFractionalSecondPrecision should be defaulted.
+            ASSERT(6 == formatterOptions.datetimeFractionalSecondPrecision());
+            ASSERT(
+                defaultOptions.datetimeFractionalSecondPrecision() ==
+                formatterOptions.datetimeFractionalSecondPrecision());
+
+            // UseZAbbreviationforUtc should be defaulted.
+            ASSERT(false == formatterOptions.useZAbbreviationForUtc());
+            ASSERT(defaultOptions.useZAbbreviationForUtc() ==
+                   formatterOptions.useZAbbreviationForUtc());
+        }
+      } break;
+
       case 15: {
         // --------------------------------------------------------------------
         // Testing Decimal64
@@ -6636,7 +7368,6 @@ R(L_,  c( s0, n(s_(a0, i_ )))   , t, t, x(C                  )       ), // * 1
 R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0         )   )       ), // * 2
 R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
 R(L_,  c( s0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
-#endif
 R(L_,  c(ns0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
 R(L_,  c(ns0, n(       i_  ))   , t, t, x(C                  )       ), // * 1
 R(L_,  c(ns0, n(       i_  ))   , _, t, x(C,x(S0         )   )       ), // * 2
@@ -6667,6 +7398,7 @@ R(L_,  c(ns0, n(e_(e0     )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
 R(L_,  c(ns0, n( e(e0, 0  )))   , t, _, x(C,x(S0,""      )   )       ),
 R(L_,  c(ns0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
 R(L_,  c(ns0,    s(a0, i0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+#endif
 R(L_,  c(ns0, n(s_(a0, i_ )))   , t, t, x(C                  )       ), // * 1
 R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0         )   )       ), // * 2
 R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
@@ -6773,8 +7505,8 @@ R(L_,  s( a0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
 R(L_,  s( a0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
 R(L_,  s( a0, n(s_(a0,i_)))     , t, t, x(S               )          ),
 R(L_,  s( a0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
-#endif
 R(L_,  s(na0,  i0)              , t, t, x(S,x(A0,V0))                ),
+#endif
 R(L_,  s(na0,n(i_))             , t, t, x(S)                         ), // * 1
 R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0))                   ), // * 2
 R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0,Nil,T   ))          ), // * 3
@@ -6790,11 +7522,11 @@ R(L_,  s(na0,   c( s0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
 R(L_,  s(na0,   c( s0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
 R(L_,  s(na0,   c( s0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
 R(L_,  s(na0,   c(ns0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-#endif
 R(L_,  s(na0,   c(ns0, n(i_)) ) , t, t, x(S,x(A0         ))          ), // * 1
 R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0)))             ), // * 2
 R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0,Nil,T)))       ), // * 3
 R(L_,  s(na0,   c(ns0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+#endif
 R(L_,  s(na0,n(c_( s0, n_(i_)))), t, t, x(S               )          ), // * 1
 R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0      )   )          ), // * 2
 R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0,Nil,T)   )          ), // * 3
@@ -6812,13 +7544,13 @@ R(L_,  s(na0, d( c(s0,i0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
 R(L_,  s(na0, d( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
 R(L_,  s(na0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
 R(L_,  s(na0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
-#endif
 R(L_,  s(na0,n(e_(e0,e1  )   )) , t, t, x(S         )                ), // * 1
 R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0))                   ), // * 2
 R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0,Nil,T))             ), // * 3
 R(L_,  s(na0,n( e(e0,e1,0)   )) , t, _, x(S,x(A0,""))                ),
 R(L_,  s(na0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
 R(L_,  s(na0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
+#endif
 R(L_,  s(na0, n(s_(a0,i_)))     , t, t, x(S               )          ), // * 1
 R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0))                   ), // * 2
 R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0,Nil,T))             ), // * 3
