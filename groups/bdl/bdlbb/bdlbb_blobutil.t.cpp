@@ -483,17 +483,6 @@ int main(int argc, char *argv[])
                         P(FUNCTION);
                 }
 
-                // 'appendDataBuffer' and 'prependDataBuffer' do not accept
-                // zero-length buffers, so we need to exclude such scenarios
-                // for 'appendDataBufferIfValid' and
-                // 'prependDataBufferIfValid'.  These scenarios will be tested
-                // separately.
-
-                if (('b' == FUNCTION  || 'c' == FUNCTION)
-                 && 0 == INSERT_BUFFER_SIZE) {
-                    continue;
-                }
-
                 bdlbb::Blob                    model;
                 const bdlbb::Blob&             MODEL = model;
                 bdlbb::Blob                    dst;
@@ -526,15 +515,26 @@ int main(int argc, char *argv[])
 
                 // Insert empty buffer.
 
-                if ('b' != FUNCTION && 'c' != FUNCTION) {
-                    bdlbb::BlobBuffer emptyBuffer;
-                    (model.*memberFunction)(emptyBuffer);
+                bdlbb::BlobBuffer emptyBuffer;
+                (model.*memberFunction)(emptyBuffer);
 
-                    result = utilFunction(&dst, emptyBuffer);
+                result = utilFunction(&dst, emptyBuffer);
 
-                    ASSERT(SUCCESS == result);
-                    ASSERT(MODEL   == DST   );
-                }
+                ASSERT(SUCCESS == result);
+                ASSERT(MODEL   == DST   );
+
+                // Last data buffer can be trimmed during appending new data
+                // buffer (but not prepending or appending non-data buffer) .
+                // Therefore, the potentially allowed size of the added buffer
+                // should be adjusted accordingly.
+
+                const int TRIMMED_SIZE =
+                     'a' == FUNCTION || 'c' == FUNCTION
+                        ? 0
+                        : 0 == DST.numDataBuffers()
+                              ? 0
+                              : DST.buffer(DST.numDataBuffers() - 1).size() -
+                                    DST.lastDataBufferLength();
 
                 // The following blob buffers represent null buffer but have
                 // non-zero size.  This can lead to undefined behavior in real
@@ -545,7 +545,8 @@ int main(int argc, char *argv[])
                 bdlbb::BlobBuffer maximalValidBuffer;
                 bdlbb::BlobBuffer tinyBuffer;
 
-                maximalValidBuffer.setSize(INT_MAX - DST.totalSize());
+                maximalValidBuffer.setSize(
+                                     INT_MAX - DST.totalSize() + TRIMMED_SIZE);
                 tinyBuffer.setSize(1);
 
                 (model.*memberFunction)(maximalValidBuffer);
@@ -651,21 +652,9 @@ int main(int argc, char *argv[])
                 bdlbb::Blob                    dst;
                 const bdlbb::Blob&             DST   = dst;
 
-                int result = Util::appendDataBufferIfValid(&dst,
-                                                           EMPTY);
-                ASSERT(FAILURE == result);
-                ASSERT(MODEL   == DST   );
-
-                result = Util::prependDataBufferIfValid(&dst,
-                                                        EMPTY);
-                ASSERT(FAILURE == result);
-                ASSERT(MODEL   == DST   );
-
-                ASSERT(0 == DST.numBuffers());
-
-                result = Util::insertBufferIfValid(&dst,
-                                                   -1,
-                                                   EMPTY);
+                int result = Util::insertBufferIfValid(&dst,
+                                                       -1,
+                                                       EMPTY);
 
                 ASSERT(FAILURE == result);
                 ASSERT(MODEL   == DST   );

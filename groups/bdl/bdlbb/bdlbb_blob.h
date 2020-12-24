@@ -607,7 +607,7 @@ class Blob {
         // beyond the boundaries of the last data buffer. The behavior is
         // undefined if 'length' is a negative value, if the new length
         // requires growing the blob and this blob has no underlying factory,
-        // or if the 'lenght' lies within the boundaries of the last data
+        // or if the 'length' lies within the boundaries of the last data
         // buffer.
 
     // PRIVATE ACCESSORS
@@ -698,9 +698,9 @@ class Blob {
         // Append the specified 'buffer' after the last *data* buffer of this
         // blob; the last data buffer is trimmed, if necessary.  The length of
         // this blob is incremented by the size of 'buffer'.  The behavior is
-        // undefined unless '0 < buffer.size()' and neither the total size of
-        // the resulting blob nor its total number of buffers exceeds
-        // 'INT_MAX'.  Note that this operation is equivalent to:
+        // undefined unless neither the total size of the resulting blob nor
+        // its total number of buffers exceeds 'INT_MAX'.  Note that this
+        // operation is equivalent to:
         //..
         //  const int n = blob.length();
         //  blob.trimLastDataBuffer();
@@ -725,10 +725,9 @@ class Blob {
     void prependDataBuffer(const BlobBuffer& buffer);
         // Insert the specified 'buffer' before the beginning of this blob.
         // The length of this blob is incremented by the length of the
-        // prepended buffer.  The behavior is undefined unless
-        // '0 < buffer.size()' and neither the total size of the resulting blob
-        // nor its total number of buffers exceeds 'INT_MAX'.  Note that this
-        // operation is equivalent to:
+        // prepended buffer.  The behavior is undefined unless neither the
+        // total size of the resulting blob nor its total number of buffers
+        // exceeds 'INT_MAX'.  Note that this operation is equivalent to:
         //..
         //  const int n = blob.length();
         //  blob.insert(0, buffer);
