@@ -1,10 +1,18 @@
-bsl-internal (3.69.0.0) unstable; urgency=low
+bsl-internal (3.70.0.0) unstable; urgency=low
 
+  * cd5b68390 Bumped version to 3.70.0.0
+  * b2f779068 Merge pull request #3057 from osubbotin/review/fix-stream-observer
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Dec 2020 10:44:23 -0500
+
+bsl-internal (3.69.0.0) git; urgency=low
+
+  * 06df42f3b Changelog for version 3.69.0.0
   * 46373f997 Bumped version to 3.69.0.0
   * 9aa7acbdc Merge pull request #3050 from jberne4/legacy_attribute_noreturn
   * b4105b072 Merge pull request #3049 from mclow3/removeStackCompare
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 18 Dec 2020 11:12:36 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 18 Dec 2020 11:19:32 -0500
 
 bsl-internal (3.68.0.1) git; urgency=low
 
