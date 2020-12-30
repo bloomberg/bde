@@ -27,9 +27,15 @@ BSLS_IDENT("$Id$ $CSID$")
 // back into a 'Datum' using 'double' to represent that number.  Note that
 // 'DatumUtil' uses a *more permissive* parser for numerical values than the
 // strict JSON standard specifies.  In particular, it is possible to parse
-// 'NaN', 'Inf', or 'Infinity' into the corresponding 'double' values even
-// though the JSON standard does not permit this, so applications should be
-// ready to handle these kinds of values.
+// 'NaN', 'Inf', or 'Infinity' into the corresponding singular 'double' values
+// even though the JSON standard does not permit this, so applications should
+// be ready to handle these kinds of values.  Also note that the 'encode'
+// routines do not encode these singular 'double' values in these parseable
+// formats.  Singular 'double' values will be rendered as strings (e.g., "+inf"
+// or "nan") if the 'strictTypes' encoding configuration is 'false', and will
+// result generate an encoding error if 'strictTypes' is 'true'.  Also note
+// that on platforms other than Sun and AIX, "\"-nan\"" is also a possible
+// result.
 //
 // Clients wishing to ensure that encoding and then decoding results in a
 // 'Datum' equal to the original value should use only 'Datum' types natively
@@ -41,7 +47,9 @@ BSLS_IDENT("$Id$ $CSID$")
 // example, enabling 'strictTypes' will result in 'encode' producing a positive
 // return status if one of the encoded types is an 'int', because decoding the
 // resulting JSON will produce a 'double'.  The 'strictTypes' option does not,
-// however, verify that a Datum map contains unique keys.
+// however, verify that a Datum map contains unique keys.  For 'double' fields,
+// 'strictTypes' will result in 'encode' returning a positive value if a
+// singular 'double' value is encountered, such as a NaN or Infinity.
 //
 // The order of key/value pairs in objects in textual JSON passed to 'decode'
 // is preserved in the decoded 'Datum'.  If multiple entries with the same
@@ -75,7 +83,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  --------              ---------  ---------   -----------    ---------------
 //  e_NIL                 yes        null        e_NIL          yes
 //  e_INTEGER             yes        number      e_DOUBLE       no
-//  e_DOUBLE              yes        number      e_DOUBLE       yes
+//  e_DOUBLE              yes        number      e_DOUBLE       yes [1]
 //  e_STRING              yes        string      e_STRING       yes
 //  e_BOOLEAN             yes        bool        e_BOOLEAN      yes
 //  e_ERROR               no         N/A         N/A            no
@@ -93,6 +101,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //  e_ARRAY               yes        array       e_ARRAY        yes
 //  e_MAP                 yes        map         e_MAP          yes
 //  e_INT_MAP             no         N/A         N/A            no
+//
+// [1] Singular double values (e.g., inf and nan) are not permitted if
+//     strictTypes is 'true', and will be rendered as strings if 'strictTypes'
+//     is 'false'.
 //..
 //: o *dataType* - the 'Datum' type value returned by the 'type()'
 //:
@@ -331,10 +343,11 @@ struct DatumUtil {
         // no effect on 'result').  If the optionally specified 'options'
         // argument is not present, treat it as a default-constructed
         // 'DatumEncoderOptions'.  If 'options.strictTypes' is 'true' and a
-        // non-JSON type is being encoded (see {Supported Types}) return a
-        // positive value, but also populate 'result' with an encoded JSON
-        // string (i.e., the value of 'result' is the same regardless of the
-        // 'strictTypes' option, but if 'strictTypes' is 'true' a non-zero
+        // type that is not supported by JSON, or a singular double value
+        // (e.g., NaN or infinity) is being encoded (see {Supported Types})
+        // return a positive value, but also populate 'result' with an encoded
+        // JSON string (i.e., the value of 'result' is the same regardless of
+        // the 'strictTypes' option, but if 'strictTypes' is 'true' a non-zero
         // positive status will be returned).  The mapping of types supported
         // by 'Datum' to JSON types is described in {Supported Types}.
 
@@ -349,10 +362,11 @@ struct DatumUtil {
         // sequence on the 'stream').  If the optionally specified 'options'
         // argument is not present, treat it as a default-constructed
         // 'DatumEncoderOptions'.  If 'options.strictTypes' is 'true' and a
-        // non-JSON type is being encoded (see {Supported Types}) return a
-        // positive value, but also populate 'result' with an encoded JSON
-        // string (i.e., the value of 'result' is the same regardless of the
-        // 'strictTypes' option, but if 'strictTypes' is 'true' a non-zero
+        // type that is not supported by JSON, or a singular double value
+        // (e.g., NaN or infinity) is being encoded (see {Supported Types})
+        // return a positive value, but also populate 'result' with an encoded
+        // JSON string (i.e., the value of 'result' is the same regardless of
+        // the 'strictTypes' option, but if 'strictTypes' is 'true' a non-zero
         // positive status will be returned).  The mapping of types supported
         // by 'Datum' to JSON types is described in {Supported Types}.
 };
@@ -439,7 +453,7 @@ int DatumUtil::encode(bsl::ostream& stream, const bdld::Datum& datum)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

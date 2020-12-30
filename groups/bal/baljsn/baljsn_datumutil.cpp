@@ -9,6 +9,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <baljsn_tokenizer.h>
 
 #include <bdlb_chartype.h>
+#include <bdlb_float.h>
 #include <bdlb_numericparseutil.h>
 
 #include <bdld_datum.h>
@@ -45,13 +46,16 @@ static int decodeValue(bdld::ManagedDatum *result,
 
 static int encodeValue(SimpleFormatter    *formatter,
                        const bdld::Datum&  datum,
-                       bool               *foundCheckFailures,
+                       int                *strictTypesCheckStatus,
                        bslstl::StringRef  *name = 0);
     // Encode the specified 'datum' as JSON, and output it to the specified
-    // 'formatter'.  Update '*foundCheckFailures' to 'true' if any types that
-    // aren't fully supported are found.  Optionally specify the 'name' to be
-    // used for this value.  Return 0 on success, and a negative value if
-    // 'datum' cannot be encoded'.
+    // 'formatter'.  Update '*strictTypesCheckStatus' to the appropriate
+    // positve integer value if any types or singular double values that aren't
+    // fully supported are found, allowing further encoding to proceed.
+    // '*strictTypesCheckStatus' remains unchanged if no unsupported types or
+    // values are encountered.  Optionally specify the 'name' to be used for
+    // this value.  Return 0 on success, and a negative value if 'datum' cannot
+    // be encoded', which should stop further encoding.
 
 static int decodeObject(bdld::ManagedDatum *result,
                         bsl::ostream       *errorStream,
@@ -259,13 +263,16 @@ static int decodeValue(bdld::ManagedDatum *result,
 
 static int encodeArray(SimpleFormatter            *formatter,
                        const bdld::DatumArrayRef&  datum,
-                       bool                       *foundCheckFailures,
+                       int                        *strictTypesCheckStatus,
                        bslstl::StringRef          *name = 0)
     // Encode the specified 'datum' as a JSON array representation, and output
-    // it to the specified 'formatter'.  Update '*foundCheckFailures' to 'true'
-    // if any types that aren't fully supported are found.  Optionally specify
-    // the 'name' to be used for this array.  Return 0 on success, and a
-    // negative value if 'datum' cannot be encoded.
+    // it to the specified 'formatter'.  Update '*strictTypesCheckStatus' to
+    // the appropriate positve integer value if any types or singular double
+    // values that aren't fully supported are found, allowing further encoding
+    // to proceed.  '*strictTypesCheckStatus' remains unchanged if no
+    // unsupported types or values are encountered.  Optionally specify the
+    // 'name' to be used for this array.  Return 0 on success, and a negative
+    // value if 'datum' cannot be encoded, which should stop further encoding.
 {
     if (name) {
         formatter->addMemberName(*name);
@@ -280,7 +287,8 @@ static int encodeArray(SimpleFormatter            *formatter,
 
     int result = 0;
     for (bsl::size_t i = 0; 0 == result && i < datum.length(); ++i) {
-        result = encodeValue(formatter, datum[i], foundCheckFailures);
+        result = encodeValue(
+            formatter, datum[i], strictTypesCheckStatus);
     }
 
     formatter->closeArray(style);
@@ -290,13 +298,16 @@ static int encodeArray(SimpleFormatter            *formatter,
 
 static int encodeObject(SimpleFormatter          *formatter,
                         const bdld::DatumMapRef&  datum,
-                        bool                     *foundCheckFailures,
+                        int                      *strictTypesCheckStatus,
                         bslstl::StringRef        *name = 0)
     // Encode the specified 'datum' as a JSON object representation, and output
-    // it to the specified 'formatter'.  Update '*foundCheckFailures' to 'true'
-    // if any types that aren't fully supported are found.  Optionally specify
-    // the 'name' to be used for this object.  Return 0 on success, and a
-    // negative value if 'datum' cannot be encoded.
+    // it to the specified 'formatter'.  Update '*strictTypesCheckStatus' to
+    // the appropriate positve integer value if any types or singular double
+    // values that aren't fully supported are found, allowing further encoding
+    // to proceed.  '*strictTypesCheckStatus' remains unchanged if no
+    // unsupported types or values are encountered.Optionally specify the
+    // 'name' to be used for this object.  Return 0 on success, and a negative
+    // value if 'datum' cannot be encoded, which should stop further encoding.
 {
     if (name) {
         formatter->addMemberName(*name);
@@ -307,7 +318,9 @@ static int encodeObject(SimpleFormatter          *formatter,
     int result = 0;
     for (bsl::size_t i = 0; 0 == result && i < datum.size(); ++i) {
         bslstl::StringRef name(datum[i].key());
-        result = encodeValue(formatter, datum[i].value(), foundCheckFailures,
+        result = encodeValue(formatter,
+                             datum[i].value(),
+                             strictTypesCheckStatus,
                              &name);
     }
     formatter->closeObject();
@@ -316,7 +329,7 @@ static int encodeObject(SimpleFormatter          *formatter,
 
 static int encodeValue(SimpleFormatter    *formatter,
                        const bdld::Datum&  datum,
-                       bool               *foundCheckFailures,
+                       int                *strictTypesCheckStatus,
                        bslstl::StringRef  *name)
 {
     int                   result = -1;
@@ -328,19 +341,38 @@ static int encodeValue(SimpleFormatter    *formatter,
 
     switch(type) {
       case bdld::Datum::e_MAP: {
-        result = encodeObject(formatter, datum.theMap(), foundCheckFailures);
+        result = encodeObject(
+            formatter, datum.theMap(), strictTypesCheckStatus);
       } break;
       case bdld::Datum::e_ARRAY: {
-        result = encodeArray(formatter, datum.theArray(), foundCheckFailures);
+        result = encodeArray(
+            formatter, datum.theArray(), strictTypesCheckStatus);
       } break;
       case bdld::Datum::e_INTEGER: {
         formatter->addValue(datum.theInteger());
-        *foundCheckFailures = true;
+        *strictTypesCheckStatus = 1;
         result = 0;
       } break;
       case bdld::Datum::e_DOUBLE: {
-        formatter->addValue(datum.theDouble());
-        result = 0;
+        double theDouble = datum.theDouble();
+        int rc = formatter->addValue(theDouble);
+        if (0 != rc) {
+            result = 2;
+        }
+        else {
+            switch (bdlb::Float::classifyFine(theDouble)) {
+              case bdlb::Float::k_POSITIVE_INFINITY:            // FALL-THROUGH
+              case bdlb::Float::k_NEGATIVE_INFINITY:            // FALL-THROUGH
+              case bdlb::Float::k_QNAN:                         // FALL-THROUGH
+              case bdlb::Float::k_SNAN: {
+                *strictTypesCheckStatus   = 2;
+                result              = 0;
+              } break;
+              default: {
+                result = 0;
+              } break;
+            }
+        }
       } break;
       case bdld::Datum::e_STRING: {
         if (0 != formatter->addValue(datum.theString())) {
@@ -360,36 +392,36 @@ static int encodeValue(SimpleFormatter    *formatter,
       } break;
       case bdld::Datum::e_DATE: {
         formatter->addValue(datum.theDate());
-        *foundCheckFailures = true;
+        *strictTypesCheckStatus   = 1;
         result = 0;
       } break;
       case bdld::Datum::e_TIME: {
         formatter->addValue(datum.theTime());
-        *foundCheckFailures = true;
+        *strictTypesCheckStatus   = 1;
         result = 0;
       } break;
       case bdld::Datum::e_DATETIME: {
         formatter->addValue(datum.theDatetime());
-        *foundCheckFailures = true;
+        *strictTypesCheckStatus   = 1;
         result = 0;
       } break;
       case bdld::Datum::e_DATETIME_INTERVAL: {
         formatter->addValue(datum.theDatetimeInterval());
-        *foundCheckFailures = true;
+        *strictTypesCheckStatus   = 1;
         result = 0;
       } break;
       case bdld::Datum::e_INTEGER64: {
         formatter->addValue(static_cast<double>(datum.theInteger64()));
-        *foundCheckFailures = true;
+        *strictTypesCheckStatus   = 1;
         result = 0;
       } break;
       case bdld::Datum::e_DECIMAL64: {
         formatter->addValue(datum.theDecimal64());
-        *foundCheckFailures = true;
+        *strictTypesCheckStatus   = 1;
         result = 0;
       } break;
       default: {
-        *foundCheckFailures = true;
+        *strictTypesCheckStatus   = 1;
         result = -1;
       } break;
     }
@@ -479,14 +511,16 @@ int DatumUtil::encode(bsl::ostream&              stream,
     encoderOptions.setInitialIndentLevel(options.initialIndentLevel());
     encoderOptions.setSpacesPerLevel(options.spacesPerLevel());
 
+    encoderOptions.setEncodeInfAndNaNAsStrings(true);
+
     SimpleFormatter formatter(stream, encoderOptions);
 
-    bool foundCheckFailures = false;
+    int  strictTypesCheckStatus   = 0;
 
-    int rc = encodeValue(&formatter, datum, &foundCheckFailures);
+    int rc = encodeValue(&formatter, datum, &strictTypesCheckStatus);
 
-    if (foundCheckFailures && options.strictTypes() && 0 == rc) {
-        rc = 1;
+    if (0 != strictTypesCheckStatus && options.strictTypes() && 0 == rc) {
+        rc = strictTypesCheckStatus;
     }
 
     return rc;
@@ -496,7 +530,7 @@ int DatumUtil::encode(bsl::ostream&              stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

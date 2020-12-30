@@ -8,6 +8,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_limits.h>
 #include <bsl_list.h>
 #include <bsl_ostream.h>
 #include <bsl_string.h>
@@ -157,10 +158,10 @@ typedef baljsn::DatumUtil Util;
 typedef bdld::ManagedDatum       MD;
 typedef bdld::Datum              D;
 typedef bdld::DatumArrayBuilder  DAB;
-typedef bdld::DatumArrayRef DAR;
+typedef bdld::DatumArrayRef      DAR;
 typedef bdld::DatumMapBuilder    DMB;
 typedef bdld::DatumMapEntry      DME;
-typedef bdld::DatumMapRef   DMR;
+typedef bdld::DatumMapRef        DMR;
 
 #define STR1   "xxxxxxxxxxxxxxxx"
 #define STR2   STR1   STR1
@@ -1742,6 +1743,82 @@ int main(int argc, char *argv[])
             { L, m(1.5),    PR,  0,  1,  "1.5",                      0,    0 },
             { L, m(1.5),    PR,  1,  1,  " 1.5",                     0,    0 },
 
+#define DU_Inf  bsl::numeric_limits<double>::infinity()
+#define DU_QNaN bsl::numeric_limits<double>::quiet_NaN()
+#define DU_SNaN bsl::numeric_limits<double>::signaling_NaN()
+
+#if defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_IBM)
+// The sign of the result of encoding negative nan's...
+#define DU_S ""
+#else
+#define DU_S "-"
+#endif
+
+            { L, m(DU_Inf), CO,  0,  0,  "\"+inf\"",                 0,    2 },
+            { L, m(DU_Inf), PR,  0,  0,  "\"+inf\"",                 0,    2 },
+            { L, m(DU_Inf), PR,  1,  0,  "\"+inf\"",                 0,    2 },
+            { L, m(DU_Inf), PR,  0,  1,  "\"+inf\"",                 0,    2 },
+            { L, m(DU_Inf), PR,  1,  1,  " \"+inf\"",                0,    2 },
+
+            { L, m(-DU_Inf),
+                            CO,  0,  0,  "\"-inf\"",                 0,    2 },
+            { L, m(-DU_Inf),
+                            PR,  0,  0,  "\"-inf\"",                 0,    2 },
+            { L, m(-DU_Inf),
+                            PR,  1,  0,  "\"-inf\"",                 0,    2 },
+            { L, m(-DU_Inf),
+                            PR,  0,  1,  "\"-inf\"",                 0,    2 },
+            { L, m(-DU_Inf),
+                            PR,  1,  1,  " \"-inf\"",                0,    2 },
+
+            { L, m(DU_QNaN),
+                            CO,  0,  0,  "\"nan\"",                  0,    2 },
+            { L, m(DU_QNaN),
+                            PR,  0,  0,  "\"nan\"",                  0,    2 },
+            { L, m(DU_QNaN),
+                            PR,  1,  0,  "\"nan\"",                  0,    2 },
+            { L, m(DU_QNaN),
+                            PR,  0,  1,  "\"nan\"",                  0,    2 },
+            { L, m(DU_QNaN),
+                            PR,  1,  1,  " \"nan\"",                 0,    2 },
+
+            { L, m(-DU_QNaN),
+                            CO,  0,  0,  "\"" DU_S "nan\"",          0,    2 },
+            { L, m(-DU_QNaN),
+                            PR,  0,  0,  "\"" DU_S "nan\"",          0,    2 },
+            { L, m(-DU_QNaN),
+                            PR,  1,  0,  "\"" DU_S "nan\"",          0,    2 },
+            { L, m(-DU_QNaN),
+                            PR,  0,  1,  "\"" DU_S "nan\"",          0,    2 },
+            { L, m(-DU_QNaN),
+                            PR,  1,  1,  " \"" DU_S "nan\"",         0,    2 },
+
+
+            { L, m(DU_SNaN),
+                            CO,  0,  0,  "\"nan\"",                  0,    2 },
+            { L, m(DU_SNaN),
+                            PR,  0,  0,  "\"nan\"",                  0,    2 },
+            { L, m(DU_SNaN),
+                            PR,  1,  0,  "\"nan\"",                  0,    2 },
+            { L, m(DU_SNaN),
+                            PR,  0,  1,  "\"nan\"",                  0,    2 },
+            { L, m(DU_SNaN),
+                            PR,  1,  1,  " \"nan\"",                 0,    2 },
+
+            { L, m(-DU_SNaN),
+                            CO,  0,  0,  "\"" DU_S "nan\"",          0,    2 },
+            { L, m(-DU_SNaN),
+                            PR,  0,  0,  "\"" DU_S "nan\"",          0,    2 },
+            { L, m(-DU_SNaN),
+                            PR,  1,  0,  "\"" DU_S "nan\"",          0,    2 },
+            { L, m(-DU_SNaN),
+                            PR,  0,  1,  "\"" DU_S "nan\"",          0,    2 },
+            { L, m(-DU_SNaN),
+                            PR,  1,  1,  " \"" DU_S "nan\"",         0,    2 },
+#undef DU_Inf
+#undef DU_QNan
+#undef DU_SNan
+
            // e_STRING
             { L, m("Hello"),
                             CO,  0,  0,  "\"Hello\"",                0,    0 },
@@ -2099,8 +2176,14 @@ int main(int argc, char *argv[])
                         int rc = Util::encode(&result, DATUM, opts);
                         ASSERTV(LINE, strictTypes, RC, rc, RC == rc);
 
-                        if (0 <= rc) {
-                            ASSERTV(LINE, JSON, result, JSON == result);
+                        if (0 == rc || 2 <= rc) {
+                            ASSERTV(LINE,
+                                    RC,
+                                    rc,
+                                    DATUM,
+                                    JSON,
+                                    result,
+                                    JSON == result);
                         }
                     }
 
@@ -2116,8 +2199,14 @@ int main(int argc, char *argv[])
                             int rc = Util::encode(&result, DATUM);
                             ASSERTV(LINE, strictTypes, RC, rc, RC == rc);
 
-                            if (0 <= rc) {
-                                ASSERTV(LINE, JSON, result, JSON == result);
+                            if (0 == rc || 2 <= rc) {
+                                ASSERTV(LINE,
+                                        RC,
+                                        rc,
+                                        DATUM,
+                                        JSON,
+                                        result,
+                                        JSON == result);
                             }
                         }
                     }
@@ -2132,11 +2221,17 @@ int main(int argc, char *argv[])
                         int rc = Util::encode(os, DATUM, opts);
                         ASSERTV(LINE, strictTypes, RC, rc, RC == rc);
 
-                        if (0 <= rc) {
+                        if (0 == rc || 2 <= rc) {
                             const bslstl::StringRef result(
                                 sb.data(), sb.length());
 
-                            ASSERTV(LINE, JSON, result, JSON == result);
+                            ASSERTV(LINE,
+                                    RC,
+                                    rc,
+                                    DATUM,
+                                    JSON,
+                                    result,
+                                    JSON == result);
                         }
                     }
 
@@ -2157,7 +2252,13 @@ int main(int argc, char *argv[])
                                 const bslstl::StringRef result(sb.data(),
                                                                sb.length());
 
-                                ASSERTV(LINE, JSON, result, JSON == result);
+                                ASSERTV(LINE,
+                                        RC,
+                                        rc,
+                                        DATUM,
+                                        JSON,
+                                        result,
+                                        JSON == result);
                             }
                         }
                     }
