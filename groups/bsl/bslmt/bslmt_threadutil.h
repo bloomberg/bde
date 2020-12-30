@@ -643,8 +643,10 @@ struct ThreadUtil {
         // identifier for the thread (see 'selfIdAsUint').
 
     static Handle self();
-        // Return an identifier that can be used to refer to the current thread
-        // in calls to other 'ThreadUtil' methods.
+        // Return an opaque thread identifier that can be used to refer to the
+        // current thread in calls to other 'ThreadUtil' methods.  Note that
+        // identifier may only be used to refer to the current thread from the
+        // current thread (the handle returned is not valid in other threads).
 
     static Id selfId();
         // Return an identifier that can be used to uniquely identify the
