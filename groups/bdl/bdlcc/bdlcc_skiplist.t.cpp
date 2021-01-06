@@ -786,13 +786,23 @@ class TestDriver {
         // order as their corresponding characters in 'spec.
 
     static
-    void populate(Obj *dst, const TableRecord *array, const int length);
+    void populate(Obj               *dst,
+                  const TableRecord *array,
+                  const bsl::size_t  length);
         // Populate the specified 'dst' with values indicated by the specified
         // 'array' of the specified length 'length'.
         //
         // Note: I attempted to pass 'array' as 'array[N]' where 'N' is an
         // 'int' template parameter, but the Sun CC compiler seems to have a
         // bug where it can't deal with it.  It worked fine on Linux and Aix.
+
+    static
+    void dump(const Obj&         list,
+              const TableRecord *table = 0,
+              bsl::size_t        tableSize = 0);
+        // Print the specified 'list', as integer 'key, value' pairs, to
+        // 'cout', followed by the contents of 'table' in the same format.  If
+        // the specified 'table' is 0, omit printing the table.
 
     static
     int raiseMaximumLevel(Obj *dst);
@@ -805,7 +815,7 @@ class TestDriver {
     static
     void verify(const Obj&         list,
                 const TableRecord *array,
-                const int          length,
+                const bsl::size_t  length,
                 const int          line);
         // Traverse the nodes in the specified 'list' from front to back and
         // simultaneously traverse the records in the specified 'array' of
@@ -816,7 +826,7 @@ class TestDriver {
     static
     void verifyR(const Obj&         list,
                  const TableRecord *array,
-                 const int          length,
+                 const bsl::size_t  length,
                  const int          line);
         // Traverse the nodes in the specified 'list' from back to front and
         // simultaneously traverse the records in the specified 'array' of
@@ -1235,17 +1245,51 @@ bool TestDriver<KEY_TYPE, DATA_TYPE>::hexVerify(const Obj&  src,
 template <class KEY_TYPE, class DATA_TYPE>
 void TestDriver<KEY_TYPE, DATA_TYPE>::populate(Obj               *dst,
                                                const TableRecord *array,
-                                               const int          length)
+                                               const bsl::size_t  length)
 {
     PairHandle ph;
 
-    for (int ii = 0; ii < length; ++ii) {
+    for (unsigned ii = 0; ii < length; ++ii) {
         u::TestObject<KEY_TYPE>  key( array[ii].d_key,  dst->allocator());
         u::TestObject<DATA_TYPE> data(array[ii].d_data, dst->allocator());
 
         dst->add(&ph, key.object(), data.object());
         ASSERTV(ii, ph);
     }
+}
+
+template <class KEY_TYPE, class DATA_TYPE>
+void TestDriver<KEY_TYPE, DATA_TYPE>::dump(const Obj&         list,
+                                           const TableRecord *table,
+                                           const bsl::size_t  tableSize)
+{
+    PairHandle ph;
+
+    bool first = true;
+    int rc = 0;
+    for (list.front(&ph); 0 == rc && ph; rc = list.skipForward(&ph)) {
+        bsl::cout << (first ? "list:  " : ", ") << '(' <<
+                                        TTF::getIdentifier(ph.key()) << ", " <<
+                                        TTF::getIdentifier(ph.data()) << ')';
+        first = false;
+    }
+    ASSERT(0 == rc);
+    ASSERT(!ph);
+
+    bsl::cout << bsl::endl;
+
+    if (!table) {
+        return;                                                       // RETURN
+    }
+
+    first = true;
+    for (unsigned ii = 0; ii < tableSize; ++ii) {
+        bsl::cout << (first ? "table: " : ", ") << '(' << table[ii].d_key <<
+                                               ", " << table[ii].d_data << ')';
+        first = false;
+    }
+
+    bsl::cout << bsl::endl;
 }
 
 template <class KEY_TYPE, class DATA_TYPE>
@@ -1290,9 +1334,13 @@ int TestDriver<KEY_TYPE, DATA_TYPE>::raiseMaximumLevel(Obj *dst)
 template <class KEY_TYPE, class DATA_TYPE>
 void TestDriver<KEY_TYPE, DATA_TYPE>::verify(const Obj  &       list,
                                              const TableRecord *array,
-                                             const int          length,
+                                             const bsl::size_t  uLength,
                                              const int          line)
 {
+    const int length = static_cast<int>(uLength);
+
+    const int startStatus = testStatus;
+
     const char *kn = bsls::NameOf<KEY_TYPE>().name();
     const char *dn = bsls::NameOf<DATA_TYPE>().name();
 
@@ -1306,6 +1354,8 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::verify(const Obj  &       list,
     list.frontRaw(&pr);
     list.front(&skPh);
     list.front(&nePh);
+
+    int handleMisses = 0;
 
     for (int ii = 0; ii < iterations; ++ii) {
         const TableRecord&   record = array[ii];
@@ -1324,11 +1374,11 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::verify(const Obj  &       list,
         ASSERTV(line, LINE, kn, D(key),  pr->key(),  KEY  == pr->key());
         ASSERTV(line, LINE, dn, D(data), pr->data(), DATA == pr->data());
 
-        ASSERTV(line, LINE, kn, D(key),  skPh.key(),  KEY  == skPh.key());
-        ASSERTV(line, LINE, dn, D(data), skPh.data(), DATA == skPh.data());
+        handleMisses += KEY  != skPh.key();
+        handleMisses += DATA != skPh.data();
 
-        ASSERTV(line, LINE, kn, D(key),  nePh.key(),  KEY  == nePh.key());
-        ASSERTV(line, LINE, dn, D(data), nePh.data(), DATA == nePh.data());
+        handleMisses += KEY  != nePh.key();
+        handleMisses += DATA != nePh.data();
 
         int rcPr = list.skipForwardRaw(&pr);
         int rcSk = list.skipForward(&skPh);
@@ -1349,14 +1399,27 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::verify(const Obj  &       list,
             ASSERTV(line, LINE, rcNe, ii, list.length(), 0 != rcNe);
         }
     }
+
+    if (startStatus == testStatus) {
+        ASSERT(0 == handleMisses);
+    }
+
+    if (verbose && startStatus < testStatus) {
+        bsl::cout << "verify failed:\n";
+        dump(list, array, uLength);
+    }
 }
 
 template <class KEY_TYPE, class DATA_TYPE>
 void TestDriver<KEY_TYPE, DATA_TYPE>::verifyR(const Obj&         list,
                                               const TableRecord *array,
-                                              const int          length,
+                                              const bsl::size_t  uLength,
                                               const int          line)
 {
+    const int length = static_cast<int>(uLength);
+
+    const int startStatus = testStatus;
+
     const char *kn = bsls::NameOf<KEY_TYPE>().name();
     const char *dn = bsls::NameOf<DATA_TYPE>().name();
 
@@ -1370,6 +1433,8 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::verifyR(const Obj&         list,
     list.backRaw(&pr);
     list.back(&skPh);
     list.back(&pvPh);
+
+    int handleMisses = 0;
 
     for (int ii = length - 1; end <= ii; --ii) {
         const TableRecord&   record = array[ii];
@@ -1388,11 +1453,12 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::verifyR(const Obj&         list,
         ASSERTV(line, LINE, kn, D(key),  pr->key(),  KEY  == pr->key());
         ASSERTV(line, LINE, dn, D(data), pr->data(), DATA == pr->data());
 
-        ASSERTV(line, LINE, kn, D(key),  skPh.key(),  KEY  == skPh.key());
-        ASSERTV(line, LINE, dn, D(data), skPh.data(), DATA == skPh.data());
 
-        ASSERTV(line, LINE, kn, D(key),  pvPh.key(),  KEY  == pvPh.key());
-        ASSERTV(line, LINE, dn, D(data), pvPh.data(), DATA == pvPh.data());
+        handleMisses += KEY  != skPh.key();
+        handleMisses += DATA != skPh.data();
+
+        handleMisses += KEY  != pvPh.key();
+        handleMisses += DATA != pvPh.data();
 
         // If we are at the head of the list, 'skipBackward' will return 0 but
         // reset 'skPh'.  'previous' will set 'pvPh' to the head node, but
@@ -1416,6 +1482,15 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::verifyR(const Obj&         list,
             ASSERTV(line, LINE, end, !skPh);
             ASSERTV(line, LINE, end, rcPv, ii, length, 0 != rcPv);
         }
+    }
+
+    if (startStatus == testStatus) {
+        ASSERT(0 == handleMisses);
+    }
+
+    if (verbose && startStatus < testStatus) {
+        bsl::cout << "verifyR failed:\n";
+        dump(list, array, uLength);
     }
 }
 
@@ -2130,8 +2205,8 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::updateRTest()
     ASSERT(Obj::e_DUPLICATE == mX.updateR(phs[1], KVS[11], &newFront, false));
 
     TableRecord checkC[] = {
-        { L_, 11, 5, 0 },
         { L_, 11, 4, 0 },
+        { L_, 11, 5, 0 },
         { L_, 12, 3, 0 },
     };
 
@@ -2505,6 +2580,9 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::findTest()
 // Concerns:
 //: 1 That the return value of 'find' correctly indicates whether an element
 //:   with a given 'key' is in the list.
+//:
+//: 2 If duplicate matches for 'key' exist in the list, 'find' returns the
+//:   first one.
 //
 // Plan:
 //: 1 Create a container and populate it from the non-sorted table 'init',
@@ -2525,11 +2603,25 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::findTest()
 //:
 //: 7 Release the pair handle.
 //:
-//: 8 Observe that the default allocator was never used.
+//: 8 Start over, create another list where the 'data' element increments with
+//:   every node, but the 'key' element increases only every three nodes, so
+//:   there are duplicates.
+//:
+//: 9 Call 'find' on every key value in the list, and observe that:
+//:   o the 'data' value of the node found indicates that it's the first on the
+//:     list with that 'key' value'.
+//:
+//:   o skip backward, and observe that the 'key' value of the new node does
+//:     not match.
+//:
+//: 10 Observe that the default allocator was never used.
 // ---------------------------------------------------------------------------
 {
-    if (verbose) cout << "findTest<" << bsls::NameOf<KEY_TYPE>() <<
-                           ", " << bsls::NameOf<DATA_TYPE>() << ">();" << endl;
+    const char *keyType  = bsls::NameOf<KEY_TYPE>();
+    const char *dataType = bsls::NameOf<DATA_TYPE>();
+
+    if (verbose) cout << "findTest<" << keyType <<
+                                            ", " << dataType << ">();" << endl;
 
     bslma::TestAllocator va(veryVeryVerbose);
     bslma::TestAllocator ta(veryVeryVerbose);
@@ -2647,6 +2739,39 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::findTest()
         }
     }
 
+    {
+        bsl::vector<TableRecord> init(&ta);
+
+        Obj mX(&ta);    const Obj& X = mX;
+
+        for (int ii = 0; ii < 12; ++ii) {
+            mX.addR(KVS[ii / 3], DVS[ii]);
+
+            TableRecord tr = { L_, ii / 3, ii, 0 };
+            init.push_back(tr);
+        }
+
+        TD::verify( X, &init[0], init.size(), L_);
+        TD::verifyR(X, &init[0], init.size(), L_);
+
+        if (verbose) TD::dump(X, &init[0], init.size());
+
+        PairHandle ph;
+
+        for (int ii = 0; ii < 4; ++ii) {
+            ASSERT(0 == X.find(&ph, KVS[ii]));
+            ASSERTV(keyType, dataType, TTF::getIdentifier(ph.data()), ii,
+                                                     ph.data() == DVS[3 * ii]);
+            ASSERT(0 == X.skipBackward(&ph));
+            ASSERT(!ph == (0 == ii));
+            if (ph) {
+                ASSERT(ph.key() == KVS[ii - 1]);
+                ASSERTV(keyType, dataType, TTF::getIdentifier(ph.data()), ii,
+                                                 ph.data() == DVS[3 * ii - 1]);
+            }
+        }
+    }
+
     for (int ii = 0; ii < k_NUM_VALS; ++ii) {
         obk[ii].address()->~KEY_TYPE();
         obd[ii].address()->~DATA_TYPE();
@@ -2663,6 +2788,9 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::findRTest()
 // Concerns:
 //: 1 That the return value of 'findR' correctly indicates whether an element
 //:   with a given 'key' is in the list.
+//:
+//: 2 If duplicate matches for 'key' exist in the list, 'find' returns the
+//:   last one.
 //
 // Plan:
 //: 1 Create a container and populate it from the non-sorted table 'init',
@@ -2683,10 +2811,27 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::findRTest()
 //:   pair handle to show that the node is not released yet.
 //:
 //: 7 Observe that the default allocator was never used.
+//:
+//: 8 Start over, create another list where the 'data' element increments with
+//:   every node, but the 'key' element increases only every three nodes, so
+//:   there are duplicates.
+//:
+//: 9 Call 'findR' on every key value in the list, and observe that:
+//:   o the 'data' value of the node found indicates that it's the last on the
+//:     list with that 'key' value'.
+//:
+//:   o skip forward, and observe that the 'key' value of the new node does not
+//:     match.
+//:
+//: 10 Observe that the default allocator was never used.
 // ---------------------------------------------------------------------------
 {
-    if (verbose) cout << "findRTest<" << bsls::NameOf<KEY_TYPE>() <<
-                           ", " << bsls::NameOf<DATA_TYPE>() << ">();" << endl;
+    const char *keyType  = bsls::NameOf<KEY_TYPE>();
+    const char *dataType = bsls::NameOf<DATA_TYPE>();
+
+    if (verbose) cout << "findRTest<" << keyType <<
+                                            ", " << dataType << ">();" << endl;
+
 
     bslma::TestAllocator va(veryVeryVerbose);
     bslma::TestAllocator ta(veryVeryVerbose);
@@ -2757,6 +2902,30 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::findRTest()
 
         verify(X, &initCheck[0], U_LEN(initCheck), L_);
 
+        ASSERT(0 == X.findR(&ph, KVS[1]));
+        ASSERT(ph);
+        ASSERT(KVS[1] == ph.key());
+        ASSERT(DVS[2] == ph.data());
+
+        ASSERT(0 == mX.update(ph, KVS[4], 0, true));
+        ASSERT(ph);
+        ASSERT(KVS[4] == ph.key());
+        ASSERT(DVS[2] == ph.data());
+
+        static TableRecord check2[] = {
+            { L_, 3, 4, 0 },
+            { L_, 4, 2, 0 },
+            { L_, 4, 5, 0 },
+            { L_, 5, 6, 0 }
+        };
+
+        verify(X, &check2[0], 4, L_);
+
+        ASSERT(0 == X.findR(&ph, KVS[4]));
+        ASSERT(ph);
+        ASSERT(KVS[4] == ph.key());
+        ASSERT(DVS[5] == ph.data());
+
         mX.removeAll();
 
         verify  (X,   init, 0, L_);
@@ -2796,11 +2965,42 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::findRTest()
         }
     }
 
+    {
+        bsl::vector<TableRecord> init(&ta);
+
+        Obj mX(&ta);    const Obj& X = mX;
+
+        for (int ii = 0; ii < 12; ++ii) {
+            mX.addR(KVS[ii / 3], DVS[ii]);
+
+            TableRecord tr = { L_, ii / 3, ii, 0 };
+            init.push_back(tr);
+        }
+
+        TD::verify( X, &init[0], init.size(), L_);
+        TD::verifyR(X, &init[0], init.size(), L_);
+
+        if (verbose) TD::dump(X, &init[0], init.size());
+
+        PairHandle ph;
+
+        for (int ii = 0; ii < 4; ++ii) {
+            ASSERT(0 == X.findR(&ph, KVS[ii]));
+            ASSERTV(keyType, dataType, TTF::getIdentifier(ph.data()), ii,
+                                                 ph.data() == DVS[3 * ii + 2]);
+            ASSERT(0 == X.skipForward(&ph));
+            ASSERT(!ph == (3 == ii));
+            if (ph) {
+                ASSERT(ph.key() == KVS[ii + 1]);
+                ASSERT(ph.data() != DVS[4 * ii]);
+            }
+        }
+    }
+
     for (int ii = 0; ii < k_NUM_VALS; ++ii) {
         obk[ii].address()->~KEY_TYPE();
         obd[ii].address()->~DATA_TYPE();
     }
-
 
     ASSERT(0 == da.numAllocations());
 }
@@ -2868,14 +3068,24 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::updateTest()
 // UPDATE TEST
 //
 // Concerns:
-//   (1) Update on an item that's been removed returns e_NOT_FOUND.
-//   (2) Update to an existing position returns e_DUPLICATE if
-//       allowDuplicates is false
-//   (3) Update updates the key value stored on the node.
-//   (4) After an update, the data can be looked up by its new value
-//       but not by its old value.
-//   (5) Update to an existing position succeeds if allowDuplicates
-//       is true
+//: 1 Update on an item that's been removed returns e_NOT_FOUND.
+//:
+//: 2 Update to an existing position returns e_DUPLICATE if allowDuplicates is
+//:   false
+//:
+//: 3 Update updates the key value stored on the node.
+//:
+//: 4 After an update, the data can be looked up by its new value but not by
+//:   its old value.
+//:
+//: 5 Update to an existing position succeeds if allowDuplicates is true
+//:
+//: 6 That when 'update' is called and the destination will create a duplicate,
+//:   the moved node is after the other nodes with the same key value.
+//:
+//: 7 That when 'updateR' is called and the destination will create a
+//:   duplicate, the moved node is after the other nodes with the same key
+//:   value.
 //
 // Plan: each test step will update an item to a new location and
 // verify 2 through 4 (we'll check (1) and (5) separately afterwards).
@@ -2884,6 +3094,10 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::updateTest()
 //
 // Note that an important feature of the "parameters" set is that
 // executing it returns the list to its original state.
+//
+// Start with a table where all nodes are unique, and do 'update's and
+// 'updateR's on the table to create duplicate keys, and observe that the
+// ordering of the moved nodes is as expected.
 // ---------------------------------------------------------------------------
 {
     if (verbose) cout << "updateTest<" << bsls::NameOf<KEY_TYPE>() << ", " <<
@@ -2900,21 +3114,22 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::updateTest()
     bslma::TestAllocator da("da", veryVeryVerbose);
     bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
+    enum { k_NUM_VALS  = 30 };
+
+    bsls::ObjectBuffer<KEY_TYPE>   obk[k_NUM_VALS];
+    KEY_TYPE                      *kvs = obk[0].address();
+    const KEY_TYPE                *KVS = kvs;
+    bsls::ObjectBuffer<DATA_TYPE>  obd[k_NUM_VALS];
+    DATA_TYPE                     *dvs = obd[0].address();
+    const DATA_TYPE               *DVS = dvs;
+
+    for (int ii = 0; ii < k_NUM_VALS; ++ii) {
+        TTF::emplace(obk[ii].address(), ii, &va);
+        TTF::emplace(obd[ii].address(), ii, &va);
+    }
+
     {
-        enum { k_NUM_ITEMS = 4,
-               k_NUM_VALS  = 30 };
-
-        bsls::ObjectBuffer<KEY_TYPE>   obk[k_NUM_VALS];
-        KEY_TYPE                      *kvs = obk[0].address();
-        const KEY_TYPE                *KVS = kvs;
-        bsls::ObjectBuffer<DATA_TYPE>  obd[k_NUM_VALS];
-        DATA_TYPE                     *dvs = obd[0].address();
-        const DATA_TYPE               *DVS = dvs;
-
-        for (int ii = 0; ii < k_NUM_VALS; ++ii) {
-            TTF::emplace(obk[ii].address(), ii, &va);
-            TTF::emplace(obd[ii].address(), ii, &va);
-        }
+        enum { k_NUM_ITEMS = 4 };
 
         const struct Parameters {
             int d_line;
@@ -3005,11 +3220,260 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::updateTest()
             ASSERT(DVS[1] == items[1].data());
             ASSERT(KVS[2] == items[2].key());
         }
+    }
 
-        for (int ii = 0; ii < k_NUM_VALS; ++ii) {
-            obk[ii].address()->~KEY_TYPE();
-            obd[ii].address()->~DATA_TYPE();
+    {
+        enum { k_NUM_ITEMS      = 25,
+
+               k_FORWARD_BEGIN  = 3,
+               k_FORWARD_END    = 6,
+               k_FORWARD_DEST   = 10,
+               k_NUM_FORWARD    = k_FORWARD_END - k_FORWARD_BEGIN,
+
+               k_FORWARD_DEST_OFFSET = k_FORWARD_DEST - k_NUM_FORWARD,
+
+               k_BACKWARD_BEGIN = 18,
+               k_BACKWARD_END   = 22,
+               k_BACKWARD_DEST  = 15,
+               k_NUM_BACKWARD   = k_BACKWARD_END - k_BACKWARD_BEGIN };
+
+        bsl::vector<TableRecord> init(&ta);
+        bsl::vector<TableRecord> moved(&ta);
+
+        for (int ii = 0; ii < k_NUM_ITEMS; ++ii) {
+            TableRecord tr = { L_, ii, ii, ii % 5 };
+            init.push_back(tr);
         }
+
+        Obj mX(&ta);    const Obj& X = mX;
+
+        TD::populate(&mX, &init[0], init.size());
+        verify( X, &init[0], init.size(), L_);
+        verifyR(X, &init[0], init.size(), L_);
+
+        // move some nodes to somewhere in the middle
+
+        for (int ii = k_FORWARD_BEGIN; ii < k_FORWARD_END; ++ii) {
+            PairHandle ph;
+            ASSERTV(ii, TTF::getIdentifier(KVS[ii]),
+                                                    0 == X.find(&ph, KVS[ii]));
+            ASSERT(ph);
+            if (!ph) {
+                TD::dump(X);
+            }
+            bool newFrontFlag;
+            ASSERT(0 == mX.update(ph, KVS[k_FORWARD_DEST], &newFrontFlag, 1));
+            ASSERT(! newFrontFlag);
+            ASSERT(ph.key() == KVS[k_FORWARD_DEST]);
+            ASSERT(0 == X.previous(&ph, ph));
+            ASSERT(ph.key() != KVS[k_FORWARD_DEST]);
+
+            TableRecord tr = init[ii];
+            tr.d_key = k_FORWARD_DEST;
+            moved.push_back(tr);
+        }
+
+        init.erase(init.begin() + k_FORWARD_BEGIN,
+                   init.begin() + k_FORWARD_END);
+
+        bsl::reverse(moved.begin(), moved.end());
+        init.insert(init.begin() + k_FORWARD_DEST_OFFSET,
+                    moved.begin(),
+                    moved.end());
+
+        verify( X, &init[0], init.size(), L_);
+        verifyR(X, &init[0], init.size(), L_);
+
+        // start over
+
+        init.clear();
+        moved.clear();
+        mX.removeAll();
+
+        for (int ii = 0; ii < k_NUM_ITEMS; ++ii) {
+            TableRecord tr = { L_, ii, ii, ii % 5 };
+            init.push_back(tr);
+        }
+
+        TD::populate(&mX, &init[0], init.size());
+        verify( X, &init[0], init.size(), L_);
+        verifyR(X, &init[0], init.size(), L_);
+
+        // Move them to the front.
+
+        for (int ii = k_FORWARD_BEGIN; ii < k_FORWARD_END; ++ii) {
+            PairHandle ph;
+            ASSERT(0 == X.find(&ph, KVS[ii]));
+            bool newFrontFlag;
+            ASSERT(0 == mX.update(ph, KVS[0], &newFrontFlag, true));
+            ASSERT(newFrontFlag);
+            TableRecord tr = init[ii];
+            tr.d_key = 0;
+            moved.push_back(tr);
+        }
+
+        init.erase(init.begin() + k_FORWARD_BEGIN,
+                   init.begin() + k_FORWARD_END);
+
+        bsl::reverse(moved.begin(), moved.end());
+        init.insert(init.begin(), moved.begin(), moved.end());
+
+        verify( X, &init[0], init.size(), L_);
+        verifyR(X, &init[0], init.size(), L_);
+
+        // move the front node to the end
+
+        {
+            PairHandle ph;
+            ASSERT(0 == X.find(&ph, KVS[0]));
+            bool newFrontFlag;
+            ASSERT(0 == mX.update(ph, KVS[k_NUM_ITEMS - 1], &newFrontFlag, 1));
+            ASSERT(! newFrontFlag);
+
+            TableRecord tr = init[0];
+            tr.d_key = k_NUM_ITEMS - 1;
+
+            init.erase(init.begin());
+            init.insert(init.begin() + init.size() - 1, tr);
+        }
+
+        verify( X, &init[0], init.size(), L_);
+        verifyR(X, &init[0], init.size(), L_);
+
+        // move the back node to the front
+
+        {
+            PairHandle ph;
+            ASSERT(0 == X.findR(&ph, KVS[k_NUM_ITEMS - 1]));
+            ASSERT(ph.data() == DVS[k_NUM_ITEMS - 1]); 
+            bool newFrontFlag;
+            ASSERT(0 == mX.update(ph, KVS[0], &newFrontFlag, 1));
+            ASSERT(newFrontFlag);
+
+            TableRecord tr = init[k_NUM_ITEMS - 1];
+            tr.d_key = 0;
+
+            init.erase(init.begin() + init.size() - 1);
+            init.insert(init.begin(), tr);
+        }
+
+        verify( X, &init[0], init.size(), L_);
+        verifyR(X, &init[0], init.size(), L_);
+
+        // start over
+
+        init.clear();
+        moved.clear();
+        mX.removeAll();
+
+        for (int ii = 0; ii < k_NUM_ITEMS; ++ii) {
+            TableRecord tr = { L_, ii, ii, ii % 5 };
+            init.push_back(tr);
+        }
+
+        TD::populate(&mX, &init[0], init.size());
+        verify( X, &init[0], init.size(), L_);
+        verifyR(X, &init[0], init.size(), L_);
+
+        // move several nodes from the middle to somewhere else in the middle
+
+        for (int ii = k_BACKWARD_BEGIN; ii < k_BACKWARD_END; ++ii) {
+            PairHandle ph;
+            ASSERTV(ii, TTF::getIdentifier(KVS[ii]),
+                                                   0 == X.findR(&ph, KVS[ii]));
+            bool newFrontFlag;
+            ASSERT(0 == mX.updateR(ph, KVS[k_BACKWARD_DEST], &newFrontFlag,1));
+            ASSERT(! newFrontFlag);
+            ASSERT(ph.key() == KVS[k_BACKWARD_DEST]);
+            ASSERT(0 == X.next(&ph, ph));
+            ASSERT(ph.key() != KVS[k_BACKWARD_DEST]);
+
+            TableRecord tr = init[ii];
+            tr.d_key = k_BACKWARD_DEST;
+            moved.push_back(tr);
+        }
+
+        init.erase(init.begin() + k_BACKWARD_BEGIN,
+                   init.begin() + k_BACKWARD_END);
+
+        init.insert(init.begin() + k_BACKWARD_DEST + 1,
+                    moved.begin(),
+                    moved.end());
+
+        verify( X, &init[0], init.size(), L_);
+        verifyR(X, &init[0], init.size(), L_);
+
+        // start over
+
+        init.clear();
+        moved.clear();
+        mX.removeAll();
+
+        for (int ii = 0; ii < k_NUM_ITEMS; ++ii) {
+            TableRecord tr = { L_, ii, ii, ii % 5 };
+            init.push_back(tr);
+        }
+
+        TD::populate(&mX, &init[0], init.size());
+        verify( X, &init[0], init.size(), L_);
+        verifyR(X, &init[0], init.size(), L_);
+
+        // move them to the rear
+
+        for (int ii = k_BACKWARD_BEGIN; ii < k_BACKWARD_END; ++ii) {
+            PairHandle ph;
+            ASSERTV(ii, TTF::getIdentifier(KVS[ii]),
+                                                   0 == X.findR(&ph, KVS[ii]));
+            bool newFrontFlag;
+            ASSERT(0 == mX.updateR(ph, KVS[k_NUM_ITEMS - 1], &newFrontFlag,1));
+            ASSERT(! newFrontFlag);
+            ASSERT(ph.key() == KVS[k_NUM_ITEMS - 1]);
+            ASSERT(0 == X.skipForward(&ph));
+            ASSERTV(TTF::getIdentifier(ph.key()),
+                                           TTF::getIdentifier(ph.data()), !ph);
+
+            TableRecord tr = init[ii];
+            tr.d_key = k_NUM_ITEMS - 1;
+            moved.push_back(tr);
+        }
+
+        init.erase(init.begin() + k_BACKWARD_BEGIN,
+                   init.begin() + k_BACKWARD_END);
+
+        init.insert(init.end(), moved.begin(), moved.end());
+
+        verify( X, &init[0], init.size(), L_);
+        verifyR(X, &init[0], init.size(), L_);
+
+        // move the back node to the front
+
+        {
+            PairHandle ph;
+            ASSERT(0 == X.back(&ph));
+            ASSERT(KVS[k_NUM_ITEMS    - 1] == ph.key());
+            ASSERT(DVS[k_BACKWARD_END - 1] == ph.data());
+
+            bool newFrontFlag;
+            ASSERT(0 == mX.updateR(ph, KVS[0], &newFrontFlag, true));
+            ASSERT(!newFrontFlag);
+
+            TableRecord tr = init[init.size() - 1];
+            tr.d_key = 0;
+
+            init.erase(init.end() - 1);
+            init.insert(init.begin() + 1, tr);
+
+            X.skipForward(&ph);
+            ASSERT(KVS[1] == ph.key());
+        }            
+
+        verify( X, &init[0], init.size(), L_);
+        verifyR(X, &init[0], init.size(), L_);
+    }
+
+    for (int ii = 0; ii < k_NUM_VALS; ++ii) {
+        obk[ii].address()->~KEY_TYPE();
+        obd[ii].address()->~DATA_TYPE();
     }
 
     V(da.numAllocations());

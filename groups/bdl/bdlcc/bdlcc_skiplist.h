@@ -97,11 +97,11 @@ BSLS_IDENT("$Id: $")
 // methods, 'find' and 'findR' methods, etc.  The "R" versions of these methods
 // search from the back of the list (i.e., in descending (reverse) order).  Use
 // of an "R" method is a hint to the Skip List that the desired key is more
-// likely to be near the back than the front.  In no case does the use of one
-// version of a method over the other affect the correctness of the result.
-// Note that if there are pairs in the list with duplicate keys, the specific
-// pair found by 'find' may (or may not) be different from the one found by
-// 'findR'.
+// likely to be near the back than the front.  In the event of duplicate keys,
+// 'find' will find the first matching key, and 'findR' will find the last
+// matching key.  Note that if there are pairs in the list with duplicate keys,
+// the specific pair found by 'find' may (or may not) be different from the one
+// found by 'findR'.
 //
 ///'bdlcc::SkipListPair' Usage Rules
 ///---------------------------------
@@ -905,7 +905,8 @@ class SkipList {
     void moveImp(bool *newFrontFlag, Node *location[], Node *node);
         // Insert the specified 'node' into this list immediately before the
         // specified 'location' (which is populated by either
-        // 'lookupImpLowerBound' or 'lookupImpLowerBoundR').  Load into the
+        // 'lookupImpLowerBound' or 'lookupImpLowerBoundR',
+        // 'lookupImpUpperBound', or lookupImpUpperBoundR').  Load into the
         // specified 'newFrontFlag' a 'true' value if the node is inserted at
         // the front of the list, and 'false' otherwise.  This method must be
         // called under the lock.
@@ -947,8 +948,10 @@ class SkipList {
         // value of 'node' to the 'newKey' value.  If the specified
         // 'newFrontFlag' is not 0, load into it a 'true' value if the new
         // location of the node is the front of the list, and a 'false' value
-        // otherwise.  Return 0 on success, 'e_NOT_FOUND' if the node is no
-        // longer in the list, or 'e_DUPLICATE' if the specified
+        // otherwise.  If there will be multiple instances of 'newKey' in the
+        // list after the update, the updated node will be the *first* node
+        // with the key 'newKey'.  Return 0 on success, 'e_NOT_FOUND' if the
+        // node is no longer in the list, or 'e_DUPLICATE' if the specified
         // 'allowDuplicates' is 'false' and 'newKey' already appears in the
         // list.
 
@@ -962,8 +965,10 @@ class SkipList {
         // in descending order by by key value.  Update the key value of 'node'
         // to the 'newKey' value.  If the specified 'newFrontFlag' is not 0,
         // load into it a 'true' value if the new location of the node is the
-        // front of the list, and a 'false' value otherwise.  Return 0 on
-        // success, 'e_NOT_FOUND' if the node is no longer in the list, or
+        // front of the list, and a 'false' value otherwise.  If there will be
+        // multiple instances of 'newKey' in the list after the update, the
+        // updated node will be the *last* node with the key 'newKey'.  Return
+        // 0 on success, 'e_NOT_FOUND' if the node is no longer in the list, or
         // 'e_DUPLICATE' if the specified 'allowDuplicates' is 'false' and
         // 'newKey' already appears in the list.
 
@@ -1419,10 +1424,12 @@ class SkipList {
     int find(PairHandle *item, const KEY& key) const;
         // Load into the specified 'item' a reference to the element in this
         // list with the specified 'key' found by searching the list from the
-        // front (in ascending order of key value).  Return 0 on success, and a
-        // non-zero value (with no effect on 'item') if no such element exists.
-        // If there are multiple elements in the list with the 'key', it is
-        // undefined which one is returned.
+        // front (in ascending order of key value).  If multiple elements
+        // having 'key' are in the container, load 'item' with the *first*
+        // matching element.  Return 0 on success, and a non-zero value (with
+        // no effect on 'item') if no such element exists.  If there are
+        // multiple elements in the list with the 'key', it is undefined which
+        // one is returned.
 
     int findRaw(Pair **item, const KEY& key) const;
         // Load into the specified 'item' a reference to the element in this
@@ -1438,10 +1445,12 @@ class SkipList {
     int findR(PairHandle *item, const KEY& key) const;
         // Load into the specified 'item' a reference to the element in this
         // list with the specified 'key' found by searching the list from the
-        // back (in descending order of key value).  Return 0 on success, and a
-        // non-zero value (with no effect on 'item') if no such element exists.
-        // If there are multiple elements in the list with the 'key', it is
-        // undefined which one is returned.
+        // back (in descending order of key value).  If multiple elements
+        // having 'key' are in the container, load 'item' with the *last*
+        // matching element.  'key' are present, find the last one.  Return 0
+        // on success, and a non-zero value (with no effect on 'item') if no
+        // such element exists.  If there are multiple elements in the list
+        // with the 'key', it is undefined which one is returned.
 
     int findRRaw(Pair **item, const KEY& key) const;
         // Load into the specified 'item' a reference to the element in this
@@ -2270,13 +2279,16 @@ int SkipList<KEY, DATA>::updateNodeR(bool       *newFrontFlag,
     }
 
     Node *location[k_MAX_NUM_LEVELS];
-    lookupImpLowerBoundR(location, newKey);
 
     if (!allowDuplicates) {
+        lookupImpLowerBoundR(location, newKey);
         Node *p = location[0];
         if (p != d_tail_p && p != node && p->d_key == newKey) {
             return e_DUPLICATE;                                       // RETURN
         }
+    }
+    else {
+        lookupImpUpperBoundR(location, newKey);
     }
 
     node->d_key = newKey;  // may throw
@@ -2327,12 +2339,15 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNodeR(const KEY& key) const
     Node *locator[k_MAX_NUM_LEVELS];
 
     LockGuard guard(&d_lock);
-    lookupImpLowerBoundR(locator, key);
+    lookupImpUpperBoundR(locator, key);
 
     Node *p = locator[0];
-    if (p != d_tail_p && p->d_key == key) {
-        p->incrementRefCount();
-        return p;                                                     // RETURN
+    if (d_head_p != p) {
+        p = p->d_ptrs[0].d_prev_p;
+        if (d_head_p != p && key == p->d_key) {
+            p->incrementRefCount();
+            return p;                                                 // RETURN
+        }
     }
 
     return 0;
