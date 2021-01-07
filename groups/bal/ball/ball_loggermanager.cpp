@@ -8,6 +8,7 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 #include <ball_context.h>
 #include <ball_fixedsizerecordbuffer.h>
 #include <ball_loggermanagerdefaults.h>
+#include <ball_record.h>
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
 #include <ball_streamobserver.h>           // for testing only
@@ -15,6 +16,7 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
+#include <bdlf_placeholder.h>
 
 #include <bdls_processutil.h>
 
@@ -278,7 +280,8 @@ const char *const k_INTERNAL_OBSERVER_NAME = "__oBsErVeR__";
 // PRIVATE CREATORS
 Logger::Logger(const bsl::shared_ptr<Observer>&            observer,
                RecordBuffer                               *recordBuffer,
-               const Logger::UserFieldsPopulatorCallback&  populator,
+               const UserFieldsPopulatorCallback&          userFieldsPopulator,
+               const AttributeCollectorRegistry           *attributeCollectors,
                const PublishAllTriggerCallback&            publishAllCallback,
                int                                         scratchBufferSize,
                LoggerManagerConfiguration::LogOrder        logOrder,
@@ -287,7 +290,8 @@ Logger::Logger(const bsl::shared_ptr<Observer>&            observer,
 : d_recordPool(-1, globalAllocator)
 , d_observer(observer)
 , d_recordBuffer_p(recordBuffer)
-, d_populator(populator)
+, d_userFieldsPopulator(userFieldsPopulator)
+, d_attributeCollectors_p(attributeCollectors)
 , d_publishAll(publishAllCallback)
 , d_bufferPool(scratchBufferSize, globalAllocator)
 , d_scratchBufferSize(scratchBufferSize)
@@ -298,6 +302,7 @@ Logger::Logger(const bsl::shared_ptr<Observer>&            observer,
     BSLS_ASSERT(d_observer);
     BSLS_ASSERT(d_recordBuffer_p);
     BSLS_ASSERT(d_allocator_p);
+    BSLS_ASSERT(d_attributeCollectors_p);
 
     // 'snprintf' message buffer
 
@@ -334,9 +339,17 @@ void Logger::logMessage(const Category&            category,
 
     record->fixedFields().setThreadID(bslmt::ThreadUtil::selfIdAsUint64());
 
-    if (d_populator) {
-        d_populator(&record->customFields());
+    // Invoke legacy user fields populator callback.
+    if (d_userFieldsPopulator) {
+        d_userFieldsPopulator(&record->customFields());
     }
+
+    // Invoke all collectors with a functor that adds the attribute to the log
+    // record.
+    d_attributeCollectors_p->collect(
+        bdlf::BindUtil::bind(&ball::Record::addAttribute,
+                             record,
+                             bdlf::PlaceHolders::_1));
 
     bsl::shared_ptr<Record> handle(record, &d_recordPool, d_allocator_p);
 
@@ -556,6 +569,10 @@ void LoggerManager::initSingletonImpl(
         AttributeContext::initialize(&singleton->d_categoryManager,
                                      bslma::Default::globalAllocator(0));
 
+        singleton->registerAttributeCollector(
+                                            &AttributeContext::visitAttributes,
+                                            "ball.scopedAttributes");
+
         s_singleton_p = singleton;
 
         // Configure 'bsls::Log' to publish records using 'ball' via the
@@ -596,7 +613,8 @@ LoggerManager::LoggerManager(
                            configuration.defaults().defaultPassLevel(),
                            configuration.defaults().defaultTriggerLevel(),
                            configuration.defaults().defaultTriggerAllLevel())
-, d_populator(configuration.userFieldsPopulatorCallback())
+, d_userFieldsPopulator(configuration.userFieldsPopulatorCallback())
+, d_attributeCollectors(bslma::Default::globalAllocator(globalAllocator))
 , d_logger_p(0)
 , d_categoryManager(bslma::Default::globalAllocator(globalAllocator))
 , d_maxNumCategoriesMinusOne((unsigned int)-1)
@@ -644,7 +662,8 @@ void LoggerManager::constructObject(
 
     d_logger_p = new(*d_allocator_p) Logger(d_observer,
                                             d_recordBuffer_p,
-                                            d_populator,
+                                            d_userFieldsPopulator,
+                                            &d_attributeCollectors,
                                             d_publishAllCallback,
                                             d_scratchBufferSize,
                                             d_logOrder,
@@ -981,7 +1000,8 @@ LoggerManager::LoggerManager(
                            configuration.defaults().defaultPassLevel(),
                            configuration.defaults().defaultTriggerLevel(),
                            configuration.defaults().defaultTriggerAllLevel())
-, d_populator(configuration.userFieldsPopulatorCallback())
+, d_userFieldsPopulator(configuration.userFieldsPopulatorCallback())
+, d_attributeCollectors(bslma::Default::globalAllocator(globalAllocator))
 , d_logger_p(0)
 , d_categoryManager(bslma::Default::globalAllocator(globalAllocator))
 , d_maxNumCategoriesMinusOne((unsigned int)-1)
@@ -1034,7 +1054,8 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer)
 
     Logger *logger = new(*d_allocator_p) Logger(d_observer,
                                                 buffer,
-                                                d_populator,
+                                                d_userFieldsPopulator,
+                                                &d_attributeCollectors,
                                                 d_publishAllCallback,
                                                 d_scratchBufferSize,
                                                 d_logOrder,
@@ -1052,7 +1073,8 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
 
     Logger *logger = new(*d_allocator_p) Logger(d_observer,
                                                 buffer,
-                                                d_populator,
+                                                d_userFieldsPopulator,
+                                                &d_attributeCollectors,
                                                 d_publishAllCallback,
                                                 scratchBufferSize,
                                                 d_logOrder,
@@ -1075,7 +1097,8 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
 
     Logger *logger = new(*d_allocator_p) Logger(observerWrapper,
                                                 buffer,
-                                                d_populator,
+                                                d_userFieldsPopulator,
+                                                &d_attributeCollectors,
                                                 d_publishAllCallback,
                                                 d_scratchBufferSize,
                                                 d_logOrder,
@@ -1098,7 +1121,8 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
 
     Logger *logger = new(*d_allocator_p) Logger(observerWrapper,
                                                 buffer,
-                                                d_populator,
+                                                d_userFieldsPopulator,
+                                                &d_attributeCollectors,
                                                 d_publishAllCallback,
                                                 scratchBufferSize,
                                                 d_logOrder,
@@ -1119,7 +1143,8 @@ Logger *LoggerManager::allocateLogger(
 
     Logger *logger = new(*d_allocator_p) Logger(observer,
                                                 buffer,
-                                                d_populator,
+                                                d_userFieldsPopulator,
+                                                &d_attributeCollectors,
                                                 d_publishAllCallback,
                                                 d_scratchBufferSize,
                                                 d_logOrder,
@@ -1139,7 +1164,8 @@ Logger *LoggerManager::allocateLogger(
 
     Logger *logger = new(*d_allocator_p) Logger(observer,
                                                 buffer,
-                                                d_populator,
+                                                d_userFieldsPopulator,
+                                                &d_attributeCollectors,
                                                 d_publishAllCallback,
                                                 scratchBufferSize,
                                                 d_logOrder,
@@ -1452,10 +1478,10 @@ const Observer *LoggerManager::observer() const
 }
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-const Logger::UserFieldsPopulatorCallback *
+const LoggerManager::UserFieldsPopulatorCallback *
 LoggerManager::userFieldsPopulatorCallback() const
 {
-    return d_populator ? &d_populator : 0;
+    return d_userFieldsPopulator ? &d_userFieldsPopulator : 0;
 }
 
                         // Threshold Level Management

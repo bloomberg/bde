@@ -20,12 +20,12 @@ namespace ball {
 
 // CREATORS
 AttributeContainerList::AttributeContainerList(
-                                 const AttributeContainerList&  original,
-                                 bslma::Allocator              *basicAllocator)
+                                      const AttributeContainerList&  original,
+                                      const allocator_type&          allocator)
 : d_head_p(0)
 , d_free_p(0)
 , d_length(0)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator(allocator)
 {
     Node **prevNextAddr = &d_head_p;
     for (iterator it = original.begin(); it != original.end(); ++it) {
@@ -33,7 +33,7 @@ AttributeContainerList::AttributeContainerList(
         // Incrementing 'd_length' and assigning 'd_next_p' to 0 in each
         // iteration ensures this object is left in a valid state if an
         // exception is thrown creating a new element.
-        Node *node = new (*d_allocator_p) Node();
+        Node *node = new (*d_allocator.mechanism()) Node();
         node->d_next_p = 0;
         node->d_value_p = *it;
         node->d_prevNextAddr_p = prevNextAddr;
@@ -63,7 +63,7 @@ AttributeContainerList& AttributeContainerList::operator=(
                 d_free_p = d_free_p->d_next_p;
             }
             else {
-                node = new (*d_allocator_p) Node();
+                node = new (*d_allocator.mechanism()) Node();
             }
             node->d_value_p = *it;
             node->d_next_p = 0;
@@ -85,7 +85,7 @@ AttributeContainerList::pushFront(const AttributeContainer *container)
         d_free_p = d_free_p->d_next_p;
     }
     else {
-        node = new (*d_allocator_p) Node();
+        node = new (*d_allocator.mechanism()) Node();
     }
     node->d_value_p        = container;
     node->d_next_p         = d_head_p;
@@ -143,12 +143,12 @@ void AttributeContainerList::removeAllAndRelease()
     while (d_head_p) {
         Node *node = d_head_p;
         d_head_p = d_head_p->d_next_p;
-        d_allocator_p->deleteObjectRaw(node);
+        d_allocator.mechanism()->deleteObjectRaw(node);
     }
     while (d_free_p) {
         Node *node = d_free_p;
         d_free_p = d_free_p->d_next_p;
-        d_allocator_p->deleteObjectRaw(node);
+        d_allocator.mechanism()->deleteObjectRaw(node);
     }
     d_length = 0;
 }

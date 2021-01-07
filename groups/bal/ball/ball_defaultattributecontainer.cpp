@@ -1,12 +1,4 @@
 // ball_defaultattributecontainer.cpp                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_defaultattributecontainer.h>
 
 #include <bsls_ident.h>
@@ -61,6 +53,14 @@ bsl::ostream& DefaultAttributeContainer::print(
     }
     printer.end();
     return stream;
+}
+
+void DefaultAttributeContainer::visitAttributes(
+             const bsl::function<void(const ball::Attribute&)>& visitor) const
+{
+    for (const_iterator iter = begin(); iter != end(); ++iter) {
+        visitor(*iter);
+    }
 }
 
 }  // close package namespace

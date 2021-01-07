@@ -173,6 +173,11 @@ typedef ball::AttributeContainer Obj;
                                     int           level = 0,
                                     int           spacesPerLevel = 4) const;
             // Format this object to the specified output 'stream'.
+
+        virtual void visitAttributes(
+             const bsl::function<void(const ball::Attribute&)>& visitor) const;
+            // Invoke the specified 'visitor' function for all attributes in
+            // this container.
     };
 
 
@@ -185,7 +190,7 @@ typedef ball::AttributeContainer Obj;
     {
     }
 
-      // serviceattributes.cpp
+    // serviceattributes.cpp
 
     // PUBLIC CONSTANTS
     const char * const ServiceAttributes::UUID_ATTRIBUTE_NAME       = "uuid";
@@ -216,7 +221,15 @@ typedef ball::AttributeContainer Obj;
         printer.end();
         return stream;
     }
-//
+
+    void ServiceAttributes::visitAttributes(
+              const bsl::function<void(const ball::Attribute&)> &visitor) const
+    {
+        visitor(d_uuid);
+        visitor(d_luw);
+        visitor(d_firmNumber);
+    }
+
 ///Example 2: A Generic Implementation of 'ball::AttributeContainer'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this second example we define a 'ball::AttributeContainer' that can
@@ -305,6 +318,11 @@ typedef ball::AttributeContainer Obj;
             // Format this object to the specified output 'stream' at the
             // (absolute value of) the optionally specified indentation 'level'
             // and return a reference to 'stream'.
+
+        virtual void visitAttributes(
+             const bsl::function<void(const ball::Attribute&)>& visitor) const;
+            // Invoke the specified 'visitor' function for all attributes in
+            // this container.
     };
 
 //..
@@ -333,16 +351,19 @@ typedef ball::AttributeContainer Obj;
     // attributeset.cpp
 
     // CREATORS
+    inline
     AttributeSet::~AttributeSet()
     {
     }
 
     // ACCESSORS
+    inline
     bool AttributeSet::hasValue(const ball::Attribute& value) const
     {
         return d_set.find(value) != d_set.end();
     }
 
+    inline
     bsl::ostream& AttributeSet::print(bsl::ostream& stream,
                                       int           level,
                                       int           spacesPerLevel) const
@@ -351,13 +372,25 @@ typedef ball::AttributeContainer Obj;
         bslim::Printer printer(&stream, level, spacesPerLevel);
         printer.start();
 
-        bsl::set<ball::Attribute>::const_iterator it = d_set.begin();
+        bsl::set<ball::Attribute, AttributeComparator>::const_iterator it
+                                                               = d_set.begin();
         for (; it != d_set.end(); ++it) {
             printer.printValue(*it);
         }
         printer.end();
 
         return stream;
+    }
+
+    inline
+    void AttributeSet::visitAttributes(
+              const bsl::function<void(const ball::Attribute&)> &visitor) const
+    {
+        bsl::set<ball::Attribute, AttributeComparator>::const_iterator it
+                                                               = d_set.begin();
+        for (; it != d_set.end(); ++it) {
+            visitor(*it);
+        }
     }
 
 //=============================================================================
@@ -369,7 +402,12 @@ struct AttributeContainerTest :
     bool hasValue(const ball::Attribute&) const        { return markDone(); }
     bsl::ostream& print(bsl::ostream&, int, int) const
                                                       { return markDoneRef(); }
+    void visitAttributes(
+            const bsl::function<void(const ball::Attribute&)>&) const
+                                                                { markDone(); }
 };
+
+void visitNoop(const ball::Attribute&) {}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -461,6 +499,7 @@ int main(int argc, char *argv[])
 
         BSLS_PROTOCOLTEST_ASSERT(t, hasValue(ball::Attribute("", 0)));
         BSLS_PROTOCOLTEST_ASSERT(t, print(cout, 0, 0));
+        BSLS_PROTOCOLTEST_ASSERT(t, visitAttributes(visitNoop));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -476,6 +476,10 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage of 'ball::AttributeContainerList'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we demonstrate how to create a
 // 'ball::AttributeContainerList' object, how to add and remove elements from
 // the list, and how to walk the list of attribute container addresses.
@@ -510,14 +514,17 @@ int main(int argc, char *argv[])
     ASSERT(!exampleList.hasValue(ball::Attribute("Set2", 1)));
     ASSERT(!exampleList.hasValue(ball::Attribute("Set4", 1)));
 //..
-// Finally, we can use the iterators to walk the list of efficiently remove
-// elements from the list:
+// We can use the iterators to efficiently remove elements from the list:
 //..
     exampleList.remove(s3Iter);
 
-    bsl::cout << exampleList << bsl::endl;
 //..
-// The resulting output will be the following:
+// Finally, we can use either the stream operator or the 'print()' method to
+// print the attributes within an attribute container list:
+//..
+    if (veryVerbose) {
+        bsl::cout << exampleList << bsl::endl;
+    }
 //..
 
     (void)s1Iter;

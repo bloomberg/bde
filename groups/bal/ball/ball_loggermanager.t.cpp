@@ -1,20 +1,14 @@
 // ball_loggermanager.t.cpp                                           -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_loggermanager.h>
 
+#include <ball_attributecontext.h>
 #include <ball_fixedsizerecordbuffer.h>
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_loggermanagerdefaults.h>
 #include <ball_rule.h>
 #include <ball_userfieldtype.h>
 #include <ball_userfields.h>
+#include <ball_scopedattribute.h>
 #include <ball_severity.h>
 #include <ball_streamobserver.h>
 #include <ball_testobserver.h>
@@ -213,7 +207,7 @@ using namespace bdlf::PlaceHolders;
 // [41] USAGE EXAMPLE #4
 // [37] CONCERN: RECORD POOL MEMORY CONSUMPTION
 // [19] CONCERN: PERFORMANCE IMPLICATIONS
-// [12] CONCERN: USER FIELDS POPULATOR CALLBACK
+// [12] CONCERN: LOG RECORD POPULATOR CALLBACKS
 // [11] CONCERN: INTERNAL BROADCAST OBSERVER
 // [ 9] CONCERN: DEFAULT THRESHOLD LEVELS CALLBACK
 // [ 6] CONCERN: CATEGORY NAME FILTER CALLBACK
@@ -296,7 +290,7 @@ typedef ball::UserFields                 FieldValues;
 typedef ball::ThresholdAggregate         Thresholds;
 
 typedef Logger::PublishAllTriggerCallback   Pac;
-typedef Logger::UserFieldsPopulatorCallback Pop;
+typedef Obj::UserFieldsPopulatorCallback    Pop;
 
 typedef Obj::CategoryNameFilterCallback     Cnf;
 typedef Obj::DefaultThresholdLevelsCallback Dtc;
@@ -1058,7 +1052,7 @@ void verifyLoggerManagerDefaults(const ball::LoggerManager&  manager,
 static int globalFactorialArgument;  // TBD kludge
 
 static
-void myPopulator(ball::UserFields *list)
+void myUserFieldsPopulator(ball::UserFields *list)
 {
     list->appendInt64(globalFactorialArgument);
 }
@@ -1746,10 +1740,21 @@ void testThresholdLevelsCb(int        *recordLevel,
 
 void testUserFieldsPopulatorCb(ball::UserFields *list)
 {
-    list->appendString("UserField");
-    list->appendInt64(1066);
+    list->appendString("UFString");
+    list->appendInt64(1234);
 }
 
+void testAttributesCollector1(
+                          const ball::LoggerManager::AttributeVisitor& visitor)
+{
+    visitor(ball::Attribute("spanId", 1234));
+}
+
+void testAttributesCollector2(
+                          const ball::LoggerManager::AttributeVisitor& visitor)
+{
+    visitor(ball::Attribute("dti.tDiff", "25ms"));
+}
 }  // close unnamed namespace
 
 // ============================================================================
@@ -3727,7 +3732,7 @@ int main(int argc, char *argv[])
         Obj::DefaultThresholdLevelsCallback
                 thresholdsCallback(&inheritThresholdLevels);
 
-        ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
+        Obj::UserFieldsPopulatorCallback populator(&myUserFieldsPopulator);
 
         ball::LoggerManagerConfiguration mXC;
         mXC.setCategoryNameFilterCallback(nameFilter);
@@ -4249,7 +4254,7 @@ int main(int argc, char *argv[])
 
             Cnf nameFilter(&toLower);
 
-            ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
+            Obj::UserFieldsPopulatorCallback populator(&myUserFieldsPopulator);
 
             ball::LoggerManagerConfiguration mXC;
             mXC.setTriggerMarkers(
@@ -4742,7 +4747,7 @@ int main(int argc, char *argv[])
         Obj::DefaultThresholdLevelsCallback
                                    thresholdsCallback(&inheritThresholdLevels);
 
-        ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
+        Obj::UserFieldsPopulatorCallback populator(&myUserFieldsPopulator);
 
         ball::LoggerManagerConfiguration mXC;
         mXC.setCategoryNameFilterCallback(nameFilter);
@@ -5032,7 +5037,7 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // CONCERN: USER FIELDS POPULATOR CALLBACK
+        // CONCERN: LOG RECORD POPULATOR CALLBACKS
         //
         // Concerns:
         //: 1 That the supplied user-fields populator callback is used to
@@ -5045,15 +5050,15 @@ int main(int argc, char *argv[])
         //: 2 Install additional observer.
         //:
         //: 3 Log a test message and verify that all observers receive the
-        //:   message and the message contains populated user fields.
+        //:   message and the message contains populated log fields.
         //
         // Testing:
-        //   CONCERN: USER FIELDS POPULATOR CALLBACK
+        //   CONCERN: LOG RECORD POPULATOR CALLBACKS
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << endl << "CONCERN: USER FIELDS POPULATOR CALLBACK" << endl
-                         << "=======================================" << endl;
+            cout << "\nCONCERN: LOG RECORD POPULATOR CALLBACKS"
+                 << "\n=======================================" << endl;
 
         ball::TestObserver  observer1Holder(&cout);
         ball::TestObserver *observer1 = &observer1Holder;
@@ -5086,7 +5091,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == observer1->numPublishedRecords());
         ASSERT(0 == observer2->numPublishedRecords());
 
-        const char *MESSAGE = "UserFields Populator Callback Test";
+        const char *MESSAGE = "Populators Callback Test";
         const int   LINE    = L_ + 1;
         logger.logMessage(X.defaultCategory(),
                           FACTORY_PASS,
@@ -5114,9 +5119,91 @@ int main(int argc, char *argv[])
             ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
             const FieldValues& V = R.customFields();
-            ASSERT(2           == V.length());
-            ASSERT("UserField" == V[0].theString());
-            ASSERT(1066        == V[1].theInt64());
+            ASSERT(2               == V.length());
+            ASSERT("UFString"      == V[0].theString());
+            ASSERT(1234            == V[1].theInt64());
+        }
+        // Install ScopedFields populator callbacks
+        mX.registerAttributeCollector(&testAttributesCollector1,
+                                    "dti");
+        mX.registerAttributeCollector(&testAttributesCollector2,
+                                    "perf");
+
+        logger.logMessage(X.defaultCategory(),
+                          FACTORY_PASS,
+                          __FILE__,
+                          LINE,
+                          MESSAGE);
+        ASSERT(2 == observer1->numPublishedRecords());
+        ASSERT(2 == observer2->numPublishedRecords());
+
+        // Verify that the message is logged in both observers
+        for (int i = 0; i < 2; ++i) {
+            ball::TestObserver *observer = i ? observer1
+                                             : observer2.get();
+
+            const Rec&  R = observer->lastPublishedRecord();
+            if (veryVerbose) cout << R << endl;
+
+            const Attr& A = R.fixedFields();
+
+            ASSERT(0            == bsl::strcmp(DEFAULT_CATEGORY_NAME,
+                                               A.category()));
+            ASSERT(FACTORY_PASS == A.severity());
+            ASSERT(0            == bsl::strcmp(__FILE__, A.fileName()));
+            ASSERT(LINE         == A.lineNumber());
+            ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
+
+            const FieldValues& V = R.customFields();
+            ASSERT(2            == V.length());
+            ASSERT("UFString"   == V[0].theString());
+            ASSERT(1234         == V[1].theInt64());
+
+            // Checking attributes added by collectors.
+            ASSERTV(2 == R.attributes().size());
+            ASSERTV(ball::Attribute("spanId", 1234) == R.attributes()[0]);
+            ASSERTV(ball::Attribute("dti.tDiff", "25ms") == R.attributes()[1]);
+        }
+
+        {
+            ball::ScopedAttribute myAttribute("test", "value");
+            logger.logMessage(X.defaultCategory(),
+                              FACTORY_PASS,
+                              __FILE__,
+                              LINE,
+                              MESSAGE);
+            ASSERT(3 == observer1->numPublishedRecords());
+            ASSERT(3 == observer2->numPublishedRecords());
+
+            for (int i = 0; i < 2; ++i) {
+                ball::TestObserver *observer = i ? observer1
+                                                 : observer2.get();
+                const Rec&  R = observer->lastPublishedRecord();
+                if (veryVerbose) cout << R << endl;
+
+                // Scoped attributes are added in front of the attribute
+                // vector.
+                ASSERTV(3 == R.attributes().size());
+                ASSERTV(ball::Attribute("test", "value") == R.attributes()[0]);
+                ASSERTV(ball::Attribute("spanId", 1234)  == R.attributes()[1]);
+                ASSERTV(ball::Attribute("dti.tDiff", "25ms")
+                                                         == R.attributes()[2]);
+            }
+        }
+
+        logger.logMessage(X.defaultCategory(),
+                          FACTORY_PASS,
+                          __FILE__,
+                          LINE,
+                          MESSAGE);
+        ASSERT(4 == observer1->numPublishedRecords());
+        ASSERT(4 == observer2->numPublishedRecords());
+
+        for (int i = 0; i < 2; ++i) {
+            ball::TestObserver *observer = i ? observer1
+                                             : observer2.get();
+            const Rec&  R = observer->lastPublishedRecord();
+            if (veryVerbose) cout << R << endl;
         }
 
       } break;
@@ -6504,7 +6591,7 @@ int main(int argc, char *argv[])
         Obj::DefaultThresholdLevelsCallback thresholdsCallback(
                                                       &inheritThresholdLevels);
 
-        ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
+        Obj::UserFieldsPopulatorCallback populator(&myUserFieldsPopulator);
 
         ball::LoggerManagerConfiguration mXC;
         mXC.setCategoryNameFilterCallback(nameFilter);

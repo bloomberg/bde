@@ -1,11 +1,8 @@
 // ball_recordstringformatter.cpp                                     -*-C++-*-
+#include <ball_recordstringformatter.h>
 
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
 
 ///Implementation Notes
 ///--------------------
@@ -14,18 +11,15 @@
 // is implemented by writing the formatted string to a buffer before inserting
 // to a stream.
 
-#include <ball_recordstringformatter.h>
-
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
-
+#include <ball_managedattribute.h>
 #include <ball_record.h>
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
 #include <ball_userfields.h>
 #include <ball_userfieldvalue.h>
 
-#include <bdlb_print.h>
+#include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
 
@@ -35,20 +29,21 @@ BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bdlt_iso8601util.h>
 #include <bdlt_iso8601utilconfiguration.h>
 
+#include <bdlsb_overflowmemoutstreambuf.h>
+
 #include <bsls_annotation.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
-
-#include <bslstl_stringref.h>
 
 #include <bsl_climits.h>   // for 'INT_MAX'
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
 #include <bsl_c_stdlib.h>
 #include <bsl_c_stdio.h>   // for 'snprintf'
 
+#include <bsl_algorithm.h>
 #include <bsl_iomanip.h>
 #include <bsl_ostream.h>
-#include <bsl_sstream.h>
+#include <bsl_utility.h>
 
 namespace {
 
@@ -57,11 +52,430 @@ const char *const DEFAULT_FORMAT_SPEC = "\n%d %p:%t %s %f:%l %c %m %u\n";
 }  // close unnamed namespace
 
 namespace BloombergLP {
+namespace ball {
+namespace {
 
-// STATIC HELPER FUNCTIONS
-static void appendToString(bsl::string *result, int value)
-    // Convert the specified 'value' into ASCII characters and append it to the
-    // specified 'result.
+                       // ============================
+                       // class PublishInLocalTimeUtil
+                       // ============================
+
+struct PublishInLocalTimeUtil {
+    // This "struct" provides a namespace for an enumeration that defines
+    // constants to control the publication of a datetime in local time.
+
+    // TYPES
+    enum {
+        // Enumeration used to enable or disable publishing in local time.
+
+
+        k_DISABLE = INT_MIN,  // Reserved offset (a value corresponding to no
+                              // known time zone) that indicates that the
+                              // record time stamp (in UTC) is *not* adjusted
+                              // to the current local time.
+
+        k_ENABLE  = INT_MAX   // Reserved offset (a value corresponding to no
+                              // known time zone) that indicates that the
+                              // record time stamp (in UTC) is adjusted to the
+                              // current local time.  Local time offsets of
+                              // 'INT_MAX' *milliseconds* (about 23 days)
+                              // should not appear in practice.  Real values
+                              // are (always?) less than one day (plus or
+                              // minus).
+    };
+};
+
+                       // ===============
+                       // class PrintUtil
+                       // ===============
+
+struct PrintUtil {
+    // This "struct" provides a namespace for utility functions that render
+    // values of various types to string.
+
+    // TYPES
+    enum FractionalSecondPrecision {
+        // Enumeration used to distinguish among different fractional second
+        // precision.
+        e_FSP_NONE         = 0,
+        e_FSP_MILLISECONDS = 3,
+        e_FSP_MICROSECONDS = 6
+    };
+
+    // CLASS METHODS
+    static void appendAttribute(bsl::string             *result,
+                                const ManagedAttribute&  attribute,
+                                bool                     printKey = true);
+        // Append the key of the specified 'attribute', followed by the value
+        // of 'attribute' to the specified 'result' string.  Optionally specify
+        // 'printKey' to indicate whether the key should be appended or
+        // omitted.  If 'printKey' is not supplied the key will be appended.
+        // Note that this method is invoked when processing "%a", "%a[key]" or
+        // "%A" specifiers.
+
+    static void appendCategory(bsl::string *result, const Record& record);
+        // Append a category provided by the specified 'record' to the
+        // specified 'result' string.  Note that this method is invoked when
+        // processing "%c" specifier.
+
+    static void appendDatetime(bsl::string                  *result,
+                               const Record&                 record,
+                               const bdlt::DatetimeInterval *timestampOffset,
+                               bool                          iso8601,
+                               FractionalSecondPrecision     secondPrecision);
+        // Append to the specified 'result' the datetime provided by the
+        // specified 'record' in ISO 8601 format if the specified 'iso8601' is
+        // 'true', having the specified fractional 'secondPrecision' numbers,
+        // and the specified 'timestampOffset'.  Note that this method is
+        // invoked when processing "%d", "%D", "%i", "%I" or  "%O" specifiers.
+
+    static void appendFilename(bsl::string   *result,
+                               bool           fullPath,
+                               const Record&  record);
+        // Append a path to a file-name provided by the specified 'record' to
+        // the specified 'result' string if the specified 'fullPath' is true,
+        // and a base-name only otherwise.  Note that this method is invoked
+        // when processing "%f" or "%F" specifiers.
+
+    static void appendHexDump(bsl::string             *result,
+                              const bsl::string_view&  string);
+        // Append to the specified 'result' string the uppercase hex encoding
+        // of the byte sequence defined by the specified 'string'.
+
+    static void appendLineNumber(bsl::string *result, const Record& record);
+        // Append to the specified 'result' a line-number provided by the
+        // specified 'record'.  Note that this method is invoked when
+        // processing "%l" specifier.
+
+    static void appendMessage(bsl::string *result, const Record& record);
+        // Append a message provided by the specified 'record' to the specified
+        // 'result' string.  Note that this method is invoked when processing
+        // "%m" specifier.
+
+    static void appendMessageNonPrintableChars(bsl::string   *result,
+                                               const Record&  record);
+        // Append a message with non-printable characters in hex provided by
+        // the specified 'record' to the specified 'result' string.  Note that
+        // this method is invoked when processing "%x" specifier.
+
+    static void appendMessageAsHex(bsl::string *result, const Record& record);
+        // Append a message provided by the specified 'record' to the specified
+        // 'result' string in hex format.  Note that this method is invoked
+        // when processing "%X" specifier.
+
+    static void appendProcessId(bsl::string *result, const Record& record);
+        // Append a process ID provided by the specified 'record' to the
+        // specified 'result' string.  Note that this method is invoked when
+        // processing "%p" specifier.
+
+    static void appendString(bsl::string             *result,
+                             const bsl::string_view&  value,
+                             bool                     notPrintable = false);
+        // Append the specified 'value' to the specified 'result' string.  If
+        // the optionally specified 'notPrintable' flag is 'true', then all
+        // non-printable characters in 'value' will be printed in their
+        // hexadecimal representation ('\xHH').
+
+    static void appendThreadId(bsl::string *result, const Record& record);
+        // Append a thread ID provided by the specified 'record' to the
+        // specified 'result' string.  Note that this method is invoked when
+        // processing "%t" specifier.
+
+    static void appendThreadIdAsHex(bsl::string *result, const Record& record);
+        // Append a thread ID provided by the specified 'record' to the
+        // specified 'result' string in hex format.  Note that this method is
+        // invoked when processing "%T" specifier.
+
+    static void appendSeverity(bsl::string *result, const Record& record);
+        // Append a severity provided by the specified 'record' to the
+        // specified 'result' string.  Note that this method is invoked when
+        // processing "%s" specifier.
+
+    template <class T>
+    static void appendValue(bsl::string  *result,
+                            const char   *format,
+                            T             value);
+        // Append the specified 'value' to the specified 'result' string
+        // according to the specified 'format'.
+
+    static void appendValue(bsl::string  *result, int                value);
+    static void appendValue(bsl::string  *result, bsls::Types::Int64 value);
+        // Append the specified 'value' to the specified 'result' string.
+
+    static void appendUserFields(bsl::string *result, const Record& record);
+        // Append user fields provided by the specified 'record' to the
+        // specified 'result' string.  Note that this method is invoked when
+        // processing "%u" specifier.
+};
+
+                       // ========================
+                       // class AttributeFormatter
+                       // ========================
+
+class AttributeFormatter {
+    // This class implements a functional object that renders an attribute
+    // value string.
+
+    // PRIVATE TYPES
+    typedef bsl::vector<ball::ManagedAttribute> Attributes;
+        // 'Attributes' is an alias for the vector of 'ball::ManagedAttribute'
+        // objects.
+
+    enum { k_UNSET = -1 };  // Unspecified index
+
+    // DATA
+    const bsl::string_view d_key;    // attribute's key
+    int                    d_index;  // cached attribute's index
+
+  public:
+    // CREATORS
+    explicit
+    AttributeFormatter(const bsl::string_view& key);
+        // Create an attribute formatter object having the specified 'key' of
+        // an attribute to be rendered.
+
+    // MANIPULATORS
+    void operator()(bsl::string *result, const Record& record);
+        // Render an attribute having the key supplied at construction of this
+        // object and provided by the specified 'record' to the specified
+        //'result' string.
+};
+
+                       // =========================
+                       // class AttributesFormatter
+                       // =========================
+
+class AttributesFormatter {
+    // This class implements a functional object that renders a collection of
+    // attribute values to string.
+
+    // PRIVATE TYPES
+    typedef bsl::vector<ball::ManagedAttribute>        Attributes;
+        // 'Attributes' is an alias for the vector of 'ball::ManagedAttribute'
+        // objects.
+
+    typedef bsl::vector<bsl::pair<bsl::string, bool> > AttributeCache;
+        // 'AttributeCache' is an alias for a vector of pairs of an attribute's
+        // key and a flag indicating whether the attribute should be displayed
+        // or not.
+
+    typedef bsl::set<bsl::string_view>                 SkipAttributes;
+        // 'SkipAttributes' is an alias for a set of keys of attributes that
+        // should not be printed as part of '%a' format specifier.
+
+    typedef bsl::allocator<char>                       allocator_type;
+
+    // DATA
+    const SkipAttributes *d_skipAttributes_p;  // collection of keys of skipped
+                                               // attributes (held, not owned)
+
+    AttributeCache        d_cache;             // cached attributes
+
+    // PRIVATE MANIPULATORS
+    void renderAllAttributes(bsl::string *result, const Record& record);
+        // Render all attribute provided by the specified 'record' to the
+        // specified 'result' string.
+
+    void renderNonSkippedAttributes(bsl::string *result, const Record& record);
+        // Render all attribute provided by the specified 'record' except
+        // attributes whose keys are listed in the collection supplied at
+        // construction of this object to the specified 'result' string.
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(AttributesFormatter,
+                                   bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    explicit AttributesFormatter(
+                          const SkipAttributes  *skipAttributes,
+                          const allocator_type&  allocator = allocator_type());
+        // Create an attribute formatter object having the specified
+        // 'skipAttributes' collection.  Optionally specify an 'allocator'
+        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.
+
+    AttributesFormatter(
+                      const AttributesFormatter& original,
+                      const allocator_type&      allocator = allocator_type());
+        // Create an attribute formatter initialized to the value of the
+        // specified 'original' record formatter.  Optionally specify an
+        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
+        // supply memory; otherwise, the default allocator is used.
+
+    // MANIPULATORS
+    void operator()(bsl::string *result, const Record& record);
+        // Render all attribute provided by the specified 'record' except
+        // attributes whose keys are listed in the collection supplied at
+        // construction of this object to the specified 'result' string.
+};
+
+                       // ---------------
+                       // class PrintUtil
+                       // ---------------
+
+void PrintUtil::appendAttribute(bsl::string             *result,
+                                const ManagedAttribute&  a,
+                                bool                     printKey)
+{
+    if (printKey) {
+        *result += a.key();
+        *result += '=';
+    }
+    if (a.value().is<bsl::string>()) {
+        *result += '"';
+        *result += a.value().the<bsl::string>();
+        *result += '"';
+    }
+    else if (a.value().is<int>()) {
+        appendValue(result, a.value().the<int>());
+    }
+    else if (a.value().is<bsls::Types::Int64>()) {
+        appendValue(result, a.value().the<bsls::Types::Int64>());
+    }
+}
+
+void PrintUtil::appendCategory(bsl::string *result, const Record& record)
+{
+    *result += record.fixedFields().category();
+}
+
+void PrintUtil::appendDatetime(bsl::string                  *result,
+                               const Record&                 record,
+                               const bdlt::DatetimeInterval *timestampOffset,
+                               bool                          iso8601,
+                               FractionalSecondPrecision     secondPrecision)
+{
+    bdlt::DatetimeInterval  offset;
+
+    if (PublishInLocalTimeUtil::k_ENABLE ==
+                                          timestampOffset->totalMilliseconds())
+    {
+        bsls::Types::Int64 localTimeOffsetInSeconds =
+            bdlt::LocalTimeOffset::localTimeOffset(
+                              record.fixedFields().timestamp()).totalSeconds();
+        offset.setTotalSeconds(localTimeOffsetInSeconds);
+    } else if (PublishInLocalTimeUtil::k_DISABLE !=
+                                        timestampOffset->totalMilliseconds()) {
+        offset = *timestampOffset;
+    }
+
+    bdlt::DatetimeTz timestamp(record.fixedFields().timestamp() + offset,
+                               static_cast<int>(offset.totalMinutes()));
+
+    if (iso8601) {
+        bdlt::Iso8601UtilConfiguration config;
+
+        if (secondPrecision) {
+            config.setFractionalSecondPrecision(secondPrecision);
+        }
+        config.setUseZAbbreviationForUtc(true);
+
+        char buffer[bdlt::Iso8601Util::k_DATETIMETZ_STRLEN + 1];
+
+        int outputLength = bdlt::Iso8601Util::generateRaw(buffer,
+                                                          timestamp,
+                                                          config);
+
+        if (e_FSP_NONE == secondPrecision) {
+
+            enum { k_DECIMAL_SIGN_OFFSET = 19,
+                   k_TZINFO_OFFSET       = k_DECIMAL_SIGN_OFFSET + 4 };
+
+            bsl::string_view head(buffer, k_DECIMAL_SIGN_OFFSET);
+            bsl::string_view tail(buffer + k_TZINFO_OFFSET,
+                                  outputLength - k_TZINFO_OFFSET);
+            *result += head;
+            *result += tail;
+        }
+        else {
+            result->append(buffer, outputLength);
+        }
+    }
+    else {
+        char buffer[32];
+
+        timestamp.localDatetime().printToBuffer(buffer,
+                                                sizeof buffer,
+                                                secondPrecision);
+        *result += buffer;
+    }
+}
+
+void PrintUtil::appendFilename(bsl::string   *result,
+                               bool           fullPath,
+                               const Record&  record)
+{
+    const bsl::string_view filename(record.fixedFields().fileName());
+
+    if (fullPath) {
+        *result += filename;
+    }
+    else {
+        const bsl::string::size_type rightmostSlashIndex =
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+            filename.rfind('\\');
+#else
+            filename.rfind('/');
+#endif
+
+        if (bsl::string::npos == rightmostSlashIndex) {
+            *result += filename;
+        }
+        else {
+            *result += filename.substr(rightmostSlashIndex + 1);
+        }
+    }
+}
+
+void PrintUtil::appendHexDump(bsl::string             *result,
+                              const bsl::string_view&  string)
+{
+    static const char HEX[] = "0123456789ABCDEF";
+
+    bsl::string_view::const_iterator i   = string.begin();
+    bsl::string_view::const_iterator end = string.end();
+
+    for (; i != end; ++i) {
+
+        const unsigned char c = *i;
+
+        result->push_back(HEX[(c >> 4) & 0xF]);
+        result->push_back(HEX[ c       & 0xF]);
+    }
+}
+
+void PrintUtil::appendLineNumber(bsl::string *result, const Record& record)
+{
+    appendValue(result, record.fixedFields().lineNumber());
+}
+
+void PrintUtil::appendMessage(bsl::string *result, const Record& record)
+{
+    PrintUtil::appendString(result, record.fixedFields().message());
+}
+
+void PrintUtil::appendMessageNonPrintableChars(bsl::string   *result,
+                                               const Record&  record)
+{
+    bsl::size_t length = record.fixedFields().messageStreamBuf().length();
+
+    appendString(result,
+                 bsl::string_view(record.fixedFields().message(), length),
+                 true);
+}
+
+void PrintUtil::appendMessageAsHex(bsl::string *result, const Record& record)
+{
+    bsl::size_t length = record.fixedFields().messageStreamBuf().length();
+
+    appendHexDump(result,
+                  bsl::string_view(record.fixedFields().message(), length));
+}
+
+template <class T>
+void PrintUtil::appendValue(bsl::string *result,
+                            const char  *format,
+                            T            value)
 {
     char buffer[16];
 
@@ -69,7 +483,7 @@ static void appendToString(bsl::string *result, int value)
 #define snprintf _snprintf
 #endif
 
-    snprintf(buffer, sizeof buffer, "%d", value);
+    snprintf(buffer, sizeof buffer, format, value);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #undef snprintf
@@ -78,132 +492,599 @@ static void appendToString(bsl::string *result, int value)
     *result += buffer;
 }
 
-static void appendToString(bsl::string *result, bsls::Types::Uint64 value)
-    // Convert the specified 'value' into ASCII characters and append it to the
-    // specified 'result.
+void PrintUtil::appendValue(bsl::string *result, int value)
 {
-    char buffer[32];
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#define snprintf _snprintf
-#endif
-
-    snprintf(buffer, sizeof buffer, "%llu", value);
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#undef snprintf
-#endif
-
-    *result += buffer;
+    appendValue(result, "%d", value);
 }
 
-static void appendToStringAsHex(bsl::string *result, bsls::Types::Uint64 value)
-    // Convert the specified 'value' into hexadecimal and append it to the
-    // specified 'result'.
+void PrintUtil::appendValue(bsl::string  *result, bsls::Types::Int64 value)
 {
-    char buffer[32];
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#define snprintf _snprintf
-#endif
-
-    snprintf(buffer, sizeof(buffer), "%llX", value);
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#undef snprintf
-#endif
-
-    *result += buffer;
+    appendValue(result, "%lld", value);
 }
 
-namespace ball {
+void PrintUtil::appendProcessId(bsl::string   *result,
+                                const Record&  record)
+{
+    appendValue(result, record.fixedFields().processID());
+}
+
+void PrintUtil::appendString(bsl::string            *result,
+                            const bsl::string_view&  string,
+                            bool                     notPrintable)
+{
+    if (notPrintable) {
+
+        bsl::string_view::const_iterator p   = string.begin();
+        bsl::string_view::const_iterator q   = p;
+        bsl::string_view::const_iterator end = string.end();
+
+        while (q != end) {
+            if (*q < 0x20 || *q > 0x7E) {  // not printable
+                result->append(p, bsl::distance(p, q));
+
+                static const char HEX[] = "0123456789ABCDEF";
+                const char        value = *q;
+
+                *result += "\\x";
+                *result += HEX[(value >> 4) & 0xF];
+                *result += HEX[value        & 0xF];
+
+                ++q;
+                p = q;
+            }
+            else {
+                ++q;
+            }
+        }
+        result->append(p, bsl::distance(p, q));
+    }
+    else {
+        result->append(string.data(), string.length());
+    }
+}
+
+void PrintUtil::appendThreadId(bsl::string   *result,
+                               const Record&  record)
+{
+    appendValue(result, "%llu", record.fixedFields().threadID());
+}
+
+void PrintUtil::appendThreadIdAsHex(bsl::string   *result,
+                                    const Record&  record)
+{
+    appendValue(result, "%llX", record.fixedFields().threadID());
+}
+
+void PrintUtil::appendSeverity(bsl::string   *result,
+                               const Record&  record)
+{
+    result->append(Severity::toAscii(static_cast<Severity::Level>(
+                                            record.fixedFields().severity())));
+}
+
+void PrintUtil::appendUserFields(bsl::string *result, const Record& record)
+{
+    typedef UserFields Values;
+    const Values& customFields    = record.customFields();
+    const int     numCustomFields = customFields.length();
+
+    enum { k_INITIAL_CAPACITY = 128 };
+    char initialBuffer[k_INITIAL_CAPACITY];
+
+    if (numCustomFields > 0) {
+        Values::ConstIterator it = customFields.begin();
+
+        bdlsb::OverflowMemOutStreamBuf streamBuffer(initialBuffer,
+                                                    k_INITIAL_CAPACITY);
+        bsl::ostream os(&streamBuffer);
+        os << *it;
+        ++it;
+        for (; it != customFields.end(); ++it) {
+            os << ' ' << *it;
+        }
+        result->append(streamBuffer.initialBuffer(),
+                       streamBuffer.dataLengthInInitialBuffer());
+        if (streamBuffer.overflowBuffer()) {
+            result->append(streamBuffer.overflowBuffer(),
+                           streamBuffer.dataLengthInOverflowBuffer());
+        }
+    }
+}
+
+                       // ------------------------
+                       // class AttributeFormatter
+                       // ------------------------
+
+AttributeFormatter::AttributeFormatter(const bsl::string_view& key)
+: d_key(key)
+, d_index(k_UNSET)
+{
+}
+
+void AttributeFormatter::operator()(bsl::string *result, const Record& record)
+{
+    const Attributes& attributes = record.attributes();
+    if (k_UNSET == d_index ||
+        d_index >= static_cast<int>(attributes.size()) ||
+        d_key   != attributes.at(d_index).key())
+    {
+        d_index = k_UNSET;
+        for (Attributes::const_iterator i = attributes.begin();
+             i != attributes.end();
+             ++i)
+        {
+            if (d_key == i->key()) {
+                d_index = static_cast<int>(bsl::distance(attributes.begin(),
+                                                         i));
+                break;                                                 // BREAK
+            }
+        }
+        if (k_UNSET == d_index) {
+            *result += d_key;
+            *result += "=N/A";
+            return;                                                   // RETURN
+        }
+    }
+    PrintUtil::appendAttribute(result, attributes.at(d_index), false);
+}
+
+                       // -------------------------
+                       // class AttributesFormatter
+                       // -------------------------
+
+AttributesFormatter::AttributesFormatter(const SkipAttributes  *skipAttributes,
+                                         const allocator_type&  allocator)
+: d_skipAttributes_p(skipAttributes)
+, d_cache(allocator)
+{
+}
+
+AttributesFormatter::AttributesFormatter(const AttributesFormatter& original,
+                                         const allocator_type&      allocator)
+: d_skipAttributes_p(original.d_skipAttributes_p)
+, d_cache(original.d_cache, allocator)
+{
+}
+
+void AttributesFormatter::renderAllAttributes(bsl::string   *result,
+                                              const Record&  record)
+{
+    const Attributes&          attributes = record.attributes();
+    Attributes::const_iterator i          = attributes.begin();
+    Attributes::const_iterator end        = attributes.end();
+
+    for (;i < end; ++i) {
+        PrintUtil::appendAttribute(result, *i);
+        result->push_back(' ');
+    }
+}
+
+void AttributesFormatter::renderNonSkippedAttributes(bsl::string   *result,
+                                                     const Record&  record)
+{
+    const Attributes& attributes = record.attributes();
+
+    for (Attributes::size_type i = 0; i < attributes.size(); ++i) {
+        const ManagedAttribute& a = attributes[i];
+
+        if (i < d_cache.size()) {
+            if (d_cache[i].first != a.key()) {
+                d_cache[i].first  = a.key();
+                d_cache[i].second = d_skipAttributes_p->end() ==
+                          d_skipAttributes_p->find(bsl::string_view(a.key()));
+            }
+        }
+        else {
+            d_cache.emplace_back(
+                bsl::make_pair(
+                         a.key(),
+                         d_skipAttributes_p->end() ==
+                         d_skipAttributes_p->find(bsl::string_view(a.key()))));
+        }
+        if (d_cache[i].second) {
+            PrintUtil::appendAttribute(result, a);
+            result->push_back(' ');
+        }
+    }
+}
+
+void AttributesFormatter::operator()(bsl::string *result, const Record& record)
+{
+    const bsl::string::size_type len = result->length();
+
+    if (0 == d_skipAttributes_p) {
+        renderAllAttributes(result, record);
+    }
+    else {
+        renderNonSkippedAttributes(result, record);
+    }
+
+    if (len != result->length()) {
+        result->pop_back();
+    }
+}
+}  // close unnamed namespace
+
 
                         // ---------------------------
                         // class RecordStringFormatter
                         // ---------------------------
 
-// CLASS DATA
-const int RecordStringFormatter::k_ENABLE_PUBLISH_IN_LOCALTIME  = INT_MAX;
-const int RecordStringFormatter::k_DISABLE_PUBLISH_IN_LOCALTIME = INT_MIN;
+// PUBLIC CONSTANTS
+const char *RecordStringFormatter::k_DEFAULT_FORMAT =
+    "\n%d %p:%t %s %f:%l %c %m %u\n";
+        
+const char *RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT =
+    "\n%d %p:%t %s %f:%l %c %a %m\n";
 
-// Local time offsets of 'INT_MAX' *milliseconds* (about 23 days) should not
-// appear in practice.  Real values are (always?) less than one day (plus or
-// minus).
+// PRIVATE MANIPULATORS
+void RecordStringFormatter::parseFormatSpecification()
+{
+    d_fieldFormatters.clear();
+    d_skipAttributes.clear();
+
+    bsl::string::iterator i    = d_formatSpec.begin();
+    bsl::string::iterator end  = d_formatSpec.end();
+    bsl::string::iterator text = end;
+
+    using namespace bdlf::PlaceHolders;
+
+    while (i != end) {
+        switch (*i) {
+          default: {  // --------------------- text ---------------------------
+            if (text == end) {
+                text = i;
+            }
+          } break;
+          case '\\': {  // ------------------- escape characters --------------
+            if (i + 1 == end) {
+                break;                                                 // BREAK
+            }
+            if (text != end) {
+                // append text preceding to 'i'
+                d_fieldFormatters.emplace_back(
+                    bdlf::BindUtil::bind(&PrintUtil::appendString,
+                                         _1,
+                                         bsl::string_view(
+                                                       text,
+                                                       bsl::distance(text, i)),
+                                         false));
+                text = end;
+            }
+            ++i;
+            switch (*i) {
+              case 'n': {
+                d_fieldFormatters.emplace_back(
+                                 bdlf::BindUtil::bind(&PrintUtil::appendString,
+                                                      _1,
+                                                      "\n",
+                                                      false));
+              } break;
+              case 't': {
+                d_fieldFormatters.emplace_back(
+                                bdlf::BindUtil::bind( &PrintUtil::appendString,
+                                                      _1,
+                                                      "\t",
+                                                      false));
+              } break;
+              case '\\': {
+                d_fieldFormatters.emplace_back(
+                                 bdlf::BindUtil::bind(&PrintUtil::appendString,
+                                                      _1,
+                                                      "\\",
+                                                      false));
+              } break;
+              default: {
+                // Undefined: we just output the verbatim characters.
+
+                text = i - 1;
+              }
+            }
+          } break;
+          case '%': {  // ------------------- %-specifier ---------------------
+            if (i + 1 == end) {
+                break;                                                 // BREAK
+            }
+
+            if (text != end) {
+                // append text preceding to 'i'
+                d_fieldFormatters.emplace_back(
+                      bdlf::BindUtil::bind(&PrintUtil::appendString,
+                                           _1,
+                                           bsl::string_view(
+                                                       text,
+                                                       bsl::distance(text, i)),
+                                           false));
+                text = end;
+            }
+
+            ++i;
+
+            switch (*i) {
+              case '%': {  // ---------------- escape % -----------------------
+                text = i;
+              } break;
+              case 'd': {  // ---------------- Datetime -----------------------
+                d_fieldFormatters.emplace_back(
+                          bdlf::BindUtil::bind(&PrintUtil::appendDatetime,
+                                               _1,
+                                               _2,
+                                               &d_timestampOffset,
+                                               false,
+                                               PrintUtil::e_FSP_MILLISECONDS));
+              } break;
+              case 'D': {  // ---------------- Datetime -----------------------
+                d_fieldFormatters.emplace_back(
+                          bdlf::BindUtil::bind(&PrintUtil::appendDatetime,
+                                               _1,
+                                               _2,
+                                               &d_timestampOffset,
+                                               false,
+                                               PrintUtil::e_FSP_MICROSECONDS));
+              } break;
+              case 'i': {  // ---------------- Datetime ISO 8601 --------------
+                d_fieldFormatters.emplace_back(
+                          bdlf::BindUtil::bind(&PrintUtil::appendDatetime,
+                                               _1,
+                                               _2,
+                                               &d_timestampOffset,
+                                               true,
+                                               PrintUtil::e_FSP_NONE));
+              } break;
+              case 'I': {  // ---------------- Datetime ISO 8601 --------------
+                d_fieldFormatters.emplace_back(
+                          bdlf::BindUtil::bind(&PrintUtil::appendDatetime,
+                                               _1,
+                                               _2,
+                                               &d_timestampOffset,
+                                               true,
+                                               PrintUtil::e_FSP_MILLISECONDS));
+              } break;
+              case 'O': {  // ---------------- Datetime ISO 8601 --------------
+                d_fieldFormatters.emplace_back(
+                          bdlf::BindUtil::bind(&PrintUtil::appendDatetime,
+                                               _1,
+                                               _2,
+                                               &d_timestampOffset,
+                                               true,
+                                               PrintUtil::e_FSP_MICROSECONDS));
+              } break;
+              case 'p': {  // ---------------- Process ID ---------------------
+                d_fieldFormatters.emplace_back(
+                              bdlf::BindUtil::bind(&PrintUtil::appendProcessId,
+                                                   _1,
+                                                   _2));
+              } break;
+              case 't': {  // ---------------- Thread ID ----------------------
+                d_fieldFormatters.emplace_back(
+                               bdlf::BindUtil::bind(&PrintUtil::appendThreadId,
+                                                    _1,
+                                                    _2));
+              } break;
+              case 'T': {  // ---------------- Thread ID hex ------------------
+                d_fieldFormatters.emplace_back(
+                          bdlf::BindUtil::bind(&PrintUtil::appendThreadIdAsHex,
+                                               _1,
+                                               _2));
+              } break;
+              case 's': {  // ---------------- Severity -----------------------
+                d_fieldFormatters.emplace_back(
+                               bdlf::BindUtil::bind(&PrintUtil::appendSeverity,
+                                                    _1,
+                                                    _2));
+              } break;
+              case 'f': {  // ---------------- Filename -----------------------
+                d_fieldFormatters.emplace_back(
+                               bdlf::BindUtil::bind(&PrintUtil::appendFilename,
+                                                    _1,
+                                                    true,
+                                                    _2));
+              } break;
+              case 'F': {  // ---------------- Filename ----------------------
+                d_fieldFormatters.emplace_back(
+                               bdlf::BindUtil::bind(&PrintUtil::appendFilename,
+                                                    _1,
+                                                    false,
+                                                    _2));
+              } break;
+              case 'l': {  // ---------------- Line Number --------------------
+                d_fieldFormatters.emplace_back(
+                             bdlf::BindUtil::bind(&PrintUtil::appendLineNumber,
+                                                  _1,
+                                                  _2));
+              } break;
+              case 'c': {  // ---------------- Category -----------------------
+                d_fieldFormatters.emplace_back(
+                               bdlf::BindUtil::bind(&PrintUtil::appendCategory,
+                                                    _1,
+                                                    _2));
+              } break;
+              case 'm': {  // ---------------- Message ------------------------
+                d_fieldFormatters.emplace_back(
+                                bdlf::BindUtil::bind(&PrintUtil::appendMessage,
+                                                     _1,
+                                                     _2));
+              } break;
+              case 'x': {  // ---------------- Message ------------------------
+                d_fieldFormatters.emplace_back(
+                    bdlf::BindUtil::bind(
+                                    &PrintUtil::appendMessageNonPrintableChars,
+                                    _1,
+                                    _2));
+              } break;
+              case 'X': {  // ---------------- Message as hex -----------------
+                d_fieldFormatters.emplace_back(
+                           bdlf::BindUtil::bind(&PrintUtil::appendMessageAsHex,
+                                                _1,
+                                                _2));
+              } break;
+              case 'a': {  // ---------------- Attributes (%a) ----------------
+                bsl::string::iterator j = i + 1;
+                if (j != end && '[' == *j) {
+                    j = bsl::find(j + 1, end, ']');
+                    if (j != end) {
+                        const bsl::string_view key(i + 2,
+                                                   bsl::distance(i + 2, j));
+                        d_fieldFormatters.emplace_back(
+                                                      AttributeFormatter(key));
+                        if (d_skipAttributes.end() ==
+                            d_skipAttributes.find(key))
+                        {
+                            d_skipAttributes.emplace(key);
+                        }
+                        i = j;
+                    }
+                }
+                else {
+                    d_fieldFormatters.emplace_back(
+                        AttributesFormatter(&d_skipAttributes,
+                                            d_skipAttributes.get_allocator()));
+                }
+              } break;
+              case 'A': {  // ---------------- Attributes (%A) ----------------
+                d_fieldFormatters.emplace_back(
+                        AttributesFormatter(0,
+                                            d_skipAttributes.get_allocator()));
+              } break;
+              case 'u': {
+                d_fieldFormatters.emplace_back(
+                             bdlf::BindUtil::bind(&PrintUtil::appendUserFields,
+                                                  _1,
+                                                  _2));
+              } break;
+              default: {
+                // Undefined: we just output the verbatim characters.
+
+                text = i - 1;
+              } break;
+            }
+          } break;
+        }
+        ++i;
+    }
+
+    if (text != end) {
+        d_fieldFormatters.emplace_back(
+                                 bdlf::BindUtil::bind(&PrintUtil::appendString,
+                                                      _1,
+                                                      text,
+                                                      false));
+    }
+}
 
 // CREATORS
-RecordStringFormatter::RecordStringFormatter(bslma::Allocator *basicAllocator)
-: d_formatSpec(DEFAULT_FORMAT_SPEC, basicAllocator)
+RecordStringFormatter::RecordStringFormatter(const allocator_type& allocator)
+: d_formatSpec(DEFAULT_FORMAT_SPEC, allocator)
+, d_fieldFormatters(allocator)
+, d_skipAttributes(allocator)
 , d_timestampOffset(0)
 {
+    parseFormatSpecification();
 }
 
-RecordStringFormatter::RecordStringFormatter(const char       *format,
-                                             bslma::Allocator *basicAllocator)
-: d_formatSpec(format, basicAllocator)
+RecordStringFormatter::RecordStringFormatter(const char            *format,
+                                             const allocator_type&  allocator)
+: d_formatSpec(format, allocator)
+, d_fieldFormatters(allocator)
+, d_skipAttributes(allocator)
 , d_timestampOffset(0)
 {
+    parseFormatSpecification();
 }
 
 RecordStringFormatter::RecordStringFormatter(
-                                 const bdlt::DatetimeInterval&  offset,
-                                 bslma::Allocator              *basicAllocator)
-: d_formatSpec(DEFAULT_FORMAT_SPEC, basicAllocator)
+                                      const bdlt::DatetimeInterval&  offset,
+                                      const allocator_type&          allocator)
+: d_formatSpec(DEFAULT_FORMAT_SPEC, allocator)
+, d_fieldFormatters(allocator)
+, d_skipAttributes(allocator)
 , d_timestampOffset(offset)
 {
+    parseFormatSpecification();
 }
 
 RecordStringFormatter::RecordStringFormatter(
-                                          bool              publishInLocalTime,
-                                          bslma::Allocator *basicAllocator)
-: d_formatSpec(DEFAULT_FORMAT_SPEC, basicAllocator)
+                                      bool                  publishInLocalTime,
+                                      const allocator_type& allocator)
+: d_formatSpec(DEFAULT_FORMAT_SPEC, allocator)
+, d_fieldFormatters(allocator)
+, d_skipAttributes(allocator)
 , d_timestampOffset(0,
                     0,
                     0,
                     0,
                     publishInLocalTime
-                    ?  k_ENABLE_PUBLISH_IN_LOCALTIME
-                    : k_DISABLE_PUBLISH_IN_LOCALTIME)
+                    ? PublishInLocalTimeUtil::k_ENABLE
+                    : PublishInLocalTimeUtil::k_DISABLE)
 {
+    parseFormatSpecification();
 }
 
 RecordStringFormatter::RecordStringFormatter(
-                                 const char                    *format,
-                                 const bdlt::DatetimeInterval&  offset,
-                                 bslma::Allocator              *basicAllocator)
-: d_formatSpec(format, basicAllocator)
+                                      const char                    *format,
+                                      const bdlt::DatetimeInterval&  offset,
+                                      const allocator_type&          allocator)
+: d_formatSpec(format, allocator)
+, d_fieldFormatters(allocator)
+, d_skipAttributes(allocator)
 , d_timestampOffset(offset)
 {
+    parseFormatSpecification();
 }
 
 RecordStringFormatter::RecordStringFormatter(
-                                          const char       *format,
-                                          bool              publishInLocalTime,
-                                          bslma::Allocator *basicAllocator)
-: d_formatSpec(format, basicAllocator)
+                                     const char            *format,
+                                     bool                   publishInLocalTime,
+                                     const allocator_type&  allocator)
+: d_formatSpec(format, allocator)
+, d_fieldFormatters(allocator)
+, d_skipAttributes(allocator)
 , d_timestampOffset(0,
                     0,
                     0,
                     0,
                     publishInLocalTime
-                    ?  k_ENABLE_PUBLISH_IN_LOCALTIME
-                    : k_DISABLE_PUBLISH_IN_LOCALTIME)
+                    ? PublishInLocalTimeUtil::k_ENABLE
+                    : PublishInLocalTimeUtil::k_DISABLE)
 {
+    parseFormatSpecification();
 }
 
 RecordStringFormatter::RecordStringFormatter(
-                                  const RecordStringFormatter&  original,
-                                  bslma::Allocator             *basicAllocator)
-: d_formatSpec(original.d_formatSpec, basicAllocator)
+                                        const RecordStringFormatter& original,
+                                        const allocator_type&        allocator)
+: d_formatSpec(original.d_formatSpec, allocator)
+, d_fieldFormatters(allocator)
+, d_skipAttributes(allocator)
 , d_timestampOffset(original.d_timestampOffset)
 {
+    parseFormatSpecification();
 }
 
 // MANIPULATORS
+void RecordStringFormatter::disablePublishInLocalTime()
+{
+    d_timestampOffset.setTotalMilliseconds(PublishInLocalTimeUtil::k_DISABLE);
+}
+
+void RecordStringFormatter::enablePublishInLocalTime()
+{
+    d_timestampOffset.setTotalMilliseconds(PublishInLocalTimeUtil::k_ENABLE);
+}
+
+bool RecordStringFormatter::isPublishInLocalTimeEnabled() const
+{
+    return PublishInLocalTimeUtil::k_ENABLE ==
+                                         d_timestampOffset.totalMilliseconds();
+}
+
 RecordStringFormatter& RecordStringFormatter::operator=(
                                               const RecordStringFormatter& rhs)
 {
     if (this != &rhs) {
         d_formatSpec      = rhs.d_formatSpec;
+        d_fieldFormatters = rhs.d_fieldFormatters;
+        d_skipAttributes  = rhs.d_skipAttributes;
         d_timestampOffset = rhs.d_timestampOffset;
     }
 
@@ -215,214 +1096,27 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
                                        const Record& record) const
 
 {
-    const RecordAttributes& fixedFields = record.fixedFields();
-    bdlt::DatetimeInterval  offset;
+    const int k_BUFFER_SIZE        = 512;
+    const int k_STRING_RESERVATION = k_BUFFER_SIZE -
+                                     bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
-    if (k_ENABLE_PUBLISH_IN_LOCALTIME ==
-                                       d_timestampOffset.totalMilliseconds()) {
-        bsls::Types::Int64 localTimeOffsetInSeconds =
-            bdlt::LocalTimeOffset::localTimeOffset(
-                                       fixedFields.timestamp()).totalSeconds();
-        offset.setTotalSeconds(localTimeOffsetInSeconds);
-    } else if (k_DISABLE_PUBLISH_IN_LOCALTIME !=
-                                       d_timestampOffset.totalMilliseconds()) {
-        offset = d_timestampOffset;
-    }
-
-    bdlt::DatetimeTz timestamp(fixedFields.timestamp() + offset,
-                               static_cast<int>(offset.totalMinutes()));
-
-    // Step through the format string, outputting the required elements.
-
-    const char* iter = d_formatSpec.data();
-    const char* end  = iter + d_formatSpec.length();
-
-    // Create a buffer on the stack for formatting the record.  Note that the
-    // size of the buffer should be slightly larger than the amount we reserve
-    // in order to ensure only a single allocation occurs.
-
-    const int BUFFER_SIZE        = 512;
-    const int STRING_RESERVATION = BUFFER_SIZE -
-                                   bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-
-    char fixedBuffer[BUFFER_SIZE];
+    char fixedBuffer[k_BUFFER_SIZE];
     bdlma::BufferedSequentialAllocator stringAllocator(fixedBuffer,
-                                                      BUFFER_SIZE);
+                                                       k_BUFFER_SIZE);
     bsl::string output(&stringAllocator);
-    output.reserve(STRING_RESERVATION);
+    output.reserve(k_STRING_RESERVATION);
 
-    while (iter != end) {
-        switch (*iter) {
-          case '%': {
-            if (++iter == end) {
-                break;
-            }
-            switch (*iter) {
-              case '%': {
-                output += '%';
-              } break;
-              case 'd': BSLS_ANNOTATION_FALLTHROUGH;
-              case 'D': {
-                const int fractionalSecondPrecision = 'd' == *iter ? 3 : 6;
-
-                char buffer[32];
-                timestamp.localDatetime().printToBuffer(
-                                                    buffer,
-                                                    sizeof buffer,
-                                                    fractionalSecondPrecision);
-
-                output += buffer;
-              } break;
-              case 'I': BSLS_ANNOTATION_FALLTHROUGH;
-              case 'O': BSLS_ANNOTATION_FALLTHROUGH;
-              case 'i': {
-                // Use ISO8601 "extended" format.
-
-                const int fractionalSecondPrecision = 'O' == *iter ? 6 : 3;
-
-                bdlt::Iso8601UtilConfiguration config;
-                config.setFractionalSecondPrecision(fractionalSecondPrecision);
-                config.setUseZAbbreviationForUtc(true);
-
-                char buffer[bdlt::Iso8601Util::k_DATETIMETZ_STRLEN + 1];
-
-                int outputLength = bdlt::Iso8601Util::generateRaw(buffer,
-                                                                  timestamp,
-                                                                  config);
-
-                if ('i' == *iter) {
-                    // Remove milliseconds part.
-
-                    enum { k_DECIMAL_SIGN_OFFSET = 19,
-                           k_TZINFO_OFFSET       = k_DECIMAL_SIGN_OFFSET + 4 };
-                    bslstl::StringRef head(buffer, k_DECIMAL_SIGN_OFFSET);
-
-                    bslstl::StringRef tail(buffer + k_TZINFO_OFFSET,
-                                           outputLength - k_TZINFO_OFFSET);
-
-                    output += head + tail;
-                }
-                else {
-                    output.append(buffer, outputLength);
-                }
-              } break;
-              case 'p': {
-                appendToString(&output, fixedFields.processID());
-              } break;
-              case 't': {
-                appendToString(&output, fixedFields.threadID());
-              } break;
-              case 'T': {
-                appendToStringAsHex(&output, fixedFields.threadID());
-              } break;
-              case 's': {
-                output += Severity::toAscii(
-                                 (Severity::Level)fixedFields.severity());
-              } break;
-              case 'f': {
-                output += fixedFields.fileName();
-              } break;
-              case 'F': {
-                const bsl::string& filename = fixedFields.fileName();
-                bsl::string::size_type rightmostSlashIndex =
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-                    filename.rfind('\\');
-#else
-                    filename.rfind('/');
-#endif
-                if (bsl::string::npos == rightmostSlashIndex) {
-                    output += filename;
-                }
-                else {
-                    output += filename.substr(rightmostSlashIndex + 1);
-                }
-              } break;
-              case 'l': {
-                appendToString(&output, fixedFields.lineNumber());
-              } break;
-              case 'c': {
-                output += fixedFields.category();
-              } break;
-              case 'm': {
-                bslstl::StringRef message = fixedFields.messageRef();
-                output.append(message.data(), message.length());
-              } break;
-              case 'x': {
-                bsl::stringstream ss;
-                int length = static_cast<int>(
-                                      fixedFields.messageStreamBuf().length());
-                bdlb::Print::printString(ss,
-                                        fixedFields.message(),
-                                        length,
-                                        false);
-                output += ss.str();
-              } break;
-              case 'X': {
-                bsl::stringstream ss;
-                int length = static_cast<int>(
-                                      fixedFields.messageStreamBuf().length());
-                bdlb::Print::singleLineHexDump(ss,
-                                              fixedFields.message(),
-                                              length);
-                output += ss.str();
-              } break;
-              case 'u': {
-                typedef ball::UserFields Values;
-                const Values& customFields = record.customFields();
-                const int numCustomFields  = customFields.length();
-
-                if (numCustomFields > 0) {
-                    bsl::stringstream ss;
-                    Values::ConstIterator it = customFields.begin();
-                    ss << *it;
-                    ++it;
-                    for (; it != customFields.end(); ++it) {
-                        ss << " " << *it;
-                    }
-                    output += ss.str();
-                }
-              } break;
-              default: {
-                // Undefined: we just output the verbatim characters.
-
-                output += '%';
-                output += *iter;
-              }
-            }
-            ++iter;
-          } break;
-          case '\\': {
-            if (++iter == end) {
-                break;
-            }
-            switch (*iter) {
-              case 'n': {
-                output += '\n';
-              } break;
-              case 't': {
-                output += '\t';
-              } break;
-              case '\\': {
-                output += '\\';
-              } break;
-              default: {
-                // Undefined: we just output the verbatim characters.
-
-                output += '\\';
-                output += *iter;
-              }
-            }
-            ++iter;
-          } break;
-          default: {
-            output += *iter;
-            ++iter;
-          }
-        }
+    for (FieldStringFormatters::const_iterator i = d_fieldFormatters.cbegin();
+         i != d_fieldFormatters.cend();
+         ++i)
+    {
+        (*i)(&output, record);
     }
 
     stream.write(output.c_str(), output.size());
     stream.flush();
+
+    return;
 }
 
 }  // close package namespace

@@ -1,6 +1,7 @@
 // ball_recordstringformatter.t.cpp                                   -*-C++-*-
 #include <ball_recordstringformatter.h>
 
+#include <ball_attribute.h>
 #include <ball_record.h>
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
@@ -15,6 +16,7 @@
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_stdtestallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
@@ -207,6 +209,7 @@ const char *MSG_550BYTE =
 "01234567890123456789012345678901234567890123456789"
 "01234567890123456789012345678901234567890123456789";
 
+
 bool compareText(bslstl::StringRef lhs, bslstl::StringRef rhs)
 {
     for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
@@ -260,10 +263,22 @@ int main(int argc, char *argv[])
     veryVeryVerbose = (argc > 4);
     veryVeryVeryVerbose = (argc > 5);
 
+    // CONCERN: In no case does memory come from the default allocator.
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+    bslma::TestAllocatorMonitor dam(&defaultAllocator);
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocatorMonitor gam(&globalAllocator);
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING: Records Show Calculated Local-Time Offset
         //   Per DRQS 13681097, records observe DST time transitions when
@@ -320,31 +335,37 @@ int main(int argc, char *argv[])
                 << "TESTING: Records Show Calculated Local-Time Offset" <<endl
                 << "==================================================" <<endl;
 
+        bslma::TestAllocator testAllocator("objectAllocator",
+                                           veryVeryVeryVerbose);
+        Obj::allocator_type  oa(&testAllocator);
+
         if (verbose) cout << "\nTest Constructors" << endl;
         {
-            Obj mX0(true);
+            Obj mX0(true, oa);
             if (veryVerbose) {
                 P(mX0.timestampOffset().totalMilliseconds());
             }
             ASSERT( mX0.isPublishInLocalTimeEnabled());
 
-            Obj mX1(false);
+            Obj mX1(false, oa);
             if (veryVerbose) {
                 P(mX1.timestampOffset().totalMilliseconds());
             }
-                                  ASSERT(!mX1.isPublishInLocalTimeEnabled());
-            Obj mX2("%i", true);  ASSERT( mX2.isPublishInLocalTimeEnabled());
-            Obj mX3("%i", false); ASSERT(!mX3.isPublishInLocalTimeEnabled());
+                                    ASSERT(!mX1.isPublishInLocalTimeEnabled());
+            Obj mX2("%i", true,  oa);
+                                    ASSERT( mX2.isPublishInLocalTimeEnabled());
+            Obj mX3("%i", false, oa);
+                                    ASSERT(!mX3.isPublishInLocalTimeEnabled());
 
-            Obj mX4;              ASSERT(!mX4.isPublishInLocalTimeEnabled());
-            Obj mX5("%i");        ASSERT(!mX5.isPublishInLocalTimeEnabled());
-            Obj mX6("%i", bdlt::DatetimeInterval(10));
-                                  ASSERT(!mX6.isPublishInLocalTimeEnabled());
+            Obj mX4(oa);            ASSERT(!mX4.isPublishInLocalTimeEnabled());
+            Obj mX5("%i", oa);      ASSERT(!mX5.isPublishInLocalTimeEnabled());
+            Obj mX6("%i", bdlt::DatetimeInterval(10), oa);
+                                    ASSERT(!mX6.isPublishInLocalTimeEnabled());
         }
 
         if (verbose) cout << "\nTest Manipulators and Accessor" << endl;
         {
-            Obj mX;                  ASSERT(!mX.isPublishInLocalTimeEnabled());
+            Obj mX(oa);             ASSERT(!mX.isPublishInLocalTimeEnabled());
 
             mX.enablePublishInLocalTime();
                                      ASSERT( mX.isPublishInLocalTimeEnabled());
@@ -358,20 +379,23 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTest Fixed and Calculated Offsets" << endl;
         {
-            Obj mX("%i", bdlt::DatetimeInterval(0, 3, 47));
+            Obj mX("%i", bdlt::DatetimeInterval(0, 3, 47), oa);
                                      ASSERT(!mX.isPublishInLocalTimeEnabled());
 
             bdlt::Datetime         dtUtc(2014, 2, 19);
 
             ball::RecordAttributes fixedFields(dtUtc,
-                                              0,
-                                              0,
-                                              "",
-                                              0,
-                                              "",
-                                              ball::Severity::e_OFF,
-                                              "");
-            ball::Record           mRecord(fixedFields, ball::UserFields());
+                                               0,
+                                               0,
+                                               "",
+                                               0,
+                                               "",
+                                               ball::Severity::e_OFF,
+                                               "",
+                                               oa.mechanism());
+            ball::Record           mRecord(fixedFields,
+                                           ball::UserFields(oa.mechanism()),
+                                           oa.mechanism());
             const ball::Record&    record = mRecord;
 
             bdlt::DatetimeInterval offset(0, 3, 47);
@@ -380,7 +404,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { P_(dtUtc) P(dtWithOffset); }
 
-            ostringstream ossExpected;
+            bslma::TestAllocator sa("streamAllocator", veryVeryVeryVerbose);
+            ostringstream ossExpected(&sa);
             ossExpected
                  << bsl::setw(4) << bsl::setfill('0') << dtWithOffset.year()
                  << '-'
@@ -399,12 +424,18 @@ int main(int argc, char *argv[])
                  << ':'
                  << bsl::setw(2) << bsl::setfill('0')
                                                  << bsl::abs(offset.minutes());
-            ostringstream ossActual;
+            ostringstream ossActual(&sa);
             mX(ossActual, record);
 
-            if (veryVerbose) { T_ P_(ossExpected.str()) P(ossActual.str()) }
-            ASSERT((ossExpected.str() == ossActual.str()));
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
 
+                if (veryVerbose) {
+                    T_ P_(ossExpected.str()) P(ossActual.str());
+                }
+                ASSERT((ossExpected.str() == ossActual.str()));
+            }
             ossExpected.str(""); ossActual.str("");
 
             bsls::Types::Int64 localTimeOffsetInSeconds =
@@ -442,12 +473,19 @@ int main(int argc, char *argv[])
             ASSERT( mX.isPublishInLocalTimeEnabled());
 
             mX(ossActual, record);
-            if (veryVerbose) { T_ P_(ossExpected.str()) P(ossActual.str()) }
-            ASSERT((ossExpected.str() == ossActual.str()));
+
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) {
+                    T_ P_(ossExpected.str()) P(ossActual.str());
+                }
+                ASSERT((ossExpected.str() == ossActual.str()));
+            }
         }
 
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -464,6 +502,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
+
+        bslma::TestAllocator da("usageExampleAllocator",
+                                veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&da);
 
         if (verbose) cout << endl<< "Testing Usage Example" << endl
                                  << "=====================" << endl;
@@ -506,6 +548,118 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << oss.str();
 
       } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING ATTRIBUTE FORMATTING
+        //
+        // Concerns:
+        //: 1 The '%A' specifier in the format string outputs all the
+        //:   attributes of the record, separated by space.
+        //:
+        //: 2 The '%a[key]' specifier (where 'key' is the name of the
+        //:   attribute belonged to the record) outputs the attribute's value
+        //:   only.
+        //:
+        //: 3 The '%a' specifier output only those attributes not already
+        //:   rendered by a qualified '%a' instance.
+        //:
+        //: 4 The '%a' and '%a[key]' do not duplicate attribute rendering.
+        //:
+        //: 5 All specifiers output attributes in the order in which they were
+        //:   added.
+        //:
+        //: 6 If an attribute with 'key' specified in the qualified '%a[key]'
+        //:   specifier is not found in the record then it is marked as "N/A"
+        //:   in the output string.
+        //
+        // Test plan:
+        //: 1 Create a log record and add to the record a set of arbitrary
+        //:   attributes.
+        //:
+        //: 2 Using the table-driven technique:
+        //:
+        //:   2.1 Set a combination of '%a', '%a[key]' and '%A' specifiers as
+        //:       a format string to the object under the test.
+        //:
+        //:   2.2 Invoke 'operator(bsl::ostream&, const ball::Record&)' and
+        //:       make sure that the object under the test writes to the
+        //:       stream the expected output.
+        //
+        // Testing:
+        //   void operator()(bsl::ostream&, const ball::Record&) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Attribute Formatting"
+                          << "\n============================" << endl;
+
+        bslma::TestAllocator testAllocator("objectAllocator",
+                                           veryVeryVeryVerbose);
+        Obj::allocator_type  oa(&testAllocator);
+
+        ball::Record        mRecord(oa.mechanism());
+        const ball::Record& record = mRecord;
+
+        // Add a couple of log attributes
+        mRecord.addAttribute(ball::Attribute("name",   "Name", oa));
+        mRecord.addAttribute(ball::Attribute("number", 1234, oa));
+
+        static const struct {
+            int         d_line;
+            const char *d_spec;
+            const char *d_expected;
+        } DATA[] = {
+    //------------------------------------------------------------------------
+    // line | spec                    | expected
+    //------------------------------------------------------------------------
+    { L_,    "%a",                     "name=\"Name\" number=1234"           },
+    { L_,    "%A",                     "name=\"Name\" number=1234"           },
+    { L_,    "%a %A",                  "name=\"Name\" number=1234 "
+                                       "name=\"Name\" number=1234"           },
+    { L_,    "%a %A %a[name]",         "number=1234 name=\"Name\" "
+                                       "number=1234 \"Name\""                },
+    { L_,    "%a[name]",               "\"Name\""                            },
+    { L_,    "%a[number]",             "1234"                                },
+    { L_,    "%a[name] %a[number]",    "\"Name\" 1234"                       },
+    { L_,    "%a[number] %a[name]",    "1234 \"Name\""                       },
+    { L_,    "%a[other]",              "other=N/A"                           },
+    { L_,    "%A %a[name]",            "name=\"Name\" number=1234 \"Name\""  },
+    { L_,    "%a[name] %A",            "\"Name\" name=\"Name\" number=1234"  },
+    { L_,    "%a %a[other]",           "name=\"Name\" number=1234 other=N/A" },
+    { L_,    "%A %a[other]",           "name=\"Name\" number=1234 other=N/A" },
+    { L_,    "%a[name] %a",            "\"Name\" number=1234"                },
+    { L_,    "%A %a[name]",            "name=\"Name\" number=1234 \"Name\""  },
+    { L_,    "%a %a[name] %a[number]", " \"Name\" 1234"                      },
+    { L_,    "%a[name] %a %a[number]", "\"Name\"  1234"                      },
+    { L_,    "%a[name] %a[number] %a", "\"Name\" 1234 "                      },
+    { L_,    "%a[name] %a[other] %a",  "\"Name\" other=N/A number=1234"      }
+            };
+
+          enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+          bslma::TestAllocator sa("streamAllocator", veryVeryVeryVerbose);
+
+          for (int i = 0; i < NUM_DATA; ++i) {
+
+              const int   LINE     = DATA[i].d_line;
+              const char *SPEC     = DATA[i].d_spec;
+              const char *EXPECTED = DATA[i].d_expected;
+
+              Obj mX(oa); const Obj& X = mX;
+
+              mX.setFormat(SPEC);
+
+              ostringstream oss(&sa);
+              X(oss, record);
+              {
+                  bslma::TestAllocator         da;
+                  bslma::DefaultAllocatorGuard guard(&da);
+                  if (veryVerbose) {
+                      T_ P_(LINE); P_(SPEC); P_(oss.str()); P(EXPECTED);
+                  }
+                  ASSERT(oss.str() == EXPECTED);
+              }
+          }
+      } break;
       case 11: {
         // --------------------------------------------------------------------
         // TESTING OPERATOR()
@@ -517,11 +671,14 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void operator()(bsl::ostream&, const ball::Record&) const;
-        //
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Initialization Constructors"
                           << "\n===================================" << endl;
+
+        bslma::TestAllocator testAllocator("objectAllocator",
+                                           veryVeryVeryVerbose);
+        Obj::allocator_type  oa(&testAllocator);
 
         const int   lineNum   = 542;
         const char *filename  = "subdir/process.cpp";
@@ -534,35 +691,47 @@ int main(int argc, char *argv[])
 #endif
         const char *MSG       = "Hello world!";
         ball::RecordAttributes fixedFields(bdlt::Datetime(),
-                                          processID,
-                                          threadID,
-                                          filename,
-                                          lineNum,
-                                          "FOO.BAR.BAZ",
-                                          ball::Severity::e_WARN,
-                                          MSG);
+                                           processID,
+                                           threadID,
+                                           filename,
+                                           lineNum,
+                                           "FOO.BAR.BAZ",
+                                           ball::Severity::e_WARN,
+                                           MSG,
+                                           oa.mechanism());
 
         fixedFields.setTimestamp(bdlt::CurrentTime::utc());
 
-        ball::UserFields userFields;
+        ball::UserFields userFields(oa.mechanism());
         userFields.appendString("string");
         userFields.appendDouble(3.14159265);
         userFields.appendInt64(1000000);
 
-        ball::Record mRecord(fixedFields, userFields);
+        ball::Record mRecord(fixedFields, userFields, oa.mechanism());
+
+        // Add a couple of log attributes
+        mRecord.addAttribute(ball::Attribute("name", "Name", oa));
+        mRecord.addAttribute(ball::Attribute("number", 1234, oa));
+
         const ball::Record& record = mRecord;
 
-        ostringstream oss1, oss2;
         bdlt::Datetime timestamp = record.fixedFields().timestamp();
-        Obj mX;
+        Obj mX(oa);
         const Obj& X = mX;
         ASSERT(bdlt::DatetimeInterval(0) == X.timestampOffset());
+
+        bslma::TestAllocator sa("streamAllocator", veryVeryVeryVerbose);
+        ostringstream oss1(&sa), oss2(&sa);
 
         if (verbose) cout << "\n  Testing default format." << endl;
         {
             oss1.str("");
             X(oss1, record);
-            if (veryVerbose) { P(oss1.str()); }
+            if (veryVerbose) {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                P(oss1.str());
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%%\"." << endl;
@@ -571,8 +740,12 @@ int main(int argc, char *argv[])
             oss2.str("");
             mX.setFormat("%%");
             X(oss1, record);
-            if (veryVerbose) { P(oss1.str()); }
-            ASSERT(oss1.str() == "%");
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P(oss1.str()); }
+                ASSERT(oss1.str() == "%");
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%d\"." << endl;
@@ -587,10 +760,13 @@ int main(int argc, char *argv[])
             char buffer[SIZE];
             timestamp.printToBuffer(buffer, SIZE, 3);
 
-            bsl::string EXP(buffer);
-
-            if (veryVerbose) { P_(oss1.str());  P(EXP) }
-            ASSERT(oss1.str() == EXP);
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                bsl::string                  EXP(buffer);
+                if (veryVerbose) { P_(oss1.str());  P(EXP) }
+                ASSERT(oss1.str() == EXP);
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%D\"." << endl;
@@ -605,10 +781,13 @@ int main(int argc, char *argv[])
             char buffer[SIZE];
             timestamp.printToBuffer(buffer, SIZE, 6);
 
-            bsl::string EXP(buffer);
-
-            if (veryVerbose) { P_(oss1.str());  P(EXP) }
-            ASSERT(oss1.str() == EXP);
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                bsl::string                  EXP(buffer);
+                if (veryVerbose) { P_(oss1.str());  P(EXP) }
+                ASSERT(oss1.str() == EXP);
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%i\"." << endl;
@@ -629,22 +808,27 @@ int main(int argc, char *argv[])
                 << ':'
                 << bsl::setw(2) << bsl::setfill('0') << timestamp.second()
                 << 'Z';
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == oss2.str());
 
-            // Is the resulting string parseable?
-            bdlt::Datetime dt;
-            int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
-            int rc = bdlt::Iso8601Util::parse(&dt,
-                                              oss1.str().c_str(),
-                                              len);
-            bdlt::Datetime adjustedTimestamp(timestamp);
-            adjustedTimestamp.setMillisecond(0); // "%i" => no msecs printed
-            adjustedTimestamp.setMicrosecond(0); // "%i" => no usecs printed
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == oss2.str());
 
-            if (veryVerbose) { P_(rc) P_(adjustedTimestamp) P(dt) }
-            ASSERT(0                 == rc);
-            ASSERT(adjustedTimestamp == dt);
+                // Is the resulting string parseable?
+                bdlt::Datetime dt;
+                int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
+                int rc = bdlt::Iso8601Util::parse(&dt,
+                                                  oss1.str().c_str(),
+                                                  len);
+                bdlt::Datetime adjustedTimestamp(timestamp);
+                adjustedTimestamp.setMillisecond(0); //"%i" => no msecs printed
+                adjustedTimestamp.setMicrosecond(0); //"%i" => no usecs printed
+
+                if (veryVerbose) { P_(rc) P_(adjustedTimestamp) P(dt) }
+                ASSERT(0                 == rc);
+                ASSERT(adjustedTimestamp == dt);
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%I\"." << endl;
@@ -667,20 +851,26 @@ int main(int argc, char *argv[])
                 << '.'
                 << bsl::setw(3) << bsl::setfill('0') << timestamp.millisecond()
                 << 'Z';
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == oss2.str());
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == oss2.str());
 
-            // Is the resulting string parseable?
-            bdlt::Datetime dt;
-            int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
-            int rc = bdlt::Iso8601Util::parse(&dt, oss1.str().c_str(), len);
+                // Is the resulting string parseable?
+                bdlt::Datetime dt;
+                int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
+                int rc = bdlt::Iso8601Util::parse(&dt,
+                                                  oss1.str().c_str(),
+                                                  len);
 
-            bdlt::Datetime adjustedTimestamp(timestamp);
-            adjustedTimestamp.setMicrosecond(0); // "%I" => no usecs printed
+                bdlt::Datetime adjustedTimestamp(timestamp);
+                adjustedTimestamp.setMicrosecond(0); //"%I" => no usecs printed
 
-            if (veryVerbose) { P_(rc) P_(adjustedTimestamp) P(dt) }
-            ASSERT(0                 == rc);
-            ASSERT(adjustedTimestamp == dt);
+                if (veryVerbose) { P_(rc) P_(adjustedTimestamp) P(dt) }
+                ASSERT(0                 == rc);
+                ASSERT(adjustedTimestamp == dt);
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%O\"." << endl;
@@ -704,19 +894,23 @@ int main(int argc, char *argv[])
                 << bsl::setw(3) << bsl::setfill('0') << timestamp.millisecond()
                 << bsl::setw(3) << bsl::setfill('0') << timestamp.microsecond()
                 << 'Z';
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == oss2.str());
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == oss2.str());
 
-            // Is the resulting string parseable?
-            bdlt::Datetime dt;
-            int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
-            int rc = bdlt::Iso8601Util::parse(&dt,
-                                              oss1.str().c_str(),
-                                              len);
+                // Is the resulting string parseable?
+                bdlt::Datetime dt;
+                int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
+                int rc = bdlt::Iso8601Util::parse(&dt,
+                                                  oss1.str().c_str(),
+                                                  len);
 
-            if (veryVerbose) { P_(rc) P_(timestamp) P(dt) }
-            ASSERT(0         == rc);
-            ASSERT(timestamp == dt);
+                if (veryVerbose) { P_(rc) P_(timestamp) P(dt) }
+                ASSERT(0         == rc);
+                ASSERT(timestamp == dt);
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%i\" with local timestamp."
@@ -747,24 +941,32 @@ int main(int argc, char *argv[])
                 << bsl::setw(2) << bsl::setfill('0')
                                                  << bsl::abs(offset.minutes());
 
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == oss2.str());
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == oss2.str());
 
-            // Is the resulting string parseable?
-            bdlt::DatetimeTz dt;
-            int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
-            int rc = bdlt::Iso8601Util::parse(&dt, oss1.str().c_str(), len);
-            bdlt::Datetime truncatedLocalTime = localTime;
-            truncatedLocalTime.setMillisecond(0);  // "%i" => no msecs printed
-            truncatedLocalTime.setMicrosecond(0);  // "%i" => no usecs printed
+                // Is the resulting string parseable?
+                bdlt::DatetimeTz dt;
+                int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
+                int rc = bdlt::Iso8601Util::parse(&dt,
+                                                  oss1.str().c_str(),
+                                                  len);
+                bdlt::Datetime truncatedLocalTime = localTime;
+                truncatedLocalTime.setMillisecond(0);
+                    // "%i" => no msecs printed
+                truncatedLocalTime.setMicrosecond(0);
+                    // "%i" => no usecs printed
 
-            bdlt::DatetimeTz adjustedTimestamp(
+                bdlt::DatetimeTz adjustedTimestamp(
                                       truncatedLocalTime,
                                       static_cast<int>(offset.totalMinutes()));
 
-            if (veryVerbose) { P_(rc) P_(adjustedTimestamp) P(dt) }
-            ASSERT(0                 == rc);
-            ASSERT(adjustedTimestamp == dt);
+                if (veryVerbose) { P_(rc) P_(adjustedTimestamp) P(dt) }
+                ASSERT(0                 == rc);
+                ASSERT(adjustedTimestamp == dt);
+            }
 
             mX.setTimestampOffset(bdlt::DatetimeInterval());
         }
@@ -776,8 +978,12 @@ int main(int argc, char *argv[])
             mX.setFormat("%p");
             X(oss1, record);
             oss2 << processID;
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == oss2.str());
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == oss2.str());
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%t\"." << endl;
@@ -787,8 +993,12 @@ int main(int argc, char *argv[])
             mX.setFormat("%t");
             X(oss1, record);
             oss2 << threadID;
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == oss2.str());
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == oss2.str());
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%T\"." << endl;
@@ -798,8 +1008,12 @@ int main(int argc, char *argv[])
             mX.setFormat("%T");
             X(oss1, record);
             oss2 << uppercase << hex << threadID << nouppercase << dec;
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == oss2.str());
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == oss2.str());
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%s\"." << endl;
@@ -810,8 +1024,12 @@ int main(int argc, char *argv[])
             X(oss1, record);
             oss2 << ball::Severity::toAscii(
                        (ball::Severity::Level)record.fixedFields().severity());
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == oss2.str());
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == oss2.str());
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%f\"." << endl;
@@ -821,8 +1039,12 @@ int main(int argc, char *argv[])
             mX.setFormat("%f");
             X(oss1, record);
             oss2 << filename;
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == oss2.str());
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == oss2.str());
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%F\"." << endl;
@@ -853,14 +1075,19 @@ int main(int argc, char *argv[])
                 const char *RECORDFILE = DATA[ti].d_recordFile;
                 const char *OUTPUTFILE = DATA[ti].d_outputFile;
 
-                Rec mR;  const Rec &R = mR;
+                Rec mR(oa.mechanism());  const Rec &R = mR;
                 mR.fixedFields().setFileName(RECORDFILE);
 
-                ostringstream oss;
+                ostringstream oss(&sa);
                 X(oss, R);
 
-                if (veryVerbose) { P_(RECORDFILE);  P(OUTPUTFILE) }
-                ASSERTV(LINE, 0 == bsl::strcmp(OUTPUTFILE, oss.str().c_str()));
+                {
+                    bslma::TestAllocator         da;
+                    bslma::DefaultAllocatorGuard guard(&da);
+                    if (veryVerbose) { P_(RECORDFILE);  P(OUTPUTFILE) }
+                    ASSERTV(LINE, 0 == bsl::strcmp(OUTPUTFILE,
+                                                   oss.str().c_str()));
+                }
             }
         }
 
@@ -871,8 +1098,12 @@ int main(int argc, char *argv[])
             mX.setFormat("%l");
             X(oss1, record);
             oss2 << lineNum;
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == oss2.str());
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == oss2.str());
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%c\"." << endl;
@@ -881,8 +1112,12 @@ int main(int argc, char *argv[])
             oss2.str("");
             mX.setFormat("%c");
             X(oss1, record);
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == "FOO.BAR.BAZ");
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == "FOO.BAR.BAZ");
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%m\"." << endl;
@@ -891,8 +1126,12 @@ int main(int argc, char *argv[])
             oss2.str("");
             mX.setFormat("%m");
             X(oss1, record);
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == MSG);
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == MSG);
+            }
         }
 
         if (verbose) cout << "\n  Testing \"%x\" and \"%X\"." << endl;
@@ -932,6 +1171,11 @@ int main(int argc, char *argv[])
                 { L_,    "\r\nx",         "\\x0D\\x0Ax",      "0D0A78"       },
                 { L_,    "\r\nz\\y",      "\\x0D\\x0Az\\y",   "0D0A7A5C79"   },
                 { L_,    "a\r\nz\\y",     "a\\x0D\\x0Az\\y",  "610D0A7A5C79" },
+                { L_,    "000000000000000000000000000000000000000000000000",
+                         "000000000000000000000000000000000000000000000000",
+                         "303030303030303030303030303030303030303030303030"
+                         "303030303030303030303030303030303030303030303030",
+                }
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -947,18 +1191,28 @@ int main(int argc, char *argv[])
                 oss1.str("");
                 mX.setFormat("%x");
                 X(oss1, record);
-                if (veryVerbose) {
-                    P_(LINE); P_(SPEC); P_(oss1.str()); P(EXPECTED_RESULT_x);
+                {
+                    bslma::TestAllocator         da;
+                    bslma::DefaultAllocatorGuard guard(&da);
+                    if (veryVerbose) {
+                        P_(LINE); P_(SPEC); P_(oss1.str());
+                        P(EXPECTED_RESULT_x);
+                    }
+                    ASSERT(oss1.str() == EXPECTED_RESULT_x);
                 }
-                ASSERT(oss1.str() == EXPECTED_RESULT_x);
 
                 oss2.str("");
                 mX.setFormat("%X");
                 X(oss2, record);
-                if (veryVerbose) {
-                    P_(LINE); P_(SPEC); P_(oss2.str()); P(EXPECTED_RESULT_X);
+                {
+                    bslma::TestAllocator         da;
+                    bslma::DefaultAllocatorGuard guard(&da);
+                    if (veryVerbose) {
+                        P_(LINE); P_(SPEC); P_(oss2.str());
+                        P(EXPECTED_RESULT_X);
+                    }
+                    ASSERT(oss2.str() == EXPECTED_RESULT_X);
                 }
-                ASSERT(oss2.str() == EXPECTED_RESULT_X);
             }
 
             // Reset the message field to the original string.
@@ -972,9 +1226,61 @@ int main(int argc, char *argv[])
             mX.setFormat("%u");
             X(oss1, record);
             oss2 << "string " << 3.14159265l << " " << 1000000;
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERTV(oss1.str(), oss2.str(),
-                    compareText(oss1.str(),oss2.str()));
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERTV(oss1.str(), oss2.str(),
+                        compareText(oss1.str(),oss2.str()));
+            }
+        }
+
+        if (verbose) cout << "\n  Testing \"%a\"." << endl;
+        {
+            oss1.str("");
+            oss2.str("");
+            mX.setFormat("%a");
+            X(oss1, record);
+            oss2 << "name=\"Name\" number=1234";
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERTV(oss1.str(), oss2.str(),
+                        compareText(oss1.str(),oss2.str()));
+            }
+        }
+
+        if (verbose) cout << "\n  Testing \"%a[key]\"." << endl;
+        {
+            oss1.str("");
+            oss2.str("");
+            mX.setFormat("%a[name]");
+            X(oss1, record);
+            oss2 << "\"Name\"";
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERTV(oss1.str(), oss2.str(),
+                        compareText(oss1.str(),oss2.str()));
+            }
+        }
+
+        if (verbose) cout << "\n  Testing \"%A\"." << endl;
+        {
+            oss1.str("");
+            oss2.str("");
+            mX.setFormat("%A %a[name]");
+            X(oss1, record);
+            oss2 << "name=\"Name\" number=1234 \"Name\"";
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERTV(oss1.str(), oss2.str(),
+                        compareText(oss1.str(),oss2.str()));
+            }
         }
 
         if (verbose) cout << "\n  Testing \"\\n\"." << endl;
@@ -982,8 +1288,12 @@ int main(int argc, char *argv[])
             oss1.str("");
             oss2.str("");
             mX.setFormat("\\n");  X(oss1, record);
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == "\n");
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == "\n");
+            }
         }
 
         if (verbose) cout << "\n  Testing \"\\t\"." << endl;
@@ -992,8 +1302,12 @@ int main(int argc, char *argv[])
             oss2.str("");
             mX.setFormat("\\t");
             X(oss1, record);
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == "\t");
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == "\t");
+            }
         }
 
         if (verbose) cout << "\n  Testing \"\\\\\"." << endl;
@@ -1002,8 +1316,12 @@ int main(int argc, char *argv[])
             oss2.str("");
             mX.setFormat("\\\\");
             X(oss1, record);
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == "\\");
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == "\\");
+            }
         }
 
         if (verbose) cout << "\n  Testing an arbitrary string." << endl;
@@ -1012,13 +1330,16 @@ int main(int argc, char *argv[])
             oss2.str("");
             mX.setFormat("log this");
             X(oss1, record);
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == "log this");
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == "log this");
+            }
         }
 
         if (verbose) cout << "\n Testing allocation behavior." << endl;
         {
-
             const char *TEST_MESSAGES[] = {
                 MSG_1BYTE,
                 MSG_20BYTE,
@@ -1033,31 +1354,36 @@ int main(int argc, char *argv[])
                 const char   *MSG     = TEST_MESSAGES[i];
                 const IntPtr  MSG_LEN = bsl::strlen(MSG);
 
-                bslma::TestAllocator oa, da;
-                Obj x("%m", &oa); const Obj& X = x;
+                bslma::TestAllocator objectAllocator("oa",
+                                                     veryVeryVeryVerbose);
+                Obj::allocator_type  oa(&objectAllocator);
+                Obj x("%m", oa); const Obj& X = x;
 
                 ball::RecordAttributes fixedFields(bdlt::Datetime(),
-                                                  processID,
-                                                  threadID,
-                                                  filename,
-                                                  lineNum,
-                                                  "FOO.BAR.BAZ",
-                                                  ball::Severity::e_WARN,
-                                                  MSG,
-                                                  &oa);
+                                                   processID,
+                                                   threadID,
+                                                   filename,
+                                                   lineNum,
+                                                   "FOO.BAR.BAZ",
+                                                   ball::Severity::e_WARN,
+                                                   MSG,
+                                                   oa.mechanism());
                 fixedFields.setTimestamp(bdlt::CurrentTime::utc());
 
-                ball::UserFields   userFields(&oa);
-                ball::Record record(fixedFields, userFields);
+                ball::UserFields userFields(oa.mechanism());
+                ball::Record     record(fixedFields,
+                                        userFields,
+                                        oa.mechanism());
 
-                bsl::ostringstream stream;
+                bsl::ostringstream           stream(&sa);
+                bslma::TestAllocator         da("da",
+                                                veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard guard(&da);
-
-                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
+                bslma::TestAllocatorMonitor  oam(&objectAllocator), dam(&da);
 
                 X(stream, record);
 
-                bool expectIncrease = MSG_LEN > 500;
+                const bool expectIncrease = MSG_LEN > 500;
 
                 ASSERT(oam.isInUseSame());
                 ASSERT(oam.isMaxSame());
@@ -1130,28 +1456,33 @@ int main(int argc, char *argv[])
         const int NUM_FVALUES = sizeof FVALUES / sizeof *FVALUES;
         const int NUM_TVALUES = sizeof TVALUES / sizeof *TVALUES;
 
+        bslma::TestAllocator testAllocator("objectAllocator",
+                                           veryVeryVeryVerbose);
+        Obj::allocator_type  oa(&testAllocator);
+
         for (int i = 0; i < NUM_FVALUES; ++i) {
-            Obj x;  const Obj& X = x;
+            Obj x(oa);  const Obj& X = x;
             x.setFormat(FVALUES[i].d_format);
 
-            Obj y(FVALUES[i].d_format); const Obj& Y = y;
+            Obj y(FVALUES[i].d_format, oa); const Obj& Y = y;
             ASSERTV(FVALUES[i].d_lineNum, Y == X);
         }
 
         for (int i = 0; i < NUM_TVALUES; ++i) {
-            Obj x;  const Obj& X = x;
+            Obj x(oa);  const Obj& X = x;
             x.setTimestampOffset(
                   bdlt::DatetimeInterval(TVALUES[i].d_days,
-                                        TVALUES[i].d_hours,
-                                        TVALUES[i].d_mins,
-                                        TVALUES[i].d_secs,
-                                        TVALUES[i].d_msecs));
+                                         TVALUES[i].d_hours,
+                                         TVALUES[i].d_mins,
+                                         TVALUES[i].d_secs,
+                                         TVALUES[i].d_msecs));
 
             Obj y(bdlt::DatetimeInterval(TVALUES[i].d_days,
-                                        TVALUES[i].d_hours,
-                                        TVALUES[i].d_mins,
-                                        TVALUES[i].d_secs,
-                                        TVALUES[i].d_msecs));
+                                         TVALUES[i].d_hours,
+                                         TVALUES[i].d_mins,
+                                         TVALUES[i].d_secs,
+                                         TVALUES[i].d_msecs),
+                  oa);
             const Obj& Y = y;
             ASSERTV(TVALUES[i].d_lineNum, Y == X);
         }
@@ -1159,21 +1490,22 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_FVALUES; ++i) {
             for (int j = 0; j < NUM_TVALUES; ++j) {
 
-                Obj x;  const Obj& X = x;
+                Obj x(oa);  const Obj& X = x;
                 x.setFormat(FVALUES[i].d_format);
                 x.setTimestampOffset(
                       bdlt::DatetimeInterval(TVALUES[j].d_days,
-                                            TVALUES[j].d_hours,
-                                            TVALUES[j].d_mins,
-                                            TVALUES[j].d_secs,
-                                            TVALUES[j].d_msecs));
+                                             TVALUES[j].d_hours,
+                                             TVALUES[j].d_mins,
+                                             TVALUES[j].d_secs,
+                                             TVALUES[j].d_msecs));
 
                 Obj y(FVALUES[i].d_format,
                       bdlt::DatetimeInterval(TVALUES[j].d_days,
-                                            TVALUES[j].d_hours,
-                                            TVALUES[j].d_mins,
-                                            TVALUES[j].d_secs,
-                                            TVALUES[j].d_msecs));
+                                             TVALUES[j].d_hours,
+                                             TVALUES[j].d_mins,
+                                             TVALUES[j].d_secs,
+                                             TVALUES[j].d_msecs),
+                      oa);
                 const Obj& Y = y;
                 ASSERTV(FVALUES[i].d_lineNum, TVALUES[j].d_lineNum, X == Y);
             }
@@ -1240,9 +1572,13 @@ int main(int argc, char *argv[])
         const int NUM_FVALUES = sizeof FVALUES / sizeof *FVALUES;
         const int NUM_TVALUES = sizeof TVALUES / sizeof *TVALUES;
 
+        bslma::TestAllocator testAllocator("objectAllocator",
+                                           veryVeryVeryVerbose);
+        Obj::allocator_type  oa(&testAllocator);
+
         for (int i1 = 0; i1 < NUM_FVALUES; ++i1) {
             for (int i2 = 0; i2 < NUM_TVALUES; ++i2) {
-                Obj v;  const Obj& V = v;
+                Obj v(oa);  const Obj& V = v;
                 v.setFormat(FVALUES[i1].d_format);
                 v.setTimestampOffset(
                       bdlt::DatetimeInterval(TVALUES[i2].d_days,
@@ -1253,7 +1589,7 @@ int main(int argc, char *argv[])
 
                 for (int j1 = 0; j1 < NUM_FVALUES; ++j1) {
                     for (int j2 = 0; j2 < NUM_TVALUES; ++j2) {
-                        Obj u;  const Obj& U = u;
+                        Obj u(oa);  const Obj& U = u;
                         u.setFormat(FVALUES[j1].d_format);
                         u.setTimestampOffset(
                                bdlt::DatetimeInterval(TVALUES[j2].d_days,
@@ -1262,7 +1598,7 @@ int main(int argc, char *argv[])
                                                      TVALUES[j2].d_secs,
                                                      TVALUES[j2].d_msecs));
 
-                        Obj w(V);  const Obj &W = w;          // control
+                        Obj w(V, oa);  const Obj &W = w;          // control
                         u = V;
                         ASSERTV(FVALUES[i1].d_lineNum,
                                 TVALUES[i2].d_lineNum,
@@ -1280,7 +1616,7 @@ int main(int argc, char *argv[])
         // Testing assignment u = u (Aliasing).
         for (int i1 = 0; i1 < NUM_FVALUES; ++i1) {
             for (int i2 = 0; i2 < NUM_TVALUES; ++i2) {
-                Obj u;  const Obj& U = u;
+                Obj u(oa);  const Obj& U = u;
                 u.setFormat(FVALUES[i1].d_format);
                 u.setTimestampOffset(
                       bdlt::DatetimeInterval(TVALUES[i2].d_days,
@@ -1288,7 +1624,7 @@ int main(int argc, char *argv[])
                                             TVALUES[i2].d_mins,
                                             TVALUES[i2].d_secs,
                                             TVALUES[i2].d_msecs));
-                Obj w(U);  const Obj &W = w;
+                Obj w(U, oa);  const Obj &W = w;
                 u = u;
                 ASSERTV(FVALUES[i1].d_lineNum,
                         TVALUES[i2].d_lineNum, W == U);
@@ -1330,25 +1666,30 @@ int main(int argc, char *argv[])
             int         d_secs;
             int         d_msecs;
         } VALUES[] = {
-            //line fmt  days hrs mins secs msecs
-            //---- ---  ---- --- ---- ---- -----
-            { L_, "%%",  0,   0,   0,   0,   0   },
-            { L_, "%d", -1,  -1,  -1,  -1,   -1  },
-            { L_, "%i",  0,   0,   0,   0,  999  },
-            { L_, "%p",  0,   0,   0,   0, -999  },
-            { L_, "%t",  0,   0,  59,   0,   0   },
-            { L_, "%s",  0,   0,   0, -59,   0   },
-            { L_, "%f",  0,   0,  59,   0,   0   },
-            { L_, "%l",  0,   0, -59,   0,   0   },
-            { L_, "%c",  0,  23,   0,   0,   0   },
-            { L_, "%m",  0, -23,   0,   0,   0   },
-            { L_, "%u",  5,   0,   0,   0,   0   },
-            { L_, "",   -5,   0,   0,   0,   0   },
-            { L_, "",    5,  23,  22,  21,  209  },
-            { L_, "",   -5, -23, -59, -59, -999  },
+            //line fmt              days hrs mins secs msecs
+            //---- ---------------  ---- --- ---- ---- -----
+            { L_, "%%",              0,   0,   0,   0,   0   },
+            { L_, "%d",             -1,  -1,  -1,  -1,   -1  },
+            { L_, "%i",              0,   0,   0,   0,  999  },
+            { L_, "%p",              0,   0,   0,   0, -999  },
+            { L_, "%t",              0,   0,  59,   0,   0   },
+            { L_, "%s",              0,   0,   0, -59,   0   },
+            { L_, "%f",              0,   0,  59,   0,   0   },
+            { L_, "%l",              0,   0, -59,   0,   0   },
+            { L_, "%c",              0,  23,   0,   0,   0   },
+            { L_, "%m",              0, -23,   0,   0,   0   },
+            { L_, "%u",              5,   0,   0,   0,   0   },
+            { L_, "",               -5,   0,   0,   0,   0   },
+            { L_, "",                5,  23,  22,  21,  209  },
+            { L_, "",               -5, -23, -59, -59, -999  },
+            { L_, "attributes: %a", -5, -23, -59, -59, -999  },
         };
 
         const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+        bslma::TestAllocator testAllocator("objectAllocator",
+                                           veryVeryVeryVerbose);
+        Obj::allocator_type  oa(&testAllocator);
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             const bdlt::DatetimeInterval interval(VALUES[i].d_days,
@@ -1357,15 +1698,15 @@ int main(int argc, char *argv[])
                                                  VALUES[i].d_secs,
                                                  VALUES[i].d_msecs);
 
-            Obj w;  const Obj& W = w;           // control
+            Obj w(oa);  const Obj& W = w;           // control
             w.setFormat(VALUES[i].d_format);
             w.setTimestampOffset(interval);
 
-            Obj x;  const Obj& X = x;
+            Obj x(oa);  const Obj& X = x;
             x.setFormat(VALUES[i].d_format);
             x.setTimestampOffset(interval);
 
-            Obj y(X);  const Obj &Y = y;
+            Obj y(X, oa);  const Obj& Y = y;
             ASSERTV(VALUES[i].d_lineNum, X == W);
             ASSERTV(VALUES[i].d_lineNum, Y == W);
         }
@@ -1430,9 +1771,13 @@ int main(int argc, char *argv[])
         const int NUM_FVALUES = sizeof FVALUES / sizeof *FVALUES;
         const int NUM_TVALUES = sizeof TVALUES / sizeof *TVALUES;
 
+        bslma::TestAllocator testAllocator("objectAllocator",
+                                           veryVeryVeryVerbose);
+        Obj::allocator_type  oa(&testAllocator);
+
         for (int i1 = 0; i1 < NUM_FVALUES; ++i1) {
             for (int i2 = 0; i2 < NUM_TVALUES; ++i2) {
-                Obj mA;  const Obj& A = mA;
+                Obj mA(oa);  const Obj& A = mA;
                 mA.setFormat(FVALUES[i1].d_format);
                 mA.setTimestampOffset(
                        bdlt::DatetimeInterval(TVALUES[i2].d_days,
@@ -1443,7 +1788,7 @@ int main(int argc, char *argv[])
 
                 for (int j1 = 0; j1 < NUM_FVALUES; ++j1) {
                     for (int j2 = 0; j2 < NUM_TVALUES; ++j2) {
-                        Obj mB;  const Obj& B = mB;
+                        Obj mB(oa);  const Obj& B = mB;
                         mB.setFormat(FVALUES[j1].d_format);
                         mB.setTimestampOffset(
                                bdlt::DatetimeInterval(TVALUES[j2].d_days,
@@ -1515,10 +1860,16 @@ int main(int argc, char *argv[])
             { L_, "\\", false,   "'\\' UTC"        },
         };
 
+
+        bslma::TestAllocator testAllocator("objectAllocator",
+                                           veryVeryVeryVerbose);
+        Obj::allocator_type  oa(&testAllocator);
+
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            Obj mX(DATA[i].d_format, DATA[i].d_localTime);  const Obj& X = mX;
+            Obj mX(DATA[i].d_format, DATA[i].d_localTime, oa);
+            const Obj& X = mX;
 
             ostringstream os;
             os << X;
@@ -1569,9 +1920,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Primary Manipulator"
                           << "\n===========================" << endl;
 
+        bslma::TestAllocator testAllocator("objectAllocator",
+                                           veryVeryVeryVerbose);
+        Obj::allocator_type  oa(&testAllocator);
+
         if (verbose) cout << "\n  Create a default object." << endl;
         {
-            Obj mX;  const Obj& X = mX;
+            Obj mX(oa);  const Obj& X = mX;
             ASSERT( 0 == strcmp(F0, X.format()));
             ASSERT(T0 == X.timestampOffset());
         }
@@ -1616,7 +1971,7 @@ int main(int argc, char *argv[])
                                                      VALUES[i].d_secs,
                                                      VALUES[i].d_msecs);
 
-                Obj mX;  const Obj& X = mX;
+                Obj mX(oa);  const Obj& X = mX;
                 mX.setFormat(VALUES[i].d_format);
                 mX.setTimestampOffset(interval);
                 ASSERTV(VALUES[i].d_lineNum,
@@ -1632,7 +1987,7 @@ int main(int argc, char *argv[])
                                                      VALUES[i].d_secs,
                                                      VALUES[i].d_msecs);
 
-                Obj mX;  const Obj& X = mX;
+                Obj mX(oa);  const Obj& X = mX;
                 mX.setTimestampOffset(interval);
                 mX.setFormat(VALUES[i].d_format);
                 ASSERTV(VALUES[i].d_lineNum,
@@ -1680,13 +2035,17 @@ int main(int argc, char *argv[])
                           << "\n==============" << endl;
 
         if (verbose) cout << "\n 1. Create a default object x1." << endl;
-        Obj mX1;  const Obj& X1 = mX1;
+
+        bslma::TestAllocator testAllocator("objectAllocator",
+                                           veryVeryVeryVerbose);
+        Obj::allocator_type  oa(&testAllocator);
+
+        Obj mX1(oa);  const Obj& X1 = mX1;
         ASSERT( 0 == strcmp(F0, X1.format()));
         ASSERT(T0 == X1.timestampOffset());
-
         if (verbose) cout << "\n 2. Create an object x2 (copy from x1)."
                           << endl;
-        Obj mX2(X1);  const Obj& X2 = mX2;
+        Obj mX2(X1, oa);  const Obj& X2 = mX2;
         ASSERT( 0 == strcmp(F0, X2.format()));
         ASSERT(T0 == X2.timestampOffset());
         ASSERT( 1 == (X2 == X1));        ASSERT(0 == (X2 != X1));
@@ -1726,7 +2085,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\n 7. Create an object x3 (with value VC)."
                            << endl;
-        Obj mX3(FC, TC);  const Obj& X3 = mX3;
+        Obj mX3(FC, TC, oa);  const Obj& X3 = mX3;
         ASSERT( 0 == strcmp(FC, X3.format()));
         ASSERT(TC == X3.timestampOffset());
         ASSERT( 1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
@@ -1735,7 +2094,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\n 8. Create an object x4 (copy from x1)."
                            << endl;
-        Obj mX4(X1);  const Obj& X4 = mX4;
+        Obj mX4(X1, oa);  const Obj& X4 = mX4;
         ASSERT( 0 == strcmp(F0, X4.format()));
         ASSERT(T0 == X4.timestampOffset());
         ASSERT( 1 == (X4 == X1));        ASSERT(0 == (X4 != X1));
@@ -1770,13 +2129,20 @@ int main(int argc, char *argv[])
         ASSERT( 0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
         ASSERT( 1 == (X1 == X4));        ASSERT(0 == (X1 != X4));
       } break;
-
       default:
         {
             cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
             testStatus = -1;
         }
     }
+
+    // CONCERN: In no case does memory come from the default allocator.
+
+    ASSERT(dam.isTotalSame());
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    ASSERT(gam.isTotalSame());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."

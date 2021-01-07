@@ -1,12 +1,4 @@
 // ball_attribute.h                                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_ATTRIBUTE
 #define INCLUDED_BALL_ATTRIBUTE
 
@@ -18,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::Attribute: (literal) name/value pair
 //
-//@SEE_ALSO: ball_predicate
+//@SEE_ALSO: ball_managedattribute
 //
 //@DESCRIPTION: This component implements an unusual in-core value-semantic
 // class, 'ball::Attribute'.  Each instance of this type represents an
@@ -35,6 +27,22 @@ BSLS_IDENT("$Id: $")
 // that of any other 'ball::Attribute' objects that are copied or assigned from
 // the original object.  It is recommended that only null-terminated C-string
 // literals be used for names.
+//
+///Attribute Naming Recommendations
+///--------------------------------
+// Attributes can be rendered as part of a log message and used for log
+// post-processing and analysis.  It is recommended to use the following naming
+// conventions for attribute names:
+//
+// o An attribute name should start with an alphabetic character, no other
+//   special characters, digits should be allowed as the first character of the
+//   attribute name.
+// o An attribute name should not contain whitespaces.
+// o An attribute name should contain only alphanumeric characters,
+//   underscores('_'), and dots('.').  Do not use any other special characters.
+//
+// Disregarding these conventions may prevent the log output from being
+// correctly parsed by commonly used log processing software.
 //
 ///Usage
 ///-----
@@ -89,14 +97,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_variant.h>
 
 #include <bslma_allocator.h>
+#include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_assert.h>
 #include <bsls_types.h>
 
-#include <bsl_string.h>
 #include <bsl_cstring.h>
+#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace ball {
@@ -114,6 +124,7 @@ class Attribute {
     typedef bdlb::Variant<int,
                           bsls::Types::Int64,
                           bsl::string> Value;
+        // 'Value' is an alias for the attribute type variant.
 
   private:
     // DATA
@@ -132,6 +143,9 @@ class Attribute {
     friend bsl::ostream& operator<<(bsl::ostream&, const Attribute&);
 
   public:
+    // TYPES
+    typedef bsl::allocator<char> allocator_type;
+
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Attribute, bslma::UsesBslmaAllocator);
 
@@ -143,53 +157,52 @@ class Attribute {
         // undefined unless '0 < size'.
 
     // CREATORS
-    Attribute(const char       *name,
-              int               value,
-              bslma::Allocator *basicAllocator = 0 );
-        // Create a 'Attribute' object having the specified (literal) 'name'
-        // and (32-bit integer) 'value'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator will be used.  Note that 'name' is not
+    Attribute(const char            *name,
+              int                    value,
+              const allocator_type&  allocator = allocator_type());
+        // Create an 'Attribute' object having the specified (literal) 'name'
+        // and (32-bit integer) 'value'.  Optionally specify an 'allocator'
+        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.  Note that 'name' is not
         // managed by this object and therefore must remain valid while in use
         // by any 'Attribute' object.
 
-    Attribute(const char         *name,
-              bsls::Types::Int64  value,
-              bslma::Allocator   *basicAllocator = 0 );
-        // Create a 'Attribute' object having the specified (literal) 'name'
-        // and (64-bit integer) 'value'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator will be used.  Note that 'name' is not
+    Attribute(const char            *name,
+              bsls::Types::Int64     value,
+              const allocator_type&  allocator = allocator_type());
+        // Create an 'Attribute' object having the specified (literal) 'name'
+        // and (64-bit integer) 'value'.  Optionally specify an 'allocator'
+        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.  Note that 'name' is not
         // managed by this object and therefore must remain valid while in use
         // by any 'Attribute' object.
 
-    Attribute(const char               *name,
-              const bslstl::StringRef&  value,
-              bslma::Allocator         *basicAllocator = 0 );
-        // Create a 'Attribute' object having the specified (literal) 'name'
-        // and (character string)'value'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator will be used.  Note that
-        // 'name' is not managed by this object and therefore must remain valid
-        // while in use by any 'Attribute' object.
+    Attribute(const char              *name,
+              const bsl::string_view&  value,
+              const allocator_type&    allocator = allocator_type());
+        // Create an 'Attribute' object having the specified (literal) 'name'
+        // and (character string) 'value'.  Optionally specify an 'allocator'
+        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.  Note that 'name' is not
+        // managed by this object and therefore must remain valid while in use
+        // by any 'Attribute' object.
 
-    Attribute(const char       *name,
-              const Value&      value,
-              bslma::Allocator *basicAllocator = 0 );
-        // Create a 'Attribute' object having the specified (literal) 'name'
-        // and 'value'.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator will be used.  Note that 'name' is not managed by this
+    Attribute(const char            *name,
+              const Value&           value,
+              const allocator_type&  allocator = allocator_type());
+        // Create an 'Attribute' object having the specified (literal) 'name'
+        // and 'value'.  Optionally specify an 'allocator' (e.g., the address
+        // of a 'bslma::Allocator' object) to supply memory; otherwise, the
+        // default allocator is used.  Note that 'name' is not managed by this
         // object and therefore must remain valid while in use by any
         // 'Attribute' object.
 
-    Attribute(const Attribute&  original,
-              bslma::Allocator *basicAllocator = 0);
-        // Create a 'Attribute' object having the same (literal) name and
+    Attribute(const Attribute&      original,
+              const allocator_type& allocator = allocator_type());
+        // Create an 'Attribute' object having the same (literal) name and
         // attribute value as the specified 'original' object.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator
-        // will be used.
+        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
+        // object) to supply memory; otherwise, the default allocator is used.
 
     //! ~Attribute() = default;
         // Destroy this attribute object.
@@ -203,10 +216,10 @@ class Attribute {
         // 'name'.  Note that 'name' is not managed by this object and
         // therefore must remain valid while in use by any 'Attribute' object.
 
-    void setValue(const Value& value);
-    void setValue(int value);
-    void setValue(bsls::Types::Int64 value);
-    void setValue(const bslstl::StringRef& value);
+    void setValue(const Value&            value);
+    void setValue(int                     value);
+    void setValue(bsls::Types::Int64      value);
+    void setValue(const bsl::string_view& value);
         // Set the attribute value of this object to the specified 'value'.
 
     // ACCESSORS
@@ -229,6 +242,13 @@ class Attribute {
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  If 'stream' is
         // not valid on entry, this operation has no effect.
+
+                                  // Aspects
+
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
 };
 
 // FREE OPERATORS
@@ -259,11 +279,11 @@ bsl::ostream& operator<<(bsl::ostream& output, const Attribute& attribute);
 
 // CREATORS
 inline
-Attribute::Attribute(const char       *name,
-                     int               value,
-                     bslma::Allocator *basicAllocator)
+Attribute::Attribute(const char            *name,
+                     int                    value,
+                     const allocator_type&  allocator)
 : d_name(name)
-, d_value(basicAllocator)
+, d_value(allocator.mechanism())
 , d_hashValue(-1)
 , d_hashSize(0)
 {
@@ -271,11 +291,11 @@ Attribute::Attribute(const char       *name,
 }
 
 inline
-Attribute::Attribute(const char         *name,
-                     bsls::Types::Int64  value,
-                     bslma::Allocator   *basicAllocator)
+Attribute::Attribute(const char            *name,
+                     bsls::Types::Int64     value,
+                     const allocator_type&  allocator)
 : d_name(name)
-, d_value(basicAllocator)
+, d_value(allocator.mechanism())
 , d_hashValue(-1)
 , d_hashSize(0)
 {
@@ -283,11 +303,11 @@ Attribute::Attribute(const char         *name,
 }
 
 inline
-Attribute::Attribute(const char               *name,
-                     const bslstl::StringRef&  value,
-                     bslma::Allocator         *basicAllocator)
+Attribute::Attribute(const char              *name,
+                     const bsl::string_view&  value,
+                     const allocator_type&    allocator)
 : d_name(name)
-, d_value(basicAllocator)
+, d_value(allocator.mechanism())
 , d_hashValue(-1)
 , d_hashSize(0)
 {
@@ -295,21 +315,21 @@ Attribute::Attribute(const char               *name,
 }
 
 inline
-Attribute::Attribute(const char       *name,
-                     const Value&      value,
-                     bslma::Allocator *basicAllocator)
+Attribute::Attribute(const char            *name,
+                     const Value&           value,
+                     const allocator_type&  allocator)
 : d_name(name)
-, d_value(value, basicAllocator)
+, d_value(value, allocator.mechanism())
 , d_hashValue(-1)
 , d_hashSize(0)
 {
 }
 
 inline
-Attribute::Attribute(const Attribute&  original,
-                     bslma::Allocator *basicAllocator)
+Attribute::Attribute(const Attribute&      original,
+                     const allocator_type& allocator)
 : d_name(original.d_name)
-, d_value(original.d_value, basicAllocator)
+, d_value(original.d_value, allocator.mechanism())
 , d_hashValue(original.d_hashValue)
 , d_hashSize(original.d_hashSize)
 {
@@ -355,9 +375,9 @@ void Attribute::setValue(bsls::Types::Int64 value)
 }
 
 inline
-void Attribute::setValue(const bslstl::StringRef& value)
+void Attribute::setValue(const bsl::string_view& value)
 {
-    d_value.assign(bsl::string(value.data(), value.length()));
+    d_value.assign(bsl::string(value));
     d_hashValue = -1;
 }
 
@@ -372,6 +392,15 @@ inline
 const Attribute::Value& Attribute::value() const
 {
     return d_value;
+}
+
+                                  // Aspects
+
+inline
+Attribute::allocator_type Attribute::get_allocator() const
+{
+    // Until bdlb::variant is converted to new allocator model.
+    return allocator_type(d_value.getAllocator());
 }
 
 }  // close package namespace

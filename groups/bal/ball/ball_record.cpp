@@ -8,7 +8,12 @@ BSLS_IDENT_RCSID(ball_record_cpp,"$Id$ $CSID$")
 
 #include <bdlb_print.h>
 
+#include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
+
+#include <bsl_algorithm.h>
 #include <bsl_ostream.h>
+#include <bsl_functional.h>
 
 namespace BloombergLP {
 namespace ball {
@@ -52,7 +57,22 @@ bsl::ostream& Record::print(bsl::ostream& stream,
     else {
         stream << ' ';
     }
-    d_customFields.print(stream, levelPlus1, spacesPerLevel);
+    d_userFields.print(stream, levelPlus1, spacesPerLevel);
+
+    if (0 <= spacesPerLevel) {
+        stream << '\n';
+        bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
+    }
+    else {
+        stream << ' ';
+    }
+
+    bsl::for_each(d_attributes.begin(), d_attributes.end(),
+                  bdlf::BindUtil::bind(&ball::ManagedAttribute::print,
+                                       bdlf::PlaceHolders::_1,
+                                       bsl::ref(stream),
+                                       levelPlus1,
+                                       spacesPerLevel));
 
     if (0 <= spacesPerLevel) {
         stream << '\n';

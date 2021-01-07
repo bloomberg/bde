@@ -1,32 +1,44 @@
 // ball_record.h                                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_RECORD
 #define INCLUDED_BALL_RECORD
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a container for all fields of a log record.
+//@PURPOSE: Provide a container for the fields and attributes of a log record.
 //
 //@CLASSES:
-//  ball::Record: container for fixed and user-defined log record fields
+//  ball::Record: container for a log record's fields and attributes
 //
 //@SEE_ALSO: ball_recordattributes, ball_logger
 //
-//@DESCRIPTION: This component defines a container, 'ball::Record', that
-// aggregates a set of fixed fields and a set of user-defined fields into one
-// record type, useful for transmitting a customized log record as a single
-// instance rather than passing around individual attributes separately.  Note
-// that this class is a pure attribute class with no constraints, other than
-// the total memory required for the class.  Also note that this class is not
-// thread-safe.
+//@DESCRIPTION: This component provides a single, unconstrained
+// (value-semantic) attribute class, 'ball::Record', that is used to describe
+// the properties of a logged message.
+//
+///Attributes
+///----------
+//..
+//  Name                Type
+//  ------------------  -----------------------------------
+//  fixedFields         ball::RecordAttributes
+//  userFields          ball::UserFields
+//  attributes          bsl::vector<ball::ManagedAttribute>
+//..
+//: o 'fixedFields': mandatory log fields including timestamp, location,
+//:   severity, process id, and the log message.
+//:
+//: o 'userFields': user-managed fields associated with a log record.  Note
+//:    that use of these fields is deprecated and superseded by 'attributes'.
+//:
+//: o 'attributes': user-managed name/value pairs associated with a log record.
+//
+// 'ball::Record' aggregates a set of fixed fields and various user-defined
+// fields and attributes into one record type, useful for transmitting a
+// customized log record as a single instance rather than passing around
+// individual attributes separately.  Note that this class is a pure attribute
+// class with no constraints, other than the total memory required for the
+// class.  Also note that this class is not thread-safe.
 //
 ///Usage
 ///-----
@@ -63,6 +75,10 @@ BSLS_IDENT("$Id: $")
 //
 //  assert(attributes == record.fixedFields());
 //..
+// Next, we add an additional attribute to the log record:
+//..
+//  record.addAttribute(ball::Attribute("myLib.name", "John Smith"));
+//..
 // Finally, we write the record to a stream:
 //..
 //  bsl::ostringstream output;
@@ -72,6 +88,7 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 
 #include <ball_countingallocator.h>
+#include <ball_managedattribute.h>
 #include <ball_recordattributes.h>
 #include <ball_userfields.h>
 
@@ -82,8 +99,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_alignment.h>
+#include <bsls_assert.h>
 
 #include <bsl_iosfwd.h>
+#include <bsl_vector.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
@@ -99,10 +118,11 @@ namespace ball {
 class Record {
     // This class provides a container for a set of fields that are appropriate
     // for a user-configurable log record.  The class contains a
-    // 'RecordAttributes' object that in turn holds a fixed set of fields, and
-    // a 'ball::UserFields' object that holds a set of optional, user-defined
-    // fields.  For each of these two sub-containers there is an accessor for
-    // obtaining the container value and a manipulator for changing that value.
+    // 'RecordAttributes' object that in turn holds a fixed set of fields, a
+    // 'ball::UserFields' object that holds a set of optional, user-defined
+    // fields, and a set of attributes associated with this log record.  For
+    // each of these three sub-containers there is an accessor for obtaining
+    // the container value and a manipulator for changing that value.
     //
     // Additionally, this class supports a complete set of *value* *semantic*
     // operations, including copy construction, assignment and equality
@@ -115,12 +135,16 @@ class Record {
     // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
     // both source and destination) is supported in all cases.
 
+  private:
     // DATA
     CountingAllocator  d_allocator;     // memory allocator
 
     RecordAttributes   d_fixedFields;   // bytes used by fixed fields
 
-    ball::UserFields   d_customFields;  // bytes used by user fields
+    UserFields         d_userFields;    // bytes used by user fields
+
+    bsl::vector<ManagedAttribute>
+                       d_attributes;    // managed attributes
 
     bslma::Allocator  *d_allocator_p;   // allocator used to supply memory;
                                         // held but not own
@@ -141,22 +165,22 @@ class Record {
     // CREATORS
     explicit Record(bslma::Allocator *basicAllocator = 0);
         // Create a log record having default values for its fixed fields and
-        // its user-defined fields.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+        // its user-defined fields.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     Record(const RecordAttributes&  fixedFields,
-           const ball::UserFields&  customFields,
+           const UserFields&        userFields,
            bslma::Allocator        *basicAllocator = 0);
         // Create a log record with fixed fields having the value of the
         // specified 'fixedFields' and user-defined fields having the value of
-        // the specified 'customFields'.  Optionally specify a 'basicAllocator'
+        // the specified 'userFields'.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
     Record(const Record& original, bslma::Allocator *basicAllocator = 0);
-        // Create a log record having the value of the specified 'original'
-        // log record.  Optionally specify a 'basicAllocator' used to supply
+        // Create a log record having the value of the specified 'original' log
+        // record.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
@@ -169,9 +193,13 @@ class Record {
         // record and return the reference to this modifiable record.
 
     void clear();
-        // Clear this log record by removing the custom fields and clearing the
-        // fixed field's message buffer.  Note that this method is tailored for
-        // efficient memory use within the 'ball' logging system.
+        // Clear this log record by removing the user fields, attributes, and
+        // clearing the fixed field's message buffer.  Note that this method is
+        // tailored for efficient memory use within the 'ball' logging system.
+
+    void addAttribute(const ball::Attribute& attribute);
+        // Add a managed copy of the specified 'attribute' to the container of
+        // attributes maintained by this log record.
 
     RecordAttributes& fixedFields();
         // Return the modifiable fixed fields of this log record.
@@ -180,11 +208,13 @@ class Record {
         // Set the fixed fields of this log record to the value of the
         // specified 'fixedFields'.
 
-    void setCustomFields(const ball::UserFields& customFields);
+    void setCustomFields(const ball::UserFields& userFields);
+        // !DEPRECATED!: Use log record attributes.
         // Set the custom user-defined fields of this log record to the value
-        // of the specified 'customFields'.
+        // of the specified 'userFields'.
 
     ball::UserFields& customFields();
+        // !DEPRECATED!: Use log record attributes.
         // Return a reference providing modifiable access to the custom
         // user-defined fields of this log record.
 
@@ -193,8 +223,13 @@ class Record {
         // Return the non-modifiable fixed fields of this log record.
 
     const ball::UserFields& customFields() const;
+        // !DEPRECATED!: Use log record attributes.
         // Return a reference providing non-modifiable access to the custom
         // user-defined fields of this log record.
+
+    const bsl::vector<ball::ManagedAttribute>& attributes() const;
+        // Return a reference providing non-modifiable access to the attributes
+        // of this log record.
 
     int numAllocatedBytes() const;
         // Return the total number of bytes of dynamic memory allocated by
@@ -253,18 +288,20 @@ inline
 Record::Record(bslma::Allocator *basicAllocator)
 : d_allocator(basicAllocator)
 , d_fixedFields(&d_allocator)
-, d_customFields(&d_allocator)
+, d_userFields(&d_allocator)
+, d_attributes(&d_allocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 Record::Record(const RecordAttributes&  fixedFields,
-               const ball::UserFields&  customFields,
+               const ball::UserFields&  userFields,
                bslma::Allocator        *basicAllocator)
 : d_allocator(basicAllocator)
 , d_fixedFields(fixedFields, &d_allocator)
-, d_customFields(customFields, &d_allocator)
+, d_userFields(userFields, &d_allocator)
+, d_attributes(&d_allocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -273,7 +310,8 @@ inline
 Record::Record(const Record& original, bslma::Allocator *basicAllocator)
 : d_allocator(basicAllocator)
 , d_fixedFields(original.d_fixedFields, &d_allocator)
-, d_customFields(original.d_customFields, &d_allocator)
+, d_userFields(original.d_userFields, &d_allocator)
+, d_attributes(original.d_attributes, &d_allocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -284,16 +322,24 @@ Record& Record::operator=(const Record& rhs)
 {
     if (this != &rhs) {
         d_fixedFields  = rhs.d_fixedFields;
-        d_customFields = rhs.d_customFields;
+        d_userFields   = rhs.d_userFields;
+        d_attributes   = rhs.d_attributes;
     }
     return *this;
 }
 
 inline
+void Record::addAttribute(const Attribute& attribute)
+{
+    d_attributes.push_back(ManagedAttribute(attribute));
+}
+
+inline
 void Record::clear()
 {
-    customFields().removeAll();
     fixedFields().clearMessage();
+    customFields().removeAll();
+    d_attributes.clear();
 }
 
 inline
@@ -309,15 +355,15 @@ void Record::setFixedFields(const RecordAttributes& fixedFields)
 }
 
 inline
-void Record::setCustomFields(const ball::UserFields& customFields)
+void Record::setCustomFields(const ball::UserFields& userFields)
 {
-    d_customFields = customFields;
+    d_userFields = userFields;
 }
 
 inline
 ball::UserFields& Record::customFields()
 {
-    return d_customFields;
+    return d_userFields;
 }
 
 // ACCESSORS
@@ -330,7 +376,13 @@ const RecordAttributes& Record::fixedFields() const
 inline
 const ball::UserFields& Record::customFields() const
 {
-    return d_customFields;
+    return d_userFields;
+}
+
+inline
+const bsl::vector<ball::ManagedAttribute>& Record::attributes() const
+{
+    return d_attributes;
 }
 
 inline
@@ -346,7 +398,8 @@ inline
 bool ball::operator==(const Record& lhs, const Record& rhs)
 {
     return lhs.d_fixedFields  == rhs.d_fixedFields
-        && lhs.d_customFields == rhs.d_customFields;
+        && lhs.d_userFields   == rhs.d_userFields
+        && lhs.d_attributes   == rhs.d_attributes;
 }
 
 inline

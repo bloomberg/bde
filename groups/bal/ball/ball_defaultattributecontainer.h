@@ -1,12 +1,4 @@
 // ball_defaultattributecontainer.h                                   -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_DEFAULTATTRIBUTECONTAINER
 #define INCLUDED_BALL_DEFAULTATTRIBUTECONTAINER
 
@@ -42,8 +34,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates the intended use of this component.
 //
-///Example 1: Basic Usage
-/// - - - - - - - - - - -
+///Example 1: Basic Usage of 'ball::DefaultAttributeContainer'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'ball::DefaultAttributeContainer' initially has no attributes when created
 // by the default constructor:
 //..
@@ -76,25 +68,37 @@ BSLS_IDENT("$Id: $")
 //..
 // Existing attributes can be looked up by the 'hasValue' method:
 //..
-//    assert(true == defaultattributecontainer.hasValue(a1));
-//    assert(true == defaultattributecontainer.hasValue(a2));
-//    assert(true == defaultattributecontainer.hasValue(a3));
-//    assert(true == defaultattributecontainer.hasValue(a4));
-//    assert(true == defaultattributecontainer.hasValue(a5));
-//    assert(true == defaultattributecontainer.hasValue(a6));
+//    assert(true == attributeContainer.hasValue(a1));
+//    assert(true == attributeContainer.hasValue(a2));
+//    assert(true == attributeContainer.hasValue(a3));
+//    assert(true == attributeContainer.hasValue(a4));
+//    assert(true == attributeContainer.hasValue(a5));
+//    assert(true == attributeContainer.hasValue(a6));
 //..
 // Or removed by the 'removeAttribute' method:
 //..
 //    defaultattributecontainer.removeAttribute(a1);
 //    assert(false == attributeContainer.hasValue(a1));
 //..
-// Finally, the 'ball::DefaultAttributeContainer' class provides an iterator:
+// Also, the 'ball::DefaultAttributeContainer' class provides an iterator:
 //..
 //    ball::DefaultAttributeContainer::const_iterator iter =
 //                                                  attributeContainer.begin();
 //    for ( ; iter != attributeContainer.end(); ++iter ) {
 //        bsl::cout << *iter << bsl::endl;
 //    }
+//..
+// Finally, we can provide a visitor functor and visit all attributes in the
+// container.  Note that this usage example uses lambdas and requires C++11.
+// Lambdas can be replaced with named functions for C++03.
+//..
+//    bsl::vector<ball::Attribute> result;
+//    attributeContainer.visitAttributes(
+//        [&result](const ball::Attribute& attribute)
+//          {
+//              result.push_back(attribute);
+//          });
+//    assert(4 == result.size());
 //..
 
 #include <balscm_version.h>
@@ -103,6 +107,7 @@ BSLS_IDENT("$Id: $")
 #include <ball_attributecontainer.h>
 
 #include <bslma_allocator.h>
+#include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_nestedtraitdeclaration.h>
@@ -154,6 +159,9 @@ class DefaultAttributeContainer : public AttributeContainer {
                                    bslma::UsesBslmaAllocator);
 
     // TYPES
+    typedef bsl::allocator<char> allocator_type;
+        // This 'typedef' is an alias for the allocator used by this object.
+
     typedef bsl::unordered_set<Attribute, AttributeHash>::const_iterator
                                  const_iterator;  // type of iterator for
                                                   // iterating through the
@@ -161,27 +169,27 @@ class DefaultAttributeContainer : public AttributeContainer {
                                                   // managed by this object
 
     // CREATORS
-    explicit DefaultAttributeContainer(bslma::Allocator *basicAllocator = 0);
+    DefaultAttributeContainer();
+    explicit DefaultAttributeContainer(const allocator_type& allocator);
         // Create an empty 'DefaultAttributeContainer' object.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator
-        // will be used.
+        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
+        // object) to supply memory; otherwise, the default allocator is used.
 
     DefaultAttributeContainer(
-                    const DefaultAttributeContainer&  original,
-                    bslma::Allocator                 *basicAllocator = 0);
+               const DefaultAttributeContainer&  original,
+               const allocator_type&             allocator = allocator_type());
         // Create a 'DefaultAttributeContainer' object having the same value as
-        // the specified 'original' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator will be used.
+        // the specified 'original' object.  Optionally specify an 'allocator'
+        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.
 
     virtual ~DefaultAttributeContainer();
         // Destroy this object.
 
     // MANIPULATORS
-    DefaultAttributeContainer& operator=(
-                                    const DefaultAttributeContainer& rhs);
-        // Assign the value of the specified 'rhs' object to this object.
+    DefaultAttributeContainer& operator=(const DefaultAttributeContainer& rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a non-'const' reference to this object.
 
     bool addAttribute(const Attribute& value);
         // Add an attribute having the specified 'value' to this object.
@@ -215,16 +223,28 @@ class DefaultAttributeContainer : public AttributeContainer {
     virtual bsl::ostream& print(bsl::ostream& stream,
                                 int           level = 0,
                                 int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // (absolute value of) the optionally specified indentation 'level'
-        // and return a reference to 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  If 'stream' is not valid on entry, this operation has no
-        // effect.
+        // Format this object to the specified output 'stream' at the (absolute
+        // value of) the optionally specified indentation 'level' and return a
+        // reference to 'stream'.  If 'level' is specified, optionally specify
+        // 'spacesPerLevel', the number of spaces per indentation level for
+        // this and all of its nested objects.  If 'level' is negative,
+        // suppress indentation of the first line.  If 'spacesPerLevel' is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by 'level').  If 'stream' is
+        // not valid on entry, this operation has no effect.
+
+    virtual void visitAttributes(
+             const bsl::function<void(const ball::Attribute&)> &visitor) const;
+        // Invoke the specified 'visitor' function for all attributes in this
+        // container.
+
+                                  // Aspects
+
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
+
 };
 
 // FREE OPERATORS
@@ -260,20 +280,29 @@ bsl::ostream& operator<<(bsl::ostream&                    output,
 
 // CREATORS
 inline
-DefaultAttributeContainer::DefaultAttributeContainer(
-                                              bslma::Allocator *basicAllocator)
+DefaultAttributeContainer::DefaultAttributeContainer()
 : d_attributeSet(s_initialSize,                    // initial size
                  AttributeHash(),                  // hash functor
                  bsl::equal_to<Attribute>(),       // equal functor
-                 basicAllocator)
+                 allocator_type())
 {
 }
 
 inline
 DefaultAttributeContainer::DefaultAttributeContainer(
-                            const DefaultAttributeContainer&  original,
-                            bslma::Allocator                 *basicAllocator)
-: d_attributeSet(original.d_attributeSet, basicAllocator)
+                                               const allocator_type& allocator)
+: d_attributeSet(s_initialSize,                    // initial size
+                 AttributeHash(),                  // hash functor
+                 bsl::equal_to<Attribute>(),       // equal functor
+                 allocator)
+{
+}
+
+inline
+DefaultAttributeContainer::DefaultAttributeContainer(
+                                   const DefaultAttributeContainer&  original,
+                                   const allocator_type&             allocator)
+: d_attributeSet(original.d_attributeSet, allocator)
 {
 }
 
@@ -320,6 +349,15 @@ DefaultAttributeContainer::const_iterator
 DefaultAttributeContainer::end() const
 {
     return d_attributeSet.end();
+}
+
+                                  // Aspects
+
+inline
+DefaultAttributeContainer::allocator_type
+DefaultAttributeContainer::get_allocator() const
+{
+    return d_attributeSet.get_allocator();
 }
 
 }  // close package namespace

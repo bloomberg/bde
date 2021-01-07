@@ -13,7 +13,7 @@
 #include <ball_severity.h>                      // for testing only
 #include <ball_attributecontainerlist.h>        // for testing only
 #include <ball_defaultattributecontainer.h>     // for testing only
-#include <ball_predicate.h>
+#include <ball_attribute.h>
 
 #include <bslim_testutil.h>
 #include <bslma_default.h>
@@ -30,6 +30,7 @@
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
+using namespace ball;
 using namespace bsl;
 
 //=============================================================================
@@ -37,28 +38,28 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test implements a value-semantic 'ball::Rule' class.  We
-// choose the default constructor, 'setPattern', 'setLevels', 'addPredicate',
-// and 'removePredicate' as the primary manipulators.  We apply the standard
+// The component under test implements a value-semantic 'Rule' class.  We
+// choose the default constructor, 'setPattern', 'setLevels', 'addAttribute',
+// and 'removeAttribute' as the primary manipulators.  We apply the standard
 // 10 test procedure as well as a few test cases for additional methods such
 // as 'hash' and 'evaluate'.
 //-----------------------------------------------------------------------------
-// [14] static int hash(const ball::Rule&, int size);
-// [ 2] ball::Rule(bdema::Alct * = 0);
-// [10] ball::Rule(const char *pattern, int rl, int pl, int tl, int tal);
-// [ 7] ball::Rule(const ball::Rule&, bdema::Alct * = 0);
-// [ 2] ~ball::Rule();
-// [ 9] const ball::Rule& operator=(const ball::Rule& other);
-// [ 2] int addPredicate(const ball::Predicate& predicate);
-// [ 2] int removePredicate(const ball::Predicate& predicate);
-// [12] void removeAllPredicates();
+// [14] static int hash(const Rule&, int size);
+// [ 2] Rule(bdema::Alct * = 0);
+// [10] Rule(const char *pattern, int rl, int pl, int tl, int tal);
+// [ 7] Rule(const Rule&, bdema::Alct * = 0);
+// [ 2] ~Rule();
+// [ 9] const Rule& operator=(const Rule& other);
+// [ 2] int addAttribute(const ManagedAttribute& attribute);
+// [ 2] int removeAttribute(const ManagedAttribute& attribute);
+// [12] void removeAll();
 // [ 2] int setLevels(int rl, int pl, int tl, int tal);
 // [ 2] void setPattern(const char *value);
-// [13] bool evaluate(const ball::AttributeContainerList& context) const;
-// [ 4] int numPredicates() const;
-// [ 4] bool hasPredicate(const ball::Predicate&) const;
-// [11] ball::PredicateSet::const_iterator begin() const;
-// [11] ball::PredicateSet::const_iterator end() const;
+// [13] bool evaluate(const AttributeContainerList& context) const;
+// [ 4] int numAttributes() const;
+// [ 4] bool hasPredicate(const ManagedAttribute&) const;
+// [11] ManagedAttributeSet::const_iterator begin() const;
+// [11] ManagedAttributeSet::const_iterator end() const;
 // [ 4] int recordLevel() const;
 // [ 4] int passLevel() const;
 // [ 4] int triggerLevel() const;
@@ -66,9 +67,9 @@ using namespace bsl;
 // [ 4] const char *pattern() const;
 // [15] bool isMatch(const char *inputString) const;
 // [ 5] bsl::ostream& print(bsl::ostream& stream, int lvl, int spl) const;
-// [ 6] bool operator==(const ball::Rule& lhs, const ball::Rule& rhs);
-// [ 6] bool operator!=(const ball::Rule& lhs, const ball::Rule& rhs);
-// [ 5] bsl::ostream& operator<<(bsl::ostream&, const ball::PS&) const;
+// [ 6] bool operator==(const Rule& lhs, const Rule& rhs);
+// [ 6] bool operator!=(const Rule& lhs, const Rule& rhs);
+// [ 5] bsl::ostream& operator<<(bsl::ostream&, const PS&) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] PRIMITIVE TEST APPARATUS: 'gg'
@@ -105,13 +106,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
 #define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
 #define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
 #define P            BSLIM_TESTUTIL_P   // Print identifier and value.
@@ -134,10 +128,9 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef ball::Rule                      Obj;
-typedef ball::ThresholdAggregate        Levels;
-typedef bsls::Types::Int64             Int64;
-typedef ball::DefaultAttributeContainer AttributeSet;
+typedef Rule                      Obj;
+typedef ThresholdAggregate        Levels;
+typedef bsls::Types::Int64        Int64;
 
 #define VA_LEVELS 0, 0, 0, 0
 #define VB_LEVELS 1, 0, 0, 0
@@ -154,21 +147,21 @@ typedef ball::DefaultAttributeContainer AttributeSet;
 #define VC VC_PATTERN, VC_LEVELS
 #define VD VD_PATTERN, VD_LEVELS
 
-// The first three predicates are used as part of VB, VC, and VD.
+// The first three attributes are used as part of VB, VC, and VD.
 // VA: none
 // VB: P1
 // VC: P2, P3
 // VD: P1, P2, P3
 
-const ball::Predicate P1("A", "1",       bslma::Default::globalAllocator());
-const ball::Predicate P2("A", 1,         bslma::Default::globalAllocator());
-const ball::Predicate P3("A", (Int64)1,  bslma::Default::globalAllocator());
-const ball::Predicate P4("",  "",        bslma::Default::globalAllocator());
-const ball::Predicate P5("B", INT_MAX,   bslma::Default::globalAllocator());
-const ball::Predicate P6("B", LLONG_MAX, bslma::Default::globalAllocator());
-const ball::Predicate P7("C", LLONG_MIN, bslma::Default::globalAllocator());
-const ball::Predicate P8("a", 1,         bslma::Default::globalAllocator());
-const ball::Predicate P9("a", (Int64)1,  bslma::Default::globalAllocator());
+const ManagedAttribute P1("A", "1",       bslma::Default::globalAllocator());
+const ManagedAttribute P2("A", 1,         bslma::Default::globalAllocator());
+const ManagedAttribute P3("A", (Int64)1,  bslma::Default::globalAllocator());
+const ManagedAttribute P4("",  "",        bslma::Default::globalAllocator());
+const ManagedAttribute P5("B", INT_MAX,   bslma::Default::globalAllocator());
+const ManagedAttribute P6("B", LLONG_MAX, bslma::Default::globalAllocator());
+const ManagedAttribute P7("C", LLONG_MIN, bslma::Default::globalAllocator());
+const ManagedAttribute P8("a", 1,         bslma::Default::globalAllocator());
+const ManagedAttribute P9("a", (Int64)1,  bslma::Default::globalAllocator());
 
 const char *PATTERNS[] = {
     "",
@@ -210,7 +203,7 @@ static const struct {
 
 enum { NUM_LEVELS = sizeof LEVELS / sizeof *LEVELS };
 
-const ball::Predicate PREDICATES[] =
+const ManagedAttribute PREDICATES[] =
 {
     P1, P2, P3, P4, P5, P6, P7, P8, P9
 };
@@ -220,14 +213,14 @@ enum { NUM_PREDICATES = sizeof PREDICATES / sizeof *PREDICATES };
 //=============================================================================
 //       GENERATOR FUNCTIONS 'g', 'gg', AND 'ggg' FOR TESTING
 //-----------------------------------------------------------------------------
-// The 'g' family of functions generate a 'ball::Rule' object for testing.
+// The 'g' family of functions generate a 'Rule' object for testing.
 // They interpret a given 'spec' (from left to right) to configure the
-// predicate set according to a custom language.
+// attribute set according to a custom language.
 //
 // To simplify these generator functions, patterns, threshold levels, and
-// predicates are all represented by two-character combinations.  The first
+// attributes are all represented by two-character combinations.  The first
 // character denotes the type: 'p' for pattern, 'L' for threshold levels, and
-// 'P' for predicate.  The second character denotes the value, which is
+// 'P' for attribute.  The second character denotes the value, which is
 // obtained from the respective array defined above (with 'A' corresponding to
 // the first element, 'B' the second, etc.).
 //
@@ -270,7 +263,7 @@ static Obj& gg(Obj *obj, const char *spec)
                            LEVELS[*spec - 'A'].d_triggerAllLevel);
           } break;
           case 'P': {
-            obj->addPredicate(PREDICATES[*spec - 'A']);
+            obj->addAttribute(PREDICATES[*spec - 'A']);
           } break;
           default: {
             ASSERT(c);
@@ -365,44 +358,44 @@ int main(int argc, char *argv[])
                           << "\n====================="
                           << endl;
 
-        ball::Rule rule("WEEKEND*",               // pattern
-                       ball::Severity::e_OFF,     // record level
-                       ball::Severity::e_INFO,    // pass-through level
-                       ball::Severity::e_OFF,     // trigger level
-                       ball::Severity::e_OFF);    // triggerAll level
+        Rule rule("WEEKEND*",          // pattern
+                  Severity::e_OFF,     // record level
+                  Severity::e_INFO,    // pass-through level
+                  Severity::e_OFF,     // trigger level
+                  Severity::e_OFF);    // triggerAll level
 
-        ball::Predicate p1("uuid", 4044457);
-        ball::Predicate p2("name", "Gang Chen");
-        rule.addPredicate(p1);
+        ManagedAttribute p1("myLib.uuid", 4044457);
+        ManagedAttribute p2("myLib.name", "John Smith");
+        rule.addAttribute(p1);
 
-        ASSERT(true  == rule.hasPredicate(p1));
-        ASSERT(false == rule.hasPredicate(p2));
+        ASSERT(true  == rule.hasAttribute(p1));
+        ASSERT(false == rule.hasAttribute(p2));
 
-        rule.addPredicate(p2);
-        ASSERT(true  == rule.hasPredicate(p2));
-        rule.removePredicate(p1);
-        ASSERT(false == rule.hasPredicate(p1));
-        ASSERT(true  == rule.hasPredicate(p2));
+        rule.addAttribute(p2);
+        ASSERT(true  == rule.hasAttribute(p2));
+        rule.removeAttribute(p1);
+        ASSERT(false == rule.hasAttribute(p1));
+        ASSERT(true  == rule.hasAttribute(p2));
 
         ASSERT(0 == strcmp(rule.pattern(), "WEEKEND*"));
 
         rule.setPattern("WEEKDAY*");
         ASSERT(0 == strcmp(rule.pattern(), "WEEKDAY*"));
 
-        ASSERT(ball::Severity::e_OFF  == rule.recordLevel());
-        ASSERT(ball::Severity::e_INFO == rule.passLevel());
-        ASSERT(ball::Severity::e_OFF  == rule.triggerLevel());
-        ASSERT(ball::Severity::e_OFF  == rule.triggerAllLevel());
+        ASSERT(Severity::e_OFF  == rule.recordLevel());
+        ASSERT(Severity::e_INFO == rule.passLevel());
+        ASSERT(Severity::e_OFF  == rule.triggerLevel());
+        ASSERT(Severity::e_OFF  == rule.triggerAllLevel());
 
-        rule.setLevels(ball::Severity::e_INFO,
-                       ball::Severity::e_OFF,
-                       ball::Severity::e_INFO,
-                       ball::Severity::e_INFO);
+        rule.setLevels(Severity::e_INFO,
+                       Severity::e_OFF,
+                       Severity::e_INFO,
+                       Severity::e_INFO);
 
-        ASSERT(ball::Severity::e_INFO == rule.recordLevel());
-        ASSERT(ball::Severity::e_OFF  == rule.passLevel());
-        ASSERT(ball::Severity::e_INFO == rule.triggerLevel());
-        ASSERT(ball::Severity::e_INFO == rule.triggerAllLevel());
+        ASSERT(Severity::e_INFO == rule.recordLevel());
+        ASSERT(Severity::e_OFF  == rule.passLevel());
+        ASSERT(Severity::e_INFO == rule.triggerLevel());
+        ASSERT(Severity::e_INFO == rule.triggerAllLevel());
 
       } break;
       case 15: {
@@ -414,7 +407,7 @@ int main(int argc, char *argv[])
         //   correctly.
         //
         // Plan:
-        //   Specify a set of pairs each of which consists of a 'ball::Rule'
+        //   Specify a set of pairs each of which consists of a 'Rule'
         //   objects and an input string.  For each pair, verify that
         //   'isMatch' returns the expected value.
         // Testing:
@@ -482,7 +475,7 @@ int main(int argc, char *argv[])
         //   Specifying a set of test vectors and verify the return value.
         //
         // Testing:
-        //   static int hash(const ball::Rule&, int size);
+        //   static int hash(const Rule&, int size);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting hash function"
@@ -574,22 +567,22 @@ int main(int argc, char *argv[])
             {  L_,    "pALAPA",                1610612741,   1313157479  },
             {  L_,    "pALAPB",                1610612741,   442209794   },
             {  L_,    "pALBPA",                1610612741,   1600866337  },
-            {  L_,    "pALBPB",                1610612741,   193047745   },
+            {  L_,    "pALBPB",                1610612741,   729918652   },
             {  L_,    "pBLAPA",                1610612741,   168293625   },
-            {  L_,    "pBLAPB",                1610612741,   371087774   },
+            {  L_,    "pBLAPB",                1610612741,   907958681   },
             {  L_,    "pBLBPA",                1610612741,   456002483   },
-            {  L_,    "pBLBPB",                1610612741,   658796632   },
+            {  L_,    "pBLBPB",                1610612741,   1195667539  },
             {  L_,    "pALAPAPC",              1610612741,   1534185609  },
-            {  L_,    "pALAPBPC",              1610612741,   126367017   },
+            {  L_,    "pALAPBPC",              1610612741,   663237924   },
             {  L_,    "pALBPAPC",              1610612741,   211281726   },
-            {  L_,    "pALBPBPC",              1610612741,   414075875   },
+            {  L_,    "pALBPBPC",              1610612741,   950946782   },
             {  L_,    "pBLAPAPC",              1610612741,   389321755   },
-            {  L_,    "pBLAPBPC",              1610612741,   592115904   },
-            {  L_,    "pBLBPAPC",              1610612741,   140159706   },
-            {  L_,    "pBLBPBPC",              1610612741,   879824762   },
-            {  L_,    "pDLDPAPBPC",            1610612741,   760001713   },
-            {  L_,    "pDLDPAPBPCPD",          1610612741,   1205884614  },
-            {  L_,    "pDLDPAPBPCPDPE",        1610612741,   487616911   },
+            {  L_,    "pBLAPBPC",              1610612741,   1128986811  },
+            {  L_,    "pBLBPAPC",              1610612741,   677030613   },
+            {  L_,    "pBLBPBPC",              1610612741,   1416695669  },
+            {  L_,    "pDLDPAPBPC",            1610612741,   1296872620  },
+            {  L_,    "pDLDPAPBPCPD",          1610612741,   132142780   },
+            {  L_,    "pDLDPAPBPCPDPE",        1610612741,   1024487818  },
             {  L_,    "pDLDPAPBPCPDPEPF",      1610612741,   1000238255  },
             {  L_,    "pDLDPAPBPCPDPEPFPG",    1610612741,   1088935241  },
             {  L_,    "pDLDPAPBPCPDPEPFPGPH",  1610612741,   1516973101  },
@@ -629,12 +622,12 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'evaluate':
         //   The 'evaluate' method must return correct results as to whether
-        //   every predicate in the rule has an exact counterpart in the
+        //   every attribute in the rule has an exact counterpart in the
         //   specified attribute set.
         //
         // Plan:
-        //   Specify a set of pairs of a 'ball::Rule' object and a
-        //   'ball::AttributeContainerList' object.  For each pair, verify that
+        //   Specify a set of pairs of a 'Rule' object and a
+        //   'AttributeContainerList' object.  For each pair, verify that
         //   the 'evaluate' method returns the expected value.
         //
         // Testing:
@@ -644,31 +637,38 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'evaluate'"
                           << "\n==================" << endl;
 
-        const ball::Attribute A1("A", "1");
-        const ball::Attribute A2("A", 1);
-        const ball::Attribute A3("A", (Int64)1);
-        const ball::Attribute A4("",  "");
-        const ball::Attribute A5("B", INT_MAX);
-        const ball::Attribute A6("B", LLONG_MAX);
-        const ball::Attribute A7("C", LLONG_MIN);
-        const ball::Attribute A8("a", 1);
-        const ball::Attribute A9("a", (Int64)1);
+        const Attribute A1("A", "1");
+        const Attribute A2("A", 1);
+        const Attribute A3("A", (Int64)1);
+        const Attribute A4("",  "");
+        const Attribute A5("B", INT_MAX);
+        const Attribute A6("B", LLONG_MAX);
+        const Attribute A7("C", LLONG_MIN);
+        const Attribute A8("a", 1);
+        const Attribute A9("a", (Int64)1);
 
-        AttributeSet AS1;
-        AttributeSet AS2; AS2.addAttribute(A1);
-        AttributeSet AS3; AS3.addAttribute(A1); AS3.addAttribute(A2);
-        AttributeSet AS4; AS4.addAttribute(A1); AS4.addAttribute(A2);
-                          AS4.addAttribute(A3);
-        AttributeSet AS5; AS5.addAttribute(A4); AS5.addAttribute(A5);
-                          AS5.addAttribute(A6); AS5.addAttribute(A7);
-        AttributeSet AS6; AS6.addAttribute(A4); AS6.addAttribute(A5);
-                          AS6.addAttribute(A6); AS6.addAttribute(A7);
-                          AS6.addAttribute(A8); AS6.addAttribute(A9);
+        DefaultAttributeContainer AS1;
+        DefaultAttributeContainer AS2; AS2.addAttribute(A1);
+        DefaultAttributeContainer AS3; AS3.addAttribute(A1);
+                                       AS3.addAttribute(A2);
+        DefaultAttributeContainer AS4; AS4.addAttribute(A1);
+                                       AS4.addAttribute(A2);
+                                       AS4.addAttribute(A3);
+        DefaultAttributeContainer AS5; AS5.addAttribute(A4);
+                                       AS5.addAttribute(A5);
+                                       AS5.addAttribute(A6);
+                                       AS5.addAttribute(A7);
+        DefaultAttributeContainer AS6; AS6.addAttribute(A4);
+                                       AS6.addAttribute(A5);
+                                       AS6.addAttribute(A6);
+                                       AS6.addAttribute(A7);
+                                       AS6.addAttribute(A8);
+                                       AS6.addAttribute(A9);
 
         static const struct {
             int                      d_line;         // source line number
             const char              *d_spec;         // spec for the rule
-            const ball::DefaultAttributeContainer
+            const DefaultAttributeContainer
                                     *d_attributeSet; // attribute set
             bool                     d_result;       // expected result
         } DATA[] = {
@@ -701,9 +701,9 @@ int main(int argc, char *argv[])
 
             ASSERTV(LINE, &mX == &gg(&mX, DATA[i].d_spec));
 
-            const AttributeSet *Y = DATA[i].d_attributeSet;
-            ball::AttributeContainerList list;
-            const ball::AttributeContainerList& LIST = list;;
+            const DefaultAttributeContainer *Y = DATA[i].d_attributeSet;
+            AttributeContainerList list;
+            const AttributeContainerList& LIST = list;;
             list.pushFront(Y);
 
             if (veryVerbose) { P_(X) P(Y); }
@@ -713,24 +713,24 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'removeAllPredicates'
-        //   The 'removeAllPredicates' should effectively remove all
-        //   predicates maintained by a 'ball::Rule' object.
+        // TESTING 'removeAll'
+        //   The 'removeAll' should effectively remove all attributes
+        //   maintained by a 'Rule' object.
         //
         // Plan:
         //   Specify a set S of test vectors.  For each element in S,
-        //   construct the corresponding 'ball::Rule' object x using
+        //   construct the corresponding 'Rule' object x using
         //   the 'gg' function.  Copy x into another object y.  After calling
-        //   'removeAllPredicates' on x, verify that the length of x is zero,
-        //   none of attributes in y can be found in x.  Then reconstruct x
-        //   using the 'gg' function again, and verify that x == y.
+        //   'removeAll' on x, verify that the length of x is zero, none of
+        //   attributes in y can be found in x.  Then reconstruct x using the
+        //   'gg' function again, and verify that x == y.
         //
-        // Testing: void removeAllPredicates();
+        // Testing:
+        //   void removeAll();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'removeAllPredicates"
-                          << "\n============================"
-                          << endl;
+        if (verbose) cout << "\nTesting 'removeAll"
+                          << "\n==================" << endl;
 
         static const char* SPECS[] = {
             "",
@@ -762,12 +762,12 @@ int main(int argc, char *argv[])
                 Obj mY; const Obj& Y = mY;
                 ASSERTV(i, j, &mY == &gg(&mY, SPECS[j]));
 
-                mX.removeAllPredicates();
+                mX.removeAll();
 
-                ASSERTV(i, j, 0 == X.numPredicates());
-                for (ball::PredicateSet::const_iterator iter = Y.begin();
-                        iter != Y.end();
-                        ++iter) {
+                ASSERTV(i, j, 0 == X.numAttributes());
+                for (ManagedAttributeSet::const_iterator iter = Y.begin();
+                     iter != Y.end();
+                     ++iter) {
                     ASSERTV(i, j, false == X.hasPredicate(*iter));
                 }
 
@@ -784,23 +784,24 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   The 'begin' and 'end' methods should return a range where each
-        //   predicate in the predicate set appears exactly once.
+        //   attribute in the attribute set appears exactly once.
         //
         // Plan:
-        //   Construct an array consisting of 'ball::Predicate' objects having
+        //   Construct an array consisting of 'ManagedAttribute' objects having
         //   distinct values.  For each n in [0 .. N] where N is the maximum
-        //   number of predicates tested, create an empty 'ball::Rule'
-        //   object and add the first n predicates to the set.  Verify
-        //   that every added predicate appears in the set exactly once.
+        //   number of attributes tested, create an empty 'Rule'
+        //   object and add the first n attributes to the set.  Verify
+        //   that every added attribute appears in the set exactly once.
         //
         // Testing:
-        //   ball::PredicateSet::const_iterator begin() const;
-        //   ball::PredicateSet::const_iterator end() const;
+        //   ManagedAttributeSet::const_iterator begin() const;
+        //   ManagedAttributeSet::const_iterator end() const;
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting 'begin' and 'end' methods"
                           << "\n=================================" << endl;
 
-        const ball::Predicate PREDS[] = { P1, P2, P3, P4, P5, P6, P7, P8, P8 };
+        const ManagedAttribute PREDS[] = { P1, P2, P3, P4,
+                                           P5, P6, P7, P8 };
         enum { NUM_PREDS = sizeof PREDS / sizeof *PREDS };
 
         int isPresentFlags[NUM_PREDS];
@@ -810,15 +811,15 @@ int main(int argc, char *argv[])
 
             int j, length;
             for (j = 0; j < i; ++j) {
-                ASSERTV(i, j, 1 == mX.addPredicate(PREDS[j]));
-                ASSERTV(i, j, X.hasPredicate(PREDS[j]));
+                ASSERTV(i, j, 1 == mX.addAttribute(PREDS[j]));
+                ASSERTV(i, j, X.hasAttribute(PREDS[j]));
                 isPresentFlags[j] = 0;
             }
 
-            ASSERTV(i, j == X.numPredicates());
+            ASSERTV(i, j == X.numAttributes());
 
             length = 0;
-            for (ball::PredicateSet::const_iterator iter = X.begin();
+            for (ManagedAttributeSet::const_iterator iter = X.begin();
                  iter != X.end();
                  ++iter, ++length) {
                 for (j = 0; j < i; ++j) {
@@ -828,7 +829,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            ASSERTV(i, length == X.numPredicates());
+            ASSERTV(i, length == X.numAttributes());
 
             for (j = 0; j < i; ++j) {
                 ASSERTV(i, j, 1 == isPresentFlags[j]);
@@ -845,11 +846,11 @@ int main(int argc, char *argv[])
         // Plan:
         //   Specify a set S of patterns and a set T of threshold levels.  For
         //   each pair (x, y) in the cross product S X T, construct a
-        //   corresponding 'ball::Rule' object.  Verify that the object has the
+        //   corresponding 'Rule' object.  Verify that the object has the
         //   expected value.
         //
         // Testing:
-        //   ball::Rule(const char *pattern, int rl, int pl, int tl, int tal);
+        //   Rule(const char *pattern, int rl, int pl, int tl, int tal);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Pattern/Levels Constructor'"
                           << "\n===================================" << endl;
@@ -902,7 +903,7 @@ int main(int argc, char *argv[])
         //   assigning u to itself, and verifying that w == u.
         //
         // Testing:
-        //   const ball::Rule& operator=(const ball::Rule& other);
+        //   const Rule& operator=(const Rule& other);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Assignment Operator"
                           << "\n==========================" << endl;
@@ -996,7 +997,7 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // TESTING SECONDARY TEST APPARATUS:
-        //   Void for 'ball::Rule'.
+        //   Void for 'Rule'.
         // --------------------------------------------------------------------
 
       } break;
@@ -1014,7 +1015,7 @@ int main(int argc, char *argv[])
         //   to assert that both x and y have the same value as w.
         //
         // Testing:
-        //   ball::Rule(const ball::Rule&, bdema::Alct * = 0);
+        //   Rule(const Rule&, bdema::Alct * = 0);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Copy Constructor"
                           << "\n========================" << endl;
@@ -1117,13 +1118,13 @@ int main(int argc, char *argv[])
         //
         //   Next, specify another set T where each element is a pair of
         //   different specifications having the same value (the same
-        //   predicates were added in different orders).  For each element (u,
+        //   attributes were added in different orders).  For each element (u,
         //   v) in T, verify that 'operator==' and 'operator!=' return the
         //   correct value.
 
         // Testing:
-        //   bool operator==(const ball::Rule& lhs, const ball::Rule& rhs)
-        //   bool operator!=(const ball::Rule& lhs, const ball::Rule& rhs)
+        //   bool operator==(const Rule& lhs, const Rule& rhs)
+        //   bool operator!=(const Rule& lhs, const Rule& rhs)
         // --------------------------------------------------------------------
 
         static const struct {
@@ -1259,7 +1260,7 @@ int main(int argc, char *argv[])
         //   output format.
         //
         // Testing:
-        //   bsl::ostream& operator<<(bsl::ostream&, const ball::PS&) const;
+        //   bsl::ostream& operator<<(bsl::ostream&, const PS&) const;
         //   bsl::ostream& print(bsl::ostream& stream, int lvl, int spl) const;
         // --------------------------------------------------------------------
 
@@ -1278,10 +1279,10 @@ int main(int argc, char *argv[])
   // ----   ----          ---------------
   {  L_,    "pALA",        "[ pattern = \"\" "
                            "thresholds = [   0   0   0   0  ] "
-                           " predicateSet = [ ] ]" },
+                           " attributeSet = [ ] ]" },
   {  L_,    "pDLDPC",      "[ pattern = \"eq\\*\" "
                            "thresholds = [   0   0   1   0  ]  "
-                           "predicateSet = [  [ \"A\" = 1 ] ] ]" },
+                           "attributeSet = [  [ \"A\" = 1 ] ] ]" },
        };
 
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
@@ -1321,7 +1322,7 @@ int main(int argc, char *argv[])
                                          "      0\n"
                                          "      1\n"
                                          "    ]\n"
-                                         "    predicateSet = [\n"
+                                         "    attributeSet = [\n"
                                          "              [ \"A\" = 1 ]\n"
                                          "    ]\n"
                                          "  ]\n"  },
@@ -1353,15 +1354,15 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING BASIC ACCESSORS
-        //   The pattern of the 'ball::Rule' object must be verifiable by the
+        //   The pattern of the 'Rule' object must be verifiable by the
         //   'pattern' accessor.  The threshold levels must be verifiable by
-        //   the threshold level accessors.  Every predicate added must be
+        //   the threshold level accessors.  Every attribute added must be
         //   verifiable by the 'hasPredicate' accessor.
         //
         // Plan:
         //   Mechanically generate a series of specifications that are the
-        //   cross product of the predefined pattern, level, and predicate
-        //   arrays.  For each specification, create a 'ball::Rule' object from
+        //   cross product of the predefined pattern, level, and attribute
+        //   arrays.  For each specification, create a 'Rule' object from
         //   the specification using the 'gg' function, and verify that each
         //   accessor returns the expected result.
         //
@@ -1371,8 +1372,8 @@ int main(int argc, char *argv[])
         //   int passLevel() const;
         //   int triggerLevel() const;
         //   int triggerAllLevel() const;
-        //   bool hasPredicate(const ball::Predicate&) const;
-        //   int numPredicates() const;
+        //   bool hasPredicate(const ManagedAttribute&) const;
+        //   int numAttributes() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1393,7 +1394,7 @@ int main(int argc, char *argv[])
                     spec += 'L';
                     spec += (char)(j + 'A');  // the threshold levels
                     spec += 'P';
-                    spec += (char)(k + 'A');  // add a predicate
+                    spec += (char)(k + 'A');  // add a attribute
 
                     Obj mX(VA); const Obj& X = mX;
                     ASSERTV(i, j, k, &mX == &gg(&mX, spec.c_str()));
@@ -1407,7 +1408,7 @@ int main(int argc, char *argv[])
                     ASSERTV(i, j, k, TRIGGER_LEVEL     == X.triggerLevel());
                     ASSERTV(i, j, k, TRIGGER_ALL_LEVEL == X.triggerAllLevel());
 
-                    ASSERTV(i, j, k, X.numPredicates() == 1);
+                    ASSERTV(i, j, k, X.numAttributes() == 1);
                     ASSERTV(i, j, k, X.hasPredicate(PREDICATES[k]));
                 }
             }
@@ -1421,8 +1422,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Mechanically generate a series of specifications that are the
-        //   cross product of the predefined pattern, level, and predicate
-        //   arrays.  For each specification, create a 'ball::Rule' object from
+        //   cross product of the predefined pattern, level, and attribute
+        //   arrays.  For each specification, create a 'Rule' object from
         //   the specification using the 'gg' function, and verify that the
         //   object has the expected value.
         //
@@ -1448,7 +1449,7 @@ int main(int argc, char *argv[])
                     spec += 'L';
                     spec += (char)(j + 'A');  // the threshold levels
                     spec += 'P';
-                    spec += (char)(k + 'A');  // add a predicate
+                    spec += (char)(k + 'A');  // add a attribute
 
                     Obj mX(VA); const Obj& X = mX;
                     ASSERTV(i, j, k, &mX == &gg(&mX, spec.c_str()));
@@ -1462,7 +1463,7 @@ int main(int argc, char *argv[])
                     ASSERTV(i, j, k, TRIGGER_LEVEL     == X.triggerLevel());
                     ASSERTV(i, j, k, TRIGGER_ALL_LEVEL == X.triggerAllLevel());
 
-                    ASSERTV(i, j, k, X.numPredicates() == 1);
+                    ASSERTV(i, j, k, X.numAttributes() == 1);
                     ASSERTV(i, j, k, X.hasPredicate(PREDICATES[k]));
                 }
             }
@@ -1482,12 +1483,12 @@ int main(int argc, char *argv[])
         //   tested as objects in various states go out of scope.
         //
         // Testing:
-        //   ball::Rule();
-        //   int addPredicate(const ball::Predicate& predicate);
-        //   int removePredicate(const ball::Predicate& predicate);
+        //   Rule();
+        //   int addAttribute(const ManagedAttribute& attribute);
+        //   int removeAttribute(const ManagedAttribute& attribute);
         //   void setPattern(const char *value);
         //   int setLevels(int rl, int pl, int tl, int tal);
-        //   ~ball::Rule();
+        //   ~Rule();
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Primary Manipulator"
                           << "\n===========================" << endl;
@@ -1502,7 +1503,7 @@ int main(int argc, char *argv[])
                                                 X.passLevel(),
                                                 X.triggerLevel(),
                                                 X.triggerAllLevel()));
-            ASSERT(0 == X.numPredicates());
+            ASSERT(0 == X.numAttributes());
             if (veryVerbose) { cout << "\t\t"; P(X); }
         }
 
@@ -1516,7 +1517,7 @@ int main(int argc, char *argv[])
                                                 X.passLevel(),
                                                 X.triggerLevel(),
                                                 X.triggerAllLevel()));
-            ASSERT(0 == X.numPredicates());
+            ASSERT(0 == X.numAttributes());
             if (veryVerbose) { cout << "\t\t"; P(X); }
         }
 
@@ -1531,7 +1532,7 @@ int main(int argc, char *argv[])
                                                 X.passLevel(),
                                                 X.triggerLevel(),
                                                 X.triggerAllLevel()));
-            ASSERT(0 == X.numPredicates());
+            ASSERT(0 == X.numAttributes());
             if (veryVerbose) { cout << "\t\t"; P(X); }
           } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
@@ -1543,11 +1544,11 @@ int main(int argc, char *argv[])
             Obj mX(VA);  const Obj& X = mX;
 
             Obj mY(VB);  const Obj& Y = mY;
-            ASSERT(1 == mY.addPredicate(P1));
+            ASSERT(1 == mY.addAttribute(P1));
 
             Obj mZ(VC);  const Obj& Z = mZ;
-            ASSERT(1 == mZ.addPredicate(P2));
-            ASSERT(1 == mZ.addPredicate(P3));
+            ASSERT(1 == mZ.addAttribute(P2));
+            ASSERT(1 == mZ.addAttribute(P3));
 
             if (veryVeryVerbose) { P(mX); P(mY); P(mZ); }
 
@@ -1555,9 +1556,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == (X == Z));
             ASSERT(0 == (Y == Z));
 
-            ASSERT(0 == X.numPredicates());
-            ASSERT(1 == Y.numPredicates());
-            ASSERT(2 == Z.numPredicates());
+            ASSERT(0 == X.numAttributes());
+            ASSERT(1 == Y.numAttributes());
+            ASSERT(2 == Z.numAttributes());
             ASSERT(Y.hasPredicate(P1));
             ASSERT(Z.hasPredicate(P2));
             ASSERT(Z.hasPredicate(P3));
@@ -1566,8 +1567,8 @@ int main(int argc, char *argv[])
                             << endl;
             mX.setPattern(VB_PATTERN);
             mX.setLevels(VB_LEVELS);
-            ASSERT(1 == mX.addPredicate(P1));
-            ASSERT(1 == X.numPredicates());
+            ASSERT(1 == mX.addAttribute(P1));
+            ASSERT(1 == X.numAttributes());
             ASSERT(X.hasPredicate(P1));
             ASSERT(X == Y);
 
@@ -1575,11 +1576,11 @@ int main(int argc, char *argv[])
                             << endl;
             mX.setPattern(VC_PATTERN);
             mX.setLevels(VC_LEVELS);
-            ASSERT(1 == mX.removePredicate(P1));
+            ASSERT(1 == mX.removeAttribute(P1));
             ASSERT(false == X.hasPredicate(P1));
-            ASSERT(1 == mX.addPredicate(P2));
-            ASSERT(1 == mX.addPredicate(P3));
-            ASSERT(2 == X.numPredicates());
+            ASSERT(1 == mX.addAttribute(P2));
+            ASSERT(1 == mX.addAttribute(P3));
+            ASSERT(2 == X.numAttributes());
             ASSERT(X.hasPredicate(P2));
             ASSERT(X.hasPredicate(P3));
             ASSERT(X == Z);
@@ -1595,11 +1596,11 @@ int main(int argc, char *argv[])
             Obj mX(VA, &testAllocatorX);  const Obj& X = mX;
 
             Obj mY(VB, &testAllocatorY);  const Obj& Y = mY;
-            ASSERT(1 == mY.addPredicate(P1));
+            ASSERT(1 == mY.addAttribute(P1));
 
             Obj mZ(VC, &testAllocatorZ);  const Obj& Z = mZ;
-            ASSERT(1 == mZ.addPredicate(P2));
-            ASSERT(1 == mZ.addPredicate(P3));
+            ASSERT(1 == mZ.addAttribute(P2));
+            ASSERT(1 == mZ.addAttribute(P3));
 
             if (veryVeryVerbose) { P(mX); P(mY); P(mZ); }
 
@@ -1607,9 +1608,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == (X == Z));
             ASSERT(0 == (Y == Z));
 
-            ASSERT(0 == X.numPredicates());
-            ASSERT(1 == Y.numPredicates());
-            ASSERT(2 == Z.numPredicates());
+            ASSERT(0 == X.numAttributes());
+            ASSERT(1 == Y.numAttributes());
+            ASSERT(2 == Z.numAttributes());
             ASSERT(Y.hasPredicate(P1));
             ASSERT(Z.hasPredicate(P2));
             ASSERT(Z.hasPredicate(P3));
@@ -1618,8 +1619,8 @@ int main(int argc, char *argv[])
                             << endl;
             mX.setPattern(VB_PATTERN);
             mX.setLevels(VB_LEVELS);
-            ASSERT(1 == mX.addPredicate(P1));
-            ASSERT(1 == X.numPredicates());
+            ASSERT(1 == mX.addAttribute(P1));
+            ASSERT(1 == X.numAttributes());
             ASSERT(X.hasPredicate(P1));
             ASSERT(X == Y);
 
@@ -1627,11 +1628,11 @@ int main(int argc, char *argv[])
                             << endl;
             mX.setPattern(VC_PATTERN);
             mX.setLevels(VC_LEVELS);
-            ASSERT(1 == mX.removePredicate(P1));
+            ASSERT(1 == mX.removeAttribute(P1));
             ASSERT(false == X.hasPredicate(P1));
-            ASSERT(1 == mX.addPredicate(P2));
-            ASSERT(1 == mX.addPredicate(P3));
-            ASSERT(2 == X.numPredicates());
+            ASSERT(1 == mX.addAttribute(P2));
+            ASSERT(1 == mX.addAttribute(P3));
+            ASSERT(2 == X.numAttributes());
             ASSERT(X.hasPredicate(P2));
             ASSERT(X.hasPredicate(P3));
             ASSERT(X == Z);
@@ -1650,11 +1651,11 @@ int main(int argc, char *argv[])
             Obj mX(VA, &testAllocatorX);  const Obj& X = mX;
 
             Obj mY(VB, &testAllocatorY);  const Obj& Y = mY;
-            ASSERT(1 == mY.addPredicate(P1));
+            ASSERT(1 == mY.addAttribute(P1));
 
             Obj mZ(VC, &testAllocatorZ);  const Obj& Z = mZ;
-            ASSERT(1 == mZ.addPredicate(P2));
-            ASSERT(1 == mZ.addPredicate(P3));
+            ASSERT(1 == mZ.addAttribute(P2));
+            ASSERT(1 == mZ.addAttribute(P3));
 
             if (veryVeryVerbose) { P(mX); P(mY); P(mZ); }
 
@@ -1662,9 +1663,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == (X == Z));
             ASSERT(0 == (Y == Z));
 
-            ASSERT(0 == X.numPredicates());
-            ASSERT(1 == Y.numPredicates());
-            ASSERT(2 == Z.numPredicates());
+            ASSERT(0 == X.numAttributes());
+            ASSERT(1 == Y.numAttributes());
+            ASSERT(2 == Z.numAttributes());
             ASSERT(Y.hasPredicate(P1));
             ASSERT(Z.hasPredicate(P2));
             ASSERT(Z.hasPredicate(P3));
@@ -1673,8 +1674,8 @@ int main(int argc, char *argv[])
                             << endl;
             mX.setPattern(VB_PATTERN);
             mX.setLevels(VB_LEVELS);
-            ASSERT(1 == mX.addPredicate(P1));
-            ASSERT(1 == X.numPredicates());
+            ASSERT(1 == mX.addAttribute(P1));
+            ASSERT(1 == X.numAttributes());
             ASSERT(X.hasPredicate(P1));
             ASSERT(X == Y);
 
@@ -1682,11 +1683,11 @@ int main(int argc, char *argv[])
                             << endl;
             mX.setPattern(VC_PATTERN);
             mX.setLevels(VC_LEVELS);
-            ASSERT(1 == mX.removePredicate(P1));
+            ASSERT(1 == mX.removeAttribute(P1));
             ASSERT(false == X.hasPredicate(P1));
-            ASSERT(1 == mX.addPredicate(P2));
-            ASSERT(1 == mX.addPredicate(P3));
-            ASSERT(2 == X.numPredicates());
+            ASSERT(1 == mX.addAttribute(P2));
+            ASSERT(1 == mX.addAttribute(P3));
+            ASSERT(2 == X.numAttributes());
             ASSERT(X.hasPredicate(P2));
             ASSERT(X.hasPredicate(P3));
             ASSERT(X == Z);
@@ -1741,7 +1742,7 @@ int main(int argc, char *argv[])
                                            X1.passLevel(),
                                            X1.triggerLevel(),
                                            X1.triggerAllLevel()));
-        ASSERT(0 == X1.numPredicates());
+        ASSERT(0 == X1.numAttributes());
 
         if (verbose) cout << "\n 2. Create an object x2 (copy from x1)."
                           << endl;
@@ -1753,7 +1754,7 @@ int main(int argc, char *argv[])
                                            X2.passLevel(),
                                            X2.triggerLevel(),
                                            X2.triggerAllLevel()));
-        ASSERT(0 == X2.numPredicates());
+        ASSERT(0 == X2.numAttributes());
 
         ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
         ASSERT(1 == (X1 == X2));        ASSERT(0 == (X1 != X2));
@@ -1762,14 +1763,14 @@ int main(int argc, char *argv[])
 
         mX1.setPattern(VB_PATTERN);
         mX1.setLevels(VB_LEVELS);
-        ASSERT(1 == mX1.addPredicate(P1));
+        ASSERT(1 == mX1.addAttribute(P1));
 
         ASSERT(0 == strcmp(X1.pattern(), VB_PATTERN));
         ASSERT(Levels(VB_LEVELS) == Levels(X1.recordLevel(),
                                            X1.passLevel(),
                                            X1.triggerLevel(),
                                            X1.triggerAllLevel()));
-        ASSERT(1 == X1.numPredicates());
+        ASSERT(1 == X1.numAttributes());
         ASSERT(X1.hasPredicate(P1));
 
         ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
@@ -1779,14 +1780,14 @@ int main(int argc, char *argv[])
 
         mX2.setPattern(VB_PATTERN);
         mX2.setLevels(VB_LEVELS);
-        ASSERT(1 == mX2.addPredicate(P1));
+        ASSERT(1 == mX2.addAttribute(P1));
 
         ASSERT(0 == strcmp(X2.pattern(), VB_PATTERN));
         ASSERT(Levels(VB_LEVELS) == Levels(X2.recordLevel(),
                                            X2.passLevel(),
                                            X2.triggerLevel(),
                                            X2.triggerAllLevel()));
-        ASSERT(1 == X2.numPredicates());
+        ASSERT(1 == X2.numAttributes());
         ASSERT(X2.hasPredicate(P1));
 
         ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
@@ -1796,16 +1797,16 @@ int main(int argc, char *argv[])
 
         mX2.setPattern(VC_PATTERN);
         mX2.setLevels(VC_LEVELS);
-        ASSERT(1 == mX2.removePredicate(P1));
-        ASSERT(1 == mX2.addPredicate(P2));
-        ASSERT(1 == mX2.addPredicate(P3));
+        ASSERT(1 == mX2.removeAttribute(P1));
+        ASSERT(1 == mX2.addAttribute(P2));
+        ASSERT(1 == mX2.addAttribute(P3));
 
         ASSERT(0 == strcmp(X2.pattern(), VC_PATTERN));
         ASSERT(Levels(VC_LEVELS) == Levels(X2.recordLevel(),
                                            X2.passLevel(),
                                            X2.triggerLevel(),
                                            X2.triggerAllLevel()));
-        ASSERT(2 == X2.numPredicates());
+        ASSERT(2 == X2.numAttributes());
         ASSERT(X2.hasPredicate(P2));
         ASSERT(X2.hasPredicate(P3));
 
@@ -1816,14 +1817,14 @@ int main(int argc, char *argv[])
 
         mX1.setPattern(VA_PATTERN);
         mX1.setLevels(VA_LEVELS);
-        ASSERT(1 == mX1.removePredicate(P1));
+        ASSERT(1 == mX1.removeAttribute(P1));
 
         ASSERT(0 == strcmp(X1.pattern(), VA_PATTERN));
         ASSERT(Levels(VA_LEVELS) == Levels(X1.recordLevel(),
                                            X1.passLevel(),
                                            X1.triggerLevel(),
                                            X1.triggerAllLevel()));
-        ASSERT(0 == X1.numPredicates());
+        ASSERT(0 == X1.numAttributes());
 
         ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
@@ -1832,16 +1833,16 @@ int main(int argc, char *argv[])
                            << endl;
 
         Obj mX3(VD);  const Obj& X3 = mX3;
-        ASSERT(1 == mX3.addPredicate(P1));
-        ASSERT(1 == mX3.addPredicate(P2));
-        ASSERT(1 == mX3.addPredicate(P3));
+        ASSERT(1 == mX3.addAttribute(P1));
+        ASSERT(1 == mX3.addAttribute(P2));
+        ASSERT(1 == mX3.addAttribute(P3));
 
         ASSERT(0 == strcmp(X3.pattern(), VD_PATTERN));
         ASSERT(Levels(VD_LEVELS) == Levels(X3.recordLevel(),
                                            X3.passLevel(),
                                            X3.triggerLevel(),
                                            X3.triggerAllLevel()));
-        ASSERT(3 == X3.numPredicates());
+        ASSERT(3 == X3.numAttributes());
         ASSERT(X3.hasPredicate(P1));
         ASSERT(X3.hasPredicate(P2));
         ASSERT(X3.hasPredicate(P3));
@@ -1860,7 +1861,7 @@ int main(int argc, char *argv[])
                                            X4.passLevel(),
                                            X4.triggerLevel(),
                                            X4.triggerAllLevel()));
-        ASSERT(0 == X4.numPredicates());
+        ASSERT(0 == X4.numAttributes());
 
         ASSERT(1 == (X4 == X1));        ASSERT(0 == (X4 != X1));
         ASSERT(0 == (X4 == X2));        ASSERT(1 == (X4 != X2));
@@ -1876,7 +1877,7 @@ int main(int argc, char *argv[])
                                            X2.passLevel(),
                                            X2.triggerLevel(),
                                            X2.triggerAllLevel()));
-        ASSERT(0 == X2.numPredicates());
+        ASSERT(0 == X2.numAttributes());
 
         ASSERT(1 == (X2 == X1));        ASSERT(0 == (X2 != X1));
         ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
@@ -1892,7 +1893,7 @@ int main(int argc, char *argv[])
                                            X2.passLevel(),
                                            X2.triggerLevel(),
                                            X2.triggerAllLevel()));
-        ASSERT(3 == X2.numPredicates());
+        ASSERT(3 == X2.numAttributes());
         ASSERT(X2.hasPredicate(P1));
         ASSERT(X2.hasPredicate(P2));
         ASSERT(X2.hasPredicate(P3));
@@ -1911,7 +1912,7 @@ int main(int argc, char *argv[])
                                            X1.passLevel(),
                                            X1.triggerLevel(),
                                            X1.triggerAllLevel()));
-        ASSERT(0 == X1.numPredicates());
+        ASSERT(0 == X1.numAttributes());
 
         ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));

@@ -11,21 +11,11 @@ namespace ball {
                          // class Predicate
                          // ---------------
 
-// ACCESSORS
-bsl::ostream& Predicate::print(bsl::ostream& stream,
-                               int           level ,
-                               int           spacesPerLevel) const
-
-{
-    d_attribute.print(stream, level, spacesPerLevel);
-    return stream;
-}
-
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

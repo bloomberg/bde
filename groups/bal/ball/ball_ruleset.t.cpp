@@ -243,7 +243,7 @@ bool compareText(bslstl::StringRef lhs,
 //-----------------------------------------------------------------------------
 // The 'g' family of functions generate a 'ball::Rule' object for testing.
 // They interpret a given 'spec' (from left to right) to configure the
-// predicate set according to a custom language.
+// attribute set according to a custom language.
 //
 // The specification for a rule set specifies a number of 'ball::Rule' objects
 // that will be added to the rule set sequentially.  Each 'ball::Rule' object
@@ -284,7 +284,7 @@ static Obj& gg(Obj *obj, const char *spec)
             for (int i = start; i < end; i++) {
                 ball::Rule rule("", 0, 0, 0, 0);
 
-                // add a subset of predicates to 'rule' so that each 'j'
+                // add a subset of attribute to 'rule' so that each 'j'
                 // corresponds to a unique rule.
                 for (int j = 0; j < NUM_PREDICATES; ++j) {
                     if ( i & (1 << j)) {
@@ -1029,7 +1029,7 @@ int main(int argc, char *argv[])
         //
         //   Next, specify another set T where each element is a pair of
         //   different specifications having the same value (the same
-        //   predicates were added in different orders).  For each element (u,
+        //   attributes were added in different orders).  For each element (u,
         //   v) in T, verify that 'operator==' and 'operator!=' return the
         //   correct value.
 
@@ -1195,18 +1195,18 @@ int main(int argc, char *argv[])
  // ---- ----      ---------------
  {  L_,  "R1",     "[ [ pattern = \"eq\" "
                    "thresholds = [    16    32    48    64   ] "
-                   " predicateSet = [  [ \"A\" = 1 ] ] ] ]" },
+                   " attributeSet = [  [ \"A\" = 1 ] ] ] ]" },
  {  L_,  "R1R2R3", "[ [ pattern = \"eq\" "
                    "thresholds = [    16    32    48    64   ] "
-                   " predicateSet = [  [ \"A\" = 1 ]  [ \"A\" = 1 ] "
+                   " attributeSet = [  [ \"A\" = 1 ]  [ \"A\" = 1 ] "
                    " [ \"A\" = 1 ] ] ] "
                    "[ pattern = \"eq\" "
                    "thresholds = [    16    32    48    64   ]  "
-                   "predicateSet = [  [ \"A\" = 1 ] "
+                   "attributeSet = [  [ \"A\" = 1 ] "
                    " [ \"A\" = 1 ] ] ] "
                    "[ pattern = \"eq\" "
                    "thresholds = [    16    32    48    64   ]  "
-                   "predicateSet = [  [ \"A\" = 1 ] ] ] ]"                  },
+                   "attributeSet = [  [ \"A\" = 1 ] ] ] ]"                  },
         };
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1250,7 +1250,7 @@ int main(int argc, char *argv[])
                                  "        48\n"
                                  "        64\n"
                                  "      ]\n"
-                                 "      predicateSet = [\n"
+                                 "      attributeSet = [\n"
                                  "                  [ \"A\" = 1 ]\n"
                                  "                  [ \"A\" = 1 ]\n"
                                  "                  [ \"A\" = 1 ]\n"
@@ -1264,7 +1264,7 @@ int main(int argc, char *argv[])
                                  "        48\n"
                                  "        64\n"
                                  "      ]\n"
-                                 "      predicateSet = [\n"
+                                 "      attributeSet = [\n"
                                  "                  [ \"A\" = 1 ]\n"
                                  "                  [ \"A\" = 1 ]\n"
                                  "      ]\n"
@@ -1277,7 +1277,7 @@ int main(int argc, char *argv[])
                                  "        48\n"
                                  "        64\n"
                                  "      ]\n"
-                                 "      predicateSet = [\n"
+                                 "      attributeSet = [\n"
                                  "                  [ \"A\" = 1 ]\n"
                                  "      ]\n"
                                  "    ]\n"
@@ -1286,13 +1286,13 @@ int main(int argc, char *argv[])
  {  L_,  "R1R2R3",    -1,   -2,
     "[ [ pattern = \"eq\" "
     "thresholds = [         16         32         48         64       ] "
-    " predicateSet = [  [ \"A\" = 1 ]  [ \"A\" = 1 ]  [ \"A\" = 1 ] ] ] "
+    " attributeSet = [  [ \"A\" = 1 ]  [ \"A\" = 1 ]  [ \"A\" = 1 ] ] ] "
     "[ pattern = \"eq\" "
     "thresholds = [         16         32         48         64       ] "
-    " predicateSet = [  [ \"A\" = 1 ]  [ \"A\" = 1 ] ] ] "
+    " attributeSet = [  [ \"A\" = 1 ]  [ \"A\" = 1 ] ] ] "
     "[ pattern = \"eq\" "
     "thresholds = [         16         32         48         64       ] "
-    " predicateSet = [  [ \"A\" = 1 ] ] ] ]" }
+    " attributeSet = [  [ \"A\" = 1 ] ] ] ]" }
         };
 
         const int NUM_PDATA = sizeof PDATA / sizeof *PDATA;
@@ -1358,7 +1358,7 @@ int main(int argc, char *argv[])
 
             ball::Rule rule1("", 0, 0, 0, 0);
 
-            // add a subset of predicates to 'rule1' so that each 'j'
+            // add a subset of attributes to 'rule1' so that each 'j'
             // corresponds to a unique rule.
             for (int j = 0; j < NUM_PREDICATES; ++j) {
                 if ( i & (1 << j)) {

@@ -1,12 +1,4 @@
 // ball_attributecontainerlist.h                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_ATTRIBUTECONTAINERLIST
 #define INCLUDED_BALL_ATTRIBUTECONTAINERLIST
 
@@ -49,6 +41,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage of 'ball::AttributeContainerList'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we demonstrate how to create a
 // 'ball::AttributeContainerList' object, how to add and remove elements from
 // the list, and how to walk the list of attribute container addresses.
@@ -86,7 +82,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  exampleList.remove(s3Iter);
 //..
-// Finally we can use either the stream operator or the 'print()' method to
+// Finally, we can use either the stream operator or the 'print()' method to
 // print the attributes within an attribute container list:
 //..
 //  bsl::cout << exampleList << bsl::endl;
@@ -101,7 +97,7 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 
 #include <bslma_allocator.h>
-#include <bslma_default.h>
+#include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_nestedtraitdeclaration.h>
@@ -220,7 +216,11 @@ class AttributeContainerList {
     // allocated memory.  Note that maintaining a free store is important for
     // this component because the expectation is that elements will be both
     // added and removed frequently.
+  public:
+    // TYPES
+    typedef bsl::allocator<char> allocator_type;
 
+  private:
     // PRIVATE TYPES
     typedef AttributeContainerList_Node Node;
 
@@ -228,7 +228,7 @@ class AttributeContainerList {
     Node             *d_head_p;       // head of the linked list of elements
     Node             *d_free_p;       // head of the free store
     int               d_length;       // length of the list
-    bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
+    allocator_type    d_allocator;    // allocator
 
   public:
     // TRAITS
@@ -240,17 +240,19 @@ class AttributeContainerList {
         // An iterator over this list.
 
     // CREATORS
-    AttributeContainerList(bslma::Allocator *basicAllocator = 0);
-        // Create an empty container list.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+    AttributeContainerList();
+    explicit AttributeContainerList(const allocator_type& allocator);
+        // Create an empty container list.  Optionally specify an 'allocator'
+        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.
 
-    AttributeContainerList(const AttributeContainerList&  original,
-                           bslma::Allocator              *basicAllocator = 0);
+    AttributeContainerList(
+                   const AttributeContainerList& original,
+                   const allocator_type&         allocator = allocator_type());
         // Create a container list having the same value as the specified
-        // 'original'.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
+        // 'original'.  Optionally specify an 'allocator' (e.g., the address of
+        // a 'bslma::Allocator' object) to supply memory; otherwise, the
+        // default allocator is used.
 
     ~AttributeContainerList();
         // Destroy this object.
@@ -313,6 +315,13 @@ class AttributeContainerList {
         // suppressing all but the initial indentation (as governed by
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
+
+                                  // Aspects
+
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
 };
 
 // FREE OPERATORS
@@ -432,12 +441,20 @@ bool AttributeContainerListIterator::valid() const
 
 // CREATORS
 inline
-AttributeContainerList::AttributeContainerList(
-                                              bslma::Allocator *basicAllocator)
+AttributeContainerList::AttributeContainerList()
 : d_head_p(0)
 , d_free_p(0)
 , d_length(0)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator()
+{
+}
+
+inline
+AttributeContainerList::AttributeContainerList(const allocator_type& allocator)
+: d_head_p(0)
+, d_free_p(0)
+, d_length(0)
+, d_allocator(allocator)
 {
 }
 
@@ -465,6 +482,13 @@ inline
 int AttributeContainerList::numContainers() const
 {
     return d_length;
+}
+
+inline
+AttributeContainerList::allocator_type
+AttributeContainerList::get_allocator() const
+{
+    return d_allocator;
 }
 
 }  // close package namespace

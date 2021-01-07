@@ -290,6 +290,23 @@ void AttributeContext::reset()
     s_globalAllocator_p = 0;
 }
 
+void AttributeContext::visitAttributes(
+                    const bsl::function<void(const ball::Attribute&)>& visitor)
+{
+    AttributeContext *context = AttributeContext::lookupContext();
+    if (!context) {
+        return;                                                       // RETURN
+    }
+
+    const AttributeContainerList& containerList = context->containers();
+
+    AttributeContainerList::iterator start = containerList.begin();
+    AttributeContainerList::iterator end = containerList.end();
+    for (; start != end; ++start) {
+        (*start)->visitAttributes(visitor);
+    }
+}
+
 // ACCESSORS
 bool AttributeContext::hasRelevantActiveRules(const Category *category) const
 {

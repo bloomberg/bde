@@ -1,12 +1,4 @@
 // ball_recordstringformatter.h                                       -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_RECORDSTRINGFORMATTER
 #define INCLUDED_BALL_RECORDSTRINGFORMATTER
 
@@ -67,6 +59,9 @@ BSLS_IDENT("$Id: $")
 //  %X - log message entirely in hex
 //  %u - user-defined fields
 //  %% - single '%' character
+//  %A - log all the attributes of the record
+//  %a - log only those attributes not already logged by the %a[name] specifier
+//  %a[name] - log an attribute's value, where 'name' is the attribute's name
 //..
 // (Note that '%F' is used to indicate the shortened form of '__FILE__' rather
 // than '%f' because '%f' was given its current interpretation in an earlier
@@ -92,6 +87,13 @@ BSLS_IDENT("$Id: $")
 //..
 // 27AUG2007_16:09:46.161 2040:1 WARN subdir/process.cpp:542 FOO.BAR.BAZ <text>
 //..
+//
+///Log Record Attributes Rendering Details
+///---------------------------------------
+// Log record attributes are rendered as space-separated 'name="value"' pairs
+// (for example: mylibrary.username="mbloomberg").  Note that attribute names
+// are *not* quoted, whereas attribute values, if they are strings, are
+// *always* quoted.
 //
 ///Usage
 ///-----
@@ -136,8 +138,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsl_functional.h>
 #include <bsl_iosfwd.h>
 #include <bsl_string.h>
+#include <bsl_set.h>
+#include <bsl_vector.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
@@ -160,72 +165,97 @@ class RecordStringFormatter {
     // to a given stream.  The timestamp offset of the record formatter is
     // added to each timestamp that is output to the stream.
 
-    // CLASS DATA
-    static const int k_DISABLE_PUBLISH_IN_LOCALTIME;
-                                              // Reserved offset (a value
-                                              // corresponding to no known time
-                                              // zone) that indicates that the
-                                              // record time stamp (in UTC) is
-                                              // *not* adjusted to the current
-                                              // local time.
+    // PRIVATE TYPES
+    typedef bsl::function<void(bsl::string *, const Record&)>
+                                              FieldStringFormatter;
+        // 'FieldStringFormatter' is an alias for a functional object that
+        // render fields provided by a 'ball::Record' to a string.
 
-    static const int k_ENABLE_PUBLISH_IN_LOCALTIME;
-                                              // Reserved offset (a value
-                                              // corresponding to no known time
-                                              // zone) that indicates that the
-                                              // record time stamp (in UTC) is
-                                              // adjusted to the current local
-                                              // time.
+    typedef bsl::vector<FieldStringFormatter> FieldStringFormatters;
+        // 'FieldStringFormatters' is an alias for a vector of the
+        // 'FieldStringFormatter' objects.
 
+    typedef bsl::set<bsl::string_view>        SkipAttributes;
+        // 'SkipAttributes' is an alias for a set of keys of attributes that
+        // should not be printed as part of a '%a' format specifier.
+
+  public:
+    // TYPES
+    typedef bsl::allocator<char>  allocator_type;
+
+  private:
     // DATA
-    bsl::string            d_formatSpec;       // 'printf'-style format spec.
-    bdlt::DatetimeInterval d_timestampOffset;  // offset added to timestamps
+    bsl::string              d_formatSpec;       // 'printf'-style format spec.
+    FieldStringFormatters    d_fieldFormatters;  // field formatter collection
+    SkipAttributes           d_skipAttributes;   // set of skipped attributes
+    bdlt::DatetimeInterval   d_timestampOffset;  // offset added to timestamps
+
+    // PRIVATE MANIPULATORS
+    void parseFormatSpecification();
+        // Parse the format specification.
 
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(RecordStringFormatter,
                                    bslma::UsesBslmaAllocator);
 
+
+    // PUBLIC CONSTANTS
+    static const char *k_DEFAULT_FORMAT;
+        // The default log format specification used by
+        // 'RecordStringFormatter'.
+
+    static const char *k_BASIC_ATTRIBUTE_FORMAT;
+        // A simple standard record format that renders 'ball::Attribute'
+        // values in the formatted output.  Note that this format is
+        // recommended over the default format, 'k_DEFAULT_FORMAT', for most
+        // applications (the default format is currently maintained for
+        // backwards compatibility).
+
     // CREATORS
-    explicit RecordStringFormatter(bslma::Allocator *basicAllocator = 0);
+    explicit RecordStringFormatter(
+                           const allocator_type& allocator = allocator_type());
         // Create a record formatter having a default format specification and
-        // a timestamp offset of 0.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  The default format specification is:
+        // a timestamp offset of 0.    Optionally specify an 'allocator' (e.g.,
+        // the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.  The default format
+        // specification is:
         //..
         //  "\n%d %p:%t %s %f:%l %c %m %u\n"
         //..
 
-    explicit RecordStringFormatter(const char       *format,
-                                   bslma::Allocator *basicAllocator = 0);
+    explicit RecordStringFormatter(
+                          const char            *format,
+                          const allocator_type&  allocator = allocator_type());
         // Create a record formatter having the specified 'format'
-        // specification and a timestamp offset of 0.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // specification and a timestamp offset of 0.  Optionally specify an
+        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
+        // supply memory; otherwise, the default allocator is used.
 
     explicit RecordStringFormatter(
-                            const bdlt::DatetimeInterval&  offset,
-                            bslma::Allocator              *basicAllocator = 0);
+                   const bdlt::DatetimeInterval& offset,
+                   const allocator_type&         allocator = allocator_type());
         // Create a record formatter having a default format specification and
-        // the specified timestamp 'offset'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The default
-        // format specification is:
+        // the specified timestamp 'offset'.  Optionally specify an 'allocator'
+        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.  The default format
+        // specification is:
         //..
         //  "\n%d %p:%t %s %f:%l %c %m %u\n"
         //..
         //
         // !DEPRECATED!: Use a constructor taking 'publishInLocalTime' instead.
 
-    explicit RecordStringFormatter(bool              publishInLocalTime,
-                                   bslma::Allocator *basicAllocator = 0);
+    explicit RecordStringFormatter(
+                           bool                  publishInLocalTime,
+                           const allocator_type& allocator = allocator_type());
         // Create a record formatter having a default format specification, and
         // if the specified 'publishInLocalTime' flag is 'true', format the
         // timestamp of each logged record in the local time of the current
         // task, and format the timestamp in UTC otherwise.  Optionally specify
-        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The default
-        // format specification is:
+        // an 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
+        // supply memory; otherwise, the default allocator is used.  The
+        // default format specification is:
         //..
         //  "\n%d %p:%t %s %f:%l %c %m %u\n"
         //..
@@ -233,36 +263,37 @@ class RecordStringFormatter {
         // each formatted record and so track transitions into and out of
         // Daylight Saving Time.
 
-    RecordStringFormatter(const char                    *format,
-                          const bdlt::DatetimeInterval&  offset,
-                          bslma::Allocator              *basicAllocator = 0);
+    RecordStringFormatter(
+                  const char                    *format,
+                  const bdlt::DatetimeInterval&  offset,
+                  const allocator_type&          allocator = allocator_type());
         // Create a record formatter having the specified 'format'
         // specification and the specified timestamp 'offset'.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
+        // object) to supply memory; otherwise, the default allocator is used.
         //
         // !DEPRECATED!: Use a constructor taking 'publishInLocalTime' instead.
 
-    RecordStringFormatter(const char       *format,
-                          bool              publishInLocalTime,
-                          bslma::Allocator *basicAllocator = 0);
+    RecordStringFormatter(const char            *format,
+                          bool                   publishInLocalTime,
+                          const allocator_type&  allocator = allocator_type());
         // Create a record formatter having the specified 'format'
         // specification, and if the specified 'publishInLocalTime' flag is
         // 'true', format the timestamp of each log in the local time of the
         // current task, and format the timestamp in UTC otherwise.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Note that local time offsets are calculated for the timestamp
-        // of each formatted record and so track transitions into and out of
+        // specify an 'allocator' (e.g., the address of a 'bslma::Allocator'
+        // object) to supply memory; otherwise, the default allocator is used.
+        // Note that local time offsets are calculated for the timestamp of
+        // each formatted record and so track transitions into and out of
         // Daylight Saving Time.
 
-    RecordStringFormatter(const RecordStringFormatter&  original,
-                          bslma::Allocator             *basicAllocator = 0);
+    RecordStringFormatter(
+                    const RecordStringFormatter& original,
+                    const allocator_type&        allocator = allocator_type());
         // Create a record formatter initialized to the value of the specified
-        // 'original' record formatter.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+        // 'original' record formatter.  Optionally specify an 'allocator'
+        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
+        // otherwise, the default allocator is used.
 
     //! ~RecordStringFormatter() = default;
         // Destroy this object.
@@ -344,21 +375,10 @@ bsl::ostream& operator<<(bsl::ostream&                output,
 
 // MANIPULATORS
 inline
-void RecordStringFormatter::disablePublishInLocalTime()
-{
-    d_timestampOffset.setTotalMilliseconds(k_DISABLE_PUBLISH_IN_LOCALTIME);
-}
-
-inline
-void RecordStringFormatter::enablePublishInLocalTime()
-{
-    d_timestampOffset.setTotalMilliseconds(k_ENABLE_PUBLISH_IN_LOCALTIME);
-}
-
-inline
 void RecordStringFormatter::setFormat(const char *format)
 {
     d_formatSpec = format;
+    parseFormatSpecification();
 }
 
 inline
@@ -373,13 +393,6 @@ inline
 const char *RecordStringFormatter::format() const
 {
     return d_formatSpec.c_str();
-}
-
-inline
-bool RecordStringFormatter::isPublishInLocalTimeEnabled() const
-{
-    return k_ENABLE_PUBLISH_IN_LOCALTIME ==
-                                         d_timestampOffset.totalMilliseconds();
 }
 
 inline

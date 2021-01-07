@@ -9,17 +9,22 @@
 
 #include <ball_defaultattributecontainer.h>
 
+#include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
+
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>             // for testing only
 #include <bslma_testallocatorexception.h>    // for testing only
 
 #include <bslim_testutil.h>
 
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -36,27 +41,33 @@ using namespace bsl;
 // The modified 10-step test procedure without the testing for 'bdex' streaming
 // is then performed.
 //-----------------------------------------------------------------------------
-// [ 2] ball::DefaultAttributeContainer(bslma::Allocator *basicAllocator = 0);
-// [ 7] ball::DefaultAttributeContainer(const ball::DefaultAttributeContainer&,
-//                                     bslma::Allocator * = 0)
+// CREATORS
+// [ 2] ball::DefaultAttributeContainer();
+// [ 2] ball::DefaultAttributeContainer(const allocator_type& a);
+// [ 7] ball::DefaultAttributeContainer(const ball::DAC&, a = {});
 // [ 2] ~ball::DefaultAttributeContainer();
+//
+// MANIPULATORS
+// [ 8] const ball::DefaultAttributeContainer& operator=(const ball::AS& other)
 // [ 2] int addAttribute(const ball::Attribute& attribute);
 // [ 2] int removeAttribute(const ball::Attribute& attribute);
-// [12] void removeAllAttributes();
-// [ 9] const ball::DefaultAttributeContainer& operator=(const ball::AS& other)
+// [11] void removeAllAttributes();
+//
+// ACCESSORS
 // [ 4] int numAttributes() const;
 // [ 4] bool hasValue(const ball::Attribute&) const;
-// [11] const_iterator begin() const;
-// [11] const_iterator end() const;
+// [10] const_iterator begin() const;
+// [10] const_iterator end() const;
 // [ 5] bsl::ostream& print(bsl::ostream& stream, int lvl, int spl) const;
-// [ 6] bool operator==(const ball::AS& lhs, const ball::AS& rhs)
-// [ 6] bool operator!=(const ball::AS& lhs, const ball::AS& rhs)
+// [12] void visitAttributes(const bsl::func<void(const Attr&)>&) const;
+// [ 6] bool operator==(const ball::AS& lhs, const ball::AS& rhs);
+// [ 6] bool operator!=(const ball::AS& lhs, const ball::AS& rhs);
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const ball::AS&) const;
+// [ 2] allocator_type get_allocator() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] Obj& gg(Obj *obj, const char *spec);
-// [ 8] UNUSED
-// [10] UNUSED
+// [ 9] UNUSED
 // [13] USAGE EXAMPLE
 
 // ============================================================================
@@ -114,13 +125,21 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+// ============================================================================
+//                      CONVENIENCE MACROS
+// ----------------------------------------------------------------------------
+
+// For use in ASSERTV macro invocations to print allocator.
+#define ALLOC_OF(EXPR) (EXPR).get_allocator().mechanism()
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
 typedef ball::DefaultAttributeContainer Obj;
+typedef Obj::allocator_type             AllocType;
 
-typedef bsls::Types::Int64             Int64;
+typedef bsls::Types::Int64              Int64;
 
 bslma::Allocator *globalAllocator = &bslma::NewDeleteAllocator::singleton();
 
@@ -286,6 +305,13 @@ static Obj& gg(Obj *obj, const char *spec)
     return *obj;
 }
 
+void testVisitor(bsl::vector<ball::Attribute>  *result,
+                 const ball::Attribute&         attribute)
+    // Append the value of the specified 'attribute' to the specified 'result'.
+{
+    result->push_back(attribute);
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -303,7 +329,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -321,45 +347,145 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl;
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                          << "\n=============" << endl;
 
-        ball::DefaultAttributeContainer attributeSet;
+        ball::DefaultAttributeContainer attributeContainer;
 
         ball::Attribute a1("uuid", 1111);
         ball::Attribute a2("sid", "111-1");
-        ASSERT(1 == attributeSet.addAttribute(a1));
-        ASSERT(1 == attributeSet.addAttribute(a2));
+        ASSERT(1 == attributeContainer.addAttribute(a1));
+        ASSERT(1 == attributeContainer.addAttribute(a2));
 
         ball::Attribute a3("uuid", 2222);
         ball::Attribute a4("sid", "222-2");
-        ASSERT(1 == attributeSet.addAttribute(a3));
-        ASSERT(1 == attributeSet.addAttribute(a4));
+        ASSERT(1 == attributeContainer.addAttribute(a3));
+        ASSERT(1 == attributeContainer.addAttribute(a4));
 
         ball::Attribute a5("uuid", 1111);                 // same as 'a1'
-        ASSERT(0 == attributeSet.addAttribute(a5));
+        ASSERT(0 == attributeContainer.addAttribute(a5));
 
         ball::Attribute a6("UUID", 1111);
-        ASSERT(1 == attributeSet.addAttribute(a6));
+        ASSERT(1 == attributeContainer.addAttribute(a6));
 
-        ASSERT(true == attributeSet.hasValue(a1));
-        ASSERT(true == attributeSet.hasValue(a2));
-        ASSERT(true == attributeSet.hasValue(a3));
-        ASSERT(true == attributeSet.hasValue(a4));
-        ASSERT(true == attributeSet.hasValue(a5));
-        ASSERT(true == attributeSet.hasValue(a6));
+        ASSERT(true == attributeContainer.hasValue(a1));
+        ASSERT(true == attributeContainer.hasValue(a2));
+        ASSERT(true == attributeContainer.hasValue(a3));
+        ASSERT(true == attributeContainer.hasValue(a4));
+        ASSERT(true == attributeContainer.hasValue(a5));
+        ASSERT(true == attributeContainer.hasValue(a6));
 
-        attributeSet.removeAttribute(a1);
-        ASSERT(false == attributeSet.hasValue(a1));
+        attributeContainer.removeAttribute(a1);
+        ASSERT(false == attributeContainer.hasValue(a1));
 
         ball::DefaultAttributeContainer::const_iterator iter;
-        for (iter = attributeSet.begin();
-             iter != attributeSet.end();
+        for (iter = attributeContainer.begin();
+             iter != attributeContainer.end();
              ++iter ) {
             if (veryVerbose) {
                 bsl::cout << *iter << bsl::endl;
             }
+        }
+
+        bsl::vector<ball::Attribute> result;
+
+#if __cplusplus >= 201402L ||                                                 \
+    defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1900
+        attributeContainer.visitAttributes(
+            [&result](const ball::Attribute& attribute)
+            {
+                result.push_back(attribute);
+            });
+#else
+        attributeContainer.visitAttributes(
+            bdlf::BindUtil::bind(&testVisitor,
+                                 &result,
+                                 bdlf::PlaceHolders::_1));
+#endif
+        ASSERTV(result.size(), 4 == result.size());
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'visitAttributes'
+        // Concerns:
+        //: 1 All attributes in the container are visited.
+        //
+        // Plan:
+        //: 1 Create container, populate it with attributes and call
+        //:   'visitAttributes' method.
+        //
+        // Testing:
+        //   void visitAttributes(const bsl::func<void(const Attr&)>&) const;
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTESTING 'visitAttributes'"
+                          << "\n=========================" << endl;
+
+        Obj mX; const Obj& X = mX;
+
+        {
+            bsl::vector<ball::Attribute> result;
+            X.visitAttributes(bdlf::BindUtil::bind(&testVisitor,
+                                                   &result,
+                                                   bdlf::PlaceHolders::_1));
+            ASSERTV(result.size(), 0 == result.size());
+        }
+
+        const ball::Attribute VX("attribute1", "string");
+        const ball::Attribute VY("attribute2", 15);
+        const ball::Attribute VZ("attribute3", bsls::Types::Int64(15));
+
+        {
+            bsl::vector<ball::Attribute> result;
+
+            mX.addAttribute(VX);
+            X.visitAttributes(bdlf::BindUtil::bind(&testVisitor,
+                                                   &result,
+                                                   bdlf::PlaceHolders::_1));
+            ASSERTV(result.size(), 1 == result.size());
+            ASSERTV(VX, result[0], VX == result[0]);
+        }
+        {
+            bsl::vector<ball::Attribute> result;
+
+            mX.addAttribute(VY);
+            X.visitAttributes(bdlf::BindUtil::bind(&testVisitor,
+                                                   &result,
+                                                   bdlf::PlaceHolders::_1));
+            ASSERTV(result.size(), 2 == result.size());
+            ASSERTV(VX, result[1], VX == result[1]);
+            ASSERTV(VY, result[0], VY == result[0]);
+        }
+        {
+            bsl::vector<ball::Attribute> result;
+
+            mX.addAttribute(VZ);
+            X.visitAttributes(bdlf::BindUtil::bind(&testVisitor,
+                                                   &result,
+                                                   bdlf::PlaceHolders::_1));
+            ASSERTV(result.size(), 3 == result.size());
+            ASSERTV(VX, result[2], VX == result[2]);
+            ASSERTV(VY, result[0], VY == result[0]);
+            ASSERTV(VZ, result[1], VZ == result[1]);
+        }
+        {
+            bsl::vector<ball::Attribute> result;
+
+            mX.removeAttribute(VX);
+            X.visitAttributes(bdlf::BindUtil::bind(&testVisitor,
+                                                   &result,
+                                                   bdlf::PlaceHolders::_1));
+            ASSERTV(result.size(), 2 == result.size());
+            ASSERTV(VY, result[0], VY == result[0]);
+            ASSERTV(VZ, result[1], VZ == result[1]);
+        }
+        {
+            bsl::vector<ball::Attribute> result;
+
+            mX.removeAllAttributes();
+            X.visitAttributes(bdlf::BindUtil::bind(&testVisitor,
+                                                   &result,
+                                                   bdlf::PlaceHolders::_1));
+            ASSERTV(result.size(), 0 == result.size());
         }
       } break;
       case 11: {
@@ -377,11 +503,12 @@ int main(int argc, char *argv[])
         //   reconstruct x using the 'gg' function again, and verify that
         //   x == y.
         //
-        // Testing: void removeAllAttributes();
+        // Testing:
+        //   void removeAllAttributes();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'removeAllAttributes"
-                          << "\n============================"
+        if (verbose) cout << "\nTesting 'removeAllAttributes'"
+                          << "\n============================="
                           << endl;
 
         static const char* SPECS[] = {
@@ -614,9 +741,7 @@ int main(int argc, char *argv[])
         //   to assert that both x and y have the same value as w.
         //
         // Testing:
-        //   ball::DefaultAttributeContainer(
-        //                              const ball::DefaultAttributeContainer&,
-        //                              bslma::Allocator * = 0)
+        //   ball::DefaultAttributeContainer(const ball::DAC&, a = {});
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Copy Constructor"
                           << "\n========================" << endl;
@@ -1125,11 +1250,12 @@ int main(int argc, char *argv[])
         //   retained.
         //
         // Testing:
-        //   ball::DefaultAttributeContainer(
-        //                               bslma::Allocator *basicAllocator = 0);
+        //   ball::DefaultAttributeContainer();
+        //   ball::DefaultAttributeContainer(const allocator_type& a);
         //   int addAttribute(const ball::Attribute& attribute);
         //   int removeAttribute(const ball::Attribute& attribute);
         //   ~ball::DefaultAttributeContainer();
+        //   allocator_type get_allocator() const;
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Primary Manipulator"
                           << "\n===========================" << endl;
@@ -1138,7 +1264,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
-            const Obj X((bslma::Allocator *)0);
+            const Obj X;
             if (veryVerbose) { T_ T_ P(X); }
         }
 
@@ -1147,7 +1273,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t\tWith no exceptions." << endl;
         {
             const Obj X(&testAllocator);
+            ASSERTV(&testAllocator, ALLOC_OF(X),
+                    &testAllocator == X.get_allocator());
             if (veryVerbose) { T_ T_ P(X); }
+
         }
 
         if (verbose) cout << "\t\tWith exceptions." << endl;
@@ -1215,11 +1344,17 @@ int main(int argc, char *argv[])
             bslma::TestAllocator testAllocatorZ(veryVeryVerbose);
 
             Obj mX(&testAllocatorX);  const Obj& X = mX;
+            ASSERTV(&testAllocatorX, ALLOC_OF(X),
+                    &testAllocatorX == X.get_allocator());
 
             Obj mY(&testAllocatorY);  const Obj& Y = mY;
+            ASSERTV(&testAllocatorY, ALLOC_OF(Y),
+                    &testAllocatorY == Y.get_allocator());
             ASSERT(1 == mY.addAttribute(A1));
 
             Obj mZ(&testAllocatorZ);  const Obj& Z = mZ;
+            ASSERTV(&testAllocatorZ, ALLOC_OF(Z),
+                    &testAllocatorZ == Z.get_allocator());
             ASSERT(1 == mZ.addAttribute(A2));
             ASSERT(1 == mZ.addAttribute(A3));
 

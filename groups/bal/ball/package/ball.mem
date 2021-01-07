@@ -1,6 +1,7 @@
 ball_administration
 ball_asyncfileobserver
 ball_attribute
+ball_attributecollectorregistry
 ball_attributecontainer
 ball_attributecontainerlist
 ball_attributecontext
@@ -22,6 +23,8 @@ ball_loggermanager
 ball_loggermanagerconfiguration
 ball_loggermanagerdefaults
 ball_logthrottle
+ball_managedattribute
+ball_managedattributeset
 ball_multiplexobserver
 ball_observer
 ball_observeradapter

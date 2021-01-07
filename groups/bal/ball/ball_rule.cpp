@@ -5,7 +5,6 @@
 BSLS_IDENT_RCSID(ball_rule_cpp,"$Id$ $CSID$")
 
 #include <ball_attributecontainerlist.h>        // for testing only
-#include <ball_defaultattributecontainer.h>     // for testing only
 
 #include <bdlb_hashutil.h>
 
@@ -29,11 +28,11 @@ int Rule::hash(const Rule& rule, int size)
     BSLS_ASSERT(0 < size);
 
     if (rule.d_hashValue < 0 || rule.d_hashSize != size) {
-        rule.d_hashValue = PredicateSet::hash(rule.d_predicateSet, size)
-                      + ThresholdAggregate::hash(rule.d_thresholds, size)
-                      + bdlb::HashUtil::hash0(rule.d_pattern.c_str(), size);
-        rule.d_hashValue &= INT_MAX;  // clear sign bit
-        rule.d_hashValue %= size;
+        unsigned int hash =
+                           ManagedAttributeSet::hash(rule.d_attributeSet, size)
+                         + ThresholdAggregate::hash(rule.d_thresholds, size)
+                         + bdlb::HashUtil::hash0(rule.d_pattern.c_str(), size);
+        rule.d_hashValue = hash % size;
         rule.d_hashSize = size;
     }
     return rule.d_hashValue;
@@ -44,7 +43,7 @@ Rule& Rule::operator=(const Rule& rhs)
 {
     d_pattern      = rhs.d_pattern,
     d_thresholds   = rhs.d_thresholds;
-    d_predicateSet = rhs.d_predicateSet;
+    d_attributeSet = rhs.d_attributeSet;
     d_hashValue    = rhs.d_hashValue;
     d_hashSize     = rhs.d_hashSize;
     return *this;
@@ -60,9 +59,9 @@ bsl::ostream& Rule::print(bsl::ostream& stream,
     printer.start();
     printer.printAttribute("pattern", d_pattern);
     printer.printAttribute("thresholds", d_thresholds);
-    printer.printAttribute("predicateSet",
-                           d_predicateSet.begin(),
-                           d_predicateSet.end());
+    printer.printAttribute("attributeSet",
+                           d_attributeSet.begin(),
+                           d_attributeSet.end());
     printer.end();
 
     return stream;

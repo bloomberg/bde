@@ -1,12 +1,4 @@
 // ball_attribute.cpp                                                 -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_attribute.h>
 
 #include <bsls_ident.h>
@@ -20,7 +12,6 @@ BSLS_IDENT_RCSID(ball_attribute_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
-#include <bsl_cstring.h>
 #include <bsl_functional.h>
 #include <bsl_ostream.h>
 
@@ -38,7 +29,8 @@ int Attribute::hash(const Attribute& attribute, int size)
 
     if (attribute.d_hashValue < 0 || attribute.d_hashSize != size) {
 
-        unsigned int hash = bdlb::HashUtil::hash1(attribute.d_name,
+        unsigned int hash = bdlb::HashUtil::hash1(
+                              attribute.d_name,
                               static_cast<int>(bsl::strlen(attribute.d_name)));
 
         if (attribute.d_value.is<int>()) {

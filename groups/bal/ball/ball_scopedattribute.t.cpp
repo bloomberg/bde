@@ -16,6 +16,8 @@
 #include <ball_severity.h>
 #include <ball_thresholdaggregate.h>
 
+#include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
 
 #include <bslim_testutil.h>
 #include <bslma_testallocator.h>
@@ -26,6 +28,8 @@
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 
@@ -93,12 +97,15 @@ void aSsErT(bool condition, const char *message, int line)
 //=============================================================================
 //          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-typedef ball::ScopedAttribute Obj;
+typedef ball::ScopedAttribute           Obj;
+typedef ball::ScopedAttribute_Container Obj_Container;
 
-static int verbose;
-static int veryVerbose;
-static int veryVeryVerbose;
-static int veryVeryVeryVerbose;
+void testVisitor(bsl::vector<ball::Attribute>  *result,
+                 const ball::Attribute&         attribute)
+    // Append the value of the specified 'attribute' to the specified 'result'.
+{
+    result->push_back(attribute);
+}
 
 //=============================================================================
 //                               MAIN PROGRAM
@@ -106,10 +113,13 @@ static int veryVeryVeryVerbose;
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
+    int verbose = argc > 2;
+    int veryVerbose = argc > 3;
+    int veryVeryVerbose = argc > 4;
+    int veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVerbose;
+    (void) veryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -117,6 +127,189 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&da);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 4: {
+        // ------------------------------------------------------------------
+        // TESTING ATTRIBUTE CONTEXT VISITATION
+        //
+        // Concerns:
+        //: 1 'ball::ScopedAttribute' adds an attribute to the local thread's
+        //:    'ball::AttributeContext'.
+        //:
+        //: 2 Calling local thread's
+        //:   'ball::AttributeContext::visitAttributes()' visits all attributes
+        //:   in the current scope.
+        //
+        // Plan:
+        //: 1 Create a set of scoped attributes and verify that they can be
+        //:   collected by visiting attribute context.
+        //
+        // Testing
+        //   ATTRIBUTE CONTEXT VISITATION
+        // ------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING ATTRIBUTE CONTEXT VISITATION"
+                          << "\n------------------------------------" << endl;
+
+        {
+            bsl::vector<ball::Attribute> result;
+
+            ball::AttributeContext::visitAttributes(
+                bdlf::BindUtil::bind(&testVisitor,
+                                     &result,
+                                     bdlf::PlaceHolders::_1));
+
+            ASSERTV(result.size(), 0 == result.size());
+        }
+
+        {
+            Obj mX("a1", "val1");
+
+            {
+                bsl::vector<ball::Attribute> result;
+
+                ball::AttributeContext::visitAttributes(
+                    bdlf::BindUtil::bind(&testVisitor,
+                                         &result,
+                                         bdlf::PlaceHolders::_1));
+
+                ASSERTV(result.size(), 1 == result.size());
+                ASSERTV(result[0], ball::Attribute("a1", "val1") == result[0]);
+            }
+
+            {
+
+                Obj mY("a2", "val2");
+
+                {
+                    bsl::vector<ball::Attribute> result;
+                    ball::AttributeContext::visitAttributes(
+                        bdlf::BindUtil::bind(&testVisitor,
+                                             &result,
+                                             bdlf::PlaceHolders::_1));
+
+                    ASSERTV(result.size(), 2 == result.size());
+                    ASSERTV(result[0],
+                            ball::Attribute("a2", "val2") == result[0]);
+                    ASSERTV(result[1],
+                            ball::Attribute("a1", "val1") == result[1]);
+                }
+
+                Obj mZ("a3", 15);
+
+                {
+                    bsl::vector<ball::Attribute> result;
+                    ball::AttributeContext::visitAttributes(
+                        bdlf::BindUtil::bind(&testVisitor,
+                                             &result,
+                                             bdlf::PlaceHolders::_1));
+
+                    ASSERTV(result.size(), 3 == result.size());
+                    ASSERTV(result[0],
+                            ball::Attribute("a3", 15) == result[0]);
+                    ASSERTV(result[1],
+                            ball::Attribute("a2", "val2") == result[1]);
+                    ASSERTV(result[2],
+                            ball::Attribute("a1", "val1") == result[2]);
+                }
+            }
+
+            {
+                bsl::vector<ball::Attribute> result;
+
+                ball::AttributeContext::visitAttributes(
+                    bdlf::BindUtil::bind(&testVisitor,
+                                         &result,
+                                         bdlf::PlaceHolders::_1));
+
+                ASSERTV(result.size(), 1 == result.size());
+                ASSERTV(result[0], ball::Attribute("a1", "val1") == result[0]);
+            }
+        }
+
+        {
+            bsl::vector<ball::Attribute> result;
+
+            ball::AttributeContext::visitAttributes(
+                bdlf::BindUtil::bind(&testVisitor,
+                                     &result,
+                                     bdlf::PlaceHolders::_1));
+
+            ASSERTV(result.size(), 0 == result.size());
+        }
+      } break;
+      case 3: {
+        // ------------------------------------------------------------------
+        // TESTING SCOPED ATTRIBUTE CONTAINER VISITATION
+        //
+        // Concerns:
+        //: 1 'ball::ScopedAttribute_Container' contains exactly one attribute.
+        //:
+        //
+        // Plan:
+        //: 1 Create a set of scoped attribute containers and verify that their
+        //:   attribytes can be visited.
+        //
+        // Testing
+        //   ATTRIBUTE CONTAINER VISITATION
+        // ------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING SCOPED ATTRIBUTE CONTAINER VISITATION"
+                          << "\n---------------------------------------------"
+                          << endl;
+
+        {
+            Obj_Container mX("name", "value");
+
+            {
+                bsl::vector<ball::Attribute> result;
+
+                mX.visitAttributes(
+                    bdlf::BindUtil::bind(&testVisitor,
+                                         &result,
+                                         bdlf::PlaceHolders::_1));
+
+                ASSERTV(result.size(), 1 == result.size());
+                ASSERTV(result[0],
+                        ball::Attribute("name", "value") == result[0]);
+            }
+        }
+        {
+            Obj_Container mX("name", 15);
+
+            {
+                bsl::vector<ball::Attribute> result;
+
+                mX.visitAttributes(
+                    bdlf::BindUtil::bind(&testVisitor,
+                                         &result,
+                                         bdlf::PlaceHolders::_1));
+
+                ASSERTV(result.size(), 1 == result.size());
+                ASSERTV(result[0],
+                        ball::Attribute("name", 15) == result[0]);
+            }
+        }
+        {
+            Obj_Container mX("name", bsls::Types::Int64(15));
+
+            {
+                bsl::vector<ball::Attribute> result;
+
+                mX.visitAttributes(
+                    bdlf::BindUtil::bind(&testVisitor,
+                                         &result,
+                                         bdlf::PlaceHolders::_1));
+
+                ASSERTV(result.size(), 1 == result.size());
+                ASSERTV(result[0],
+                        ball::Attribute("name", bsls::Types::Int64(15))
+                            == result[0]);
+                // Test that we do not convert value type when visiting.
+                ASSERTV(result[0],
+                        ball::Attribute("name", 15) != result[0]);
+            }
+        }
+      } break;
       case 2: {
         // ------------------------------------------------------------------
         // TESTING SCOPING

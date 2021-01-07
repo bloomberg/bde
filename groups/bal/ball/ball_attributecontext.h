@@ -58,7 +58,7 @@ BSLS_IDENT("$Id: $")
 // and active rule (in the global set of rules) that might modify the logging
 // thresholds of the supplied 'category'.  A rule is "relevant" if the rule's
 // pattern matches the category's name, and a rule is "active" if all the
-// predicates defined for that rule are satisfied by the current thread's
+// attributes defined for that rule are satisfied by the current thread's
 // attributes (i.e., 'ball::Rule::evaluate' returns 'true' for the collection
 // of attributes maintained for the current thread by the thread's
 // 'ball::AttributeContext' object).
@@ -205,9 +205,9 @@ BSLS_IDENT("$Id: $")
 // 'cat1' and "active".  'myRule' is "relevant" to 'cat1' because the name of
 // 'cat1' ("MyCategory") matches the pattern for 'myRule' ("My*") (i.e.,
 // 'myRule' applies to 'cat1').  'myRule' is also "active" because all the
-// predicates defined for the rule are satisfied by the current thread (in this
-// case the rule has no predicates, so the rule is always "active").  Note
-// that we will discuss the meaning of "active" and the use of predicates later
+// attributes defined for the rule are satisfied by the current thread (in this
+// case the rule has no attributes, so the rule is always "active").  Note
+// that we will discuss the meaning of "active" and the use of attributes later
 // in this example.
 //..
 //  assert(context->hasRelevantActiveRules(cat1));
@@ -235,18 +235,18 @@ BSLS_IDENT("$Id: $")
 // trigger the publication of the current logger's record buffer, and trigger
 // the publication of every logger's record buffer.
 //
-// Next we modify 'myRule', adding a predicate indicating that the rule should
+// Next we modify 'myRule', adding an attribute indicating that the rule should
 // only apply if the attribute context for the current thread contains the
 // attribute '("uuid", 3938908)':
 //..
 //  categoryManager.removeRule(myRule);
-//  ball::Predicate predicate("uuid", 3938908);
-//  myRule.addPredicate(predicate);
+//  ball::ManagedAttribute attribute("uuid", 3938908);
+//  myRule.addAttribute(attribute);
 //  categorymanager.addRule(myRule);
 //..
 // When we again call 'hasRelevantActiveRules' for 'cat1', it now returns
 // 'false'.  The rule, 'myRule', still applies to 'cat1' (i.e., it is still
-// "relevant" to 'cat1'), but the predicates defined by 'myRule' are no longer
+// "relevant" to 'cat1'), but the attributes defined by 'myRule' are no longer
 // satisfied by the current thread, i.e., the current thread's attribute
 // context does not contain an attribute matching '("uuid", 3938908)'.
 //..
@@ -272,7 +272,7 @@ BSLS_IDENT("$Id: $")
 // The following call to 'hasRelevantActiveRules' will return 'true' for 'cat1'
 // because there is at least one rule, 'myRule', that is both "relevant"
 // (i.e., its pattern matches the category name of 'cat1') and "active" (i.e.,
-// all of the predicates defined for 'myRule' are satisfied by the attributes
+// all of the attributes defined for 'myRule' are satisfied by the attributes
 // held by this thread's attribute context):
 //..
 //  assert(context->hasRelevantActiveRules(cat1));
@@ -326,7 +326,7 @@ class AttributeContext_RuleEvaluationCache {
     // This is an implementation type of 'AttributeContext' and should not be
     // used by clients of this package.  A rule evaluation cache is a mechanism
     // for evaluating and caching whether a rule is active.  A rule is
-    // considered active if all of its predicates are satisfied by the
+    // considered active if all of its attributes are satisfied by the
     // collection of attributes held in a 'AttributeContainerList' object
     // (i.e., 'Rule::evaluate' returns 'true' for the 'AttributeContainerList'
     // object).  The rules this cache evaluates are contained in a 'RuleSet'
@@ -397,7 +397,7 @@ class AttributeContext_RuleEvaluationCache {
         // either not active *or* has not been evaluated.  This operation does,
         // however, guarantee that all the rules indicated by the
         // 'relevantRulesMask' *will* be evaluated.  A particular rule is
-        // considered "active" if all of its predicates are satisfied by
+        // considered "active" if all of its attributes are satisfied by
         // 'attributes' (i.e., if 'Rule::evaluate' returns 'true' for
         // 'attributes').  The behavior is undefined unless 'rules' is not
         // modified during this operation (i.e., any lock associated with
@@ -465,7 +465,7 @@ class AttributeContext {
     // 'true' if there are any relevant and active rules that might modify the
     // logging thresholds of the supplied category.  A rule is "relevant" if
     // the rule's pattern matches the category's name, and a rule is "active"
-    // if all the predicates defined for the rule are satisfied by the current
+    // if all the attributes defined for the rule are satisfied by the current
     // thread's attributes (i.e., 'Rule::evaluate' returns 'true' for the
     // collection of attributes maintained for the current thread by the
     // thread's 'AttributeContext' object).  The 'determineThresholdLevels'
@@ -571,11 +571,16 @@ class AttributeContext {
         // singleton is destroyed -- i.e., it is not intended to be called
         // directly by clients of the 'ball' package.
 
+    static void visitAttributes(
+                   const bsl::function<void(const ball::Attribute&)>& visitor);
+        // Invoke the specified 'visitor' for all attributes in all attribute
+        // containers maintained by this object.
+
     // MANIPULATORS
     iterator addAttributes(const AttributeContainer *attributes);
-        // Add the specified 'attributes' to the list of attribute containers
-        // maintained by this object.  The behavior is undefined unless
-        // 'attributes' remains valid *and* *unmodified* until either
+        // Add the specified 'attributes' container to the list of attribute
+        // containers maintained by this object.  The behavior is undefined
+        // unless 'attributes' remains valid *and* *unmodified* until either
         // 'attributes' is removed from this context, 'clearCache' is called,
         // or this object is destroyed.  Note that this method can be invoked
         // safely even if the 'initialize' class method has not yet been
@@ -598,7 +603,7 @@ class AttributeContext {
         // that is both "relevant" to the specified 'category' and "active",
         // and 'false' otherwise.  A rule is "relevant" to 'category' if the
         // rule's pattern matches 'category->categoryName()', and a rule is
-        // "active" if all the predicates defined for that rule are satisfied
+        // "active" if all the attributes defined for that rule are satisfied
         // by the current thread's attributes (i.e., 'Rule::evaluate' returns
         // 'true' for the collection of attributes maintained by this object).
         // This method operates on the set of rules maintained by the category
@@ -618,7 +623,7 @@ class AttributeContext {
         // maximum numerical value) for each respective threshold amongst those
         // values.  A rule applies to 'category' if the rule's pattern matches
         // 'category->categoryName()', and a rule is active if all the
-        // predicates defined for that rule are satisfied by the current
+        // attributes defined for that rule are satisfied by the current
         // thread's attributes (i.e., 'Rule::evaluate' returns 'true' for the
         // collection of attributes maintained by this object).  This method
         // operates on the set of rules maintained by the category manager

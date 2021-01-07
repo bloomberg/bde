@@ -30,6 +30,7 @@
 
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -51,16 +52,19 @@ using namespace bsl;
 // the hash values must be calculated correctly and must be re-calculated after
 // the objects have been modified.
 //-----------------------------------------------------------------------------
-// [13] static int hash(const ball::Attribute&, int size);
-// [11] ball::Attribute(const char *n, int v, bdema::Alct *ba);
-// [11] ball::Attribute(const char *n, Int64 v, bdema::Alct *ba);
-// [11] ball::Attribute(const char *n, const char *v, bdema::Alct *ba);
-// [ 2] ball::Attribute(const char *n, const VALUE& v, bdema::Alct *ba);
-// [ 7] ball::Attribute(const ball::Attribute&, bdema::Alct *ba);
-// [ 2] ~ball::Attribute();
-// [ 9] ball::Attribute& operator=(const ball::Attribute& rhs);
+// [14] static int hash(const Attribute&, int size);
+// [11] Attribute(const char *n, int v, const alct& a);
+// [11] Attribute(const char *n, Int64 v, const alct& a);
+// [11] Attribute(const char *n, const str_view& v, const alct& a);
+// [ 2] Attribute(const char *n, const VALUE& v, const alct& a);
+// [ 7] Attribute(const Attribute&, const alct& a);
+// [ 2] ~Attribute();
+// [ 9] Attribute& operator=(const Attribute& rhs);
 // [12] void setName(const char *n);
 // [12] void setValue(const Value& value);
+// [13] void setValue(int n);
+// [13] void setValue(bsls::Types::Int64 n);
+// [13] void setValue(const bsl::string_view& s);
 // [ 4] const char *name() const;
 // [ 4] const VALUE& value() const;
 // [ 5] bsl::ostream& print(bsl::ostream& stream, int lvl, int spl) const;
@@ -72,8 +76,8 @@ using namespace bsl;
 // [ 3] PRIMITIVE TEST APPARATUS
 // [ 8] UNUSED
 // [10] UNUSED
-// [14] PERFORMANCE TEST
-// [15] USAGE EXAMPLE
+// [15] PERFORMANCE TEST
+// [16] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -104,15 +108,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT       BSLIM_TESTUTIL_ASSERT
 #define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
-
 #define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
 #define P            BSLIM_TESTUTIL_P   // Print identifier and value.
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
@@ -134,7 +129,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef ball::Attribute     Obj;
+typedef ball::Attribute    Obj;
 typedef bsls::Types::Int64 Int64;
 
 #define VA_NAME   ""
@@ -175,7 +170,7 @@ const struct {
                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"                   },
 };
 
-const int NUM_NAMES = sizeof NAMES / sizeof *NAMES;
+enum { NUM_NAMES = sizeof NAMES / sizeof *NAMES };
 
 const struct {
     int         d_line;     // line number
@@ -188,6 +183,7 @@ const struct {
                             //                        or d_type == 1
 
     const char *d_svalue;   // string value  - used when d_type == 2
+
 } VALUES[] = {
     // line  type   ivalue         svalue
     // ----  ----   ------         ------
@@ -222,42 +218,48 @@ const struct {
                                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"  },
+                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ" }
 };
 
-const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+enum { NUM_VALUES = sizeof VALUES / sizeof *VALUES };
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-Obj::Value createValue(int type, int v1, Int64 v2, const char *v3)
+Obj::Value createValue(int         type,
+                       int         v1,
+                       Int64       v2,
+                       const char *v3)
     // Create an attribute value from one of specified 'v1', 'v2', or 'v3'
     // based on the specified 'type'.
 {
     Obj::Value variant;
     switch (type) {
-      case 0:
+      case 0: {
         variant.assign<int>(v1);
-        break;
-      case 1:
+      } break;
+      case 1: {
         variant.assign<Int64>(v2);
-        break;
-      case 2:
+      } break;
+      case 2: {
         variant.assign<string>(v3);
-        break;
+      } break;
+      default: {
+        BSLS_ASSERT_INVOKE_NORETURN("unreachable");
+      }
     }
     return variant;
 }
 
-bool compareText(bslstl::StringRef lhs,
-                 bslstl::StringRef rhs,
-                 bsl::ostream&     errorStream = bsl::cout)
-   // Return 'true' if the specified 'lhs' has the same value as the specified'
-   // rhs' and 'false' otherwise.  Optionally specify a 'errorStream', on
-   // which, if 'lhs' and 'rhs' are not the same', a description of how the
-   // two strings differ will be written.  If 'errorStream' is not supplied,
-   // 'stdout' will be used to report an error description.
+bool compareText(const bsl::string_view& lhs,
+                 const bsl::string_view& rhs,
+                 bsl::ostream&           errorStream = bsl::cout)
+    // Return 'true' if the specified 'lhs' has the same value as the specified
+    // 'rhs' and 'false' otherwise.  Optionally specify a 'errorStream', on
+    // which, if 'lhs' and 'rhs' are not the same', a description of how the
+    // two strings differ will be written.  If 'errorStream' is not supplied,
+    // 'cout' will be used to report an error description.
 {
     for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
         if (lhs[i] != rhs[i]) {
@@ -293,17 +295,26 @@ bool compareText(bslstl::StringRef lhs,
         return false;                                                 // RETURN
     }
     return true;
-
 }
 
 
 //=============================================================================
-//                  CLASS DEFINITIONS FOR TEST CASE 14
+//                  CLASS DEFINITIONS FOR TEST CASE 15
 //-----------------------------------------------------------------------------
 
 class MyAttributeValue {
-    int               d_type;
-    bslma::Allocator *d_allocator_p;
+  public:
+    // TYPES
+    enum ValueType {
+        k_INT32 = 0,
+        k_INT64,
+        k_STRING
+    };
+
+  private:
+    // DATA
+    ValueType                                d_type;
+    bslma::Allocator                        *d_allocator_p;
     union {
         bsls::AlignmentUtil::MaxAlignedType d_align;
         int                                 d_int32Value;
@@ -316,7 +327,7 @@ class MyAttributeValue {
                                    bslma::UsesBslmaAllocator);
 
     MyAttributeValue(int value, bslma::Allocator *basicAllocator = 0)
-    : d_type (0)
+    : d_type(k_INT32)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_int32Value = value;
@@ -324,14 +335,14 @@ class MyAttributeValue {
 
     MyAttributeValue(bsls::Types::Int64  value,
                      bslma::Allocator   *basicAllocator = 0)
-    : d_type (1)
+    : d_type(k_INT64)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_int64Value = value;
     }
 
     MyAttributeValue(const char *value, bslma::Allocator *basicAllocator = 0)
-    : d_type (2)
+    : d_type(k_STRING)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         new (d_stringValue) bsl::string(value, basicAllocator);
@@ -343,53 +354,56 @@ class MyAttributeValue {
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         switch (d_type) {
-          case 0: {
+          case k_INT32: {
             d_int32Value = rhs.d_int32Value;
           } break;
-          case 1: {
+          case k_INT64: {
             d_int64Value = rhs.d_int64Value;
           } break;
-          case 2: {
-              const bsl::string *string_p =
+          case k_STRING: {
+            const bsl::string *string_p =
                        reinterpret_cast<const bsl::string*>(rhs.d_stringValue);
-              new (d_stringValue) bsl::string(*string_p, d_allocator_p);
+            new (d_stringValue) bsl::string(*string_p, d_allocator_p);
           } break;
           default: {
-              BSLS_ASSERT(!"Unreachable by design!");
-          } break;
+              BSLS_ASSERT_INVOKE_NORETURN("unreachable");
+          }
         }
     }
 
     ~MyAttributeValue()
     {
         using bsl::string;
-        if (2 == d_type) {
+        if (k_STRING == d_type) {
             reinterpret_cast<string*>(d_stringValue)->~string();
         }
     }
 
     MyAttributeValue& operator=(const MyAttributeValue& rhs)
     {
-        if (this != &rhs && d_type == rhs.d_type)
-        {
+        if (this != &rhs && d_type == rhs.d_type) {
             switch (d_type) {
-              case 0:
+              case k_INT32: {
                 d_int32Value = rhs.d_int32Value;
-                break;
-              case 1:
+              } break;
+              case k_INT64: {
                 d_int64Value = rhs.d_int64Value;
-                break;
-              case 2:
+              } break;
+              case k_STRING: {
                 bsl::string *string_p =
                        reinterpret_cast<bsl::string*>(d_stringValue);
                 *string_p =
                       *reinterpret_cast<const bsl::string*>(rhs.d_stringValue);
+              } break;
+            default: {
+              BSLS_ASSERT_INVOKE_NORETURN("unreachable");
             }
+          }
         }
         return *this;
     }
 
-    int type() const
+    ValueType type() const
     {
         return d_type;
     }
@@ -415,17 +429,21 @@ class MyAttributeValue {
             return false;                                             // RETURN
         }
         switch (d_type) {
-          case 0:
-            return d_int32Value == rhs.d_int32Value;
-          case 1:
-            return d_int64Value == rhs.d_int64Value;
-          case 2:
+          case k_INT32: {
+            return d_int32Value == rhs.d_int32Value;                  // RETURN
+          }
+          case k_INT64: {
+            return d_int64Value == rhs.d_int64Value;                  // RETURN
+          }
+          case k_STRING: {
             return *reinterpret_cast<const bsl::string*>(d_stringValue)
                 == *reinterpret_cast<const bsl::string*>(rhs.d_stringValue);
-          default:
-            return false;
+                                                                      // RETURN
+          }
         }
+        return false;
     }
+
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const
@@ -434,15 +452,15 @@ class MyAttributeValue {
         (void)spacesPerLevel;
 
         switch (d_type) {
-          case 0:
+          case k_INT32: {
             stream << d_int32Value;
-            break;
-          case 1:
+          } break;
+          case k_INT64: {
             stream << d_int64Value;
-            break;
-          case 2:
+          } break;
+          case k_STRING: {
             stream << *reinterpret_cast<const bsl::string*>(d_stringValue);
-            break;
+          } break;
         }
         return stream;
     }
@@ -715,15 +733,18 @@ int MyAttribute::hash(const MyAttribute& attribute, int size)
                               static_cast<int>(bsl::strlen(attribute.d_name)));
 
         switch (attribute.d_value.type()) {
-          case 0:
+          case MyAttributeValue::k_INT32: {
             hash += bdlb::HashUtil::hash1(attribute.d_value.int32Value());
-            break;
-          case 1:
+          } break;
+          case MyAttributeValue::k_INT64: {
             hash += bdlb::HashUtil::hash1(attribute.d_value.int64Value());
-            break;
-          case 2:
+          } break;
+          case MyAttributeValue::k_STRING: {
             hash += bdlb::HashUtil::hash1(attribute.d_value.stringValue());
-            break;
+          } break;
+          default: {
+              BSLS_ASSERT_INVOKE_NORETURN("unreachable");
+          }
         }
 
         attribute.d_hashValue = hash % size;
@@ -770,7 +791,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         // Concerns:
@@ -818,8 +839,13 @@ int main(int argc, char *argv[])
         ASSERT(a5 == a1);
 
       } break;
-      case 14: {
-
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING PERFORMANCE
+        //
+        // Testing:
+        //   PERFORMANCE
+        // --------------------------------------------------------------------
 #ifdef BSLS_PLATFORM_OS_SOLARIS
         struct timespec t1, t2;
         const Int64 oneBillion = 1000000000;
@@ -924,7 +950,7 @@ int main(int argc, char *argv[])
 
 #endif
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING HASH FUNCTION (VALUE):
         //   Verify the hash return value is constant across all platforms for
@@ -938,7 +964,7 @@ int main(int argc, char *argv[])
         //   hashtable.
         //
         // Testing:
-        //   static int hash(const ball::Attribute&, int size);
+        //   static int hash(const Attribute&, int size);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting hash function"
@@ -1026,7 +1052,7 @@ int main(int argc, char *argv[])
             {  L_,   "A",  2,    0,       "ABCD", 1610612741, 1569933533   },
         };
 
-        const int NUM_HDATA = sizeof HDATA / sizeof *HDATA;
+        enum { NUM_HDATA = sizeof HDATA / sizeof *HDATA };
 
         for (int i = 0; i < NUM_HDATA; ++i) {
             int LINE = HDATA[i].d_line;
@@ -1042,9 +1068,9 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout <<  X  << " ---> " << hash << endl;
             }
-            LOOP_ASSERT(LINE, 0 <= hash);
-            LOOP_ASSERT(LINE, hash < HDATA[i].d_hashSize);
-            LOOP2_ASSERT(LINE, hash, HDATA[i].d_hashValue == hash);
+            ASSERTV(LINE, 0 <= hash);
+            ASSERTV(LINE, hash < HDATA[i].d_hashSize);
+            ASSERTV(LINE, hash, HDATA[i].d_hashValue == hash);
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1058,6 +1084,134 @@ int main(int argc, char *argv[])
             ASSERT_FAIL(Obj::hash(X, -1));
         }
 
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING NAME/VALUE MANIPULATORS
+        //   The 'setName' and 'setValue' methods should set the corresponding
+        //   fields correctly.
+        //
+        // Plan:
+        //   Specify a set S whose elements have substantial and varied
+        //   differences in value.  For each pair (u, v) in the cross product
+        //   S X S, construct u using the primary constructor, and then change
+        //   its name and value using v's name and value.  Verify that the two
+        //   objects have the same value.
+        //
+        // Testing:
+        //   void setName(const char *n);
+        //   void setValue(int n);
+        //   void setValue(bsls::Types::Int64 n);
+        //   void setValue(const bsl::string_view& s);
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTesting Name/Value Manipulators"
+                          << "\n===============================" << endl;
+
+        for (int i = 0; i < NUM_NAMES; ++i) {
+        for (int j = 0; j < NUM_VALUES; ++j) {
+            int LINE1 = NAMES[i].d_line;
+            int LINE2 = VALUES[j].d_line;
+
+            Obj::Value value1 = createValue(
+                                          VALUES[j].d_type,
+                                          static_cast<int>(VALUES[j].d_ivalue),
+                                          VALUES[j].d_ivalue,
+                                          VALUES[j].d_svalue);
+
+            const Obj V(NAMES[i].d_name, value1);
+
+            for (int k = 0; k < NUM_NAMES; ++k) {
+            for (int l = 0; l < NUM_VALUES; ++l) {
+                int LINE3 = NAMES[k].d_line;
+                int LINE4 = VALUES[l].d_line;
+
+                Obj::Value value2 = createValue(
+                                          VALUES[l].d_type,
+                                          static_cast<int>(VALUES[l].d_ivalue),
+                                          VALUES[l].d_ivalue,
+                                          VALUES[l].d_svalue);
+
+                const Obj U(NAMES[k].d_name, value2);
+                if (veryVerbose) {
+                    cout << "\t";
+                    P_(U);
+                    P(V);
+                }
+
+                bool isSame = i == k && j == l;
+
+                Obj mW1(V); const Obj& W1 = mW1;
+
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W1 == V);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, (W1 == U) == isSame);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        Obj::hash(W1, 65536) == Obj::hash(V, 65536));
+
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W1.value() == V.value());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        0 == strcmp(W1.name(), V.name()));
+
+                mW1.setName(U.name());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W1.value() == V.value());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        0 == strcmp(W1.name(), U.name()));
+
+                if (U.value().is<int>()) {
+                    mW1.setValue(U.value().the<int>());
+                }
+                else if (U.value().is<bsls::Types::Int64>()) {
+                    mW1.setValue(U.value().the<bsls::Types::Int64>());
+                }
+                else if (U.value().is<bsl::string>()) {
+                    mW1.setValue(U.value().the<bsl::string>());
+                }
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W1.value() == U.value());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        0 == strcmp(W1.name(), U.name()));
+
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W1 == U);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, (W1 == V) == isSame);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        Obj::hash(W1, 65536) == Obj::hash(U, 65536));
+
+                Obj mW2(V); const Obj& W2 = mW2;
+
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W2 == V);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, (W2 == U) == isSame);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        Obj::hash(W2, 65536) == Obj::hash(V, 65536));
+
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W2.value() == V.value());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        0 == strcmp(W2.name(), V.name()));
+
+                if (U.value().is<int>()) {
+                    mW2.setValue(U.value().the<int>());
+                }
+                else if (U.value().is<bsls::Types::Int64>()) {
+                    mW2.setValue(U.value().the<bsls::Types::Int64>());
+                }
+                else if (U.value().is<bsl::string>()) {
+                    mW2.setValue(U.value().the<bsl::string>());
+                }
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W2.value() == U.value());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        0 == strcmp(W2.name(), V.name()));
+
+                mW2.setName(U.name());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W2.value() == U.value());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        0 == strcmp(W2.name(), U.name()));
+
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W2 == U);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, (W2 == V) == isSame);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        Obj::hash(W2, 65536) == Obj::hash(U, 65536));
+
+            }
+            }
+        }
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -1114,67 +1268,59 @@ int main(int argc, char *argv[])
 
                 Obj mW1(V); const Obj& W1 = mW1;
 
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W1 == V);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, (W1 == U) == isSame);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             Obj::hash(W1, 65536) == Obj::hash(V, 65536));
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W1 == V);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, (W1 == U) == isSame);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        Obj::hash(W1, 65536) == Obj::hash(V, 65536));
 
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             W1.value() == V.value());
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             0 == strcmp(W1.name(), V.name()));
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W1.value() == V.value());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        0 == strcmp(W1.name(), V.name()));
 
                 mW1.setName(U.name());
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             W1.value() == V.value());
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             0 == strcmp(W1.name(), U.name()));
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W1.value() == V.value());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        0 == strcmp(W1.name(), U.name()));
 
                 mW1.setValue(U.value());
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             W1.value() == U.value());
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             0 == strcmp(W1.name(), U.name()));
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W1.value() == U.value());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        0 == strcmp(W1.name(), U.name()));
 
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W1 == U);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, (W1 == V) == isSame);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             Obj::hash(W1, 65536) == Obj::hash(U, 65536));
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W1 == U);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, (W1 == V) == isSame);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        Obj::hash(W1, 65536) == Obj::hash(U, 65536));
 
                 Obj mW2(V); const Obj& W2 = mW2;
 
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W2 == V);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, (W2 == U) == isSame);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             Obj::hash(W2, 65536) == Obj::hash(V, 65536));
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W2 == V);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, (W2 == U) == isSame);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        Obj::hash(W2, 65536) == Obj::hash(V, 65536));
 
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             W2.value() == V.value());
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             0 == strcmp(W2.name(), V.name()));
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W2.value() == V.value());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                       0 == strcmp(W2.name(), V.name()));
 
                 mW2.setValue(U.value());
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             W2.value() == U.value());
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             0 == strcmp(W2.name(), V.name()));
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W2.value() == U.value());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                       0 == strcmp(W2.name(), V.name()));
 
                 mW2.setName(U.name());
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             W2.value() == U.value());
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             0 == strcmp(W2.name(), U.name()));
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W2.value() == U.value());
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        0 == strcmp(W2.name(), U.name()));
 
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W2 == U);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, (W2 == V) == isSame);
-                LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                             Obj::hash(W2, 65536) == Obj::hash(U, 65536));
-
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, W2 == U);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4, (W2 == V) == isSame);
+                ASSERTV(LINE1, LINE2, LINE3, LINE4,
+                        Obj::hash(W2, 65536) == Obj::hash(U, 65536));
             }
             }
         }
         }
-
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -1189,9 +1335,9 @@ int main(int argc, char *argv[])
         //   to assert that both x and y have the same value as w.
         //
         // Testing:
-        //   ball::Attribute(const char *n, int v, bdema::Alct *ba);
-        //   ball::Attribute(const char *n, Int64 v, bdema::Alct *ba);
-        //   ball::Attribute(const char *n, const char *v, bdema::Alct *ba);
+        //   Attribute(const char *n, int v, const alct& a);
+        //   Attribute(const char *n, Int64 v, const alct& a);
+        //   Attribute(const char *n, const str_view& v, const alct& a);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Name/Value Constructors"
@@ -1214,42 +1360,40 @@ int main(int argc, char *argv[])
             switch (VALUES[j].d_type) {
               case 0: {
                 const Obj X1(name, (int)VALUES[j].d_ivalue);
-                LOOP2_ASSERT(LINE1, LINE2, X1 == Y);
+                ASSERTV(LINE1, LINE2, X1 == Y);
                 const Obj X2(name, (int)VALUES[j].d_ivalue, &testAllocator);
-                LOOP2_ASSERT(LINE1, LINE2, X2 == Y);
+                ASSERTV(LINE1, LINE2, X2 == Y);
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const Obj X3(name,
                                  (int)VALUES[j].d_ivalue,
                                  &testAllocator);
-                    LOOP2_ASSERT(LINE1, LINE2, X3 == Y);
+                    ASSERTV(LINE1, LINE2, X3 == Y);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
               } break;
               case 1: {
                 const Obj X1(name, VALUES[j].d_ivalue);
-                LOOP2_ASSERT(LINE1, LINE2, X1 == Y);
+                ASSERTV(LINE1, LINE2, X1 == Y);
                 const Obj X2(name, VALUES[j].d_ivalue, &testAllocator);
-                LOOP2_ASSERT(LINE1, LINE2, X2 == Y);
+                ASSERTV(LINE1, LINE2, X2 == Y);
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const Obj X3(name,
                                  VALUES[j].d_ivalue,
                                  &testAllocator);
-                    LOOP2_ASSERT(LINE1, LINE2, X3 == Y);
+                    ASSERTV(LINE1, LINE2, X3 == Y);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
               } break;
               case 2: {
                 const Obj X1(name, VALUES[j].d_svalue);
-                LOOP2_ASSERT(LINE1, LINE2, X1 == Y);
+                ASSERTV(LINE1, LINE2, X1 == Y);
                 const Obj X2(name, VALUES[j].d_svalue, &testAllocator);
-                LOOP2_ASSERT(LINE1, LINE2, X2 == Y);
+                ASSERTV(LINE1, LINE2, X2 == Y);
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                    const Obj X3(name,
-                                 VALUES[j].d_svalue,
-                                 &testAllocator);
-                    LOOP2_ASSERT(LINE1, LINE2, X3 == Y);
+                    const Obj X3(name, VALUES[j].d_svalue, &testAllocator);
+                    ASSERTV(LINE1, LINE2, X3 == Y);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
               } break;
               default:
-                LOOP2_ASSERT(LINE1, LINE2, 0);
+                BSLS_ASSERT_INVOKE_NORETURN("unreachable");
             }
         }
         }
@@ -1277,7 +1421,7 @@ int main(int argc, char *argv[])
         //   assigning u to itself, and verifying that w == u.
         //
         // Testing:
-        //   ball::Attribute& operator=(const ball::Attribute& rhs);
+        //   Attribute& operator=(const Attribute& rhs);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Assignment Operator"
                           << "\n===========================" << endl;
@@ -1317,8 +1461,8 @@ int main(int argc, char *argv[])
 
                   Obj w(V); const Obj& W = w;      // control
                   u = V;
-                  LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W == U);
-                  LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4, W == V);
+                  ASSERTV(LINE1, LINE2, LINE3, LINE4, W == U);
+                  ASSERTV(LINE1, LINE2, LINE3, LINE4, W == V);
               }
             }
         }
@@ -1341,7 +1485,7 @@ int main(int argc, char *argv[])
             u = u;
 
             if (veryVerbose) { T_; P_(U); P_(W); }
-            LOOP2_ASSERT(LINE1, LINE2, U == W);
+            ASSERTV(LINE1, LINE2, U == W);
         }
         }
 
@@ -1368,7 +1512,7 @@ int main(int argc, char *argv[])
         //   as w.
         //
         // Testing:
-        //   ball::Attribute(const ball::Attribute&);
+        //   Attribute(const Attribute&);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Copy Constructor"
                           << "\n========================" << endl;
@@ -1391,14 +1535,12 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_; P_(W); P_(X); P(Y); }
 
-            LOOP2_ASSERT(LINE1, LINE2, X == W);
-            LOOP2_ASSERT(LINE1, LINE2, Y == W);
-            LOOP2_ASSERT(LINE1, LINE2, Y == X);
+            ASSERTV(LINE1, LINE2, X == W);
+            ASSERTV(LINE1, LINE2, Y == W);
+            ASSERTV(LINE1, LINE2, Y == X);
         }
         }
-
       } break;
-
       case 6: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY OPERATORS
@@ -1458,11 +1600,8 @@ int main(int argc, char *argv[])
                     }
 
                     bool isSame = i == k && j == l;
-                    LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                                 isSame == (X == Y));
-                    LOOP4_ASSERT(LINE1, LINE2, LINE3, LINE4,
-                                 !isSame == (X != Y));
-
+                    ASSERTV(LINE1, LINE2, LINE3, LINE4,  isSame == (X == Y));
+                    ASSERTV(LINE1, LINE2, LINE3, LINE4, !isSame == (X != Y));
                   }
                 }
               }
@@ -1487,14 +1626,12 @@ int main(int argc, char *argv[])
 
                 string name(NAMES[i].d_name);
                 Obj mY(name.c_str(), value1);  const Obj& Y = mY;
-                LOOP2_ASSERT(LINE1, LINE2, X == Y);
-                LOOP2_ASSERT(LINE1, LINE2, !(X != Y));
+                ASSERTV(LINE1, LINE2, X == Y);
+                ASSERTV(LINE1, LINE2, !(X != Y));
               }
             }
         }
-
       } break;
-
       case 5: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR AND 'print':
@@ -1535,7 +1672,7 @@ int main(int argc, char *argv[])
             {  L_,  "A", 2,   0,     "1",  " [ \"A\" = 1 ]"  },
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int i = 0; i < NUM_DATA; ++i) {
             int LINE = DATA[i].d_line;
@@ -1576,7 +1713,7 @@ int main(int argc, char *argv[])
             {  L_,  "A", "1",   -1,   -2,   " [ \"A\" = 1 ]"       },
         };
 
-        const int NUM_PDATA = sizeof PDATA / sizeof *PDATA;
+        enum { NUM_PDATA = sizeof PDATA / sizeof *PDATA };
 
         for (int i = 0; i < NUM_PDATA; ++i) {
             int LINE = PDATA[i].d_line;
@@ -1638,10 +1775,8 @@ int main(int argc, char *argv[])
                     P_(value);
                     P(X);
             }
-            LOOP2_ASSERT(LINE1,
-                         LINE2,
-                         0 == strcmp(X.name(), NAMES[i].d_name));
-            LOOP2_ASSERT(LINE1, LINE2, X.value() == value);
+            ASSERTV(LINE1, LINE2, 0 == bsl::strcmp(X.name(), NAMES[i].d_name));
+            ASSERTV(LINE1, LINE2, X.value() == value);
         }
         }
 
@@ -1659,7 +1794,7 @@ int main(int argc, char *argv[])
         //   verify that the resultant has the specified type and value.
         //
         // Testing:
-        //   Value createValue(int type, int v1, Int64 v2, const char *v3);
+        //   Value createValue(int t, int v1, Int64 v2, const char *v3, int l);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Primitive Test Apparatus"
@@ -1680,23 +1815,21 @@ int main(int argc, char *argv[])
 
             switch (VALUES[i].d_type) {
               case 0: {
-                LOOP_ASSERT(LINE, value.is<int>());
-                LOOP_ASSERT(LINE, VALUES[i].d_ivalue == value.the<int>());
+                ASSERTV(LINE, value.is<int>());
+                ASSERTV(LINE, VALUES[i].d_ivalue == value.the<int>());
               } break;
               case 1: {
-                LOOP_ASSERT(LINE, value.is<Int64>());
-                LOOP_ASSERT(LINE, VALUES[i].d_ivalue == value.the<Int64>());
+                ASSERTV(LINE, value.is<Int64>());
+                ASSERTV(LINE, VALUES[i].d_ivalue == value.the<Int64>());
               } break;
               case 2: {
-                LOOP_ASSERT(LINE, value.is<string>());
-                LOOP_ASSERT(LINE, VALUES[i].d_svalue == value.the<string>());
+                ASSERTV(LINE, value.is<string>());
+                ASSERTV(LINE, VALUES[i].d_svalue == value.the<string>());
               } break;
               default:
-                LOOP_ASSERT(LINE, 0);
+                BSLS_ASSERT_INVOKE_NORETURN("unreachable");
             }
-
         }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1711,8 +1844,8 @@ int main(int argc, char *argv[])
         //   exercised as the objects being tested leave scope.
         //
         // Testing:
-        //   ball::Attribute(const char *n, const VALUE& v, bdema::Alct *ba);
-        //   ~ball::Attribute();
+        //   Attribute(const char *n, const VALUE& v, const alct& a);
+        //   ~Attribute();
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Primary Manipulators"

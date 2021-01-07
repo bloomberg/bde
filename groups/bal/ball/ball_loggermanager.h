@@ -279,25 +279,41 @@ BSLS_IDENT("$Id: $")
 ///Log Record Contents
 ///-------------------
 // Each log record contains a set of fixed fields and a set of optional,
-// user-definable fields.  The following table lists the fixed fields in each
-// log record (see the component-level documentation of 'ball_recordattributes'
-// for more information on the fixed fields of a log record):
+// user-definable fields and attributes.  The following table lists the fixed
+// fields in each log record (see the component-level documentation of
+// 'ball_recordattributes' for more information on the fixed fields of a log
+// record):
 //..
-//     Field Name         Type                  Description
-//     -----------    --------------   --------------------------------------
-//     timestamp      bdlt::Datetime   creation date and time
-//     process ID     int              process ID of creator
-//     thread ID      int              thread ID of creator
-//     filename       string           file where created  (i.e., '__FILE__')
-//     line number    int              line number in file (i.e., '__LINE__')
-//     category       string           category name
-//     severity       int              severity of logged record
-//     message        string           log message text
+//  Field Name    Type             Description
+//  -----------   --------------   --------------------------------------
+//  timestamp     bdlt::Datetime   creation date and time
+//  process ID    int              process ID of creator
+//  thread ID     int              thread ID of creator
+//  filename      string           file where created  (i.e., '__FILE__')
+//  line number   int              line number in file (i.e., '__LINE__')
+//  category      string           category name
+//  severity      int              severity of logged record
+//  message       string           log message text
 //..
-// If a 'ball::Logger::UserFieldsPopulatorCallback' functor is supplied by the
-// client (see 'ball_loggermanagerconfiguration'), thereafter, every logged
-// record has its user-defined fields (indirectly) populated by an invocation
-// of the 'UserFieldsPopulatorCallback' functor.
+//
+// The following table lists optional fields and attributes in each log record
+// (see the component-level documentation of 'ball_userfields' and
+// 'ball_managedattribute' for more information):
+//..
+//  Field Name    Type                                Description
+//  -----------   --------------                      -------------------------
+//  userFields    ball::UserFields                    [!DEPRECATED!]
+//  attributes    bsl::vector<ball::ManagedAttribute> user-managed log
+//                                                    attributes
+//..
+//
+// [!DEPRECATED!] If a 'ball::LoggerManager::UserFieldsPopulatorCallback'
+// functor is supplied by the client (see 'ball_loggermanagerconfiguration'),
+// thereafter, every logged record has its user-defined fields (indirectly)
+// populated by an invocation of the 'UserFieldsPopulatorCallback' functor.
+//
+// The log record's attributes are populated by attribute collector functor(s)
+// registered by the user.
 //
 ///Multi-Threaded Usage
 ///--------------------
@@ -869,6 +885,8 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <ball_attribute.h>
+#include <ball_attributecollectorregistry.h>
 #include <ball_broadcastobserver.h>
 #include <ball_categorymanager.h>
 #include <ball_loggermanagerconfiguration.h>
@@ -893,6 +911,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_map.h>
 #include <bsl_memory.h>
 #include <bsl_set.h>
+#include <bsl_string_view.h>
 
 namespace BloombergLP {
 namespace ball {
@@ -939,7 +958,13 @@ class Logger {
                                                 // (not owned)
 
     UserFieldsPopulatorCallback
-                  d_populator;                  // user populator functor
+                  d_userFieldsPopulator;        // user fields populator
+                                                // functor
+
+    const AttributeCollectorRegistry
+                 *d_attributeCollectors_p;      // pointer to the registry of
+                                                // attribute collector
+                                                // callbacks (not owned)
 
     PublishAllTriggerCallback
                   d_publishAll;                 // publishAll callback functor
@@ -978,7 +1003,8 @@ class Logger {
     // PRIVATE CREATORS
     Logger(const bsl::shared_ptr<Observer>&            observer,
            RecordBuffer                               *recordBuffer,
-           const UserFieldsPopulatorCallback&          populator,
+           const UserFieldsPopulatorCallback&          userFieldsPopulator,
+           const AttributeCollectorRegistry           *attributeCollectors,
            const PublishAllTriggerCallback&            publishAllCallback,
            int                                         scratchBufferSize,
            LoggerManagerConfiguration::LogOrder        logOrder,
@@ -986,16 +1012,16 @@ class Logger {
            bslma::Allocator                           *globalAllocator);
         // Create a logger having the specified 'observer' that receives
         // published log records, the specified 'recordBuffer' that stores log
-        // records, the specified 'populator' that populates the user-defined
-        // fields of log records, the specified 'publishAllCallback' that is
-        // invoked when a Trigger-All event occurs, the specified
-        // 'scratchBufferSize' for the internal message buffer accessible via
-        // 'obtainMessageBuffer', and the specified 'globalAllocator' used to
-        // supply memory.  On a Trigger or Trigger-All event, the messages are
-        // published in the specified 'logOrder'.  The behavior is undefined
-        // unless 'observer', 'recordBuffer', and 'globalAllocator' are
-        // non-null.  Note that this constructor is 'private' since the
-        // creation of instances of 'Logger' is managed by its 'friend'
+        // records, the specified 'userFieldsPopulator' that populates the
+        // user-defined fields of log records, the specified
+        // 'attributeCollectors' registry of user-installed attribute
+        // collectors, the specified 'publishAllCallback' that is invoked when
+        // a Trigger-All event occurs, the specified 'scratchBufferSize' for
+        // the internal message buffer accessible via 'obtainMessageBuffer',
+        // and the specified 'globalAllocator' used to supply memory.  On a
+        // Trigger or Trigger-All event, the messages are published in the
+        // specified 'logOrder'.  Note that this constructor is 'private' since
+        // the creation of instances of 'Logger' is managed by its 'friend'
         // 'LoggerManager'.
 
     ~Logger();
@@ -1171,6 +1197,20 @@ class LoggerManager {
         // loggers allocated by the logger manager that have not yet been
         // deallocated).
 
+    typedef LoggerManagerConfiguration::UserFieldsPopulatorCallback
+                                                   UserFieldsPopulatorCallback;
+        // 'UserFieldsPopulatorCallback' is the type of a user-supplied
+        // callback functor used to populate the user-defined fields in each
+        // log record.
+
+    typedef AttributeCollectorRegistry::Collector AttributeCollector;
+        // 'AttributeCollector' is the type of a user-supplied functor used to
+        // visit a collection of attributes.
+
+    typedef AttributeCollectorRegistry::Visitor AttributeVisitor;
+        // 'AttributeVisitor' is the type of a user-supplied functor invoked
+        // by an attribute collector for every attribute.
+
     typedef BroadcastObserver::ObserverRegistry ObserverRegistry;
         // This 'typedef' is an alias for the type of the internal broadcast
         // observer registry.
@@ -1226,8 +1266,14 @@ class LoggerManager {
                                                  // factory default threshold
                                                  // levels
 
-    Logger::UserFieldsPopulatorCallback
-                           d_populator;          // populator functor
+    UserFieldsPopulatorCallback
+                           d_userFieldsPopulator;
+                                                 // user fields populator
+                                                 // functor
+
+    ball::AttributeCollectorRegistry
+                           d_attributeCollectors;// Registered attribute
+                                                 // collector callbacks
 
     Logger                *d_logger_p;           // holds default logger
                                                  // (owned)
@@ -1645,6 +1691,13 @@ class LoggerManager {
         // otherwise.  Henceforth, the observer that had 'observerName' will no
         // longer receive log records published by this logger manager.
 
+    int deregisterAttributeCollector(const bsl::string_view& collectorName);
+        // Remove the attribute collector having the specified 'collectorName'
+        // from the registry of collectors maintained by this logger manager.
+        // Return 0 if the collector having 'collectorName' was successfully
+        // deregistered from this logger manager, and a non-zero value (with no
+        // effect) otherwise.
+
     bsl::shared_ptr<Observer> findObserver(
                                         const bslstl::StringRef& observerName);
         // Return a shared pointer to the observer having the specified
@@ -1682,6 +1735,15 @@ class LoggerManager {
         // behavior is undefined if a cyclic reference is created among
         // registered observers.  Note that this method will fail if an
         // observer having 'observerName' is already registered.
+
+    int registerAttributeCollector(const AttributeCollector& collector,
+                                   const bsl::string_view&   collectorName);
+        // Add the specified 'collector' with the specified 'collectorName' to
+        // the registry of attribute collectors maintained by this logger
+        // manager.  Return 0 if 'collector' was successfully registered with
+        // this logger manager, and a non-zero value (with no effect)
+        // otherwise.  Note that this method will fail if a collector having
+        // 'collectorName' is already registered.
 
                      // Threshold Level Management Manipulators
 
@@ -1862,8 +1924,7 @@ class LoggerManager {
         // Return a 'const' reference to the rule set maintained by this
         // object.
 
-    const Logger::UserFieldsPopulatorCallback *userFieldsPopulatorCallback()
-                                                                         const;
+    const UserFieldsPopulatorCallback *userFieldsPopulatorCallback() const;
         // Return the address of the non-modifiable user populator functor
         // registered with this logger manager, or 0 if there is no registered
         // user populator functor.
@@ -2162,6 +2223,13 @@ int LoggerManager::deregisterObserver(const bslstl::StringRef& observerName)
 }
 
 inline
+int LoggerManager::deregisterAttributeCollector(
+                                         const bsl::string_view& collectorName)
+{
+    return d_attributeCollectors.removeCollector(collectorName);
+}
+
+inline
 bsl::shared_ptr<Observer>
 LoggerManager::findObserver(const bslstl::StringRef& observerName)
 {
@@ -2184,6 +2252,14 @@ LoggerManager::registerObserver(const bsl::shared_ptr<Observer>& observer,
     return d_observer->registerObserver(observer, observerName);
 }
 
+inline
+int
+LoggerManager::registerAttributeCollector(
+                                       const AttributeCollector& collector,
+                                       const bsl::string_view&   collectorName)
+{
+    return d_attributeCollectors.addCollector(collector, collectorName);
+}
                              // Threshold Level Management
 
 inline

@@ -1,12 +1,4 @@
 // ball_scopedattribute.h                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_SCOPEDATTRIBUTE
 #define INCLUDED_BALL_SCOPEDATTRIBUTE
 
@@ -27,6 +19,10 @@
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage of 'ball::ScopedAttribute'
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that service requests for a fictional service with id '999' are
 // handled asynchronously by the function below.  Creating an instance of this
 // class will set BALL attributes for any logging performed while the request
@@ -54,6 +50,10 @@
 #include <ball_attributecontext.h>
 
 #include <bslma_allocator.h>
+#include <bslma_stdallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_types.h>
 
@@ -79,28 +79,38 @@ class ScopedAttribute_Container : public AttributeContainer {
     ScopedAttribute_Container& operator=(const ScopedAttribute_Container&);
 
   public:
+    // TYPES
+    typedef bsl::allocator<char> allocator_type;
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(ScopedAttribute_Container,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
-    ScopedAttribute_Container(const char         *name,
-                              const bsl::string&  value,
-                              bslma::Allocator   *basicAllocator = 0);
-    ScopedAttribute_Container(const char         *name,
-                              int                 value,
-                              bslma::Allocator   *basicAllocator = 0);
-    ScopedAttribute_Container(const char         *name,
-                              bsls::Types::Int64  value,
-                              bslma::Allocator   *basicAllocator = 0);
+    ScopedAttribute_Container(
+                        const char              *name,
+                        const bsl::string_view&  value,
+                        const allocator_type&    allocator = allocator_type());
+    ScopedAttribute_Container(
+                        const char              *name,
+                        int                      value,
+                        const allocator_type&    allocator = allocator_type());
+    ScopedAttribute_Container(
+                        const char              *name,
+                        bsls::Types::Int64       value,
+                        const allocator_type&    allocator = allocator_type());
         // Create a BALL attribute container holding a single rule, associating
         // the specified 'name' with the specified 'value'.  Optionally specify
-        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0
-        // or unspecified, the currently installed default allocator is used.
+        // an 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
+        // supply memory; otherwise, the default allocator is used.
 
     virtual ~ScopedAttribute_Container();
         // Destroy this object;
 
     // ACCESSORS
-    virtual bool hasValue(const Attribute& value) const;
-        // Return 'true' if the specified 'value' is the same as the value held
-        // in this container, and 'false' otherwise.
+    virtual bool hasValue(const Attribute& attribute) const;
+        // Return 'true' if the specified 'attribute' is the same as the value
+        // held in this container, and 'false' otherwise.
 
     virtual bsl::ostream& print(bsl::ostream& stream,
                                 int           level = 0,
@@ -114,6 +124,18 @@ class ScopedAttribute_Container : public AttributeContainer {
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  If 'stream' is
         // not valid on entry, this operation has no effect.
+
+    virtual void visitAttributes(
+                   const bsl::function<void(const Attribute&)>& visitor) const;
+        // Invoke the specified 'visitor' function for all attributes in this
+        // container.
+
+                                  // Aspects
+
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
 };
 
                          // =====================
@@ -135,25 +157,39 @@ class ScopedAttribute {
     ScopedAttribute& operator=(const ScopedAttribute&);
 
   public:
+    // TYPES
+    typedef bsl::allocator<char> allocator_type;
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(ScopedAttribute,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
-    ScopedAttribute(const char         *name,
-                    const bsl::string&  value,
-                    bslma::Allocator   *basicAllocator = 0);
-    ScopedAttribute(const char         *name,
-                    int                 value,
-                    bslma::Allocator   *basicAllocator = 0);
-    ScopedAttribute(const char         *name,
-                    bsls::Types::Int64  value,
-                    bslma::Allocator   *basicAllocator = 0);
+    ScopedAttribute(const char              *name,
+                    const bsl::string_view&  value,
+                    const allocator_type&    allocator = allocator_type());
+    ScopedAttribute(const char              *name,
+                    int                      value,
+                    const allocator_type&    allocator = allocator_type());
+    ScopedAttribute(const char              *name,
+                    bsls::Types::Int64       value,
+                    const allocator_type&    allocator = allocator_type());
         // Set BALL logging attributes for the current thread for the scope of
         // this object, associating the specified 'name' with the specified
-        // 'value'.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0 or unspecified, the currently
-        // installed default allocator is used.
+        // 'value'.  Optionally specify an 'allocator' (e.g., the address of a
+        // 'bslma::Allocator' object) to supply memory; otherwise, the default
+        // allocator is used.
 
     ~ScopedAttribute();
         // Remove the attributes managed by this object from the BALL system,
         // and destroy this object.
+
+                                  // Aspects
+
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
 };
 
 // ============================================================================
@@ -167,36 +203,52 @@ class ScopedAttribute {
 // CREATORS
 inline
 ScopedAttribute_Container::ScopedAttribute_Container(
-                                            const char         *name,
-                                            const bsl::string&  value,
-                                            bslma::Allocator   *basicAllocator)
-: d_attribute(name, value.c_str(), basicAllocator)
+                                            const char              *name,
+                                            const bsl::string_view&  value,
+                                            const allocator_type&    allocator)
+: d_attribute(name, value, allocator)
 {
 }
 
 inline
 ScopedAttribute_Container::ScopedAttribute_Container(
-                                            const char         *name,
-                                            int                 value,
-                                            bslma::Allocator   *basicAllocator)
-: d_attribute(name, value, basicAllocator)
+                                             const char             *name,
+                                             int                     value,
+                                             const allocator_type&   allocator)
+: d_attribute(name, value, allocator)
 {
 }
 
 inline
 ScopedAttribute_Container::ScopedAttribute_Container(
-                                            const char         *name,
-                                            bsls::Types::Int64  value,
-                                            bslma::Allocator   *basicAllocator)
-: d_attribute(name, value, basicAllocator)
+                                             const char             *name,
+                                             bsls::Types::Int64      value,
+                                             const allocator_type&   allocator)
+: d_attribute(name, value, allocator)
 {
 }
 
 // ACCESSORS
 inline
-bool ScopedAttribute_Container::hasValue(const Attribute& value) const
+bool ScopedAttribute_Container::hasValue(const Attribute& attribute) const
 {
-    return d_attribute == value;
+    return d_attribute == attribute;
+}
+
+inline
+void ScopedAttribute_Container::visitAttributes(
+              const bsl::function<void(const ball::Attribute&)>& visitor) const
+{
+    visitor(d_attribute);
+}
+
+                                  // Aspects
+
+inline
+ScopedAttribute_Container::allocator_type
+ScopedAttribute_Container::get_allocator() const
+{
+    return d_attribute.get_allocator();
 }
 
                          // ---------------------
@@ -205,28 +257,28 @@ bool ScopedAttribute_Container::hasValue(const Attribute& value) const
 
 // CREATORS
 inline
-ScopedAttribute::ScopedAttribute(const char         *name,
-                                 const bsl::string&  value,
-                                 bslma::Allocator   *basicAllocator)
-: d_container(name, value, basicAllocator)
+ScopedAttribute::ScopedAttribute(const char              *name,
+                                 const bsl::string_view&  value,
+                                 const allocator_type&    allocator)
+: d_container(name, value, allocator)
 , d_it(AttributeContext::getContext()->addAttributes(&d_container))
 {
 }
 
 inline
-ScopedAttribute::ScopedAttribute(const char         *name,
-                                 int                 value,
-                                 bslma::Allocator   *basicAllocator)
-: d_container(name, value, basicAllocator)
+ScopedAttribute::ScopedAttribute(const char            *name,
+                                 int                    value,
+                                 const allocator_type&  allocator)
+: d_container(name, value, allocator)
 , d_it(AttributeContext::getContext()->addAttributes(&d_container))
 {
 }
 
 inline
-ScopedAttribute::ScopedAttribute(const char         *name,
-                                 bsls::Types::Int64  value,
-                                 bslma::Allocator   *basicAllocator)
-: d_container(name, value, basicAllocator)
+ScopedAttribute::ScopedAttribute(const char            *name,
+                                 bsls::Types::Int64     value,
+                                 const allocator_type&  allocator)
+: d_container(name, value, allocator)
 , d_it(AttributeContext::getContext()->addAttributes(&d_container))
 {
 }
@@ -235,6 +287,17 @@ inline
 ScopedAttribute::~ScopedAttribute()
 {
     AttributeContext::getContext()->removeAttributes(d_it);
+}
+
+// ACCESSORS
+
+                                  // Aspects
+
+inline
+ScopedAttribute::allocator_type
+ScopedAttribute::get_allocator() const
+{
+    return d_container.get_allocator();
 }
 
 }  // close package namespace

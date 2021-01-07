@@ -66,6 +66,7 @@ using namespace bsl;
 // [ 2] static void reset();
 // [ 2] static AttributeContext *getContext();
 // [ 2] static AttributeContext *lookupContext();
+// [ 5] static void visitAttributes(const bsl::function& visitor);
 // [ 3] iterator addAttributes(const AttributeContainer *attributes);
 // [ 4] void clearCache();
 // [ 3] void removeAttributes(iterator element);
@@ -77,14 +78,14 @@ using namespace bsl;
 // [  ] bsl::ostream& operator<<(bsl::ostream&, const AttributeContext&);
 //
 // ball::AttributeContextProctor:
-// [ 5] AttributeContextProctor();
-// [ 5] ~AttributeContextProctor();
+// [ 6] AttributeContextProctor();
+// [ 6] ~AttributeContextProctor();
 //-----------------------------------------------------------------------------
 // [ 1] AttributeSet
-// [ 6] CONCERN: No false positives from 'hasRelevantActiveRules'.
-// [ 7] (OLD) USAGE EXAMPLE
-// [ 8] USAGE EXAMPLE 1
-// [ 9] USAGE EXAMPLE 2
+// [ 7] CONCERN: No false positives from 'hasRelevantActiveRules'.
+// [ 8] (OLD) USAGE EXAMPLE
+// [ 9] USAGE EXAMPLE 1
+// [10] USAGE EXAMPLE 2
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -256,6 +257,11 @@ class AttributeSet : public ball::AttributeContainer {
         // suppressing all but the initial indentation (as governed by
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
+
+    virtual void visitAttributes(
+             const bsl::function<void(const ball::Attribute&)>& visitor) const;
+        // Invoke the specified 'visitor' function for all attributes in this
+        // container.
 };
 
 // CREATORS
@@ -305,6 +311,15 @@ bsl::ostream& AttributeSet::print(bsl::ostream& stream,
     }
     printer.end();
     return stream;
+}
+
+void AttributeSet::visitAttributes(
+              const bsl::function<void(const ball::Attribute&)>& visitor) const
+{
+    bsl::set<ball::Attribute>::const_iterator it = d_set.begin();
+    for (; it != d_set.end(); ++it) {
+        visitor(*it);
+    }
 }
 
 //=============================================================================
@@ -1292,6 +1307,19 @@ extern "C" void *case2ContextThread(void *)
 
 }  // close namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_2
 
+namespace u {
+static int invocationCount = 0;
+void myVisitorTest(const ball::Attribute& attribute)
+{
+    BSLS_ASSERT(0 == invocationCount);
+    ++invocationCount;
+
+    BSLS_ASSERT(0    == bsl::strcmp("testAttribute", attribute.name()));
+    BSLS_ASSERT(true == attribute.value().is<int>());
+    BSLS_ASSERT(1234 == attribute.value().the<int>());
+}
+}  // close namespace u
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1320,7 +1348,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //   Extracted from component header file.
@@ -1371,7 +1399,7 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::join(mainThread);
 
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //   Extracted from component header file.
@@ -1403,7 +1431,7 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::join(threads[0]);
         bslmt::ThreadUtil::join(threads[1]);
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING ORIGINAL USAGE EXAMPLE
         //   This test runs the original usage example for this component.  It
@@ -1435,7 +1463,7 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::join(mainThread);
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // NO FALSE POSITIVES FROM 'hasRelevantActiveRules'
         //
@@ -1620,7 +1648,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING 'AttributeContextProctor'
         //
@@ -1731,6 +1759,40 @@ int main(int argc, char *argv[])
         ASSERT(tam.isInUseDown());
         ASSERT(0 == testAllocator.numBytesInUse());
 
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING 'visitAttributes'
+        //
+        // Concerns:
+        //:  1 Attribute context can iterate via attribute container lists
+        //:    added to the context and invoke specified visitor function for
+        //:    all attributes.
+        //
+        // Plan:
+        //:  1 Populate attribute context with a set of attribute containers
+        //:    and verify that the visit function is called for all of them.
+        //
+        // Testing:
+        //   static void visitAttributes(const bsl::function& visitor);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'visitAttributes'"
+                             "\n-------------------------" << endl;
+
+        // Make sure that the context will be freed after the test.
+        ball::AttributeContextProctor contextGuard;
+
+        AttributeSet attributes;
+        attributes.insert(ball::Attribute("testAttribute", 1234));
+
+        Obj* context = Obj::getContext();
+
+        context->addAttributes(&attributes);
+
+        Obj::visitAttributes(u::myVisitorTest);
+
+        BSLS_ASSERT(1 == u::invocationCount);
       } break;
       case 4: {
         // --------------------------------------------------------------------

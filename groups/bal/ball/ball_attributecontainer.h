@@ -1,12 +1,4 @@
 // ball_attributecontainer.h                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BALL_ATTRIBUTECONTAINER
 #define INCLUDED_BALL_ATTRIBUTECONTAINER
 
@@ -104,6 +96,11 @@ BSLS_IDENT("$Id: $")
 //                                  int           level = 0,
 //                                  int           spacesPerLevel = 4) const;
 //          // Format this object to the specified output 'stream'.
+//
+//      virtual void visitAttributes(
+//           const bsl::function<void(const ball::Attribute&)>& visitor) const;
+//          // Invoke the specified 'visitor' function for all attributes in
+//          // this container.
 //  };
 //
 //  // CREATORS
@@ -145,6 +142,14 @@ BSLS_IDENT("$Id: $")
 //      printer.printAttribute("firmNumber", d_firmNumber);
 //      printer.end();
 //      return stream;
+//  }
+//
+//  void ServiceAttributes::visitAttributes(
+//            const bsl::function<void(const ball::Attribute&)> &visitor) const
+//  {
+//      visitor(d_uuid);
+//      visitor(d_luw);
+//      visitor(d_firmNumber);
 //  }
 //..
 //
@@ -233,6 +238,11 @@ BSLS_IDENT("$Id: $")
 //          // Format this object to the specified output 'stream' at the
 //          // (absolute value of) the optionally specified indentation 'level'
 //          // and return a reference to 'stream'.
+//
+//      virtual void visitAttributes(
+//           const bsl::function<void(const ball::Attribute&)>& visitor) const;
+//          // Invoke the specified 'visitor' function for all attributes in
+//          // this container.
 //  };
 //..
 // The 'AttributeSet' methods are simple wrappers around 'bsl::set' methods:
@@ -276,13 +286,24 @@ BSLS_IDENT("$Id: $")
 //      bslim::Printer printer(&stream, level, spacesPerLevel);
 //      printer.start();
 //
-//      bsl::set<ball::Attribute>::const_iterator it = d_set.begin();
+//      bsl::set<ball::Attribute, AttributeComparator>::const_iterator it
+//                                                             = d_set.begin();
 //      for (; it != d_set.end(); ++it) {
 //          printer.printValue(*it);
 //      }
 //      printer.end();
 //
 //      return stream;
+//  }
+//
+//  void AttributeSet::visitAttributes(
+//            const bsl::function<void(const ball::Attribute&)> &visitor) const
+//  {
+//      bsl::set<ball::Attribute, AttributeComparator>::const_iterator it
+//                                                             = d_set.begin();
+//      for (; it != d_set.end(); ++it) {
+//          visitor(*it);
+//      }
 //  }
 //..
 //
@@ -319,6 +340,7 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <bsl_functional.h>
 #include <bsl_iosfwd.h>
 
 namespace BloombergLP {
@@ -357,6 +379,12 @@ class AttributeContainer {
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  If 'stream' is
         // not valid on entry, this operation has no effect.
+
+    virtual void visitAttributes(
+             const bsl::function<void(const ball::Attribute&)>& visitor) const;
+        // Invoke the specified 'visitor' function for all attributes in this
+        // container.  Note that derived classes must override this method and
+        // provide proper attribute visitation logic.
 };
 
 // FREE OPERATORS
@@ -370,11 +398,18 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-}  // close package namespace
-
                     // ------------------------
                     // class AttributeContainer
                     // ------------------------
+
+// ACCESSORS
+inline
+void AttributeContainer::visitAttributes(
+                     const bsl::function<void(const ball::Attribute&)> &) const
+{
+}
+
+}  // close package namespace
 
 // FREE OPERATORS
 inline

@@ -1,17 +1,39 @@
-// ball_predicateset.cpp                                              -*-C++-*-
-#include <ball_predicateset.h>
+// ball_managedattribute.cpp                                          -*-C++-*-
+#include <ball_managedattribute.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(ball_predicateset_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(ball_managedattribute_cpp,"$Id$ $CSID$")
+
+#include <bslim_printer.h>
+
+#include <bsl_ostream.h>
 
 namespace BloombergLP {
 namespace ball {
 
-                        // ------------------
-                        // class PredicateSet
-                        // ------------------
+                        // ----------------------
+                        // class ManagedAttribute
+                        // ----------------------
+
+// ACCESSORS
+bsl::ostream& ManagedAttribute::print(bsl::ostream& stream,
+                                      int           level,
+                                      int           spacesPerLevel) const
+{
+    d_attribute.print(stream, level, spacesPerLevel);
+    return stream;
+}
 
 }  // close package namespace
+
+// FREE OPERATORS
+bsl::ostream& ball::operator<<(bsl::ostream&                 output,
+                               const ball::ManagedAttribute& attribute)
+{
+    attribute.print(output, 0, -1);
+    return output;
+}
+
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

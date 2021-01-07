@@ -678,9 +678,9 @@ void processData(int                      uuid,
     // We use 'ball::ScopedAttribute' here because the number of
     // attributes is relatively small.
 //
-    ball::ScopedAttribute uuidAttribute("uuid", uuid);
-    ball::ScopedAttribute luwAttribute("luw", luw);
-    ball::ScopedAttribute termNumAttribute("terminalNumber",
+    ball::ScopedAttribute uuidAttribute("mylibrary.uuid", uuid);
+    ball::ScopedAttribute luwAttribute("mylibrary.luw", luw);
+    ball::ScopedAttribute termNumAttribute("mylibrary.terminalNumber",
                                            terminalNumber);
 //..
 // In this simplified example we perform no actual processing, and simply log
@@ -3110,7 +3110,7 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
         using namespace BloombergLP;  // okay here
 
 // Next we demonstrate how to create a logging rule that sets the pass-through
-// logging threshold to 'Sev::e_TRACE' (i.e., enables verbose
+// logging threshold to 'ball::Severity::e_TRACE' (i.e., enables verbose
 // logging) for a particular user when calling the 'processData' function
 // defined above.
 //
@@ -3138,30 +3138,30 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 //..
 // Now we add a logging rule, setting the pass-through threshold to be
 // 'ball::Severity::e_TRACE' (i.e., enabling verbose logging) if the thread's
-// context contains a "uuid" of 3938908.  Note that we use the wild-card
-// value '*' for the category so that the 'ball::Rule' rule will apply to all
-// categories.
+// context contains an attribute with name "mylibrary.uuid" with value 3938908.
+// Note that we use the wild-card value '*' for the category so that the
+// 'ball::Rule' rule will apply to all categories.
 //..
     ball::Rule rule("*", 0, ball::Severity::e_TRACE, 0, 0);
-    rule.addPredicate(ball::Predicate("uuid", 3938908));
+    rule.addAttribute(ball::ManagedAttribute("mylibrary.uuid", 3938908));
     ball::LoggerManager::singleton().addRule(rule);
 
     BALL_LOG_ERROR << "Processing the second message.";
     processData(3938908, 2, 9001, message);
 //..
-// The final call to the 'processData' function below, passes a "uuid" of
-// 2171395 (not 3938908) so the logging rule we defined will *not* apply and
-// no message will be logged.
+// The final call to the 'processData' function below, passes a 'uuid' of
+// 2171395 (not 3938908) so the logging rule we defined will *not* apply and no
+// message will be logged.
 //..
     BALL_LOG_ERROR << "Processing the third message.";
     processData(2171395, 2, 9001, message);
 //..
 // The resulting logged output for this example looks like the following:
 //..
-// ERROR example.cpp:105 EXAMPLE.CATEGORY Processing the first message.
-// ERROR example.cpp:117 EXAMPLE.CATEGORY Processing the second message.
-// DEBUG example.cpp:35 EXAMPLE.CATEGORY An example message
-// ERROR example.cpp:129 EXAMPLE.CATEGORY Processing the third message.
+//  ERROR example.cpp:105 EXAMPLE.CATEGORY Processing the first message.
+//  ERROR example.cpp:117 EXAMPLE.CATEGORY Processing the second message.
+//  DEBUG example.cpp:35 EXAMPLE.CATEGORY An example message
+//  ERROR example.cpp:129 EXAMPLE.CATEGORY Processing the third message.
 //..
       } break;
       case 37: {
