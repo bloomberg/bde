@@ -508,9 +508,9 @@ void PrintUtil::appendProcessId(bsl::string   *result,
     appendValue(result, record.fixedFields().processID());
 }
 
-void PrintUtil::appendString(bsl::string            *result,
-                            const bsl::string_view&  string,
-                            bool                     notPrintable)
+void PrintUtil::appendString(bsl::string             *result,
+                             const bsl::string_view&  string,
+                             bool                     notPrintable)
 {
     if (notPrintable) {
 
@@ -520,7 +520,7 @@ void PrintUtil::appendString(bsl::string            *result,
 
         while (q != end) {
             if (*q < 0x20 || *q > 0x7E) {  // not printable
-                result->append(p, bsl::distance(p, q));
+                result->append(&*p, bsl::distance(p, q));
 
                 static const char HEX[] = "0123456789ABCDEF";
                 const char        value = *q;
@@ -536,7 +536,7 @@ void PrintUtil::appendString(bsl::string            *result,
                 ++q;
             }
         }
-        result->append(p, bsl::distance(p, q));
+        result->append(&*p, bsl::distance(p, q));
     }
     else {
         result->append(string.data(), string.length());
