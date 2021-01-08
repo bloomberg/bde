@@ -192,60 +192,64 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'ball' package currently has 47 components having 16 levels of physical
+ The 'ball' package currently has 50 components having 17 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  16. ball_asyncfileobserver
+  17. ball_asyncfileobserver
 
-  15. ball_fileobserver
+  16. ball_fileobserver
       ball_logfilecleanerutil
 
-  14. ball_fileobserver2
+  15. ball_fileobserver2
       ball_logthrottle
 
-  13. ball_log
+  14. ball_log
 
-  12. ball_administration
+  13. ball_administration
 
-  11. ball_loggercategoryutil
+  12. ball_loggercategoryutil
       ball_loggerfunctorpayloads
 
-  10. ball_loggermanager
+  11. ball_loggermanager
       ball_scopedattribute
       ball_scopedattributes
 
-   9. ball_attributecontext
+  10. ball_attributecontext
 
-   8. ball_categorymanager
+   9. ball_categorymanager
+
+   8. ball_category
 
    7. ball_broadcastobserver
-      ball_category
       ball_filteringobserver
       ball_multiplexobserver                             !DEPRECATED!
+      ball_ruleset
 
    6. ball_observeradapter
-      ball_ruleset
+      ball_rule
       ball_streamobserver
       ball_testobserver
 
    5. ball_fixedsizerecordbuffer
       ball_observer
+      ball_predicateset                                  !DEPRECATED!
       ball_recordstringformatter
-      ball_rule
 
-   4. ball_predicateset
+   4. ball_managedattributeset
       ball_record
 
    3. ball_attributecontainerlist
       ball_defaultattributecontainer
+      ball_predicate                                     !DEPRECATED!
       ball_userfields
 
-   2. ball_attributecontainer
+   2. ball_attributecollectorregistry
+      ball_attributecontainer
       ball_context
       ball_loggermanagerconfiguration
-      ball_predicate
+      ball_managedattribute
       ball_recordbuffer
       ball_severityutil
       ball_userfieldvalue
@@ -271,6 +275,9 @@
 :
 : 'ball_attribute':
 :      Provide a representation of (literal) name/value pairs.
+:
+: 'ball_attributecollectorregistry':
+:      Provide a registry for attribute collector functors.
 :
 : 'ball_attributecontainer':
 :      Provide a protocol for containers holding logging attributes.
@@ -335,6 +342,12 @@
 : 'ball_logthrottle':
 :      Provide throttling equivalents of some of the 'ball_log' macros.
 :
+: 'ball_managedattribute':
+:      Provide a wrapper for 'ball::Attribute' with managed name storage.
+:
+: 'ball_managedattributeset':
+:      Provide a container for managed attributes.
+:
 : 'ball_multiplexobserver':                              !DEPRECATED!
 :      Provide a multiplexing observer that forwards to other observers.
 :
@@ -347,14 +360,14 @@
 : 'ball_patternutil':
 :      Provide a utility class for string pattern matching.
 :
-: 'ball_predicate':
+: 'ball_predicate':                                      !DEPRECATED!
 :      Provide a predicate object that consists of a name/value pair.
 :
-: 'ball_predicateset':
-:      Provide a container for predicates.
+: 'ball_predicateset':                                   !DEPRECATED!
+:      Provide a container for managed attributes.
 :
 : 'ball_record':
-:      Provide a container for all fields of a log record.
+:      Provide a container for the fields and attributes of a log record.
 :
 : 'ball_recordattributes':
 :      Provide a container for a fixed set of fields suitable for logging.
@@ -366,7 +379,7 @@
 :      Provide a record formatter that uses a 'printf'-style format spec.
 :
 : 'ball_rule':
-:      Provide an object having a pattern, thresholds, and predicates.
+:      Provide an object having a pattern, thresholds, and attributes.
 :
 : 'ball_ruleset':
 :      Provide a set of unique rules.
