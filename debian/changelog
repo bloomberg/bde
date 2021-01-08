@@ -1,9 +1,17 @@
-bsl-internal (3.70.0.0) unstable; urgency=low
+bsl-internal (3.71.0.0) unstable; urgency=low
 
+  * 312c1fc05 Bumped version to 3.71.0.0
+  * 88cc3e097 Merge pull request #3063 from mgiroux/bde-baljsn_datumutil-windows-test-failures-drqs164717866
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Fri, 8 Jan 2021 14:58:43 -0500
+
+bsl-internal (3.70.0.0) git; urgency=low
+
+  * 1b940bb56 Changelog for version 3.70.0.0
   * cd5b68390 Bumped version to 3.70.0.0
   * b2f779068 Merge pull request #3057 from osubbotin/review/fix-stream-observer
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Dec 2020 10:44:23 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Dec 2020 11:19:40 -0500
 
 bsl-internal (3.69.0.0) git; urgency=low
 
