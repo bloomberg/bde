@@ -901,7 +901,15 @@ inline BSLS_KEYWORD_CONSTEXPR
 bool TimeInterval::isSumValidInt64(bsls::Types::Int64 lhs,
                                    bsls::Types::Int64 rhs)
 {
-    return lhs > 0 ? LLONG_MAX - lhs >= rhs : LLONG_MIN - lhs <= rhs;
+    // {DRQS 164912552} Sun CC miscomplies this ternary operator when the
+    // function is invoked from the 'TimeInterval' constructor.  It also
+    // miscompiles the replacement code below if the second 'return' is placed
+    // inside an 'else { ... }' block.
+    // return lhs > 0 ? LLONG_MAX - lhs >= rhs : LLONG_MIN - lhs <= rhs;
+    if (lhs > 0) {
+        return LLONG_MAX - lhs >= rhs;                                // RETURN
+    }
+    return LLONG_MIN - lhs <= rhs;
 }
 
 // CLASS METHODS

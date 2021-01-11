@@ -4766,6 +4766,7 @@ int main(int argc, char *argv[])
             { L_, LLONG_MIN, -1000000001, false },
             { L_, LLONG_MIN, -1999999999, false },
             { L_, LLONG_MIN,     INT_MIN, false },
+            { L_, 0x44444444,    0x66666,  true },  // {DRQS 164912552}
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
