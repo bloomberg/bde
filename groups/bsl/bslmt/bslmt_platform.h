@@ -170,6 +170,11 @@ struct Platform {
       // a program similar to the one mentioned above for POWER cpus.  Current
       // x86/x86_64 have 64-byte cache lines.
       //
+      // The non-L1 memory caches may obtain memory in a different quantum
+      // (e.g., the L2 cache may pre-fetch a cache line).  As such, there may
+      // be incremental improvement obtained if variables are seperated by
+      // multiple cache lines.
+      //
       // It is obviously suboptimal to determine this at compile time.  We
       // might want to do this at runtime, but this would add at least one
       // level of indirection.
