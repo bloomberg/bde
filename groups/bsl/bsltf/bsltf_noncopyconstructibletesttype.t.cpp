@@ -7,6 +7,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_objectbuffer.h>
 
 #include <limits.h>
 #include <stdio.h>
@@ -150,6 +151,36 @@ const DefaultValueRow DEFAULT_VALUES[] =
 };
 
 const int DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES;
+
+//=============================================================================
+//                            FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+namespace {
+namespace u {
+
+unsigned numBitsChanged(const void *segmentA,
+                        const void *segmentB,
+                        size_t      size)
+    // Compare the specified memory segments 'segmentA' and 'segmentB', both of
+    // the specified 'size' bytes, and return the number of bits that differ
+    // between them.
+{
+    const unsigned char *a = static_cast<const unsigned char *>(segmentA);
+    const unsigned char *b = static_cast<const unsigned char *>(segmentB);
+
+    unsigned ret = 0;
+    for (const unsigned char *end = a + size; a < end; ++a, ++b) {
+        for (unsigned diff = *a ^ *b; diff; diff >>= 1) {
+            ret += diff & 1;
+        }
+    }
+
+    return ret;
+}
+
+}  // close namespace u
+}  // close unnamed namespace
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -609,8 +640,16 @@ int main(int argc, char *argv[])
         const int D = 0;
         const int A = INT_MIN;
         const int B = INT_MAX;
+        const int C = 3;
 
-        Obj mX; const Obj& X = mX;
+        bsls::ObjectBuffer<Obj> xBuffer, yBuffer;
+
+        new (xBuffer.address()) Obj();
+        new (yBuffer.address()) Obj();
+
+        Obj& mX = xBuffer.object();    const Obj& X = mX;
+        Obj& mY = yBuffer.object();    const Obj& Y = mY;
+
         ASSERTV(X.data(), D == X.data());
 
         mX.setData(A);
@@ -619,8 +658,30 @@ int main(int argc, char *argv[])
         mX.setData(B);
         ASSERTV(X.data(), B == X.data());
 
+        mX.setData(C);
+        ASSERTV(X.data(), C == X.data());
 
+        mY.setData(C);
+        ASSERTV(Y.data(), C == Y.data());
 
+        ASSERT(X == Y);
+
+        unsigned changed = u::numBitsChanged(xBuffer.address(),
+                                             yBuffer.address(),
+                                             sizeof(xBuffer));
+        ASSERT(0 == changed);
+
+        mX.~Obj();
+
+        changed = u::numBitsChanged(xBuffer.address(),
+                                    yBuffer.address(),
+                                    sizeof(xBuffer));
+        ASSERT(changed >= (sizeof(xBuffer) * 8) / 4);
+
+        mY.~Obj();
+        ASSERT(0 == u::numBitsChanged(xBuffer.address(),
+                                      yBuffer.address(),
+                                      sizeof(xBuffer)));
       } break;
       case 1: {
         // --------------------------------------------------------------------

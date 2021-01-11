@@ -107,7 +107,7 @@ class SimpleTestType {
         // Create a 'SimpleTestType' object having the same value as the
         // specified 'original' object.
 
-    //! ~SimpleTestType() = default;
+    ~SimpleTestType();
         // Destroy this object.
 
     // MANIPULATORS
@@ -153,6 +153,12 @@ inline
 SimpleTestType::SimpleTestType(int data)
 : d_data(data)
 {
+}
+
+inline
+SimpleTestType::~SimpleTestType()
+{
+    d_data = ~d_data & 0xf0f0f0f0;
 }
 
 // MANIPULATORS

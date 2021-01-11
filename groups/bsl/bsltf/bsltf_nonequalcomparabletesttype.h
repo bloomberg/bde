@@ -80,7 +80,7 @@ class NonEqualComparableTestType {
         // Create a 'NonEqualComparableTestType' object having the same value
         // as the specified 'original' object.
 
-    // ~NonEqualComparableTestType() = default;
+    ~NonEqualComparableTestType();
         // Destroy this object.
 
     // MANIPULATORS
@@ -116,6 +116,12 @@ inline
 NonEqualComparableTestType::NonEqualComparableTestType(int data)
 : d_data(data)
 {
+}
+
+inline
+NonEqualComparableTestType::~NonEqualComparableTestType()
+{
+    d_data = ~d_data & 0xf0f0f0f0;
 }
 
 // MANIPULATORS

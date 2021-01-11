@@ -126,6 +126,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_movableref.h>
 
+#include <cstring>
+
 namespace BloombergLP {
 namespace bsltf {
 
@@ -170,7 +172,7 @@ class ArgumentType {
         // specified 'original'.  Note that 'original' is left in a valid but
         // unspecified state.
 
-    //! ~ArgumentType() = default;
+    ~ArgumentType();
         // Destroy this object.
 
     // MANIPULATORS
@@ -255,6 +257,17 @@ ArgumentType<N>::ArgumentType(
     lvalue.d_data = -1;
     lvalue.d_movedFrom = MoveState::e_MOVED;
     lvalue.d_movedInto = MoveState::e_NOT_MOVED;
+}
+
+template <int N>
+inline
+ArgumentType<N>::~ArgumentType()
+{
+    const int garbage = 0xf0f0f0f0;
+
+    d_data = ~d_data & garbage;
+    std::memset(&d_movedFrom, 0xa5, sizeof(d_movedFrom));
+    std::memset(&d_movedInto, 0xa5, sizeof(d_movedInto));
 }
 
 // MANIPULATORS

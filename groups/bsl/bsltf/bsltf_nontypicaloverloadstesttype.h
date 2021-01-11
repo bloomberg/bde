@@ -118,7 +118,7 @@ class NonTypicalOverloadsTestType {
         // Create a 'NonTypicalOverloadsTestType' object having the same value
         // as the specified 'original' object.
 
-    // ~NonTypicalOverloadsTestType() = default;
+    ~NonTypicalOverloadsTestType();
         // Destroy this object.
 
     // MANIPULATORS
@@ -203,6 +203,12 @@ NonTypicalOverloadsTestType::NonTypicalOverloadsTestType(
                                    const NonTypicalOverloadsTestType& original)
 : d_data(original.d_data)
 {
+}
+
+inline
+NonTypicalOverloadsTestType::~NonTypicalOverloadsTestType()
+{
+    d_data = ~d_data & 0xf0f0f0f0;
 }
 
 // MANIPULATORS

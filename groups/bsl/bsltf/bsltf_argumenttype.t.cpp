@@ -12,8 +12,10 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>  // for usage example only
+#include <bsls_objectbuffer.h>
 
 #include <limits.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -49,7 +51,7 @@ using namespace BloombergLP::bsltf;
 // [  ] ArgumentType(int data);
 // [  ] ArgumentType(const ArgumentType& original);
 // [  ] ArgumentType(bslmf::MovableRef<ArgumentType> original);
-// [  ] ~ArgumentType();
+// [14] ~ArgumentType();
 //
 // MANIPULATORS
 // [ 9] ArgumentType& operator=(const ArgumentType& rhs);
@@ -61,7 +63,7 @@ using namespace BloombergLP::bsltf;
 // [13] MoveState::Enum movedFrom() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [14] USAGE EXAMPLE
+// [15] USAGE EXAMPLE
 // [ *] CONCERN: No memory is ever allocated.
 
 // ============================================================================
@@ -150,10 +152,42 @@ const DefaultDataRow DEFAULT_DATA[] =
 const size_t DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
 //=============================================================================
+//                            FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+namespace {
+namespace u {
+
+unsigned numBitsChanged(const void *segmentA,
+                        const void *segmentB,
+                        size_t      size)
+    // Compare the specified memory segments 'segmentA' and 'segmentB', both of
+    // the specified 'size' bytes, and return the number of bits that differ
+    // between them.
+{
+    const unsigned char *a = static_cast<const unsigned char *>(segmentA);
+    const unsigned char *b = static_cast<const unsigned char *>(segmentB);
+
+    unsigned ret = 0;
+    for (const unsigned char *end = a + size; a < end; ++a, ++b) {
+        for (unsigned diff = *a ^ *b; diff; diff >>= 1) {
+            ret += diff & 1;
+        }
+    }
+
+    return ret;
+}
+
+}  // close namespace u
+}  // close unnamed namespace
+
+//=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 namespace {
+namespace u {
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -192,7 +226,8 @@ namespace {
 
     template <class... Args>
     inline
-    void forwardData(Args&&... arguments) {
+    void forwardData(Args&&... arguments)
+    {
         delegateFunction(BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
     }
 
@@ -254,6 +289,8 @@ namespace {
         // forwardData(A22, A21);
     }
 //..
+
+}  // close namespace u
 }  // close unnamed namespace
 
 //=============================================================================
@@ -288,7 +325,7 @@ int main(int argc, char *argv[])
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -308,7 +345,59 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-        usageExample();
+        u::usageExample();
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING DESTRUCTOR SABOTAGE
+        //
+        // Concern:
+        //: 1 That the destructor sets state of the object to one that cannot
+        //:   be mistaken for a valid value.
+        //
+        // Plan:
+        //: 1 Create and destroy an object in a 'bsls::ObjectBuffer', and
+        //:   observe that the value is out of bounds.
+        //
+        // Testing:
+        //   ~ArgumentType();
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING DESTRUCTOR SABOTAGE\n"
+                            "===========================\n");
+
+        bsls::ObjectBuffer<Obj> xBuffer, yBuffer;
+
+        new (xBuffer.address()) Obj(3);
+        Obj& mX = xBuffer.object();    const Obj& X = mX;
+        ASSERT(3 == X);
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedFrom());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == X.movedInto());
+
+        new (yBuffer.address()) Obj(3);
+        Obj& mY = yBuffer.object();    const Obj& Y = mY;
+        ASSERT(3 == Y);
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == Y.movedFrom());
+        ASSERT(bsltf::MoveState::e_NOT_MOVED == Y.movedInto());
+
+        ASSERT(X == Y);
+
+        unsigned changed = u::numBitsChanged(xBuffer.address(),
+                                             yBuffer.address(),
+                                             sizeof(xBuffer));
+        ASSERT(0 == changed);
+
+        mX.~Obj();
+
+        changed = u::numBitsChanged(xBuffer.address(),
+                                    yBuffer.address(),
+                                    sizeof(xBuffer));
+        ASSERT(changed >= (sizeof(xBuffer) * 8) / 4);
+
+        mY.~Obj();
+        ASSERT(0 == u::numBitsChanged(xBuffer.address(),
+                                      yBuffer.address(),
+                                      sizeof(xBuffer)));
       } break;
       case 13: {
         // --------------------------------------------------------------------

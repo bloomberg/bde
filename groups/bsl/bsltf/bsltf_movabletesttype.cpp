@@ -11,6 +11,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 
+#include <cstring>
+
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(disable:4355) // ctor uses 'this' used in member-initializer
 #endif
@@ -62,8 +64,12 @@ MovableTestType::MovableTestType(
 MovableTestType::~MovableTestType()
 {
     BSLS_ASSERT_OPT(bsltf::MoveState::e_MOVED != d_movedFrom || 0 == d_data);
-
     BSLS_ASSERT_OPT(this == d_self_p);
+
+    const int oldData = d_data;
+
+    std::memset(this, 0xa5, sizeof(*this));
+    d_data = ~oldData & 0xf0f0f0f0;
 }
 
 // MANIPULATORS

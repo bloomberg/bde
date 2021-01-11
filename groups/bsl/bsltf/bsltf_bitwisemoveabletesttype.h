@@ -108,7 +108,7 @@ class BitwiseMoveableTestType {
         // Create a 'BitwiseMoveableTestType' object having the same value
         // as the specified 'original' object.
 
-    // ~BitwiseMoveableTestType() = default;
+    ~BitwiseMoveableTestType();
         // Destroy this object.
 
     // MANIPULATORS
@@ -158,6 +158,12 @@ inline
 BitwiseMoveableTestType::BitwiseMoveableTestType(int data)
 : d_data(data)
 {
+}
+
+inline
+BitwiseMoveableTestType::~BitwiseMoveableTestType()
+{
+    d_data = ~d_data & 0xf0f0f0f0;
 }
 
 // MANIPULATORS

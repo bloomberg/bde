@@ -51,6 +51,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <cstring>
+
 namespace BloombergLP {
 namespace bsltf {
 
@@ -77,6 +79,9 @@ union UnionTestType {
     explicit UnionTestType(int value);
         // Construct a 'UnionTestType' having the 'd_data' member set to the
         // specified 'value'.
+
+    ~UnionTestType();
+        // Destroy this object.
 
     // MANIPULATORS
     void setData(int value);
@@ -109,14 +114,16 @@ bool operator!=(const UnionTestType& lhs, const UnionTestType& rhs);
 // CREATORS
 inline
 UnionTestType::UnionTestType()
-: d_data(0)
+: d_double(0.0)
 {
+    d_data = 0;
 }
 
 inline
 UnionTestType::UnionTestType(int value)
-: d_data(value)
+: d_double(0.0)
 {
+    d_data = value;
 }
 
 // MANIPULATORS
@@ -124,6 +131,12 @@ inline
 void UnionTestType::setData(int value)
 {
     d_data = value;
+}
+
+inline
+UnionTestType::~UnionTestType()
+{
+    std::memset(this, 0xa5, sizeof(*this));
 }
 
 // ACCESSORS

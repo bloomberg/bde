@@ -82,7 +82,7 @@ class NonCopyConstructibleTestType {
         // Create a 'NonCopyConstructibleTestType' object having the specified
         // 'data' attribute value.
 
-    // ~NonCopyConstructibleTestType() = default;
+    ~NonCopyConstructibleTestType();
         // Destroy this object.
 
     // MANIPULATORS
@@ -132,6 +132,12 @@ inline
 NonCopyConstructibleTestType::NonCopyConstructibleTestType(int data)
 : d_data(data)
 {
+}
+
+inline
+NonCopyConstructibleTestType::~NonCopyConstructibleTestType()
+{
+    d_data = ~d_data & 0xf0f0f0f0;
 }
 
 // MANIPULATORS

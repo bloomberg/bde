@@ -55,6 +55,9 @@ NonOptionalAllocTestType::~NonOptionalAllocTestType()
 {
     d_allocator_p->deallocate(d_data_p);
 
+    d_allocator_p = 0;
+    d_data_p = 0;
+
     // Ensure that this objects has not been bitwise moved.
 
     BSLS_ASSERT_OPT(this == d_self_p);
