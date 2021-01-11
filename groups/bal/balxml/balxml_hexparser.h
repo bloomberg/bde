@@ -63,9 +63,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  #include <balxml_hexparser.h>
 //
-//  #include <istream>
-//  #include <iterator>
-//  #include <vector>
+//  #include <bsl_istream.h>
+//  #include <bsl_iterator.h>
+//  #include <bsl_vector.h>
 //
 //  using namespace BloombergLP;
 //
