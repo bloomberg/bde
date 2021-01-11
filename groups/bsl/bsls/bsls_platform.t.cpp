@@ -8,7 +8,8 @@
 
 #if defined(_MSC_VER)
     #include <intrin.h>
-#elif defined(__clang__) || defined(__GNUC__) || defined(__EDG__)
+#elif (defined(__clang__) || defined(__GNUC__) || defined(__EDG__)) \
+        && (BSLS_PLATFORM_CPU_X86 || BSLS_PLATFORM_CPU_X86_64)
     #include <cpuid.h>
 #endif
 
@@ -1592,7 +1593,8 @@ static void printFlags()
 
 #ifdef _WIN32
     #define cpuid(info, x) __cpuidex(info, x, 0)
-#elif defined(__clang__) || defined(__GNUC__) || defined(__EDG__)
+#elif (defined(__clang__) || defined(__GNUC__) || defined(__EDG__)) \
+        && (BSLS_PLATFORM_CPU_X86 || BSLS_PLATFORM_CPU_X86_64)
     void cpuid(int info[4], int infoType)
         // Load into the specified 'info' the results of the intrinsic
         // '__cpuid_count' command invoked with the specified 'infoType' for
