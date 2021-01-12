@@ -901,17 +901,17 @@ int main(int argc, char *argv[])
         bsls::TimeInterval timeout = start + bsls::TimeInterval(5);
         barrier.wait();  // Start of the test.
 
-	int rc;
-	do {
-	    rc = barrier.timedWait(timeout);
-	} while (0 != rc && bsls::SystemTime::nowMonotonicClock() < timeout);
+        int rc;
+        do {
+            rc = barrier.timedWait(timeout);
+        } while (0 != rc && bsls::SystemTime::nowMonotonicClock() < timeout);
 
-	if (0 != rc) {
-	    ASSERTV(0 &&
-		    "FAILURE: case 12 'releaseRecords' timed out (deadlock?)");
-	    bsl::exit(testStatus);
-	}
-	
+        if (0 != rc) {
+            ASSERTV(0 &&
+                    "FAILURE: case 12 'releaseRecords' timed out (deadlock?)");
+            bsl::exit(testStatus);
+        }
+
         bslmt::ThreadUtil::join(publishThread);
         bslmt::ThreadUtil::join(releaseThread);
 

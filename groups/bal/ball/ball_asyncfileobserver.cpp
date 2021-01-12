@@ -181,7 +181,7 @@ int AsyncFileObserver::stopThread()
             int rc = -1;
             while (0 != rc && d_threadState != e_NOT_RUNNING) {
                 rc = d_recordQueue.tryPushBack(asyncRecord);
-		bslmt::ThreadUtil::yield();
+                bslmt::ThreadUtil::yield();
             }
         }
         int ret = bslmt::ThreadUtil::join(d_threadHandle);
