@@ -291,8 +291,8 @@ bsl::shared_ptr<ball::Record> createRecord(const bsl::string&     message,
                                            ball::Severity::Level  severity,
                                            bslma::Allocator      *allocator)
     // Return a newly created `ball::Record` having the specifed 'message' and
-    // 'severity' and using the specified 'allocator' to allocate memory.  The
-    // create 'ball::Record' will have valid but unspecified values for the other record
+    // 'severity', and using the specified 'allocator' to allocate memory.  The
+    // created 'ball::Record' will have valid but unspecified values for the other record
     // fields.
 {
     bsl::shared_ptr<ball::Record> result =
@@ -640,8 +640,9 @@ void publisher(ball::AsyncFileObserver *observer,
     // specified 'releaseCounter' is 0, using the specified 'barrier' to
     // synchronize the start and completetion of the publication of records.
     // Note that this method is designed to be the entry point function of a
-    // thread that publishes many records, while the corresponding test method
-    // 'releaseRecords' concurrently callse the 'releaseRecords' function.
+    // thread that publishes many records, while a second thread in the
+    // corresponding 'releaser' test function (below) concurrently calls the
+    // 'releaseRecords' function.
 {
     bsl::shared_ptr<ball::Record> record = createRecord(
         "test", ball::Severity::e_ERROR, bslma::Default::allocator());
@@ -662,8 +663,9 @@ void releaser(ball::AsyncFileObserver *observer,
     // 'releaseCounter'; use the specified 'barrier' to synchronize the start
     // and completion of the series of calls to 'releaseRecords'.  Note that
     // this method is designed to be the entry point function of a thread that
-    // publishes many records, while the corresponding test method
-    // 'releaseRecords' concurrently callse the 'releaseRecords' function.
+    // calls 'releaseRecords' many times, while a second thread in the
+    // corresponding 'publisher' test function (above) concurrently calls the
+    // 'publish' function.
 {
     barrier->wait();
     while (*releaseCounter > 0) {
