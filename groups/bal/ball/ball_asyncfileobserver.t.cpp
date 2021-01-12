@@ -1983,7 +1983,8 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::microSleep(1, 0);
 
                 // Verify some, but not all records have been published
-                ASSERT(1 < record.use_count() && record.use_count() < 8001);
+                ASSERTV(record.use_count(),
+			1 < record.use_count() && record.use_count() < 8001);
 
                 // After this code block the logger manager will be destroyed.
             }
