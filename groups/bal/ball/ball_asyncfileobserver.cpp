@@ -86,10 +86,11 @@ void AsyncFileObserver::publishThreadEntryPoint()
     // The publication thread may either be 'e_RUNNING' (normal), or
     // 'e_SHUTTING_DOWN' (if a client called a method that stopped the
     // publication thread immediately after starting it, before this thread
-    // entry point function is called).  The publication cannot be 'e_STOPPED',
-    // since that state is only returned to after completing this function.
+    // entry point function is called).  The publication cannot be
+    // 'e_NOT_RUNNING', since that state is only returned to after completing
+    // this function.
 
-    BSLS_ASSERT(e_STOPPED != d_threadState);
+    BSLS_ASSERT(e_NOT_RUNNING != d_threadState);
 
     bool done = false;
     d_droppedRecordWarning.fixedFields().setThreadID(
@@ -128,7 +129,7 @@ void AsyncFileObserver::publishThreadEntryPoint()
             }
         }
     }
-    d_threadState = e_STOPPED;
+    d_threadState = e_NOT_RUNNING;
 }
 
 int AsyncFileObserver::startThread()
@@ -137,11 +138,11 @@ int AsyncFileObserver::startThread()
 
     // d_threadState and d_threadHandle should be consistent.
 
-    BSLS_ASSERT((e_STOPPED == d_threadState) ==
+    BSLS_ASSERT((e_NOT_RUNNING == d_threadState) ==
                 (bslmt::ThreadUtil::invalidHandle() == d_threadHandle));
 
     if (bslmt::ThreadUtil::invalidHandle() == d_threadHandle) {
-        BSLS_ASSERT(e_STOPPED == d_threadState);
+        BSLS_ASSERT(e_NOT_RUNNING == d_threadState);
 
         d_threadState = e_RUNNING;
         bslmt::ThreadAttributes attr;
@@ -178,16 +179,17 @@ int AsyncFileObserver::stopThread()
             // to 'shutdownThread'.
 
             int rc = -1;
-            while (0 != rc && d_threadState != e_STOPPED) {
+            while (0 != rc && d_threadState != e_NOT_RUNNING) {
                 rc = d_recordQueue.tryPushBack(asyncRecord);
+		bslmt::ThreadUtil::yield();
             }
         }
         int ret = bslmt::ThreadUtil::join(d_threadHandle);
         d_threadHandle = bslmt::ThreadUtil::invalidHandle();
-        BSLS_ASSERT(e_STOPPED == d_threadState);
+        BSLS_ASSERT(e_NOT_RUNNING == d_threadState);
         return ret;                                                   // RETURN
     }
-    BSLS_ASSERT(e_STOPPED == d_threadState);
+    BSLS_ASSERT(e_NOT_RUNNING == d_threadState);
     return 0;
 }
 
@@ -198,7 +200,7 @@ int AsyncFileObserver::shutdownThread()
     // The publication thread may be running, or stopped, but cannot already
     // be within a call to 'shutdownThread'.
 
-    BSLS_ASSERT(e_RUNNING == d_threadState || e_STOPPED == d_threadState);
+    BSLS_ASSERT(e_RUNNING == d_threadState || e_NOT_RUNNING == d_threadState);
 
     int result = 0;
 
@@ -218,7 +220,7 @@ int AsyncFileObserver::shutdownThread()
     // The lock on 'd_mutex' should prevent any other thread from modifying
     // 'd_threadState' after the thread is stopped.
 
-    BSLS_ASSERT(e_STOPPED == d_threadState);
+    BSLS_ASSERT(e_NOT_RUNNING == d_threadState);
 
     return result;
 }
@@ -226,7 +228,7 @@ int AsyncFileObserver::shutdownThread()
 void AsyncFileObserver::construct()
 {
     d_threadHandle = bslmt::ThreadUtil::invalidHandle();
-    d_threadState  = e_STOPPED;
+    d_threadState  = e_NOT_RUNNING;
     d_dropCount    = 0;
 
     d_publishThreadEntryPoint = bsl::function<void()>(
@@ -245,7 +247,7 @@ void AsyncFileObserver::construct()
 AsyncFileObserver::AsyncFileObserver(bslma::Allocator *basicAllocator)
 : d_fileObserver(Severity::e_WARN, basicAllocator)
 , d_recordQueue(k_DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
-, d_threadState(e_STOPPED)
+, d_threadState(e_NOT_RUNNING)
 , d_dropRecordsOnFullQueueThreshold(Severity::e_OFF)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -257,7 +259,7 @@ AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
                                      bslma::Allocator *basicAllocator)
 : d_fileObserver(stdoutThreshold, basicAllocator)
 , d_recordQueue(k_DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
-, d_threadState(e_STOPPED)
+, d_threadState(e_NOT_RUNNING)
 , d_dropRecordsOnFullQueueThreshold(Severity::e_OFF)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -270,7 +272,7 @@ AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
                                      bslma::Allocator *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_recordQueue(k_DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
-, d_threadState(e_STOPPED)
+, d_threadState(e_NOT_RUNNING)
 , d_dropRecordsOnFullQueueThreshold(Severity::e_OFF)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -284,7 +286,7 @@ AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
                                      bslma::Allocator *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
-, d_threadState(e_STOPPED)
+, d_threadState(e_NOT_RUNNING)
 , d_dropRecordsOnFullQueueThreshold(Severity::e_OFF)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -300,7 +302,7 @@ AsyncFileObserver::AsyncFileObserver(
                              bslma::Allocator *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
-, d_threadState(e_STOPPED)
+, d_threadState(e_NOT_RUNNING)
 , d_dropRecordsOnFullQueueThreshold(dropRecordsOnFullQueueThreshold)
 , d_droppedRecordWarning(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))

@@ -525,7 +525,7 @@ class AsyncFileObserver : public Observer {
                           // stopping immediately without publishing enqueued
                           // records); see 'shutdownPublicationThread'
 
-        e_STOPPED         // the publication thread is not running
+        e_NOT_RUNNING         // the publication thread is not running
     };
 
     // DATA

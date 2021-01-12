@@ -28,6 +28,8 @@
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_climits.h>
 #include <bsl_cmath.h>
@@ -288,6 +290,10 @@ class TempDirectoryGuard {
 bsl::shared_ptr<ball::Record> createRecord(const bsl::string&     message,
                                            ball::Severity::Level  severity,
                                            bslma::Allocator      *allocator)
+    // Return a newly created `ball::Record` having the specifed 'message' and
+    // 'severity' and using the specified 'allocator' to allocate memory.  The
+    // create 'ball::Record' will have valid but unspecified values for the other record
+    // fields.
 {
     bsl::shared_ptr<ball::Record> result =
         bsl::allocate_shared<ball::Record>(allocator);
@@ -630,6 +636,12 @@ namespace BALL_ASYNCFILEOBSERVER_RELEASERECORDS_TEST {
 void publisher(ball::AsyncFileObserver *observer,
                bsls::AtomicInt         *releaseCounter,
                bslmt::Barrier          *barrier)
+    // Publish arbitrary log records to the specifeid 'observer' until the
+    // specified 'releaseCounter' is 0, using the specified 'barrier' to
+    // synchronize the start and completetion of the publication of records.
+    // Note that this method is designed to be the entry point function of a
+    // thread that publishes many records, while the corresponding test method
+    // 'releaseRecords' concurrently callse the 'releaseRecords' function.
 {
     bsl::shared_ptr<ball::Record> record = createRecord(
         "test", ball::Severity::e_ERROR, bslma::Default::allocator());
@@ -645,6 +657,13 @@ void publisher(ball::AsyncFileObserver *observer,
 void releaser(ball::AsyncFileObserver *observer,
               bsls::AtomicInt         *releaseCounter,
               bslmt::Barrier          *barrier)
+    // Call 'releaseRecords' on the specified 'observer' the specified
+    // 'releaseCounter' number of times, each time decrementing
+    // 'releaseCounter'; use the specified 'barrier' to synchronize the start
+    // and completion of the series of calls to 'releaseRecords'.  Note that
+    // this method is designed to be the entry point function of a thread that
+    // publishes many records, while the corresponding test method
+    // 'releaseRecords' concurrently callse the 'releaseRecords' function.
 {
     barrier->wait();
     while (*releaseCounter > 0) {
@@ -832,8 +851,8 @@ int main(int argc, char *argv[])
         // CONCERN: DEADLOCK ON RELEASERECORDS (DRQS 164688087)
         //
         // Concerns:
-        //:  1 That when the queue of an async-file observer is near full,
-        //:    that calling 'releaseRecords' will not block the task
+        //:  1 When the queue of an async-file observer is almost full,
+        //:    calling 'releaseRecords' will not block the task
         //:    (previously 'stopThread' would use 'pushBack' which would
         //:    block when the queue is full).
         //
@@ -841,7 +860,7 @@ int main(int argc, char *argv[])
         //:  1 Create a async-file observer with a very small queue.  Start
         //:    one thread publishing records (filling the queue), start
         //:    a second thread calling 'releaseRecords', which attempts
-        //:    to start and then re-start the publication thread.
+        //:    to start and then re-start the publication thread. (C-1)
         //
         // Testing:
         //   CONCERN: DEADLOCK ON RELEASERECORDS (DRQS 164688087)
@@ -852,6 +871,7 @@ int main(int argc, char *argv[])
                  << "\n===================================================="
                  << endl;
 
+
         // Create an observer with a very small queue size.
         Obj mX(ball::Severity::e_FATAL, false, 2);
 
@@ -859,7 +879,7 @@ int main(int argc, char *argv[])
 
         bsl::string fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName,
-                                  "asyncfileobserver.t.cpp.case.11");
+                                  "asyncfileobserver.t.cpp.case.12");
         mX.enableFileLogging(fileName.c_str());
         mX.startPublicationThread();
 
@@ -877,9 +897,21 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::create(&publishThread, publisherFunctor);
         bslmt::ThreadUtil::create(&releaseThread, releaserFunctor);
 
-        barrier.wait();
-        barrier.wait();
+        bsls::TimeInterval start = bsls::SystemTime::nowMonotonicClock();
+        bsls::TimeInterval timeout = start + bsls::TimeInterval(5);
+        barrier.wait();  // Start of the test.
 
+	int rc;
+	do {
+	    rc = barrier.timedWait(timeout);
+	} while (0 != rc && bsls::SystemTime::nowMonotonicClock() < timeout);
+
+	if (0 != rc) {
+	    ASSERTV(0 &&
+		    "FAILURE: case 12 'releaseRecords' timed out (deadlock?)");
+	    bsl::exit(testStatus);
+	}
+	
         bslmt::ThreadUtil::join(publishThread);
         bslmt::ThreadUtil::join(releaseThread);
 
@@ -2069,8 +2101,7 @@ int main(int argc, char *argv[])
             mX.shutdownPublicationThread();
 
             ASSERTV(CONFIG, false == X.isPublicationThreadRunning());
-            ASSERTV(CONFIG, X.recordQueueLength(),
-                    0     == X.recordQueueLength());
+            ASSERTV(CONFIG, X.recordQueueLength(), 0 == X.recordQueueLength());
         }
       } break;
       case 2: {
