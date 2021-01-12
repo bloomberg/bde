@@ -6,6 +6,7 @@
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_streamobserver.h>
 
+#include <bdlf_bind.h>
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
 #include <bdls_processutil.h>
@@ -18,16 +19,17 @@
 #include <bdlt_localtimeoffset.h>
 
 #include <bslim_testutil.h>
-
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
-
 #include <bslmf_nestedtraitdeclaration.h>
-
+#include <bslmt_barrier.h>
+#include <bslmt_threadutil.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_climits.h>
 #include <bsl_cmath.h>
@@ -124,11 +126,12 @@ using bsl::flush;
 // [ 1] ball::Severity::Level stdoutThreshold() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [12] CONCERN: DEADLOCK ON RELEASERECORDS (DRQS 164688087)
 // [10] CONCERN: CONCURRENT PUBLICATION
 // [ 7] CONCERN: LOGGING TO A FAILING STREAM
 // [ 5] CONCERN: LOG MESSAGE DROP
 // [ 9] CONCERN: ROTATION
-// [12] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 
 // Note assert and debug macros all output to 'cerr' instead of cout, unlike
 // most other test drivers.  This is necessary because test case 2 plays tricks
@@ -283,6 +286,29 @@ class TempDirectoryGuard {
         return d_dirName;
     }
 };
+
+bsl::shared_ptr<ball::Record> createRecord(const bsl::string&     message,
+                                           ball::Severity::Level  severity,
+                                           bslma::Allocator      *allocator)
+    // Return a newly created `ball::Record` having the specifed 'message' and
+    // 'severity', and using the specified 'allocator' to allocate memory.  The
+    // created 'ball::Record' will have valid but unspecified values for the other record
+    // fields.
+{
+    bsl::shared_ptr<ball::Record> result =
+        bsl::allocate_shared<ball::Record>(allocator);
+
+    result->fixedFields().setCategory("asyncfileobserver.t");
+    result->fixedFields().setFileName(__FILE__);
+    result->fixedFields().setLineNumber(__LINE__);
+    result->fixedFields().setMessage(message.c_str());
+    result->fixedFields().setProcessID(bdls::ProcessUtil::getProcessId());
+    result->fixedFields().setThreadID(bslmt::ThreadUtil::selfIdAsUint64());
+    result->fixedFields().setSeverity(severity);
+    result->fixedFields().setTimestamp(bdlt::CurrentTime::utc());
+
+    return result;
+}
 
 bsl::string::size_type replaceSecondSpace(bsl::string *input, char value)
     // Replace the second space character (' ') in the specified 'input' string
@@ -605,6 +631,53 @@ extern "C" void *workerThread2(void *arg)
 
 }  // close namespace BALL_ASYNCFILEOBSERVER_TEST_CONCURRENCY
 
+namespace BALL_ASYNCFILEOBSERVER_RELEASERECORDS_TEST {
+
+void publisher(ball::AsyncFileObserver *observer,
+               bsls::AtomicInt         *releaseCounter,
+               bslmt::Barrier          *barrier)
+    // Publish arbitrary log records to the specifeid 'observer' until the
+    // specified 'releaseCounter' is 0, using the specified 'barrier' to
+    // synchronize the start and completetion of the publication of records.
+    // Note that this method is designed to be the entry point function of a
+    // thread that publishes many records, while a second thread in the
+    // corresponding 'releaser' test function (below) concurrently calls the
+    // 'releaseRecords' function.
+{
+    bsl::shared_ptr<ball::Record> record = createRecord(
+        "test", ball::Severity::e_ERROR, bslma::Default::allocator());
+
+    ball::Context context;
+    barrier->wait();
+    while (*releaseCounter > 0) {
+        observer->publish(record, context);
+    }
+    barrier->wait();
+}
+
+void releaser(ball::AsyncFileObserver *observer,
+              bsls::AtomicInt         *releaseCounter,
+              bslmt::Barrier          *barrier)
+    // Call 'releaseRecords' on the specified 'observer' the specified
+    // 'releaseCounter' number of times, each time decrementing
+    // 'releaseCounter'; use the specified 'barrier' to synchronize the start
+    // and completion of the series of calls to 'releaseRecords'.  Note that
+    // this method is designed to be the entry point function of a thread that
+    // calls 'releaseRecords' many times, while a second thread in the
+    // corresponding 'publisher' test function (above) concurrently calls the
+    // 'publish' function.
+{
+    barrier->wait();
+    while (*releaseCounter > 0) {
+        observer->releaseRecords();
+        bslmt::ThreadUtil::microSleep(100, 0);
+        (*releaseCounter)--;
+    }
+    barrier->wait();
+}
+
+}  // close namespace BALL_ASYNCFILEOBSERVER_RELEASERECORDS_TEST
+
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -623,7 +696,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator *Z = &allocator;
 
     switch (test) { case 0:
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -773,6 +846,78 @@ int main(int argc, char *argv[])
     rc = manager.deregisterObserver("asyncObserver");
     ASSERT(0 == rc);
 //..
+
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // CONCERN: DEADLOCK ON RELEASERECORDS (DRQS 164688087)
+        //
+        // Concerns:
+        //:  1 When the queue of an async-file observer is almost full,
+        //:    calling 'releaseRecords' will not block the task
+        //:    (previously 'stopThread' would use 'pushBack' which would
+        //:    block when the queue is full).
+        //
+        // Plan:
+        //:  1 Create a async-file observer with a very small queue.  Start
+        //:    one thread publishing records (filling the queue), start
+        //:    a second thread calling 'releaseRecords', which attempts
+        //:    to start and then re-start the publication thread. (C-1)
+        //
+        // Testing:
+        //   CONCERN: DEADLOCK ON RELEASERECORDS (DRQS 164688087)
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nCONCERN: DEADLOCK ON RELEASERECORDS (DRQS 164688087)"
+                 << "\n===================================================="
+                 << endl;
+
+
+        // Create an observer with a very small queue size.
+        Obj mX(ball::Severity::e_FATAL, false, 2);
+
+        TempDirectoryGuard tempDirGuard;
+
+        bsl::string fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName,
+                                  "asyncfileobserver.t.cpp.case.12");
+        mX.enableFileLogging(fileName.c_str());
+        mX.startPublicationThread();
+
+        using namespace BALL_ASYNCFILEOBSERVER_RELEASERECORDS_TEST;
+
+        bslmt::Barrier barrier(3);
+        bsls::AtomicInt releaseCounter(500);
+
+        bsl::function<void()> publisherFunctor =
+            bdlf::BindUtil::bind(&publisher, &mX, &releaseCounter, &barrier);
+        bsl::function<void()> releaserFunctor =
+            bdlf::BindUtil::bind(&releaser, &mX, &releaseCounter, &barrier);
+
+        bslmt::ThreadUtil::Handle publishThread, releaseThread;
+        bslmt::ThreadUtil::create(&publishThread, publisherFunctor);
+        bslmt::ThreadUtil::create(&releaseThread, releaserFunctor);
+
+        bsls::TimeInterval start = bsls::SystemTime::nowMonotonicClock();
+        bsls::TimeInterval timeout = start + bsls::TimeInterval(5);
+        barrier.wait();  // Start of the test.
+
+        int rc;
+        do {
+            rc = barrier.timedWait(timeout);
+        } while (0 != rc && bsls::SystemTime::nowMonotonicClock() < timeout);
+
+        if (0 != rc) {
+            ASSERTV(0 &&
+                    "FAILURE: case 12 'releaseRecords' timed out (deadlock?)");
+            bsl::exit(testStatus);
+        }
+
+        bslmt::ThreadUtil::join(publishThread);
+        bslmt::ThreadUtil::join(releaseThread);
+
+        mX.stopPublicationThread();
 
       } break;
       case 11: {
@@ -1676,12 +1821,12 @@ int main(int argc, char *argv[])
 
             int fixedQueueSize = 1000;
 
-            bsl::shared_ptr<Obj>       mX(new(ta) Obj(ball::Severity::e_ERROR,
-                                                      false,
-                                                      fixedQueueSize,
-                                                      ball::Severity::e_TRACE,
-                                                      &ta),
-                                          &ta);
+            bsl::shared_ptr<Obj> mX(new (ta) Obj(ball::Severity::e_ERROR,
+                                                 false,
+                                                 fixedQueueSize,
+                                                 ball::Severity::e_TRACE,
+                                                 &ta),
+                                    &ta);
             bsl::shared_ptr<const Obj> X = mX;
 
             mX->startPublicationThread();
@@ -1690,8 +1835,7 @@ int main(int argc, char *argv[])
             ASSERT(true == X->isPublicationThreadRunning());
             ASSERT(true == X->isFileLoggingEnabled());
 
-            ASSERT(0    == manager.registerObserver(mX, "testObserver"));
-
+            ASSERT(0 == manager.registerObserver(mX, "testObserver"));
             ASSERT(0 == FsUtil::getFileSize(fileName));
 
             for (int i = 0; i < numTestRecords; ++i) {
@@ -1782,8 +1926,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   void releaseRecords();
         // --------------------------------------------------------------------
-        if (verbose) cerr << "\nTESTING 'releaseRecords'."
-                          << "\n=========================" << endl;
+        if (verbose) cerr << "\nTESTING 'releaseRecords'"
+                          << "\n========================" << endl;
 
         bslma::TestAllocator ta;
 
@@ -1791,7 +1935,7 @@ int main(int argc, char *argv[])
         TempDirectoryGuard tempDirGuard;
 
         // Redirecting stdout to a file.
-        bsl::string        stdoutFileName(tempDirGuard.getTempDirName());
+        bsl::string stdoutFileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&stdoutFileName, "stdoutLog");
         {
             const FILE *out = stdout;
@@ -1804,7 +1948,7 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<const Obj> X = mX;
             int                        logCount = 8000;
 
-            mX->startPublicationThread();
+
 
             ASSERT(ball::Severity::e_WARN == X->stdoutThreshold());
 
@@ -1830,13 +1974,17 @@ int main(int argc, char *argv[])
 
                 // Throw a fairly large amount of logs into the queue.
 
+                mX->startPublicationThread();
                 for (int i = 0; i < logCount; ++i)
                 {
                     ball::Context context;
                     mX->publish(record, context);
                 }
+                bslmt::ThreadUtil::microSleep(1, 0);
 
-                ASSERT(record.use_count() > 1);
+                // Verify some, but not all records have been published
+                ASSERTV(record.use_count(),
+			1 < record.use_count() && record.use_count() < 8001);
 
                 // After this code block the logger manager will be destroyed.
             }
@@ -1850,7 +1998,8 @@ int main(int argc, char *argv[])
             // Check that the records cleared by 'releaseRecords' do not get
             // published.
 
-            ASSERT(countLoggedRecords(stdoutFileName) < logCount);
+            int actuallyLogged = countLoggedRecords(stdoutFileName);
+            ASSERT(actuallyLogged < logCount);
         }
         fclose(stdout);
       } break;
@@ -1955,7 +2104,7 @@ int main(int argc, char *argv[])
             mX.shutdownPublicationThread();
 
             ASSERTV(CONFIG, false == X.isPublicationThreadRunning());
-            ASSERTV(CONFIG, 0     == X.recordQueueLength());
+            ASSERTV(CONFIG, X.recordQueueLength(), 0 == X.recordQueueLength());
         }
       } break;
       case 2: {

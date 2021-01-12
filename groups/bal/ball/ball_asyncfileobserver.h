@@ -515,6 +515,19 @@ class AsyncFileObserver : public Observer {
     // can operate on an object concurrently.  This class is exception-neutral
     // with no guarantee of rollback.  In no event is memory leaked.
 
+    // PRIVATE TYPES
+    enum ThreadState {
+        // State of the publication thread, as captured by 'd_threadState'.
+
+        e_RUNNING,        // the publication thread is running
+
+        e_SHUTTING_DOWN,  // the publication thread is shutting down (i.e.,
+                          // stopping immediately without publishing enqueued
+                          // records); see 'shutdownPublicationThread'
+
+        e_NOT_RUNNING         // the publication thread is not running
+    };
+
     // DATA
     FileObserver                   d_fileObserver;   // forward most public
                                                      // method calls to this
@@ -529,10 +542,9 @@ class AsyncFileObserver : public Observer {
                                                      // records processed by
                                                      // the publication thread
 
-    bsls::AtomicInt                d_shuttingDownFlag;
-                                                     // flag that indicates the
-                                                     // publication thread is
-                                                     // being shutdown
+    bsls::AtomicInt                d_threadState;    // the publication thread
+                                                     // state, one of the
+                                                     // values of 'ThreadState'
 
     Severity::Level                d_dropRecordsOnFullQueueThreshold;
                                                      // records with severity
