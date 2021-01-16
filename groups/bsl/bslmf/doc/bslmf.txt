@@ -57,7 +57,8 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  19. bslmf_util
+  19. bslmf_forwardingtype
+      bslmf_util
 
   18. bslmf_movableref
 
@@ -65,8 +66,7 @@
       bslmf_iscopyconstructible
       bslmf_isnothrowmoveconstructible
 
-  16. bslmf_forwardingtype
-      bslmf_haspointersemantics
+  16. bslmf_haspointersemantics
       bslmf_isbitwiseequalitycomparable
       bslmf_istriviallycopyable
       bslmf_istriviallydefaultconstructible

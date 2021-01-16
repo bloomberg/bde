@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 102 components having 10 levels of physical
+ The 'bslstl' package currently has 108 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -55,6 +55,7 @@
    6. bslstl_bitset
       bslstl_defaultsearcher
       bslstl_deque
+      bslstl_function_test                                            !PRIVATE!
       bslstl_hashtable_test1                                          !PRIVATE!
       bslstl_hashtable_test2                                          !PRIVATE!
       bslstl_string_test                                              !PRIVATE!
@@ -66,7 +67,7 @@
       bslstl_unorderedmultiset
       bslstl_unorderedset
 
-   5. bslstl_function_test                                            !PRIVATE!
+   5. bslstl_function
       bslstl_hashtable
       bslstl_randomaccessiterator
       bslstl_string
@@ -76,7 +77,7 @@
       bslstl_bidirectionaliterator
       bslstl_charconv
       bslstl_error
-      bslstl_function
+      bslstl_function_invokerutil                                     !PRIVATE!
       bslstl_hashtablebucketiterator
       bslstl_hashtableiterator
       bslstl_priorityqueue
@@ -87,6 +88,7 @@
       bslstl_chrono
       bslstl_errc
       bslstl_forwarditerator
+      bslstl_function_rep                                             !PRIVATE!
       bslstl_iteratorutil
       bslstl_list
       bslstl_pair
@@ -97,9 +99,12 @@
    2. bslstl_algorithm
       bslstl_allocator                                   !DEPRECATED!
       bslstl_allocatortraits                             !DEPRECATED!
+      bslstl_badfunctioncall
       bslstl_badweakptr
       bslstl_complex
       bslstl_equalto
+      bslstl_function_isreferencecompatible                           !PRIVATE!
+      bslstl_function_smallobjectoptimization                         !PRIVATE!
       bslstl_hash
       bslstl_iosfwd
       bslstl_iserrorcodeenum
@@ -117,6 +122,7 @@
    1. bslstl_bidirectionalnodepool_cpp03                              !PRIVATE!
       bslstl_deque_cpp03                                              !PRIVATE!
       bslstl_function_cpp03                                           !PRIVATE!
+      bslstl_function_invokerutil_cpp03                               !PRIVATE!
       bslstl_hashtable_cpp03                                          !PRIVATE!
       bslstl_list_cpp03                                               !PRIVATE!
       bslstl_map_cpp03                                                !PRIVATE!
@@ -151,6 +157,9 @@
 :
 : 'bslstl_array':
 :      Provide an STL compliant array.
+:
+: 'bslstl_badfunctioncall':
+:      Provide an exception class thrown by 'bsl::function'.
 :
 : 'bslstl_badweakptr':
 :      Provide an exception class to indicate a weak_ptr has expired.
@@ -205,6 +214,21 @@
 :
 : 'bslstl_function_cpp03':                                            !PRIVATE!
 :      Provide C++03 implementation for bslstl_function.h
+:
+: 'bslstl_function_invokerutil':                                      !PRIVATE!
+:      Provide invoker adaptors for 'bsl::function'
+:
+: 'bslstl_function_invokerutil_cpp03':                                !PRIVATE!
+:      Provide C++03 implementation for bslstl_function_invokerutil.h
+:
+: 'bslstl_function_isreferencecompatible':                            !PRIVATE!
+:      Provide a metafunction for substitutability of type references.
+:
+: 'bslstl_function_rep':                                              !PRIVATE!
+:      Provide a non-template, common implementation for 'bsl::function'.
+:
+: 'bslstl_function_smallobjectoptimization':                          !PRIVATE!
+:      Provide small-object optimization buffer for 'bsl::function'.
 :
 : 'bslstl_function_test':                                             !PRIVATE!
 :      Provide support for the 'bslstl_function_test.t.cpp' test driver.

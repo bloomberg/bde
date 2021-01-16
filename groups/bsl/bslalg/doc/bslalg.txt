@@ -25,7 +25,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslalg' package currently has 41 components having 9 levels of physical
+ The 'bslalg' package currently has 43 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -54,6 +54,7 @@
 
   3. bslalg_autoscalardestructor
      bslalg_bidirectionallinklistutil
+     bslalg_nothrowmovableutil
      bslalg_rbtreeanchor
      bslalg_typetraitbitwisecopyable                     !DEPRECATED!
      bslalg_typetraitbitwiseequalitycomparable           !DEPRECATED!
@@ -71,6 +72,7 @@
      bslalg_hashutil
      bslalg_hasstliterators
      bslalg_hastrait                                     !DEPRECATED!
+     bslalg_nothrowmovablewrapper
      bslalg_numericformatterutil
      bslalg_rbtreenode
      bslalg_scalardestructionprimitives                  !DEPRECATED!
@@ -148,6 +150,12 @@
 :
 : 'bslalg_hastrait':                                     !DEPRECATED!
 :      Provide a meta-function to detect if a type has a given trait.
+:
+: 'bslalg_nothrowmovableutil':
+:      Provide a wrapper that asserts a noexcept move constructor.
+:
+: 'bslalg_nothrowmovablewrapper':
+:      Provide a wrapper that asserts a noexcept move constructor.
 :
 : 'bslalg_numericformatterutil':
 :      Provide a utility for formatting numbers into strings.
