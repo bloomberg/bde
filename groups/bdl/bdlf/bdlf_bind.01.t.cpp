@@ -86,6 +86,7 @@
 // [ 6] RESPECTING THE SIGNATURE OF THE INVOKABLE
 // [ 7] USAGE EXAMPLE
 // [ 8] USAGE EXAMPLE FROM TEST DRIVERS
+// [ 9] DRQS 123288293 REGRESSION
 //-----------------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
@@ -205,6 +206,19 @@
 typedef bsls::Types::Int64 Int64;
 
 bool globalVerbose = false;
+
+// ----------------------------------------------------------------------------
+//                   TESTING FUNCTIONS/CLASSES FOR CASE 9
+// ----------------------------------------------------------------------------
+
+struct MixedArgFunctor {
+    // Functor with a mix of rvalue and non-const reference arguments.
+
+    typedef void ResultType;
+
+    void operator()(int&, int)      const {}
+    void operator()(int&, int, int) const {}
+};
 
 // ----------------------------------------------------------------------------
 //                   TESTING FUNCTIONS/CLASSES FOR CASE 6
@@ -1552,6 +1566,84 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
 // ============================================================================
 //                                TEST CASES
 // ----------------------------------------------------------------------------
+
+DEFINE_TEST_CASE(9) {
+        // ------------------------------------------------------------------
+        // TESTING DRQS 123288293 REGRESSION
+        //   The issue described in DRQS 123288293 manafests when exactly two
+        //   or more of the arguments to a functor are bound to placeholders by
+        //   'bind' and at least one of the placeholder arguments corresponds
+        //   to an rvalue while another is a non-const reference.  This test
+        //   class is distilled from from: groups/apc/src/allspark_client.cpp
+        //   (apc DPKG).
+        //
+        // Concerns:
+        //: 1 When a functor taking a mix of non-reference and modifiable
+        //:   reference arguments is bound to two placeholders and stored in a
+        //:   'bsl::function' having the mix of non-reference and modifiable
+        //:   reference arguments, compilation and execution succeeds.
+        //
+        // Plan:
+        //: 1 Create a functor with a mix of non-reference and modifiable
+        //:   reference arguments.  Using 'bdlf::BindUtil::bind', create a
+        //:   bound object for which at least one placeholder argument
+        //:   corresponds to the rvalue and another to the non-const lvalue.
+        //:   Store the bound object in 'bsl::function' and verify that it is
+        //:   constructible and is invocable.  (C-1)
+        //
+        // Testing:
+        //      DRQS 123288293 REGRESSION
+        // ------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING DRQS 123288293 REGRESSION"
+                            "\n=================================\n");
+
+        (void)veryVerbose;
+        (void)veryVeryVerbose;
+
+        using namespace bdlf::PlaceHolders;
+
+        MixedArgFunctor e;
+        int             lval = 2;
+
+#if 1
+        {
+            typedef bsl::function<void(int, int&)> Func;
+            Func f(bdlf::BindUtil::bind(&e, _2, _1));
+            ASSERT((f(1, lval), true));
+            f = bdlf::BindUtil::bind(&e, _2, 7, _1);
+            ASSERT((f(1, lval), true));
+        }
+#endif
+
+        // Workaround 1: reference_wrapper
+        {
+            typedef bsl::function<void(int, bsl::reference_wrapper<int>)> Func;
+            Func f(bdlf::BindUtil::bind(&e, _2, _1));
+            ASSERT((f(1, lval), true));
+            f = bdlf::BindUtil::bind(&e, _2, 7, _1);
+            ASSERT((f(1, lval), true));
+        }
+
+        // Workaround 2: Use const ref instead of rvalue
+        {
+            typedef bsl::function<void(const int&, int&)> Func;
+            Func f(bdlf::BindUtil::bind(&e, _2, _1));
+            ASSERT((f(1, lval), true));
+            f = bdlf::BindUtil::bind(&e, _2, 7, _1);
+            ASSERT((f(1, lval), true));
+        }
+
+        // Workaround 3: Wrap result of bind with a compatible 'bsl::function'
+        {
+            typedef bsl::function<void(int, int&)>        Func;
+            typedef bsl::function<void(const int&, int&)> FuncWrp;
+            Func f(FuncWrp(bdlf::BindUtil::bind(&e, _2, _1)));
+            ASSERT((f(1, lval), true));
+            f = FuncWrp(bdlf::BindUtil::bind(&e, _2, 7, _1));
+            ASSERT((f(1, lval), true));
+        }
+      }
 
 DEFINE_TEST_CASE(8) {
         DECLARE_01T_MAIN_VARIABLES
@@ -4400,6 +4492,7 @@ int main(int argc, char *argv[])
       case NUMBER: {                                                          \
         testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose);              \
       } break
+        CASE(9);
         CASE(8);
         CASE(7);
         CASE(6);

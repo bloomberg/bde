@@ -627,20 +627,27 @@ void testForwardToTargetArray(TYPE obj)
 #endif
     // Test 'forwardToTarget' when the specified 'obj' is an array.
 {
-    typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
+    typedef typename bslmf::ForwardingType<TYPE>::Type           FwdType;
     typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
 
-    typedef typename bsl::add_lvalue_reference<TYPE>::type RefType;
-                            // gcc 4.1.2 does not support reference collapsing.
-    ASSERT_SAME(RefType, TargetType);
+    typedef typename bsl::conditional<
+        bslmf::MovableRefUtil::IsReference<TYPE>::value, TYPE,
+        typename bslmf::MovableRefUtil::AddLvalueReference<TYPE>::type
+        >::type ExpTargetType;
 
-    FwdType fwdObj = obj;
+    ASSERTV(typeid(TargetType).name(),
+            (bsl::is_same<ExpTargetType, TargetType>::value));
+//    ASSERT_SAME(ExpTargetType, TargetType);
+
+    FwdType    fwdObj    = obj;
+    TargetType targetObj =
+        bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj);
 
     // For arrays, compare address of first element of original and final
     // arrays.
     ASSERTV(typeid(TYPE).name(),
             &obj[0] ==
-            &bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj)[0]);
+            &bslmf::MovableRefUtil::access(targetObj)[0]);
 }
 
 template <class TYPE>
@@ -782,19 +789,21 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) printf("rvalue types\n");
+#if 0 // For support of 'bdlf_bind', basic types are forwarded as const refs
         TEST_ENDTOEND_RVALUE(int      , i);
         TEST_ENDTOEND_RVALUE(Enum     , e);
-        TEST_ENDTOEND_RVALUE(Struct   , s);
-        TEST_ENDTOEND_RVALUE(Union    , u);
-        TEST_ENDTOEND_RVALUE(Class    , c);
         TEST_ENDTOEND_RVALUE(double   , d);
         TEST_ENDTOEND_RVALUE(double * , p);
         TEST_ENDTOEND_RVALUE(F      * , f_p);
         TEST_ENDTOEND_RVALUE(Pm       , m_p);
         TEST_ENDTOEND_RVALUE(Pmf      , mf_p);
-#if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
+# if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
         TEST_ENDTOEND_RVALUE(Pmq      , mf_q);
-#endif
+# endif // !BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION
+#endif // 0
+        TEST_ENDTOEND_RVALUE(Struct   , s);
+        TEST_ENDTOEND_RVALUE(Union    , u);
+        TEST_ENDTOEND_RVALUE(Class    , c);
 
 #undef TEST_ENDTOEND_RVALUE
 
@@ -1323,23 +1332,23 @@ int main(int argc, char *argv[])
         TEST_FWD_TYPE(int[5]                   , int*                    );
         TEST_FWD_TYPE(int*[5]                  , int**                   );
         TEST_FWD_TYPE(int[5][6]                , int(*)[6]               );
-        TEST_FWD_TYPE(int(&)[5]                , int*                    );
-        TEST_FWD_TYPE(int *const(&)[5]         , int *const *            );
-        TEST_FWD_TYPE(int(&)[5][6]             , int(*)[6]               );
+        TEST_FWD_TYPE(int(&)[5]                , int(&)[5]               );
+        TEST_FWD_TYPE(int *const(&)[5]         , int *const(&)[5]        );
+        TEST_FWD_TYPE(int(&)[5][6]             , int(&)[5][6]            );
         TEST_FWD_TYPE(int *const[5]            , int *const *            );
         TEST_FWD_TYPE(const int[5][6]          , const int(*)[6]         );
-        TEST_FWD_TYPE(const int(&)[5]          , const int*              );
+        TEST_FWD_TYPE(const int(&)[5]          , const int(&)[5]         );
         TEST_FWD_TYPE(volatile int[5]          , volatile int*           );
         TEST_FWD_TYPE(volatile int[5][6]       , volatile int(*)[6]      );
-        TEST_FWD_TYPE(volatile int(&)[5]       , volatile int*           );
+        TEST_FWD_TYPE(volatile int(&)[5]       , volatile int(&)[5]      );
         TEST_FWD_TYPE(const volatile int[5]    , const volatile int*     );
         TEST_FWD_TYPE(const volatile int[5][6] , const volatile int(*)[6]);
-        TEST_FWD_TYPE(const volatile int(&)[5] , const volatile int*     );
+        TEST_FWD_TYPE(const volatile int(&)[5] , const volatile int(&)[5]);
 #if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         TEST_FWD_TYPE(Class[]                  , Class*                  );
         TEST_FWD_TYPE(Struct[][6]              , Struct(*)[6]            );
-        TEST_FWD_TYPE(Class(&)[]               , Class*                  );
-        TEST_FWD_TYPE(Struct(&)[][6]           , Struct(*)[6]            );
+        TEST_FWD_TYPE(Class(&)[]               , Class(&)[]              );
+        TEST_FWD_TYPE(Struct(&)[][6]           , Struct(&)[][6]          );
         TEST_FWD_TYPE(const int[]              , const int*              );
         TEST_FWD_TYPE(const int[][6]           , const int(*)[6]         );
         TEST_FWD_TYPE(volatile int[]           , volatile int*           );
@@ -1348,16 +1357,16 @@ int main(int argc, char *argv[])
         TEST_FWD_TYPE(const volatile int[][6]  , const volatile int(*)[6]);
 #endif
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        TEST_FWD_TYPE(int *const(&&)[5]        , int *const *            );
-        TEST_FWD_TYPE(int(&&)[5]               , int*                    );
-        TEST_FWD_TYPE(int(&&)[5][6]            , int(*)[6]               );
+        TEST_FWD_TYPE(int *const(&&)[5]        , int *const(&)[5]        );
+        TEST_FWD_TYPE(int(&&)[5]               , const int(&)[5]         );
+        TEST_FWD_TYPE(int(&&)[5][6]            , const int(&)[5][6]      );
 # if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
-        TEST_FWD_TYPE(Class(&&)[]              , Class*                  );
-        TEST_FWD_TYPE(Struct(&&)[][6]          , Struct(*)[6]            );
+        TEST_FWD_TYPE(Class(&&)[]              , const Class(&)[]        );
+        TEST_FWD_TYPE(Struct(&&)[][6]          , const Struct(&)[][6]    );
 # endif
-        TEST_FWD_TYPE(const int(&&)[5]         , const int*              );
-        TEST_FWD_TYPE(volatile int(&&)[5]      , volatile int*           );
-        TEST_FWD_TYPE(const volatile int(&&)[5], const volatile int*     );
+        TEST_FWD_TYPE(const int(&&)[5]         , const int(&)[5]         );
+        TEST_FWD_TYPE(volatile int(&&)[5]      , const volatile int(&)[5]);
+        TEST_FWD_TYPE(const volatile int(&&)[5], const volatile int(&)[5]);
 #endif
 
         if (veryVerbose) printf("Lvalue references\n");

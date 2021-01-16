@@ -252,6 +252,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ismemberpointer.h>
 #include <bslmf_isreference.h>
 #include <bslmf_isrvaluereference.h>
+#include <bslmf_movableref.h>
 #include <bslmf_removecv.h>
 #include <bslmf_removereference.h>
 
@@ -274,26 +275,55 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-// Forward declarations
+// FORWARD DECLARATIONS
 template <class TYPE>
-struct ForwardingTypeUtil;
+class ForwardingTypeUtil;
 
-template <class TYPE, int k_CATEGORY, bool k_IS_REFERENCE>
+template <class TYPE, int k_CATEGORY>
 struct ForwardingType_Imp;
+
+                        // =============================
+                        // class ForwardingType_Category
+                        // =============================
+
+struct ForwardingType_Category {
+    // This component-private struct provides a namespace for thpe type
+    // dispatch category enumeration values.
+
+    // CONSTANTS
+    enum {
+        e_LVALUE_REF,  // Lvalue reference
+        e_MOVABLE_REF, // Movable (rvalue) reference
+        e_FUNCTION,    // Function or pointer to function
+        e_ARRAY,       // Array
+        e_BASIC,       // Built-in, pointer, or enum type
+        e_CLASS        // Class, struct or union
+    };
+};
 
                         // =============================
                         // class ForwardingType_Dispatch
                         // =============================
 
-struct ForwardingType_Dispatch {
-    // Namespace for type dispatch categories
+template <class TYPE>
+class ForwardingType_Dispatch {
+    // This component-private class template is a metafunction whose 'value'
+    // member is the forwarding category for the specified 'TYPE'.
 
-    enum {
-        e_FUNCTION,   // Function or pointer to function
-        e_ARRAY,      // Array
-        e_RVALUE_REF, // Rvalue reference
-        e_BASIC,      // Built-in, pointer, or enum type
-        e_CLASS       // Class, struct or union
+    // PRIVATE TYPES
+    typedef ForwardingType_Category Cat;  // Abbreviation
+
+  public:
+    enum { value = (
+        MovableRefUtil::IsLvalueReference <TYPE>::value ? Cat::e_LVALUE_REF  :
+        MovableRefUtil::IsMovableReference<TYPE>::value ? Cat::e_MOVABLE_REF :
+        bsl::is_function                  <TYPE>::value ? Cat::e_FUNCTION    :
+        bsl::is_array                     <TYPE>::value ? Cat::e_ARRAY       :
+        bsl::is_fundamental               <TYPE>::value ? Cat::e_BASIC       :
+        bsl::is_pointer                   <TYPE>::value ? Cat::e_BASIC       :
+        bsl::is_member_pointer            <TYPE>::value ? Cat::e_BASIC       :
+        bsl::is_enum                      <TYPE>::value ? Cat::e_BASIC       :
+                                                          Cat::e_CLASS)
     };
 };
 
@@ -302,7 +332,8 @@ struct ForwardingType_Dispatch {
                         // ====================
 
 template <class TYPE>
-struct ForwardingType {
+class ForwardingType
+    : private ForwardingType_Imp<TYPE, ForwardingType_Dispatch<TYPE>::value> {
     // This template metafunction has a member 'Type' computed such that, for
     // a specified 'TYPE' parameter, a function with argument of 'TYPE' can be
     // called efficiently from another function (e.g., a wrapper) by declaring
@@ -311,29 +342,12 @@ struct ForwardingType {
     // the number of expensive copies while forwarding the arguments as
     // faithfully as possible.
 
-  private:
-    typedef typename bsl::remove_reference<TYPE>::type UnrefType;
-
-    enum {
-        k_IS_REFERENCE = bsl::is_reference<TYPE>::value,
-
-        k_CATEGORY = (
-bsl::is_function   <UnrefType>::value ? ForwardingType_Dispatch::e_FUNCTION   :
-bsl::is_array      <UnrefType>::value ? ForwardingType_Dispatch::e_ARRAY      :
-bsl::is_rvalue_reference<TYPE>::value ? ForwardingType_Dispatch::e_RVALUE_REF :
-bsl::is_fundamental     <TYPE>::value ? ForwardingType_Dispatch::e_BASIC      :
-bsl::is_pointer         <TYPE>::value ? ForwardingType_Dispatch::e_BASIC      :
-bsl::is_member_pointer  <TYPE>::value ? ForwardingType_Dispatch::e_BASIC      :
-bsl::is_enum            <TYPE>::value ? ForwardingType_Dispatch::e_BASIC      :
-                                        ForwardingType_Dispatch::e_CLASS)
-    };
-
-    typedef ForwardingType_Imp<UnrefType, k_CATEGORY, k_IS_REFERENCE> Imp;
-
-    friend struct ForwardingTypeUtil<TYPE>;
+    // PRIVATE TYPES
+    typedef ForwardingType_Imp<TYPE,
+                               ForwardingType_Dispatch<TYPE>::value> Imp;
 
   public:
-
+    // TYPES
     typedef typename Imp::Type       Type;
         // The type that should be used to forward 'TYPE' through a chain of
         // function calls.
@@ -349,13 +363,24 @@ bsl::is_enum            <TYPE>::value ? ForwardingType_Dispatch::e_BASIC      :
                         // ========================
 
 template <class TYPE>
-struct ForwardingTypeUtil {
+class ForwardingTypeUtil
+    : private ForwardingType_Imp<TYPE, ForwardingType_Dispatch<TYPE>::value> {
     // Provide a namespace for the 'forwardToTarget' function.
 
-    typedef typename ForwardingType<TYPE>::TargetType TargetType;
+    // PRIVATE TYPES
+    typedef ForwardingType_Imp<TYPE,
+                               ForwardingType_Dispatch<TYPE>::value> Imp;
 
-    static TargetType
-    forwardToTarget(typename ForwardingType<TYPE>::Type v);
+  public:
+    // TYPES
+    typedef typename Imp::TargetType TargetType;
+        // The closest type used to "reconstitute" 'TYPE' from
+        // 'ForwardingType<TYPE>::Type'.  This type may differ from 'TYPE'
+        // through the addition of a reference.
+
+    // CLASS METHODS
+    //static TargetType forwardToTarget(typename ForwardingType<TYPE>::Type v);
+    using Imp::forwardToTarget;
         // Return (for the specified 'v' parameter) 'std::forward<TYPE>(v)',
         // where 'v' is assumed to originally have been an argument of 'TYPE'
         // after forwarding through an intermediate call chain.  Specifically,
@@ -390,17 +415,6 @@ struct ConstForwardingType : public ForwardingType<TYPE> {
 // BDE_VERIFY pragma: push  // Relax some bde_verify rules in the imp section
 // BDE_VERIFY pragma: -CD01 // Member function defined in class definition
 
-template <class TYPE>
-#ifndef BSLMF_FORWARDINGTYPE_NO_INLINE
-inline  // Trips an ICE or infinite compile loop with xlC optimized builds.
-#endif
-typename ForwardingTypeUtil<TYPE>::TargetType
-ForwardingTypeUtil<TYPE>::forwardToTarget(
-                                         typename ForwardingType<TYPE>::Type v)
-{
-    return ForwardingType<TYPE>::Imp::forwardToTarget(v);
-}
-
                         // ========================
                         // class ForwardingType_Imp
                         // ========================
@@ -408,16 +422,36 @@ ForwardingTypeUtil<TYPE>::forwardToTarget(
 // PRIMARY TEMPLATE HAS NO DEFINITION
 
 // PARTIAL SPECIALIZATIONS
-template <class UNREF_TYPE>
-struct ForwardingType_Imp<UNREF_TYPE,
-                          ForwardingType_Dispatch::e_RVALUE_REF, true>
+template <class TYPE>
+struct ForwardingType_Imp<TYPE, ForwardingType_Category::e_LVALUE_REF>
+{
+    // lvalue reference is forwarded unmodified.
+
+    // TYPES
+    typedef TYPE               Type;
+    typedef TYPE               TargetType;
+
+    // CLASS METHODS
+    static TargetType forwardToTarget(Type v)
+        // Return the specified 'v' argument.
+    {
+        return v;
+    }
+};
+
+template <class TYPE>
+struct ForwardingType_Imp<TYPE, ForwardingType_Category::e_MOVABLE_REF>
 {
     // Rvalue reference is forwarded as a reference to const lvalue.
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    typedef const UNREF_TYPE& Type;
-    typedef UNREF_TYPE&&      TargetType;
-    static TargetType forwardToTarget(Type v) {
+    // TYPES
+    typedef typename MovableRefUtil::RemoveReference<TYPE>::type UnrefType;
+    typedef const UnrefType&                                     Type;
+    typedef TYPE                                                 TargetType;
+
+    // CLASS METHODS
+    static TargetType forwardToTarget(Type v)
+    {
         // Since rvalues are forwarded as *const* lvalues, we must cast away
         // the constness before converting to an rvalue reference.  If 'TYPE'
         // is a const reference, then the constness will be reinstated on
@@ -426,89 +460,98 @@ struct ForwardingType_Imp<UNREF_TYPE,
         // We split this cast up into two lines because Visual Studio 2015 and
         // early versions of Visual Studio 2017 create a temporary in the
         // one-liner.
-        UNREF_TYPE& result = const_cast<UNREF_TYPE&>(v);
-        return static_cast<TargetType>(result);
+        UnrefType& result = const_cast<UnrefType&>(v);
+        return MovableRefUtil::move(result);
     }
-#endif
 };
 
-template <class UNREF_TYPE, bool k_IS_REFERENCE>
-struct ForwardingType_Imp<UNREF_TYPE,
-                          ForwardingType_Dispatch::e_FUNCTION, k_IS_REFERENCE>
+template <class TYPE>
+struct ForwardingType_Imp<TYPE, ForwardingType_Category::e_FUNCTION>
 {
-    // Function and function reference is forwarded as function reference.
+    // Function type and is forwarded as function reference.
 
-    typedef UNREF_TYPE& Type;
-    typedef UNREF_TYPE& TargetType;
+    // TYPES
+    typedef TYPE& Type;
+    typedef TYPE& TargetType;
+
+    // CLASS METHODS
     static TargetType forwardToTarget(Type v)
         // Return the specified 'v' argument.
-        { return v; }
+    {
+        return v;
+    }
 };
 
-template <class UNREF_TYPE, size_t k_NUM_ELEMENTS, bool k_IS_REFERENCE>
-struct ForwardingType_Imp<UNREF_TYPE [k_NUM_ELEMENTS],
-                          ForwardingType_Dispatch::e_ARRAY, k_IS_REFERENCE>
+template <class TYPE, size_t k_NUM_ELEMENTS>
+struct ForwardingType_Imp<TYPE [k_NUM_ELEMENTS],
+                          ForwardingType_Category::e_ARRAY>
 {
     // Array of known size and reference to array of known size is forwarded as
     // pointer to array element type.
 
-    typedef UNREF_TYPE  *Type;
-    typedef UNREF_TYPE (&TargetType)[k_NUM_ELEMENTS];
+    // TYPES
+    typedef TYPE  *Type;
+    typedef TYPE (&TargetType)[k_NUM_ELEMENTS];
+
+    // CLASS METHODS
     static TargetType forwardToTarget(Type v)
         // Return the specified 'v', cast to a reference to array.
-        { return reinterpret_cast<TargetType>(*v); }
+    {
+        return reinterpret_cast<TargetType>(*v);
+    }
 };
 
-template <class UNREF_TYPE, bool k_IS_REFERENCE>
-struct ForwardingType_Imp<UNREF_TYPE [],
-                          ForwardingType_Dispatch::e_ARRAY, k_IS_REFERENCE> {
+template <class TYPE>
+struct ForwardingType_Imp<TYPE [], ForwardingType_Category::e_ARRAY> {
     // Array of unknown size and reference to array of unknown size is
     // forwarded as pointer to array element type.
 
-    typedef UNREF_TYPE *Type;
-    typedef UNREF_TYPE (&TargetType)[];
+    // TYPES
+    typedef TYPE  *Type;
+    typedef TYPE (&TargetType)[];
+
+    // CLASS METHODS
     static TargetType forwardToTarget(Type v)
         // Return the specified 'v' argument cast to a reference to array of
         // unknown size.
-        { return reinterpret_cast<TargetType>(*v); }
+    {
+        return reinterpret_cast<TargetType>(*v);
+    }
 };
 
-template <class UNREF_TYPE>
-struct ForwardingType_Imp<UNREF_TYPE,
-                          ForwardingType_Dispatch::e_BASIC, false> {
+template <class TYPE>
+struct ForwardingType_Imp<TYPE, ForwardingType_Category::e_BASIC> {
     // Rvalue of basic type is forwarded with any cv-qualifier removed.
 
-    typedef typename bsl::remove_cv<UNREF_TYPE>::type Type;
-    typedef UNREF_TYPE                                TargetType;
-    static TargetType forwardToTarget(Type v)
+    // TYPES
+    typedef typename bsl::remove_cv<TYPE>::type Type;
+    typedef TYPE                                TargetType;
+
+    // CLASS METHODS
+    static TargetType& forwardToTarget(Type& v)
         // Return the specified 'v' argument with cv qualifiers added to match
-        // the specified 'UNREF_TYPE'.
-        { return v; }
+        // the specified 'UNREF_TYPE'.  The return type is a reference to a
+        // (possibly modifiable) 'TYPE' object in order to work around certain
+        // dpkg bugs where an rvalue is being forwarded to a function that
+        // expects an lvalue.
+    {
+        return v;
+    }
 };
 
-template <class UNREF_TYPE>
-struct ForwardingType_Imp<UNREF_TYPE,
-                          ForwardingType_Dispatch::e_BASIC, true> {
-    // Lvalue reference to basic type is forwarded unchanged.
-
-    typedef UNREF_TYPE& Type;
-    typedef UNREF_TYPE& TargetType;
-    static TargetType forwardToTarget(Type v)
-        // Return the specified 'v' argument.
-        { return v; }
-};
-
-template <class UNREF_TYPE>
-struct ForwardingType_Imp<UNREF_TYPE,
-                          ForwardingType_Dispatch::e_CLASS, false> {
+template <class TYPE>
+struct ForwardingType_Imp<TYPE, ForwardingType_Category::e_CLASS> {
     // Rvalue of user type (i.e., class or union) is forwarded as a const
     // reference.
 
-    typedef const UNREF_TYPE& Type;
+    // TYPES
+    typedef ForwardingType_Imp Imp;
+    typedef const TYPE&        Type;
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    typedef UNREF_TYPE&&      TargetType;
+    typedef MovableRef<TYPE>   TargetType;
+
     static TargetType forwardToTarget(Type v)
-        // Return the specified 'v' argument cast to a modifiable rvalue
+        // Return the specified 'v' argument cast to a modifiable movable
         // reference.
     {
         // Since rvalues are forwarded as *const* lvalues, we must cast away
@@ -520,34 +563,22 @@ struct ForwardingType_Imp<UNREF_TYPE,
         // We use a C-style cast because Visual Studio 2013, 2015, and early
         // versions of Visual Studio 2017 create a temporary with various
         // formulations using C++ casts.
-        return TargetType(v);
+        return MovableRefUtil::move((TYPE&)(v));
 # else
         // However, other platforms are known to complain about casting away
-        // the 'const' qualifier in 'Type' (i.e., in 'const UNREF&') unless a
+        // the 'const' qualifier in 'Type' (i.e., in 'const TYPE&') unless a
         // 'const_cast' is explicitly used.
-        return const_cast<TargetType>(v);
+        return MovableRefUtil::move(const_cast<TYPE&>(v));
 # endif
     }
 #else
-    typedef const UNREF_TYPE& TargetType;
+    typedef const TYPE&        TargetType;
+
     static TargetType forwardToTarget(Type v)
-        // Return the specified 'v' argument.
-        { return v; }
+    {
+        return v;
+    }
 #endif
-};
-
-template <class UNREF_TYPE>
-struct ForwardingType_Imp<UNREF_TYPE,
-                          ForwardingType_Dispatch::e_CLASS, true> {
-    // Lvalue of user type (i.e., class or union) is forwarded as a reference,
-    // where the cv-qualification of the referenced type depends on the
-    // cv-qualification of the Lvalue's type.
-
-    typedef UNREF_TYPE& Type;
-    typedef UNREF_TYPE& TargetType;
-    static TargetType forwardToTarget(Type v)
-        // Return the specified 'v' argument.
-        { return v; }
 };
 
 }  // close package namespace
@@ -562,7 +593,7 @@ struct ForwardingType_Imp<UNREF_TYPE,
 #undef bslmf_ForwardingType
 #endif
 #define bslmf_ForwardingType bslmf::ForwardingType
-    // This alias is defined for backward compatibility.
+    // !DEPRECATED! This alias is defined for backward compatibility.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 #ifdef bslmf_ConstForwardingType
@@ -570,7 +601,7 @@ struct ForwardingType_Imp<UNREF_TYPE,
 #endif
 // BDE_VERIFY pragma: -SLM01 // Allow non-standard macro to leak from header
 #define bslmf_ConstForwardingType bslmf::ConstForwardingType
-    // This alias is defined for backward compatibility.
+    // !DEPRECATED! This alias is defined for backward compatibility.
 
 // BDE_VERIFY pragma: pop // Restore bde_verify rules
 

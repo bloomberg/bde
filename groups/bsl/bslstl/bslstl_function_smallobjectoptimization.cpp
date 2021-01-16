@@ -1,19 +1,18 @@
-// bslstl_function_cpp03.cpp                                          -*-C++-*-
+// bslstl_function_smallobjectoptimization.cpp                        -*-C++-*-
+#include <bslstl_function_smallobjectoptimization.h>
 
-// Automatically generated file.  **DO NOT EDIT**
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bslstl_function_smallobjectoptimization_cpp,"$Id$ $CSID$")
 
-// Generated on Tue Oct 13 17:17:08 2020
-// Command line: sim_cpp11_features.pl bslstl_function.cpp
+#include <bsls_platform.h>
 
-#define INCLUDED_BSLSTL_FUNCTION_CPP03  // Disable inclusion
-#include <bslstl_function_cpp03.h>      // Pro-forma #include
+namespace BloombergLP {
+namespace bslstl {
 
-// Empty file except when compiling bslstl_function.cpp
-#ifdef COMPILING_BSLSTL_FUNCTION_CPP
+const std::size_t Function_SmallObjectOptimization::k_NON_SOO_SMALL_SIZE;
 
-// No C++03 Expansion
-
-#endif // defined(COMPILING_BSLSTL_FUNCTION_CPP)
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2020 Bloomberg Finance L.P.

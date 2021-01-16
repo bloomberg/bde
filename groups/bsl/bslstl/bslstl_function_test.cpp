@@ -2,7 +2,7 @@
 #include <bslstl_function_test.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslstl_function_test_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2020 Bloomberg Finance L.P.

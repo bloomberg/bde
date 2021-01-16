@@ -1220,29 +1220,58 @@ void case_5_top(bool demangle, bool useTestAllocator)
                     break;
                 }
 
-                const bslstl::StringRef& funcMatch =
-                               bdlb::StringRefUtil::strstrCaseless(sn,
-                                                                   "function");
-                const bool funcFrame =
-                                bsl::strstr(sn, "bsl") && !funcMatch.isEmpty();
                 const bool isMatch = bsl::strstr(sn, match);
 
-                ASSERTV(sn, funcFrame || isMatch);
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#  define CPP03_SUFFIX ""
+#else
+#  define CPP03_SUFFIX "_cpp03"
+#endif
+                // Table of classes possibly expected in stack trace
+                struct SrcInfo {
+                    const char *d_classNs;   // Class namespace
+                    const char *d_className; // Class name
+                    const char *d_srcFile;   // File where member is declared
+                };
+
+                static const SrcInfo srcLookup[] = {
+                    { "bslstl", "Function_InvokerUtil",
+                      "bslstl_function_invokerutil" CPP03_SUFFIX ".h" },
+                    { "bslstl", "Function_Rep",
+                      "bslstl_function_rep.h" },
+                    { "bslstl", "Function_Variadic",
+                      "bslstl_function" CPP03_SUFFIX ".h" },
+                    { "bsl",    "function",
+                      "bslstl_function" CPP03_SUFFIX ".h" }
+                };
+
+                static const int numSrcs =
+                    int(sizeof(srcLookup) / sizeof(srcLookup[0]));
+
+                const char *sfnMatch = 0; // Source filename to match
+                for (int j = 0; j < numSrcs; ++j) {
+                    const char     *nsMatch    = 0;
+                    const char     *nameMatch = 0;
+                    const SrcInfo&  info = srcLookup[j];
+                    if ((nsMatch   = bsl::strstr(sn, info.d_classNs))   &&
+                        (nameMatch = bsl::strstr(sn, info.d_className)) &&
+                        nsMatch < nameMatch) {
+                        // Found a match
+                        sfnMatch = info.d_srcFile;
+                        break;
+                    }
+                }
+
+                ASSERTV(sn, sfnMatch || isMatch);
                 if (demangle && isMatch && !FORMAT_DLADDR) {
                     ASSERTV(i, sn, match, len, !bsl::strncmp(sn, match, len));
                 }
 
                 recursersFound += isMatch;
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-                const char *sfnMatch = funcFrame
-                                     ? "bslstl_function.h"
-                                     : "balst_stacktraceutil.t.cpp";
-#else
-                const char *sfnMatch = funcFrame
-                                     ? "bslstl_function_cpp03.h"
-                                     : "balst_stacktraceutil.t.cpp";
-#endif
+                if (! sfnMatch) {
+                    sfnMatch = "balst_stacktraceutil.t.cpp";
+                }
                 const char *sfn = st[i].sourceFileName().c_str();
 
                 if (!(FORMAT_ELF && !FORMAT_DWARF &&
@@ -1261,7 +1290,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
                     int sfnLen = (int) bsl::strlen(sfn);
                     sfn += bsl::max(0, sfnLen - sfnMatchLen);
 
-                    ASSERTV(sn, funcFrame, sfn, sfnMatch, e_STATIC_DISABLED,
+                    ASSERTV(sn, sfn, sfnMatch, e_STATIC_DISABLED,
                                                   !bsl::strcmp(sfn, sfnMatch));
 
                     if (veryVerbose) cout << "File name for " << sn << " of "

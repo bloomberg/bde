@@ -11,6 +11,7 @@
 *.exp
 *.tmp
 *.orig
+*.bak
 # ignore vim swapfiles
 .*.sw?
 *~
@@ -52,3 +53,6 @@ TAGS
 *.VC.db-wal
 *.ipch
 .vs/
+
+# MacOS files
+.DS_Store

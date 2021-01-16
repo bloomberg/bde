@@ -1,19 +1,19 @@
-// bslstl_function_cpp03.cpp                                          -*-C++-*-
+// bslstl_function_invokerutil_cpp03.cpp                              -*-C++-*-
 
 // Automatically generated file.  **DO NOT EDIT**
 
-// Generated on Tue Oct 13 17:17:08 2020
-// Command line: sim_cpp11_features.pl bslstl_function.cpp
+// Generated on Fri Nov  6 17:34:55 2020
+// Command line: sim_cpp11_features.pl bslstl_function_invokerutil.cpp
 
-#define INCLUDED_BSLSTL_FUNCTION_CPP03  // Disable inclusion
-#include <bslstl_function_cpp03.h>      // Pro-forma #include
+#define INCLUDED_BSLSTL_FUNCTION_INVOKERUTIL_CPP03  // Disable inclusion
+#include <bslstl_function_invokerutil_cpp03.h>      // Pro-forma #include
 
-// Empty file except when compiling bslstl_function.cpp
-#ifdef COMPILING_BSLSTL_FUNCTION_CPP
+// Empty file except when compiling bslstl_function_invokerutil.cpp
+#ifdef COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_CPP
 
 // No C++03 Expansion
 
-#endif // defined(COMPILING_BSLSTL_FUNCTION_CPP)
+#endif // defined(COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_CPP)
 
 // ----------------------------------------------------------------------------
 // Copyright 2020 Bloomberg Finance L.P.

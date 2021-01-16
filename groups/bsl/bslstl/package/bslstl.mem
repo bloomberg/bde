@@ -3,6 +3,7 @@ bslstl_algorithmworkaround
 bslstl_allocator
 bslstl_allocatortraits
 bslstl_array
+bslstl_badfunctioncall
 bslstl_badweakptr
 bslstl_bidirectionaliterator
 bslstl_bidirectionalnodepool
@@ -21,6 +22,11 @@ bslstl_error
 bslstl_forwarditerator
 bslstl_function
 bslstl_function_cpp03
+bslstl_function_invokerutil
+bslstl_function_invokerutil_cpp03
+bslstl_function_isreferencecompatible
+bslstl_function_rep
+bslstl_function_smallobjectoptimization
 bslstl_function_test
 bslstl_hash
 bslstl_hashtable

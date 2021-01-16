@@ -1,19 +1,11 @@
-// bslstl_function_cpp03.cpp                                          -*-C++-*-
+// bslalg_nothrowmovableutil.cpp                                      -*-C++-*-
 
-// Automatically generated file.  **DO NOT EDIT**
+#include <bslalg_nothrowmovableutil.h>
 
-// Generated on Tue Oct 13 17:17:08 2020
-// Command line: sim_cpp11_features.pl bslstl_function.cpp
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bslalg_nothrowmovableutil_cpp,"$Id$ $CSID$")
 
-#define INCLUDED_BSLSTL_FUNCTION_CPP03  // Disable inclusion
-#include <bslstl_function_cpp03.h>      // Pro-forma #include
-
-// Empty file except when compiling bslstl_function.cpp
-#ifdef COMPILING_BSLSTL_FUNCTION_CPP
-
-// No C++03 Expansion
-
-#endif // defined(COMPILING_BSLSTL_FUNCTION_CPP)
+namespace BloombergLP {}  // Close namespace BloombergLP
 
 // ----------------------------------------------------------------------------
 // Copyright 2020 Bloomberg Finance L.P.
