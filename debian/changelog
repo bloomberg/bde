@@ -1,9 +1,18 @@
-bsl-internal (3.71.0.0) unstable; urgency=low
+bsl-internal (3.72.0.0) unstable; urgency=low
 
+  * 68b0e2781 Bumped version to 3.72.0.0
+  * 3581e44ae Merge pull request #3073 from mgill83/balxml-hexparser-docs-drqs-164301919
+  * 67829fbfc Merge pull request #2993 from bchapman/bsltf-dtors-sabotage-value-drqs-164353757
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 16 Jan 2021 18:48:26 -0500
+
+bsl-internal (3.71.0.0) git; urgency=low
+
+  * a005dcd9b Changelog for version 3.71.0.0
   * 312c1fc05 Bumped version to 3.71.0.0
   * 88cc3e097 Merge pull request #3063 from mgiroux/bde-baljsn_datumutil-windows-test-failures-drqs164717866
 
- -- Henry Verschell <hverschell@bloomberg.net>  Fri, 8 Jan 2021 14:58:43 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 8 Jan 2021 15:14:47 -0500
 
 bsl-internal (3.70.0.0) git; urgency=low
 
