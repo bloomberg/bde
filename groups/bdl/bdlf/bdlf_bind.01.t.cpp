@@ -14,6 +14,8 @@
 #include <bsl_functional.h>     // 'ref', 'cref'
 #include <bsl_string.h>
 
+#include <bsls_compilerfeatures.h>
+
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
@@ -310,6 +312,7 @@ struct MyFunctionObjectWithBothResultTypes {
 struct MyFunctionObjectWithConstVoidFunction {
     // This 'struct' declares 'result_type' and a non-const functor taking no
     // arguments.
+    //
     // Testing for a failure case highlighted in DRQS 164900532
 
     // PUBLIC INSTANCE DATA
@@ -318,18 +321,20 @@ struct MyFunctionObjectWithConstVoidFunction {
     // TYPES
     typedef void result_type;
 
-    // ACCESSORS
-    void operator()() const {
-        ++d_state;
-    }
-
     // CREATORS
     MyFunctionObjectWithConstVoidFunction() : d_state(0) {}
+
+    // ACCESSORS
+    void operator()() const {
+        // Function called by test run. Increments value to facilitate assert test.
+        ++d_state;
+    }
 };
 
 struct MyFunctionObjectWithNonConstVoidFunction {
     // This 'struct' declares 'result_type' and a non-const functor taking no
     // arguments.
+    //
     // Testing for a failure case highlighted in DRQS 164900532
 
     // PUBLIC INSTANCE DATA
@@ -338,13 +343,69 @@ struct MyFunctionObjectWithNonConstVoidFunction {
     // TYPES
     typedef void result_type;
 
-    // ACCESSORS
-    void operator()() {
-        ++d_state;
-    }
-
     // CREATORS
     MyFunctionObjectWithNonConstVoidFunction() : d_state(0) {}
+
+    // ACCESSORS
+    void operator()() {
+        // Function called by test run. Increments value to facilitate assert test.
+        ++d_state;
+    }
+};
+
+struct MyFunctionObjectWithNonConstVoidAndNonConstIntFunction {
+    // This 'struct' declares 'result_type' and a non-const functor taking no
+    // arguments.
+    //
+    // Testing for a failure case highlighted in DRQS 164900532
+
+    // PUBLIC INSTANCE DATA
+    int d_state;
+    int d_stateI;
+
+    // TYPES
+    typedef void result_type;
+
+    // CREATORS
+    MyFunctionObjectWithNonConstVoidAndNonConstIntFunction() : d_state(0), d_stateI(0) {}
+
+    // ACCESSORS
+    void operator()() {
+        // Function called by test run. Increments value to facilitate assert test.
+        ++d_state;
+    }
+    void operator()(int) {
+        // Function called by test run. Increments value to facilitate assert test.
+        ++d_stateI;
+    }
+};
+
+struct MyFunctionObjectWithConstAndNonConstVoidFunction {
+    // This 'struct' declares 'result_type' and a non-const functor taking no
+    // arguments.
+    //
+    // Testing for a failure case highlighted in DRQS 164900532
+
+    // PUBLIC INSTANCE DATA
+    int d_stateNC;
+    mutable int d_stateC;
+
+    // TYPES
+    typedef void result_type;
+
+    // CREATORS
+    MyFunctionObjectWithConstAndNonConstVoidFunction() : d_stateC(0), d_stateNC(0) {}
+
+    // ACCESSORS
+    void operator()() {
+        // Function called by test run. Increments value to facilitate assert test.
+        ++d_stateNC;
+    }
+
+    void operator()() const {
+        // Function called by test run. Increments value to facilitate assert test.
+        ++d_stateC;
+    }
 };
 
 template <class Binder>
@@ -2100,21 +2161,66 @@ DEFINE_TEST_CASE(6) {
         }
 
         if (verbose)
-            printf("\tPassing const functor object pointer to bind\n");
+            printf("\tPassing 'const' functor object non-'const' pointer to bind\n");
         {
             MyFunctionObjectWithConstVoidFunction mX;
+            MyFunctionObjectWithConstVoidFunction* pX = &mX;
 
-            bdlf::BindUtil::bind(&mX)();
+            bdlf::BindUtil::bind(pX)();
             ASSERT(1 == mX.d_state);
         }
 
         if (verbose)
-            printf("\tPassing non-const functor object pointer to bind\n");
+            printf("\tPassing non-'const' functor object non-'const' pointer to bind\n");
         {
             MyFunctionObjectWithNonConstVoidFunction mX;
+            MyFunctionObjectWithNonConstVoidFunction* pX = &mX;
 
-            bdlf::BindUtil::bind(&mX)();
+            bdlf::BindUtil::bind(pX)();
             ASSERT(1 == mX.d_state);
+        }
+
+        if (verbose)
+            printf("\tPassing dual functor object non-'const' pointer to bind\n");
+        {
+            MyFunctionObjectWithNonConstVoidAndNonConstIntFunction mX;
+            MyFunctionObjectWithNonConstVoidAndNonConstIntFunction* pX = &mX;
+
+            bdlf::BindUtil::bind(pX)();
+            ASSERT(1 == mX.d_state);
+            ASSERT(0 == mX.d_stateI);
+        }
+
+        if (verbose)
+            printf("\tPassing 'const' functor object 'const' pointer to bind\n");
+        {
+            MyFunctionObjectWithConstVoidFunction mX;
+            const MyFunctionObjectWithConstVoidFunction* pX = &mX;
+
+            bdlf::BindUtil::bind(pX)();
+            ASSERT(1 == mX.d_state);
+        }
+
+        if (verbose)
+            printf("\tPassing dual functor object 'const' pointer to bind\n");
+        {
+            MyFunctionObjectWithConstAndNonConstVoidFunction mX;
+            const MyFunctionObjectWithConstAndNonConstVoidFunction* pX = &mX;
+
+            bdlf::BindUtil::bind(pX)();
+            ASSERT(1 == mX.d_stateC);
+            ASSERT(0 == mX.d_stateNC);
+        }
+
+        if (verbose)
+            printf("\tPassing dual functor object non-'const' pointer to bind\n");
+        {
+            MyFunctionObjectWithConstAndNonConstVoidFunction mX;
+            MyFunctionObjectWithConstAndNonConstVoidFunction* pX = &mX;
+
+            bdlf::BindUtil::bind(pX)();
+            ASSERT(1 == mX.d_stateNC);
+            ASSERT(0 == mX.d_stateC);
         }
 
         if (verbose)

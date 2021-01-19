@@ -870,6 +870,8 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bsls_compilerfeatures.h>
+
 #include <bslmf_arraytopointer.h>
 #include <bslmf_forwardingtype.h>
 #include <bslmf_functionpointertraits.h>
@@ -4598,6 +4600,7 @@ struct Bind_OneResultTypeOrAnother {
     };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
     template <class T>
     struct Return : public Return<decltype(&T::operator())> {
@@ -4605,19 +4608,21 @@ struct Bind_OneResultTypeOrAnother {
     };
 
     template <class CLASS_T, class RETURN_T, class... ARGS_T>
-    struct Return<RETURN_T (CLASS_T::*)(ARGS_T...) const> : Return<RETURN_T (CLASS_T::*)(ARGS_T...)> {
-        // The const specialized form of the 'Return' class inherits 
-        // from the non-const specialization (below)
-    };
-
-    template <class CLASS_T, class RETURN_T, class... ARGS_T>
     struct Return<RETURN_T (CLASS_T::*)(ARGS_T...)> {
-        // The non-const specialized form of the 'Return' class defines a 'type'
-        // member as the return type of the member function parameter.
+        // The non-'const' specialized form of the 'Return' class defines a 
+        // 'type' member as the return type of the member function parameter.
 
         // PUBLIC TYPES
         typedef RETURN_T type;
     };
+
+    template <class CLASS_T, class RETURN_T, class... ARGS_T>
+    struct Return<RETURN_T (CLASS_T::*)(ARGS_T...) const> : 
+        public Return<RETURN_T (CLASS_T::*)(ARGS_T...)> {
+        // The 'const' specialized form of the 'Return' class inherits
+        // from the non-'const' specialization (above).
+    };
+
 
     template <class T>
     struct Result<T, bsl::void_t<decltype(&T::operator())>> {
@@ -4629,7 +4634,9 @@ struct Bind_OneResultTypeOrAnother {
         // PUBLIC TYPES
         typedef typename Return<T>::type type;
     };
-#endif
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#endif // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
   public:
     typedef typename Result<FUNC>::type type;
