@@ -4600,7 +4600,7 @@ struct Bind_OneResultTypeOrAnother {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
     template <class T>
-    struct Return : public Return<decltype(&T::operator())>  {
+    struct Return : public Return<decltype(&T::operator())> {
         // The general version of this class inherits from its specialization.
     };
 
