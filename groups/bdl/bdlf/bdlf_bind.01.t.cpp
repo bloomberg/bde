@@ -394,7 +394,7 @@ struct MyFunctionObjectWithConstAndNonConstVoidFunction {
     typedef void result_type;
 
     // CREATORS
-    MyFunctionObjectWithConstAndNonConstVoidFunction() : d_stateC(0), d_stateNC(0) {}
+    MyFunctionObjectWithConstAndNonConstVoidFunction() : d_stateNC(0), d_stateC(0) {}
 
     // ACCESSORS
     void operator()() {
