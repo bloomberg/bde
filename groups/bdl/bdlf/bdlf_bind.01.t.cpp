@@ -307,6 +307,46 @@ struct MyFunctionObjectWithBothResultTypes {
     }
 };
 
+struct MyFunctionObjectWithConstVoidFunction {
+    // This 'struct' declares 'result_type' and a non-const functor taking no
+    // arguments.
+    // Testing for a failure case highlighted in DRQS 164900532
+
+    // PUBLIC INSTANCE DATA
+    mutable int d_state;
+
+    // TYPES
+    typedef void result_type;
+
+    // ACCESSORS
+    void operator()() const {
+        ++d_state;
+    }
+
+    // CREATORS
+    MyFunctionObjectWithConstVoidFunction() : d_state(0) {}
+};
+
+struct MyFunctionObjectWithNonConstVoidFunction {
+    // This 'struct' declares 'result_type' and a non-const functor taking no
+    // arguments.
+    // Testing for a failure case highlighted in DRQS 164900532
+
+    // PUBLIC INSTANCE DATA
+    int d_state;
+
+    // TYPES
+    typedef void result_type;
+
+    // ACCESSORS
+    void operator()() {
+        ++d_state;
+    }
+
+    // CREATORS
+    MyFunctionObjectWithNonConstVoidFunction() : d_state(0) {}
+};
+
 template <class Binder>
 void testMultipleSignatureBinder(Binder binder)
 {
@@ -2060,10 +2100,28 @@ DEFINE_TEST_CASE(6) {
         }
 
         if (verbose)
+            printf("\tPassing const functor object pointer to bind\n");
+        {
+            MyFunctionObjectWithConstVoidFunction mX;
+
+            bdlf::BindUtil::bind(&mX)();
+            ASSERT(1 == mX.d_state);
+        }
+
+        if (verbose)
+            printf("\tPassing non-const functor object pointer to bind\n");
+        {
+            MyFunctionObjectWithNonConstVoidFunction mX;
+
+            bdlf::BindUtil::bind(&mX)();
+            ASSERT(1 == mX.d_state);
+        }
+
+        if (verbose)
             printf("\tUsing std::function\n");
         {
             struct Func { static int f(int x) { return x; } };
-#if __cplusplus >= 201103L
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
             native_std::function<int(int)> f = &Func::f;
 #else
             bsl::function<int(int)> f = &Func::f;
@@ -2071,7 +2129,7 @@ DEFINE_TEST_CASE(6) {
             ASSERT(5 == bdlf::BindUtil::bind(f, _1)(5));
         }
 
-#if __cplusplus >= 201103L
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
         if (verbose)
              printf("\tUsing a lambda\n");
         {

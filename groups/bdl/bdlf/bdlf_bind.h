@@ -4597,16 +4597,23 @@ struct Bind_OneResultTypeOrAnother {
         typedef typename bslmf::ResultType<T>::type type;
     };
 
-#if __cplusplus >= 201103
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+
     template <class T>
-    struct Return : public Return<decltype(&T::operator())> {
+    struct Return : public Return<decltype(&T::operator())>  {
         // The general version of this class inherits from its specialization.
     };
 
     template <class CLASS_T, class RETURN_T, class... ARGS_T>
-    struct Return<RETURN_T (CLASS_T::*)(ARGS_T...) const> {
-        // The specialized form of the 'Return' class defines a 'type' member
-        // as the return type of the member function parameter.
+    struct Return<RETURN_T (CLASS_T::*)(ARGS_T...) const> : Return<RETURN_T (CLASS_T::*)(ARGS_T...)> {
+        // The const specialized form of the 'Return' class inherits 
+        // from the non-const specialization (below)
+    };
+
+    template <class CLASS_T, class RETURN_T, class... ARGS_T>
+    struct Return<RETURN_T (CLASS_T::*)(ARGS_T...)> {
+        // The non-const specialized form of the 'Return' class defines a 'type'
+        // member as the return type of the member function parameter.
 
         // PUBLIC TYPES
         typedef RETURN_T type;
