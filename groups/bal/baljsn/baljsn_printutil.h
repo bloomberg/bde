@@ -292,7 +292,7 @@ int PrintUtil::printFloatingPoint(bsl::ostream&                 stream,
       case bdlb::Float::k_QNAN:                                 // FALL-THROUGH
       case bdlb::Float::k_SNAN: {
         if (options && options->encodeInfAndNaNAsStrings()) {
-            stream << (bdlb::Float::signBit(value) ? "\"-nan\"" : "\"nan\"");
+            stream << "\"nan\"";
         }
         else {
             return -1;                                                // RETURN

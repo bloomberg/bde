@@ -33,9 +33,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // routines do not encode these singular 'double' values in these parseable
 // formats.  Singular 'double' values will be rendered as strings (e.g., "+inf"
 // or "nan") if the 'strictTypes' encoding configuration is 'false', and will
-// result generate an encoding error if 'strictTypes' is 'true'.  Also note
-// that on platforms other than Sun and AIX, "\"-nan\"" is also a possible
-// result.
+// result generate an encoding error if 'strictTypes' is 'true'.
 //
 // Clients wishing to ensure that encoding and then decoding results in a
 // 'Datum' equal to the original value should use only 'Datum' types natively

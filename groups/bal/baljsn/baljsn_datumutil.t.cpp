@@ -1383,8 +1383,8 @@ int main(int argc, char *argv[])
           // Skip these tests on Sun or MSVC pre-2015, where they unexpectedly
           // succeed.  Since these are negative tests, being overly permissive
           // in what we accept is not a problem.
-#if !(defined(BSLS_PLATFORM_CMP_SUN) || (defined(BSLS_PLATFORM_CMP_MSVC) && \
-                                         BSLS_PLATFORM_CMP_VERSION < 1900))
+#if !(defined(BSLS_PLATFORM_OS_SOLARIS) || \
+     (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900))
           , { L_, "n_number_hex_1_digit.json", "TBD" }
           , { L_, "n_number_hex_2_digits.json", "TBD" }
 #endif
@@ -1747,13 +1747,6 @@ int main(int argc, char *argv[])
 #define DU_QNaN bsl::numeric_limits<double>::quiet_NaN()
 #define DU_SNaN bsl::numeric_limits<double>::signaling_NaN()
 
-#if defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_IBM)
-// The sign of the result of encoding negative nan's...
-#define DU_S ""
-#else
-#define DU_S "-"
-#endif
-
             { L, m(DU_Inf), CO,  0,  0,  "\"+inf\"",                 0,    2 },
             { L, m(DU_Inf), PR,  0,  0,  "\"+inf\"",                 0,    2 },
             { L, m(DU_Inf), PR,  1,  0,  "\"+inf\"",                 0,    2 },
@@ -1783,15 +1776,15 @@ int main(int argc, char *argv[])
                             PR,  1,  1,  " \"nan\"",                 0,    2 },
 
             { L, m(-DU_QNaN),
-                            CO,  0,  0,  "\"" DU_S "nan\"",          0,    2 },
+                            CO,  0,  0,  "\"nan\"",          0,    2 },
             { L, m(-DU_QNaN),
-                            PR,  0,  0,  "\"" DU_S "nan\"",          0,    2 },
+                            PR,  0,  0,  "\"nan\"",          0,    2 },
             { L, m(-DU_QNaN),
-                            PR,  1,  0,  "\"" DU_S "nan\"",          0,    2 },
+                            PR,  1,  0,  "\"nan\"",          0,    2 },
             { L, m(-DU_QNaN),
-                            PR,  0,  1,  "\"" DU_S "nan\"",          0,    2 },
+                            PR,  0,  1,  "\"nan\"",          0,    2 },
             { L, m(-DU_QNaN),
-                            PR,  1,  1,  " \"" DU_S "nan\"",         0,    2 },
+                            PR,  1,  1,  " \"nan\"",         0,    2 },
 
 
             { L, m(DU_SNaN),
@@ -1806,15 +1799,16 @@ int main(int argc, char *argv[])
                             PR,  1,  1,  " \"nan\"",                 0,    2 },
 
             { L, m(-DU_SNaN),
-                            CO,  0,  0,  "\"" DU_S "nan\"",          0,    2 },
+                            CO,  0,  0,  "\"nan\"",          0,    2 },
             { L, m(-DU_SNaN),
-                            PR,  0,  0,  "\"" DU_S "nan\"",          0,    2 },
+                            PR,  0,  0,  "\"nan\"",          0,    2 },
             { L, m(-DU_SNaN),
-                            PR,  1,  0,  "\"" DU_S "nan\"",          0,    2 },
+                            PR,  1,  0,  "\"nan\"",          0,    2 },
             { L, m(-DU_SNaN),
-                            PR,  0,  1,  "\"" DU_S "nan\"",          0,    2 },
+                            PR,  0,  1,  "\"nan\"",          0,    2 },
             { L, m(-DU_SNaN),
-                            PR,  1,  1,  " \"" DU_S "nan\"",         0,    2 },
+                            PR,  1,  1,  " \"nan\"",         0,    2 },
+
 #undef DU_Inf
 #undef DU_QNan
 #undef DU_SNan
