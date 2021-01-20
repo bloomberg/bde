@@ -322,11 +322,15 @@ struct MyFunctionObjectWithConstVoidFunction {
     typedef void result_type;
 
     // CREATORS
-    MyFunctionObjectWithConstVoidFunction() : d_state(0) {}
+    MyFunctionObjectWithConstVoidFunction()
+        // Initialize counters
+    : d_state(0) {}
 
     // ACCESSORS
-    void operator()() const {
-        // Function called by test run. Increments value to facilitate assert test.
+    void operator()() const
+        // Function called by test run. Increments value to facilitate assert
+        // test.
+    {
         ++d_state;
     }
 };
@@ -344,11 +348,15 @@ struct MyFunctionObjectWithNonConstVoidFunction {
     typedef void result_type;
 
     // CREATORS
-    MyFunctionObjectWithNonConstVoidFunction() : d_state(0) {}
+    MyFunctionObjectWithNonConstVoidFunction()
+        // Initialize counters
+    : d_state(0) {}
 
     // ACCESSORS
-    void operator()() {
-        // Function called by test run. Increments value to facilitate assert test.
+    void operator()()
+        // Function called by test run. Increments value to facilitate assert
+        // test.
+    {
         ++d_state;
     }
 };
@@ -367,15 +375,21 @@ struct MyFunctionObjectWithNonConstVoidAndNonConstIntFunction {
     typedef void result_type;
 
     // CREATORS
-    MyFunctionObjectWithNonConstVoidAndNonConstIntFunction() : d_state(0), d_stateI(0) {}
+    MyFunctionObjectWithNonConstVoidAndNonConstIntFunction()
+        // Initialize counters
+    : d_state(0), d_stateI(0) {}
 
     // ACCESSORS
-    void operator()() {
-        // Function called by test run. Increments value to facilitate assert test.
+    void operator()()
+        // Function called by test run. Increments value to facilitate assert
+        // test.
+    {
         ++d_state;
     }
-    void operator()(int) {
-        // Function called by test run. Increments value to facilitate assert test.
+    void operator()(int)
+        // Function called by test run. Increments value to facilitate assert
+        // test.
+    {
         ++d_stateI;
     }
 };
@@ -394,16 +408,22 @@ struct MyFunctionObjectWithConstAndNonConstVoidFunction {
     typedef void result_type;
 
     // CREATORS
-    MyFunctionObjectWithConstAndNonConstVoidFunction() : d_stateNC(0), d_stateC(0) {}
+    MyFunctionObjectWithConstAndNonConstVoidFunction()
+        // Initialize counters
+    : d_stateNC(0), d_stateC(0) {}
 
     // ACCESSORS
-    void operator()() {
-        // Function called by test run. Increments value to facilitate assert test.
+    void operator()()
+        // Function called by test run. Increments value to facilitate assert
+        // test.
+    {
         ++d_stateNC;
     }
 
-    void operator()() const {
-        // Function called by test run. Increments value to facilitate assert test.
+    void operator()() const
+        // Function called by test run. Increments value to facilitate assert
+        // test.
+    {
         ++d_stateC;
     }
 };
@@ -424,8 +444,8 @@ void testMultipleSignatureBinder(Binder binder)
 }
 
 struct MyFunctionObjectWithConstAndNonConstOperator {
-    // This stateless 'struct' provides several function operators with 'const'
-    // and non-'const' signature.
+    // This stateless 'struct' provides several function operators with
+    // 'const' and non-'const' signature.
 
     // TYPES
     typedef int ResultType;
@@ -1336,7 +1356,7 @@ using namespace bdlf::PlaceHolders;
       public:
         // CREATORS
         MyEventScheduler(bsl::function<void(int, MyEvent)> const& callback)
-        : d_callback(callback)
+        : d_callback(callback), d_count(0)
         {
         }
 //..
@@ -1626,8 +1646,8 @@ int onCommand(const int&, int& stream, int *counter = 0)
 {
     if (counter) {
         ++ *counter;
+        stream = *counter;
     }
-    stream = *counter;
     return 0;
 }
 
@@ -2161,7 +2181,7 @@ DEFINE_TEST_CASE(6) {
         }
 
         if (verbose)
-            printf("\tPassing 'const' functor object non-'const' pointer to bind\n");
+            printf("\tPass 'const' functor object non-'const' pointer\n");
         {
             MyFunctionObjectWithConstVoidFunction mX;
             MyFunctionObjectWithConstVoidFunction* pX = &mX;
@@ -2171,7 +2191,7 @@ DEFINE_TEST_CASE(6) {
         }
 
         if (verbose)
-            printf("\tPassing non-'const' functor object non-'const' pointer to bind\n");
+            printf("\tPass non-'const' functor object non-'const' pointer\n");
         {
             MyFunctionObjectWithNonConstVoidFunction mX;
             MyFunctionObjectWithNonConstVoidFunction* pX = &mX;
@@ -2181,7 +2201,7 @@ DEFINE_TEST_CASE(6) {
         }
 
         if (verbose)
-            printf("\tPassing dual functor object non-'const' pointer to bind\n");
+            printf("\tPass dual functor object non-'const' pointer\n");
         {
             MyFunctionObjectWithNonConstVoidAndNonConstIntFunction mX;
             MyFunctionObjectWithNonConstVoidAndNonConstIntFunction* pX = &mX;
@@ -2192,7 +2212,7 @@ DEFINE_TEST_CASE(6) {
         }
 
         if (verbose)
-            printf("\tPassing 'const' functor object 'const' pointer to bind\n");
+            printf("\tPass 'const' functor object 'const' pointer.\n");
         {
             MyFunctionObjectWithConstVoidFunction mX;
             const MyFunctionObjectWithConstVoidFunction* pX = &mX;
@@ -2202,7 +2222,7 @@ DEFINE_TEST_CASE(6) {
         }
 
         if (verbose)
-            printf("\tPassing dual functor object 'const' pointer to bind\n");
+            printf("\tPass dual functor object 'const' pointer\n");
         {
             MyFunctionObjectWithConstAndNonConstVoidFunction mX;
             const MyFunctionObjectWithConstAndNonConstVoidFunction* pX = &mX;
@@ -2213,7 +2233,7 @@ DEFINE_TEST_CASE(6) {
         }
 
         if (verbose)
-            printf("\tPassing dual functor object non-'const' pointer to bind\n");
+            printf("\tPass dual functor object non-'const' pointer\n");
         {
             MyFunctionObjectWithConstAndNonConstVoidFunction mX;
             MyFunctionObjectWithConstAndNonConstVoidFunction* pX = &mX;

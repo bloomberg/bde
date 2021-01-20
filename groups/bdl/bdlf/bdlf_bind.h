@@ -4609,7 +4609,7 @@ struct Bind_OneResultTypeOrAnother {
 
     template <class CLASS_T, class RETURN_T, class... ARGS_T>
     struct Return<RETURN_T (CLASS_T::*)(ARGS_T...)> {
-        // The non-'const' specialized form of the 'Return' class defines a 
+        // The non-'const' specialized form of the 'Return' class defines a
         // 'type' member as the return type of the member function parameter.
 
         // PUBLIC TYPES
@@ -4619,8 +4619,8 @@ struct Bind_OneResultTypeOrAnother {
     template <class CLASS_T, class RETURN_T, class... ARGS_T>
     struct Return<RETURN_T (CLASS_T::*)(ARGS_T...) const> : 
         public Return<RETURN_T (CLASS_T::*)(ARGS_T...)> {
-        // The 'const' specialized form of the 'Return' class inherits
-        // from the non-'const' specialization (above).
+        // The 'const' specialized form of the 'Return' class inherits from
+        // the non-'const' specialization (above).
     };
 
 
