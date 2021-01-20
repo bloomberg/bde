@@ -328,7 +328,7 @@ struct MyFunctionObjectWithConstVoidFunction {
 
     // ACCESSORS
     void operator()() const
-        // Function called by test run. Increments value to facilitate assert
+        // Function called by test run.  Increments value to facilitate assert
         // test.
     {
         ++d_state;
@@ -354,7 +354,7 @@ struct MyFunctionObjectWithNonConstVoidFunction {
 
     // ACCESSORS
     void operator()()
-        // Function called by test run. Increments value to facilitate assert
+        // Function called by test run.  Increments value to facilitate assert
         // test.
     {
         ++d_state;
@@ -381,13 +381,13 @@ struct MyFunctionObjectWithNonConstVoidAndNonConstIntFunction {
 
     // ACCESSORS
     void operator()()
-        // Function called by test run. Increments value to facilitate assert
+        // Function called by test run.  Increments value to facilitate assert
         // test.
     {
         ++d_state;
     }
     void operator()(int)
-        // Function called by test run. Increments value to facilitate assert
+        // Function called by test run.  Increments value to facilitate assert
         // test.
     {
         ++d_stateI;
@@ -401,7 +401,7 @@ struct MyFunctionObjectWithConstAndNonConstVoidFunction {
     // Testing for a failure case highlighted in DRQS 164900532
 
     // PUBLIC INSTANCE DATA
-    int d_stateNC;
+    int         d_stateNC;
     mutable int d_stateC;
 
     // TYPES
@@ -414,14 +414,14 @@ struct MyFunctionObjectWithConstAndNonConstVoidFunction {
 
     // ACCESSORS
     void operator()()
-        // Function called by test run. Increments value to facilitate assert
+        // Function called by test run.  Increments value to facilitate assert
         // test.
     {
         ++d_stateNC;
     }
 
     void operator()() const
-        // Function called by test run. Increments value to facilitate assert
+        // Function called by test run.  Increments value to facilitate assert
         // test.
     {
         ++d_stateC;
@@ -2183,7 +2183,7 @@ DEFINE_TEST_CASE(6) {
         if (verbose)
             printf("\tPass 'const' functor object non-'const' pointer\n");
         {
-            MyFunctionObjectWithConstVoidFunction mX;
+            MyFunctionObjectWithConstVoidFunction  mX;
             MyFunctionObjectWithConstVoidFunction* pX = &mX;
 
             bdlf::BindUtil::bind(pX)();
@@ -2193,7 +2193,7 @@ DEFINE_TEST_CASE(6) {
         if (verbose)
             printf("\tPass non-'const' functor object non-'const' pointer\n");
         {
-            MyFunctionObjectWithNonConstVoidFunction mX;
+            MyFunctionObjectWithNonConstVoidFunction  mX;
             MyFunctionObjectWithNonConstVoidFunction* pX = &mX;
 
             bdlf::BindUtil::bind(pX)();
@@ -2203,7 +2203,7 @@ DEFINE_TEST_CASE(6) {
         if (verbose)
             printf("\tPass dual functor object non-'const' pointer\n");
         {
-            MyFunctionObjectWithNonConstVoidAndNonConstIntFunction mX;
+            MyFunctionObjectWithNonConstVoidAndNonConstIntFunction  mX;
             MyFunctionObjectWithNonConstVoidAndNonConstIntFunction* pX = &mX;
 
             bdlf::BindUtil::bind(pX)();
@@ -2214,7 +2214,7 @@ DEFINE_TEST_CASE(6) {
         if (verbose)
             printf("\tPass 'const' functor object 'const' pointer.\n");
         {
-            MyFunctionObjectWithConstVoidFunction mX;
+            MyFunctionObjectWithConstVoidFunction        mX;
             const MyFunctionObjectWithConstVoidFunction* pX = &mX;
 
             bdlf::BindUtil::bind(pX)();
@@ -2224,7 +2224,7 @@ DEFINE_TEST_CASE(6) {
         if (verbose)
             printf("\tPass dual functor object 'const' pointer\n");
         {
-            MyFunctionObjectWithConstAndNonConstVoidFunction mX;
+            MyFunctionObjectWithConstAndNonConstVoidFunction        mX;
             const MyFunctionObjectWithConstAndNonConstVoidFunction* pX = &mX;
 
             bdlf::BindUtil::bind(pX)();
@@ -2235,7 +2235,7 @@ DEFINE_TEST_CASE(6) {
         if (verbose)
             printf("\tPass dual functor object non-'const' pointer\n");
         {
-            MyFunctionObjectWithConstAndNonConstVoidFunction mX;
+            MyFunctionObjectWithConstAndNonConstVoidFunction  mX;
             MyFunctionObjectWithConstAndNonConstVoidFunction* pX = &mX;
 
             bdlf::BindUtil::bind(pX)();

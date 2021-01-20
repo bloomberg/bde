@@ -4602,6 +4602,8 @@ struct Bind_OneResultTypeOrAnother {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
+    // PRIVATE TYPES
+
     template <class T>
     struct Return : public Return<decltype(&T::operator())> {
         // The general version of this class inherits from its specialization.
@@ -4617,7 +4619,7 @@ struct Bind_OneResultTypeOrAnother {
     };
 
     template <class CLASS_T, class RETURN_T, class... ARGS_T>
-    struct Return<RETURN_T (CLASS_T::*)(ARGS_T...) const> : 
+    struct Return<RETURN_T (CLASS_T::*)(ARGS_T...) const> :
         public Return<RETURN_T (CLASS_T::*)(ARGS_T...)> {
         // The 'const' specialized form of the 'Return' class inherits from
         // the non-'const' specialization (above).
@@ -4639,6 +4641,9 @@ struct Bind_OneResultTypeOrAnother {
 #endif // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
   public:
+
+    // TYPES
+
     typedef typename Result<FUNC>::type type;
 };
 
