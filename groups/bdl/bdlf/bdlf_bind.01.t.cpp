@@ -10,11 +10,11 @@
 #define BDLF_BIND_00T_AS_INCLUDE
 #include <bdlf_bind.00.t.cpp>
 
+#include <bsls_compilerfeatures.h>
+
 #include <bsl_cstring.h>        // 'strcpy'
 #include <bsl_functional.h>     // 'ref', 'cref'
 #include <bsl_string.h>
-
-#include <bsls_compilerfeatures.h>
 
 //=============================================================================
 //                                TEST PLAN
@@ -310,10 +310,10 @@ struct MyFunctionObjectWithBothResultTypes {
 };
 
 struct MyFunctionObjectWithConstVoidFunction {
-    // This 'struct' declares 'result_type' and a non-const functor taking no
-    // arguments.
+    // This 'struct' declares 'result_type' and a 'const' function-call
+    // operator taking no arguments.
     //
-    // Testing for a failure case highlighted in DRQS 164900532
+    // This tests for a failure case highlighted in DRQS 164900532.
 
     // PUBLIC INSTANCE DATA
     mutable int d_state;
@@ -323,7 +323,7 @@ struct MyFunctionObjectWithConstVoidFunction {
 
     // CREATORS
     MyFunctionObjectWithConstVoidFunction()
-        // Initialize counters
+        // Initialize counters.
     : d_state(0) {}
 
     // ACCESSORS
@@ -336,10 +336,10 @@ struct MyFunctionObjectWithConstVoidFunction {
 };
 
 struct MyFunctionObjectWithNonConstVoidFunction {
-    // This 'struct' declares 'result_type' and a non-const functor taking no
-    // arguments.
+    // This 'struct' declares 'result_type' and a non-'const' function-call
+    // operator taking no arguments.
     //
-    // Testing for a failure case highlighted in DRQS 164900532
+    // This tests for a failure case highlighted in DRQS 164900532.
 
     // PUBLIC INSTANCE DATA
     int d_state;
@@ -349,10 +349,10 @@ struct MyFunctionObjectWithNonConstVoidFunction {
 
     // CREATORS
     MyFunctionObjectWithNonConstVoidFunction()
-        // Initialize counters
+        // Initialize counters.
     : d_state(0) {}
 
-    // ACCESSORS
+    // MANIPULATORS
     void operator()()
         // Function called by test run.  Increments value to facilitate assert
         // test.
@@ -362,10 +362,10 @@ struct MyFunctionObjectWithNonConstVoidFunction {
 };
 
 struct MyFunctionObjectWithNonConstVoidAndNonConstIntFunction {
-    // This 'struct' declares 'result_type' and a non-const functor taking no
-    // arguments.
+    // This 'struct' declares 'result_type' and two non-'const' function-call
+    // operators, one taking an 'int' and the other taking no arguments.
     //
-    // Testing for a failure case highlighted in DRQS 164900532
+    // This tests for a failure case highlighted in DRQS 164900532.
 
     // PUBLIC INSTANCE DATA
     int d_state;
@@ -376,16 +376,17 @@ struct MyFunctionObjectWithNonConstVoidAndNonConstIntFunction {
 
     // CREATORS
     MyFunctionObjectWithNonConstVoidAndNonConstIntFunction()
-        // Initialize counters
+        // Initialize counters.
     : d_state(0), d_stateI(0) {}
 
-    // ACCESSORS
+    // MANIPULATORS
     void operator()()
         // Function called by test run.  Increments value to facilitate assert
         // test.
     {
         ++d_state;
     }
+
     void operator()(int)
         // Function called by test run.  Increments value to facilitate assert
         // test.
@@ -395,10 +396,10 @@ struct MyFunctionObjectWithNonConstVoidAndNonConstIntFunction {
 };
 
 struct MyFunctionObjectWithConstAndNonConstVoidFunction {
-    // This 'struct' declares 'result_type' and a non-const functor taking no
-    // arguments.
+    // This 'struct' declares 'result_type' and both a non-'const' and a
+    // 'const' function-call operator, each taking no arguments.
     //
-    // Testing for a failure case highlighted in DRQS 164900532
+    // This tests for a failure case highlighted in DRQS 164900532.
 
     // PUBLIC INSTANCE DATA
     int         d_stateNC;
@@ -409,10 +410,10 @@ struct MyFunctionObjectWithConstAndNonConstVoidFunction {
 
     // CREATORS
     MyFunctionObjectWithConstAndNonConstVoidFunction()
-        // Initialize counters
+        // Initialize counters.
     : d_stateNC(0), d_stateC(0) {}
 
-    // ACCESSORS
+    // MANIPULATORS
     void operator()()
         // Function called by test run.  Increments value to facilitate assert
         // test.
@@ -420,6 +421,7 @@ struct MyFunctionObjectWithConstAndNonConstVoidFunction {
         ++d_stateNC;
     }
 
+    // ACCESSORS
     void operator()() const
         // Function called by test run.  Increments value to facilitate assert
         // test.
@@ -2184,7 +2186,7 @@ DEFINE_TEST_CASE(6) {
             printf("\tPass 'const' functor object non-'const' pointer\n");
         {
             MyFunctionObjectWithConstVoidFunction  mX;
-            MyFunctionObjectWithConstVoidFunction* pX = &mX;
+            MyFunctionObjectWithConstVoidFunction *pX = &mX;
 
             bdlf::BindUtil::bind(pX)();
             ASSERT(1 == mX.d_state);
@@ -2194,7 +2196,7 @@ DEFINE_TEST_CASE(6) {
             printf("\tPass non-'const' functor object non-'const' pointer\n");
         {
             MyFunctionObjectWithNonConstVoidFunction  mX;
-            MyFunctionObjectWithNonConstVoidFunction* pX = &mX;
+            MyFunctionObjectWithNonConstVoidFunction *pX = &mX;
 
             bdlf::BindUtil::bind(pX)();
             ASSERT(1 == mX.d_state);
@@ -2204,7 +2206,7 @@ DEFINE_TEST_CASE(6) {
             printf("\tPass dual functor object non-'const' pointer\n");
         {
             MyFunctionObjectWithNonConstVoidAndNonConstIntFunction  mX;
-            MyFunctionObjectWithNonConstVoidAndNonConstIntFunction* pX = &mX;
+            MyFunctionObjectWithNonConstVoidAndNonConstIntFunction *pX = &mX;
 
             bdlf::BindUtil::bind(pX)();
             ASSERT(1 == mX.d_state);
@@ -2215,7 +2217,7 @@ DEFINE_TEST_CASE(6) {
             printf("\tPass 'const' functor object 'const' pointer.\n");
         {
             MyFunctionObjectWithConstVoidFunction        mX;
-            const MyFunctionObjectWithConstVoidFunction* pX = &mX;
+            const MyFunctionObjectWithConstVoidFunction *pX = &mX;
 
             bdlf::BindUtil::bind(pX)();
             ASSERT(1 == mX.d_state);
@@ -2225,7 +2227,7 @@ DEFINE_TEST_CASE(6) {
             printf("\tPass dual functor object 'const' pointer\n");
         {
             MyFunctionObjectWithConstAndNonConstVoidFunction        mX;
-            const MyFunctionObjectWithConstAndNonConstVoidFunction* pX = &mX;
+            const MyFunctionObjectWithConstAndNonConstVoidFunction *pX = &mX;
 
             bdlf::BindUtil::bind(pX)();
             ASSERT(1 == mX.d_stateC);
@@ -2236,7 +2238,7 @@ DEFINE_TEST_CASE(6) {
             printf("\tPass dual functor object non-'const' pointer\n");
         {
             MyFunctionObjectWithConstAndNonConstVoidFunction  mX;
-            MyFunctionObjectWithConstAndNonConstVoidFunction* pX = &mX;
+            MyFunctionObjectWithConstAndNonConstVoidFunction *pX = &mX;
 
             bdlf::BindUtil::bind(pX)();
             ASSERT(1 == mX.d_stateNC);

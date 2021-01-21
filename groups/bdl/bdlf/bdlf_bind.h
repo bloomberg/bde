@@ -870,8 +870,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bsls_compilerfeatures.h>
-
 #include <bslmf_arraytopointer.h>
 #include <bslmf_forwardingtype.h>
 #include <bslmf_functionpointertraits.h>
@@ -885,6 +883,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_tag.h>
 #include <bslmf_typelist.h>
 #include <bslmf_voidtype.h>
+
+#include <bsls_compilerfeatures.h>
 
 #include <bsl_functional.h>
 #include <bsl_memory.h>
@@ -4590,6 +4590,7 @@ struct Bind_OneResultTypeOrAnother {
     // 'type' to be the return type of that operator.
 
   private:
+    // PRIVATE TYPES
     template <class T, class = void>
     struct Result {
         // This class declares a 'type' member to be the same as the one
@@ -4601,8 +4602,6 @@ struct Bind_OneResultTypeOrAnother {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-
-    // PRIVATE TYPES
 
     template <class T>
     struct Return : public Return<decltype(&T::operator())> {
@@ -4641,9 +4640,7 @@ struct Bind_OneResultTypeOrAnother {
 #endif // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
   public:
-
     // TYPES
-
     typedef typename Result<FUNC>::type type;
 };
 
