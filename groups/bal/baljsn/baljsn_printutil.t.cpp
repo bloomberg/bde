@@ -183,7 +183,10 @@ void testInfAndNaNAsStrings()
     const char *POS_INF     = "\"+inf\"";
     const char *NEG_INF     = "\"-inf\"";
     const char *POS_NAN_STR = "\"nan\"";
-    const char *NEG_NAN_STR = "\"-nan\"";
+    // The rendering of -nan for negative nan values is too erratic depending
+    // on build modes and platforms.  We will render all nan values the same
+    // way, regardless of sign.
+    const char *NEG_NAN_STR = "\"nan\"";
 
     const struct {
         int         d_line;
@@ -1129,7 +1132,7 @@ int main(int argc, char *argv[])
                // LINE | VALUE | AS_STRING | EXPECTED  | RESULT
                //-----------------------------------------------
                 { L_,    NAN_P,    true,     "\"nan\"",     0  },
-                { L_,    NAN_N,    true,     "\"-nan\"",    0  },
+                { L_,    NAN_N,    true,     "\"nan\"",     0  },
                 { L_,    INF_P,    true,     "\"+inf\"",    0  },
                 { L_,    INF_N,    true,     "\"-inf\"",    0  },
                 { L_,    NAN_P,    false,    "",           -1  },

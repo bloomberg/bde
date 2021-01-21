@@ -157,10 +157,7 @@ int PrintUtil::printValue(bsl::ostream&         stream,
       } break;
       case FP_NAN: {
         if (options && options->encodeInfAndNaNAsStrings()) {
-            stream << (bdlb::Float::signBit(
-                            bdldfp::DecimalConvertUtil::decimalToDouble(value))
-                      ? "\"-nan\""
-                      : "\"nan\"");
+            stream << "\"nan\"";
         }
         else {
             return -1;                                                // RETURN
