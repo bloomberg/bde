@@ -387,11 +387,11 @@ struct MyFunctionObjectWithNonConstVoidAndNonConstIntFunction {
         ++d_state;
     }
 
-    void operator()(int)
+    void operator()(int increment)
         // Function called by test run.  Increments value to facilitate assert
         // test.
     {
-        ++d_stateI;
+        d_stateI += increment;
     }
 };
 
@@ -2211,6 +2211,10 @@ DEFINE_TEST_CASE(6) {
             bdlf::BindUtil::bind(pX)();
             ASSERT(1 == mX.d_state);
             ASSERT(0 == mX.d_stateI);
+
+            bdlf::BindUtil::bind(pX, _1)(8);
+            ASSERT(1 == mX.d_state);
+            ASSERT(8 == mX.d_stateI);
         }
 
         if (verbose)

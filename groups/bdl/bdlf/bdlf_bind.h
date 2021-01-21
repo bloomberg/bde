@@ -4624,7 +4624,6 @@ struct Bind_OneResultTypeOrAnother {
         // the non-'const' specialization (above).
     };
 
-
     template <class T>
     struct Result<T, bsl::void_t<decltype(&T::operator())>> {
         // This is a specialization of 'Result' above.  If the 'T' parameter
