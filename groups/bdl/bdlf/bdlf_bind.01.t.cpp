@@ -388,8 +388,8 @@ struct MyFunctionObjectWithNonConstVoidAndNonConstIntFunction {
     }
 
     void operator()(int increment)
-        // Function called by test run.  Increments value to facilitate assert
-        // test.
+        // Function called by test run.  Increments value by 'increment' to
+        // facilitate assert test.
     {
         d_stateI += increment;
     }
