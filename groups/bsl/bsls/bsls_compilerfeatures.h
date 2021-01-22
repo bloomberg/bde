@@ -469,7 +469,7 @@ BSLS_IDENT("$Id: $")
 // keyword with C++14 semantics.
 //
 //: o Compiler support:
-//:   o gcc 5
+//:   o gcc 6
 //:   o clang 3.4
 //:   o Visual Studio 2017 version 15.0 (_MSC_VER 1910)
 //
@@ -857,7 +857,11 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
 # endif
 # if __cplusplus >= 201402L
+// Disable not fully supported extended constexpr rules for gcc 5.x.
+// See {DRQS 164511755} for details.
+#  if BSLS_PLATFORM_CMP_VERSION >= 60000
 #    define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+#  endif
 #    define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 # endif
 # if __cplusplus >= 201500
