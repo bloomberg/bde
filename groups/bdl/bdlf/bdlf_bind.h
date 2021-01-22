@@ -884,6 +884,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_typelist.h>
 #include <bslmf_voidtype.h>
 
+#include <bsls_compilerfeatures.h>
+
 #include <bsl_functional.h>
 #include <bsl_memory.h>
 
@@ -4588,6 +4590,7 @@ struct Bind_OneResultTypeOrAnother {
     // 'type' to be the return type of that operator.
 
   private:
+    // PRIVATE TYPES
     template <class T, class = void>
     struct Result {
         // This class declares a 'type' member to be the same as the one
@@ -4597,19 +4600,28 @@ struct Bind_OneResultTypeOrAnother {
         typedef typename bslmf::ResultType<T>::type type;
     };
 
-#if __cplusplus >= 201103
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+
     template <class T>
     struct Return : public Return<decltype(&T::operator())> {
         // The general version of this class inherits from its specialization.
     };
 
     template <class CLASS_T, class RETURN_T, class... ARGS_T>
-    struct Return<RETURN_T (CLASS_T::*)(ARGS_T...) const> {
-        // The specialized form of the 'Return' class defines a 'type' member
-        // as the return type of the member function parameter.
+    struct Return<RETURN_T (CLASS_T::*)(ARGS_T...)> {
+        // The non-'const' specialized form of the 'Return' class defines a
+        // 'type' member as the return type of the member function parameter.
 
         // PUBLIC TYPES
         typedef RETURN_T type;
+    };
+
+    template <class CLASS_T, class RETURN_T, class... ARGS_T>
+    struct Return<RETURN_T (CLASS_T::*)(ARGS_T...) const> :
+        public Return<RETURN_T (CLASS_T::*)(ARGS_T...)> {
+        // The 'const' specialized form of the 'Return' class inherits from
+        // the non-'const' specialization (above).
     };
 
     template <class T>
@@ -4622,9 +4634,12 @@ struct Bind_OneResultTypeOrAnother {
         // PUBLIC TYPES
         typedef typename Return<T>::type type;
     };
-#endif
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#endif // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
   public:
+    // TYPES
     typedef typename Result<FUNC>::type type;
 };
 
