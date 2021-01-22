@@ -162,7 +162,7 @@ using namespace bsl;
 //
 //                        // iterators
 // [ 7] iterator begin() const;
-// [  ] iterator end() const;
+// [ 8] iterator end() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TEST APPARATUS
@@ -731,13 +731,16 @@ int main(int argc, char **argv)
         //: 6 Non-modifiable objects can be compared (i.e., objects or
         //:   references providing only non-modifiable access).
         //:
-        //: 7 The post-increment operator changes the value of the object to
+        //: 7 The iterator returned by the 'end' method is always equal to the
+        //:   default constructed iterator.
+        //:
+        //: 8 The post-increment operator changes the value of the object to
         //:   refer to the next element in the list.
         //:
-        //: 8 The value returned is the value of the object prior to the
+        //: 9 The value returned is the value of the object prior to the
         //:   operator call.
         //:
-        //: 9 The signature and return type of operators are standard.
+        //:10 The signature and return type of operators are standard.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a sets of input for
@@ -752,10 +755,10 @@ int main(int argc, char **argv)
         //:
         //:   3 Verify integrity of the source object.  (C-2)
         //:
-        //:   4 Verify new state of tested iterator.  (C-1,9)
+        //:   4 Verify new state of tested iterator.  (C-1,10)
         //:
         //:   5 Assign tested iterator to itself and verify it's integrity.
-        //:     (C-3,9)
+        //:     (C-3,10)
         //:
         //: 3 For each row 'R' in the table of P-1:
         //:
@@ -764,7 +767,7 @@ int main(int argc, char **argv)
         //:   2 Create a copy of iterator.
         //:
         //:   3 Move both iterators along the input string and verify their
-        //:     comparison results.  (C-4..6,9)
+        //:     comparison results.  (C-4..6,10)
         //:
         //: 4 For each row 'R' in the table of P-1:
         //:
@@ -775,13 +778,17 @@ int main(int argc, char **argv)
         //:   3 Move model iterator with pre-increment operator and tested
         //:     iterator with post-increment operator.  Verify returned value
         //:     of post-increment operator and compare both operators result.
-        //:     (C-7..9)
+        //:     (C-8..10)
+        //:
+        //:   4 Using 'end' method obtain an iterator and compare it with the
+        //:     default constructed iterator.  (C-7)
         //
         // Testing:
         //   TokenizerIterator& operator=(const TokenizerIterator& rhs);
         //   bool operator==(const TokenizerIterator&,const TokenizerIterator&)
         //   bool operator!=(const TokenizerIterator&,const TokenizerIterator&)
         //   const TokenizerIterator operator++(TokenizerIterator& obj, int);
+        //   iterator end();
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -791,7 +798,8 @@ int main(int argc, char **argv)
 
         if (verbose) cout << "\nTesting TokenizerIterator operators." << endl;
 
-        const int NUM_ITERATIONS = 5;
+        const int   NUM_ITERATIONS = 5;
+        const ObjIt DEFAULT;
 
         static const struct {
             int         d_line;                    // line number
@@ -838,7 +846,8 @@ int main(int argc, char **argv)
                                       TOKEN_CHARS));
 
                 Obj          mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
-                ObjIt        mIt = mT.begin();
+                const Obj&   T = mT;
+                ObjIt        mIt = T.begin();
                 const ObjIt& It  = mIt;
 
                 int i = 0;
@@ -913,6 +922,9 @@ int main(int argc, char **argv)
         if (verbose) cout << "\tTesting 'operator==' and 'operator!='."
                           << endl;
         {
+            ASSERTV(  DEFAULT == DEFAULT );
+            ASSERTV(!(DEFAULT != DEFAULT));
+
             for (int ti = 0; ti < DATA_LEN; ++ti) {
                 const int    LINE     = DATA[ti].d_line;
                 const char  *INPUT    = DATA[ti].d_input_p;
@@ -927,7 +939,8 @@ int main(int argc, char **argv)
                                       TOKEN_CHARS));
 
                 Obj          mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
-                ObjIt        mIt = mT.begin();
+                const Obj&   T = mT;
+                ObjIt        mIt = T.begin();
                 const ObjIt& It  = mIt;
                 ObjIt        eMIt(It);  // experimental iterator
                 const ObjIt& eIt  = eMIt;
@@ -961,6 +974,9 @@ int main(int argc, char **argv)
                         break;
                     }
 
+                    ASSERTV(!(DEFAULT == mIt));
+                    ASSERTV(  DEFAULT != mIt );
+
                     ++mIt;
 
                     areEqual    = (It == eIt);
@@ -972,6 +988,32 @@ int main(int argc, char **argv)
                     ++eMIt;
                     ++i;
                 } while (true);
+
+                ASSERTV(  DEFAULT == mIt );
+                ASSERTV(!(DEFAULT != mIt));
+            }
+        }
+
+        if (verbose) cout << "\tTesting 'end()'" << endl;
+        {
+            for (int ti = 0; ti < DATA_LEN; ++ti) {
+                const int   LINE  = DATA[ti].d_line;
+                const char *INPUT = DATA[ti].d_input_p;
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P(INPUT)
+                }
+
+                ASSERTV(LINE, isValid(INPUT,
+                                      SOFT_DELIM_CHARS,
+                                      HARD_DELIM_CHARS,
+                                      TOKEN_CHARS));
+
+                Obj        mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+                const Obj& T = mT;
+                ObjIt      mIt = T.end();
+
+                ASSERTV(DEFAULT == mIt);
             }
         }
 
@@ -991,7 +1033,8 @@ int main(int argc, char **argv)
                                       TOKEN_CHARS));
 
                 Obj          mT(INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
-                ObjIt        mIt = mT.begin();
+                const Obj&   T = mT;
+                ObjIt        mIt = T.begin();
                 const ObjIt& It  = mIt;
                 ObjIt        eMIt(It);  // experimental iterator
                 const ObjIt& eIt  = eMIt;
@@ -1023,6 +1066,8 @@ int main(int argc, char **argv)
 
                     ++i;
                 } while (true);
+
+                ASSERTV(DEFAULT == mIt);
             }
         }
       } break;
@@ -1080,9 +1125,6 @@ int main(int argc, char **argv)
                 const char *d_stringData_p[3 + MAX_ITER]; // input + expected
             } DATA[] = {
                 //________________Expected Parse of INPUT__________________
-                //L#  INPUT   TOK0    TOK1   TOK2  TOK3
-                //--  ------  ------  ------ ----- ----
-
                 //L#  INPUT   TOK0    TOK1   TOK2  TOK3
                 //--  ------  ------  ------ ----- ----
                 {L_, {"",                              } }, // Depth 0
@@ -1290,7 +1332,8 @@ int main(int argc, char **argv)
                 Obj          mT(INPUT,
                                 StringRef(SOFT_DELIM_CHARS),
                                 StringRef(HARD_DELIM_CHARS));
-                ObjIt        mIt = mT.begin();
+                const Obj&   T = mT;
+                ObjIt        mIt = T.begin();
                 const ObjIt& It  = mIt;
 
                 // Initially 'cursor' is the address of the first token string.
@@ -1333,6 +1376,22 @@ int main(int argc, char **argv)
 
                 }  // for current token in input row
             }  // for each row in table
+
+            // Using a still untested comparison operator, verify 'begin()'
+            // result for object, created with supplyed empty c-string.  Note
+            // that exactly the same state can be obtained supplying empty or
+            // default constructed 'StringRef'.
+
+            {
+                Obj         mT("",
+                               StringRef(SOFT_DELIM_CHARS),
+                               StringRef(HARD_DELIM_CHARS));
+                const Obj&   T = mT;
+                ObjIt        mIt = T.begin();
+                const ObjIt DEFAULT;
+
+                ASSERTV(DEFAULT == mIt);
+            }
         }
       } break;
       case 6: {
@@ -1347,7 +1406,10 @@ int main(int argc, char **argv)
         //:
         //: 3 'reset' method preserve delimiter sets, supplied at construction.
         //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        //: 4 'reset' method successfully handles default constructed
+        //:   'StringRef' object passed as parameter.
+        //:
+        //: 5 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a sets of input for
@@ -1363,7 +1425,10 @@ int main(int argc, char **argv)
         //:   with the same character set, arranged in the opposite order.
         //:   Verify that delimiter hasn't been changed.  (C-3)
         //:
-        //: 4 Verify that defensive checks are addressed.  (C-4)
+        //: 4 Reset the object with the default constructed 'StringRef'.
+        //:   Verify the result.  (C-4)
+        //:
+        //: 5 Verify that defensive checks are addressed.  (C-5)
         //
         // Testing:
         //   void reset(const char *input);
@@ -1378,6 +1443,8 @@ int main(int argc, char **argv)
 
         if (verbose) cout << "\tTesting input string resetting" << endl;
         {
+            const StringRef  DFLT_CONSTR_STRING_REF;
+
             static const struct {
                 int         d_line;            // line number
                 const char *d_ctorInput;       // input for constructor
@@ -1422,6 +1489,8 @@ int main(int argc, char **argv)
                 const char *RESET_TOKEN  = DATA[i].d_resetValues[1];
                 const char *RESET_DELIM  = DATA[i].d_resetValues[2];
 
+                const StringRef RESET_INPUT_STRING_REF(RESET_INPUT);
+
                 if (veryVerbose) {
                     T_ T_ P_(LINE) P_(CTOR_INPUT) P(RESET_INPUT)
                 }
@@ -1438,30 +1507,49 @@ int main(int argc, char **argv)
                                                  TOKEN_CHARS);
                 ASSERTV(LINE, RESET_INPUT, true == RESET_INPUT_VALID);
 
-                Obj        mT(CTOR_INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
-                const Obj& T = mT;
+                Obj        mT1(CTOR_INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+                const Obj& T1 = mT1;
+                Obj        mT2(CTOR_INPUT, SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
+                const Obj& T2 = mT2;
 
                 if (CTOR_TOKEN) {
-                    ASSERTV(LINE, true        == T.isValid());
-                    ASSERTV(LINE, CTOR_LEADER == T.previousDelimiter());
-                    ASSERTV(LINE, CTOR_TOKEN  == T.token());
-                    ASSERTV(LINE, CTOR_DELIM  == T.trailingDelimiter());
+                    ASSERTV(LINE, true        == T1.isValid());
+                    ASSERTV(LINE, CTOR_LEADER == T1.previousDelimiter());
+                    ASSERTV(LINE, CTOR_TOKEN  == T1.token());
+                    ASSERTV(LINE, CTOR_DELIM  == T1.trailingDelimiter());
                 } else {
-                    ASSERTV(LINE, false       == T.isValid());
-                    ASSERTV(LINE, CTOR_LEADER == T.previousDelimiter());
+                    ASSERTV(LINE, false       == T1.isValid());
+                    ASSERTV(LINE, CTOR_LEADER == T1.previousDelimiter());
                 }
 
-                mT.reset(RESET_INPUT);
+                mT1.reset(RESET_INPUT);
+                mT2.reset(RESET_INPUT_STRING_REF);
 
                 if (RESET_TOKEN) {
-                    ASSERTV(LINE, true         == T.isValid());
-                    ASSERTV(LINE, RESET_LEADER == T.previousDelimiter());
-                    ASSERTV(LINE, RESET_TOKEN  == T.token());
-                    ASSERTV(LINE, RESET_DELIM  == T.trailingDelimiter());
+                    ASSERTV(LINE, true         == T1.isValid());
+                    ASSERTV(LINE, RESET_LEADER == T1.previousDelimiter());
+                    ASSERTV(LINE, RESET_TOKEN  == T1.token());
+                    ASSERTV(LINE, RESET_DELIM  == T1.trailingDelimiter());
                 } else {
-                    ASSERTV(LINE, false        == T.isValid());
-                    ASSERTV(LINE, RESET_LEADER == T.previousDelimiter());
+                    ASSERTV(LINE, false        == T1.isValid());
+                    ASSERTV(LINE, RESET_LEADER == T1.previousDelimiter());
                 }
+
+                if (RESET_TOKEN) {
+                    ASSERTV(LINE, true         == T2.isValid());
+                    ASSERTV(LINE, RESET_LEADER == T2.previousDelimiter());
+                    ASSERTV(LINE, RESET_TOKEN  == T2.token());
+                    ASSERTV(LINE, RESET_DELIM  == T2.trailingDelimiter());
+                } else {
+                    ASSERTV(LINE, false        == T2.isValid());
+                    ASSERTV(LINE, RESET_LEADER == T2.previousDelimiter());
+                }
+
+                mT1.reset(DFLT_CONSTR_STRING_REF);
+
+                ASSERT(false == T1.isValid());
+                ASSERT(false == T1.hasPreviousSoft());
+                ASSERT(false == T1.isPreviousHard());
             }
         }
 
@@ -1500,11 +1588,8 @@ int main(int argc, char **argv)
             Obj        mT("", "", "");
 
             ASSERT_FAIL(mT.reset(static_cast<const char*>(0)));
-            ASSERT_FAIL(mT.reset((StringRef())));
             ASSERT_PASS(mT.reset(""));
-            ASSERT_PASS(mT.reset(StringRef("")));
         }
-
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -1515,6 +1600,9 @@ int main(int argc, char **argv)
         //: 1 Accessors correctly reflect current state of 'Tokenizer' object.
         //:
         //: 2 Embedded null character is correctly handled by the accessors.
+        //:
+        //: 3 Accessors can be successfully invoked for objects, having default
+        //:   constructed 'StringRef' supplied on construction.
         //
         // Plan:
         //: 1 Take 'Tokenizer' object through different states and verify
@@ -1523,6 +1611,11 @@ int main(int argc, char **argv)
         //: 2 Add embedded null character to soft delimiter, hard delimiter
         //:   and token sets respectively and verify accessors responses.
         //:   (C-2)
+        //:
+        //: 3 Supply default constructed 'StringRef' to the object constructor
+        //:   and invoke appropriate accessors.  Verify the results.  Note that
+        //:   invocation of 'hasTrailingSoft()', 'isTrailingHard()' or
+        //:   'token()' for such objects leads to undefined behavior. (C-3)
         //
         // Testing:
         //   bool isValid() const;
@@ -1768,6 +1861,52 @@ int main(int argc, char **argv)
                 ASSERT(false           == T.hasTrailingSoft());
                 ASSERT(false           == T.isTrailingHard());
             }
+
+            if (verbose)
+                cout << "\tTesting objects accepting default constructed"
+                     << " 'StringRef' object upon creation."
+                     << endl;
+            {
+                const StringRef  DFLT_CONSTR_STRING_REF;
+
+                const StringRef SOFT_DELIMITERS[3] = {
+                    StringRef(   ),
+                    StringRef("" ),
+                    StringRef(";")
+                };
+                const size_t SOFT_NUM =
+                              sizeof SOFT_DELIMITERS / sizeof *SOFT_DELIMITERS;
+
+                const StringRef HARD_DELIMITERS[3] = {
+                    StringRef(   ),
+                    StringRef("" ),
+                    StringRef(".")
+                };
+                const size_t HARD_NUM =
+                              sizeof HARD_DELIMITERS / sizeof *HARD_DELIMITERS;
+
+                for (size_t i = 0; i < SOFT_NUM; ++i ) {
+                    const StringRef SOFT = SOFT_DELIMITERS[i];
+
+                    Obj        mX1(DFLT_CONSTR_STRING_REF, SOFT);
+                    const Obj& X1 = mX1;
+
+                    ASSERT(false == X1.isValid());
+                    ASSERT(false == X1.hasPreviousSoft());
+                    ASSERT(false == X1.isPreviousHard());
+
+                    for (size_t j = 0; j < HARD_NUM; ++j ) {
+                        const StringRef HARD = HARD_DELIMITERS[j];
+
+                        Obj        mX2(DFLT_CONSTR_STRING_REF, SOFT, HARD);
+                        const Obj& X2 = mX2;
+
+                        ASSERT(false == X2.isValid());
+                        ASSERT(false == X2.hasPreviousSoft());
+                        ASSERT(false == X2.isPreviousHard());
+                    }
+                }
+            }
         }
       } break;
       case 4: {
@@ -1796,11 +1935,13 @@ int main(int argc, char **argv)
         //:
         //: 7 Inputs having large tokens/delimiters succeed.
         //:
-        //: 8 QoI: asserted precondition violations are detected when enabled.
+        //: 8 Default constructed 'StringRef' input succeeds.
         //:
-        //: 9 Accessors return references to expected character sequences.
+        //: 9 QoI: asserted precondition violations are detected when enabled.
         //:
-        //:10 'Tokenizer' object can be destroyed.
+        //:10 Accessors return references to expected character sequences.
+        //:
+        //:11 'Tokenizer' object can be destroyed.
         //
         // Plan:
         //: 1 Using the table-driven technique, apply depth-ordered enumeration
@@ -1819,7 +1960,7 @@ int main(int argc, char **argv)
         //: 2 Allow 'Tokenizer' object to leave the scope.  (C-10)
         //:
         //: 3 Additional add-hoc tests are provided to address remaining
-        //:   concerns.  (C-3..7)
+        //:   concerns.  (C-3..8)
         //:
         //: 4 Verify that defensive checks are addressed.  (C-8)
         //
@@ -2398,6 +2539,44 @@ int main(int argc, char **argv)
             }
         }
 
+        if (verbose) cout << "\tTesting default constructed 'StringRef' input."
+                          << endl;
+        {
+            const StringRef  DFLT_CONSTR_STRING_REF;
+            const StringRef  EMPTY_STRING_REF("");
+
+            const StringRef SOFT_DELIMITERS[3] = {
+                StringRef(   ),
+                StringRef("" ),
+                StringRef(";")
+            };
+            const size_t SOFT_NUM =
+                              sizeof SOFT_DELIMITERS / sizeof *SOFT_DELIMITERS;
+
+            const StringRef HARD_DELIMITERS[3] = {
+                StringRef(   ),
+                StringRef("" ),
+                StringRef(".")
+            };
+            const size_t HARD_NUM =
+                              sizeof HARD_DELIMITERS / sizeof *HARD_DELIMITERS;
+            for (size_t i = 0; i < SOFT_NUM; ++i ) {
+                const StringRef SOFT = SOFT_DELIMITERS[i];
+
+                Obj        mX1(DFLT_CONSTR_STRING_REF, SOFT);
+                const Obj& X1 = mX1;
+                ASSERT(EMPTY_STRING_REF == X1.previousDelimiter());
+
+                for (size_t j = 0; j < HARD_NUM; ++j ) {
+                    const StringRef HARD = HARD_DELIMITERS[j];
+
+                    Obj        mX2(DFLT_CONSTR_STRING_REF, SOFT, HARD);
+                    const Obj& X2 = mX2;
+                    ASSERT(EMPTY_STRING_REF == X2.previousDelimiter());
+                }
+            }
+        }
+
         if (verbose) cout << "\nNegative Testing."<< endl;
         {
             bsls::AssertTestHandlerGuard hG;
@@ -2405,10 +2584,7 @@ int main(int argc, char **argv)
             if (verbose) cout << "\tTesting null input." << endl;
 
             ASSERT_FAIL(Obj(static_cast<const char*>(0), "", ""));
-            ASSERT_FAIL(Obj((StringRef()), "", ""));
             ASSERT_PASS(Obj("", "", ""));
-            ASSERT_PASS(Obj(StringRef(""), (StringRef())));
-            ASSERT_PASS(Obj(StringRef(""), (StringRef()), (StringRef())));
 
             if (verbose) cout << "\tTesting iterating from an invalid state"
                               << endl;
@@ -3459,6 +3635,11 @@ int main(int argc, char **argv)
             t2++;
             ASSERT(t1 == t2);
 
+        }
+        if (verbose) cout << "\nTesting example from DRQS 164650579." << endl;
+        {
+            StringRef ref;
+            Obj tokenizer(ref, ref);
         }
       } break;
 

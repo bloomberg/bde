@@ -246,6 +246,37 @@ TokenizerIterator& TokenizerIterator::operator++()
                         // ---------------
                         // class Tokenizer
                         // ---------------
+
+// PRIVATE MANIPULATORS
+void Tokenizer::resetImpl(const char *input, const char *endOfInput)
+{
+    BSLS_ASSERT(input);
+
+    d_input_p     = input;
+    d_cursor_p    = input;
+    d_prevDelim_p = input;
+    d_token_p     = input;
+    d_postDelim_p = input;
+    d_end_p       = endOfInput;
+    d_endFlag     = false;
+
+    if (d_end_p) {
+        while (d_end_p != d_cursor_p
+               && SFT == d_sharedData.inputType(*d_cursor_p))
+        {
+            ++d_cursor_p;
+        }
+    } else {
+        while (0 != *d_cursor_p
+               && SFT == d_sharedData.inputType(*d_cursor_p))
+        {
+            ++d_cursor_p;
+        }
+    }
+
+    ++*this;                 // find first token
+}
+
 // CREATORS
 Tokenizer::Tokenizer(const char               *input,
                      const bslstl::StringRef&  soft)
@@ -268,7 +299,6 @@ Tokenizer::Tokenizer(const bslstl::StringRef&  input,
                      const bslstl::StringRef&  soft)
 : d_sharedData(soft)
 {
-    BSLS_ASSERT(input.begin());
     reset(input);
 }
 
@@ -277,7 +307,6 @@ Tokenizer::Tokenizer(const bslstl::StringRef&  input,
                      const bslstl::StringRef&  hard)
 : d_sharedData(soft, hard)
 {
-    BSLS_ASSERT(input.begin());
     reset(input);
 }
 
@@ -285,17 +314,7 @@ Tokenizer::~Tokenizer()
 {
 }
 
-Tokenizer::iterator Tokenizer::begin() const
-{
-    return TokenizerIterator(d_input_p, d_end_p, &d_sharedData);
-}
-
-Tokenizer::iterator Tokenizer::end() const
-{
-    return TokenizerIterator();
-}
-
-
+// MANIPULATORS
 Tokenizer& Tokenizer::operator++()
 {
     // Operator++ called on invalid tokenizer
@@ -377,6 +396,20 @@ Tokenizer& Tokenizer::operator++()
     return *this;
 }
 
+void Tokenizer::reset(const char *input)
+{
+    BSLS_ASSERT(input);
+    resetImpl(input, 0);
+}
+
+void Tokenizer::reset(const bslstl::StringRef& input)
+{
+    const char *begin = input.begin() ? input.begin() : "";
+    const char *end   = input.begin() ? input.end()   : begin;
+    resetImpl(begin, end);
+}
+
+// ACCESSORS
 bool Tokenizer::hasPreviousSoft() const
 {
     const char *p = d_prevDelim_p;
@@ -441,43 +474,14 @@ bool Tokenizer::isTrailingHard() const
     return false;
 }
 
-void Tokenizer::resetImpl(const char *input, const char *endOfInput)
+Tokenizer::iterator Tokenizer::begin() const
 {
-    d_input_p     = input;
-    d_cursor_p    = input;
-    d_prevDelim_p = input;
-    d_token_p     = input;
-    d_postDelim_p = input;
-    d_end_p       = endOfInput;
-    d_endFlag     = false;
-
-    if (d_end_p) {
-        while (d_end_p != d_cursor_p
-               && SFT == d_sharedData.inputType(*d_cursor_p))
-        {
-            ++d_cursor_p;
-        }
-    } else {
-        while (0 != *d_cursor_p
-               && SFT == d_sharedData.inputType(*d_cursor_p))
-        {
-            ++d_cursor_p;
-        }
-    }
-
-    ++*this;                 // find first token
+    return TokenizerIterator(d_input_p, d_end_p, &d_sharedData);
 }
 
-void Tokenizer::reset(const char *input)
+Tokenizer::iterator Tokenizer::end() const
 {
-    BSLS_ASSERT(input);
-    return resetImpl(input, 0);
-}
-
-void Tokenizer::reset(const bslstl::StringRef& input)
-{
-    BSLS_ASSERT(input.begin());
-    return resetImpl(input.begin(), input.end());
+    return TokenizerIterator();
 }
 
 }  // close package namespace

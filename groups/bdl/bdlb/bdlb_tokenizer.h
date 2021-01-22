@@ -822,10 +822,12 @@ class Tokenizer {
         // modified.  Also note that the current token and (trailing) delimiter
         // may be accessed only while this object is in the valid state;
         // however, the previous delimiter (or *leader*) is always accessible.
-        // Finally note that all token and delimiter strings are returned as
+        // Also note that all token and delimiter strings are returned as
         // references into the underlying 'input' string, and hence remain
         // valid so long as that string is not modified or destroyed --
         // irrespective of the state (or even the existence) of this object.
+        // Finally note that supplying a default constructed 'StringRef' is
+        // equivalent to supplying an empty c-string (i.e., "").
 
     ~Tokenizer();
         // Destroy this object.
@@ -851,9 +853,11 @@ class Tokenizer {
         // Rebind this object to refer to the specified sequence of 'input'
         // characters.  The state of the tokenizer following this call is *as*
         // *if* it had been constructed with 'input' and its current sets of
-        // *soft* and *hard* delimiter characters.  Note that the behavior is
+        // *soft* and *hard* delimiter characters.  The behavior is
         // undefined if this object is used in any way (other than to reset or
-        // destroy it) after its underlying 'input' string is modified.
+        // destroy it) after its underlying 'input' string is modified.  Note
+        // that supplying a default constructed 'StringRef' is equivalent to
+        // supplying an empty c-string (i.e., "").
 
     // ACCESSORS
     bool hasPreviousSoft() const;
