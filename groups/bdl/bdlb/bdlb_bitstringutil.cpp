@@ -984,6 +984,17 @@ void putSpaces(bsl::ostream& stream, int numSpaces)
     // Algorithm: Write spaces in chunks.  The chunk size is large enough so
     // that most times only a single call to the 'write' method is needed.
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
+    // The following 'if' should not be necessary, but there seems to be a
+    // compiler bug on Solaris CC 5.11-5.12.4 that was interpreting 'numSpaces'
+    // as an 'unsigned' with catastrophic consequences when 'numSpaces' was
+    // negative.
+
+    if (numSpaces < 0) {
+        return;                                                       // RETURN
+    }
+#endif
+
     // Define the largest chunk of spaces:
 
     static const char spaces[] = "                                        ";

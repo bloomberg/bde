@@ -334,12 +334,37 @@ bsl::ostream& print(bsl::ostream&                   stream,
 }  // close package namespace
 
 
+namespace bdlb {
+
+struct PrintMethods_ImpUtil {
+    // Namespace 'struct' for non-inlined implementations of 'print' for 'char'
+    // and 'unsigned char'.
+
+    enum Enum { e_CHAR, e_UNSIGNED_CHAR };
+
+    static
+    bsl::ostream& print(bsl::ostream& stream,
+                        unsigned char object,
+                        int           level,
+                        int           spacesPerLevel,
+                        Enum          charType);
+        // Format the specified 'object' to the specified output 'stream' at
+        // the (absolute value of) the optionally specified indentation 'level'
+        // and return a reference to 'stream'.  If 'level' is specified,
+        // optionally specify 'spacesPerLevel', the number of spaces per
+        // indentation level for this and all of its nested objects.  If
+        // 'level' is negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, format the entire output on one line,
+        // suppressing all but the initial indentation (as governed by
+        // 'level').  The specified 'charType' indicates whether 'object' is to
+        // be interpreted as a 'char' or 'unsigned char'.  If 'stream' is not
+        // valid on entry, this operation has no effect.
+};
+
                 // --------------------------------------------
                 // struct bdlb::PrintMethods_Imp<TYPE, SELECTOR>
                 // --------------------------------------------
 
-
-namespace bdlb {
 
 template <class TYPE, class SELECTOR>
 struct PrintMethods_Imp;
@@ -449,6 +474,38 @@ bsl::ostream& PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<> >::print(
     }
 
     return stream;
+}
+
+template <>
+inline
+bsl::ostream& PrintMethods_Imp<char,
+                               bslmf::SelectTraitCase<> >::print(
+                                                  bsl::ostream& stream,
+                                                  const char&   object,
+                                                  int           level,
+                                                  int           spacesPerLevel)
+{
+    return PrintMethods_ImpUtil::print(stream,
+                                       object,
+                                       level,
+                                       spacesPerLevel,
+                                       PrintMethods_ImpUtil::e_CHAR);
+}
+
+template <>
+inline
+bsl::ostream& PrintMethods_Imp<unsigned char,
+                               bslmf::SelectTraitCase<> >::print(
+                                           bsl::ostream&        stream,
+                                           const unsigned char& object,
+                                           int                  level,
+                                           int                  spacesPerLevel)
+{
+    return PrintMethods_ImpUtil::print(stream,
+                                       object,
+                                       level,
+                                       spacesPerLevel,
+                                       PrintMethods_ImpUtil::e_UNSIGNED_CHAR);
 }
 
           // ----------------------------------------------------

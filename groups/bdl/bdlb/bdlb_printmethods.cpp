@@ -12,9 +12,81 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlb_printmethods_cpp,"$Id$ $CSID$")
 
+#include <bsl_ios.h>
+#include <bsl_iomanip.h>
+
+namespace {
+namespace u {
+
+class FormatGuard {
+    // Class that saves the format flags from a stream.  Note 'ios_base' is a
+    // base class that both 'ostream' and 'istream' inherit from.
+
+    // DATA
+    bsl::ios_base           *d_stream;
+    bsl::ios_base::fmtflags  d_flags;
+
+  public:
+    // CREATORS
+    explicit
+    FormatGuard(bsl::ios_base *stream);
+        // Save a pointer to the specified 'stream', and save its format flags,
+        // to be restored upon this object's destruction.
+
+    ~FormatGuard();
+        // Restore the format flags that were saved at construction to the
+        // stream whose pointer we saved at construction.
+};
+
+// CREATORS
+inline
+FormatGuard::FormatGuard(bsl::ios_base *stream)
+{
+    d_stream = stream;
+    d_flags  = stream->flags();
+}
+
+inline
+FormatGuard::~FormatGuard()
+{
+    d_stream->flags(d_flags);
+}
+
+}  // close namespace u
+}  // close unnamed namespace
 
 namespace BloombergLP {
+namespace bdlb {
 
+bsl::ostream& PrintMethods_ImpUtil::print(bsl::ostream& stream,
+                                          unsigned char object,
+                                          int           level,
+                                          int           spacesPerLevel,
+                                          Enum          charType)
+{
+    if (stream.bad()) {
+        return stream;                                                // RETURN
+    }
+
+    Print::indent(stream, level, spacesPerLevel);
+
+    if (e_CHAR == charType) {
+        stream << static_cast<char>(object);
+    }
+    else {
+        u::FormatGuard guard(&stream);
+
+        stream << "0x" << bsl::hex << static_cast<unsigned>(object);
+    }
+
+    if (0 <= spacesPerLevel) {
+        stream << '\n';
+    }
+
+    return stream;
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

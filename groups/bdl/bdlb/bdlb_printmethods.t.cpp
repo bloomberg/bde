@@ -735,12 +735,18 @@ int main(int argc, char *argv[])
         //:   only need to make sure that the meta-function is used correctly
         //:   and that it correctly forwards arguments to the appropriate print
         //:   implementation function.
+        //:
+        //: 2 That our output of 'char' and 'unsigned char' is as we expect for
+        //:   all possible values of 'char' and 'unsigned char'.
         //
         // Plan:
         //: 1 Use a selection of test data from test cases 3, 4, 5, and 6 and
         //:   exercise this method to make sure the correct traits are detected
         //:   and the correct print implementation function is called with the
         //:   correct arguments.
+        //:
+        //: 2 In sn inner loop, iterate through all possible values of 'char'
+        //:   and 'unsigned char' and test them.
         //
         // Testing:
         //   bdlb::PrintMethods::print(..., const TYPE&, ...);
@@ -791,6 +797,78 @@ int main(int argc, char *argv[])
                 { L_,     2,      2,         "    ",   "\n"      },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            if (veryVerbose) cout << "\tUsing 'unsigned char'." << bsl::endl;
+            {
+                for (int i = 0; i < NUM_DATA; ++i) {
+                    const int   LINE             = DATA[i].d_lineNum;
+                    const int   LEVEL            = DATA[i].d_level;
+                    const int   SPACES_PER_LEVEL = DATA[i].d_spacesPerLevel;
+                    const char *EXPECTED_PREFIX  = DATA[i].d_expectedPrefix;
+                    const char *EXPECTED_SUFFIX  = DATA[i].d_expectedSuffix;
+
+                    if (veryVeryVerbose) cout <<
+                                    "All values of 'unsigned char' & 'char'\n";
+
+                    for (unsigned int j = 0; j < 256; ++j) {
+                        // unsigned char
+
+                        {
+                            const unsigned char VALUE =
+                                                 static_cast<unsigned char>(j);
+                            stringstream hexSs;
+                            hexSs << "0x" << bsl::hex << j;
+                            const string& EXPECTED_VALUE = hexSs.str();
+
+                            const string EXPECTED_RESULT = EXPECTED_PREFIX
+                                                         + EXPECTED_VALUE
+                                                         + EXPECTED_SUFFIX;
+
+                            stringstream ss;
+                            ostream& ret = bdlb::PrintMethods::print(
+                                                             ss,
+                                                             VALUE,
+                                                             LEVEL,
+                                                             SPACES_PER_LEVEL);
+
+                            LOOP_ASSERT(LINE, &ss == &ret);
+                            const string& result = ss.str();
+                            LOOP3_ASSERT(LINE, EXPECTED_RESULT,   result,
+                                               EXPECTED_RESULT == result);
+                            LOOP3_ASSERT(LINE, EXPECTED_RESULT.length(),
+                                               result.length(),
+                                               EXPECTED_RESULT.length() ==
+                                                              result.length());
+                        }
+
+                        // char
+                        {
+                            const char VALUE = static_cast<char>(j);
+                            const string& EXPECTED_VALUE = string() + VALUE;
+
+                            const string EXPECTED_RESULT = EXPECTED_PREFIX
+                                                         + EXPECTED_VALUE
+                                                         + EXPECTED_SUFFIX;
+
+                            stringstream ss;
+                            ostream& ret = bdlb::PrintMethods::print(
+                                                             ss,
+                                                             VALUE,
+                                                             LEVEL,
+                                                             SPACES_PER_LEVEL);
+
+                            LOOP_ASSERT(LINE, &ss == &ret);
+                            const string& result = ss.str();
+                            LOOP3_ASSERT(LINE, EXPECTED_RESULT,   result,
+                                               EXPECTED_RESULT == result);
+                            LOOP3_ASSERT(LINE, EXPECTED_RESULT.length(),
+                                               result.length(),
+                                               EXPECTED_RESULT.length() ==
+                                                              result.length());
+                        }
+                    }
+                }
+            }
 
             if (veryVerbose) cout << "\tUsing 'int'." << bsl::endl;
             {
