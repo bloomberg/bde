@@ -109,16 +109,16 @@ BSLS_IDENT("$Id: $")
 ///---------------------
 // The user-defined literal operators are declared for the 'bsl::string_view'
 // and 'bsl::wstring_view' types.  The ud-suffix '_sv' is chosen to distinguish
-// between the 'bsl'-string's user-defined literal operators and the
-// 'std'-string's user-defined literal 'operator ""sv' introduced in the C++14
-// standard and implemented in the standard library provided by the compiler
-// vendor.  Note that the 'bsl'-string's 'operator "" _sv', unlike the
-// 'std'-string's 'operator ""sv', can be used in a client's code if the
-// compiler supports the C++11 standard.  Also note that if the compiler
-// supports the C++17 standard then the 'std'-string's 'operator ""sv' can be
-// used to initialize a 'bsl'-string as follows:
+// between the 'bsl'-string_view's user-defined literal operators and the
+// 'std'-string_view's user-defined literal 'operator ""sv' introduced in the
+// C++14 standard and implemented in the standard library provided by the
+// compiler vendor.  Note that the 'bsl'-string_view's 'operator "" _sv',
+// unlike the 'std'-string_view's 'operator ""sv', can be used in a client's
+// code if the compiler supports the C++11 standard.  Also note that if the
+// compiler supports the C++17 standard then the 'std'-string_view's
+// 'operator ""sv' can be used to initialize a 'bsl'-string_view as follows:
 //..
-//  using namespace native_std::string_literals;
+//  using namespace native_std::string_view_literals;
 //  bsl::string_view sv = "test"sv;
 //..
 //
@@ -127,7 +127,9 @@ BSLS_IDENT("$Id: $")
 // 'literals' and 'string_view_literals' are inline namespaces.  Access to
 // these operators can be gained with either 'using namespace bsl::literals',
 // 'using namespace bsl::string_view_literals' or
-// 'using namespace bsl::literals::string_view_literals' as follows:
+// 'using namespace bsl::literals::string_view_literals'.  But we recommend
+// 'using namespace bsl::string_view_literals' to minimize the scope of the
+// using declaration:
 //..
 //  using namespace bsl::string_view_literals;
 //  bsl::string_view svr = "test"_sv;

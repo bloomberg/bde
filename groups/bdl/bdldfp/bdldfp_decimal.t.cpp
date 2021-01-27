@@ -481,8 +481,8 @@ void TestDriver::testCase8()
     //   bdldfp::Decimal128 operator "" _d128(const char *, size_t);
     // ------------------------------------------------------------------------
 
-
-#if __cplusplus >= 201103L
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)  && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
     if (verbose) bsl::cout
                      << bsl::endl
                      << "TESTING DECIMAL USER-DEFINED LITERALS" << bsl::endl

@@ -23,12 +23,14 @@ BSLS_IDENT("$Id: $")
 // UDLs, unlike the 'std'-chrono's UDLs, can be used in a client's code if the
 // current compiler supports the C++11 standard.
 //
-// Also note that 'bsl'-chrono's UDL operators are declared in
-// the 'bsl::literals::chrono_literals' namespace, where 'literals' and
+// Also note that 'bsl'-chrono's UDL operators are declared in the
+// 'bsl::literals::chrono_literals' namespace, where 'literals' and
 // 'chrono_literals' are inline namespaces.  Access to these operators can be
 // gained with either 'using namespace bsl::literals',
 // 'using namespace bsl::chrono_literals' or
-// 'using namespace bsl::literals::chrono_literals'.
+// 'using namespace bsl::literals::chrono_literals'.  But we recommend
+// 'using namespace bsl::chrono_literals' to minimize the scope of the using
+// declaration.
 //
 ///Usage
 ///-----

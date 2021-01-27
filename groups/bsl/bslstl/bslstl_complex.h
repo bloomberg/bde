@@ -22,12 +22,14 @@ BSLS_IDENT("$Id: $")
 // the 'std'-complex's UDLs, can be used in a client's code if the current
 // compiler supports the C++11 standard.
 //
-// Also note that 'bsl'-complex's UDL operators are declared in
-// the 'bsl::literals::complex_literals' namespace, where 'literals' and
+// Also note that 'bsl'-complex's UDL operators are declared in the
+// 'bsl::literals::complex_literals' namespace, where 'literals' and
 // 'complex_literals' are inline namespaces.  Access to these operators can be
 // gained with either 'using namespace bsl::literals',
 // 'using namespace bsl::complex_literals' or
-// 'using namespace bsl::literals::complex_literals'.
+// 'using namespace bsl::literals::complex_literals'.  But we recommend
+// 'using namespace bsl::complex_literals' to minimize the scope of the using
+// declaration.
 //
 ///Usage
 ///-----

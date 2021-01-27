@@ -49,6 +49,8 @@ BSLS_IDENT("$Id: $")
 // hours, minutes, seconds, milliseconds, microseconds or nanoseconds
 // respectively:
 //..
+//  using namespace bsls::TimeIntervalLiterals;
+//
 //  bsls::TimeInterval i0 = 10_h;
 //  assert(36000   == i0.seconds()    );
 //  assert(0       == i0.nanoseconds());
@@ -61,6 +63,13 @@ BSLS_IDENT("$Id: $")
 //  assert(0       == i2.seconds()    );
 //  assert(100     == i2.nanoseconds());
 //..
+// The operators providing literals are available in the
+// 'BloombergLP::bsls::literals::TimeIntervalLiterals' namespace (where
+// 'literals' and 'TimeIntervalLiterals' are both inline namespaces). Because
+// of inline namespaces, there are several viable options for a using
+// declaration, but *we* *recommend*
+// 'using namespace bsls::TimeIntervalLiterals', which minimizes the scope of
+// the using declaration.
 //
 // Note that user defined literals can be used only if the compiler supports
 // the C++11 standard.

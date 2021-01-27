@@ -195,7 +195,9 @@ BSLS_IDENT("$Id: $")
 // 'string_literals' are inline namespaces.  Access to these operators can be
 // gained with either 'using namespace bsl::literals',
 // 'using namespace bsl::string_literals' or
-// 'using namespace bsl::literals::string_literals' as follows:
+// 'using namespace bsl::literals::string_literals'.  But we recommend
+// 'using namespace bsl::string_literals' to minimize the scope of the using
+// declaration:
 //..
 // using namespace bsl::string_literals;
 // bsl::string str = "test"_s;

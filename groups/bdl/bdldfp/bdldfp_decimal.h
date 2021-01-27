@@ -512,6 +512,8 @@ BSLS_IDENT("$Id$")
 // floating-point value of the indicated type by parsing the argument string
 // or numeric value:
 //..
+//  using namespace bdldfp::DecimalLiterals;
+//
 //  bdldfp::Decimal32   d0  = "1.2"_d32;
 //  bdldfp::Decimal32   d1  =  1.2_d32;
 //  assert(d0 == d1);
@@ -523,6 +525,12 @@ BSLS_IDENT("$Id$")
 //  bdldfp::Decimal128  inf = "inf"_d128;
 //  bdldfp::Decimal128  nan = "nan"_d128;
 //..
+// The operators providing literals are available in the
+// 'BloombergLP::bdldfp::literals::DecimalLiterals' namespace (where 'literals'
+// and 'DecimalLiterals' are both inline namespaces). Because of inline
+// namespaces, there are several viable options for a using declaration, but
+// *we* *recommend* 'using namespace bdldfp::DecimalLiterals', which minimizes
+// the scope of the using declaration.
 //
 // Note that the parsing follows the rules as specified for the 'strtod32',
 // 'strtod64' and 'strtod128' functions in section 9.6 of the ISO/EIC TR 247128
@@ -584,6 +592,7 @@ BSLS_IDENT("$Id$")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
@@ -1791,8 +1800,10 @@ operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal32 object);
     // NOTE: This method does not yet fully support iostream flags or the
     // decimal floating point exception context.
 
-#if __cplusplus >= 201103L
-namespace DecimalLiterals {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)  && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
+inline namespace literals {
+inline namespace DecimalLiterals {
 bdldfp::Decimal32  operator "" _d32 (const char *str);
 bdldfp::Decimal32  operator "" _d32 (const char *str, bsl::size_t len);
     // Produce an object of the indicated return type by parsing the specified
@@ -1856,6 +1867,7 @@ bdldfp::Decimal32  operator "" _d32 (const char *str, bsl::size_t len);
     // '1.2345678_d32; "1.2345678_d32" => 1234568e-6'
 
 }  // close DecimalLiterals namespace
+}  // close literals namespace
 #endif
 
 // FREE FUNCTIONS
@@ -3107,8 +3119,10 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal64 object);
     // NOTE: This method does not yet fully support iostream flags or the
     // decimal floating point exception context.
 
-#if __cplusplus >= 201103L
-namespace DecimalLiterals {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)  && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
+inline namespace literals {
+inline namespace DecimalLiterals {
 bdldfp::Decimal64  operator "" _d64 (const char *str);
 bdldfp::Decimal64  operator "" _d64 (const char *str, bsl::size_t len);
     // Produce an object of the indicated return type by parsing the specified
@@ -3172,6 +3186,7 @@ bdldfp::Decimal64  operator "" _d64 (const char *str, bsl::size_t len);
     // '1.2345678901234567_d64;  => 1234567890123458-15'
 
 }  // close DecimalLiterals namespace
+}  // close literals namespace
 #endif
 
 // FREE FUNCTIONS
@@ -4380,8 +4395,10 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal128 object);
     // NOTE: This method does not yet fully support iostream flags or the
     // decimal floating point exception context.
 
-#if __cplusplus >= 201103L
-namespace DecimalLiterals {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)  && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
+inline namespace literals {
+inline namespace DecimalLiterals {
 bdldfp::Decimal128 operator "" _d128(const char *str);
 bdldfp::Decimal128 operator "" _d128(const char *str, bsl::size_t len);
     // Produce an object of the indicated return type by parsing the specified
@@ -4446,6 +4463,7 @@ bdldfp::Decimal128 operator "" _d128(const char *str, bsl::size_t len);
     //                               => 1234567890123456789012345678901235e-33'
 
 }  // close DecimalLiterals namespace
+}  // close literals namespace
 #endif
 
 // FREE FUNCTIONS
@@ -7237,7 +7255,8 @@ bool bdldfp::operator>=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
     return DecimalImpUtil::greaterEqual(*lhs.data(), *rhs.data());
 }
 
-#if __cplusplus >= 201103L
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)  && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
 inline
 bdldfp::Decimal32 bdldfp::DecimalLiterals::operator "" _d32(const char *str)
 {
@@ -7781,7 +7800,8 @@ inline bool bdldfp::operator>=(bdldfp::Decimal64 lhs, bdldfp::Decimal32 rhs)
     return lhs >= Decimal64(rhs);
 }
 
-#if __cplusplus >= 201103L
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)  && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
 inline
 bdldfp::Decimal64 bdldfp::DecimalLiterals::operator "" _d64(const char *str)
 {
@@ -8502,7 +8522,8 @@ bool bdldfp::operator>=(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
     return lhs >= Decimal128(rhs);
 }
 
-#if __cplusplus >= 201103L
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)  && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
 inline
 bdldfp::Decimal128 bdldfp::DecimalLiterals::operator "" _d128(const char *str)
 {
