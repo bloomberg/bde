@@ -336,7 +336,10 @@ class RecordAttributes {
         // Return the line number attribute of this record attributes object.
 
     const char *message() const;
-        // Return the message attribute of this record attributes object.
+        // Return the message attribute of this record attributes object.  Note
+        // that this method will return a truncated message if it contains
+        // embedded null ('\0') characters; see 'messageRef' for an alternative
+        // to this method.
 
     bslstl::StringRef messageRef() const;
         // Return a string reference providing non-modifiable access to the

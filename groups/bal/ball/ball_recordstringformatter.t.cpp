@@ -721,7 +721,7 @@ int main(int argc, char *argv[])
         ASSERT(bdlt::DatetimeInterval(0) == X.timestampOffset());
 
         bslma::TestAllocator sa("streamAllocator", veryVeryVeryVerbose);
-        ostringstream oss1(&sa), oss2(&sa);
+        bsl::ostringstream oss1(&sa), oss2(&sa);
 
         if (verbose) cout << "\n  Testing default format." << endl;
         {
@@ -1132,6 +1132,35 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
                 ASSERT(oss1.str() == MSG);
             }
+        }
+
+        {
+            // Testing regression reported in {DRQS 165063339}.
+            // It is not possible to set a message to a string with embedded 0
+            // with record's modifiers, so we need to use stream/streambuffer.
+            oss1.str("");
+            mX.setFormat("%m");
+
+            mRecord.fixedFields().clearMessage();
+
+            bsl::ostream inStream(&mRecord.fixedFields().messageStreamBuf());
+            inStream << "header " << '\0' << " footer";
+
+            X(oss1, record);
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+
+                bsl::ostringstream outStream(&da);
+                outStream << "header " << '\0' << " footer";
+
+                if (veryVerbose) { P_(oss1.str()); P_(outStream.str());}
+                ASSERTV(oss1.str(), outStream.str(),
+                        oss1.str() == outStream.str());
+            }
+
+            // Reset the message field to the original string.
+            mRecord.fixedFields().setMessage(MSG);
         }
 
         if (verbose) cout << "\n  Testing \"%x\" and \"%X\"." << endl;

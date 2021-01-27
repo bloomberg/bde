@@ -451,7 +451,7 @@ void PrintUtil::appendLineNumber(bsl::string *result, const Record& record)
 
 void PrintUtil::appendMessage(bsl::string *result, const Record& record)
 {
-    PrintUtil::appendString(result, record.fixedFields().message());
+    PrintUtil::appendString(result, record.fixedFields().messageRef());
 }
 
 void PrintUtil::appendMessageNonPrintableChars(bsl::string   *result,
@@ -713,7 +713,7 @@ void AttributesFormatter::operator()(bsl::string *result, const Record& record)
 // PUBLIC CONSTANTS
 const char *RecordStringFormatter::k_DEFAULT_FORMAT =
     "\n%d %p:%t %s %f:%l %c %m %u\n";
-        
+
 const char *RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT =
     "\n%d %p:%t %s %f:%l %c %a %m\n";
 
