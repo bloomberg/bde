@@ -296,6 +296,14 @@ bsl::ostream& print(bsl::ostream& stream,
                     const TYPE&   object,
                     int           level          = 0,
                     int           spacesPerLevel = 4);
+bsl::ostream& print(bsl::ostream& stream,
+                    char          object,
+                    int           level          = 0,
+                    int           spacesPerLevel = 4);
+bsl::ostream& print(bsl::ostream& stream,
+                    unsigned char object,
+                    int           level          = 0,
+                    int           spacesPerLevel = 4);
     // Format the specified 'object' to the specified output 'stream' at the
     // (absolute value of) the optionally specified indentation 'level' and
     // return a reference to 'stream'.  If 'level' is specified, optionally
@@ -335,31 +343,6 @@ bsl::ostream& print(bsl::ostream&                   stream,
 
 
 namespace bdlb {
-
-struct PrintMethods_ImpUtil {
-    // Namespace 'struct' for non-inlined implementations of 'print' for 'char'
-    // and 'unsigned char'.
-
-    enum Enum { e_CHAR, e_UNSIGNED_CHAR };
-
-    static
-    bsl::ostream& print(bsl::ostream& stream,
-                        unsigned char object,
-                        int           level,
-                        int           spacesPerLevel,
-                        Enum          charType);
-        // Format the specified 'object' to the specified output 'stream' at
-        // the (absolute value of) the optionally specified indentation 'level'
-        // and return a reference to 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  The specified 'charType' indicates whether 'object' is to
-        // be interpreted as a 'char' or 'unsigned char'.  If 'stream' is not
-        // valid on entry, this operation has no effect.
-};
 
                 // --------------------------------------------
                 // struct bdlb::PrintMethods_Imp<TYPE, SELECTOR>
@@ -640,35 +623,6 @@ bsl::ostream& PrintMethods::print(bsl::ostream& stream,
                                                        object,
                                                        level,
                                                        spacesPerLevel);
-}
-
-template <>
-inline
-bsl::ostream& PrintMethods::print<char>(bsl::ostream& stream,
-                                        const char&   object,
-                                        int           level,
-                                        int           spacesPerLevel)
-{
-    return PrintMethods_ImpUtil::print(stream,
-                                       object,
-                                       level,
-                                       spacesPerLevel,
-                                       PrintMethods_ImpUtil::e_CHAR);
-}
-
-template <>
-inline
-bsl::ostream& PrintMethods::print<unsigned char>(
-                                           bsl::ostream&        stream,
-                                           const unsigned char& object,
-                                           int                  level,
-                                           int                  spacesPerLevel)
-{
-    return PrintMethods_ImpUtil::print(stream,
-                                       object,
-                                       level,
-                                       spacesPerLevel,
-                                       PrintMethods_ImpUtil::e_UNSIGNED_CHAR);
 }
 
 template <class CHAR_T, class CHAR_TRAITS_T, class ALLOC>

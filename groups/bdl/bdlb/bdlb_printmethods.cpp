@@ -59,11 +59,10 @@ FormatGuard::~FormatGuard()
 namespace BloombergLP {
 namespace bdlb {
 
-bsl::ostream& PrintMethods_ImpUtil::print(bsl::ostream& stream,
-                                          unsigned char object,
-                                          int           level,
-                                          int           spacesPerLevel,
-                                          Enum          charType)
+bsl::ostream& PrintMethods::print(bsl::ostream& stream,
+                                  char          object,
+                                  int           level,
+                                  int           spacesPerLevel)
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -71,10 +70,36 @@ bsl::ostream& PrintMethods_ImpUtil::print(bsl::ostream& stream,
 
     Print::indent(stream, level, spacesPerLevel);
 
-    if (e_CHAR == charType && bsl::isprint(object)) {
-        stream << static_cast<char>(object);
+    const unsigned char uObject = object;
+
+    if (bsl::isprint(uObject)) {
+        stream << object;
     }
     else {
+        u::FormatGuard guard(&stream);
+
+        stream << "0x" << bsl::hex << static_cast<unsigned>(uObject);
+    }
+
+    if (0 <= spacesPerLevel) {
+        stream << '\n';
+    }
+
+    return stream;
+}
+
+bsl::ostream& PrintMethods::print(bsl::ostream& stream,
+                                  unsigned char object,
+                                  int           level,
+                                  int           spacesPerLevel)
+{
+    if (stream.bad()) {
+        return stream;                                                // RETURN
+    }
+
+    Print::indent(stream, level, spacesPerLevel);
+
+    {
         u::FormatGuard guard(&stream);
 
         stream << "0x" << bsl::hex << static_cast<unsigned>(object);
