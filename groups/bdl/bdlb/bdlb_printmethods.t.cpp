@@ -14,6 +14,7 @@
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bsls_timeinterval.h>
 
+#include <bsl_cctype.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
@@ -843,8 +844,18 @@ int main(int argc, char *argv[])
 
                         // char
                         {
-                            const char VALUE = static_cast<char>(j);
-                            const string& EXPECTED_VALUE = string() + VALUE;
+                            const unsigned char UVALUE = static_cast<
+                                                             unsigned char>(j);
+                            const char VALUE = static_cast<char>(UVALUE);
+                            string EXPECTED_VALUE;
+                            if (bsl::isprint(UVALUE)) {
+                                EXPECTED_VALUE += VALUE;
+                            }
+                            else {
+                                stringstream hexSs;
+                                hexSs << "0x" << bsl::hex << j;
+                                EXPECTED_VALUE = hexSs.str();
+                            }
 
                             const string EXPECTED_RESULT = EXPECTED_PREFIX
                                                          + EXPECTED_VALUE

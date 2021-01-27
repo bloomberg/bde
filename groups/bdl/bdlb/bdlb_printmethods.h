@@ -476,38 +476,6 @@ bsl::ostream& PrintMethods_Imp<TYPE, bslmf::SelectTraitCase<> >::print(
     return stream;
 }
 
-template <>
-inline
-bsl::ostream& PrintMethods_Imp<char,
-                               bslmf::SelectTraitCase<> >::print(
-                                                  bsl::ostream& stream,
-                                                  const char&   object,
-                                                  int           level,
-                                                  int           spacesPerLevel)
-{
-    return PrintMethods_ImpUtil::print(stream,
-                                       object,
-                                       level,
-                                       spacesPerLevel,
-                                       PrintMethods_ImpUtil::e_CHAR);
-}
-
-template <>
-inline
-bsl::ostream& PrintMethods_Imp<unsigned char,
-                               bslmf::SelectTraitCase<> >::print(
-                                           bsl::ostream&        stream,
-                                           const unsigned char& object,
-                                           int                  level,
-                                           int                  spacesPerLevel)
-{
-    return PrintMethods_ImpUtil::print(stream,
-                                       object,
-                                       level,
-                                       spacesPerLevel,
-                                       PrintMethods_ImpUtil::e_UNSIGNED_CHAR);
-}
-
           // ----------------------------------------------------
           // struct PrintMethods_Imp<TYPE, HasPrintMethod<TYPE> >
           // ----------------------------------------------------
@@ -672,6 +640,35 @@ bsl::ostream& PrintMethods::print(bsl::ostream& stream,
                                                        object,
                                                        level,
                                                        spacesPerLevel);
+}
+
+template <>
+inline
+bsl::ostream& PrintMethods::print<char>(bsl::ostream& stream,
+                                        const char&   object,
+                                        int           level,
+                                        int           spacesPerLevel)
+{
+    return PrintMethods_ImpUtil::print(stream,
+                                       object,
+                                       level,
+                                       spacesPerLevel,
+                                       PrintMethods_ImpUtil::e_CHAR);
+}
+
+template <>
+inline
+bsl::ostream& PrintMethods::print<unsigned char>(
+                                           bsl::ostream&        stream,
+                                           const unsigned char& object,
+                                           int                  level,
+                                           int                  spacesPerLevel)
+{
+    return PrintMethods_ImpUtil::print(stream,
+                                       object,
+                                       level,
+                                       spacesPerLevel,
+                                       PrintMethods_ImpUtil::e_UNSIGNED_CHAR);
 }
 
 template <class CHAR_T, class CHAR_TRAITS_T, class ALLOC>

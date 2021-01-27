@@ -12,6 +12,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlb_printmethods_cpp,"$Id$ $CSID$")
 
+#include <bsl_cctype.h>
 #include <bsl_ios.h>
 #include <bsl_iomanip.h>
 
@@ -70,7 +71,7 @@ bsl::ostream& PrintMethods_ImpUtil::print(bsl::ostream& stream,
 
     Print::indent(stream, level, spacesPerLevel);
 
-    if (e_CHAR == charType) {
+    if (e_CHAR == charType && bsl::isprint(object)) {
         stream << static_cast<char>(object);
     }
     else {
