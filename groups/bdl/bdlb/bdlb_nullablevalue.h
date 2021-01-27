@@ -97,6 +97,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 
+#include <bslstl_optional.h>
+
 #include <bslx_instreamfunctions.h>
 #include <bslx_outstreamfunctions.h>
 #include <bslx_versionfunctions.h>
@@ -112,7 +114,7 @@ BSLS_IDENT("$Id: $")
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Fri Oct 23 15:04:00 2020
+// Generated on Fri Jan 22 15:32:43 2021
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 # define COMPILING_BDLB_NULLABLEVALUE_H
 # include <bdlb_nullablevalue_cpp03.h>
@@ -133,7 +135,7 @@ class NullableValue_WithoutAllocator;
                       // =========================
 
 template <class TYPE>
-class NullableValue {
+class NullableValue : public bsl::optional<TYPE> {
     // This template class extends the set of values of its value-semantic
     // 'TYPE' parameter to include the notion of a "null" value.  If 'TYPE' is
     // fully value-semantic, then the augmented type 'Nullable<TYPE>' will be
@@ -149,21 +151,27 @@ class NullableValue {
     // overloads unary 'operator&', or 'bdlb::NullOptType'.
 
     // PRIVATE TYPES
-    typedef typename
-    bsl::conditional<bslma::UsesBslmaAllocator<TYPE>::value,
-                     NullableValue_WithAllocator<TYPE>,
-                     NullableValue_WithoutAllocator<TYPE> >::type Imp;
 
-    typedef bslmf::MovableRefUtil                                 MoveUtil;
+    typedef bslmf::MovableRefUtil MoveUtil;
 
-    struct EnableType { };
+    struct EnableType {
+    };
 
-    // DATA
-    Imp d_imp;  // managed nullable 'TYPE' object
+    struct NoAlloc {
+        // This trivial tag type is used as a dummy when 'NullableValue' wraps
+        // a non-allocator-aware type.
+    };
 
-    // FRIENDS
-    template <class FRIEND_TYPE>
-    friend void swap(NullableValue<FRIEND_TYPE>&, NullableValue<FRIEND_TYPE>&);
+    typedef typename bsl::conditional<bslma::UsesBslmaAllocator<TYPE>::value,
+                                      bsl::allocator<char>,
+                                      NoAlloc>::type AllocType;
+        // Type alias to the allocator type used by this 'NullableValue'.  Note
+        // that we can't refer to 'optional::allocator_type' because the
+        // conditional needs the type to exist even for non allocator aware
+        // types.
+
+    template <class ANY_TYPE>
+    friend class NullableValue;
 
   public:
     // TYPES
@@ -172,7 +180,7 @@ class NullableValue {
         // template class is instantiated, and represents the type of the
         // managed object.
 
-    typedef typename Imp::AllocType allocator_type;
+    typedef AllocType allocator_type;
         // The type of allocator used by this object.  If 'TYPE' is not
         // allocator aware, 'allocator_type' is a private non-allocator type
         // that effectively removes the allocator-specific constructors from
@@ -199,7 +207,7 @@ class NullableValue {
         // optional allocator at construction, use the currently installed
         // default allocator to supply memory.
 
-    explicit NullableValue(const allocator_type& allocator)
+    explicit NullableValue(const allocator_type& allocator) 
                                                          BSLS_KEYWORD_NOEXCEPT;
         // Create a nullable object that has the null value and that uses the
         // specified 'allocator' (e.g., the address of a 'bslma::Allocator'
@@ -390,24 +398,11 @@ class NullableValue {
         // exception this object is left in the null state.
 #endif
 
-    void reset();
-        // Reset this object to the default constructed state (i.e., to have
-        // the null value).
-
-    void swap(NullableValue& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee if the (template parameter) 'TYPE'
-        // provides that guarantee and the result of the 'isNull' method for
-        // the two objects being swapped is the same.  The behavior is
-        // undefined unless this object was created with the same allocator as
-        // 'other' (if applicable).
-
     TYPE& value();
         // Return a reference providing modifiable access to the underlying
         // 'TYPE' object.  The behavior is undefined unless this object is
         // non-null.
-
+        
     // ACCESSORS
     const TYPE *addressOr(const TYPE *address) const;
         // Return an address providing non-modifiable access to the underlying
@@ -486,15 +481,17 @@ class NullableValue {
         // object of a (template parameter) 'TYPE' if this object is non-null,
         // and 0 otherwise.
 
-    allocator_type get_allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that compilation will fail if this method is called for a 'TYPE'
-        // that is not allocator aware.
 };
 
 // FREE OPERATORS
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const NullableValue<LHS_TYPE>& lhs,
+                const NullableValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator==(const NullableValue<LHS_TYPE>& lhs,
+                const bsl::optional<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator==(const bsl::optional<LHS_TYPE>& lhs,
                 const NullableValue<RHS_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' nullable objects have the
     // same value, and 'false' otherwise.  Two nullable objects have the same
@@ -505,6 +502,12 @@ bool operator==(const NullableValue<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const NullableValue<LHS_TYPE>& lhs,
                 const NullableValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator!=(const bsl::optional<LHS_TYPE>& lhs,
+                const NullableValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator!=(const NullableValue<LHS_TYPE>& lhs,
+                const bsl::optional<RHS_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' nullable objects do not
     // have the same value, and 'false' otherwise.  Two nullable objects do not
     // have the same value if one is null and the other is non-null, or if both
@@ -541,6 +544,12 @@ bool operator==(const LHS_TYPE&                lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const NullableValue<LHS_TYPE>& lhs,
                const NullableValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<(const bsl::optional<LHS_TYPE>& lhs,
+               const NullableValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<(const NullableValue<LHS_TYPE>& lhs,
+               const bsl::optional<RHS_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' nullable object is ordered before
     // the specified 'rhs' nullable object, and 'false' otherwise.  'lhs' is
     // ordered before 'rhs' if 'lhs' is null and 'rhs' is non-null or if both
@@ -565,12 +574,19 @@ bool operator<(const LHS_TYPE&                lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const NullableValue<LHS_TYPE>& lhs,
                const NullableValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>(const bsl::optional<LHS_TYPE>& lhs,
+               const NullableValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>(const NullableValue<LHS_TYPE>& lhs,
+               const bsl::optional<RHS_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' nullable object is ordered after
     // the specified 'rhs' nullable object, and 'false' otherwise.  'lhs' is
     // ordered after 'rhs' if 'lhs' is non-null and 'rhs' is null or if both
     // are non-null and 'lhs.value()' is ordered after 'rhs.value()'.  Note
-    // that this operator returns 'rhs < lhs'.  Also note that this function
-    // will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
+    // that this operator returns 'rhs < lhs' when both operands are of
+    // 'NullableValue' type.  Also note that this function will fail to compile
+    // if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const NullableValue<LHS_TYPE>& lhs,
@@ -591,11 +607,18 @@ bool operator>(const LHS_TYPE&                lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const NullableValue<LHS_TYPE>& lhs,
                 const NullableValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<=(const bsl::optional<LHS_TYPE>& lhs,
+                const NullableValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<=(const NullableValue<LHS_TYPE>& lhs,
+                const bsl::optional<RHS_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' nullable object is ordered before
     // the specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
     // value, and 'false' otherwise.  (See 'operator<' and 'operator=='.)  Note
-    // that this operator returns '!(rhs < lhs)'.  Also note that this function
-    // will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
+    // that this operator returns '!(rhs < lhs)' when both operands are of
+    // 'NullableValue' type.  Also note that this function will fail to compile
+    // if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const NullableValue<LHS_TYPE>& lhs,
@@ -616,11 +639,18 @@ bool operator<=(const LHS_TYPE&                lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const NullableValue<LHS_TYPE>& lhs,
                 const NullableValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>=(const bsl::optional<LHS_TYPE>& lhs,
+                const NullableValue<RHS_TYPE>& rhs);
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>=(const NullableValue<LHS_TYPE>& lhs,
+                const bsl::optional<RHS_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' nullable object is ordered after
     // the specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
     // value, and 'false' otherwise.  (See 'operator>' and 'operator=='.)  Note
-    // that this operator returns '!(lhs < rhs)'.  Also note that this function
-    // will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
+    // that this operator returns '!(lhs < rhs)' when both operands are of
+    // 'NullableValue' type.  Also note that this function will fail to compile
+    // if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const NullableValue<LHS_TYPE>& lhs,
@@ -663,7 +693,7 @@ template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
 bool operator<(const NullableValue<TYPE>&,
                const NullOptType&        ) BSLS_KEYWORD_NOEXCEPT;
-    // Return 'false'.  Note that 'bdlb::nullOpt' never orders before a
+    // Return 'false'.  Note that 'bdlb::nullOpt' never orders after a
     // 'NullableValue'.
 
 template <class TYPE>
@@ -671,8 +701,8 @@ BSLS_KEYWORD_CONSTEXPR
 bool operator<(const NullOptType&         ,
                const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'value' is not null, and 'false'
-    // otherwise.  Note that 'bdlb::nullOpt' sorts before any 'NullableValue'
-    // that is not null.
+    // otherwise.  Note that 'bdlb::nullOpt' is ordered before any
+    // 'NullableValue' that is not null.
 
 template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR
@@ -734,7 +764,13 @@ void hashAppend(HASHALG& hashAlg, const NullableValue<TYPE>& input);
     // value to 'hashAlg'.
 
 template <class TYPE>
-void swap(NullableValue<TYPE>& a, NullableValue<TYPE>& b);
+typename bsl::enable_if<BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value,
+                        void>::type
+swap(NullableValue<TYPE>& lhs, NullableValue<TYPE>& rhs);
+template <class TYPE>
+typename bsl::enable_if<!BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value,
+                        void>::type
+swap(NullableValue<TYPE>& lhs, NullableValue<TYPE>& rhs);
     // Exchange the values of the specified 'a' and 'b' objects.  This function
     // provides the no-throw exception-safety guarantee if the (template
     // parameter) 'TYPE' provides that guarantee, the two objects were created
@@ -742,297 +778,6 @@ void swap(NullableValue<TYPE>& a, NullableValue<TYPE>& b);
     // method for the two objects is the same; otherwise this function provides
     // the basic guarantee.
 
-               // =======================================
-               // class NullableValue_WithAllocator<TYPE>
-               // =======================================
-
-template <class TYPE>
-class NullableValue_WithAllocator {
-    // This template class provides the implementation of 'NullableValue' for
-    // types that require an allocator.
-
-    // DATA
-    bsls::ObjectBuffer<TYPE>  d_buffer;       // in-place 'TYPE' object
-
-    bool                      d_isNull;       // 'true' if null, otherwise
-                                              // 'false'
-
-    bsl::allocator<char>      d_allocator;
-
-    // PRIVATE TYPES
-    typedef bsl::allocator<char> AllocType;
-        // This type is used as the allocator argument type in the
-        // 'NullableValue' class.  The presence of this type and the fact that
-        // it is publicly constructible enables constructor overloads taking
-        // allocator arguments.
-
-    typedef bslmf::MovableRefUtil MoveUtil;
-
-    // FRIENDS
-    friend class NullableValue<TYPE>;
-
-    template <class FRIEND_TYPE>
-    friend void swap(NullableValue_WithAllocator<FRIEND_TYPE>&,
-                     NullableValue_WithAllocator<FRIEND_TYPE>&);
-
-    // PRIVATE MANIPULATORS
-    template <class BDE_OTHER_TYPE>
-    void makeValueRaw(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value);
-        // Assign to this object the specified 'value' (of 'BDE_OTHER_TYPE')
-        // converted to 'TYPE'.  The behavior is undefined unless this object
-        // is null.  Note that this method will fail to compile if 'TYPE and
-        // 'BDE_OTHER_TYPE' are not compatible.
-
-  public:
-    // TYPES
-    typedef AllocType allocator_type;
-
-    // CREATORS
-    explicit NullableValue_WithAllocator(
-                                const allocator_type& allocator = AllocType());
-        // Create a nullable object having the null value.  Optionally specify
-        // an 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory; otherwise, the default allocator is used.
-
-    NullableValue_WithAllocator(
-                   const NullableValue_WithAllocator& original,
-                   const allocator_type&              allocator = AllocType());
-        // Create a nullable object having the value of the specified
-        // 'original' object.  Optionally specify an 'allocator' (e.g., the
-        // address of a 'bslma::Allocator' object) to supply memory; otherwise,
-        // the default allocator is used.
-
-    NullableValue_WithAllocator(
-                      bslmf::MovableRef<NullableValue_WithAllocator> original);
-        // Create a nullable object having the same value as the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  The allocator associated with 'original' is
-        // propagated for use in the newly-created object.  'original' is left
-        // in a valid but unspecified state.
-
-    NullableValue_WithAllocator(
-                     bslmf::MovableRef<NullableValue_WithAllocator> original,
-                     const allocator_type&                          allocator);
-        // Create a nullable object having the same value as the specified
-        // 'original' object but using the specified 'allocator' (e.g., the
-        // address of a 'bslma::Allocator' object) to supply memory.  The
-        // contents of 'original' are moved to the newly-created object.
-        // 'original' is left in a valid but unspecified state.
-
-    ~NullableValue_WithAllocator();
-        // Destroy this object.
-
-    // MANIPULATORS
-    NullableValue_WithAllocator& operator=(
-                                       const NullableValue_WithAllocator& rhs);
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.
-
-    NullableValue_WithAllocator& operator=(
-                           bslmf::MovableRef<NullableValue_WithAllocator> rhs);
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.  The contents
-        // of 'rhs' are either move-inserted into or move-assigned to this
-        // object.  'rhs' is left in a valid but unspecified state.
-
-    void swap(NullableValue_WithAllocator& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee if the (template parameter) 'TYPE'
-        // provides that guarantee and the result of the 'isNull' method for
-        // the two objects being swapped is the same.  The behavior is
-        // undefined unless this object was created with the same allocator as
-        // 'other'.
-
-    template <class BDE_OTHER_TYPE>
-    void makeValue(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value);
-        // Assign to this object the specified 'value' (of 'BDE_OTHER_TYPE')
-        // converted to 'TYPE'.  Note that this method will fail to compile if
-        // 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
-
-    void makeValue();
-        // Assign to this object the default value for 'TYPE'.
-
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    template <class... ARGS>
-    void makeValueInplace(ARGS&&... args);
-        // Assign to this nullable object the value of the (template parameter)
-        // 'TYPE' (which has the 'bslma::UsesBslmaAllocator' trait) created in
-        // place using the specified 'args'.  The object is also accessible via
-        // the 'value' method.  If this nullable object already contains a
-        // object ('false == isNull())', that object is destroyed before the
-        // new object is created.  The allocator specified at the construction
-        // of this nullable object is used to supply memory to the value
-        // object.  Attempts to explicitly specify via 'args' another allocator
-        // to supply memory to the created (value) object are disallowed by the
-        // compiler.  Note that if the constructor of 'TYPE' throws an
-        // exception this object is left in the null state.
-#endif
-
-    void reset();
-        // Reset this object to the default constructed state (i.e., to have
-        // the null value).
-
-    TYPE& value();
-        // Return a reference providing modifiable access to the underlying
-        // 'TYPE' object.  The behavior is undefined unless this object is
-        // non-null.
-
-    // ACCESSORS
-    const TYPE *address() const;
-        // Return the address of the  underlying 'TYPE' object.  The behavior
-        // is undefined unless this object is non-null.
-
-    bool isNull() const;
-        // Return 'true' if this object is null, and 'false' otherwise.
-
-    const TYPE& value() const;
-        // Return a reference providing non-modifiable access to the underlying
-        // 'TYPE' object.  The behavior is undefined unless this object is
-        // non-null.
-
-    allocator_type get_allocator() const;
-        // Return the allocator used by this object to supply memory.
-};
-
-// FREE FUNCTIONS
-template <class TYPE>
-void swap(NullableValue_WithAllocator<TYPE>& a,
-          NullableValue_WithAllocator<TYPE>& b);
-    // Exchange the values of the specified 'a' and 'b' objects.  This function
-    // provides the no-throw exception-safety guarantee if the (template
-    // parameter) 'TYPE' provides that guarantee, the two objects were created
-    // with the same allocator, and the result of the 'isNull' method for the
-    // two objects is the same; otherwise this function provides the basic
-    // guarantee.
-
-              // ==========================================
-              // class NullableValue_WithoutAllocator<TYPE>
-              // ==========================================
-
-template <class TYPE>
-class NullableValue_WithoutAllocator {
-    // This template class provides the implementation of 'NullableValue' for
-    // types that do *not* require an allocator.
-
-    // DATA
-    bsls::ObjectBuffer<TYPE> d_buffer;  // in-place 'TYPE' object
-    bool                     d_isNull;  // 'true' if null, otherwise 'false'
-
-    // PRIVATE TYPES
-    typedef bslmf::MovableRefUtil MoveUtil;
-
-    struct AllocType {
-        // This empty 'struct' is used as an optional argument type in the
-        // 'NullableValue' class.  Because it is not constructible by end
-        // clients, constructor overloads using 'AllocType' are effectively
-        // disabled (do not participate in overload resolution).
-    };
-
-    // FRIENDS
-    friend class NullableValue<TYPE>;
-
-    // PRIVATE MANIPULATORS
-    template <class BDE_OTHER_TYPE>
-    void makeValueRaw(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value);
-        // Assign to this object the specified 'value' (of 'BDE_OTHER_TYPE')
-        // converted to 'TYPE'.  The behavior is undefined unless this object
-        // is null.  Note that this method will fail to compile if 'TYPE and
-        // 'BDE_OTHER_TYPE' are not compatible.
-
-  public:
-    // CREATORS
-    NullableValue_WithoutAllocator();
-        // Create a nullable object having the null value.
-
-    NullableValue_WithoutAllocator(
-                               const NullableValue_WithoutAllocator& original);
-        // Create a nullable object having the value of the specified
-        // 'original' object.
-
-    NullableValue_WithoutAllocator(
-                   bslmf::MovableRef<NullableValue_WithoutAllocator> original);
-        // Create a nullable object having the same value as the specified
-        // 'original' object by moving the contents of 'original' to the
-        // newly-created object.  'original' is left in a valid but unspecified
-        // state.
-
-    ~NullableValue_WithoutAllocator();
-        // Destroy this object.
-
-    // MANIPULATORS
-    NullableValue_WithoutAllocator& operator=(
-                                    const NullableValue_WithoutAllocator& rhs);
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.
-
-    NullableValue_WithoutAllocator& operator=(
-                        bslmf::MovableRef<NullableValue_WithoutAllocator> rhs);
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.  The contents
-        // of 'rhs' are either move-inserted into or move-assigned to this
-        // object.  'rhs' is left in a valid but unspecified state.
-
-    void swap(NullableValue_WithoutAllocator& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee if the (template parameter) 'TYPE'
-        // provides that guarantee and the result of the 'isNull' method for
-        // the two objects being swapped is the same.
-
-    template <class BDE_OTHER_TYPE>
-    void makeValue(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value);
-        // Assign to this object the specified 'value' (of 'BDE_OTHER_TYPE')
-        // converted to 'TYPE'.  Note that this method will fail to compile if
-        // 'TYPE and 'BDE_OTHER_TYPE' are not compatible.
-
-    void makeValue();
-        // Assign to this object the default value for 'TYPE'.
-
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    template <class... ARGS>
-    void makeValueInplace(ARGS&&... args);
-        // Assign to this nullable object the value of the (template parameter)
-        // 'TYPE' (which does not have the 'bslma::UsesBslmaAllocator' trait)
-        // created in place using the specified 'args'.  (The object is also
-        // accessible via the 'value' method).  If this nullable object already
-        // contains an object ('false == isNull())', that object is destroyed
-        // before the new object is created.  Note that if the constructor of
-        // 'TYPE' throws an exception this object is left in the null state.
-#endif
-
-    void reset();
-        // Reset this object to the default constructed state (i.e., to have
-        // the null value).
-
-    TYPE& value();
-        // Return a reference providing modifiable access to the underlying
-        // 'TYPE' object.  The behavior is undefined unless this object is
-        // non-null.
-
-    // ACCESSORS
-    const TYPE *address() const;
-        // Return the address of the  underlying 'TYPE' object.  The behavior
-        // is undefined unless this object is non-null.
-
-    bool isNull() const;
-        // Return 'true' if this object is null, and 'false' otherwise.
-
-    const TYPE& value() const;
-        // Return a reference providing non-modifiable access to the underlying
-        // 'TYPE' object.  The behavior is undefined unless this object is
-        // non-null.
-};
-
-// FREE FUNCTIONS
-template <class TYPE>
-void swap(NullableValue_WithoutAllocator<TYPE>& a,
-          NullableValue_WithoutAllocator<TYPE>& b);
-    // Exchange the values of the specified 'a' and 'b' objects.  This function
-    // provides the no-throw exception-safety guarantee if the (template
-    // parameter) 'TYPE' provides that guarantee and the result of the 'isNull'
-    // method for the two objects is the same; otherwise this function provides
-    // the basic guarantee.
 
 // ============================================================================
 //                           INLINE DEFINITIONS
@@ -1051,16 +796,16 @@ NullableValue<TYPE>::NullableValue() BSLS_KEYWORD_NOEXCEPT
 
 template <class TYPE>
 inline
-NullableValue<TYPE>::NullableValue(const allocator_type& allocator)
-                                                          BSLS_KEYWORD_NOEXCEPT
-: d_imp(allocator)
+NullableValue<TYPE>::NullableValue(
+                         const allocator_type& allocator) BSLS_KEYWORD_NOEXCEPT
+: bsl::optional<TYPE>(bsl::allocator_arg, allocator)
 {
 }
 
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(const NullableValue& original)
-: d_imp(original.d_imp)
+: bsl::optional<TYPE>(static_cast<const bsl::optional<TYPE>&>(original))
 {
 }
 
@@ -1068,14 +813,17 @@ template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(const NullableValue&  original,
                                    const allocator_type& allocator)
-: d_imp(original.d_imp, allocator)
+: bsl::optional<TYPE>(bsl::allocator_arg,
+                      allocator,
+                      static_cast<const bsl::optional<TYPE>&>(original))
 {
 }
 
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(bslmf::MovableRef<NullableValue> original)
-: d_imp(MoveUtil::move(MoveUtil::access(original).d_imp))
+: bsl::optional<TYPE>(MoveUtil::move(
+      static_cast<bsl::optional<TYPE>&>(MoveUtil::access(original))))
 {
 }
 
@@ -1083,7 +831,10 @@ template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(bslmf::MovableRef<NullableValue> original,
                                    const allocator_type&            allocator)
-: d_imp(MoveUtil::move(MoveUtil::access(original).d_imp), allocator)
+: bsl::optional<TYPE>(bsl::allocator_arg,
+                      allocator,
+                      MoveUtil::move(static_cast<bsl::optional<TYPE>&>(
+                          MoveUtil::access(original))))
 {
 }
 
@@ -1091,66 +842,65 @@ template <class TYPE>
 template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
-       BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE)  value,
-       typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value
-                               &&
-                               !bsl::is_convertible<BDE_OTHER_TYPE,
-                                                    allocator_type>::value,
-                               EnableType>::type)
+    BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value,
+    typename bsl::enable_if<
+        bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value &&
+            !bsl::is_convertible<BDE_OTHER_TYPE, allocator_type>::value,
+        EnableType>::type)
+: bsl::optional<TYPE>(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value))
 {
-    d_imp.makeValueRaw(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
 }
 
 template <class TYPE>
 template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
-      BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE)  value,
-      const allocator_type&                              allocator,
-      typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
-                              EnableType>::type)
-: d_imp(allocator)
+    BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value,
+    const allocator_type&                             allocator,
+    typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
+                            EnableType>::type)
+: bsl::optional<TYPE>(bsl::allocator_arg,
+                      allocator,
+                      BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value))
 {
-    d_imp.makeValueRaw(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
 }
 
 template <class TYPE>
 template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
-                                 const NullableValue<BDE_OTHER_TYPE>& original)
+    const NullableValue<BDE_OTHER_TYPE>& original)
+: bsl::optional<TYPE>(
+      static_cast<const bsl::optional<BDE_OTHER_TYPE>&>(original))
 {
-    if (!original.isNull()) {
-        d_imp.makeValueRaw(original.value());
-    }
 }
 
 template <class TYPE>
 template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
-                                const NullableValue<BDE_OTHER_TYPE>& original,
-                                const allocator_type&                allocator)
-: d_imp(allocator)
+    const NullableValue<BDE_OTHER_TYPE>& original,
+    const allocator_type&                allocator)
+: bsl::optional<TYPE>(
+      bsl::allocator_arg,
+      allocator,
+      static_cast<const bsl::optional<BDE_OTHER_TYPE>&>(original))
 {
-    if (!original.isNull()) {
-        d_imp.makeValueRaw(original.value());
-    }
 }
 
 template <class TYPE>
 inline
 NullableValue<TYPE>::NullableValue(const NullOptType&) BSLS_KEYWORD_NOEXCEPT
-: d_imp()
+: bsl::optional<TYPE>()
 {
 }
 
 template <class TYPE>
 inline
-NullableValue<TYPE>::NullableValue(const NullOptType&    ,
-                                   const allocator_type& allocator)
-                                                          BSLS_KEYWORD_NOEXCEPT
-: d_imp(allocator)
+NullableValue<TYPE>::NullableValue(
+                         const NullOptType&,
+                         const allocator_type& allocator) BSLS_KEYWORD_NOEXCEPT
+: bsl::optional<TYPE>(bsl::allocator_arg, allocator)
 {
 }
 
@@ -1159,19 +909,20 @@ template <class TYPE>
 inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const NullableValue& rhs)
 {
-    d_imp = rhs.d_imp;
-
+    bsl::optional<TYPE>::operator=(
+        static_cast<const bsl::optional<TYPE>&>(rhs));
     return *this;
 }
 
 template <class TYPE>
 inline
-NullableValue<TYPE>&
-NullableValue<TYPE>::operator=(bslmf::MovableRef<NullableValue> rhs)
+NullableValue<TYPE>& NullableValue<TYPE>::operator=(
+                                          bslmf::MovableRef<NullableValue> rhs)
 {
     NullableValue& lvalue = rhs;
-    d_imp = MoveUtil::move(lvalue.d_imp);
 
+    bsl::optional<TYPE>::operator=(
+                    MoveUtil::move(static_cast<bsl::optional<TYPE>&>(lvalue)));
     return *this;
 }
 
@@ -1180,12 +931,8 @@ template <class BDE_OTHER_TYPE>
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(
                                       const NullableValue<BDE_OTHER_TYPE>& rhs)
 {
-    if (rhs.isNull()) {
-        d_imp.reset();
-    }
-    else {
-        d_imp.makeValue(rhs.value());
-    }
+    bsl::optional<TYPE>::operator=(
+        static_cast<const bsl::optional<BDE_OTHER_TYPE>&>(rhs));
     return *this;
 }
 
@@ -1193,8 +940,7 @@ template <class TYPE>
 inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const TYPE& rhs)
 {
-    d_imp.makeValue(rhs);
-
+    bsl::optional<TYPE>::operator=(rhs);
     return *this;
 }
 
@@ -1204,18 +950,16 @@ STREAM& NullableValue<TYPE>::bdexStreamIn(STREAM& stream, int version)
 {
     using bslx::InStreamFunctions::bdexStreamIn;
 
-    char isNull = 0; // Redundant initialization to suppress -Werror.
+    char isNull = 0;  // Redundant initialization to suppress -Werror.
 
     stream.getInt8(isNull);
 
     if (stream) {
         if (!isNull) {
-            d_imp.makeValue();
-
-            bdexStreamIn(stream, d_imp.value(), version);
+            bdexStreamIn(stream, this->emplace(), version);
         }
         else {
-            d_imp.reset();
+            this->reset();
         }
     }
 
@@ -1224,11 +968,10 @@ STREAM& NullableValue<TYPE>::bdexStreamIn(STREAM& stream, int version)
 
 template <class TYPE>
 inline
-NullableValue<TYPE>&
-NullableValue<TYPE>::operator=(bslmf::MovableRef<TYPE> rhs)
+NullableValue<TYPE>& NullableValue<TYPE>::operator=(
+                                                   bslmf::MovableRef<TYPE> rhs)
 {
-    d_imp.makeValue(MoveUtil::move(rhs));
-
+    bsl::optional<TYPE>::operator=(MoveUtil::move(rhs));
     return *this;
 }
 
@@ -1237,17 +980,16 @@ template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const BDE_OTHER_TYPE& rhs)
 {
-    d_imp.makeValue(rhs);
-
+    bsl::optional<TYPE>::operator=(rhs);
     return *this;
 }
 
 template <class TYPE>
 inline
-NullableValue<TYPE>& NullableValue<TYPE>::operator=(const NullOptType&)
-                                                          BSLS_KEYWORD_NOEXCEPT
+NullableValue<TYPE>& NullableValue<TYPE>::operator=(
+                                      const NullOptType&) BSLS_KEYWORD_NOEXCEPT
 {
-    d_imp.reset();
+    this->reset();
 
     return *this;
 }
@@ -1258,17 +1000,14 @@ inline
 TYPE& NullableValue<TYPE>::makeValue(
                        BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value)
 {
-    d_imp.makeValue(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
-    return d_imp.value();
+    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
 }
 
 template <class TYPE>
 inline
 TYPE& NullableValue<TYPE>::makeValue()
 {
-    d_imp.makeValue();
-
-    return d_imp.value();
+    return this->emplace();
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
@@ -1277,38 +1016,24 @@ template <class... ARGS>
 inline
 TYPE& NullableValue<TYPE>::makeValueInplace(ARGS&&... args)
 {
-    d_imp.makeValueInplace(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
-    return d_imp.value();
+    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
 }
 #endif
 
 template <class TYPE>
 inline
-void NullableValue<TYPE>::reset()
-{
-    d_imp.reset();
-}
-
-template <class TYPE>
-inline
-void NullableValue<TYPE>::swap(NullableValue<TYPE>& other)
-{
-    d_imp.swap(other.d_imp);
-}
-
-template <class TYPE>
-inline
 TYPE& NullableValue<TYPE>::value()
 {
-    return d_imp.value();
-}
+    BSLS_REVIEW_OPT(this->has_value());
 
+    return this->dereferenceRaw();
+}
 // ACCESSORS
 template <class TYPE>
 inline
 const TYPE *NullableValue<TYPE>::addressOr(const TYPE *address) const
 {
-    return d_imp.isNull() ? address : d_imp.address();
+    return this->has_value() ? this-> operator->() : address;
 }
 
 template <class TYPE>
@@ -1317,12 +1042,12 @@ STREAM& NullableValue<TYPE>::bdexStreamOut(STREAM& stream, int version) const
 {
     using bslx::OutStreamFunctions::bdexStreamOut;
 
-    const bool isNull = d_imp.isNull();
+    const bool isNull = !this->has_value();
 
     stream.putInt8(isNull ? 1 : 0);
 
     if (!isNull) {
-        bdexStreamOut(stream, d_imp.value(), version);
+        bdexStreamOut(stream, this->value(), version);
     }
 
     return stream;
@@ -1332,7 +1057,7 @@ template <class TYPE>
 inline
 bool NullableValue<TYPE>::isNull() const BSLS_KEYWORD_NOEXCEPT
 {
-    return d_imp.isNull();
+    return !this->has_value();
 }
 
 template <class TYPE>
@@ -1369,54 +1094,45 @@ bsl::ostream& NullableValue<TYPE>::print(bsl::ostream& stream,
                                          int           level,
                                          int           spacesPerLevel) const
 {
-    if (d_imp.isNull()) {
+    if (!this->has_value()) {
         return bdlb::PrintMethods::print(stream,
                                          "NULL",
                                          level,
                                          spacesPerLevel);             // RETURN
     }
 
-    return bdlb::PrintMethods::print(stream,
-                                     d_imp.value(),
-                                     level,
-                                     spacesPerLevel);
+    return bdlb::PrintMethods::print(
+        stream, this->value(), level, spacesPerLevel);
 }
 
 template <class TYPE>
 inline
 const TYPE& NullableValue<TYPE>::value() const
 {
-    return d_imp.value();
+    BSLS_REVIEW_OPT(this->has_value());
+
+    return this->dereferenceRaw();
 }
 
 template <class TYPE>
 inline
 TYPE NullableValue<TYPE>::valueOr(const TYPE& value) const
 {
-    return d_imp.isNull() ? value : d_imp.value();
+    return this->value_or(value);
 }
 
 template <class TYPE>
 inline
 const TYPE *NullableValue<TYPE>::valueOr(const TYPE *value) const
 {
-    return d_imp.isNull() ? value : d_imp.address();
+    return this->has_value() ? this-> operator->() : value;
 }
 
 template <class TYPE>
 inline
 const TYPE *NullableValue<TYPE>::valueOrNull() const
 {
-    return d_imp.isNull() ? 0 : d_imp.address();
-}
-
-template <class TYPE>
-inline
-typename NullableValue<TYPE>::allocator_type
-NullableValue<TYPE>::get_allocator() const
-{
-    // Will not compile if 'd_imp' does not have a 'get_allocator' method.
-    return d_imp.get_allocator();
+    return this->has_value() ? this-> operator->() : 0;
 }
 
 }  // close package namespace
@@ -1427,55 +1143,77 @@ inline
 bool bdlb::operator==(const NullableValue<LHS_TYPE>& lhs,
                       const NullableValue<RHS_TYPE>& rhs)
 {
-    if (!lhs.isNull() && !rhs.isNull()) {
-        return lhs.value() == rhs.value();                            // RETURN
-    }
-
-    return lhs.isNull() == rhs.isNull();
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) ==
+           static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
-bool bdlb::operator!=(const NullableValue<LHS_TYPE>& lhs,
+bool bdlb::operator==(const bsl::optional<LHS_TYPE>& lhs,
                       const NullableValue<RHS_TYPE>& rhs)
 {
-    if (!lhs.isNull() && !rhs.isNull()) {
-        return lhs.value() != rhs.value();                            // RETURN
-    }
-
-    return lhs.isNull() != rhs.isNull();
+    return lhs == static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator==(const NullableValue<LHS_TYPE>& lhs,
-                      const RHS_TYPE&                rhs)
+                      const bsl::optional<RHS_TYPE>& rhs)
 {
-    return !lhs.isNull() && lhs.value() == rhs;
-}
-
-template <class LHS_TYPE, class RHS_TYPE>
-inline
-bool bdlb::operator==(const LHS_TYPE&                lhs,
-                      const NullableValue<RHS_TYPE>& rhs)
-{
-    return !rhs.isNull() && rhs.value() == lhs;
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) == rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator!=(const NullableValue<LHS_TYPE>& lhs,
-                      const RHS_TYPE&                rhs)
-{
-    return lhs.isNull() || lhs.value() != rhs;
-}
-
-template <class LHS_TYPE, class RHS_TYPE>
-inline
-bool bdlb::operator!=(const LHS_TYPE&                lhs,
                       const NullableValue<RHS_TYPE>& rhs)
 {
-    return rhs.isNull() || rhs.value() != lhs;
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) !=
+           static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator!=(const bsl::optional<LHS_TYPE>& lhs,
+                      const NullableValue<RHS_TYPE>& rhs)
+{
+    return lhs != static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator!=(const NullableValue<LHS_TYPE>& lhs,
+                      const bsl::optional<RHS_TYPE>& rhs)
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) != rhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator==(const NullableValue<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) == rhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator==(const LHS_TYPE& lhs, const NullableValue<RHS_TYPE>& rhs)
+{
+    return lhs == static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator!=(const NullableValue<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) != rhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator!=(const LHS_TYPE& lhs, const NullableValue<RHS_TYPE>& rhs)
+{
+    return lhs != static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -1483,27 +1221,38 @@ inline
 bool bdlb::operator<(const NullableValue<LHS_TYPE>& lhs,
                      const NullableValue<RHS_TYPE>& rhs)
 {
-    if (rhs.isNull()) {
-        return false;                                                 // RETURN
-    }
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) <
+           static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
 
-    return lhs.isNull() || lhs.value() < rhs.value();
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<(const bsl::optional<LHS_TYPE>& lhs,
+                     const NullableValue<RHS_TYPE>& rhs)
+{
+    return lhs < static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator<(const NullableValue<LHS_TYPE>& lhs,
-                     const RHS_TYPE&                rhs)
+                     const bsl::optional<RHS_TYPE>& rhs)
 {
-    return lhs.isNull() || lhs.value() < rhs;
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) < rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
-bool bdlb::operator<(const LHS_TYPE&                lhs,
-                     const NullableValue<RHS_TYPE>& rhs)
+bool bdlb::operator<(const NullableValue<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
 {
-    return !rhs.isNull() && lhs < rhs.value();
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) < rhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<(const LHS_TYPE& lhs, const NullableValue<RHS_TYPE>& rhs)
+{
+    return lhs < static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -1512,6 +1261,22 @@ bool bdlb::operator>(const NullableValue<LHS_TYPE>& lhs,
                      const NullableValue<RHS_TYPE>& rhs)
 {
     return rhs < lhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>(const bsl::optional<LHS_TYPE>& lhs,
+                     const NullableValue<RHS_TYPE>& rhs)
+{
+    return lhs > static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>(const NullableValue<LHS_TYPE>& lhs,
+                     const bsl::optional<RHS_TYPE>& rhs)
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) > rhs;
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -1540,6 +1305,22 @@ bool bdlb::operator<=(const NullableValue<LHS_TYPE>& lhs,
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
+bool bdlb::operator<=(const bsl::optional<LHS_TYPE>& lhs,
+                      const NullableValue<RHS_TYPE>& rhs)
+{
+    return lhs <= static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<=(const NullableValue<LHS_TYPE>& lhs,
+                      const bsl::optional<RHS_TYPE>& rhs)
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) <= rhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
 bool bdlb::operator<=(const NullableValue<LHS_TYPE>& lhs,
                       const RHS_TYPE&                rhs)
 {
@@ -1564,6 +1345,22 @@ bool bdlb::operator>=(const NullableValue<LHS_TYPE>& lhs,
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
+bool bdlb::operator>=(const bsl::optional<LHS_TYPE>& lhs,
+                      const NullableValue<RHS_TYPE>& rhs)
+{
+    return lhs >= static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>=(const NullableValue<LHS_TYPE>& lhs,
+                      const bsl::optional<RHS_TYPE>& rhs)
+{
+    return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) >= rhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
 bool bdlb::operator>=(const NullableValue<LHS_TYPE>& lhs,
                       const RHS_TYPE&                rhs)
 {
@@ -1579,25 +1376,28 @@ bool bdlb::operator>=(const LHS_TYPE&                lhs,
 }
 
 template <class TYPE>
-inline BSLS_KEYWORD_CONSTEXPR
-bool bdlb::operator==(const NullableValue<TYPE>& value,
-                      const NullOptType&         ) BSLS_KEYWORD_NOEXCEPT
+inline
+BSLS_KEYWORD_CONSTEXPR bool bdlb::operator==(
+                             const NullableValue<TYPE>& value,
+                             const NullOptType&) BSLS_KEYWORD_NOEXCEPT
 {
     return value.isNull();
 }
 
 template <class TYPE>
-inline BSLS_KEYWORD_CONSTEXPR
-bool bdlb::operator==(const NullOptType&         ,
-                      const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT
+inline
+BSLS_KEYWORD_CONSTEXPR bool bdlb::operator==(
+                        const NullOptType&,
+                        const NullableValue<TYPE>& value) BSLS_KEYWORD_NOEXCEPT
 {
     return value.isNull();
 }
 
 template <class TYPE>
-inline BSLS_KEYWORD_CONSTEXPR
-bool bdlb::operator!=(const NullableValue<TYPE>& value,
-                      const NullOptType&         ) BSLS_KEYWORD_NOEXCEPT
+inline
+BSLS_KEYWORD_CONSTEXPR bool bdlb::operator!=(
+                             const NullableValue<TYPE>& value,
+                             const NullOptType&) BSLS_KEYWORD_NOEXCEPT
 {
     return !value.isNull();
 }
@@ -1697,510 +1497,28 @@ void bdlb::hashAppend(HASHALG& hashAlg, const NullableValue<TYPE>& input)
 
 template <class TYPE>
 inline
-void bdlb::swap(NullableValue<TYPE>& a, NullableValue<TYPE>& b)
+typename bsl::enable_if<BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value,
+                        void>::type
+bdlb::swap(NullableValue<TYPE>& lhs, NullableValue<TYPE>& rhs)
 {
-    bslalg::SwapUtil::swap(&a.d_imp, &b.d_imp);
-}
-
-namespace bdlb {
-
-               // ---------------------------------------
-               // class NullableValue_WithAllocator<TYPE>
-               // ---------------------------------------
-
-// PRIVATE MANIPULATORS
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-void NullableValue_WithAllocator<TYPE>::makeValueRaw(
-                       BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value)
-{
-    BSLS_ASSERT_SAFE(d_isNull);
-
-    bslma::ConstructionUtil::construct(
-                         d_buffer.address(),
-                         d_allocator.mechanism(),
-                         BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
-    d_isNull = false;
-}
-
-// CREATORS
-template <class TYPE>
-inline
-NullableValue_WithAllocator<TYPE>::NullableValue_WithAllocator(
-                                                    const AllocType& allocator)
-: d_isNull(true)
-, d_allocator(allocator)
-{
+    swap(static_cast<bsl::optional<TYPE>&>(lhs),
+         static_cast<bsl::optional<TYPE>&>(rhs));
 }
 
 template <class TYPE>
 inline
-NullableValue_WithAllocator<TYPE>::NullableValue_WithAllocator(
-                                  const NullableValue_WithAllocator& original,
-                                  const AllocType&                   allocator)
-: d_isNull(true)
-, d_allocator(allocator)
+typename bsl::enable_if<!BloombergLP::bslma::UsesBslmaAllocator<TYPE>::value,
+                        void>::type
+bdlb::swap(NullableValue<TYPE>& lhs, NullableValue<TYPE>& rhs)
 {
-    if (!original.isNull()) {
-        makeValueRaw(original.value());
-    }
-}
-
-template <class TYPE>
-inline
-NullableValue_WithAllocator<TYPE>::NullableValue_WithAllocator(
-                       bslmf::MovableRef<NullableValue_WithAllocator> original)
-: d_isNull(true)
-, d_allocator(MoveUtil::access(original).d_allocator)
-{
-    NullableValue_WithAllocator& lvalue = original;
-
-    if (!lvalue.isNull()) {
-        makeValueRaw(MoveUtil::move(lvalue.value()));
-    }
-}
-
-template <class TYPE>
-inline
-NullableValue_WithAllocator<TYPE>::NullableValue_WithAllocator(
-                      bslmf::MovableRef<NullableValue_WithAllocator> original,
-                      const AllocType&                               allocator)
-: d_isNull(true)
-, d_allocator(allocator)
-{
-    NullableValue_WithAllocator& lvalue = original;
-
-    if (!lvalue.isNull()) {
-        makeValueRaw(MoveUtil::move(lvalue.value()));
-    }
-}
-
-template <class TYPE>
-inline
-NullableValue_WithAllocator<TYPE>::~NullableValue_WithAllocator()
-{
-    reset();
-}
-
-// MANIPULATORS
-template <class TYPE>
-NullableValue_WithAllocator<TYPE>&
-NullableValue_WithAllocator<TYPE>::operator=(
-                                        const NullableValue_WithAllocator& rhs)
-{
-    if (!rhs.isNull()) {
-        makeValue(rhs.value());
-    }
-    else {
-        reset();
-    }
-
-    return *this;
-}
-
-template <class TYPE>
-NullableValue_WithAllocator<TYPE>&
-NullableValue_WithAllocator<TYPE>::operator=(
-                            bslmf::MovableRef<NullableValue_WithAllocator> rhs)
-{
-    NullableValue_WithAllocator& lvalue = rhs;
-
-    if (!lvalue.isNull()) {
-        makeValue(MoveUtil::move(lvalue.value()));
-    }
-    else {
-        reset();
-    }
-
-    return *this;
-}
-
-template <class TYPE>
-void NullableValue_WithAllocator<TYPE>::swap(
-                                            NullableValue_WithAllocator& other)
-{
-    // 'swap' is undefined for non-equal allocators.
-
-    BSLS_ASSERT(d_allocator == other.d_allocator);
-
-    // same 'isNull' flags
-
-    if (isNull() && other.isNull()) {
-        return;                                                       // RETURN
-    }
-
-    if (!isNull() && !other.isNull()) {
-        // swap underlying values
-
-        bslalg::SwapUtil::swap(&this->value(), &other.value());
-        return;                                                       // RETURN
-    }
-
-    // different 'isNull' flags
-
-    NullableValue_WithAllocator *nullObj;
-    NullableValue_WithAllocator *nonNullObj;
-
-    if (isNull()) {
-        nullObj    = this;
-        nonNullObj = &other;
-    }
-    else {
-        nullObj    = &other;
-        nonNullObj = this;
-    }
-
-    // Copy-construct and reset.
-
-    nullObj->makeValue(nonNullObj->value());  // This can throw, so 'swap' is
-                                              // only strongly exception-safe.
-    nonNullObj->reset();
-}
-
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-void NullableValue_WithAllocator<TYPE>::makeValue(
-                       BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value)
-{
-    if (d_isNull) {
-        makeValueRaw(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
-    }
-    else {
-        d_buffer.object() =
-            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value);
-    }
-}
-
-template <class TYPE>
-inline
-void NullableValue_WithAllocator<TYPE>::makeValue()
-{
-    reset();
-
-    bslma::ConstructionUtil::construct(d_buffer.address(),
-                                       d_allocator.mechanism());
-    d_isNull = false;
-}
-
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-template <class TYPE>
-template <class... ARGS>
-inline
-void NullableValue_WithAllocator<TYPE>::makeValueInplace(ARGS&&... args)
-{
-    reset();
-    bslma::ConstructionUtil::construct(
-        d_buffer.address(),
-        d_allocator.mechanism(),
-        BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
-    d_isNull = false;
-}
-#endif
-
-template <class TYPE>
-inline
-void NullableValue_WithAllocator<TYPE>::reset()
-{
-    if (!d_isNull) {
-        d_buffer.object().~TYPE();
-        d_isNull = true;
-    }
-}
-
-template <class TYPE>
-inline
-TYPE& NullableValue_WithAllocator<TYPE>::value()
-{
-    BSLS_ASSERT_SAFE(!d_isNull);
-
-    return d_buffer.object();
-}
-
-// ACCESSORS
-template <class TYPE>
-inline
-const TYPE *NullableValue_WithAllocator<TYPE>::address() const
-{
-    BSLS_ASSERT_SAFE(!d_isNull);
-
-    return d_buffer.address();
-}
-
-template <class TYPE>
-inline
-bool NullableValue_WithAllocator<TYPE>::isNull() const
-{
-    return d_isNull;
-}
-
-template <class TYPE>
-inline
-const TYPE& NullableValue_WithAllocator<TYPE>::value() const
-{
-    BSLS_ASSERT_SAFE(!d_isNull);
-
-    return d_buffer.object();
-}
-
-template <class TYPE>
-inline
-typename NullableValue_WithAllocator<TYPE>::AllocType
-NullableValue_WithAllocator<TYPE>::get_allocator() const
-{
-    return d_allocator;
-}
-
-}  // close package namespace
-
-// FREE FUNCTIONS
-template <class TYPE>
-void bdlb::swap(NullableValue_WithAllocator<TYPE>& a,
-                NullableValue_WithAllocator<TYPE>& b)
-{
-    if (a.d_allocator == b.d_allocator) {
-        a.swap(b);
-
-        return;                                                       // RETURN
-    }
-
-    NullableValue_WithAllocator<TYPE> futureA(b, a.d_allocator);
-    NullableValue_WithAllocator<TYPE> futureB(a, b.d_allocator);
-
-    futureA.swap(a);
-    futureB.swap(b);
-}
-
-namespace bdlb {
-
-              // ------------------------------------------
-              // class NullableValue_WithoutAllocator<TYPE>
-              // ------------------------------------------
-
-// PRIVATE MANIPULATORS
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-void NullableValue_WithoutAllocator<TYPE>::makeValueRaw(
-                       BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value)
-{
-    BSLS_ASSERT_SAFE(d_isNull);
-
-    bslma::ConstructionUtil::construct(
-                         d_buffer.address(),
-                         (void *)0,
-                         BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
-    d_isNull = false;
-}
-
-// CREATORS
-template <class TYPE>
-inline
-NullableValue_WithoutAllocator<TYPE>::NullableValue_WithoutAllocator()
-: d_isNull(true)
-{
-}
-
-template <class TYPE>
-inline
-NullableValue_WithoutAllocator<TYPE>::
-NullableValue_WithoutAllocator(const NullableValue_WithoutAllocator& original)
-: d_isNull(true)
-{
-    if (!original.isNull()) {
-        makeValueRaw(original.value());
-    }
-}
-
-template <class TYPE>
-inline
-NullableValue_WithoutAllocator<TYPE>::NullableValue_WithoutAllocator(
-                    bslmf::MovableRef<NullableValue_WithoutAllocator> original)
-: d_isNull(true)
-{
-    NullableValue_WithoutAllocator& lvalue = original;
-
-    if (!lvalue.isNull()) {
-        makeValueRaw(MoveUtil::move(lvalue.value()));
-    }
-}
-
-template <class TYPE>
-inline
-NullableValue_WithoutAllocator<TYPE>::~NullableValue_WithoutAllocator()
-{
-    reset();
-}
-
-// MANIPULATORS
-template <class TYPE>
-NullableValue_WithoutAllocator<TYPE>&
-NullableValue_WithoutAllocator<TYPE>::operator=(
-                                     const NullableValue_WithoutAllocator& rhs)
-{
-    if (!rhs.isNull()) {
-        makeValue(rhs.value());
-    }
-    else {
-        reset();
-    }
-
-    return *this;
-}
-
-template <class TYPE>
-NullableValue_WithoutAllocator<TYPE>&
-NullableValue_WithoutAllocator<TYPE>::operator=(
-                         bslmf::MovableRef<NullableValue_WithoutAllocator> rhs)
-{
-    NullableValue_WithoutAllocator& lvalue = rhs;
-
-    if (!lvalue.isNull()) {
-        makeValue(MoveUtil::move(lvalue.value()));
-    }
-    else {
-        reset();
-    }
-
-    return *this;
-}
-
-template <class TYPE>
-template <class BDE_OTHER_TYPE>
-void NullableValue_WithoutAllocator<TYPE>::makeValue(
-                       BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value)
-{
-    if (d_isNull) {
-        makeValueRaw(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
-    }
-    else {
-        d_buffer.object() =
-            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value);
-    }
-}
-
-template <class TYPE>
-inline
-void NullableValue_WithoutAllocator<TYPE>::makeValue()
-{
-    reset();
-
-    bslma::ConstructionUtil::construct(d_buffer.address(), (void *)0);
-    d_isNull = false;
-}
-
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-template <class TYPE>
-template <class... ARGS>
-inline
-void NullableValue_WithoutAllocator<TYPE>::makeValueInplace(ARGS&&... args)
-{
-    reset();
-    bslma::ConstructionUtil::construct(
-        d_buffer.address(),
-        (void *)0,
-        BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
-    d_isNull = false;
-}
-#endif
-
-template <class TYPE>
-inline
-void NullableValue_WithoutAllocator<TYPE>::reset()
-{
-    if (!d_isNull) {
-        d_buffer.object().~TYPE();
-        d_isNull = true;
-    }
-}
-
-template <class TYPE>
-void NullableValue_WithoutAllocator<TYPE>::swap(
-                                         NullableValue_WithoutAllocator& other)
-{
-    // same 'isNull' flags
-
-    if (isNull() && other.isNull()) {
-        return;                                                       // RETURN
-    }
-
-    if (!isNull() && !other.isNull()) {
-        // swap underlying values
-
-        bslalg::SwapUtil::swap(&this->value(), &other.value());
-        return;                                                       // RETURN
-    }
-
-    // different 'isNull' flags
-
-    NullableValue_WithoutAllocator *nullObj;
-    NullableValue_WithoutAllocator *nonNullObj;
-
-    if (isNull()) {
-        nullObj    = this;
-        nonNullObj = &other;
-    }
-    else {
-        nullObj    = &other;
-        nonNullObj = this;
-    }
-
-    // Copy-construct and reset.
-
-    nullObj->makeValue(nonNullObj->value());  // This can throw, so 'swap' is
-                                              // only strongly exception-safe.
-    nonNullObj->reset();
-}
-
-template <class TYPE>
-inline
-TYPE& NullableValue_WithoutAllocator<TYPE>::value()
-{
-    BSLS_ASSERT_SAFE(!d_isNull);
-
-    return d_buffer.object();
-}
-
-// ACCESSORS
-template <class TYPE>
-inline
-const TYPE *NullableValue_WithoutAllocator<TYPE>::address() const
-{
-    BSLS_ASSERT_SAFE(!d_isNull);
-
-    return d_buffer.address();
-}
-
-template <class TYPE>
-inline
-bool NullableValue_WithoutAllocator<TYPE>::isNull() const
-{
-    return d_isNull;
-}
-
-template <class TYPE>
-inline
-const TYPE& NullableValue_WithoutAllocator<TYPE>::value() const
-{
-    BSLS_ASSERT_SAFE(!d_isNull);
-
-    return d_buffer.object();
-}
-
-}  // close package namespace
-
-// FREE FUNCTIONS
-template <class TYPE>
-inline
-void bdlb::swap(NullableValue_WithoutAllocator<TYPE>& a,
-                NullableValue_WithoutAllocator<TYPE>& b)
-{
-    a.swap(b);
+    lhs.swap(rhs);
 }
 
 }  // close enterprise namespace
 
 #endif // End C++11 code
 
-#endif
+#endif  // INCLUDED_BDLB_NULLABLEVALUE
 
 // ----------------------------------------------------------------------------
 // Copyright 2016 Bloomberg Finance L.P.
