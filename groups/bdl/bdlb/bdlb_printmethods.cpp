@@ -53,6 +53,17 @@ FormatGuard::~FormatGuard()
     d_stream->flags(d_flags);
 }
 
+inline
+void printHexChar(bsl::ostream& stream, unsigned char object)
+    // Print the specified 'object' in 2 digit hex, preceded by "0x", to the
+    // specied 'stream'.
+{
+    u::FormatGuard guard(&stream);
+
+    stream << "0x" << bsl::hex << bsl::setfill('0') << bsl::setw(2) <<
+                                                 static_cast<unsigned>(object);
+}
+
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -70,16 +81,11 @@ bsl::ostream& PrintMethods::print(bsl::ostream& stream,
 
     Print::indent(stream, level, spacesPerLevel);
 
-    const unsigned char uObject = object;
-
-    if (bsl::isprint(uObject)) {
+    if (bsl::isprint(static_cast<unsigned char>(object))) {
         stream << object;
     }
     else {
-        u::FormatGuard guard(&stream);
-
-        stream << "0x" << bsl::hex << bsl::setfill('0') << bsl::setw(2) <<
-                                                static_cast<unsigned>(uObject);
+        u::printHexChar(stream, object);
     }
 
     if (0 <= spacesPerLevel) {
@@ -100,12 +106,7 @@ bsl::ostream& PrintMethods::print(bsl::ostream& stream,
 
     Print::indent(stream, level, spacesPerLevel);
 
-    {
-        u::FormatGuard guard(&stream);
-
-        stream << "0x" << bsl::hex << bsl::setfill('0') << bsl::setw(2) <<
-                                                 static_cast<unsigned>(object);
-    }
+    u::printHexChar(stream, object);
 
     if (0 <= spacesPerLevel) {
         stream << '\n';
