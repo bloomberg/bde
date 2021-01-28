@@ -56,7 +56,7 @@ FormatGuard::~FormatGuard()
 inline
 void printHexChar(bsl::ostream& stream, unsigned char object)
     // Print the specified 'object' in 2 digit hex, preceded by "0x", to the
-    // specied 'stream'.
+    // specified 'stream'.
 {
     u::FormatGuard guard(&stream);
 
