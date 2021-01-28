@@ -296,6 +296,14 @@ bsl::ostream& print(bsl::ostream& stream,
                     const TYPE&   object,
                     int           level          = 0,
                     int           spacesPerLevel = 4);
+bsl::ostream& print(bsl::ostream& stream,
+                    char          object,
+                    int           level          = 0,
+                    int           spacesPerLevel = 4);
+bsl::ostream& print(bsl::ostream& stream,
+                    unsigned char object,
+                    int           level          = 0,
+                    int           spacesPerLevel = 4);
     // Format the specified 'object' to the specified output 'stream' at the
     // (absolute value of) the optionally specified indentation 'level' and
     // return a reference to 'stream'.  If 'level' is specified, optionally
@@ -334,12 +342,12 @@ bsl::ostream& print(bsl::ostream&                   stream,
 }  // close package namespace
 
 
+namespace bdlb {
+
                 // --------------------------------------------
                 // struct bdlb::PrintMethods_Imp<TYPE, SELECTOR>
                 // --------------------------------------------
 
-
-namespace bdlb {
 
 template <class TYPE, class SELECTOR>
 struct PrintMethods_Imp;

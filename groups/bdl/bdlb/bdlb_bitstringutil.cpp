@@ -988,7 +988,7 @@ void putSpaces(bsl::ostream& stream, int numSpaces)
 
     static const char spaces[] = "                                        ";
 
-    enum { k_spaces_SIZE = sizeof(spaces) - 1 };
+    const int k_spaces_SIZE = static_cast<int>(sizeof(spaces) - 1);
 
     while (numSpaces >= k_spaces_SIZE) {
         stream.write(spaces, k_spaces_SIZE);
