@@ -562,14 +562,13 @@ class Base64Encoder {
         // buffer.  Optionally specify the 'maxNumOut' limit on the number of
         // bytes to output; if 'maxNumOut' is negative, no limit is imposed.
         // Load into the (optionally) specified 'numOut' the number of output
-        // bytes produced.  Return 0 on success, the positive number of bytes
-        // *still* retained by this encoder if the 'maxNumOut' limit was
-        // reached, and a negative value otherwise.  Any retained bytes are
-        // available on a subsequent call to 'endConvert'.  Once this method is
-        // called, no additional input may be supplied without an intervening
-        // call to 'resetState'; once this method returns a zero status, a
-        // subsequent call will place this encoder in the error state, and
-        // return an error status.
+        // bytes produced.  Return 0 if output was successfully completed and a
+        // non-zero value otherwise.  Any retained bytes are available on a
+        // subsequent call to 'endConvert'.  Once this method is called, no
+        // additional input may be supplied without an intervening call to
+        // 'resetState'; once this method returns a zero status, a subsequent
+        // call will place this encoder in the error state, and return an error
+        // status.
 
     void resetState();
         // Reset this instance to its initial state (i.e., as if no input had
@@ -733,8 +732,19 @@ bool Base64Encoder::isResidualOutput(int numBytes, int maxLineLength)
     BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 <= maxLineLength);
 
-    const int adj = maxLineLength ? 2 * (numBytes / (maxLineLength + 2)) : 0;
-    return 0 != (numBytes - adj) % 4;
+    if (maxLineLength) {
+        const int lineSize           = maxLineLength + 2;
+        const int linesSoFar         = numBytes / lineSize;
+        const int bytesSinceLastCrlf = numBytes - linesSoFar * lineSize;
+        const int partialCrlf        = maxLineLength < bytesSinceLastCrlf;
+        const int nonCrlfBytes       = linesSoFar * maxLineLength +
+                                              bytesSinceLastCrlf - partialCrlf;
+
+        return 0 != nonCrlfBytes % 4;                                 // RETURN
+    }
+    else {
+        return 0 != numBytes % 4;                                     // RETURN
+    }
 }
 
 // CREATORS
@@ -854,8 +864,6 @@ int Base64Encoder::endConvert(OUTPUT_ITERATOR  out,
         return -1;                                                    // RETURN
     }
 
-    d_state = e_DONE_STATE;
-
     const int initialLength = d_outputLength;
     const int maxLength = d_outputLength + maxNumOut;
 
@@ -868,6 +876,8 @@ int Base64Encoder::endConvert(OUTPUT_ITERATOR  out,
         d_bitsInStack += shift;
     }
 
+    BSLS_ASSERT(0 == d_bitsInStack % 6);
+
     // Emit as many output bytes as possible.
 
     while (6 <= d_bitsInStack && d_outputLength != maxLength) {
@@ -877,15 +887,24 @@ int Base64Encoder::endConvert(OUTPUT_ITERATOR  out,
     // Append trailing '=' as necessary.
 
     if (0 == d_bitsInStack) {
-        while (isResidualOutput(d_outputLength, d_maxLineLength) &&
-                                                 d_outputLength != maxLength) {
+        while (true) {
+            if (!isResidualOutput(d_outputLength, d_maxLineLength)) {
+                d_state = e_DONE_STATE;
+
+                break;
+            }
+
+            if (d_outputLength == maxLength) {
+                break;
+            }
+
             append(&out, '=', maxLength);
         }
     }
 
     *numOut = d_outputLength - initialLength;
 
-    return 0;
+    return !isDone();
 }
 
 inline

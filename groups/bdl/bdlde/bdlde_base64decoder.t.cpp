@@ -188,9 +188,10 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 // [ 2] bdlde::Base64Decoder(int unrecognizedIsErrorFlag);
 // [ 3] ~bdlde::Base64Decoder();
-// [ 8] int convert(char *o, int *no, int *ni, begin, end, int mno);
-// [ 8] int endConvert(char *out, int *numOut, int maxNumOut);
-// [ 9] void resetState();
+// [ 6] int LLVMFuzzerTestOneInput(const uint8_t *, size_t);
+// [ 9] int convert(char *o, int *no, int *ni, begin, end, int mno);
+// [ 9] int endConvert(char *out, int *numOut, int maxNumOut);
+// [10] void resetState();
 // [ 3] bool isAcceptable() const;
 // [ 3] bool isDone;
 // [ 3] bool isError() const;
@@ -200,7 +201,8 @@ using bsl::flush;
 // [ 3] int outputLength() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST -- (developer's sandbox)
-//*[11] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
+// [ 6] TEST MACHINERY
 // [ ?] That the input iterator can have *minimal* functionality.
 // [ ?] That the output iterator can have *minimal* functionality.
 // [ ?] That there is no default constructor.
@@ -212,15 +214,15 @@ using bsl::flush;
 // [ 5] BOOTSTRAP: 'convert' - transitions
 // [ 4] BOOTSTRAP: 'endConvert'- transitions
 // [ 6] That each internal table has no defective entries.
-// [ 7] DFLT convert(char *o, int *no, int *ni, begin, end, int mno = -1);
-// [ 7] DFLT endConvert(char *out, int *numOut, int maxNumOut = -1);
-// [ 7] That a 3-byte quantum is decoded properly.
-// [ 7] That a 2-byte quantum is decoded properly.
-// [ 7] That a 1-byte quantum is decoded properly.
-// [ 7] That output length is calculated and stored properly.
-//*[ 8] That a specified maximum output length is observed.
-//*[ 8] That surplus output beyond 'maxNumOut' is buffered properly.
-//*[10] STRESS TEST: The decoder properly decodes all encoded output.
+// [ 8] DFLT convert(char *o, int *no, int *ni, begin, end, int mno = -1);
+// [ 8] DFLT endConvert(char *out, int *numOut, int maxNumOut = -1);
+// [ 8] That a 3-byte quantum is decoded properly.
+// [ 8] That a 2-byte quantum is decoded properly.
+// [ 8] That a 1-byte quantum is decoded properly.
+// [ 8] That output length is calculated and stored properly.
+// [ 9] That a specified maximum output length is observed.
+// [ 9] That surplus output beyond 'maxNumOut' is buffered properly.
+// [11] STRESS TEST: The decoder properly decodes all encoded output.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -470,6 +472,8 @@ int verbose = 0;
 int veryVerbose = 0;
 int veryVeryVerbose = 0;
 int veryVeryVeryVerbose = 0;
+
+const char *testFileName = 0;
 
                         // =========================
                         // operator<< for enum State
@@ -1250,9 +1254,9 @@ bool notBase64(char c)
 }
 
 inline
-bool notBase64NotEquals(char c)
-    // Return 'true' if the specified 'c' is not valid character in a base 64
-    // sequence, not white space, and not '='
+bool equalsOrNotBase64(char c)
+    // Return 'true' if the specified 'c' is either '=', or not valid character
+    // in a base 64 sequence, and not white space.
 {
     unsigned char uc = c;
     bool ret = !uc || !(bsl::isalnum(uc) || bsl::strchr("+/ \t\r\n\v\f", uc));
@@ -1680,7 +1684,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
         bool valid = 0 == bsl::count_if(FUZZ,
                                         FUZZ + LENGTH,
-                                        &u::notBase64NotEquals);
+                                        &u::equalsOrNotBase64);
 
         const bsl::size_t numSignificantChars = bsl::count_if(
                                                        FUZZ,
@@ -1937,7 +1941,7 @@ void testCase##NUMBER(bool verbose,                                           \
                       bool veryVeryVerbose,                                   \
                       bool veryVeryVeryVerbose)
 
-DEFINE_TEST_CASE(11)
+DEFINE_TEST_CASE(12)
 {
         (void)veryVeryVerbose;
         (void)veryVeryVeryVerbose;
@@ -2408,7 +2412,7 @@ DEFINE_TEST_CASE(11)
         }
 }
 
-DEFINE_TEST_CASE(10)
+DEFINE_TEST_CASE(11)
 {
         (void)veryVerbose;
         (void)veryVeryVerbose;
@@ -2467,7 +2471,7 @@ DEFINE_TEST_CASE(10)
         ASSERT(0 == strcmp(BLOOMBERG_NEWS, backInStream.str().c_str()));
 }
 
-DEFINE_TEST_CASE(9)
+DEFINE_TEST_CASE(10)
 {
         (void)veryVeryVerbose;
         (void)veryVeryVeryVerbose;
@@ -2535,7 +2539,7 @@ DEFINE_TEST_CASE(9)
         }
 }
 
-DEFINE_TEST_CASE(8)
+DEFINE_TEST_CASE(9)
 {
         (void)veryVeryVeryVerbose;
 
@@ -3856,7 +3860,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
         } // end block
 }
 
-DEFINE_TEST_CASE(7)
+DEFINE_TEST_CASE(8)
 {
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS WITH DEFAULT ARGUMENTS.
@@ -4706,7 +4710,7 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
         } // end block
 }
 
-DEFINE_TEST_CASE(6)
+DEFINE_TEST_CASE(7)
 {
         (void)veryVeryVeryVerbose;
 
@@ -5182,6 +5186,80 @@ DEFINE_TEST_CASE(6)
                 }
             }
             ASSERT(64 == count);  // make sure all entires are accounted for.
+        }
+}
+
+DEFINE_TEST_CASE(6)
+{
+        (void)veryVeryVeryVerbose;
+        (void)veryVeryVerbose;
+        (void)veryVerbose;
+
+        // --------------------------------------------------------------------
+        // TEST MACHINERY
+        //
+        // Concern:
+        //: 1 Run the fuzz test routine, but not as a fuzz test, just to do
+        //:   basic debugging.
+        //
+        // Plan:
+        //: 1 Call the fuzz test routine, just once, with a big garbage string.
+        //
+        // Testing:
+        //   int LLVMFuzzerTestOneInput(const uint8_t *, size_t);
+        //   TEST MACHINERY
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TEST MACHINERY\n"
+                             "==============\n";
+
+        uint8_t buf[128];
+
+        int start = 0;
+        for (int ii = 0; ii < 12 * 1024; ++ii) {
+            for (unsigned uu = 0; uu < sizeof(buf); ++uu) {
+                buf[uu] = char(bsl::rand() & 0xff);
+            }
+
+            for (unsigned len = start; len <= sizeof(buf);
+                                                len += 1 + (bsl::rand() % 6)) {
+                int rc = LLVMFuzzerTestOneInput(buf, len);
+                ASSERT(0 == rc);
+            }
+
+            for (unsigned uu = 0; uu < sizeof(buf); ++uu) {
+                buf[uu] &= 0x7f;
+            }
+
+            for (unsigned len = start; len <= sizeof(buf);
+                                                len += 1 + (bsl::rand() % 6)) {
+                int rc = LLVMFuzzerTestOneInput(buf, len);
+                ASSERT(0 == rc);
+            }
+            start = 1;
+        }
+
+        if (verbose) {
+            bsl::fstream ifs(testFileName,
+                             bsl::ios_base::binary | bsl::ios_base::in);
+            P(ifs.good());
+            if (ifs.good()) {
+                bsl::string fileContents;
+                while (true) {
+                    char c;
+                    ifs.get(c);
+                    if (ifs.eof()) {
+                        break;
+                    }
+                    fileContents += c;
+                }
+
+                P_(fileContents.length());    P(fileContents);
+                int rc = LLVMFuzzerTestOneInput(
+                        reinterpret_cast<const uint8_t *>(fileContents.data()),
+                        fileContents.length());
+                ASSERT(0 == rc);
+            }
         }
 }
 
@@ -6334,6 +6412,10 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
+    if (verbose) {
+        testFileName = argv[2];
+    }
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
@@ -6345,6 +6427,7 @@ int main(int argc, char *argv[])
   case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose,        \
                                                     veryVeryVeryVerbose); break
 
+        CASE(12);
         CASE(11);
         CASE(10);
         CASE(9);

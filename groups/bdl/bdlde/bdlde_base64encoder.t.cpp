@@ -103,15 +103,17 @@ using bsl::flush;
 // arguments, 'bdeut::InputIterator' for 'convert' and 'bdeut::OutputIterator'
 // for both of these template methods.
 //-----------------------------------------------------------------------------
-// [ 7] static int encodedLength(int numInputBytes, int maxLineLength);
-// [10] bdlde::Base64Encoder();
+// [ 8] static int encodedLength(int numInputBytes, int maxLineLength);
+// [11] bdlde::Base64Encoder();
 // [ 2] bdlde::Base64Encoder(int maxLineLength);
 // [ 3] ~bdlde::Base64Encoder();
-//*[ 8] int convert(char *o, int *no, int *ni, begin, end, int mno);
-//*[ 8] int endConvert(char *out, int *numOut, int maxNumOut);
-// [ 7] int convert(char *o, int *no, int*ni, const char*b, const char*e);
-// [ 7] int endConvert(char *out, int *numOut);
-// [ 9] void resetState();
+// [ 9] int convert(char *o, int *no, int *ni, begin, end, int mno);
+// [ 9] int endConvert(char *out, int *numOut, int maxNumOut);
+// [ 8] int convert(char *o, int *no, int*ni, const char*b, const char*e);
+// [ 8] int endConvert(char *out, int *numOut);
+// [ 7] TEST MACHINERY
+// [ 7] int LLVMFuzzerTestOneInput(const uint8_t *, size_t);
+// [10] void resetState();
 // [ 3] bool isAcceptable() const;
 // [ 3] bool isDone() const;
 // [ 3] bool isError() const;
@@ -120,7 +122,7 @@ using bsl::flush;
 // [ 3] int outputLength() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST -- (developer's sandbox)
-//*[11] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 // [ ?] That the input iterator can have *minimal* functionality.
 // [ ?] That the output iterator can have *minimal* functionality.
 // [ 1] ::myMin(const T& a, const T& b);
@@ -131,12 +133,12 @@ using bsl::flush;
 // [ 5] BOOTSTRAP: 'convert' - transitions
 // [ 4] BOOTSTRAP: 'endConvert'- transitions
 // [ 6] That each internal table has no defective entries.
-// [ 7] DFLT convert(char *o, int *no, int *ni, begin, end, int mno = -1);
-// [ 7] DFLT endConvert(char *out, int *numOut, int maxNumOut = -1);
-// [ 7] That each bit of a 3-byte quantum finds its appropriate spot.
-// [ 7] That each bit of a 2-byte quantum finds its appropriate spot.
-// [ 7] That each bit of a 1-byte quantum finds its appropriate spot.
-// [ 7] That output length is calculated properly.
+// [ 8] DFLT convert(char *o, int *no, int *ni, begin, end, int mno = -1);
+// [ 8] DFLT endConvert(char *out, int *numOut, int maxNumOut = -1);
+// [ 8] That each bit of a 3-byte quantum finds its appropriate spot.
+// [ 8] That each bit of a 2-byte quantum finds its appropriate spot.
+// [ 8] That each bit of a 1-byte quantum finds its appropriate spot.
+// [ 8] That output length is calculated properly.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -338,7 +340,7 @@ namespace {
 namespace u {
 
 inline
-bool notBase64(char c)
+bool notCrlfAndNotBase64(char c)
     // Return 'true' if the specified 'c' is valid base 64 character or part of
     // a CRLF.
 {
@@ -347,26 +349,26 @@ bool notBase64(char c)
 }
 
 inline
-bool notBase64NotCRLF(char c)
-    // Return 'true' if the specified 'c' is valid base 64 character.
+bool crlfOrNotBase64(char c)
+    // Return 'true' if the specified 'c' is not a valid base 64 character.
 {
     unsigned char uc = c;
     return !(bsl::isalnum(uc) || bsl::strchr("+/=", uc));
 }
 
 inline
-bool notBase64NotEquals(char c)
-    // Return 'true' if the specified 'c' is valid base 64 character or a CRLF
-    // but not '='.
+bool equalsOrNotBase64AndNotCrlf(char c)
+    // Return 'true' if the specified 'c' is '=' or not a valid base 64
+    // character and not a CRLF character.
 {
     unsigned char uc = c;
     return !(bsl::isalnum(uc) || bsl::strchr("+/\n\r", uc));
 }
 
 inline
-bool notBase64NotEqualsOrCRLF(char c)
-    // Return 'true' if the specified 'c' is valid base 64 character and not a
-    // CRLF or '='.
+bool equalsOrCrlfOrNotBase64(char c)
+    // Return 'true' if the specified 'c' is '=' or not a valid base 64
+    // character.
 {
     unsigned char uc = c;
     return !(bsl::isalnum(uc) || bsl::strchr("+/", uc));
@@ -1096,10 +1098,10 @@ void checkBase64(const char *begin, const char *end, bsl::size_t lineLength)
         const char *preEqualsEnd = bsl::max(begin, end - 2);
         ASSERT(0 == bsl::count_if(begin,
                                   preEqualsEnd,
-                                  &u::notBase64NotEqualsOrCRLF));
+                                  &u::equalsOrCrlfOrNotBase64));
         ASSERT(0 == bsl::count_if(preEqualsEnd,
                                   end,
-                                  &u::notBase64NotCRLF));
+                                  &u::crlfOrNotBase64));
     }
     else {
         const char *preEqualsEnd = bsl::max(begin, end - 4), *pc = begin;
@@ -1107,7 +1109,7 @@ void checkBase64(const char *begin, const char *end, bsl::size_t lineLength)
             const char *lineEnd = bsl::min(preEqualsEnd, pc + lineLength);
             ASSERT(0 == bsl::count_if(pc,
                                       lineEnd,
-                                      &u::notBase64NotEqualsOrCRLF));
+                                      &u::equalsOrCrlfOrNotBase64));
             pc = lineEnd;
 
             if (pc < preEqualsEnd) {
@@ -1121,7 +1123,7 @@ void checkBase64(const char *begin, const char *end, bsl::size_t lineLength)
         }
         ASSERT(0 == bsl::count_if(pc,
                                   end,
-                                  &u::notBase64));
+                                  &u::notCrlfAndNotBase64));
         if (begin < end) {
             ASSERTV(run, showCharN(begin, end - begin),
                                            '\r' != end[-1] && '\n' != end[-1]);
@@ -1271,7 +1273,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
         ASSERT(0 == bsl::count_if(outBuf,
                                   outBuf + numOut,
-                                  &u::notBase64NotEquals));
+                                  &u::equalsOrNotBase64AndNotCrlf));
         u::checkBase64(outBuf, outBuf + numOut, LINE_LENGTH);
 
         int endNumOut;
@@ -1279,13 +1281,14 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         ASSERT(0 == rc && X.isDone());
         ASSERT(0 <= endNumOut);
         ASSERT(outLength == numOut + endNumOut);
-        ASSERT(0 == bsl::count_if(outBegin, outEnd, &u::notBase64));
-        ASSERT(!leftOver == (0 == bsl::count_if(outBegin,
-                                                outEnd,
-                                                &u::notBase64NotEquals)));
+        ASSERT(0 == bsl::count_if(outBegin, outEnd, &u::notCrlfAndNotBase64));
+        ASSERT(!leftOver == (0 == bsl::count_if(
+                                            outBegin,
+                                            outEnd,
+                                            &u::equalsOrNotBase64AndNotCrlf)));
         ASSERT(0 != LINE_LENGTH || 0 == bsl::count_if(outBegin,
                                                       outEnd,
-                                                      &u::notBase64NotCRLF));
+                                                      &u::crlfOrNotBase64));
         u::checkBase64(outBuf, outBuf + outLength, LINE_LENGTH);
         ASSERT(GARBAGE == outBuf[outLength]);
         ASSERT(leftOver == (0 < bsl::count(outBuf, outBuf + outLength, '=')));
@@ -1417,15 +1420,16 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
             ASSERT(!leftOver || outSoFar < outLength);
             ASSERT(!leftOver || out < outBuf + outLength);
+
+            if (0 == numOut && 0 == numIn && beginIn < end) {
+                ASSERT(0 == maxNumOut);
+                maxNumOut = 1;
+            }
         } while (beginIn < end);
         ASSERT(end == beginIn);
         ASSERT(0 == bsl::count_if(outBuf,
                                   outBuf + outSoFar,
-                                  &u::notBase64NotEquals));
-
-        if (0 == maxNumOut) {
-            maxNumOut = 1;
-        }
+                                  &u::equalsOrNotBase64AndNotCrlf));
 
         int numEndConvertCalls = 0;
         do {
@@ -1433,7 +1437,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
             rc = mX.endConvert(out, &endNumOut, maxNumOut);
             if (0 != rc) {
-                ASSERT(0 < endNumOut);
+                ASSERT(0 < endNumOut || 0 == maxNumOut);
                 ASSERT(endNumOut == maxNumOut);
             }
 
@@ -1442,7 +1446,11 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
             ASSERT(0 == bsl::count_if(outBegin,
                                       outBegin + outSoFar,
-                                      &u::notBase64));
+                                      &u::notCrlfAndNotBase64));
+
+            if (rc && 0 == maxNumOut) {
+                maxNumOut = 1;
+            }
         } while (rc);
         ASSERTV(maxNumOut, outSoFar, numEndConvertCalls, X.isDone());
 
@@ -1665,7 +1673,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING OPTIONAL NUMIN, NUMOUT
         //   This case is available to be used as a developers' sandbox.
@@ -1868,7 +1876,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // STRESS TEST
         //   Demonstrate that the encoder/decoder can encode/decode a large
@@ -2388,7 +2396,7 @@ int main(int argc, char *argv[])
             delete[] decoded;
         }
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Demonstrate that the example compiles, links, and runs.
@@ -2442,7 +2450,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == strcmp(BLOOMBERG_NEWS, backInStream.str().c_str()));
 
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // DEFAULT CONSTRUCTOR:
         //   Verify initial configuration defaults.
@@ -2549,7 +2557,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // RESET STATE
         //   Verify the 'resetState' method.
@@ -2612,10 +2620,133 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 8: {
-// TBD?
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING 'endConvert'
+        //
+        // Concept:
+        //: 1 Test 'endConvert'.
+        //
+        // Plan:
+        //: 1 Translate segments full of random garbage with varying values of
+        //
+        // Testing:
+        //   int endConvert(OUTPUT_ITERATOR);
+        //   int endConvert(OUTPUT_ITERATOR, int *, int);
+        // --------------------------------------------------------------------
+
+        static const int lineLengths[] = { 0, 1, 2, 3, 4, 10, 20, 40, 75,
+                                           76, 77, 80, 90, 100 };
+        enum { k_NUM_LINE_LENGTHS = sizeof lineLengths / sizeof *lineLengths };
+
+        unsigned   maxNumOutIdx = 0;
+        const char GARBAGE      = char(0xaf);
+
+        bsl::vector<char> input;
+        input.resize(256);
+        for (int ii = 0, jj = 0; ii < 256; ++ii, jj += 7) {
+            input[ii] = static_cast<char>(jj);
+        }
+
+        for (int len = 0; len < 256; ++len) {
+            const bool leftOver = len % 3;
+
+            for (int li = 0; li < 2 * k_NUM_LINE_LENGTHS; ++li) {
+                const bool  threeArgs   = k_NUM_LINE_LENGTHS <= li;
+                const int   llIdx       = li % k_NUM_LINE_LENGTHS;
+                const int   LINE_LENGTH = lineLengths[llIdx];
+                const int   outLength   = Obj::encodedLength(len,
+                                                             LINE_LENGTH);
+                bsl::vector<char> outVec;
+                outVec.resize(outLength + 1, GARBAGE);
+
+                char       *outBuf      = &outVec[0];
+                const char *outBegin    = outBuf;
+
+                char *out = outBuf;
+
+                Obj mX(LINE_LENGTH);    const Obj& X = mX;
+
+                const char *beginIn     = &input[0];
+                const char *end         = beginIn + len;
+                const int   maxNumOuts[] = { 0, 1, 2, 3, 4, 7, 17, 29,
+                                             32, 35 };
+                enum { k_NUM_MAX_NUM_OUTS = sizeof maxNumOuts /
+                                                          sizeof *maxNumOuts };
+                int         maxNumOut   = maxNumOuts[maxNumOutIdx];
+                maxNumOutIdx = (maxNumOutIdx + 1) % k_NUM_MAX_NUM_OUTS;
+
+                int outSoFar = 0;
+                int numOut, numIn;
+                int rc = mX.convert(out,
+                                    &numOut,
+                                    &numIn,
+                                    beginIn,
+                                    end);
+
+                ASSERT(0 == rc);
+                ASSERT(0 <= numOut);
+
+                out += numOut;
+
+                ASSERT(outBuf <= out);
+                ASSERT(out <= outBuf + outLength);
+                ASSERT(0 <= numIn);
+
+                outSoFar += numOut;
+                beginIn  += numIn;
+
+                ASSERT(outSoFar <= outLength);
+                ASSERT(beginIn <= end);
+
+                ASSERT(!leftOver || outSoFar < outLength);
+                ASSERT(!leftOver || out < outBuf + outLength);
+
+                ASSERT(end == beginIn);
+                ASSERT(0 == bsl::count_if(outBuf,
+                                          outBuf + outSoFar,
+                                          &u::equalsOrNotBase64AndNotCrlf));
+
+                if (0 == maxNumOut) {
+                    maxNumOut = 1;
+                }
+
+                int endNumOut;
+                int numEndConvertCalls = 0;
+                if (threeArgs) {
+                    int rc;
+                    do {
+                        ++numEndConvertCalls;
+
+                        rc = mX.endConvert(out, &endNumOut, maxNumOut);
+                        if (0 != rc) {
+                            ASSERT(0 < endNumOut);
+                            ASSERT(endNumOut == maxNumOut);
+                        }
+
+                        outSoFar += endNumOut;
+                        out      += endNumOut;
+
+                        ASSERT(0 == bsl::count_if(outBegin,
+                                                  outBegin + outSoFar,
+                                                  &u::notCrlfAndNotBase64));
+                    } while (rc);
+
+                    ASSERTV(LINE_LENGTH, maxNumOut, numEndConvertCalls,
+                                                        outLength == outSoFar);
+                }
+                else {
+                    int rc = mX.endConvert(out);
+                    ASSERT(0 == rc);
+                }
+
+                ASSERT(X.isDone());
+                ASSERT(GARBAGE == outBuf[outLength]);
+                u::checkBase64(outBuf, outBuf + outLength, LINE_LENGTH);
+            }
+        }
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS WITH DEFAULT ARGUMENTS.
         //   Continue testing 'convert' and 'endConvert' with defaults
@@ -3080,6 +3211,67 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
         } // end block
 
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TEST MACHINERY
+        //
+        // Concern:
+        //: 1 Run the fuzz test routine, but not as a true fuzz test, just feed
+        //:   it some random input to do basic debugging.
+        //
+        // Plan:
+        //: 1 Call the fuzz test routine, many times, with a big garbage
+        //:   string.
+        //:
+        //: 2 If 'verbose' is set and 'argv[2]' is a file, read the file to a
+        //:   string and feed that into the fuzz test.
+        //
+        // Testing:
+        //   int LLVMFuzzerTestOneInput(const uint8_t *, size_t);
+        //   TEST MACHINERY
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TEST MACHINERY\n"
+                             "==============\n";
+
+        uint8_t buf[117];
+
+        for (int ii = 0; ii < 1024; ++ii) {
+            for (unsigned uu = 0; uu < sizeof(buf); ++uu) {
+                buf[uu] = uint8_t((bsl::rand() >> 3) & 0xff);
+            }
+
+            for (bsl::size_t len = !!ii; len <= sizeof(buf);
+                                                len += 1 + (bsl::rand() & 7)) {
+                int rc = LLVMFuzzerTestOneInput(buf, len);
+                ASSERT(0 == rc);
+            }
+        }
+
+        if (verbose) {
+            bsl::fstream ifs(argv[2],
+                             bsl::ios_base::binary | bsl::ios_base::in);
+            P(ifs.good());
+            if (ifs.good()) {
+                bsl::string fileContents;
+                while (true) {
+                    char c;
+                    ifs.get(c);
+                    if (ifs.eof()) {
+                        break;
+                    }
+                    fileContents += c;
+                }
+
+                if (veryVerbose) P_(fileContents.length()); P(fileContents);
+
+                int rc = LLVMFuzzerTestOneInput(
+                        reinterpret_cast<const uint8_t *>(fileContents.data()),
+                        fileContents.length());
+                ASSERT(0 == rc);
+            }
+        }
       } break;
       case 6: {
         // --------------------------------------------------------------------
