@@ -7261,7 +7261,100 @@ int main(int argc, char *argv[])
             }
         }
         ASSERT(0 == da.numBlocksTotal());
+        if (verbose) cout << "\nUsing 'bool' and 'int'." << endl;
+        {
+            typedef bool    ValueType1;
+            typedef int     ValueType2;
 
+            typedef bdlb::NullableValue<ValueType1> ObjType1;
+            typedef bdlb::NullableValue<ValueType2> ObjType2;
+
+            const ValueType1 VALUE1a = true;
+            const ValueType1 VALUE1b = false;
+
+            ValueType1  mVALUE2  = true;  const ValueType1& VALUE2 = mVALUE2;
+            ValueType1& mRVALUE2 = mVALUE2;
+
+            if (verbose) cout << "\tcopy assignment" << endl;
+            {
+                const ObjType1 OBJ1a(VALUE1a);
+                      ObjType1 obj1b(VALUE1b);
+                const ObjType1 OBJ1n;
+
+                      ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
+                ASSERT(OBJ2.isNull());
+
+                ObjType2 *mR2 = &(obj2 = OBJ1a);  // null = non-null
+
+                ASSERT(VALUE1a == OBJ1a.value());
+                ASSERT(VALUE1a == OBJ2.value());
+                ASSERT(    mR2 == &obj2);
+
+                mR2 = &(obj2 = obj1b);            // non-null = non-null
+
+                ASSERT(VALUE1b == obj1b.value());
+                ASSERT(VALUE1b == OBJ2.value());
+                ASSERT(    mR2 == &obj2);
+
+                mR2 = &(obj2 = OBJ1n);            // non-null = null
+
+                ASSERT(OBJ1n.isNull());
+                ASSERT(OBJ2.isNull());
+                ASSERT(    mR2 == &obj2);
+
+                mR2 = &(obj2 = OBJ1n);            // null = null
+
+                ASSERT(OBJ1n.isNull());
+                ASSERT(OBJ2.isNull());
+                ASSERT(    mR2 == &obj2);
+            }
+
+            if (verbose) cout << "\tvalue assignment" << endl;
+            {
+                ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
+                ASSERT(OBJ2.isNull());
+
+                ObjType2 *mR2 = &(obj2 = VALUE1a);
+
+                ASSERT(VALUE1a == OBJ2.value());
+                ASSERT(    mR2 == &obj2);
+
+                mR2 = &(obj2 = VALUE1b);
+
+                ASSERT(VALUE1b == OBJ2.value());
+                ASSERT(    mR2 == &obj2);
+
+                // testing non-'const' source object
+
+                obj2.reset();
+                ASSERT(OBJ2.isNull());
+
+                obj2 = mVALUE2;
+                ASSERT(VALUE2 == OBJ2.value());
+
+                obj2.reset();
+                ASSERT(OBJ2.isNull());
+
+                obj2 = mRVALUE2;
+                ASSERT(VALUE2 == OBJ2.value());
+            }
+
+            if (verbose) cout << "\tmake value" << endl;
+            {
+                ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
+                ASSERT(OBJ2.isNull());
+
+                ValueType2 *addr2 = &obj2.makeValue(VALUE1a);
+
+                ASSERT(VALUE1a == OBJ2.value());
+                ASSERT(  addr2 == &obj2.value());
+
+                addr2 = &obj2.makeValue(VALUE1b);
+
+                ASSERT(VALUE1b == OBJ2.value());
+                ASSERT(  addr2 == &obj2.value());
+            }
+        }
         if (verbose) cout << "\nUsing 'bsl::string' and 'char *' + ALLOC."
                           << endl;
         {
