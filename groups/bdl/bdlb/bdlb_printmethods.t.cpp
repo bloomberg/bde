@@ -694,10 +694,11 @@ bsl::ostream& MyDate::print(bsl::ostream& stream,
 
 int main(int argc, char *argv[])
 {
-    int             test = argc > 1 ? atoi(argv[1]) : 0;
-    bool         verbose = argc > 2;
-    bool     veryVerbose = argc > 3;
-    bool veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -746,7 +747,7 @@ int main(int argc, char *argv[])
         //:   and the correct print implementation function is called with the
         //:   correct arguments.
         //:
-        //: 2 In sn inner loop, iterate through all possible values of 'char'
+        //: 2 In an inner loop, iterate through all possible values of 'char'
         //:   and 'unsigned char' and test them.
         //
         // Testing:
@@ -799,7 +800,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            if (veryVerbose) cout << "\tUsing 'unsigned char'." << bsl::endl;
+            if (veryVerbose) cout << "\tUsing 'char', signed & unsigned.\n";
             {
                 for (int i = 0; i < NUM_DATA; ++i) {
                     const int   LINE             = DATA[i].d_lineNum;
@@ -818,7 +819,8 @@ int main(int argc, char *argv[])
                             const unsigned char VALUE =
                                                  static_cast<unsigned char>(j);
                             stringstream hexSs;
-                            hexSs << "0x" << bsl::hex << j;
+                            hexSs << "0x" << bsl::setfill('0') << bsl::setw(2)
+                                                              << bsl::hex << j;
                             const string& EXPECTED_VALUE = hexSs.str();
 
                             const string EXPECTED_RESULT = EXPECTED_PREFIX
@@ -840,20 +842,23 @@ int main(int argc, char *argv[])
                                                result.length(),
                                                EXPECTED_RESULT.length() ==
                                                               result.length());
+
+                            if (veryVeryVeryVerbose) P(result);
                         }
 
                         // char
                         {
                             const unsigned char UVALUE = static_cast<
                                                              unsigned char>(j);
-                            const char VALUE = static_cast<char>(UVALUE);
+                            const char          VALUE = UVALUE;
                             string EXPECTED_VALUE;
                             if (bsl::isprint(UVALUE)) {
                                 EXPECTED_VALUE += VALUE;
                             }
                             else {
                                 stringstream hexSs;
-                                hexSs << "0x" << bsl::hex << j;
+                                hexSs << "0x" << bsl::setfill('0') <<
+                                                 bsl::setw(2) << bsl::hex << j;
                                 EXPECTED_VALUE = hexSs.str();
                             }
 
@@ -876,6 +881,8 @@ int main(int argc, char *argv[])
                                                result.length(),
                                                EXPECTED_RESULT.length() ==
                                                               result.length());
+
+                            if (veryVeryVeryVerbose) P(result);
                         }
                     }
                 }

@@ -78,7 +78,8 @@ bsl::ostream& PrintMethods::print(bsl::ostream& stream,
     else {
         u::FormatGuard guard(&stream);
 
-        stream << "0x" << bsl::hex << static_cast<unsigned>(uObject);
+        stream << "0x" << bsl::hex << bsl::setfill('0') << bsl::setw(2) <<
+                                                static_cast<unsigned>(uObject);
     }
 
     if (0 <= spacesPerLevel) {
@@ -102,7 +103,8 @@ bsl::ostream& PrintMethods::print(bsl::ostream& stream,
     {
         u::FormatGuard guard(&stream);
 
-        stream << "0x" << bsl::hex << static_cast<unsigned>(object);
+        stream << "0x" << bsl::hex << bsl::setfill('0') << bsl::setw(2) <<
+                                                 static_cast<unsigned>(object);
     }
 
     if (0 <= spacesPerLevel) {
