@@ -47,11 +47,11 @@ BSLS_IDENT("$Id: $")
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_REALTIME', the timeout should be expressed as an
+// 'bsls::SystemClockType::e_REALTIME', 'absTime' should be expressed as an
 // absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
 // used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
 // clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', the timeout should be expressed as an
+// 'bsls::SystemClockType::e_MONOTONIC', 'absTime' should be expressed as an
 // absolute offset since the epoch of this clock (which matches the epoch used
 // in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
@@ -324,8 +324,8 @@ class Barrier {
     bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
         // Create a barrier that requires the specified 'numThreads' to
         // unblock.  Optionally specify a 'clockType' indicating the type of
-        // the system clock against which the 'bsls::TimeInterval' timeouts
-        // passed to the 'timedWait' method are to be interpreted (see
+        // the system clock against which the 'bsls::TimeInterval' 'absTime'
+        // timeouts passed to the 'timedWait' method are to be interpreted (see
         // {Supported Clock-Types} in the component documentation).  If
         // 'clockType' is not specified then the realtime system clock is used.
         // The behavior is undefined unless '0 < numThreads'.
@@ -337,18 +337,18 @@ class Barrier {
         // one or more threads are waiting on it.
 
     // MANIPULATORS
-    int timedWait(const bsls::TimeInterval &timeout);
+    int timedWait(const bsls::TimeInterval &absTime);
         // Block until the required number of threads have called 'wait' or
-        // 'timedWait' on this barrier, or until the specified 'timeout'
-        // expires.  In the former case, *signal* all the threads that are
-        // currently waiting on this barrier to unblock, reset the state of
+        // 'timedWait' on this barrier, or until the specified 'absTime'
+        // timeout expires.  In the former case, *signal* all the threads that
+        // are currently waiting on this barrier to unblock, reset the state of
         // this barrier to its initial state, and return 0.  If this method
         // times out before the required number of threads are waiting, the
         // thread is released to proceed and ceases to contribute to the number
         // of threads waiting.  Return a non-zero value if a timeout or error
-        // occurs.  The 'timeout' is an absolute time represented as an
-        // interval from some epoch, which is determined by the clock indicated
-        // at construction (see {Supported Clock-Types} in the component
+        // occurs.  'absTime' is an absolute time represented as an interval
+        // from some epoch, which is determined by the clock indicated at
+        // construction (see {Supported Clock-Types} in the component
         // documentation).  Note that 'timedWait' and 'wait' should not
         // generally be used together; if one or more threads called 'wait'
         // while others called 'timedWait', then if the thread(s) that called

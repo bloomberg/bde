@@ -48,7 +48,7 @@ using namespace bsl;  // automatically added by script
 // [1] Breathing test
 // [2] wait(int *signalInterrupted = 0)
 // [2] post()
-// [3] timedWait(bsls::TimeInterval timeout, int *signalInterrupted = 0)
+// [3] timedWait(bsls::TimeInterval absTime, int *signalInterrupted = 0)
 // [4] post(int number)
 // [5] tryWait()
 // [6] USAGE Example
@@ -625,7 +625,7 @@ int main(int argc, char *argv[]) {
         //  timeout which will force *some* waits to timeout.
         //
         // Testing:
-        //   void timedWait(bsls::TimeInterval timeout,
+        //   void timedWait(bsls::TimeInterval absTime,
         //                  int              *signalInterrupted = 0);
         // --------------------------------------------------------------------
 

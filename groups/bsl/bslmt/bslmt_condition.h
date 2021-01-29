@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // methods of 'bslmt::Condition':
 //..
 //  int wait(bslmt::Mutex *mutex);
-//  int timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval& timeout);
+//  int timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval& absTime);
 //..
 // The caller must lock the mutex before invoking these functions.  The
 // 'bslmt::Condition' atomically releases the lock and waits, thereby
@@ -42,13 +42,14 @@ BSLS_IDENT("$Id: $")
 // guarantees that this lock will be reacquired before returning from a call to
 // the 'wait' and 'timedWait' methods, unless an error occurs.
 //
-// When invoking the 'timedWait' method, clients must specify a timeout after
-// which the call will return even if the condition is not signaled.  The
-// timeout is expressed as a 'bsls::TimeInterval' object that holds the
-// absolute time according to the clock type the 'bslmt::Condition' object is
-// constructed with (the default clock is 'bsls::SystemClockType::e_REALTIME').
-// Clients should use the 'bsls::SystemTime::now(clockType)' utility method to
-// obtain the current time.
+// When invoking the 'timedWait' method, clients must specify, via the
+// parameter 'absTime', a timeout after which the call will return even if the
+// condition is not signaled.  The 'absTime' timeout is expressed as a
+// 'bsls::TimeInterval' object that holds the absolute time according to the
+// clock type the 'bslmt::Condition' object is constructed with (the default
+// clock is 'bsls::SystemClockType::e_REALTIME').  Clients should use the
+// 'bsls::SystemTime::now(clockType)' utility method to obtain the current
+// time.
 //
 // Other threads can indicate that the predicate is true by signaling or
 // broadcasting the same 'bslmt::Condition' object.  A broadcast wakes up all
@@ -70,11 +71,11 @@ BSLS_IDENT("$Id: $")
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_REALTIME', the timeout should be expressed as an
+// 'bsls::SystemClockType::e_REALTIME', 'absTime' should be expressed as an
 // absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
 // used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
 // clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', the timeout should be expressed as an
+// 'bsls::SystemClockType::e_MONOTONIC', 'absTime' should be expressed as an
 // absolute offset since the epoch of this clock (which matches the epoch used
 // in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
@@ -115,13 +116,13 @@ BSLS_IDENT("$Id: $")
 //    // ...
 //
 //    enum { e_TIMED_OUT = -1 };
-//    bsls::TimeInterval timeout = bsls::SystemTime::nowRealtimeClock();
+//    bsls::TimeInterval absTime = bsls::SystemTime::nowRealtimeClock();
 //
-//    // Advance 'timeout' to some delta into the future here.
+//    // Advance 'absTime' to some delta into the future here.
 //
 //    mutex.lock();
 //    while (false == predicate()) {
-//        const int status = condition.timedWait(&mutex, timeout);
+//        const int status = condition.timedWait(&mutex, absTime);
 //        if (e_TIMED_OUT == status) {
 //            break;
 //        }
@@ -184,10 +185,10 @@ class Condition {
                                             bsls::SystemClockType::e_REALTIME);
         // Create a condition variable object.  Optionally specify a
         // 'clockType' indicating the type of the system clock against which
-        // the 'bsls::TimeInterval' timeouts passed to the 'timedWait' method
-        // are to be interpreted (see {Supported Clock-Types} in the component
-        // documentation).  If 'clockType' is not specified then the realtime
-        // system clock is used.
+        // the 'bsls::TimeInterval' 'absTime' timeouts passed to the
+        // 'timedWait' method are to be interpreted (see {Supported
+        // Clock-Types} in the component documentation).  If 'clockType' is not
+        // specified then the realtime system clock is used.
 
     ~Condition();
         // Destroy this condition variable object.
@@ -203,25 +204,25 @@ class Condition {
         // that is currently waiting on this condition.  If there are no
         // threads waiting on this condition, this method has no effect.
 
-    int timedWait(Mutex *mutex, const bsls::TimeInterval& timeout);
+    int timedWait(Mutex *mutex, const bsls::TimeInterval& absTime);
         // Atomically unlock the specified 'mutex' and suspend execution of the
         // current thread until this condition object is "signaled" (i.e., one
         // of the 'signal' or 'broadcast' methods is invoked on this object) or
-        // until the specified 'timeout' expires, then re-acquire a lock on the
-        // 'mutex'.  The 'timeout' is an *absolute* time represented as an
-        // interval from some epoch, which is determined by the clock indicated
-        // at construction (see {Supported Clock-Types} in the component
-        // documentation), and is the earliest time at which the timeout may
-        // occur.  The 'mutex' remains locked by the calling thread upon
-        // returning from this function.  Return 0 on success, -1 on timeout,
-        // and a non-zero value different from -1 if an error occurs.  The
-        // behavior is undefined unless 'mutex' is locked by the calling thread
-        // prior to calling this method.  Note that spurious wakeups are rare
-        // but possible, i.e., this method may succeed (return 0) and return
-        // control to the thread without the condition object being signaled.
-        // Also note that the actual time of the timeout depends on many
-        // factors including system scheduling and system timer resolution, and
-        // may be significantly later than the time requested.
+        // until the specified 'absTime' expires, then re-acquire a lock on the
+        // 'mutex'.  The 'absTime' timeout is an *absolute* time represented as
+        // an interval from some epoch, which is determined by the clock
+        // indicated at construction (see {Supported Clock-Types} in the
+        // component documentation), and is the earliest time at which the
+        // timeout may occur.  The 'mutex' remains locked by the calling thread
+        // upon returning from this function.  Return 0 on success, -1 on
+        // timeout, and a non-zero value different from -1 if an error occurs.
+        // The behavior is undefined unless 'mutex' is locked by the calling
+        // thread prior to calling this method.  Note that spurious wakeups are
+        // rare but possible, i.e., this method may succeed (return 0) and
+        // return control to the thread without the condition object being
+        // signaled.  Also note that the actual time of the timeout depends on
+        // many factors including system scheduling and system timer
+        // resolution, and may be significantly later than the time requested.
 
     int wait(Mutex *mutex);
         // Atomically unlock the specified 'mutex' and suspend execution of the
@@ -272,9 +273,9 @@ void bslmt::Condition::signal()
 
 inline
 int bslmt::Condition::timedWait(Mutex                     *mutex,
-                                const bsls::TimeInterval&  timeout)
+                                const bsls::TimeInterval&  absTime)
 {
-    return d_imp.timedWait(mutex, timeout);
+    return d_imp.timedWait(mutex, absTime);
 }
 
 inline

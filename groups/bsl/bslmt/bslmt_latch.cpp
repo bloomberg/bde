@@ -70,7 +70,7 @@ void Latch::countDown(int numEvents)
     } while (current != d_sigCount.testAndSwapAcqRel(current, expected));
 }
 
-int Latch::timedWait(const bsls::TimeInterval &timeout)
+int Latch::timedWait(const bsls::TimeInterval &absTime)
 {
     LockGuard<Mutex> lock(&d_mutex);
 
@@ -80,7 +80,7 @@ int Latch::timedWait(const bsls::TimeInterval &timeout)
 
     int rc = 0;
     while (0 == rc && 0 < d_sigCount.loadRelaxed()) {
-        rc = d_cond.timedWait(&d_mutex, timeout);
+        rc = d_cond.timedWait(&d_mutex, absTime);
     }
     return rc;
 }

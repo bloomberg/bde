@@ -57,7 +57,7 @@ using namespace bsl;  // automatically added by script
 // [2] bslmt::Barrier(int numThreads);
 // [2] ~bslmt::Barrier();
 // [3] void wait();
-// [4] void timedWait(const bsls::TimeInterval& timeOut);
+// [4] void timedWait(const bsls::TimeInterval& absTime);
 // [2] int numThreads();
 //-----------------------------------------------------------------------------
 // [1] Breathing test
@@ -124,7 +124,7 @@ struct ThreadArgs {
     bsls::AtomicInt d_waitCount;   // count of threads waiting or about to
                                   // wait on the barrier being tested
 
-    int            d_timeOut;     // time out to use when calling 'timedWait'
+    int            d_absTime;     // time out to use when calling 'timedWait'
                                   // (in microseconds)
 
     bsls::AtomicInt d_numTimedOut; // number of threads that time out on
@@ -134,12 +134,12 @@ struct ThreadArgs {
                                   // clock type to use for 'timedWait' method
 
     ThreadArgs(int                         barrierCount,
-               int                         timeOut = 0,
+               int                         absTime = 0,
                bsls::SystemClockType::Enum clock
                                            = bsls::SystemClockType::e_REALTIME)
         : d_barrier(barrierCount, clock)
         , d_waitCount(0)
-        , d_timeOut(timeOut)
+        , d_absTime(absTime)
         , d_numTimedOut(0)
         , d_clockType(clock)
     {
@@ -239,9 +239,9 @@ extern "C" void * testThread5a(void *arg)
         args->d_barrier.wait();
     }
     else {
-        bsls::TimeInterval timeOut(bsls::SystemTime::now(args->d_clockType));
-        timeOut.addMicroseconds(args->d_timeOut);
-        int res = args->d_barrier.timedWait(timeOut);
+        bsls::TimeInterval absTime(bsls::SystemTime::now(args->d_clockType));
+        absTime.addMicroseconds(args->d_absTime);
+        int res = args->d_barrier.timedWait(absTime);
         if (res) ++args->d_numTimedOut;
     }
 
@@ -257,9 +257,9 @@ extern "C" void * testThread5b(void *arg)
     ThreadArgs *args = (ThreadArgs*)arg;
 
     if (++args->d_waitCount == 1) {
-        bsls::TimeInterval timeOut(bsls::SystemTime::now(args->d_clockType));
-        timeOut.addMicroseconds(args->d_timeOut);
-        int res = args->d_barrier.timedWait(timeOut);
+        bsls::TimeInterval absTime(bsls::SystemTime::now(args->d_clockType));
+        absTime.addMicroseconds(args->d_absTime);
+        int res = args->d_barrier.timedWait(absTime);
         if (res) ++args->d_numTimedOut;
     }
     else {
@@ -280,7 +280,7 @@ struct ThreadArgs4 {
 
     bslmt::Barrier  d_barrier;     // barrier used for testing
 
-    int            d_timeOut;     // time out to use when calling 'timedWait'
+    int            d_absTime;     // time out to use when calling 'timedWait'
                                   // (in microseconds)
 
     bsls::AtomicInt d_stopCount;   // count indicating that thread has complete
@@ -294,9 +294,9 @@ struct ThreadArgs4 {
     bsls::SystemClockType::Enum d_clockType;
                                   // clock type used for 'timedWait' method
 
-    ThreadArgs4(int nThreads, int timeOut, bsls::SystemClockType::Enum clock)
+    ThreadArgs4(int nThreads, int absTime, bsls::SystemClockType::Enum clock)
     : d_barrier(nThreads + 1, clock)
-    , d_timeOut(timeOut)
+    , d_absTime(absTime)
     , d_stopCount(0)
     , d_numTimedOut(0)
     , d_nThreads(nThreads)
@@ -317,10 +317,10 @@ extern "C" void * testThread4(void *arg)
     ThreadArgs4 *args = (ThreadArgs4*)arg;
 
     bsls::TimeInterval start(bsls::SystemTime::now(args->d_clockType));
-    bsls::TimeInterval timeOut(start);
-    timeOut.addMicroseconds(args->d_timeOut);
+    bsls::TimeInterval absTime(start);
+    absTime.addMicroseconds(args->d_absTime);
 
-    int res = args->d_barrier.timedWait(timeOut);
+    int res = args->d_barrier.timedWait(absTime);
 
     bsls::TimeInterval end(bsls::SystemTime::now(args->d_clockType));
     bsls::TimeInterval duration = end - start;
@@ -336,9 +336,9 @@ extern "C" void * testThread4(void *arg)
         ++args->d_numTimedOut;
 
         LOOP3_ASSERT(args->d_clockType,
-                     args->d_timeOut,
+                     args->d_absTime,
                      duration.totalMicroseconds(),
-                     duration.totalMicroseconds() + relax >= args->d_timeOut);
+                     duration.totalMicroseconds() + relax >= args->d_absTime);
     }
 
     // Wait until all the threads have stopped.
@@ -957,7 +957,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a barrier with an arbitrary 'numThreads' value.  Then
         //   create 'numThreads' - 1 threads that block on the barrier using
-        //   the 'timedWait' method using an arbitrary 'timeOut' value.  Once
+        //   the 'timedWait' method using an arbitrary 'absTime' value.  Once
         //   the chosen number of threads have been started, wait until all
         //   the threads return.  Assert that all the threads time out.  Also
         //   assert that they do not time out before k_TIMEOUT.  This is done
@@ -1091,11 +1091,11 @@ int main(int argc, char *argv[])
                 // have already timed out (timer failure), so we do not assert
                 // and issue a warning instead.
 
-                bsls::TimeInterval timeOut =
+                bsls::TimeInterval absTime =
                                           bsls::SystemTime::nowRealtimeClock();
-                timeOut.addMicroseconds(60 * k_TIMEOUT);  // 60s
+                absTime.addMicroseconds(60 * k_TIMEOUT);  // 60s
 
-                const int res = args.d_barrier.timedWait(timeOut);
+                const int res = args.d_barrier.timedWait(absTime);
                 ASSERT(0 == res);
 
                 if (0 == res ) {
@@ -1159,11 +1159,11 @@ int main(int argc, char *argv[])
                 // have already timed out (timer failure), so we do not assert
                 // and issue a warning instead.
 
-                bsls::TimeInterval timeOut =
+                bsls::TimeInterval absTime =
                                          bsls::SystemTime::nowMonotonicClock();
-                timeOut.addMicroseconds(60 * k_TIMEOUT);  // 60s
+                absTime.addMicroseconds(60 * k_TIMEOUT);  // 60s
 
-                const int res = args.d_barrier.timedWait(timeOut);
+                const int res = args.d_barrier.timedWait(absTime);
                 ASSERT(0 == res);
 
                 if (0 == res ) {

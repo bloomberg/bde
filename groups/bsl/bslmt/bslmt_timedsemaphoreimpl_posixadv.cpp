@@ -41,19 +41,19 @@ void bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::post(
 }
 
 int bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
-    timedWait(const bsls::TimeInterval& timeout)
+    timedWait(const bsls::TimeInterval& absTime)
 {
-    bsls::TimeInterval realTimeout(timeout);
+    bsls::TimeInterval realAbsTime(absTime);
 
     if (d_clockType != bsls::SystemClockType::e_REALTIME) {
         // since sem_timedwait operates only with the realtime clock, adjust
         // the timeout value to make it consistent with the realtime clock
-        realTimeout += bsls::SystemTime::nowRealtimeClock() -
+        realAbsTime += bsls::SystemTime::nowRealtimeClock() -
                        bsls::SystemTime::now(d_clockType);
     }
 
     timespec ts;
-    SaturatedTimeConversionImpUtil::toTimeSpec(&ts, realTimeout);
+    SaturatedTimeConversionImpUtil::toTimeSpec(&ts, realAbsTime);
 
     while (0 != ::sem_timedwait(&d_sem, &ts)) {
         if (EINTR != errno) {

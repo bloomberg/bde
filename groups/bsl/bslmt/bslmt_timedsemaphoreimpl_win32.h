@@ -35,11 +35,11 @@ BSLS_IDENT("$Id: $")
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_REALTIME', the timeout should be expressed as an
+// 'bsls::SystemClockType::e_REALTIME', 'absTime' should be expressed as an
 // absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
 // used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
 // clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', the timeout should be expressed as an
+// 'bsls::SystemClockType::e_MONOTONIC', 'absTime' should be expressed as an
 // absolute offset since the epoch of this clock (which matches the epoch used
 // in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
@@ -129,8 +129,8 @@ class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
                                           = bsls::SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having a count of 0.  Optionally
         // specify a 'clockType' indicating the type of the system clock
-        // against which the 'bsls::TimeInterval' timeouts passed to the
-        // 'timedWait' method are to be interpreted (see {Supported
+        // against which the 'bsls::TimeInterval' 'absTime' timeouts passed to
+        // the 'timedWait' method are to be interpreted (see {Supported
         // Clock-Types} in the component documentation).  If 'clockType' is not
         // specified then the realtime system clock is used.
 
@@ -140,10 +140,10 @@ class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
                                           = bsls::SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having the specified 'count'.
         // Optionally specify a 'clockType' indicating the type of the system
-        // clock against which the 'bsls::TimeInterval' timeouts passed to the
-        // 'timedWait' method are to be interpreted (see {Supported
-        // Clock-Types} in the component documentation).  If 'clockType' is not
-        // specified then the realtime system clock is used.
+        // clock against which the 'bsls::TimeInterval' 'absTime' timeouts
+        // passed to the 'timedWait' method are to be interpreted (see
+        // {Supported Clock-Types} in the component documentation).  If
+        // 'clockType' is not specified then the realtime system clock is used.
 
     ~TimedSemaphoreImpl();
         // Destroy this semaphore object.
@@ -157,12 +157,12 @@ class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
         // semaphore.  The behavior is undefined unless 'number' is a positive
         // value.
 
-    int timedWait(const bsls::TimeInterval& timeout);
+    int timedWait(const bsls::TimeInterval& absTime);
         // Block until the count of this semaphore is a positive value, or
-        // until the specified 'timeout' expires.  The 'timeout' is an absolute
+        // until the specified 'absTime' timeout expires.  'absTime' is an absolute
         // time represented as an interval from some epoch, which is detemined
         // by the clock indicated at construction (see {Supported
-        // Clock-Types} in the component documentation).  If the 'timeout' did
+        // Clock-Types} in the component documentation).  If the timeout did
         // not expire before the count attained a positive value, atomically
         // decrement the count and return 0; otherwise, return a non-zero value
         // with no effect on the count.

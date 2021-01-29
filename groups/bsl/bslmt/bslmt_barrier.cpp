@@ -33,7 +33,7 @@ bslmt::Barrier::~Barrier()
     BSLS_ASSERT( 0 == d_numWaiting );
 }
 
-int bslmt::Barrier::timedWait(const bsls::TimeInterval &timeout)
+int bslmt::Barrier::timedWait(const bsls::TimeInterval &absTime)
 {
     LockGuard<Mutex> lock(&d_mutex);
     int prevSigCount = d_sigCount;
@@ -45,7 +45,7 @@ int bslmt::Barrier::timedWait(const bsls::TimeInterval &timeout)
     }
     else {
         while (d_sigCount == prevSigCount) {
-            if (d_cond.timedWait(&d_mutex, timeout) &&
+            if (d_cond.timedWait(&d_mutex, absTime) &&
                 d_sigCount == prevSigCount) {
                 --d_numWaiting;
                 return -1;                                            // RETURN
