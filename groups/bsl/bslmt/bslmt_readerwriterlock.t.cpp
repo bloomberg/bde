@@ -134,20 +134,26 @@ class my_Condition {
     // versions of the 'wait' and 'timedWait' functions provided here only
     // return when the condition was actually signaled.  The class is used to
     // simplify testing.
+
+    // DATA
     bslmt::Condition d_cond;
     bslmt::Mutex     d_mutex;
     volatile int     d_sigState;
     volatile int     d_bcastCount;
   public:
+    // CREATORS
     my_Condition();
         // Construct a my_Condition object.
 
     ~my_Condition();
         // Destroy a my_Condition object.
 
-    void wait(bslmt::Mutex *mutex);
-        // Block until this condition is signaled by a call to 'signal' or
-        // 'broadcast'.
+    // MANIPULATORS
+    void broadcast();
+        // Unblock all threads that are waiting on this condition.
+
+    void signal();
+        // Unblock a single thread that is waiting on this condition.
 
     int timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval &absTime);
         // Block until this condition is signaled by a call to 'signal' or
@@ -155,11 +161,9 @@ class my_Condition {
         // 0 if the condition was signaled, and a value of -1 if a timeout
         // occurred.
 
-    void signal();
-        // Unblock a single thread that is waiting on this condition.
-
-    void broadcast();
-        // Unblock all threads that are waiting on this condition.
+    void wait(bslmt::Mutex *mutex);
+        // Block until this condition is signaled by a call to 'signal' or
+        // 'broadcast'.
 };
 
 my_Condition::my_Condition()

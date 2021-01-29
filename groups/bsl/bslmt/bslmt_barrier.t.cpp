@@ -301,6 +301,8 @@ struct ThreadArgs4 {
     , d_numTimedOut(0)
     , d_nThreads(nThreads)
     , d_clockType(clock)
+      // Test helper constructor, using the specified 'nThreads', 'absTime' and
+      // 'clock'.
     {
     }
 };
@@ -980,7 +982,7 @@ int main(int argc, char *argv[])
         //   barrier resets properly.
         //
         // Testing:
-        //   void timedWait(const bsls::TimeInterval&);
+        //   void timedWait(const bsls::TimeInterval& absTime);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
