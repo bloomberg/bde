@@ -301,8 +301,8 @@ struct ThreadArgs4 {
     , d_numTimedOut(0)
     , d_nThreads(nThreads)
     , d_clockType(clock)
-      // Test helper constructor, using the specified 'nThreads', 'absTime' and
-      // 'clock'.
+        // Test helper constructor, using the specified 'nThreads', 'absTime' and
+        // 'clock'.
     {
     }
 };

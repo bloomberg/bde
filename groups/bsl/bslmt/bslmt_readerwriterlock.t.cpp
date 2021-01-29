@@ -157,13 +157,13 @@ class my_Condition {
 
     int timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval &absTime);
         // Block until this condition is signaled by a call to 'signal' or
-        // 'broadcast', or until the specified 'absTime' (in abs time).  Return
-        // 0 if the condition was signaled, and a value of -1 if a timeout
-        // occurred.
+        // 'broadcast', or until the specified 'absTime' (in abs time).  The
+        // specified 'mutex' is unlocked while blocking.  Return 0 if the
+        // condition was signaled, and a value of -1 if a timeout occurred.
 
     void wait(bslmt::Mutex *mutex);
         // Block until this condition is signaled by a call to 'signal' or
-        // 'broadcast'.
+        // 'broadcast'. The specified 'mutex' is unlocked while blocking.
 };
 
 my_Condition::my_Condition()
