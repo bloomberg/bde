@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 112 components having 10 levels of physical
+ The 'bslstl' package currently has 108 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -91,7 +91,6 @@
       bslstl_function_rep                                             !PRIVATE!
       bslstl_iteratorutil
       bslstl_list
-      bslstl_optional
       bslstl_pair
       bslstl_stringview
       bslstl_treeiterator
@@ -101,14 +100,12 @@
       bslstl_allocator                                   !DEPRECATED!
       bslstl_allocatortraits                             !DEPRECATED!
       bslstl_badfunctioncall
-      bslstl_badoptionalaccess
       bslstl_badweakptr
       bslstl_complex
       bslstl_equalto
       bslstl_function_isreferencecompatible                           !PRIVATE!
       bslstl_function_smallobjectoptimization                         !PRIVATE!
       bslstl_hash
-      bslstl_inplace
       bslstl_iosfwd
       bslstl_iserrorcodeenum
       bslstl_iserrorconditionenum
@@ -131,7 +128,6 @@
       bslstl_map_cpp03                                                !PRIVATE!
       bslstl_multimap_cpp03                                           !PRIVATE!
       bslstl_multiset_cpp03                                           !PRIVATE!
-      bslstl_optional_cpp03                                           !PRIVATE!
       bslstl_priorityqueue_cpp03                                      !PRIVATE!
       bslstl_queue_cpp03                                              !PRIVATE!
       bslstl_set_cpp03                                                !PRIVATE!
@@ -164,9 +160,6 @@
 :
 : 'bslstl_badfunctioncall':
 :      Provide an exception class thrown by 'bsl::function'.
-:
-: 'bslstl_badoptionalaccess':
-:      Provide an exception class thrown by 'bsl::optional'.
 :
 : 'bslstl_badweakptr':
 :      Provide an exception class to indicate a weak_ptr has expired.
@@ -261,9 +254,6 @@
 : 'bslstl_hashtableiterator':
 :      Provide an STL compliant iterator for hash tables.
 :
-: 'bslstl_inplace':
-:      Provide a standard-compliant in place construction tag types.
-:
 : 'bslstl_iosfwd':
 :      Provide forward declarations for Standard stream classes.
 :
@@ -323,12 +313,6 @@
 :
 : 'bslstl_multiset_test':                                             !PRIVATE!
 :      Provide support for the 'bslstl_multiset.t.cpp' test driver.
-:
-: 'bslstl_optional':
-:      Provide a standard-compliant allocator aware optional type.
-:
-: 'bslstl_optional_cpp03':                                            !PRIVATE!
-:      Provide C++03 implementation for bslstl_optional.h
 :
 : 'bslstl_ostringstream':
 :      Provide a C++03-compatible 'ostringstream' class.
