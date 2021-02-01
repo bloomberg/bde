@@ -1,10 +1,17 @@
-bsl-internal (3.73.0.0) unstable; urgency=low
+bsl-internal (3.73.1.0) unstable; urgency=low
 
+  * f70a02ae2 Bumped version to 3.73.1.0
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 1 Feb 2021 16:21:07 -0500
+
+bsl-internal (3.73.0.0) git; urgency=low
+
+  * 075494aa4 Changelog for version 3.73.0.0
   * 123eaaabf Bumped version to 3.73.0.0
   * 410e4ac08 Merge pull request #3094 from bchapman/bdlb_printmethods-overload-char-drqs-164959084
   * 353f25e62 Merge pull request #3083 from mgill83/bind-add-non-const-operator-support-drqs-164900532
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 29 Jan 2021 12:47:38 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 29 Jan 2021 12:51:05 -0500
 
 bsl-internal (3.72.0.0) git; urgency=low
 
