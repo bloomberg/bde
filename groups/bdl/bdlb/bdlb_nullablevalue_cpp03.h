@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Thu Jan 28 15:34:01 2021
+// Generated on Wed Jan 27 16:16:18 2021
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -862,21 +862,8 @@ template <class TYPE>
 inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const NullableValue& rhs)
 {
-    // Constraints on 'bsl::optional' assignment operator may affect the
-    // assignment.  In order to avoid changes in behaviour, we implement the
-    // assignment in 'NullableValue' directly.
-
-    if (rhs.has_value()) {
-        if (this->has_value()) {
-            this->value() = rhs.value();
-        }
-        else {
-            this->emplace(rhs.value());
-        }
-    }
-    else {
-        this->reset();
-    }
+    bsl::optional<TYPE>::operator=(
+        static_cast<const bsl::optional<TYPE>&>(rhs));
     return *this;
 }
 
@@ -885,23 +872,10 @@ inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(
                                           bslmf::MovableRef<NullableValue> rhs)
 {
-    // Constraints on 'bsl::optional' assignment operator may affect the
-    // assignment.  In order to avoid changes in behaviour, we implement the
-    // assignment in 'NullableValue' directly.
-
     NullableValue& lvalue = rhs;
 
-    if (lvalue.has_value()) {
-        if (this->has_value()) {
-            this->value() = MoveUtil::move(lvalue.value());
-        }
-        else {
-            this->emplace(MoveUtil::move(lvalue.value()));
-        }
-    }
-    else {
-        this->reset();
-    }
+    bsl::optional<TYPE>::operator=(
+                    MoveUtil::move(static_cast<bsl::optional<TYPE>&>(lvalue)));
     return *this;
 }
 
@@ -910,21 +884,8 @@ template <class BDE_OTHER_TYPE>
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(
                                       const NullableValue<BDE_OTHER_TYPE>& rhs)
 {
-    // Constraints on 'bsl::optional' assignment operator may affect the
-    // assignment.  In order to avoid changes in behaviour, we implement the
-    // assignment in 'NullableValue' directly.
-
-    if (rhs.has_value()) {
-        if (this->has_value()) {
-            this->value() = rhs.value();
-        }
-        else {
-            this->emplace(rhs.value());
-        }
-    }
-    else {
-        this->reset();
-    }
+    bsl::optional<TYPE>::operator=(
+        static_cast<const bsl::optional<BDE_OTHER_TYPE>&>(rhs));
     return *this;
 }
 
@@ -932,16 +893,7 @@ template <class TYPE>
 inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const TYPE& rhs)
 {
-    // Constraints on 'bsl::optional' assignment operator may affect the
-    // assignment.  In order to avoid changes in behaviour, we implement the
-    // assignment in 'NullableValue' directly.
-
-    if (this->has_value()) {
-        this->value() = rhs;
-    }
-    else {
-        this->emplace(rhs);
-    }
+    bsl::optional<TYPE>::operator=(rhs);
     return *this;
 }
 
@@ -972,16 +924,7 @@ inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(
                                                    bslmf::MovableRef<TYPE> rhs)
 {
-    // Constraints on 'bsl::optional' assignment operator may affect the
-    // assignment.  In order to avoid changes in behaviour, we implement the
-    // assignment in 'NullableValue' directly.
-
-    if (this->has_value()) {
-        this->value() = MoveUtil::move(rhs);
-    }
-    else {
-        this->emplace(MoveUtil::move(rhs));
-    }
+    bsl::optional<TYPE>::operator=(MoveUtil::move(rhs));
     return *this;
 }
 
@@ -990,16 +933,7 @@ template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const BDE_OTHER_TYPE& rhs)
 {
-    // Constraints on 'bsl::optional' assignment operator may affect the
-    // assignment.  In order to avoid changes in behaviour, we implement the
-    // assignment in 'NullableValue' directly.
-
-    if (this->has_value()) {
-        this->value() = rhs;
-    }
-    else {
-        this->emplace(rhs);
-    }
+    bsl::optional<TYPE>::operator=(rhs);
     return *this;
 }
 
