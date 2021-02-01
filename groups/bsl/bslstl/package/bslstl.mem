@@ -4,7 +4,6 @@ bslstl_allocator
 bslstl_allocatortraits
 bslstl_array
 bslstl_badfunctioncall
-bslstl_badoptionalaccess
 bslstl_badweakptr
 bslstl_bidirectionaliterator
 bslstl_bidirectionalnodepool
@@ -36,7 +35,6 @@ bslstl_hashtable_test1
 bslstl_hashtable_test2
 bslstl_hashtablebucketiterator
 bslstl_hashtableiterator
-bslstl_inplace
 bslstl_iosfwd
 bslstl_iserrorcodeenum
 bslstl_iserrorconditionenum
@@ -57,8 +55,6 @@ bslstl_multimap_test
 bslstl_multiset
 bslstl_multiset_cpp03
 bslstl_multiset_test
-bslstl_optional
-bslstl_optional_cpp03
 bslstl_ostringstream
 bslstl_ownerless
 bslstl_pair
