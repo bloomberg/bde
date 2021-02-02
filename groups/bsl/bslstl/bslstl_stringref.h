@@ -398,12 +398,12 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
     StringRefImp(const StringRefImp& original) = default;
-#endif
         // Create a string-reference object having a valid 'std::string' value,
         // whose external representation is defined by the specified 'original'
         // object.  The external representation must remain valid as long as it
         // is bound to this string reference.  Note that this trivial copy
         // constructor's definition is compiler generated.
+#endif
 
     StringRefImp(const StringRefImp& original,
                  size_type           startIndex,
@@ -420,8 +420,8 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
     ~StringRefImp() = default;
-#endif
         // Destroy this object.
+#endif
 
     // MANIPULATORS
     StringRefImp& operator=(const StringRefImp& rhs);
