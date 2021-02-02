@@ -115,13 +115,14 @@ BSLS_IDENT("$Id: $")
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_REALTIME', the timeout should be expressed as an
-// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
-// clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', the timeout should be expressed as an
-// absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bsls::SystemClockType::e_REALTIME', the `absTime` argument passed to the
+// `timedWait` method should be expressed as an absolute offset since 00:00:00
+// UTC, January 1, 1970 (which matches the epoch used in
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
+// type indicated at construction is 'bsls::SystemClockType::e_MONOTONIC', the
+// `absTime` argument passed to the `timedWait` method should be expressed as
+// an absolute offset since the epoch of this clock (which matches the epoch
+// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----

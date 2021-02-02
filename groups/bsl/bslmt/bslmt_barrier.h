@@ -47,13 +47,14 @@ BSLS_IDENT("$Id: $")
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_REALTIME', 'absTime' should be expressed as an
-// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
-// clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', 'absTime' should be expressed as an
-// absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bsls::SystemClockType::e_REALTIME', the 'absTime' argument passed to the
+// `timedWait` method should be expressed as an absolute offset since 00:00:00
+// UTC, January 1, 1970 (which matches the epoch used in
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
+// type indicated at construction is 'bsls::SystemClockType::e_MONOTONIC', the
+// 'absTime' argument passed to the `timedWait` method should be expressed as
+// an absolute offset since the epoch of this clock (which matches the epoch
+// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -337,7 +338,7 @@ class Barrier {
         // one or more threads are waiting on it.
 
     // MANIPULATORS
-    int timedWait(const bsls::TimeInterval &absTime);
+    int timedWait(const bsls::TimeInterval& absTime);
         // Block until the required number of threads have called 'wait' or
         // 'timedWait' on this barrier, or until the specified 'absTime'
         // timeout expires.  In the former case, *signal* all the threads that
@@ -346,7 +347,7 @@ class Barrier {
         // times out before the required number of threads are waiting, the
         // thread is released to proceed and ceases to contribute to the number
         // of threads waiting.  Return a non-zero value if a timeout or error
-        // occurs.  'absTime' is an absolute time represented as an interval
+        // occurs.  'absTime' is an *absolute* time represented as an interval
         // from some epoch, which is determined by the clock indicated at
         // construction (see {Supported Clock-Types} in the component
         // documentation).  Note that 'timedWait' and 'wait' should not

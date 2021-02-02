@@ -34,13 +34,14 @@ BSLS_IDENT("$Id: $")
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_REALTIME', 'absTime' should be expressed as an
-// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
-// clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', 'absTime' should be expressed as an
-// absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bsls::SystemClockType::e_REALTIME', the 'absTime' argument passed to the
+// `timedWait` method should be expressed as an absolute offset since 00:00:00
+// UTC, January 1, 1970 (which matches the epoch used in
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
+// type indicated at construction is 'bsls::SystemClockType::e_MONOTONIC', the
+// 'absTime' argument passed to the `timedWait` method should be expressed as
+// an absolute offset since the epoch of this clock (which matches the epoch
+// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -121,12 +122,13 @@ class FastPostSemaphoreImpl {
         // count.  Otherwise, block until the count of this semaphore is a
         // positive value or the specified 'absTime' timeout expires.  If the
         // count of this timed semaphore is a positive value, return 0 and
-        // atomically decrement the count.  If the 'absTime' expires, return
-        // 'e_TIMED_OUT' with no effect on the count.  'absTime' is an absolute
-        // time represented as an interval from some epoch, which is determined
-        // by the clock indicated at construction (see {Supported Clock-Types}
-        // in the component documentation).  This method is invoked from
-        // 'timedWait' when the invoking thread may have to be blocked.
+        // atomically decrement the count.  If the 'absTime' timeout expires,
+        // return 'e_TIMED_OUT' with no effect on the count.  'absTime' is an
+        // absolute time represented as an interval from some epoch, which is
+        // determined by the clock indicated at construction (see {Supported
+        // Clock-Types} in the component documentation).  This method is
+        // invoked from 'timedWait' when the invoking thread may have to be
+        // blocked.
 
     int waitSlowPath(const bsls::Types::Int64 initialState);
         // If this semaphore becomes disabled as detected from the disabled
@@ -236,7 +238,7 @@ class FastPostSemaphoreImpl {
         // this semaphore is a positive value, return 0 and atomically
         // decrement the count.  If the 'absTime' timeout expires, return
         // 'e_TIMEDOUT' with no effect on the count.  Return 'e_FAILED' if an
-        // error occurs.  'absTime' is an absolute time represented as an
+        // error occurs.  'absTime' is an *absolute* time represented as an
         // interval from some epoch, which is determined by the clock indicated
         // at construction (see {Supported Clock-Types} in the component
         // documentation).

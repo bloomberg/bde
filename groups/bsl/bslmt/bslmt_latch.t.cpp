@@ -90,7 +90,7 @@ using namespace bsl;
 // [ 4] void arriveAndWait();
 // [ 1] void countDown(int n);
 // [ 5] void wait();
-// [ 6] void timedWait(const bsls::TimeInterval &absTime);
+// [ 6] void timedWait(const bsls::TimeInterval& absTime);
 //
 // ACCESSORS
 // [ 1] int currentCount() const;
@@ -1223,7 +1223,7 @@ int main(int argc, char *argv[])
         //:   (C-2)
         //
         // Testing:
-        //   void timedWait(const bsls::TimeInterval &absTime);
+        //   void timedWait(const bsls::TimeInterval& absTime);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

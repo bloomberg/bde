@@ -35,13 +35,14 @@ BSLS_IDENT("$Id: $")
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_REALTIME', 'absTime' should be expressed as an
-// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
-// clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', 'absTime' should be expressed as an
-// absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bsls::SystemClockType::e_REALTIME', the 'absTime' argument passed to the
+// `timedWait` method should be expressed as an absolute offset since 00:00:00
+// UTC, January 1, 1970 (which matches the epoch used in
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
+// type indicated at construction is 'bsls::SystemClockType::e_MONOTONIC', the
+// 'absTime' argument passed to the `timedWait` method should be expressed as
+// an absolute offset since the epoch of this clock (which matches the epoch
+// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -144,7 +145,7 @@ class Sluice {
 
     bsls::SystemClockType::Enum
                           d_clockType;           // the type of clock used for
-                                                 // absTime in 'timedWait'
+                                                 // 'absTime' in 'timedWait'
 
     bslma::Allocator     *d_allocator_p;         // memory allocator (held, not
                                                  // owned)
@@ -189,8 +190,8 @@ class Sluice {
 
     int timedWait(const void *token, const bsls::TimeInterval& absTime);
         // Wait for the specified 'token' to be signaled, or until the
-        // specified 'absTime' timeout expires.  The 'absTime' timeout is an
-        // absolute time represented as an interval from some epoch, which is
+        // specified 'absTime' timeout expires.  'absTime' is an
+        // *absolute* time represented as an interval from some epoch, which is
         // determined by the clock indicated at construction (see {Supported
         // Clock-Types} in the component documentation).  Return 0 on success,
         // and a non-zero value on timeout.  The 'token' is released whether or

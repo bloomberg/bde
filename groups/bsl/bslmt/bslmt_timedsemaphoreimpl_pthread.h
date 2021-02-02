@@ -34,13 +34,14 @@ BSLS_IDENT("$Id: $")
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_REALTIME', 'absTime' should be expressed as an
-// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
-// clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', 'absTime' should be expressed as an
-// absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bsls::SystemClockType::e_REALTIME', the 'absTime' argument passed to the
+// `timedWait` method should be expressed as an absolute offset since 00:00:00
+// UTC, January 1, 1970 (which matches the epoch used in
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
+// type indicated at construction is 'bsls::SystemClockType::e_MONOTONIC', the
+// 'absTime' argument passed to the `timedWait` method should be expressed as
+// an absolute offset since the epoch of this clock (which matches the epoch
+// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -95,12 +96,12 @@ class TimedSemaphoreImpl<Platform::PthreadTimedSemaphore> {
     // PRIVATE MANIPULATORS
     int timedWaitImp(const bsls::TimeInterval& absTime);
         // Block until the count of this semaphore is potentially a positive
-        // value, or until the specified 'absTime' timeout expires.  The
-        // 'absTime' timeout is an absolute time represented as an interval
-        // from some epoch, which is determined by the clock indicated at
-        // construction (see {Supported Clock-Types} in the component
-        // documentation).  Return 0 if the timeout did not expire, -1 if a
-        // timeout occurred, and -2 on error.
+        // value, or until the specified 'absTime' timeout expires.  'absTime'
+        // is an *absolute* time represented as an interval from some epoch,
+        // which is determined by the clock indicated at construction (see
+        // {Supported Clock-Types} in the component documentation).  Return 0
+        // if the timeout did not expire, -1 if a timeout occurred, and -2 on
+        // error.
 
   public:
     // CREATORS
@@ -140,7 +141,7 @@ class TimedSemaphoreImpl<Platform::PthreadTimedSemaphore> {
     int timedWait(const bsls::TimeInterval& absTime);
         // Block until the count of this semaphore is a positive value, or
         // until the specified 'absTime' timeout expires.  'absTime' is an
-        // absolute time represented as an interval from some epoch, which is
+        // *absolute* time represented as an interval from some epoch, which is
         // determined by the clock indicated at construction (see {Supported
         // Clock-Types} in the component documentation).  If the 'absTime'
         // timeout did not expire before the count attained a positive value,

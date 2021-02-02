@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // communicate to other threads that the predicate might be true.
 //
 // One or more threads can wait efficiently on a condition variable, either
-// indefinitely or until some absolute time, by invoking one of the following
+// indefinitely or until some *absolute* time, by invoking one of the following
 // methods of 'bslmt::Condition':
 //..
 //  int wait(bslmt::Mutex *mutex);
@@ -44,10 +44,10 @@ BSLS_IDENT("$Id: $")
 //
 // When invoking the 'timedWait' method, clients must specify, via the
 // parameter 'absTime', a timeout after which the call will return even if the
-// condition is not signaled.  The 'absTime' timeout is expressed as a
-// 'bsls::TimeInterval' object that holds the absolute time according to the
-// clock type the 'bslmt::Condition' object is constructed with (the default
-// clock is 'bsls::SystemClockType::e_REALTIME').  Clients should use the
+// condition is not signaled.  'absTime' is expressed as a 'bsls::TimeInterval'
+// object that holds an *absolute* time according to the clock type the
+// 'bslmt::Condition' object is constructed with (the default clock is
+// 'bsls::SystemClockType::e_REALTIME').  Clients should use the
 // 'bsls::SystemTime::now(clockType)' utility method to obtain the current
 // time.
 //
@@ -71,13 +71,14 @@ BSLS_IDENT("$Id: $")
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_REALTIME', 'absTime' should be expressed as an
-// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
-// clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', 'absTime' should be expressed as an
-// absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bsls::SystemClockType::e_REALTIME', the 'absTime' argument passed to the
+// `timedWait` method should be expressed as an absolute offset since 00:00:00
+// UTC, January 1, 1970 (which matches the epoch used in
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
+// type indicated at construction is 'bsls::SystemClockType::e_MONOTONIC', the
+// 'absTime' argument passed to the `timedWait` method should be expressed as
+// an absolute offset since the epoch of this clock (which matches the epoch
+// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -208,8 +209,8 @@ class Condition {
         // Atomically unlock the specified 'mutex' and suspend execution of the
         // current thread until this condition object is "signaled" (i.e., one
         // of the 'signal' or 'broadcast' methods is invoked on this object) or
-        // until the specified 'absTime' expires, then re-acquire a lock on the
-        // 'mutex'.  The 'absTime' timeout is an *absolute* time represented as
+        // until the specified 'absTime' timeout expires, then re-acquire a
+        // lock on the 'mutex'.  'absTime' is an *absolute* time represented as
         // an interval from some epoch, which is determined by the clock
         // indicated at construction (see {Supported Clock-Types} in the
         // component documentation), and is the earliest time at which the

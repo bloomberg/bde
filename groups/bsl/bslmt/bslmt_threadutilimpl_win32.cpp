@@ -737,7 +737,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleepUntil(
 
         // As indicated in the documentation for 'SetWaitableTimer':
         // http://msdn.microsoft.com/en-us/library/windows/desktop/ms686289 A
-        // positive value represents an absolute time in increments of 100
+        // positive value represents an *absolute* time in increments of 100
         // nanoseconds.  Critically though, Microsoft's epoch is different for
         // epoch used by the C run-time (and BDE).  BDE uses January 1, 1970,
         // Microsoft uses January 1, 1601, see:

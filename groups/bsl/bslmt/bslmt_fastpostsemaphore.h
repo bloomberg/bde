@@ -33,13 +33,14 @@ BSLS_IDENT("$Id: $")
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_REALTIME', 'absTime' should be expressed as an
-// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
-// clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', 'absTime' should be expressed as an
-// absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bsls::SystemClockType::e_REALTIME', the 'absTime' argument passed to the
+// `timedWait` method should be expressed as an absolute offset since 00:00:00
+// UTC, January 1, 1970 (which matches the epoch used in
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
+// type indicated at construction is 'bsls::SystemClockType::e_MONOTONIC', the
+// 'absTime' argument passed to the `timedWait` method should be expressed as
+// an absolute offset since the epoch of this clock (which matches the epoch
+// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -360,13 +361,14 @@ class FastPostSemaphore {
         // If this semaphore is initially disabled, or becomes disabled while
         // blocking, return 'e_DISABLED' with no effect on the count.
         // Otherwise, block until the count of this semaphore is a positive
-        // value or the specified 'absTime' expires.  If the count of this
-        // semaphore is a positive value, return 0 and atomically decrement the
-        // count.  If the 'absTime' expires, return 'e_TIMEDOUT' with no effect
-        // on the count.  Return 'e_FAILED' if an error occurs.  The 'absTime'
-        // timeout is an absolute time represented as an interval from some
-        // epoch, which is determined by the clock indicated at construction
-        // (see {Supported Clock-Types} in the component documentation).
+        // value or the specified 'absTime' timeout expires.  If the count of
+        // this semaphore is a positive value, return 0 and atomically
+        // decrement the count.  If the 'absTime' timeout expires, return
+        // 'e_TIMEDOUT' with no effect on the count.  Return 'e_FAILED' if an
+        // error occurs.  'absTime' is an *absolute* time represented as an
+        // interval from some epoch, which is determined by the clock indicated
+        // at construction (see {Supported Clock-Types} in the component
+        // documentation).
 
     int tryWait();
         // If this semaphore is initially disabled, return 'e_DISABLED' with no

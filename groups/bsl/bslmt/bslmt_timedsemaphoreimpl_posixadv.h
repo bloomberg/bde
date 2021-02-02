@@ -39,13 +39,14 @@ BSLS_IDENT("$Id: $")
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_REALTIME', 'absTime' should be expressed as an
-// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
-// clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', 'absTime' should be expressed as an
-// absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bsls::SystemClockType::e_REALTIME', the 'absTime' argument passed to the
+// `timedWait` method should be expressed as an absolute offset since 00:00:00
+// UTC, January 1, 1970 (which matches the epoch used in
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
+// type indicated at construction is 'bsls::SystemClockType::e_MONOTONIC', the
+// 'absTime' argument passed to the `timedWait` method should be expressed as
+// an absolute offset since the epoch of this clock (which matches the epoch
+// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -129,13 +130,13 @@ class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
 
     int timedWait(const bsls::TimeInterval& absTime);
         // Block until the count of this semaphore is a positive value, or
-        // until the specified 'absTime' timeout expires.  The 'absTime'
-        // timeout is an absolute time represented as an interval from some
-        // epoch, which is determined by the clock indicated at construction
-        // (see {Supported Clock-Types} in the component documentation).  If
-        // the 'absTime' timeout did not expire before the count attained a
-        // positive value, atomically decrement the count and return 0;
-        // otherwise, return a non-zero value with no effect on the count.
+        // until the specified 'absTime' timeout expires.  'absTime' is an
+        // *absolute* time represented as an interval from some epoch, which is
+        // determined by the clock indicated at construction (see {Supported
+        // Clock-Types} in the component documentation).  If the 'absTime'
+        // timeout did not expire before the count attained a positive value,
+        // atomically decrement the count and return 0; otherwise, return a
+        // non-zero value with no effect on the count.
 
     int tryWait();
         // Decrement the count of this semaphore if it is positive and return
