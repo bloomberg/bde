@@ -190,13 +190,13 @@ class Sluice {
 
     int timedWait(const void *token, const bsls::TimeInterval& absTime);
         // Wait for the specified 'token' to be signaled, or until the
-        // specified 'absTime' timeout expires.  'absTime' is an
-        // *absolute* time represented as an interval from some epoch, which is
-        // determined by the clock indicated at construction (see {Supported
-        // Clock-Types} in the component documentation).  Return 0 on success,
-        // and a non-zero value on timeout.  The 'token' is released whether or
-        // not a timeout occurred.  The behavior is undefined unless 'token'
-        // was obtained from a call to 'enter' by this thread, and was not
+        // specified 'absTime' timeout expires.  'absTime' is an *absolute*
+        // time represented as an interval from some epoch, which is determined
+        // by the clock indicated at construction (see {Supported Clock-Types}
+        // in the component documentation).  Return 0 on success, and a
+        // non-zero value on timeout.  The 'token' is released whether or not a
+        // timeout occurred.  The behavior is undefined unless 'token' was
+        // obtained from a call to 'enter' by this thread, and was not
         // subsequently released (via a call to 'timedWait' or 'wait').
 
     void wait(const void *token);
