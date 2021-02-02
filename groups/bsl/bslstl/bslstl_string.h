@@ -634,7 +634,9 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_isconvertible.h>
 #include <bslmf_issame.h>
 #include <bslmf_matchanytype.h>
 #include <bslmf_matcharithmetictype.h>
@@ -2501,14 +2503,6 @@ bool operator==(const CHAR_TYPE                                  *lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const CHAR_TYPE                                  *rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-bool operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
-                const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&   rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-bool operator==(const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&   lhs,
-                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' string has the same value as the
     // specified 'rhs' string, and 'false' otherwise.  Two strings have the
     // same value if they have the same length, and the characters at each
@@ -2535,14 +2529,6 @@ bool operator!=(const CHAR_TYPE                                  *lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const CHAR_TYPE                                  *rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-bool operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
-                const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&   rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-bool operator!=(const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&   lhs,
-                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' string has a different value from
     // the specified 'rhs' string, and 'false' otherwise.  Two strings have the
     // same value if they have the same length, and the characters at each
@@ -2569,14 +2555,6 @@ bool operator<(const CHAR_TYPE                                  *lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                const CHAR_TYPE                                  *rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-bool operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
-               const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&   rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-bool operator<(const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&   lhs,
-               const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' string has a lexicographically
     // smaller value than the specified 'rhs' string, and 'false' otherwise.
     // See {Lexicographical Comparisons}.
@@ -2602,14 +2580,6 @@ bool operator>(const CHAR_TYPE                                  *lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                const CHAR_TYPE                                  *rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-bool operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
-               const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&   rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-bool operator>(const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&   lhs,
-               const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' string has a lexicographically
     // larger value than the specified 'rhs' string, and 'false' otherwise.
     // See {Lexicographical Comparisons}.
@@ -2635,14 +2605,6 @@ bool operator<=(const CHAR_TYPE                                  *lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const CHAR_TYPE                                  *rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-bool operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
-                const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&   rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-bool operator<=(const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&   lhs,
-                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' string has a value
     // lexicographically smaller than or or equal to the specified 'rhs'
     // string, and 'false' otherwise.  See {Lexicographical Comparisons}.
@@ -2668,14 +2630,6 @@ bool operator>=(const CHAR_TYPE                                  *lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const CHAR_TYPE                                  *rhs);
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-bool operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
-                const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&   rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-bool operator>=(const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&   lhs,
-                const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' string has a value
     // lexicographically larger than or equal to the specified 'rhs' string,
     // and 'false' otherwise.  See {Lexicographical Comparisons}.
@@ -6146,24 +6100,6 @@ bool bsl::operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
-bool bsl::operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
-                     const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&  rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return basic_string_view<CHAR_TYPE,CHAR_TRAITS>(lhs) == rhs;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
-bool bsl::operator==(const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&  lhs,
-                     const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return lhs == basic_string_view<CHAR_TYPE,CHAR_TRAITS>(rhs);
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
 bool bsl::operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
                      const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
@@ -6211,24 +6147,6 @@ bool bsl::operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
     BSLS_ASSERT_SAFE(rhs);
 
     return !(lhs == rhs);
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
-bool bsl::operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
-                     const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&  rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return basic_string_view<CHAR_TYPE,CHAR_TRAITS>(lhs) != rhs;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
-bool bsl::operator!=(const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&  lhs,
-                     const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return lhs != basic_string_view<CHAR_TYPE,CHAR_TRAITS>(rhs);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
@@ -6314,24 +6232,6 @@ bool bsl::operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
-bool bsl::operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
-                    const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&  rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return basic_string_view<CHAR_TYPE,CHAR_TRAITS>(lhs) < rhs;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
-bool bsl::operator<(const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&  lhs,
-                    const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return lhs < basic_string_view<CHAR_TYPE,CHAR_TRAITS>(rhs);
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
 bool bsl::operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
                     const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
@@ -6379,24 +6279,6 @@ bool bsl::operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
     BSLS_ASSERT_SAFE(rhs);
 
     return rhs < lhs;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
-bool bsl::operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
-                    const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&  rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return basic_string_view<CHAR_TYPE,CHAR_TRAITS>(lhs) > rhs;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
-bool bsl::operator>(const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&  lhs,
-                    const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return lhs > basic_string_view<CHAR_TYPE,CHAR_TRAITS>(rhs);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
@@ -6452,24 +6334,6 @@ bool bsl::operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
-bool bsl::operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
-                     const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&  rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return basic_string_view<CHAR_TYPE,CHAR_TRAITS>(lhs) <= rhs;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
-bool bsl::operator<=(const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&  lhs,
-                     const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return lhs <= basic_string_view<CHAR_TYPE,CHAR_TRAITS>(rhs);
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
 bool bsl::operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
                      const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
@@ -6517,24 +6381,6 @@ bool bsl::operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
     BSLS_ASSERT_SAFE(rhs);
 
     return !(lhs < rhs);
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
-bool bsl::operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
-                     const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&  rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return basic_string_view<CHAR_TYPE,CHAR_TRAITS>(lhs) >= rhs;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
-bool bsl::operator>=(const basic_string_view<CHAR_TYPE,CHAR_TRAITS>&  lhs,
-                     const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return lhs >= basic_string_view<CHAR_TYPE,CHAR_TRAITS>(rhs);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>

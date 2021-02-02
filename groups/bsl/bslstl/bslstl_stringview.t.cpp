@@ -1499,6 +1499,20 @@ void TestDriver<TYPE,TRAITS>::testCase20()
     //   bool operator>=(basic_string_view lhs, basic_string_view rhs);
     // ------------------------------------------------------------------------
 
+    if (verbose) printf("\tTesting signatures.\n");
+    {
+        typedef bool (*OP)(Obj, Obj);
+
+        OP op = &bsl::operator<;
+        (void) op;
+        op    = &bsl::operator<=;
+        (void) op;
+        op    = &bsl::operator>;
+        (void) op;
+        op    = &bsl::operator>=;
+        (void) op;
+    }
+
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
     const TYPE *STRING   = s_testString;
@@ -6070,12 +6084,10 @@ void TestDriver<TYPE, TRAITS>::testCase4()
     {
         typedef bool (*OP)(Obj, Obj);
 
-        OP op = bsl::operator==;
+        OP op = &bsl::operator==;
         (void) op;
-#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201703L
-        op    = bsl::operator!=;
+        op    = &bsl::operator!=;
         (void) op;
-#endif
     }
 
     if (verbose) printf("\tTesting basic behavior.\n");
@@ -6111,14 +6123,12 @@ void TestDriver<TYPE, TRAITS>::testCase4()
             const size_type  OFFSET1  = i1;
             const size_type  LENGTH1  = j1;
             const TYPE      *START1   = STRING1 + OFFSET1;
-            const TYPE      *NULL_PTR = 0;
 
-            Obj        mXEmpty(NULL_PTR, 0);
-            const Obj& XEmpty = mXEmpty;
+            Obj  mXEmpty;    const Obj& XEmpty = mXEmpty;
 
-            Obj        mX1(START1, LENGTH1);
-            const Obj& X1 = mX1;
-            const bool EMPTY_EXPECTED = (0 == LENGTH1);
+            Obj         mX1(START1, LENGTH1);
+            const Obj&  X1 = mX1;
+            const bool  EMPTY_EXPECTED = (0 == LENGTH1);
 
             // Self comparison.
 

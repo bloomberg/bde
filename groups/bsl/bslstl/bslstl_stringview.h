@@ -187,6 +187,8 @@ BSLS_IDENT("$Id: $")
 //      svfa.deleteObject(svPtr);
 //..
 
+#include <bslscm_version.h>
+
 #include <bslstl_hash.h>
 #include <bslstl_iterator.h>
 #include <bslstl_stdexceptutil.h>
@@ -194,6 +196,9 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 
 #include <bslh_hash.h>
+
+#include <bslmf_enableif.h>
+#include <bslmf_isconvertible.h>
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
@@ -205,7 +210,6 @@ BSLS_IDENT("$Id: $")
 
 #include <string>      // for 'native_std::char_traits'
 #include <functional>  // for 'native_std::less', 'native_std::greater_equal'
-
 
 // 'BDE_DISABLE_CPP17_ABI' is intended for CI builds only, to allow simulation
 // of Sun/AIX builds on Linux hosts.  It is an error to define this symbol in
@@ -236,6 +240,68 @@ using native_std::operator>=;
 #endif  // BDE_DISABLE_CPP17_ABI
 
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS) ||                                      \
+         (defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130)
+  // Windows or Sun CC before version 5.12.4
+
+# define BSLSTL_STRINGVIEW_IDENTITY_USE_WRAPPER    1
+#else
+# define BSLSTL_STRINGVIEW_IDENTITY_USE_WRAPPER    0
+#endif
+
+namespace BloombergLP {
+namespace bslstl {
+
+                         // ===========================
+                         // struct 'StringView_Identity
+                         // ===========================
+
+template <class TYPE>
+struct StringView_Identity {
+#if BSLSTL_STRINGVIEW_IDENTITY_USE_WRAPPER
+    // See 'Implementation Notes' in the implementation .cpp file.
+
+    struct type {
+        // DATA
+        TYPE d_value;
+
+        // CREATOR
+        template <class ARG_TYPE>
+        type(const ARG_TYPE& argument,
+                     typename
+                     bsl::enable_if<bsl::is_convertible<ARG_TYPE, TYPE>::value,
+                                    int>::type = 0);
+            // Initialize 'd_value' from the specified 'argument', of the
+            // specified 'ARG_TYPE', where 'ARG_TYPE' can be any type that is
+            // convertible to the specified 'TYPE'.
+
+        // type(const type&) = default;
+
+        // MANIPULATORS
+        // type& operator=(const type&) = default;
+
+        TYPE& operator=(const TYPE& rhs);
+            // Assign the specified 'rhs' of type 'TYPE' to this object, and
+            // return a reference providing modifiable access to the 'TYPE'
+            // object held by this object.
+
+        operator TYPE&();
+            // Return a reference providing modifiable access to the 'TYPE'
+            // object held by this object.
+
+        // ACCESSOR
+        operator const TYPE&() const;
+            // Return a const reference to the 'TYPE' object held by this
+            // object.
+    };
+#else
+    typedef TYPE type;
+#endif
+};
+
+}  // close package namespace
+}  // close enterprise namespace
 
 namespace bsl {
 // Import 'char_traits' into the 'bsl' namespace so that 'basic_string_view'
@@ -858,17 +924,19 @@ BSLS_KEYWORD_CONSTEXPR
 bool operator==(basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  lhs,
                 basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  rhs)
 BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
 bool operator==(
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type lhs,
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 rhs)
 BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
 bool operator==(
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 lhs,
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type rhs)
 BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' view has the same value as the
     // specified 'rhs' view, and 'false' otherwise.  Two views have the same
@@ -880,17 +948,19 @@ BSLS_KEYWORD_CONSTEXPR
 bool operator!=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  lhs,
                 basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  rhs)
 BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
 bool operator!=(
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type lhs,
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 rhs)
 BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
 bool operator!=(
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 lhs,
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type rhs)
 BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' view has a different value from the
     // specified 'rhs' view, and 'false' otherwise.  Two views have the same
@@ -902,17 +972,19 @@ BSLS_KEYWORD_CONSTEXPR_CPP14
 bool operator<(basic_string_view<CHAR_TYPE, CHAR_TRAITS>                   lhs,
                basic_string_view<CHAR_TYPE, CHAR_TRAITS>                   rhs)
 BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
 bool operator<(
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type lhs,
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 rhs)
 BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
 bool operator<(
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 lhs,
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type rhs)
 BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' view has a lexicographically
     // smaller value than the specified 'rhs' view, and 'false' otherwise.  See
@@ -923,17 +995,19 @@ BSLS_KEYWORD_CONSTEXPR
 bool operator>(basic_string_view<CHAR_TYPE, CHAR_TRAITS>                   lhs,
                basic_string_view<CHAR_TYPE, CHAR_TRAITS>                   rhs)
 BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
 bool operator>(
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type lhs,
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 rhs)
 BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
 bool operator>(
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 lhs,
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type rhs)
 BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' view has a lexicographically larger
     // value than the specified 'rhs' view, and 'false' otherwise.  See
@@ -944,17 +1018,19 @@ BSLS_KEYWORD_CONSTEXPR
 bool operator<=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  lhs,
                 basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  rhs)
 BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
 bool operator<=(
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type lhs,
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 rhs)
 BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
 bool operator<=(
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 lhs,
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type rhs)
 BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' view has a value lexicographically
     // smaller than or or equal to the specified 'rhs' view, and 'false'
@@ -965,17 +1041,19 @@ BSLS_KEYWORD_CONSTEXPR
 bool operator>=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  lhs,
                 basic_string_view<CHAR_TYPE, CHAR_TRAITS>                  rhs)
 BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
 bool operator>=(
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type lhs,
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 rhs)
 BSLS_KEYWORD_NOEXCEPT;
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_KEYWORD_CONSTEXPR
 bool operator>=(
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 lhs,
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type rhs)
 BSLS_KEYWORD_NOEXCEPT;
     // Return 'true' if the specified 'lhs' view has a value lexicographically
     // larger than or equal to the specified 'rhs' view, and 'false' otherwise.
@@ -1112,7 +1190,54 @@ void hashAppend(
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+
+
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
+
+#if BSLSTL_STRINGVIEW_IDENTITY_USE_WRAPPER
+
+namespace BloombergLP {
+namespace bslstl {
+
+template <class TYPE>
+template <class ARG_TYPE>
+inline
+StringView_Identity<TYPE>::type::type(
+            const ARG_TYPE& argument,
+            typename bsl::enable_if<bsl::is_convertible<ARG_TYPE, TYPE>::value,
+                                    int>::type)
+: d_value(argument)
+{}
+
+// MANIPULATORS
+template <class TYPE>
+inline
+TYPE& StringView_Identity<TYPE>::type::operator=(const TYPE& rhs)
+{
+    d_value = rhs;
+
+    return d_value;
+}
+
+template <class TYPE>
+inline
+StringView_Identity<TYPE>::type::operator TYPE&()
+{
+    return d_value;
+}
+
+// ACCESSOR
+template <class TYPE>
+inline
+StringView_Identity<TYPE>::type::operator const TYPE&() const
+{
+    return d_value;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
 
 namespace bsl {
 
@@ -2183,23 +2308,25 @@ bool bsl::operator==(basic_string_view<CHAR_TYPE, CHAR_TRAITS>        lhs,
         && 0 == CHAR_TRAITS::compare(lhs.data(), rhs.data(), lhs.size());
 }
 
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
 bool bsl::operator==(
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type lhs,
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 rhs)
 BSLS_KEYWORD_NOEXCEPT
 {
     return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs) == rhs;
 }
 
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
 bool bsl::operator==(
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 lhs,
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type rhs)
 BSLS_KEYWORD_NOEXCEPT
 {
     return lhs == basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs);
@@ -2208,40 +2335,42 @@ BSLS_KEYWORD_NOEXCEPT
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
-bool bsl::operator!=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>        lhs,
-                     basic_string_view<CHAR_TYPE, CHAR_TRAITS>        rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+bool bsl::operator!=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>             lhs,
+                     basic_string_view<CHAR_TYPE, CHAR_TRAITS>             rhs)
+BSLS_KEYWORD_NOEXCEPT
 {
     return !(lhs == rhs);
 }
 
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
 bool bsl::operator!=(
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type lhs,
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 rhs)
 BSLS_KEYWORD_NOEXCEPT
 {
-    return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs) != rhs;
+    return !(basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs) == rhs);
 }
 
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
 bool bsl::operator!=(
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 lhs,
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type rhs)
 BSLS_KEYWORD_NOEXCEPT
 {
-    return lhs != basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs);
+    return !(lhs == basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs));
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR_CPP14
-bool bsl::operator<(basic_string_view<CHAR_TYPE, CHAR_TRAITS>        lhs,
-                    basic_string_view<CHAR_TYPE, CHAR_TRAITS>        rhs)
+bool bsl::operator<(basic_string_view<CHAR_TYPE, CHAR_TRAITS>              lhs,
+                    basic_string_view<CHAR_TYPE, CHAR_TRAITS>              rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     const std::size_t minLen = lhs.length() < rhs.length()
@@ -2254,23 +2383,25 @@ bool bsl::operator<(basic_string_view<CHAR_TYPE, CHAR_TRAITS>        lhs,
     return (ret < 0);
 }
 
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
 bool bsl::operator<(
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type lhs,
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 rhs)
 BSLS_KEYWORD_NOEXCEPT
 {
     return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs) < rhs;
 }
 
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
 bool bsl::operator<(
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 lhs,
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type rhs)
 BSLS_KEYWORD_NOEXCEPT
 {
     return lhs < basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs);
@@ -2279,97 +2410,103 @@ BSLS_KEYWORD_NOEXCEPT
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
-bool bsl::operator>(basic_string_view<CHAR_TYPE, CHAR_TRAITS>        lhs,
-                    basic_string_view<CHAR_TYPE, CHAR_TRAITS>        rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+bool bsl::operator>(basic_string_view<CHAR_TYPE, CHAR_TRAITS>              lhs,
+                    basic_string_view<CHAR_TYPE, CHAR_TRAITS>              rhs)
+BSLS_KEYWORD_NOEXCEPT
 {
     return rhs < lhs;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
-BSLS_KEYWORD_CONSTEXPR
-bool bsl::operator>(
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
-BSLS_KEYWORD_NOEXCEPT
-{
-    return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs) > rhs;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
-BSLS_KEYWORD_CONSTEXPR
-bool bsl::operator>(
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
-BSLS_KEYWORD_NOEXCEPT
-{
-    return lhs > basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
-bool bsl::operator<=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>        lhs,
-                     basic_string_view<CHAR_TYPE, CHAR_TRAITS>        rhs)
+bool bsl::operator>(
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type lhs,
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    return rhs < basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator>(
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 lhs,
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs) < lhs;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator<=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>             lhs,
+                     basic_string_view<CHAR_TYPE, CHAR_TRAITS>             rhs)
                                                           BSLS_KEYWORD_NOEXCEPT
 {
     return !(rhs < lhs);
 }
 
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
 bool bsl::operator<=(
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type lhs,
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 rhs)
 BSLS_KEYWORD_NOEXCEPT
 {
-    return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs) <= rhs;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-inline
-BSLS_KEYWORD_CONSTEXPR
-bool bsl::operator<=(
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
-BSLS_KEYWORD_NOEXCEPT
-{
-    return lhs <= basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs);
+    return !(rhs < basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs));
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
-bool bsl::operator>=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>        lhs,
-                     basic_string_view<CHAR_TYPE, CHAR_TRAITS>        rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+bool bsl::operator<=(
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 lhs,
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type rhs)
+BSLS_KEYWORD_NOEXCEPT
+{
+    return !(basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs) < lhs);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bool bsl::operator>=(basic_string_view<CHAR_TYPE, CHAR_TRAITS>             lhs,
+                     basic_string_view<CHAR_TYPE, CHAR_TRAITS>             rhs)
+BSLS_KEYWORD_NOEXCEPT
 {
     return !(lhs < rhs);
 }
 
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
 bool bsl::operator>=(
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& lhs,
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      rhs)
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type lhs,
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 rhs)
 BSLS_KEYWORD_NOEXCEPT
 {
-    return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs) >= rhs;
+    return !(basic_string_view<CHAR_TYPE, CHAR_TRAITS>(lhs) < rhs);
 }
 
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
 BSLS_KEYWORD_CONSTEXPR
 bool bsl::operator>=(
-            basic_string_view<CHAR_TYPE, CHAR_TRAITS>                      lhs,
-            const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC>& rhs)
+           const basic_string_view<CHAR_TYPE, CHAR_TRAITS>                 lhs,
+           typename BloombergLP::bslstl::StringView_Identity<
+                         basic_string_view<CHAR_TYPE, CHAR_TRAITS> >::type rhs)
 BSLS_KEYWORD_NOEXCEPT
 {
-    return lhs >= basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs);
+    return !(lhs < basic_string_view<CHAR_TYPE, CHAR_TRAITS>(rhs));
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
