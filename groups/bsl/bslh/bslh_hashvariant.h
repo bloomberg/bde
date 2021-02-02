@@ -80,6 +80,18 @@ namespace BloombergLP {
 namespace bslh {
 
 // FREE FUNCTIONS
+template <class HASH_ALGORITHM>
+inline
+void
+hashAppend(HASH_ALGORITHM& algorithm, const std::monostate&)
+    // Pass the special value corresponding to the 'std::monostate' object to
+    // the specified 'algorithm'.  This function integrates with the 'bslh'
+    // modular hashing system and effectively provides a 'bsl::hash'
+    // specialization for 'std::monostate'.
+{
+    hashAppend(algorithm, -7777);
+}
+
 template <class HASH_ALGORITHM, class ... TYPE>
 inline
 void
