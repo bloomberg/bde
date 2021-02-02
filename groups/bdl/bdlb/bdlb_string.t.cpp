@@ -16,15 +16,15 @@
 #include <bsls_platform.h>
 #include <bsls_review.h>
 
-#include <bsl_iostream.h>
 #include <bsl_algorithm.h>   // 'bsl::transform'
+#include <bsl_clocale.h>     // 'bsl::setlocale'
+#include <bsl_cstddef.h>
+#include <bsl_cstdio.h>      // 'bsl::sprintf'
+#include <bsl_cstdlib.h>     // 'bsl::atoi'
+#include <bsl_cstring.h>     // 'bsl::strcmp', 'bsl::memset'
+#include <bsl_iostream.h>
 
 #include <ctype.h>           // 'tolower', 'toupper'
-#include <bsl_cstddef.h>
-#include <bsl_cstdlib.h>     // 'bsl::atoi'
-#include <bsl_cstdio.h>      // 'bsl::sprintf'
-#include <bsl_cstring.h>     // 'bsl::strcmp', 'bsl::memset'
-
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #include <bsl_c_string.h>    // 'bsl::_stricmp', 'bsl::_strnicmp'
@@ -68,10 +68,16 @@ using bsl::cout; using bsl::flush; using bsl::endl; using bsl::cerr;
 // [ 4] lowerCaseCmp(cBslStr& lhsStr, cBslStr& rhsStr);
 // [ 5] ltrim(char *str);
 // [ 5] ltrim(char *str, int *L);
-// [ 5] ltrim(bsl::str *str);
-// [ 6] pad(bsl::str *str, int numChars, char padChar = ' ');
+// [ 5] ltrim(bsl::string *str);
+// [ 5] ltrim(std::string *str);
+// [ 5] ltrim(std::pmr::string *str);
+// [ 6] pad(bsl::string *str, int numChars, char padChar = ' ');
+// [ 6] pad(std::string *str, int numChars, char padChar = ' ');
+// [ 6] pad(std::pmr::string *str, size_type numChars, char padChar = ' ');
 // [ 5] rtrim(char *str);
-// [ 5] rtrim(bsl::str *str);
+// [ 5] rtrim(bsl::string *str);
+// [ 5] rtrim(std::string *str);
+// [ 5] rtrim(std::pmr::string *str);
 // [ 5] rtrim(cchar *str, int *L);
 // [ 9] strstr(cchar *str, int strL, cchar *subStr, int subStrL);
 // [ 9] strstrCaseless(cchar *str, int strL, cchar *subStr, int subStrL);
@@ -82,12 +88,18 @@ using bsl::cout; using bsl::flush; using bsl::endl; using bsl::cerr;
 // [ 2] toLower(char *string);
 // [ 2] toLower(char *string, int length);
 // [ 2] toLower(bsl::string *string);
+// [ 2] toLower(std::string *string);
+// [ 2] toLower(std::pmr::string *string);
 // [ 2] toUpper(char *string);
 // [ 2] toUpper(char *string, int length);
 // [ 2] toUpper(bsl::string *string);
+// [ 2] toUpper(std::string *string);
+// [ 2] toUpper(std::pmr::string *string);
 // [ 5] trim(char *string);
 // [ 5] trim(char *string, int *length);
 // [ 5] trim(bsl::string *string);
+// [ 5] trim(std::string *string);
+// [ 5] trim(std::pmr::string *string);
 // [10] skipLeadingTrailing(cchar **begin, cchar **end);
 // [ 4] upperCaseCmp(cchar *lhs, cchar *rhs);
 // [ 4] upperCaseCmp(cchar *lhs, cchar *rhs, int rhsL);
@@ -223,12 +235,11 @@ int main(int argc, char *argv[])
                 { "arf arf",  5, "arf a" },
                 { "arf\0arf", 7, "arf\0arf" },
             };
-
             enum { DATA_LEN = sizeof(DATA) / sizeof(*DATA) };
 
             for (int i = 0; i < DATA_LEN; ++i) {
                 const char *STRING         = DATA[i].string;
-                const int CLIP_LEN         = DATA[i].clipLen;
+                const int   CLIP_LEN       = DATA[i].clipLen;
                 const char *CLIPPED_RESULT = DATA[i].clippedResult;
 
                 char *result = bdlb::String::copy(STRING, &ta);
@@ -239,16 +250,16 @@ int main(int argc, char *argv[])
                 ta.deallocate(result);
 
                 result = bdlb::String::copy(ns(STRING, CLIP_LEN),
-                                           nneg(CLIP_LEN),
-                                           &ta);
+                                            nneg(CLIP_LEN),
+                                            &ta);
 
                 ASSERT(result != STRING);
                 ASSERT(!bsl::strcmp(result, CLIPPED_RESULT));
                 int minLength = bsl::min(static_cast<int>(nneg(CLIP_LEN)),
                                          static_cast<int>(
                                                          bsl::strlen(STRING)));
-                ASSERT(minLength == (int) bsl::strlen(result));
-                ASSERT(0 == memcmp(result, STRING, nneg(CLIP_LEN)));
+                ASSERT(minLength == static_cast<int>(bsl::strlen(result)));
+                ASSERT(0 == bsl::memcmp(result, STRING, nneg(CLIP_LEN)));
                 ASSERT(0 == result[nneg(CLIP_LEN)]);
 
                 ta.deallocate(result);
@@ -264,7 +275,6 @@ int main(int argc, char *argv[])
                 { "arf arf", 7 },
                 { "arf\0arf", 7 },
             };
-
             enum { DATA_LEN = sizeof(DATA) / sizeof(*DATA) };
 
             for (int i = 0; i < DATA_LEN; ++i) {
@@ -402,8 +412,8 @@ int main(int argc, char *argv[])
             const bsl::ptrdiff_t RESBEGIN = begin - STRING;
             const bsl::ptrdiff_t RESEND   = end   - STRING;
 
-            LOOP2_ASSERT(RESBEGIN, EXPBEGIN, STRING + EXPBEGIN == begin);
-            LOOP2_ASSERT(RESEND,   EXPEND,   STRING + EXPEND   == end);
+            ASSERTV(RESBEGIN, EXPBEGIN, STRING + EXPBEGIN == begin);
+            ASSERTV(RESEND,   EXPEND,   STRING + EXPEND   == end);
         }
 
       } break;
@@ -748,9 +758,8 @@ int main(int argc, char *argv[])
                                     << static_cast<const void *>(strstrResult)
                                     << bsl::dec << bsl::endl;
                 }
-                ASSERT(strstrResult == ( -1 == STRINGLEN
-                                        ? 0
-                                        : STRING + RESULT));
+                ASSERT(strstrResult == (-1 == STRINGLEN ? 0
+                                                        : STRING + RESULT));
             }
 
             if (-1 == RESULTCASELESS) {
@@ -875,55 +884,83 @@ int main(int argc, char *argv[])
             "1234567890123456789012345678901234567890123456789",
         0};
 
-        static const char CHARS[]   = {' ', '\t', '0'};
+        static const char CHARS[] = {
+            ' ', '\0', '\t', '\n', '.', '0', 'Z', 'x'  // *must* contain 'x'
+        };
         static const int  NUM_CHARS = sizeof CHARS / sizeof *CHARS;
 
-        char destBuf[32];
+        const int BUFSIZE = 32;  // size of destination buffer
+
+        char atBuf[BUFSIZE];  // filled with '@'
+        bsl::memset(atBuf, '@', BUFSIZE);
+
+        char dstBuf[BUFSIZE];
+
         for (int strIdx = 0; STRINGS[strIdx]; ++strIdx) {
             const char *SRC = STRINGS[strIdx];
-            const int   LEN = bsl::strlen(SRC);
+            const int   LEN = static_cast<int>(bsl::strlen(SRC));
 
             for (int charIdx = 0; charIdx < NUM_CHARS; ++charIdx) {
                 const char PADCHAR = CHARS[charIdx];
+
+                // 'x' is a sentinel in 'CHARS' indicating that we want to
+                // verify the default value for the 'padChar' parameter.
+
+                const char CHKCHAR = 'x' != PADCHAR ? PADCHAR : ' ';
 
                 if (veryVerbose) { T_ P_(charIdx) P(PADCHAR) }
 
                 // Call 'toFixedLength' with various lengths for both source
                 // and destination string.
 
-                for (bsl::size_t destLen = 0;
-                     destLen <  sizeof destBuf;
-                     ++destLen) {
+                for (int dstLen = 0; dstLen < BUFSIZE; ++dstLen) {
 
-                    if (veryVerbose) { T_ T_ P(destLen) }
+                    if (veryVerbose) { T_ T_ P(dstLen) }
 
                     for (int srcLen = -1; srcLen < LEN; ++srcLen) {
 
                        if (veryVerbose) { T_ T_ T_ P(srcLen) }
 
-                        bsl::memset(destBuf, 0, sizeof(destBuf));
-                        Util::toFixedLength(destBuf,
-                                            destLen,
-                                            ns(SRC, srcLen),
-                                            nneg(srcLen),
-                                            PADCHAR);
+                        bsl::memset(dstBuf, '@', BUFSIZE);
 
+                        if ('x' != PADCHAR) {
+                            Util::toFixedLength(dstBuf,
+                                                dstLen,
+                                                ns(SRC, srcLen),
+                                                nneg(srcLen),
+                                                PADCHAR);
+                        }
+                        else {
+                            Util::toFixedLength(dstBuf,
+                                                dstLen,
+                                                ns(SRC, srcLen),
+                                                nneg(srcLen));
+                                                           // default 'padChar'
+                        }
 
-                        // Generating the expected result string.
+                        // Generate the expected result string.
 
                         bsl::string result(SRC,
                                            0,
-                                           bsl::min(static_cast<bsl::size_t>(
-                                                                 nneg(srcLen)),
-                                           destLen));
-                        if (static_cast<bsl::size_t>(nneg(srcLen)) < destLen) {
-                            result.append(destLen - nneg(srcLen), PADCHAR);
+                                           bsl::min(nneg(srcLen), dstLen));
+
+                        if (nneg(srcLen) < dstLen) {
+                            result.append(dstLen - nneg(srcLen), CHKCHAR);
                         }
 
-                        // Verifying the result from 'toFixedLength'.
+                        // Verify the result from 'toFixedLength'.
 
-                        LOOP4_ASSERT(strIdx, charIdx, destLen, srcLen,
-                                                            result == destBuf);
+                        ASSERTV(strIdx, charIdx, dstLen, srcLen,
+                             0 == bsl::memcmp(result.c_str(), dstBuf, dstLen));
+
+                        // Verify no overwrite of 'dstBuf'.
+
+                        if (dstLen < BUFSIZE) {
+                             ASSERTV(strIdx, charIdx, dstLen, srcLen,
+                                           0 == bsl::memcmp(&dstBuf[dstLen],
+                                                            &atBuf[dstLen],
+                                                            BUFSIZE - dstLen));
+                        }
                     }
                 }
             }
@@ -971,7 +1008,7 @@ int main(int argc, char *argv[])
         0};
 
         for (int i = 0; STRINGS[i]; ++i) {
-            int LEN  = bsl::strlen(STRINGS[i]);
+            const int LEN = static_cast<int>(bsl::strlen(STRINGS[i]));
 
             if (veryVerbose) { T_ P_(i) P_(STRINGS[i]) P(LEN) }
 
@@ -979,8 +1016,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ T_ P(l) }
 
-                LOOP2_ASSERT(i, l,
-                       bsl::min(l, LEN) == Util::strnlen(STRINGS[i], l));
+                ASSERTV(i, l,
+                        bsl::min(l, LEN) == Util::strnlen(STRINGS[i], l));
             }
         }
 
@@ -1009,7 +1046,9 @@ int main(int argc, char *argv[])
         //:   supplied character up to the specified length.
         //
         // Testing:
-        //  pad(bsl::str *str, int numChars, char padChar = ' ');
+        //  pad(bsl::string *str, int numChars, char padChar = ' ');
+        //  pad(std::string *str, int numChars, char padChar = ' ');
+        //  pad(std::pmr::string *str, size_type numChars, char padChar = ' ');
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\n" "TESTING 'pad'" "\n"
@@ -1029,40 +1068,78 @@ int main(int argc, char *argv[])
             "Test string", " Bloomberg LP. ",
         0};
 
-        static const char CHARS[]   = {
-            ' ', '\0', '\t', '\n', '.', '0', 'Z',
+        static const char CHARS[] = {
+            ' ', '\0', '\t', '\n', '.', '0', 'Z', 'x'  // *must* contain 'x'
         };
         static const int  NUM_CHARS = sizeof CHARS / sizeof *CHARS;
 
         for (int strIdx = 0; STRINGS[strIdx]; ++strIdx) {
             const char *STRING = STRINGS[strIdx];
-            const int   LEN    = bsl::strlen(STRING);
+            const int   LEN    = static_cast<int>(bsl::strlen(STRING));
 
             if (veryVerbose) { T_ P_(strIdx) P_(STRING) P(LEN) }
 
             for (int charIdx = 0; charIdx < NUM_CHARS; ++charIdx) {
                 const char PADCHAR = CHARS[charIdx];
 
+                // 'x' is a sentinel in 'CHARS' indicating that we want to
+                // verify the default value for the 'padChar' parameter.
+
+                const char CHKCHAR = 'x' != PADCHAR ? PADCHAR : ' ';
+
                 // Pad the string to various lengths and verify the result.
 
                 for (int length = 0; length < 2 * LEN; ++length) {
 
                  if (veryVerbose) { T_ T_ P(length) }
-
-                    bsl::string testString(STRING);
-                    Util::pad(&testString, length, PADCHAR);
-                    if (LEN >= length) {
-                        // If the specified 'length' is not greater than the
-                        // original string length, this string should be
-                        // unmodified.
-
-                        LOOP2_ASSERT(strIdx, charIdx, testString == STRING);
+                    bsl::string bslString(STRING);
+                    if ('x' != PADCHAR) {
+                        Util::pad(&bslString, length, PADCHAR);
                     }
                     else {
-                        // Verify that 'testString' has been properly padded.
+                        Util::pad(&bslString, length);  // default 'padChar'
+                    }
 
-                        LOOP2_ASSERT(strIdx, charIdx, testString ==
-                              STRING + bsl::string(length - LEN, PADCHAR));
+                    std::string stdString(STRING);
+                    if ('x' != PADCHAR) {
+                        Util::pad(&stdString, length, PADCHAR);
+                    }
+                    else {
+                        Util::pad(&stdString, length);  // default 'padChar'
+                    }
+
+#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PMR)
+                    std::pmr::string pmrString(STRING);
+                    if ('x' != PADCHAR) {
+                        Util::pad(&pmrString, length, PADCHAR);
+                    }
+                    else {
+                        Util::pad(&pmrString, length);  // default 'padChar'
+                    }
+#endif
+
+                    if (LEN >= length) {
+                        // If the specified 'length' is not greater than the
+                        // original string length, then the string should be
+                        // unmodified.
+
+                        ASSERTV(strIdx, charIdx, bslString == STRING);
+                        ASSERTV(strIdx, charIdx, stdString == STRING);
+#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PMR)
+                        ASSERTV(strIdx, charIdx, pmrString == STRING);
+#endif
+                    }
+                    else {
+                        // Verify that the strings have been properly padded.
+
+                        ASSERTV(strIdx, charIdx, bslString ==
+                                  STRING + bsl::string(length - LEN, CHKCHAR));
+                        ASSERTV(strIdx, charIdx, stdString ==
+                                  STRING + std::string(length - LEN, CHKCHAR));
+#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PMR)
+                        ASSERTV(strIdx, charIdx, pmrString ==
+                             STRING + std::pmr::string(length - LEN, CHKCHAR));
+#endif
                     }
                 }
             }
@@ -1108,13 +1185,19 @@ int main(int argc, char *argv[])
         // Testing:
         //  ltrim(char *str);
         //  ltrim(char *str, int *L);
-        //  ltrim(bsl::str *str);
+        //  ltrim(bsl::string *str);
+        //  ltrim(std::string *str);
+        //  ltrim(std::pmr::string *str);
         //  rtrim(char *str);
-        //  rtrim(bsl::str *str);
+        //  rtrim(bsl::string *str);
+        //  rtrim(std::string *str);
+        //  rtrim(std::pmr::string *str);
         //  rtrim(cchar *str, int *L);
         //  trim(char *string);
         //  trim(char *string, int *length);
         //  trim(bsl::string *string);
+        //  trim(std::string *string);
+        //  trim(std::pmr::string *string);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\n" "TESTING 'ltrim', 'rtrim', 'trim'" "\n"
@@ -1123,8 +1206,13 @@ int main(int argc, char *argv[])
         static const char *STRINGS[]    = {
             "", "t", "test", "test  test",
         0};
-        const char         padChars[]   = {' ', '\n', '\t'};
-        const int          NUM_PADCHARS = sizeof padChars  / sizeof *padChars;
+
+        //                        HT    NL    VT      FF      CR    SP
+        const char white[]   = { '\t', '\n', '\013', '\014', '\r', ' ' };
+        const int  NUM_WHITE = sizeof white / sizeof *white;
+
+        if (verbose) cout << "\tTesting 'char *', 'bsl::string', 'std::string'"
+                          << endl;
 
         for (int i = 0; STRINGS[i]; ++i) {
 
@@ -1141,103 +1229,227 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ T_ T_ P(padAfter) }
 
-                    // Generating the padding before the string.
+                    // Generate the whitespace padding before the string.
 
-                    bsl::string rTrim;
+                    bsl::string bslRTrim;
                     for (int trimIdx = 0; trimIdx < padBefore; ++trimIdx) {
                         // Insert random whitespace characters in the padding.
 
-                        rTrim.push_back(padChars[bsl::rand() % NUM_PADCHARS]);
+                        bslRTrim.push_back(white[bsl::rand() % NUM_WHITE]);
                     }
 
-                    // Generating the padding after the string.
+                    std::string stdRTrim;
+                    for (int trimIdx = 0; trimIdx < padBefore; ++trimIdx) {
+                        // Insert random whitespace characters in the padding.
 
-                    bsl::string lTrim;
+                        stdRTrim.push_back(white[bsl::rand() % NUM_WHITE]);
+                    }
+
+                    // Generate the whitespace padding after the string.
+
+                    bsl::string bslLTrim;
                     for (int trimIdx = 0; trimIdx < padAfter; ++trimIdx) {
                         // Insert random whitespace characters in the padding.
 
-                        lTrim.push_back(padChars[bsl::rand() % NUM_PADCHARS]);
+                        bslLTrim.push_back(white[bsl::rand() % NUM_WHITE]);
                     }
 
-                    // Generating the string to be trimmed.
+                    std::string stdLTrim;
+                    for (int trimIdx = 0; trimIdx < padAfter; ++trimIdx) {
+                        // Insert random whitespace characters in the padding.
 
-                    bsl::string stdString(rTrim);
+                        stdLTrim.push_back(white[bsl::rand() % NUM_WHITE]);
+                    }
+
+                    // Generate the string to be trimmed.
+
+                    bsl::string bslString(bslRTrim);
+                    bslString.append(STRINGS[i]);
+                    bslString.append(bslLTrim);
+
+                    std::string stdString(stdRTrim);
                     stdString.append(STRINGS[i]);
-                    stdString.append(lTrim);
+                    stdString.append(stdLTrim);
 
-                    bsl::string strSave = stdString;
-                    bsl::strcpy(cstring, stdString.c_str());
+                    bsl::string bslStringBeforeTrim = bslString;
+                    std::string stdStringBeforeTrim = stdString;
 
-                    int length = stdString.size();
-                    LOOP_ASSERT(i, (unsigned)length < sizeof(cstring));
+                    bsl::strcpy(cstring, bslString.c_str());
+
+                    ASSERTV(bslString.size(), bslString.size() <= INT_MAX);
+                    int length = static_cast<int>(bslString.size());
+                    ASSERTV(i, length < static_cast<int>(sizeof cstring));
 
                     bsl::memset(nonNullString, 'Z', sizeof(nonNullString));
                     bsl::memcpy(nonNullString, cstring, length);
 
-                    // Generating the expected results for 'ltrim' and 'rtrim'.
+                    // Generate the expected results for 'ltrim' and 'rtrim'.
 
-                    if (bsl::strlen(STRINGS[i]) == 0) {
-                        // Special case when the original string is "", both
-                        // the padding before and the padding after will be
-                        // removed by both 'ltrim' and 'rtrim' methods.
-                        // Therefore we need to set both of them to "".
+                    if (0 == bsl::strlen(STRINGS[i])) {
+                        // Special case: If the original string was "", all
+                        // (before and after) padding will be removed by the
+                        // 'ltrim' and 'rtrim' methods.  Therefore, clear the
+                        // '*LTrim' and '*RTrim' strings.
 
-                        lTrim = "";
-                        rTrim = "";
+                        bslLTrim.clear();
+                        bslRTrim.clear();
+
+                        stdLTrim.clear();
+                        stdRTrim.clear();
                     }
                     else {
-                        lTrim = STRINGS[i] + lTrim;
-                        rTrim += STRINGS[i];
+                        bslLTrim.insert(0, STRINGS[i]);  // prepend
+                        bslRTrim += STRINGS[i];          // append
+
+                        stdLTrim.insert(0, STRINGS[i]);  // prepend
+                        stdRTrim += STRINGS[i];          // append
                     }
 
                     // Testing 'ltrim'.
 
                     Util::ltrim(cstring);
-                    LOOP_ASSERT(i, lTrim == cstring);
+                    ASSERTV(i, bslLTrim == cstring);
+                    Util::ltrim(&bslString);
+                    ASSERTV(i, bslLTrim == bslString);
                     Util::ltrim(&stdString);
-                    LOOP_ASSERT(i, lTrim == stdString);
+                    ASSERTV(i, stdLTrim == stdString);
                     Util::ltrim(nonNullString, &length);
-                    LOOP_ASSERT(i, lTrim.size() == (unsigned)length);
-                    LOOP_ASSERT(i,
-                      bsl::strncmp(lTrim.c_str(), nonNullString, length) == 0);
+                    ASSERTV(bslLTrim.size(), bslLTrim.size() <= INT_MAX);
+                    ASSERTV(i, static_cast<int>(bslLTrim.size()) == length);
+                    ASSERTV(i, 0 == bsl::strncmp(bslLTrim.c_str(),
+                                                 nonNullString,
+                                                 length));
 
                     // Testing 'rtrim'.
 
-                    stdString = strSave;
-                    bsl::strcpy(cstring, strSave.c_str());
-                    length = stdString.size();
+                    bslString = bslStringBeforeTrim;
+                    stdString = stdStringBeforeTrim;
+                    bsl::strcpy(cstring, bslStringBeforeTrim.c_str());
+                    ASSERTV(bslString.size(), bslString.size() <= INT_MAX);
+                    length = static_cast<int>(bslString.size());
                     bsl::memset(nonNullString, 'Z', sizeof(nonNullString));
                     bsl::memcpy(nonNullString, cstring, length);
 
                     Util::rtrim(cstring);
-                    LOOP_ASSERT(i, rTrim == cstring);
+                    ASSERTV(i, bslRTrim == cstring);
+                    Util::rtrim(&bslString);
+                    ASSERTV(i, bslRTrim == bslString);
                     Util::rtrim(&stdString);
-                    LOOP_ASSERT(i, rTrim == stdString);
+                    ASSERTV(i, stdRTrim == stdString);
                     Util::rtrim(nonNullString, &length);
-                    LOOP_ASSERT(i, rTrim.size() == (unsigned)length);
-                    LOOP_ASSERT(i,
-                      bsl::strncmp(rTrim.c_str(), nonNullString, length) == 0);
+                    ASSERTV(bslRTrim.size(), bslRTrim.size() <= INT_MAX);
+                    ASSERTV(i, static_cast<int>(bslRTrim.size()) == length);
+                    ASSERTV(i, 0 == bsl::strncmp(bslRTrim.c_str(),
+                                                 nonNullString,
+                                                 length));
 
                     // Testing 'trim'.
 
-                    stdString = strSave;
-                    bsl::strcpy(cstring, strSave.c_str());
-                    length = stdString.size();
+                    bslString = bslStringBeforeTrim;
+                    stdString = stdStringBeforeTrim;
+                    bsl::strcpy(cstring, bslStringBeforeTrim.c_str());
+                    ASSERTV(bslString.size(), bslString.size() <= INT_MAX);
+                    length = static_cast<int>(bslString.size());
                     bsl::memset(nonNullString, 'Z', sizeof(nonNullString));
                     bsl::memcpy(nonNullString, cstring, length);
 
                     Util::trim(cstring);
-                    LOOP_ASSERT(i, bsl::strcmp(STRINGS[i], cstring) == 0);
+                    ASSERTV(i, 0 == bsl::strcmp(STRINGS[i], cstring));
+                    Util::trim(&bslString);
+                    ASSERTV(i, STRINGS[i] == bslString);
                     Util::trim(&stdString);
-                    LOOP_ASSERT(i, STRINGS[i] == stdString);
+                    ASSERTV(i, STRINGS[i] == stdString);
                     Util::trim(nonNullString, &length);
-                    LOOP_ASSERT(i,
-                         bsl::strlen(STRINGS[i]) == (unsigned)length);
-                    LOOP_ASSERT(i,
-                         bsl::strncmp(STRINGS[i], nonNullString, length) == 0);
+                    ASSERTV(bsl::strlen(STRINGS[i]),
+                            bsl::strlen(STRINGS[i]) <= INT_MAX);
+                    ASSERTV(i,
+                          static_cast<int>(bsl::strlen(STRINGS[i])) == length);
+                    ASSERTV(i,
+                         0 == bsl::strncmp(STRINGS[i], nonNullString, length));
                 }
             }
         }
+
+        if (verbose) cout << "\tTesting 'std::pmr::string'" << endl;
+
+#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PMR)
+        for (int i = 0; STRINGS[i]; ++i) {
+
+            if (veryVerbose) { T_ P(i) }
+
+            for (int padBefore = 0; padBefore < 5; ++padBefore) {
+
+                if (veryVerbose) { T_ T_ P(padBefore) }
+
+                for (int padAfter = 0; padAfter < 5; ++padAfter) {
+
+                    if (veryVerbose) { T_ T_ T_ P(padAfter) }
+
+                    // Generate the whitespace padding before the string.
+
+                    std::pmr::string pmrRTrim;
+                    for (int trimIdx = 0; trimIdx < padBefore; ++trimIdx) {
+                        // Insert random whitespace characters in the padding.
+
+                        pmrRTrim.push_back(white[bsl::rand() % NUM_WHITE]);
+                    }
+
+                    // Generate the whitespace padding after the string.
+
+                    std::pmr::string pmrLTrim;
+                    for (int trimIdx = 0; trimIdx < padAfter; ++trimIdx) {
+                        // Insert random whitespace characters in the padding.
+
+                        pmrLTrim.push_back(white[bsl::rand() % NUM_WHITE]);
+                    }
+
+                    // Generate the string to be trimmed.
+
+                    std::pmr::string pmrString(pmrRTrim);
+                    pmrString.append(STRINGS[i]);
+                    pmrString.append(pmrLTrim);
+
+                    std::pmr::string pmrStringBeforeTrim = pmrString;
+
+                    // Generate the expected results for 'ltrim' and 'rtrim'.
+
+                    if (0 == bsl::strlen(STRINGS[i])) {
+                        // Special case: If the original string was "", all
+                        // (before and after) padding will be removed by the
+                        // 'ltrim' and 'rtrim' methods.  Therefore, clear the
+                        // '*LTrim' and '*RTrim' strings.
+
+                        pmrLTrim.clear();
+                        pmrRTrim.clear();
+                    }
+                    else {
+                        pmrLTrim.insert(0, STRINGS[i]);  // prepend
+                        pmrRTrim += STRINGS[i];          // append
+                    }
+
+                    // Testing 'ltrim'.
+
+                    Util::ltrim(&pmrString);
+                    ASSERTV(i, pmrLTrim == pmrString);
+
+                    // Testing 'rtrim'.
+
+                    pmrString = pmrStringBeforeTrim;
+
+                    Util::rtrim(&pmrString);
+                    ASSERTV(i, pmrRTrim == pmrString);
+
+                    // Testing 'trim'.
+
+                    pmrString = pmrStringBeforeTrim;
+
+                    Util::trim(&pmrString);
+                    ASSERTV(i, STRINGS[i] == pmrString);
+                }
+            }
+        }
+#endif
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -1476,20 +1688,18 @@ int main(int argc, char *argv[])
 
                 int result = lowerStr1.compare(lowerStr2);
                 result = result > 0 ? 1 : (result < 0 ? -1 : 0);
-                LOOP_ASSERT(nb, result ==
-                                       Util::lowerCaseCmp(cstring1, cstring2));
-                LOOP_ASSERT(nb, result ==
-                                        Util::lowerCaseCmp(cstring1, string2));
-                LOOP_ASSERT(nb, result ==
-                                        Util::lowerCaseCmp(string1, cstring2));
-                LOOP_ASSERT(nb, result ==
-                                         Util::lowerCaseCmp(string1, string2));
+                ASSERTV(nb, result == Util::lowerCaseCmp(cstring1, cstring2));
+                ASSERTV(nb, result == Util::lowerCaseCmp(cstring1, string2));
+                ASSERTV(nb, result == Util::lowerCaseCmp(string1,  cstring2));
+                ASSERTV(nb, result == Util::lowerCaseCmp(string1,  string2));
 
                 char nonNullString1[64], nonNullString2[64];
-                int  length1 = string1.size();
-                LOOP2_ASSERT(nb, i, length1 < (int) sizeof(nonNullString1));
-                int  length2 = string2.size();
-                LOOP2_ASSERT(nb, i, length2 < (int) sizeof(nonNullString2));
+                int  length1 = static_cast<int>(string1.size());
+                ASSERTV(nb, i,
+                        length1 < static_cast<int>(sizeof nonNullString1));
+                int  length2 = static_cast<int>(string2.size());
+                ASSERTV(nb, i,
+                        length2 < static_cast<int>(sizeof nonNullString2));
 
                 bsl::memset(nonNullString1, 'Z', sizeof(nonNullString1));
                 bsl::memset(nonNullString2, 'Y', sizeof(nonNullString2));
@@ -1505,14 +1715,14 @@ int main(int argc, char *argv[])
 
                     result = lowerStr1.compare(0, nneg(len), lowerStr2);
                     result = result > 0 ? 1 : (result < 0 ? -1 : 0);
-                    LOOP_ASSERT(nb, result ==
-                            Util::lowerCaseCmp(ns(nonNullString1, len),
-                                               nneg(len),
-                                               cstring2));
-                    LOOP_ASSERT(nb, result ==
-                             Util::lowerCaseCmp(ns(nonNullString1, len),
-                                                nneg(len),
-                                                string2));
+                    ASSERTV(nb, result ==
+                                    Util::lowerCaseCmp(ns(nonNullString1, len),
+                                                       nneg(len),
+                                                       cstring2));
+                    ASSERTV(nb, result ==
+                                    Util::lowerCaseCmp(ns(nonNullString1, len),
+                                                       nneg(len),
+                                                       string2));
                 }
 
                 // Testing methods that take a non-null-terminated string as
@@ -1524,14 +1734,14 @@ int main(int argc, char *argv[])
 
                     result = lowerStr2.compare(0, nneg(len), lowerStr1);
                     result = result > 0 ? -1 : (result < 0 ? 1 : 0);
-                    LOOP_ASSERT(nb, result ==
-                            Util::lowerCaseCmp(cstring1,
-                                               ns(nonNullString2, len),
-                                               nneg(len)));
-                    LOOP_ASSERT(nb, result ==
-                             Util::lowerCaseCmp(string1,
-                                                ns(nonNullString2, len),
-                                                nneg(len)));
+                    ASSERTV(nb, result ==
+                                    Util::lowerCaseCmp(cstring1,
+                                                       ns(nonNullString2, len),
+                                                       nneg(len)));
+                    ASSERTV(nb, result ==
+                                    Util::lowerCaseCmp(string1,
+                                                       ns(nonNullString2, len),
+                                                       nneg(len)));
                 }
 
                 // Testing methods that take non-null-terminated strings as
@@ -1548,11 +1758,11 @@ int main(int argc, char *argv[])
                         result = lowerStr1.compare(0, nneg(len1), lowerStr2, 0,
                                                                    nneg(len2));
                         result = result > 0 ? 1 : (result < 0 ? -1 : 0);
-                        LOOP_ASSERT(nb, result ==
-                                  Util::lowerCaseCmp(ns(nonNullString1, len1),
-                                                     nneg(len1),
-                                                     ns(nonNullString2, len2),
-                                                     nneg(len2)));
+                        ASSERTV(nb, result ==
+                                   Util::lowerCaseCmp(ns(nonNullString1, len1),
+                                                      nneg(len1),
+                                                      ns(nonNullString2, len2),
+                                                      nneg(len2)));
                     }
                 }
 
@@ -1565,14 +1775,10 @@ int main(int argc, char *argv[])
 
                 result = upperStr1.compare(upperStr2);
                 result = result > 0 ? 1 : (result < 0 ? -1 : 0);
-                LOOP_ASSERT(nb, result ==
-                                       Util::upperCaseCmp(cstring1, cstring2));
-                LOOP_ASSERT(nb, result ==
-                                        Util::upperCaseCmp(cstring1, string2));
-                LOOP_ASSERT(nb, result ==
-                                        Util::upperCaseCmp(string1, cstring2));
-                LOOP_ASSERT(nb, result ==
-                                         Util::upperCaseCmp(string1, string2));
+                ASSERTV(nb, result == Util::upperCaseCmp(cstring1, cstring2));
+                ASSERTV(nb, result == Util::upperCaseCmp(cstring1, string2));
+                ASSERTV(nb, result == Util::upperCaseCmp(string1,  cstring2));
+                ASSERTV(nb, result == Util::upperCaseCmp(string1,  string2));
 
                 // Testing methods that take a non-null-terminated string as
                 // their first argument.
@@ -1583,14 +1789,14 @@ int main(int argc, char *argv[])
 
                     result = upperStr1.compare(0, nneg(len), upperStr2);
                     result = result > 0 ? 1 : (result < 0 ? -1 : 0);
-                    LOOP_ASSERT(nb, result ==
-                             Util::upperCaseCmp(ns(nonNullString1, len),
-                                                nneg(len),
-                                                cstring2));
-                    LOOP_ASSERT(nb, result ==
-                             Util::upperCaseCmp(ns(nonNullString1, len),
-                                                nneg(len),
-                                                string2));
+                    ASSERTV(nb, result ==
+                                    Util::upperCaseCmp(ns(nonNullString1, len),
+                                                       nneg(len),
+                                                       cstring2));
+                    ASSERTV(nb, result ==
+                                    Util::upperCaseCmp(ns(nonNullString1, len),
+                                                       nneg(len),
+                                                       string2));
                 }
 
                 // Testing methods that take a non-null-terminated string as
@@ -1602,14 +1808,14 @@ int main(int argc, char *argv[])
 
                     result = upperStr2.compare(0, nneg(len), upperStr1);
                     result = result > 0 ? -1 : (result < 0 ? 1 : 0);
-                    LOOP_ASSERT(nb, result ==
-                            Util::upperCaseCmp(cstring1,
-                                               ns(nonNullString2, len),
-                                               nneg(len)));
-                    LOOP_ASSERT(nb, result ==
-                             Util::upperCaseCmp(string1,
-                                                ns(nonNullString2, len),
-                                                nneg(len)));
+                    ASSERTV(nb, result ==
+                                    Util::upperCaseCmp(cstring1,
+                                                       ns(nonNullString2, len),
+                                                       nneg(len)));
+                    ASSERTV(nb, result ==
+                                    Util::upperCaseCmp(string1,
+                                                       ns(nonNullString2, len),
+                                                       nneg(len)));
                 }
 
                 // Testing methods that take non-null-terminated strings as
@@ -1626,11 +1832,11 @@ int main(int argc, char *argv[])
                         result = upperStr1.compare(0, nneg(len1), upperStr2, 0,
                                                                    nneg(len2));
                         result = result > 0 ? 1 : (result < 0 ? -1 : 0);
-                        LOOP_ASSERT(nb, result ==
-                                  Util::upperCaseCmp(ns(nonNullString1, len1),
-                                                     nneg(len1),
-                                                     ns(nonNullString2, len2),
-                                                     nneg(len2)));
+                        ASSERTV(nb, result ==
+                                   Util::upperCaseCmp(ns(nonNullString1, len1),
+                                                      nneg(len1),
+                                                      ns(nonNullString2, len2),
+                                                      nneg(len2)));
                     }
                 }
             }
@@ -1715,7 +1921,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; STRINGS[i]; ++i) {
 
-                if (veryVerbose) { T_ P(i) }
+            if (veryVerbose) { T_ P(i) }
 
             for (int j = 0; STRINGS[j]; ++j) {
 
@@ -1732,22 +1938,24 @@ int main(int argc, char *argv[])
                 // Concern 1
 
                 bool result = !strcasecmp(cstring1, cstring2);
-                LOOP2_ASSERT(i, j, result ==
+                ASSERTV(i, j, result ==
                                    Util::areEqualCaseless(cstring1, cstring2));
-                LOOP2_ASSERT(i, j, result ==
-                                    Util::areEqualCaseless(cstring1, string2));
-                LOOP2_ASSERT(i, j, result ==
-                                     Util::areEqualCaseless(string1, string2));
-                LOOP2_ASSERT(i, j, result ==
-                                    Util::areEqualCaseless(string1, cstring2));
+                ASSERTV(i, j, result ==
+                                   Util::areEqualCaseless(cstring1, string2));
+                ASSERTV(i, j, result ==
+                                   Util::areEqualCaseless(string1,  string2));
+                ASSERTV(i, j, result ==
+                                   Util::areEqualCaseless(string1,  cstring2));
 
                 // Concern 2
 
                 char nonNullString1[64], nonNullString2[64];
-                int  length1 = string1.size();
-                LOOP2_ASSERT(i, j, length1 < (int) sizeof(nonNullString1));
-                int  length2 = string2.size();
-                LOOP2_ASSERT(i, j, length2 < (int) sizeof(nonNullString2));
+                int  length1 = static_cast<int>(string1.size());
+                ASSERTV(i, j,
+                        length1 < static_cast<int>(sizeof nonNullString1));
+                int  length2 = static_cast<int>(string2.size());
+                ASSERTV(i, j,
+                        length2 < static_cast<int>(sizeof nonNullString2));
 
                 bsl::memset(nonNullString1, 'Z', sizeof(nonNullString1));
                 bsl::memset(nonNullString2, 'Y', sizeof(nonNullString2));
@@ -1770,15 +1978,15 @@ int main(int argc, char *argv[])
                     result = (nneg(len) == length2)
                           && !strncasecmp(nonNullString1, cstring2, nneg(len));
 
-                    LOOP2_ASSERT(i, j, result ==
-                        Util::areEqualCaseless(ns(nonNullString1, len),
-                                               nneg(len),
-                                               cstring2));
+                    ASSERTV(i, j, result ==
+                                Util::areEqualCaseless(ns(nonNullString1, len),
+                                                       nneg(len),
+                                                       cstring2));
 
-                    LOOP2_ASSERT(i, j, result ==
-                         Util::areEqualCaseless(ns(nonNullString1, len),
-                                                nneg(len),
-                                                string2));
+                    ASSERTV(i, j, result ==
+                                Util::areEqualCaseless(ns(nonNullString1, len),
+                                                       nneg(len),
+                                                       string2));
                 }
 
                 // Testing methods that take a non-null-terminated string as
@@ -1797,15 +2005,15 @@ int main(int argc, char *argv[])
                     result = (nneg(len) == length1)
                           && !strncasecmp(cstring1, nonNullString2, nneg(len));
 
-                    LOOP2_ASSERT(i, j, result ==
-                         Util::areEqualCaseless(string1,
-                                                ns(nonNullString2, len),
-                                                nneg(len)));
+                    ASSERTV(i, j, result ==
+                                Util::areEqualCaseless(string1,
+                                                       ns(nonNullString2, len),
+                                                       nneg(len)));
 
-                    LOOP2_ASSERT(i, j, result ==
-                        Util::areEqualCaseless(cstring1,
-                                               ns(nonNullString2, len),
-                                               nneg(len)));
+                    ASSERTV(i, j, result ==
+                                Util::areEqualCaseless(cstring1,
+                                                       ns(nonNullString2, len),
+                                                       nneg(len)));
                 }
 
                 // Testing methods that take non-null-terminated strings as
@@ -1828,11 +2036,11 @@ int main(int argc, char *argv[])
                         result = (nneg(len1) == nneg(len2))
                               && !strncasecmp(nonNullString1, nonNullString2,
                                                                    nneg(len1));
-                        LOOP2_ASSERT(i, j, result ==
-                              Util::areEqualCaseless(ns(nonNullString1, len1),
-                                                     nneg(len1),
-                                                     ns(nonNullString2, len2),
-                                                     nneg(len2)));
+                        ASSERTV(i, j, result ==
+                               Util::areEqualCaseless(ns(nonNullString1, len1),
+                                                      nneg(len1),
+                                                      ns(nonNullString2, len2),
+                                                      nneg(len2)));
                     }
                 }
             }
@@ -1869,13 +2077,22 @@ int main(int argc, char *argv[])
         //  toLower(char *string);
         //  toLower(char *string, int length);
         //  toLower(bsl::string *string);
+        //  toLower(std::string *string);
+        //  toLower(std::pmr::string *string);
         //  toUpper(char *string);
         //  toUpper(char *string, int length);
         //  toUpper(bsl::string *string);
+        //  toUpper(std::string *string);
+        //  toUpper(std::pmr::string *string);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\n" "TESTING 'toLower' AND 'toUpper'" "\n"
                                   "===============================" "\n";
+
+        // 'bdlb::String' functions assume 7-bit ASCII, so we 'setlocale' for
+        // the calls to '::tolower' and '::toupper' in this test case.
+
+        bsl::setlocale(LC_CTYPE, "C");
 
         static const char *STRINGS[] = {
             // strings of length 0 or 1
@@ -1914,54 +2131,80 @@ int main(int argc, char *argv[])
 
                 char cstring[64];
                 bsl::strcpy(cstring, STRINGS[i]);
-                unsigned int length = bsl::strlen(cstring);
-                LOOP_ASSERT(i, length < sizeof(cstring));
-                bsl::string stdString(cstring);
+                const int LENGTH = static_cast<int>(bsl::strlen(cstring));
+                ASSERTV(i, LENGTH < static_cast<int>(sizeof cstring));
+                bsl::string bslString(cstring);
+                std::string stdString(cstring);
+#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PMR)
+                std::pmr::string pmrString(cstring);
+#endif
                 char        nonNullString[sizeof(cstring)];
                 bsl::memset(nonNullString, 'Z', sizeof(nonNullString));
-                bsl::memcpy(nonNullString, cstring, length);
+                bsl::memcpy(nonNullString, cstring, LENGTH);
 
                 Util::toLower(cstring);
+                Util::toLower(&bslString);
                 Util::toLower(&stdString);
-                Util::toLower(nonNullString, length);
+#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PMR)
+                Util::toLower(&pmrString);
+#endif
+                Util::toLower(nonNullString, LENGTH);
 
                 bsl::string lowerStr(STRINGS[i]);
                 bsl::transform(lowerStr.begin(),
                                lowerStr.end(),
                                lowerStr.begin(),
                                ::tolower);
-                LOOP_ASSERT(i, lowerStr == stdString);
-                LOOP_ASSERT(i, lowerStr == cstring);
-                LOOP_ASSERT(i, strncmp(lowerStr.c_str(), nonNullString,
-                                                                 length) == 0);
-                LOOP_ASSERT(i, nonNullString[length] == 'Z');
+                ASSERTV(i, lowerStr == bslString);
+                ASSERTV(i, lowerStr == stdString);
+#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PMR)
+                ASSERTV(i, lowerStr == pmrString);
+#endif
+                ASSERTV(i, lowerStr == cstring);
+                ASSERTV(i, 0 == bsl::strncmp(lowerStr.c_str(),
+                                             nonNullString,
+                                             LENGTH));
+                ASSERTV(i, 'Z' == nonNullString[LENGTH]);
             }
             {
                 // Testing 'toUpper'.
 
                 char cstring[64];
                 bsl::strcpy(cstring, STRINGS[i]);
-                unsigned int length = bsl::strlen(cstring);
-                LOOP_ASSERT(i, length < sizeof(cstring));
-                bsl::string stdString(cstring);
+                const int LENGTH = static_cast<int>(bsl::strlen(cstring));
+                ASSERTV(i, LENGTH < static_cast<int>(sizeof cstring));
+                bsl::string bslString(cstring);
+                std::string stdString(cstring);
+#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PMR)
+                std::pmr::string pmrString(cstring);
+#endif
                 char        nonNullString[sizeof(cstring)];
                 bsl::memset(nonNullString, 'z', sizeof(nonNullString));
-                bsl::memcpy(nonNullString, cstring, length);
+                bsl::memcpy(nonNullString, cstring, LENGTH);
 
                 Util::toUpper(cstring);
+                Util::toUpper(&bslString);
                 Util::toUpper(&stdString);
-                Util::toUpper(nonNullString, length);
+#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PMR)
+                Util::toUpper(&pmrString);
+#endif
+                Util::toUpper(nonNullString, LENGTH);
 
                 bsl::string upperStr(STRINGS[i]);
                 bsl::transform(upperStr.begin(),
                                upperStr.end(),
                                upperStr.begin(),
-                               toupper);
-                LOOP_ASSERT(i, upperStr == stdString);
-                LOOP_ASSERT(i, upperStr == cstring);
-                LOOP_ASSERT(i, strncmp(upperStr.c_str(), nonNullString,
-                                                                 length) == 0);
-                LOOP_ASSERT(i, nonNullString[length] == 'z');
+                               ::toupper);
+                ASSERTV(i, upperStr == bslString);
+                ASSERTV(i, upperStr == stdString);
+#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PMR)
+                ASSERTV(i, upperStr == pmrString);
+#endif
+                ASSERTV(i, upperStr == cstring);
+                ASSERTV(i, 0 == bsl::strncmp(upperStr.c_str(),
+                                             nonNullString,
+                                             LENGTH));
+                ASSERTV(i, 'z' == nonNullString[LENGTH]);
             }
         }
       } break;
@@ -1994,9 +2237,9 @@ int main(int argc, char *argv[])
         const char  *cs2 = s2.c_str();
         const char  *cs3 = s3.c_str();
 
-        int          l1  = s1.size();
-        int          l2  = s2.size();
-        int          l3  = s3.size();
+        int          l1  = static_cast<int>(s1.size());
+        int          l2  = static_cast<int>(s2.size());
+        int          l3  = static_cast<int>(s3.size());
 
         if (verbose) cout << "\tTesting 'areEqualCaseless'" << endl;
 
@@ -2011,7 +2254,6 @@ int main(int argc, char *argv[])
         ASSERT(Util::areEqualCaseless(cs1, l1, s2));
         ASSERT(Util::areEqualCaseless(cs1, l1, cs2));
         ASSERT(Util::areEqualCaseless(cs1, l1, cs2, l2));
-
 
         ASSERT(!Util::areEqualCaseless(s1, s3));
         ASSERT(!Util::areEqualCaseless(s1, cs3));
@@ -2041,7 +2283,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == Util::lowerCaseCmp(cs1, l1, cs2));
         ASSERT(0 == Util::lowerCaseCmp(cs1, l1, cs2, l2));
 
-
         ASSERT(1 == Util::lowerCaseCmp(s1, s3));
         ASSERT(1 == Util::lowerCaseCmp(s1, cs3));
         ASSERT(1 == Util::lowerCaseCmp(s1, cs3, l3));
@@ -2070,7 +2311,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == Util::upperCaseCmp(cs1, l1, cs2));
         ASSERT(0 == Util::upperCaseCmp(cs1, l1, cs2, l2));
 
-
         ASSERT(1 == Util::upperCaseCmp(s1, s3));
         ASSERT(1 == Util::upperCaseCmp(s1, cs3));
         ASSERT(1 == Util::upperCaseCmp(s1, cs3, l3));
@@ -2088,16 +2328,16 @@ int main(int argc, char *argv[])
         {
             if (verbose) cout << "\tTesting 'ltrim'" << endl;
 
-            char        cs[]  = "   hello";
+            char        cs[] = "   hello";
             bsl::string str(cs);
-            int         len  = str.size();
+            int         len  = static_cast<int>(str.size());
 
             Util::ltrim(cs);
-            ASSERT(0 == strcmp(cs, "hello"));
+            ASSERT(0 == bsl::strcmp(cs, "hello"));
 
             bsl::strcpy(cs, str.c_str());
             Util::ltrim(cs, &len);
-            ASSERT(0 == strncmp(cs, "hello", len));
+            ASSERT(0 == bsl::strncmp(cs, "hello", len));
 
             Util::ltrim(&str);
             ASSERT(str == "hello");
@@ -2108,16 +2348,16 @@ int main(int argc, char *argv[])
         {
             if (verbose) cout << "\tTesting 'rtrim'" << endl;
 
-            char        cs[]  = "hello    ";
+            char        cs[] = "hello    ";
             bsl::string str(cs);
-            int         len  = str.size();
+            int         len  = static_cast<int>(str.size());
 
             Util::rtrim(cs);
-            ASSERT(0 == strcmp(cs, "hello"));
+            ASSERT(0 == bsl::strcmp(cs, "hello"));
 
             bsl::strcpy(cs, str.c_str());
             Util::rtrim(cs, &len);
-            ASSERT(0 == strncmp(cs, "hello", len));
+            ASSERT(0 == bsl::strncmp(cs, "hello", len));
 
             Util::rtrim(&str);
             ASSERT(str == "hello");
@@ -2128,16 +2368,16 @@ int main(int argc, char *argv[])
         {
             if (verbose) cout << "\tTesting 'trim'" << endl;
 
-            char        cs[]  = "   hello   ";
+            char        cs[] = "   hello   ";
             bsl::string str(cs);
-            int         len  = str.size();
+            int         len  = static_cast<int>(str.size());
 
             Util::trim(cs);
-            ASSERT(0 == strcmp(cs, "hello"));
+            ASSERT(0 == bsl::strcmp(cs, "hello"));
 
             bsl::strcpy(cs, str.c_str());
             Util::trim(cs, &len);
-            ASSERT(0 == strncmp(cs, "hello", len));
+            ASSERT(0 == bsl::strncmp(cs, "hello", len));
 
             Util::trim(&str);
             ASSERT(str == "hello");
@@ -2157,8 +2397,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTesting 'strnlen'" << endl;
 
-        ASSERT((unsigned) Util::strnlen(cs1, 9) == bsl::strlen(cs1));
-        ASSERT((unsigned) Util::strnlen(cs1, 3) == 3);
+        ASSERT(static_cast<int>(bsl::strlen(cs1)) == Util::strnlen(cs1, 9));
+        ASSERT(                                 3 == Util::strnlen(cs1, 3));
 
         // --------------------------------------------------------------------
 
@@ -2166,9 +2406,9 @@ int main(int argc, char *argv[])
 
         char buf[32];
         Util::toFixedLength(buf, 2, "hello", 5, '*');
-        ASSERT(bsl::strncmp(buf, "he", 2) == 0);
+        ASSERT(0 == bsl::strncmp(buf, "he", 2));
         Util::toFixedLength(buf, 8, "hello", 5, '!');
-        ASSERT(bsl::strncmp(buf, "hello!!!", 8) == 0);
+        ASSERT(0 == bsl::strncmp(buf, "hello!!!", 8));
 
         // --------------------------------------------------------------------
 
@@ -2178,28 +2418,28 @@ int main(int argc, char *argv[])
         char        csUpper[] = "Hello123";
         bsl::string strLower(csLower);
         bsl::string strUpper(csUpper);
-        int         lenLower = strLower.size();
-        int         lenUpper = strUpper.size();
+        int         lenLower = static_cast<int>(strLower.size());
+        int         lenUpper = static_cast<int>(strUpper.size());
 
         Util::toLower(csLower);
-        ASSERT(strcmp(csLower, "hello123") == 0);
+        ASSERT(0 == bsl::strcmp(csLower, "hello123"));
         bsl::strcpy(csLower, strLower.c_str());
 
         Util::toLower(&strLower);
         ASSERT(strLower == "hello123");
 
         Util::toLower(csLower, lenLower);
-        ASSERT(strncmp(csLower, "hello123", 8) == 0);
+        ASSERT(0 == bsl::strncmp(csLower, "hello123", 8));
 
         Util::toUpper(csUpper);
-        ASSERT(strcmp(csUpper, "HELLO123") == 0);
+        ASSERT(0 == bsl::strcmp(csUpper, "HELLO123"));
         bsl::strcpy(csUpper, strUpper.c_str());
 
         Util::toUpper(&strUpper);
         ASSERT(strUpper == "HELLO123");
 
         Util::toUpper(csUpper, lenUpper);
-        ASSERT(strncmp(csUpper, "HELLO123", 8) == 0);
+        ASSERT(0 == bsl::strncmp(csUpper, "HELLO123", 8));
 
       } break;
         default: {

@@ -5,9 +5,8 @@
 @MNEMONIC: Basic Development Library Basis (bdlb)
 
 @DESCRIPTION: The 'bdlb' package provides utility 'struct's in the broad areas
- of bit manipulation, string handling, random number generations, hashing,
- variant and nullable types.  Classes are provided for nullable and variant
- values.
+ of bit manipulation, string handling, random number generation, and hashing.
+ Classes representing nullable and variant types are also provided.
 
 /Hierarchical Synopsis
 /---------------------
@@ -161,7 +160,7 @@
 :      Provide a general-purpose guard object for scope-exit logic.
 :
 : 'bdlb_string':
-:      Provide utility functions on C-style and 'STL' strings.
+:      Provide utility functions on STL-style and C-style strings.
 :
 : 'bdlb_stringrefutil':                                  !DEPRECATED!
 :      Provide utility functions on 'bslstl::StringRef'-erenced strings.

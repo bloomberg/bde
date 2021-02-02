@@ -203,11 +203,11 @@ void String::rtrim(char *string)
 
 void String::rtrim(const char *string, int *length)
 {
-    BSLS_ASSERT(string);
     BSLS_ASSERT(length);
-    BSLS_ASSERT(0 <= *length);
+    BSLS_ASSERT(string || 0 == *length);
+    BSLS_ASSERT(          0 <= *length);
 
-    if (*length) {
+    if (0 != *length) {
         int index = *length - 1;
         while (index >= 0 && bdlb::CharType::isSpace(string[index])) {
             --index;
