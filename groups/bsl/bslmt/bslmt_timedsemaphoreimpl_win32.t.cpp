@@ -736,7 +736,7 @@ int main(int argc, char *argv[]) {
         //
         // Concerns:
         //   1. timedWait() blocks the thread until a resource is available
-        //      or the timeout expires.
+        //      or 'absTime' the timeout expires.
         //
         // Plan:
         //  Create two groups of threads one will call 'post' and the other
