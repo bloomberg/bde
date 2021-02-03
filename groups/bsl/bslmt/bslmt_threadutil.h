@@ -122,9 +122,9 @@ BSLS_IDENT("$Id: $")
 // If the clock type indicated at construction is
 // 'bsls::SystemClockType::e_MONOTONIC', the 'absTime' argument passed to the
 // 'timedWait' method of the various synchronization primitives offered in
-// 'bslmt' should be expressed as an
-// *absolute* offset since the epoch of this clock (which matches the epoch
-// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bslmt' should be expressed as an *absolute* offset since the epoch of this
+// clock (which matches the epoch used in
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
