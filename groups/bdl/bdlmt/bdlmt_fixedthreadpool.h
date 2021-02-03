@@ -524,7 +524,7 @@ class FixedThreadPool {
 
     void shutdown();
         // Disable queuing on this thread pool, cancel all queued jobs, and
-        // after all actives jobs have completed, join all processing threads.
+        // after all active jobs have completed, join all processing threads.
 
     int start();
         // Spawn 'numThreads()' processing threads.  On success, enable
