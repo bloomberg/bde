@@ -101,6 +101,19 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_keyword.h>
 #include <bsls_util.h>  // for BloombergLP::bsls::Util::addressOf
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <functional>
+
+#define BSLSTL_REFRENCEWRAPPER_IS_ALIASED
+
+namespace bsl {
+using std::cref;
+using std::ref;
+using std::reference_wrapper;
+}  // close enterprise namespace
+#endif
+
+#ifndef BSLSTL_REFRENCEWRAPPER_IS_ALIASED
 namespace bsl {
 
                     // =======================
@@ -244,6 +257,7 @@ struct IsBitwiseMoveable<bsl::reference_wrapper<T> > : bsl::true_type { };
 }  // close namespace bslmf
 }  // close enterprise namespace
 
+#endif // BSLSTL_REFRENCEWRAPPER_IS_ALIASED
 #endif
 
 // ----------------------------------------------------------------------------

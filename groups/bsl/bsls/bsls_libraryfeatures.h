@@ -297,9 +297,12 @@ BSLS_IDENT("$Id: $")
 //:     o 'bit_and'
 //:     o 'bit_or'
 //:     o 'bit_xor'
+//:     o 'cref'
 //:     o 'is_bind_expression'
 //:     o 'is_placeholder'
 //:     o 'mem_fn'
+//:     o 'ref'
+//:     o 'reference_wrapper'
 //:
 //:   o Functions defined in '<iomanip>'
 //:     o 'get_money'

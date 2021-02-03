@@ -1,8 +1,11 @@
 // bslstl_referencewrapper.t.cpp                                      -*-C++-*-
 #include <bslstl_referencewrapper.h>
 
+#include <bslmf_issame.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 
+#include <functional>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,12 +26,13 @@
 // [ 1] reference_wrapper<T>& operator=(reference_wrapper<T>&);
 // [ 1] operator T&() const;
 // [ 1] T& get() const;
+// [ 3] operator()(...) const;    
 // [ 1] reference_wrapper<T> cref(const T&);
 // [ 1] reference_wrapper<T> cref(reference_wrapper<T>);
 // [ 1] reference_wrapper<T> ref(T&);
 // [ 1] reference_wrapper<T> ref(reference_wrapper<T>);
 // ----------------------------------------------------------------------------
-// [ 3] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE
 // [ 2] TYPE TRAITS
 
 // ============================================================================
@@ -77,6 +81,12 @@ void aSsErT(bool condition, const char *message, int line)
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
+
+struct Callable {
+    void operator()() { }
+    int  operator()(int) { return 42; }
+    int  operator()(int) const { return -42; }
+};
 
 struct NonBitwiseDummy {
     // Test class that is not bitwise moveable
@@ -182,7 +192,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -233,6 +243,70 @@ int main(int argc, char *argv[])
 //..
 
 // BDE_VERIFY pragma: pop
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING CALLABLE
+        //   Testing that bsl::reference_wrapper is callable (in C++11)
+        //
+        // Concerns:
+        //: 1 That in appropriate build modes, bsl::reference_wrapper is
+        //:   callable
+        //
+        // Plan:
+        //: 1 Verify 'BSLSTL_REFRENCEWRAPPER_IS_ALIASED' is 'true' on
+        //:   on C++14 platforms.  Note that this test is a sanity check
+        //:   and deliberately does not reproduce the logic in the component.
+        //:
+        //: 2 Verify if 'BSLSTL_REFRENCEWRAPPER_IS_ALIASED' is 'true'
+        //:   'bsl::reference_wrapper' is an alias to the platform standard
+        //:   library.
+        //:
+        //: 3 Verify if 'BSLSTL_REFRENCEWRAPPER_IS_ALIASED' we can
+        //:   assign a function reference to a 'reference_wrapper' and
+        //:   invoke it.
+        //
+        // Testing:
+        //   operator()(...) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            printf("\nTESTING CALLABLE\n"
+                   "\n================\n");
+        }
+
+#if  BSLS_COMPILERFEATURES_CPLUSPLUS >= 201402L // sanity check
+#ifndef BSLSTL_REFRENCEWRAPPER_IS_ALIASED
+        BSLMF_ASSERT(false && "reference_wrapper not aliased in C++14");
+#endif
+#endif
+
+#ifdef BSLSTL_REFRENCEWRAPPER_IS_ALIASED
+        if (verbose) {
+            printf("\tverify 'reference_wrapper' is an alias to std\n");
+        }
+
+        ASSERT(true ==
+               (bsl::is_same<std::reference_wrapper<Callable>,
+                             bsl::reference_wrapper<Callable> >::value));
+
+        if (verbose) {
+            printf("\tverify 'reference_wrapper' is callbable\n");
+        }
+
+        {
+            Callable c;
+            bsl::reference_wrapper<Callable> ref = bsl::ref(c);
+            ref();
+            ASSERT(42 == ref(0));
+        }
+        {
+            Callable c;
+            bsl::reference_wrapper<const Callable> ref = bsl::cref(c);
+            ASSERT(-42 == ref(0));
+        }
+#endif // BSLSTL_REFRENCEWRAPPER_IS_ALIASED
 
       } break;
       case 2: {
