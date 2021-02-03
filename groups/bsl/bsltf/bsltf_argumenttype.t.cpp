@@ -178,6 +178,41 @@ unsigned numBitsChanged(const void *segmentA,
     return ret;
 }
 
+                                // =====
+                                // Thing
+                                // =====
+
+struct Thing {
+    char d_byte;
+
+    // CLASS METHOD
+    static
+    bool isDtorExecuted();
+        // Return 'true' if the destructor of a 'Thing' is observed to execute
+        // on object destruction, and 'false' otherwise.
+        //
+        // On some compilers in optimized mode, destructors that change only
+        // the footprint of the object are optimized away and are not executed.
+
+    // CREATORS
+    Thing() : d_byte(0) {}
+    ~Thing() { d_byte = 127; }
+};
+
+                                // -----
+                                // Thing
+                                // -----
+
+// CLASS METHOD
+bool Thing::isDtorExecuted()
+{
+    bsls::ObjectBuffer<Thing> buffer;
+    new (buffer.address()) Thing();
+    buffer.address()->~Thing();
+
+    return 0 != *reinterpret_cast<char *>(buffer.address());
+}
+
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -382,6 +417,9 @@ int main(int argc, char *argv[])
 
         ASSERT(X == Y);
 
+        bool isDtorExecuted = u::Thing::isDtorExecuted();
+        if (verbose) P(isDtorExecuted);
+
         unsigned changed = u::numBitsChanged(xBuffer.address(),
                                              yBuffer.address(),
                                              sizeof(xBuffer));
@@ -392,7 +430,7 @@ int main(int argc, char *argv[])
         changed = u::numBitsChanged(xBuffer.address(),
                                     yBuffer.address(),
                                     sizeof(xBuffer));
-        ASSERT(changed >= (sizeof(xBuffer) * 8) / 4);
+        ASSERT(changed >= (sizeof(xBuffer) * 8) / 4 || !isDtorExecuted);
 
         mY.~Obj();
         ASSERT(0 == u::numBitsChanged(xBuffer.address(),

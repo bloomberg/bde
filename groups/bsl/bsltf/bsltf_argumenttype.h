@@ -231,6 +231,7 @@ ArgumentType<N>::ArgumentType(int value)
 , d_movedInto(MoveState::e_NOT_MOVED)
 {
     BSLS_ASSERT_SAFE(value >= 0);
+
     d_data = value;
 }
 
