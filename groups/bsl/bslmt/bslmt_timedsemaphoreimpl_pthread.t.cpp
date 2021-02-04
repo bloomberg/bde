@@ -48,7 +48,7 @@ using namespace bsl;  // automatically added by script
 // [1] Breathing test
 // [2] wait(int *signalInterrupted = 0)
 // [2] post()
-// [3] timedWait(bsls::TimeInterval absTime)
+// [3] void timedWait(bsls::TimeInterval absTime);
 // [4] post(int number)
 // [5] tryWait()
 // [6] USAGE Example
