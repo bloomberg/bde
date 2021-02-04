@@ -134,32 +134,36 @@ class my_Condition {
     // versions of the 'wait' and 'timedWait' functions provided here only
     // return when the condition was actually signaled.  The class is used to
     // simplify testing.
+
+    // DATA
     bslmt::Condition d_cond;
     bslmt::Mutex     d_mutex;
     volatile int     d_sigState;
     volatile int     d_bcastCount;
   public:
+    // CREATORS
     my_Condition();
         // Construct a my_Condition object.
 
     ~my_Condition();
         // Destroy a my_Condition object.
 
-    void wait(bslmt::Mutex *mutex);
-        // Block until this condition is signaled by a call to 'signal' or
-        // 'broadcast'.
-
-    int timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval &timeout);
-        // Block until this condition is signaled by a call to 'signal' or
-        // 'broadcast', or until the specified 'timeout' (in abs time).  Return
-        // 0 if the condition was signaled, and a value of -1 if a timeout
-        // occurred.
+    // MANIPULATORS
+    void broadcast();
+        // Unblock all threads that are waiting on this condition.
 
     void signal();
         // Unblock a single thread that is waiting on this condition.
 
-    void broadcast();
-        // Unblock all threads that are waiting on this condition.
+    int timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval &absTime);
+        // Block until this condition is signaled by a call to 'signal' or
+        // 'broadcast', or until the specified 'absTime' (in abs time).  The
+        // specified 'mutex' is unlocked while blocking.  Return 0 if the
+        // condition was signaled, and a value of -1 if a timeout occurred.
+
+    void wait(bslmt::Mutex *mutex);
+        // Block until this condition is signaled by a call to 'signal' or
+        // 'broadcast'. The specified 'mutex' is unlocked while blocking.
 };
 
 my_Condition::my_Condition()
@@ -186,14 +190,14 @@ void my_Condition::wait(bslmt::Mutex *mutex)
 }
 
 int my_Condition::timedWait(bslmt::Mutex              *mutex,
-                            const bsls::TimeInterval&  timeout)
+                            const bsls::TimeInterval&  absTime)
 {
     d_mutex.lock();
     int bcastCount = d_bcastCount;
     d_sigState = 0;
     mutex->unlock();
     while (!d_sigState && d_bcastCount == bcastCount) {
-        if (d_cond.timedWait(&d_mutex,timeout)) {
+        if (d_cond.timedWait(&d_mutex,absTime)) {
             d_mutex.unlock();
             mutex->lock();
             return -1;                                                // RETURN

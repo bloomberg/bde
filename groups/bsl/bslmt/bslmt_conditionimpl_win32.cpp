@@ -36,13 +36,13 @@ namespace BloombergLP {
 // MANIPULATORS
 int bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::timedWait(
                                             Mutex                     *mutex,
-                                            const bsls::TimeInterval&  timeout)
+                                            const bsls::TimeInterval&  absTime)
 {
     LPCRITICAL_SECTION mtx = &mutex->nativeMutex();
     unsigned int       duration;
 
     bslmt::SaturatedTimeConversionImpUtil::toMillisec(
-                      &duration, timeout - bsls::SystemTime::now(d_clockType));
+                      &duration, absTime - bsls::SystemTime::now(d_clockType));
 
     BOOL ret = SleepConditionVariableCS(
                           reinterpret_cast<_RTL_CONDITION_VARIABLE *>(&d_cond),

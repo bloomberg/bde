@@ -45,7 +45,7 @@ using namespace bsl;
 // [ 6] void post(int value);
 // [ 8] int take(int maximumToTake);
 // [ 8] int takeAll();
-// [ 6] int timedWait(const bsls::TimeInterval& timeout);
+// [ 6] int timedWait(const bsls::TimeInterval& absTime);
 // [ 3] int tryWait();
 // [ 6] int wait();
 //
@@ -1395,7 +1395,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void post();
         //   void post(int value);
-        //   int timedWait(const bsls::TimeInterval& timeout);
+        //   int timedWait(const bsls::TimeInterval& absTime);
         //   int wait();
         // --------------------------------------------------------------------
 

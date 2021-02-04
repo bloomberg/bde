@@ -30,16 +30,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Supported Clock-Types
 ///---------------------
-// The component 'bsls::SystemClockType' supplies the enumeration indicating
-// the system clock on which timeouts supplied to other methods should be
-// based.  If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_REALTIME', the timeout should be expressed as an
-// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
-// clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', the timeout should be expressed as an
-// absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bsls::SystemClockType' supplies the enumeration indicating the system clock
+// on which timeouts supplied to other methods should be based.  If the clock
+// type indicated at construction is 'bsls::SystemClockType::e_REALTIME', the
+// 'absTime' argument passed to the 'timedWait' method should be expressed as
+// an *absolute* offset since 00:00:00 UTC, January 1, 1970 (which matches the
+// epoch used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.
+// If the clock type indicated at construction is
+// 'bsls::SystemClockType::e_MONOTONIC', the 'absTime' argument passed to the
+// 'timedWait' method should be expressed as an *absolute* offset since the
+// epoch of this clock (which matches the epoch used in
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -307,10 +308,10 @@ class FastPostSemaphore {
     bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
         // Create a 'FastPostSemaphore' object initially having a count of 0.
         // Optionally specify a 'clockType' indicating the type of the system
-        // clock against which the 'bsls::TimeInterval' timeouts passed to the
-        // 'timedWait' method are to be interpreted (see {Supported
-        // Clock-Types} in the component documentation).  If 'clockType' is not
-        // specified then the realtime system clock is used.
+        // clock against which the 'bsls::TimeInterval' 'absTime' timeouts
+        // passed to the 'timedWait' method are to be interpreted (see
+        // {Supported Clock-Types} in the component documentation).  If
+        // 'clockType' is not specified then the realtime system clock is used.
 
     explicit
     FastPostSemaphore(
@@ -318,8 +319,8 @@ class FastPostSemaphore {
     bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
         // Create a 'FastPostSemaphore' object initially having the specified
         // 'count'.  Optionally specify a 'clockType' indicating the type of
-        // the system clock against which the 'bsls::TimeInterval' timeouts
-        // passed to the 'timedWait' method are to be interpreted (see
+        // the system clock against which the 'bsls::TimeInterval' 'absTime'
+        // timeouts passed to the 'timedWait' method are to be interpreted (see
         // {Supported Clock-Types} in the component documentation).  If
         // 'clockType' is not specified then the realtime system clock is used.
 
@@ -356,17 +357,18 @@ class FastPostSemaphore {
         // and return the original value of the count.  Otherwise, do nothing
         // and return 0.
 
-    int timedWait(const bsls::TimeInterval& timeout);
+    int timedWait(const bsls::TimeInterval& absTime);
         // If this semaphore is initially disabled, or becomes disabled while
         // blocking, return 'e_DISABLED' with no effect on the count.
         // Otherwise, block until the count of this semaphore is a positive
-        // value or the specified 'timeout' expires.  If the count of this
-        // semaphore is a positive value, return 0 and atomically decrement the
-        // count.  If the 'timeout' expires, return 'e_TIMEDOUT' with no effect
-        // on the count.  Return 'e_FAILED' if an error occurs.  The 'timeout'
-        // is an absolute time represented as an interval from some epoch,
-        // which is determined by the clock indicated at construction (see
-        // {Supported Clock-Types} in the component documentation).
+        // value or the specified 'absTime' timeout expires.  If the count of
+        // this semaphore is a positive value, return 0 and atomically
+        // decrement the count.  If the 'absTime' timeout expires, return
+        // 'e_TIMEDOUT' with no effect on the count.  Return 'e_FAILED' if an
+        // error occurs.  'absTime' is an *absolute* time represented as an
+        // interval from some epoch, which is determined by the clock indicated
+        // at construction (see {Supported Clock-Types} in the component
+        // documentation).
 
     int tryWait();
         // If this semaphore is initially disabled, return 'e_DISABLED' with no
@@ -470,9 +472,9 @@ int FastPostSemaphore::takeAll()
 }
 
 inline
-int FastPostSemaphore::timedWait(const bsls::TimeInterval& timeout)
+int FastPostSemaphore::timedWait(const bsls::TimeInterval& absTime)
 {
-    return d_impl.timedWait(timeout);
+    return d_impl.timedWait(absTime);
 }
 
 inline

@@ -130,13 +130,13 @@ int main(int argc, char *argv[])
       // ...
 
       enum { e_TIMED_OUT = -1 };
-      bsls::TimeInterval timeout = bsls::SystemTime::nowRealtimeClock();
+      bsls::TimeInterval absTime = bsls::SystemTime::nowRealtimeClock();
 
-      // Advance 'timeout' to some delta into the future here.
+      // Advance 'absTime' to some delta into the future here.
 
       mutex.lock();
       while (false == predicate()) {
-          const int status = condition.timedWait(&mutex, timeout);
+          const int status = condition.timedWait(&mutex, absTime);
           if (e_TIMED_OUT == status) {
               break;
           }

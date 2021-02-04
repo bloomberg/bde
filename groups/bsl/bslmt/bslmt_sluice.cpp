@@ -140,13 +140,13 @@ void bslmt::Sluice::wait(const void *token)
 }
 
 int bslmt::Sluice::timedWait(const void                *token,
-                             const bsls::TimeInterval&  timeout)
+                             const bsls::TimeInterval&  absTime)
 {
     GenerationDescriptor *g =
                 static_cast<GenerationDescriptor *>(const_cast<void *>(token));
 
     for (;;) {
-        int rc = g->d_sema.timedWait(timeout);
+        int rc = g->d_sema.timedWait(absTime);
 
         LockGuard<Mutex> lock(&d_mutex);
 

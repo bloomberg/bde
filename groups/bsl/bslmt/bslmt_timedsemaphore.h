@@ -34,16 +34,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Supported Clock-Types
 ///---------------------
-// The component 'bsls::SystemClockType' supplies the enumeration indicating
-// the system clock on which timeouts supplied to other methods should be
-// based.  If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_REALTIME', the timeout should be expressed as an
-// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
-// clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', the timeout should be expressed as an
-// absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bsls::SystemClockType' supplies the enumeration indicating the system clock
+// on which timeouts supplied to other methods should be based.  If the clock
+// type indicated at construction is 'bsls::SystemClockType::e_REALTIME', the
+// 'absTime' argument passed to the 'timedWait' method should be expressed as
+// an *absolute* offset since 00:00:00 UTC, January 1, 1970 (which matches the
+// epoch used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.
+// If the clock type indicated at construction is
+// 'bsls::SystemClockType::e_MONOTONIC', the 'absTime' argument passed to the
+// 'timedWait' method should be expressed as an *absolute* offset since the
+// epoch of this clock (which matches the epoch used in
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -110,9 +111,9 @@ BSLS_IDENT("$Id: $")
 //      if (0 == maxWaitSeconds) {
 //          d_resourceSem.wait();
 //      } else {
-//          bsls::TimeInterval timeout = bsls::SystemTime::nowMonotonicClock()
+//          bsls::TimeInterval absTime = bsls::SystemTime::nowMonotonicClock()
 //              .addSeconds(maxWaitSeconds);
-//          int rc = d_resourceSem.timedWait(timeout);
+//          int rc = d_resourceSem.timedWait(absTime);
 //          if (0 != rc) {
 //             return rc;
 //          }
@@ -176,8 +177,8 @@ class TimedSemaphore {
     bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having a count of 0.  Optionally
         // specify a 'clockType' indicating the type of the system clock
-        // against which the 'bsls::TimeInterval' timeouts passed to the
-        // 'timedWait' method are to be interpreted (see {Supported
+        // against which the 'bsls::TimeInterval' 'absTime' timeouts passed to
+        // the 'timedWait' method are to be interpreted (see {Supported
         // Clock-Types} in the component documentation).  If 'clockType' is not
         // specified then the realtime system clock is used.
 
@@ -187,10 +188,10 @@ class TimedSemaphore {
     bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having the specified 'count'.
         // Optionally specify a 'clockType' indicating the type of the system
-        // clock against which the 'bsls::TimeInterval' timeouts passed to the
-        // 'timedWait' method are to be interpreted (see {Supported
-        // Clock-Types} in the component documentation).  If 'clockType' is not
-        // specified then the realtime system clock is used.
+        // clock against which the 'bsls::TimeInterval' 'absTime' timeouts
+        // passed to the 'timedWait' method are to be interpreted (see
+        // {Supported Clock-Types} in the component documentation).  If
+        // 'clockType' is not specified then the realtime system clock is used.
 
     ~TimedSemaphore();
         // Destroy this timed semaphore.
@@ -203,15 +204,15 @@ class TimedSemaphore {
         // Atomically increase the count of this timed semaphore by the
         // specified 'value'.  The behavior is undefined unless 'value > 0'.
 
-    int timedWait(const bsls::TimeInterval& timeout);
+    int timedWait(const bsls::TimeInterval& absTime);
         // Block until the count of this semaphore is a positive value, or
-        // until the specified 'timeout' expires.  The 'timeout' is an absolute
-        // time represented as an interval from some epoch, which is determined
-        // by the clock indicated at construction (see {Supported
-        // Clock-Types} in the component documentation).  If the 'timeout' did
-        // not expire before the count attained a positive value, atomically
-        // decrement the count and return 0; otherwise, return a non-zero value
-        // with no effect on the count.
+        // until the specified 'absTime' timeout expires.  'absTime' is an
+        // *absolute* time represented as an interval from some epoch, which is
+        // determined by the clock indicated at construction (see {Supported
+        // Clock-Types} in the component documentation).  If the 'absTime'
+        // timeout did not expire before the count attained a positive value,
+        // atomically decrement the count and return 0; otherwise, return a
+        // non-zero value with no effect on the count.
 
     int tryWait();
         // If the count of this timed semaphore is positive, atomically
@@ -266,9 +267,9 @@ void bslmt::TimedSemaphore::post(int value)
 }
 
 inline
-int bslmt::TimedSemaphore::timedWait(const bsls::TimeInterval& timeout)
+int bslmt::TimedSemaphore::timedWait(const bsls::TimeInterval& absTime)
 {
-    return d_impl.timedWait(timeout);
+    return d_impl.timedWait(absTime);
 }
 
 inline

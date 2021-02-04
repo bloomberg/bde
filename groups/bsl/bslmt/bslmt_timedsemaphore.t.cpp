@@ -31,7 +31,7 @@ using namespace bsl;  // automatically added by script
 // [1] Breathing test
 // [2] wait(int *signalInterrupted = 0)
 // [2] post()
-// [3] timedWait(bsls::TimeInterval timeout, int *signalInterrupted = 0)
+// [3] timedWait(bsls::TimeInterval absTime)
 // [4] post(int number)
 // [5] tryWait()
 // [6] USAGE Example
@@ -144,9 +144,9 @@ void aSsErT(bool condition, const char *message, int line)
         if (0 == maxWaitSeconds) {
             d_resourceSem.wait();
         } else {
-            bsls::TimeInterval timeout = bsls::SystemTime::nowMonotonicClock()
+            bsls::TimeInterval absTime = bsls::SystemTime::nowMonotonicClock()
                 .addSeconds(maxWaitSeconds);
-            int rc = d_resourceSem.timedWait(timeout);
+            int rc = d_resourceSem.timedWait(absTime);
             if (0 != rc) {
                return rc;
             }

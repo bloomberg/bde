@@ -201,7 +201,7 @@ bslmt::TimedSemaphoreImpl<bslmt::Platform::PthreadTimedSemaphore>::post(
 }
 
 int bslmt::TimedSemaphoreImpl<bslmt::Platform::PthreadTimedSemaphore>::
-    timedWait(const bsls::TimeInterval& timeout)
+    timedWait(const bsls::TimeInterval& absTime)
 {
     if (0 == decrementIfPositive(&d_resources)) {
         return 0;                                                     // RETURN
@@ -212,7 +212,7 @@ int bslmt::TimedSemaphoreImpl<bslmt::Platform::PthreadTimedSemaphore>::
     ++d_waiters;
 
     while (0 != decrementIfPositive(&d_resources)) {
-        int status = timedWaitImp(timeout);
+        int status = timedWaitImp(absTime);
         if (0 != status) {
             BSLS_ASSERT(-1 == status);    // timeout and not an error
             ret = 1;
@@ -226,26 +226,26 @@ int bslmt::TimedSemaphoreImpl<bslmt::Platform::PthreadTimedSemaphore>::
 }
 
 int bslmt::TimedSemaphoreImpl<bslmt::Platform::PthreadTimedSemaphore>
-                              ::timedWaitImp(const bsls::TimeInterval& timeout)
+                              ::timedWaitImp(const bsls::TimeInterval& absTime)
 {
 #ifdef BSLS_PLATFORM_OS_DARWIN
     // Darwin supports only realtime clock for the condition variable.
 
-    bsls::TimeInterval realTimeout(timeout);
+    bsls::TimeInterval realAbsTime(absTime);
 
     if (d_clockType != bsls::SystemClockType::e_REALTIME) {
         // since cond_timedwait operates only with the realtime clock, adjust
-        // the timeout value to make it consistent with the realtime clock
-        realTimeout += bsls::SystemTime::nowRealtimeClock() -
+        // the absTime value to make it consistent with the realtime clock
+        realAbsTime += bsls::SystemTime::nowRealtimeClock() -
                        bsls::SystemTime::now(d_clockType);
     }
 
     timespec ts;
-    SaturatedTimeConversionImpUtil::toTimeSpec(&ts, realTimeout);
+    SaturatedTimeConversionImpUtil::toTimeSpec(&ts, realAbsTime);
 
 #else  // !DARWIN
     timespec ts;
-    SaturatedTimeConversionImpUtil::toTimeSpec(&ts, timeout);
+    SaturatedTimeConversionImpUtil::toTimeSpec(&ts, absTime);
 #endif
 
     int status = pthread_cond_timedwait(&d_condition, &d_lock, &ts);

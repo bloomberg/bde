@@ -31,12 +31,12 @@ namespace BloombergLP {
 // MANIPULATORS
 int
 bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::timedWait(
-                                             const bsls::TimeInterval& timeout)
+                                             const bsls::TimeInterval& absTime)
 {
     DWORD milliTimeout = 0;
     bsls::TimeInterval now = bsls::SystemTime::now(d_clockType);
-    if (timeout > now) {
-        bsls::TimeInterval reltime = timeout - now;
+    if (absTime > now) {
+        bsls::TimeInterval reltime = absTime - now;
         SaturatedTimeConversionImpUtil::toMillisec(&milliTimeout, reltime);
     }
 

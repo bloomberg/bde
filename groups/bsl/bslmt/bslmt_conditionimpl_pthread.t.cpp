@@ -207,14 +207,14 @@ extern "C" void *consumer(void *arg_p)
     while (!finished) {
         // Set the timeout to be one second from now.
 
-        bsls::TimeInterval timeout = bsls::SystemTime::nowRealtimeClock();
-        timeout.addMilliseconds(1000);
+        bsls::TimeInterval absTime = bsls::SystemTime::nowRealtimeClock();
+        absTime.addMilliseconds(1000);
 
         // Wait for work requests to be added to the queue.
 
         queue->d_mx.lock();
         while (0 == queue->d_queue.size()) {
-            int status = queue->d_cv.timedWait(&queue->d_mx, timeout);
+            int status = queue->d_cv.timedWait(&queue->d_mx, absTime);
             if (0 != status) {
                 break;
             }
@@ -331,17 +331,17 @@ int main(int argc, char *argv[])
         for (int i = 0; i < 8; ++i) {
             const bsls::TimeInterval start =
                                           bsls::SystemTime::nowRealtimeClock();
-            const bsls::TimeInterval timeout = start + SLEEP_SECONDS;
-            const bsls::TimeInterval minTimeout = timeout + OVERSHOOT_MIN;
+            const bsls::TimeInterval absTime = start + SLEEP_SECONDS;
+            const bsls::TimeInterval minAbsTime = absTime + OVERSHOOT_MIN;
 
             int sts;
             bsls::TimeInterval finish;
 
             int j;
             for (j = 0; j < 4; ++j) {
-                sts = condition.timedWait(&mutex, timeout);
+                sts = condition.timedWait(&mutex, absTime);
                 finish = bsls::SystemTime::nowRealtimeClock();
-                if (finish > minTimeout) {
+                if (finish > minAbsTime) {
                     break;
                 }
             }

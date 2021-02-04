@@ -125,7 +125,7 @@ bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::ConditionImpl(
 // MANIPULATORS
 int bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::timedWait(
                                             Mutex                     *mutex,
-                                            const bsls::TimeInterval&  timeout)
+                                            const bsls::TimeInterval&  absTime)
 {
 #ifdef BSLS_PLATFORM_OS_DARWIN
     // This implementation is very sensitive to the 'd_clockType'.  For safety,
@@ -133,20 +133,20 @@ int bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::timedWait(
     BSLS_ASSERT(bsls::SystemClockType::e_REALTIME == d_clockType ||
                 bsls::SystemClockType::e_MONOTONIC == d_clockType);
 
-    bsls::TimeInterval realTimeout(timeout);
+    bsls::TimeInterval realAbsTime(absTime);
 
     if (d_clockType != bsls::SystemClockType::e_REALTIME) {
         // since cond_timedwait operates only with the realtime clock, adjust
         // the timeout value to make it consistent with the realtime clock
-        realTimeout += bsls::SystemTime::nowRealtimeClock() -
+        realAbsTime += bsls::SystemTime::nowRealtimeClock() -
                        bsls::SystemTime::now(d_clockType);
     }
 
     timespec ts;
-    SaturatedTimeConversionImpUtil::toTimeSpec(&ts, realTimeout);
+    SaturatedTimeConversionImpUtil::toTimeSpec(&ts, realAbsTime);
 #else  // !DARWIN
     timespec ts;
-    SaturatedTimeConversionImpUtil::toTimeSpec(&ts, timeout);
+    SaturatedTimeConversionImpUtil::toTimeSpec(&ts, absTime);
 #endif
     int status = pthread_cond_timedwait(&d_cond, &mutex->nativeMutex(), &ts);
 

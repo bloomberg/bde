@@ -31,16 +31,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Supported Clock-Types
 ///---------------------
-// The component 'bsls::SystemClockType' supplies the enumeration indicating
-// the system clock on which timeouts supplied to other methods should be
-// based.  If the clock type indicated at construction is
-// 'bsls::SystemClockType::e_REALTIME', the timeout should be expressed as an
-// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
-// clock type indicated at construction is
-// 'bsls::SystemClockType::e_MONOTONIC', the timeout should be expressed as an
-// absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// 'bsls::SystemClockType' supplies the enumeration indicating the system clock
+// on which timeouts supplied to other methods should be based.  If the clock
+// type indicated at construction is 'bsls::SystemClockType::e_REALTIME', the
+// 'absTime' argument passed to the 'timedWait' method should be expressed as
+// an *absolute* offset since 00:00:00 UTC, January 1, 1970 (which matches the
+// epoch used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.
+// If the clock type indicated at construction is
+// 'bsls::SystemClockType::e_MONOTONIC', the 'absTime' argument passed to the
+// 'timedWait' method should be expressed as an *absolute* offset since the
+// epoch of this clock (which matches the epoch used in
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -113,20 +114,21 @@ class FastPostSemaphoreImpl {
         // wait operations (without further 'post' invocations).
 
     // PRIVATE MANIPULATORS
-    int timedWaitSlowPath(const bsls::TimeInterval& timeout,
+    int timedWaitSlowPath(const bsls::TimeInterval& absTime,
                           const bsls::Types::Int64  initialState);
         // If this semaphore becomes disabled as detected from the disabled
         // generation encoded in the specified 'initialState' (see
         // *Implementation* *Note*), return 'e_DISABLED' with no effect on the
         // count.  Otherwise, block until the count of this semaphore is a
-        // positive value or the specified 'timeout' expires.  If the count of
-        // this timed semaphore is a positive value, return 0 and atomically
-        // decrement the count.  If the 'timeout' expires, return 'e_TIMED_OUT'
-        // with no effect on the count.  The 'timeout' is an absolute time
-        // represented as an interval from some epoch, which is determined by
-        // the clock indicated at construction (see {Supported Clock-Types} in
-        // the component documentation).  This method is invoked from
-        // 'timedWait' when the invoking thread may have to be blocked.
+        // positive value or the specified 'absTime' timeout expires.  If the
+        // count of this timed semaphore is a positive value, return 0 and
+        // atomically decrement the count.  If the 'absTime' timeout expires,
+        // return 'e_TIMED_OUT' with no effect on the count.  'absTime' is an
+        // absolute time represented as an interval from some epoch, which is
+        // determined by the clock indicated at construction (see {Supported
+        // Clock-Types} in the component documentation).  This method is
+        // invoked from 'timedWait' when the invoking thread may have to be
+        // blocked.
 
     int waitSlowPath(const bsls::Types::Int64 initialState);
         // If this semaphore becomes disabled as detected from the disabled
@@ -179,10 +181,10 @@ class FastPostSemaphoreImpl {
     bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
         // Create a 'FastPostSemaphoreImpl' object initially having a count of
         // 0.  Optionally specify a 'clockType' indicating the type of the
-        // system clock against which the 'bsls::TimeInterval' timeouts passed
-        // to the 'timedWait' method are to be interpreted (see {Supported
-        // Clock-Types} in the component documentation).  If 'clockType' is not
-        // specified then the realtime system clock is used.
+        // system clock against which the 'bsls::TimeInterval' 'absTime'
+        // timeouts passed to the 'timedWait' method are to be interpreted (see
+        // {Supported Clock-Types} in the component documentation).  If
+        // 'clockType' is not specified then the realtime system clock is used.
 
     explicit
     FastPostSemaphoreImpl(
@@ -191,9 +193,10 @@ class FastPostSemaphoreImpl {
         // Create a 'FastPostSemaphoreImpl' object initially having the
         // specified 'count'.  Optionally specify a 'clockType' indicating the
         // type of the system clock against which the 'bsls::TimeInterval'
-        // timeouts passed to the 'timedWait' method are to be interpreted (see
-        // {Supported Clock-Types} in the component documentation).  If
-        // 'clockType' is not specified then the realtime system clock is used.
+        // 'absTime' timeouts passed to the 'timedWait' method are to be
+        // interpreted (see {Supported Clock-Types} in the component
+        // documentation).  If 'clockType' is not specified then the realtime
+        // system clock is used.
 
     // ~FastPostSemaphoreImpl() = default;
         // Destroy this object.
@@ -227,17 +230,18 @@ class FastPostSemaphoreImpl {
         // and return the original value of the count.  Otherwise, do nothing
         // and return 0.
 
-    int timedWait(const bsls::TimeInterval& timeout);
+    int timedWait(const bsls::TimeInterval& absTime);
         // If this semaphore is initially disabled, or becomes disabled while
         // blocking, return 'e_DISABLED' with no effect on the count.
         // Otherwise, block until the count of this semaphore is a positive
-        // value or the specified 'timeout' expires.  If the count of this
-        // semaphore is a positive value, return 0 and atomically decrement the
-        // count.  If the 'timeout' expires, return 'e_TIMEDOUT' with no effect
-        // on the count.  Return 'e_FAILED' if an error occurs.  The 'timeout'
-        // is an absolute time represented as an interval from some epoch,
-        // which is determined by the clock indicated at construction (see
-        // {Supported Clock-Types} in the component documentation).
+        // value or the specified 'absTime' timeout expires.  If the count of
+        // this semaphore is a positive value, return 0 and atomically
+        // decrement the count.  If the 'absTime' timeout expires, return
+        // 'e_TIMEDOUT' with no effect on the count.  Return 'e_FAILED' if an
+        // error occurs.  'absTime' is an *absolute* time represented as an
+        // interval from some epoch, which is determined by the clock indicated
+        // at construction (see {Supported Clock-Types} in the component
+        // documentation).
 
     int tryWait();
         // If this semaphore is initially disabled, return 'e_DISABLED' with no
@@ -343,7 +347,7 @@ bool FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
 // PRIVATE MANIPULATORS
 template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
-                    ::timedWaitSlowPath(const bsls::TimeInterval& timeout,
+                    ::timedWaitSlowPath(const bsls::TimeInterval& absTime,
                                         const bsls::Types::Int64  initialState)
 {
     int rv = e_SUCCESS;
@@ -374,7 +378,7 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
 
             while (   !hasAvailable(state)
                    && disabledGen == disabledGeneration(state)) {
-                int rv = d_waitCondition.timedWait(&d_waitMutex, timeout);
+                int rv = d_waitCondition.timedWait(&d_waitMutex, absTime);
                 if (rv) {
                     ATOMIC_OP::addInt64AcqRel(&d_state, -k_BLOCKED_INC);
                     if (-1 == rv) {
@@ -700,7 +704,7 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>::takeAll()
 template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
 int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
-                                 ::timedWait(const bsls::TimeInterval& timeout)
+                                 ::timedWait(const bsls::TimeInterval& absTime)
 {
     Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state, -k_AVAILABLE_INC);
 
@@ -710,7 +714,7 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
     }
 
     if (willHaveBlockedThread(state)) {
-        return timedWaitSlowPath(timeout, state);                     // RETURN
+        return timedWaitSlowPath(absTime, state);                     // RETURN
     }
 
     return 0;

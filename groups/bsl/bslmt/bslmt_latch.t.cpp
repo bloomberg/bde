@@ -90,7 +90,7 @@ using namespace bsl;
 // [ 4] void arriveAndWait();
 // [ 1] void countDown(int n);
 // [ 5] void wait();
-// [ 6] void timedWait(const bsls::TimeInterval &timeout);
+// [ 6] void timedWait(const bsls::TimeInterval& absTime);
 //
 // ACCESSORS
 // [ 1] int currentCount() const;
@@ -1207,7 +1207,7 @@ int main(int argc, char *argv[])
         //: 1 A latch built with 0 has already reached the synchronization
         //:   point.
         //:
-        //: 2 A latch built will timeout after reaching 'timeout' time.  The
+        //: 2 A latch built will timeout after reaching 'absTime' time.  The
         //:   initial 'count' given the constructor is unchanged.
         //
         // Plan:
@@ -1223,7 +1223,7 @@ int main(int argc, char *argv[])
         //:   (C-2)
         //
         // Testing:
-        //   void timedWait(const bsls::TimeInterval &timeout);
+        //   void timedWait(const bsls::TimeInterval& absTime);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1239,10 +1239,10 @@ int main(int argc, char *argv[])
             bslmt::Latch myLatch(5);
 
             // define a timeout of 1s
-            bsls::TimeInterval timeOut = bsls::SystemTime::nowRealtimeClock();
-            timeOut.addMicroseconds(1000000);
+            bsls::TimeInterval absTime = bsls::SystemTime::nowRealtimeClock();
+            absTime.addMicroseconds(1000000);
 
-            const int rc = myLatch.timedWait(timeOut);
+            const int rc = myLatch.timedWait(absTime);
             ASSERT(-1 == rc);
             const int myCount = myLatch.currentCount();
             ASSERT(5 == myCount);
