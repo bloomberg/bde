@@ -1,6 +1,7 @@
 // bslh_hashvariant.t.cpp                                             -*-C++-*-
 #include <bslh_hashvariant.h>
 
+#include <bsls_alignmentfromtype.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -226,9 +227,7 @@ int main(int argc, char *argv[])
         //   data into the algorithms.
         //
         // Concerns:
-        //: 1 'hashAppend' has been implemented for 'std::variant'.
-        //:
-        //: 2 'hashAppend' has been implemented for 'std::monostate'.
+        //: 1 'hashAppend' has been implemented for std::variant.
         //
         // Plan:
         //: 1 Use a mock hashing algorithm to test 'hashAppend'.
@@ -271,38 +270,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == memcmp(for1.getData(),
                                exp1.getData(),
                                exp1.getLength()));
-        }
-
-        if (verbose) printf("Use a mock hashing algorithm to test that"
-                            " 'hashAppend' inputs the expected value"
-                            " for the 'std::monostate' type.\n");
-        {
-            std::variant<std::monostate, int> var;
-            MockAccumulatingHashingAlgorithm  forMonostate;
-            MockAccumulatingHashingAlgorithm  expMonostate;
-            MockAccumulatingHashingAlgorithm  forVariant;
-            MockAccumulatingHashingAlgorithm  expVariant;
-
-            if (veryVerbose) printf("\tMonostate object itself\n");
-
-            std::monostate obj;
-            hashAppend(forMonostate, obj);
-            hashAppend(expMonostate, -7777);
-            ASSERT(forMonostate.getLength() == expMonostate.getLength());
-            ASSERT(0 == memcmp(forMonostate.getData(),
-                               expMonostate.getData(),
-                               expMonostate.getLength()));
-
-            if (veryVerbose) printf("\tVariant holding monostate value\n");
-
-            ASSERT(0 == var.index());
-            hashAppend(forVariant, var);
-            hashAppend(expVariant, size_t(0));
-            hashAppend(expVariant, -7777);
-            ASSERT(expVariant.getLength() == forVariant.getLength());
-            ASSERT(0 == memcmp(forVariant.getData(),
-                               expVariant.getData(),
-                               expVariant.getLength()));
         }
       } break;
       case 1: {
