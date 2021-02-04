@@ -48,6 +48,7 @@
            //       -> sys/wait.h -> signal.h -> sys/ucontext.h -> sys/regset.h
 
 using namespace BloombergLP;
+using namespace bsl;  // automatically added by script
 
 //=============================================================================
 //                                 TEST PLAN
@@ -105,8 +106,6 @@ using namespace BloombergLP;
 // [ 3] bool operator==(const StringRef& l, const native_std::string& r);
 // [ 3] bool operator==(const char *lhs, const StringRef& rhs);
 // [ 3] bool operator==(const StringRef& lhs, const char *rhs);
-// [ 3] bool operator==(const StringRef& lhs, string_view rhs);
-// [ 3] bool operator==(string_view lhs, const StringRef& rhs);
 // [ 3] bool operator!=(const StringRef& lhs, const StringRef& rhs);
 // [ 3] bool operator!=(const bsl::string& lhs, const StringRef& rhs);
 // [ 3] bool operator!=(const StringRef& lhs, const bsl::string& rhs);
@@ -114,8 +113,6 @@ using namespace BloombergLP;
 // [ 3] bool operator!=(const StringRef& l, const native_std::string& r);
 // [ 3] bool operator!=(const char *lhs, const StringRef& rhs);
 // [ 3] bool operator!=(const StringRef& lhs, const char *rhs);
-// [ 3] bool operator!=(const StringRef& lhs, string_view rhs);
-// [ 3] bool operator!=(string_view lhs, const StringRef& rhs);
 // [ 3] bool operator<(const StringRef& lhs, const StringRef& rhs);
 // [ 3] bool operator<(const bsl::string& lhs, const StringRef& rhs);
 // [ 3] bool operator<(const StringRef& lhs, const bsl::string& rhs);
@@ -123,8 +120,6 @@ using namespace BloombergLP;
 // [ 3] bool operator<(const StringRef& l, const native_std::string& r);
 // [ 3] bool operator<(const char *lhs, const StringRef& rhs);
 // [ 3] bool operator<(const StringRef& lhs, const char *rhs);
-// [ 3] bool operator<(const StringRef& lhs, string_view rhs);
-// [ 3] bool operator<(string_view lhs, const StringRef& rhs);
 // [ 3] bool operator>(const StringRef& lhs, const StringRef& rhs);
 // [ 3] bool operator>(const bsl::string& lhs, const StringRef& rhs);
 // [ 3] bool operator>(const StringRef& lhs, const bsl::string& rhs);
@@ -132,8 +127,6 @@ using namespace BloombergLP;
 // [ 3] bool operator>(const StringRef& l, const native_std::string& r);
 // [ 3] bool operator>(const char *lhs, const StringRef& rhs);
 // [ 3] bool operator>(const StringRef& lhs, const char *rhs);
-// [ 3] bool operator>(const StringRef& lhs, string_view rhs);
-// [ 3] bool operator>(string_view lhs, const StringRef& rhs);
 // [ 3] bool operator<=(const StringRef& lhs, const StringRef& rhs);
 // [ 3] bool operator<=(const bsl::string& lhs, const StringRef& rhs);
 // [ 3] bool operator<=(const StringRef& lhs, const bsl::string& rhs);
@@ -141,8 +134,6 @@ using namespace BloombergLP;
 // [ 3] bool operator<=(const StringRef& l, const native_std::string& r);
 // [ 3] bool operator<=(const char *lhs, const StringRef& rhs);
 // [ 3] bool operator<=(const StringRef& lhs, const char *rhs);
-// [ 3] bool operator<=(const StringRef& lhs, string_view rhs);
-// [ 3] bool operator<=(string_view lhs, const StringRef& rhs);
 // [ 3] bool operator>=(const StringRef& lhs, const StringRef& rhs);
 // [ 3] bool operator>=(const bsl::string& lhs, const StringRef& rhs);
 // [ 3] bool operator>=(const StringRef& lhs, const bsl::string& rhs);
@@ -150,8 +141,6 @@ using namespace BloombergLP;
 // [ 3] bool operator>=(const StringRef& l, const native_std::string& r);
 // [ 3] bool operator>=(const char *lhs, const StringRef& rhs);
 // [ 3] bool operator>=(const StringRef& lhs, const char *rhs);
-// [ 3] bool operator>=(const StringRef& lhs, string_view rhs);
-// [ 3] bool operator>=(string_view lhs, const StringRef& rhs);
 // [ 4] operator<<(ostream&, const StringRef& string);
 // [ 7] basic_string operator+(const StringRef& l, const StringRef& r);
 // [ 7] basic_string operator+(const bsl::string& l, const StringRef& r);
@@ -2957,16 +2946,6 @@ void TestDriver<CHAR_TYPE>::testCase9()
     }
 }
 
-namespace BloombergLP {
-namespace comparisons {
-namespace {
-
-template <class CHAR>
-const CHAR *ptrFunction(const CHAR *string)
-{
-    return string;
-}
-
 template <class CHAR>
 void testAccessorsComparisons()
     // Test all the accessor methods, especially including both 'compare'
@@ -3028,16 +3007,12 @@ void testAccessorsComparisons()
                                        ? bsl::basic_string<CHAR>(IPC)
                                        : bsl::basic_string<CHAR>(IPC, ILEN);
 
-#define ISF bsl::basic_string<CHAR>(IPC)
-
         const nstd::basic_string<CHAR>& INS =
                                        -2 == ILEN
                                        ? nstd::basic_string<CHAR>()
                                        : -1 == ILEN
                                        ? nstd::basic_string<CHAR>(IPC)
                                        : nstd::basic_string<CHAR>(IPC, ILEN);
-
-#define INF nstd::basic_string<CHAR>(IPC)
 
         const bslstl::StringRefImp<CHAR>& ISR =
                                        -2 == ILEN
@@ -3046,20 +3021,7 @@ void testAccessorsComparisons()
                                        ? bslstl::StringRefImp<CHAR>(IPC)
                                        : bslstl::StringRefImp<CHAR>(IPC, ILEN);
 
-#define IRF bslstl::StringRefImp<CHAR>(IPC)
-
-        const bsl::basic_string_view<CHAR>& ISV =
-                                     -2 == ILEN
-                                     ? bsl::basic_string_view<CHAR>()
-                                     : -1 == ILEN
-                                     ? bsl::basic_string_view<CHAR>(IPC)
-                                     : bsl::basic_string_view<CHAR>(IPC, ILEN);
-
-#define IVF bsl::basic_string_view<CHAR>(IPC)
-
-#define IPF ptrFunction(IPC)
-
-        const bsl::basic_string<CHAR> ICOPY(IS);
+        const basic_string<CHAR> ICOPY(IS);
         if (0 <= ILEN) {
             IPC = ICOPY.c_str();
         }
@@ -3111,16 +3073,12 @@ void testAccessorsComparisons()
                                        ? bsl::basic_string<CHAR>(JPC)
                                        : bsl::basic_string<CHAR>(JPC, JLEN);
 
-#define JSF bsl::basic_string<CHAR>(JPC)
-
             const nstd::basic_string<CHAR>& JNS =
                                        -2 == JLEN
                                        ? nstd::basic_string<CHAR>()
                                        : -1 == JLEN
                                        ? nstd::basic_string<CHAR>(JPC)
                                        : nstd::basic_string<CHAR>(JPC, JLEN);
-
-#define JNF nstd::basic_string<CHAR>(JPC)
 
             const bslstl::StringRefImp<CHAR>& JSR =
                                        -2 == JLEN
@@ -3129,20 +3087,7 @@ void testAccessorsComparisons()
                                        ? bslstl::StringRefImp<CHAR>(JPC)
                                        : bslstl::StringRefImp<CHAR>(JPC, JLEN);
 
-#define JRF bslstl::StringRefImp<CHAR>(JPC)
-
-            const bsl::basic_string_view<CHAR>& JSV =
-                                     -2 == JLEN
-                                     ? bsl::basic_string_view<CHAR>()
-                                     : -1 == JLEN
-                                     ? bsl::basic_string_view<CHAR>(JPC)
-                                     : bsl::basic_string_view<CHAR>(JPC, JLEN);
-
-#define JVF bsl::basic_string_view<CHAR>(JPC)
-
-#define JPF ptrFunction(JPC)
-
-            const bsl::basic_string<CHAR> JCOPY(JS);
+            const basic_string<CHAR> JCOPY(JS);
             if (0 <= JLEN) {
                 JPC = JCOPY.c_str();
             }
@@ -3208,30 +3153,20 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, EQ, (IS  == JS),  EQ == (IS  == JS));
             ASSERTV(IL, JL, IS, JS, EQ, (IS  == JNS), EQ == (IS  == JNS));
             ASSERTV(IL, JL, IS, JS, EQ, (IS  == JSR), EQ == (IS  == JSR));
-            ASSERTV(IL, JL, IS, JS, EQ, (IS  == JSV), EQ == (IS  == JSV));
 
             ASSERTV(IL, JL, IS, JS, EQ, (INS == JPC), EQ == (INS == JPC));
             ASSERTV(IL, JL, IS, JS, EQ, (INS == JS),  EQ == (INS == JS));
             ASSERTV(IL, JL, IS, JS, EQ, (INS == JNS), EQ == (INS == JNS));
             ASSERTV(IL, JL, IS, JS, EQ, (INS == JSR), EQ == (INS == JSR));
-            ASSERTV(IL, JL, IS, JS, EQ, (INS == JSV), EQ == (INS == JSV));
 
             ASSERTV(IL, JL, IS, JS, EQ, (ISR == JPC), EQ == (ISR == JPC));
             ASSERTV(IL, JL, IS, JS, EQ, (ISR == JS),  EQ == (ISR == JS));
             ASSERTV(IL, JL, IS, JS, EQ, (ISR == JNS), EQ == (ISR == JNS));
             ASSERTV(IL, JL, IS, JS, EQ, (ISR == JSR), EQ == (ISR == JSR));
-            ASSERTV(IL, JL, IS, JS, EQ, (ISR == JSV), EQ == (ISR == JSV));
-
-            ASSERTV(IL, JL, IS, JS, EQ, (ISV == JPC), EQ == (ISV == JPC));
-            ASSERTV(IL, JL, IS, JS, EQ, (ISV == JS),  EQ == (ISV == JS));
-            ASSERTV(IL, JL, IS, JS, EQ, (ISV == JNS), EQ == (ISV == JNS));
-            ASSERTV(IL, JL, IS, JS, EQ, (ISV == JSR), EQ == (ISV == JSR));
-            ASSERTV(IL, JL, IS, JS, EQ, (ISV == JSV), EQ == (ISV == JSV));
 
             ASSERTV(IL, JL, IS, JS, EQ, (IPC == JNS), EQ == (IPC == JS));
             ASSERTV(IL, JL, IS, JS, EQ, (IPC == JS),  EQ == (IPC == JNS));
             ASSERTV(IL, JL, IS, JS, EQ, (IPC == JSR), EQ == (IPC == JSR));
-            ASSERTV(IL, JL, IS, JS, EQ, (IPC == JSV), EQ == (IPC == JSV));
 
             // 'operator!='
 
@@ -3239,30 +3174,20 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, NE, (IS  != JS),  NE == (IS  != JS));
             ASSERTV(IL, JL, IS, JS, NE, (IS  != JNS), NE == (IS  != JNS));
             ASSERTV(IL, JL, IS, JS, NE, (IS  != JSR), NE == (IS  != JSR));
-            ASSERTV(IL, JL, IS, JS, NE, (IS  != JSV), NE == (IS  != JSV));
 
             ASSERTV(IL, JL, IS, JS, NE, (INS != JPC), NE == (INS != JPC));
             ASSERTV(IL, JL, IS, JS, NE, (INS != JS),  NE == (INS != JS));
             ASSERTV(IL, JL, IS, JS, NE, (INS != JNS), NE == (INS != JNS));
             ASSERTV(IL, JL, IS, JS, NE, (INS != JSR), NE == (INS != JSR));
-            ASSERTV(IL, JL, IS, JS, NE, (INS != JSV), NE == (INS != JSV));
 
             ASSERTV(IL, JL, IS, JS, NE, (ISR != JPC), NE == (ISR != JPC));
             ASSERTV(IL, JL, IS, JS, NE, (ISR != JS),  NE == (ISR != JS));
             ASSERTV(IL, JL, IS, JS, NE, (ISR != JNS), NE == (ISR != JNS));
             ASSERTV(IL, JL, IS, JS, NE, (ISR != JSR), NE == (ISR != JSR));
-            ASSERTV(IL, JL, IS, JS, NE, (ISR != JSV), NE == (ISR != JSV));
-
-            ASSERTV(IL, JL, IS, JS, NE, (ISV != JPC), NE == (ISV != JPC));
-            ASSERTV(IL, JL, IS, JS, NE, (ISV != JS),  NE == (ISV != JS));
-            ASSERTV(IL, JL, IS, JS, NE, (ISV != JNS), NE == (ISV != JNS));
-            ASSERTV(IL, JL, IS, JS, NE, (ISV != JSR), NE == (ISV != JSR));
-            ASSERTV(IL, JL, IS, JS, NE, (ISV != JSV), NE == (ISV != JSV));
 
             ASSERTV(IL, JL, IS, JS, NE, (IPC != JS),  NE == (IPC != JS));
             ASSERTV(IL, JL, IS, JS, NE, (IPC != JNS), NE == (IPC != JNS));
             ASSERTV(IL, JL, IS, JS, NE, (IPC != JSR), NE == (IPC != JSR));
-            ASSERTV(IL, JL, IS, JS, NE, (IPC != JSV), NE == (IPC != JSV));
 
             // 'operator<'
 
@@ -3270,30 +3195,20 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, LT, (IS  <  JS),  LT == (IS  <  JS));
             ASSERTV(IL, JL, IS, JS, LT, (IS  <  JNS), LT == (IS  <  JNS));
             ASSERTV(IL, JL, IS, JS, LT, (IS  <  JSR), LT == (IS  <  JSR));
-            ASSERTV(IL, JL, IS, JS, LT, (IS  <  JSV), LT == (IS  <  JSV));
 
             ASSERTV(IL, JL, IS, JS, LT, (INS <  JPC), LT == (INS <  JPC));
             ASSERTV(IL, JL, IS, JS, LT, (INS <  JS),  LT == (INS <  JS));
             ASSERTV(IL, JL, IS, JS, LT, (INS <  JNS), LT == (INS <  JNS));
             ASSERTV(IL, JL, IS, JS, LT, (INS <  JSR), LT == (INS <  JSR));
-            ASSERTV(IL, JL, IS, JS, LT, (INS <  JSV), LT == (INS <  JSV));
 
             ASSERTV(IL, JL, IS, JS, LT, (ISR <  JPC), LT == (ISR <  JPC));
             ASSERTV(IL, JL, IS, JS, LT, (ISR <  JS),  LT == (ISR <  JS));
             ASSERTV(IL, JL, IS, JS, LT, (ISR <  JNS), LT == (ISR <  JNS));
             ASSERTV(IL, JL, IS, JS, LT, (ISR <  JSR), LT == (ISR <  JSR));
-            ASSERTV(IL, JL, IS, JS, LT, (ISR <  JSV), LT == (ISR <  JSV));
-
-            ASSERTV(IL, JL, IS, JS, LT, (ISV <  JPC), LT == (ISV <  JPC));
-            ASSERTV(IL, JL, IS, JS, LT, (ISV <  JS),  LT == (ISV <  JS));
-            ASSERTV(IL, JL, IS, JS, LT, (ISV <  JNS), LT == (ISV <  JNS));
-            ASSERTV(IL, JL, IS, JS, LT, (ISV <  JSR), LT == (ISV <  JSR));
-            ASSERTV(IL, JL, IS, JS, LT, (ISV <  JSV), LT == (ISV <  JSV));
 
             ASSERTV(IL, JL, IS, JS, LT, (IPC <  JS),  LT == (IPC <  JS));
             ASSERTV(IL, JL, IS, JS, LT, (IPC <  JNS), LT == (IPC <  JNS));
             ASSERTV(IL, JL, IS, JS, LT, (IPC <  JSR), LT == (IPC <  JSR));
-            ASSERTV(IL, JL, IS, JS, LT, (IPC <  JSV), LT == (IPC <  JSV));
 
             // 'operator>='
 
@@ -3301,30 +3216,20 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, GE, (IS  >= JS),  GE == (IS  >= JS));
             ASSERTV(IL, JL, IS, JS, GE, (IS  >= JNS), GE == (IS  >= JNS));
             ASSERTV(IL, JL, IS, JS, GE, (IS  >= JSR), GE == (IS  >= JSR));
-            ASSERTV(IL, JL, IS, JS, GE, (IS  >= JSV), GE == (IS  >= JSV));
 
             ASSERTV(IL, JL, IS, JS, GE, (INS >= JPC), GE == (INS >= JPC));
             ASSERTV(IL, JL, IS, JS, GE, (INS >= JS),  GE == (INS >= JS));
             ASSERTV(IL, JL, IS, JS, GE, (INS >= JNS), GE == (INS >= JNS));
             ASSERTV(IL, JL, IS, JS, GE, (INS >= JSR), GE == (INS >= JSR));
-            ASSERTV(IL, JL, IS, JS, GE, (INS >= JSV), GE == (INS >= JSV));
 
             ASSERTV(IL, JL, IS, JS, GE, (ISR >= JPC), GE == (ISR >= JPC));
             ASSERTV(IL, JL, IS, JS, GE, (ISR >= JS),  GE == (ISR >= JS));
             ASSERTV(IL, JL, IS, JS, GE, (ISR >= JNS), GE == (ISR >= JNS));
             ASSERTV(IL, JL, IS, JS, GE, (ISR >= JSR), GE == (ISR >= JSR));
-            ASSERTV(IL, JL, IS, JS, GE, (ISR >= JSV), GE == (ISR >= JSV));
-
-            ASSERTV(IL, JL, IS, JS, GE, (ISV >= JPC), GE == (ISV >= JPC));
-            ASSERTV(IL, JL, IS, JS, GE, (ISV >= JS),  GE == (ISV >= JS));
-            ASSERTV(IL, JL, IS, JS, GE, (ISV >= JNS), GE == (ISV >= JNS));
-            ASSERTV(IL, JL, IS, JS, GE, (ISV >= JSR), GE == (ISV >= JSR));
-            ASSERTV(IL, JL, IS, JS, GE, (ISV >= JSV), GE == (ISV >= JSV));
 
             ASSERTV(IL, JL, IS, JS, GE, (IPC >= JS),  GE == (IPC >= JS));
             ASSERTV(IL, JL, IS, JS, GE, (IPC >= JNS), GE == (IPC >= JNS));
             ASSERTV(IL, JL, IS, JS, GE, (IPC >= JSR), GE == (IPC >= JSR));
-            ASSERTV(IL, JL, IS, JS, GE, (IPC >= JSV), GE == (IPC >= JSV));
 
             // 'operator>'
 
@@ -3332,30 +3237,20 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, GT, (IS  >  JS),  GT == (IS  >  JS));
             ASSERTV(IL, JL, IS, JS, GT, (IS  >  JNS), GT == (IS  >  JNS));
             ASSERTV(IL, JL, IS, JS, GT, (IS  >  JSR), GT == (IS  >  JSR));
-            ASSERTV(IL, JL, IS, JS, GT, (IS  >  JSV), GT == (IS  >  JSV));
 
             ASSERTV(IL, JL, IS, JS, GT, (INS >  JPC), GT == (INS >  JPC));
             ASSERTV(IL, JL, IS, JS, GT, (INS >  JS),  GT == (INS >  JS));
             ASSERTV(IL, JL, IS, JS, GT, (INS >  JNS), GT == (INS >  JNS));
             ASSERTV(IL, JL, IS, JS, GT, (INS >  JSR), GT == (INS >  JSR));
-            ASSERTV(IL, JL, IS, JS, GT, (INS >  JSV), GT == (INS >  JSV));
 
             ASSERTV(IL, JL, IS, JS, GT, (ISR >  JPC), GT == (ISR >  JPC));
             ASSERTV(IL, JL, IS, JS, GT, (ISR >  JS),  GT == (ISR >  JS));
             ASSERTV(IL, JL, IS, JS, GT, (ISR >  JNS), GT == (ISR >  JNS));
             ASSERTV(IL, JL, IS, JS, GT, (ISR >  JSR), GT == (ISR >  JSR));
-            ASSERTV(IL, JL, IS, JS, GT, (ISR >  JSV), GT == (ISR >  JSV));
-
-            ASSERTV(IL, JL, IS, JS, GT, (ISV >  JPC), GT == (ISV >  JPC));
-            ASSERTV(IL, JL, IS, JS, GT, (ISV >  JS),  GT == (ISV >  JS));
-            ASSERTV(IL, JL, IS, JS, GT, (ISV >  JNS), GT == (ISV >  JNS));
-            ASSERTV(IL, JL, IS, JS, GT, (ISV >  JSR), GT == (ISV >  JSR));
-            ASSERTV(IL, JL, IS, JS, GT, (ISV >  JSV), GT == (ISV >  JSV));
 
             ASSERTV(IL, JL, IS, JS, GT, (IPC >  JS),  GT == (IPC >  JS));
             ASSERTV(IL, JL, IS, JS, GT, (IPC >  JNS), GT == (IPC >  JNS));
             ASSERTV(IL, JL, IS, JS, GT, (IPC >  JSR), GT == (IPC >  JSR));
-            ASSERTV(IL, JL, IS, JS, GT, (IPC >  JSV), GT == (IPC >  JSV));
 
             // 'operator<='
 
@@ -3363,222 +3258,20 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, LE, (IS  <= JS),  LE == (IS  <= JS));
             ASSERTV(IL, JL, IS, JS, LE, (IS  <= JNS), LE == (IS  <= JNS));
             ASSERTV(IL, JL, IS, JS, LE, (IS  <= JSR), LE == (IS  <= JSR));
-            ASSERTV(IL, JL, IS, JS, LE, (IS  <= JSV), LE == (IS  <= JSV));
 
             ASSERTV(IL, JL, IS, JS, LE, (INS <= JPC), LE == (INS <= JPC));
             ASSERTV(IL, JL, IS, JS, LE, (INS <= JS),  LE == (INS <= JS));
             ASSERTV(IL, JL, IS, JS, LE, (INS <= JNS), LE == (INS <= JNS));
             ASSERTV(IL, JL, IS, JS, LE, (INS <= JSR), LE == (INS <= JSR));
-            ASSERTV(IL, JL, IS, JS, LE, (INS <= JSV), LE == (INS <= JSV));
 
             ASSERTV(IL, JL, IS, JS, LE, (ISR <= JPC), LE == (ISR <= JPC));
             ASSERTV(IL, JL, IS, JS, LE, (ISR <= JS),  LE == (ISR <= JS));
             ASSERTV(IL, JL, IS, JS, LE, (ISR <= JNS), LE == (ISR <= JNS));
             ASSERTV(IL, JL, IS, JS, LE, (ISR <= JSR), LE == (ISR <= JSR));
-            ASSERTV(IL, JL, IS, JS, LE, (ISR <= JSV), LE == (ISR <= JSV));
-
-            ASSERTV(IL, JL, IS, JS, LE, (ISV <= JPC), LE == (ISV <= JPC));
-            ASSERTV(IL, JL, IS, JS, LE, (ISV <= JS),  LE == (ISV <= JS));
-            ASSERTV(IL, JL, IS, JS, LE, (ISV <= JNS), LE == (ISV <= JNS));
-            ASSERTV(IL, JL, IS, JS, LE, (ISV <= JSR), LE == (ISV <= JSR));
-            ASSERTV(IL, JL, IS, JS, LE, (ISV <= JSV), LE == (ISV <= JSV));
 
             ASSERTV(IL, JL, IS, JS, LE, (IPC <= JS),  LE == (IPC <= JS));
             ASSERTV(IL, JL, IS, JS, LE, (IPC <= JNS), LE == (IPC <= JNS));
             ASSERTV(IL, JL, IS, JS, LE, (IPC <= JSR), LE == (IPC <= JSR));
-            ASSERTV(IL, JL, IS, JS, LE, (IPC <= JSV), LE == (IPC <= JSV));
-
-            // Testing rvalues.
-
-            if (ILEN < -1 || JLEN < -1) {
-                continue;
-            }
-
-            // 'operator=='
-
-            ASSERTV(IL, JL, IS, JS, EQ, (ISF == JPF), EQ == (ISF == JPF));
-            ASSERTV(IL, JL, IS, JS, EQ, (ISF == JSF), EQ == (ISF == JSF));
-            ASSERTV(IL, JL, IS, JS, EQ, (ISF == JNF), EQ == (ISF == JNF));
-            ASSERTV(IL, JL, IS, JS, EQ, (ISF == JRF), EQ == (ISF == JRF));
-            ASSERTV(IL, JL, IS, JS, EQ, (ISF == JVF), EQ == (ISF == JVF));
-
-            ASSERTV(IL, JL, IS, JS, EQ, (INF == JPF), EQ == (INF == JPF));
-            ASSERTV(IL, JL, IS, JS, EQ, (INF == JSF), EQ == (INF == JSF));
-            ASSERTV(IL, JL, IS, JS, EQ, (INF == JNF), EQ == (INF == JNF));
-            ASSERTV(IL, JL, IS, JS, EQ, (INF == JRF), EQ == (INF == JRF));
-            ASSERTV(IL, JL, IS, JS, EQ, (INF == JVF), EQ == (INF == JVF));
-
-            ASSERTV(IL, JL, IS, JS, EQ, (IRF == JPF), EQ == (IRF == JPF));
-            ASSERTV(IL, JL, IS, JS, EQ, (IRF == JSF), EQ == (IRF == JSF));
-            ASSERTV(IL, JL, IS, JS, EQ, (IRF == JNF), EQ == (IRF == JNF));
-            ASSERTV(IL, JL, IS, JS, EQ, (IRF == JRF), EQ == (IRF == JRF));
-            ASSERTV(IL, JL, IS, JS, EQ, (IRF == JVF), EQ == (IRF == JVF));
-
-            ASSERTV(IL, JL, IS, JS, EQ, (IVF == JPF), EQ == (IVF == JPF));
-            ASSERTV(IL, JL, IS, JS, EQ, (IVF == JSF), EQ == (IVF == JSF));
-            ASSERTV(IL, JL, IS, JS, EQ, (IVF == JNF), EQ == (IVF == JNF));
-            ASSERTV(IL, JL, IS, JS, EQ, (IVF == JRF), EQ == (IVF == JRF));
-            ASSERTV(IL, JL, IS, JS, EQ, (IVF == JVF), EQ == (IVF == JVF));
-
-            ASSERTV(IL, JL, IS, JS, EQ, (IPF == JNF), EQ == (IPF == JSF));
-            ASSERTV(IL, JL, IS, JS, EQ, (IPF == JSF), EQ == (IPF == JNF));
-            ASSERTV(IL, JL, IS, JS, EQ, (IPF == JRF), EQ == (IPF == JRF));
-            ASSERTV(IL, JL, IS, JS, EQ, (IPF == JVF), EQ == (IPF == JVF));
-
-            // 'operator!='
-
-            ASSERTV(IL, JL, IS, JS, NE, (ISF != JPF), NE == (ISF != JPF));
-            ASSERTV(IL, JL, IS, JS, NE, (ISF != JSF), NE == (ISF != JSF));
-            ASSERTV(IL, JL, IS, JS, NE, (ISF != JNF), NE == (ISF != JNF));
-            ASSERTV(IL, JL, IS, JS, NE, (ISF != JRF), NE == (ISF != JRF));
-            ASSERTV(IL, JL, IS, JS, NE, (ISF != JVF), NE == (ISF != JVF));
-
-            ASSERTV(IL, JL, IS, JS, NE, (INF != JPF), NE == (INF != JPF));
-            ASSERTV(IL, JL, IS, JS, NE, (INF != JSF), NE == (INF != JSF));
-            ASSERTV(IL, JL, IS, JS, NE, (INF != JNF), NE == (INF != JNF));
-            ASSERTV(IL, JL, IS, JS, NE, (INF != JRF), NE == (INF != JRF));
-            ASSERTV(IL, JL, IS, JS, NE, (INF != JVF), NE == (INF != JVF));
-
-            ASSERTV(IL, JL, IS, JS, NE, (IRF != JPF), NE == (IRF != JPF));
-            ASSERTV(IL, JL, IS, JS, NE, (IRF != JSF), NE == (IRF != JSF));
-            ASSERTV(IL, JL, IS, JS, NE, (IRF != JNF), NE == (IRF != JNF));
-            ASSERTV(IL, JL, IS, JS, NE, (IRF != JRF), NE == (IRF != JRF));
-            ASSERTV(IL, JL, IS, JS, NE, (IRF != JVF), NE == (IRF != JVF));
-
-            ASSERTV(IL, JL, IS, JS, NE, (IVF != JPF), NE == (IVF != JPF));
-            ASSERTV(IL, JL, IS, JS, NE, (IVF != JSF), NE == (IVF != JSF));
-            ASSERTV(IL, JL, IS, JS, NE, (IVF != JNF), NE == (IVF != JNF));
-            ASSERTV(IL, JL, IS, JS, NE, (IVF != JRF), NE == (IVF != JRF));
-            ASSERTV(IL, JL, IS, JS, NE, (IVF != JVF), NE == (IVF != JVF));
-
-            ASSERTV(IL, JL, IS, JS, NE, (IPF != JSF), NE == (IPF != JSF));
-            ASSERTV(IL, JL, IS, JS, NE, (IPF != JNF), NE == (IPF != JNF));
-            ASSERTV(IL, JL, IS, JS, NE, (IPF != JRF), NE == (IPF != JRF));
-            ASSERTV(IL, JL, IS, JS, NE, (IPF != JVF), NE == (IPF != JVF));
-
-            // 'operator<'
-
-            ASSERTV(IL, JL, IS, JS, LT, (ISF <  JPF), LT == (ISF <  JPF));
-            ASSERTV(IL, JL, IS, JS, LT, (ISF <  JSF), LT == (ISF <  JSF));
-            ASSERTV(IL, JL, IS, JS, LT, (ISF <  JNF), LT == (ISF <  JNF));
-            ASSERTV(IL, JL, IS, JS, LT, (ISF <  JRF), LT == (ISF <  JRF));
-            ASSERTV(IL, JL, IS, JS, LT, (ISF <  JVF), LT == (ISF <  JVF));
-
-            ASSERTV(IL, JL, IS, JS, LT, (INF <  JPF), LT == (INF <  JPF));
-            ASSERTV(IL, JL, IS, JS, LT, (INF <  JSF), LT == (INF <  JSF));
-            ASSERTV(IL, JL, IS, JS, LT, (INF <  JNF), LT == (INF <  JNF));
-            ASSERTV(IL, JL, IS, JS, LT, (INF <  JRF), LT == (INF <  JRF));
-            ASSERTV(IL, JL, IS, JS, LT, (INF <  JVF), LT == (INF <  JVF));
-
-            ASSERTV(IL, JL, IS, JS, LT, (IRF <  JPF), LT == (IRF <  JPF));
-            ASSERTV(IL, JL, IS, JS, LT, (IRF <  JSF), LT == (IRF <  JSF));
-            ASSERTV(IL, JL, IS, JS, LT, (IRF <  JNF), LT == (IRF <  JNF));
-            ASSERTV(IL, JL, IS, JS, LT, (IRF <  JRF), LT == (IRF <  JRF));
-            ASSERTV(IL, JL, IS, JS, LT, (IRF <  JVF), LT == (IRF <  JVF));
-
-            ASSERTV(IL, JL, IS, JS, LT, (IVF <  JPF), LT == (IVF <  JPF));
-            ASSERTV(IL, JL, IS, JS, LT, (IVF <  JSF), LT == (IVF <  JSF));
-            ASSERTV(IL, JL, IS, JS, LT, (IVF <  JNF), LT == (IVF <  JNF));
-            ASSERTV(IL, JL, IS, JS, LT, (IVF <  JRF), LT == (IVF <  JRF));
-            ASSERTV(IL, JL, IS, JS, LT, (IVF <  JVF), LT == (IVF <  JVF));
-
-            ASSERTV(IL, JL, IS, JS, LT, (IPF <  JSF), LT == (IPF <  JSF));
-            ASSERTV(IL, JL, IS, JS, LT, (IPF <  JNF), LT == (IPF <  JNF));
-            ASSERTV(IL, JL, IS, JS, LT, (IPF <  JRF), LT == (IPF <  JRF));
-            ASSERTV(IL, JL, IS, JS, LT, (IPF <  JVF), LT == (IPF <  JVF));
-
-            // 'operator>='
-
-            ASSERTV(IL, JL, IS, JS, GE, (ISF >= JPF), GE == (ISF >= JPF));
-            ASSERTV(IL, JL, IS, JS, GE, (ISF >= JSF), GE == (ISF >= JSF));
-            ASSERTV(IL, JL, IS, JS, GE, (ISF >= JNF), GE == (ISF >= JNF));
-            ASSERTV(IL, JL, IS, JS, GE, (ISF >= JRF), GE == (ISF >= JRF));
-            ASSERTV(IL, JL, IS, JS, GE, (ISF >= JVF), GE == (ISF >= JVF));
-
-            ASSERTV(IL, JL, IS, JS, GE, (INF >= JPF), GE == (INF >= JPF));
-            ASSERTV(IL, JL, IS, JS, GE, (INF >= JSF), GE == (INF >= JSF));
-            ASSERTV(IL, JL, IS, JS, GE, (INF >= JNF), GE == (INF >= JNF));
-            ASSERTV(IL, JL, IS, JS, GE, (INF >= JRF), GE == (INF >= JRF));
-            ASSERTV(IL, JL, IS, JS, GE, (INF >= JVF), GE == (INF >= JVF));
-
-            ASSERTV(IL, JL, IS, JS, GE, (IRF >= JPF), GE == (IRF >= JPF));
-            ASSERTV(IL, JL, IS, JS, GE, (IRF >= JSF), GE == (IRF >= JSF));
-            ASSERTV(IL, JL, IS, JS, GE, (IRF >= JNF), GE == (IRF >= JNF));
-            ASSERTV(IL, JL, IS, JS, GE, (IRF >= JRF), GE == (IRF >= JRF));
-            ASSERTV(IL, JL, IS, JS, GE, (IRF >= JVF), GE == (IRF >= JVF));
-
-            ASSERTV(IL, JL, IS, JS, GE, (IVF >= JPF), GE == (IVF >= JPF));
-            ASSERTV(IL, JL, IS, JS, GE, (IVF >= JSF), GE == (IVF >= JSF));
-            ASSERTV(IL, JL, IS, JS, GE, (IVF >= JNF), GE == (IVF >= JNF));
-            ASSERTV(IL, JL, IS, JS, GE, (IVF >= JRF), GE == (IVF >= JRF));
-            ASSERTV(IL, JL, IS, JS, GE, (IVF >= JVF), GE == (IVF >= JVF));
-
-            ASSERTV(IL, JL, IS, JS, GE, (IPF >= JSF), GE == (IPF >= JSF));
-            ASSERTV(IL, JL, IS, JS, GE, (IPF >= JNF), GE == (IPF >= JNF));
-            ASSERTV(IL, JL, IS, JS, GE, (IPF >= JRF), GE == (IPF >= JRF));
-            ASSERTV(IL, JL, IS, JS, GE, (IPF >= JVF), GE == (IPF >= JVF));
-
-            // 'operator>'
-
-            ASSERTV(IL, JL, IS, JS, GT, (ISF >  JPF), GT == (ISF >  JPF));
-            ASSERTV(IL, JL, IS, JS, GT, (ISF >  JSF), GT == (ISF >  JSF));
-            ASSERTV(IL, JL, IS, JS, GT, (ISF >  JNF), GT == (ISF >  JNF));
-            ASSERTV(IL, JL, IS, JS, GT, (ISF >  JRF), GT == (ISF >  JRF));
-            ASSERTV(IL, JL, IS, JS, GT, (ISF >  JVF), GT == (ISF >  JVF));
-
-            ASSERTV(IL, JL, IS, JS, GT, (INF >  JPF), GT == (INF >  JPF));
-            ASSERTV(IL, JL, IS, JS, GT, (INF >  JSF), GT == (INF >  JSF));
-            ASSERTV(IL, JL, IS, JS, GT, (INF >  JNF), GT == (INF >  JNF));
-            ASSERTV(IL, JL, IS, JS, GT, (INF >  JRF), GT == (INF >  JRF));
-            ASSERTV(IL, JL, IS, JS, GT, (INF >  JVF), GT == (INF >  JVF));
-
-            ASSERTV(IL, JL, IS, JS, GT, (IRF >  JPF), GT == (IRF >  JPF));
-            ASSERTV(IL, JL, IS, JS, GT, (IRF >  JSF), GT == (IRF >  JSF));
-            ASSERTV(IL, JL, IS, JS, GT, (IRF >  JNF), GT == (IRF >  JNF));
-            ASSERTV(IL, JL, IS, JS, GT, (IRF >  JRF), GT == (IRF >  JRF));
-            ASSERTV(IL, JL, IS, JS, GT, (IRF >  JVF), GT == (IRF >  JVF));
-
-            ASSERTV(IL, JL, IS, JS, GT, (IVF >  JPF), GT == (IVF >  JPF));
-            ASSERTV(IL, JL, IS, JS, GT, (IVF >  JSF), GT == (IVF >  JSF));
-            ASSERTV(IL, JL, IS, JS, GT, (IVF >  JNF), GT == (IVF >  JNF));
-            ASSERTV(IL, JL, IS, JS, GT, (IVF >  JRF), GT == (IVF >  JRF));
-            ASSERTV(IL, JL, IS, JS, GT, (IVF >  JVF), GT == (IVF >  JVF));
-
-            ASSERTV(IL, JL, IS, JS, GT, (IPF >  JSF), GT == (IPF >  JSF));
-            ASSERTV(IL, JL, IS, JS, GT, (IPF >  JNF), GT == (IPF >  JNF));
-            ASSERTV(IL, JL, IS, JS, GT, (IPF >  JRF), GT == (IPF >  JRF));
-            ASSERTV(IL, JL, IS, JS, GT, (IPF >  JVF), GT == (IPF >  JVF));
-
-            // 'operator<='
-
-            ASSERTV(IL, JL, IS, JS, LE, (ISF <= JPF), LE == (ISF <= JPF));
-            ASSERTV(IL, JL, IS, JS, LE, (ISF <= JSF), LE == (ISF <= JSF));
-            ASSERTV(IL, JL, IS, JS, LE, (ISF <= JNF), LE == (ISF <= JNF));
-            ASSERTV(IL, JL, IS, JS, LE, (ISF <= JRF), LE == (ISF <= JRF));
-            ASSERTV(IL, JL, IS, JS, LE, (ISF <= JVF), LE == (ISF <= JVF));
-
-            ASSERTV(IL, JL, IS, JS, LE, (INF <= JPF), LE == (INF <= JPF));
-            ASSERTV(IL, JL, IS, JS, LE, (INF <= JSF), LE == (INF <= JSF));
-            ASSERTV(IL, JL, IS, JS, LE, (INF <= JNF), LE == (INF <= JNF));
-            ASSERTV(IL, JL, IS, JS, LE, (INF <= JRF), LE == (INF <= JRF));
-            ASSERTV(IL, JL, IS, JS, LE, (INF <= JVF), LE == (INF <= JVF));
-
-            ASSERTV(IL, JL, IS, JS, LE, (IRF <= JPF), LE == (IRF <= JPF));
-            ASSERTV(IL, JL, IS, JS, LE, (IRF <= JSF), LE == (IRF <= JSF));
-            ASSERTV(IL, JL, IS, JS, LE, (IRF <= JNF), LE == (IRF <= JNF));
-            ASSERTV(IL, JL, IS, JS, LE, (IRF <= JRF), LE == (IRF <= JRF));
-            ASSERTV(IL, JL, IS, JS, LE, (IRF <= JVF), LE == (IRF <= JVF));
-
-            ASSERTV(IL, JL, IS, JS, LE, (IVF <= JPF), LE == (IVF <= JPF));
-            ASSERTV(IL, JL, IS, JS, LE, (IVF <= JSF), LE == (IVF <= JSF));
-            ASSERTV(IL, JL, IS, JS, LE, (IVF <= JNF), LE == (IVF <= JNF));
-            ASSERTV(IL, JL, IS, JS, LE, (IVF <= JRF), LE == (IVF <= JRF));
-            ASSERTV(IL, JL, IS, JS, LE, (IVF <= JVF), LE == (IVF <= JVF));
-
-            ASSERTV(IL, JL, IS, JS, LE, (IPF <= JSF), LE == (IPF <= JSF));
-            ASSERTV(IL, JL, IS, JS, LE, (IPF <= JNF), LE == (IPF <= JNF));
-            ASSERTV(IL, JL, IS, JS, LE, (IPF <= JRF), LE == (IPF <= JRF));
-            ASSERTV(IL, JL, IS, JS, LE, (IPF <= JVF), LE == (IPF <= JVF));
 
             if      ( IS.empty() && !JS.empty()) {
                 ASSERT(LT);
@@ -3590,9 +3283,6 @@ void testAccessorsComparisons()
     }
 }
 
-}  // close unnamed namespace
-}  // close namespace comparisons
-}  // close enterprise namespace
 
 //=============================================================================
 //                             MAIN PROGRAM
@@ -3879,7 +3569,7 @@ int main(int argc, char *argv[])
 
         ASSERTV(ca, ca != cb && ca < cb && cb > ca);
 
-        bsl::string sa(&ta), sb(&ta);
+        string sa(&ta), sb(&ta);
 
         sa = "woof";    sb.assign("meow");
 
@@ -6075,8 +5765,6 @@ int main(int argc, char *argv[])
         //   bool operator==(const StringRef& l, const native_std::string& r);
         //   bool operator==(const char *lhs, const StringRef& rhs);
         //   bool operator==(const StringRef& lhs, const char *rhs);
-        //   bool operator==(const StringRef& lhs, string_view rhs);
-        //   bool operator==(string_view lhs, const StringRef& rhs);
         //   bool operator!=(const StringRef& lhs, const StringRef& rhs);
         //   bool operator!=(const bsl::string& lhs, const StringRef& rhs);
         //   bool operator!=(const StringRef& lhs, const bsl::string& rhs);
@@ -6084,8 +5772,6 @@ int main(int argc, char *argv[])
         //   bool operator!=(const StringRef& l, const native_std::string& r);
         //   bool operator!=(const char *lhs, const StringRef& rhs);
         //   bool operator!=(const StringRef& lhs, const char *rhs);
-        //   bool operator!=(const StringRef& lhs, string_view rhs);
-        //   bool operator!=(string_view lhs, const StringRef& rhs);
         //   bool operator<(const StringRef& lhs, const StringRef& rhs);
         //   bool operator<(const bsl::string& lhs, const StringRef& rhs);
         //   bool operator<(const StringRef& lhs, const bsl::string& rhs);
@@ -6093,8 +5779,6 @@ int main(int argc, char *argv[])
         //   bool operator<(const StringRef& l, const native_std::string& r);
         //   bool operator<(const char *lhs, const StringRef& rhs);
         //   bool operator<(const StringRef& lhs, const char *rhs);
-        //   bool operator<(const StringRef& lhs, string_view rhs);
-        //   bool operator<(string_view lhs, const StringRef& rhs);
         //   bool operator>(const StringRef& lhs, const StringRef& rhs);
         //   bool operator>(const bsl::string& lhs, const StringRef& rhs);
         //   bool operator>(const StringRef& lhs, const bsl::string& rhs);
@@ -6102,8 +5786,6 @@ int main(int argc, char *argv[])
         //   bool operator>(const StringRef& l, const native_std::string& r);
         //   bool operator>(const char *lhs, const StringRef& rhs);
         //   bool operator>(const StringRef& lhs, const char *rhs);
-        //   bool operator>(const StringRef& lhs, string_view rhs);
-        //   bool operator>(string_view lhs, const StringRef& rhs);
         //   bool operator<=(const StringRef& lhs, const StringRef& rhs);
         //   bool operator<=(const bsl::string& lhs, const StringRef& rhs);
         //   bool operator<=(const StringRef& lhs, const bsl::string& rhs);
@@ -6111,8 +5793,6 @@ int main(int argc, char *argv[])
         //   bool operator<=(const StringRef& l, const native_std::string& r);
         //   bool operator<=(const char *lhs, const StringRef& rhs);
         //   bool operator<=(const StringRef& lhs, const char *rhs);
-        //   bool operator<=(const StringRef& lhs, string_view rhs);
-        //   bool operator<=(string_view lhs, const StringRef& rhs);
         //   bool operator>=(const StringRef& lhs, const StringRef& rhs);
         //   bool operator>=(const bsl::string& lhs, const StringRef& rhs);
         //   bool operator>=(const StringRef& lhs, const bsl::string& rhs);
@@ -6120,30 +5800,28 @@ int main(int argc, char *argv[])
         //   bool operator>=(const StringRef& l, const native_std::string& r);
         //   bool operator>=(const char *lhs, const StringRef& rhs);
         //   bool operator>=(const StringRef& lhs, const char *rhs);
-        //   bool operator>=(const StringRef& lhs, string_view rhs);
-        //   bool operator>=(string_view lhs, const StringRef& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) std::cout <<
                                  "\nTESTING BASIC ACCESSORS AND COMPARISONS"
                                  "\n=======================================\n";
 
-        BloombergLP::comparisons::testAccessorsComparisons<char>();
-        BloombergLP::comparisons::testAccessorsComparisons<unsigned char>();
-        BloombergLP::comparisons::testAccessorsComparisons<signed char>();
+        testAccessorsComparisons<char>();
+        testAccessorsComparisons<unsigned char>();
+        testAccessorsComparisons<signed char>();
 
         // The size of 'wchar_t', and whether it is signed, varies by platform,
         // like 'char', and some platforms seem to support only one of
         // 'signed wchar_t' or 'unsigned wchar_t', depending which is the
         // opposite signedness of 'wchar_t'.
 
-        BloombergLP::comparisons::testAccessorsComparisons<wchar_t>();
+        testAccessorsComparisons<wchar_t>();
 
-        BloombergLP::comparisons::testAccessorsComparisons<unsigned short>();
-        BloombergLP::comparisons::testAccessorsComparisons<short>();
+        testAccessorsComparisons<unsigned short>();
+        testAccessorsComparisons<short>();
 
-        BloombergLP::comparisons::testAccessorsComparisons<unsigned int>();
-        BloombergLP::comparisons::testAccessorsComparisons<int>();
+        testAccessorsComparisons<unsigned int>();
+        testAccessorsComparisons<int>();
       } break;
       case 2: {
         // --------------------------------------------------------------------

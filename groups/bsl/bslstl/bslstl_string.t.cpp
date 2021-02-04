@@ -3,7 +3,6 @@
 
 #include <bslstl_forwarditerator.h>
 
-#include <bsla_fallthrough.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -327,7 +326,7 @@ using bsls::nameOfType;
 // [29] hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [38] USAGE EXAMPLE
+// [35] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
@@ -5776,7 +5775,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 38: {
+      case 37: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -5988,31 +5987,30 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 37:     BSLA_FALLTHROUGH;
-      case 36:     BSLA_FALLTHROUGH;
-      case 35:     BSLA_FALLTHROUGH;
-      case 34:     BSLA_FALLTHROUGH;
-      case 33:     BSLA_FALLTHROUGH;
-      case 32:     BSLA_FALLTHROUGH;
-      case 31:     BSLA_FALLTHROUGH;
-      case 30:     BSLA_FALLTHROUGH;
-      case 29:     BSLA_FALLTHROUGH;
-      case 28:     BSLA_FALLTHROUGH;
-      case 27:     BSLA_FALLTHROUGH;
-      case 26:     BSLA_FALLTHROUGH;
-      case 25:     BSLA_FALLTHROUGH;
-      case 24:     BSLA_FALLTHROUGH;
-      case 23:     BSLA_FALLTHROUGH;
-      case 22:     BSLA_FALLTHROUGH;
-      case 21:     BSLA_FALLTHROUGH;
-      case 20:     BSLA_FALLTHROUGH;
-      case 19:     BSLA_FALLTHROUGH;
-      case 18:     BSLA_FALLTHROUGH;
-      case 17:     BSLA_FALLTHROUGH;
-      case 16:     BSLA_FALLTHROUGH;
-      case 15:     BSLA_FALLTHROUGH;
-      case 14:     BSLA_FALLTHROUGH;
-      case 13:     BSLA_FALLTHROUGH;
+      case 36: // falls through
+      case 35: // falls through
+      case 34: // falls through
+      case 33: // falls through
+      case 32: // falls through
+      case 31: // falls through
+      case 30: // falls through
+      case 29: // falls through
+      case 28: // falls through
+      case 27: // falls through
+      case 26: // falls through
+      case 25: // falls through
+      case 24: // falls through
+      case 23: // falls through
+      case 22: // falls through
+      case 21: // falls through
+      case 20: // falls through
+      case 19: // falls through
+      case 18: // falls through
+      case 17: // falls through
+      case 16: // falls through
+      case 15: // falls through
+      case 14: // falls through
+      case 13: // falls through
       case 12: {
         if (verbose) printf(
                  "\nTEST CASE %d IS DELEGATED TO 'bslstl_string_test.t.cpp'"
