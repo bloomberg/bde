@@ -1,8 +1,16 @@
-bsl-internal (3.73.1.0) unstable; urgency=low
+bsl-internal (3.74.0.0) unstable; urgency=low
 
+  * 63181e22a Bumped version to 3.74.0.0
+  * 807a411b3 Merge pull request #3099 from mgill83/timout-parameter-rename-drqs-164067283
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 6 Feb 2021 16:41:28 -0500
+
+bsl-internal (3.73.1.0) git; urgency=low
+
+  * d0a61cc81 Changelog for version 3.73.1.0
   * f70a02ae2 Bumped version to 3.73.1.0
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 1 Feb 2021 16:21:07 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 1 Feb 2021 16:22:08 -0500
 
 bsl-internal (3.73.0.0) git; urgency=low
 
