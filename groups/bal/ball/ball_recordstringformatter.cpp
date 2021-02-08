@@ -451,25 +451,18 @@ void PrintUtil::appendLineNumber(bsl::string *result, const Record& record)
 
 void PrintUtil::appendMessage(bsl::string *result, const Record& record)
 {
-    PrintUtil::appendString(result, record.fixedFields().messageRef());
+    appendString(result, record.fixedFields().messageRef());
 }
 
 void PrintUtil::appendMessageNonPrintableChars(bsl::string   *result,
                                                const Record&  record)
 {
-    bsl::size_t length = record.fixedFields().messageStreamBuf().length();
-
-    appendString(result,
-                 bsl::string_view(record.fixedFields().message(), length),
-                 true);
+    appendString(result, record.fixedFields().messageRef(), true);
 }
 
 void PrintUtil::appendMessageAsHex(bsl::string *result, const Record& record)
 {
-    bsl::size_t length = record.fixedFields().messageStreamBuf().length();
-
-    appendHexDump(result,
-                  bsl::string_view(record.fixedFields().message(), length));
+    appendHexDump(result, record.fixedFields().messageRef());
 }
 
 template <class T>

@@ -47,11 +47,13 @@ BSLS_IDENT("$Id: $")
 //
 // For each attribute, there is a method to access its value and a method to
 // change its value.  E.g., for the timestamp attribute, there is the
-// 'timestamp' accessor and the 'setTimestamp' manipulator.  The class also
-// provides the ability to stream an object (whose class must support the
-// 'operator<<') into the message attribute using 'messageStreamBuf' method
-// (see the usage example-2).  The default values listed in the table above are
-// the values given to the respective attributes by the default constructor of
+// 'timestamp' accessor and the 'setTimestamp' manipulator.  Note, that for the
+// message attribute, there is 'message' accessor which is *deprecated*, use
+// the 'messageRef' accessor instead.  The class also provides the ability to
+// stream an object (whose class must support the 'operator<<') into the
+// message attribute using 'messageStreamBuf' method (see the usage example-2).
+// The default values listed in the table above are the values given to the
+// respective attributes by the default constructor of
 // 'ball::RecordAttributes'.
 //
 ///Usage
@@ -102,9 +104,9 @@ BSLS_IDENT("$Id: $")
 //                        const ball::RecordAttributes& attributes)
 //      {
 //          using namespace std;
-//          stream << "\tTimestamp: " << attributes.timestamp() << endl;
-//          stream << "\tCategory:  " << attributes.category()  << endl;
-//          stream << "\tMessage:   " << attributes.message()   << endl;
+//          stream << "\tTimestamp: " << attributes.timestamp()  << endl;
+//          stream << "\tCategory:  " << attributes.category()   << endl;
+//          stream << "\tMessage:   " << attributes.messageRef() << endl;
 //          stream << endl;
 //      }
 //..
@@ -340,6 +342,8 @@ class RecordAttributes {
         // that this method will return a truncated message if it contains
         // embedded null ('\0') characters; see 'messageRef' for an alternative
         // to this method.
+        //
+        // !DEPRECATED!: Use 'messageRef' instead.
 
     bslstl::StringRef messageRef() const;
         // Return a string reference providing non-modifiable access to the

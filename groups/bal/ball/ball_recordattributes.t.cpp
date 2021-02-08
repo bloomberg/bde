@@ -259,9 +259,9 @@ void printMessage(ostream& stream, const ball::RecordAttributes& attributes)
 {
 using namespace bsl;  // automatically added by script
 
-    stream << "\tTimestamp: " << attributes.timestamp() << endl;
-    stream << "\tCategory:  " << attributes.category()  << endl;
-    stream << "\tMessage:   " << attributes.message()   << endl;
+    stream << "\tTimestamp: " << attributes.timestamp()  << endl;
+    stream << "\tCategory:  " << attributes.category( )  << endl;
+    stream << "\tMessage:   " << attributes.messageRef() << endl;
     stream << endl;
 }
 

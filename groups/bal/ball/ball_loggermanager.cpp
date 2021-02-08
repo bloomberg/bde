@@ -854,14 +854,15 @@ void LoggerManager::logMessage(int severity, Record *record)
 
         snprintf(errorBuffer,
                  sizeof errorBuffer,
-                 "%s %d %llu %s %s %d UNINITIALIZED_LOGGER_MANAGER %s",
+                 "%s %d %llu %s %s %d UNINITIALIZED_LOGGER_MANAGER %.*s",
                  datetimeStream.str().c_str(),
                  pid,
                  bslmt::ThreadUtil::selfIdAsUint64(),
                  Severity::toAscii(severityLevel),
                  record->fixedFields().fileName(),
                  record->fixedFields().lineNumber(),
-                 record->fixedFields().message());
+                 record->fixedFields().messageRef().length(),
+                 record->fixedFields().messageRef().data());
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #undef snprintf
