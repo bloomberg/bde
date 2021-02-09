@@ -1111,7 +1111,9 @@ BSLS_IDENT("$Id: $")
         #if BSLS_PLATFORM_CMP_VERSION >= 90000
             #define BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV             1
             #define BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM           1
-            #define BSLS_LIBRARYFEATURES_SUPPORT_PMR                  1
+            #if defined(_GLIBCXX_USE_CXX11_ABI) && _GLIBCXX_USE_CXX11_ABI == 1
+                #define BSLS_LIBRARYFEATURES_SUPPORT_PMR              1
+            #endif
         #endif
         //  #define BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS  1
     #endif
