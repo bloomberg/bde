@@ -204,29 +204,159 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-        static const char inArray[] = "0123456789"
-                                      "abcdefghijklmnopqrstuvwxyz"
-                                      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                      "~`@#$%^&*()_-+={[}]|\\;:'\"<>,.?/"
-                                      "\0'\"\a\b\f\n\r\t\v\x7f\xe1";
+        static const char inArray[] =
+            "0123456789"
+            "abcdefghijklmnopqrstuvwxyz"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "~`@#$%^&*()_-+={[}]|\\;:'\"<>,.?/"
+            "\0'\"\a\b\f\n\r\t\v\x7f\xe1";
 
-        bslstl::StringRef in(inArray, sizeof(inArray) - 1);
-
-        bsl::string       result(&ta);
-
-        bdlb::LiteralUtil::createQuotedEscapedCString(&result, in);
-
-        static const char oracleArray[] =
+        const bsl::string_view oracle(
             "\"0123456789"
             "abcdefghijklmnopqrstuvwxyz"
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             "~`@#$%^&*()_-+={[}]|\\\\;:'\\\"<>,.?/"
-            "\\000'\\\"\\a\\b\\f\\n\\r\\t\\v\\177\\341\"";
+            "\\000'\\\"\\a\\b\\f\\n\\r\\t\\v\\177\\341\"");
 
-        bslstl::StringRef oracle(oracleArray, sizeof(oracleArray) - 1);
+        bsl::string      bslResult("garbage", &ta);
+        std::string      stdResult("garbage");
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+        std::pmr::string pmrResult("garbage");
+#endif
 
-        LOOP2_ASSERT(result, oracle, result == oracle);
+        // 'bsl::string_view' input
+        {
+            const bsl::string_view  inVue(inArray, sizeof(inArray) - 1);
 
+            bdlb::LiteralUtil::createQuotedEscapedCString(&bslResult, inVue);
+            bdlb::LiteralUtil::createQuotedEscapedCString(&stdResult, inVue);
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+            bdlb::LiteralUtil::createQuotedEscapedCString(&pmrResult, inVue);
+#endif
+
+            ASSERTV(bslResult, oracle, bslResult == oracle);
+            ASSERTV(stdResult, oracle, stdResult == oracle);
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+            ASSERTV(pmrResult, oracle, pmrResult == oracle);
+#endif
+        }
+
+        // 'bslstl::StringRef' input
+        {
+            const bslstl::StringRef inRef(inArray, sizeof(inArray) - 1);
+
+            bslResult = "garbage";
+            stdResult = "garbage";
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+            pmrResult = "garbage";
+#endif
+
+            bdlb::LiteralUtil::createQuotedEscapedCString(&bslResult, inRef);
+            bdlb::LiteralUtil::createQuotedEscapedCString(&stdResult, inRef);
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+            bdlb::LiteralUtil::createQuotedEscapedCString(&pmrResult, inRef);
+#endif
+
+            ASSERTV(bslResult, oracle, bslResult == oracle);
+            ASSERTV(stdResult, oracle, stdResult == oracle);
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+            ASSERTV(pmrResult, oracle, pmrResult == oracle);
+#endif
+        }
+
+        // 'bsl::string' input
+        {
+            const bsl::string inBsl(inArray, sizeof(inArray) - 1, &ta);
+
+            bslResult = "garbage";
+            stdResult = "garbage";
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+            pmrResult = "garbage";
+#endif
+
+            bdlb::LiteralUtil::createQuotedEscapedCString(&bslResult, inBsl);
+            bdlb::LiteralUtil::createQuotedEscapedCString(&stdResult, inBsl);
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+            bdlb::LiteralUtil::createQuotedEscapedCString(&pmrResult, inBsl);
+#endif
+
+            ASSERTV(bslResult, oracle, bslResult == oracle);
+            ASSERTV(stdResult, oracle, stdResult == oracle);
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+            ASSERTV(pmrResult, oracle, pmrResult == oracle);
+#endif
+        }
+
+        // 'std::string' input
+        {
+            const std::string inStd(inArray, sizeof(inArray) - 1);
+
+            bslResult = "garbage";
+            stdResult = "garbage";
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+            pmrResult = "garbage";
+#endif
+
+            bdlb::LiteralUtil::createQuotedEscapedCString(&bslResult, inStd);
+            bdlb::LiteralUtil::createQuotedEscapedCString(&stdResult, inStd);
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+            bdlb::LiteralUtil::createQuotedEscapedCString(&pmrResult, inStd);
+#endif
+
+            ASSERTV(bslResult, oracle, bslResult == oracle);
+            ASSERTV(stdResult, oracle, stdResult == oracle);
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+            ASSERTV(pmrResult, oracle, pmrResult == oracle);
+#endif
+        }
+
+        // 'std::pmr::string' input
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+        {
+            const std::pmr::string inPmr(inArray, sizeof(inArray) - 1);
+
+            bslResult = "garbage";
+            stdResult = "garbage";
+            pmrResult = "garbage";
+
+            bdlb::LiteralUtil::createQuotedEscapedCString(&bslResult, inPmr);
+            bdlb::LiteralUtil::createQuotedEscapedCString(&stdResult, inPmr);
+            bdlb::LiteralUtil::createQuotedEscapedCString(&pmrResult, inPmr);
+
+            ASSERTV(bslResult, oracle, bslResult == oracle);
+            ASSERTV(stdResult, oracle, stdResult == oracle);
+            ASSERTV(pmrResult, oracle, pmrResult == oracle);
+        }
+#endif
+
+        // C string input
+        {
+            const char *inPtr = inArray;       // ends at the first '\0' char
+
+            const bsl::string_view ptrOracle(  // so we need another oracle
+                "\"0123456789"
+                "abcdefghijklmnopqrstuvwxyz"
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                "~`@#$%^&*()_-+={[}]|\\\\;:'\\\"<>,.?/\"");
+
+            bslResult = "garbage";
+            stdResult = "garbage";
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+            pmrResult = "garbage";
+#endif
+
+            bdlb::LiteralUtil::createQuotedEscapedCString(&bslResult, inPtr);
+            bdlb::LiteralUtil::createQuotedEscapedCString(&stdResult, inPtr);
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+            bdlb::LiteralUtil::createQuotedEscapedCString(&pmrResult, inPtr);
+#endif
+
+            ASSERTV(bslResult, ptrOracle, bslResult == ptrOracle);
+            ASSERTV(stdResult, ptrOracle, stdResult == ptrOracle);
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+            ASSERTV(pmrResult, ptrOracle, pmrResult == ptrOracle);
+#endif
+        }
       } break;
       default: {
         cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
@@ -246,7 +376,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
