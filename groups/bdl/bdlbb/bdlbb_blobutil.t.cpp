@@ -996,6 +996,35 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "Testing 0-sized data buffers support\n";
+        {
+            const int BLOB_BUFFER_SIZE = 2;
+            const int ALIGNMENT        = 4;
+
+            bdlbb::SimpleBlobBufferFactory factory(BLOB_BUFFER_SIZE);
+            bdlbb::Blob                    blob(&factory);
+
+            blob.appendDataBuffer(bdlbb::BlobBuffer());
+
+            ASSERTV(0 == blob.length()        );
+            ASSERTV(1 == blob.numDataBuffers());
+
+            bdlbb::BlobUtil::padToAlignment(&blob, ALIGNMENT);
+
+            ASSERTV(blob.length(),         0 == blob.length()        );
+            ASSERTV(blob.numDataBuffers(), 1 == blob.numDataBuffers());
+
+            blob.setLength(1);
+
+            ASSERTV(blob.length(),         1 == blob.length()        );
+            ASSERTV(blob.numDataBuffers(), 2 == blob.numDataBuffers());
+
+            bdlbb::BlobUtil::padToAlignment(&blob, ALIGNMENT);
+
+            ASSERTV(blob.length(),         4 == blob.length()        );
+            ASSERTV(blob.numDataBuffers(), 3 == blob.numDataBuffers());
+        }
+
         if (verbose) cout << "Negative testing\n";
         {
             bsls::AssertTestHandlerGuard hG;
@@ -1546,6 +1575,36 @@ int main(int argc, char *argv[])
                 }
             }
         }
+
+        if (verbose) cout << "Testing 0-sized data buffers support\n";
+        {
+            const int   BLOB_BUFFER_SIZE = 2;
+            const char *data             = "0123";
+
+            bdlbb::SimpleBlobBufferFactory factory(BLOB_BUFFER_SIZE);
+            bdlbb::Blob                    blob1(&factory);
+            bdlbb::Blob                    blob2(&factory);
+
+            blob1.appendDataBuffer(bdlbb::BlobBuffer());
+            blob2.appendDataBuffer(bdlbb::BlobBuffer());
+
+            ASSERTV(0 == blob1.length()        );
+            ASSERTV(0 == blob2.length()        );
+            ASSERTV(1 == blob1.numDataBuffers());
+            ASSERTV(1 == blob2.numDataBuffers());
+
+            bdlbb::BlobUtil::copy(&blob1, 0, blob2, 0, 0);
+
+            ASSERTV(0 == blob1.length()        );
+            ASSERTV(0 == blob2.length()        );
+            ASSERTV(1 == blob1.numDataBuffers());
+            ASSERTV(1 == blob2.numDataBuffers());
+
+            bdlbb::BlobUtil::copy(&blob1, 0, data, 0);
+
+            ASSERTV(0 == blob1.length()        );
+            ASSERTV(1 == blob1.numDataBuffers());
+        }
       } break;
       case 9: {
         // -------------------------------------------------------------------
@@ -2064,16 +2123,38 @@ int main(int argc, char *argv[])
 
         }
 
-        bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failThrow);
+        if (verbose) cout << "Testing 0-sized data buffers support\n";
+        {
+            const int BLOB_BUFFER_SIZE = 2;
 
-        bdlbb::Blob BLOB;
+            bdlbb::SimpleBlobBufferFactory factory(BLOB_BUFFER_SIZE);
+            bdlbb::Blob                    blob(&factory);
 
-        ASSERT_FAIL(bdlbb::BlobUtil::getContiguousDataBuffer(0, 1, &factory));
-        ASSERT_FAIL(
+            blob.appendDataBuffer(bdlbb::BlobBuffer());
+
+            ASSERTV(0 == blob.length()        );
+            ASSERTV(1 == blob.numDataBuffers());
+
+            bdlbb::BlobUtil::getContiguousDataBuffer(&blob, 1, &factory);
+
+            ASSERTV(1 == blob.length()        );
+            ASSERTV(2 == blob.numDataBuffers());
+        }
+
+        if (verbose) cout << "Negative Testing\n";
+        {
+            bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failThrow);
+
+            bdlbb::Blob BLOB;
+
+            ASSERT_FAIL(
+                     bdlbb::BlobUtil::getContiguousDataBuffer(0, 1, &factory));
+            ASSERT_FAIL(
                 bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, -1, &factory));
-        ASSERT_FAIL(bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, 1, 0));
-        ASSERT_FAIL(
+            ASSERT_FAIL(bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, 1, 0));
+            ASSERT_FAIL(
                 bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, 10, &factory));
+        }
 
         verbose && (cout << "\nEnd of Test.\n");
       } break;
@@ -2193,6 +2274,25 @@ int main(int argc, char *argv[])
                     }
                 }
             }
+        }
+
+        if (verbose) cout << "Testing 0-sized data buffers support\n";
+        {
+            const int BLOB_BUFFER_SIZE    = 2;
+            const int BUFFER_SIZE         = 2;
+            char      buffer[BUFFER_SIZE] = {'0', '1'};
+
+            bdlbb::SimpleBlobBufferFactory factory(BLOB_BUFFER_SIZE);
+            bdlbb::Blob                    blob(&factory);
+
+            blob.appendDataBuffer(bdlbb::BlobBuffer());
+
+            ASSERTV(0 == blob.length()        );
+            ASSERTV(1 == blob.numDataBuffers());
+
+            bdlbb::BlobUtil::copy(buffer, blob, 0, 0);
+
+            ASSERTV(0 == strncmp(buffer, "01", BUFFER_SIZE));
         }
 
         verbose && (cout << "\nEnd of Test.\n");
@@ -2432,6 +2532,24 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "Testing 0-sized data buffers support\n";
+        {
+            const int BLOB_BUFFER_SIZE = 2;
+
+            bdlbb::SimpleBlobBufferFactory factory(BLOB_BUFFER_SIZE);
+            bdlbb::Blob                    blob(&factory);
+
+            blob.appendDataBuffer(bdlbb::BlobBuffer());
+
+            ASSERTV(0 == blob.length()        );
+            ASSERTV(1 == blob.numDataBuffers());
+
+            bdlbb::BlobUtil::erase(&blob, 0, 0);
+
+            ASSERTV(0 == blob.length()        );
+            ASSERTV(1 == blob.numDataBuffers());
+        }
+
         if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 4: {
@@ -2497,6 +2615,28 @@ int main(int argc, char *argv[])
                     }
                 }
             }
+        }
+
+        if (verbose) cout << "Testing 0-sized data buffers support\n";
+        {
+            const int BLOB_BUFFER_SIZE = 2;
+
+            bdlbb::SimpleBlobBufferFactory factory(BLOB_BUFFER_SIZE);
+            bdlbb::Blob                    blob(&factory);
+
+            blob.appendDataBuffer(bdlbb::BlobBuffer());
+
+            ASSERTV(0 == blob.length()        );
+            ASSERTV(1 == blob.numDataBuffers());
+
+            bsl::stringstream os;
+            const bsl::string BEFORE = os.str();
+            ASSERT(&os == &bdlbb::BlobUtil::hexDump(os,
+                                                    blob,
+                                                    0,
+                                                    0));
+
+            ASSERTV(BEFORE == os.str());
         }
 
         ASSERT(0 <  allocator.numAllocations());
@@ -2668,6 +2808,26 @@ int main(int argc, char *argv[])
                           << "Expected String  :\n"
                           << expectedOutCase3[4] << bsl::endl;
             }
+        }
+
+        if (verbose) cout << "Testing 0-sized data buffers support\n";
+        {
+            const int BLOB_BUFFER_SIZE = 2;
+
+            bdlbb::SimpleBlobBufferFactory factory(BLOB_BUFFER_SIZE);
+            bdlbb::Blob                    blob(&factory);
+
+            blob.appendDataBuffer(bdlbb::BlobBuffer());
+
+            ASSERTV(0 == blob.length()        );
+            ASSERTV(1 == blob.numDataBuffers());
+
+            bsl::stringstream os;
+            const bsl::string BEFORE = os.str();
+
+            ASSERT(&os == &bdlbb::BlobUtil::hexDump(os, blob));
+
+            ASSERTV(BEFORE == os.str());
         }
       } break;
       case 2: {
@@ -2954,6 +3114,32 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "Testing 0-sized data buffers support\n";
+        {
+            const int BLOB_BUFFER_SIZE = 2;
+
+            bdlbb::SimpleBlobBufferFactory factory(BLOB_BUFFER_SIZE);
+            bdlbb::Blob                    blob1(&factory);
+            bdlbb::Blob                    blob2(&factory);
+
+            blob1.appendDataBuffer(bdlbb::BlobBuffer());
+            blob2.appendDataBuffer(bdlbb::BlobBuffer());
+
+            ASSERTV(0 == blob1.length()        );
+            ASSERTV(0 == blob2.length()        );
+            ASSERTV(1 == blob1.numDataBuffers());
+            ASSERTV(1 == blob2.numDataBuffers());
+
+            ASSERT(0 == bdlbb::BlobUtil::compare(blob1, blob2));
+
+            blob1.appendDataBuffer(bdlbb::BlobBuffer());
+
+            ASSERTV(0 == blob1.length()        );
+            ASSERTV(2 == blob1.numDataBuffers());
+
+            ASSERT(0 == bdlbb::BlobUtil::compare(blob1, blob2));
+        }
+
         if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 1: {
@@ -2999,6 +3185,44 @@ int main(int argc, char *argv[])
             ASSERT(bdlbb::BlobUtil::write(blobStream, nonemptyBlob, 0, 0)
                    == 0);
             ASSERT(blobStream.length() == 0);
+        }
+
+        // writing non-zero bytes from a non-empty blob having a single 0-sized
+        // buffer
+        {
+            const int BLOB_BUFFER_SIZE = 2;
+
+            bdlbb::SimpleBlobBufferFactory factory(BLOB_BUFFER_SIZE);
+            bdlbb::Blob                    blob(&factory);
+
+            blob.appendDataBuffer(bdlbb::BlobBuffer());
+
+            ASSERTV(0 == blob.length()        );
+            ASSERTV(1 == blob.numDataBuffers());
+
+            // write blob
+            bslx::TestOutStream blobStream(20210203);
+            ASSERT(0 != bdlbb::BlobUtil::write(blobStream, blob, 0, 1));
+            ASSERT(0 == blobStream.length());
+        }
+
+        // writing zero bytes from a non-empty blob having a single 0-sized
+        // buffer
+        {
+            const int BLOB_BUFFER_SIZE = 2;
+
+            bdlbb::SimpleBlobBufferFactory factory(BLOB_BUFFER_SIZE);
+            bdlbb::Blob                    blob(&factory);
+
+            blob.appendDataBuffer(bdlbb::BlobBuffer());
+
+            ASSERTV(0 == blob.length()        );
+            ASSERTV(1 == blob.numDataBuffers());
+
+            // write blob
+            bslx::TestOutStream blobStream(20210203);
+            ASSERT(0 == bdlbb::BlobUtil::write(blobStream, blob, 0, 0));
+            ASSERT(0 == blobStream.length());
         }
 
         if (verbose) cout << "\nTesting 'append and write' functions"

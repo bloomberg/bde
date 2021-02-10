@@ -501,7 +501,7 @@ bsl::ostream& BlobUtil::hexDump(bsl::ostream& stream,
     BSLS_ASSERT(length <= source.totalSize());
     BSLS_ASSERT(offset <= source.totalSize() - length);
 
-    if (0 == source.numDataBuffers()) {
+    if (0 == source.length()) {
         return stream;                                                // RETURN
     }
 
