@@ -975,6 +975,15 @@ RecordStringFormatter::RecordStringFormatter(const allocator_type& allocator)
     parseFormatSpecification();
 }
 
+RecordStringFormatter::RecordStringFormatter(bslma::Allocator *basicAllocator)
+: d_formatSpec(DEFAULT_FORMAT_SPEC, basicAllocator)
+, d_fieldFormatters(basicAllocator)
+, d_skipAttributes(basicAllocator)
+, d_timestampOffset(0)
+{
+    parseFormatSpecification();
+}
+
 RecordStringFormatter::RecordStringFormatter(const char            *format,
                                              const allocator_type&  allocator)
 : d_formatSpec(format, allocator)
@@ -984,6 +993,17 @@ RecordStringFormatter::RecordStringFormatter(const char            *format,
 {
     parseFormatSpecification();
 }
+
+RecordStringFormatter::RecordStringFormatter(const char       *format,
+                                             bslma::Allocator *basicAllocator)
+: d_formatSpec(format, basicAllocator)
+, d_fieldFormatters(basicAllocator)
+, d_skipAttributes(basicAllocator)
+, d_timestampOffset(0)
+{
+    parseFormatSpecification();
+}
+
 
 RecordStringFormatter::RecordStringFormatter(
                                       const bdlt::DatetimeInterval&  offset,

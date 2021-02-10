@@ -214,12 +214,14 @@ class RecordStringFormatter {
 
     // CREATORS
     explicit RecordStringFormatter(
-                           const allocator_type& allocator = allocator_type());
+                          const allocator_type&  allocator = allocator_type());
+    explicit RecordStringFormatter(
+                          bslma::Allocator      *basicallocator);
         // Create a record formatter having a default format specification and
-        // a timestamp offset of 0.    Optionally specify an 'allocator' (e.g.,
-        // the address of a 'bslma::Allocator' object) to supply memory;
-        // otherwise, the default allocator is used.  The default format
-        // specification is:
+        // a timestamp offset of 0.  Optionally specify an 'allocator' (e.g.,
+        // the address of a 'bslma::Allocator' object) to supply memory.  If
+        // 'basicAllocator' is not supplied or 0, the currently installed
+        // default allocator is used.  The default format specification is:
         //..
         //  "\n%d %p:%t %s %f:%l %c %m %u\n"
         //..
@@ -227,10 +229,13 @@ class RecordStringFormatter {
     explicit RecordStringFormatter(
                           const char            *format,
                           const allocator_type&  allocator = allocator_type());
+    RecordStringFormatter(const char            *format,
+                          bslma::Allocator      *basicAllocator);
         // Create a record formatter having the specified 'format'
         // specification and a timestamp offset of 0.  Optionally specify an
         // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory; otherwise, the default allocator is used.
+        // supply memory.  If 'basicAllocator' is not supplied or 0, the
+        // currently installed default allocator is used.
 
     explicit RecordStringFormatter(
                    const bdlt::DatetimeInterval& offset,
@@ -342,6 +347,14 @@ class RecordStringFormatter {
         // record formatter.
         //
         // !DEPRECATED!: Use 'isPublishInLocalTimeEnabled' instead.
+
+                                  // Aspects
+
+    allocator_type get_allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the default
+        // allocator in effect at construction is used.
+
 };
 
 // FREE OPERATORS
@@ -400,6 +413,15 @@ const bdlt::DatetimeInterval&
 RecordStringFormatter::timestampOffset() const
 {
     return d_timestampOffset;
+}
+
+                                  // Aspects
+
+inline
+RecordStringFormatter::allocator_type
+RecordStringFormatter::get_allocator() const
+{
+    return d_formatSpec.get_allocator();
 }
 
 }  // close package namespace

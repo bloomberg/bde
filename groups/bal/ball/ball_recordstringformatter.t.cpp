@@ -66,12 +66,16 @@ using bsl::uppercase;
 //
 // CREATORS
 // [ 2] ball::RecordStringFormatter(*ba = 0);
-// [10] ball::RecordStringFormatter(const char *, *ba = 0);
-// [10] ball::RecordStringFormatter(bdet::DtI, *ba = 0);
-// [13] ball::RecordStringFormatter(bool, *ba = 0);
-// [10] ball::RecordStringFormatter(const char *, bdet::DtI, *ba = 0);
-// [13] ball::RecordStringFormatter(const char *, bool, *ba = 0);
-// [ 7] ball::RecordStringFormatter(const ball::RSF&, *ba = 0);
+// [10] ball::RecordStringFormatter(alloc);
+// [10] ball::RecordStringFormatter(*ba);
+// [10] ball::RecordStringFormatter(const char *, alloc);
+// [10] ball::RecordStringFormatter(bdet::DtI, alloc);
+// [10] ball::RecordStringFormatter(bool, alloc);
+// [10] ball::RecordStringFormatter(bool, *ba);
+// [13] ball::RecordStringFormatter(bool, alloc);
+// [10] ball::RecordStringFormatter(const char *, bdet::DtI, alloc);
+// [13] ball::RecordStringFormatter(const char *, bool, alloc);
+// [ 7] ball::RecordStringFormatter(const ball::RSF&, alloc);
 // [ 2] ~ball::RecordStringFormatter();
 // MANIPULATORS
 // [ 9] const ball::RSF& operator=(const ball::RSF& other);
@@ -278,6 +282,162 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING: Overload resolution for 'RecordStringFormatter' changed due
+        //   to 'allocator_type' (See {DRQS 165125904}).  The compiler prefers
+        //   the constructor overload that takes 'bool' instead of the overload
+        //   that takes 'const allocator_type&' when creating the
+        //   'RecordStringFormatter' object providing a pointer to the
+        //   'bslma::Allocator' object as an argument.  To resolve overload
+        //   correctly we add a constructor overload that takes
+        //   'bslma::Allocator*'.
+        //
+        // Concerns:
+        //: 1 From the list of constructor overloads:
+        //:   o RecordStringFormatter(const alloc& = alloc());
+        //:   o RecordStringFormatter(bool, const alloc& = alloc());
+        //:   o RecordStringFormatter(bslma::Allocator*);
+        //:   the compiler chooses the third overload when creating the
+        //:   'RecordStringFormatter' object supplying it with a pointer to the
+        //:   'bslma::Allocator' object.
+        //:
+        //: 2 From the list of constructor overloads:
+        //:   o RecordStringFormatter(const char*, alloc);
+        //:   o RecordStringFormatter(const char*, bool, alloc);
+        //:   o RecordStringFormatter(const char*, *ba);
+        //:   the compiler chooses the third overload when creating the
+        //:   'RecordStringFormatter' object supplying it with c-string and a
+        //:   pointer to the 'bslma::Allocator' object.
+        //
+        // Plan:
+        //: 1 Create objects using the different constructors and verify that
+        //:   objects have expected allocator.  (C-1..2)
+        //
+        // Testing:
+        //:   RecordStringFormatter(const alloc& = alloc());
+        //:   RecordStringFormatter(bool, const alloc& = alloc());
+        //:   RecordStringFormatter(bslma::Allocator*);
+        //:   RecordStringFormatter(const char*, alloc);
+        //:   RecordStringFormatter(const char*, bool, alloc);
+        //:   RecordStringFormatter(const char*, *ba);
+        // --------------------------------------------------------------------
+        {   // C-1
+
+            bslma::TestAllocator         fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator         sa("supplied",  veryVeryVeryVerbose);
+            bslma::TestAllocator         da("default",   veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&da);
+
+            for (int ti = 0; ti < 7; ++ti) {
+
+                bslma::Allocator *objAllocatorPtr = 0;
+                Obj              *objPtr = 0;
+
+                switch (ti) {
+                  // ------ RecordStringFormatter(const alloc& = alloc()) -----
+                  case 0: {
+                    objPtr = new (fa) Obj();
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 1: {
+                    objPtr = new (fa) Obj(Obj::allocator_type(&sa));
+                    objAllocatorPtr = &sa;
+                  } break;
+                  // --------- RecordStringFormatter(bslma::Allocator*) -------
+                  case 2: {
+                    objPtr = new (fa) Obj(&sa);
+                    objAllocatorPtr = &sa;
+                  } break;
+                  case 3: {
+                    objPtr = new (fa) Obj(static_cast<bslma::Allocator*>(0));
+                    objAllocatorPtr = &da;
+                    ASSERTV(objPtr->timestampOffset(),
+                            objPtr->timestampOffset().totalMilliseconds() == 0)
+                  } break;
+                  // --- RecordStringFormatter(bool, const alloc& = alloc()) --
+                  case 4: {
+                    objPtr = new (fa) Obj(false);
+                    objAllocatorPtr = &da;
+                    ASSERTV(objPtr->timestampOffset(),
+                            objPtr->timestampOffset().totalMilliseconds() != 0)
+                  } break;
+                  case 5: {
+                    objPtr = new (fa) Obj(true, &sa);
+                    objAllocatorPtr = &sa;
+                  } break;
+                  case 6: {
+                    objPtr = new (fa) Obj(true, Obj::allocator_type(&sa));
+                    objAllocatorPtr = &sa;
+                  } break;
+                }
+
+                ASSERTV(ti, objAllocatorPtr ==
+                            objPtr->get_allocator().mechanism());
+
+                fa.deleteObject(objPtr);
+            }
+        }
+
+        {   // C-2
+            bslma::TestAllocator          fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator          sa("supplied",  veryVeryVeryVerbose);
+            bslma::TestAllocator          da("default",   veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard  guard(&da);
+            const char                   *format = "format";
+            for (int ti = 0; ti < 7; ++ti) {
+
+                bslma::Allocator *objAllocatorPtr = 0;
+                Obj              *objPtr = 0;
+
+                switch (ti) {
+                  // -------- RecordStringFormatter(const char*, alloc) -------
+                  case 0: {
+                    objPtr = new (fa) Obj(format);
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 1: {
+                    objPtr = new (fa) Obj(format, Obj::allocator_type(&sa));
+                    objAllocatorPtr = &sa;
+                  } break;
+                  // - RecordStringFormatter(const char*, bslma::Allocator *) -
+                  case 2: {
+                    objPtr = new (fa) Obj(format, &sa);
+                    objAllocatorPtr = &sa;
+                  } break;
+                  case 3: {
+                      objPtr = new (fa) Obj(format,
+                                            static_cast<bslma::Allocator*>(0));
+                    objAllocatorPtr = &da;
+                    ASSERTV(objPtr->timestampOffset(),
+                            objPtr->timestampOffset().totalMilliseconds() == 0)
+                  } break;
+                  // ----- RecordStringFormatter(const char*, bool, alloc) ----
+                  case 4: {
+                    objPtr = new (fa) Obj(format, false);
+                    objAllocatorPtr = &da;
+                    ASSERTV(objPtr->timestampOffset(),
+                            objPtr->timestampOffset().totalMilliseconds() != 0)
+                  } break;
+                  case 5: {
+                    objPtr = new (fa) Obj(format, true, &sa);
+                    objAllocatorPtr = &sa;
+                  } break;
+                  case 6: {
+                    objPtr = new (fa) Obj(format,
+                                          true,
+                                          Obj::allocator_type(&sa));
+                    objAllocatorPtr = &sa;
+                  } break;
+                }
+
+                ASSERTV(ti, objAllocatorPtr ==
+                            objPtr->get_allocator().mechanism());
+
+                fa.deleteObject(objPtr);
+            }
+        }
+      } break;
       case 14: {
         // --------------------------------------------------------------------
         // TESTING: Records Show Calculated Local-Time Offset
@@ -323,8 +483,8 @@ int main(int argc, char *argv[])
         //:   to the state of the 'publishInLocalTime' attribute.  (C-5..6)
         //
         // Testing:
-        //   ball::RecordStringFormatter(bool, *ba = 0);
-        //   ball::RecordStringFormatter(const char *, bool, *ba = 0);
+        //   ball::RecordStringFormatter(bool, alloc);
+        //   ball::RecordStringFormatter(const char *, bool, alloc);
         //   void disablePublishInLocalTime();
         //   void enablePublishInLocalTime();
         //   bool isPublishInLocalTimeEnabled() const;
@@ -1435,9 +1595,9 @@ int main(int argc, char *argv[])
         //   The three constructors must initialize the value correctly.
         //
         // Testing
-        //   ball::RecordStringFormatter(const char *, *ba = 0)
-        //   ball::RecordStringFormatter(bdet::DtI, *ba = 0)
-        //   ball::RecordStringFormatter(const char *, bdet::DtI, *ba = 0)
+        //   ball::RecordStringFormatter(const char *, alloc)
+        //   ball::RecordStringFormatter(bdet::DtI, alloc)
+        //   ball::RecordStringFormatter(const char *, bdet::DtI, alloc)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Initialization Constructors"
@@ -1681,7 +1841,7 @@ int main(int argc, char *argv[])
         //   as w.
         //
         // Testing:
-        //   ball::RecordStringFormatter(const ball::RSF&, *ba = 0);
+        //   ball::RecordStringFormatter(const ball::RSF&, alloc);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Copy Constructor"
                           << "\n========================" << endl;
