@@ -1,9 +1,17 @@
-bsl-internal (3.74.0.0) unstable; urgency=low
+bsl-internal (3.75.0.0) unstable; urgency=low
 
+  * ce7178c5c Bumped version to 3.75.0.0
+  * 8a1331385 Merge pull request #3111 from cwilson/bdlb_string-gcc9-compile-fail-drqs-165184815
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 12 Feb 2021 16:27:29 -0500
+
+bsl-internal (3.74.0.0) git; urgency=low
+
+  * 8826c71fc Changelog for version 3.74.0.0
   * 63181e22a Bumped version to 3.74.0.0
   * 807a411b3 Merge pull request #3099 from mgill83/timout-parameter-rename-drqs-164067283
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 6 Feb 2021 16:41:28 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 6 Feb 2021 16:45:11 -0500
 
 bsl-internal (3.73.1.0) git; urgency=low
 
