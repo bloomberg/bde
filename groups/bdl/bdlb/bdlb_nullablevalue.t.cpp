@@ -145,6 +145,7 @@ using bsls::NameOf;
 // [27] bool operator<=(NullOptType, const NullableValue<LHS_TYPE>&);
 // [27] bool operator>=(NullOptType, const NullableValue<LHS_TYPE>&);
 // [27] bool operator> (NullOptType, const NullableValue<LHS_TYPE>&);
+
 // [ 4] ostream& operator<<(ostream&, const NullableValue<TYPE>&);
 //
 // FREE FUNCTIONS
@@ -468,7 +469,10 @@ void testRelationalOperations(const INIT_TYPE& lesserVal,
                               const INIT_TYPE& greaterVal)
 {
     typedef bdlb::NullableValue< FIRST_TYPE>  FIRST_NV_TYPE;
-    typedef bdlb::NullableValue<SECOND_TYPE> SECOND_NV_TYPE;
+    typedef bdlb::NullableValue<SECOND_TYPE>  SECOND_NV_TYPE;
+
+    typedef bsl::optional< FIRST_TYPE>        FIRST_BO_TYPE;
+    typedef bsl::optional<SECOND_TYPE>        SECOND_BO_TYPE;
 
     testRelationalOperationsNonNull<FIRST_TYPE,    SECOND_NV_TYPE>(lesserVal,
                                                                    greaterVal);
@@ -476,13 +480,21 @@ void testRelationalOperations(const INIT_TYPE& lesserVal,
                                                                    greaterVal);
     testRelationalOperationsNonNull<FIRST_NV_TYPE, SECOND_NV_TYPE>(lesserVal,
                                                                    greaterVal);
+    testRelationalOperationsNonNull<FIRST_BO_TYPE, SECOND_NV_TYPE>(lesserVal,
+                                                                   greaterVal);
+    testRelationalOperationsNonNull<FIRST_NV_TYPE, SECOND_BO_TYPE>(lesserVal,
+                                                                   greaterVal);
 
     testRelationalOperationsOneNull<FIRST_NV_TYPE,  SECOND_TYPE   >(lesserVal);
     testRelationalOperationsOneNull<FIRST_NV_TYPE,  SECOND_NV_TYPE>(lesserVal);
     testRelationalOperationsOneNull<SECOND_NV_TYPE, FIRST_TYPE    >(lesserVal);
     testRelationalOperationsOneNull<SECOND_NV_TYPE, FIRST_NV_TYPE >(lesserVal);
+    testRelationalOperationsOneNull<FIRST_BO_TYPE,  SECOND_NV_TYPE>(lesserVal);
+    testRelationalOperationsOneNull<SECOND_NV_TYPE, FIRST_BO_TYPE >(lesserVal);
 
-    testRelationalOperationsBothNull<FIRST_NV_TYPE, SECOND_NV_TYPE>();
+    testRelationalOperationsBothNull<FIRST_NV_TYPE, SECOND_BO_TYPE>();
+    testRelationalOperationsBothNull<FIRST_BO_TYPE, SECOND_NV_TYPE>();
+
 }
 
 // ============================================================================
@@ -2456,7 +2468,7 @@ bool operator==(const Recipient& lhs, const Recipient& rhs)
 }
 
 class Swappable {
-    // 'Swappable', used for testing 'swap', does not take an allocator.
+// 'Swappable', used for testing 'swap', does not take an allocator.
 
     // CLASS DATA
     static bool s_swapCalledFlag;  // 'true' if 'swap' free function called
@@ -6315,8 +6327,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == obj1.value());
 
             obj1.value() = 2;
-            obj1.makeValueInplace(obj1.value());
-            ASSERT(2 == obj1.value());
+            obj1.makeValueInplace(5);
+            ASSERTV(obj1.value(), 5 == obj1.value());
 
             typedef bdlb::NullableValue<Obj1> Obj2;
 
@@ -6506,7 +6518,9 @@ int main(int argc, char *argv[])
 
         ASSERT(X1.isNull());
 
-        ASSERT_SAFE_FAIL(X1.value());
+        // BSLS_ASSERT_SAFE was replaced with BSLS_REVIEW and thus the test
+        // below has been commented out for now.
+        //ASSERT_SAFE_FAIL(X1.value());
 
         mX1 = 5;
 
@@ -6545,7 +6559,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver, testCase14, TEST_TYPES);
 
       } break;
-      case 13: {
+    case 13: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
         //
@@ -7016,7 +7030,7 @@ int main(int argc, char *argv[])
                 Obj mZ(&oa2);
 
                 ASSERT_PASS(mA.swap(mB));
-                ASSERT_FAIL(mA.swap(mZ));
+                ASSERT_FAIL_RAW(mA.swap(mZ));
             }
         }
 
@@ -7247,7 +7261,100 @@ int main(int argc, char *argv[])
             }
         }
         ASSERT(0 == da.numBlocksTotal());
+        if (verbose) cout << "\nUsing 'bool' and 'int'." << endl;
+        {
+            typedef bool    ValueType1;
+            typedef int     ValueType2;
 
+            typedef bdlb::NullableValue<ValueType1> ObjType1;
+            typedef bdlb::NullableValue<ValueType2> ObjType2;
+
+            const ValueType1 VALUE1a = true;
+            const ValueType1 VALUE1b = false;
+
+            ValueType1  mVALUE2  = true;  const ValueType1& VALUE2 = mVALUE2;
+            ValueType1& mRVALUE2 = mVALUE2;
+
+            if (verbose) cout << "\tcopy assignment" << endl;
+            {
+                const ObjType1 OBJ1a(VALUE1a);
+                      ObjType1 obj1b(VALUE1b);
+                const ObjType1 OBJ1n;
+
+                      ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
+                ASSERT(OBJ2.isNull());
+
+                ObjType2 *mR2 = &(obj2 = OBJ1a);  // null = non-null
+
+                ASSERT(VALUE1a == OBJ1a.value());
+                ASSERT(VALUE1a == OBJ2.value());
+                ASSERT(    mR2 == &obj2);
+
+                mR2 = &(obj2 = obj1b);            // non-null = non-null
+
+                ASSERT(VALUE1b == obj1b.value());
+                ASSERT(VALUE1b == OBJ2.value());
+                ASSERT(    mR2 == &obj2);
+
+                mR2 = &(obj2 = OBJ1n);            // non-null = null
+
+                ASSERT(OBJ1n.isNull());
+                ASSERT(OBJ2.isNull());
+                ASSERT(    mR2 == &obj2);
+
+                mR2 = &(obj2 = OBJ1n);            // null = null
+
+                ASSERT(OBJ1n.isNull());
+                ASSERT(OBJ2.isNull());
+                ASSERT(    mR2 == &obj2);
+            }
+
+            if (verbose) cout << "\tvalue assignment" << endl;
+            {
+                ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
+                ASSERT(OBJ2.isNull());
+
+                ObjType2 *mR2 = &(obj2 = VALUE1a);
+
+                ASSERT(VALUE1a == OBJ2.value());
+                ASSERT(    mR2 == &obj2);
+
+                mR2 = &(obj2 = VALUE1b);
+
+                ASSERT(VALUE1b == OBJ2.value());
+                ASSERT(    mR2 == &obj2);
+
+                // testing non-'const' source object
+
+                obj2.reset();
+                ASSERT(OBJ2.isNull());
+
+                obj2 = mVALUE2;
+                ASSERT(VALUE2 == OBJ2.value());
+
+                obj2.reset();
+                ASSERT(OBJ2.isNull());
+
+                obj2 = mRVALUE2;
+                ASSERT(VALUE2 == OBJ2.value());
+            }
+
+            if (verbose) cout << "\tmake value" << endl;
+            {
+                ObjType2 obj2;  const ObjType2& OBJ2 = obj2;
+                ASSERT(OBJ2.isNull());
+
+                ValueType2 *addr2 = &obj2.makeValue(VALUE1a);
+
+                ASSERT(VALUE1a == OBJ2.value());
+                ASSERT(  addr2 == &obj2.value());
+
+                addr2 = &obj2.makeValue(VALUE1b);
+
+                ASSERT(VALUE1b == OBJ2.value());
+                ASSERT(  addr2 == &obj2.value());
+            }
+        }
         if (verbose) cout << "\nUsing 'bsl::string' and 'char *' + ALLOC."
                           << endl;
         {
@@ -7752,6 +7859,10 @@ int main(int argc, char *argv[])
 
                 ASSERT(VALUE1a             == OBJ1a.value());
                 ASSERT(ValueType2(VALUE1a) == OBJ2b.value());
+
+                mOBJ1a.reset();
+                const ObjType2 OBJ3a(mOBJ1a);
+                ASSERT(OBJ3a.has_value() == false);
             }
             ASSERT(0 == da.numBlocksTotal());
 
