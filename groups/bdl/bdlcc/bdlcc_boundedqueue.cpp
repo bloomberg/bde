@@ -16,14 +16,21 @@ namespace BloombergLP {
 // in 'd_popIndex'.  To ensure elements are not enqueued or dequeued prior to
 // the completion of the previous operation, the queue waits for a quiescent
 // state before marking elements as readable or writable.  Specifically,
-// written elements are marked readable when there are no active writers (users
-// of "push" methods) and read elements are marked writable when there are no
-// active readers (users of "pop" methods).  The quiescent state occurs when
-// the number of operations started equals the number of operations completed.
-// This detection is accomplished using the private constants:
+// written elements are made available to readers when there are no active
+// writers (users of "push" methods) and read elements are made available to
+// writers when there are no active readers (users of "pop" methods).  The
+// quiescent state occurs when the number of operations started equals the
+// number of operations completed.  This detection is accomplished using the
+// private constants:
 //   * 'k_STARTED_INC' to indicate an operation has started,
 //   * 'k_FINISHED_INC' to indicate an operation has completed, and
-//   * 'k_STARTED_MASK' and 'k_FINISHED_SHIFT' for determining quiescent state.
+//   * 'k_STARTED_MASK' and 'k_FINISHED_SHIFT' for determining quiescent state
+// within the private class methods:
+//   * 'isQuiescentState' to detect a quiescent state,
+//   * 'markFinishedOperation' to mark a finished operation,
+//   * 'markReclaimed' to mark a node was reclaimed after an exception,
+//   * 'markStartedOperation' to mark a started operation, and
+//   * 'unmarkStartedOperation' to mark an aborted operation.
 
 }  // close enterprise namespace
 

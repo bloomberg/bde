@@ -276,28 +276,45 @@ class BoundedQueue_PushExceptionCompleteProctor {
                          // struct BoundedQueue_Node
                          // ========================
 
-template <class TYPE, bool RECLAIM>
+template <class TYPE, bool RECLAIMABLE>
 struct BoundedQueue_Node;
+    // This class implements the queue's node.  A node stores an instance of
+    // the specified (template parameter) 'TYPE', and provides an accessor
+    // 'isUnconstructed' that indicates whether the value of the node was
+    // correctly constructed.  If 'isUnconstructed' is 'false', then the value
+    // ('d_value') refers to a valid object.  If 'isUnconstructed' is 'true'
+    // then 'd_value' does not refer to a valid object, it does not represent a
+    // value in this queue, and the destructor of 'd_value' should not be
+    // called.  The specified (template parameter) type 'RECLAIMABLE' is used
+    // to provide a compile time optimization for the footprint of this
+    // template when the value of 'isUnconstructed' is known at compile-time.
+    // If 'RECLAIMABLE' is 'false' then it can be determined at compile time
+    // that the construction of 'TYPE' will uncoditionally succeed (e.g., it
+    // 'is_trivially_copyable'), and the 'isUnconstructed' property does not
+    // require a data member to be accessed at run-time.
 
 template <class TYPE>
 struct BoundedQueue_Node<TYPE, true> {
   private:
     // DATA
-    bool                     d_reclaim;  // node suffered exception
+    bool                     d_isUnconstructedFlag;  // node suffered exception
 
   public:
     // PUBLIC DATA
-    bsls::ObjectBuffer<TYPE> d_value;    // stored value
+    bsls::ObjectBuffer<TYPE> d_value;                // stored value
 
     // MANIPULATORS
-    void assignReclaim(bool value);
-        // If 'true == RECLAIM', assign 'd_reclaim' the specified 'value'.
-        // Otherwise, do nothing.
+    void setIsUnconstructed(bool isUnconstructedFlag);
+        // If the specified 'isUnconstructedFlag' is 'false', then 'd_value'
+        // refers to a valid object of (the template parameter) 'TYPE',
+        // otherwise (if 'isUnconstrucedFlag' is 'true') 'd_value' does not
+        // refer to a valid object (because the attempt to construct 'TYPE'
+        // resulted in an expection).  Note that this method is normally
+        // invoked after each write to 'd_value'.
 
     // ACCESSORS
-    bool reclaim() const;
-        // If 'true == RECLAIM', return the value of 'd_reclaim'.  Otherwise,
-        // return 'false'.
+    bool isUnconstructed() const;
+        // Return whether an exception occurred when last writing to 'd_value'.
 };
 
 template <class TYPE>
@@ -306,11 +323,11 @@ struct BoundedQueue_Node<TYPE, false> {
     bsls::ObjectBuffer<TYPE> d_value;    // stored value
 
     // MANIPULATORS
-    void assignReclaim(bool /* value */);
+    void setIsUnconstructed(bool /* value */);
         // Do nothing.
 
     // ACCESSORS
-    bool reclaim() const;
+    bool isUnconstructed() const;
         // Return 'false'.
 };
 
@@ -407,7 +424,58 @@ class BoundedQueue {
     // PRIVATE CLASS METHODS
     static bool isQuiescentState(bsls::Types::Uint64 count);
         // Return 'true' if the specified 'count' implies a quiescent state
-        // (see *Implementation* *Note*), and 'false' otherwise.
+        // (see *Implementation* *Note*), and 'false' otherwise.  A quiescent
+        // state indicates there is a (possibly zero length) contiguous set of
+        // elements that can safely be made available to the operation
+        // complementary to the operation 'count' tracks (pop and push are
+        // complementary operations).
+
+    static Uint64 markFinishedOperation(AtomicUint64 *count);
+    static Uint64 markFinishedOperation(AtomicUint64 *count, int num);
+        // Update the specified 'count' to indicate that an operation (or the
+        // optionally specified 'num' operations) has completed, and return the
+        // updated 'count' value.  Marking an operation finished means that
+        // 'isQuiscentState' *may* now be true.  The behavior is undefined
+        // unless 'markStartedOperation' was previously called on this 'count',
+        // and a corresponding 'markFinishedOperation' or
+        // 'unmarkStartOperation' has not already been called.  Note that the
+        // "operation" that has finished refers to either a push or pop
+        // (depending on whether this is applied to 'd_pushCount' or
+        // 'd_popCount').
+
+    static void markReclaimed(AtomicUint64 *count);
+        // Update the specified 'count' to indicate that a node that suffered
+        // an exception has been reclaimed.  Marking a node reclaimed can *not*
+        // alter the value of 'isQuiescentState', but does increase the size of
+        // the contiguous set of elements that will eventially be made
+        // available to the operation complementary to the operation 'count'
+        // tracks (pop and push are complementary operations).  Note that this
+        // method does not require a previous call to 'markStartedOperation'
+        // and does not meet the requirements for 'markFinishedOperation' or
+        // 'unmarkStartOperation' to be invoked.
+
+    static void markStartedOperation(AtomicUint64 *count);
+    static void markStartedOperation(AtomicUint64 *count, int num);
+        // Update the specified 'count' to indicate that an operation (or the
+        // optionally specified 'num' operations) has started, and return the
+        // updated 'count' value.  Marking an operation started means that
+        // 'isQuiescentState' is not true and will not be true until
+        // 'markFinishedOperation' or 'unmarkStartedOperation' is invoked.
+        // Note that the "operation" that has started refers to either a push
+        // or pop (depending on whether this is applied to 'd_pushCount' or
+        // 'd_popCount').
+
+    static Uint64 unmarkStartedOperation(AtomicUint64 *count);
+        // Update the specified 'count' to indicate that an operation has
+        // aborted without finishing, and return the updated 'count' value.
+        // Marking a started operation as having aborted means that
+        // 'isQuiscentState' *may* now be true.  The behavior is undefined
+        // unless 'markStartedOperation' was previously called on this 'count',
+        // and a corresponding 'markFinishedOperation' or
+        // 'unmarkStartOperation' has not already been called.  Note that the
+        // "operation" that has aborted refers to either a push or pop
+        // (depending on whether this is applied to 'd_pushCount' or
+        // 'd_popCount').
 
     // PRIVATE MANIPULATORS
     void popComplete(Node *node, bool isEmpty);
@@ -648,28 +716,30 @@ void BoundedQueue_PushExceptionCompleteProctor<TYPE>::release()
 // MANIPULATORS
 template <class TYPE>
 inline
-void BoundedQueue_Node<TYPE, true>::assignReclaim(bool value)
+void BoundedQueue_Node<TYPE, true>::setIsUnconstructed(
+                                                      bool isUnconstructedFlag)
 {
-    d_reclaim = value;
+    d_isUnconstructedFlag = isUnconstructedFlag;
 }
 
 template <class TYPE>
 inline
-void BoundedQueue_Node<TYPE, false>::assignReclaim(bool /* value */)
+void BoundedQueue_Node<TYPE, false>::setIsUnconstructed(
+                                                 bool /* isUnconstrutedFlag */)
 {
 }
 
 // ACCESSORS
 template <class TYPE>
 inline
-bool BoundedQueue_Node<TYPE, true>::reclaim() const
+bool BoundedQueue_Node<TYPE, true>::isUnconstructed() const
 {
-    return d_reclaim;
+    return d_isUnconstructedFlag;
 }
 
 template <class TYPE>
 inline
-bool BoundedQueue_Node<TYPE, false>::reclaim() const
+bool BoundedQueue_Node<TYPE, false>::isUnconstructed() const
 {
     return false;
 }
@@ -685,13 +755,53 @@ bool BoundedQueue<TYPE>::isQuiescentState(bsls::Types::Uint64 count)
     return (count >> k_FINISHED_SHIFT) == (count & k_STARTED_MASK);
 }
 
+template <class TYPE>
+bsls::Types::Uint64 BoundedQueue<TYPE>::markFinishedOperation(
+                                                           AtomicUint64 *count)
+{
+    return AtomicOp::addUint64NvAcqRel(count, k_FINISHED_INC);
+}
+
+template <class TYPE>
+bsls::Types::Uint64 BoundedQueue<TYPE>::markFinishedOperation(
+                                                           AtomicUint64 *count,
+                                                           int           num)
+{
+    return AtomicOp::addUint64NvAcqRel(count, num * k_FINISHED_INC);
+}
+
+template <class TYPE>
+void BoundedQueue<TYPE>::markReclaimed(AtomicUint64 *count)
+{
+    AtomicOp::addUint64AcqRel(count, k_STARTED_INC + k_FINISHED_INC);
+}
+
+template <class TYPE>
+void BoundedQueue<TYPE>::markStartedOperation(AtomicUint64 *count)
+{
+    AtomicOp::addUint64AcqRel(count, k_STARTED_INC);
+}
+
+template <class TYPE>
+void BoundedQueue<TYPE>::markStartedOperation(AtomicUint64 *count, int num)
+{
+    AtomicOp::addUint64AcqRel(count, num * k_STARTED_INC);
+}
+
+template <class TYPE>
+bsls::Types::Uint64 BoundedQueue<TYPE>::unmarkStartedOperation(
+                                                           AtomicUint64 *count)
+{
+    return AtomicOp::addUint64NvAcqRel(count, -k_STARTED_INC);
+}
+
 // PRIVATE MANIPULATORS
 template <class TYPE>
 void BoundedQueue<TYPE>::popComplete(Node *node, bool isEmpty)
 {
     node->d_value.object().~TYPE();
 
-    Uint64 count = AtomicOp::addUint64NvAcqRel(&d_popCount, k_FINISHED_INC);
+    Uint64 count = markFinishedOperation(&d_popCount);
     if (isQuiescentState(count)) {
 
         // The total number of popped elements is 'count & k_STARTED_MASK'.
@@ -721,7 +831,7 @@ void BoundedQueue<TYPE>::popFrontHelper(TYPE *value)
 {
     bool empty = isEmpty();
 
-    AtomicOp::addUint64AcqRel(&d_popCount, k_STARTED_INC);
+    markStartedOperation(&d_popCount);
 
     // 'd_popIndex' stores the next location to use (want the original value)
 
@@ -730,14 +840,14 @@ void BoundedQueue<TYPE>::popFrontHelper(TYPE *value)
     Node   *node  = &d_element_p[index];
 
     // Nodes marked for reclamation are not counted in 'd_popSemaphore' and are
-    // to be skipped; 'd_reclaim' does not need to be modified here since it
-    // will be updated in a "push" operation.  However, the node does need to
-    // be counted in the 'd_pushSemaphore' as an empty node.  This is
+    // to be skipped; 'd_isUnconstructed' does not need to be modified here
+    // since it will be updated in a "push" operation.  However, the node does
+    // need to be counted in the 'd_pushSemaphore' as an empty node.  This is
     // accomplished by incrementing the started and finished attributes in
     // 'd_popCount'.
 
-    while (node->reclaim()) {
-        AtomicOp::addUint64AcqRel(&d_popCount, k_STARTED_INC + k_FINISHED_INC);
+    while (node->isUnconstructed()) {
+        markReclaimed(&d_popCount);
 
         index = (AtomicOp::addUint64NvAcqRel(&d_popIndex, 1) - 1) % d_capacity;
         node  = &d_element_p[index];
@@ -756,7 +866,7 @@ void BoundedQueue<TYPE>::popFrontHelper(TYPE *value)
 template <class TYPE>
 void BoundedQueue<TYPE>::pushComplete()
 {
-    Uint64 count = AtomicOp::addUint64NvAcqRel(&d_pushCount, k_FINISHED_INC);
+    Uint64 count = markFinishedOperation(&d_pushCount);
     if (isQuiescentState(count)) {
 
         // The total number of pushed elements is 'count & k_STARTED_MASK'.
@@ -774,7 +884,7 @@ void BoundedQueue<TYPE>::pushComplete()
 template <class TYPE>
 void BoundedQueue<TYPE>::pushExceptionComplete()
 {
-    Uint64 count = AtomicOp::addUint64NvAcqRel(&d_pushCount, -k_STARTED_INC);
+    Uint64 count = unmarkStartedOperation(&d_pushCount);
 
     int numToPost = static_cast<int>(count & k_STARTED_MASK);
 
@@ -813,10 +923,11 @@ BoundedQueue<TYPE>::BoundedQueue(bsl::size_t       capacity,
     AtomicOp::initUint(&d_emptyGeneration, 0);
 
     d_element_p = static_cast<Node *>(
-                           d_allocator_p->allocate(d_capacity * sizeof(Node)));
+                              d_allocator_p->allocate(static_cast<bsl::size_t>(
+                                                  d_capacity * sizeof(Node))));
 
     for (bsl::size_t i = 0; i < d_capacity; ++i) {
-        d_element_p[i].assignReclaim(false);
+        d_element_p[i].setIsUnconstructed(false);
     }
 
     d_pushSemaphore.post(static_cast<int>(d_capacity));
@@ -860,7 +971,7 @@ int BoundedQueue<TYPE>::pushBack(const TYPE& value)
         return e_FAILED;                                              // RETURN
     }
 
-    AtomicOp::addUint64AcqRel(&d_pushCount, k_STARTED_INC);
+    markStartedOperation(&d_pushCount);
 
     // 'd_pushIndex' stores the next location to use (want the original value)
 
@@ -868,7 +979,7 @@ int BoundedQueue<TYPE>::pushBack(const TYPE& value)
                                                                   % d_capacity;
     Node&  node  = d_element_p[index];
 
-    node.assignReclaim(true);
+    node.setIsUnconstructed(true);
 
     BoundedQueue_PushExceptionCompleteProctor<BoundedQueue<TYPE> > guard(this);
 
@@ -878,7 +989,7 @@ int BoundedQueue<TYPE>::pushBack(const TYPE& value)
 
     guard.release();
 
-    node.assignReclaim(false);
+    node.setIsUnconstructed(false);
 
     pushComplete();
 
@@ -896,7 +1007,7 @@ int BoundedQueue<TYPE>::pushBack(bslmf::MovableRef<TYPE> value)
         return e_FAILED;                                              // RETURN
     }
 
-    AtomicOp::addUint64AcqRel(&d_pushCount, k_STARTED_INC);
+    markStartedOperation(&d_pushCount);
 
     // 'd_pushIndex' stores the next location to use (want the original value)
 
@@ -904,7 +1015,7 @@ int BoundedQueue<TYPE>::pushBack(bslmf::MovableRef<TYPE> value)
                                                                   % d_capacity;
     Node&  node  = d_element_p[index];
 
-    node.assignReclaim(true);
+    node.setIsUnconstructed(true);
 
     BoundedQueue_PushExceptionCompleteProctor<BoundedQueue<TYPE> > guard(this);
 
@@ -915,7 +1026,7 @@ int BoundedQueue<TYPE>::pushBack(bslmf::MovableRef<TYPE> value)
 
     guard.release();
 
-    node.assignReclaim(false);
+    node.setIsUnconstructed(false);
 
     pushComplete();
 
@@ -932,6 +1043,12 @@ void BoundedQueue<TYPE>::removeAll()
 
         reclaim = 0;
 
+        // For quiescent state detection (see *Implementation* *Note*) and
+        // eventual 'post' to the 'd_pushSemaphore' to indicate node
+        // availability, indicate 'count' remove operations have begin.
+
+        markStartedOperation(&d_popCount, count);
+
         // 'd_popIndex' stores the next location to use (want the original
         // value)
 
@@ -940,7 +1057,7 @@ void BoundedQueue<TYPE>::removeAll()
         for (int i = 0; i < count; ++i, ++index) {
             Node& node = d_element_p[index % d_capacity];
 
-            if (false == node.reclaim()) {
+            if (!node.isUnconstructed()) {
                 node.d_value.object().~TYPE();
             }
             else {
@@ -948,7 +1065,24 @@ void BoundedQueue<TYPE>::removeAll()
             }
         }
 
-        d_pushSemaphore.post(count);
+        // For quiescent state detection (see *Implementation* *Note*) and
+        // eventual 'post' to the 'd_pushSemaphore' to indicate node
+        // availability, indicate 'count' remove operations have finished.
+
+        Uint64 popCount = markFinishedOperation(&d_popCount, count);
+
+        if (isQuiescentState(popCount)) {
+            // The total number of popped elements is
+            // 'popCount & k_STARTED_MASK'.  Attempt, once, to zero the count
+            // and, if successful, post to the push semaphore.
+
+            if (AtomicOp::testAndSwapUint64AcqRel(&d_popCount,
+                                                  popCount,
+                                                  0) == popCount) {
+                d_pushSemaphore.post(static_cast<int>(
+                                                   popCount & k_STARTED_MASK));
+            }
+        }
     }
 
     AtomicOp::addUintAcqRel(&d_emptyGeneration, 1);
@@ -994,7 +1128,7 @@ int BoundedQueue<TYPE>::tryPushBack(const TYPE& value)
         return e_FAILED;                                              // RETURN
     }
 
-    AtomicOp::addUint64AcqRel(&d_pushCount, k_STARTED_INC);
+    markStartedOperation(&d_pushCount);
 
     // 'd_pushIndex' stores the next location to use (want the original value)
 
@@ -1002,7 +1136,7 @@ int BoundedQueue<TYPE>::tryPushBack(const TYPE& value)
                                                                   % d_capacity;
     Node&  node  = d_element_p[index];
 
-    node.assignReclaim(true);
+    node.setIsUnconstructed(true);
 
     BoundedQueue_PushExceptionCompleteProctor<BoundedQueue<TYPE> > guard(this);
 
@@ -1012,7 +1146,7 @@ int BoundedQueue<TYPE>::tryPushBack(const TYPE& value)
 
     guard.release();
 
-    node.assignReclaim(false);
+    node.setIsUnconstructed(false);
 
     pushComplete();
 
@@ -1033,7 +1167,7 @@ int BoundedQueue<TYPE>::tryPushBack(bslmf::MovableRef<TYPE> value)
         return e_FAILED;                                              // RETURN
     }
 
-    AtomicOp::addUint64AcqRel(&d_pushCount, k_STARTED_INC);
+    markStartedOperation(&d_pushCount);
 
     // 'd_pushIndex' stores the next location to use (want the original value)
 
@@ -1041,7 +1175,7 @@ int BoundedQueue<TYPE>::tryPushBack(bslmf::MovableRef<TYPE> value)
                                                                   % d_capacity;
     Node&  node  = d_element_p[index];
 
-    node.assignReclaim(true);
+    node.setIsUnconstructed(true);
 
     BoundedQueue_PushExceptionCompleteProctor<BoundedQueue<TYPE> > guard(this);
 
@@ -1052,7 +1186,7 @@ int BoundedQueue<TYPE>::tryPushBack(bslmf::MovableRef<TYPE> value)
 
     guard.release();
 
-    node.assignReclaim(false);
+    node.setIsUnconstructed(false);
 
     pushComplete();
 

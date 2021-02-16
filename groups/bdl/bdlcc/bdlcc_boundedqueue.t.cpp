@@ -12,6 +12,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmt_barrier.h>
 #include <bslmt_condition.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
@@ -98,7 +99,7 @@ using namespace bsl;
 // [ 4] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [13] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec);
 // [ 2] CONCERN: 0 == e_SUCCESS
@@ -107,6 +108,7 @@ using namespace bsl;
 // [10] CONCERN: template requirements
 // [11] CONCERN: ordering guarantee
 // [12] DRQS 153332608: 'waitUntilEmpty' RACE WITH 'popFront'
+// [13] DRQS 164984269: 'removeAll' STARTED/FINISHED ISSUE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -751,6 +753,90 @@ extern "C" void *pushWaitDisable(void *arg)
     return 0;
 }
 
+class LongDestructor {
+    int d_value;
+
+  public:
+    LongDestructor() : d_value(3) {}
+
+    ~LongDestructor()
+    {
+        BSLS_ASSERT(3 == d_value);
+
+        d_value = 1;
+
+        bslmt::ThreadUtil::yield();
+    }
+};
+
+struct Case13Data {
+    bslmt::Barrier                      *d_barrier_p;
+    bdlcc::BoundedQueue<LongDestructor> *d_queue_p;
+    bsls::AtomicInt                     *d_count_p;
+};
+
+extern "C" void *case13_removeAll(void *arg)
+{
+    bdlcc::BoundedQueue<LongDestructor> *queue =
+                                     static_cast<Case13Data *>(arg)->d_queue_p;
+
+    bslmt::Barrier  *barrier = static_cast<Case13Data *>(arg)->d_barrier_p;
+    bsls::AtomicInt *count   = static_cast<Case13Data *>(arg)->d_count_p;
+
+    barrier->wait();
+
+    while (*count > 0) {
+        queue->removeAll();
+        bslmt::ThreadUtil::microSleep(1, 0);
+        (*count)--;
+    }
+
+    barrier->wait();
+
+    return 0;
+}
+
+extern "C" void *case13_tryPushBack(void *arg)
+{
+    bdlcc::BoundedQueue<LongDestructor> *queue =
+                                     static_cast<Case13Data *>(arg)->d_queue_p;
+
+    bslmt::Barrier  *barrier = static_cast<Case13Data *>(arg)->d_barrier_p;
+    bsls::AtomicInt *count   = static_cast<Case13Data *>(arg)->d_count_p;
+
+    barrier->wait();
+
+    LongDestructor record;
+
+    while (*count > 0) {
+        queue->tryPushBack(record);
+    }
+
+    barrier->wait();
+
+    return 0;
+}
+
+extern "C" void *case13_popFront(void *arg)
+{
+    bdlcc::BoundedQueue<LongDestructor> *queue =
+                                     static_cast<Case13Data *>(arg)->d_queue_p;
+
+    while (true) {
+        LongDestructor record;
+
+        int rc = queue->popFront(&record);
+
+        if (bdlcc::BoundedQueue<LongDestructor>::e_DISABLED == rc) {
+            break;
+        }
+
+        bslmt::ThreadUtil::yield();
+    }
+
+    return 0;
+}
+
 // ============================================================================
 //               GENERATOR FUNCTIONS 'gg' AND 'ggg' FOR TESTING
 // ----------------------------------------------------------------------------
@@ -971,7 +1057,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1008,6 +1094,60 @@ int main(int argc, char *argv[])
         s_continue = 0;
 
         bslmt::ThreadUtil::join(watchdogHandle);
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // DRQS 164984269: 'removeAll' STARTED/FINISHED ISSUE
+        //
+        // Concerns:
+        //: 1 The method 'removeAll' correctly makes entries available for
+        //:   reuse.
+        //
+        // Plan:
+        //: 1 Create threads that will execute 'removeAll', 'popFront', and
+        //:   'pushBack' concurrently on a queue with an element type,
+        //:   'LongDestructor', that verifies the destructor is not called
+        //:   twice upon the same element and causes a 'yield' to other
+        //:   threads (to frequently recreate the issue seen in the DRQS).
+        //:   Note that the issue is exposed after 'pushBack' gains access to
+        //:   a not-yet-destructed element, the element gets destructed after
+        //:   'pushBack' completes, and the element is removed (destructed a
+        //:   second time).
+        //
+        // Testing:
+        //   DRQS 164984269: 'removeAll' STARTED/FINISHED ISSUE
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "DRQS 164984269: 'removeAll' STARTED/FINISHED ISSUE\n"
+                 << "==================================================\n";
+        }
+
+        bdlcc::BoundedQueue<LongDestructor> queue(8192);
+
+        bslmt::Barrier  barrier(3);
+        bsls::AtomicInt count(5000);
+
+        Case13Data data;
+
+        data.d_barrier_p = &barrier;
+        data.d_queue_p   = &queue;
+        data.d_count_p   = &count;
+
+        bslmt::ThreadUtil::Handle removeThread, pushThread, popThread;
+
+        bslmt::ThreadUtil::create(&removeThread, case13_removeAll, &data);
+        bslmt::ThreadUtil::create(&pushThread, case13_tryPushBack, &data);
+        bslmt::ThreadUtil::create(&popThread, case13_popFront, &data);
+
+        barrier.wait();  // Start of the test.
+        barrier.wait();  // end of the test
+
+        bslmt::ThreadUtil::join(removeThread);
+        bslmt::ThreadUtil::join(pushThread);
+
+        queue.disablePopFront();  // exit the popFront loops
+        bslmt::ThreadUtil::join(popThread);
       } break;
       case 12: {
         // --------------------------------------------------------------------
