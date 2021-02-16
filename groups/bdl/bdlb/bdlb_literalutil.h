@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide utility routines for programming language literals.
 //
 //@CLASSES:
-//  bdlb::LiteralUtil: namespace for utilies for programming language literals
+//  bdlb::LiteralUtil: utilities namespace for programming language literals
 //
 //@SEE_ALSO: hslc_lexer, hslc_parser
 //
@@ -17,7 +17,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bsls_libraryfeatures.h>
+
 #include <bsl_string.h>
+#include <bsl_string_view.h>
+
+#include <string>           // 'std::string', 'std::pmr::string'
 
 namespace BloombergLP {
 namespace bdlb {
@@ -27,9 +32,12 @@ namespace bdlb {
                              // ==================
 
 struct LiteralUtil {
-    // CLASS METHODS
-    static void createQuotedEscapedCString(bsl::string              *result,
-                                           const bslstl::StringRef&  input);
+  private:
+    // PRIVATE CLASS METHODS
+    template <class OUT_STR>
+    static void createQuotedEscapedCString_Impl(
+                                               OUT_STR                 *result,
+                                               const bsl::string_view&  input);
         // Load into the specified 'result' string the '"' delimited and
         // escaped C/C++ string literal equivalent representing the same value
         // as that of the specified 'input' string.  When the C string literal
@@ -37,6 +45,32 @@ struct LiteralUtil {
         // literals, it will result in a string identical to the 'input'
         // string.  Note that this code uses the (ASCII) '\' character, rather
         // than Unicode code points for escapes.
+
+  public:
+    // CLASS METHODS
+    static void createQuotedEscapedCString(bsl::string              *result,
+                                           const bsl::string_view&   input);
+    static void createQuotedEscapedCString(std::string              *result,
+                                           const bsl::string_view&   input);
+        // Load into the specified 'result' string the '"' delimited and
+        // escaped C/C++ string literal equivalent representing the same value
+        // as that of the specified 'input' string.  When the C string literal
+        // equivalent is translated by a compiler having C-compatible string
+        // literals, it will result in a string identical to the 'input'
+        // string.  Note that this code uses the (ASCII) '\' character, rather
+        // than Unicode code points for escapes.
+
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+    static void createQuotedEscapedCString(std::pmr::string         *result,
+                                           const bsl::string_view&   input);
+        // Load into the specified 'result' string the '"' delimited and
+        // escaped C/C++ string literal equivalent representing the same value
+        // as that of the specified 'input' string.  When the C string literal
+        // equivalent is translated by a compiler having C-compatible string
+        // literals, it will result in a string identical to the 'input'
+        // string.  Note that this code uses the (ASCII) '\' character, rather
+        // than Unicode code points for escapes.
+#endif
 };
 
 }  // close package namespace
@@ -45,7 +79,7 @@ struct LiteralUtil {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

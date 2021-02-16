@@ -14,23 +14,26 @@ namespace bdlb {
                             // class LiteralUtil
                             // ----------------
 
-// CLASS METHODS
-void LiteralUtil::createQuotedEscapedCString(bsl::string              *result,
-                                             const bslstl::StringRef&  input)
+// PRIVATE CLASS METHODS
+template <class OUT_STR>
+inline
+void LiteralUtil::createQuotedEscapedCString_Impl(
+                                               OUT_STR                 *result,
+                                               const bsl::string_view&  input)
 {
     result->clear();
     result->reserve(input.length() + 2);
     *result += '"';
 
-    typedef bslstl::StringRef::const_iterator const_iter_t;
+    typedef bsl::string_view::const_iterator ConstIter;
 
-    const const_iter_t end = input.end();
+    const ConstIter end = input.end();
 
-    for (const_iter_t i = input.begin(); i < end; ++i) {
+    for (ConstIter i = input.begin(); i < end; ++i) {
         const char ch = *i;
 
         switch (ch) {
-          case '0': case '1': case '2': case '3': case '4':// NUMBERS
+          case '0': case '1': case '2': case '3': case '4':
           case '5': case '6': case '7': case '8': case '9':
 
           case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
@@ -57,11 +60,11 @@ void LiteralUtil::createQuotedEscapedCString(bsl::string              *result,
           case '\r':  *result += "\\r";  break;
           case '\t':  *result += "\\t";  break;
           case '\v':  *result += "\\v";  break;
-          case '"': *result += "\\\"";   break;
+          case '"':   *result += "\\\""; break;
           case '\\':  *result += "\\\\"; break;
 
           default:
-            unsigned char uch = ch;  // Singed char makes conversion harder
+            unsigned char uch = ch;  // Signed char makes conversion harder
 
                                 // 0_123_
             char octalBuffer[5] = "\\___";
@@ -77,11 +80,34 @@ void LiteralUtil::createQuotedEscapedCString(bsl::string              *result,
     *result += '"';
 }
 
+
+// CLASS METHODS
+void LiteralUtil::createQuotedEscapedCString(bsl::string             *result,
+                                             const bsl::string_view&  input)
+{
+    LiteralUtil::createQuotedEscapedCString_Impl(result, input);
+}
+
+
+void LiteralUtil::createQuotedEscapedCString(std::string             *result,
+                                             const bsl::string_view&  input)
+{
+    LiteralUtil::createQuotedEscapedCString_Impl(result, input);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+void LiteralUtil::createQuotedEscapedCString(std::pmr::string        *result,
+                                             const bsl::string_view&  input)
+{
+    LiteralUtil::createQuotedEscapedCString_Impl(result, input);
+}
+#endif
+
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2020 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
