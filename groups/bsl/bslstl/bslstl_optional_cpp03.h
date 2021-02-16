@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Fri Feb 12 08:40:32 2021
+// Generated on Tue Feb 16 08:30:12 2021
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -2549,10 +2549,9 @@ class optional {
         // this is not a concern.
 
 #else
-        // The existence of MovableRef in C++11 affects the above functions,
-        // and they need to be defined in terms of rvalue references and
-        // perfect forwarding.  For C++03, the MovableRef overloads are
-        // provided below.
+    // The existence of MovableRef in C++11 affects the above functions, and
+    // they need to be defined in terms of rvalue references and perfect
+    // forwarding.  For C++03, the MovableRef overloads are provided below.
 
     optional& operator=(const TYPE& rhs);
         // Assign to this object the value of the specified 'rhs', and return a
