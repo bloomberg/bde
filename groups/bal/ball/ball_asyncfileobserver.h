@@ -472,7 +472,7 @@ BSLS_IDENT("$Id: $")
 #include <ball_recordstringformatter.h>
 #include <ball_severity.h>
 
-#include <bdlcc_fixedqueue.h>
+#include <bdlcc_boundedqueue.h>
 
 #include <bdlt_datetimeinterval.h>
 
@@ -521,11 +521,7 @@ class AsyncFileObserver : public Observer {
 
         e_RUNNING,        // the publication thread is running
 
-        e_SHUTTING_DOWN,  // the publication thread is shutting down (i.e.,
-                          // stopping immediately without publishing enqueued
-                          // records); see 'shutdownPublicationThread'
-
-        e_NOT_RUNNING         // the publication thread is not running
+        e_NOT_RUNNING     // the publication thread is not running
     };
 
     // DATA
@@ -537,7 +533,7 @@ class AsyncFileObserver : public Observer {
     bslmt::ThreadUtil::Handle      d_threadHandle;   // handle of asynchronous
                                                      // publication thread
 
-    bdlcc::FixedQueue<AsyncFileObserver_Record>
+    bdlcc::BoundedQueue<AsyncFileObserver_Record>
                                    d_recordQueue;    // fixed-size queue of
                                                      // records processed by
                                                      // the publication thread
@@ -562,11 +558,6 @@ class AsyncFileObserver : public Observer {
                                                      // publication thread
                                                      // entry point functor
 
-    Record                         d_droppedRecordWarning;
-                                                     // cached record used for
-                                                     // publishing the count of
-                                                     // dropped log records
-
     mutable bslmt::Mutex           d_mutex;          // serialize operations
 
     bslma::Allocator              *d_allocator_p;    // memory allocator (held,
@@ -583,40 +574,12 @@ class AsyncFileObserver : public Observer {
         // constructor overloads.  Note that this method should be removed when
         // C++11 constructor chaining is available on all supported platforms.
 
-    void logDroppedMessageWarning(int numDropped);
-        // Synchronously log a record to the underlying file observer
-        // indicating that the specified 'numDropped' number of records have
-        // been dropped since the last such warning was issued.  The behavior
-        // is undefined if this method is invoked concurrently from multiple
-        // threads, i.e., it is *not* thread-safe.
-
     void publishThreadEntryPoint();
         // Publish records from the record queue, to the log file and 'stdout',
         // until signaled to stop.  The behavior is undefined if this method is
         // invoked concurrently from multiple threads, i.e., it is *not*
         // thread-safe.  Note that this function is the entry point for the
         // publication thread.
-
-    int shutdownThread();
-        // Stop the publication thread and discard all currently queued log
-        // records.  Return 0 on success, and a non-zero value if there is an
-        // error joining the publication thread.  The behavior is undefined
-        // unless the calling thread holds a lock on 'd_mutex'.
-
-    int startThread();
-        // Create a publication thread to publish records from the record
-        // queue.  If a publication thread is already active, this operation
-        // has no effect.  Return 0 on success, and a non-zero value if there
-        // is an error creating the publication thread.  The behavior is
-        // undefined unless the calling thread holds a lock on 'd_mutex'.
-
-    int stopThread();
-        // Stop the publication thread after all records on the record queue at
-        // the time this method was entered have been published.  If there is
-        // no publication thread this operation has no effect.  Return 0 on
-        // success, and a non-zero value if there is an error joining the
-        // publication thread.  The behavior is undefined unless the calling
-        // thread holds a lock on 'd_mutex'.
 
   public:
     // TYPES
@@ -888,11 +851,11 @@ class AsyncFileObserver : public Observer {
 
     int shutdownPublicationThread();
         // Stop the publication thread without waiting for log records
-        // currently on the record queue to be published, and discard all
-        // currently queued records.  Return 0 on success, and a non-zero value
-        // if there is an error joining the publication thread.  Note that log
-        // records received by the 'publish' method will continue to be added
-        // to the queue after the publication thread is shut down.
+        // currently on the record queue to be published.  Return 0 on success,
+        // and a non-zero value if there is an error joining the publication
+        // thread.  Note that log records received by the 'publish' method will
+        // continue to be added to the queue after the publication thread is
+        // shut down.
 
     int startPublicationThread();
         // Start a publication thread to asynchronously publish log records
@@ -967,7 +930,7 @@ class AsyncFileObserver : public Observer {
         // !DEPRECATED!: Use 'bdlt::LocalTimeOffset' instead.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-    int recordQueueLength() const;
+    bsl::size_t recordQueueLength() const;
         // Return the number of log records currently on the record queue of
         // this async file observer.
 
@@ -1145,9 +1108,9 @@ bdlt::DatetimeInterval AsyncFileObserver::localTimeOffset() const
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
-int AsyncFileObserver::recordQueueLength() const
+bsl::size_t AsyncFileObserver::recordQueueLength() const
 {
-    return d_recordQueue.length();
+    return d_recordQueue.numElements();
 }
 
 inline

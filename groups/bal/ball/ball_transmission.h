@@ -189,8 +189,7 @@ struct Transmission {
         e_TRIGGER            = 1,  // all records emitted; caused locally
         e_TRIGGER_ALL        = 2,  // all records emitted; caused remotely
         e_MANUAL_PUBLISH     = 3,  // manually publish a single record
-        e_MANUAL_PUBLISH_ALL = 4,  // manually publish all records
-        e_END                = 5   // end flag for asynchronous publication
+        e_MANUAL_PUBLISH_ALL = 4   // manually publish all records
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAEL_PASSTHROUGH        = e_PASSTHROUGH
@@ -198,7 +197,6 @@ struct Transmission {
       , BAEL_TRIGGER_ALL        = e_TRIGGER_ALL
       , BAEL_MANUAL_PUBLISH     = e_MANUAL_PUBLISH
       , BAEL_MANUAL_PUBLISH_ALL = e_MANUAL_PUBLISH_ALL
-      , BAEL_END                = e_END
       , PASSTHROUGH             = e_PASSTHROUGH
       , TRIGGER                 = e_TRIGGER
       , TRIGGER_ALL             = e_TRIGGER_ALL
