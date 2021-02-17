@@ -145,6 +145,10 @@ class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
     void wait();
         // Block until the count is a positive value and atomically decrement
         // it.
+
+    // ACCESSORS
+    bsls::SystemClockType::Enum clockType() const;
+        // Return the clock type used for timeouts.
 };
 
 }  // close package namespace
@@ -193,6 +197,15 @@ int bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
     tryWait()
 {
     return ::sem_trywait(&d_sem);
+}
+
+// ACCESSORS
+inline
+bsls::SystemClockType::Enum
+bslmt::TimedSemaphoreImpl<bslmt::Platform::PosixAdvTimedSemaphore>::
+                                                           clockType() const
+{
+    return d_clockType;
 }
 
 }  // close enterprise namespace

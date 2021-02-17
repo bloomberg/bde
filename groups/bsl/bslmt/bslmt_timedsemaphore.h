@@ -46,6 +46,14 @@ BSLS_IDENT("$Id: $")
 // epoch of this clock (which matches the epoch used in
 // 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
+// On platforms that support 'bsl::chrono', there are constructors that take
+// 'bsl::chrono'-style clocks.  If the clock type indicated at construction is
+// 'bsl::chrono::system_clock', then the results will be the same as if
+// 'bsls::SystemClockType::e_REALTIME' was indicated.  If the clock type
+// indicated at construction is 'bsl::chrono::steady_clock', then the results
+// will be the same as if 'bsls::SystemClockType::e_MONOTONIC' was indicated.
+// Constructing from a user-defined clock is not supported.
+//
 ///Usage
 ///-----
 // This example illustrates a very simple queue where potential clients can
@@ -140,13 +148,19 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslmt_platform.h>
 #include <bslmt_timedsemaphoreimpl_posixadv.h>
 #include <bslmt_timedsemaphoreimpl_pthread.h>
 #include <bslmt_timedsemaphoreimpl_win32.h>
-#include <bslmt_platform.h>
 
+#include <bsls_libraryfeatures.h>
 #include <bsls_systemclocktype.h>
+#include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <bsl_chrono.h>
+#endif
 
 namespace BloombergLP {
 namespace bslmt {
@@ -170,6 +184,36 @@ class TimedSemaphore {
     TimedSemaphore(const TimedSemaphore&);
     TimedSemaphore& operator=(const TimedSemaphore&);
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    // PRIVATE MANIPULATORS
+    template <class CLOCK, class DURATION>
+    int timedWaitWithDifferentClock(
+                      const bsl::chrono::time_point<CLOCK, DURATION>& absTime);
+        // Block until the count of this semaphore is a positive value, or
+        // until the specified 'absTime' timeout expires.  'absTime' is an
+        // *absolute* time represented by a time point with respect to some
+        // epoch, which is determined by the clock associated with 'absTime'.
+        // If the 'absTime' timeout did not expire before the count attained a
+        // positive value, atomically decrement the count and return 0;
+        // otherwise, return a non-zero value with no effect on the count.
+        // Note that if the clock specified at construction and the (template
+        // parameter) type 'CLOCK' match, then 'timedWaitWithSameClock' is more
+        // efficient than 'timedWaitWithDifferentClock'.
+
+    template <class CLOCK, class DURATION>
+    int timedWaitWithSameClock(
+                      const bsl::chrono::time_point<CLOCK, DURATION>& absTime);
+        // Block until the count of this semaphore is a positive value, or
+        // until the specified 'absTime' timeout expires.  'absTime' is an
+        // *absolute* time represented by a time point with respect to some
+        // epoch, which is determined by the clock associated with 'absTime'.
+        // If the 'absTime' timeout did not expire before the count attained a
+        // positive value, atomically decrement the count and return 0;
+        // otherwise, return a non-zero value with no effect on the count.  The
+        // behavior is undefined unless the (template parameter) type 'CLOCK'
+        // matches the clock specified at construction.
+#endif
+
   public:
     // CREATORS
     explicit
@@ -177,10 +221,26 @@ class TimedSemaphore {
     bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having a count of 0.  Optionally
         // specify a 'clockType' indicating the type of the system clock
-        // against which the 'bsls::TimeInterval' 'absTime' timeouts passed to
-        // the 'timedWait' method are to be interpreted (see {Supported
-        // Clock-Types} in the component documentation).  If 'clockType' is not
-        // specified then the realtime system clock is used.
+        // against which the 'absTime' timeouts passed to the 'timedWait'
+        // methods are to be interpreted (see {Supported Clock-Types} in the
+        // component-level documentation).  If 'clockType' is not specified
+        // then the realtime system clock is used.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    explicit
+    TimedSemaphore(const bsl::chrono::system_clock&);
+        // Create a timed semaphore initially having a count of 0.  Use the
+        // realtime system clock as the clock against which the 'absTime'
+        // timeouts passed to the 'timedWait' methods are interpreted (see
+        // {Supported Clock-Types} in the component-level documentation).
+
+    explicit
+    TimedSemaphore(const bsl::chrono::steady_clock&);
+        // Create a timed semaphore initially having a count of 0.  Use the
+        // monotonic system clock as the clock against which the 'absTime'
+        // timeouts passed to the 'timedWait' methods are interpreted (see
+        // {Supported Clock-Types} in the component-level documentation).
+#endif
 
     explicit
     TimedSemaphore(
@@ -188,10 +248,27 @@ class TimedSemaphore {
     bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having the specified 'count'.
         // Optionally specify a 'clockType' indicating the type of the system
-        // clock against which the 'bsls::TimeInterval' 'absTime' timeouts
-        // passed to the 'timedWait' method are to be interpreted (see
-        // {Supported Clock-Types} in the component documentation).  If
-        // 'clockType' is not specified then the realtime system clock is used.
+        // clock against which the 'absTime' timeouts passed to the 'timedWait'
+        // methods are to be interpreted (see {Supported Clock-Types} in the
+        // component-level documentation).  If 'clockType' is not specified
+        // then the realtime system clock is used.  The behavior is undefined
+        // unless '0 <= count'.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    TimedSemaphore(int count, const bsl::chrono::system_clock&);
+        // Create a timed semaphore initially having the specified 'count'.
+        // Use the realtime system clock as the clock against which the
+        // 'absTime' timeouts passed to the 'timedWait' methods are interpreted
+        // (see {Supported Clock-Types} in the component-level documentation).
+        // The behavior is undefined unless '0 <= count'.
+
+    TimedSemaphore(int count, const bsl::chrono::steady_clock&);
+        // Create a timed semaphore initially having the specified 'count'.
+        // Use the monotonic system clock as the clock against which the
+        // 'absTime' timeouts passed to the 'timedWait' methods are interpreted
+        // (see {Supported Clock-Types} in the component-level documentation).
+        // The behavior is undefined unless '0 <= count'.
+#endif
 
     ~TimedSemaphore();
         // Destroy this timed semaphore.
@@ -209,10 +286,46 @@ class TimedSemaphore {
         // until the specified 'absTime' timeout expires.  'absTime' is an
         // *absolute* time represented as an interval from some epoch, which is
         // determined by the clock indicated at construction (see {Supported
-        // Clock-Types} in the component documentation).  If the 'absTime'
-        // timeout did not expire before the count attained a positive value,
-        // atomically decrement the count and return 0; otherwise, return a
-        // non-zero value with no effect on the count.
+        // Clock-Types} in the component-level documentation).  If the
+        // 'absTime' timeout did not expire before the count attained a
+        // positive value, atomically decrement the count and return 0;
+        // otherwise, return a non-zero value with no effect on the count.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class CLOCK, class DURATION>
+    int timedWait(const bsl::chrono::time_point<CLOCK, DURATION>& absTime);
+        // Block until the count of this semaphore is a positive value, or
+        // until the specified 'absTime' timeout expires.  'absTime' is an
+        // *absolute* time represented by a time point with respect to some
+        // epoch, which is determined by the clock associated with the time
+        // point.  If the 'absTime' timeout did not expire before the count
+        // attained a positive value, atomically decrement the count and return
+        // 0; otherwise, return a non-zero value with no effect on the count.
+
+    template <class DURATION>
+    int timedWait(
+            const bsl::chrono::time_point<bsl::chrono::system_clock, DURATION>&
+                                                                      absTime);
+        // Block until the count of this semaphore is a positive value, or
+        // until the specified 'absTime' timeout expires.  'absTime' is an
+        // *absolute* time represented by a time point with respect to some
+        // epoch, which is determined by the clock associated with the time
+        // point.  If the 'absTime' timeout did not expire before the count
+        // attained a positive value, atomically decrement the count and return
+        // 0; otherwise, return a non-zero value with no effect on the count.
+
+    template <class DURATION>
+    int timedWait(
+            const bsl::chrono::time_point<bsl::chrono::steady_clock, DURATION>&
+                                                                      absTime);
+        // Block until the count of this semaphore is a positive value, or
+        // until the specified 'absTime' timeout expires.  'absTime' is an
+        // *absolute* time represented by a time point with respect to some
+        // epoch, which is determined by the clock associated with the time
+        // point.  If the 'absTime' timeout did not expire before the count
+        // attained a positive value, atomically decrement the count and return
+        // 0; otherwise, return a non-zero value with no effect on the count.
+#endif
 
     int tryWait();
         // If the count of this timed semaphore is positive, atomically
@@ -234,6 +347,37 @@ class TimedSemaphore {
                            // class TimedSemaphore
                            // --------------------
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+// PRIVATE MANIPULATORS
+template <class CLOCK, class DURATION>
+int bslmt::TimedSemaphore::timedWaitWithDifferentClock(
+                       const bsl::chrono::time_point<CLOCK, DURATION>& absTime)
+{
+    typename CLOCK::time_point now = CLOCK::now();
+
+    // Iteration is necessary because the specified 'CLOCK' type is known to be
+    // different from that used internally by the semaphore.
+
+    while (absTime > now) {
+        bsls::TimeInterval ti = bsls::SystemTime::now(d_impl.clockType())
+                                                 .addDuration(absTime - now);
+        if (0 == d_impl.timedWait(ti)) {
+            return 0;                                                 // RETURN
+        }
+        now = CLOCK::now();
+    }
+    return 1;
+}
+
+template <class CLOCK, class DURATION>
+inline
+int bslmt::TimedSemaphore::timedWaitWithSameClock(
+                       const bsl::chrono::time_point<CLOCK, DURATION>& absTime)
+{
+    return d_impl.timedWait(bsls::TimeInterval(absTime.time_since_epoch()));
+}
+#endif
+
 // CREATORS
 inline
 bslmt::TimedSemaphore::TimedSemaphore(bsls::SystemClockType::Enum clockType)
@@ -241,12 +385,42 @@ bslmt::TimedSemaphore::TimedSemaphore(bsls::SystemClockType::Enum clockType)
 {
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+inline
+bslmt::TimedSemaphore::TimedSemaphore(const bsl::chrono::system_clock&)
+: d_impl(bsls::SystemClockType::e_REALTIME)
+{
+}
+
+inline
+bslmt::TimedSemaphore::TimedSemaphore(const bsl::chrono::steady_clock&)
+: d_impl(bsls::SystemClockType::e_MONOTONIC)
+{
+}
+#endif
+
 inline
 bslmt::TimedSemaphore::TimedSemaphore(int                         count,
                                       bsls::SystemClockType::Enum clockType)
 : d_impl(count, clockType)
 {
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+inline
+bslmt::TimedSemaphore::TimedSemaphore(int                              count,
+                                      const bsl::chrono::system_clock&)
+: d_impl(count, bsls::SystemClockType::e_REALTIME)
+{
+}
+
+inline
+bslmt::TimedSemaphore::TimedSemaphore(int                              count,
+                                      const bsl::chrono::steady_clock&)
+: d_impl(count, bsls::SystemClockType::e_MONOTONIC)
+{
+}
+#endif
 
 inline
 bslmt::TimedSemaphore::~TimedSemaphore()
@@ -271,6 +445,36 @@ int bslmt::TimedSemaphore::timedWait(const bsls::TimeInterval& absTime)
 {
     return d_impl.timedWait(absTime);
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class CLOCK, class DURATION>
+inline
+int bslmt::TimedSemaphore::timedWait(
+                       const bsl::chrono::time_point<CLOCK, DURATION>& absTime)
+{
+    return timedWaitWithDifferentClock(absTime);
+}
+
+template <class DURATION>
+inline
+int bslmt::TimedSemaphore::timedWait(
+   const bsl::chrono::time_point<bsl::chrono::system_clock, DURATION>& absTime)
+{
+    return d_impl.clockType() == bsls::SystemClockType::e_REALTIME
+         ? timedWaitWithSameClock(absTime)
+         : timedWaitWithDifferentClock(absTime);
+}
+
+template <class DURATION>
+inline
+int bslmt::TimedSemaphore::timedWait(
+   const bsl::chrono::time_point<bsl::chrono::steady_clock, DURATION>& absTime)
+{
+    return d_impl.clockType() == bsls::SystemClockType::e_MONOTONIC
+         ? timedWaitWithSameClock(absTime)
+         : timedWaitWithDifferentClock(absTime);
+}
+#endif
 
 inline
 int bslmt::TimedSemaphore::tryWait()

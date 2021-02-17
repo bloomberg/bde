@@ -78,7 +78,7 @@ public:
         (void) rc; BSLS_ASSERT(0 == rc);  // can only fail on invalid 'd_attr'
     }
 
-    const pthread_condattr_t& conditonAttributes() const
+    const pthread_condattr_t& conditionAttributes() const
     {
         return d_attr;
     }
@@ -101,15 +101,15 @@ void initializeCondition(pthread_cond_t              *condition,
                                      // two possible reasons in this usage and
                                      // neither should ever occur:
                                      //: 1 lack of system resources
-                                     //: 2 attempt to re-initialise 'condition'
+                                     //: 2 attempt to re-initialize 'condition'
 #else
     CondAttr attr(clockType);
-    int rc = pthread_cond_init(condition, &attr.conditonAttributes());
+    int rc = pthread_cond_init(condition, &attr.conditionAttributes());
     (void) rc; BSLS_ASSERT(0 == rc); // 'pthread_cond_int' can only fail for
                                      // three possible reasons in this usage
                                      // and none should ever occur:
                                      //: 1 lack of system resources
-                                     //: 2 attempt to re-initialise 'condition'
+                                     //: 2 attempt to re-initialize 'condition'
                                      //: 3 the attribute is invalid
 #endif
 }
@@ -141,9 +141,7 @@ bslmt::TimedSemaphoreImpl<bslmt::Platform::PthreadTimedSemaphore>::
                 TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType)
 : d_resources(0)
 , d_waiters(0)
-#ifdef BSLS_PLATFORM_OS_DARWIN
 , d_clockType(clockType)
-#endif
 {
     pthread_mutex_init(&d_lock, 0);
     initializeCondition(&d_condition, clockType);
@@ -153,9 +151,7 @@ bslmt::TimedSemaphoreImpl<bslmt::Platform::PthreadTimedSemaphore>::
      TimedSemaphoreImpl(int count, bsls::SystemClockType::Enum clockType)
 : d_resources(count)
 , d_waiters(0)
-#ifdef BSLS_PLATFORM_OS_DARWIN
 , d_clockType(clockType)
-#endif
 {
     pthread_mutex_init(&d_lock, 0);
     initializeCondition(&d_condition, clockType);
@@ -278,6 +274,14 @@ void bslmt::TimedSemaphoreImpl<bslmt::Platform::PthreadTimedSemaphore>::wait()
     }
     --d_waiters;
     pthread_mutex_unlock(&d_lock);
+}
+
+// ACCESSORS
+bsls::SystemClockType::Enum
+bslmt::TimedSemaphoreImpl<bslmt::Platform::PthreadTimedSemaphore>::
+                                                              clockType() const
+{
+    return d_clockType;
 }
 
 }  // close enterprise namespace

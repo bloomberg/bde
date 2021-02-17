@@ -171,6 +171,97 @@ void aSsErT(bool condition, const char *message, int line)
     }
 //..
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -MN03
+
+            // ==================
+            // class AnotherClock
+            // ==================
+
+class AnotherClock {
+    // 'AnotherClock' is a C++11-compatible clock that is very similar to
+    // 'bsl::chrono::steady_clock'.  The only difference is that it uses a
+    // different epoch; it begins 10000 "ticks" after the beginning of
+    // 'steady_clock's epoch.
+
+  private:
+    typedef bsl::chrono::steady_clock base_clock;
+
+  public:
+    typedef base_clock::duration                  duration;
+    typedef base_clock::rep                       rep;
+    typedef base_clock::period                    period;
+    typedef bsl::chrono::time_point<AnotherClock> time_point;
+
+    static const bool is_steady = base_clock::is_steady;
+
+    // CLASS METHODS
+    static time_point now() noexcept;
+        // Return a time point representing the time since the beginning of the
+        // epoch.
+};
+
+// CLASS METHODS
+AnotherClock::time_point AnotherClock::now() noexcept
+{
+    base_clock::duration ret = base_clock::now().time_since_epoch();
+    return AnotherClock::time_point(ret - duration(10000));
+}
+
+            // ===============
+            // class HalfClock
+            // ===============
+
+class HalfClock {
+    // 'HalfClock' is a C++11-compatible clock that is very similar to
+    // 'bsl::chrono::steady_clock'.  The difference is that it runs "half as
+    // fast" as 'steady_clock'.
+
+  private:
+    typedef bsl::chrono::steady_clock base_clock;
+
+  public:
+    typedef base_clock::duration               duration;
+    typedef base_clock::rep                    rep;
+    typedef base_clock::period                 period;
+    typedef bsl::chrono::time_point<HalfClock> time_point;
+
+    static const bool is_steady = base_clock::is_steady;
+
+    // CLASS METHODS
+    static time_point now() noexcept;
+        // Return a time point representing the time since the beginning of the
+        // epoch.
+};
+
+// CLASS METHODS
+HalfClock::time_point HalfClock::now() noexcept
+{
+    base_clock::duration ret = base_clock::now().time_since_epoch();
+    return HalfClock::time_point(ret/2);
+}
+
+// BDE_VERIFY pragma: pop
+
+template <class CLOCK>
+int WaitForTimeout(bslmt::TimedSemaphore& mX, int secondsToWait)
+    // Wait on the specified 'TimedSemaphore' 'mX' for the specified
+    // 'secondsToWait' seconds based on the specified 'CLOCK'.  If the call to
+    // 'timedWait' returns a non-zero status, indicating that a timeout has
+    // occurred, verify that at least that much time has elapsed (measured by
+    // the clock).
+{
+    typename CLOCK::time_point tp = CLOCK::now() +
+                                           bsl::chrono::seconds(secondsToWait);
+    int                        ret = mX.timedWait(tp);
+    if (0 != ret) {
+        ASSERT(CLOCK::now() >= tp);
+    }
+    return ret;
+}
+#endif
+
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -200,17 +291,64 @@ int main(int argc, char *argv[])
                           << "Breathing Test" << endl
                           << "==============" << endl;
         {
-            Obj X;
-            X.post();
-            X.post(2);
-            X.wait();
-            ASSERT(0 == X.timedWait(bsls::SystemTime::nowRealtimeClock() +
+            Obj mX;
+            mX.post();
+            mX.post(2);
+            mX.wait();
+            ASSERT(0 == mX.timedWait(bsls::SystemTime::nowRealtimeClock() +
                                     bsls::TimeInterval(60)));
-            ASSERT(0 == X.tryWait());
-            ASSERT(0 != X.tryWait());
-            ASSERT(0 != X.timedWait(bsls::SystemTime::nowRealtimeClock() +
-                                    bsls::TimeInterval(1)));
+            ASSERT(0 == mX.tryWait());
+            ASSERT(0 != mX.tryWait());
+
+            bsls::TimeInterval ti = bsls::SystemTime::nowRealtimeClock() +
+                                    bsls::TimeInterval(1);
+            ASSERT(0 != mX.timedWait(ti));
+            ASSERT(bsls::SystemTime::nowRealtimeClock() >= ti);
         }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        {
+            using namespace bsl::chrono;
+
+            Obj mX(steady_clock{});
+
+            mX.post();
+            mX.post(5);
+            mX.wait();
+            ASSERT(0 == WaitForTimeout<steady_clock>(mX, 60));
+            ASSERT(0 == WaitForTimeout<system_clock>(mX, 60));
+            ASSERT(0 == WaitForTimeout<AnotherClock>(mX, 60));
+            ASSERT(0 == WaitForTimeout<HalfClock>(mX, 60));
+
+            ASSERT(0 == mX.tryWait());
+            ASSERT(0 != mX.tryWait());
+
+            ASSERT(0 != WaitForTimeout<steady_clock>(mX, 1));
+            ASSERT(0 != WaitForTimeout<system_clock>(mX, 1));
+            ASSERT(0 != WaitForTimeout<AnotherClock>(mX, 1));
+            ASSERT(0 != WaitForTimeout<HalfClock>(mX, 1));
+        }
+        {
+            using namespace bsl::chrono;
+
+            Obj mX(system_clock{});
+
+            mX.post();
+            mX.post(5);
+            mX.wait();
+            ASSERT(0 == WaitForTimeout<steady_clock>(mX, 60));
+            ASSERT(0 == WaitForTimeout<system_clock>(mX, 60));
+            ASSERT(0 == WaitForTimeout<AnotherClock>(mX, 60));
+            ASSERT(0 == WaitForTimeout<HalfClock>(mX, 60));
+
+            ASSERT(0 == mX.tryWait());
+            ASSERT(0 != mX.tryWait());
+
+            ASSERT(0 != WaitForTimeout<steady_clock>(mX, 1));
+            ASSERT(0 != WaitForTimeout<system_clock>(mX, 1));
+            ASSERT(0 != WaitForTimeout<AnotherClock>(mX, 1));
+            ASSERT(0 != WaitForTimeout<HalfClock>(mX, 1));
+        }
+#endif
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

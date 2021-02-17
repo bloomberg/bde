@@ -84,10 +84,7 @@ class TimedSemaphoreImpl<Platform::PthreadTimedSemaphore> {
     bsls::AtomicInt             d_waiters;    // number of threads waiting
     pthread_mutex_t             d_lock;       // lock
     pthread_cond_t              d_condition;  // condition
-
-#ifdef BSLS_PLATFORM_OS_DARWIN
-    bsls::SystemClockType::Enum d_clockType;
-#endif
+    bsls::SystemClockType::Enum d_clockType;  // clock type
 
     // NOT IMPLEMENTED
     TimedSemaphoreImpl(const TimedSemaphoreImpl&);
@@ -155,6 +152,10 @@ class TimedSemaphoreImpl<Platform::PthreadTimedSemaphore> {
     void wait();
         // Block until the count is a positive value and atomically decrement
         // it.
+
+    // ACCESSORS
+    bsls::SystemClockType::Enum clockType() const;
+        // Return the clock type used for timeouts.
 };
 
 }  // close package namespace

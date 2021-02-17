@@ -51,7 +51,8 @@ using namespace bsl;  // automatically added by script
 // [3] void timedWait(bsls::TimeInterval absTime);
 // [4] post(int number)
 // [5] tryWait()
-// [6] USAGE Example
+// [6] bsls::SystemClockType::Enum clockType() const;
+// [7] USAGE Example
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -501,7 +502,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 6: {
+      case 7: {
 ///Usage
 ///-----
 // This component is an implementation detail of 'bslmt' and is *not* intended
@@ -516,6 +517,36 @@ int main(int argc, char *argv[]) {
         testQueue.pushInt(2);
         ASSERT(2 == testQueue.getInt());
 
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING 'clockType'
+        //
+        // Concerns:
+        //: 1 'clockType' returns the clock type passed to the constructor.
+        //:
+        //: 2 'clockType' is declared 'const'.
+        //
+        // Plan:
+        //: 1 Create a 'const' object, and then query it to make sure that the
+        //:   correct clock type is returned.
+        //
+        // Testing:
+        //   bsls::SystemClockType::Enum clockType() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'clockType'" << endl
+                          << "===================" << endl;
+
+        const Obj def;
+        ASSERT(bsls::SystemClockType::e_REALTIME == def.clockType());
+
+        const Obj rt(bsls::SystemClockType::e_REALTIME);
+        ASSERT(bsls::SystemClockType::e_REALTIME == rt.clockType());
+
+        const Obj mt(bsls::SystemClockType::e_MONOTONIC);
+        ASSERT(bsls::SystemClockType::e_MONOTONIC == mt.clockType());
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -536,7 +567,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'trywait'" << endl
+                          << "TESTING 'tryWait'" << endl
                           << "=================" << endl;
 
         bslmt::ThreadUtil::Handle threads[10];

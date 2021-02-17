@@ -162,7 +162,7 @@ class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
         // Block until the count of this semaphore is a positive value, or
         // until the specified 'absTime' timeout expires.  'absTime' is an
         // *absolute* time represented as an interval from some epoch, which is
-        // detemined by the clock indicated at construction (see {Supported
+        // determined by the clock indicated at construction (see {Supported
         // Clock-Types} in the component documentation).  If the timeout did
         // not expire before the count attained a positive value, atomically
         // decrement the count and return 0; otherwise, return a non-zero value
@@ -175,6 +175,10 @@ class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
     void wait();
         // Block until the count is a positive value and atomically decrement
         // it.
+
+    // ACCESSORS
+    bsls::SystemClockType::Enum clockType() const;
+        // Return the clock type used for timeouts.
 };
 
 }  // close package namespace
@@ -235,6 +239,15 @@ inline
 void bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::wait()
 {
     WaitForSingleObject(d_handle, 0xFFFFFFFF /* INFINITE */);
+}
+
+// ACCESSORS
+inline
+bsls::SystemClockType::Enum
+bslmt::TimedSemaphoreImpl<bslmt::Platform::Win32TimedSemaphore>::
+                                                           clockType() const
+{
+    return d_clockType;
 }
 
 }  // close enterprise namespace
