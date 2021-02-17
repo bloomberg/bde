@@ -83,7 +83,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
 
 #include <charconv>
 
@@ -165,7 +165,7 @@ to_chars(char *first, char *last, INTEGRAL_TYPE value, int base)
 
 namespace bsl {
 
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
 
 using std::to_chars_result;
 using std::to_chars;

@@ -95,7 +95,7 @@ void LiteralUtil::createQuotedEscapedCString(std::string             *result,
     LiteralUtil::createQuotedEscapedCString_Impl(result, input);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 void LiteralUtil::createQuotedEscapedCString(std::pmr::string        *result,
                                              const bsl::string_view&  input)
 {

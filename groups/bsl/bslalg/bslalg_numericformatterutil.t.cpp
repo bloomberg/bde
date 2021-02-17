@@ -7,7 +7,7 @@
 #include <bsls_nameof.h>
 #include <bsls_stopwatch.h>
 
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
 # include <charconv>
 #endif
 
@@ -544,7 +544,7 @@ void testValue(const Uint64 numArg, unsigned base)
                     }
                 }
 
-#if             defined(BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV)
+#if             defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
                 {
                     char nBuffer[100];
                     char *nTail = nBuffer + (tail - tBuffer);
@@ -1321,7 +1321,7 @@ int main(int argc, char *argv[])
                     ASSERT(digit < base);
                 }
 
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
                 char iBuffer[1000];
                 std::to_chars_result iSts = std::to_chars(
                                                      iBuffer,
@@ -1403,7 +1403,7 @@ int main(int argc, char *argv[])
                                     toCharsBufferS + 1,
                                     result - toCharsBuffer));
 
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
                 iSts = std::to_chars(iBuffer,
                                      iBuffer + sizeof(iBuffer),
                                      svalue,
@@ -1546,7 +1546,7 @@ int main(int argc, char *argv[])
                                          !std::strcmp(toCharsBuf, sprintfBuf));
         }
       } break;
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
       case -1: {
         // --------------------------------------------------------------------
         // SPEED TRIAL
