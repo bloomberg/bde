@@ -527,10 +527,10 @@ class FlatHashTable
         // to be defined inline.
 
         bool        notFound;
-        const KEY&  key       = ENTRY_UTIL::key(
-                             BSLS_COMPILERFEATURES_FORWARD(ENTRY_TYPE, entry));
-        bsl::size_t hashValue = d_hasher(key);
-        bsl::size_t index     = indexOfKey(&notFound, key, hashValue);
+        bsl::size_t hashValue = d_hasher(ENTRY_UTIL::key(entry));
+        bsl::size_t index     = indexOfKey(&notFound,
+                                           ENTRY_UTIL::key(entry),
+                                           hashValue);
 
         if (notFound) {
             bslma::ConstructionUtil::construct(
@@ -1340,12 +1340,8 @@ ENTRY& FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::operator[](
                                BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) key)
 {
     bool        notFound;
-    bsl::size_t hashValue = d_hasher(BSLS_COMPILERFEATURES_FORWARD(KEY_TYPE,
-                                                                   key));
-    bsl::size_t index     = indexOfKey(&notFound,
-                                       BSLS_COMPILERFEATURES_FORWARD(KEY_TYPE,
-                                                                     key),
-                                       hashValue);
+    bsl::size_t hashValue = d_hasher(key);
+    bsl::size_t index     = indexOfKey(&notFound, key, hashValue);
 
     if (notFound) {
         ENTRY_UTIL::construct(d_entries_p + index,

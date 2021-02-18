@@ -2747,7 +2747,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-    case 20: {
+      case 20: {
         // --------------------------------------------------------------------
         // 'operator[]'
         //
@@ -2902,8 +2902,8 @@ int main(int argc, char *argv[])
             bsl::size_t errorIndex;
             ASSERT(IsValidResult::e_SUCCESS == isValid(&errorIndex, X));
         }
-    } break;
-    case 19: {
+      } break;
+      case 19: {
         // --------------------------------------------------------------------
         // 'rehash' AND 'reserve'
         //

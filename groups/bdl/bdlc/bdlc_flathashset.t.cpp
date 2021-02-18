@@ -170,8 +170,9 @@ using namespace bsl;
 // FREE FUNCTIONS
 // [ 8] void swap(FlatHashSet&, FlatHashSet&);
 // ----------------------------------------------------------------------------
-// [25] USAGE EXAMPLE
+// [26] USAGE EXAMPLE
 // [24] CONCERN: 'FlatHashMap' has the necessary type traits
+// [25] DRQS 165258625: 'insert' could create reference to temporary
 // [ 1] BREATHING TEST
 // [-1] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
@@ -1184,7 +1185,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1231,6 +1232,41 @@ int main(int argc, char *argv[])
 //..
 //  100 84
 //..
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // DRQS 165258625: 'insert' could create reference to temporary
+        //
+        // Concerns:
+        //: 1 The 'insert' method does not access a value after it goes out of
+        //:   scope.  When the argument to 'insert' is convertible (but not
+        //:   equivalent) to the type held in the container, a reference to a
+        //:   temporary value was created.  This reference was accessed after
+        //:   the temporary value went out of scope.
+        //
+        // Plan:
+        //: 1 In ASAN builds, verify the following code does not produce a
+        //    "stack-use-after-scope" error.  (C-1)
+        //
+        // Testing:
+        //   DRQS 165258625: 'insert' could create reference to temporary
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+// ---------^
+cout << endl
+     << "DRQS 165258625: 'insert' could create reference to temporary" << endl
+     << "============================================================" << endl;
+// ---------v
+        }
+
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+        bdlc::FlatHashSet<bsl::string>        mX(&oa);
+        const bdlc::FlatHashSet<bsl::string>& X = mX;
+
+        mX.insert("-1");
+        ASSERT(X.begin() == X.find(bsl::string("-1")));
       } break;
       case 24: {
         // --------------------------------------------------------------------
