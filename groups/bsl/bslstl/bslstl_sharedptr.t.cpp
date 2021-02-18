@@ -322,6 +322,7 @@ using namespace BloombergLP;
 // [  ] CONCERN: 'shared_ptr<FactoryClass>' behaves correctly
 // [  ] USAGE EXAMPLE (shared_ptr) // TBD
 // [38] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
+// [43] REGRESSIONS
 // [-1] PERFORMANCE
 //-----------------------------------------------------------------------------
 //
@@ -7414,7 +7415,42 @@ int main(int argc, char *argv[])
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
-      case 42: {
+      case 43: {
+        // --------------------------------------------------------------------
+        // TESTING REGRESSIONS
+        //   This test case verifies that fixed bugs did not creep back.
+        //
+        // Concerns:
+        //:  1 A 'shared_ptr' to a class inheriting from
+        //:    'enable_shared_from_this' can be constructed from a non-literal
+        //:    NULL pointer without triggering an assert. {DRQS 165213908}
+        //
+        // Plan:
+        //: 1 Create a pointer to 'ShareThis' that is initialized to be a NULL
+        //:   pointer.  In exception enabled builds use the assertion testing
+        //:   facility to verify that no assertion fails while constructing a
+        //:   'shared_ptr<ShareThis>' instance from the former non-literal NULL
+        //:   pointer.  In builds with exceptions disabled just create the
+        //:   shared pointer and allow it to assert (if asserts are enabled).
+        //
+        // Testing:
+        //   REGRESSIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING REGRESSIONS"
+                            "\n===================\n");
+
+        ShareThis *np = 0;
+
+#if defined(BDE_BUILD_TARGET_EXC)
+        bsls::AssertTestHandlerGuard g; (void)g;
+        ASSERT_PASS(bsl::shared_ptr<ShareThis> obj(np));
+#endif
+        bsl::shared_ptr<ShareThis> obj(np);
+
+        ASSERT(0 == obj.get());
+    } break;
+    case 42: {
         // --------------------------------------------------------------------
         // TESTING THE TEST MACHINERY
         //   This test case will test all of the test machinery supplied by the

@@ -1550,7 +1550,7 @@ BSL_OVERRIDES_STD mode"
 // as any object type ('T'), or deducting to the a pointer to something ('T*'),
 // The rules for partial ordering should make the second overload a stronger
 // match when passed a pointer; however, both of these compilers complain about
-// ambiguities when additional parameters are invovled.
+// ambiguities when additional parameters are involved.
 #endif
 
 #if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
@@ -1630,7 +1630,7 @@ template <class FUNCTOR, class ARG>
 struct SharedPtr_IsCallable;
     // Forward declaration of component-private type trait to indicate whether
     // an object of (template parameter) type 'FUNCTOR' can be called as a
-    // function with an argument of (temnplate parameter) type 'ARG'
+    // function with an argument of (template parameter) type 'ARG'
 
 template <class FACTORY, class ARG>
 struct SharedPtr_IsFactoryFor;
@@ -2113,8 +2113,8 @@ class shared_ptr {
     , d_rep_p(0)
     {
         // This constructor template must be defined inline inside the class
-        // defintion, as Microsoft Visual C++ does not recognise the definition
-        // as matching this signature when placed out-of-line.
+        // definition, as Microsoft Visual C++ does not recognize the
+        // definition as matching this signature when placed out-of-line.
 
         typedef BloombergLP::bslma::SharedPtrInplaceRep<
                  native_std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER> > Rep;
@@ -2301,7 +2301,7 @@ class shared_ptr {
         // object, unless '*this' is the same object as 'rhs'.  This function
         // does not exist unless a pointer to (template parameter)
         // 'COMPATIBLE_TYPE' is convertible to a pointer to the (template
-        // paramter) 'ELEMENT_TYPE' of this 'shared_ptr'.  Note that if 'rhs'
+        // parameter) 'ELEMENT_TYPE' of this 'shared_ptr'.  Note that if 'rhs'
         // is empty, then this shared pointer will also be empty after the
         // assignment.
 #else
@@ -2323,7 +2323,7 @@ class shared_ptr {
         // object, unless '*this' is the same object as 'rhs'.  This function
         // does not exist unless a pointer to (template parameter)
         // 'COMPATIBLE_TYPE' is convertible to a pointer to the (template
-        // paramter) 'ELEMENT_TYPE' of this 'shared_ptr'.  Note that if 'rhs'
+        // parameter) 'ELEMENT_TYPE' of this 'shared_ptr'.  Note that if 'rhs'
         // is empty, then this shared pointer will also be empty after the
         // assignment.
 #endif
@@ -2788,7 +2788,7 @@ class shared_ptr {
         // and 'false' otherwise.  Note that a shared pointer with a custom
         // deleter can refer to a null pointer without being empty, and so may
         // be 'unique'.  Also note that the result of this function may not be
-        // reliable in a multithreaded program, where a weak pointer may be
+        // reliable in a multi-threaded program, where a weak pointer may be
         // locked on another thread.  This function is deprecated in C++17.
 
     long use_count() const BSLS_KEYWORD_NOEXCEPT;
@@ -2796,7 +2796,7 @@ class shared_ptr {
         // one) that share ownership of the object managed by this shared
         // pointer.  Note that 0 is returned if this shared pointer is empty.
         // Also note that any result other than 0 may be unreliable in a
-        // multithreaded program, where another pointer sharing ownership in a
+        // multi-threaded program, where another pointer sharing ownership in a
         // different thread may be copied or destroyed, or a weak pointer may
         // be locked in the case that 1 is returned (that would otherwise
         // indicate unique ownership).
@@ -2835,7 +2835,7 @@ class shared_ptr {
         // Return a "snapshot" of the number of shared pointers (including this
         // one) that share ownership of the object managed by this shared
         // pointer.  Note that the behavior of this function is the same as
-        // 'use_count', and the result may be unreliable in multithread code
+        // 'use_count', and the result may be unreliable in multi-threaded code
         // for the same reasons.
 
     ELEMENT_TYPE *ptr() const BSLS_KEYWORD_NOEXCEPT;
@@ -3312,7 +3312,7 @@ class weak_ptr {
         // Return a "snapshot" of the current number of shared pointers that
         // share ownership of the object referred to by this weak pointer, or 0
         // if this weak pointer is in the empty state.  Note that any result
-        // other than 0 may be unreliable in a multithreaded program, where
+        // other than 0 may be unreliable in a multi-threaded program, where
         // another pointer sharing ownership in a different thread may be
         // copied or destroyed, or another weak pointer may be locked in the
         // case that 1 is returned (that would otherwise indicate unique
@@ -3334,7 +3334,7 @@ class weak_ptr {
         // share ownership of the object referred to by this weak pointer, or 0
         // if this weak pointer is in the empty state.  Note that the behavior
         // of this method is the same as that of 'use_count', and the result
-        // may be unreliable in multithread code for the same reasons.
+        // may be unreliable in multi-threaded code for the same reasons.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
@@ -3592,15 +3592,19 @@ struct SharedPtr_ImpUtil {
     static void loadEnableSharedFromThis(
                    const bsl::enable_shared_from_this<ENABLE_TYPE> *result,
                    bsl::shared_ptr<SHARED_TYPE>                    *sharedPtr);
-        // If the data member 'd_weakThis' of the specified 'result' has
-        // expired, then set it to refer to the object managed by the specified
-        // 'sharedPtr'; otherwise (i.e., 'd_weakThis' has not expired) this
-        // method has no effect.  This function shall be called only by
-        // 'shared_ptr' constructors creating shared pointers for classes that
-        // derive publicly and unambiguously from a specialization of
-        // 'enabled_shared_from_this'.  Note that overload resolution will
-        // select the overload below if a supplied type does not derive from a
-        // specialization of 'enable_shared_from_this'.
+        // Load the specified 'result' with the control block (i.e.,
+        // 'SharedPtrRep') from the specified 'sharedPtr' if (and only if)
+        // 'result' is not 0 and 'result' does not already refer to a
+        // non-expired shared-pointer control block.  If 'result' is 0, or if
+        // 'result->d_weakThis' has not expired, this operation has no effect.
+        // This operation is used to initialize data members from a type that
+        // inherits from 'enable_shared_from_this' when constructing an
+        // out-of-place shared pointer representation.  This function shall be
+        // called only by 'shared_ptr' constructors creating shared pointers
+        // for classes that derive publicly and unambiguously from a
+        // specialization of 'enabled_shared_from_this'.  Note that overload
+        // resolution will select the overload below if a supplied type does
+        // not derive from a specialization of 'enable_shared_from_this'.
 
     static void loadEnableSharedFromThis(const volatile void *, const void *)
                                                          BSLS_KEYWORD_NOEXCEPT;
@@ -5212,9 +5216,8 @@ void SharedPtr_ImpUtil::loadEnableSharedFromThis(
                     bsl::shared_ptr<SHARED_TYPE>                    *sharedPtr)
 {
     BSLS_ASSERT(0 != sharedPtr);
-    BSLS_ASSERT(0 != result);
 
-    if (result->d_weakThis.expired()) {
+    if (0 != result && result->d_weakThis.expired()) {
         result->d_weakThis.privateAssign(
                          sharedPtr->d_rep_p,
                          const_cast <ENABLE_TYPE      *>(
