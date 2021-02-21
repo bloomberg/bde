@@ -1,9 +1,17 @@
-bsl-internal (3.75.0.0) unstable; urgency=low
+bsl-internal (3.75.1.0) unstable; urgency=low
 
+  * a64a1b32e Bumped version to 3.75.1.0
+  * 26c475831 Merge pull request #3112 from afeher/drqs-164339060-bdlb_literalutil-bde-4.0
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 20 Feb 2021 19:07:31 -0500
+
+bsl-internal (3.75.0.0) git; urgency=low
+
+  * 54e9ea68f Changelog for version 3.75.0.0
   * ce7178c5c Bumped version to 3.75.0.0
   * 8a1331385 Merge pull request #3111 from cwilson/bdlb_string-gcc9-compile-fail-drqs-165184815
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 12 Feb 2021 16:27:29 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 12 Feb 2021 16:42:15 -0500
 
 bsl-internal (3.74.0.0) git; urgency=low
 
