@@ -1241,8 +1241,8 @@ class optional {
 #ifdef BSL_COMPILERFEATURES_GUARANTEED_COPY_ELISION
     template <class ANY_TYPE>
     TYPE value_or(bsl::allocator_arg_t, allocator_type, ANY_TYPE&& value) &&;
-        // If this object is non-null, return a copy of the the underlying
-        // object of a (template parameter) 'TYPE' created using the provided
+        // If this object is non-null, return a copy of the underlying object
+        // of a (template parameter) 'TYPE' created using the provided
         // allocator, and the specified 'value' converted to 'TYPE' using the
         // specified 'allocator' otherwise.  Note that this method returns *by*
         // *value*, so may be inefficient in some contexts.

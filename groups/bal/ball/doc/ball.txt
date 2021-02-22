@@ -2463,7 +2463,6 @@ would be justified.
  Notice that the attribute "mylibrary.hostname" will now be associated with
  every log message created (until "mylibrary.hostnamecollector" is unregistered
  or the logger manager is destroyed).
-..
 
 /Appendix: Macro Reference
 /-------------------------
