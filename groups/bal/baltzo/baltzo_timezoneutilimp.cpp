@@ -295,7 +295,7 @@ void TimeZoneUtilImp::resolveLocalTime(
     BSLS_ASSERT(result);
     BSLS_ASSERT(resultValidity);
     BSLS_ASSERT(transitionIter);
-    BSLS_ASSERT_SAFE(ZoneinfoUtil::isWellFormed(timeZone));
+    BSLS_ASSERT(ZoneinfoUtil::isWellFormed(timeZone));
 
     typedef LocalTimeValidity Validity;
 
@@ -374,7 +374,7 @@ void TimeZoneUtilImp::createLocalTimePeriod(
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(transition != timeZone.endTransitions());
-    BSLS_ASSERT_SAFE(ZoneinfoUtil::isWellFormed(timeZone));
+    BSLS_ASSERT(ZoneinfoUtil::isWellFormed(timeZone));
 
     // The transition times in 'timeZone' are guaranteed to be in the range
     // representable by 'bdlt::Datetime'.

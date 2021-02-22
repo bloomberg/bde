@@ -3,6 +3,7 @@
 #include <baltzo_dstpolicy.h>
 
 #include <bdlsb_fixedmemoutstreambuf.h>
+#include <bsla_maybeunused.h>
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
@@ -300,7 +301,7 @@ if (veryVerbose)
 
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
 
-            const int SZ = strlen(EXP) + 1;
+            const bsl::size_t SZ = strlen(EXP) + 1;
             LOOP2_ASSERT(LINE, ti, SZ  < SIZE);           // Buffer is large
                                                           // enough.
             LOOP2_ASSERT(LINE, ti, XX == buf[SIZE - 1]);  // Check for overrun.
@@ -336,7 +337,7 @@ if (veryVerbose)
             const int   LEVEL = DATA[ti].d_level;
             const int   SPL   = DATA[ti].d_spl;
             const Enum  VALUE = DATA[ti].d_value;
-            const char *EXP   = DATA[ti].d_exp;
+            BSLA_MAYBE_UNUSED const char *EXP   = DATA[ti].d_exp;
 
             memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
@@ -355,7 +356,7 @@ if (veryVerbose)
         {
             typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Enum, int, int);
 
-            const FuncPtr FP = &Obj::print;
+            BSLA_MAYBE_UNUSED const FuncPtr FP = &Obj::print;
         }
 
       } break;
@@ -436,7 +437,7 @@ if (veryVerbose)
 
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
 
-            const int SZ = strlen(EXP) + 1;
+            const bsl::size_t SZ = strlen(EXP) + 1;
             LOOP2_ASSERT(LINE, ti, SZ  < SIZE);           // Buffer is large
                                                           // enough.
             LOOP2_ASSERT(LINE, ti, XX == buf[SIZE - 1]);  // Check for overrun.
@@ -450,7 +451,7 @@ if (veryVerbose)
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_lineNum;
             const Enum  VALUE = DATA[ti].d_value;
-            const char *EXP   = DATA[ti].d_exp;
+            BSLA_MAYBE_UNUSED const char *EXP   = DATA[ti].d_exp;
 
             memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
@@ -470,7 +471,7 @@ if (veryVerbose)
             using namespace baltzo;
             typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Enum);
 
-            const FuncPtr FP = &operator<<;
+            BSLA_MAYBE_UNUSED const FuncPtr FP = &operator<<;
         }
 
       } break;
@@ -555,7 +556,7 @@ if (veryVerbose)
         {
             typedef const char *(*FuncPtr)(Enum);
 
-            const FuncPtr FP = &Obj::toAscii;
+            BSLA_MAYBE_UNUSED const FuncPtr FP = &Obj::toAscii;
         }
 
       } break;

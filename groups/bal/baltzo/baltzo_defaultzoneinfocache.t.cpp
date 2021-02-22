@@ -908,7 +908,7 @@ int main(int argc, char *argv[])
             {
                 baltzo::ZoneinfoCache cache(&loader);
 
-                ASSERT_SAFE_PASS(Obj::setDefaultCache(&cache));
+                ASSERT_PASS(Obj::setDefaultCache(&cache));
             }
         }
       } break;
@@ -1098,12 +1098,12 @@ int main(int argc, char *argv[])
             int             d_line;
             const char     *d_path;
         } VALUES[] = {
-            // LINE   EXP_PATH
-            // ----   --------
-            L_,       "/opt/bb/share/zoneinfo/",      // Bloomberg stnd loc.
-            L_,       "/bb/data/datetime/zoneinfo/",  // deprctd. BB stnd loc.
-            L_,       "/usr/share/zoneinfo/",         // Unix standard loc.
-            L_,       "/usr/share/lib/zoneinfo/",     // Solaris standard loc.
+            // LINE  EXP_PATH
+            // ----  --------
+            {L_,  "/opt/bb/share/zoneinfo/"},         // Bloomberg stnd loc.
+            {L_,      "/bb/data/datetime/zoneinfo/"}, // deprctd. BB stnd loc.
+            {L_,      "/usr/share/zoneinfo/"},        // Unix standard loc.
+            {L_,      "/usr/share/lib/zoneinfo/"},    // Solaris standard loc.
         };
         const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 

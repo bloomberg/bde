@@ -173,6 +173,8 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 
 // ============================================================================
 //                      CONVENIENCE MACROS
@@ -698,8 +700,8 @@ int main(int argc, char *argv[])
                 (void) X;
                 (void) Y;
 
-                ASSERT_SAFE_PASS(X.findTransitionForUtcTime(DT));
-                ASSERT_SAFE_FAIL(Y.findTransitionForUtcTime(DT));
+                ASSERT_PASS(X.findTransitionForUtcTime(DT));
+                ASSERT_FAIL(Y.findTransitionForUtcTime(DT));
             }
 
             if (veryVerbose) cout << "\tWith no transitions before input"
@@ -716,8 +718,8 @@ int main(int argc, char *argv[])
                 (void) X;
                 (void) Y;
 
-                ASSERT_SAFE_PASS(X.findTransitionForUtcTime(DT));
-                ASSERT_SAFE_FAIL(Y.findTransitionForUtcTime(DT));
+                ASSERT_PASS(X.findTransitionForUtcTime(DT));
+                ASSERT_FAIL(Y.findTransitionForUtcTime(DT));
             }
         }
       } break;
@@ -1871,8 +1873,8 @@ int main(int argc, char *argv[])
                 Obj mA(&oa1);  Obj mB(&oa1);  Obj mC(&oa1);
                 Obj mZ(&oa2);
 
-                ASSERT_SAFE_PASS(mA.swap(mB));
-                ASSERT_SAFE_FAIL(mC.swap(mZ));
+                ASSERT_PASS(mA.swap(mB));
+                ASSERT_FAIL(mC.swap(mZ));
             }
         }
 
@@ -4289,8 +4291,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(TEMP.allocator(), &da == TEMP.allocator());
                 LOOP_ASSERT(ALLOC_OF(TEMP), &da == TEMP.get_allocator());
 
-                ASSERT_SAFE_PASS(X.firstTransition());
-                ASSERT_SAFE_FAIL(TEMP.firstTransition());
+                ASSERT_PASS(X.firstTransition());
+                ASSERT_FAIL(TEMP.firstTransition());
             }
         }
       } break;
@@ -4796,10 +4798,10 @@ int main(int argc, char *argv[])
             (void) VALID_C;
             (void) VALID_SR;
 
-            ASSERT_SAFE_PASS(mX.setPosixExtendedRangeDescription(  VALID_C ));
-            ASSERT_SAFE_PASS(mX.setPosixExtendedRangeDescription(  VALID_SR));
-            ASSERT_SAFE_FAIL(mX.setPosixExtendedRangeDescription(INVALID_C ));
-            ASSERT_SAFE_FAIL(mX.setPosixExtendedRangeDescription(INVALID_SR));
+            ASSERT_PASS(mX.setPosixExtendedRangeDescription(  VALID_C ));
+            ASSERT_PASS(mX.setPosixExtendedRangeDescription(  VALID_SR));
+            ASSERT_FAIL(mX.setPosixExtendedRangeDescription(INVALID_C ));
+            ASSERT_FAIL(mX.setPosixExtendedRangeDescription(INVALID_SR));
         }
 
 

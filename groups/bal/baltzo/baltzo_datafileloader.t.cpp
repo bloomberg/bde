@@ -7,6 +7,8 @@
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslmt_threadutil.h>
 
 #include <bslma_default.h>
@@ -170,7 +172,7 @@ static const char *AMERICA_NEW_YORK_ID = "America/New_York";
 //                       GLOBAL FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
-static const unsigned char ASIA_BANGKOK_DATA[] = {
+BSLA_MAYBE_UNUSED static const unsigned char ASIA_BANGKOK_DATA[] = {
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
     0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
@@ -810,7 +812,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting invalid characters." << endl;
         {
             const char *INVALID_CHAR = "`~!@#$%^&*()=,./;'[]\\<>?:\"{}|";
-            const int NUM_INVALID_CHAR = strlen(INVALID_CHAR);
+            const bsl::size_t NUM_INVALID_CHAR = strlen(INVALID_CHAR);
 
             Obj mX; const Obj& X = mX;
             mX.configureRootPath(".");
@@ -818,7 +820,7 @@ int main(int argc, char *argv[])
             char TZ_ID[2];
             TZ_ID[1] = '\0';
 
-            for (int ti = 0; ti < NUM_INVALID_CHAR; ++ti) {
+            for (bsl::size_t ti = 0; ti < NUM_INVALID_CHAR; ++ti) {
                 TZ_ID[0] = INVALID_CHAR[ti];
 
                 if (veryVerbose) { T_ P_(ti) P_(TZ_ID) };
@@ -834,7 +836,7 @@ int main(int argc, char *argv[])
             const char *VALID_CHAR = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                      "abcdefghijklmnopqrstuvwxyz"
                                      "1234567890_+-";
-            const int NUM_VALID_CHAR = strlen(VALID_CHAR);
+            const bsl::size_t NUM_VALID_CHAR = strlen(VALID_CHAR);
 
             Obj mX; const Obj& X = mX;
             mX.configureRootPath(".");
@@ -842,7 +844,7 @@ int main(int argc, char *argv[])
             char TZ_ID[2];
             TZ_ID[1] = '\0';
 
-            for (int ti = 0; ti < NUM_VALID_CHAR; ++ti) {
+            for (bsl::size_t ti = 0; ti < NUM_VALID_CHAR; ++ti) {
                 TZ_ID[0] = VALID_CHAR[ti];
 
                 if (veryVerbose) { T_ P_(ti) P_(TZ_ID) };

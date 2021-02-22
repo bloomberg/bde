@@ -36,7 +36,7 @@ int ZoneinfoUtil::convertUtcToLocalTime(
 {
     BSLS_ASSERT(resultTime);
     BSLS_ASSERT(resultTransition);
-    BSLS_ASSERT_SAFE(isWellFormed(timeZone));
+    BSLS_ASSERT(isWellFormed(timeZone));
 
     Zoneinfo::TransitionConstIterator it =
                                     timeZone.findTransitionForUtcTime(utcTime);
@@ -68,7 +68,7 @@ void ZoneinfoUtil::loadRelevantTransitions(
     BSLS_ASSERT(secondResultTransition);
     BSLS_ASSERT(firstResultTransition != secondResultTransition);
     BSLS_ASSERT(resultValidity);
-    BSLS_ASSERT_SAFE(isWellFormed(timeZone));
+    BSLS_ASSERT(isWellFormed(timeZone));
 
     // Implementation Note:  This operations begins by using 'localTime' as an
     // initial approximation for its corresponding UTC time (this approximation

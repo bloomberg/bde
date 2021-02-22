@@ -184,6 +184,8 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 
 // ============================================================================
 //                        GLOBAL TYPEDEFS FOR TESTING
@@ -985,9 +987,9 @@ int main(int argc, char *argv[])
 
                     bslma::TestAllocatorMonitor zam(&za);
 
-                    Obj                  *objPtr;
-                    Int64                 objAlloc;
-                    bslma::TestAllocator *objAllocatorPtr;
+                    Obj                  *objPtr = 0;
+                    Int64                 objAlloc = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
 
                     switch (CONFIG) {
                       case 'a': {
@@ -2161,8 +2163,8 @@ int main(int argc, char *argv[])
                 Obj mA(&oa1);  Obj mB(&oa1);
                 Obj mZ(&oa2);
 
-                ASSERT_SAFE_PASS(mA.swap(mB));
-                ASSERT_SAFE_FAIL(mA.swap(mZ));
+                ASSERT_PASS(mA.swap(mB));
+                ASSERT_FAIL(mA.swap(mZ));
             }
         }
 
@@ -2383,8 +2385,8 @@ int main(int argc, char *argv[])
 
                     bslma::DefaultAllocatorGuard dag(&da);
 
-                    Obj                  *objPtr;
-                    bslma::TestAllocator *objAllocatorPtr;
+                    Obj                  *objPtr = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
 
                     switch (CONFIG) {
                       case 'a': {
@@ -3502,8 +3504,8 @@ int main(int argc, char *argv[])
 
                     bslma::DefaultAllocatorGuard dag(&da);
 
-                    Obj                  *objPtr;
-                    bslma::TestAllocator *objAllocatorPtr;
+                    Obj                  *objPtr = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
 
                     switch (CONFIG) {
                       case 'a': {
@@ -3676,12 +3678,12 @@ int main(int argc, char *argv[])
             const bdlt::Datetime  earlyDt(2011,  6, 16,  9);
             const bdlt::Datetime  laterDt(2012,  1, 10, 11);
 
-            ASSERT_SAFE_PASS(Obj(defaultLTD, defaultDt, defaultDt));
-            ASSERT_SAFE_FAIL(Obj(defaultLTD, defaultDt,    someDt));
-            ASSERT_SAFE_FAIL(Obj(defaultLTD,    someDt, defaultDt));
-            ASSERT_SAFE_PASS(Obj(defaultLTD,   earlyDt,   laterDt));
-            ASSERT_SAFE_FAIL(Obj(defaultLTD,   laterDt,   earlyDt));
-            ASSERT_SAFE_PASS(Obj(defaultLTD,    someDt,    someDt));
+            ASSERT_PASS(Obj(defaultLTD, defaultDt, defaultDt));
+            ASSERT_FAIL(Obj(defaultLTD, defaultDt,    someDt));
+            ASSERT_FAIL(Obj(defaultLTD,    someDt, defaultDt));
+            ASSERT_PASS(Obj(defaultLTD,   earlyDt,   laterDt));
+            ASSERT_FAIL(Obj(defaultLTD,   laterDt,   earlyDt));
+            ASSERT_PASS(Obj(defaultLTD,    someDt,    someDt));
         }
 
       } break;
@@ -3848,8 +3850,8 @@ int main(int argc, char *argv[])
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr = 0;
+            bslma::TestAllocator *objAllocatorPtr = 0;
 
             switch (CONFIG) {
               case 'a': {
@@ -4021,18 +4023,18 @@ int main(int argc, char *argv[])
                 const bdlt::Datetime earlyDatetime(2011,  6, 16,  9);
                 const bdlt::Datetime laterDatetime(2012,  1, 10, 11);
 
-                ASSERT_SAFE_PASS(obj.setUtcStartAndEndTime(defaultDatetime,
-                                                           defaultDatetime));
-                ASSERT_SAFE_FAIL(obj.setUtcStartAndEndTime(defaultDatetime,
-                                                              someDatetime));
-                ASSERT_SAFE_FAIL(obj.setUtcStartAndEndTime(   someDatetime,
-                                                           defaultDatetime));
-                ASSERT_SAFE_PASS(obj.setUtcStartAndEndTime(  earlyDatetime,
-                                                             laterDatetime));
-                ASSERT_SAFE_FAIL(obj.setUtcStartAndEndTime(  laterDatetime,
-                                                             earlyDatetime));
-                ASSERT_SAFE_PASS(obj.setUtcStartAndEndTime(   someDatetime,
-                                                              someDatetime));
+                ASSERT_PASS(obj.setUtcStartAndEndTime(defaultDatetime,
+                                                      defaultDatetime));
+                ASSERT_FAIL(obj.setUtcStartAndEndTime(defaultDatetime,
+                                                         someDatetime));
+                ASSERT_FAIL(obj.setUtcStartAndEndTime(   someDatetime,
+                                                      defaultDatetime));
+                ASSERT_PASS(obj.setUtcStartAndEndTime(  earlyDatetime,
+                                                        laterDatetime));
+                ASSERT_FAIL(obj.setUtcStartAndEndTime(  laterDatetime,
+                                                        earlyDatetime));
+                ASSERT_PASS(obj.setUtcStartAndEndTime(   someDatetime,
+                                                         someDatetime));
             }
        }
 

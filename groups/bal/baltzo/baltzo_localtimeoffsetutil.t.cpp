@@ -8,6 +8,8 @@
 #include <baltzo_zoneinfocache.h>         // for testing only
 #include <baltzo_zoneinfoutil.h>          // for testing only
 
+#include <bsla_maybeunused.h>
+
 #include <bslmt_barrier.h>       // case -1
 #include <bslmt_configuration.h> // case -1
 #include <bslmt_threadutil.h>    // case -1
@@ -180,9 +182,12 @@ const int DEFAULT_NUM_DT_ARRAY = sizeof  DEFAULT_DT_ARRAY
 #endif
 BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 
-const char *const LONG_STRING    = "a_"   SUFFICIENTLY_LONG_STRING;
-const char *const LONGER_STRING  = "ab_"  SUFFICIENTLY_LONG_STRING;
-const char *const LONGEST_STRING = "abc_" SUFFICIENTLY_LONG_STRING;
+BSLA_MAYBE_UNUSED const char *const LONG_STRING =
+    "a_" SUFFICIENTLY_LONG_STRING;
+BSLA_MAYBE_UNUSED const char *const LONGER_STRING =
+    "ab_" SUFFICIENTLY_LONG_STRING;
+BSLA_MAYBE_UNUSED const char *const LONGEST_STRING =
+    "abc_" SUFFICIENTLY_LONG_STRING;
 
 // ============================================================================
 //                            TEST TIME ZONE DATA
@@ -1101,8 +1106,8 @@ bdlt::Datetime toDatetime(const char *iso8601TimeString)
 {
     bdlt::Datetime time;
     int rc = bdlt::Iso8601Util::parse(&time,
-                                  iso8601TimeString,
-                                  bsl::strlen(iso8601TimeString));
+                            iso8601TimeString,
+                            static_cast<int>(bsl::strlen(iso8601TimeString)));
     BSLS_ASSERT(0 == rc);
     return time;
 }

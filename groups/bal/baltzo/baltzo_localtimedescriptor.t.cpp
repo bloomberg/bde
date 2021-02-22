@@ -186,6 +186,8 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
 #define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 
 // ============================================================================
 //                      CONVENIENCE MACROS
@@ -1560,8 +1562,8 @@ int main(int argc, char *argv[])
                 Obj mA(&oa1);  Obj mB(&oa1);
                 Obj mZ(&oa2);
 
-                ASSERT_SAFE_PASS(mA.swap(mB));
-                ASSERT_SAFE_FAIL(mA.swap(mZ));
+                ASSERT_PASS(mA.swap(mB));
+                ASSERT_FAIL(mA.swap(mZ));
             }
         }
       } break;
@@ -3312,11 +3314,11 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\t'utcOffsetInSeconds'" << endl;
             {
-                ASSERT_SAFE_FAIL(Obj(UTC_MIN - 1, FLAG, DESC));
-                ASSERT_SAFE_PASS(Obj(UTC_MIN    , FLAG, DESC));
+                ASSERT_FAIL(Obj(UTC_MIN - 1, FLAG, DESC));
+                ASSERT_PASS(Obj(UTC_MIN    , FLAG, DESC));
 
-                ASSERT_SAFE_PASS(Obj(UTC_MAX    , FLAG, DESC));
-                ASSERT_SAFE_FAIL(Obj(UTC_MAX + 1, FLAG, DESC));
+                ASSERT_PASS(Obj(UTC_MAX    , FLAG, DESC));
+                ASSERT_FAIL(Obj(UTC_MAX + 1, FLAG, DESC));
             }
         }
       } break;
@@ -3682,11 +3684,11 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tutcOffsetInSeconds" << endl;
             {
-                ASSERT_SAFE_FAIL(obj.setUtcOffsetInSeconds(UTC_MIN - 1));
-                ASSERT_SAFE_PASS(obj.setUtcOffsetInSeconds(UTC_MIN    ));
+                ASSERT_FAIL(obj.setUtcOffsetInSeconds(UTC_MIN - 1));
+                ASSERT_PASS(obj.setUtcOffsetInSeconds(UTC_MIN    ));
 
-                ASSERT_SAFE_PASS(obj.setUtcOffsetInSeconds(UTC_MAX    ));
-                ASSERT_SAFE_FAIL(obj.setUtcOffsetInSeconds(UTC_MAX + 1));
+                ASSERT_PASS(obj.setUtcOffsetInSeconds(UTC_MAX    ));
+                ASSERT_FAIL(obj.setUtcOffsetInSeconds(UTC_MAX + 1));
             }
         }
       } break;

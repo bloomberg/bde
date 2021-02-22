@@ -193,6 +193,8 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 
 // ============================================================================
 //                      CONVENIENCE MACROS
@@ -2659,8 +2661,8 @@ int main(int argc, char *argv[])
                 Obj mA(&oa1);  Obj mB(&oa1);
                 Obj mZ(&oa2);
 
-                ASSERT_SAFE_PASS(mA.swap(mB));
-                ASSERT_SAFE_FAIL(mA.swap(mZ));
+                ASSERT_PASS(mA.swap(mB));
+                ASSERT_FAIL(mA.swap(mZ));
             }
         }
 
@@ -3896,8 +3898,8 @@ int main(int argc, char *argv[])
 
                     bslma::DefaultAllocatorGuard dag(&da);
 
-                    Obj                  *objPtr;
-                    bslma::TestAllocator *objAllocatorPtr;
+                    Obj                  *objPtr = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
 
                     switch (CONFIG) {
                       case 'a': {
@@ -4199,8 +4201,8 @@ int main(int argc, char *argv[])
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj                  *objPtr;
-            bslma::TestAllocator *objAllocatorPtr;
+            Obj                  *objPtr(0);
+            bslma::TestAllocator *objAllocatorPtr(0);
 
             switch (CONFIG) {
               case 'a': {

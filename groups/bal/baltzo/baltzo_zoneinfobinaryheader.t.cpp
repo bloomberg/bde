@@ -221,6 +221,8 @@ static void aSsErT(int c, const char *s, int i) {
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 
 // ============================================================================
 //                        GLOBAL TYPEDEFS FOR TESTING
@@ -384,20 +386,21 @@ BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
             return 1;                                                 // RETURN
         }
 
-        if (!(baltzo::ZoneinfoBinaryHeader::isValidVersion(version)
-           && baltzo::ZoneinfoBinaryHeader::isValidNumIsGmt(numIsGmt)
-           && baltzo::ZoneinfoBinaryHeader::isValidNumIsStd(numIsStd)
-           && baltzo::ZoneinfoBinaryHeader::isValidNumLeaps(numLeaps)
-           && baltzo::ZoneinfoBinaryHeader::isValidNumTransitions(
-                                                                numTransitions)
-           && baltzo::ZoneinfoBinaryHeader::isValidNumLocalTimeTypes(
-                                                             numLocalTimeTypes)
-           && baltzo::ZoneinfoBinaryHeader::isValidAbbrevDataSize(
-                                                            abbrevDataSize))) {
+        if (!(baltzo::ZoneinfoBinaryHeader::isValidVersion(
+                  static_cast<char>(version)) &&
+              baltzo::ZoneinfoBinaryHeader::isValidNumIsGmt(numIsGmt) &&
+              baltzo::ZoneinfoBinaryHeader::isValidNumIsStd(numIsStd) &&
+              baltzo::ZoneinfoBinaryHeader::isValidNumLeaps(numLeaps) &&
+              baltzo::ZoneinfoBinaryHeader::isValidNumTransitions(
+                  numTransitions) &&
+              baltzo::ZoneinfoBinaryHeader::isValidNumLocalTimeTypes(
+                  numLocalTimeTypes) &&
+              baltzo::ZoneinfoBinaryHeader::isValidAbbrevDataSize(
+                  abbrevDataSize))) {
             return 2;                                                 // RETURN
         }
 
-        object->setVersion(version);
+        object->setVersion(static_cast<char>(version));
         object->setNumIsGmt(numIsGmt);
         object->setNumIsStd(numIsStd);
         object->setNumLeaps(numLeaps);
@@ -2516,285 +2519,285 @@ int main(int argc, char *argv[])
                                    P(ABBRSZ)
                                  }
 
-            ASSERT_SAFE_PASS(Obj(VER,
-                                 NISGMT,
-                                 NISSTD,
-                                 NLEAPS,
-                                 NTRANS,
-                                 NLTT,
-                                 ABBRSZ));
+            ASSERT_PASS(Obj(VER,
+                            NISGMT,
+                            NISSTD,
+                            NLEAPS,
+                            NTRANS,
+                            NLTT,
+                            ABBRSZ));
 
             if (veryVerbose) { T_ Q(version) }
             {
-                ASSERT_SAFE_FAIL(Obj('\0' - 1,       // version
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj('\0',           // version
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_FAIL(Obj('\0' + 1,       // version
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_FAIL(Obj('2' - 1,        // version
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj('2',            // version
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj('3',            // version
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_FAIL(Obj('3' + 1,        // version
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
+                ASSERT_FAIL(Obj('\0' - 1,       // version
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj('\0',           // version
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_FAIL(Obj('\0' + 1,       // version
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_FAIL(Obj('2' - 1,        // version
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj('2',            // version
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj('3',            // version
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_FAIL(Obj('3' + 1,        // version
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
             }
 
             if (veryVerbose) { T_ Q(numIsGmt) }
             {
-                ASSERT_SAFE_FAIL(Obj(VER,
-                                     0 - 1,          // numIsGmt
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     0,              // numIsGmt
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     0 + 1,          // numIsGmt
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     INT_MAX - 1,    // numIsGmt
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     INT_MAX,        // numIsGmt
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
+                ASSERT_FAIL(Obj(VER,
+                                0 - 1,          // numIsGmt
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                0,              // numIsGmt
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                0 + 1,          // numIsGmt
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                INT_MAX - 1,    // numIsGmt
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                INT_MAX,        // numIsGmt
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
             }
 
             if (veryVerbose) { T_ Q(numIsStd) }
             {
-                ASSERT_SAFE_FAIL(Obj(VER,
-                                     NISGMT,
-                                     0 - 1,          // numIsStd
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     0,              // numIsStd
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     0 + 1,          // numIsStd
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     INT_MAX - 1,    // numIsStd
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     INT_MAX,        // numIsStd
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
+                ASSERT_FAIL(Obj(VER,
+                                NISGMT,
+                                0 - 1,          // numIsStd
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                0,              // numIsStd
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                0 + 1,          // numIsStd
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                INT_MAX - 1,    // numIsStd
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                INT_MAX,        // numIsStd
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
             }
 
             if (veryVerbose) { T_ Q(numLeaps) }
             {
-                ASSERT_SAFE_FAIL(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     0 - 1,          // numLeaps
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     0,              // numLeaps
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_FAIL(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     0 + 1,          // numLeaps
-                                     NTRANS,
-                                     NLTT,
-                                     ABBRSZ));
+                ASSERT_FAIL(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                0 - 1,          // numLeaps
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                0,              // numLeaps
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_FAIL(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                0 + 1,          // numLeaps
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
             }
 
             if (veryVerbose) { T_ Q(numTransitions) }
             {
-                ASSERT_SAFE_FAIL(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     0 - 1,          // numTransitions
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     0,              // numTransitions
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     0 + 1,          // numTransitions
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     INT_MAX - 1,    // numTransitions
-                                     NLTT,
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     INT_MAX,        // numTransitions
-                                     NLTT,
-                                     ABBRSZ));
+                ASSERT_FAIL(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                0 - 1,          // numTransitions
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                0,              // numTransitions
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                0 + 1,          // numTransitions
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                INT_MAX - 1,    // numTransitions
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                INT_MAX,        // numTransitions
+                                NLTT,
+                                ABBRSZ));
             }
 
             if (veryVerbose) { T_ Q(numLocalTimeTypes) }
             {
-                ASSERT_SAFE_FAIL(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     1 - 1,          // numLocalTimeTypes
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     1,              // numLocalTimeTypes
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     1 + 1,          // numLocalTimeTypes
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     INT_MAX - 1,    // numLocalTimeTypes
-                                     ABBRSZ));
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     INT_MAX,        // numLocalTimeTypes
-                                     ABBRSZ));
+                ASSERT_FAIL(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                1 - 1,          // numLocalTimeTypes
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                1,              // numLocalTimeTypes
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                1 + 1,          // numLocalTimeTypes
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                INT_MAX - 1,    // numLocalTimeTypes
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                INT_MAX,        // numLocalTimeTypes
+                                ABBRSZ));
             }
 
             if (veryVerbose) { T_ Q(abbrevDataSize) }
             {
-                ASSERT_SAFE_FAIL(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     1 - 1));        // abbrevDataSize
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     1));            // abbrevDataSize
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     1 + 1));        // abbrevDataSize
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     INT_MAX - 1));  // abbrevDataSize
-                ASSERT_SAFE_PASS(Obj(VER,
-                                     NISGMT,
-                                     NISSTD,
-                                     NLEAPS,
-                                     NTRANS,
-                                     NLTT,
-                                     INT_MAX));      // abbrevDataSize
+                ASSERT_FAIL(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                1 - 1));        // abbrevDataSize
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                1));            // abbrevDataSize
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                1 + 1));        // abbrevDataSize
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                INT_MAX - 1));  // abbrevDataSize
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                INT_MAX));      // abbrevDataSize
             }
         }
 
@@ -3253,70 +3256,70 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\tversion" << endl;
             {
-                ASSERT_SAFE_FAIL(obj.setVersion('\0' - 1));
-                ASSERT_SAFE_PASS(obj.setVersion('\0'    ));
-                ASSERT_SAFE_FAIL(obj.setVersion('\0' + 1));
+                ASSERT_FAIL(obj.setVersion('\0' - 1));
+                ASSERT_PASS(obj.setVersion('\0'    ));
+                ASSERT_FAIL(obj.setVersion('\0' + 1));
 
-                ASSERT_SAFE_FAIL(obj.setVersion('2' - 1));
-                ASSERT_SAFE_PASS(obj.setVersion('2'    ));
-                ASSERT_SAFE_PASS(obj.setVersion('3'    ));
-                ASSERT_SAFE_FAIL(obj.setVersion('3' + 1));
+                ASSERT_FAIL(obj.setVersion('2' - 1));
+                ASSERT_PASS(obj.setVersion('2'    ));
+                ASSERT_PASS(obj.setVersion('3'    ));
+                ASSERT_FAIL(obj.setVersion('3' + 1));
             }
 
             if (veryVerbose) cout << "\tnumIsGmt" << endl;
             {
-                ASSERT_SAFE_FAIL(obj.setNumIsGmt(0 - 1));
-                ASSERT_SAFE_PASS(obj.setNumIsGmt(0    ));
-                ASSERT_SAFE_PASS(obj.setNumIsGmt(0 + 1));
+                ASSERT_FAIL(obj.setNumIsGmt(0 - 1));
+                ASSERT_PASS(obj.setNumIsGmt(0    ));
+                ASSERT_PASS(obj.setNumIsGmt(0 + 1));
 
-                ASSERT_SAFE_PASS(obj.setNumIsGmt(INT_MAX - 1));
-                ASSERT_SAFE_PASS(obj.setNumIsGmt(INT_MAX    ));
+                ASSERT_PASS(obj.setNumIsGmt(INT_MAX - 1));
+                ASSERT_PASS(obj.setNumIsGmt(INT_MAX    ));
             }
 
             if (veryVerbose) cout << "\tnumIsStd" << endl;
             {
-                ASSERT_SAFE_FAIL(obj.setNumIsStd(0 - 1));
-                ASSERT_SAFE_PASS(obj.setNumIsStd(0    ));
-                ASSERT_SAFE_PASS(obj.setNumIsStd(0 + 1));
+                ASSERT_FAIL(obj.setNumIsStd(0 - 1));
+                ASSERT_PASS(obj.setNumIsStd(0    ));
+                ASSERT_PASS(obj.setNumIsStd(0 + 1));
 
-                ASSERT_SAFE_PASS(obj.setNumIsStd(INT_MAX - 1));
-                ASSERT_SAFE_PASS(obj.setNumIsStd(INT_MAX    ));
+                ASSERT_PASS(obj.setNumIsStd(INT_MAX - 1));
+                ASSERT_PASS(obj.setNumIsStd(INT_MAX    ));
             }
 
             if (veryVerbose) cout << "\tnumLeaps" << endl;
             {
-                ASSERT_SAFE_FAIL(obj.setNumLeaps(0 - 1));
-                ASSERT_SAFE_PASS(obj.setNumLeaps(0    ));
-                ASSERT_SAFE_FAIL(obj.setNumLeaps(0 + 1));
+                ASSERT_FAIL(obj.setNumLeaps(0 - 1));
+                ASSERT_PASS(obj.setNumLeaps(0    ));
+                ASSERT_FAIL(obj.setNumLeaps(0 + 1));
             }
 
             if (veryVerbose) cout << "\tnumTransitions" << endl;
             {
-                ASSERT_SAFE_FAIL(obj.setNumTransitions(0 - 1));
-                ASSERT_SAFE_PASS(obj.setNumTransitions(0    ));
-                ASSERT_SAFE_PASS(obj.setNumTransitions(0 + 1));
+                ASSERT_FAIL(obj.setNumTransitions(0 - 1));
+                ASSERT_PASS(obj.setNumTransitions(0    ));
+                ASSERT_PASS(obj.setNumTransitions(0 + 1));
 
-                ASSERT_SAFE_PASS(obj.setNumTransitions(INT_MAX - 1));
-                ASSERT_SAFE_PASS(obj.setNumTransitions(INT_MAX    ));
+                ASSERT_PASS(obj.setNumTransitions(INT_MAX - 1));
+                ASSERT_PASS(obj.setNumTransitions(INT_MAX    ));
             }
             if (veryVerbose) cout << "\tnumLocalTimeTypes" << endl;
             {
-                ASSERT_SAFE_FAIL(obj.setNumLocalTimeTypes(1 - 1));
-                ASSERT_SAFE_PASS(obj.setNumLocalTimeTypes(1    ));
-                ASSERT_SAFE_PASS(obj.setNumLocalTimeTypes(1 + 1));
+                ASSERT_FAIL(obj.setNumLocalTimeTypes(1 - 1));
+                ASSERT_PASS(obj.setNumLocalTimeTypes(1    ));
+                ASSERT_PASS(obj.setNumLocalTimeTypes(1 + 1));
 
-                ASSERT_SAFE_PASS(obj.setNumLocalTimeTypes(INT_MAX - 1));
-                ASSERT_SAFE_PASS(obj.setNumLocalTimeTypes(INT_MAX    ));
+                ASSERT_PASS(obj.setNumLocalTimeTypes(INT_MAX - 1));
+                ASSERT_PASS(obj.setNumLocalTimeTypes(INT_MAX    ));
             }
 
             if (veryVerbose) cout << "\tabbrevDataSize" << endl;
             {
-                ASSERT_SAFE_FAIL(obj.setAbbrevDataSize(1 - 1));
-                ASSERT_SAFE_PASS(obj.setAbbrevDataSize(1    ));
-                ASSERT_SAFE_PASS(obj.setAbbrevDataSize(1 + 1));
+                ASSERT_FAIL(obj.setAbbrevDataSize(1 - 1));
+                ASSERT_PASS(obj.setAbbrevDataSize(1    ));
+                ASSERT_PASS(obj.setAbbrevDataSize(1 + 1));
 
-                ASSERT_SAFE_PASS(obj.setAbbrevDataSize(INT_MAX - 1));
-                ASSERT_SAFE_PASS(obj.setAbbrevDataSize(INT_MAX    ));
+                ASSERT_PASS(obj.setAbbrevDataSize(INT_MAX - 1));
+                ASSERT_PASS(obj.setAbbrevDataSize(INT_MAX    ));
             }
         }
 

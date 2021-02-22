@@ -1296,9 +1296,9 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(Obj::now((baltzo::LocalDatetime *)0, TZ_ID));
                 ASSERT_FAIL(Obj::now(&LCL_TIME, 0));
 
-                ASSERT_SAFE_PASS(Obj::now(&TIME_TZ, TZ_ID));
-                ASSERT_SAFE_FAIL(Obj::now((bdlt::DatetimeTz *)0, TZ_ID));
-                ASSERT_SAFE_FAIL(Obj::now(&TIME_TZ, 0));
+                ASSERT_PASS(Obj::now(&TIME_TZ, TZ_ID));
+                ASSERT_FAIL(Obj::now((bdlt::DatetimeTz *)0, TZ_ID));
+                ASSERT_FAIL(Obj::now(&TIME_TZ, 0));
             }
         }
       } break;
@@ -1442,8 +1442,8 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(Obj::validateLocalTime(0, TIME_TZ, TZ_ID));
                 ASSERT_FAIL(Obj::validateLocalTime(&result, TIME_TZ, 0));
 
-                ASSERT_SAFE_PASS(Obj::validateLocalTime(&result, LCL_TIME));
-                ASSERT_SAFE_FAIL(Obj::validateLocalTime(0, LCL_TIME));
+                ASSERT_PASS(Obj::validateLocalTime(&result, LCL_TIME));
+                ASSERT_FAIL(Obj::validateLocalTime(0, LCL_TIME));
             }
         }
       } break;
@@ -1745,55 +1745,55 @@ int main(int argc, char *argv[])
                 const baltzo::LocalDatetime LCL_TIME(TIME_TZ, SRC_TZID);
                 const char               TGT_TZID[] = "Etc/UTC";
 
-                ASSERT_SAFE_PASS(Obj::convertLocalToLocalTime(&resultLcl,
-                                                              TGT_TZID,
-                                                              LCL_TIME));
-                ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(
-                                                    (baltzo::LocalDatetime*) 0,
-                                                    TGT_TZID,
-                                                    LCL_TIME));
-                ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
-                                                              0,
-                                                              LCL_TIME));
+                ASSERT_PASS(Obj::convertLocalToLocalTime(&resultLcl,
+                                                         TGT_TZID,
+                                                         LCL_TIME));
+                ASSERT_FAIL(Obj::convertLocalToLocalTime(
+                                               (baltzo::LocalDatetime*) 0,
+                                               TGT_TZID,
+                                               LCL_TIME));
+                ASSERT_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
+                                                         0,
+                                                         LCL_TIME));
 
                 // ------------------------------------------------------------
 
-                ASSERT_SAFE_PASS(Obj::convertLocalToLocalTime(&resultLcl,
-                                                              TGT_TZID,
-                                                              TIME_TZ));
-                ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(
-                                                    (baltzo::LocalDatetime*) 0,
-                                                    TGT_TZID,
-                                                    TIME_TZ));
-                ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
-                                                              0,
-                                                              TIME_TZ));
+                ASSERT_PASS(Obj::convertLocalToLocalTime(&resultLcl,
+                                                         TGT_TZID,
+                                                         TIME_TZ));
+                ASSERT_FAIL(Obj::convertLocalToLocalTime(
+                                               (baltzo::LocalDatetime*) 0,
+                                               TGT_TZID,
+                                               TIME_TZ));
+                ASSERT_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
+                                                         0,
+                                                         TIME_TZ));
 
                 // ------------------------------------------------------------
 
-                ASSERT_SAFE_PASS(Obj::convertLocalToLocalTime(&resultTz,
-                                                              TGT_TZID,
-                                                              LCL_TIME));
-                ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(
-                                                        (bdlt::DatetimeTz *) 0,
-                                                        TGT_TZID,
-                                                        LCL_TIME));
-                ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
-                                                              0,
-                                                              LCL_TIME));
+                ASSERT_PASS(Obj::convertLocalToLocalTime(&resultTz,
+                                                         TGT_TZID,
+                                                         LCL_TIME));
+                ASSERT_FAIL(Obj::convertLocalToLocalTime(
+                                                   (bdlt::DatetimeTz *) 0,
+                                                   TGT_TZID,
+                                                   LCL_TIME));
+                ASSERT_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
+                                                         0,
+                                                         LCL_TIME));
 
                 // ------------------------------------------------------------
 
-                ASSERT_SAFE_PASS(Obj::convertLocalToLocalTime(&resultTz,
-                                                              TGT_TZID,
-                                                              TIME_TZ));
-                ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(
-                                                        (bdlt::DatetimeTz *) 0,
-                                                        TGT_TZID,
-                                                        TIME_TZ));
-                ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
-                                                              0,
-                                                              TIME_TZ));
+                ASSERT_PASS(Obj::convertLocalToLocalTime(&resultTz,
+                                                         TGT_TZID,
+                                                         TIME_TZ));
+                ASSERT_FAIL(Obj::convertLocalToLocalTime(
+                                                   (bdlt::DatetimeTz *) 0,
+                                                   TGT_TZID,
+                                                   TIME_TZ));
+                ASSERT_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
+                                                         0,
+                                                         TIME_TZ));
 
                 // ------------------------------------------------------------
 
@@ -2125,17 +2125,17 @@ int main(int argc, char *argv[])
 
                 // ------------------------------------------------------------
 
-                ASSERT_SAFE_PASS(0 == Obj::convertUtcToLocalTime(
-                                                            &resultTz,
-                                                            "America/New_York",
+                ASSERT_PASS(0 == Obj::convertUtcToLocalTime(
+                                                       &resultTz,
+                                                       "America/New_York",
+                                                       TIME));
+                ASSERT_FAIL(0 == Obj::convertUtcToLocalTime(
+                                                   (bdlt::DatetimeTz *) 0,
+                                                   "America/New_York",
+                                                   TIME));
+                ASSERT_FAIL(0 == Obj::convertUtcToLocalTime(&resultTz,
+                                                            0,
                                                             TIME));
-                ASSERT_SAFE_FAIL(0 == Obj::convertUtcToLocalTime(
-                                                        (bdlt::DatetimeTz *) 0,
-                                                        "America/New_York",
-                                                        TIME));
-                ASSERT_SAFE_FAIL(0 == Obj::convertUtcToLocalTime(&resultTz,
-                                                                 0,
-                                                                 TIME));
 
             }
         }
@@ -2581,17 +2581,17 @@ int main(int argc, char *argv[])
                 baltzo::LocalDatetime resultLcl;
                 Validity::Enum     resultValidity;
 
-                ASSERT_SAFE_PASS(Obj::initLocalTime(&resultTz,
-                                                    TIME,
-                                                    "America/New_York"));
+                ASSERT_PASS(Obj::initLocalTime(&resultTz,
+                                               TIME,
+                                               "America/New_York"));
 
-                ASSERT_SAFE_FAIL(Obj::initLocalTime((bdlt::DatetimeTz *) 0,
-                                                    TIME,
-                                                    "America/New_York"));
+                ASSERT_FAIL(Obj::initLocalTime((bdlt::DatetimeTz *) 0,
+                                               TIME,
+                                               "America/New_York"));
 
-                ASSERT_SAFE_FAIL(Obj::initLocalTime(&resultTz,
-                                                    TIME,
-                                                    0));
+                ASSERT_FAIL(Obj::initLocalTime(&resultTz,
+                                               TIME,
+                                               0));
 
                 // ------------------------------------------------------------
 
@@ -2609,25 +2609,25 @@ int main(int argc, char *argv[])
 
                 // ------------------------------------------------------------
 
-                ASSERT_SAFE_PASS(Obj::initLocalTime(&resultTz,
-                                                    &resultValidity,
-                                                    TIME,
-                                                    "America/New_York"));
+                ASSERT_PASS(Obj::initLocalTime(&resultTz,
+                                               &resultValidity,
+                                               TIME,
+                                               "America/New_York"));
 
-                ASSERT_SAFE_FAIL(Obj::initLocalTime((bdlt::DatetimeTz *) 0,
-                                                    &resultValidity,
-                                                    TIME,
-                                                    "America/New_York"));
+                ASSERT_FAIL(Obj::initLocalTime((bdlt::DatetimeTz *) 0,
+                                               &resultValidity,
+                                               TIME,
+                                               "America/New_York"));
 
-                ASSERT_SAFE_FAIL(Obj::initLocalTime(&resultTz,
-                                                    0,
-                                                    TIME,
-                                                    "America/New_York"));
+                ASSERT_FAIL(Obj::initLocalTime(&resultTz,
+                                               0,
+                                               TIME,
+                                               "America/New_York"));
 
-                ASSERT_SAFE_FAIL(Obj::initLocalTime(&resultTz,
-                                                    &resultValidity,
-                                                    TIME,
-                                                    0));
+                ASSERT_FAIL(Obj::initLocalTime(&resultTz,
+                                               &resultValidity,
+                                               TIME,
+                                               0));
 
                 // ------------------------------------------------------------
 
@@ -2813,20 +2813,20 @@ int main(int argc, char *argv[])
                 const char               TZID[] = "America/New_York";
                 const baltzo::LocalDatetime inputLcl(inputTz, TZID);
 
-                ASSERT_SAFE_PASS(Obj::loadLocalTimePeriod(&resultPeriod,
-                                                          inputLcl));
-                ASSERT_SAFE_FAIL(Obj::loadLocalTimePeriod(0,
-                                                          inputLcl));
+                ASSERT_PASS(Obj::loadLocalTimePeriod(&resultPeriod,
+                                                     inputLcl));
+                ASSERT_FAIL(Obj::loadLocalTimePeriod(0,
+                                                     inputLcl));
 
-                ASSERT_SAFE_PASS(Obj::loadLocalTimePeriod(&resultPeriod,
-                                                          inputTz,
-                                                          TZID));
-                ASSERT_SAFE_FAIL(Obj::loadLocalTimePeriod(0,
-                                                          inputTz,
-                                                          TZID));
-                ASSERT_SAFE_FAIL(Obj::loadLocalTimePeriod(&resultPeriod,
-                                                          inputTz,
-                                                          0));
+                ASSERT_PASS(Obj::loadLocalTimePeriod(&resultPeriod,
+                                                     inputTz,
+                                                     TZID));
+                ASSERT_FAIL(Obj::loadLocalTimePeriod(0,
+                                                     inputTz,
+                                                     TZID));
+                ASSERT_FAIL(Obj::loadLocalTimePeriod(&resultPeriod,
+                                                     inputTz,
+                                                     0));
             }
         }
       } break;

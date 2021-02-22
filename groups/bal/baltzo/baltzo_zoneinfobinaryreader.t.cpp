@@ -11,6 +11,8 @@
 
 #include <bdlsb_fixedmeminstreambuf.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslmf_assert.h>
 
 #include <bsls_byteorder.h>
@@ -979,7 +981,7 @@ const unsigned char CHATHAM_DATA[] = {
     0x35, 0x0a,
 };
 
-const unsigned char ASIA_BANGKOK_DATA[] = {
+BSLA_MAYBE_UNUSED const unsigned char ASIA_BANGKOK_DATA[] = {
     // Data from Asia/Bangkok.
 
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1319,15 +1321,16 @@ class RawHeader {
     // The byte sequence of the header of a Zoneinfo binary data format.
 
     // DATA
-    char d_headerId[4];           // must be 'EXPECTED_HEADER_ID'
-    char d_version[1];            // must be '\0' or '2' (as of 2005)
-    char d_reserved[15];          // unused
-    char d_numIsGmt[4];           // number of encoded UTC/local indicators
-    char d_numIsStd[4];           // number of encoded standard/wall indicators
-    char d_numLeaps[4];           // number of leap info's encoded in the file
-    char d_numTransitions[4];     // number of transition times
-    char d_numLocalTimeTypes[4];  // number of transition types
-    char d_abbrevDataSize[4];     // size of the sequence of abbreviation chars
+    char d_headerId[4];                    // must be 'EXPECTED_HEADER_ID'
+    char d_version[1];                     // must be '\0' or '2' (as of 2005)
+    BSLA_MAYBE_UNUSED char d_reserved[15]; // unused
+
+    char d_numIsGmt[4];          // number of encoded UTC/local indicators
+    char d_numIsStd[4];          // number of encoded standard/wall indicators
+    char d_numLeaps[4];          // number of leap info's encoded in the file
+    char d_numTransitions[4];    // number of transition times
+    char d_numLocalTimeTypes[4]; // number of transition types
+    char d_abbrevDataSize[4];    // size of the sequence of abbreviation chars
 
   public:
     // CREATORS
@@ -1685,53 +1688,53 @@ class ZoneinfoData {
     // format.
 
     // DATA
-    char *d_buffer;  // buffer to store Zoneinfo binary data
-    int   d_size;    // size of 'd_buffer'
+    char         *d_buffer_p; // buffer to store Zoneinfo binary data
+    bsl::size_t   d_size;     // size of 'd_buffer_p'
 
     // PRIVATE MANIPULATORS
     void populateTransitionTimeBuf();
         // Populate the transition times of Zoneinfo binary data.  A valid
-        // header is assumed to exist in 'd_buffer' and the number of
+        // header is assumed to exist in 'd_buffer_p' and the number of
         // transitions can be found in the header.  The transition times starts
         // at 0 and increase by 1 for each subsequent transition.
 
     void populateTransitionTimeBuf64();
         // Populate the transition times of Zoneinfo binary data.  A valid
-        // header is assumed to exist in 'd_buffer' and the number of
+        // header is assumed to exist in 'd_buffer_p' and the number of
         // transitions can be found in the header.  The transition times starts
         // at 0 and increase by 1 for each subsequent transition.
 
     void populateTransitionIndexBuf();
         // Populate the index to local time types for each transition.  A valid
-        // header is assumed to exist in 'd_buffer' and the number of indexes
+        // header is assumed to exist in 'd_buffer_p' and the number of indexes
         // can be found in the header.  The indexes starts at 0, increase by 1
         // for each subsequent transition, and restarts at 0 when the indexes
         // is equal to the number of local time types.
 
     void populateTransitionIndexBuf64();
         // Populate the index to local time types for each transition.  A valid
-        // header is assumed to exist in 'd_buffer' and the number of indexes
+        // header is assumed to exist in 'd_buffer_p' and the number of indexes
         // can be found in the header.  The indexes starts at 0, increase by 1
         // for each subsequent transition, and restarts at 0 when the indexes
         // is equal to the number of local time types.
 
     void populateLeapCorrectionBuf();
         // Populate the leap correction information of Zoneinfo binary data.  A
-        // valid header is assumed to exist in 'd_buffer' and the number of
+        // valid header is assumed to exist in 'd_buffer_p' and the number of
         // leap corrections can be found in the header.  The leap-correction
         // times starts at 0, increase by 1 for each subsequent correction.
         // Each leap correction increases the accumulated leap correction by 1.
 
     void populateLeapCorrectionBuf64();
         // Populate the leap correction information of Zoneinfo binary data.  A
-        // valid header is assumed to exist in 'd_buffer' and the number of
+        // valid header is assumed to exist in 'd_buffer_p' and the number of
         // leap corrections can be found in the header.  The leap-correction
         // times starts at 0, increase by 1 for each subsequent correction.
         // Each leap correction increases the accumulated leap correction by 1.
 
     void populateLocalTimeTypeBuf();
         // Populate the local time type portion of the Zoneinfo binary data.  A
-        // valid header is assumed to exist in 'd_buffer' and the number of
+        // valid header is assumed to exist in 'd_buffer_p' and the number of
         // local-time types can be found in the header.  The first local time
         // type has an offset from UTC of 0 seconds, isDst of 'false' and
         // abbreviation data index of 0.  Subsequent local time type increments
@@ -1740,7 +1743,7 @@ class ZoneinfoData {
 
     void populateLocalTimeTypeBuf64();
         // Populate the local time type portion of the Zoneinfo binary data.  A
-        // valid header is assumed to exist in 'd_buffer' and the number of
+        // valid header is assumed to exist in 'd_buffer_p' and the number of
         // local-time types can be found in the header.  The first local time
         // type has an offset from UTC of 0 seconds, isDst of 'false' and
         // abbreviation data index of 0.  Subsequent local time type increments
@@ -1749,13 +1752,13 @@ class ZoneinfoData {
 
     void populateAbbreviationData();
         // Populate the abbreviation part of the Zoneinfo binary data.  A valid
-        // header is assumed to exist in 'd_buffer' and the abbreviation data
+        // header is assumed to exist in 'd_buffer_p' and the abbreviation data
         // size can be found in the header.  The abbreviation data will be
         // filled with '\0' character.
 
     void populateAbbreviationData64();
         // Populate the abbreviation part of the Zoneinfo binary data.  A valid
-        // header is assumed to exist in 'd_buffer' and the abbreviation data
+        // header is assumed to exist in 'd_buffer_p' and the abbreviation data
         // size can be found in the header.  The abbreviation data will be
         // filled with '\0' character.
 
@@ -1764,10 +1767,10 @@ class ZoneinfoData {
         // will be filled with two new line characters.
 
     void populateBuffer(const RawHeader& header);
-        // Populate 'd_buffer' with synthetic Zoneinfo binary data that matches
-        // the file description of the specified 'header.  This function will
-        // call all the other 'populate*' functions to fill the buffer with
-        // data.
+        // Populate 'd_buffer_p' with synthetic Zoneinfo binary data that
+        // matches the file description of the specified 'header.  This
+        // function will call all the other 'populate*' functions to fill the
+        // buffer with data.
 
   public:
     // CREATORS
@@ -1841,9 +1844,6 @@ class ZoneinfoData {
     char *buffer() const;
         // Return the address of the buffer containing the Zoneinfo data.
 
-    int size() const;
-        // Return the size of the buffer containing the Zoneinfo data.
-
     char *getVersion2Or3Address() const;
         // Return the address of the portion in the buffer that is the start
         // of the version '2' or '3' header.
@@ -1903,7 +1903,10 @@ class ZoneinfoData {
         // Return the address of the portion in the buffer containing
         // version '2' abbreviation string data.
 
-    int timeZoneStringLength() const;
+    bsl::size_t size() const;
+        // Return the size of the buffer containing the Zoneinfo data.
+
+    bsl::size_t timeZoneStringLength() const;
         // Return the length of the stored time zone string.
 };
 
@@ -1933,8 +1936,8 @@ void ZoneinfoData::populateBuffer(const RawHeader& header)
                   + bsl::max(header.abbrevDataSize(), 0)
                   + 2;  // two 'newline' symbols for empty time zone string
     }
-    d_buffer = new char[d_size];
-    memset(d_buffer, 0, d_size);
+    d_buffer_p = new char[d_size];
+    memset(d_buffer_p, 0, d_size);
 
     RawHeader *headerBuf = getRawHeader();
     memcpy(headerBuf, &header, sizeof *headerBuf);
@@ -2080,13 +2083,13 @@ ZoneinfoData::ZoneinfoData(const RawHeader& header)
 ZoneinfoData::ZoneinfoData(const char *data, bsl::size_t size)
 {
     d_size   = size;
-    d_buffer = new char[d_size];
-    memcpy(d_buffer, data, d_size);
+    d_buffer_p = new char[d_size];
+    memcpy(d_buffer_p, data, d_size);
 }
 
 ZoneinfoData::~ZoneinfoData()
 {
-    delete[](d_buffer);
+    delete[](d_buffer_p);
 }
 
 // MANIPULATORS
@@ -2124,7 +2127,7 @@ void ZoneinfoData::setTimeZoneString(const char *data, bsl::size_t size)
      // Duplicating data.
 
      for (bsl::size_t i = 0; i < dataSize; ++i) {
-         buffer[i] = d_buffer[i];
+         buffer[i] = d_buffer_p[i];
      }
 
      // Enclosing data.
@@ -2142,8 +2145,8 @@ void ZoneinfoData::setTimeZoneString(const char *data, bsl::size_t size)
      memset(buffer + dataSize + 1 + size, 10, 1);
 
      d_size = newSize;
-     delete [] d_buffer;
-     d_buffer = buffer;
+     delete [] d_buffer_p;
+     d_buffer_p = buffer;
 }
 
 void ZoneinfoData::setTransitionTime(int index, int timeValue)
@@ -2165,17 +2168,12 @@ void ZoneinfoData::setTransitionTime64(int index, bsls::Types::Int64 timeValue)
 // ACCESSORS
 char *ZoneinfoData::buffer() const
 {
-    return d_buffer;
-}
-
-int ZoneinfoData::size() const
-{
-    return d_size;
+    return d_buffer_p;
 }
 
 char *ZoneinfoData::getVersion2Or3Address() const
 {
-    return &d_buffer[sizeof(RawHeader)
+    return &d_buffer_p[sizeof(RawHeader)
         + bsl::max(getRawHeader()->numTransitions(), 0) * 4
         + bsl::max(getRawHeader()->numTransitions(), 0)
         + bsl::max(getRawHeader()->numLocalTimeTypes(), 0) *
@@ -2188,7 +2186,7 @@ char *ZoneinfoData::getVersion2Or3Address() const
 
 RawHeader *ZoneinfoData::getRawHeader() const
 {
-    return reinterpret_cast<RawHeader*>(&d_buffer[0]);
+    return reinterpret_cast<RawHeader*>(&d_buffer_p[0]);
 }
 
 RawHeader *ZoneinfoData::getRawHeader64() const
@@ -2213,7 +2211,7 @@ char *ZoneinfoData::getTimeZoneString() const
 
 unsigned char *ZoneinfoData::getTransitionTime() const
 {
-    return reinterpret_cast<unsigned char *>(&d_buffer[sizeof(RawHeader)]);
+    return reinterpret_cast<unsigned char *>(&d_buffer_p[sizeof(RawHeader)]);
 }
 
 unsigned char *ZoneinfoData::getTransitionTime64() const
@@ -2225,7 +2223,7 @@ unsigned char *ZoneinfoData::getTransitionTime64() const
 unsigned char *ZoneinfoData::getTransitionIndex() const
 {
     return reinterpret_cast<unsigned char *>(
-        &d_buffer[sizeof(RawHeader)
+        &d_buffer_p[sizeof(RawHeader)
         + bsl::max(getRawHeader()->numTransitions(), 0) * 4]);
 }
 
@@ -2240,7 +2238,7 @@ unsigned char *ZoneinfoData::getTransitionIndex64() const
 RawLeapInfo *ZoneinfoData::getRawLeapInfo() const
 {
     return reinterpret_cast<RawLeapInfo*>(
-        &d_buffer[sizeof(RawHeader)
+        &d_buffer_p[sizeof(RawHeader)
         + bsl::max(getRawHeader()->numTransitions(), 0) * 4
         + bsl::max(getRawHeader()->numTransitions(), 0)
         + bsl::max(getRawHeader()->numLocalTimeTypes(), 0) *
@@ -2263,7 +2261,7 @@ RawLeapInfo64 *ZoneinfoData::getRawLeapInfo64() const
 RawLocalTimeTypes *ZoneinfoData::getRawLocalTimeTypes() const
 {
     return reinterpret_cast<RawLocalTimeTypes*>(
-        &d_buffer[sizeof(RawHeader)
+        &d_buffer_p[sizeof(RawHeader)
         + bsl::max(getRawHeader()->numTransitions(), 0) * 4
         + bsl::max(getRawHeader()->numTransitions(), 0)]);
 }
@@ -2279,7 +2277,7 @@ RawLocalTimeTypes *ZoneinfoData::getRawLocalTimeTypes64() const
 
 char *ZoneinfoData::getAbbrevData() const
 {
-    return &d_buffer[
+    return &d_buffer_p[
         sizeof(RawHeader)
         + bsl::max(getRawHeader()->numTransitions(), 0) * 4
         + bsl::max(getRawHeader()->numTransitions(), 0)
@@ -2297,13 +2295,18 @@ char *ZoneinfoData::getAbbrevData64() const
                                                      sizeof(RawLocalTimeTypes);
 }
 
-int ZoneinfoData::timeZoneStringLength() const
+bsl::size_t ZoneinfoData::size() const
+{
+    return d_size;
+}
+
+bsl::size_t ZoneinfoData::timeZoneStringLength() const
 {
     if (getRawHeader()->version() != '2' && getRawHeader()->version() != '3') {
         return 0;                                                     // RETURN
     }
 
-    return d_size - (getTimeZoneString() - d_buffer) - 1;
+    return d_size - (getTimeZoneString() - d_buffer_p) - 1;
 }
 
 // ----------------------------------------------------------------------------
@@ -3419,7 +3422,7 @@ int main(int argc, char *argv[])
 
         {
             static const struct {
-                const unsigned char *d_buffer;
+                const unsigned char *d_buffer_p;
                 int                  d_size;
                 int                  d_numLocalTimeTypes;
                 int                  d_numIsGmt;
@@ -3441,7 +3444,7 @@ int main(int argc, char *argv[])
             enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const unsigned char *BUFFER  = DATA[ti].d_buffer;
+                const unsigned char *BUFFER  = DATA[ti].d_buffer_p;
                 const int            SIZE    = DATA[ti].d_size;
                 const int            LTT     = DATA[ti].d_numLocalTimeTypes;
                 const int            IS_GMT  = DATA[ti].d_numIsGmt;
@@ -4937,13 +4940,13 @@ int main(int argc, char *argv[])
       "\nTesting basic accessor for version '\0' header information.." << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE       = DATA[ti].d_line;
-                const int IS_GMT     = DATA[ti].d_numIsGmt;
-                const int IS_STD     = DATA[ti].d_numIsStd;
-                const int TRANS      = DATA[ti].d_numTransitions;
-                const int LCL_T_TYPE = DATA[ti].d_numLocalTimeTypes;
-                const int AB_DATA    = DATA[ti].d_abbrevDataSize;
-                const int SIZE       = DATA[ti].d_size;
+                const int LINE         = DATA[ti].d_line;
+                const int IS_GMT       = DATA[ti].d_numIsGmt;
+                const int IS_STD       = DATA[ti].d_numIsStd;
+                const int TRANS        = DATA[ti].d_numTransitions;
+                const int LCL_T_TYPE   = DATA[ti].d_numLocalTimeTypes;
+                const int AB_DATA      = DATA[ti].d_abbrevDataSize;
+                const bsl::size_t SIZE = DATA[ti].d_size;
 
                 RawHeader RH;
                 RH.setNumIsGmt(IS_GMT);
@@ -5002,13 +5005,13 @@ int main(int argc, char *argv[])
        "\nTesting basic accessor for version '2' header information.." << endl;
         {
             for (int ti = 0; ti < NUM_DATA64; ++ti) {
-                const int LINE       = DATA64[ti].d_line;
-                const int IS_GMT     = DATA64[ti].d_numIsGmt;
-                const int IS_STD     = DATA64[ti].d_numIsStd;
-                const int TRANS      = DATA64[ti].d_numTransitions;
-                const int LCL_T_TYPE = DATA64[ti].d_numLocalTimeTypes;
-                const int AB_DATA    = DATA64[ti].d_abbrevDataSize;
-                const int SIZE       = DATA64[ti].d_size;
+                const int LINE         = DATA64[ti].d_line;
+                const int IS_GMT       = DATA64[ti].d_numIsGmt;
+                const int IS_STD       = DATA64[ti].d_numIsStd;
+                const int TRANS        = DATA64[ti].d_numTransitions;
+                const int LCL_T_TYPE   = DATA64[ti].d_numLocalTimeTypes;
+                const int AB_DATA      = DATA64[ti].d_abbrevDataSize;
+                const bsl::size_t SIZE = DATA64[ti].d_size;
 
                 RawHeader RH;
                 RH.setVersion('2');
@@ -5128,9 +5131,9 @@ int main(int argc, char *argv[])
                              0 == ZI3.timeZoneStringLength());
 
                 for (int tj = 0; tj < NUM_TZ; ++tj) {
-                   const int   TZ_LINE = TZ[tj].d_line;
-                   const char *STRING  = TZ[tj].d_string;
-                   const int   LENGTH  = TZ[tj].d_length;
+                   const int          TZ_LINE = TZ[tj].d_line;
+                   const char        *STRING  = TZ[tj].d_string;
+                   const bsl::size_t  LENGTH  = TZ[tj].d_length;
 
                    ZI2.setTimeZoneString(STRING, LENGTH);
                    ZI3.setTimeZoneString(STRING, LENGTH);
@@ -5156,7 +5159,7 @@ int main(int argc, char *argv[])
         {
             static const struct {
                 int                  d_line;
-                const unsigned char *d_buffer;
+                const unsigned char *d_buffer_p;
                 int                  d_size;
                 int                  d_numLocalTimeTypes;
                 int                  d_numIsGmt;
@@ -5179,8 +5182,8 @@ int main(int argc, char *argv[])
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int            LINE       = DATA[ti].d_line;
-                const unsigned char *BUFFER     = DATA[ti].d_buffer;
-                const int            SIZE       = DATA[ti].d_size;
+                const unsigned char *BUFFER     = DATA[ti].d_buffer_p;
+                const bsl::size_t    SIZE       = DATA[ti].d_size;
                 const int            LCL_T_TYPE = DATA[ti].d_numLocalTimeTypes;
                 const int            IS_GMT     = DATA[ti].d_numIsGmt;
                 const int            IS_STD     = DATA[ti].d_numIsStd;

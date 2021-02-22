@@ -1121,18 +1121,18 @@ int main(int argc, char *argv[])
             TzIt            resultIt1, resultIt2;
 
             Tz tz(Z); const Tz& TZ = tz;
-            ASSERT_SAFE_FAIL(Obj::loadRelevantTransitions(&resultIt1,
-                                                          &resultIt2,
-                                                          &resultValidity,
-                                                          time,
-                                                          TZ));
+            ASSERT_FAIL(Obj::loadRelevantTransitions(&resultIt1,
+                                                     &resultIt2,
+                                                     &resultValidity,
+                                                     time,
+                                                     TZ));
             tz.addTransition(MIN_DATETIME, Desc(0, false, ""));
 
-            ASSERT_SAFE_PASS(Obj::loadRelevantTransitions(&resultIt1,
-                                                          &resultIt2,
-                                                          &resultValidity,
-                                                          time,
-                                                          TZ));
+            ASSERT_PASS(Obj::loadRelevantTransitions(&resultIt1,
+                                                     &resultIt2,
+                                                     &resultValidity,
+                                                     time,
+                                                     TZ));
 
             ASSERT_FAIL(Obj::loadRelevantTransitions(&resultIt1,
                                                      &resultIt2,
@@ -1409,15 +1409,15 @@ int main(int argc, char *argv[])
 
             Tz tz(Z); const Tz& TZ = tz;
 
-            ASSERT_SAFE_FAIL(Obj::convertUtcToLocalTime(&result,
-                                                        &resultIt,
-                                                        time,
-                                                        TZ));
+            ASSERT_FAIL(Obj::convertUtcToLocalTime(&result,
+                                                   &resultIt,
+                                                   time,
+                                                   TZ));
             tz.addTransition(MIN_DATETIME, Desc(0, false, ""));
-            ASSERT_SAFE_PASS(Obj::convertUtcToLocalTime(&result,
-                                                        &resultIt,
-                                                        time,
-                                                        TZ));
+            ASSERT_PASS(Obj::convertUtcToLocalTime(&result,
+                                                   &resultIt,
+                                                   time,
+                                                   TZ));
 
             ASSERT_FAIL(Obj::convertUtcToLocalTime(&result,
                                                    0,
@@ -1983,8 +1983,9 @@ int main(int argc, char *argv[])
                 ASSERT(newYork.endTransitions() != R);
                 LOOP_ASSERT(LINE,
                             R->descriptor().utcOffsetInSeconds() == OFF);
+                bool dstNonZero = (DST != 0);
                 LOOP_ASSERT(LINE,
-                            R->descriptor().dstInEffectFlag()  == DST);
+                            R->descriptor().dstInEffectFlag()  == dstNonZero);
         }
 
         if (verbose) cout << "\texercising 'loadRelevantTransitions" << endl;

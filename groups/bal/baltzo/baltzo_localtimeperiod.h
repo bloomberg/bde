@@ -471,7 +471,7 @@ inline
 void LocalTimePeriod::setUtcStartAndEndTime(const bdlt::Datetime& utcStartTime,
                                             const bdlt::Datetime& utcEndTime)
 {
-    BSLS_ASSERT_SAFE(isValidUtcStartAndEndTime(utcStartTime, utcEndTime));
+    BSLS_ASSERT(isValidUtcStartAndEndTime(utcStartTime, utcEndTime));
 
     d_utcStartTime = utcStartTime;
     d_utcEndTime   = utcEndTime;
