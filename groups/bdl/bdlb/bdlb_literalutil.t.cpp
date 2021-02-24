@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
 
         bsl::string      bslResult("garbage", &ta);
         std::string      stdResult("garbage");
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
         std::pmr::string pmrResult("garbage");
 #endif
 
@@ -230,13 +230,13 @@ int main(int argc, char *argv[])
 
             bdlb::LiteralUtil::createQuotedEscapedCString(&bslResult, inVue);
             bdlb::LiteralUtil::createQuotedEscapedCString(&stdResult, inVue);
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             bdlb::LiteralUtil::createQuotedEscapedCString(&pmrResult, inVue);
 #endif
 
             ASSERTV(bslResult, oracle, bslResult == oracle);
             ASSERTV(stdResult, oracle, stdResult == oracle);
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             ASSERTV(pmrResult, oracle, pmrResult == oracle);
 #endif
         }
@@ -247,19 +247,19 @@ int main(int argc, char *argv[])
 
             bslResult = "garbage";
             stdResult = "garbage";
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             pmrResult = "garbage";
 #endif
 
             bdlb::LiteralUtil::createQuotedEscapedCString(&bslResult, inRef);
             bdlb::LiteralUtil::createQuotedEscapedCString(&stdResult, inRef);
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             bdlb::LiteralUtil::createQuotedEscapedCString(&pmrResult, inRef);
 #endif
 
             ASSERTV(bslResult, oracle, bslResult == oracle);
             ASSERTV(stdResult, oracle, stdResult == oracle);
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             ASSERTV(pmrResult, oracle, pmrResult == oracle);
 #endif
         }
@@ -270,19 +270,19 @@ int main(int argc, char *argv[])
 
             bslResult = "garbage";
             stdResult = "garbage";
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             pmrResult = "garbage";
 #endif
 
             bdlb::LiteralUtil::createQuotedEscapedCString(&bslResult, inBsl);
             bdlb::LiteralUtil::createQuotedEscapedCString(&stdResult, inBsl);
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             bdlb::LiteralUtil::createQuotedEscapedCString(&pmrResult, inBsl);
 #endif
 
             ASSERTV(bslResult, oracle, bslResult == oracle);
             ASSERTV(stdResult, oracle, stdResult == oracle);
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             ASSERTV(pmrResult, oracle, pmrResult == oracle);
 #endif
         }
@@ -293,25 +293,25 @@ int main(int argc, char *argv[])
 
             bslResult = "garbage";
             stdResult = "garbage";
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             pmrResult = "garbage";
 #endif
 
             bdlb::LiteralUtil::createQuotedEscapedCString(&bslResult, inStd);
             bdlb::LiteralUtil::createQuotedEscapedCString(&stdResult, inStd);
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             bdlb::LiteralUtil::createQuotedEscapedCString(&pmrResult, inStd);
 #endif
 
             ASSERTV(bslResult, oracle, bslResult == oracle);
             ASSERTV(stdResult, oracle, stdResult == oracle);
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             ASSERTV(pmrResult, oracle, pmrResult == oracle);
 #endif
         }
 
         // 'std::pmr::string' input
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
         {
             const std::pmr::string inPmr(inArray, sizeof(inArray) - 1);
 
@@ -341,19 +341,19 @@ int main(int argc, char *argv[])
 
             bslResult = "garbage";
             stdResult = "garbage";
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             pmrResult = "garbage";
 #endif
 
             bdlb::LiteralUtil::createQuotedEscapedCString(&bslResult, inPtr);
             bdlb::LiteralUtil::createQuotedEscapedCString(&stdResult, inPtr);
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             bdlb::LiteralUtil::createQuotedEscapedCString(&pmrResult, inPtr);
 #endif
 
             ASSERTV(bslResult, ptrOracle, bslResult == ptrOracle);
             ASSERTV(stdResult, ptrOracle, stdResult == ptrOracle);
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             ASSERTV(pmrResult, ptrOracle, pmrResult == ptrOracle);
 #endif
         }

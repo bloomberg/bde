@@ -35,6 +35,10 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS: searcher function objects
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD: searcher object overload
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED: 'ptr_fun' et al. gone
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV: <charconv>
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM: <filesystem>
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS: <execution>
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_PMR: <memory_resource>
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -42,10 +46,6 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_STDCPP_MSVC: implementation is MSVC
 //  BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD: implementation is Sun's (RogueWave)
 //  BSLS_LIBRARYFEATURES_STDCPP_STLPORT: implementation is STLPort
-//  BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV: <charconv>
-//  BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM: <filesystem>
-//  BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS: <execution>
-//  BSLS_LIBRARYFEATURES_SUPPORT_PMR: <memory_resource>
 //
 //@SEE_ALSO: bsls_platform, bsls_compilerfeatures, bsls_nativestd
 //
@@ -1106,16 +1106,16 @@ BSLS_IDENT("$Id: $")
     #endif
     #if __cplusplus >= 201703L
         #if BSLS_PLATFORM_CMP_VERSION >= 70000
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY   1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY     1
         #endif
         #if BSLS_PLATFORM_CMP_VERSION >= 90000
-            #define BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV             1
-            #define BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM           1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV             1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM           1
             #if defined(_GLIBCXX_USE_CXX11_ABI) && _GLIBCXX_USE_CXX11_ABI == 1
-                #define BSLS_LIBRARYFEATURES_SUPPORT_PMR              1
+                #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR              1
             #endif
         #endif
-        //  #define BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS  1
+        //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS  1
     #endif
     #if defined(__cpp_lib_atomic_is_always_lock_free)
         // There is no pre-processor define declared in libstdc++ to indicate
@@ -1254,10 +1254,10 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD    1
             //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS    1
 
-            //  #define BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV             1
-            //  #define BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM           1
-            //  #define BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS  1
-            //  #define BSLS_LIBRARYFEATURES_SUPPORT_PMR                  1
+            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV             1
+            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM           1
+            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS  1
+            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                  1
         #endif
 
     #elif BSLS_PLATFORM_CMP_VERSION >= 30000
@@ -1311,10 +1311,10 @@ BSLS_IDENT("$Id: $")
                 #error Unsupported standard library for g++
             #endif
 
-            //  #define BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV             1
-            //  #define BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM           1
-            //  #define BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS  1
-            //  #define BSLS_LIBRARYFEATURES_SUPPORT_PMR                  1
+            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV             1
+            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM           1
+            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS  1
+            //  #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                  1
         #endif
     #endif
 

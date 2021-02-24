@@ -60,7 +60,7 @@ struct LiteralUtil {
         // string.  Note that this code uses the (ASCII) '\' character, rather
         // than Unicode code points for escapes.
 
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
     static void createQuotedEscapedCString(std::pmr::string         *result,
                                            const bsl::string_view&   input);
         // Load into the specified 'result' string the '"' delimited and

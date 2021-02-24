@@ -395,7 +395,7 @@ void transformAndTestValue(Uint64 seedValue)
                     failed = true;
                 }
 
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
                 namespace imp = BloombergLP::bslstl;
 
                 char iBuffer[1000];
@@ -1189,7 +1189,7 @@ int main(int argc, char *argv[])
                     ASSERT(digit < base);
                 }
 
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
                 namespace imp = BloombergLP::bslstl;
 
                 char iBuffer[1000];
@@ -1282,7 +1282,7 @@ int main(int argc, char *argv[])
                                     toCharsBufferS + 1,
                                     result.ptr - toCharsBuffer));
 
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
                 iSts = imp::to_chars(iBuffer,
                                      iBuffer + sizeof(iBuffer),
                                      svalue,

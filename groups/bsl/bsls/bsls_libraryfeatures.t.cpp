@@ -58,16 +58,16 @@
     // mode, finding our own intercept headers that simply forward to the
     // original platform header, assuming it is available.
 # include <any>
-//include <charconv>        // BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV
-//include <execution>       // BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS
-//include <filesystem>      // BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM
-//include <memory_resource> // BSLS_LIBRARYFEATURES_SUPPORT_PMR
+//include <charconv>        // LIBRARYFEATURES_HAS_CPP17_CHARCONV
+//include <execution>       // LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
+//include <filesystem>      // LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
+//include <memory_resource> // LIBRARYFEATURES_HAS_CPP17_PMR
 # include <optional>
 # include <string_view>
 # include <variant>
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
     // Verify assumption that <charconv> is includeable.  Note that we must
     // actively #include each header to check for errors as simply testing
     // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
@@ -76,7 +76,7 @@
 # include <charconv>
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS)
     // Verify assumption that <execution> is includeable.  Note that we must
     // actively #include each header to check for errors as simply testing
     // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
@@ -85,7 +85,7 @@
 # include <execution>
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM)
     // Verify assumption that <filesystem> is includeable.  Note that we must
     // actively #include each header to check for errors as simply testing
     // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
@@ -94,7 +94,7 @@
 # include <filesystem>
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_SUPPORT_PMR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
     // Verify assumption that <memory_resource> is includeable.  Note that we
     // must actively #include each header to check for errors as simply testing
     // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
@@ -1119,34 +1119,31 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV: ");
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV
-    printf("%s\n",
-                  STRINGIFY(BSLS_LIBRARYFEATURES_SUPPORT_CHARCONV) );
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS: ");
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
     printf("%s\n",
-                 STRINGIFY(BSLS_LIBRARYFEATURES_SUPPORT_PARALLEL_ALGORITHMS) );
+           STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM: ");
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM
-    printf("%s\n",
-                  STRINGIFY(BSLS_LIBRARYFEATURES_SUPPORT_FILESYSTEM) );
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_LIBRARYFEATURES_SUPPORT_PMR: ");
-#ifdef BSLS_LIBRARYFEATURES_SUPPORT_PMR
-    printf("%s\n",
-                  STRINGIFY(BSLS_LIBRARYFEATURES_SUPPORT_PMR) );
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_PMR: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR) );
 #else
     printf("UNDEFINED\n");
 #endif
