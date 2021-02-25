@@ -747,6 +747,13 @@ struct FilesystemUtil {
         // recommended to check for 'k_OFFSET_MAX' specifically to avoid
         // integer overflow in your calculations.
 
+    static int setFileSize(FileDescriptor descriptor, Offset size);
+        // Set the size of the file referred to by the specified 'descriptor'
+        // to the specified 'size'.  If the file is grown, the new data will be
+        // zeroes.  'descriptor' must be open for writing, with the cursor
+        // positioned at end of file.  Return 0 on success and a non-zero value
+        // otherwise.
+
     static int lock(FileDescriptor descriptor, bool lockWriteFlag);
         // Acquire a lock for the file with the specified 'descriptor'.  If
         // 'lockWriteFlag' is true, acquire an exclusive write lock; otherwise

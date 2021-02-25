@@ -109,6 +109,8 @@ namespace BloombergLP {
 namespace {
 namespace u {
 
+const char zeroBuffer[32 * 1024] = { 0 };
+
 #if defined(BSLS_PLATFORM_OS_UNIX) \
  && defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
 
@@ -1615,7 +1617,7 @@ FilesystemUtil::Offset FilesystemUtil::getFileSize(const char *path)
     return (highBits << 32) | fileAttribute.nFileSizeLow;
 }
 
-FilesystemUtil::Offset FilesystemUtil::getFileSize(FileDescriptor descriptor)
+FilesystemUtil::Offset FilesystemUtil::getFileSize(FileDescriptor descriptor) \
 {
     return u::WindowsImpUtil::getFileSize(descriptor);
 }
@@ -1625,6 +1627,43 @@ FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
     // TBD
 
     return k_OFFSET_MAX;
+}
+
+int FilesystemUtil::setFileSize(FileDescriptor descriptor, Offset size)
+{
+    const Offset existingFileSize = getFileSize(descriptor);
+
+    if (size < existingFileSize) {
+        const Offset pos = seek(descriptor, size, e_SEEK_FROM_BEGINNING);
+        if (pos != size) {
+            return -1;                                                // RETURN
+        }
+
+        bool rc = ::SetEndOfFile(descriptor);
+        if (!rc) {
+            return -1;
+        }
+    }
+    else {
+        const Offset pos = seek(descriptor, 0, e_SEEK_FROM_END);
+        if (pos != existingFileSize) {
+            return -1;                                                // RETURN
+        }
+
+        int toZero;
+        for (Offset offset = existingFileSize; offset < size;
+                                                            offset += toZero) {
+            toZero = static_cast<int>(
+                       bsl::min<Offset>(size - offset, sizeof(u::zeroBuffer)));
+
+            int rc = write(descriptor, u::zeroBuffer, toZero);
+            if (rc != toZero) {
+                return -1;                                            // RETURN
+            }
+        }
+    }
+
+    return 0;
 }
 
 int FilesystemUtil::getWorkingDirectory(bsl::string *path)
@@ -2405,6 +2444,40 @@ FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
     else {
         return rl.rlim_cur;                                           // RETURN
     }
+}
+
+int FilesystemUtil::setFileSize(FileDescriptor descriptor, Offset size)
+{
+    const Offset existingFileSize = getFileSize(descriptor);
+
+    if (size <= existingFileSize) {
+        ::ftruncate(descriptor, size);
+
+        const Offset pos = seek(descriptor, 0, e_SEEK_FROM_END);
+        if (pos != size) {
+            return -1;                                                // RETURN
+        }
+    }
+    else {
+        const Offset pos = seek(descriptor, 0, e_SEEK_FROM_END);
+        if (existingFileSize != pos) {
+            return -1;                                                // RETURN
+        }
+
+        int toZero;
+        for (Offset offset = existingFileSize; offset < size;
+                                                            offset += toZero) {
+            toZero = static_cast<int>(
+                       bsl::min<Offset>(size - offset, sizeof(u::zeroBuffer)));
+
+            int rc = write(descriptor, u::zeroBuffer, toZero);
+            if (rc != toZero) {
+                return -1;                                            // RETURN
+            }
+        }
+    }
+
+    return 0;
 }
 
 int FilesystemUtil::getWorkingDirectory(bsl::string *path)

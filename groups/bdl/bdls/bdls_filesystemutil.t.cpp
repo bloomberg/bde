@@ -106,6 +106,7 @@ using namespace bsl;
 // [23] int visitPaths(const string&, const Func&);
 // [23] int visitPaths(const char *, const Func&);
 // [24] int getLastModificationTime(bdlt::Datetime *, FileDescriptor);
+// [24] setFileSize(FileDescriptor, Offset);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] CONCERN: findMatchingPaths incorrect on ibm 64-bit
@@ -1701,7 +1702,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == Obj::setWorkingDirectory(tmpWorkingDir));
 
     switch(test) { case 0:
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -1787,7 +1788,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
       } break;
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1902,6 +1903,109 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // TESTING SETFILESIZE
+        //
+        // Concerns:
+        //: 1 That 'setFileSize' can shrink files properly.
+        //:
+        //: 2 That 'setFileSize' can grow files properly.
+        //:
+        //: 3 That in either case, the cursor is positioned at the end of the
+        //:   file after the operation.
+        //
+        // Plan:
+        //: 1 Create a file containing 2 consequetive strings.
+        //:
+        //: 2 Use 'setFileSize' to set the length of the file to after the
+        //:   first string.
+        //:
+        //: 3 Do a relative seek to confirm the cursor is positioned right.
+        //:
+        //: 4 Close the file and measure it's length and confirm the length is
+        //:   is right.
+        //:
+        //: 5 Open the file again.
+        //:
+        //: 6 Use 'setFileSize' to extend the length.
+        //:
+        //: 7 Observe the cursor is at the end.
+        //:
+        //: 8 Seek back to the beginning, read the first string, and confirm
+        //:   that it is right.
+        //:
+        //: 9 Read the second string, and confirm that it is now all zeroes.
+        //
+        // Testing:
+        //   setFileSize(FileDescriptor, Offset);
+        // --------------------------------------------------------------------
+
+        const bsl::string tmpFileName = ::tempFileName(24, "resizefile");
+
+        if (verbose) P(tmpFileName);
+
+        Obj::FileDescriptor fd = Obj::open(tmpFileName.c_str(),
+                                           Obj::e_OPEN_OR_CREATE,
+                                           Obj::e_READ_WRITE,
+                                           Obj::e_TRUNCATE);
+        ASSERT(Obj::k_INVALID_FD != fd);
+
+        const char *contents1 = "To be or not to be, that is the question.\n";
+        const char *contents2 = "There are more things in heaven and Earth,"
+                                                                  " Horatio,\n"
+                                "than are dreamt of in your philosophy.\n";
+
+        const int len1 = static_cast<int>(bsl::strlen(contents1));
+        const int len2 = static_cast<int>(bsl::strlen(contents2));
+
+        int rc = Obj::write(fd, contents1, len1);
+        ASSERT(len1 == rc);
+        rc =     Obj::write(fd, contents2, len2);
+        ASSERT(len2 == rc);
+
+        ASSERT(len1 + len2 == Obj::getFileSize(fd));
+
+        rc = Obj::setFileSize(fd, len1);
+        ASSERT(0 == rc);
+
+        ASSERT(len1 == Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT));
+
+        rc = Obj::close(fd);
+        ASSERT(0 == rc);
+
+        ASSERT(len1 == Obj::getFileSize(tmpFileName));
+
+        fd = Obj::open(tmpFileName.c_str(),
+                       Obj::e_OPEN,
+                       Obj::e_READ_WRITE,
+                       Obj::e_KEEP);
+        ASSERT(Obj::k_INVALID_FD != fd);
+
+        rc = Obj::setFileSize(fd, len1 + len2);
+        ASSERT(0 == rc);
+
+        Obj::Offset offset = Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT);
+        ASSERT(len1 + len2 == offset);
+
+        offset = Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
+        ASSERT(0 == offset);
+
+        char buffer[300] = { 0 };
+        rc = Obj::read(fd, buffer, len1);
+        ASSERT(len1 == rc);
+
+        ASSERT(!bsl::strcmp(contents1, buffer));
+
+        bsl::memset(buffer, 0, sizeof(buffer));
+
+        rc = Obj::read(fd, buffer, len2);
+        ASSERT(len2 == rc);
+
+        ASSERT(len2 == bsl::count(buffer + 0, buffer + len2, '\0'));
+
+        Obj::close(fd);
       } break;
       case 24: {
         // --------------------------------------------------------------------
@@ -2065,6 +2169,9 @@ int main(int argc, char *argv[])
             {    L_, DT(1970,  2,  1,  0,  0,  0,   0,   0) },
             {    L_, DT(1970,  1,  1,  1, 59, 59, 999, 999) },
             {    L_, DT(1970, 12, 31, 23, 59, 59, 999, 999) },
+#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+            {    L_, DT(1970, 12, 31, 24,  0,  0,   0,   0) },
+#endif
 
             {    L_, DT(1972,  2, 29,  0,  0,  0,   0,   0) },
             {    L_, DT(1972,  2, 29, 23, 59, 59, 999, 999) },
