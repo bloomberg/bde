@@ -104,37 +104,20 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-
-#ifndef INCLUDED_WINDOWS
-// windows.h defaults to include winsock.h unless WIN32_LEAN_AND_MEAN is
-// defined.  BDE uses winsocks2.h for its transport facilities.
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
-#define INCLUDED_WINDOWS
-#endif
-
+#include <bsls_bsllockimpl_win32.h>
 #else
-
-#include <pthread.h>
-
+#include <bsls_bsllockimpl_pthread.h>
 #endif
 
 #ifdef BDE_BUILD_TARGET_SAFE
 // This component needs to be below bsls_assert in the physical hierarchy, so
 // 'BSLS_ASSERT' macros can't be used here.  To workaround this issue, we use
 // the C 'assert' instead.
-
 #include <assert.h>
 #define BSLS_BSLLOCK_ASSERT_SAFE(x) assert((x))
-
 #else
-
 #define BSLS_BSLLOCK_ASSERT_SAFE(x)
-
 #endif
-
 
 namespace BloombergLP {
 namespace bsls {
@@ -151,9 +134,9 @@ class BslLock {
 
     // DATA
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    CRITICAL_SECTION d_lock;  // Windows critical section
+    BslLockImpl_win32   d_lock;  // Windows critical section
 #else
-    pthread_mutex_t  d_lock;  // 'pthreads' mutex object
+    BslLockImpl_pthread d_lock;  // 'pthreads' mutex object
 #endif
 
   private:
@@ -243,57 +226,24 @@ class BslLockGuard {
 inline
 BslLock::BslLock()
 {
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    enum {
-        // A Windows critical section has a configurable spin count.  A lock
-        // operation spins this many iterations (on, presumably, some atomic
-        // integer) before sleeping on the underlying primitive.
-
-        BSLS_SPIN_COUNT = 30
-    };
-
-    InitializeCriticalSectionAndSpinCount(&d_lock, BSLS_SPIN_COUNT);
-#else
-    const int status = pthread_mutex_init(&d_lock, 0);
-    (void)status;
-    BSLS_BSLLOCK_ASSERT_SAFE(0 == status);
-#endif
 }
 
 inline
 BslLock::~BslLock()
 {
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    DeleteCriticalSection(&d_lock);
-#else
-    const int status = pthread_mutex_destroy(&d_lock);
-    (void)status;
-    BSLS_BSLLOCK_ASSERT_SAFE(0 == status);
-#endif
 }
 
 // MANIPULATORS
 inline
 void BslLock::lock()
 {
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    EnterCriticalSection(&d_lock);
-#else
-    const int status = pthread_mutex_lock(&d_lock);
-    (void)status;
-    BSLS_BSLLOCK_ASSERT_SAFE(0 == status);
-#endif
+    d_lock.lock();
 }
 
 inline
 void BslLock::unlock()
 {
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    LeaveCriticalSection(&d_lock);
-#else
-    const int status = pthread_mutex_unlock(&d_lock);
-    (void)status;
-#endif
+    d_lock.unlock();
 }
 
                            // ------------------

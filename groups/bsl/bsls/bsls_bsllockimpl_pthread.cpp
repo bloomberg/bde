@@ -1,8 +1,11 @@
-// bsls_bsllock.cpp                                                   -*-C++-*-
-#include <bsls_bsllock.h>
+// bsls_bsllockimpl_pthread.cpp                                       -*-C++-*-
+#include <bsls_bsllockimpl_pthread.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id$ $CSID$")
+BSLS_IDENT_RCSID(bsls_bsllockimpl_pthread_cpp,"$Id$ $CSID$")
+
+namespace BloombergLP {
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2021 Bloomberg Finance L.P.

@@ -73,7 +73,11 @@
 #endif
 
 // Note: on Windows -> WinGDI.h:#define ERROR 0
-#if defined(BSLS_PLATFORM_CMP_MSVC) && defined(ERROR)
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
 #undef ERROR
 #endif
 

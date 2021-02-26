@@ -29,7 +29,12 @@
 #include <bsl_iostream.h>
 #include <bsl_fstream.h>
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#else
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <utime.h>

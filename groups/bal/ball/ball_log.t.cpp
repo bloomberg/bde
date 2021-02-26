@@ -48,6 +48,7 @@
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
@@ -79,6 +80,10 @@
 #include <bsl_c_stdio.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
 // Undefine some awkwardly named Windows macros that interfere with this cpp
 // file, but only after the last #include.
 # undef ERROR

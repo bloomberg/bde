@@ -33,6 +33,8 @@ bsls_blockgrowth
 bsls_bsldeprecationinformation
 bsls_bslexceptionutil
 bsls_bsllock
+bsls_bsllockimpl_win32
+bsls_bsllockimpl_pthread
 bsls_bslonce
 bsls_bsltestutil
 bsls_buildtarget
