@@ -67,7 +67,9 @@
 # include <variant>
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV)                      \
+ || defined(BSLS_LIBRARYFEATURES_HAS_CPP17_FLOAT_FROM_CHARS_CHARCONV)         \
+ || defined(BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV)
     // Verify assumption that <charconv> is includeable.  Note that we must
     // actively #include each header to check for errors as simply testing
     // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
@@ -1115,6 +1117,22 @@ static void printFlags()
     printf("\n  BSLS_LIBRARYFEATURES_STDCPP_STLPORT: ");
 #ifdef BSLS_LIBRARYFEATURES_STDCPP_STLPORT
     printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_STDCPP_STLPORT) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP17_FLOAT_FROM_CHARS_CHARCONV: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_FLOAT_FROM_CHARS_CHARCONV
+    printf(
+          "%s\n",
+          STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_FLOAT_FROM_CHARS_CHARCONV));
 #else
     printf("UNDEFINED\n");
 #endif
