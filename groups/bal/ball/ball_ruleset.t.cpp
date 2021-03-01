@@ -191,8 +191,8 @@ bool verifyRuleSet(const ball::RuleSet& ruleSet)
     return count == ruleSet.numRules();
 }
 
-bool compareText(bslstl::StringRef lhs,
-                 bslstl::StringRef rhs,
+bool compareText(const bsl::string_view& lhs,
+                 const bsl::string_view& rhs,
                  bsl::ostream&     errorStream = bsl::cout)
     // Return 'true' if the specified 'lhs' has the same value as the
     // specified' rhs' and 'false' otherwise.  Optionally specify a

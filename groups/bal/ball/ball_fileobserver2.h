@@ -317,11 +317,15 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmt_mutex.h>
 
+#include <bsls_libraryfeatures.h>
+
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
 #include <bsl_iosfwd.h>
 #include <bsl_memory.h>
 #include <bsl_string.h>
+
+#include <string>           // 'std::string', 'std::pmr::string'
 
 namespace BloombergLP {
 namespace ball {
@@ -453,6 +457,14 @@ class FileObserver2 : public Observer {
         // and the 'rotateOnSize' methods, respectively.  The behavior is
         // undefined unless the caller acquired the lock for this object.
 
+    // PRIVATE ACCESSORS
+    template <class STRING>
+    bool isFileLoggingEnabledImpl(STRING *result) const;
+        // Return 'true' if file logging is enabled for this file observer, and
+        // 'false' otherwise.  Load the specified 'result' with the name of the
+        // current log file if file logging is enabled, and leave 'result'
+        // unmodified otherwise.
+
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(FileObserver2, bslma::UsesBslmaAllocator);
@@ -477,7 +489,7 @@ class FileObserver2 : public Observer {
         // Disable file logging for this file observer.  This method has no
         // effect if file logging is not enabled.  Note that records
         // subsequently received through the 'publish' method will be dropped
-        // until file logging is reenabled.
+        // until file logging is re-enabled.
 
     void disableLifetimeRotation();
         // Disable log file rotation based on a periodic time interval for this
@@ -629,12 +641,23 @@ class FileObserver2 : public Observer {
     // ACCESSORS
     bool isFileLoggingEnabled() const;
     bool isFileLoggingEnabled(bsl::string *result) const;
+    bool isFileLoggingEnabled(std::string *result) const;
         // Return 'true' if file logging is enabled for this file observer, and
         // 'false' otherwise.  Load the optionally specified 'result' with the
         // name of the current log file if file logging is enabled, and leave
         // 'result' unmodified otherwise.  Note that records received through
         // the 'publish' method of this file observer will be dropped when this
         // method returns 'false'.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    bool isFileLoggingEnabled(std::pmr::string *result) const;
+        // Return 'true' if file logging is enabled for this file observer, and
+        // 'false' otherwise.  Load the specified 'result' with the name of the
+        // current log file if file logging is enabled, and leave 'result'
+        // unmodified otherwise.  Note that records received through the
+        // 'publish' method of this file observer may still be logged to
+        // 'stdout' when this method returns 'false'.
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 
     bool isPublishInLocalTimeEnabled() const;
         // Return 'true' if this file observer writes the timestamp attribute

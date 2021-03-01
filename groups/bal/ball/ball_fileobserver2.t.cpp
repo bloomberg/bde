@@ -71,6 +71,10 @@
 #undef ERROR
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+
 using namespace BloombergLP;
 
 using bsl::cout;
@@ -112,6 +116,8 @@ using bsl::flush;
 // ACCESSORS
 // [ 1] bool isFileLoggingEnabled() const;
 // [ 1] bool isFileLoggingEnabled(bsl::string *result) const;
+// [ 1] bool isFileLoggingEnabled(std::string *result) const;
+// [ 1] bool isFileLoggingEnabled(std::pmr::string *result) const;
 // [ 1] bool isPublishInLocalTimeEnabled() const;
 // [ 2] DatetimeInterval rotationLifetime() const;
 // [ 2] int rotationSize() const;
@@ -3057,6 +3063,8 @@ int main(int argc, char *argv[])
         //   DatetimeInterval localTimeOffset();
         //   bool isFileLoggingEnabled() const;
         //   bool isFileLoggingEnabled(bsl::string *result) const;
+        //   bool isFileLoggingEnabled(std::string *result) const;
+        //   bool isFileLoggingEnabled(std::pmr::string *result) const;
         //   bool isPublishInLocalTimeEnabled() const;
         // --------------------------------------------------------------------
 
@@ -3387,14 +3395,42 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == mX.enableFileLogging(pattern.c_str()));
 
-                    bsl::string actual;
-                    ASSERTV(LINE, true == X.isFileLoggingEnabled(&actual));
+                    {
+                        bsl::string actual;
+                        ASSERTV(LINE, true == X.isFileLoggingEnabled(&actual));
 
-                    if (veryVeryVerbose) {
-                        P_(PATTERN);  P_(expected);  P(actual);
+                        if (veryVeryVerbose) {
+                            P_(PATTERN);  P_(expected);  P(actual);
+                        }
+
+                        ASSERTV(LINE, expected == actual);
                     }
+                    {
+                        std::string actual;
+                        ASSERTV(LINE, true == X.isFileLoggingEnabled(&actual));
 
-                    ASSERTV(LINE, expected == actual);
+                        if (veryVeryVerbose) {
+                            P_(PATTERN);  P_(expected);  P(actual);
+                        }
+
+                        ASSERTV(LINE,
+                                std::string(expected.cbegin(),
+                                            expected.cend()) == actual);
+                    }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    {
+                        std::pmr::string actual;
+                        ASSERTV(LINE, true == X.isFileLoggingEnabled(&actual));
+
+                        if (veryVeryVerbose) {
+                            P_(PATTERN);  P_(expected);  P(actual);
+                        }
+
+                        ASSERTV(LINE,
+                                std::pmr::string(expected.cbegin(),
+                                                 expected.cend()) == actual);
+                    }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 
                     mX.disableFileLogging();
 

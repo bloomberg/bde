@@ -32,7 +32,7 @@ namespace ball {
 static void setThesholdIfMatchingCategoryPrefix(
                                      Category                 *category,
                                      int                      *matchCount,
-                                     const bslstl::StringRef&  prefix,
+                                     const bsl::string_view&   prefix,
                                      int                       recordLevel,
                                      int                       passLevel,
                                      int                       triggerLevel,
@@ -153,7 +153,7 @@ int LoggerCategoryUtil::setThresholdLevelsHierarchically(
         bdlf::BindUtil::bind(setThesholdIfMatchingCategoryPrefix,
                              _1,
                              &matchCount,
-                             bslstl::StringRef(categoryNamePrefix),
+                             bsl::string_view(categoryNamePrefix),
                              recordLevel,
                              passLevel,
                              triggerLevel,

@@ -379,8 +379,16 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmt_mutex.h>
 
+#include <bsls_libraryfeatures.h>
+
 #include <bsl_memory.h>
 #include <bsl_string.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+
+#include <string>           // 'std::string', 'std::pmr::string'
 
 namespace BloombergLP {
 namespace ball {
@@ -710,12 +718,23 @@ class FileObserver : public Observer {
 
     bool isFileLoggingEnabled() const;
     bool isFileLoggingEnabled(bsl::string *result) const;
+    bool isFileLoggingEnabled(std::string *result) const;
         // Return 'true' if file logging is enabled for this file observer, and
         // 'false' otherwise.  Load the optionally specified 'result' with the
         // name of the current log file if file logging is enabled, and leave
         // 'result' unmodified otherwise.  Note that records received through
         // the 'publish' method of this file observer may still be logged to
         // 'stdout' when this method returns 'false'.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    bool isFileLoggingEnabled(std::pmr::string *result) const;
+        // Return 'true' if file logging is enabled for this file observer, and
+        // 'false' otherwise.  Load the specified 'result' with the name of the
+        // current log file if file logging is enabled, and leave 'result'
+        // unmodified otherwise.  Note that records received through the
+        // 'publish' method of this file observer may still be logged to
+        // 'stdout' when this method returns 'false'.
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 
     bool isStdoutLoggingPrefixEnabled() const;
         // Return 'true' if this file observer uses the long output format when
@@ -873,6 +892,20 @@ bool FileObserver::isFileLoggingEnabled(bsl::string *result) const
 {
     return d_fileObserver2.isFileLoggingEnabled(result);
 }
+
+inline
+bool FileObserver::isFileLoggingEnabled(std::string *result) const
+{
+    return d_fileObserver2.isFileLoggingEnabled(result);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+inline
+bool FileObserver::isFileLoggingEnabled(std::pmr::string *result) const
+{
+    return d_fileObserver2.isFileLoggingEnabled(result);
+}
+#endif  //BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 
 inline
 bdlt::DatetimeInterval FileObserver::localTimeOffset() const

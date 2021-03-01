@@ -275,9 +275,9 @@ static Obj& gg(Obj *obj, const char *spec)
     return *obj;
 }
 
-bool compareText(bslstl::StringRef lhs,
-                 bslstl::StringRef rhs,
-                 bsl::ostream&     errorStream = bsl::cout)
+bool compareText(const bsl::string_view& lhs,
+                 const bsl::string_view& rhs,
+                 bsl::ostream&           errorStream = bsl::cout)
     // Return 'true' if the specified 'lhs' has the same value as the specified
     // 'rhs' and 'false' otherwise.  Optionally specify a 'errorStream', on
     // which, if 'lhs' and 'rhs' are not the same, a description of how the two

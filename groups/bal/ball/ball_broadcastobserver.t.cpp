@@ -43,9 +43,9 @@ using namespace bsl;
 // [ 2] BroadcastObserver(bslma::Allocator *ba = 0);
 // [ 2] ~BroadcastObserver();
 // [ 3] void deregisterAllObservers();
-// [ 3] int deregisterObserver(const StringRef& name);
-// [ 4] shared_ptr<Observer> findObserver(const StringRef& name);
-// [ 4] int findObserver(shared_ptr<OBSERVER> *, const StringRef&);
+// [ 3] int deregisterObserver(const bsl::string_view& name);
+// [ 4] shared_ptr<Observer> findObserver(const bsl::string_view& name);
+// [ 4] int findObserver(shared_ptr<OBSERVER> *, const bsl::string_view&);
 // [ 5] void publish(const Record& record, const Context& context);
 // [ 6] void publish(const shared_ptr<const Record>& r, const Context& c);
 // [ 3] int registerObserver(const shared_ptr<Observer>&, name);
@@ -184,7 +184,7 @@ namespace TEST_CASE_8 {
 static int observerCounter = 0;
 
 static void observerCounterFunc(const bsl::shared_ptr<Observer>&,
-                                const bslstl::StringRef&)
+                                const bsl::string_view&)
     // Increment invocation counter.
 {
     ++observerCounter;
@@ -194,7 +194,7 @@ struct ObserverCounterFunctor {
 
     // ACCESSORS
     void operator()(const bsl::shared_ptr<Observer>&,
-                    const bslstl::StringRef&) const
+                    const bsl::string_view&) const
         // Increment invocation counter.
     {
         ++observerCounter;
@@ -961,8 +961,8 @@ int main(int argc, char *argv[])
         //: 4 Verify that basic accessors return expected values.
         //
         // Testing:
-        //   shared_ptr<Observer> findObserver(const StringRef& name);
-        //   int findObserver(shared_ptr<OBSERVER> *, const StringRef&);
+        //   shared_ptr<Observer> findObserver(const bsl::string_view& name);
+        //   int findObserver(shared_ptr<OBSERVER> *, const bsl::string_view&);
         //   shared_ptr<const Observer> findObserver(name) const;
         //   int findObserver(shared_ptr<const OBSERVER> *, name) const;
         //   int numRegisteredObservers() const;
@@ -1268,7 +1268,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void deregisterAllObservers();
-        //   int deregisterObserver(const StringRef& name);
+        //   int deregisterObserver(const bsl::string_view& name);
         //   int registerObserver(const shared_ptr<Observer>&, name);
         // --------------------------------------------------------------------
 

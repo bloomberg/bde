@@ -214,7 +214,7 @@ const char *MSG_550BYTE =
 "01234567890123456789012345678901234567890123456789";
 
 
-bool compareText(bslstl::StringRef lhs, bslstl::StringRef rhs)
+bool compareText(const bsl::string_view& lhs, const bsl::string_view& rhs)
 {
     for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
         if (lhs[i] != rhs[i]) {

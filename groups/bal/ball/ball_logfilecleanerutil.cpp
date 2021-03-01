@@ -37,8 +37,8 @@ void LogFileCleanerUtil::logFileCleanupOnRotationDefault(
 
 // CLASS METHODS
 void LogFileCleanerUtil::logPatternToFilePattern(
-                                         bsl::string              *filePattern,
-                                         const bslstl::StringRef&  logPattern)
+                                         bsl::string             *filePattern,
+                                         const bsl::string_view&  logPattern)
 {
     filePattern->reserve(logPattern.length());
     filePattern->clear();

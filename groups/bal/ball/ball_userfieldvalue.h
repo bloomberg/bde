@@ -121,7 +121,7 @@ class UserFieldValue {
                             bslma::Allocator         *basicAllocator = 0);
     explicit UserFieldValue(double                    value,
                             bslma::Allocator         *basicAllocator = 0);
-    explicit UserFieldValue(bslstl::StringRef         value,
+    explicit UserFieldValue(const bsl::string_view&   value,
                             bslma::Allocator         *basicAllocator = 0);
     explicit UserFieldValue(const bdlt::DatetimeTz&   value,
                             bslma::Allocator         *basicAllocator = 0);
@@ -177,7 +177,7 @@ class UserFieldValue {
         // Set this object to have the specified 'value'.  After this
         // operation, 'type() == ball::UserFieldType::e_DOUBLE'.
 
-    void setString(bslstl::StringRef value);
+    void setString(const bsl::string_view& value);
         // Set this object to have the specified 'value'.  After this
         // operation, 'type() == ball::UserFieldType::e_STRING'.
 
@@ -322,8 +322,8 @@ UserFieldValue::UserFieldValue(double value, bslma::Allocator *basicAllocator)
 }
 
 inline
-UserFieldValue::UserFieldValue(bslstl::StringRef  value,
-                               bslma::Allocator  *basicAllocator)
+UserFieldValue::UserFieldValue(const bsl::string_view&  value,
+                               bslma::Allocator        *basicAllocator)
 : d_value(basicAllocator)
 {
     d_value.assignTo<bsl::string>(value);
@@ -377,7 +377,7 @@ void UserFieldValue::setDouble(double value)
 }
 
 inline
-void UserFieldValue::setString(bslstl::StringRef value)
+void UserFieldValue::setString(const bsl::string_view& value)
 {
     d_value.assignTo<bsl::string>(value);
 }

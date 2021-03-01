@@ -1683,7 +1683,7 @@ class LoggerManager {
         // Remove all observers from the registry of observers maintained by
         // this logger manager.
 
-    int deregisterObserver(const bslstl::StringRef& observerName);
+    int deregisterObserver(const bsl::string_view& observerName);
         // Remove the observer having the specified 'observerName' from the
         // registry of observers maintained by this logger manager.  Return 0
         // if the observer having 'observerName' was successfully deregistered
@@ -1699,14 +1699,14 @@ class LoggerManager {
         // effect) otherwise.
 
     bsl::shared_ptr<Observer> findObserver(
-                                        const bslstl::StringRef& observerName);
+                                         const bsl::string_view& observerName);
         // Return a shared pointer to the observer having the specified
         // 'observerName' in the registry of this logger manager, and an empty
         // shared pointer if there is no such observer otherwise.
 
     template <class OBSERVER>
     int findObserver(bsl::shared_ptr<OBSERVER> *result,
-                     const bslstl::StringRef&   observerName);
+                     const bsl::string_view&    observerName);
         // Load into the specified 'result' a shared pointer to the observer of
         // (template parameter) 'OBSERVER' type having the specified
         // 'observerName' in the registry of this logger manager, and an empty
@@ -1725,7 +1725,7 @@ class LoggerManager {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     int registerObserver(const bsl::shared_ptr<Observer>& observer,
-                         const bslstl::StringRef&         observerName);
+                         const bsl::string_view&          observerName);
         // Add the specified 'observer' with the specified 'observerName' to
         // the registry of observers maintained by this logger manager.  Return
         // 0 if 'observer' was successfully registered with this logger
@@ -1835,7 +1835,7 @@ class LoggerManager {
         // had the following signature:
         //..
         //  void operator()(const bsl::shared_ptr<Observer>& observer,
-        //                  const bslstl::StringRef&         observerName);
+        //                  const bsl::string_view&          observerName);
         //..
 
     // ACCESSORS
@@ -1861,14 +1861,14 @@ class LoggerManager {
         // Return the default trigger threshold level of this logger manager.
 
     bsl::shared_ptr<const Observer> findObserver(
-                                  const bslstl::StringRef& observerName) const;
+                                   const bsl::string_view& observerName) const;
         // Return a shared pointer to the observer having the specified
         // 'observerName' in the registry of this logger manager, and an empty
         // shared pointer if there is no such observer otherwise.
 
     template <class OBSERVER>
     int findObserver(bsl::shared_ptr<const OBSERVER> *result,
-                     const bslstl::StringRef&         observerName) const;
+                     const bsl::string_view&          observerName) const;
         // Load into the specified 'result' a shared pointer to the observer of
         // (template parameter) 'OBSERVER' type having the specified
         // 'observerName' in the registry of this logger manager, and an empty
@@ -1949,7 +1949,7 @@ class LoggerManager {
         // had the following signature:
         //..
         //  void operator()(const bsl::shared_ptr<Observer>& observer,
-        //                  const bslstl::StringRef&         observerName);
+        //                  const bsl::string_view&          observerName);
         //..
 
                      // Threshold Level Management Accessors
@@ -2217,7 +2217,7 @@ void LoggerManager::deregisterAllObservers()
 }
 
 inline
-int LoggerManager::deregisterObserver(const bslstl::StringRef& observerName)
+int LoggerManager::deregisterObserver(const bsl::string_view& observerName)
 {
     return d_observer->deregisterObserver(observerName);
 }
@@ -2231,7 +2231,7 @@ int LoggerManager::deregisterAttributeCollector(
 
 inline
 bsl::shared_ptr<Observer>
-LoggerManager::findObserver(const bslstl::StringRef& observerName)
+LoggerManager::findObserver(const bsl::string_view& observerName)
 {
     return d_observer->findObserver(observerName);
 }
@@ -2239,7 +2239,7 @@ LoggerManager::findObserver(const bslstl::StringRef& observerName)
 template <class OBSERVER>
 inline
 int LoggerManager::findObserver(bsl::shared_ptr<OBSERVER> *result,
-                                const bslstl::StringRef&   observerName)
+                                const bsl::string_view&    observerName)
 {
     return d_observer->findObserver(result, observerName);
 }
@@ -2247,7 +2247,7 @@ int LoggerManager::findObserver(bsl::shared_ptr<OBSERVER> *result,
 inline
 int
 LoggerManager::registerObserver(const bsl::shared_ptr<Observer>& observer,
-                                const bslstl::StringRef&         observerName)
+                                const bsl::string_view&          observerName)
 {
     return d_observer->registerObserver(observer, observerName);
 }
@@ -2363,7 +2363,7 @@ int LoggerManager::defaultTriggerThresholdLevel() const
 
 inline
 bsl::shared_ptr<const Observer>
-LoggerManager::findObserver(const bslstl::StringRef& observerName) const
+LoggerManager::findObserver(const bsl::string_view& observerName) const
 {
     const BroadcastObserver *observerPtr = d_observer.get();
 
@@ -2374,7 +2374,7 @@ template <class OBSERVER>
 inline
 int LoggerManager::findObserver(
                            bsl::shared_ptr<const OBSERVER> *result,
-                           const bslstl::StringRef&         observerName) const
+                           const bsl::string_view&          observerName) const
 {
     const BroadcastObserver *observerPtr = d_observer.get();
 

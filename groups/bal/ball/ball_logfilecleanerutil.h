@@ -178,8 +178,8 @@ struct LogFileCleanerUtil {
         // rotation callback currently installed in the observer (if any).
 
     static
-    void logPatternToFilePattern(bsl::string              *filePattern,
-                                 const bslstl::StringRef&  logPattern);
+    void logPatternToFilePattern(bsl::string             *filePattern,
+                                 const bsl::string_view&  logPattern);
         // Substitute all occurrences of valid '%'-escape sequences in the
         // specified 'logPattern' with '*' and load the specified 'filePattern'
         // with the resulting string.  This utility function converts the log

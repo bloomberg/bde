@@ -207,7 +207,7 @@ class BroadcastObserver : public Observer {
     void deregisterAllObservers();
         // Remove all observers from the registry of this broadcast observer.
 
-    int deregisterObserver(const bslstl::StringRef& observerName);
+    int deregisterObserver(const bsl::string_view& observerName);
         // Remove the observer having the specified 'observerName' from the
         // registry of this broadcast observer.  Return 0 if the observer
         // having 'observerName' was successfully deregistered, and a non-zero
@@ -216,14 +216,14 @@ class BroadcastObserver : public Observer {
         // observer.
 
     bsl::shared_ptr<Observer> findObserver(
-                                        const bslstl::StringRef& observerName);
+                                         const bsl::string_view& observerName);
         // Return a shared pointer to the observer having the specified
         // 'observerName' in the registry of this broadcast observer, and an
         // empty shared pointer if there is no such observer otherwise.
 
     template <class OBSERVER>
     int findObserver(bsl::shared_ptr<OBSERVER> *result,
-                     const bslstl::StringRef&   observerName,
+                     const bsl::string_view&    observerName,
                      typename bsl::enable_if<
                          bsl::is_convertible<OBSERVER *,
                                              ball::Observer *>::value,
@@ -255,7 +255,7 @@ class BroadcastObserver : public Observer {
         // observers registered with this broadcast observer.
 
     int registerObserver(const bsl::shared_ptr<Observer>& observer,
-                         const bslstl::StringRef&         observerName);
+                         const bsl::string_view&          observerName);
         // Add the specified 'observer' with the specified 'observerName' to
         // the registry of this broadcast observer.  Return 0 if 'observer' was
         // successfully registered, and a non-zero value (with no effect)
@@ -283,19 +283,19 @@ class BroadcastObserver : public Observer {
         // following signature:
         //..
         //  void operator()(const bsl::shared_ptr<Observer>& observer,
-        //                  const bslstl::StringRef&         observerName);
+        //                  const bsl::string_view&          observerName);
         //..
 
     // ACCESSORS
     bsl::shared_ptr<const Observer> findObserver(
-                                  const bslstl::StringRef& observerName) const;
+                                   const bsl::string_view& observerName) const;
         // Return a shared pointer to the observer having the specified
         // 'observerName' in the registry of this broadcast observer, and an
         // empty shared pointer if there is no such observer otherwise.
 
     template <class OBSERVER>
     int findObserver(bsl::shared_ptr<const OBSERVER> *result,
-                     const bslstl::StringRef&         observerName,
+                     const bsl::string_view&          observerName,
                      typename bsl::enable_if<
                          bsl::is_convertible<const OBSERVER *,
                                              const ball::Observer *>::value,
@@ -331,7 +331,7 @@ class BroadcastObserver : public Observer {
         // following signature:
         //..
         //  void operator()(const bsl::shared_ptr<Observer>& observer,
-        //                  const bslstl::StringRef&         observerName);
+        //                  const bsl::string_view&          observerName);
         //..
 };
 

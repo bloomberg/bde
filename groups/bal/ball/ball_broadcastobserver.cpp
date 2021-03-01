@@ -26,12 +26,13 @@ BroadcastObserver::~BroadcastObserver()
 }
 
 // MANIPULATORS
-int BroadcastObserver::deregisterObserver(
-                                         const bslstl::StringRef& observerName)
+int BroadcastObserver::deregisterObserver(const bsl::string_view& observerName)
 {
     bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
 
-    ObserverRegistry::iterator it = d_observers.find(observerName);
+    // TODO: until {DRQS 164220683} is implemented.
+    ObserverRegistry::iterator it = d_observers.find(
+                                                    bsl::string(observerName));
 
     if (it == d_observers.end() ) {
         return 1;                                                     // RETURN
@@ -62,11 +63,13 @@ void BroadcastObserver::deregisterAllObservers()
 }
 
 bsl::shared_ptr<Observer> BroadcastObserver::findObserver(
-                                         const bslstl::StringRef& observerName)
+                                          const bsl::string_view& observerName)
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
 
-    ObserverRegistry::iterator it = d_observers.find(observerName);
+    // TODO: until {DRQS 164220683} is implemented.
+    ObserverRegistry::iterator it = d_observers.find(
+                                                    bsl::string(observerName));
 
     if (it == d_observers.end()) {
         return bsl::shared_ptr<Observer>();                           // RETURN
@@ -90,7 +93,7 @@ void BroadcastObserver::publish(const bsl::shared_ptr<const Record>& record,
 
 int BroadcastObserver::registerObserver(
                                  const bsl::shared_ptr<Observer>& observer,
-                                 const bslstl::StringRef&         observerName)
+                                 const bsl::string_view&          observerName)
 {
     bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
 
@@ -111,11 +114,13 @@ void BroadcastObserver::releaseRecords()
 
 // ACCESSORS
 bsl::shared_ptr<const Observer>
-BroadcastObserver::findObserver(const bslstl::StringRef& observerName) const
+BroadcastObserver::findObserver(const bsl::string_view& observerName) const
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
 
-    ObserverRegistry::const_iterator it = d_observers.find(observerName);
+    // TODO: until {DRQS 164220683} is implemented.
+    ObserverRegistry::const_iterator it = d_observers.find(
+                                                    bsl::string(observerName));
 
     if (it == d_observers.end()) {
         return bsl::shared_ptr<const Observer>();                     // RETURN

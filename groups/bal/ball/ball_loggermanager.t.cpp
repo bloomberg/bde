@@ -146,11 +146,11 @@ using namespace bdlf::PlaceHolders;
 // [13] Category *setCategory(const char *name, int, int, int, int);
 // [13] void setMaxNumCategories(int);
 // [10] deregisterAllObservers();
-// [10] deregisterObserver(const StringRef&);
-// [10] findObserver(const StringRef&);
-// [10] findObserver(const shared_ptr<OBSERVER>*, const StringRef&);
+// [10] deregisterObserver(const bsl::string_view&);
+// [10] findObserver(const bsl::string_view&);
+// [10] findObserver(const shared_ptr<OBSERVER>*, const string_view&);
 // [ *] const Obs *observer() const;
-// [10] registerObserver(const shared_ptr<Observer>&, const StringRef&);
+// [10] registerObserver(const shared_ptr<Observer>&, const string_view&);
 // [10] void visitObservers(OBSERVER_VISITOR visitor);
 // [10] void visitObservers(OBSERVER_VISITOR visitor) const;
 // [ 9] const Aggregate& getDefaultThresholdLevels() const;
@@ -1634,13 +1634,13 @@ class TestObserverVisitor {
 
     // ACCESSORS
     void operator()(const bsl::shared_ptr<ball::Observer>& observer,
-                    const bslstl::StringRef&               observerName) const
+                    const bsl::string_view&                observerName) const
     {
         ASSERT(observer == d_loggerManager_p->findObserver(observerName));
     }
 
     void operator()(bsl::shared_ptr<ball::Observer>&,
-                    const bslstl::StringRef&) const
+                    const bsl::string_view&) const
     {
         ASSERT(!"This overload must not be ever called.");
     }
@@ -5392,10 +5392,10 @@ int main(int argc, char *argv[])
         //: 4 Deregister observers and verify the operation.  (C-4)
         //
         // Testing:
-        //   findObserver(const StringRef&);
-        //   findObserver(const shared_ptr<OBSERVER>*, const StringRef&);
-        //   registerObserver(const shared_ptr<Observer>&, const StringRef&);
-        //   deregisterObserver(const StringRef&);
+        //   findObserver(const bsl::string_view&);
+        //   findObserver(const shared_ptr<OBSERVER>*, const string_view&);
+        //   registerObserver(const shared_ptr<Observer>&, const string_view&);
+        //   deregisterObserver(const bsl::string_view&);
         //   deregisterAllObservers();
         //   void visitObservers(OBSERVER_VISITOR visitor);
         //   void visitObservers(OBSERVER_VISITOR visitor) const;

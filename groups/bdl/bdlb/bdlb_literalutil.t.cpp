@@ -7,6 +7,11 @@
 #include <bslma_testallocator.h>            // to verify that we do not
 #include <bslma_testallocatormonitor.h>     // allocate any memory
 #include <bsls_asserttest.h>
+#include <bsls_libraryfeatures.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#include <memory_resource>  // 'std::pmr:polymorphic_allocator'
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 
 using namespace BloombergLP;
 using namespace bsl;

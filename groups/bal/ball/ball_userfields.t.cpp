@@ -55,7 +55,7 @@ using namespace bsl;
 // [  ] void appendNull();
 // [  ] void appendInt64(bsls::Types::Int64 value);
 // [  ] void appendDouble(double value);
-// [  ] void appendString(bslstl::StringRef value);
+// [  ] void appendString(const bsl::string_view& value);
 // [  ] void appendDatetimeTz(const bdlt::DatetimeTz& value);
 // [  ] void appendCharArray(const bsl::vector<char>& value);
 // [  ] UserFieldValue& operator[](int index);

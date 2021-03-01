@@ -61,6 +61,10 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #define snprintf _snprintf
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+
 namespace BloombergLP {
 namespace ball {
 
@@ -577,6 +581,22 @@ int FileObserver2::rotateIfNecessary(bsl::string           *rotatedLogFileName,
     return 1;
 }
 
+// PRIVATE ACCESSORS
+template <class STRING>
+bool FileObserver2::isFileLoggingEnabledImpl(STRING *result) const
+{
+    BSLS_ASSERT(result);
+
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
+    bool rc = d_logStreamBuf.isOpened();
+    if (rc) {
+        result->assign(d_logFileName.cbegin(), d_logFileName.cend());
+    }
+
+    return rc;
+}
+
 // CREATORS
 FileObserver2::FileObserver2(bslma::Allocator *basicAllocator)
 : d_logStreamBuf(bdls::FilesystemUtil::k_INVALID_FD,
@@ -828,17 +848,20 @@ bool FileObserver2::isFileLoggingEnabled() const
 
 bool FileObserver2::isFileLoggingEnabled(bsl::string *result) const
 {
-    BSLS_ASSERT(result);
-
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-
-    bool rc = d_logStreamBuf.isOpened();
-    if (rc) {
-        result->assign(d_logFileName);
-    }
-
-    return rc;
+    return isFileLoggingEnabledImpl(result);
 }
+
+bool FileObserver2::isFileLoggingEnabled(std::string *result) const
+{
+    return isFileLoggingEnabledImpl(result);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+bool FileObserver2::isFileLoggingEnabled(std::pmr::string *result) const
+{
+    return isFileLoggingEnabledImpl(result);
+}
+#endif  //BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 
 bool FileObserver2::isPublishInLocalTimeEnabled() const
 {

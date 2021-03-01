@@ -46,7 +46,7 @@ using namespace bsl;
 // Primary Manipulators:
 //: o void setInt64(bsls::Types::Int64 value);
 //: o void setDouble(double value);
-//: o void setString(bslstl::StringRef value);
+//: o void setString(bsl::string_view& value);
 //: o void setDatetimeTz(const bdlt::DatetimeTz& value);
 //: o void setCharArray(const bsl::vector<char>& value);
 //
@@ -71,7 +71,7 @@ using namespace bsl;
 // [ 2] UserFieldValue(Allocator *ba = 0);
 // [12] UserFieldValue(bsls::Types::Int64       value, Allocator *ba = 0);
 // [12] UserFieldValue(double                   value, Allocator *ba = 0);
-// [13] UserFieldValue(bslstl::StringRef        value, Allocator *ba = 0);
+// [13] UserFieldValue(bsl::string_view&        value, Allocator *ba = 0);
 // [12] UserFieldValue(const bdlt::DatetimeTz&  value, Allocator *ba = 0);
 // [13] UserFieldValue(const bsl::vector<char>& value, Allocator *ba = 0);
 // [14] UserFieldValue(INTEGRAL_TYPE            value, Allocator *ba = 0);
@@ -83,7 +83,7 @@ using namespace bsl;
 // [11] void reset();
 // [ 2] void setInt64(bsls::Types::Int64 value);
 // [ 2] void setDouble(double value);
-// [ 2] void setString(bslstl::StringRef value);
+// [ 2] void setString(const bsl::string_view& value);
 // [ 2] void setDatetimeTz(const bdlt::DatetimeTz& value);
 // [ 2] void setCharArray(const bsl::vector<char>& value);
 // [ 8] void swap(UserFieldValue& other);
@@ -215,7 +215,7 @@ const double             B2 = 20.5;
 const bsl::string        S  = SUFFICIENTLY_LONG_STRING;
 
 const char              *C1 = "one";  // *not* 'bsl::string'
-const bslstl::StringRef  C2 = S;      // the interface takes 'StringRef'
+const bsl::string_view   C2 = S;      // the interface takes 'string_view'
 
 const bdlt::DatetimeTz   D1(bdlt::Datetime(2000,  1,  1, 0, 1, 2,   3), 240);
 const bdlt::DatetimeTz   D2(bdlt::Datetime(2025, 12, 31, 4, 5, 6, 789), -60);
@@ -936,7 +936,7 @@ int main(int argc, char *argv[])
         //:   macros).  (C-2, 11)
         //
         // Testing:
-        //   UserFieldValue(bslstl::StringRef        value, Allocator *ba = 0);
+        //   UserFieldValue(const bsl::string_view&  value, Allocator *ba = 0);
         //   UserFieldValue(const bsl::vector<char>& value, Allocator *ba = 0);
         // --------------------------------------------------------------------
 
@@ -3551,7 +3551,7 @@ int main(int argc, char *argv[])
         //   ~UserFieldValue() = default;
         //   void setInt64(bsls::Types::Int64 value);
         //   void setDouble(double value);
-        //   void setString(bslstl::StringRef value);
+        //   void setString(const bsl::string_view& value);
         //   void setDatetimeTz(const bdlt::DatetimeTz& value);
         //   void setCharArray(const bsl::vector<char>& value);
         //   bslma::Allocator *allocator() const;
