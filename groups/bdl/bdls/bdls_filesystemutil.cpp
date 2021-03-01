@@ -1618,7 +1618,7 @@ FilesystemUtil::Offset FilesystemUtil::getFileSize(const char *path)
     return (highBits << 32) | fileAttribute.nFileSizeLow;
 }
 
-FilesystemUtil::Offset FilesystemUtil::getFileSize(FileDescriptor descriptor) \
+FilesystemUtil::Offset FilesystemUtil::getFileSize(FileDescriptor descriptor)
 {
     return u::WindowsImpUtil::getFileSize(descriptor);
 }
