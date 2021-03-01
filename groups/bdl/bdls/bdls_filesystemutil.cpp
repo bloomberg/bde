@@ -1187,6 +1187,7 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
                                             FileDescriptor  descriptor)
 {
     BSLS_ASSERT(time);
+
     typedef FilesystemUtil_WindowsImpUtil<u::WindowsInterfaceUtil>
         WindowsImpUtil;
 
@@ -1641,7 +1642,7 @@ int FilesystemUtil::setFileSize(FileDescriptor descriptor, Offset size)
 
         bool rc = ::SetEndOfFile(descriptor);
         if (!rc) {
-            return -1;
+            return -1;                                                // RETURN
         }
     }
     else {
@@ -2448,33 +2449,14 @@ FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
 
 int FilesystemUtil::setFileSize(FileDescriptor descriptor, Offset size)
 {
-    const Offset existingFileSize = getFileSize(descriptor);
-
-    if (size <= existingFileSize) {
-        ::ftruncate(descriptor, size);
-
-        const Offset pos = seek(descriptor, 0, e_SEEK_FROM_END);
-        if (pos != size) {
-            return -1;                                                // RETURN
-        }
+    int rc = ::ftruncate(descriptor, size);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
     }
-    else {
-        const Offset pos = seek(descriptor, 0, e_SEEK_FROM_END);
-        if (existingFileSize != pos) {
-            return -1;                                                // RETURN
-        }
 
-        int toZero;
-        for (Offset offset = existingFileSize; offset < size;
-                                                            offset += toZero) {
-            toZero = static_cast<int>(
-                       bsl::min<Offset>(size - offset, sizeof(u::zeroBuffer)));
-
-            int rc = write(descriptor, u::zeroBuffer, toZero);
-            if (rc != toZero) {
-                return -1;                                            // RETURN
-            }
-        }
+    const Offset pos = seek(descriptor, 0, e_SEEK_FROM_END);
+    if (pos != size) {
+        return -1;                                                    // RETURN
     }
 
     return 0;
