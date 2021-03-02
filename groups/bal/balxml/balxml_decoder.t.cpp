@@ -1,6 +1,17 @@
 // balxml_decoder.t.cpp                                               -*-C++-*-
 
 // ----------------------------------------------------------------------------
+//                                  ATTENTION
+//
+// This test driver requires much system memory to build on IBM/AIX using xlC.
+// If you get an out of memory error during the compilation of this file please
+// search for COMPILER_RESOURCE_LIMITATIONS in this source file, and uncomment
+// the '#define' you find, and remove the comment text right above it.  Then
+// search for the '#undef' for the same macro and uncomment that, too.  Finally
+// remove this comment block as well.
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
 //                                   NOTICE
 //
 // This component is not up to date with current BDE coding standards, and
@@ -60,7 +71,9 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 #include <bslmf_issame.h>
+
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 
 #include <bsl_cstddef.h>
@@ -73,6 +86,7 @@
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_typeinfo.h>
 #include <bsl_unordered_map.h>
 #include <bsl_unordered_set.h>
@@ -8034,6 +8048,507 @@ extern const char selection1Name[] = "selection1";
 // ----------------------------------------------------------------------------
 
 // ============================================================================
+//                              BEGIN TEST CASES
+// ----------------------------------------------------------------------------
+// Some test cases have been moved into separate functions to stop AIX xlC from
+// trying to optimize them and run out of memory.
+
+void runTestCase19()
+{
+    //-------------------------------------------------------------------------
+    // TEST CASE DOCUMENTATION IS REPEATED HERE SO IT IS WITH THE CODE.  It is
+    // indented wrong so it does not have to be reformatted here if it needs a
+    // change.  Make sure that anything you change here is also changed in
+    // 'main' and vice versa.
+    //---+
+        // --------------------------------------------------------------------
+        // TESTING NILLABLE ELEMENT DECODING
+        //   This case tests the 'balxml::Decoder::decode' operation when
+        //   decoding objects that may or may not be "nullable", and may or may
+        //   not have the "nillable" formatting mode applied.  In general, it
+        //   is expected that absent XML tags decode to null values, and
+        //   self-closing tags with the attribute 'xsi:nil="true"' decode
+        //   to null values only if the corresponding attribute is marked
+        //   nillable.  For backwards compatibility, it is expected that
+        //   self-closing tags with no attributes also decode to null values
+        //   only if the corresponding attribute is marked nillable.
+        //
+        // Concerns:
+        //: 1 Attributes of sequence types and selections of choice types that
+        //:   do not have the "nillable" formatting mode decode non-null values
+        //:   from XML representations of their value.
+        //:
+        //: 2 Attributes of sequence types and selections of choice types that
+        //:   do not have the "nillable" formatting mode decode null values
+        //:   absent XML tags.
+        //:
+        //: 3 Attributes of sequence types and selections of choice types
+        //:   that have the "nillable" formatting mode decode non-null values
+        //:   from XML representations of their value.
+        //:
+        //: 4 Attributes of sequence types and selections of choice types
+        //:   that have the "nillable" formatting mode decode null values from
+        //:   absent XML tags, self-closing tags with no attributes, and
+        //:   self-closing tags with the attribute 'xsi:nil="true"'.
+        //:
+        //: 5 Nullable types decode XML representations of their underlying
+        //:   value as non-null values.
+        //:
+        //: 6 Nullable types decode absent tags as the null value.
+        //:
+        //: 7 The above 6 properties hold for arbitrary nesting and
+        //:   permutation of 'bdlat' concept implementations.  For example,
+        //:   these properties should not only hold for a sequence of two
+        //:   integers, but also a sequence of an enumeration and a choice
+        //:   between an integer and a string.
+        //
+        // Plan:
+        //: 1 Create objects enumerating all 8 'bdlat' attribute type concepts,
+        //:   and where applicable, recursively up to a depth of 2.
+        //:
+        //: 2 For each of the above objects, create a variant that is non-null
+        //:   but not nillable, a variant that is null but not nillable, a
+        //:   variant that is non-null and nillable, and a variant that is null
+        //:   and nillable.
+        //:
+        //: 3 For each of the above objects, verify that their XML decoded
+        //:   values created by 'balxml::Decoder::decode' satisfy the 6
+        //:   properties defined in the "Concerns".
+        //
+        // Testing:
+        //   int decode(bsl::streambuf *buffer, TYPE *object);
+        // --------------------------------------------------------------------
+
+    // Abbreviations for the names of 'bdlat' concept test implementations,
+    // which will become the tag names of the XML they generate.
+    const bslstl::StringRef S = "MySequence";
+    const bslstl::StringRef C = "MyChoice";
+    const bslstl::StringRef CT = "MyCustomizedType";
+    const bslstl::StringRef D = "MyDynamicType";
+    const bslstl::StringRef E = "MyEnumeration";
+
+    // Abbreviations for attribute and selection names.
+    const bslstl::StringRef A0 = "attribute0";
+    const bslstl::StringRef A1 = "attribute1";
+    const bslstl::StringRef E0 = "enumerator0";
+    const bslstl::StringRef E1 = "enumerator1";
+    const bslstl::StringRef S0 = "selection0";
+    const bslstl::StringRef S1 = "selection1";
+
+    // Abbreviations for some test values.
+    const int i0 = 0;
+    const int i1 = 1;
+    const double d0 = 1.5;
+
+    // Abbreviations for XML-encoded representations of some test values.
+    const bslstl::StringRef V0 = "0";
+    const bslstl::StringRef V1 = "1";
+    const bslstl::StringRef D0 = "1.5";
+
+    // Abbreviations for function objects used to generate objects that
+    // implement various 'bdlat' attribute type concepts.
+    const GenerateTestArray          a;
+    const GenerateTestChoice         c;
+    const GenerateTestCustomizedType ct;
+    const GenerateTestDynamicType    d;
+    const GenerateTestEnumeration    e;
+    const GenerateTestNullableValue  n;
+    const GenerateTestSequence       s;
+
+    // Abbreviations for some sequence attributes.
+    typedef TestAttribute<0, attribute0Name> Attribute0;
+    const Attribute0 a0;
+
+    typedef TestAttribute<1, attribute1Name> Attribute1;
+    const Attribute1 a1;
+
+    typedef TestAttribute<0,
+                          attribute0Name,
+                          TestAttributeDefaults::k_DEFAULT_ANNOTATION,
+                          bdlat_FormattingMode::e_NILLABLE>
+        NillableAttribute0;
+    const NillableAttribute0 na0;
+
+    typedef TestAttribute<1,
+                          attribute1Name,
+                          TestAttributeDefaults::k_DEFAULT_ANNOTATION,
+                          bdlat_FormattingMode::e_NILLABLE>
+        NillableAttribute1;
+    const NillableAttribute1 na1;
+
+    // Abbreviations for some enumeration enumerators.
+    typedef TestEnumerator<0, enumerator0String> Enumerator0;
+    const Enumerator0 e0;
+
+    typedef TestEnumerator<1, enumerator1String> Enumerator1;
+    const Enumerator1 e1;
+
+    // Abbreviations for some choice selections.
+    typedef TestSelection<0, selection0Name> Selection0;
+    const Selection0 s0;
+
+    typedef TestSelection<1, selection1Name> Selection1;
+    const Selection1 s1;
+
+    typedef TestSelection<0,
+                          selection0Name,
+                          TestSelectionDefaults::k_DEFAULT_ANNOTATION,
+                          bdlat_FormattingMode::e_NILLABLE>
+        NillableSelection0;
+    const NillableSelection0 ns0;
+
+    typedef TestSelection<1,
+                          selection1Name,
+                          TestSelectionDefaults::k_DEFAULT_ANNOTATION,
+                          bdlat_FormattingMode::e_NILLABLE>
+        NillableSelection1;
+    const NillableSelection1 ns1;
+
+    // Abbreviation for a function object used to generate XML document
+    // structures for printing.
+    const GenerateXmlElement x;
+
+    // Abbreviations for some XML attribute keys and values.
+    const bslstl::StringRef Nil = "xsi:nil";
+    const bslstl::StringRef T   = "true";
+
+    // Abbreviations for function objects used to generate placeholders.
+    const PlaceHolder<int>                   i_;
+    const PlaceHolder<double>                f_;
+    const GenerateTestArrayPlaceHolder       a_;
+    const GenerateTestChoicePlaceHolder      c_;
+    const GenerateTestDynamicPlaceHolder     d_;
+    const GenerateTestEnumerationPlaceHolder e_;
+    const GenerateTestNullablePlaceHolder    n_;
+    const GenerateTestSequencePlaceHolder    s_;
+
+    // Abbreviations for possible results of a decoding operation.
+    enum {
+        f = false, // 0, (en/de)coding fails
+        t = true,  // 1, (en/de)coding succeeds
+        _ = 2      // 2, (en/de)coding succeeds, but gives different value
+    };
+
+    // An abbreviation for an XML structure that will not be used when testing
+    // a particular row of the below test table.  The name is short for "Not
+    // Applicable."
+    const TestXmlElement NA("NA");
+
+    // An abbreviation for the name of the type used to represent one row in
+    // this table-based test.
+    typedef TestCase19Row R;
+
+    // A macro that is conditionally defined if compiling on platforms where
+    // compilation is known to run into resource limitations (e.g. running out
+    // of memory on IBM.)
+#if defined(BSLS_PLATFORM_CMP_IBM)
+// Code restructuring made it possible to build this test driver on AIX/IBM xlC
+// again.  Should out of memory errors start happening again while compiling
+// this file on IBM/AIX using xlC please uncomment the following line, and the
+// '#undef' at the end of this function.
+//#define U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+#endif
+
+    ///Implementation Note
+    ///-------------------
+    // The following test table shares its structure with the table in case 14
+    // of the 'balxml_encoder' component test driver.  These two test cases
+    // share an identical test table structure in order to verify that,
+    // abstractly, the encoding and decoding operations they perform are
+    // "consistent".  Note that the "encoding result" is unused in this test
+    // driver.
+    //
+    // Test case rows labeled with an asterisk "*" verify that different
+    // encodings of null values that may be produced by the encoder are treated
+    // as representing the same value (null) by the decoder.  In particular,
+    // lines with a "1" after the asterisk verify the nullness of decoded
+    // values of omitted tags, lines with a "2" verify the nullness of decoded
+    // values of self-closing tags, and lines with a "3" verify the nullness of
+    // decoded values of self-closing tags with  an 'xsi:nil="true"' attribute.
+
+    const TestCase19Row DATA[] = {
+//v---------^                       ENCODING RESULT
+//                                 /  DECODING RESULT
+//LINE    BDLAT-AWARE OBJECT      /  /         XML STRUCTURE
+//---- ------------------------- -- -- -------------------------------
+// Arrays.  Top-level arrays are not currently supported.
+//R(L_,  a(i_)                    , f, t, NA                           ),
+//R(L_,  a(i0)                    , f, _, NA                           ),
+// Single-selection choices.
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+R(L_,  c( s0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0, n(       i_  ))   , t, t, x(C                  )       ), // * 1
+R(L_,  c( s0, n(       i0  ))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c( s0, n(       i0  ))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c( s0, n(       i0  ))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0,    a(i_     ) )   , t, t, x(C                  )       ),
+R(L_,  c( s0, n(a_(i_     )))   , t, t, x(C                  )       ),
+R(L_,  c( s0, n( a(i_     )))   , t, _, x(C                  )       ),
+R(L_,  c( s0,    a(i0     ) )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0, n( a(i0     )))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0,    c(s0, i0 ) )   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+R(L_,  c( s0, n(c_(s0, i_ )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c( s0, n(c_(s0, i_ )))   , _, _, x(C,x(S0         )   )       ), // * 2
+R(L_,  c( s0, n(c_(s0, i_ )))   , _, f, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c( s0, n( c(s0, i0 )))   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+R(L_,  c( s0,    d(  a(i0)) )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0, n(d_( a_(i_))))   , t, t, x(C                  )       ),
+R(L_,  c( s0, n( d(  a(i0))))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c( s0,    e(e0, 0  ) )   , _, t, x(C,x(S0,E0      )   )       ),
+R(L_,  c( s0,    e(e0, 0  ) )   , t, t, x(C,x(S0,""      )   )       ),
+R(L_,  c( s0, n(e_(e0     )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c( s0, n( e(e0, 0  )))   , t, t, x(C,x(S0,""      )   )       ),
+R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
+R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c( s0,    s(a0, i0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+R(L_,  c( s0, n(s_(a0, i_ )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c( s0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+#endif
+R(L_,  c(ns0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0, n(       i_  ))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(       i_  ))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(       i_  ))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n(       i0  ))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0,    a(i_     ) )   , t, t, x(C                  )       ),
+R(L_,  c(ns0, n(a_(i_     )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(a_(i_     )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(a_(i_     )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( a(i_     )))   , t, _, x(C                  )       ),
+R(L_,  c(ns0,    a(i0     ) )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0, n( a(i0     )))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0,    c(s0, i0 ) )   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+R(L_,  c(ns0, n(c_(s0, i_ )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(c_(s0, i_ )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(c_(s0, i_ )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( c(s0, i0 )))   , t, t, x(C,x(S0,x(S0,V0))   )       ),
+R(L_,  c(ns0,    d(  a(i0)) )   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0, n(d_( a_(i_))))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(d_( a_(i_))))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(d_( a_(i_))))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( d(  a(i0))))   , t, t, x(C,x(S0,V0      )   )       ),
+R(L_,  c(ns0,    e(e0, 0  ) )   , t, t, x(C,x(S0,""      )   )       ),
+R(L_,  c(ns0,    e(e0, 0  ) )   , _, t, x(C,x(S0,E0      )   )       ),
+R(L_,  c(ns0, n(e_(e0     )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(e_(e0     )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(e_(e0     )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( e(e0, 0  )))   , t, _, x(C,x(S0,""      )   )       ),
+R(L_,  c(ns0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
+R(L_,  c(ns0,    s(a0, i0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+R(L_,  c(ns0, n(s_(a0, i_ )))   , t, t, x(C                  )       ), // * 1
+R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0         )   )       ), // * 2
+R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
+R(L_,  c(ns0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
+// Double-selection choices.
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+R(L_,  c( s0, s1,  i_ ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
+R(L_,  c( s0, s1,  i_ ,n(f_))   , t, _, x(C            )             ),
+R(L_,  c( s0, s1,  i_ ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
+R(L_,  c( s0, s1,  i0 ,  f_ )   , t, t, x(C,x(S0,V0   ))             ),
+R(L_,  c( s0, s1,n(i_),  f_ )   , t, t, x(C            )             ),
+R(L_,  c( s0, s1,n(i0),  f_ )   , t, t, x(C,x(S0,V0   ))             ),
+R(L_,  c(ns0,ns1,  i_ ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
+R(L_,  c(ns0,ns1,  i_ ,n(f_))   , t, _, x(C            )             ),
+R(L_,  c(ns0,ns1,  i_ ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
+R(L_,  c(ns0,ns1,  i0 ,  f_ )   , t, t, x(C,x(S0,V0   ))             ),
+#endif
+R(L_,  c(ns0,ns1,n(i_),  f_ )   , t, t, x(C            )             ), // * 1
+R(L_,  c(ns0,ns1,n(i_),  f_ )   , _, t, x(C,x(S0      ))             ), // * 2
+R(L_,  c(ns0,ns1,n(i_),  f_ )   , _, t, x(C,x(S0,Nil,T))             ), // * 3
+R(L_,  c(ns0,ns1,n(i0),  f_ )   , t, t, x(C,x(S0,V0   ))             ),
+// Customized types.
+R(L_,  ct(i0,i_)                , t, t, x(CT,V0)                     ),
+R(L_,  ct(d0,f_)                , t, t, x(CT,D0)                     ),
+// Dynamic types.
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+// Top-level arrays, even when wrapped in a dynamic type, are not currently
+// supported.
+//R(L_,  d(a(i_)       )          , f, t, NA                           ),
+//R(L_,  d(a(i0)       )          , f, _, NA                           ),
+//R(L_,  d(a(i0,i1)    )          , f, _, NA                           ),
+R(L_,  d(c( s0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
+R(L_,  d(c( s0,n(i_)))          , t, t, x(D            )             ),
+R(L_,  d(c( s0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
+R(L_,  d(c(ns0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
+#endif
+R(L_,  d(c(ns0,n(i_)))          , t, t, x(D            )             ), // * 1
+R(L_,  d(c(ns0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
+R(L_,  d(c(ns0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+R(L_,  d(c(ns0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
+R(L_,  d(s( a0,  i0 ))          , t, t, x(D,x(A0,V0   ))             ),
+#endif
+R(L_,  d(s( a0,n(i_)))          , t, t, x(D            )             ), // * 1
+R(L_,  d(s( a0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
+R(L_,  d(s( a0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+R(L_,  d(s( a0,n(i0)))          , t, t, x(D,x(A0,V0   ))             ),
+R(L_,  d(s(na0,  i0 ))          , t, t, x(D,x(A0,V0   ))             ),
+#endif
+R(L_,  d(s(na0,n(i_)))          , t, t, x(D            )             ), // * 1
+R(L_,  d(s(na0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
+R(L_,  d(s(na0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
+R(L_,  d(s(na0,n(i0)))          , t, t, x(D,x(A0,V0   ))             ),
+// Enumerations.
+R(L_,  e(e0, 0)                 , t, t, x(E,"")                      ),
+R(L_,  e(e0, 0)                 , _, t, x(E,E0)                      ),
+R(L_,  e(e0, e1, 0)             , t, t, x(E,"")                      ),
+R(L_,  e(e0, e1, 0)             , _, t, x(E,E0)                      ),
+R(L_,  e(e0, e1, 1)             , t, t, x(E,E1)                      ),
+// Nullable values.  Compilation fails in the decoder, and the encoder does
+// not support top-level nullable values.
+//R(L_,  n(i_)                    , f, f, NA                           ),
+//R(L_,  n(i0)                    , f, f, NA                           ),
+//R(L_,  n(s_(a0,i_))             , f, f, NA                           ),
+//R(L_,  n( s(a0,i0))             , f, f, NA                           ),
+//R(L_,  n( c(s0,s1,i0,f_))       , f, f, NA                           ),
+// Single-attribute sequence.
+R(L_,  s( a0,  i0)              , t, t, x(S,x(A0,V0))                ),
+R(L_,  s( a0,n(i_))             , t, t, x(S)                         ), // * 1
+R(L_,  s( a0,n(i0))             , _, t, x(S,x(A0      ))             ), // * 2
+R(L_,  s( a0,n(i0))             , _, t, x(S,x(A0,Nil,T))             ), // * 3
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+R(L_,  s( a0,n(i0))             , t, t, x(S,x(A0,V0   ))             ),
+R(L_,  s( a0,  a(i_   ) )       , t, t, x(S)                         ),
+R(L_,  s( a0,  a(i0   ) )       , t, t, x(S,x(A0,V0))                ),
+R(L_,  s( a0,  a(i0,i1) )       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s( a0,n(a(i_   )))       , t, _, x(S)                         ),
+R(L_,  s( a0,n(a(i0   )))       , t, t, x(S,x(A0,V0))                ),
+R(L_,  s( a0,n(a(i0,i1)))       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s( a0,   c( s0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,   c( s0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
+R(L_,  s( a0,   c( s0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,   c(ns0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,   c(ns0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
+R(L_,  s( a0,   c(ns0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,n(c_( s0, n_(i_)))), t, t, x(S               )          ),
+R(L_,  s( a0,n( c( s0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,n( c( s0, n(i_)))) , t, t, x(S,x(A0         ))          ),
+R(L_,  s( a0,n( c( s0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,n( c(ns0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0,n( c(ns0, n(i_)))) , t, t, x(S,x(A0         ))          ),
+R(L_,  s( a0,n( c(ns0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0, d( a(i_   )))     , t, t, x(S               )          ),
+R(L_,  s( a0, d( a(i0   )))     , t, t, x(S,x(A0,V0)      )          ),
+R(L_,  s( a0, d( a(i0,i1)))     , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s( a0, d( c(s0,i0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s( a0, d( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+R(L_,  s( a0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
+R(L_,  s( a0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
+R(L_,  s( a0,n(e_(e0,e1  )   )) , t, t, x(S         )                ),
+R(L_,  s( a0,n( e(e0,e1,0)   )) , t, t, x(S,x(A0,""))                ),
+R(L_,  s( a0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
+R(L_,  s( a0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
+R(L_,  s( a0, n(s_(a0,i_)))     , t, t, x(S               )          ),
+R(L_,  s( a0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+#endif
+R(L_,  s(na0,  i0)              , t, t, x(S,x(A0,V0))                ),
+R(L_,  s(na0,n(i_))             , t, t, x(S)                         ), // * 1
+R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0))                   ), // * 2
+R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0,Nil,T   ))          ), // * 3
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+R(L_,  s(na0,n(i0))             , t, t, x(S,x(A0,V0))                ),
+R(L_,  s(na0,  a(i_   ) )       , t, t, x(S)                         ),
+R(L_,  s(na0,  a(i0   ) )       , t, t, x(S,x(A0,V0))                ),
+R(L_,  s(na0,  a(i0,i1) )       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s(na0,n(a(i_   )))       , t, _, x(S)                         ),
+R(L_,  s(na0,n(a(i0   )))       , t, t, x(S,x(A0,V0))                ),
+R(L_,  s(na0,n(a(i0,i1)))       , t, _, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s(na0,   c( s0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,   c( s0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
+R(L_,  s(na0,   c( s0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,   c(ns0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+#endif
+R(L_,  s(na0,   c(ns0, n(i_)) ) , t, t, x(S,x(A0         ))          ), // * 1
+R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0)))             ), // * 2
+R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0,Nil,T)))       ), // * 3
+R(L_,  s(na0,   c(ns0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,n(c_( s0, n_(i_)))), t, t, x(S               )          ), // * 1
+R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0      )   )          ), // * 2
+R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0,Nil,T)   )          ), // * 3
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+R(L_,  s(na0,n( c( s0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,n( c( s0, n(i_)))) , t, _, x(S,x(A0         ))          ),
+R(L_,  s(na0,n( c( s0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,n( c(ns0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0,n( c(ns0, n(i_)))) , t, _, x(S,x(A0         ))          ),
+R(L_,  s(na0,n( c(ns0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0, d( a(i_   )))     , t, t, x(S               )          ),
+R(L_,  s(na0, d( a(i0   )))     , t, t, x(S,x(A0,V0)      )          ),
+R(L_,  s(na0, d( a(i0,i1)))     , t, t, x(S,x(A0,V0),x(A0,V1))       ),
+R(L_,  s(na0, d( c(s0,i0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
+R(L_,  s(na0, d( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+R(L_,  s(na0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
+R(L_,  s(na0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
+#endif
+R(L_,  s(na0,n(e_(e0,e1  )   )) , t, t, x(S         )                ), // * 1
+R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0))                   ), // * 2
+R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0,Nil,T))             ), // * 3
+R(L_,  s(na0,n( e(e0,e1,0)   )) , t, _, x(S,x(A0,""))                ),
+R(L_,  s(na0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
+R(L_,  s(na0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
+R(L_,  s(na0, n(s_(a0,i_)))     , t, t, x(S               )          ), // * 1
+R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0))                   ), // * 2
+R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0,Nil,T))             ), // * 3
+R(L_,  s(na0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
+// Double-attribute sequences.
+#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+R(L_,  s( a0, a1,  i0,   i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+R(L_,  s( a0, a1,  i0 ,n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
+R(L_,  s( a0, a1,  i0 ,n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+R(L_,  s( a0, a1,n(i_),  i1 )   , t, t, x(S            ,x(A1,V1   )) ),
+R(L_,  s( a0, a1,n(i_),n(i_))   , t, t, x(S                        ) ),
+R(L_,  s( a0, a1,n(i_),n(i1))   , t, t, x(S            ,x(A1,V1   )) ),
+R(L_,  s( a0, a1,n(i0),  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+R(L_,  s( a0, a1,n(i0),n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
+R(L_,  s( a0, a1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
+R(L_,  s(na0,na1,  i0 ,  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,  i0 ,n(i_))   , t, t, x(S,x(A0,V0   )            ) ), // *
+R(L_,  s(na0,na1,  i0 ,n(i_))   , _, t, x(S,x(A0,V0   ),x(A1      )) ), // *
+R(L_,  s(na0,na1,  i0 ,n(i_))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,  i0 ,n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),  i1 )   , t, t, x(S            ,x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),  i1 )   , _, t, x(S,x(A0      ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),  i1 )   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , t, t, x(S                        ) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S            ,x(A1      )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S            ,x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      )            ) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      ),x(A1      )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      ),x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T)            ) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T),x(A1      )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T),x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,n(i_),n(i1))   , t, t, x(S            ,x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i1))   , _, t, x(S,x(A0      ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i_),n(i1))   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i0),  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ), // *
+R(L_,  s(na0,na1,n(i0),n(i_))   , t, t, x(S,x(A0,V0   )            ) ), // *
+#endif
+R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1      )) ), // *
+R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ), // *
+R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
+//^---------v
+    };
+
+//#undef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+#ifdef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+#error Please do not forget to uncomment the #undef line above!
+    Please_uncomment_the undef_line_above;
+#endif
+
+    const int NUM_DATA = sizeof DATA / sizeof DATA[0];
+
+    for (int i = 0; i != NUM_DATA; ++i) {
+        const TestCase19Row& ROW = DATA[i];
+
+        ROW.runTest();
+    }
+}
+
+// ============================================================================
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
@@ -8362,7 +8877,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Verify that decoding suitable XML into a 'Sequence' object that
-        //:   returns zero for all 'bdlat' operations suceeds.
+        //:   returns zero for all 'bdlat' operations succeeds.
         //:
         //: 2 Verify the same property for such a 'Sequence' wrapped in a
         //:   'TestTaggedValue' that overrides no operations of the
@@ -8446,7 +8961,7 @@ int main(int argc, char *argv[])
         const TestXmlElement       OBJ = x(A0, I1);
             // 'OBJ' is an abbreviation for an XML structure that always
             // successfully decodes into an object of type 'ObjType'.  This
-            // object is labelled "OBJ" because it is the input-side dual to
+            // object is labeled "OBJ" because it is the input-side dual to
             // "Obj".  It also characterizes the "object" of the test, meaning
             // that it is an invariant part of the structure of the input to
             // the decoding operation performed in this test.
@@ -8513,6 +9028,11 @@ int main(int argc, char *argv[])
 
       } break;
       case 19: {
+        //---------------------------------------------------------------------
+        // TEST CASE DOCUMENTATION IS REPEATED IN THE 'runTestCase19()'
+        // function so it is also near the actual test code.  Make sure that
+        // anything you change here, you also changed in 'runTestCase19()' and
+        // vice versa.
         // --------------------------------------------------------------------
         // TESTING NILLABLE ELEMENT DECODING
         //   This case tests the 'balxml::Decoder::decode' operation when
@@ -8574,423 +9094,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Decoding of Nillable Elements"
                           << "\n=====================================" << endl;
 
-        // Abbreviations for the names of 'bdlat' concept test implementations,
-        // which will become the tag names of the XML they generate.
-        const bslstl::StringRef S = "MySequence";
-        const bslstl::StringRef C = "MyChoice";
-        const bslstl::StringRef CT = "MyCustomizedType";
-        const bslstl::StringRef D = "MyDynamicType";
-        const bslstl::StringRef E = "MyEnumeration";
-
-        // Abbreviations for attribute and selection names.
-        const bslstl::StringRef A0 = "attribute0";
-        const bslstl::StringRef A1 = "attribute1";
-        const bslstl::StringRef E0 = "enumerator0";
-        const bslstl::StringRef E1 = "enumerator1";
-        const bslstl::StringRef S0 = "selection0";
-        const bslstl::StringRef S1 = "selection1";
-
-        // Abbreviations for some test values.
-        const int i0 = 0;
-        const int i1 = 1;
-        const double d0 = 1.5;
-
-        // Abbreviations for XML-encoded representations of some test values.
-        const bslstl::StringRef V0 = "0";
-        const bslstl::StringRef V1 = "1";
-        const bslstl::StringRef D0 = "1.5";
-
-        // Abbreviations for function objects used to generate objects that
-        // implement various 'bdlat' attribute type concepts.
-        const GenerateTestArray          a;
-        const GenerateTestChoice         c;
-        const GenerateTestCustomizedType ct;
-        const GenerateTestDynamicType    d;
-        const GenerateTestEnumeration    e;
-        const GenerateTestNullableValue  n;
-        const GenerateTestSequence       s;
-
-        // Abbreviations for some sequence attributes.
-        typedef TestAttribute<0, attribute0Name> Attribute0;
-        const Attribute0 a0;
-
-        typedef TestAttribute<1, attribute1Name> Attribute1;
-        const Attribute1 a1;
-
-        typedef TestAttribute<0,
-                              attribute0Name,
-                              TestAttributeDefaults::k_DEFAULT_ANNOTATION,
-                              bdlat_FormattingMode::e_NILLABLE>
-            NillableAttribute0;
-        const NillableAttribute0 na0;
-
-        typedef TestAttribute<1,
-                              attribute1Name,
-                              TestAttributeDefaults::k_DEFAULT_ANNOTATION,
-                              bdlat_FormattingMode::e_NILLABLE>
-            NillableAttribute1;
-        const NillableAttribute1 na1;
-
-        // Abbreviations for some enumeration enumerators.
-        typedef TestEnumerator<0, enumerator0String> Enumerator0;
-        const Enumerator0 e0;
-
-        typedef TestEnumerator<1, enumerator1String> Enumerator1;
-        const Enumerator1 e1;
-
-        // Abbreviations for some choice selections.
-        typedef TestSelection<0, selection0Name> Selection0;
-        const Selection0 s0;
-
-        typedef TestSelection<1, selection1Name> Selection1;
-        const Selection1 s1;
-
-        typedef TestSelection<0,
-                              selection0Name,
-                              TestSelectionDefaults::k_DEFAULT_ANNOTATION,
-                              bdlat_FormattingMode::e_NILLABLE>
-            NillableSelection0;
-        const NillableSelection0 ns0;
-
-        typedef TestSelection<1,
-                              selection1Name,
-                              TestSelectionDefaults::k_DEFAULT_ANNOTATION,
-                              bdlat_FormattingMode::e_NILLABLE>
-            NillableSelection1;
-        const NillableSelection1 ns1;
-
-        // Abbreviation for a function object used to generate XML document
-        // structures for printing.
-        const GenerateXmlElement x;
-
-        // Abbreviations for some XML attribute keys and values.
-        const bslstl::StringRef Nil = "xsi:nil";
-        const bslstl::StringRef T = "true";
-
-        // Abbreviations for function objects used to generate placeholders.
-        const PlaceHolder<int>                   i_;
-        const PlaceHolder<double>                f_;
-        const GenerateTestArrayPlaceHolder       a_;
-        const GenerateTestChoicePlaceHolder      c_;
-        const GenerateTestDynamicPlaceHolder     d_;
-        const GenerateTestEnumerationPlaceHolder e_;
-        const GenerateTestNullablePlaceHolder    n_;
-        const GenerateTestSequencePlaceHolder    s_;
-
-        // Abbreviations for possible results of a decoding operation.
-        enum {
-            f = false, // 0, (en/de)coding fails
-            t = true,  // 1, (en/de)coding succeeds
-            _ = 2      // 2, (en/de)coding succeeds, but gives different value
-        };
-
-        // An abbreviation for an XML structure that will not be used when
-        // testing a particular row of the below test table.  The name is short
-        // for "Not Applicable."
-        const TestXmlElement NA("NA");
-
-        // An abbreviation for the name of the type used to represent one
-        // row in this table-based test.
-        typedef TestCase19Row R;
-
-        // A macro that is conditionally defined if compiling on platforms
-        // where compilation is known to run into resource limitations (e.g.
-        // running out of memory on IBM.)
-#ifdef BSLS_PLATFORM_CMP_IBM
-#define U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
-#endif
-
-        ///Implementation Note
-        ///-------------------
-        // The following test table shares its structure with the table in case
-        // 14 of the 'balxml_encoder' component test driver.  These two test
-        // cases share an identical test table structure in order to verify
-        // that, abstractly, the encoding and decoding operations they perform
-        // are "consistent".  Note that the "encoding result" is unused in this
-        // test driver.
-        //
-        // Test case rows labeled with an asterisk "*" verify that different
-        // encodings of null values that may be produced by the encoder are
-        // treated as representing the same value (null) by the decoder.  In
-        // particular, lines with a "1" after the asterisk verify the nullness
-        // of decoded values of omitted tags, lines with a "2" verify the
-        // nullness of decoded values of self-closing tags, and lines with a
-        // "3" verify the nullness of decoded values of self-closing tags with
-        // an 'xsi:nil="true"' attribute.
-        const TestCase19Row DATA[] = {
-//v---------^                       ENCODING RESULT
-//                                 /  DECODING RESULT
-//LINE    BDLAT-AWARE OBJECT      /  /         XML STRUCTURE
-//---- ------------------------- -- -- -------------------------------
-// Arrays.  Top-level arrays are not currently supported.
-//R(L_,  a(i_)                    , f, t, NA                           ),
-//R(L_,  a(i0)                    , f, _, NA                           ),
-// Single-selection choices.
-#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
-R(L_,  c( s0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
-R(L_,  c( s0, n(       i_  ))   , t, t, x(C                  )       ), // * 1
-R(L_,  c( s0, n(       i0  ))   , _, t, x(C,x(S0         )   )       ), // * 2
-R(L_,  c( s0, n(       i0  ))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
-R(L_,  c( s0, n(       i0  ))   , t, t, x(C,x(S0,V0      )   )       ),
-R(L_,  c( s0,    a(i_     ) )   , t, t, x(C                  )       ),
-R(L_,  c( s0, n(a_(i_     )))   , t, t, x(C                  )       ),
-R(L_,  c( s0, n( a(i_     )))   , t, _, x(C                  )       ),
-R(L_,  c( s0,    a(i0     ) )   , t, t, x(C,x(S0,V0      )   )       ),
-R(L_,  c( s0, n( a(i0     )))   , t, t, x(C,x(S0,V0      )   )       ),
-R(L_,  c( s0,    c(s0, i0 ) )   , t, t, x(C,x(S0,x(S0,V0))   )       ),
-R(L_,  c( s0, n(c_(s0, i_ )))   , t, t, x(C                  )       ), // * 1
-R(L_,  c( s0, n(c_(s0, i_ )))   , _, _, x(C,x(S0         )   )       ), // * 2
-R(L_,  c( s0, n(c_(s0, i_ )))   , _, f, x(C,x(S0,Nil,T   )   )       ), // * 3
-R(L_,  c( s0, n( c(s0, i0 )))   , t, t, x(C,x(S0,x(S0,V0))   )       ),
-R(L_,  c( s0,    d(  a(i0)) )   , t, t, x(C,x(S0,V0      )   )       ),
-R(L_,  c( s0, n(d_( a_(i_))))   , t, t, x(C                  )       ),
-R(L_,  c( s0, n( d(  a(i0))))   , t, t, x(C,x(S0,V0      )   )       ),
-R(L_,  c( s0,    e(e0, 0  ) )   , _, t, x(C,x(S0,E0      )   )       ),
-R(L_,  c( s0,    e(e0, 0  ) )   , t, t, x(C,x(S0,""      )   )       ),
-R(L_,  c( s0, n(e_(e0     )))   , t, t, x(C                  )       ), // * 1
-R(L_,  c( s0, n( e(e0, 0  )))   , t, t, x(C,x(S0,""      )   )       ),
-R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
-R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0         )   )       ), // * 2
-R(L_,  c( s0, n( e(e0, 0  )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
-R(L_,  c( s0,    s(a0, i0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
-R(L_,  c( s0, n(s_(a0, i_ )))   , t, t, x(C                  )       ), // * 1
-R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0         )   )       ), // * 2
-R(L_,  c( s0, n( s(a0, i0 )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
-R(L_,  c( s0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
-#endif
-R(L_,  c(ns0,          i0   )   , t, t, x(C,x(S0,V0      )   )       ),
-R(L_,  c(ns0, n(       i_  ))   , t, t, x(C                  )       ), // * 1
-R(L_,  c(ns0, n(       i_  ))   , _, t, x(C,x(S0         )   )       ), // * 2
-R(L_,  c(ns0, n(       i_  ))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
-R(L_,  c(ns0, n(       i0  ))   , t, t, x(C,x(S0,V0      )   )       ),
-R(L_,  c(ns0,    a(i_     ) )   , t, t, x(C                  )       ),
-R(L_,  c(ns0, n(a_(i_     )))   , t, t, x(C                  )       ), // * 1
-R(L_,  c(ns0, n(a_(i_     )))   , _, t, x(C,x(S0         )   )       ), // * 2
-R(L_,  c(ns0, n(a_(i_     )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
-R(L_,  c(ns0, n( a(i_     )))   , t, _, x(C                  )       ),
-R(L_,  c(ns0,    a(i0     ) )   , t, t, x(C,x(S0,V0      )   )       ),
-R(L_,  c(ns0, n( a(i0     )))   , t, t, x(C,x(S0,V0      )   )       ),
-R(L_,  c(ns0,    c(s0, i0 ) )   , t, t, x(C,x(S0,x(S0,V0))   )       ),
-R(L_,  c(ns0, n(c_(s0, i_ )))   , t, t, x(C                  )       ), // * 1
-R(L_,  c(ns0, n(c_(s0, i_ )))   , _, t, x(C,x(S0         )   )       ), // * 2
-R(L_,  c(ns0, n(c_(s0, i_ )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
-R(L_,  c(ns0, n( c(s0, i0 )))   , t, t, x(C,x(S0,x(S0,V0))   )       ),
-R(L_,  c(ns0,    d(  a(i0)) )   , t, t, x(C,x(S0,V0      )   )       ),
-R(L_,  c(ns0, n(d_( a_(i_))))   , t, t, x(C                  )       ), // * 1
-R(L_,  c(ns0, n(d_( a_(i_))))   , _, t, x(C,x(S0         )   )       ), // * 2
-R(L_,  c(ns0, n(d_( a_(i_))))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
-R(L_,  c(ns0, n( d(  a(i0))))   , t, t, x(C,x(S0,V0      )   )       ),
-R(L_,  c(ns0,    e(e0, 0  ) )   , t, t, x(C,x(S0,""      )   )       ),
-R(L_,  c(ns0,    e(e0, 0  ) )   , _, t, x(C,x(S0,E0      )   )       ),
-R(L_,  c(ns0, n(e_(e0     )))   , t, t, x(C                  )       ), // * 1
-R(L_,  c(ns0, n(e_(e0     )))   , _, t, x(C,x(S0         )   )       ), // * 2
-R(L_,  c(ns0, n(e_(e0     )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
-R(L_,  c(ns0, n( e(e0, 0  )))   , t, _, x(C,x(S0,""      )   )       ),
-R(L_,  c(ns0, n( e(e0, 0  )))   , _, t, x(C,x(S0,E0      )   )       ),
-R(L_,  c(ns0,    s(a0, i0 ) )   , t, t, x(C,x(S0,x(A0,V0))   )       ),
-R(L_,  c(ns0, n(s_(a0, i_ )))   , t, t, x(C                  )       ), // * 1
-R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0         )   )       ), // * 2
-R(L_,  c(ns0, n(s_(a0, i_ )))   , _, t, x(C,x(S0,Nil,T   )   )       ), // * 3
-R(L_,  c(ns0, n( s(a0, i0 )))   , t, t, x(C,x(S0,x(A0,V0))   )       ),
-// Double-selection choices.
-#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
-R(L_,  c( s0, s1,  i_ ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
-R(L_,  c( s0, s1,  i_ ,n(f_))   , t, _, x(C            )             ),
-R(L_,  c( s0, s1,  i_ ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
-R(L_,  c( s0, s1,  i0 ,  f_ )   , t, t, x(C,x(S0,V0   ))             ),
-R(L_,  c( s0, s1,n(i_),  f_ )   , t, t, x(C            )             ),
-R(L_,  c( s0, s1,n(i0),  f_ )   , t, t, x(C,x(S0,V0   ))             ),
-R(L_,  c(ns0,ns1,  i_ ,  d0 )   , t, t, x(C,x(S1,D0   ))             ),
-R(L_,  c(ns0,ns1,  i_ ,n(f_))   , t, _, x(C            )             ),
-R(L_,  c(ns0,ns1,  i_ ,n(d0))   , t, t, x(C,x(S1,D0   ))             ),
-R(L_,  c(ns0,ns1,  i0 ,  f_ )   , t, t, x(C,x(S0,V0   ))             ),
-#endif
-R(L_,  c(ns0,ns1,n(i_),  f_ )   , t, t, x(C            )             ), // * 1
-R(L_,  c(ns0,ns1,n(i_),  f_ )   , _, t, x(C,x(S0      ))             ), // * 2
-R(L_,  c(ns0,ns1,n(i_),  f_ )   , _, t, x(C,x(S0,Nil,T))             ), // * 3
-R(L_,  c(ns0,ns1,n(i0),  f_ )   , t, t, x(C,x(S0,V0   ))             ),
-// Customized types.
-R(L_,  ct(i0,i_)                , t, t, x(CT,V0)                     ),
-R(L_,  ct(d0,f_)                , t, t, x(CT,D0)                     ),
-// Dynamic types.
-#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
-// Top-level arrays, even when wrapped in a dynamic type, are not currently
-// supported.
-//R(L_,  d(a(i_)       )          , f, t, NA                           ),
-//R(L_,  d(a(i0)       )          , f, _, NA                           ),
-//R(L_,  d(a(i0,i1)    )          , f, _, NA                           ),
-R(L_,  d(c( s0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
-R(L_,  d(c( s0,n(i_)))          , t, t, x(D            )             ),
-R(L_,  d(c( s0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
-R(L_,  d(c(ns0,  i0 ))          , t, t, x(D,x(S0,V0   ))             ),
-#endif
-R(L_,  d(c(ns0,n(i_)))          , t, t, x(D            )             ), // * 1
-R(L_,  d(c(ns0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
-R(L_,  d(c(ns0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
-#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
-R(L_,  d(c(ns0,n(i0)))          , t, t, x(D,x(S0,V0   ))             ),
-R(L_,  d(s( a0,  i0 ))          , t, t, x(D,x(A0,V0   ))             ),
-#endif
-R(L_,  d(s( a0,n(i_)))          , t, t, x(D            )             ), // * 1
-R(L_,  d(s( a0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
-R(L_,  d(s( a0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
-#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
-R(L_,  d(s( a0,n(i0)))          , t, t, x(D,x(A0,V0   ))             ),
-R(L_,  d(s(na0,  i0 ))          , t, t, x(D,x(A0,V0   ))             ),
-#endif
-R(L_,  d(s(na0,n(i_)))          , t, t, x(D            )             ), // * 1
-R(L_,  d(s(na0,n(i_)))          , _, t, x(D,x(S0      ))             ), // * 2
-R(L_,  d(s(na0,n(i_)))          , _, t, x(D,x(S0,Nil,T))             ), // * 3
-R(L_,  d(s(na0,n(i0)))          , t, t, x(D,x(A0,V0   ))             ),
-// Enumerations.
-R(L_,  e(e0, 0)                 , t, t, x(E,"")                      ),
-R(L_,  e(e0, 0)                 , _, t, x(E,E0)                      ),
-R(L_,  e(e0, e1, 0)             , t, t, x(E,"")                      ),
-R(L_,  e(e0, e1, 0)             , _, t, x(E,E0)                      ),
-R(L_,  e(e0, e1, 1)             , t, t, x(E,E1)                      ),
-// Nullable values.  Compilation fails in the decoder, and the encoder does
-// not support top-level nullable values.
-//R(L_,  n(i_)                    , f, f, NA                           ),
-//R(L_,  n(i0)                    , f, f, NA                           ),
-//R(L_,  n(s_(a0,i_))             , f, f, NA                           ),
-//R(L_,  n( s(a0,i0))             , f, f, NA                           ),
-//R(L_,  n( c(s0,s1,i0,f_))       , f, f, NA                           ),
-// Single-attribute sequence.
-R(L_,  s( a0,  i0)              , t, t, x(S,x(A0,V0))                ),
-R(L_,  s( a0,n(i_))             , t, t, x(S)                         ), // * 1
-R(L_,  s( a0,n(i0))             , _, t, x(S,x(A0      ))             ), // * 2
-R(L_,  s( a0,n(i0))             , _, t, x(S,x(A0,Nil,T))             ), // * 3
-#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
-R(L_,  s( a0,n(i0))             , t, t, x(S,x(A0,V0   ))             ),
-R(L_,  s( a0,  a(i_   ) )       , t, t, x(S)                         ),
-R(L_,  s( a0,  a(i0   ) )       , t, t, x(S,x(A0,V0))                ),
-R(L_,  s( a0,  a(i0,i1) )       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-R(L_,  s( a0,n(a(i_   )))       , t, _, x(S)                         ),
-R(L_,  s( a0,n(a(i0   )))       , t, t, x(S,x(A0,V0))                ),
-R(L_,  s( a0,n(a(i0,i1)))       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-R(L_,  s( a0,   c( s0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s( a0,   c( s0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
-R(L_,  s( a0,   c( s0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s( a0,   c(ns0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s( a0,   c(ns0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
-R(L_,  s( a0,   c(ns0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s( a0,n(c_( s0, n_(i_)))), t, t, x(S               )          ),
-R(L_,  s( a0,n( c( s0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s( a0,n( c( s0, n(i_)))) , t, t, x(S,x(A0         ))          ),
-R(L_,  s( a0,n( c( s0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s( a0,n( c(ns0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s( a0,n( c(ns0, n(i_)))) , t, t, x(S,x(A0         ))          ),
-R(L_,  s( a0,n( c(ns0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s( a0, d( a(i_   )))     , t, t, x(S               )          ),
-R(L_,  s( a0, d( a(i0   )))     , t, t, x(S,x(A0,V0)      )          ),
-R(L_,  s( a0, d( a(i0,i1)))     , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-R(L_,  s( a0, d( c(s0,i0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s( a0, d( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
-R(L_,  s( a0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
-R(L_,  s( a0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
-R(L_,  s( a0,n(e_(e0,e1  )   )) , t, t, x(S         )                ),
-R(L_,  s( a0,n( e(e0,e1,0)   )) , t, t, x(S,x(A0,""))                ),
-R(L_,  s( a0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
-R(L_,  s( a0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
-R(L_,  s( a0, n(s_(a0,i_)))     , t, t, x(S               )          ),
-R(L_,  s( a0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
-#endif
-R(L_,  s(na0,  i0)              , t, t, x(S,x(A0,V0))                ),
-R(L_,  s(na0,n(i_))             , t, t, x(S)                         ), // * 1
-R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0))                   ), // * 2
-R(L_,  s(na0,n(i_))             , _, t, x(S,x(A0,Nil,T   ))          ), // * 3
-#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
-R(L_,  s(na0,n(i0))             , t, t, x(S,x(A0,V0))                ),
-R(L_,  s(na0,  a(i_   ) )       , t, t, x(S)                         ),
-R(L_,  s(na0,  a(i0   ) )       , t, t, x(S,x(A0,V0))                ),
-R(L_,  s(na0,  a(i0,i1) )       , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-R(L_,  s(na0,n(a(i_   )))       , t, _, x(S)                         ),
-R(L_,  s(na0,n(a(i0   )))       , t, t, x(S,x(A0,V0))                ),
-R(L_,  s(na0,n(a(i0,i1)))       , t, _, x(S,x(A0,V0),x(A0,V1))       ),
-R(L_,  s(na0,   c( s0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s(na0,   c( s0, n(i_)) ) , t, t, x(S,x(A0         ))          ),
-R(L_,  s(na0,   c( s0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s(na0,   c(ns0,   i0 ) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-#endif
-R(L_,  s(na0,   c(ns0, n(i_)) ) , t, t, x(S,x(A0         ))          ), // * 1
-R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0)))             ), // * 2
-R(L_,  s(na0,   c(ns0, n(i_)) ) , _, t, x(S,x(A0,x(S0,Nil,T)))       ), // * 3
-R(L_,  s(na0,   c(ns0, n(i0)) ) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s(na0,n(c_( s0, n_(i_)))), t, t, x(S               )          ), // * 1
-R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0      )   )          ), // * 2
-R(L_,  s(na0,n(c_( s0, n_(i_)))), _, t, x(S,x(A0,Nil,T)   )          ), // * 3
-#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
-R(L_,  s(na0,n( c( s0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s(na0,n( c( s0, n(i_)))) , t, _, x(S,x(A0         ))          ),
-R(L_,  s(na0,n( c( s0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s(na0,n( c(ns0,   i0 ))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s(na0,n( c(ns0, n(i_)))) , t, _, x(S,x(A0         ))          ),
-R(L_,  s(na0,n( c(ns0, n(i0)))) , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s(na0, d( a(i_   )))     , t, t, x(S               )          ),
-R(L_,  s(na0, d( a(i0   )))     , t, t, x(S,x(A0,V0)      )          ),
-R(L_,  s(na0, d( a(i0,i1)))     , t, t, x(S,x(A0,V0),x(A0,V1))       ),
-R(L_,  s(na0, d( c(s0,i0)))     , t, t, x(S,x(A0,x(S0,V0)))          ),
-R(L_,  s(na0, d( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
-R(L_,  s(na0,   e(e0,e1,0)    ) , t, t, x(S,x(A0,""))                ),
-R(L_,  s(na0,   e(e0,e1,0)    ) , _, t, x(S,x(A0,E0))                ),
-#endif
-R(L_,  s(na0,n(e_(e0,e1  )   )) , t, t, x(S         )                ), // * 1
-R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0))                   ), // * 2
-R(L_,  s(na0,n(e_(e0,e1  )   )) , _, t, x(S,x(A0,Nil,T))             ), // * 3
-R(L_,  s(na0,n( e(e0,e1,0)   )) , t, _, x(S,x(A0,""))                ),
-R(L_,  s(na0,n( e(e0,e1,0)   )) , _, t, x(S,x(A0,E0))                ),
-R(L_,  s(na0,    s(a0,i0) )     , t, t, x(S,x(A0,x(A0,V0)))          ),
-R(L_,  s(na0, n(s_(a0,i_)))     , t, t, x(S               )          ), // * 1
-R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0))                   ), // * 2
-R(L_,  s(na0, n(s_(a0,i_)))     , _, t, x(S,x(A0,Nil,T))             ), // * 3
-R(L_,  s(na0, n( s(a0,i0)))     , t, t, x(S,x(A0,x(A0,V0)))          ),
-// Double-attribute sequences.
-#ifndef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
-R(L_,  s( a0, a1,  i0,   i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-R(L_,  s( a0, a1,  i0 ,n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
-R(L_,  s( a0, a1,  i0 ,n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-R(L_,  s( a0, a1,n(i_),  i1 )   , t, t, x(S            ,x(A1,V1   )) ),
-R(L_,  s( a0, a1,n(i_),n(i_))   , t, t, x(S                        ) ),
-R(L_,  s( a0, a1,n(i_),n(i1))   , t, t, x(S            ,x(A1,V1   )) ),
-R(L_,  s( a0, a1,n(i0),  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-R(L_,  s( a0, a1,n(i0),n(i_))   , t, t, x(S,x(A0,V0   )            ) ),
-R(L_,  s( a0, a1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ),
-R(L_,  s(na0,na1,  i0 ,  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ), // *
-R(L_,  s(na0,na1,  i0 ,n(i_))   , t, t, x(S,x(A0,V0   )            ) ), // *
-R(L_,  s(na0,na1,  i0 ,n(i_))   , _, t, x(S,x(A0,V0   ),x(A1      )) ), // *
-R(L_,  s(na0,na1,  i0 ,n(i_))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ), // *
-R(L_,  s(na0,na1,  i0 ,n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ), // *
-R(L_,  s(na0,na1,n(i_),  i1 )   , t, t, x(S            ,x(A1,V1   )) ), // *
-R(L_,  s(na0,na1,n(i_),  i1 )   , _, t, x(S,x(A0      ),x(A1,V1   )) ), // *
-R(L_,  s(na0,na1,n(i_),  i1 )   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ), // *
-R(L_,  s(na0,na1,n(i_),n(i_))   , t, t, x(S                        ) ), // *
-R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S            ,x(A1      )) ), // *
-R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S            ,x(A1,Nil,T)) ), // *
-R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      )            ) ), // *
-R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      ),x(A1      )) ), // *
-R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0      ),x(A1,Nil,T)) ), // *
-R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T)            ) ), // *
-R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T),x(A1      )) ), // *
-R(L_,  s(na0,na1,n(i_),n(i_))   , _, t, x(S,x(A0,Nil,T),x(A1,Nil,T)) ), // *
-R(L_,  s(na0,na1,n(i_),n(i1))   , t, t, x(S            ,x(A1,V1   )) ), // *
-R(L_,  s(na0,na1,n(i_),n(i1))   , _, t, x(S,x(A0      ),x(A1,V1   )) ), // *
-R(L_,  s(na0,na1,n(i_),n(i1))   , _, t, x(S,x(A0,Nil,T),x(A1,V1   )) ), // *
-R(L_,  s(na0,na1,n(i0),  i1 )   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) ), // *
-R(L_,  s(na0,na1,n(i0),n(i_))   , t, t, x(S,x(A0,V0   )            ) ), // *
-#endif
-R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1      )) ), // *
-R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ), // *
-R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
-//^---------v
-        };
-
-        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
-
-        for (int i = 0; i != NUM_DATA; ++i) {
-            const TestCase19Row& ROW = DATA[i];
-
-            ROW.runTest();
-        }
+        runTestCase19();
 
         if (verbose) cout << "\nEnd of Test." << endl;
       } break;
@@ -9384,7 +9488,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                   "\n----------------------------"
                                << bsl::endl;
 
-        const bsl::string DATA[] = {
+        const bsl::string_view DATA[] = {
         "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
         "<Topchoice xmlns=\"TestNamespace\"\n"
         "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
@@ -17413,13 +17517,13 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
         for (int i = 0; i < NUM_DATA; ++i) {
 
-            const bsl::string& STR = DATA[i];
+            const bsl::string_view& STR = DATA[i];
 
             balxml::DecoderOptions options;
             balxml::ErrorInfo e;
             balxml::Decoder decoder(&options, &reader, &e);
 
-            bdlsb::FixedMemInStreamBuf isb(STR.c_str(), STR.size());
+            bdlsb::FixedMemInStreamBuf isb(STR.data(), STR.size());
 
             test::Topchoice object;
             int rc = decoder.decode(&isb, &object);
@@ -17482,12 +17586,15 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
         // TestSequence2
         {
-            bsl::string INPUT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<TestSequence2 " XSI ">\n"
-                                "    <E3>abc</E3>\n"
-                                "    <E1>123</E1>\n"
-                                "</TestSequence2>\n";
-            bsl::stringstream ss(INPUT);
+            const bsl::string_view INPUT =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<TestSequence2 " XSI ">\n"
+                "    <E3>abc</E3>\n"
+                "    <E1>123</E1>\n"
+                "</TestSequence2>\n";
+
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+            bsl::istream               is(&isb);
 
             if (veryVerbose) {
                 T_ P(INPUT)
@@ -17495,9 +17602,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
             TestSequence2 ts;
 
-            balxml::MiniReader reader;
-            balxml::ErrorInfo  errInfo;
-            balxml::DecoderOptions    options;
+            balxml::MiniReader     reader;
+            balxml::ErrorInfo      errInfo;
+            balxml::DecoderOptions options;
 
             balxml::Decoder mX(&options,
                                &reader,
@@ -17507,9 +17614,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             const balxml::Decoder& X = mX;
             ASSERT(0 == X.numUnknownElementsSkipped());
 
-            mX.decode(ss, &ts);
+            mX.decode(is, &ts);
 
-            LOOP_ASSERT(ss.fail(), !ss.fail());
+            LOOP_ASSERT(is.fail(), !is.fail());
             LOOP_ASSERT(ts,
                     ts == TestSequence2(123, TestSequence2::DEFAULT_ELEMENT2));
             LOOP_ASSERT(X.numUnknownElementsSkipped(),
@@ -17518,11 +17625,14 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
         // TestChoice2
         {
-            bsl::string INPUT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<TestChoice2 " XSI ">\n"
-                                "    <S3>123</S3>\n"
-                                "</TestChoice2>\n";
-            bsl::stringstream ss(INPUT);
+            const bsl::string_view INPUT =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<TestChoice2 " XSI ">\n"
+                "    <S3>123</S3>\n"
+                "</TestChoice2>\n";
+
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+            bsl::istream               is(&isb);
 
             if (veryVerbose) {
                 T_ P(INPUT)
@@ -17542,9 +17652,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             const balxml::Decoder& X = mX;
             ASSERT(0 == X.numUnknownElementsSkipped());
 
-            mX.decode(ss, &tc);
+            mX.decode(is, &tc);
 
-            LOOP_ASSERT(ss.fail(), !ss.fail());
+            LOOP_ASSERT(is.fail(), !is.fail());
             LOOP_ASSERT(tc, TestChoice2() == tc);
             LOOP_ASSERT(X.numUnknownElementsSkipped(),
                         1 == X.numUnknownElementsSkipped());
@@ -17554,13 +17664,15 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             // This test, from baea_serializableobjectproxyutil.t.cpp, used to
             // fail a safe assert there.
 
-            bsl::string INPUT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<selection8>\n"
-                                "   <foo><selection1/></foo>\n"
-                                "   <foo><selection1/></foo>\n"
-                                "</selection8>\n";
+            const bsl::string_view INPUT =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<selection8>\n"
+                "   <foo><selection1/></foo>\n"
+                "   <foo><selection1/></foo>\n"
+                "</selection8>\n";
 
-            bsl::stringstream ss(INPUT);
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+            bsl::istream               is(&isb);
 
             if (veryVerbose) { T_ P(INPUT) }
 
@@ -17578,9 +17690,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             const balxml::Decoder& X = mX;
             ASSERT(0 == X.numUnknownElementsSkipped());
 
-            mX.decode(ss, &tc);
+            mX.decode(is, &tc);
 
-            LOOP_ASSERT(ss.fail(), !ss.fail());
+            LOOP_ASSERT(is.fail(), !is.fail());
             LOOP_ASSERT(X.numUnknownElementsSkipped(),
                         2 == X.numUnknownElementsSkipped());
         }
@@ -17590,13 +17702,13 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             typedef test::MySequence Type;
 
             const struct {
-                int         d_line;
-                bsl::string d_xml;
-                int         d_numSkipped;
+                int              d_line;
+                bsl::string_view d_xml;
+                int              d_numSkipped;
 
                 // Type Data members
-                int         d_attribute1;
-                bsl::string d_attribute2;
+                int              d_attribute1;
+                bsl::string_view d_attribute2;
             } DATA[] = {
                 {
                     L_,
@@ -17686,18 +17798,19 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const bsl::string XML         = DATA[i].d_xml;
-                const int         NUM_SKIPPED = DATA[i].d_numSkipped;
+                const bsl::string_view& XML         = DATA[i].d_xml;
+                const int               NUM_SKIPPED = DATA[i].d_numSkipped;
 
                 Type exp; const Type& EXP = exp;
-                exp.attribute1()              = DATA[i].d_attribute1;
-                exp.attribute2()              = DATA[i].d_attribute2;
+                exp.attribute1() = DATA[i].d_attribute1;
+                exp.attribute2() = DATA[i].d_attribute2;
 
                 if (veryVerbose) {
                     T_ P_(i) P(XML) P(EXP)
                 }
 
-                bsl::stringstream input(XML);
+                bdlsb::FixedMemInStreamBuf isb(XML.data(), XML.size());
+                bsl::istream               input(&isb);
 
                 balxml::MiniReader     reader;
                 balxml::ErrorInfo      errInfo;
@@ -17726,20 +17839,20 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             typedef test::MySequenceWithAnonymousChoice Type;
 
             const struct {
-                int         d_line;
-                bsl::string d_xml;
-                int         d_numSkipped;
+                int              d_line;
+                bsl::string_view d_xml;
+                int              d_numSkipped;
 
                 // Type Data members
-                bool        d_attr1Specified;
-                int         d_attr1;
+                bool             d_attr1Specified;
+                int              d_attr1;
 
-                int         d_choiceSelectionId;
-                int         d_choiceAttr1;
-                bsl::string d_choiceAttr2;
+                int              d_choiceSelectionId;
+                int              d_choiceAttr1;
+                bsl::string_view d_choiceAttr2;
 
-                bool        d_attr2Specified;
-                bsl::string d_attr2;
+                bool             d_attr2Specified;
+                bsl::string_view d_attr2;
             } DATA[] = {
                 {
                     L_,
@@ -17825,7 +17938,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const bsl::string XML         = DATA[i].d_xml;
+                const bsl::string_view& XML   = DATA[i].d_xml;
                 const int         NUM_SKIPPED = DATA[i].d_numSkipped;
 
                 const bool        ATTR1_SPECIFIED = DATA[i].d_attr1Specified;
@@ -17853,7 +17966,8 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                     T_ P_(i) P(XML) P(EXP)
                 }
 
-                bsl::stringstream input(XML);
+                bdlsb::FixedMemInStreamBuf isb(XML.data(), XML.size());
+                bsl::istream               input(&isb);
 
                 balxml::MiniReader     reader;
                 balxml::ErrorInfo      errInfo;
@@ -17915,10 +18029,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         typedef TestSequence2 TS;  // shorthand
 
         static const struct {
-            int         d_lineNum;  // source line number
-            const char *d_input;    // input string
-            int         d_retCode;  // expected ret code
-            TS          d_result;   // expected result
+            int              d_lineNum;  // source line number
+            bsl::string_view d_input;    // input string
+            int              d_retCode;  // expected ret code
+            TS               d_result;   // expected result
         } DATA[] = {
             ///line  input                  retCode  result
             ///----  -----                  -------  ------
@@ -17965,10 +18079,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         if (verbose) cout << "\nTesting 'Decoder::decode(streambuf*, "
                           << "TYPE*)'." << endl;
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int   LINE              = DATA[i].d_lineNum;
-            const char *INPUT             = DATA[i].d_input;
-            const int   EXPECTED_RET_CODE = DATA[i].d_retCode;
-            const TS    EXPECTED_RESULT   = DATA[i].d_result;
+            const int               LINE              = DATA[i].d_lineNum;
+            const bsl::string_view& INPUT             = DATA[i].d_input;
+            const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
+            const TS                EXPECTED_RESULT   = DATA[i].d_result;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -17978,10 +18092,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                     T_ T_ P_(EXPECTED_RET_CODE) P(EXPECTED_RESULT)
                 }
             }
-
-            bsl::stringstream input(INPUT);
-            TS                result = INIT_VALUE;
-            balxml::DecoderOptions    options;
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+            bsl::istream               input(&isb);
+            TS                         result = INIT_VALUE;
+            balxml::DecoderOptions     options;
             options.setSkipUnknownElements(false);
 
             balxml::MiniReader reader;
@@ -18005,10 +18119,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                           << "TYPE*, bsl::ostream&, ostream&)'."
                           << endl;
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int   LINE              = DATA[i].d_lineNum;
-            const char *INPUT             = DATA[i].d_input;
-            const int   EXPECTED_RET_CODE = DATA[i].d_retCode;
-            const TS    EXPECTED_RESULT   = DATA[i].d_result;
+            const int               LINE              = DATA[i].d_lineNum;
+            const bsl::string_view& INPUT             = DATA[i].d_input;
+            const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
+            const TS                EXPECTED_RESULT   = DATA[i].d_result;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -18019,10 +18133,11 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 }
             }
 
-            bsl::stringstream input(INPUT);
-            TS                result = INIT_VALUE;
-            bsl::ostream      nullStream(0);
-            balxml::DecoderOptions    options;
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+            bsl::istream               input(&isb);
+            TS                         result = INIT_VALUE;
+            bsl::ostream               nullStream(0);
+            balxml::DecoderOptions     options;
             options.setSkipUnknownElements(false);
 
             // display error messages on 'bsl::cerr' only if errors are not
@@ -18056,10 +18171,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         if (verbose) cout << "\nTesting 'Decoder::decode(istream&, "
                           << "TYPE*)'." << endl;
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int   LINE              = DATA[i].d_lineNum;
-            const char *INPUT             = DATA[i].d_input;
-            const int   EXPECTED_RET_CODE = DATA[i].d_retCode;
-            const TS    EXPECTED_RESULT   = DATA[i].d_result;
+            const int               LINE              = DATA[i].d_lineNum;
+            const bsl::string_view& INPUT             = DATA[i].d_input;
+            const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
+            const TS                EXPECTED_RESULT   = DATA[i].d_result;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -18070,9 +18185,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 }
             }
 
-            bsl::stringstream input(INPUT);
-            TS                result = INIT_VALUE;
-            balxml::DecoderOptions    options;
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+            bsl::istream               input(&isb);
+            TS                         result = INIT_VALUE;
+            balxml::DecoderOptions     options;
             options.setSkipUnknownElements(false);
 
             LOOP_ASSERT(LINE, input.good());
@@ -18098,10 +18214,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                           << "TYPE*, bsl::ostream&, ostream&)'."
                           << endl;
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int   LINE              = DATA[i].d_lineNum;
-            const char *INPUT             = DATA[i].d_input;
-            const int   EXPECTED_RET_CODE = DATA[i].d_retCode;
-            const TS    EXPECTED_RESULT   = DATA[i].d_result;
+            const int               LINE              = DATA[i].d_lineNum;
+            const bsl::string_view& INPUT             = DATA[i].d_input;
+            const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
+            const TS                EXPECTED_RESULT   = DATA[i].d_result;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -18112,10 +18228,11 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 }
             }
 
-            bsl::stringstream input(INPUT);
-            TS                result = INIT_VALUE;
-            bsl::ostream      nullStream(0);
-            balxml::DecoderOptions    options;
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+            bsl::istream               input(&isb);
+            TS                         result = INIT_VALUE;
+            bsl::ostream               nullStream(0);
+            balxml::DecoderOptions     options;
             options.setSkipUnknownElements(false);
 
             // display error messages on 'bsl::cerr' only if errors are not
@@ -18182,40 +18299,42 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             EXPECTED_RESULT[2].attribute2() = "Hello World!";
             EXPECTED_RESULT[2].theContent() = "  Some Stuff ";
 
-            const char *INPUT[3]
-                            = {
-                              "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySimpleContent " XSI " attribute1=\"true\" "
-                              "attribute2=\"Hello World!\">"
-                              ""
-                              "</MySimpleContent>\n",
+            const bsl::string_view INPUTS[] = {
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySimpleContent " XSI " attribute1=\"true\" "
+                "attribute2=\"Hello World!\">"
+                ""
+                "</MySimpleContent>\n",
 
-                              "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySimpleContent " XSI " attribute1=\"false\" "
-                              "attribute2=\"Hello World!\">"
-                              "Some Stuff"
-                              "</MySimpleContent>\n",
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySimpleContent " XSI " attribute1=\"false\" "
+                "attribute2=\"Hello World!\">"
+                "Some Stuff"
+                "</MySimpleContent>\n",
 
-                              "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySimpleContent " XSI " attribute1=\"true\" "
-                              "attribute2=\"Hello World!\">"
-                              "  Some Stuff "
-                              "</MySimpleContent>\n",
-                              };
-            const int NUM_INPUT = sizeof INPUT / sizeof *INPUT;
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySimpleContent " XSI " attribute1=\"true\" "
+                "attribute2=\"Hello World!\">"
+                "  Some Stuff "
+                "</MySimpleContent>\n",
+            };
+            const int NUM_INPUT = sizeof INPUTS / sizeof *INPUTS;
 
             for (int i = 0; i < NUM_INPUT; ++i) {
+                const bsl::string_view& INPUT = INPUTS[i];
+
                 Type mX;  const Type& X = mX;
 
                 const Type& Y = EXPECTED_RESULT[i];
 
                 if (veryVerbose) {
-                    T_ P_(i) P_(Y) P(INPUT[i])
+                    T_ P_(i) P_(Y) P(INPUT)
                 }
 
                 LOOP3_ASSERT(i, X, Y, X != Y);
 
-                bsl::stringstream input(INPUT[i]);
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                bsl::istream               input(&isb);
 
                 balxml::MiniReader     reader;
                 balxml::ErrorInfo      errInfo;
@@ -18248,34 +18367,36 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             EXPECTED_RESULT[1].attribute2() = "Hello World!";
             EXPECTED_RESULT[1].theContent() = 34;
 
-            const char *INPUT[2]
-                            = {
-                            "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                            "<MySimpleIntContent " XSI " attribute1=\"true\" "
-                            "attribute2=\"Hello World!\">"
-                            "34"
-                            "</MySimpleIntContent>\n",
+            const bsl::string_view INPUTS[] = {
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySimpleIntContent " XSI " attribute1=\"true\" "
+                "attribute2=\"Hello World!\">"
+                "34"
+                "</MySimpleIntContent>\n",
 
-                            "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                            "<MySimpleIntContent " XSI " attribute1=\"false\" "
-                            "attribute2=\"Hello World!\">"
-                            "  34 "
-                            "</MySimpleIntContent>\n",
-                              };
-            const int NUM_INPUT = sizeof INPUT / sizeof *INPUT;
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySimpleIntContent " XSI " attribute1=\"false\" "
+                "attribute2=\"Hello World!\">"
+                "  34 "
+                "</MySimpleIntContent>\n",
+            };
+            const int NUM_INPUT = sizeof INPUTS / sizeof *INPUTS;
 
             for (int i = 0; i < NUM_INPUT; ++i) {
+                const bsl::string_view& INPUT = INPUTS[i];
+
                 Type mX;  const Type& X = mX;
 
                 const Type& Y = EXPECTED_RESULT[i];
 
                 if (veryVerbose) {
-                    T_ P_(i) P_(Y) P(INPUT[i])
+                    T_ P_(i) P_(Y) P(INPUT)
                 }
 
                 LOOP3_ASSERT(i, X, Y, X != Y);
 
-                bsl::stringstream input(INPUT[i]);
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                bsl::istream               input(&isb);
 
                 balxml::MiniReader     reader;
                 balxml::ErrorInfo      errInfo;
@@ -18338,54 +18459,56 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
             EXPECTED_RESULT[5].attribute1() = 34;
 
-            const char *INPUT[6]
-                            = {
-                       "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                       "<MySequenceWithAttributes " XSI " attribute1=\"34\">\n"
-                       "    <element1>45</element1>\n"
-                       "    <element2>Hello</element2>\n"
-                       "</MySequenceWithAttributes>\n",
+            const bsl::string_view INPUTS[] = {
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithAttributes " XSI " attribute1=\"34\">\n"
+                "    <element1>45</element1>\n"
+                "    <element2>Hello</element2>\n"
+                "</MySequenceWithAttributes>\n",
 
-                        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                        "<MySequenceWithAttributes " XSI " attribute1=\"34\" "
-                        "attribute2=\"World!\">\n"
-                        "    <element1>45</element1>\n"
-                        "    <element2>Hello</element2>\n"
-                        "</MySequenceWithAttributes>\n",
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithAttributes " XSI " attribute1=\"34\" "
+                "attribute2=\"World!\">\n"
+                "    <element1>45</element1>\n"
+                "    <element2>Hello</element2>\n"
+                "</MySequenceWithAttributes>\n",
 
-                        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                        "<MySequenceWithAttributes " XSI " attribute1=\"34\" "
-                        "attribute2=\"  World ! \">\n"
-                        "    <element1>45</element1>\n"
-                        "    <element2>Hello</element2>\n"
-                        "</MySequenceWithAttributes>\n",
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithAttributes " XSI " attribute1=\"34\" "
+                "attribute2=\"  World ! \">\n"
+                "    <element1>45</element1>\n"
+                "    <element2>Hello</element2>\n"
+                "</MySequenceWithAttributes>\n",
 
-                        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                        "<MySequenceWithAttributes " XSI " attribute1=\"34\" "
-                        "attribute2=\"  World ! \">\n"
-                        "</MySequenceWithAttributes>\n",
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithAttributes " XSI " attribute1=\"34\" "
+                "attribute2=\"  World ! \">\n"
+                "</MySequenceWithAttributes>\n",
 
-                       "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                       "<MySequenceWithAttributes " XSI " attribute1=\"34\">\n"
-                       "</MySequenceWithAttributes>\n",
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithAttributes " XSI " attribute1=\"34\">\n"
+                "</MySequenceWithAttributes>\n",
 
-                      "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                      "<MySequenceWithAttributes " XSI " attribute1=\"34\"/>\n"
-                              };
-            const int NUM_INPUT = sizeof INPUT / sizeof *INPUT;
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithAttributes " XSI " attribute1=\"34\"/>\n"
+            };
+            const int NUM_INPUT = sizeof INPUTS / sizeof *INPUTS;
 
             for (int i = 0; i < NUM_INPUT; ++i) {
+                const bsl::string_view& INPUT = INPUTS[i];
+
                 Type mX;  const Type& X = mX;
 
                 const Type& Y = EXPECTED_RESULT[i];
 
                 if (veryVerbose) {
-                    T_ P_(i) P_(Y) P(INPUT[i])
+                    T_ P_(i) P_(Y) P(INPUT)
                 }
 
                 LOOP3_ASSERT(i, X, Y, X != Y);
 
-                bsl::stringstream input(INPUT[i]);
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                bsl::istream               input(&isb);
 
                 balxml::MiniReader     reader;
                 balxml::ErrorInfo      errInfo;
@@ -18444,50 +18567,52 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             EXPECTED_RESULT[3].choice().makeMyChoice2("  World! ");
             EXPECTED_RESULT[3].attribute2() = "Hello";
 
-            const char *INPUT[4]
-                            = {
-                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithAnonymousChoice " XSI ">\n"
-                                "    <attribute1>34</attribute1>\n"
-                                "    <myChoice1>67</myChoice1>\n"
-                                "    <attribute2>Hello</attribute2>\n"
-                                "</MySequenceWithAnonymousChoice>\n",
+            const bsl::string_view INPUTS[] = {
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithAnonymousChoice " XSI ">\n"
+                "    <attribute1>34</attribute1>\n"
+                "    <myChoice1>67</myChoice1>\n"
+                "    <attribute2>Hello</attribute2>\n"
+                "</MySequenceWithAnonymousChoice>\n",
 
-                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithAnonymousChoice " XSI ">\n"
-                                "    <attribute1>34</attribute1>\n"
-                                "    <myChoice1>  67 </myChoice1>\n"
-                                "    <attribute2>Hello</attribute2>\n"
-                                "</MySequenceWithAnonymousChoice>\n",
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithAnonymousChoice " XSI ">\n"
+                "    <attribute1>34</attribute1>\n"
+                "    <myChoice1>  67 </myChoice1>\n"
+                "    <attribute2>Hello</attribute2>\n"
+                "</MySequenceWithAnonymousChoice>\n",
 
-                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithAnonymousChoice " XSI ">\n"
-                                "    <attribute1>34</attribute1>\n"
-                                "    <myChoice2>World!</myChoice2>\n"
-                                "    <attribute2>Hello</attribute2>\n"
-                                "</MySequenceWithAnonymousChoice>\n",
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithAnonymousChoice " XSI ">\n"
+                "    <attribute1>34</attribute1>\n"
+                "    <myChoice2>World!</myChoice2>\n"
+                "    <attribute2>Hello</attribute2>\n"
+                "</MySequenceWithAnonymousChoice>\n",
 
-                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithAnonymousChoice " XSI ">\n"
-                                "    <attribute1>34</attribute1>\n"
-                                "    <myChoice2>  World! </myChoice2>\n"
-                                "    <attribute2>Hello</attribute2>\n"
-                                "</MySequenceWithAnonymousChoice>\n",
-                              };
-            const int NUM_INPUT = sizeof INPUT / sizeof *INPUT;
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithAnonymousChoice " XSI ">\n"
+                "    <attribute1>34</attribute1>\n"
+                "    <myChoice2>  World! </myChoice2>\n"
+                "    <attribute2>Hello</attribute2>\n"
+                "</MySequenceWithAnonymousChoice>\n",
+            };
+            const int NUM_INPUT = sizeof INPUTS / sizeof *INPUTS;
 
             for (int i = 0; i < NUM_INPUT; ++i) {
+                const bsl::string_view& INPUT = INPUTS[i];
+
                 Type mX;  const Type& X = mX;
 
                 const Type& Y = EXPECTED_RESULT[i];
 
                 if (veryVerbose) {
-                    T_ P_(i) P_(Y) P(INPUT[i])
+                    T_ P_(i) P_(Y) P(INPUT)
                 }
 
                 LOOP3_ASSERT(i, X, Y, X != Y);
 
-                bsl::stringstream input(INPUT[i]);
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                bsl::istream               input(&isb);
 
                 balxml::MiniReader     reader;
                 balxml::ErrorInfo      errInfo;
@@ -18549,9 +18674,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         };
 
         static const struct {
-            int             d_lineNum;  // source line number
-            const char     *d_input;    // input string
-            FormattingMode  d_mode;     // formatting mode
+            int              d_lineNum;  // source line number
+            bsl::string_view d_input;    // input string
+            FormattingMode   d_mode;     // formatting mode
         } DATA[] = {
             //line  input                                 mode
             //----  -----                                 ----
@@ -18573,9 +18698,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         const int MAX_DEPTH = 5;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int             LINE            = DATA[i].d_lineNum;
-            const char           *INPUT           = DATA[i].d_input;
-            const FormattingMode  FORMATTING_MODE = DATA[i].d_mode;
+            const int               LINE            = DATA[i].d_lineNum;
+            const bsl::string_view& INPUT           = DATA[i].d_input;
+            const FormattingMode    FORMATTING_MODE = DATA[i].d_mode;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -18587,7 +18712,8 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
             const bsl::string INIT_VALUE = "qwer";
 
-            bsl::stringstream ss(INPUT);
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+
             bsl::vector<char> result1(INIT_VALUE.data(),
                                       INIT_VALUE.data() + INIT_VALUE.size());
             bsl::ostream      nullStream(0);
@@ -18612,7 +18738,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                        &outStream,
                                        &outStream);
 
-            decoder.open(ss.rdbuf());
+            decoder.open(&isb);
             int retCode = context.beginParse(&decoder);;
 
             const bsl::vector<char> EXPECTED_RESULT(
@@ -18666,9 +18792,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         };
 
         static const struct {
-            int             d_lineNum;  // source line number
-            const char     *d_input;    // input string
-            FormattingMode  d_mode;     // formatting mode
+            int              d_lineNum;  // source line number
+            bsl::string_view d_input;    // input string
+            FormattingMode   d_mode;     // formatting mode
         } DATA[] = {
             //line  input                                 mode
             //----  -----                                 ----
@@ -18686,9 +18812,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         const int MAX_DEPTH = 5;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int             LINE            = DATA[i].d_lineNum;
-            const char           *INPUT           = DATA[i].d_input;
-            const FormattingMode  FORMATTING_MODE = DATA[i].d_mode;
+            const int               LINE            = DATA[i].d_lineNum;
+            const bsl::string_view& INPUT           = DATA[i].d_input;
+            const FormattingMode    FORMATTING_MODE = DATA[i].d_mode;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -18700,9 +18826,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
             const bsl::string INIT_VALUE = "qwer";
 
-            bsl::stringstream ss(INPUT);
-            bsl::string       result1 = INIT_VALUE;
-            bsl::ostream      nullStream(0);
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+            bsl::string                result1 = INIT_VALUE;
+            bsl::ostream               nullStream(0);
 
             // display error messages on 'bsl::cerr' only if errors are not
             // expected or if very very very verbose
@@ -18724,7 +18850,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                        &outStream,
                                        &outStream);
 
-            decoder.open(ss.rdbuf());
+            decoder.open(&isb);
             int retCode = context.beginParse(&decoder);;
 
             LOOP2_ASSERT(LINE, retCode, 0 == retCode);
@@ -18790,9 +18916,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             // does not fail to compile.
 
             static const struct {
-                int         d_lineNum;  // source line number
-                const char *d_input;    // input string
-                int         d_retCode;  // expected return code
+                int              d_lineNum;  // source line number
+                bsl::string_view d_input;    // input string
+                int              d_retCode;  // expected return code
             } DATA[] = {
                 //line  input                                           retCode
                 //----  -----                                           -------
@@ -18815,9 +18941,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             const int MAX_DEPTH = 5;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE              = DATA[i].d_lineNum;
-                const char *INPUT             = DATA[i].d_input;
-                const int   EXPECTED_RET_CODE = DATA[i].d_retCode;
+                const int               LINE              = DATA[i].d_lineNum;
+                const bsl::string_view& INPUT             = DATA[i].d_input;
+                const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -18828,10 +18954,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                     }
                 }
 
-                bsl::stringstream ss(INPUT);
-                TestChoice0       result;
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                TestChoice0                result;
 
-                balxml::DecoderOptions options;
+                balxml::DecoderOptions     options;
                 options.setMaxDepth(MAX_DEPTH);
                 options.setSkipUnknownElements(false);
 
@@ -18856,7 +18982,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                            &outStream,
                                            &outStream);
 
-                decoder.open(ss.rdbuf());
+                decoder.open(&isb);
                 int retCode = context.beginParse(&decoder);;
 
                 if (0 == EXPECTED_RET_CODE) {
@@ -18887,10 +19013,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             typedef TestChoice1 TC;  // shorthand for test choice type
 
             static const struct {
-                int         d_lineNum;  // source line number
-                const char *d_input;    // input string
-                int         d_retCode;  // expected return code
-                TC          d_result;   // expected result
+                int              d_lineNum;  // source line number
+                bsl::string_view d_input;    // input string
+                int              d_retCode;  // expected return code
+                TC               d_result;   // expected result
             } DATA[] = {
                 //line   input         retCode   result
                 //----   -----         -------   ------
@@ -18940,10 +19066,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             const int MAX_DEPTH = 5;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE              = DATA[i].d_lineNum;
-                const char *INPUT             = DATA[i].d_input;
-                const int   EXPECTED_RET_CODE = DATA[i].d_retCode;
-                const TC    EXPECTED_RESULT   = DATA[i].d_result;
+                const int               LINE              = DATA[i].d_lineNum;
+                const bsl::string_view& INPUT             = DATA[i].d_input;
+                const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
+                const TC                EXPECTED_RESULT   = DATA[i].d_result;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -18962,8 +19088,8 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
                 const TC INIT_VALUE = TC(9876);
 
-                bsl::stringstream ss(INPUT);
-                TC                result1 = INIT_VALUE;
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                TC                         result1 = INIT_VALUE;
 
                 balxml::DecoderOptions options;
                 options.setMaxDepth(MAX_DEPTH);
@@ -18990,7 +19116,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                            &outStream,
                                            &outStream);
 
-                decoder.open(ss.rdbuf());
+                decoder.open(&isb);
                 int retCode = context.beginParse(&decoder);;
 
                 if (0 == EXPECTED_RET_CODE) {
@@ -19027,10 +19153,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             typedef TestChoice2 TC;  // shorthand for test choice type
 
             static const struct {
-                int         d_lineNum;  // source line number
-                const char *d_input;    // input string
-                int         d_retCode;  // expected return code
-                TC          d_result;   // expected result
+                int              d_lineNum;  // source line number
+                bsl::string_view d_input;    // input string
+                int              d_retCode;  // expected return code
+                TC               d_result;   // expected result
             } DATA[] = {
                 //line   input         retCode   result
                 //----   -----         -------   ------
@@ -19128,10 +19254,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             const int MAX_DEPTH = 5;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE              = DATA[i].d_lineNum;
-                const char *INPUT             = DATA[i].d_input;
-                const int   EXPECTED_RET_CODE = DATA[i].d_retCode;
-                const TC    EXPECTED_RESULT   = DATA[i].d_result;
+                const int               LINE              = DATA[i].d_lineNum;
+                const bsl::string_view& INPUT             = DATA[i].d_input;
+                const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
+                const TC                EXPECTED_RESULT   = DATA[i].d_result;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -19150,8 +19276,8 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
                 const TC INIT_VALUE = TC(9876);
 
-                bsl::stringstream ss(INPUT);
-                TC                result1 = INIT_VALUE;
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                TC                         result1 = INIT_VALUE;
 
                 balxml::DecoderOptions options;
                 options.setMaxDepth(MAX_DEPTH);
@@ -19178,7 +19304,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                            &outStream,
                                            &outStream);
 
-                decoder.open(ss.rdbuf());
+                decoder.open(&isb);
                 int retCode = context.beginParse(&decoder);;
 
                 if (0 == EXPECTED_RET_CODE) {
@@ -19256,9 +19382,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             // does not fail to compile.
 
             static const struct {
-                int         d_lineNum;  // source line number
-                const char *d_input;    // input string
-                int         d_retCode;  // expected return code
+                int              d_lineNum;  // source line number
+                bsl::string_view d_input;    // input string
+                int              d_retCode;  // expected return code
             } DATA[] = {
                 //line  input                                           retCode
                 //----  -----                                           -------
@@ -19281,9 +19407,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             const int MAX_DEPTH = 5;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE              = DATA[i].d_lineNum;
-                const char *INPUT             = DATA[i].d_input;
-                const int   EXPECTED_RET_CODE = DATA[i].d_retCode;
+                const int               LINE              = DATA[i].d_lineNum;
+                const bsl::string_view &INPUT             = DATA[i].d_input;
+                const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -19294,8 +19420,8 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                     }
                 }
 
-                bsl::stringstream ss(INPUT);
-                TestSequence0     result;
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                TestSequence0              result;
 
                 balxml::DecoderOptions options;
                 options.setMaxDepth(MAX_DEPTH);
@@ -19322,7 +19448,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                            &outStream,
                                            &outStream);
 
-                decoder.open(ss.rdbuf());
+                decoder.open(&isb);
                 int retCode = context.beginParse(&decoder);;
 
                 if (0 == EXPECTED_RET_CODE) {
@@ -19357,12 +19483,12 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             const int INIT1 = 9876;  // initial (default) value for element 1
 
             static const struct {
-                int         d_lineNum;  // source line number
-                const char *d_input;    // input string
-                int         d_min1;     // min occurrences for element 1
-                int         d_max1;     // max occurrences for element 1
-                int         d_retCode;  // expected return code
-                TS          d_result;   // expected result
+                int              d_lineNum;  // source line number
+                bsl::string_view d_input;    // input string
+                int              d_min1;     // min occurrences for element 1
+                int              d_max1;     // max occurrences for element 1
+                int              d_retCode;  // expected return code
+                TS               d_result;   // expected result
             } DATA[] = {
                 //line   input
                 //----   -----
@@ -19413,10 +19539,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             const int MAX_DEPTH = 5;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE              = DATA[i].d_lineNum;
-                const char *INPUT             = DATA[i].d_input;
-                const int   EXPECTED_RET_CODE = DATA[i].d_retCode;
-                const TS    EXPECTED_RESULT   = DATA[i].d_result;
+                const int               LINE              = DATA[i].d_lineNum;
+                const bsl::string_view& INPUT             = DATA[i].d_input;
+                const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
+                const TS                EXPECTED_RESULT   = DATA[i].d_result;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -19435,8 +19561,8 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
                 const TS INIT_VALUE = TS(INIT1);
 
-                bsl::stringstream ss(INPUT);
-                TS                result1 = INIT_VALUE;
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                TS                         result1 = INIT_VALUE;
 
                 balxml::DecoderOptions options;
                 options.setMaxDepth(MAX_DEPTH);
@@ -19463,7 +19589,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                            &outStream,
                                            &outStream);
 
-                decoder.open(ss.rdbuf());
+                decoder.open(&isb);
                 int retCode = context.beginParse(&decoder);;
 
                 if (0 == EXPECTED_RET_CODE) {
@@ -19509,14 +19635,14 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                              // element 1
 
             static const struct {
-                int         d_lineNum;  // source line number
-                const char *d_input;    // input string
-                int         d_min1;     // min occurrences for element 1
-                int         d_max1;     // max occurrences for element 1
-                int         d_min2;     // min occurrences for element 2
-                int         d_max2;     // max occurrences for element 2
-                int         d_retCode;  // expected return code
-                TS          d_result;   // expected result
+                int              d_lineNum;  // source line number
+                bsl::string_view d_input;    // input string
+                int              d_min1;     // min occurrences for element 1
+                int              d_max1;     // max occurrences for element 1
+                int              d_min2;     // min occurrences for element 2
+                int              d_max2;     // max occurrences for element 2
+                int              d_retCode;  // expected return code
+                TS               d_result;   // expected result
             } DATA[] = {
                 //line   input
                 //----   -----
@@ -19634,10 +19760,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             const int MAX_DEPTH = 5;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE              = DATA[i].d_lineNum;
-                const char *INPUT             = DATA[i].d_input;
-                const int   EXPECTED_RET_CODE = DATA[i].d_retCode;
-                const TS    EXPECTED_RESULT   = DATA[i].d_result;
+                const int               LINE              = DATA[i].d_lineNum;
+                const bsl::string_view& INPUT             = DATA[i].d_input;
+                const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
+                const TS                EXPECTED_RESULT   = DATA[i].d_result;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -19656,8 +19782,8 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
                 const TS INIT_VALUE = TS(INIT1, INIT2);
 
-                bsl::stringstream ss(INPUT);
-                TS                result1 = INIT_VALUE;
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                TS                         result1 = INIT_VALUE;
 
                 balxml::DecoderOptions options;
                 options.setMaxDepth(MAX_DEPTH);
@@ -19684,7 +19810,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                            &outStream,
                                            &outStream);
 
-                decoder.open(ss.rdbuf());
+                decoder.open(&isb);
                 int retCode = context.beginParse(&decoder);;
 
                 if (0 == EXPECTED_RET_CODE) {
@@ -19713,34 +19839,35 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             ATTRIBUTE3_VALUE.attribute1() = 987;
             ATTRIBUTE3_VALUE.attribute2() = "inner";
 
-            const char *INPUT[3]
-                            = {
-                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables " XSI ">\n"
-                                "    <attribute2>test string</attribute2>\n"
-                                "    <attribute3>\n"
-                                "        <attribute1>987</attribute1>\n"
-                                "        <attribute2>inner</attribute2>\n"
-                                "    </attribute3>\n"
-                                "</MySequenceWithNullables>\n",
+            const bsl::string_view INPUTS[Type::NUM_ATTRIBUTES] = {
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithNullables " XSI ">\n"
+                "    <attribute2>test string</attribute2>\n"
+                "    <attribute3>\n"
+                "        <attribute1>987</attribute1>\n"
+                "        <attribute2>inner</attribute2>\n"
+                "    </attribute3>\n"
+                "</MySequenceWithNullables>\n",
 
-                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables " XSI ">\n"
-                                "    <attribute1>123</attribute1>\n"
-                                "    <attribute3>\n"
-                                "        <attribute1>987</attribute1>\n"
-                                "        <attribute2>inner</attribute2>\n"
-                                "    </attribute3>\n"
-                                "</MySequenceWithNullables>\n",
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithNullables " XSI ">\n"
+                "    <attribute1>123</attribute1>\n"
+                "    <attribute3>\n"
+                "        <attribute1>987</attribute1>\n"
+                "        <attribute2>inner</attribute2>\n"
+                "    </attribute3>\n"
+                "</MySequenceWithNullables>\n",
 
-                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables " XSI ">\n"
-                                "    <attribute1>123</attribute1>\n"
-                                "    <attribute2>test string</attribute2>\n"
-                                "</MySequenceWithNullables>\n",
-                              };
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithNullables " XSI ">\n"
+                "    <attribute1>123</attribute1>\n"
+                "    <attribute2>test string</attribute2>\n"
+                "</MySequenceWithNullables>\n",
+            };
 
             for (int i = 0; i < Type::NUM_ATTRIBUTES; ++i) {
+                const bsl::string_view &INPUT = INPUTS[i];
+
                 Type mX;  const Type& X = mX;
 
                 for (int j = 0; j < Type::NUM_ATTRIBUTES; ++j) {
@@ -19758,10 +19885,11 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 }
 
                 if (veryVerbose) {
-                    T_ P_(i) P_(X) P(INPUT[i])
+                    T_ P_(i) P_(X) P(INPUT)
                 }
 
-                bsl::stringstream input(INPUT[i]);
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                bsl::istream               input(&isb);
 
                 Type mY;  const Type& Y = mY;
                 LOOP3_ASSERT(i, X, Y, X != Y);
@@ -19794,37 +19922,38 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             ATTRIBUTE3_VALUE.attribute1() = 987;
             ATTRIBUTE3_VALUE.attribute2() = "inner";
 
-            const char *INPUT[3]
-                            = {
-                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNillables " XSI ">\n"
-                                "    <attribute1 xsi:nil='true'/>\n"
-                                "    <attribute2>test string</attribute2>\n"
-                                "    <attribute3>\n"
-                                "        <attribute1>987</attribute1>\n"
-                                "        <attribute2>inner</attribute2>\n"
-                                "    </attribute3>\n"
-                                "</MySequenceWithNillables>\n",
+            const bsl::string_view INPUTS[Type::NUM_ATTRIBUTES] = {
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithNillables " XSI ">\n"
+                "    <attribute1 xsi:nil='true'/>\n"
+                "    <attribute2>test string</attribute2>\n"
+                "    <attribute3>\n"
+                "        <attribute1>987</attribute1>\n"
+                "        <attribute2>inner</attribute2>\n"
+                "    </attribute3>\n"
+                "</MySequenceWithNillables>\n",
 
-                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNillables " XSI ">\n"
-                                "    <attribute1>123</attribute1>\n"
-                                "    <attribute2/>\n"
-                                "    <attribute3>\n"
-                                "        <attribute1>987</attribute1>\n"
-                                "        <attribute2>inner</attribute2>\n"
-                                "    </attribute3>\n"
-                                "</MySequenceWithNillables>\n",
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithNillables " XSI ">\n"
+                "    <attribute1>123</attribute1>\n"
+                "    <attribute2/>\n"
+                "    <attribute3>\n"
+                "        <attribute1>987</attribute1>\n"
+                "        <attribute2>inner</attribute2>\n"
+                "    </attribute3>\n"
+                "</MySequenceWithNillables>\n",
 
-                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNillables " XSI ">\n"
-                                "    <attribute1>123</attribute1>\n"
-                                "    <attribute2>test string</attribute2>\n"
-                                "    <attribute3 xsi:nil='true'/>\n"
-                                "</MySequenceWithNillables>\n",
-                              };
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithNillables " XSI ">\n"
+                "    <attribute1>123</attribute1>\n"
+                "    <attribute2>test string</attribute2>\n"
+                "    <attribute3 xsi:nil='true'/>\n"
+                "</MySequenceWithNillables>\n",
+            };
 
             for (int i = 0; i < Type::NUM_ATTRIBUTES; ++i) {
+                const bsl::string_view &INPUT = INPUTS[i];
+
                 Type mX; const Type& X = mX;
                 for (int j = 0; j < Type::NUM_ATTRIBUTES; ++j) {
                     if (j != i) {
@@ -19841,10 +19970,11 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 }
 
                 if (veryVerbose) {
-                    T_ P_(i) P_(X) P(INPUT[i])
+                    T_ P_(i) P_(X) P(INPUT)
                 }
 
-                bsl::stringstream input(INPUT[i]);
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                bsl::istream               input(&isb);
 
                 Type mY;  const Type& Y = mY;
                 LOOP3_ASSERT(i, X, Y, X != Y);
@@ -20041,10 +20171,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                           << endl;
 
         static const struct {
-            int         d_lineNum;  // source line number
-            const char *d_input;    // input string
-            int         d_retCode;  // expected ret code
-            int         d_result;   // expected result
+            int              d_lineNum;  // source line number
+            bsl::string_view d_input;    // input string
+            int              d_retCode;  // expected ret code
+            int              d_result;   // expected result
         } DATA[] = {
             //line  input                              retCode   result
             //----  -----                              -------   ------
@@ -20085,10 +20215,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         const int MAX_DEPTH = 5;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int   LINE              = DATA[i].d_lineNum;
-            const char *INPUT             = DATA[i].d_input;
-            const int   EXPECTED_RET_CODE = DATA[i].d_retCode;
-            const int   EXPECTED_RESULT   = DATA[i].d_result;
+            const int               LINE              = DATA[i].d_lineNum;
+            const bsl::string_view& INPUT             = DATA[i].d_input;
+            const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
+            const int               EXPECTED_RESULT   = DATA[i].d_result;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -20110,9 +20240,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             balxml::DecoderOptions options;
             options.setMaxDepth(MAX_DEPTH);
 
-            bsl::stringstream ss(INPUT);
-            int               result1 = INIT_VALUE;
-            bsl::ostream      nullStream(0);
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+            int                        result1 = INIT_VALUE;
+            bsl::ostream               nullStream(0);
 
             // display error messages on 'bsl::cerr' only if errors are not
             // expected or if very very very verbose
@@ -20133,7 +20263,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                        &outStream,
                                        &outStream);
 
-            decoder.open(ss.rdbuf());
+            decoder.open(&isb);
             int retCode = context.beginParse(&decoder);;
 
             if (0 == EXPECTED_RET_CODE) {
@@ -20177,10 +20307,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                           << "\n===============================" << endl;
 
         static const struct {
-            int         d_lineNum;  // source line number
-            const char *d_input;    // input string
-            int         d_retCode;  // expected ret code
-            const char *d_result;   // expected result
+            int               d_lineNum;  // source line number
+            bsl::string_view  d_input;    // input string
+            int               d_retCode;  // expected ret code
+            const char       *d_result;   // expected result
         } DATA[] = {
             //line  input                                retCode     result
             //----  -----                                -------     ------
@@ -20222,10 +20352,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         const int MAX_DEPTH = 5;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int   LINE              = DATA[i].d_lineNum;
-            const char *INPUT             = DATA[i].d_input;
-            const int   EXPECTED_RET_CODE = DATA[i].d_retCode;
-            const char *EXPECTED_DATA     = DATA[i].d_result;
+            const int                LINE              = DATA[i].d_lineNum;
+            const bsl::string_view&  INPUT             = DATA[i].d_input;
+            const int                EXPECTED_RET_CODE = DATA[i].d_retCode;
+            const char              *EXPECTED_DATA     = DATA[i].d_result;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -20249,10 +20379,11 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             {
                 typedef bsl::string Type;
 
-                bsl::stringstream ss(INPUT);
-                Type              result1(INIT_VALUE,
-                                          INIT_VALUE + INIT_VALUE_LENGTH);
-                bsl::ostream      nullStream(0);
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                Type                       result1(
+                                               INIT_VALUE,
+                                               INIT_VALUE + INIT_VALUE_LENGTH);
+                bsl::ostream               nullStream(0);
 
                 balxml::DecoderOptions options;
                 options.setMaxDepth(MAX_DEPTH);
@@ -20275,7 +20406,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                            &outStream,
                                            &outStream);
 
-                decoder.open(ss.rdbuf());
+                decoder.open(&isb);
                 int retCode = context.beginParse(&decoder);;
 
                 if (0 == EXPECTED_RET_CODE) {
@@ -20302,10 +20433,11 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
             {
                 typedef bsl::vector<char> Type;
 
-                bsl::stringstream ss(INPUT);
-                Type              result1(INIT_VALUE,
-                                          INIT_VALUE + INIT_VALUE_LENGTH);
-                bsl::ostream      nullStream(0);
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                Type                       result1(
+                                               INIT_VALUE,
+                                               INIT_VALUE + INIT_VALUE_LENGTH);
+                bsl::ostream               nullStream(0);
 
                 // display error messages on 'bsl::cerr' only if errors are not
                 // expected or if very very very verbose
@@ -20329,7 +20461,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                            &outStream,
                                            &outStream);
 
-                decoder.open(ss.rdbuf());
+                decoder.open(&isb);
                 int retCode = context.beginParse(&decoder);;
 
                 if (0 == EXPECTED_RET_CODE) {
@@ -20378,7 +20510,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         if (verbose) cout << "\nUsing sequence types." << endl;
         {
             {
-                typedef TestSequence0                     TestType;
+                typedef TestSequence0                         TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef
@@ -20387,7 +20519,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
             }
             {
-                typedef TestSequence1                     TestType;
+                typedef TestSequence1                         TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef
@@ -20396,7 +20528,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
             }
             {
-                typedef TestSequence2                     TestType;
+                typedef TestSequence2                         TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef
@@ -20409,7 +20541,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         if (verbose) cout << "\nUsing choice types." << endl;
         {
             {
-                typedef TestChoice0                       TestType;
+                typedef TestChoice0                           TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef
@@ -20418,7 +20550,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
             }
             {
-                typedef TestChoice1                       TestType;
+                typedef TestChoice1                           TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef
@@ -20440,7 +20572,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         if (verbose) cout << "\nUsing simple types." << endl;
         {
             {
-                typedef int                               TestType;
+                typedef int                                   TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef
@@ -20449,7 +20581,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
             }
             {
-                typedef short                             TestType;
+                typedef short                                 TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef
@@ -20458,7 +20590,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
             }
             {
-                typedef double                            TestType;
+                typedef double                                TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef
@@ -20467,7 +20599,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
             }
             {
-                typedef float                             TestType;
+                typedef float                                 TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef
@@ -20476,7 +20608,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
             }
             {
-                typedef long long                         TestType;
+                typedef long long                             TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef
@@ -20485,7 +20617,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
             }
             {
-                typedef DummyEnumeration::Value           TestType;
+                typedef DummyEnumeration::Value               TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef
@@ -20494,7 +20626,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
             }
             {
-                typedef DummyCustomizedType               TestType;
+                typedef DummyCustomizedType                   TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef
@@ -20507,7 +20639,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         if (verbose) cout << "\nUsing array types." << endl;
         {
             {
-                typedef bsl::vector<int>                        TestType;
+                typedef bsl::vector<int>                            TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type       Result;
                 typedef
@@ -20518,7 +20650,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
             }
             {
-                typedef bsl::vector<short>                      TestType;
+                typedef bsl::vector<short>                          TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type       Result;
                 typedef
@@ -20529,7 +20661,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 ASSERT((bslmf::IsSame<Result, ExpectedResult>::VALUE));
             }
             {
-                typedef bsl::vector<double>                     TestType;
+                typedef bsl::vector<double>                         TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type       Result;
                 typedef
@@ -20544,7 +20676,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         if (verbose) cout << "\nUsing 'bsl::string'." << endl;
         {
             {
-                typedef bsl::string                       TestType;
+                typedef bsl::string                           TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef balxml::Decoder_StdStringContext      ExpectedResult;
@@ -20556,7 +20688,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         if (verbose) cout << "\nUsing 'bsl::vector<char>'." << endl;
         {
             {
-                typedef bsl::vector<char>                 TestType;
+                typedef bsl::vector<char>                     TestType;
                 typedef
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef balxml::Decoder_StdVectorCharContext  ExpectedResult;
@@ -20610,11 +20742,11 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         const char XML_NAME[] = "RE";  // xml name for root element
 
         static const struct {
-            int         d_lineNum;       // source line number
-            const char *d_input;         // input string
-            int         d_maxDepth;      // maximum depth
-            bool        d_success;       // parser succeed
-            const char *d_callSequence;  // expected call sequence
+            int               d_lineNum;       // source line number
+            bsl::string_view  d_input;         // input string
+            int               d_maxDepth;      // maximum depth
+            bool              d_success;       // parser succeed
+            const char       *d_callSequence;  // expected call sequence
         } DATA[] = {
             //line  input
             //----  -----
@@ -20822,11 +20954,12 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int   LINE                   = DATA[i].d_lineNum;
-            const char *INPUT                  = DATA[i].d_input;
-            const int   MAX_DEPTH              = DATA[i].d_maxDepth;
-            const bool  EXPECTED_SUCCESS       = DATA[i].d_success;
-            const char *EXPECTED_CALL_SEQUENCE = DATA[i].d_callSequence;
+            const int                LINE                 = DATA[i].d_lineNum;
+            const bsl::string_view&  INPUT                = DATA[i].d_input;
+            const int                MAX_DEPTH            = DATA[i].d_maxDepth;
+            const bool               EXPECTED_SUCCESS     = DATA[i].d_success;
+            const char              *EXPECTED_CALL_SEQUENCE
+                                                      = DATA[i].d_callSequence;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -20838,10 +20971,10 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                 }
             }
 
-            bsl::stringstream ss(INPUT);
-            bsl::stringstream callSequence;
-            bsl::ostream      errorStream(0);
-            bsl::ostream      warningStream(0);
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+            bsl::stringstream          callSequence;
+            bsl::ostream               errorStream(0);
+            bsl::ostream               warningStream(0);
 
             bslma::TestAllocator testAllocator;
 
@@ -20858,7 +20991,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                        &errorStream,
                                        &warningStream);
 
-            decoder.open(ss.rdbuf());
+            decoder.open(&isb);
             int retCode = context.beginParse(&decoder);;
 
             bool success = (0 == retCode);
@@ -20906,17 +21039,16 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
         if (verbose) cout << "\nTesting int." << endl;
         {
-            bsl::string INPUT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+            const bsl::string_view INPUT =
+                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                                 "<Value " XSI ">\n"
                                 "    123\n"
                                 "</Value>\n";
-            bsl::stringstream ss(INPUT);
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
 
             if (veryVerbose) {
                 T_ P(INPUT)
             }
-
-            int i;
 
             balxml::MiniReader     reader;
             balxml::ErrorInfo      errInfo;
@@ -20927,8 +21059,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                     &errInfo,
                                     &bsl::cerr,
                                     &bsl::cerr);
+            int i;
 
-           int ret = decoder.decode(ss.rdbuf(), &i);
+            const int ret = decoder.decode(&isb, &i);
 
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(i, 123 == i);
@@ -20936,17 +21069,16 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
         if (verbose) cout << "\nTesting bsl::string." << endl;
         {
-            bsl::string INPUT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+            const bsl::string_view INPUT =
+                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                                 "<Value " XSI ">\n"
                                 "    abc\n"
                                 "</Value>\n";
-            bsl::stringstream ss(INPUT);
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
 
             if (veryVerbose) {
                 T_ P(INPUT)
             }
-
-            bsl::string s;
 
             balxml::MiniReader     reader;
             balxml::ErrorInfo      errInfo;
@@ -20957,8 +21089,9 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                     &errInfo,
                                     &bsl::cerr,
                                     &bsl::cerr);
+            bsl::string s;
 
-            int ret = decoder.decode(ss.rdbuf(), &s);
+            const int ret = decoder.decode(&isb, &s);
 
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(s, "\n    abc\n" == s);
@@ -20966,18 +21099,18 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
         if (verbose) cout << "\nTesting TestSequence2." << endl;
         {
-            bsl::string INPUT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+            const bsl::string_view INPUT =
+                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                                 "<TestSequence2 " XSI ">\n"
                                 "    <E1>123</E1>\n"
                                 "    <E2>abc</E2>\n"
                                 "</TestSequence2>\n";
-            bsl::stringstream ss(INPUT);
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+            bsl::istream               is(&isb);
 
             if (veryVerbose) {
                 T_ P(INPUT)
             }
-
-            TestSequence2 ts;
 
             balxml::MiniReader     reader;
             balxml::ErrorInfo      errInfo;
@@ -20988,26 +21121,27 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                     &errInfo,
                                     &bsl::cerr,
                                     &bsl::cerr);
+            TestSequence2 ts;
 
-            decoder.decode(ss, &ts);
+            decoder.decode(is, &ts);
 
-            LOOP_ASSERT(ss.fail(), !ss.fail());
+            LOOP_ASSERT(is.fail(), !is.fail());
             LOOP_ASSERT(ts, TestSequence2(123, "abc") == ts);
         }
 
         if (verbose) cout << "\nTesting TestChoice2." << endl;
         {
-            bsl::string INPUT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+            const bsl::string_view INPUT =
+                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                                 "<TestChoice2 " XSI ">\n"
                                 "    <S1>123</S1>\n"
                                 "</TestChoice2>\n";
-            bsl::stringstream ss(INPUT);
+            bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+            bsl::istream               is(&isb);
 
             if (veryVerbose) {
                 T_ P(INPUT)
             }
-
-            TestChoice2 tc;
 
             balxml::MiniReader     reader;
             balxml::ErrorInfo      errInfo;
@@ -21018,10 +21152,11 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                     &errInfo,
                                     &bsl::cerr,
                                     &bsl::cerr);
+            TestChoice2 tc;
 
-            decoder.decode(ss, &tc);
+            decoder.decode(is, &tc);
 
-            LOOP_ASSERT(ss.fail(), !ss.fail());
+            LOOP_ASSERT(is.fail(), !is.fail());
             LOOP_ASSERT(tc, TestChoice2(123) == tc);
         }
 
