@@ -36634,7 +36634,7 @@ int main(int argc, char *argv[])
         //:
         //: 4 The message accurately describes the context in which the
         //:   offending invalid UTF-8 sequences occurred (this was especially a
-        //:   worry, because the tokenizer reads data 8K at at time, and we
+        //:   worry, because the tokenizer reads data 8K at a time, and we
         //:   didn't want to be giving decoder messages describing a context at
         //:   the start of the buffer when in fact the invalid UTF-8 was
         //:   several kilobytes later).

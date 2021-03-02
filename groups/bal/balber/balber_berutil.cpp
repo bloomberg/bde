@@ -1288,7 +1288,7 @@ int BerUtil_DateImpUtil::getCompactBinaryDateValue(bdlt::DateTz   *value,
     }
 
     enum {
-        k_TIMEZONE_OFFSET = 0,
+        k_TIMEZONE_OFFSET = 0
     };
 
     return value->setDateTzIfValid(localDate, k_TIMEZONE_OFFSET);
@@ -1640,7 +1640,7 @@ int BerUtil_TimeImpUtil::getCompactBinaryTimeValue(bdlt::TimeTz   *value,
     }
 
     enum {
-        k_TIMEZONE_OFFSET = 0,
+        k_TIMEZONE_OFFSET = 0
     };
 
     return value->setTimeTzIfValid(localTime, k_TIMEZONE_OFFSET);

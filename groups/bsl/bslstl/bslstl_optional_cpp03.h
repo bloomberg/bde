@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Mon Feb 22 10:00:59 2021
+// Generated on Tue Mar  2 14:02:56 2021
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -2691,8 +2691,8 @@ class optional {
     TYPE value_or(bsl::allocator_arg_t,
                   allocator_type,
                   BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE) value) const&;
-        // If this object is non-null, return a copy of the the underlying
-        // object of a (template parameter) 'TYPE' created using the provided
+        // If this object is non-null, return a copy of the underlying object
+        // of a (template parameter) 'TYPE' created using the provided
         // allocator, and the specified 'value' converted to 'TYPE' using the
         // specified 'allocator' otherwise.  Note that this method returns *by*
         // *value*, so may be inefficient in some contexts.
@@ -2709,8 +2709,8 @@ class optional {
     TYPE value_or(bsl::allocator_arg_t,
                   allocator_type,
                   BSLS_COMPILERFEATURES_FORWARD_REF(ANY_TYPE) value) const;
-        // If this object is non-null, return a copy of the the underlying
-        // object of a (template parameter) 'TYPE' created using the provided
+        // If this object is non-null, return a copy of the underlying object
+        // of a (template parameter) 'TYPE' created using the provided
         // allocator, and the specified 'value' converted to 'TYPE' using the
         // specified 'allocator' otherwise.  Note that this method returns *by*
         // *value*, so may be inefficient in some contexts.

@@ -100,8 +100,8 @@ struct to_chars_result {
     // This 'struct' represents the result of the 'to_chars' function.  On a
     // successful call to 'to_chars_result', 'ptr' is the one past the end
     // pointer of the sequence of characters written, and 'ec' is a default
-    // constructed ErrcEnum.  On failure, 'ptr' is set to the the end of the
-    // buffer supplied to 'to_chars' and 'ec' is set to 'errc::value_to_large'.
+    // constructed ErrcEnum.  On failure, 'ptr' is set to the end of the buffer
+    // supplied to 'to_chars' and 'ec' is set to 'errc::value_to_large'.
 
     // PUBLIC DATA
     char          *ptr;

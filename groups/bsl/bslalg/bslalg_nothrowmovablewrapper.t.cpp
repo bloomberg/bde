@@ -500,7 +500,7 @@ namespace {
 ///Example 1
 ///- - - - -
 // In this example, we define a class template, 'CountedType<TYPE>', that is
-// little more than just a a wrapper around 'TYPE' that counts the count member
+// little more than just a wrapper around 'TYPE' that counts the count member
 // along with the single value member:
 //..
 template <class TYPE>
