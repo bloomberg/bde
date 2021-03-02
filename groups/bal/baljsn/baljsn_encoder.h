@@ -2049,7 +2049,9 @@ int Encoder_SelectionVisitor::operator()(const TYPE& selection,
 {
     Encoder_SelectionDispatcher dispatcher(d_formatter_p,
                                            d_logStream_p,
-                                           selectionInfo.name(),
+                                           bslstl::StringRef(
+                                                   selectionInfo.name(),
+                                                   selectionInfo.nameLength()),
                                            selectionInfo.formattingMode(),
                                            *d_options_p,
                                            d_isFirstMember);
@@ -2167,7 +2169,9 @@ int Encoder_AttributeVisitor::operator()(const TYPE& attribute,
 {
     Encoder_AttributeDispatcher dispatcher(d_formatter_p,
                                            d_logStream_p,
-                                           attributeInfo.name(),
+                                           bslstl::StringRef(
+                                                   attributeInfo.name(),
+                                                   attributeInfo.nameLength()),
                                            attributeInfo.formattingMode(),
                                            *d_options_p,
                                            d_isFirstMember);
