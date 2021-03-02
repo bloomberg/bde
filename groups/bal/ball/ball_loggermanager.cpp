@@ -861,7 +861,7 @@ void LoggerManager::logMessage(int severity, Record *record)
                  Severity::toAscii(severityLevel),
                  record->fixedFields().fileName(),
                  record->fixedFields().lineNumber(),
-                 record->fixedFields().messageRef().length(),
+                 static_cast<int>(record->fixedFields().messageRef().length()),
                  record->fixedFields().messageRef().data());
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
