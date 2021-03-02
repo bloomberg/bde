@@ -767,6 +767,62 @@ struct MovableRefUtil {
 
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
+template <>
+struct MovableRef_Traits<void> {
+    // Component-private class: do not use.  Define movable-reference traits
+    // for 'void'.
+
+    typedef bsl::false_type  IsLvalueReference;
+    typedef bsl::false_type  IsMovableReference;
+    typedef bsl::false_type  IsReference;
+
+    typedef void             RemoveReference;
+    typedef void             AddLvalueReference;
+    typedef void             AddMovableReference;
+};
+
+template <>
+struct MovableRef_Traits<const void> {
+    // Component-private class: do not use.  Define movable-reference traits
+    // for 'const void'.
+
+    typedef bsl::false_type  IsLvalueReference;
+    typedef bsl::false_type  IsMovableReference;
+    typedef bsl::false_type  IsReference;
+
+    typedef const void       RemoveReference;
+    typedef const void       AddLvalueReference;
+    typedef const void       AddMovableReference;
+};
+
+template <>
+struct MovableRef_Traits<volatile void> {
+    // Component-private class: do not use.  Define movable-reference traits
+    // for 'volatile void'.
+
+    typedef bsl::false_type  IsLvalueReference;
+    typedef bsl::false_type  IsMovableReference;
+    typedef bsl::false_type  IsReference;
+
+    typedef volatile void    RemoveReference;
+    typedef volatile void    AddLvalueReference;
+    typedef volatile void    AddMovableReference;
+};
+
+template <>
+struct MovableRef_Traits<const volatile void> {
+    // Component-private class: do not use.  Define movable-reference traits
+    // for 'const volatile void'.
+
+    typedef bsl::false_type     IsLvalueReference;
+    typedef bsl::false_type     IsMovableReference;
+    typedef bsl::false_type     IsReference;
+
+    typedef const volatile void RemoveReference;
+    typedef const volatile void AddLvalueReference;
+    typedef const volatile void AddMovableReference;
+};
+
 template <class TYPE>
 struct MovableRef_Traits {
     // Component-private class: do not use.  Define movable-reference traits

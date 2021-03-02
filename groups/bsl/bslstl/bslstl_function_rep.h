@@ -61,7 +61,9 @@ BSLS_IDENT("$Id: $")
 #include <bslma_stdallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_decay.h>
 
+#include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
@@ -70,6 +72,13 @@ BSLS_IDENT("$Id: $")
 #include <cstddef>
 #include <cstdlib>
 #include <typeinfo>
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+# define BSLSTL_FUNCTION_REP_DEDUCE_MOVABLE_REF(TYPE) TYPE&&
+#else
+# define BSLSTL_FUNCTION_REP_DEDUCE_MOVABLE_REF(TYPE) \
+         ::BloombergLP::bslmf::MovableRef<TYPE>
+#endif
 
 namespace BloombergLP {
 namespace bslstl {
@@ -113,11 +122,6 @@ class Function_Rep {
         e_GET_TYPE_ID
     };
 
-    typedef bslstl::Function_SmallObjectOptimization Soo;
-    typedef Soo::InplaceBuffer                       InplaceBuffer;
-    typedef bslma::Allocator                         Allocator;
-        // Type aliases for convenience.
-
     union ManagerRet {
         // This union stores either a pointer or a 'size_t'.  It is used as
         // the return type for the manager function (below).
@@ -145,6 +149,19 @@ class Function_Rep {
             // Return the pointer stored in this union.  The behavior is
             // undefined unless this object was constructed with a 'TP *'.
     };
+
+    template <class TYPE>
+    struct Decay
+    : bsl::decay<typename bslmf::MovableRefUtil::RemoveReference<TYPE>::type> {
+        // Abbreviation for metafunction used to provide a C++03-compatible
+        // implementation of 'std::decay' that treats 'bslmf::MovableReference'
+        // as an rvalue reference.
+    };
+
+    typedef bslstl::Function_SmallObjectOptimization Soo;
+    typedef Soo::InplaceBuffer                       InplaceBuffer;
+    typedef bslma::Allocator                         Allocator;
+        // Type aliases for convenience.
 
     // DATA
     mutable InplaceBuffer d_objbuf;
@@ -271,6 +288,25 @@ class Function_Rep {
         // allocated block.  The target object is not initialized, nor is
         // 'd_funcManager_p' modified.
 
+    template <class FUNC>
+    void constructTarget(FUNC& func);
+    template <class FUNC>
+    void constructTarget(
+                      BSLSTL_FUNCTION_REP_DEDUCE_MOVABLE_REF(const FUNC) func);
+        // Copy the specified callable object 'func' into this object's target
+        // storage (either in-place within this object's small-object buffer or
+        // out-of-place from the allocator).  The behavior is undefined unless
+        // this object is in the target-allocated state for the 'func'; which
+        // is when 'd_invoker_p == 0' and 'd_funcManager_p != 0'.
+
+    template <class FUNC>
+    void constructTarget(BSLSTL_FUNCTION_REP_DEDUCE_MOVABLE_REF(FUNC) func);
+        // Move the specified callable object 'func' into this object's target
+        // storage (either in-place within this object's small-object buffer or
+        // out-of-place from the allocator).  The behavior is undefined unless
+        // this object is in the target-allocated state for the 'func'; which
+        // is when 'd_invoker_p == 0' and 'd_funcManager_p != 0'.
+
     // PRIVATE ACCESSORS
     std::size_t calcSooFuncSize() const BSLS_KEYWORD_NOEXCEPT;
         // Return the size of the target, encoded as per the 'Soo::SooFuncSize'
@@ -313,16 +349,17 @@ class Function_Rep {
         // this object is empty before the call.
 
     template <class FUNC>
-    void installFunc(FUNC *funcPtr, GenericInvoker invoker);
-        // Do nothing if the specified 'funcPtr' address is null, otherwise
+    void installFunc(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
+                     GenericInvoker                          invoker);
+        // Do nothing if the specified 'func' is a null pointer, otherwise
         // allocate storage (either in-place within this object's small-object
         // buffer or out-of-place from the allocator) to hold a target of
-        // (template paramater) type 'FUNC', move the callable object at
-        // 'funcPtr' into the newly allocated storage, set 'd_funcManager_p' to
-        // manage the new target, and set 'd_invoker_p' to the specified
-        // 'invoker' address.  The behavior is undefined unless this object is
-        // empty on entry.  Note that 'FUNC' will not qualify for the
-        // small-object optimization unless
+        // (template paramater) type 'FUNC', forward the 'func' to the
+        // constructor of the new target, set 'd_funcManager_p' to manage the
+        // new target, and set 'd_invoker_p' to the specified 'invoker'
+        // address.  The behavior is undefined unless this object is empty on
+        // entry.  Note that 'FUNC' will not qualify for the small-object
+        // optimization unless
         // 'bsl::is_nothrow_move_constructible<FUNC>::value' is 'true'.
 
     void makeEmpty();
@@ -516,6 +553,51 @@ bslstl::Function_Rep::functionManager(ManagerOpCode  opCode,
     return k_SOO_FUNC_SIZE;
 }
 
+// PRIVATE MANIPULATORS
+template <class FUNC>
+void bslstl::Function_Rep::constructTarget(FUNC& func)
+{
+    BSLS_ASSERT_SAFE(0 != d_funcManager_p);
+    BSLS_ASSERT_SAFE(0 == d_invoker_p);
+
+    typedef typename Decay<FUNC>::type DecayedFunc;
+    const DecayedFunc&                 decayedFunc = func;
+
+    typedef bslalg::NothrowMovableUtil                        NMUtil;
+    typedef typename NMUtil::UnwrappedType<DecayedFunc>::type UnwrappedFunc;
+    const UnwrappedFunc& unwrappedFunc = NMUtil::unwrap(decayedFunc);
+
+    d_funcManager_p(
+        e_COPY_CONSTRUCT, this, &const_cast<UnwrappedFunc&>(unwrappedFunc));
+}
+
+template <class FUNC>
+void bslstl::Function_Rep::constructTarget(
+                       BSLSTL_FUNCTION_REP_DEDUCE_MOVABLE_REF(const FUNC) func)
+{
+    BSLS_ASSERT_SAFE(0 != d_funcManager_p);
+    BSLS_ASSERT_SAFE(0 == d_invoker_p);
+
+    constructTarget(bslmf::MovableRefUtil::access(func));
+}
+
+template <class FUNC>
+void bslstl::Function_Rep::constructTarget(
+                             BSLSTL_FUNCTION_REP_DEDUCE_MOVABLE_REF(FUNC) func)
+{
+    BSLS_ASSERT_SAFE(0 != d_funcManager_p);
+    BSLS_ASSERT_SAFE(0 == d_invoker_p);
+
+    typedef typename Decay<FUNC>::type DecayedFunc;
+    DecayedFunc&                       decayedFunc = func;
+
+    typedef bslalg::NothrowMovableUtil                        NMUtil;
+    typedef typename NMUtil::UnwrappedType<DecayedFunc>::type UnwrappedFunc;
+    UnwrappedFunc& unwrappedFunc = NMUtil::unwrap(decayedFunc);
+
+    d_funcManager_p(e_MOVE_CONSTRUCT, this, &unwrappedFunc);
+}
+
 // PRIVATE ACCESSORS
 inline
 std::size_t bslstl::Function_Rep::calcSooFuncSize() const BSLS_KEYWORD_NOEXCEPT
@@ -542,18 +624,22 @@ bslstl::Function_Rep::Function_Rep(const allocator_type& allocator)
 
 // MANIPULATORS
 template <class FUNC>
-void bslstl::Function_Rep::installFunc(FUNC           *funcPtr,
-                                       GenericInvoker invoker)
+void bslstl::Function_Rep::installFunc(
+                               BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
+                               GenericInvoker                          invoker)
 {
     if (! invoker) {
         // Leave this object in the empty state.
         return;                                                       // RETURN
     }
 
+    typedef typename Decay<FUNC>::type DecayedFunc;
+
     // If 'FUNC' is wrapped in a 'bslalg::NothrowMovableWrapper', then the SOO
     // size calculation works as though 'FUNC' were nothrow movable.
-    static const std::size_t k_SOO_FUNC_SIZE = Soo::SooFuncSize<FUNC>::value;
-    static const bool        k_INPLACE       = Soo::IsInplaceFunc<FUNC>::value;
+    static const std::size_t k_SOO_FUNC_SIZE =
+        Soo::SooFuncSize<DecayedFunc>::value;
+    static const bool k_INPLACE = Soo::IsInplaceFunc<DecayedFunc>::value;
 
     allocateBuf(k_SOO_FUNC_SIZE);  // Might throw
 
@@ -562,17 +648,18 @@ void bslstl::Function_Rep::installFunc(FUNC           *funcPtr,
     // 'k_INPLACE' value for the original (potentially-wrapped) 'FUNC' so that
     // the function manager knows whether to expect the object to be inplace or
     // not.
-    typedef typename
-        bslalg::NothrowMovableUtil::UnwrappedType<FUNC>::type UnwrappedFunc;
+    typedef
+        typename bslalg::NothrowMovableUtil::UnwrappedType<DecayedFunc>::type
+            UnwrappedFunc;
     d_funcManager_p = &functionManager<UnwrappedFunc, k_INPLACE>;
 
-    // Move the function argument into '*this' object (might throw).
-    d_funcManager_p(e_MOVE_CONSTRUCT, this,
-                    &bslalg::NothrowMovableUtil::unwrap(*funcPtr));
+    // Copy or move the function argument into '*this' object.  Note that this
+    // operation might throw.
+    constructTarget(BSLS_COMPILERFEATURES_FORWARD(FUNC, func));
 
     // Exception danger has passed.  Setting the invoker makes the
     // 'Function_Rep' non-empty.
-    d_invoker_p =invoker;
+    d_invoker_p = invoker;
 }
 
 template <class TP>

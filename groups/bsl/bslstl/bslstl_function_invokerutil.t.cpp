@@ -628,7 +628,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1962,7 +1962,7 @@ int main(int argc, char *argv[])
         Util::GenericInvoker *ginv_p = Util::invokerForFunc<int(int, int)>(pf);
         ASSERT(0 != ginv_p);
         Rep rep(&ta);
-        rep.installFunc(&pf, ginv_p);
+        rep.installFunc(pf, ginv_p);
         int (*inv_p)(Rep*, int, int) =
             reinterpret_cast<int (*)(Rep*, int, int)>(ginv_p);
         ASSERT(0x4003 == inv_p(&rep, 1, 2));

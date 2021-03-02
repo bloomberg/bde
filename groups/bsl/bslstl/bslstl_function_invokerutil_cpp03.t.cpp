@@ -16,7 +16,7 @@
 // minimal 'main' program that tests nothing and is not '#include'd in the
 // original.
 //
-// Generated on Sun Dec 20 21:34:15 2020
+// Generated on Wed Feb 17 15:14:49 2021
 // Command line: sim_cpp11_features.pl bslstl_function_invokerutil.t.cpp
 
 // Expanded test driver only when compiling bslstl_function_invokerutil.cpp
@@ -1158,7 +1158,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1177,7 +1177,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1199,7 +1199,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1224,7 +1224,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1252,7 +1252,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1283,7 +1283,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1317,7 +1317,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1354,7 +1354,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1394,7 +1394,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1437,7 +1437,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1483,7 +1483,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1532,7 +1532,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1584,7 +1584,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1639,7 +1639,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -1670,7 +1670,7 @@ getInvoker(Rep *rep, FUNC target)
     rep->makeEmpty();
 
     Util::GenericInvoker *ginv_p = Util::invokerForFunc<Prototype>(target);
-    rep->installFunc(&target, ginv_p);
+    rep->installFunc(bslmf::MovableRefUtil::move(target), ginv_p);
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
@@ -3005,7 +3005,7 @@ int main(int argc, char *argv[])
         Util::GenericInvoker *ginv_p = Util::invokerForFunc<int(int, int)>(pf);
         ASSERT(0 != ginv_p);
         Rep rep(&ta);
-        rep.installFunc(&pf, ginv_p);
+        rep.installFunc(pf, ginv_p);
         int (*inv_p)(Rep*, int, int) =
             reinterpret_cast<int (*)(Rep*, int, int)>(ginv_p);
         ASSERT(0x4003 == inv_p(&rep, 1, 2));
@@ -3035,7 +3035,7 @@ int main() {
 #endif // defined(COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_T_CPP)
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2021 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

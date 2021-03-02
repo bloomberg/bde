@@ -1581,8 +1581,16 @@ int main(int argc, char *argv[])
                                Util::AddMovableReference<T >::type>::value)); \
     } while (false)
 
+        typedef const void          CVoid;
+        typedef volatile void       VVoid;
+        typedef const volatile void CVVoid;
+
         //   TYPE                  RemRef      AddLvRef     AddMovRef
         //   --------------------  ----------  -----------  --------------
+        TEST(void                , void      , void       , void          );
+        TEST(CVoid               , CVoid     , CVoid      , CVoid         );
+        TEST(VVoid               , VVoid     , VVoid      , VVoid         );
+        TEST(CVVoid              , CVVoid    , CVVoid     , CVVoid        );
         TEST(int                 , int       , int&       , MR<int>       );
         TEST(const int           , const int , const int& , MR<const int> );
         TEST(TestMoving          , TestMoving, TestMoving&, MR<TestMoving>);
@@ -1648,6 +1656,10 @@ int main(int argc, char *argv[])
 
         //   TYPE                                  IsLv   IsMov  IsRef
         //   -----------------------------------   -----  -----  -----
+        TEST(void                                , false, false, false);
+        TEST(const void                          , false, false, false);
+        TEST(volatile void                       , false, false, false);
+        TEST(const volatile void                 , false, false, false);
         TEST(int                                 , false, false, false);
         TEST(const int                           , false, false, false);
         TEST(TestMoving                          , false, false, false);

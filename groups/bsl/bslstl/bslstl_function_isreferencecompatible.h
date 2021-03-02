@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_function, bdef_function
 //
-//@DESCRIPTION: This private, subordinate component to 'bslstl_function' 
+//@DESCRIPTION: This private, subordinate component to 'bslstl_function'
 // provides a Boolean metafunction, 'bslstl::Function_IsReferenceCompatible',
 // which allows generic code to determine whether a reference to the first
 // template parameter type ('FROM_TYPE') can be substituted for a reference to
@@ -22,8 +22,8 @@ BSLS_IDENT("$Id: $")
 // as 'TO_TYPE'; else it yields 'false_type'.  However, this template can be
 // specialized to yield 'true_type' for other parameters that have compatible
 // references.  In practice, this metafunction is used to detect types, such as
-// 'bdef_Function', that convert to 'bsl::function' and wrap it with no 
-// additional data members; 'bslstl::Function_IsReferenceCompatible' would be 
+// 'bdef_Function', that convert to 'bsl::function' and wrap it with no
+// additional data members; 'bslstl::Function_IsReferenceCompatible' would be
 // specialized to yield 'true_type' for such wrapper types.  This metafunction
 // is used within an 'enable_if' to prevent types that are reference compatible
 // with 'bsl::function' from matching template parameters in 'function'
@@ -48,7 +48,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 
 namespace BloombergLP {
-
 namespace bslstl {
 
                // =============================================
@@ -63,9 +62,9 @@ struct Function_IsReferenceCompatible
     // to the specified 'TO_TYPE' parameter type with no loss of information;
     // otherwise, it is derived from 'false_type'.  By default, this
     // metafunction yields 'true_type' if 'FROM_TYPE' is the same as 'TO_TYPE';
-    // else it yields 'false_type'.  'bdef_Function' should specialize this 
-    // template to yield 'true_type' when 'FROM_TYPE' is an instantiation of 
-    // 'bdef_Function' and 'TO_TYPE' is the corresponding instantiation of 
+    // else it yields 'false_type'.  'bdef_Function' should specialize this
+    // template to yield 'true_type' when 'FROM_TYPE' is an instantiation of
+    // 'bdef_Function' and 'TO_TYPE' is the corresponding instantiation of
     // 'bsl::function' with the same function prototype.  Instantiation will
     // fail if either 'FROM_TYPE' or 'TO_TYPE' are reference types.
 
@@ -89,7 +88,6 @@ struct Function_IsReferenceCompatible<FROM_TYPE, const TO_TYPE>
 };
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif  // !defined(INCLUDED_BSLSTL_FUNCTION_ISREFERENCECOMPATIBLE)

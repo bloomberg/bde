@@ -10,6 +10,7 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_issame.h>
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_removepointer.h>
 #include <bslmf_usesallocator.h>
@@ -2374,7 +2375,9 @@ void testBasicAccessors(FUNC func)
     Obj f(func); const Obj& F = f;
     ASSERT(F ? true : false);  // Evaluate in boolean context
     ASSERT(typeid(FUNC) == F.target_type());
+    ASSERT(F.target<FUNC>());
     ASSERT(F.target<FUNC>() && func == *F.target<FUNC>());
+    ASSERT(f.target<FUNC>());
     ASSERT(f.target<FUNC>() && func == *f.target<FUNC>());
     ASSERT(0 == F.target<UnusedFunctor>());  // Wrong target-type
     ASSERT(0 == F.target<int>());            // non-callable type
@@ -2413,8 +2416,20 @@ char *strSurround(char *inout, const char *prefix, const char *suffix)
     return inout;
 }
 
-struct LvalueUtil {
-    enum { IS_RVALUE = false };
+struct LvalueRefUtil {
+    enum { IS_RVALUE = false, IS_CONST = false };
+
+    template <class ARG>
+    struct OutType { typedef ARG& type; };
+
+    template <class ARG>
+    static ARG& xform(ARG& arg) { return arg; }
+
+    static char* xformName(char *argName) { return argName; }
+};
+
+struct ConstLvalueRefUtil {
+    enum { IS_RVALUE = false, IS_CONST = true };
 
     template <class ARG>
     struct OutType { typedef const ARG& type; };
@@ -2425,14 +2440,28 @@ struct LvalueUtil {
     static char* xformName(char *argName) { return argName; }
 };
 
-struct RvalueUtil {
-    enum { IS_RVALUE = true };
+struct RvalueRefUtil {
+    enum { IS_RVALUE = true, IS_CONST = false };
 
     template <class ARG>
     struct OutType { typedef bslmf::MovableRef<ARG> type; };
 
     template <class ARG>
     static bslmf::MovableRef<ARG> xform(ARG& arg)
+        { return bslmf::MovableRefUtil::move(arg); }
+
+    static char* xformName(char* argName)
+        { return strSurround(argName, "move(", ")"); }
+};
+
+struct ConstRvalueRefUtil {
+    enum { IS_RVALUE = true, IS_CONST = true };
+
+    template <class ARG>
+    struct OutType { typedef bslmf::MovableRef<const ARG> type; };
+
+    template <class ARG>
+    static bslmf::MovableRef<const ARG> xform(const ARG& arg)
         { return bslmf::MovableRefUtil::move(arg); }
 
     static char* xformName(char* argName)
@@ -2519,46 +2548,22 @@ void testConstructFromCallableObjImp(FUNC                  func,
         strcat(desc, " (diff alloc)");
     }
 
-    // There are two copy/move operations on 'bsl::function' construction:
-    //
-    //: 1. move (rvalue) or copy (lvalue) from the functor into the
-    //:    pass-by-value constructor argument and
-    //: 2. extended move from the constructor argument into the
-    //:    'bsl::function' object itself.  This move might degenerate to a
-    //:    copy for certain allocator values.
-    //
-    // The three flags below are set for the expected behavior according to
-    // the following table.  Note that the 'isCopied' flag for an object is
-    // set if *any* operation in the chain was a copy operation whereas
-    // 'isMoved' is set only if the *most recent* operation is a move.  The
-    // table reflects that a copy followed by a move sets both 'expCopied' and
-    // 'expMoved' whereas a move followed by a copy sets only 'expCopied':
-    //..
-    //     1st Op   2nd Op || expMovedFrom   expCopied   expMoved
-    //   +--------+--------++--------------+-----------+----------+
-    //   |  move  |  move  ||    true      |   false   |   true   |
-    //   +--------+--------++--------------+-----------+----------+
-    //   |  move  |  copy  ||    true      |   true    |   false  |
-    //   +--------+--------++--------------+-----------+----------+
-    //   |  copy  |  move  ||    false     |   true    |   true   |
-    //   +--------+--------++--------------+-----------+----------+
-    //   |  copy  |  copy  ||    false     |   true    |   false  |
-    //   +--------+--------++--------------+-----------+----------+
-    //..
+    // Note that the functor constructor of 'bsl::function' forwards the
+    // functor to the copy or move constructor used to place it into the
+    // 'd_objbuf' object buffer.  If the supplied functor has the lvalue value
+    // category, the functor will be copied.  Otherwise, the functor has an
+    // rvalue value category.  If the (rvalue) functor is allocator-aware and
+    // its allocator is the same as the 'bsl::function's allocator, the
+    // 'bsl::function' will move-construct it into the buffer, and will
+    // copy-construct it into the buffer otherwise.  If the (rvalue) functor is
+    // not allocator-aware, the 'bsl::function' will move-construct it into the
+    // buffer.
 
     // Set flags for first operation.
-    bool expMovedFrom = REF_UTIL::IS_RVALUE;
-    bool expCopied    = ! expMovedFrom;
-    bool expMoved     = true;
-    // Update flags for second operation.  If the first operation is a copy,
-    // the copied argument always uses the default constructor.
-    bslma::Allocator *tmpSrcAlloc = expCopied ? &defaultTestAllocator : sa;
-    if (bslma::UsesBslmaAllocator<FUNC>::value && tmpSrcAlloc != ta) {
-        // Extended move (2nd op) of an allocator-aware functor with different
-        // allocators behaves like a copy.
-        expCopied = true;
-        expMoved  = false;
-    }
+    const bool expCopy = !REF_UTIL::IS_RVALUE ||
+                          REF_UTIL::IS_CONST  ||
+                         (bslma::UsesBslmaAllocator<FUNC>::value && sa != ta);
+    const bool expMove = !expCopy;
 
     AllocSizeType expBlocksUsed = expInplace ? 0 : 1;
 
@@ -2588,10 +2593,11 @@ void testConstructFromCallableObjImp(FUNC                  func,
                 ASSERTV(desc, target_p);
                 if (target_p) {
                     // Test that target is moved-to from 'funcCopy'
-                    ASSERTV(desc, expMovedFrom ==
-                            isMovedFrom(NTUNWRAP(funcCopy), expMovedFrom));
-                    ASSERTV(desc, expMoved == isMoved(*target_p, expMoved));
-                    ASSERTV(desc, expCopied == isCopied(*target_p, expCopied));
+                    ASSERTV(desc,
+                            expMove ==
+                                isMovedFrom(NTUNWRAP(funcCopy), expMove));
+                    ASSERTV(desc, expMove == isMoved(*target_p, expMove));
+                    ASSERTV(desc, expCopy == isCopied(*target_p, expCopy));
                     ASSERTV(desc, *target_p == func);
                     ASSERTV(desc, allocPropagationCheck<TargetTp>(f));
                     ASSERTV(desc, 0x4005 == f(IntWrapper(0x4000), 5));
@@ -2627,18 +2633,26 @@ void testConstructFromCallableObj(const FUNC&  func,
     bslma::TestAllocator& da = defaultTestAllocator;
 
 #define CALL_IMP(CONSTRUCT, LRVAL, TA1, TA2)                                 \
-    testConstructFromCallableObjImp<CONSTRUCT##Util, LRVAL##Util>(           \
+    testConstructFromCallableObjImp<CONSTRUCT##Util, LRVAL##RefUtil>(        \
                                     func, funcName, &TA1, &TA2,              \
                                     skipExcTest, expInplace);
 
-    CALL_IMP(ConstructObj         , Lvalue, da , da );
-    CALL_IMP(ConstructObj         , Lvalue, ta1, da );
-    CALL_IMP(ConstructObj         , Rvalue, da , da );
-    CALL_IMP(ConstructObj         , Rvalue, ta1, da );
-    CALL_IMP(ConstructObjWithAlloc, Lvalue, ta1, ta1);
-    CALL_IMP(ConstructObjWithAlloc, Lvalue, ta1, ta2);
-    CALL_IMP(ConstructObjWithAlloc, Rvalue, ta1, ta1);
-    CALL_IMP(ConstructObjWithAlloc, Rvalue, ta1, ta2);
+    CALL_IMP(ConstructObj         , Lvalue     , da , da );
+    CALL_IMP(ConstructObj         , Lvalue     , ta1, da );
+    CALL_IMP(ConstructObj         , Rvalue     , da , da );
+    CALL_IMP(ConstructObj         , Rvalue     , ta1, da );
+    CALL_IMP(ConstructObj         , ConstLvalue, da , da );
+    CALL_IMP(ConstructObj         , ConstLvalue, ta1, da );
+    CALL_IMP(ConstructObj         , ConstRvalue, da , da );
+    CALL_IMP(ConstructObj         , ConstRvalue, ta1, da );
+    CALL_IMP(ConstructObjWithAlloc, Lvalue     , ta1, ta1);
+    CALL_IMP(ConstructObjWithAlloc, Lvalue     , ta1, ta2);
+    CALL_IMP(ConstructObjWithAlloc, Rvalue     , ta1, ta1);
+    CALL_IMP(ConstructObjWithAlloc, Rvalue     , ta1, ta2);
+    CALL_IMP(ConstructObjWithAlloc, ConstLvalue, da , da );
+    CALL_IMP(ConstructObjWithAlloc, ConstLvalue, ta1, da );
+    CALL_IMP(ConstructObjWithAlloc, ConstRvalue, da , da );
+    CALL_IMP(ConstructObjWithAlloc, ConstRvalue, ta1, da );
 
     using bslmf::MovableRefUtil;
 
@@ -7213,6 +7227,14 @@ int main(int argc, char *argv[])
             ASSERT(&sum0 == *f.target<int(*)()>());
             ASSERT(&sum0 == *F.target<int(*)()>());
             ASSERT(0 == F.target<int(*)(int)>());
+
+            int (*sum0Ptr)() = sum0;
+            Obj g(bslmf::MovableRefUtil::move(sum0Ptr)); const Obj& G = g;
+            ASSERT(0x4000 == G());  // invoke
+            ASSERT(typeid(&sum0) == G.target_type());
+            ASSERT(&sum0 == *g.target<int(*)()>());
+            ASSERT(&sum0 == *G.target<int(*)()>());
+            ASSERT(0 == G.target<int(*)(int)>());
         }
 
         if (veryVerbose)
@@ -7223,6 +7245,12 @@ int main(int argc, char *argv[])
             ASSERT(0x4003 == f(1, 2));
             ASSERT(typeid(&sum2) == f.target_type());
             ASSERT(&sum2 == *f.target<int(*)(int, int)>());
+
+            int (*sum2Ptr)(int, int) = sum2;
+            Obj g(bslmf::MovableRefUtil::move(sum2Ptr));
+            ASSERT(0x4003 == g(1, 2));
+            ASSERT(typeid(&sum2) == g.target_type());
+            ASSERT(&sum2 == *g.target<int(*)(int, int)>());
         }
 
         if (veryVerbose) printf("Wrap pointer-to-member-function\n");
@@ -7255,19 +7283,32 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("Wrap functor\n");
         {
-            IntWrapper iw(0x4000); const IntWrapper& IW = iw;
+            IntWrapper iw1(0x4000); const IntWrapper& IW1 = iw1;
 
-            bsl::function<int()> f0(IW);
+            bsl::function<int()> f0(IW1);
             ASSERT(f0);
             ASSERT(0x4000 == f0());
             ASSERT(typeid(IntWrapper) == f0.target_type());
             ASSERT(0x4000 == f0.target<IntWrapper>()->value());
 
-            bsl::function<int(int)> f1(IW);
+            bsl::function<int(int)> f1(IW1);
             ASSERT(f1);
             ASSERT(0x4002 == f1(2));
             ASSERT(typeid(IntWrapper) == f1.target_type());
             ASSERT(0x4000 == f1.target<IntWrapper>()->value());
+
+            bsl::function<int()> f2(IntWrapper(0x4000));
+            ASSERT(f2);
+            ASSERT(0x4000 == f2());
+            ASSERT(typeid(IntWrapper) == f2.target_type());
+            ASSERT(0x4000 == f2.target<IntWrapper>()->value());
+
+            IntWrapper iw3(0x4000);
+            bsl::function<int()> f3(bslmf::MovableRefUtil::move(iw3));
+            ASSERT(f3);
+            ASSERT(0x4000 == f3());
+            ASSERT(typeid(IntWrapper) == f3.target_type());
+            ASSERT(0x4000 == f3.target<IntWrapper>()->value());
         }
 
       } break;

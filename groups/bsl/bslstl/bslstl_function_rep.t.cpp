@@ -9,6 +9,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_alignmentfromtype.h>
@@ -904,13 +905,9 @@ template <class TYPE>
 void TestDriver<TYPE>::basicManipulatorsImp(bslma::TestAllocator *ta1,
                                             bslma::TestAllocator *ta2)
 {
-    // Should we expect a move or copy from the callable object into the
-    // target?
-    const bool expMove = (ta1 == ta2);  // Same allocator.  Expect move.
-    const bool expCopy = (ta1 != ta2);  // Different allocator.  Expect copy.
-
     bslma::TestAllocatorMonitor taM(ta1);
-    if (veryVerbose) printf("Test installFunc<TargType>\n");
+
+    if (veryVerbose) printf("Test installFunc<TargType>(TargType&)\n");
     {
         Obj mF(ta1); const Obj& F = mF;
 
@@ -920,7 +917,58 @@ void TestDriver<TYPE>::basicManipulatorsImp(bslma::TestAllocator *ta1,
         Proxy     callableObj1Proxy(ValGen::initializer(), ta2);
         TargType& callableObj1 = callableObj1Proxy.object();
         Verifier::clearFlags(&callableObj1);
-        mF.installFunc(&callableObj1, &testInvoker1);
+        mF.installFunc(callableObj1, &testInvoker1);
+        ASSERT(! F.isEmpty()                     );
+        ASSERT(F.invoker()       == &testInvoker1);
+        ASSERT(F.target_type()   == typeid(NTUnwrpType));
+        ASSERT(F.get_allocator() == ta1          );
+        ASSERT_IS_INPLACE(F, k_EXP_INPLACE);
+        ASSERT(taM.numBlocksInUseChange() == expAllocBlocks);
+        NTUnwrpType *target = F.target<NTUnwrpType>();
+        ASSERT(target != 0);
+        if (target) {
+            ASSERT(*target == TargType(ValGen::initializer()));
+            ASSERT((target  == F.targetRaw<NTUnwrpType, k_EXP_INPLACE>()));
+            ASSERT(Verifier::verifyAllocator(*target, ta1));
+            ASSERT(Verifier::verifyMoved(*target, false));
+            ASSERT(Verifier::verifyCopied(*target, true));
+            ASSERT(Verifier::verifyMovedFrom(callableObj1, false));
+        }
+        mF.makeEmpty();
+        ASSERT(F.isEmpty()                            );
+        ASSERT(F.invoker()             == 0           );
+        ASSERT(F.target_type()         == typeid(void));
+        ASSERT(F.target<NTUnwrpType>() == 0           );
+        ASSERT(F.get_allocator()       == ta1         );
+        ASSERT(taM.isInUseSame()                      );
+
+        Proxy     callableObj2Proxy(ValGen::initializer(), ta2);
+        TargType& callableObj2 = callableObj2Proxy.object();
+        Verifier::clearFlags(&callableObj2);
+        mF.installFunc(bslmf::MovableRefUtil::move(callableObj2),
+                       &testInvoker1);
+        ASSERT(! F.isEmpty());
+        ASSERT(taM.numBlocksInUseChange() == expAllocBlocks);
+    }
+    ASSERT(taM.isInUseSame());  // Any memory allocations returned
+
+    if (veryVerbose) printf("Test installFunc<TargType>(TargType&&)\n");
+    {
+        // Should we expect a move or copy from the callable object into the
+        // target?
+        const bool expMove = (ta1 == ta2);// Same allocator.  Expect move.
+        const bool expCopy = (ta1 != ta2);// Different allocator.  Expect copy.
+
+        Obj mF(ta1); const Obj& F = mF;
+
+        const int expAllocBlocks = k_EXP_INPLACE ? 0 : 1;
+
+        typedef bslalg::ConstructorProxy<TargType> Proxy;
+        Proxy     callableObj1Proxy(ValGen::initializer(), ta2);
+        TargType& callableObj1 = callableObj1Proxy.object();
+        Verifier::clearFlags(&callableObj1);
+        mF.installFunc(bslmf::MovableRefUtil::move(callableObj1),
+                       &testInvoker1);
         ASSERT(! F.isEmpty()                     );
         ASSERT(F.invoker()       == &testInvoker1);
         ASSERT(F.target_type()   == typeid(NTUnwrpType));
@@ -948,14 +996,15 @@ void TestDriver<TYPE>::basicManipulatorsImp(bslma::TestAllocator *ta1,
         Proxy     callableObj2Proxy(ValGen::initializer(), ta2);
         TargType& callableObj2 = callableObj2Proxy.object();
         Verifier::clearFlags(&callableObj2);
-        mF.installFunc(&callableObj2, &testInvoker1);
+        mF.installFunc(bslmf::MovableRefUtil::move(callableObj2),
+                       &testInvoker1);
         ASSERT(! F.isEmpty());
         ASSERT(taM.numBlocksInUseChange() == expAllocBlocks);
     }
     ASSERT(taM.isInUseSame());  // Any memory allocations returned
 
     taM.reset();
-    if (veryVerbose) printf("Test installFunc<RefWrap>\n");
+    if (veryVerbose) printf("Test installFunc<RefWrap>(RefWrap&)\n");
     {
         Obj mF(ta1); const Obj& F = mF;
 
@@ -966,7 +1015,49 @@ void TestDriver<TYPE>::basicManipulatorsImp(bslma::TestAllocator *ta1,
         TargType& callableObj1 = callableObj1Proxy.object();
         Verifier::clearFlags(&callableObj1);
         RefWrap wrappedObj(callableObj1);
-        mF.installFunc(&wrappedObj, &testInvoker1);
+        mF.installFunc(wrappedObj, &testInvoker1);
+        ASSERT(! F.isEmpty()                       );
+        ASSERT(F.invoker()       == &testInvoker1  );
+        ASSERT(F.target_type()   == typeid(RefWrap));
+        ASSERT(F.get_allocator() == ta1            );
+        ASSERT_IS_INPLACE(F, true);
+        ASSERT(taM.numBlocksInUseChange() == expAllocBlocks);
+        RefWrap *target = F.target<RefWrap>();
+        ASSERT(target != 0);
+        if (target) {
+            TargType& unwrappedTarget = target->get();
+            ASSERT(&unwrappedTarget == &callableObj1);
+            ASSERT((target == F.targetRaw<RefWrap, true>()));
+            ASSERT(Verifier::verifyAllocator(unwrappedTarget, ta2));
+            // With 'reference_wrapper', callable object is neither moved nor
+            // copied, only the wrapper is moved.
+            ASSERT(Verifier::verifyMoved(unwrappedTarget, false));
+            ASSERT(Verifier::verifyCopied(unwrappedTarget, false));
+            ASSERT(Verifier::verifyMovedFrom(callableObj1, false));
+        }
+        mF.makeEmpty();
+        ASSERT(F.isEmpty()                        );
+        ASSERT(F.invoker()         == 0           );
+        ASSERT(F.target_type()     == typeid(void));
+        ASSERT(F.target<RefWrap>() == 0           );
+        ASSERT(F.get_allocator()   == ta1         );
+        ASSERT(taM.isInUseSame()                  );
+    }
+    ASSERT(taM.isInUseSame());  // Any memory allocations returned
+
+    taM.reset();
+    if (veryVerbose) printf("Test installFunc<RefWrap>(RefWrap&&)\n");
+    {
+        Obj mF(ta1); const Obj& F = mF;
+
+        const int expAllocBlocks = 0;
+
+        typedef bslalg::ConstructorProxy<TargType> Proxy;
+        Proxy     callableObj1Proxy(ValGen::initializer(), ta2);
+        TargType& callableObj1 = callableObj1Proxy.object();
+        Verifier::clearFlags(&callableObj1);
+        RefWrap wrappedObj(callableObj1);
+        mF.installFunc(bslmf::MovableRefUtil::move(wrappedObj), &testInvoker1);
         ASSERT(! F.isEmpty()                       );
         ASSERT(F.invoker()       == &testInvoker1  );
         ASSERT(F.target_type()   == typeid(RefWrap));
@@ -1004,21 +1095,37 @@ void TestDriver<TYPE>::basicManipulators()
 
     if (veryVerbose) printf("Test empty\n");
     {
-        Obj mF(&ta1); const Obj& F = mF;
+        Obj mF1(&ta1); const Obj& F1 = mF1;
 
-        ASSERT(F.isEmpty()                            );
-        ASSERT(F.invoker()             == 0           );
-        ASSERT(F.target_type()         == typeid(void));
-        ASSERT(F.target<NTUnwrpType>() == 0           );
-        ASSERT(F.get_allocator()       == &ta1        );
+        ASSERT(F1.isEmpty()                            );
+        ASSERT(F1.invoker()             == 0           );
+        ASSERT(F1.target_type()         == typeid(void));
+        ASSERT(F1.target<NTUnwrpType>() == 0           );
+        ASSERT(F1.get_allocator()       == &ta1        );
 
-        TargType callableObj(ValGen::initializer());
-        mF.installFunc(&callableObj, 0);
-        ASSERT(F.isEmpty()                            );
-        ASSERT(F.invoker()             == 0           );
-        ASSERT(F.target_type()         == typeid(void));
-        ASSERT(F.target<NTUnwrpType>() == 0           );
-        ASSERT(F.get_allocator()       == &ta1        );
+        TargType callableObj1(ValGen::initializer());
+        mF1.installFunc(callableObj1, 0);
+        ASSERT(F1.isEmpty()                            );
+        ASSERT(F1.invoker()             == 0           );
+        ASSERT(F1.target_type()         == typeid(void));
+        ASSERT(F1.target<NTUnwrpType>() == 0           );
+        ASSERT(F1.get_allocator()       == &ta1        );
+
+        Obj mF2(&ta1); const Obj& F2 = mF2;
+
+        ASSERT(F2.isEmpty()                            );
+        ASSERT(F2.invoker()             == 0           );
+        ASSERT(F2.target_type()         == typeid(void));
+        ASSERT(F2.target<NTUnwrpType>() == 0           );
+        ASSERT(F2.get_allocator()       == &ta1        );
+
+        TargType callableObj2(ValGen::initializer());
+        mF2.installFunc(bslmf::MovableRefUtil::move(callableObj2), 0);
+        ASSERT(F2.isEmpty()                            );
+        ASSERT(F2.invoker()             == 0           );
+        ASSERT(F2.target_type()         == typeid(void));
+        ASSERT(F2.target<NTUnwrpType>() == 0           );
+        ASSERT(F2.get_allocator()       == &ta1        );
     }
 
     // Test using the same allocator for the 'Function_Rep' object and for the
@@ -1049,7 +1156,7 @@ void TestDriver<TYPE>::copyInit()
 
     TargType callableObj(ValGen::initializer());
     Obj      source(&ta1); const Obj& SOURCE = source;
-    source.installFunc(&callableObj, &testInvoker1);
+    source.installFunc(callableObj, &testInvoker1);
     if (source.target<NTUnwrpType>()) {
         Verifier::clearFlags(source.target<NTUnwrpType>());
     }
@@ -1107,7 +1214,7 @@ void TestDriver<TYPE>::moveInitImp(bslma::TestAllocator *ta1,
         typedef bslalg::ConstructorProxy<TargType> Proxy;
         Proxy     callableObjProxy(ValGen::initializer(), ta1);
         TargType& callableObj = callableObjProxy.object();
-        source.installFunc(&callableObj, &testInvoker1);
+        source.installFunc(callableObj, &testInvoker1);
         NTUnwrpType *sourceTarget = source.target<NTUnwrpType>();
         Verifier::clearFlags(sourceTarget);
 
@@ -1156,7 +1263,7 @@ void TestDriver<TYPE>::TwoDTests<TYPE2>::swapImp()
     typedef bslalg::ConstructorProxy<TargType> Proxy1;
     Proxy1    callableObj1Proxy(ValGen::initializer(), &ta);
     TargType& callableObj1 = callableObj1Proxy.object();
-    x1.installFunc(&callableObj1, &testInvoker1);
+    x1.installFunc(callableObj1, &testInvoker1);
     NTUnwrpType *target1Pre = x1.target<NTUnwrpType>();
     Verifier::clearFlags(target1Pre);
 
@@ -1164,7 +1271,7 @@ void TestDriver<TYPE>::TwoDTests<TYPE2>::swapImp()
     typedef bslalg::ConstructorProxy<TargType2> Proxy2;
     Proxy2     callableObj2Proxy(ValGen2::initializer(), &ta);
     TargType2& callableObj2 = callableObj2Proxy.object();
-    x2.installFunc(&callableObj2, &testInvoker2);
+    x2.installFunc(callableObj2, &testInvoker2);
     NTUnwrpType2 *target2Pre = x2.target<NTUnwrpType2>();
     Verifier2::clearFlags(target2Pre);
 
@@ -1232,7 +1339,7 @@ void TestDriver<TYPE>::swap()
         typedef bslalg::ConstructorProxy<TargType> Proxy;
         Proxy     callableObjProxy(ValGen::initializer(), &ta);
         TargType& callableObj = callableObjProxy.object();
-        x1.installFunc(&callableObj, &testInvoker1);
+        x1.installFunc(callableObj, &testInvoker1);
         NTUnwrpType *target1Pre = x1.target<NTUnwrpType>();
         Verifier::clearFlags(target1Pre);
 
@@ -1751,15 +1858,46 @@ int main(int argc, char *argv[])
             basicManipulators,
             NTMOVE_FUNCTOR_TYPES);
 
-        // Test 'target' with function type.
-        bslma::TestAllocator ta;
-        Obj                  rep(&ta);
-        ASSERT(rep.isEmpty());
-        int (*callable)(int) = &simpleFunc;
-        rep.installFunc(&callable, &testInvoker1);
-        ASSERT(! rep.isEmpty());
-        ASSERT(0 != rep.target<int (*)(int)>());
-        ASSERT(0 == rep.target<int (int)>());
+        // Test 'target' with function type, installed with a movable
+        // reference of a pointer-to-function object.
+        {
+            bslma::TestAllocator ta;
+            Obj                  rep(&ta);
+            ASSERT(rep.isEmpty());
+            int (*callable)(int) = &simpleFunc;
+            rep.installFunc(bslmf::MovableRefUtil::move(callable),
+                            &testInvoker1);
+            ASSERT(! rep.isEmpty());
+            ASSERT(0 != rep.target<int (*)(int)>());
+            ASSERT(0 == rep.target<int (int)>());
+        }
+
+        // Test 'target' with a function type, installed with an lvalue of
+        // pointer-to-function type.
+        {
+            bslma::TestAllocator ta;
+            Obj                  rep(&ta);
+            ASSERT(rep.isEmpty());
+            int (*callable)(int) = &simpleFunc;
+            rep.installFunc(callable, &testInvoker1);
+            ASSERT(! rep.isEmpty());
+            ASSERT(0 != rep.target<int (*)(int)>());
+            ASSERT(0 == rep.target<int (int)>());
+        }
+
+#ifndef BSLS_PLATFORM_CMP_IBM
+        // Test 'target' with a function type, installed with an lvalue of
+        // function type.
+        {
+            bslma::TestAllocator ta;
+            Obj                  rep(&ta);
+            ASSERT(rep.isEmpty());
+            rep.installFunc(simpleFunc, &testInvoker1);
+            ASSERT(! rep.isEmpty());
+            ASSERT(0 != rep.target<int (*)(int)>());
+            ASSERT(0 == rep.target<int (int)>());
+        }
+#endif
 
       } break;
 
@@ -1793,7 +1931,7 @@ int main(int argc, char *argv[])
         ASSERT(&ta == R1.get_allocator());
 
         SimpleFunctor f(4); SimpleFunctor& F = f;
-        r1.installFunc(&f, testInvoker1);
+        r1.installFunc(f, testInvoker1);
         ASSERT(! R1.isEmpty());
         ASSERT(&ta == R1.get_allocator());
         ASSERT(typeid(f) == R1.target_type());

@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Tue Jan 12 10:17:44 2021
+// Generated on Tue Feb 23 17:48:58 2021
 // Command line: sim_cpp11_features.pl bslstl_function.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_H
@@ -51,6 +51,7 @@ class bdef_Function;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bslstl {
+
                         // =================================
                         // struct template Function_ArgTypes
                         // =================================
@@ -1049,6 +1050,7 @@ private:
 
 // }}} END GENERATED CODE
 #endif
+
 }  // close package namespace
 }  // close enterprise namespace
 
@@ -1096,10 +1098,20 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     template <class FROM, class TO>
     struct IsReferenceCompatible :
         BloombergLP::bslstl::Function_IsReferenceCompatible<
-            typename MovableRefUtil::RemoveReference<FROM>::type, TO>::type {};
+            typename MovableRefUtil::RemoveReference<FROM>::type, TO>::type {
         // Abbreviation for metafunction that determines whether a reference
         // from 'FROM' can be cast to a reference to 'TO' without loss of
         // information.
+    };
+
+    template <class TYPE>
+    struct Decay
+    : bsl::decay<typename BloombergLP::bslmf::MovableRefUtil::RemoveReference<
+          TYPE>::type> {
+        // Abbreviation for metafunction used to provide a C++03-compatible
+        // implementation of 'std::decay' that treats 'bslmf::MovableReference'
+        // as an rvalue reference.
+    };
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     typedef BloombergLP::bsls::UnspecifiedBool<function> UnspecifiedBoolUtil;
@@ -1121,22 +1133,14 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
 
     // PRIVATE MANIPULATORS
     template <class FUNC>
-    void installFunc(FUNC& funcArg);
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    template <class FUNC>
-    void installFunc(BloombergLP::bslmf::MovableRef<FUNC> funcArg);
-#endif
-        // Set the target of this 'function' by move constructing from the
-        // specified 'funcArg' callable object.  Instantiation will fail unless
-        // 'FUNC' is a callable type that is invocable with arguments in
-        // 'PROTOTYPE' and yields a return type that is convertible to the
-        // return type in 'PROTOTYPE'.  Note that 'funcArg' is a reference to a
-        // by-value argument in the caller and is thus never const; it would
-        // normally be passed by address, but that would cause friction in
-        // C++03, where 'bslmf::MovableRef' is an object type.  The
-        // 'MovableRef' variant is used in C++03 only to capture the fact
-        // 'MovableRef<T>' is not deduced as 'T' when passed by value (in the
-        // caller's parameter list).
+    void installFunc(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func);
+        // Set the target of this 'function' by constructing from the specified
+        // 'func' callable object.  If the type of 'func' is a movable
+        // reference, then the target is constructed by extended move
+        // construction; otherwise by extended copy construction.
+        // Instantiation will fail unless 'FUNC' is a callable type that is
+        // invocable with arguments in 'PROTOTYPE' and yields a return type
+        // that is convertible to the return type in 'PROTOTYPE'.
 
   public:
     // TRAITS
@@ -1163,13 +1167,18 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // supply memory; otherwise, the default allocator is used.
 
     template <class FUNC>
-    function(FUNC func,                                             // IMPLICIT
+    function(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,          // IMPLICIT
              typename enable_if<
-                    ! (IsReferenceCompatible<FUNC, function>::value    ||
+                    ! IsReferenceCompatible<typename Decay<FUNC>::type,
+                                            function>::value
+                 && ! is_integral<typename Decay<FUNC>::type>::value
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-                       MovableRefUtil::IsMovableReference<FUNC>::value ||
+                 && ! MovableRefUtil::IsMovableReference<FUNC>::value
 #endif
-                       bsl::is_integral<FUNC>::value), int>::type = 0)
+#ifdef BSLS_PLATFORM_CMP_IBM
+                 && ! is_function<FUNC>::value
+#endif
+                 , int>::type = 0)
         // Create an object wrapping the specified 'func' callable object.  Use
         // the default allocator to supply memory.  If 'func' is a null pointer
         // or null pointer-to-member, then the resulting object will be empty.
@@ -1180,28 +1189,65 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // C++03, this function will not participate in overload resolution if
         // 'FUNC' is a 'MovableRef' (see overload, below).  Instantiation will
         // fail unless 'FUNC' is invocable using the arguments and return value
-        // specified in 'PROTOTYPE'.  Note that, if the argument is a function,
-        // it will decay, causing 'FUNC' to be a pointer-to-function type.
-        // Also note that this constructor implicitly converts from any
-        // callable type; the aformentioned instantiation failure will be
-        // eventually be replaced by a SFINAE check that in C++11 will exclude
-        // this constructor from overload resolution; in C++03, unfortunately,
-        // such a SFINAE check for invocability is not possible.
+        // specified in 'PROTOTYPE'.  Note that this constructor implicitly
+        // converts from any callable type; the aformentioned instantiation
+        // failure will be eventually be replaced by a SFINAE check that in
+        // C++11 will exclude this constructor from overload resolution; in
+        // C++03, unfortunately, such a SFINAE check for invocability is not
+        // possible.
         : Base(allocator_type())
     {
         ///Implementation Note
         ///- - - - - - - - - -
         // The body of this constructor must inlined inplace because the use of
         // 'enable_if' will otherwise break the MSVC 2010 compiler.
+        //
+        // The '! bsl::is_function<FUNC>::value' constraint is required in
+        // C++03 mode when using the IBM XL C++ compiler.  In C++03,
+        // 'BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func' expands to
+        // 'const FUNC& func'.  A conforming compiler deduces a
+        // reference-to-function type for 'func' when it binds to a function
+        // argument.  The IBM XL C++ compiler erroneously does not collapse the
+        // 'const' qualifier when 'FUNC' is deduced to be a function type, and
+        // instead attempts to deduce the type of 'func' to be a reference to a
+        // 'const'-qualified function.  This causes substitution to fail
+        // because function-typed expressions are never 'const'.  This
+        // component solves the problem by accepting a 'func' having a function
+        // type as a pointer to a (non-'const') function.  An overload for the
+        // corresponding constructor is defined below.
+
+        installFunc(BSLS_COMPILERFEATURES_FORWARD(FUNC, func));
+    }
+
+#ifdef BSLS_PLATFORM_CMP_IBM
+    template <class FUNC>
+    function(FUNC                                                        *func,
+             typename enable_if<is_function<FUNC>::value, int>::type = 0)
+                                                                    // IMPLICIT
+        : Base(allocator_type())
+    {
+        ///Implementation Note
+        ///- - - - - - - - - -
+        // This constructor overload only exists to work around an IBM XL C++
+        // compiler defect.  See the implementation notes for the above
+        // constructor overload for more information.
+        //
+        // This constructor also forwards the 'func' as a pointer-to-function
+        // type to downstream operations in order to work around the
+        // aforementioned reference-to-function type deduction defects.
+
         installFunc(func);
     }
+#endif
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class FUNC>
-    explicit function(BloombergLP::bslmf::MovableRef<FUNC> func,
+    explicit function(const BloombergLP::bslmf::MovableRef<FUNC>& func,
              typename enable_if<
-                    ! (IsReferenceCompatible<FUNC, function>::value ||
-                       bsl::is_integral<FUNC>::value), int>::type = 0)
+                    ! IsReferenceCompatible<typename Decay<FUNC>::type,
+                                            function>::value
+                 && ! is_integral<typename Decay<FUNC>::type>::value
+                 , int>::type = 0)
         // Create an object wrapping the specified 'func' callable object.
         // This constructor (ctor 2) is identical to the previous constructor
         // (ctor 1) except that, in C++03 ctor 2 provides for explicit
@@ -1239,39 +1285,82 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         ///- - - - - - - - - -
         // The body of this constructor must inlined inplace because the use of
         // 'enable_if' will otherwise break the MSVC 2010 compiler.
-        installFunc(func);
+
+        installFunc(BloombergLP::bslmf::MovableRefUtil::move(func));
     }
-#endif // !BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif
 
-
-    template<class FUNC>
-    function(allocator_arg_t       ,
-             const allocator_type& allocator,
-             FUNC                  func,
+    template <class FUNC>
+    function(allocator_arg_t,
+             const allocator_type&                   allocator,
+             BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
              typename enable_if<
-                    ! (IsReferenceCompatible<FUNC, function>::value ||
-                       bsl::is_integral<FUNC>::value), int>::type = 0)
+                    ! IsReferenceCompatible<typename Decay<FUNC>::type,
+                                            function>::value
+                 && ! is_integral<typename Decay<FUNC>::type>::value
+#ifdef BSLS_PLATFORM_CMP_IBM
+                 && ! is_function<FUNC>::value
+#endif
+                 , int>::type = 0)
         // Create an object wrapping the specified 'func' callable object.  Use
         // the specified 'allocator' (i.e., the address of a 'bslma::Allocator'
         // object) to supply memory.  If 'func' is a null pointer or null
-        // pointer-to-member, then the resulting object will be empty.  Note
-        // that, if the argument is a function, it will decay, causing 'FUNC'
-        // to be a pointer-to-function type.  Note also that this constructor
-        // will not participate in overload resolution if 'func' is of the same
-        // type as this object (to avoid ambiguity with the copy and move
-        // constructors) or is not invocable using the arguments and return
-        // value specified in 'PROTOTYPE'.  TBD: We have not implemented the
-        // latter SFINAE check, but we do check for integer types (so as not to
-        // match null pointer literals).  In C++03, matching the 'PROTOTYPE' is
-        // not possible.
+        // pointer-to-member, then the resulting object will be empty.  This
+        // constructor will not participate in overload resolution if 'func' is
+        // of the same type as (or reference compatible with) this object (to
+        // avoid ambiguity with the extended copy and move constructors) or is
+        // an integral type (to avoid matching null pointer literals).
+        // Instantiation will fail unless 'FUNC' is invocable using the
+        // arguments and return value specified in 'PROTOTYPE'.  Note that the
+        // aformentioned instantiation failure will be eventually be replaced
+        // by a SFINAE check that in C++11 will exclude this constructor from
+        // overload resolution; in C++03, unfortunately, such a SFINAE check
+        // for invocability is not possible.
         : Base(allocator)
     {
         ///Implementation Note
         ///- - - - - - - - - -
         // The body of this constructor must inlined inplace because the use of
         // 'enable_if' will otherwise break the MSVC 2010 compiler.
+        //
+        // The '! bsl::is_function<FUNC>::value' constraint is required in
+        // C++03 mode when using the IBM XL C++ compiler.  In C++03,
+        // 'BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func' expands to
+        // 'const FUNC& func'.  A conforming compiler deduces a
+        // reference-to-function type for 'func' when it binds to a function
+        // argument.  The IBM XL C++ compiler erroneously does not collapse the
+        // 'const' qualifier when 'FUNC' is deduced to be a function type, and
+        // instead attempts to deduce the type of 'func' to be a reference to a
+        // 'const'-qualified function.  This causes substitution to fail
+        // because function-typed expressions are never 'const'.  This
+        // component solves the problem by accepting a 'func' having a function
+        // type as a pointer to a (non-'const') function.  An overload for the
+        // corresponding constructor is defined below.
+
+        installFunc(BSLS_COMPILERFEATURES_FORWARD(FUNC, func));
+    }
+
+#ifdef BSLS_PLATFORM_CMP_IBM
+    template <class FUNC>
+    function(allocator_arg_t,
+             const allocator_type&                                   allocator,
+             FUNC                                                   *func,
+             typename enable_if<is_function<FUNC>::value, int>::type = 0)
+        : Base(allocator)
+    {
+        ///Implementation Note
+        ///- - - - - - - - - -
+        // This constructor overload only exists to work around an IBM XL C++
+        // compiler defect.  See the implementation notes for the above
+        // constructor overload for more information.
+        //
+        // This constructor also forwards the 'func' as a pointer-to-function
+        // type to downstream operations in order to work around the
+        // aforementioned reference-to-function type deduction defects.
+
         installFunc(func);
     }
+#endif
 
     function(const function&       original);
     function(allocator_arg_t       ,
@@ -1324,7 +1413,7 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
 
     template <class FUNC>
     typename enable_if<! (IsReferenceCompatible<FUNC, function>::value ||
-                          bsl::is_integral<
+                          is_integral<
                            typename MovableRefUtil::RemoveReference<FUNC>::type
                           >::value), function&>::type
     operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) rhs)
@@ -1352,9 +1441,9 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         return *this;
     }
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#ifdef BSLS_PLATFORM_CMP_IBM
     template <class FUNC>
-    typename enable_if<bsl::is_function<FUNC>::value, function&>::type
+    typename enable_if<is_function<FUNC>::value, function&>::type
     operator=(FUNC *rhs)
         // Set the target of this object to the specified 'rhs' function
         // pointer.  This overload exists only for the IBM compiler, which has
@@ -2430,50 +2519,20 @@ RET bslstl::Function_Variadic<RET(ARGS...)>::operator()(ARGS... args) const
 template <class PROTOTYPE>
 template <class FUNC>
 inline
-void bsl::function<PROTOTYPE>::installFunc(FUNC& funcArg)
-{
-    typedef BloombergLP::bslstl::Function_InvokerUtil InvokerUtil;
-
-    // Decay functions to pointer-to-function.  Note that 'FUNC' (and therefore
-    // 'FuncType') is never const.
-    typedef typename bsl::decay<FUNC>::type FuncType;
-
-    FuncType& func = funcArg;  // Force decay
-    this->d_rep.installFunc(&func,
-                            InvokerUtil::invokerForFunc<PROTOTYPE>(func));
-}
-
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-template <class PROTOTYPE>
-template <class FUNC>
-inline
 void bsl::function<PROTOTYPE>::installFunc(
-                                  BloombergLP::bslmf::MovableRef<FUNC> funcArg)
+                                  BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func)
 {
-    namespace bslmf = BloombergLP::bslmf;
-
-    typedef BloombergLP::bslmf::MovableRefUtil        MovableRefUtil;
     typedef BloombergLP::bslstl::Function_InvokerUtil InvokerUtil;
+    typedef InvokerUtil::GenericInvoker               GenericInvoker;
+    typedef typename Decay<FUNC>::type                DecayedFunc;
 
-    // Decay functions to pointer-to-function.  Note that 'FUNC' (and therefore
-    // 'FuncType') is never const.
-    typedef typename bsl::decay<FUNC>::type FuncType;
+    const DecayedFunc& decayedFunc = func;  // Force function-to-pointer decay.
+    GenericInvoker *const invoker =
+        InvokerUtil::invokerForFunc<PROTOTYPE>(decayedFunc);
 
-    // The 'FUNC' object in the caller is passed by value.  If the actual
-    // argument is an rvalue reference, then, in C++11, the by-value argument
-    // is move-constructed and an lvalue reference to this argument is passed
-    // as 'funcArg' to the other overload of 'installFunc'.  In C++03, however,
-    // the by-value argument will be an object of type 'MovableRef' and the
-    // caller's object will not have been moved-from.  We correct this
-    // discrepency in this overload of 'installFunc' by doing the move
-    // construction from 'funcArg' here, yielding predictable behavior in both
-    // C++03 and C++11.  This overload is not needed in C++11 as 'FUNC' will
-    // never be a 'MovableRef' object.
-    FuncType func(MovableRefUtil::move(funcArg)); // delayed move
-    this->d_rep.installFunc(&func,
-                            InvokerUtil::invokerForFunc<PROTOTYPE>(func));
+    this->d_rep.installFunc(BSLS_COMPILERFEATURES_FORWARD(FUNC, func),
+                            invoker);
 }
-#endif // ! defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
 // CREATORS
 template <class PROTOTYPE>
