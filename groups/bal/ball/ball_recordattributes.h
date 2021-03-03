@@ -341,7 +341,8 @@ class RecordAttributes {
         // Return the message attribute of this record attributes object.  Note
         // that this method will return a truncated message if it contains
         // embedded null ('\0') characters; see 'messageRef' for an alternative
-        // to this method.
+        // to this method.  **Warning:** This method is *not* const thread-safe,
+        // and cannot be safely called concurrently.
         //
         // !DEPRECATED!: Use 'messageRef' instead.
 
