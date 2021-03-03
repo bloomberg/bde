@@ -21,6 +21,7 @@ bsl_slist.h
 # Non-container headers
 bsl_algorithm.h
 bsl_bitset.h
+bsl_charconv.h
 bsl_complex.h
 bsl_exception.h
 bsl_fstream.h
@@ -85,7 +86,6 @@ bsl_c_wchar.h
 bsl_c_wctype.h
 
 # C++11 headers
-bsl_array.h
 bsl_atomic.h
 bsl_chrono.h
 bsl_condition_variable.h
@@ -97,10 +97,6 @@ bsl_ratio.h
 bsl_regex.h
 bsl_scoped_allocator.h
 bsl_system_error.h
-bsl_thread.h
-bsl_tuple.h
-bsl_type_traits.h
-bsl_typeindex.h
 
 #C99 headers
 bsl_cfenv.h
