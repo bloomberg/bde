@@ -150,10 +150,10 @@ using bsls::nameOfType;
 // [  ] basic_string& operator=(const CHAR_TYPE *s);
 // [  ] basic_string& operator=(CHAR_TYPE c);
 // [33] basic_string& operator=(initializer_list<CHAR_TYPE> values);
-// [  ] basic_string& operator+=(const basic_string& rhs);
-// [  ] basic_string& operator+=(const CHAR_TYPE *s);
+// [17] basic_string& operator+=(const basic_string& rhs);
+// [17] basic_string& operator+=(const CHAR_TYPE *s);
 // [17] basic_string& operator+=(CHAR_TYPE c);
-// [17] basic_string& operator+=(const StringRefData& strRefData);
+// [17] basic_string& operator+=(const basic_string_view& strView);
 // [16] iterator begin();
 // [16] iterator end();
 // [16] reverse_iterator rbegin();
@@ -177,6 +177,8 @@ using bsls::nameOfType;
 // [33] basic_string& assign(initializer_list<CHAR_TYPE> values);
 // [17] basic_string& append(const basic_string& str);
 // [17] basic_string& append(const basic_string& str, pos, n = npos);
+// [17] basic_string& append(const basic_string_view& strView);
+// [17] basic_string& append(const basic_string_view& strView, pos, n = npos);
 // [17] basic_string& append(const CHAR_TYPE *s, size_type n);
 // [17] basic_string& append(const CHAR_TYPE *s);
 // [17] basic_string& append(size_type n, CHAR_TYPE c);
@@ -185,12 +187,14 @@ using bsls::nameOfType;
 // [ 2] void push_back(CHAR_TYPE c);
 // [18] basic_string& insert(size_type pos1, const string& str);
 // [18] basic_string& insert(size_type pos1, const string& str, pos2, n=npos);
-// [18] basic_string& insert(size_type pos, const CHAR_TYPE *s, n2);
+// [18] basic_string& insert(size_type pos, const CHAR_TYPE *s, n);
 // [18] basic_string& insert(size_type pos, const CHAR_TYPE *s);
 // [18] basic_string& insert(size_type pos, size_type n, CHAR_TYPE c);
 // [18] iterator insert(const_iterator pos, CHAR_TYPE value);
 // [18] iterator insert(const_iterator pos, size_type n, CHAR_TYPE value);
 // [18] template <class Iter> iterator insert(const_iterator, Iter, Iter);
+// [18] basic_string& insert(pos1, const string_view& strView, pos2, n=npos);
+// [18] basic_string& insert(pos1, const string_view& strView, pos2, n=npos);
 // [33] iterator insert(const_iterator pos, initializer_list<CHAR_TYPE>);
 // [19] void pop_back();
 // [19] iterator erase(size_type pos = 0, size_type n = npos);
@@ -8173,8 +8177,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
     //   basic_string& insert(size_type pos, size_type n, C c);
     //   iterator insert(const_iterator p, size_type n, C c);
     //   iterator insert(const_iterator p, C c);
-    //   // string& insert(size_type pos, const C *s, n2);
-    //   // string& insert(size_type pos, const C *s);
+    //   basic_string& insert(size_type pos, const C *s, n2);
+    //   basic_string& insert(size_type pos, const C *s);
     // -----------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -8624,8 +8628,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
     //   undergoes a reallocation (capacity changes).
     //
     // Testing:
-    //   template <class InputIter>
-    //   iterator insert(const_iterator p, InputIter first, InputIter last);
+    //   template <class Iter> iterator insert(const_iterator, Iter, Iter);
+    //   basic_string& insert(size_type pos1, const string& str);
+    //   basic_string& insert(size_type pos, const CHAR_TYPE *s, n);
+    //   basic_string& insert(size_type pos, const CHAR_TYPE *s);
+    //   basic_string& insert(size_type pos1, const string& str, pos2, n=npos);
+    //   basic_string& insert(size_type pos1, const string& str, pos2, n=npos);
+    //   basic_string& insert(pos1, const string_view& strView, pos2, n=npos);
+    //   basic_string& insert(pos1, const string_view& strView, pos2, n=npos);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -8643,15 +8653,18 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                    >::value;
 
     enum {
-        INSERT_STRING_MODE_FIRST        = 0,
-        INSERT_SUBSTRING_AT_INDEX       = 0,
-        INSERT_SUBSTRING_AT_INDEX_NPOS  = 1,
-        INSERT_STRING_AT_INDEX          = 2,
-        INSERT_CSTRING_N_AT_INDEX       = 3,
-        INSERT_CSTRING_AT_INDEX         = 4,
-        INSERT_STRING_AT_ITERATOR       = 5,
-        INSERT_STRING_AT_CONST_ITERATOR = 6,
-        INSERT_STRING_MODE_LAST         = 6
+        INSERT_STRING_MODE_FIRST           = 0,
+        INSERT_SUBSTRING_AT_INDEX          = 0,
+        INSERT_SUBSTRING_AT_INDEX_NPOS     = 1,
+        INSERT_SUBSTRINGVIEW_AT_INDEX      = 2,
+        INSERT_SUBSTRINGVIEW_AT_INDEX_NPOS = 3,
+        INSERT_STRING_AT_INDEX             = 4,
+        INSERT_STRINGVIEW_AT_INDEX         = 5,
+        INSERT_CSTRING_N_AT_INDEX          = 6,
+        INSERT_CSTRING_AT_INDEX            = 7,
+        INSERT_STRING_AT_ITERATOR          = 8,
+        INSERT_STRING_AT_CONST_ITERATOR    = 9,
+        INSERT_STRING_MODE_LAST            = 9
     };
 
     static const struct {
@@ -8739,6 +8752,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
+                    bsl::basic_string_view<TYPE>       mV(Y.begin(),
+                                                          Y.length());
+                    const bsl::basic_string_view<TYPE> V = mV;
+
                     for (size_t j = 0; j <= INIT_LENGTH; ++j) {
                         const size_t POS = j;
 
@@ -8776,6 +8793,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                           case INSERT_STRING_AT_INDEX: {
                             // string& insert(pos1, const string<C,CT,A>& str);
                             Obj &result = mX.insert(POS, Y);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case INSERT_STRINGVIEW_AT_INDEX: {
+                            // string& insert(pos1, string_view<C,CT,A> s);
+                            Obj &result = mX.insert(POS, V);
                             ASSERT(&result == &mX);
                           } break;
                           case INSERT_CSTRING_N_AT_INDEX: {
@@ -8854,9 +8876,15 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());
 
-    if (verbose) printf("\tUsing string with insertMode = %d.\n",
-                        INSERT_SUBSTRING_AT_INDEX);
-    {
+
+    for (int insertMode  = INSERT_SUBSTRING_AT_INDEX;
+         insertMode <= INSERT_SUBSTRINGVIEW_AT_INDEX_NPOS;
+         ++insertMode) {
+        const int MODE = insertMode;
+
+        if (verbose)
+            printf("\tUsing string with insertMode = %d.\n", MODE);
+
         for (int i = 0; i < NUM_DATA; ++i) {
             const int    INIT_LINE   = DATA[i].d_lineNum;
             const size_t INIT_LENGTH = DATA[i].d_length;
@@ -8877,6 +8905,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                     const size_t  NUM_ELEMENTS = strlen(SPEC);
 
                     Obj mY(g(SPEC));  const Obj& Y = mY;
+
+                    bsl::basic_string_view<TYPE>       mV(Y.begin(),
+                                                          Y.length());
+                    const bsl::basic_string_view<TYPE> V = mV;
 
                     for (size_t j = 0; j <= INIT_LENGTH; ++j) {
                     for (size_t k = 0; k <= NUM_ELEMENTS; ++k) {
@@ -8916,11 +8948,41 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                         if (veryVerbose) {
                             printf("\t\t\t\tBefore:"); P_(BB); P(B);
                         }
-
-                        // string& insert(pos1, const string<C,CT,A>& str,
-                        //                pos2, n);
-                        Obj &result = mX.insert(POS, Y, POS2, NUM_ELEMENTS);
-                        ASSERT(&result == &mX);
+                        switch (MODE) {
+                          case INSERT_SUBSTRING_AT_INDEX: {
+                            // string& insert(p1, const string& s, p2, n);
+                            Obj &result = mX.insert(POS,
+                                                    Y,
+                                                    POS2,
+                                                    NUM_ELEMENTS);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case INSERT_SUBSTRING_AT_INDEX_NPOS: {
+                            // string& insert(p1, const string& s, p2, n);
+                            Obj &result = mX.insert(POS,
+                                                    Y,
+                                                    POS2);  // 'npos'
+                            ASSERT(&result == &mX);
+                          } break;
+                          case INSERT_SUBSTRINGVIEW_AT_INDEX: {
+                            // string& insert(p1, string_view s, p2, n);
+                            Obj &result = mX.insert(POS,
+                                                    V,
+                                                    POS2,
+                                                    NUM_ELEMENTS);
+                            ASSERT(&result == &mX);
+                           } break;
+                           case INSERT_SUBSTRINGVIEW_AT_INDEX_NPOS: {
+                            // string& insert(p1, string_view s, p2, n);
+                            Obj &result = mX.insert(POS,
+                                                    V,
+                                                    POS2);  // 'npos'
+                            ASSERT(&result == &mX);
+                           } break;
+                           default: {
+                             ASSERTV(MODE, !"Bad insert mode.");
+                           } return;                                  // RETURN
+                        }
 
                         const Int64 AA = testAllocator.numBlocksTotal();
                         const Int64  A = testAllocator.numBlocksInUse();
@@ -8968,6 +9030,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
             }
         }
     }
+
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());
 
@@ -9001,6 +9064,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
+                    bsl::basic_string_view<TYPE>       mV(Y.begin(),
+                                                          Y.length());
+                    const bsl::basic_string_view<TYPE> V = mV;
+
                     for (size_t j = 0; j <= INIT_LENGTH; ++j) {
                         const size_t POS = j;
 
@@ -9026,9 +9093,34 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                             testAllocator.setAllocationLimit(AL);
 
                             switch (insertMode) {
+                              case INSERT_SUBSTRING_AT_INDEX: {
+                            // string& insert(pos1, const string<C,CT,A>& str,
+                            //                pos2, n);
+                                mX.insert(POS, Y, 0, NUM_ELEMENTS);
+                              } break;
+                              case INSERT_SUBSTRING_AT_INDEX_NPOS: {
+                            // string& insert(pos1, const string<C,CT,A>& str,
+                            //                pos2, n);
+                                mX.insert(POS, Y, 0);  // 'npos' default arg.
+                              } break;
+                              case INSERT_SUBSTRINGVIEW_AT_INDEX: {
+                            // string& insert(pos1, string_view<C,CT,A> s,
+                            //                pos2, n);
+                                mX.insert(POS, V, 0, NUM_ELEMENTS);
+                              } break;
+                              case INSERT_SUBSTRINGVIEW_AT_INDEX_NPOS: {
+                            // string& insert(pos1, string_view<C,CT,A> s,
+                            //                pos2, n);
+                                mX.insert(POS, V, 0);  // 'npos' default arg.
+                              } break;
                               case INSERT_STRING_AT_INDEX: {
                             // string& insert(pos1, const string<C,CT,A>& str);
                                 Obj &result = mX.insert(POS, Y);
+                                ASSERT(&result == &mX);
+                              } break;
+                              case INSERT_STRINGVIEW_AT_INDEX: {
+                            // string& insert(pos1, string_view<C,CT,A> s);
+                                Obj &result = mX.insert(POS, V);
                                 ASSERT(&result == &mX);
                               } break;
                               case INSERT_CSTRING_N_AT_INDEX: {
@@ -9056,16 +9148,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                                 mX.insert(mX.cbegin() + POS,
                                           U.begin(),
                                           U.end());
-                              } break;
-                              case INSERT_SUBSTRING_AT_INDEX: {
-                            // string& insert(pos1, const string<C,CT,A>& str,
-                            //                pos2, n);
-                                mX.insert(POS, Y, 0, NUM_ELEMENTS);
-                              } break;
-                              case INSERT_SUBSTRING_AT_INDEX_NPOS: {
-                            // string& insert(pos1, const string<C,CT,A>& str,
-                            //                pos2, n);
-                                mX.insert(POS, Y, 0);  // 'npos' default arg.
                               } break;
                               default: {
                                 printf("***UNKNOWN INSERT MODE***\n");
@@ -9145,16 +9227,45 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
 
                     Obj mY(X); const Obj& Y = mY;  // control
 
+                    bsl::basic_string_view<TYPE>       mV(Y.begin(),
+                                                          Y.length());
+                    const bsl::basic_string_view<TYPE> V = mV;
+
                     if (veryVerbose) {
                         printf("\t\t\tInsert itself");
                         printf(" at "); P(POS);
                     }
 
                     switch (insertMode) {
+                      case INSERT_SUBSTRING_AT_INDEX: {
+                    // string& insert(pos1, const string<C,CT,A>& str, pos2, n)
+                        mX.insert(POS, Y, 0, INIT_LENGTH);
+                        mY.insert(POS, Y, 0, INIT_LENGTH);
+                      } break;
+                      case INSERT_SUBSTRING_AT_INDEX_NPOS: {
+                    // string& insert(pos1, const string<C,CT,A>& str, pos2, n)
+                        mX.insert(POS, Y, 0);  // 'npos' default arg.
+                        mY.insert(POS, Y, 0);
+                      } break;
+                      case INSERT_SUBSTRINGVIEW_AT_INDEX: {
+                    // string& insert(pos1, string_view<C,CT,A> s, pos2, n)
+                        mX.insert(POS, V, 0, INIT_LENGTH);
+                        mY.insert(POS, V, 0, INIT_LENGTH);
+                      } break;
+                      case INSERT_SUBSTRINGVIEW_AT_INDEX_NPOS: {
+                    // string& insert(pos1, string_view<C,CT,A> s, pos2, n)
+                        mX.insert(POS, V, 0);  // 'npos' default arg.
+                        mY.insert(POS, V, 0);
+                      } break;
                       case INSERT_STRING_AT_INDEX: {
                     // string& insert(pos1, const string<C,CT,A>& str);
                         mX.insert(POS, Y);
                         mY.insert(POS, Y);
+                      } break;
+                      case INSERT_STRINGVIEW_AT_INDEX: {
+                    // string& insert(pos1, string_view<C,CT,A> s);
+                        mX.insert(POS, V);
+                        mY.insert(POS, V);
                       } break;
                       case INSERT_CSTRING_N_AT_INDEX: {
                     // string& insert(pos, const C *s, n);
@@ -9165,16 +9276,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                     // string& insert(pos, const C *s);
                         mX.insert(POS, Y.c_str());
                         mY.insert(POS, Y.c_str());
-                      } break;
-                      case INSERT_SUBSTRING_AT_INDEX: {
-                    // string& insert(pos1, const string<C,CT,A>& str, pos2, n)
-                        mX.insert(POS, Y, 0, INIT_LENGTH);
-                        mY.insert(POS, Y, 0, INIT_LENGTH);
-                      } break;
-                      case INSERT_SUBSTRING_AT_INDEX_NPOS: {
-                    // string& insert(pos1, const string<C,CT,A>& str, pos2, n)
-                        mX.insert(POS, Y, 0);  // 'npos' default arg.
-                        mY.insert(POS, Y, 0);
                       } break;
                       case INSERT_STRING_AT_ITERATOR: {
                     // insert(const_iterator p, InputIter first, last);
@@ -9205,6 +9306,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());
 
+    if (verbose) printf("\tAdditional aliasing concerns testing.\n");
     {
         for (int i = 0; i < NUM_DATA; ++i) {
             const int    INIT_LINE   = DATA[i].d_lineNum;
@@ -9228,41 +9330,70 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                             const size_t INDEX        = h;
                             const size_t NUM_ELEMENTS = m;
 
-                            Obj mX(INIT_LENGTH,
-                                   DEFAULT_VALUE,
-                                   AllocType(&testAllocator));
-                            const Obj& X = mX;
-                            mX.reserve(INIT_RES);
-                            const size_t INIT_CAP = X.capacity();
+                            for (char mode = 'a'; mode <= 'b'; ++mode) {
+                                const char MODE = mode;
+                                Obj mX(INIT_LENGTH,
+                                       DEFAULT_VALUE,
+                                       AllocType(&testAllocator));
+                                const Obj& X = mX;
+                                mX.reserve(INIT_RES);
+                                const size_t INIT_CAP = X.capacity();
 
-                            for (size_t k = 0; k < INIT_LENGTH; ++k) {
-                                mX[k] = VALUES[k % NUM_VALUES];
+                                for (size_t k = 0; k < INIT_LENGTH; ++k) {
+                                    mX[k] = VALUES[k % NUM_VALUES];
+                                }
+
+                                Obj mY(X); const Obj& Y = mY;  // control
+
+                                bsl::basic_string_view<TYPE>       mV(
+                                                                   Y.begin(),
+                                                                   Y.length());
+                                const bsl::basic_string_view<TYPE> V = mV;
+
+                                if (veryVerbose) {
+                                    printf("\t\t\tInsert substring of itself");
+                                    printf(" in mode ");
+                                    P(MODE);
+                                    printf(" with ");
+                                    P_(INDEX); P(NUM_ELEMENTS);
+                                    printf(" at "); P_(POS);
+                                }
+                                switch (MODE) {
+                                  case 'a': {
+                                    // string& insert(p1,const string& s,p2,n);
+                                    if (INDEX + NUM_ELEMENTS >= Y.length()) {
+                                        mX.insert(POS, Y, INDEX);  // default
+                                        mY.insert(POS, Y, INDEX);
+                                    }
+                                    else {
+                                        mX.insert(POS, Y, INDEX, NUM_ELEMENTS);
+                                        mY.insert(POS, Y, INDEX, NUM_ELEMENTS);
+                                    }
+                                   } break;
+                                  case 'b': {
+                                    // string& insert(p1,string_view s, p2, n);
+                                    if (INDEX + NUM_ELEMENTS >= Y.length()) {
+                                        mX.insert(POS, V, INDEX);  // default
+                                        mY.insert(POS, V, INDEX);
+                                    }
+                                    else {
+                                        mX.insert(POS, V, INDEX, NUM_ELEMENTS);
+                                        mY.insert(POS, V, INDEX, NUM_ELEMENTS);
+                                    }
+                                  } break;
+                                  default: {
+                                    ASSERTV(MODE, !"Bad insert mode.");
+                                  } return;                           // RETURN
+                                }
+                                if (veryVerbose) {
+                                    // string& insert(p1, string_view s, p2, n);
+                                    // T_; T_; T_; T_; P(X);
+                                    T_; T_; T_; T_; P(Y);
+                                }
+
+                                LOOP5_ASSERT(INIT_LINE, i, INIT_CAP, POS, INDEX,
+                                             X == Y);
                             }
-
-                            Obj mY(X); const Obj& Y = mY;  // control
-
-                            if (veryVerbose) {
-                                printf("\t\t\tInsert substring of itself");
-                                printf(" with "); P_(INDEX); P(NUM_ELEMENTS);
-                                printf(" at "); P_(POS);
-                            }
-
-                            if (INDEX + NUM_ELEMENTS >= Y.length()) {
-                                mX.insert(POS, Y, INDEX);  // 'npos' dflt. arg.
-                                mY.insert(POS, Y, INDEX);
-                            }
-                            else {
-                                mX.insert(POS, Y, INDEX, NUM_ELEMENTS);
-                                mY.insert(POS, Y, INDEX, NUM_ELEMENTS);
-                            }
-
-                            if (veryVerbose) {
-                                T_; T_; T_; T_; P(X);
-                                T_; T_; T_; T_; P(Y);
-                            }
-
-                            LOOP5_ASSERT(INIT_LINE, i, INIT_CAP, POS, INDEX,
-                                         X == Y);
                         }
                     }
                 }
@@ -9271,6 +9402,23 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
     }
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());
+
+    {
+        if (verbose) printf("\tAmbiguity test.\n");
+        // Since 'std::string' can be implicitly converted either to
+        // 'bsl::string' or to 'bsl::string_view', call of overloaded
+        // 'insert(size_type, std::string&, ...)' can be ambiguous.  We need to
+        // test this scenario.
+
+        bsl::string bslString("bsl");
+        std::string stdString("std");
+
+        bslString.insert(0, stdString);
+        ASSERTV(bslString, "stdbsl" == bslString);
+
+        bslString.insert(0, stdString, 0);
+        ASSERTV(bslString, "stdstdbsl" == bslString);
+    }
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
@@ -9734,12 +9882,16 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
     //   allocate a temporary string.
     //
     // Testing:
-    //   basic_string& operator+=(const StringRefData& strRefData);
     //   basic_string& append(const basic_string& str);
     //   basic_string& append(const basic_string& str, pos, n = npos);
     //   basic_string& append(const CHAR_TYPE *s, size_type n);
     //   basic_string& append(const CHAR_TYPE *s);
+    //   basic_string& append(const basic_string_view& strView);
+    //   basic_string& append(const basic_string_view& strView, pos, n = npos);
     //   template <class Iter> basic_string& append(Iter first, Iter last);
+    //   basic_string& operator+=(const basic_string& str);
+    //   basic_string& operator+=(const basic_string_view& strView);
+    //   basic_string& operator+=(const CHAR_TYPE *rhs);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -9747,6 +9899,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
+    const TYPE         *NULL_PTR   = 0;
 
     const int INPUT_ITERATOR_TAG =
         bsl::is_same<std::input_iterator_tag,
@@ -9758,14 +9911,20 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
         APPEND_STRING_MODE_FIRST  = 0,
         APPEND_SUBSTRING          = 0,
         APPEND_SUBSTRING_NPOS     = 1,
-        APPEND_STRING             = 2,
-        APPEND_CSTRING_N          = 3,
-        APPEND_CSTRING_NULL_0     = 4,
-        APPEND_CSTRING            = 5,
-        APPEND_RANGE              = 6,
-        APPEND_CONST_RANGE        = 7,
-        APPEND_STRINGVIEW         = 8,
-        APPEND_STRING_MODE_LAST   = 8
+        APPEND_SUBSTRINGVIEW      = 2,
+        APPEND_SUBSTRINGVIEW_NPOS = 3,
+        APPEND_STRING             = 4,
+        APPEND_STRINGVIEW         = 5,
+        APPEND_CSTRING            = 6,
+        APPEND_CSTRING_N          = 7,
+        APPEND_CSTRING_NULL_0     = 8,
+        APPEND_RANGE              = 9,
+        APPEND_CONST_RANGE        = 10,
+        OPERATOR_STRING           = 11,
+        OPERATOR_CSTRING          = 12,
+        OPERATOR_STRINGVIEW       = 13,
+        APPEND_STRING_MODE_LAST   = 13
+
     };
 
     static const struct {
@@ -9895,19 +10054,24 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                             Obj &result = mX.append(Y);
                             ASSERT(&result == &mX);
                           } break;
-                          case APPEND_CSTRING_N: {
-                            // string& append(pos, const C *s, n);
-                            Obj &result = mX.append(Y.data(), NUM_ELEMENTS);
-                            ASSERT(&result == &mX);
-                          } break;
-                          case APPEND_CSTRING_NULL_0: {
-                            // string& append(pos, const C *s, n);
-                            Obj &result = mX.append(0, NUM_ELEMENTS);
+                          case APPEND_STRINGVIEW: {
+                            // string& append(const string_view& strView);
+                            Obj &result = mX.append(V);
                             ASSERT(&result == &mX);
                           } break;
                           case APPEND_CSTRING: {
                             // string& append(const C *s);
                             Obj &result = mX.append(Y.c_str());
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_CSTRING_N: {
+                            // string& append(const C *s, n);
+                            Obj &result = mX.append(Y.data(), NUM_ELEMENTS);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_CSTRING_NULL_0: {
+                            // string& append(const C *s, n);
+                            Obj &result = mX.append(NULL_PTR, NUM_ELEMENTS);
                             ASSERT(&result == &mX);
                           } break;
                           case APPEND_RANGE: {
@@ -9920,13 +10084,24 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                             Obj &result = mX.append(U.begin(), U.end());
                             ASSERT(&result == &mX);
                           } break;
-                          case APPEND_STRINGVIEW: {
-                            //operator+=(bsl::basic_string_view strView);
+                          case OPERATOR_STRING: {
+                        // string& operator+=(const string<C,CT,A>& str);
+                            Obj &result = mX += Y;
+                            ASSERT(&result == &mX);
+                          } break;
+                          case OPERATOR_CSTRING: {
+                        // string& operator+=(const C *s);
+                            Obj &result = mX += Y.c_str();
+                            ASSERT(&result == &mX);
+                          } break;
+                          case OPERATOR_STRINGVIEW: {
+                        // string& operator+=(const string_view& strView);
                             Obj &result = mX += V;
                             ASSERT(&result == &mX);
                           } break;
                           default: {
-                            printf("***UNKNOWN APPEND MODE***\n");
+                            printf("***UNKNOWN APPEND MODE %d***\n",
+                                   appendMode);
                             ASSERT(0);
                           } break;
                         }
@@ -9973,15 +10148,18 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());
 
-    if (verbose) printf("\tUsing string with appendMode = %d.\n",
-                        APPEND_SUBSTRING);
+    if (verbose)
+        printf("\tUsing string with appendMode = %d and appendMode = %d.\n",
+               APPEND_SUBSTRING,
+               APPEND_SUBSTRINGVIEW);
     {
+
         for (int i = 0; i < NUM_DATA; ++i) {
             const int    INIT_LINE   = DATA[i].d_lineNum;
             const size_t INIT_LENGTH = DATA[i].d_length;
 
-            for (int l = i; l < NUM_DATA; ++l) {
-                const size_t INIT_RES = DATA[l].d_length;
+            for (int j = i; j < NUM_DATA; ++j) {
+                const size_t INIT_RES = DATA[j].d_length;
                 ASSERT(INIT_LENGTH <= INIT_RES);
 
                 if (veryVerbose) {
@@ -9995,84 +10173,236 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                     const char   *SPEC         = U_DATA[ti].d_spec;
                     const size_t  NUM_ELEMENTS = strlen(SPEC);
 
-                    Obj mY(g(SPEC));  const Obj& Y = mY;
+                    Obj                                mY(g(SPEC));
+                    const Obj&                         Y = mY;
+                    bsl::basic_string_view<TYPE>       mV(Y.begin(),
+                                                          Y.length());
+                    const bsl::basic_string_view<TYPE> V = mV;
 
                     for (size_t k = 0; k <= NUM_ELEMENTS; ++k) {
-                        const size_t POS2 = k;
+                        const size_t POS = k;
+                        for (size_t l = 0; l <= NUM_ELEMENTS - POS; ++l) {
+                            const size_t NUM_ELEMENTS_INS = l;
+                            const size_t LENGTH =
+                                                INIT_LENGTH + NUM_ELEMENTS_INS;
 
-                        const size_t NUM_ELEMENTS_INS = NUM_ELEMENTS - POS2;
-                        const size_t LENGTH = INIT_LENGTH + NUM_ELEMENTS_INS;
+                            for (char mode = 'a'; mode <= 'b'; ++mode) {
+                                const char MODE = mode;
 
-                        Obj mX(INIT_LENGTH,
-                               DEFAULT_VALUE,
-                               AllocType(&testAllocator));  const Obj& X = mX;
-                        mX.reserve(INIT_RES);
-                        const size_t INIT_CAP = X.capacity();
+                                Obj        mX(INIT_LENGTH,
+                                              DEFAULT_VALUE,
+                                              AllocType(&testAllocator));
+                                const Obj& X = mX;
+                                mX.reserve(INIT_RES);
 
-                        size_t n;
-                        for (n = 0; n < INIT_LENGTH; ++n) {
-                            mX[n] =  VALUES[n % NUM_VALUES];
+                                for (size_t n = 0; n < INIT_LENGTH; ++n) {
+                                    mX[n] = VALUES[n % NUM_VALUES];
+                                }
+
+                                const size_t INIT_CAP = X.capacity();
+                                const size_t CAP      = computeNewCapacity(
+                                                                 LENGTH,
+                                                                 INIT_LENGTH,
+                                                                 INIT_CAP,
+                                                                 X.max_size());
+                                const int REALLOC     =
+                                                       X.capacity() > INIT_CAP;
+                                const int A_ALLOC     =
+                                               DEFAULT_CAPACITY >= INIT_CAP &&
+                                               X.capacity() > DEFAULT_CAPACITY;
+
+                                if (veryVerbose) {
+                                    printf("\t\t\tAppend");
+                                    P_(NUM_ELEMENTS_INS);
+                                    printf("using "); P_(SPEC);
+                                    printf("starting at "); P(POS);
+                                }
+
+                                const Int64 BB =
+                                                testAllocator.numBlocksTotal();
+                                const Int64  B =
+                                                testAllocator.numBlocksInUse();
+
+                                if (veryVerbose) {
+                                    printf("\t\t\t\tBefore append:");
+                                    P_(MODE) P_(BB); P(B);
+                                }
+                                switch (MODE) {
+                                  case 'a': {
+                                    // string& append(const string& str, p, n);
+
+                                    AllocatorUseGuard gag(globalAllocator_p);
+                                    AllocatorUseGuard dag(defaultAllocator_p);
+                                    Obj &result = mX.append(Y,
+                                                            POS,
+                                                            NUM_ELEMENTS_INS);
+                                    ASSERT(&result == &mX);
+                                  } break;
+                                  case 'b': {
+                                    // string& append(const string_view&,p, n);
+
+                                    AllocatorUseGuard gag(globalAllocator_p);
+                                    AllocatorUseGuard dag(defaultAllocator_p);
+                                    Obj &result = mX.append(V,
+                                                            POS,
+                                                            NUM_ELEMENTS_INS);
+                                    ASSERT(&result == &mX);
+                                  } break;
+                                  default: {
+                                    ASSERTV(MODE, !"Bad insert mode.");
+                                  } return;                           // RETURN
+                                }
+
+                                const Int64 AA =
+                                                testAllocator.numBlocksTotal();
+                                const Int64  A =
+                                                testAllocator.numBlocksInUse();
+
+                                if (veryVerbose) {
+                                    printf("\t\t\t\tAfter append:");
+                                    P_(MODE) P_(AA); P(A);
+                                    T_; T_; T_; T_; P_(X); P(X.capacity());
+                                }
+
+                                LOOP4_ASSERT(
+                                         INIT_LINE, INIT_LENGTH, INIT_CAP, CAP,
+                                         BB + REALLOC <= AA);
+                                LOOP4_ASSERT(
+                                         INIT_LINE, INIT_LENGTH, INIT_CAP, CAP,
+                                         B + A_ALLOC <=  A);
+
+                                LOOP2_ASSERT(INIT_LINE, LINE,
+                                             LENGTH == X.size());
+                                if (!INPUT_ITERATOR_TAG) {
+                                    LOOP2_ASSERT(INIT_LINE, LINE,
+                                                 CAP == X.capacity());
+                                }
+
+                                size_t n = 0;
+                                for (; n < INIT_LENGTH; ++n) {
+                                    LOOP3_ASSERT(
+                                               INIT_LINE, LINE, n,
+                                               VALUES[n % NUM_VALUES] == X[n]);
+                                }
+
+                                for (size_t m = 0;
+                                     m < NUM_ELEMENTS_INS;
+                                     ++m, ++n) {
+                                    LOOP4_ASSERT(INIT_LINE, LINE, m, n,
+                                                 Y[POS + m] == X[n]);
+                                }
+                            }
                         }
 
-                        const size_t CAP = computeNewCapacity(LENGTH,
-                                                              INIT_LENGTH,
-                                                              INIT_CAP,
-                                                              X.max_size());
-
-                        if (veryVerbose) {
-                            printf("\t\t\tAppend"); P_(NUM_ELEMENTS_INS);
-                            printf("using "); P_(SPEC);
-                            printf("starting at "); P(POS2);
-                        }
-
-                        const Int64 BB = testAllocator.numBlocksTotal();
-                        const Int64  B = testAllocator.numBlocksInUse();
-
-                        if (veryVerbose) {
-                            printf("\t\t\t\tBefore:"); P_(BB); P(B);
-                        }
-
-                        // string& append(const string<C,CT,A>& str,
-                        //                pos2, n);
+                        // Testing default parameters.
                         {
-                            AllocatorUseGuard guardG(globalAllocator_p);
-                            AllocatorUseGuard guardD(defaultAllocator_p);
-                            Obj &result = mX.append(Y, POS2, NUM_ELEMENTS);
-                            ASSERT(&result == &mX);
+                            const size_t NUM_ELEMENTS_INS = NUM_ELEMENTS - POS;
+                            const size_t LENGTH =
+                                                INIT_LENGTH + NUM_ELEMENTS_INS;
+
+                            for (char mode = 'a'; mode <= 'b'; ++mode) {
+                                const char MODE = mode;
+
+                                Obj        mX(INIT_LENGTH,
+                                               DEFAULT_VALUE,
+                                               AllocType(&testAllocator));
+                                const Obj& X = mX;
+                                mX.reserve(INIT_RES);
+
+                                for (size_t n = 0; n < INIT_LENGTH; ++n) {
+                                    mX[n] = VALUES[n % NUM_VALUES];
+                                }
+
+                                const size_t INIT_CAP = X.capacity();
+                                const size_t CAP      = computeNewCapacity(
+                                                                 LENGTH,
+                                                                 INIT_LENGTH,
+                                                                 INIT_CAP,
+                                                                 X.max_size());
+                                const int REALLOC     =
+                                                       X.capacity() > INIT_CAP;
+                                const int A_ALLOC     =
+                                               DEFAULT_CAPACITY >= INIT_CAP &&
+                                               X.capacity() > DEFAULT_CAPACITY;
+
+                                if (veryVerbose) {
+                                    printf("\t\t\tAppend");
+                                    P_(NUM_ELEMENTS_INS);
+                                    printf("using "); P_(SPEC);
+                                    printf("starting at "); P_(POS)
+                                    P(MODE);
+                                }
+
+                                const Int64 BB =
+                                                testAllocator.numBlocksTotal();
+                                const Int64  B =
+                                                testAllocator.numBlocksInUse();
+
+                                if (veryVerbose) {
+                                    printf("\t\t\t\tBefore append:");
+                                    P_(MODE) P_(BB); P(B);
+                                }
+                                switch (MODE) {
+                                  case 'a': {
+                                    // string& append(const string& str, p, n);
+                                    AllocatorUseGuard gag(globalAllocator_p);
+                                    AllocatorUseGuard dag(defaultAllocator_p);
+                                    Obj &result = mX.append(Y, POS);
+                                    ASSERT(&result == &mX);
+                                  } break;
+                                  case 'b': {
+                                    // string& append(const string_view&,p, n);
+
+                                    AllocatorUseGuard gag(globalAllocator_p);
+                                    AllocatorUseGuard dag(defaultAllocator_p);
+                                    Obj &result = mX.append(V, POS);
+                                    ASSERT(&result == &mX);
+                                  } break;
+                                  default: {
+                                    ASSERTV(MODE, !"Bad insert mode.");
+                                  } return;                           // RETURN
+                                }
+
+                                const Int64 AA =
+                                                testAllocator.numBlocksTotal();
+                                const Int64  A =
+                                                testAllocator.numBlocksInUse();
+
+                                if (veryVerbose) {
+                                    printf("\t\t\t\tAfter append:");
+                                    P_(MODE) P_(AA); P(A);
+                                    T_; T_; T_; T_; P_(X); P(X.capacity());
+                                }
+
+                                LOOP4_ASSERT(INIT_LINE, INIT_LENGTH,
+                                             INIT_CAP, CAP,
+                                             BB + REALLOC <= AA);
+                                LOOP4_ASSERT(INIT_LINE, INIT_LENGTH,
+                                             INIT_CAP, CAP,
+                                             B + A_ALLOC <=  A);
+
+                                LOOP2_ASSERT(INIT_LINE, LINE,
+                                             LENGTH == X.size());
+                                if (!INPUT_ITERATOR_TAG) {
+                                    LOOP2_ASSERT(INIT_LINE, LINE,
+                                                 CAP == X.capacity());
+                                }
+
+                                size_t n = 0;
+                                for (; n < INIT_LENGTH; ++n) {
+                                    LOOP3_ASSERT(
+                                               INIT_LINE, LINE, n,
+                                               VALUES[n % NUM_VALUES] == X[n]);
+                                }
+
+                                for (size_t m = 0;
+                                     m < NUM_ELEMENTS_INS;
+                                     ++m, ++n) {
+                                    LOOP4_ASSERT(INIT_LINE, LINE, m, n,
+                                                 Y[POS + m] == X[n]);
+                                }
+                            }
                         }
-
-                        const Int64 AA = testAllocator.numBlocksTotal();
-                        const Int64  A = testAllocator.numBlocksInUse();
-
-                        if (veryVerbose) {
-                            printf("\t\t\t\tAfter :"); P_(AA); P(A);
-                            T_; T_; T_; T_; P_(X); P(X.capacity());
-                        }
-
-                        LOOP2_ASSERT(INIT_LINE, LINE, LENGTH == X.size());
-                        if (!INPUT_ITERATOR_TAG) {
-                            LOOP2_ASSERT(INIT_LINE, LINE, CAP == X.capacity());
-                        }
-
-                        size_t m;
-                        for (n = 0; n < INIT_LENGTH; ++n) {
-                            LOOP3_ASSERT(INIT_LINE, LINE, n,
-                                         VALUES[n % NUM_VALUES] == X[n]);
-                        }
-                        for (m = 0; m < NUM_ELEMENTS_INS; ++m, ++n) {
-                            LOOP4_ASSERT(INIT_LINE, LINE, m, n,
-                                         Y[POS2 + m] == X[n]);
-                        }
-
-                        const int REALLOC = X.capacity() > INIT_CAP;
-                        const int A_ALLOC =
-                            DEFAULT_CAPACITY >= INIT_CAP &&
-                            X.capacity() > DEFAULT_CAPACITY;
-
-                        LOOP4_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP, CAP,
-                                     BB + REALLOC <= AA);
-                        LOOP4_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP, CAP,
-                                     B + A_ALLOC <=  A);
                     }
                 }
                 ASSERT(0 == testAllocator.numMismatches());
@@ -10137,9 +10467,39 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         testAllocator.setAllocationLimit(AL);
 
                         switch (appendMode) {
+                          case APPEND_SUBSTRING: {
+                        // string& append(const string<C,CT,A>& str, pos, n);
+                            Obj &result = mX.append(Y, 0, NUM_ELEMENTS);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_SUBSTRING_NPOS: {
+                        // string& append(const string<C,CT,A>& str, pos, n);
+                            Obj &result = mX.append(Y, 0); // 'npos' dflt. arg.
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_SUBSTRINGVIEW: {
+                        // string& append(string_view strView, pos, n);
+                            Obj &result = mX.append(V, 0, NUM_ELEMENTS);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_SUBSTRINGVIEW_NPOS: {
+                        // string& append(string_view strView, pos, n);
+                            Obj &result = mX.append(V, 0); // 'npos' dflt. arg.
+                            ASSERT(&result == &mX);
+                          } break;
                           case APPEND_STRING: {
                         // string& append(const string<C,CT,A>& str);
                             Obj &result = mX.append(Y);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_STRINGVIEW: {
+                        // string& append(string_view strView);
+                            Obj &result = mX.append(Y);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_CSTRING: {
+                        // string& append(const C *s);
+                            Obj &result = mX.append(Y.c_str());
                             ASSERT(&result == &mX);
                           } break;
                           case APPEND_CSTRING_N: {
@@ -10149,12 +10509,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                           } break;
                           case APPEND_CSTRING_NULL_0: {
                         // string& append(const C *s, n); 's = 0';
-                            Obj &result = mX.append(0, NUM_ELEMENTS);
-                            ASSERT(&result == &mX);
-                          } break;
-                          case APPEND_CSTRING: {
-                        // string& append(const C *s);
-                            Obj &result = mX.append(Y.c_str());
+                            Obj &result = mX.append(NULL_PTR, NUM_ELEMENTS);
                             ASSERT(&result == &mX);
                           } break;
                           case APPEND_RANGE: {
@@ -10167,23 +10522,24 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                             Obj &result = mX.append(U.begin(), U.end());
                             ASSERT(&result == &mX);
                           } break;
-                          case APPEND_SUBSTRING: {
-                        // string& append(const string<C,CT,A>& str, pos2, n);
-                            Obj &result = mX.append(Y, 0, NUM_ELEMENTS);
+                          case OPERATOR_STRING: {
+                        // string& operator+=(const string<C,CT,A>& str);
+                            Obj &result = mX += Y;
                             ASSERT(&result == &mX);
                           } break;
-                          case APPEND_SUBSTRING_NPOS: {
-                        // string& append(const string<C,CT,A>& str, pos2, n);
-                            Obj &result = mX.append(Y, 0); // 'npos' dflt. arg.
+                          case OPERATOR_CSTRING: {
+                        // string& operator+=(const C *s);
+                            Obj &result = mX += Y.c_str();
                             ASSERT(&result == &mX);
                           } break;
-                          case APPEND_STRINGVIEW: {
-                        // string& operator+=(bsl::basic_string_view strView);
+                          case OPERATOR_STRINGVIEW: {
+                        // string& operator+=(string_view strView);
                             Obj &result = mX += V;
                             ASSERT(&result == &mX);
                           } break;
                           default: {
-                            printf("***UNKNOWN APPEND MODE***\n");
+                            printf("***UNKNOWN APPEND MODE %d***\n",
+                                   appendMode);
                             ASSERT(0);
                           } break;
                         }
@@ -10265,10 +10621,40 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                     AllocatorUseGuard guardG(globalAllocator_p);
                     AllocatorUseGuard guardD(defaultAllocator_p);
                     switch (appendMode) {
+                      case APPEND_SUBSTRING: {
+                    // string& append(const string<C,CT,A>& str, pos, n);
+                        mX.append(Y, 0, INIT_LENGTH);
+                        mY.append(Y, 0, INIT_LENGTH);
+                      } break;
+                      case APPEND_SUBSTRING_NPOS: {
+                    // string& append(const string<C,CT,A>& str, pos, n);
+                        mX.append(Y, 0);  // 'npos' default argument
+                        mY.append(Y, 0);
+                      } break;
+                      case APPEND_SUBSTRINGVIEW: {
+                    // string& append(string_view strView);
+                        mX.append(V, 0, INIT_LENGTH);
+                        mY.append(V, 0, INIT_LENGTH);
+                      } break;
+                      case APPEND_SUBSTRINGVIEW_NPOS: {
+                    // string& append(string_view strView, pos, n);
+                        mX.append(V, 0);  // 'npos' default argument
+                        mY.append(V, 0);
+                      } break;
                       case APPEND_STRING: {
                     // string& append(const string<C,CT,A>& str);
                         mX.append(Y);
                         mY.append(Y);
+                      } break;
+                      case APPEND_STRINGVIEW: {
+                    // string& append(string_view strView);
+                        mX.append(V);
+                        mY.append(V);
+                      } break;
+                      case APPEND_CSTRING: {
+                    // string& append(const C *s);
+                        mX.append(Y.c_str());
+                        mY.append(Y.c_str());
                       } break;
                       case APPEND_CSTRING_N: {
                     // string& append(pos, const C *s, n);
@@ -10276,24 +10662,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         mY.append(Y.data(), INIT_LENGTH);
                       } break;
                       case APPEND_CSTRING_NULL_0: {
-                    // string& append(pos, const C *s, n);
-                        mX.append(0, 0);
-                        mY.append(0, 0);
-                      } break;
-                      case APPEND_CSTRING: {
-                    // string& append(const C *s);
-                        mX.append(Y.c_str());
-                        mY.append(Y.c_str());
-                      } break;
-                      case APPEND_SUBSTRING: {
-                    // string& append(const string<C,CT,A>& str, pos2, n);
-                        mX.append(Y, 0, INIT_LENGTH);
-                        mY.append(Y, 0, INIT_LENGTH);
-                      } break;
-                      case APPEND_SUBSTRING_NPOS: {
-                    // string& append(const string<C,CT,A>& str, pos2, n);
-                        mX.append(Y, 0);  // 'npos' default argument
-                        mY.append(Y, 0);
+                    // string& append(const C *s, n);
+                        mX.append(NULL_PTR, 0);
+                        mY.append(NULL_PTR, 0);
                       } break;
                       case APPEND_RANGE: {
                     // void append(InputIter first, last);
@@ -10305,8 +10676,18 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         mX.append(Y.begin(), Y.end());
                         mY.append(Y.begin(), Y.end());
                       } break;
-                      case APPEND_STRINGVIEW: {
-                    //operator+=(bsl::basic_string_view strView);
+                      case OPERATOR_STRING: {
+                    // string& operator+=(const string<C,CT,A>& str);
+                        mX += Y;
+                        mY += Y;
+                      } break;
+                      case OPERATOR_CSTRING: {
+                    // string& operator+=(const C *s);
+                        mX += Y.c_str();
+                        mY += Y.c_str();
+                      } break;
+                      case OPERATOR_STRINGVIEW: {
+                    // string& operator+=(string_view strView);
                         mX += V;
                         mY += V;
                       } break;
@@ -10352,46 +10733,82 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                     for (size_t m = 0; m < INIT_LENGTH; ++m) {
                         const size_t INDEX        = h;
                         const size_t NUM_ELEMENTS = m;
+                        for (char mode = 'a'; mode <= 'b'; ++mode) {
+                            const char MODE = mode;
 
-                        Obj mX(INIT_LENGTH,
-                               DEFAULT_VALUE,
-                               AllocType(&testAllocator));  const Obj& X = mX;
-                        mX.reserve(INIT_RES);
+                            Obj        mX(INIT_LENGTH,
+                                          DEFAULT_VALUE,
+                                          AllocType(&testAllocator));
+                            const Obj& X = mX;
+                            mX.reserve(INIT_RES);
 
-                        for (size_t k = 0; k < INIT_LENGTH; ++k) {
-                            mX[k] = VALUES[k % NUM_VALUES];
-                        }
-
-                        Obj mY(X,
-                               AllocType(&testAllocator)); const Obj& Y = mY;
-                                                                 // ^-- control
-
-                        if (veryVerbose) {
-                            printf("\t\t\tAppend substring of itself");
-                            printf(" with "); P_(INDEX); P(NUM_ELEMENTS);
-                        }
-
-                        // string& append(const string<C,CT,A>& str, pos2, n);
-                        {
-                            AllocatorUseGuard guardG(globalAllocator_p);
-                            AllocatorUseGuard guardD(defaultAllocator_p);
-
-                            if (INDEX + NUM_ELEMENTS >= Y.length()) {
-                                mX.append(Y, INDEX);  // 'npos' default arg.
-                                mY.append(Y, INDEX);
+                            for (size_t k = 0; k < INIT_LENGTH; ++k) {
+                                mX[k] = VALUES[k % NUM_VALUES];
                             }
-                            else {
-                                mX.append(Y, INDEX, NUM_ELEMENTS);
-                                mY.append(Y, INDEX, NUM_ELEMENTS);
+
+                            Obj        mY(X,
+                                          AllocType(&testAllocator));
+                            const Obj& Y = mY;
+
+                            if (veryVerbose) {
+                                printf("\t\t\tAppend substring of itself");
+                                printf(" with "); P_(INDEX); P(NUM_ELEMENTS);
                             }
-                        }
 
-                        if (veryVerbose) {
-                            T_; T_; T_; T_; P(X);
-                            T_; T_; T_; T_; P(Y);
-                        }
+                            switch (MODE) {
+                              case 'a': {
+                                 // string& append(const string& str, pos, n);
 
-                        LOOP5_ASSERT(INIT_LINE, INIT_RES, INDEX, X, Y, X == Y);
+                                 AllocatorUseGuard guardG(globalAllocator_p);
+                                 AllocatorUseGuard guardD(defaultAllocator_p);
+
+                                 if (INDEX + NUM_ELEMENTS >= Y.length()) {
+                                     mX.append(Y, INDEX);  // 'npos' is default
+                                     mY.append(Y, INDEX);
+                                 }
+                                 else {
+                                     mX.append(Y, INDEX, NUM_ELEMENTS);
+                                     mY.append(Y, INDEX, NUM_ELEMENTS);
+                                 }
+                              } break;
+                              case 'b': {
+                                 // string& append(const string_view s, p, n);
+
+                                 bsl::basic_string_view<TYPE>       mV(
+                                                                   Y.begin(),
+                                                                   Y.length());
+                                 const bsl::basic_string_view<TYPE> V = mV;
+
+                                 AllocatorUseGuard guardG(globalAllocator_p);
+                                 AllocatorUseGuard guardD(defaultAllocator_p);
+
+                                 if (INDEX + NUM_ELEMENTS >= Y.length()) {
+                                     mX.append(V, INDEX);  // 'npos' is default
+                                     mY.append(V, INDEX);
+                                 }
+                                 else {
+                                     mX.append(V, INDEX, NUM_ELEMENTS);
+                                     mY.append(V, INDEX, NUM_ELEMENTS);
+                                 }
+                               } break;
+                               default: {
+                                 ASSERTV(MODE, !"Bad append mode.");
+                               } return;                              // RETURN
+                            }
+
+                            if (veryVerbose) {
+                                T_; T_; T_; T_; P(X);
+                                T_; T_; T_; T_; P(Y);
+                            }
+
+                            LOOP6_ASSERT(INIT_LINE,
+                                         INIT_RES,
+                                         INDEX,
+                                         MODE,
+                                         X,
+                                         Y,
+                                         X == Y);
+                        }
                     }
                 }
             }
@@ -10399,6 +10816,23 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
     }
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());
+
+    {
+        if (verbose) printf("\tAmbiguity test.\n");
+        // Since 'std::string' can be implicitly converted either to
+        // 'bsl::string' or to 'bsl::string_view', call of overloaded
+        // 'append(std::string&, ...)' can be ambiguous.  We need to test this
+        // scenario.
+
+        bsl::string bslString("bsl");
+        std::string stdString("std");
+
+        bslString.append(stdString);
+        ASSERTV(bslString, "bslstd" == bslString);
+
+        bslString.append(stdString, 0);
+        ASSERTV(bslString, "bslstdstd" == bslString);
+    }
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
