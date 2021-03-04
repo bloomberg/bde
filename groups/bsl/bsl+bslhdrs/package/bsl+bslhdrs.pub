@@ -35,6 +35,7 @@ bsl_limits.h
 bsl_locale.h
 bsl_new.h
 bsl_numeric.h
+bsl_optional.h
 bsl_ostream.h
 bsl_stdexcept.h
 bsl_streambuf.h
