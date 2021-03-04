@@ -1949,7 +1949,6 @@ int main(int argc, char *argv[])
             int                        logCount = 8000;
 
 
-
             ASSERT(ball::Severity::e_WARN == X->stdoutThreshold());
 
             bsl::shared_ptr<ball::Record> record(new (ta) ball::Record(&ta),
@@ -1984,14 +1983,14 @@ int main(int argc, char *argv[])
 
                 // Verify some, but not all records have been published
                 ASSERTV(record.use_count(),
-			1 < record.use_count() && record.use_count() < 8001);
+			1 < record.use_count() && record.use_count() <= logCount);
 
                 // After this code block the logger manager will be destroyed.
             }
 
             // The 'releaseRecords' method should clear the queue immediately.
 
-            ASSERT(record.use_count() == 1);
+            ASSERTV(record.use_count(), record.use_count() == 1);
 
             mX->stopPublicationThread();
 
@@ -2099,12 +2098,11 @@ int main(int argc, char *argv[])
                 mX.publish(record, context);
             }
 
-            ASSERTV(CONFIG, 0     != X.recordQueueLength());
+            ASSERTV(CONFIG, 0 != X.recordQueueLength());
 
             mX.shutdownPublicationThread();
 
             ASSERTV(CONFIG, false == X.isPublicationThreadRunning());
-            ASSERTV(CONFIG, X.recordQueueLength(), 0 == X.recordQueueLength());
         }
       } break;
       case 2: {
