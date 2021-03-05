@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 76 components having 16 levels of physical
+ The 'bsls' package currently has 78 components having 16 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -46,8 +46,7 @@
 
   12. bsls_assert
 
-  11. bsls_bsllock
-      bsls_review
+  11. bsls_review
 
   10. bsls_atomic
       bsls_bslonce
@@ -73,6 +72,7 @@
       bsls_annotation                                    !DEPRECATED!
       bsls_atomicoperations_powerpc32_aix_xlc                         !PRIVATE!
       bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
+      bsls_bsllock
       bsls_keyword
       bsls_nullptr
 
@@ -86,6 +86,7 @@
       bsls_atomicoperations_x64_win_msvc                              !PRIVATE!
       bsls_atomicoperations_x86_all_gcc                               !PRIVATE!
       bsls_atomicoperations_x86_win_msvc                              !PRIVATE!
+      bsls_bsllockimpl_pthread                                        !PRIVATE!
       bsls_compilerfeatures
 
    4. bsls_assert_macroreset                                          !PRIVATE!
@@ -101,6 +102,7 @@
       bsls_unspecifiedbool
 
    3. bsls_alignmentimp
+      bsls_bsllockimpl_win32                                          !PRIVATE!
       bsls_bsltestutil
       bsls_linkcoercion
       bsls_types
@@ -222,6 +224,12 @@
 :
 : 'bsls_bsllock':
 :      Provide a platform-independent mutex for use below 'bslmt'.
+:
+: 'bsls_bsllockimpl_pthread':                                         !PRIVATE!
+:      Provide a mutex for use below 'bslmt'.
+:
+: 'bsls_bsllockimpl_win32':                                           !PRIVATE!
+:      Provide a mutex for use below 'bslmt' for windows platform.
 :
 : 'bsls_bslonce':
 :      Provide BSL a thread-safe way to execute code once per process.

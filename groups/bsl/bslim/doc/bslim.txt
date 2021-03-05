@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslim' package currently has 4 components having 2 levels of physical
+ The 'bslim' package currently has 5 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -26,6 +26,7 @@
   2. bslim_printer
 
   1. bslim_bslstandardheadertest
+     bslim_formatguard
      bslim_gtestutil
      bslim_testutil
 ..
@@ -34,6 +35,9 @@
 /------------------
 : 'bslim_bslstandardheadertest':
 :      Provide a location for testing 'bsl' standard library headers.
+:
+: 'bslim_formatguard':
+:      Provide a guard for saving the state of a stream object.
 :
 : 'bslim_gtestutil':
 :      Provide facilities for debugging BDE with gtest.
