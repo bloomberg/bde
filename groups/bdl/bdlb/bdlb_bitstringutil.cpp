@@ -266,8 +266,7 @@ bool operator<=(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
     // Return 'true' if the specified 'lhs' is less than or equal to the
     // specified 'rhs', and 'false' otherwise.
 {
-    return lhs.d_hi <  rhs.d_hi ||
-          (lhs.d_hi == rhs.d_hi && lhs.d_lo <= rhs.d_lo);
+    return !(lhs > rhs);
 }
 
 inline
@@ -275,8 +274,7 @@ bool operator>=(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
     // Return 'true' if the specified 'lhs' is greater than or equal to the
     // specified 'rhs', and 'false' otherwise.
 {
-    return lhs.d_hi >  rhs.d_hi ||
-          (lhs.d_hi == rhs.d_hi && lhs.d_lo >= rhs.d_lo);
+    return !(lhs < rhs);
 }
 #endif
 

@@ -56,7 +56,10 @@ static void createMapStorage(DatumMutableIntMapRef        *mapping,
     Datum::createUninitializedIntMap(mapping, capacity, allocator.mechanism());
     // Initialize the memory.
 
-    bsl::uninitialized_fill_n(mapping->data(), capacity, DatumIntMapEntry());
+    // Poor man's 'uninitialized_default_construct_n' from C++17
+    for (DatumIntMapEntry *p = mapping->data(); capacity; --capacity, ++p) {
+        new (p) DatumIntMapEntry;
+    }
 }
 
 #ifdef BSLS_ASSERT_SAFE_IS_USED

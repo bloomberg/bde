@@ -57,8 +57,11 @@ static void createMapStorage(
                                   basicAllocator);
     // Initialize the memory.
 
-    bsl::uninitialized_fill_n(mapping->data(), capacity, DatumMapEntry());
-    bsl::uninitialized_fill_n(mapping->keys(), keysCapacity, char());
+    // Poor man's 'uninitialized_default_construct_n' from C++17
+    for (DatumMapEntry *p = mapping->data(); capacity; --capacity, ++p) {
+        new (p) DatumMapEntry;
+    }
+    bsl::memset(mapping->keys(), 0, keysCapacity);
 }
 
 #ifdef BSLS_ASSERT_SAFE_IS_USED

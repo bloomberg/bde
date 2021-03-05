@@ -1,27 +1,32 @@
 // bdld_datum.t.cpp                                                   -*-C++-*-
 #include <bdld_datum.h>
 
-#include <bslim_testutil.h>
+#include <bdlb_float.h>
 
-#include <bsls_assert.h>
-#include <bsls_asserttest.h>
-#include <bsls_review.h>
+#include <bdldfp_decimalconvertutil.h>
+#include <bdldfp_decimalutil.h>
+
+#include <bdlma_bufferedsequentialallocator.h>  // for testing only
+
+#include <bdlsb_memoutstreambuf.h>
+
+#include <bdlt_datetime.h>
+#include <bdlt_datetimeinterval.h>
+#include <bdlt_currenttime.h>
+
+#include <bslim_testutil.h>
 
 #include <bslma_default.h>                      // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bslma_testallocator.h>                // for testing only
-
-#include <bdlma_bufferedsequentialallocator.h>  // for testing only
-#include <bdlsb_memoutstreambuf.h>
-#include <bdlt_datetime.h>
-#include <bdlt_datetimeinterval.h>
-#include <bdlt_currenttime.h>
-#include <bdldfp_decimalutil.h>
-#include <bdldfp_decimalutil.h>
-
-#include <bdlma_bufferedsequentialallocator.h>
-#include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
+#include <bsls_review.h>
+#include <bsls_stopwatch.h>
+#include <bsls_timeutil.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_cstddef.h>                        // 'size_t'
 #include <bsl_cstdlib.h>                        // 'atoi'
@@ -33,9 +38,6 @@
 #include <bsl_sstream.h>
 #include <bsl_unordered_set.h>
 #include <bsl_vector.h>
-#include <bsls_stopwatch.h>
-#include <bsls_timeutil.h>
-#include <bdldfp_decimalconvertutil.h>
 
 #include <time.h>
 #if defined(_WIN32)
@@ -194,8 +196,8 @@ using bdldfp::Decimal64;
 // [15] void createUninitializedArray(DatumMutableArrayRef*,SizeType,...);
 // [17] void createUninitializedMap(DatumMutableMapRef*, SizeType, ...);
 // [17] void createUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
-// [18] char* createUninitializedString(Datum&, SizeType, Allocator *);
-// [28] const char* dataTypeToAscii(Datum::DataType);
+// [18] char *createUninitializedString(Datum&, SizeType, Allocator *);
+// [28] const char *dataTypeToAscii(Datum::DataType);
 // [ 3] void destroy(const Datum&, bslma::Allocator *);
 // [26] void disposeUninitializedArray(Datum *, basicAllocator *);
 // [27] void disposeUninitializedMap(DatumMutableMapRef *, ...);
@@ -453,7 +455,25 @@ const double k_DOUBLE_NEG_INFINITY = -numeric_limits<double>::infinity();
 const double k_DOUBLE_NEG_ZERO     = 1 / k_DOUBLE_NEG_INFINITY;
 const double k_DOUBLE_QNAN         = numeric_limits<double>::quiet_NaN();
 const double k_DOUBLE_SNAN         = numeric_limits<double>::signaling_NaN();
-const double k_DOUBLE_INDETERMINATE = sqrt(-1.0);  // indeterminate NaN
+const double k_DOUBLE_LOADED_NAN   = -sqrt(-1.0);  // A NaN with random bits.
+                                                  // These kinds of NaN values
+                                                 // are used in the 32bit
+                                                // 'Datum' implementation to
+                                               // store values of other types.
+                                              // We can distinguish between two
+                                             // NaN values: signaling and quiet
+                                            // when compiling for 32bit ABI.
+                                           // In 64bit ABI we store NaNs
+                                          // without loss of information but
+                                         // that may change as we look to save
+                                        // physical and virtual memory space.
+
+const bool k_DOUBLE_NAN_BITS_PRESERVED =
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+                                     false;  // Signaling and quiet NaN only.
+#else   // BSLS_PLATFORM_CPU_32_BIT
+                                     true;  // All NaN bits preserved.
+#endif  // BSLS_PLATFORM_CPU_32_BIT
 
 const Decimal64 k_DECIMAL64_MIN      = numeric_limits<Decimal64>::min();
 const Decimal64 k_DECIMAL64_MAX      = numeric_limits<Decimal64>::max();
@@ -462,7 +482,7 @@ const Decimal64 k_DECIMAL64_QNAN     = numeric_limits<Decimal64>::quiet_NaN();
 const Decimal64 k_DECIMAL64_SNAN  = numeric_limits<Decimal64>::signaling_NaN();
 const Decimal64 k_DECIMAL64_NEG_INFINITY = -k_DECIMAL64_INFINITY;
 
-const char* UNKNOWN_FORMAT = "(* UNKNOWN *)";
+const char *UNKNOWN_FORMAT = "(* UNKNOWN *)";
 
 //=============================================================================
 //                   GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -557,7 +577,7 @@ void populateWithNonAggregateValues(vector<Datum>    *elements,
     if (withNaNs) {
         elements->push_back(Datum::createDouble(k_DOUBLE_SNAN));
         elements->push_back(Datum::createDouble(k_DOUBLE_QNAN));
-        elements->push_back(Datum::createDouble(k_DOUBLE_INDETERMINATE));
+        elements->push_back(Datum::createDouble(k_DOUBLE_LOADED_NAN));
     }
     elements->push_back(Datum::createError(3));
     elements->push_back(Datum::createError(3, "error", allocator));
@@ -603,20 +623,32 @@ void populateWithNonAggregateValues(vector<Datum>    *elements,
     elements->push_back(Datum::copyString("abcdef0123456789", allocator));
 };
 
-bsl::string randomStringGenerator(bsls::Types::size_type length)
-    // Return a random string of the specified 'length'.
+void loadRandomString(bsl::string *result, bsls::Types::size_type length)
+    // Fill the specified 'result' with a random string of the specified
+    // 'length'.  Note that this function employs weak random number
+    // generation that is not suitable for cryptographic purposes.
 {
-    bsl::string charSet = "abcdefghijklmnopqrstuvwxyz"
-                          "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                          "1234567890";
-    bsl::string result;
-    result.resize(length);
+    static const char charSet[] = "abcdefghijklmnopqrstuvwxyz"
+                                  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                  "1234567890";
+    result->resize(length);
 
     for (bsls::Types::size_type i = 0; i < length; ++i) {
-        result[i] = charSet[rand() % charSet.length()];
+        (*result)[i] = charSet[rand() % (sizeof charSet - 1)];
     }
+}
 
-    return result;
+void loadRandomBinary(bsl::vector<unsigned char> *result,
+                      bsls::Types::size_type      length)
+    // Fill the specified 'result' with random bytes of the specified
+    // 'length'.  Note that this function employs weak random number
+    // generation that is not suitable for cryptographic purposes.
+{
+    result->resize(length);
+
+    for (bsls::Types::size_type i = 0; i < length; ++i) {
+        (*result)[i] = static_cast<unsigned char>(rand() % UCHAR_MAX);
+    }
 }
 
                            // ===========
@@ -1434,7 +1466,16 @@ void BenchmarkSuite::run(int   iterations,
               Udt_Def);
 
     {
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#ifndef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+#endif
         static Datum array[100 * 1000];
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
         BENCHMARK(createArrayReference(array,
                                        100,
@@ -1985,8 +2026,7 @@ int main(int argc, char *argv[])
         mSec.setMicrosecond(156);
         d = Datum::createDatetime(mSec, &qa);
         LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 1);
-        LOOP_ASSERT(d,
-                    d.isDatetime() && d.theDatetime() == mSec);
+        LOOP_ASSERT(d, d.isDatetime() && d.theDatetime() == mSec);
         Datum::destroy(d, &qa);
         LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 0);
 #else
@@ -2625,7 +2665,7 @@ int main(int argc, char *argv[])
                                            Datum::adoptArray(array));
             *(map1.size()) = mapSize;
 
-            const SizeType     intMapSize = 5;
+            const SizeType        intMapSize = 5;
             DatumMutableIntMapRef intMap1;
             Datum::createUninitializedIntMap(&intMap1, intMapSize, &oa);
             intMap1.data()[0] = DatumIntMapEntry(1, Datum::createInteger(0));
@@ -2656,12 +2696,12 @@ int main(int argc, char *argv[])
             }
             *(array.length()) = vector2.size();
 
-            const char *keys[mapSize] = {"one",
-                                         "two",
-                                         "three",
-                                         "four",
-                                         "five",
-                                         "six" };
+            const char *keys[mapSize] = { "one",
+                                          "two",
+                                          "three",
+                                          "four",
+                                          "five",
+                                          "six" };
             SizeType    keysSize = 0;
             for (size_t i = 0; i < mapSize; ++i) {
                 keysSize += strlen(keys[i]);
@@ -2669,32 +2709,32 @@ int main(int argc, char *argv[])
             DatumMutableMapOwningKeysRef map2;
             Datum::createUninitializedMap(&map2, mapSize, keysSize, &oa);
             char *keyBuffer = map2.keys();
-            strncpy(keyBuffer, keys[0], strlen(keys[0]));
+            memcpy(keyBuffer, keys[0], strlen(keys[0]));
             map2.data()[0] = DatumMapEntry(
                        StringRef(keyBuffer, static_cast<int>(strlen(keys[0]))),
                        Datum::createInteger(0));
             keyBuffer += strlen(keys[0]);
-            strncpy(keyBuffer, keys[1], strlen(keys[1]));
+            memcpy(keyBuffer, keys[1], strlen(keys[1]));
             map2.data()[1] = DatumMapEntry(
                        StringRef(keyBuffer, static_cast<int>(strlen(keys[1]))),
                        Datum::createDouble(-3.1416));
             keyBuffer += strlen(keys[1]);
-            strncpy(keyBuffer, keys[2], strlen(keys[2]));
+            memcpy(keyBuffer, keys[2], strlen(keys[2]));
             map2.data()[2] = DatumMapEntry(
                        StringRef(keyBuffer, static_cast<int>(strlen(keys[2]))),
                        Datum::copyString("A long string", &oa));
             keyBuffer += strlen(keys[2]);
-            strncpy(keyBuffer, keys[3], strlen(keys[3]));
+            memcpy(keyBuffer, keys[3], strlen(keys[3]));
             map2.data()[3] = DatumMapEntry(
                        StringRef(keyBuffer, static_cast<int>(strlen(keys[3]))),
                        Datum::copyString("Abc", &oa));
             keyBuffer += strlen(keys[3]);
-            strncpy(keyBuffer, keys[4], strlen(keys[4]));
+            memcpy(keyBuffer, keys[4], strlen(keys[4]));
             map2.data()[4] = DatumMapEntry(
                        StringRef(keyBuffer, static_cast<int>(strlen(keys[4]))),
                        Datum::createDate(bdlt::Date(2010,1,5)));
             keyBuffer += strlen(keys[4]);
-            strncpy(keyBuffer, keys[5], strlen(keys[5]));
+            memcpy(keyBuffer, keys[5], strlen(keys[5]));
             map2.data()[5] = DatumMapEntry(
                        StringRef(keyBuffer, static_cast<int>(strlen(keys[5]))),
                        Datum::adoptArray(array));
@@ -2804,7 +2844,7 @@ int main(int argc, char *argv[])
                           << "TESTING PROCTOR" << endl
                           << "===============" << endl;
         bslma::TestAllocator ta("test", veryVeryVerbose);
-        const SizeType       SIZE  = 5;
+        const SizeType       SIZE = 5;
 
         if (verbose) cout << "\nTesting 'Datum_ArrayProctor for arrays'."
                           << endl;
@@ -2859,16 +2899,14 @@ int main(int argc, char *argv[])
 
             // Original map creation.
 
-            const char *keys[SIZE] = {"one",
-                                      "two",
-                                      "three",
-                                      "four",
-                                      "five"};
+            const char *keys[SIZE] = { "one",
+                                       "two",
+                                       "three",
+                                       "four",
+                                       "five" };
 
             DatumMutableMapRef origin;
-            Datum::createUninitializedMap(&origin,
-                                          SIZE,
-                                          &ta);
+            Datum::createUninitializedMap(&origin, SIZE, &ta);
 
             for (size_t i = 0; i < SIZE; ++i) {
                 origin.data()[i] = DatumMapEntry(
@@ -2881,12 +2919,12 @@ int main(int argc, char *argv[])
             const Datum& D  = mD;
 
             ASSERT(0 != ta.numBytesInUse());
-            Int64 numBytesInUse = ta.numBytesInUse();
+            const Int64 numBytesInUse = ta.numBytesInUse();
 
             // Throw and catch an exception during cloning.
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta) {
-                Datum mDCopy = D.clone(&ta);
+                const Datum mDCopy = D.clone(&ta);
 
                 // Object will be created only if no exception occurs during
                 // cloning.  Then we need to destroy it manually.  Otherwise
@@ -2912,25 +2950,22 @@ int main(int argc, char *argv[])
         {
             // Original map creation.
 
-            const char *keys[SIZE] = {"one",
-                                      "two",
-                                      "three",
-                                      "four",
-                                      "five"};
+            const char *keys[SIZE] = { "one",
+                                       "two",
+                                       "three",
+                                       "four",
+                                       "five" };
             SizeType    keysSize = 0;
             for (size_t i = 0; i < SIZE; ++i) {
                 keysSize += strlen(keys[i]);
             }
             DatumMutableMapOwningKeysRef origin;
-            Datum::createUninitializedMap(&origin,
-                                          SIZE,
-                                          keysSize,
-                                          &ta);
+            Datum::createUninitializedMap(&origin, SIZE, keysSize, &ta);
             char *mapKeys = origin.keys();
 
             for (size_t i = 0; i < SIZE; ++i) {
-                int keySize = static_cast<int>(strlen(keys[i]));
-                strncpy(mapKeys, keys[i], keySize);
+                const int keySize = static_cast<int>(strlen(keys[i]));
+                memcpy(mapKeys, keys[i], keySize);
                 origin.data()[i] =
                     DatumMapEntry(StringRef(mapKeys, keySize),
                                   Datum::copyString("A long string constant",
@@ -2943,12 +2978,12 @@ int main(int argc, char *argv[])
             const Datum& D  = mD;
 
             ASSERT(0 != ta.numBytesInUse());
-            Int64 numBytesInUse = ta.numBytesInUse();
+            const Int64 numBytesInUse = ta.numBytesInUse();
 
             // Throw and catch an exception during cloning.
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta) {
-                Datum mDCopy = D.clone(&ta);
+                const Datum mDCopy = D.clone(&ta);
 
                 // Object will be created only if no exception occurs during
                 // cloning.  Then we need to destroy it manually.  Otherwise
@@ -3008,8 +3043,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\nTesting 'clone' for boolean." << endl;
             {
-                const static bool DATA[] = {true, false};
-                const size_t      DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+                const static bool DATA[] = { true, false };
+                const size_t      DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i< DATA_LEN; ++i) {
                     const bool VALUE = DATA[i];
@@ -3017,7 +3052,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ P(VALUE) }
 
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                    bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                    bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
                     const Datum D = Datum::createBoolean(VALUE);
 
@@ -3053,7 +3088,7 @@ int main(int argc, char *argv[])
                     Date(9999, 12, 31),
                 };
 
-                const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i< DATA_LEN; ++i) {
                     const bdlt::Date VALUE = DATA[i];
@@ -3061,7 +3096,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ P(VALUE) }
 
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                    bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                    bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
                     const Datum  D = Datum::createDate(VALUE);
 
@@ -3099,7 +3134,7 @@ int main(int argc, char *argv[])
                     Datetime(9999,  9,  9,  9,  9,  9, 999),
                 };
 
-                const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i< DATA_LEN; ++i) {
                     const bdlt::Datetime VALUE = DATA[i];
@@ -3107,7 +3142,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ P(VALUE) }
 
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                    bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                    bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
                     const Datum D = Datum::createDatetime(VALUE, &oa);
 
@@ -3154,7 +3189,7 @@ int main(int argc, char *argv[])
                     DatetimeInterval(-100000000, 3, 2, 14, 319),
                 };
 
-                const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i< DATA_LEN; ++i) {
                     const bdlt::DatetimeInterval VALUE = DATA[i];
@@ -3162,11 +3197,11 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ P(VALUE) }
 
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                    bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                    bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
                     const Datum D = Datum::createDatetimeInterval(VALUE, &oa);
 
-                    Int64 bytesInUse = oa.numBytesInUse();
+                    const Int64 bytesInUse = oa.numBytesInUse();
 
                     ASSERT(true  == D.isDatetimeInterval());
                     ASSERT(VALUE == D.theDatetimeInterval());
@@ -3210,7 +3245,7 @@ int main(int argc, char *argv[])
                     { L_,  k_DECIMAL64_SNAN,               false },
                     { L_,  k_DECIMAL64_QNAN,               false },
                 };
-                const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i< DATA_LEN; ++i) {
                     const int               LINE  = DATA[i].d_line;
@@ -3220,11 +3255,11 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ P_(LINE) P(VALUE) }
 
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                    bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                    bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
                     const Datum D = Datum::createDecimal64(VALUE, &oa);
 
-                    Int64 bytesInUse = oa.numBytesInUse();
+                    const Int64 bytesInUse = oa.numBytesInUse();
 
                     ASSERT(true == D.isDecimal64());
 
@@ -3262,26 +3297,26 @@ int main(int argc, char *argv[])
                     double   d_value;         // double value
                     bool     d_compareEqual;  // compare equal itself
                 } DATA[] = {
-                    //LINE VALUE                    EQUAL
-                    //---- -----------------------  -----
-                    { L_,  0.0,                     true  },
-                    { L_,  k_DOUBLE_NEG_ZERO,       true  },
-                    { L_,  .01,                     true  },
-                    { L_,  -.01,                    true  },
-                    { L_,  2.25e-117,               true  },
-                    { L_,  2.25e117,                true  },
-                    { L_,  1924.25,                 true  },
-                    { L_,  -1924.25,                true  },
-                    { L_,  k_DOUBLE_MIN,            true  },
-                    { L_,  k_DOUBLE_MAX,            true  },
-                    { L_,  k_DOUBLE_INFINITY,       true  },
-                    { L_,  k_DOUBLE_NEG_INFINITY,   true  },
-                    { L_,  k_DOUBLE_SNAN,           false },
-                    { L_,  k_DOUBLE_QNAN,           false },
-                    { L_,  k_DOUBLE_INDETERMINATE,  false },
+                    //LINE VALUE                  EQUAL
+                    //---- ---------------------- -----
+                    { L_,  0.0,                   true  },
+                    { L_,  k_DOUBLE_NEG_ZERO,     true  },
+                    { L_,  .01,                   true  },
+                    { L_,  -.01,                  true  },
+                    { L_,  2.25e-117,             true  },
+                    { L_,  2.25e117,              true  },
+                    { L_,  1924.25,               true  },
+                    { L_,  -1924.25,              true  },
+                    { L_,  k_DOUBLE_MIN,          true  },
+                    { L_,  k_DOUBLE_MAX,          true  },
+                    { L_,  k_DOUBLE_INFINITY,     true  },
+                    { L_,  k_DOUBLE_NEG_INFINITY, true  },
+                    { L_,  k_DOUBLE_SNAN,         false },
+                    { L_,  k_DOUBLE_QNAN,         false },
+                    { L_,  k_DOUBLE_LOADED_NAN,   false },
                 };
 
-                const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i< DATA_LEN; ++i) {
                     const int    LINE  = DATA[i].d_line;
@@ -3291,7 +3326,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ P_(LINE) P(VALUE) }
 
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                    bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                    bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
                     const Datum D = Datum::createDouble(VALUE);
 
@@ -3303,6 +3338,18 @@ int main(int argc, char *argv[])
                         ASSERT(VALUE == D.theDouble());
                     } else {
                         ASSERT(VALUE != D.theDouble());
+                        ASSERTV(bdlb::Float::classifyFine(VALUE),
+                                bdlb::Float::classifyFine(D.theDouble()),
+                                bdlb::Float::classifyFine(VALUE) ==
+                                     bdlb::Float::classifyFine(D.theDouble()));
+                        if (k_DOUBLE_NAN_BITS_PRESERVED) {
+                            // In 64bit 'Datum' we currently store 'NaN' values
+                            // unchanged.
+                            const double THE_DOUBLE = D.theDouble();
+                            ASSERT(bsl::memcmp(&VALUE,
+                                               &THE_DOUBLE,
+                                               sizeof(double)) == 0);
+                        }
                     }
 
                     const Datum DC = D.clone(&ca);
@@ -3342,7 +3389,7 @@ int main(int argc, char *argv[])
                     numeric_limits<int>::max()
                 };
 
-                const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i< DATA_LEN; ++i) {
                     const int  ERROR = DATA[i];
@@ -3350,7 +3397,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ T_ P(ERROR) }
 
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                    bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                    bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
                     const Datum D = Datum::createError(ERROR);
 
@@ -3374,7 +3421,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == ca.status());
                 }
 
-                const char* errorMessage = "This is an error#$%\".";
+                const char *errorMessage = "This is an error#$%\".";
                 for (size_t i = 0; i< DATA_LEN; ++i) {
                     for (size_t j = 0; j <= strlen(errorMessage); ++j) {
                         const int       ERROR = DATA[i];
@@ -3384,13 +3431,13 @@ int main(int argc, char *argv[])
                         if (veryVerbose) { T_ T_ P_(ERROR) P(MESSAGE) }
 
                         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                        bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                        bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
                         const Datum D = Datum::createError(ERROR,
                                                            MESSAGE,
                                                            &oa);
 
-                        Int64 bytesInUse = oa.numBytesInUse();
+                        const Int64 bytesInUse = oa.numBytesInUse();
 
                         ASSERT(true == D.isError());
                         ASSERT(DatumError(ERROR, MESSAGE) == D.theError());
@@ -3428,7 +3475,7 @@ int main(int argc, char *argv[])
                     numeric_limits<int>::max(),
                 };
 
-                const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i< DATA_LEN; ++i) {
                     const int VALUE = DATA[i];
@@ -3436,7 +3483,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ P(VALUE) }
 
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                    bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                    bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
                     const Datum D = Datum::createInteger(VALUE);
 
@@ -3479,7 +3526,7 @@ int main(int argc, char *argv[])
                     numeric_limits<Int64>::max(),
                 };
 
-                const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i< DATA_LEN; ++i) {
                     const Int64 VALUE = DATA[i];
@@ -3487,11 +3534,11 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ P(VALUE) }
 
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                    bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                    bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
                     const Datum D = Datum::createInteger64(VALUE, &oa);
 
-                    Int64 bytesInUse = oa.numBytesInUse();
+                    const Int64 bytesInUse = oa.numBytesInUse();
 #ifdef BSLS_PLATFORM_CPU_64_BIT
                     ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 #endif  // BSLS_PLATFORM_CPU_64_BIT
@@ -3521,7 +3568,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\nTesting 'clone' for 'null'." << endl;
             {
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
                 const Datum D = Datum::createNull();
 
@@ -3567,18 +3614,19 @@ int main(int argc, char *argv[])
                     1024*1024,
                 };
 
-                const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i< DATA_LEN; ++i) {
+                    bslma::TestAllocator  ba("buffer", veryVeryVeryVerbose);
                     const Datum::SizeType SIZE = DATA[i];
-                    const char*           BUFFER = new char[SIZE];
-                    const StringRef       STRING(BUFFER,
+                    const bsl::string     BUFFER(SIZE, 'x', &ba);
+                    const StringRef       STRING(BUFFER.data(),
                                                  static_cast<int>(SIZE));
 
                     if (veryVerbose) { T_ T_ P(SIZE) }
                     {
                         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                        bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                        bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
                         const Datum D = Datum::createStringRef(STRING, &oa);
 
@@ -3614,7 +3662,6 @@ int main(int argc, char *argv[])
                         ASSERT(0 == oa.status());
                         ASSERT(0 == ca.status());
                     }
-                    delete[] BUFFER;
                 }
             }
 
@@ -3627,7 +3674,7 @@ int main(int argc, char *argv[])
                     Time(23, 59, 59, 999, 999),
                 };
 
-                const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i< DATA_LEN; ++i) {
                     const bdlt::Time VALUE = DATA[i];
@@ -3635,7 +3682,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ P(VALUE) }
 
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                    bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                    bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
                     const Datum D = Datum::createTime(VALUE);
 
@@ -3668,7 +3715,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ P(VALUE) }
 
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
                 const Datum D = Datum::createUdt(BUFFER, 0);
 
@@ -3695,23 +3742,26 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\nTesting 'clone' for 'Binary'." << endl;
             {
-                const unsigned char BUFFER[] = "0123456789abcdef";
+                for (size_t i = 0; i < 258; ++i) {
+                    bslma::TestAllocator     ba("buffer", veryVeryVeryVerbose);
+                    bsl::vector<unsigned char> BUFFER(&ba);
+                    const size_t               SIZE = i;
+                    loadRandomBinary(&BUFFER, SIZE);
 
-                for (size_t i = 0; i < sizeof(BUFFER); ++i) {
-                    const DatumBinaryRef REF(BUFFER, i);
+                    const DatumBinaryRef REF(BUFFER.data(), SIZE);
 
-                    if (veryVerbose) { T_ P(REF) }
+                    if (veryVerbose) { T_ P_(SIZE) P(REF) }
 
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                    bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                    bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
-                    const Datum D = Datum::copyBinary(BUFFER, i, &oa);
+                    const Datum D(Datum::copyBinary(BUFFER.data(), SIZE, &oa));
 
-                    Int64 bytesInUse = oa.numBytesInUse();
+                    const Int64 bytesInUse = oa.numBytesInUse();
 #ifdef BSLS_PLATFORM_CPU_32_BIT
                     ASSERT(0 != bytesInUse);   // always allocate
 #else  // BSLS_PLATFORM_CPU_32_BIT
-                    if (i <= 13) {
+                    if (SIZE <= 13) {
                         ASSERT(0 == bytesInUse);
                     } else {
                         ASSERT(0 != bytesInUse);
@@ -3727,7 +3777,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_CPU_32_BIT
                     ASSERT(0 != bytesInUse);   // always allocate
 #else  // BSLS_PLATFORM_CPU_32_BIT
-                    if (i <= 13) {
+                    if (SIZE <= 13) {
                         ASSERT(0 == bytesInUse);
                     } else {
                         ASSERT(0 != bytesInUse);
@@ -3749,25 +3799,28 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\nTesting 'clone' for internal 'String'." << endl;
             {
-                const char BUFFER[] = "0123456789abcdef";
+                for (size_t i = 0; i < 258; ++i) {
+                    bslma::TestAllocator ba("buffer", veryVeryVeryVerbose);
+                    bsl::string          BUFFER(&ba);
+                    const size_t         SIZE = i;
+                    loadRandomString(&BUFFER, SIZE);
 
-                for (size_t i = 0; i < sizeof(BUFFER); ++i) {
-                    const StringRef REF(BUFFER, static_cast<int>(i));
+                    const StringRef REF(BUFFER.data(), static_cast<int>(SIZE));
 
-                    if (veryVerbose) { T_ P_(i) P(REF) }
+                    if (veryVerbose) { T_ P_(SIZE) P(REF) }
 
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-                    bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+                    bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
-                    const Datum D = Datum::copyString(BUFFER, i, &oa);
+                    const Datum D(Datum::copyString(BUFFER.data(), SIZE, &oa));
 
-                    Int64 bytesInUse = oa.numBytesInUse();
+                    const Int64 bytesInUse = oa.numBytesInUse();
 #ifdef BSLS_PLATFORM_CPU_32_BIT
                     // Up to length 6 inclusive the strings are stored inline
-                    if (i <= 6) {
+                    if (SIZE <= 6) {
 #else  // BSLS_PLATFORM_CPU_32_BIT
                     // Up to length 13 inclusive the strings are stored inline
-                    if (i <= 13) {
+                    if (SIZE <= 13) {
 #endif // BSLS_PLATFORM_CPU_32_BIT
                         ASSERT(0 == bytesInUse);
                     } else {
@@ -3782,10 +3835,10 @@ int main(int argc, char *argv[])
                     ASSERT(bytesInUse == ca.numBytesInUse());
 #ifdef BSLS_PLATFORM_CPU_32_BIT
                     // Up to length 6 inclusive the strings are stored inline
-                    if (i <= 6) {
+                    if (SIZE <= 6) {
 #else  // BSLS_PLATFORM_CPU_32_BIT
                     // Up to length 13 inclusive the strings are stored inline
-                    if (i <= 13) {
+                    if (SIZE <= 13) {
 #endif // BSLS_PLATFORM_CPU_32_BIT
                         ASSERT(0 == bytesInUse);
                     } else {
@@ -3811,18 +3864,18 @@ int main(int argc, char *argv[])
         {
             // Testing cloning of an empty array
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-            bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+            bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
             DatumMutableArrayRef array;
             const Datum          D = Datum::adoptArray(array);
 
-            Datum         dummyDatum;
-            DatumArrayRef REF(&dummyDatum, 0);
+            Datum               dummyDatum;
+            const DatumArrayRef REF(&dummyDatum, 0);
 
             ASSERT(true == D.isArray());
             ASSERT(REF  == D.theArray());
 
-            Int64 bytesInUse = oa.numBytesInUse();
+            const Int64 bytesInUse = oa.numBytesInUse();
 
             const Datum DC = D.clone(&ca);
 
@@ -3839,7 +3892,7 @@ int main(int argc, char *argv[])
         {
             // Testing cloning of a non-empty array
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-            bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+            bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
             const SizeType       arraySize  = 6;
             DatumMutableArrayRef array;
@@ -3851,17 +3904,17 @@ int main(int argc, char *argv[])
             array.data()[3] = Datum::copyString("Abc", &oa);
             array.data()[4] = Datum::createDate(bdlt::Date(2010,1,5));
             array.data()[5] = Datum::createDatetime(
-                    bdlt::Datetime(2010,1,5, 16,45,32,12),
-                    &oa);
+                                         bdlt::Datetime(2010,1,5, 16,45,32,12),
+                                         &oa);
             *(array.length()) = arraySize;
             const Datum D = Datum::adoptArray(array);
 
-            DatumArrayRef REF(array.data(), 6);
+            const DatumArrayRef REF(array.data(), 6);
 
             ASSERT(true == D.isArray());
             ASSERT(REF  == D.theArray());
 
-            Int64 bytesInUse = oa.numBytesInUse();
+            const Int64 bytesInUse = oa.numBytesInUse();
 
             const Datum DC = D.clone(&ca);
 
@@ -3882,7 +3935,7 @@ int main(int argc, char *argv[])
         {
             // Testing cloning of an empty map
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-            bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+            bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
             DatumMutableMapRef map;
             const Datum        D = Datum::adoptMap(map);
@@ -3891,7 +3944,7 @@ int main(int argc, char *argv[])
             // Empty maps never owns the keys.
             ASSERT(false == D.theMap().ownsKeys());
 
-            Int64 bytesInUse = oa.numBytesInUse();
+            const Int64 bytesInUse = oa.numBytesInUse();
 
             const Datum DC = D.clone(&ca);
 
@@ -3912,7 +3965,7 @@ int main(int argc, char *argv[])
         {
             // Testing cloning of a non-empty map
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-            bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+            bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
             StringRef key1("one");
             StringRef key2("two");
@@ -3925,9 +3978,10 @@ int main(int argc, char *argv[])
             map.data()[0] = DatumMapEntry(key1, Datum::createInteger(0));
             map.data()[1] = DatumMapEntry(key2, Datum::createDouble(-3.141));
             map.data()[2] = DatumMapEntry(key3,
-                    Datum::copyString("A long string", &oa));
+                                          Datum::copyString("A long string",
+                                                            &oa));
             map.data()[3] = DatumMapEntry(key4,
-                    Datum::copyString("Abc", &oa));
+                                          Datum::copyString("Abc", &oa));
             *(map.size()) = mapSize;
             *(map.sorted()) = false;
             const Datum D = Datum::adoptMap(map);
@@ -3952,12 +4006,12 @@ int main(int argc, char *argv[])
             ASSERT(0 == ca.status());
         }
 
-        if (verbose) cout <<
-                            "\nTesting 'clone' for a map owning keys." << endl;
+        if (verbose)
+            cout << "\nTesting 'clone' for a map owning keys." << endl;
         {
             // Testing cloning of an empty map
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-            bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+            bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
             DatumMutableMapOwningKeysRef map;
             const Datum                  D = Datum::adoptMap(map);
@@ -3966,7 +4020,7 @@ int main(int argc, char *argv[])
             // Empty maps never owns the keys.
             ASSERT(false == D.theMap().ownsKeys());
 
-            Int64 bytesInUse = oa.numBytesInUse();
+            const Int64 bytesInUse = oa.numBytesInUse();
 
             const Datum DC = D.clone(&ca);
 
@@ -3986,10 +4040,10 @@ int main(int argc, char *argv[])
 
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-            bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+            bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
             const SizeType  mapCapacity = 4;
-            const char     *keys[] = {"one", "two", "three", "four"};
+            const char     *keys[] = { "one", "two", "three", "four" };
             SizeType        keyCapacity = 0;
 
             for (size_t i = 0; i < 4; ++i) {
@@ -3998,10 +4052,10 @@ int main(int argc, char *argv[])
 
             DatumMutableMapOwningKeysRef map;
             Datum::createUninitializedMap(&map,
-                    mapCapacity,
-                    keyCapacity,
-                    &oa);
-            char* keyBuffer = map.keys();
+                                          mapCapacity,
+                                          keyCapacity,
+                                          &oa);
+            char *keyBuffer = map.keys();
 
             bsl::memcpy(keyBuffer, keys[0], strlen(keys[0]));
             StringRef key(keyBuffer, static_cast<int>(strlen(keys[0])));
@@ -4016,8 +4070,9 @@ int main(int argc, char *argv[])
             bsl::memcpy(keyBuffer, keys[2], strlen(keys[2]));
             key = StringRef(keyBuffer, static_cast<int>(strlen(keys[2])));
             keyBuffer += strlen(keys[2]);
-            map.data()[2] = DatumMapEntry(key,
-                    Datum::createDate(bdlt::Date(2010,1,5)));
+            map.data()[2] = DatumMapEntry(
+                                      key,
+                                      Datum::createDate(bdlt::Date(2010,1,5)));
 
             bsl::memcpy(keyBuffer, keys[3], strlen(keys[3]));
             key = StringRef(keyBuffer, static_cast<int>(strlen(keys[3])));
@@ -4032,7 +4087,7 @@ int main(int argc, char *argv[])
             ASSERT(true == D.isMap());
             ASSERT(true == D.theMap().ownsKeys());
 
-            Int64 bytesInUse = oa.numBytesInUse();
+            const Int64 bytesInUse = oa.numBytesInUse();
 
             const Datum DC = D.clone(&ca);
 
@@ -4054,7 +4109,7 @@ int main(int argc, char *argv[])
                   "\nTesting 'clone' for an array having map element." << endl;
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-            bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+            bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
             StringRef key1("one");
             StringRef key2("two");
@@ -4067,9 +4122,10 @@ int main(int argc, char *argv[])
             map.data()[0] = DatumMapEntry(key1, Datum::createInteger(0));
             map.data()[1] = DatumMapEntry(key2, Datum::createDouble(-3.141));
             map.data()[2] = DatumMapEntry(key3,
-                    Datum::copyString("A long string", &oa));
+                                          Datum::copyString("A long string",
+                                                            &oa));
             map.data()[3] = DatumMapEntry(key4,
-                    Datum::copyString("Abc", &oa));
+                                          Datum::copyString("Abc", &oa));
             *(map.size()) = mapSize;
             *(map.sorted()) = false;
 
@@ -4106,7 +4162,7 @@ int main(int argc, char *argv[])
                    "\nTesting 'clone' for a map having array element." << endl;
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-            bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+            bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
 
             StringRef key1("one");
             StringRef key2("two");
@@ -4236,7 +4292,7 @@ int main(int argc, char *argv[])
 { L_,  Datum::copyBinary("abcde", 5, &oa),         Datum::e_BINARY           },
 { L_,  Datum::copyString("abcde", &oa),            Datum::e_STRING           },
             };
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i < DATA_LEN; ++i) {
                 const int             LINE  = DATA[i].d_line;
@@ -4265,9 +4321,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-            Datum       array[2] = { Datum::createInteger(1),
-                                     Datum::createDouble(18)
-                                   };
+            const Datum array[2] = { Datum::createInteger(1),
+                                     Datum::createDouble(18) };
             const Datum D = Datum::createArrayReference(array, 2, &oa);
 
             TestVisitor visitor;
@@ -4384,7 +4439,7 @@ int main(int argc, char *argv[])
             DatumMutableMapOwningKeysRef map;
             Datum::createUninitializedMap(&map, 1, strlen("key"), &oa);
             char *keys = map.keys();
-            strncpy(keys, "key", strlen("key"));
+            memcpy(keys, "key", strlen("key"));
             map.data()[0] = DatumMapEntry(
                               StringRef(keys, static_cast<int>(strlen("key"))),
                               Datum::createInteger(1));
@@ -4513,7 +4568,7 @@ int main(int argc, char *argv[])
 { L_,  Datum::copyString("abcde", &oa),           Datum::e_STRING            },
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i < DATA_LEN; ++i) {
                 const int             LINE  = DATA[i].d_line;
@@ -4537,9 +4592,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-            Datum       array[2] = { Datum::createInteger(1),
-                                     Datum::createDouble(18)
-                                   };
+            const Datum array[2] = { Datum::createInteger(1),
+                                     Datum::createDouble(18) };
             const Datum D = Datum::createArrayReference(array, 2, &oa);
 
             ASSERT(Datum::e_ARRAY == D.type());
@@ -4601,7 +4655,7 @@ int main(int argc, char *argv[])
             ASSERT( 0 == oa.status());
         }
 
-        if (verbose)cout <<
+        if (verbose) cout <<
                   "\nTesting 'type' with Datum having map (owning keys) value."
                          << endl;
         {
@@ -4621,7 +4675,7 @@ int main(int argc, char *argv[])
             DatumMutableMapOwningKeysRef map;
             Datum::createUninitializedMap(&map, 1, strlen("key"), &oa);
             char *keys = map.keys();
-            strncpy(keys, "key", strlen("key"));
+            memcpy(keys, "key", strlen("key"));
             map.data()[0] = DatumMapEntry(
                               StringRef(keys, static_cast<int>(strlen("key"))),
                               Datum::createInteger(1));
@@ -4694,12 +4748,12 @@ int main(int argc, char *argv[])
       { L_,  Datum::copyString("abcde", &oa),                          false },
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i < DATA_LEN; ++i) {
-                const int            LINE  = DATA[i].d_line;
-                const Datum&         VALUE = DATA[i].d_value;
-                const bool           EXP   = DATA[i].d_isExternalRef;
+                const int    LINE  = DATA[i].d_line;
+                const Datum& VALUE = DATA[i].d_value;
+                const bool   EXP   = DATA[i].d_isExternalRef;
 
                 if (veryVerbose) { T_ P_(LINE) P_(VALUE) P(EXP) }
 
@@ -4719,9 +4773,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-            Datum       array[2] = { Datum::createInteger(1),
-                                     Datum::createDouble(18)
-                                   };
+            const Datum array[2] = { Datum::createInteger(1),
+                                     Datum::createDouble(18) };
             const Datum D = Datum::createArrayReference(array, 2, &oa);
 
             ASSERT(true == D.isExternalReference());
@@ -4760,11 +4813,10 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
         }
 
-        if (verbose) cout <<
-                      "\nTesting with Datum having map value." << endl;
+        if (verbose) cout << "\nTesting with Datum having map value." << endl;
 
-        if (verbose) cout <<
-                "\tTesting with Datum having empty map value." << endl;
+        if (verbose)
+            cout << "\tTesting with Datum having empty map value." << endl;
         {
             DatumMutableMapRef map;
             Datum              D = Datum::adoptMap(map);
@@ -4774,8 +4826,8 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
             ASSERT( 0 == oa.status());
         }
-        if (verbose) cout << "\tTesting with Datum having non-empty map value."
-                          << endl;
+        if (verbose)
+            cout << "\tTesting with Datum having non-empty map value." << endl;
         {
             DatumMutableMapRef map;
             Datum::createUninitializedMap(&map, 1, &oa);
@@ -4812,7 +4864,7 @@ int main(int argc, char *argv[])
             DatumMutableMapOwningKeysRef map;
             Datum::createUninitializedMap(&map, 1, strlen("key"), &oa);
             char *keys = map.keys();
-            strncpy(keys, "key", strlen("key"));
+            memcpy(keys, "key", strlen("key"));
             map.data()[0] = DatumMapEntry(
                               StringRef(keys, static_cast<int>(strlen("key"))),
                               Datum::createInteger(1));
@@ -4924,19 +4976,19 @@ int main(int argc, char *argv[])
             DatumMutableMapOwningKeysRef map2;
             const Datum                  DM3 = Datum::adoptMap(map2);
 
-            const char *keys[mapSize] = {"key1", "key2"};
+            const char *keys[mapSize] = { "key1", "key2" };
             SizeType    keysSize = 0;
             for (size_t i = 0; i < mapSize; ++i) {
                 keysSize += strlen(keys[i]);
             }
             Datum::createUninitializedMap(&map2, mapSize, keysSize, &oa);
             char *keyBuffer = map2.keys();
-            strncpy(keyBuffer, keys[0], strlen(keys[0]));
+            memcpy(keyBuffer, keys[0], strlen(keys[0]));
             map2.data()[0] = DatumMapEntry(
                        StringRef(keyBuffer, static_cast<int>(strlen(keys[0]))),
                        Datum::createInteger(2));
             keyBuffer += strlen(keys[0]);
-            strncpy(keyBuffer, keys[1], strlen(keys[1]));
+            memcpy(keyBuffer, keys[1], strlen(keys[1]));
             map2.data()[1] = DatumMapEntry(
                        StringRef(keyBuffer, static_cast<int>(strlen(keys[1]))),
                        Datum::createDouble(8.2));
@@ -5278,7 +5330,7 @@ int main(int argc, char *argv[])
 { L_,  -9,    -9,    DM4,   "[ [ key1 = 2 ] [ key2 = 8.2 ] ]"                },
             };
 
-            const size_t NUM_DATA = sizeof(DATA)/sizeof(*DATA);
+            const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
             if (verbose)
                 cout << "\nTesting with various print specifications." << endl;
@@ -5334,7 +5386,7 @@ int main(int argc, char *argv[])
                         if (EXP) {
                             ASSERTV(LINE, EXP, os.str(), EXP == os.str());
                         } else {
-                            // The value has a platform-dependant
+                            // The value has a platform-dependent
                             // representation.  For those values we test
                             // operator<< only;
                             ASSERTV(LINE, (-9 == L) && (-9 == SPL));
@@ -5391,7 +5443,7 @@ int main(int argc, char *argv[])
         //:   destroyed.  (C-4)
         //
         // Testing:
-        //   char* createUninitializedString(Datum&, SizeType, Allocator *);
+        //   char *createUninitializedString(Datum&, SizeType, Allocator *);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "TESTING STRING CONSTRUCTION" << endl
@@ -5461,7 +5513,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bslma::TestAllocator            oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
             bsls::AssertTestHandlerGuard hG;
 
             bslma::Allocator *nullAllocPtr =
@@ -5562,8 +5614,8 @@ int main(int argc, char *argv[])
 
                 ASSERT(false == D.theMap().isSorted());
 
-                DatumMapEntry *mp = 0;
-                DatumMapRef    mapRef(mp, 0, false, false);
+                DatumMapEntry     *mp = 0;
+                const DatumMapRef  mapRef(mp, 0, false, false);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5616,7 +5668,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(false == D.theMap().isSorted());
 
-                DatumMapRef mapRef(map.data(), capacity, false, false);
+                const DatumMapRef mapRef(map.data(), capacity, false, false);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5671,7 +5723,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(true == D.theMap().isSorted());
 
-                DatumMapRef mapRef(map.data(), capacity, true, false);
+                const DatumMapRef mapRef(map.data(), capacity, true, false);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5737,7 +5789,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(false == D.theMap().isSorted());
 
-                DatumMapRef mapRef(map.data(), capacity, false, false);
+                const DatumMapRef mapRef(map.data(), capacity, false, false);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5777,8 +5829,8 @@ int main(int argc, char *argv[])
 
                 ASSERT(false == D.theMap().isSorted());
 
-                DatumMapEntry *mp = 0;
-                DatumMapRef    mapRef(mp, 0, false, true);
+                DatumMapEntry     *mp = 0;
+                const DatumMapRef  mapRef(mp, 0, false, true);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5791,7 +5843,7 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
                 const SizeType  mapCapacity = 4;
-                const char     *keys[] = {"one", "two", "three", "four"};
+                const char     *keys[] = { "one", "two", "three", "four" };
                 SizeType        keyCapacity = 0;
 
                 for (size_t i = 0; i < 4; ++i) {
@@ -5803,7 +5855,7 @@ int main(int argc, char *argv[])
                                               mapCapacity,
                                               keyCapacity,
                                               &oa);
-                char* keyBuffer = map.keys();
+                char *keyBuffer = map.keys();
 
                 bsl::memcpy(keyBuffer, keys[0], strlen(keys[0]));
                 StringRef key(keyBuffer, static_cast<int>(strlen(keys[0])));
@@ -5853,7 +5905,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(false == D.theMap().isSorted());
 
-                DatumMapRef mapRef(map.data(), mapCapacity, false, true);
+                const DatumMapRef mapRef(map.data(), mapCapacity, false, true);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5866,7 +5918,7 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
                 const SizeType  mapCapacity = 4;
-                const char     *keys[] = {"four", "six", "three", "wind"};
+                const char     *keys[] = { "four", "six", "three", "wind" };
                 SizeType        keyCapacity = 0;
 
                 for (size_t i = 0; i < 4; ++i) {
@@ -5878,7 +5930,7 @@ int main(int argc, char *argv[])
                                               mapCapacity,
                                               keyCapacity,
                                               &oa);
-                char* keyBuffer = map.keys();
+                char *keyBuffer = map.keys();
 
                 bsl::memcpy(keyBuffer, keys[0], strlen(keys[0]));
                 StringRef key(keyBuffer, static_cast<int>(strlen(keys[0])));
@@ -5928,7 +5980,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(true == D.theMap().isSorted());
 
-                DatumMapRef mapRef(map.data(), mapCapacity, true, true);
+                const DatumMapRef mapRef(map.data(), mapCapacity, true, true);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5941,7 +5993,7 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
                 const SizeType  mapCapacity = 4;
-                const char     *keys[] = {"one", "two", "three", "four"};
+                const char     *keys[] = { "one", "two", "three", "four" };
                 SizeType        keyCapacity = 0;
 
                 for (size_t i = 0; i < 4; ++i) {
@@ -5953,7 +6005,7 @@ int main(int argc, char *argv[])
                                               mapCapacity+16,
                                               keyCapacity+16,
                                               &oa);
-                char* keyBuffer = map.keys();
+                char *keyBuffer = map.keys();
 
                 bsl::memcpy(keyBuffer, keys[0], strlen(keys[0]));
                 StringRef key(keyBuffer, static_cast<int>(strlen(keys[0])));
@@ -6003,7 +6055,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(false == D.theMap().isSorted());
 
-                DatumMapRef mapRef(map.data(), mapCapacity, false, true);
+                const DatumMapRef mapRef(map.data(), mapCapacity, false, true);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -6013,7 +6065,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bslma::TestAllocator            oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
             bsls::AssertTestHandlerGuard hG;
 
             bslma::Allocator *nullAllocPtr =
@@ -6161,8 +6213,8 @@ int main(int argc, char *argv[])
 
                 ASSERT(false == D.theIntMap().isSorted());
 
-                DatumIntMapEntry *mp = 0;
-                DatumIntMapRef    mapRef(mp, 0, false);
+                DatumIntMapEntry     *mp = 0;
+                const DatumIntMapRef  mapRef(mp, 0, false);
                 ASSERT(mapRef == D.theIntMap());
 
                 Datum::destroy(D, &oa);
@@ -6210,7 +6262,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(false == D.theIntMap().isSorted());
 
-                DatumIntMapRef mapRef(map.data(), capacity, false);
+                const DatumIntMapRef mapRef(map.data(), capacity, false);
                 ASSERT(mapRef == D.theIntMap());
 
                 Datum::destroy(D, &oa);
@@ -6259,7 +6311,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(true == D.theIntMap().isSorted());
 
-                DatumIntMapRef mapRef(map.data(), capacity, true);
+                const DatumIntMapRef mapRef(map.data(), capacity, true);
                 ASSERT(mapRef == D.theIntMap());
 
                 Datum::destroy(D, &oa);
@@ -6315,7 +6367,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(false == D.theIntMap().isSorted());
 
-                DatumIntMapRef mapRef(map.data(), capacity, false);
+                const DatumIntMapRef mapRef(map.data(), capacity, false);
                 ASSERT(mapRef == D.theIntMap());
 
                 Datum::destroy(D, &oa);
@@ -6325,7 +6377,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bslma::TestAllocator            oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
             bsls::AssertTestHandlerGuard hG;
 
             bslma::Allocator *nullAllocPtr =
@@ -6410,8 +6462,8 @@ int main(int argc, char *argv[])
         //   DatumArrayRef theArray() const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                            << "TESTING ARRAY CONSTRUCTION" << endl
-                            << "==========================" << endl;
+                          << "TESTING ARRAY CONSTRUCTION" << endl
+                          << "==========================" << endl;
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
@@ -6421,8 +6473,8 @@ int main(int argc, char *argv[])
         {
             // 32-bit implementation uses externalized storage at 2^16.
 
-            const size_t DATA[] = {0, 1, 30, 65535, 65536, 100000};
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA[] = { 0, 1, 30, 65535, 65536, 100000 };
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             if (verbose) cout << "\tTaking array and size as a parameters."
                                   << endl;
@@ -6432,7 +6484,6 @@ int main(int argc, char *argv[])
                     const Datum D = Datum::createArrayReference(&dummyDatum,
                                                                 DATA[i],
                                                                 &oa);
-
                     ASSERTV(i, D.isArray());
                     ASSERTV(i, !D.isBoolean());
                     ASSERTV(i, !D.isBinary());
@@ -6452,7 +6503,7 @@ int main(int argc, char *argv[])
                     ASSERTV(i, !D.isUdt());
                     ASSERT(D.isExternalReference());
 
-                    DatumArrayRef arrayRef = D.theArray();
+                    const DatumArrayRef arrayRef = D.theArray();
                     ASSERTV(i, &dummyDatum == arrayRef.data());
                     ASSERTV(i, DATA[i] == arrayRef.length());
                     Datum::destroy(D, &oa);
@@ -6470,7 +6521,6 @@ int main(int argc, char *argv[])
                     const Datum D = Datum::createArrayReference(&dummyDatum,
                                                                 DATA[i],
                                                                 &oa);
-
                     ASSERTV(i, D.isArray());
 
                     const DatumArrayRef arrayRef = D.theArray();
@@ -6542,8 +6592,8 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isUdt());
                 ASSERT(!D.isExternalReference());
 
-                Datum         dummyDatum;
-                DatumArrayRef arrayRef(&dummyDatum, 0);
+                Datum               dummyDatum;
+                const DatumArrayRef arrayRef(&dummyDatum, 0);
 
                 ASSERT(arrayRef == D.theArray());
 
@@ -6571,7 +6621,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(D.isArray());
                 ASSERT(!D.isExternalReference());
-                DatumArrayRef arrayRef(array.data(), 6);
+                const DatumArrayRef arrayRef(array.data(), 6);
                 ASSERT(arrayRef == D.theArray());
 
                 // Adopt takes ownership of the Datum's memory, so all Datums
@@ -6600,7 +6650,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(D1.isArray());
                 ASSERT(!D1.isExternalReference());
-                DatumArrayRef arrayRef1(array1.data(), 3);
+                const DatumArrayRef arrayRef1(array1.data(), 3);
                 ASSERT(arrayRef1 == D1.theArray());
 
                 const SizeType       capacity2 = 16; // Yes, 16
@@ -6629,7 +6679,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bslma::TestAllocator            oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
             bsls::AssertTestHandlerGuard hG;
 
             bslma::Allocator *nullAllocPtr =
@@ -6705,7 +6755,6 @@ int main(int argc, char *argv[])
                 Datum::destroy(fakeArray, &oa);
                 Datum::destroy(realArray, &oa);
             }
-
         }
       } break;
       case 14: {
@@ -6759,8 +6808,8 @@ int main(int argc, char *argv[])
             DatumMapEntry(KEY3, Datum::copyString("A String", &oa))
         };
 
-        // remember how many is allocated by Datums
-        Int64 bytesInUse = oa.numBytesInUse();
+        // remember how many bytes are allocated by Datums
+        const Int64 bytesInUse = oa.numBytesInUse();
 
         if (verbose) cout << "\nTesting value constructor." << endl;
         {
@@ -6985,14 +7034,14 @@ int main(int argc, char *argv[])
             bsl::ostringstream os;
             os << obj;
 
-            const char* EXP = "[ [ key1 = 3 ] " \
-                                "[ key2 = 3.75 ] " \
+            const char *EXP = "[ [ key1 = 3 ] "
+                                "[ key2 = 3.75 ] "
                                 "[ key3 = \"A String\" ] ]";
             ASSERTV(EXP, os.str(),  EXP == os.str());
         }
 
-        for(SizeType i = 0; i < size; ++i) {
-            Datum:: destroy(map[i].value(), &oa);
+        for (SizeType i = 0; i < size; ++i) {
+            Datum::destroy(map[i].value(), &oa);
         }
         ASSERT(0 == oa.status());
 
@@ -7068,7 +7117,7 @@ int main(int argc, char *argv[])
                                      DatumMapRef(map3c, SIZE3, false, false) },
      };
 
-                const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i< DATA_LEN; ++i) {
                     const int         LINE  = DATA[i].d_line;
@@ -7111,15 +7160,15 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                for(SizeType i = 0; i < SIZE1; ++i) {
+                for (SizeType i = 0; i < SIZE1; ++i) {
                     Datum:: destroy(map1[i].value(), &oa);
                     Datum:: destroy(map1c[i].value(), &oa);
                 }
-                for(SizeType i = 0; i < SIZE2; ++i) {
+                for (SizeType i = 0; i < SIZE2; ++i) {
                     Datum:: destroy(map2[i].value(), &oa);
                     Datum:: destroy(map2c[i].value(), &oa);
                 }
-                for(SizeType i = 0; i < SIZE3; ++i) {
+                for (SizeType i = 0; i < SIZE3; ++i) {
                     Datum:: destroy(map3[i].value(), &oa);
                     Datum:: destroy(map3c[i].value(), &oa);
                 }
@@ -7129,14 +7178,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'find'." << endl;
         {
-            // randomStringGenerator does not use special characters
+            // 'loadRandomString' does not use special characters
             const bsl::string notInMapLess = "$%;*&^"; // less than alpha-num
             const bsl::string notInMapGreater = "{}~"; // more than alpha-num
 
             const int                NUM_ENTRIES = 100;
             bsl::vector<bsl::string> keys(NUM_ENTRIES);
             for (bsls::Types::size_type i = 0; i < NUM_ENTRIES; ++i) {
-                keys[i] = randomStringGenerator(i + 1);
+                loadRandomString(&keys[i], i + 1);
             }
 
             // Unsorted map.
@@ -7216,9 +7265,9 @@ int main(int argc, char *argv[])
 
                 const DatumMapRef obj(MAP, SIZE, false, false);
 
-                ASSERT_SAFE_FAIL(obj[SIZE  ]);
-                ASSERT_SAFE_PASS(obj[SIZE-1]);
-                ASSERT_SAFE_PASS(obj[0     ]);
+                ASSERT_SAFE_FAIL(obj[SIZE    ]);
+                ASSERT_SAFE_PASS(obj[SIZE - 1]);
+                ASSERT_SAFE_PASS(obj[0       ]);
             }
         }
       } break;
@@ -7260,22 +7309,22 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-        const SizeType      size = 3;
-        const DatumIntMapEntry map[size] = {
+        const SizeType         SIZE = 3;
+        const DatumIntMapEntry map[SIZE] = {
             DatumIntMapEntry(1, Datum::createInteger(3)),
             DatumIntMapEntry(2, Datum::createDouble(3.75)),
             DatumIntMapEntry(3, Datum::copyString("A String", &oa))
         };
 
-        // remember how many is allocated by Datums
-        Int64 bytesInUse = oa.numBytesInUse();
+        // remember how many bytes are allocated by Datums
+        const Int64 bytesInUse = oa.numBytesInUse();
 
         if (verbose) cout << "\nTesting value constructor." << endl;
         {
-            const DatumIntMapRef obj(map, size, false);
+            const DatumIntMapRef obj(map, SIZE, false);
 
             ASSERT(bytesInUse == oa.numBytesInUse());
-            ASSERT(size       == obj.size());
+            ASSERT(SIZE       == obj.size());
             ASSERT(false      == obj.isSorted());
             for (size_t i = 0; i < obj.size(); ++i) {
                 if (veryVerbose) { T_ P_(i) P_(map[i]) P(obj[i]) }
@@ -7285,9 +7334,9 @@ int main(int argc, char *argv[])
             }
         }
         {
-            const DatumIntMapRef obj(map, size, true);
+            const DatumIntMapRef obj(map, SIZE, true);
             ASSERT(bytesInUse == oa.numBytesInUse());
-            ASSERT(size       == obj.size());
+            ASSERT(SIZE       == obj.size());
             ASSERT(true       == obj.isSorted());
             for (size_t i = 0; i < obj.size(); ++i) {
                 if (veryVerbose) { T_ P_(i) P_(map[i]) P(obj[i]) }
@@ -7300,13 +7349,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting copy constructor for non-sorted map."
                           << endl;
         {
-            const DatumIntMapRef obj(map, size, false);
+            const DatumIntMapRef obj(map, SIZE, false);
 
             ASSERT(bytesInUse == oa.numBytesInUse());
 
             const DatumIntMapRef objCopy(obj);
 
-            ASSERT(size  == objCopy.size());
+            ASSERT(SIZE  == objCopy.size());
             ASSERT(false == objCopy.isSorted());
             for (size_t i = 0; i < objCopy.size(); ++i) {
                 if (veryVerbose) { T_ P_(i) P_(map[i]) P(objCopy[i]) }
@@ -7315,7 +7364,7 @@ int main(int argc, char *argv[])
                 ASSERTV(i, map[i] == objCopy[i]);
             }
 
-            ASSERT(size  == obj.size());
+            ASSERT(SIZE  == obj.size());
             ASSERT(false == obj.isSorted());
             for (size_t i = 0; i < obj.size(); ++i) {
                 if (veryVerbose) { T_ P_(i) P_(map[i]) P(obj[i]) }
@@ -7328,13 +7377,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting copy constructor for sorted map."
                           << endl;
         {
-            const DatumIntMapRef obj(map, size, true);
+            const DatumIntMapRef obj(map, SIZE, true);
 
             ASSERT(bytesInUse == oa.numBytesInUse());
 
             const DatumIntMapRef objCopy(obj);
 
-            ASSERT(size  == objCopy.size());
+            ASSERT(SIZE  == objCopy.size());
             ASSERT(true  == objCopy.isSorted());
 
             for (size_t i = 0; i < objCopy.size(); ++i) {
@@ -7344,7 +7393,7 @@ int main(int argc, char *argv[])
                 ASSERTV(i, map[i] == objCopy[i]);
             }
 
-            ASSERT(size  == obj.size());
+            ASSERT(SIZE  == obj.size());
             ASSERT(true  == obj.isSorted());
 
             for (size_t i = 0; i < obj.size(); ++i) {
@@ -7357,7 +7406,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'print'." << endl;
         {
-            const DatumIntMapRef obj(map, size, false);
+            const DatumIntMapRef obj(map, SIZE, false);
 
             if (verbose) cout << "\tTesting single-line format." << endl;
             {
@@ -7469,25 +7518,25 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'operator<<'." << endl;
         {
-            const DatumIntMapRef obj(map, size, false);
+            const DatumIntMapRef obj(map, SIZE, false);
 
             bsl::ostringstream os;
             os << obj;
 
-            const char* EXP = "[ [ 1 = 3 ] " \
-                                "[ 2 = 3.75 ] " \
+            const char *EXP = "[ [ 1 = 3 ] "
+                                "[ 2 = 3.75 ] "
                                 "[ 3 = \"A String\" ] ]";
             ASSERTV(EXP, os.str(),  EXP == os.str());
         }
 
-        for(SizeType i = 0; i < size; ++i) {
+        for (SizeType i = 0; i < SIZE; ++i) {
             Datum:: destroy(map[i].value(), &oa);
         }
         ASSERT(0 == oa.status());
 
         // Creating test values
 
-        const SizeType      SIZE1 = 3;
+        const SizeType         SIZE1 = 3;
         const DatumIntMapEntry map1[SIZE1] = {
             DatumIntMapEntry(2, Datum::createDate(Date(2003, 10, 15))),
             DatumIntMapEntry(3, Datum::createError(3, "error", &oa)),
@@ -7500,7 +7549,7 @@ int main(int argc, char *argv[])
             DatumIntMapEntry(4, Datum::copyString("A String", &oa))
         };
 
-        const SizeType      SIZE2 = 3;
+        const SizeType         SIZE2 = 3;
         const DatumIntMapEntry map2[SIZE2] = {
             DatumIntMapEntry(1, Datum::createDate(Date(2003, 10, 15))),
             DatumIntMapEntry(3, Datum::createError(3, "error", &oa)),
@@ -7513,7 +7562,7 @@ int main(int argc, char *argv[])
             DatumIntMapEntry(4, Datum::copyString("A String", &oa))
         };
 
-        const SizeType      SIZE3 = 2;
+        const SizeType         SIZE3 = 2;
         const DatumIntMapEntry map3[SIZE3] = {
             DatumIntMapEntry(2, Datum::createDate(Date(2003, 10, 15))),
             DatumIntMapEntry(3, Datum::createError(3, "error", &oa)),
@@ -7557,7 +7606,7 @@ int main(int argc, char *argv[])
                                          DatumIntMapRef(map3c, SIZE3, false) },
      };
 
-                const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i< DATA_LEN; ++i) {
                     const int            LINE  = DATA[i].d_line;
@@ -7600,15 +7649,15 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                for(SizeType i = 0; i < SIZE1; ++i) {
+                for (SizeType i = 0; i < SIZE1; ++i) {
                     Datum:: destroy(map1[i].value(), &oa);
                     Datum:: destroy(map1c[i].value(), &oa);
                 }
-                for(SizeType i = 0; i < SIZE2; ++i) {
+                for (SizeType i = 0; i < SIZE2; ++i) {
                     Datum:: destroy(map2[i].value(), &oa);
                     Datum:: destroy(map2c[i].value(), &oa);
                 }
-                for(SizeType i = 0; i < SIZE3; ++i) {
+                for (SizeType i = 0; i < SIZE3; ++i) {
                     Datum:: destroy(map3[i].value(), &oa);
                     Datum:: destroy(map3c[i].value(), &oa);
                 }
@@ -7698,7 +7747,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tTesting 'operator[]'." << endl;
             {
-                const int           SIZE = 3;
+                const int              SIZE = 3;
                 const DatumIntMapEntry MAP[SIZE] = {
                     DatumIntMapEntry(1, Datum::createNull()),
                     DatumIntMapEntry(2, Datum::createNull()),
@@ -7758,18 +7807,17 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-            const SizeType LENGTH = 3;
-            const Datum    array[LENGTH] = {Datum::createInteger(3),
-                                            Datum::createDouble(2.25),
-                                            Datum::createError(3, "error", &oa)
-                                           };
+            const size_t SIZE = 3;
+            const Datum  array[SIZE] = { Datum::createInteger(3),
+                                         Datum::createDouble(2.25),
+                                         Datum::createError(3, "error", &oa) };
 
-            Int64 bytesInUse = oa.numBytesInUse();
+            const Int64 bytesInUse = oa.numBytesInUse();
 
-            const DatumArrayRef obj(array, LENGTH);
+            const DatumArrayRef obj(array, SIZE);
 
             ASSERT(bytesInUse == oa.numBytesInUse());
-            ASSERT(LENGTH     == obj.length());
+            ASSERT(SIZE       == obj.length());
             ASSERT(array      == obj.data());
             for (size_t i = 0; i < 3; ++i) {
                 ASSERTV(i, array[i] == obj[i]);
@@ -7802,15 +7850,12 @@ int main(int argc, char *argv[])
 
             const Datum A[3] = { Datum::createInteger(3),
                                  Datum::createDouble(2.25),
-                                 Datum::createError(3, "error", &oa),
-                               };
+                                 Datum::createError(3, "error", &oa) };
 
-            const Datum B[1] = { Datum::createInteger(3),
-                               };
+            const Datum B[1] = { Datum::createInteger(3) };
 
             const Datum C[2] = { Datum::createInteger(3),
-                                 Datum::createDouble(5.0),
-                               };
+                                 Datum::createDouble(5.0) };
 
             const static struct {
                 int            d_line;   // line number
@@ -7824,13 +7869,11 @@ int main(int argc, char *argv[])
                 { L_,  DatumArrayRef(C, 2)  },
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const int           LINE  = DATA[i].d_line;
                 const DatumArrayRef X = DATA[i].d_value;
-
-
 
                 ASSERTV(LINE, X, X == X);
                 ASSERTV(LINE, X, !(X != X));
@@ -7858,8 +7901,7 @@ int main(int argc, char *argv[])
             const int   SIZE = 3;
             const Datum ARRAY[SIZE] = { Datum::createInteger(3),
                                         Datum::createDouble(2.25),
-                                        Datum::createError(3, "error", &oa)
-                                      };
+                                        Datum::createError(3, "error", &oa) };
 
             const DatumArrayRef obj(ARRAY, SIZE);
 
@@ -7955,13 +7997,12 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-            const SizeType LENGTH = 3;
-            const Datum    array[LENGTH] = {Datum::createInteger(3),
-                                            Datum::createDouble(2.25),
-                                            Datum::createError(5, "error", &oa)
-                                           };
+            const size_t SIZE = 3;
+            const Datum  array[SIZE] = { Datum::createInteger(3),
+                                         Datum::createDouble(2.25),
+                                         Datum::createError(5, "error", &oa) };
 
-            const DatumArrayRef obj(array, LENGTH);
+            const DatumArrayRef obj(array, SIZE);
 
             bsl::ostringstream os;
             os << obj;
@@ -7989,17 +8030,16 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tTesting 'operator[]'." << endl;
             {
-                const int   SIZE = 3;
-                const Datum ARRAY[SIZE] = { Datum::createNull(),
-                                            Datum::createNull(),
-                                            Datum::createNull()
-                                          };
+                const size_t SIZE = 3;
+                const Datum  ARRAY[SIZE] = { Datum::createNull(),
+                                             Datum::createNull(),
+                                             Datum::createNull() };
 
                 const DatumArrayRef obj(ARRAY, SIZE);
 
-                ASSERT_SAFE_FAIL(obj[SIZE  ]);
-                ASSERT_SAFE_PASS(obj[SIZE-1]);
-                ASSERT_SAFE_PASS(obj[0     ]);
+                ASSERT_SAFE_FAIL(obj[SIZE    ]);
+                ASSERT_SAFE_PASS(obj[SIZE - 1]);
+                ASSERT_SAFE_PASS(obj[0       ]);
             }
         }
         ASSERT(0 == da.status())
@@ -8343,7 +8383,7 @@ int main(int argc, char *argv[])
                     { L_,  DatumMapEntry("key",  Datum::createInteger(1))  },
                 };
 
-                const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i< DATA_LEN; ++i) {
                     const int           LINE = DATA[i].d_line;
@@ -8701,8 +8741,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'boolean' data type" << endl;
         {
-            const static bool DATA[] = {true, false};
-            const size_t      DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const static bool DATA[] = { true, false };
+            const size_t      DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const bool VALUE = DATA[i];
@@ -8746,7 +8786,7 @@ int main(int argc, char *argv[])
                 Date(9999, 12, 31),
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const bdlt::Date VALUE = DATA[i];
@@ -8794,7 +8834,7 @@ int main(int argc, char *argv[])
                 Datetime(9999,  9,  9,  9,  9,  9, 999),
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const bdlt::Datetime VALUE = DATA[i];
@@ -8805,7 +8845,7 @@ int main(int argc, char *argv[])
 
                 const Datum Z = Datum::createDatetime(VALUE, &oa);
 
-                Int64 bytesInUse = oa.numBytesInUse();
+                const Int64 bytesInUse = oa.numBytesInUse();
 
                 ASSERT(true  == Z.isDatetime());
                 ASSERT(VALUE == Z.theDatetime());
@@ -8849,7 +8889,7 @@ int main(int argc, char *argv[])
                 DatetimeInterval(-100000, 3, 2, 14, 319),
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const bdlt::DatetimeInterval VALUE = DATA[i];
@@ -8860,7 +8900,7 @@ int main(int argc, char *argv[])
 
                 const Datum Z = Datum::createDatetimeInterval(VALUE, &oa);
 
-                Int64 bytesInUse = oa.numBytesInUse();
+                const Int64 bytesInUse = oa.numBytesInUse();
 
                 ASSERT(true  == Z.isDatetimeInterval());
                 ASSERT(VALUE == Z.theDatetimeInterval());
@@ -8887,9 +8927,7 @@ int main(int argc, char *argv[])
         {
             const static struct {
                 int                d_line;          // line number
-
                 bdldfp::Decimal64  d_value;         // 'Decimal64' value
-
                 bool               d_compareEqual;  // does compare equal with
                                                     // itself
             } DATA[] = {
@@ -8910,7 +8948,7 @@ int main(int argc, char *argv[])
                 { L_,  k_DECIMAL64_QNAN,               false },
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const int               LINE  = DATA[i].d_line;
@@ -8923,7 +8961,7 @@ int main(int argc, char *argv[])
 
                 const Datum Z = Datum::createDecimal64(VALUE, &oa);
 
-                Int64 bytesInUse = oa.numBytesInUse();
+                const Int64 bytesInUse = oa.numBytesInUse();
 
                 ASSERT(true == Z.isDecimal64());
                 if (EQUAL) {
@@ -8965,26 +9003,26 @@ int main(int argc, char *argv[])
                 double d_value;         // double value
                 bool   d_compareEqual;  // does compare equal with itself
             } DATA[] = {
-                //LINE VALUE                   EQUAL
-                //---- ----------------------  -----
-                { L_,  0.0,                    true  },
-                { L_,  k_DOUBLE_NEG_ZERO,      true  },
-                { L_,  .01,                    true  },
-                { L_,  -.01,                   true  },
-                { L_,  2.25e-117,              true  },
-                { L_,  2.25e117,               true  },
-                { L_,  1924.25,                true  },
-                { L_,  -1924.25,               true  },
-                { L_,  k_DOUBLE_MIN,           true  },
-                { L_,  k_DOUBLE_MAX,           true  },
-                { L_,  k_DOUBLE_INFINITY,      true  },
-                { L_,  k_DOUBLE_NEG_INFINITY,  true  },
-                { L_,  k_DOUBLE_SNAN,          false },
-                { L_,  k_DOUBLE_QNAN,          false },
-                { L_,  k_DOUBLE_INDETERMINATE, false },
+                //LINE VALUE                  EQUAL
+                //---- ---------------------- -----
+                { L_,  0.0,                   true  },
+                { L_,  k_DOUBLE_NEG_ZERO,     true  },
+                { L_,  .01,                   true  },
+                { L_,  -.01,                  true  },
+                { L_,  2.25e-117,             true  },
+                { L_,  2.25e117,              true  },
+                { L_,  1924.25,               true  },
+                { L_,  -1924.25,              true  },
+                { L_,  k_DOUBLE_MIN,          true  },
+                { L_,  k_DOUBLE_MAX,          true  },
+                { L_,  k_DOUBLE_INFINITY,     true  },
+                { L_,  k_DOUBLE_NEG_INFINITY, true  },
+                { L_,  k_DOUBLE_SNAN,         false },
+                { L_,  k_DOUBLE_QNAN,         false },
+                { L_,  k_DOUBLE_LOADED_NAN,   false },
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const int     LINE  = DATA[i].d_line;
@@ -9004,6 +9042,18 @@ int main(int argc, char *argv[])
                     ASSERT(VALUE == Z.theDouble());
                 } else {
                     ASSERT(VALUE != Z.theDouble());
+                    ASSERTV(bdlb::Float::classifyFine(VALUE),
+                            bdlb::Float::classifyFine(Z.theDouble()),
+                            bdlb::Float::classifyFine(VALUE) ==
+                                     bdlb::Float::classifyFine(Z.theDouble()));
+                    if (k_DOUBLE_NAN_BITS_PRESERVED) {
+                        // In 64bit 'Datum' we currently store 'NaN' values
+                        // unchanged.
+                        const double THE_DOUBLE = Z.theDouble();
+                        ASSERT(bsl::memcmp(&VALUE,
+                                           &THE_DOUBLE,
+                                           sizeof(double)) == 0);
+                    }
                 }
 
                 const Datum X(Z);
@@ -9048,7 +9098,7 @@ int main(int argc, char *argv[])
                 numeric_limits<int>::max()
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             if (veryVerbose) cout << "\tTesting 'createError(int)'." << endl;
             for (size_t i = 0; i< DATA_LEN; ++i) {
@@ -9085,7 +9135,7 @@ int main(int argc, char *argv[])
             if (veryVerbose)
                 cout << "\tTesting 'createError(int, StringRef&)'." << endl;
 
-            const char* errorMessage = "This is an error#$%\".";
+            const char *errorMessage = "This is an error#$%\".";
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 for (size_t j = 0; j <= strlen(errorMessage); ++j) {
                     const int       ERROR = DATA[i];
@@ -9097,7 +9147,7 @@ int main(int argc, char *argv[])
 
                     const Datum Z = Datum::createError(ERROR, MESSAGE, &oa);
 
-                    Int64 bytesInUse = oa.numBytesInUse();
+                    const Int64 bytesInUse = oa.numBytesInUse();
 
                     ASSERT(true == Z.isError());
                     ASSERTV(ERROR, DatumError(ERROR, MESSAGE) == Z.theError());
@@ -9136,7 +9186,7 @@ int main(int argc, char *argv[])
                 numeric_limits<int>::min(),
                 numeric_limits<int>::max(),
             };
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const int VALUE = DATA[i];
@@ -9188,7 +9238,7 @@ int main(int argc, char *argv[])
                 numeric_limits<Int64>::max(),
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const Int64 VALUE = DATA[i];
@@ -9269,24 +9319,27 @@ int main(int argc, char *argv[])
                 1024*1024,
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             if (veryVerbose)
                 cout << "\tTesting 'createStringRef(const char*, SizeType)'."
                      << endl;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
+                bslma::TestAllocator  ba("buffer", veryVeryVeryVerbose);
                 const Datum::SizeType SIZE = DATA[i];
-                const char*           BUFFER = new char[SIZE];
-                const StringRef       STRING(BUFFER, static_cast<int>(SIZE));
+                const bsl::string     BUFFER(SIZE, 'x', &ba);
+                const StringRef       STRING(BUFFER.data(),
+                                             static_cast<int>(SIZE));
 
                 if (veryVerbose) { T_ T_ P(SIZE) }
                 {
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-                    const Datum Z = Datum::createStringRef(BUFFER, SIZE, &oa);
+                    const Datum Z = Datum::createStringRef(BUFFER.data(),
+                                                           SIZE, &oa);
 
-                    Int64 bytesInUse = oa.numBytesInUse();
+                    const Int64 bytesInUse = oa.numBytesInUse();
 
                     ASSERT(true   == Z.isString());
                     ASSERT(STRING == Z.theString());
@@ -9307,7 +9360,6 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == oa.status());
                 }
-                delete[] BUFFER;
             }
         }
 
@@ -9320,7 +9372,7 @@ int main(int argc, char *argv[])
                 Time(23, 59, 59, 999, 999),
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const bdlt::Time VALUE = DATA[i];
@@ -9389,21 +9441,26 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'DatumBinaryRef' data type." << endl;
         {
-            const unsigned char BUFFER[] = "0123456789abcdef";
+            for (size_t i = 0; i < 258; ++i) {
+                bslma::TestAllocator       ba("buffer", veryVeryVeryVerbose);
+                bsl::vector<unsigned char> BUFFER(&ba);
+                const size_t               SIZE = i;
+                loadRandomBinary(&BUFFER, SIZE);
 
-            for (size_t i = 0; i < sizeof(BUFFER); ++i) {
-                const DatumBinaryRef REF(BUFFER, i);
+                const DatumBinaryRef REF(BUFFER.data(), SIZE);
 
-                if (veryVerbose) { T_ P(REF) }
+                if (veryVerbose) { T_ P_(SIZE) P(REF) }
 
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-                const Datum Z = Datum::copyBinary(BUFFER, i, &oa);
+                const Datum Z = Datum::copyBinary(BUFFER.data(), SIZE, &oa);
 
-                Int64 bytesInUse = oa.numBytesInUse();
+                const Int64 bytesInUse = oa.numBytesInUse();
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-                if (i<=13) {
+                if (SIZE <= 13) {
                     ASSERT(0 == bytesInUse);
+                } else {
+                    ASSERT(0 != bytesInUse);
                 }
 #endif // BSLS_PLATFORM_CPU_64_BIT
 
@@ -9430,28 +9487,31 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'String' data type." << endl;
         {
-            const char BUFFER[] = "0123456789abcdef";
+            for (size_t i = 0; i < 258; ++i) {
+                bslma::TestAllocator ba("buffer", veryVeryVeryVerbose);
+                bsl::string BUFFER(&ba);
+                const size_t SIZE = i;
+                loadRandomString(&BUFFER, SIZE);
 
-            for (size_t i = 0; i < sizeof(BUFFER); ++i) {
-                const StringRef REF(BUFFER, static_cast<int>(i));
+                const StringRef REF(BUFFER.data(), static_cast<int>(SIZE));
 
-                if (veryVerbose) { T_ P(REF) }
+                if (veryVerbose) { T_ P_(SIZE) P(REF) }
 
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-                const Datum Z = Datum::copyString(BUFFER, i, &oa);
+                const Datum Z = Datum::copyString(BUFFER.data(), SIZE, &oa);
 
-                Int64 bytesInUse = oa.numBytesInUse();
+                const Int64 bytesInUse = oa.numBytesInUse();
 #ifdef BSLS_PLATFORM_CPU_32_BIT
                 // Up to length 6 inclusive the strings are stored inline
-                if (i <= 6) {
+                if (SIZE <= 6) {
                     ASSERT(0 == bytesInUse);
                 } else {
                     ASSERT(0 != bytesInUse);
                 }
 #else  // BSLS_PLATFORM_CPU_32_BIT
                 // Up to length 13 inclusive the strings are stored inline
-                if ( i<=13 ) {
+                if (SIZE <= 13) {
                     ASSERT(0 == bytesInUse);
                 } else {
                     ASSERT(0 != bytesInUse);
@@ -9485,7 +9545,7 @@ int main(int argc, char *argv[])
         //   Ensure that the value of the 'Datum' holding non-aggregate value
         //   can be formatted appropriately on an 'ostream' in some standard,
         //   human-readable form. Note, that 'Datum' implements custom printing
-        //   only for the following non-aggreagate types:
+        //   only for the following non-aggregate types:
         //   o boolean
         //   o null
         //   o string
@@ -9691,12 +9751,12 @@ int main(int argc, char *argv[])
 { L_,   0,  0, Datum::createInteger64(987654, &oa), "987654"              NL },
 { L_,   0,  0, Datum::createTime(bdlt::Time()),     "24:00:00.000000"     NL },
 { L_,  -9, -9, Datum::createUdt(reinterpret_cast<void *>(0x1), 12),  0       },
-// These values have platform-dependant representation
+// These values have platform-dependent representation
 { L_,  -9, -9, Datum::createDouble(k_DOUBLE_INFINITY),                0      },
 { L_,  -9, -9, Datum::createDouble(k_DOUBLE_NEG_INFINITY),            0      },
 { L_,  -9, -9, Datum::createDouble(k_DOUBLE_SNAN),                    0      },
 { L_,  -9, -9, Datum::createDouble(k_DOUBLE_QNAN),                    0      },
-{ L_,  -9, -9, Datum::createDouble(k_DOUBLE_INDETERMINATE),           0      },
+{ L_,  -9, -9, Datum::createDouble(k_DOUBLE_LOADED_NAN),              0      },
 { L_,  -9, -9, Datum::createDecimal64(k_DECIMAL64_INFINITY, &oa),     0      },
 { L_,  -9, -9, Datum::createDecimal64(k_DECIMAL64_NEG_INFINITY, &oa), 0      },
 { L_,  -9, -9, Datum::createDecimal64(k_DECIMAL64_SNAN, &oa),         0      },
@@ -9704,7 +9764,7 @@ int main(int argc, char *argv[])
 #undef NL
         };
 
-        const size_t NUM_DATA = sizeof(DATA)/sizeof(*DATA);
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
         if (verbose)
             cout << "\nTesting with various print specifications." << endl;
@@ -9761,7 +9821,7 @@ int main(int argc, char *argv[])
                     if (EXP) {
                         ASSERTV(LINE, EXP, os.str(), EXP == os.str());
                     } else {
-                        // The value has a platform-dependant representation.
+                        // The value has a platform-dependent representation.
                         // For those values we test operator<< only;
                         ASSERTV(LINE, (-9 == L) && (-9 == SPL));
                         ostringstream expected;
@@ -9933,8 +9993,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'createBoolean'." << endl;
         {
-            const static bool DATA[] = {true, false};
-            const size_t      DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const static bool DATA[] = { true, false };
+            const size_t      DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const bool VALUE = DATA[i];
@@ -9983,7 +10043,7 @@ int main(int argc, char *argv[])
                 Date(9999, 12, 31),
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const bdlt::Date VALUE = DATA[i];
@@ -10036,7 +10096,7 @@ int main(int argc, char *argv[])
                 Datetime(9999,  9,  9,  9,  9,  9, 999),
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const bdlt::Datetime VALUE = DATA[i];
@@ -10094,7 +10154,7 @@ int main(int argc, char *argv[])
                 DatetimeInterval(-100000000, 3, 2, 14, 319),
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const bdlt::DatetimeInterval VALUE = DATA[i];
@@ -10155,7 +10215,7 @@ int main(int argc, char *argv[])
                 { L_,  k_DECIMAL64_SNAN,               false },
                 { L_,  k_DECIMAL64_QNAN,               false },
             };
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const int               LINE  = DATA[i].d_line;
@@ -10205,25 +10265,25 @@ int main(int argc, char *argv[])
                 double   d_value;         // double value
                 bool     d_compareEqual;  // does compare equal with itself
             } DATA[] = {
-                //LINE VALUE                   EQUAL
-                //---- ----------------------  -----
-                { L_,  0.0,                    true  },
-                { L_,  k_DOUBLE_NEG_ZERO,      true  },
-                { L_,  .01,                    true  },
-                { L_,  -.01,                   true  },
-                { L_,  2.25e-117,              true  },
-                { L_,  2.25e117,               true  },
-                { L_,  1924.25,                true  },
-                { L_,  -1924.25,               true  },
-                { L_,  k_DOUBLE_MIN,           true  },
-                { L_,  k_DOUBLE_MAX,           true  },
-                { L_,  k_DOUBLE_INFINITY,      true  },
-                { L_,  k_DOUBLE_NEG_INFINITY,  true  },
-                { L_,  k_DOUBLE_SNAN,          false },
-                { L_,  k_DOUBLE_QNAN,          false },
-                { L_,  k_DOUBLE_INDETERMINATE, false },
+                //LINE VALUE                  EQUAL
+                //---- ---------------------- -----
+                { L_,  0.0,                   true  },
+                { L_,  k_DOUBLE_NEG_ZERO,     true  },
+                { L_,  .01,                   true  },
+                { L_,  -.01,                  true  },
+                { L_,  2.25e-117,             true  },
+                { L_,  2.25e117,              true  },
+                { L_,  1924.25,               true  },
+                { L_,  -1924.25,              true  },
+                { L_,  k_DOUBLE_MIN,          true  },
+                { L_,  k_DOUBLE_MAX,          true  },
+                { L_,  k_DOUBLE_INFINITY,     true  },
+                { L_,  k_DOUBLE_NEG_INFINITY, true  },
+                { L_,  k_DOUBLE_SNAN,         false },
+                { L_,  k_DOUBLE_QNAN,         false },
+                { L_,  k_DOUBLE_LOADED_NAN,   false },
             };
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const int     LINE  = DATA[i].d_line;
@@ -10259,6 +10319,18 @@ int main(int argc, char *argv[])
                     ASSERT(VALUE == D.theDouble());
                 } else {
                     ASSERT(VALUE != D.theDouble());
+                    ASSERTV(bdlb::Float::classifyFine(VALUE),
+                            bdlb::Float::classifyFine(D.theDouble()),
+                            bdlb::Float::classifyFine(VALUE) ==
+                                     bdlb::Float::classifyFine(D.theDouble()));
+                    if (k_DOUBLE_NAN_BITS_PRESERVED) {
+                        // In 64bit 'Datum' we currently store 'NaN' values
+                        // unchanged.
+                        const double THE_DOUBLE = D.theDouble();
+                        ASSERT(bsl::memcmp(&VALUE,
+                                           &THE_DOUBLE,
+                                           sizeof(double)) == 0);
+                    }
                 }
 
                 Datum::destroy(D, &oa);
@@ -10283,7 +10355,7 @@ int main(int argc, char *argv[])
                 numeric_limits<int>::max()
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             if (veryVerbose) cout << "\tTesting 'createError(int)'." << endl;
             for (size_t i = 0; i< DATA_LEN; ++i) {
@@ -10325,7 +10397,7 @@ int main(int argc, char *argv[])
             if (veryVerbose)
                 cout << "\tTesting 'createError(int, StringRef&)'." << endl;
 
-            const char* errorMessage = "This is an error#$%\".";
+            const char *errorMessage = "This is an error#$%\".";
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 for (size_t j = 0; j <= strlen(errorMessage); ++j) {
                     const int       ERROR = DATA[i];
@@ -10379,7 +10451,7 @@ int main(int argc, char *argv[])
                 numeric_limits<int>::min(),
                 numeric_limits<int>::max(),
             };
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const int VALUE = DATA[i];
@@ -10436,7 +10508,7 @@ int main(int argc, char *argv[])
                 numeric_limits<Int64>::max(),
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const Int64 VALUE = DATA[i];
@@ -10523,22 +10595,24 @@ int main(int argc, char *argv[])
                 1024*1024,
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             if (veryVerbose)
                 cout << "\tTesting 'createStringRef(const char*, SizeType)'."
                      << endl;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
-                const Datum::SizeType SIZE = DATA[i];
-                const char*           BUFFER = new char[SIZE];
-                const StringRef       STRING(BUFFER, static_cast<int>(SIZE));
+                bslma::TestAllocator ba("buffer", veryVeryVeryVerbose);
+                const Datum::SizeType  SIZE = DATA[i];
+                const bsl::string      BUFFER(SIZE, 'x', &ba);
+                const StringRef        STRING(BUFFER.data(),
+                                              static_cast<int>(SIZE));
 
                 if (veryVerbose) { T_ T_ P(SIZE) }
                 {
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-                    Datum        mD = Datum::createStringRef(BUFFER,
+                    Datum        mD = Datum::createStringRef(BUFFER.data(),
                                                              SIZE,
                                                              &oa);
                     const Datum& D = mD;
@@ -10566,7 +10640,6 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == oa.status());
                 }
-                delete[] BUFFER;
             }
 
             // This overload simply forwards to the above method
@@ -10685,7 +10758,7 @@ int main(int argc, char *argv[])
                 Time(23, 59, 59, 999, 999),
             };
 
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const bdlt::Time VALUE = DATA[i];
@@ -10764,16 +10837,19 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'copyBinary'." << endl;
         {
-            const unsigned char BUFFER[] = "0123456789abcdef";
+            for (size_t i = 0; i < 258; ++i) {
+                bslma::TestAllocator ba("buffer", veryVeryVeryVerbose);
+                bsl::vector<unsigned char> BUFFER(&ba);
+                const size_t SIZE = i;
+                loadRandomBinary(&BUFFER, SIZE);
 
-            for (size_t i = 0; i < sizeof(BUFFER); ++i) {
-                const DatumBinaryRef REF(BUFFER, i);
+                const DatumBinaryRef REF(BUFFER.data(), SIZE);
 
-                if (veryVerbose) { T_ P(REF) }
+                if (veryVerbose) { T_ P_(SIZE) P(REF) }
 
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-                Datum        mD = Datum::copyBinary(BUFFER, i, &oa);
+                Datum        mD = Datum::copyBinary(BUFFER.data(), SIZE, &oa);
                 const Datum& D = mD;
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
@@ -10813,31 +10889,35 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'copyString'." << endl;
         {
-            const char BUFFER[] = "0123456789abcdef";
+            for (size_t i = 0; i < 258; ++i) {
+                bslma::TestAllocator ba("buffer", veryVeryVeryVerbose);
+                bsl::string          BUFFER(&ba);
+                const size_t         SIZE = i;
+                loadRandomString(&BUFFER, SIZE);
 
-            for (size_t i = 0; i < sizeof(BUFFER); ++i) {
+                const StringRef REF(BUFFER.data(), static_cast<int>(SIZE));
                 for (int j = 0; j < 2; ++j) {
-                    const StringRef REF(BUFFER, static_cast<int>(i));
 
-                    if (veryVerbose) { T_ P_(j) P(REF) }
+                    if (veryVerbose) { T_ P_(j) P_(SIZE) P(REF) }
 
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-                    Datum        mD = j? Datum::copyString(BUFFER, i, &oa):
-                                         Datum::copyString(REF, &oa);
+                    Datum        mD = j ? Datum::copyString(BUFFER.data(),
+                                                            SIZE, &oa)
+                                        : Datum::copyString(REF, &oa);
                     const Datum& D = mD;
 
-                    Int64 bytesInUse = oa.numBytesInUse();
+                    const Int64 bytesInUse = oa.numBytesInUse();
 #ifdef BSLS_PLATFORM_CPU_32_BIT
                     // Up to length 6 inclusive the strings are stored inline
-                    if (i <= 6) {
+                    if (SIZE <= 6) {
                         ASSERT(0 == bytesInUse);
                     } else {
                         ASSERT(0 != bytesInUse);
                     }
 #else  // BSLS_PLATFORM_CPU_32_BIT
                     // Up to length 13 inclusive the strings are stored inline
-                    if (i <= 13) {
+                    if (SIZE <= 13) {
                         ASSERT(0 == bytesInUse);
                     } else {
                         ASSERT(0 != bytesInUse);
@@ -10872,7 +10952,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bslma::TestAllocator            ta("test", veryVeryVerbose);
+            bslma::TestAllocator         ta("test", veryVeryVerbose);
             bsls::AssertTestHandlerGuard hG;
 
             bslma::Allocator *nullAllocPtr =
@@ -10987,19 +11067,13 @@ int main(int argc, char *argv[])
 
                 // Data check.
 
-                ASSERT_PASS(Datum::destroy(Datum::copyBinary(nullPtr,
-                                                                  0,
-                                                                  &ta),
-                                                &ta));
+                ASSERT_PASS(Datum::destroy(Datum::copyBinary(nullPtr, 0, &ta),
+                                           &ta));
                 ASSERT_FAIL(Datum::copyBinary(nullPtr, SIZE, &ta));
-                ASSERT_PASS(Datum::destroy(Datum::copyBinary(VALUE,
-                                                                  0,
-                                                                  &ta),
-                                                &ta));
-                ASSERT_PASS(Datum::destroy(Datum::copyBinary(VALUE,
-                                                                  SIZE,
-                                                                  &ta),
-                                                &ta));
+                ASSERT_PASS(Datum::destroy(Datum::copyBinary(VALUE, 0, &ta),
+                                           &ta));
+                ASSERT_PASS(Datum::destroy(Datum::copyBinary(VALUE, SIZE, &ta),
+                                           &ta));
 
                 // Allocator check.
 
@@ -11285,7 +11359,7 @@ int main(int argc, char *argv[])
                 { L_,   -0x00007fffffffffffLL,   true  },  // -2^47+1
                 { L_,   -0x7fffffffffffffffLL,   false },
             };
-            const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const int   LINE  = DATA[i].d_line;
@@ -11299,15 +11373,14 @@ int main(int argc, char *argv[])
                     T_ P_(LINE) P_(VALUE) P(VALID)
                 }
 
-                bool storeResult = Datum_Helpers32::storeSmallInt64(VALUE,
-                                                                    &high16,
-                                                                    &low32);
+                const bool storeResult =
+                      Datum_Helpers32::storeSmallInt64(VALUE, &high16, &low32);
 
                 ASSERTV(LINE, VALUE, VALID, VALID == storeResult);
 
                 if (VALID) {
-                    Int64 valueResult = Datum_Helpers32::loadSmallInt64(high16,
-                                                                        low32);
+                    const Int64 valueResult =
+                                Datum_Helpers32::loadSmallInt64(high16, low32);
 
                     ASSERTV(LINE, VALUE, valueResult, VALUE == valueResult);
                 }

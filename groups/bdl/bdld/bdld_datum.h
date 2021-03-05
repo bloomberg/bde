@@ -60,6 +60,33 @@ BSLS_IDENT("$Id$ $CSID$")
 // value of an object of the type is independent of any modifiable state that
 // is not owned exclusively by that object." (see {'bsldoc_glossary'}).
 //
+///Special Floating Point Values
+///- - - - - - - - - - - - - - -
+// Such floating point data can represent a special value, and of particular
+// interest for 'Datum' are values for NaN and infinity. 'Datum' may internally
+// store NaN and infinity values in a different way than the IEEE-754
+// representation, and this section describes the resulting behavior for NaN
+// and infinity values.
+//
+///Treatment of NaN (Not-A-Number)
+///- - - - - - - - - - - - - - - -
+// 'Datum' provides the minimal requirements for representing NaN values found
+// in the IEEE-754 standard, meaning Datum will preserve the distinction
+// between "signaling" (sNaN) and "quiet" (qNan) NaN values.  'Datum' will not
+// preserve the non normative bits of a 'double' representation of NaN.  So,
+// for example, if a 'Datum' were constructed for a NaN value, performing a
+// 'memcmp' of the bits returned by 'theDouble' accessor to original 'double'
+// value may indicate the bits of the representations are not-equal, but
+// 'std::fpclassify' and 'bdlb::Float::classifyFine' would be the same.
+//
+///Treatment of Infinity
+///- - - - - - - - - - -
+// Similarly to NaN, 'Datum' provides the minimal requirements for
+// representing infinity values found in the IEEE-754 standard, providing
+// unique representations for +/- infinity.  IEEE-754 double precisions format
+// requires also only those two infinity values.  Unlike NaN values, these two
+// infinity values have no non-normative bits in their representations.
+//
 ///Immutability
 ///------------
 // 'Datum' objects are generally immutable, meaning the value stored inside a
@@ -566,6 +593,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdld_datumerror.h>
 #include <bdld_datumudt.h>
 
+#include <bdlb_float.h>         // 'isSignalingNan'
 #include <bdlb_printmethods.h>
 
 #include <bdldfp_decimal.h>
@@ -1345,8 +1373,12 @@ class Datum {
 
     static Datum createDouble(double value);
         // Return, by value, a datum having the specified 'double' 'value'.
-        // Note that this method normalizes any NaN or IND value to a Quiet NaN
-        // value for the particular platform.
+        // This method guarantees that two possible NaN values, a singaling and
+        // a quiet NaN, are preserved (i.e., the result of 'std::fpclassify',
+        // and 'bdlb::Float::classifyFine', will be preserved for NaN values),
+        // but does not guarantee the preservation of bit-wise equality.  The
+        // sign and NaN payload bits of NaN values retrieved by the 'theDouble'
+        // method are unspecified (see also {'Special Floating Point Values'}.
 
     static Datum createError(int code);
         // Return, by value, a datum having a 'DatumError' value with the
@@ -1775,6 +1807,12 @@ class Datum {
     double theDouble() const;
         // Return the double value represented by this object.  The behavior is
         // undefined unless this object actually represents a double value.
+        // This method guarantees that two possible NaN values, a singaling and
+        // a quiet NaN, are preserved (i.e., the result of 'std::fpclassify',
+        // and 'bdlb::Float::classifyFine', will be preserved for NaN values),
+        // but does not guarantee the preservation of bit-wise equality.  The
+        // sign and NaN payload bits of NaN values returned are unspecified
+        // (see also {'Special Floating Point Values'}.
 
     DatumError theError() const;
         // Return the error value represented by this object as a 'DatumError'
@@ -3286,8 +3324,11 @@ Datum Datum::createDouble(double value)
     Datum result;
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    if (!(value == value)) {
-        return createExtendedDataObject(e_EXTENDED_INTERNAL_NAN2, 0); // RETURN
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(value == value))) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return createExtendedDataObject(
+                         e_EXTENDED_INTERNAL_NAN2,
+                         bdlb::Float::isSignalingNan(value) ? 1 : 0); // RETURN
     } else {
         result.d_double = value;
     }
@@ -3846,12 +3887,17 @@ double Datum::theDouble() const
     BSLS_ASSERT_SAFE(isDouble());
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    if (0x7f != d_data[k_EXPONENT_MSB] ||           // exponent is not the
-        0xf0 != (d_data[k_EXPONENT_LSB] & 0xf0) ||  // special '7ff' value
-        e_INTERNAL_INF == (d_data[k_EXPONENT_LSB] & 0x0f)) { // or infinity
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+           0x7f != d_data[k_EXPONENT_MSB] ||           // exponent is not the
+           0xf0 != (d_data[k_EXPONENT_LSB] & 0xf0) ||  // special '7ff' value
+           e_INTERNAL_INF == (d_data[k_EXPONENT_LSB] & 0x0f))) { // or infinity
         return d_double;                                              // RETURN
     }
-    return bsl::numeric_limits<double>::quiet_NaN();
+    BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+    if (0 == d_as.d_int) {
+        return bsl::numeric_limits<double>::quiet_NaN();              // RETURN
+    }
+    return bsl::numeric_limits<double>::signaling_NaN();
 #else  // BSLS_PLATFORM_CPU_32_BIT
     return d_as.d_double;
 #endif // BSLS_PLATFORM_CPU_32_BIT
