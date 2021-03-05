@@ -1,9 +1,21 @@
-bsl-internal (3.75.1.0) unstable; urgency=low
+bsl-internal (3.76.0.0) unstable; urgency=low
 
+  * 7008cc9eb Bumped version to 3.76.0.0
+  * a0d83b389 Merge pull request #3145 from bde/nburgers-patch-1
+  * da8c9d57c Merge pull request #3144 from bchapman/bsl+bslhdrs.pub-make-consistent-drqs-165406123
+  * 1679ccb69 Merge pull request #3139 from osubbotin/review/fix-sprintf-format-arguments
+  * 78905ff5a Merge pull request #3130 from dsokolov7/review/bde-libraryfeatures-macros-split-drqs-165206618
+  * 6dbaa0ffa Merge pull request #3123 from dsokolov7/review/bde-libraryfeatures-macros-renaming-drqs-165206589
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 5 Mar 2021 12:18:58 -0500
+
+bsl-internal (3.75.1.0) git; urgency=low
+
+  * cbabb0c34 Changelog for version 3.75.1.0
   * a64a1b32e Bumped version to 3.75.1.0
   * 26c475831 Merge pull request #3112 from afeher/drqs-164339060-bdlb_literalutil-bde-4.0
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 20 Feb 2021 19:07:31 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 20 Feb 2021 19:15:54 -0500
 
 bsl-internal (3.75.0.0) git; urgency=low
 
