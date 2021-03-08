@@ -1,6 +1,17 @@
 // balxml_encoder.t.cpp                                               -*-C++-*-
 
 // ----------------------------------------------------------------------------
+//                                  ATTENTION
+//
+// This test driver requires much system memory to build on IBM/AIX using xlC.
+// If you get an out of memory error during the compilation of this file please
+// search for COMPILER_RESOURCE_LIMITATIONS in this source file, and uncomment
+// the '#define' you find, and remove the comment text right above it.  Then
+// search for the '#undef' for the same macro and uncomment that, too.  Finally
+// remove this comment block as well.
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
 //                                   NOTICE
 //
 // This component is not up to date with current BDE coding standards, and
@@ -6008,10 +6019,10 @@ class MakeMySequenceWithPrecisionDecimalAttribute {
                             // class TestCase16Test
                             // ====================
 
-class TestCase16Test {
+class TestCase17Test {
   public:
     // CREATORS
-    TestCase16Test() {}
+    TestCase17Test() {}
 
     // ACCESSORS
     template <class TYPE>
@@ -6305,132 +6316,20 @@ extern const char selection1Name[] = "selection1";
 //                             END TEST APPARATUS
 // ----------------------------------------------------------------------------
 
-
 // ============================================================================
-//                               USAGE EXAMPLE
+//                              BEGIN TEST CASES
 // ----------------------------------------------------------------------------
+// Some test cases have been moved into separate functions to stop AIX xlC from
+// trying to optimize them and run out of memory.
 
-// The following snippets of code illustrate the usage of this component.
-// Suppose we have an XML schema inside a file named 'employee.xsd':
-//..
-//  <?xml version='1.0' encoding='UTF-8'?>
-//  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
-//             xmlns:test='http://bloomberg.com/schemas/test'
-//             targetNamespace='http://bloomberg.com/schemas/test'
-//             elementFormDefault='unqualified'>
-//
-//      <xs:complexType name='Address'>
-//          <xs:sequence>
-//              <xs:element name='street' type='xs:string'/>
-//              <xs:element name='city'   type='xs:string'/>
-//              <xs:element name='state'  type='xs:string'/>
-//          </xs:sequence>
-//      </xs:complexType>
-//
-//      <xs:complexType name='Employee'>
-//          <xs:sequence>
-//              <xs:element name='name'        type='xs:string'/>
-//              <xs:element name='homeAddress' type='test:Address'/>
-//              <xs:element name='age'         type='xs:int'/>
-//          </xs:sequence>
-//      </xs:complexType>
-//  </xs:schema>
-//..
-// Using the 'bas_codegen.pl' tool, we generate C++ classes for this schema as
-// follows:
-//..
-//  $ bas_codegen.pl -m msg -p test employee.xsd
-//..
-// This tool will generate the header and implementation files for the
-// 'test_messages' components in the current directory.
-//
-// Now suppose we wanted to encode information about a particular employee
-// using XML encoding to the standard output, using the 'PRETTY' option for
-// formatting the output.  The following function will do this:
-//..
-//  #include <test_messages.h>
-//
-//  #include <balxml_encoder.h>
-//  #include <balxml_encodingstyle.h>
-//
-//  #include <bsl_iostream.h>
-//  #include <bsl_sstream.h>
-//
-//  using namespace BloombergLP;
-
-    void usageExample()
-    {
-        test::Employee bob;
-
-        bob.name()                 = "Bob";
-        bob.homeAddress().street() = "Some Street";
-        bob.homeAddress().city()   = "Some City";
-        bob.homeAddress().state()  = "Some State";
-        bob.age()                  = 21;
-
-        balxml::EncoderOptions options;
-        options.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
-
-        balxml::Encoder encoder(&options, &bsl::cerr, &bsl::cerr);
-
-        const bsl::string EXPECTED_OUTPUT =
-         "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-         "<Employee xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
-         "    <name>Bob</name>\n"
-         "    <homeAddress>\n"
-         "        <street>Some Street</street>\n"
-         "        <city>Some City</city>\n"
-         "        <state>Some State</state>\n"
-         "    </homeAddress>\n"
-         "    <age>21</age>\n"
-         "</Employee>\n";
-
-        bsl::ostringstream os;
-        const int rc = encoder.encodeToStream(os, bob);
-
-        ASSERT(0 == rc);
-        ASSERT(EXPECTED_OUTPUT == os.str());
-    }
-//..
-
-// ============================================================================
-//                               MAIN PROGRAM
-// ----------------------------------------------------------------------------
-
-int main(int argc, char *argv[])
+void runTestCase17()
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
-
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
-
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
-    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
-
-    switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting Usage Example"
-                          << "\n=====================" << endl;
-
-        usageExample();
-
-        if (verbose) cout << "\nEnd of Test." << endl;
-      } break;
-      case 17: {
+    //-------------------------------------------------------------------------
+    // TEST CASE DOCUMENTATION IS REPEATED HERE SO IT IS WITH THE CODE.  It is
+    // indented wrong so it does not have to be reformatted here if it needs a
+    // change.  Make sure that anything you change here is also changed in
+    // 'main' and vice versa.
+    //---+
         // --------------------------------------------------------------------
         // TESTING DECIMAL ATTRIBUTE ENCODING
         //   This case tests that the "MaxDecimalTotalDigits" and
@@ -6513,16 +6412,13 @@ int main(int argc, char *argv[])
         //:     specification for 'precisionDecimal' values.)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Decimal Attribute Encoding"
-                          << "\n==================================" << endl;
+    const MakeMySequenceWithDecimalAttribute          de;
+    const MakeMySequenceWithDoubleAttribute           du;
+    const MakeMySequenceWithPrecisionDecimalAttribute pd;
 
-        const MakeMySequenceWithDecimalAttribute          de;
-        const MakeMySequenceWithDoubleAttribute           du;
-        const MakeMySequenceWithPrecisionDecimalAttribute pd;
+    const TestCase17Test t;
 
-        const TestCase16Test t;
-
-        const bdlb::NullableValue<int> N;
+    const bdlb::NullableValue<int> N;
 
 #define L L_
 #define A(X) "<tag attribute1=\"" #X "\"/>"
@@ -6767,366 +6663,16 @@ t(L, 3, 2, pd(DD(             1.000)), A(               1.000 ));
 #undef DD
 #undef A
 #undef L
+}
 
-      } break;
-      case 16: {
-        // --------------------------------------------------------------------
-        // TESTING FORMATTER OPTION CALCULATION
-        //   This case tests that 'balxml::Encoder' correctly calculates the
-        //   options to use for its internal XML formatter.
-        //
-        // Concerns:
-        //: 1 If the encoding style is compact, the formatter's initial indent
-        //:   level, spaces per level, and wrap column are 0, 0, and -1,
-        //:   respectively, regardless of what the values for those fields are
-        //:   in the encoder's options.
-        //:
-        //: 2 If the encoding style is pretty, the formatter's initial indent
-        //:   level, spaces per level, and wrap column are equal to the
-        //:   respective values from the encoder's options.
-        //:
-        //: 3 The encoder forwards the values of all other options to the
-        //:   formatter except: "DatetimeFractionalSecondPrecision",
-        //:   "AllowControlCharacters", and "UseZAbbreviationForUtc".  Note
-        //:   that this is to maintain bug-compatibility with a prior version
-        //:   of this component that did not correctly forward the encoder's
-        //:   options to the formatter.
-        //:
-        // Plan:
-        //: 1 Calculate the formatter options from the default encoder options
-        //:   and verify that the formatter options' initial indent level is 0,
-        //:   its spaces per level is 0, and its wrap column is -1.
-        //:
-        //: 2 Calculate the formatter options from a set of encoder options
-        //:   with a compact encoding style, as well as an initial indent
-        //:   level, spaces per level, and a wrap column all set to 10.  Verify
-        //:   that the formatter options' initial indent level is 0, its spaces
-        //:   per level is 0, and its wrap column is -1.
-        //:
-        //: 3 Calculate the formatter options from a set of encoder options
-        //:   with pretty encoding style and all other options default. Verify
-        //:   that the formatter options' initial indent level is 0, its spaces
-        //:   per level if 4, and its wrap column is 80.
-        //:
-        //: 4 Calculate the formatter options from a set of encoder options
-        //:   with pretty encoding style, as well as an initial indent level,
-        //:   spaces per level, and wrap column all set to 10.  Verify that the
-        //:   formatter options' initial indent level, spaces per level, and
-        //:   wrap column are likewise all 10.
-        //:
-        //: 5 Calculate the formatter options from a set of encoder options
-        //:   having each option set to a non-default value.  Verify that all
-        //:   of the formatter's options have the corresponding non-default
-        //:   value, except for "DatetimeFractionalSecondPrecision",
-        //:   "AllowControlCharacters", and "UseZAbbreviationForUtc", which
-        //:   have their respective default values.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting Formatter Option Calculation"
-                          << "\n====================================" << endl;
-
-        typedef balxml::Encoder_OptionsCompatibilityUtil Util;
-
-        {
-            EncoderOptions encoderOptions;
-
-            int formatterIndentLevel    = 0;
-            int formatterSpacesPerLevel = 0;
-            int formatterWrapColumn     = 0;
-
-            EncoderOptions formatterOptions;
-
-            Util::getFormatterOptions(&formatterIndentLevel,
-                                      &formatterSpacesPerLevel,
-                                      &formatterWrapColumn,
-                                      &formatterOptions,
-                                      encoderOptions);
-
-            ASSERT(0 == formatterIndentLevel);
-            ASSERT(0 == formatterSpacesPerLevel);
-            ASSERT(-1 == formatterWrapColumn);
-        }
-
-        {
-            EncoderOptions encoderOptions;
-            encoderOptions.setEncodingStyle(balxml::EncodingStyle::e_COMPACT);
-            encoderOptions.setInitialIndentLevel(10);
-            encoderOptions.setSpacesPerLevel(10);
-            encoderOptions.setWrapColumn(10);
-
-            int formatterIndentLevel    = 0;
-            int formatterSpacesPerLevel = 0;
-            int formatterWrapColumn     = 0;
-
-            EncoderOptions formatterOptions;
-
-            Util::getFormatterOptions(&formatterIndentLevel,
-                                      &formatterSpacesPerLevel,
-                                      &formatterWrapColumn,
-                                      &formatterOptions,
-                                      encoderOptions);
-
-            ASSERT(0 == formatterIndentLevel);
-            ASSERT(0 == formatterSpacesPerLevel);
-            ASSERT(-1 == formatterWrapColumn);
-        }
-
-        {
-            EncoderOptions encoderOptions;
-            encoderOptions.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
-
-            int formatterIndentLevel    = 0;
-            int formatterSpacesPerLevel = 0;
-            int formatterWrapColumn     = 0;
-
-            EncoderOptions formatterOptions;
-
-            Util::getFormatterOptions(&formatterIndentLevel,
-                                      &formatterSpacesPerLevel,
-                                      &formatterWrapColumn,
-                                      &formatterOptions,
-                                      encoderOptions);
-
-            ASSERT(0 == formatterIndentLevel);
-            ASSERT(4 == formatterSpacesPerLevel);
-            ASSERT(80 == formatterWrapColumn);
-        }
-
-        {
-            EncoderOptions encoderOptions;
-            encoderOptions.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
-            encoderOptions.setInitialIndentLevel(10);
-            encoderOptions.setSpacesPerLevel(10);
-            encoderOptions.setWrapColumn(10);
-
-            int formatterIndentLevel    = 0;
-            int formatterSpacesPerLevel = 0;
-            int formatterWrapColumn     = 0;
-
-            EncoderOptions formatterOptions;
-
-            Util::getFormatterOptions(&formatterIndentLevel,
-                                      &formatterSpacesPerLevel,
-                                      &formatterWrapColumn,
-                                      &formatterOptions,
-                                      encoderOptions);
-
-            ASSERT(10 == formatterIndentLevel);
-            ASSERT(10 == formatterSpacesPerLevel);
-            ASSERT(10 == formatterWrapColumn);
-        }
-
-        {
-            EncoderOptions encoderOptions;
-            encoderOptions.setObjectNamespace("notDefault");
-            encoderOptions.setSchemaLocation("notDefault");
-            encoderOptions.setTag("notDefault");
-            encoderOptions.setFormattingMode(12345);
-            // skip initial indent level
-            // skip spaces per level
-            // skip wrap column
-            encoderOptions.setMaxDecimalTotalDigits(12345);
-            encoderOptions.setMaxDecimalFractionDigits(12345);
-            encoderOptions.setSignificantDoubleDigits(12345);
-            // skip encoding style
-            encoderOptions.setAllowControlCharacters(true);
-            encoderOptions.setOutputXMLHeader(false);
-            encoderOptions.setOutputXSIAlias(false);
-            encoderOptions.setDatetimeFractionalSecondPrecision(12345);
-            encoderOptions.setUseZAbbreviationForUtc(true);
-
-            // Assert that none of the options set above are equal to their
-            // default values.
-            const EncoderOptions defaultOptions;
-
-            ASSERT(defaultOptions.objectNamespace() !=
-                   encoderOptions.objectNamespace());
-            ASSERT(defaultOptions.schemaLocation() !=
-                   encoderOptions.schemaLocation());
-            ASSERT(defaultOptions.tag() != encoderOptions.tag());
-            ASSERT(defaultOptions.formattingMode() !=
-                   encoderOptions.formattingMode());
-            ASSERT(defaultOptions.maxDecimalTotalDigits() !=
-                   encoderOptions.maxDecimalTotalDigits());
-            ASSERT(defaultOptions.maxDecimalFractionDigits() !=
-                   encoderOptions.maxDecimalFractionDigits());
-            ASSERT(defaultOptions.significantDoubleDigits() !=
-                   encoderOptions.significantDoubleDigits());
-            ASSERT(defaultOptions.allowControlCharacters() !=
-                   encoderOptions.allowControlCharacters());
-            ASSERT(defaultOptions.outputXMLHeader() !=
-                   encoderOptions.outputXMLHeader());
-            ASSERT(defaultOptions.outputXSIAlias() !=
-                   encoderOptions.outputXSIAlias());
-            ASSERT(defaultOptions.datetimeFractionalSecondPrecision() !=
-                   encoderOptions.datetimeFractionalSecondPrecision());
-            ASSERT(defaultOptions.useZAbbreviationForUtc() !=
-                   encoderOptions.useZAbbreviationForUtc());
-
-            int formatterIndentLevel    = 0;
-            int formatterSpacesPerLevel = 0;
-            int formatterWrapColumn     = 0;
-
-            EncoderOptions formatterOptions;
-
-            Util::getFormatterOptions(&formatterIndentLevel,
-                                      &formatterSpacesPerLevel,
-                                      &formatterWrapColumn,
-                                      &formatterOptions,
-                                      encoderOptions);
-
-
-            ASSERT("notDefault" == formatterOptions.objectNamespace());
-            ASSERT(defaultOptions.objectNamespace() !=
-                   formatterOptions.objectNamespace());
-
-            ASSERT("notDefault" == formatterOptions.schemaLocation());
-            ASSERT(defaultOptions.schemaLocation() !=
-                   formatterOptions.schemaLocation());
-
-            ASSERT("notDefault" == formatterOptions.tag());
-            ASSERT(defaultOptions.tag() != formatterOptions.tag());
-
-            ASSERT(12345 == formatterOptions.formattingMode());
-            ASSERT(defaultOptions.formattingMode() !=
-                   formatterOptions.formattingMode());
-
-            ASSERT(12345 == formatterOptions.maxDecimalTotalDigits());
-            ASSERT(defaultOptions.maxDecimalTotalDigits() !=
-                   formatterOptions.maxDecimalTotalDigits());
-
-            ASSERT(12345 == formatterOptions.maxDecimalFractionDigits());
-            ASSERT(defaultOptions.maxDecimalFractionDigits() !=
-                   formatterOptions.maxDecimalFractionDigits());
-
-            ASSERT(12345 == formatterOptions.significantDoubleDigits());
-            ASSERT(defaultOptions.significantDoubleDigits() !=
-                   formatterOptions.significantDoubleDigits());
-
-            // AllowControlCharacters should be defaulted.
-            ASSERT(false == formatterOptions.allowControlCharacters());
-            ASSERT(defaultOptions.allowControlCharacters() ==
-                   formatterOptions.allowControlCharacters());
-
-            ASSERT(false == formatterOptions.outputXMLHeader());
-            ASSERT(defaultOptions.outputXMLHeader() !=
-                   formatterOptions.outputXMLHeader());
-
-            ASSERT(false == formatterOptions.outputXSIAlias());
-            ASSERT(defaultOptions.outputXSIAlias() !=
-                   formatterOptions.outputXSIAlias());
-
-            // DatetimeFractionalSecondPrecision should be defaulted.
-            ASSERT(6 == formatterOptions.datetimeFractionalSecondPrecision());
-            ASSERT(
-                defaultOptions.datetimeFractionalSecondPrecision() ==
-                formatterOptions.datetimeFractionalSecondPrecision());
-
-            // UseZAbbreviationforUtc should be defaulted.
-            ASSERT(false == formatterOptions.useZAbbreviationForUtc());
-            ASSERT(defaultOptions.useZAbbreviationForUtc() ==
-                   formatterOptions.useZAbbreviationForUtc());
-        }
-      } break;
-
-      case 15: {
-        // --------------------------------------------------------------------
-        // Testing Decimal64
-        //
-        // Concerns:
-        //: 1 That the encoder can encoder a field of type 'Decimal64'.
-        //
-        // Plan:
-        //: 1 Copy the 'Employee' type from the usage example, creating a
-        //:   'Contractor' type where the integer 'age' field is replaced by
-        //:   by a 'Decimal64' 'hourlyRate' field.
-        //:
-        //: 2 Create a table containing decimal values are the expected text
-        //:   output from encoding them.
-        //:
-        //: 3 Run the encoder and verify the results.
-        //
-        // Testing:
-        //   Type Decimal64
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "Testing Decimal64\n"
-                             "=================\n";
-
-        using namespace BloombergLP;
-        namespace TC = DECIMALTEST;
-
-#define DFP(X) BDLDFP_DECIMAL_DD(X)
-
-        const char         preField[]  = { "<hourlyRate>" };
-        const char        *postField   = "</hourlyRate>";
-        const bsl::size_t  preFieldLen = sizeof(preField) - 1;
-
-        static const struct Data {
-            int                d_line;
-            bdldfp::Decimal64  d_value;
-            const char        *d_text;
-        } DATA[] = {
-            { L_, DFP(0.0), "0.0" },
-            { L_, DFP(15.13), "15.13" },
-            { L_, DFP(892.0), "892.0" },
-            { L_, DFP(-15.13), "-15.13" },
-            { L_, DFP(-892.0), "-892.0" },
-            { L_, DFP(47.3e34), "4.73e+35" },
-            { L_, DFP(-47.3e34), "-4.73e+35" }
-        };
-        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
-
-        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
-            const Data&               data  = DATA[ti];
-            const int                 LINE  = data.d_line;
-            const bdldfp::Decimal64&  VALUE = data.d_value;
-            const char               *TEXT  = data.d_text;
-
-            TC::Contractor bob;
-            bob.name()                 = "Bob";
-            bob.homeAddress().street() = "Some Street";
-            bob.homeAddress().city()   = "Some City";
-            bob.homeAddress().state()  = "Some State";
-            bob.hourlyRate()           = VALUE;
-
-            balxml::EncoderOptions options;
-            options.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
-
-            balxml::Encoder encoder(&options, &bsl::cerr, &bsl::cerr);
-
-            bsl::ostringstream expected;
-            expected <<
-             "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-             "<Contractor xmlns:xsi"
-                            "=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
-             "    <name>Bob</name>\n"
-             "    <homeAddress>\n"
-             "        <street>Some Street</street>\n"
-             "        <city>Some City</city>\n"
-             "        <state>Some State</state>\n"
-             "    </homeAddress>\n"
-             "    <hourlyRate>" << TEXT << "</hourlyRate>\n"
-             "</Contractor>\n";
-
-            bsl::ostringstream os;
-            const int rc = encoder.encodeToStream(os, bob);
-            ASSERTV(LINE, rc, 0 == rc);
-
-            const bsl::string& OUTPUT = os.str();
-            ASSERTV(expected.str(), OUTPUT, expected.str() == OUTPUT);
-
-            const char *field = bsl::strstr(OUTPUT.c_str(), preField);
-            ASSERT(field);    ASSERT(preFieldLen < bsl::strlen(field));
-            field += preFieldLen;
-            const char *end   = bsl::strstr(OUTPUT.c_str(), postField);
-            ASSERT(end && field < end);
-            const bslstl::StringRef fieldRef(field, end);
-
-            ASSERTV(LINE, TEXT, fieldRef, TEXT == fieldRef);
-        }
-      } break;
-      case 14: {
+void runTestCase14()
+{
+    //-------------------------------------------------------------------------
+    // TEST CASE DOCUMENTATION IS REPEATED HERE SO IT IS WITH THE CODE.  It is
+    // indented wrong so it does not have to be reformatted here if it needs a
+    // change.  Make sure that anything you change here is also changed in
+    // 'main' and vice versa.
+    //---+
         // --------------------------------------------------------------------
         // TESTING NILLABLE ELEMENT ENCODING
         //   This case tests the 'balxml::Encoder::encode' operation when
@@ -7181,154 +6727,154 @@ t(L, 3, 2, pd(DD(             1.000)), A(               1.000 ));
         //   int encode(bsl::streambuf *buffer, const TYPE& object);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Encoding of Nillable Elements"
-                          << "\n=====================================" << endl;
+    // Abbreviations for the names of 'bdlat' concept test implementations,
+    // which will become the tag names of the XML they generate.
+    const bslstl::StringRef S = "MySequence";
+    const bslstl::StringRef C = "MyChoice";
+    const bslstl::StringRef CT = "MyCustomizedType";
+    const bslstl::StringRef D = "MyDynamicType";
+    const bslstl::StringRef E = "MyEnumeration";
 
-        // Abbreviations for the names of 'bdlat' concept test implementations,
-        // which will become the tag names of the XML they generate.
-        const bslstl::StringRef S = "MySequence";
-        const bslstl::StringRef C = "MyChoice";
-        const bslstl::StringRef CT = "MyCustomizedType";
-        const bslstl::StringRef D = "MyDynamicType";
-        const bslstl::StringRef E = "MyEnumeration";
+    // Abbreviations for attribute and selection names.
+    const bslstl::StringRef A0 = "attribute0";
+    const bslstl::StringRef A1 = "attribute1";
+    const bslstl::StringRef E0 = "enumerator0";
+    const bslstl::StringRef E1 = "enumerator1";
+    const bslstl::StringRef S0 = "selection0";
+    const bslstl::StringRef S1 = "selection1";
 
-        // Abbreviations for attribute and selection names.
-        const bslstl::StringRef A0 = "attribute0";
-        const bslstl::StringRef A1 = "attribute1";
-        const bslstl::StringRef E0 = "enumerator0";
-        const bslstl::StringRef E1 = "enumerator1";
-        const bslstl::StringRef S0 = "selection0";
-        const bslstl::StringRef S1 = "selection1";
+    // Abbreviations for some test values.
+    const int i0 = 0;
+    const int i1 = 1;
+    const double d0 = 1.5;
 
-        // Abbreviations for some test values.
-        const int i0 = 0;
-        const int i1 = 1;
-        const double d0 = 1.5;
+    // Abbreviations for XML-encoded representations of some test values.
+    const bslstl::StringRef V0 = "0";
+    const bslstl::StringRef V1 = "1";
+    const bslstl::StringRef D0 = "1.5";
 
-        // Abbreviations for XML-encoded representations of some test values.
-        const bslstl::StringRef V0 = "0";
-        const bslstl::StringRef V1 = "1";
-        const bslstl::StringRef D0 = "1.5";
+    // Abbreviations for function objects used to generate objects that
+    // implement various 'bdlat' attribute type concepts.
+    const GenerateTestArray          a;
+    const GenerateTestChoice         c;
+    const GenerateTestCustomizedType ct;
+    const GenerateTestDynamicType    d;
+    const GenerateTestEnumeration    e;
+    const GenerateTestNullableValue  n;
+    const GenerateTestSequence       s;
 
-        // Abbreviations for function objects used to generate objects that
-        // implement various 'bdlat' attribute type concepts.
-        const GenerateTestArray          a;
-        const GenerateTestChoice         c;
-        const GenerateTestCustomizedType ct;
-        const GenerateTestDynamicType    d;
-        const GenerateTestEnumeration    e;
-        const GenerateTestNullableValue  n;
-        const GenerateTestSequence       s;
+    // Abbreviations for some sequence attributes.
+    typedef TestAttribute<0, attribute0Name> Attribute0;
+    const Attribute0 a0;
 
-        // Abbreviations for some sequence attributes.
-        typedef TestAttribute<0, attribute0Name> Attribute0;
-        const Attribute0 a0;
+    typedef TestAttribute<1, attribute1Name> Attribute1;
+    const Attribute1 a1;
 
-        typedef TestAttribute<1, attribute1Name> Attribute1;
-        const Attribute1 a1;
+    typedef TestAttribute<0,
+                          attribute0Name,
+                          TestAttributeDefaults::k_DEFAULT_ANNOTATION,
+                          bdlat_FormattingMode::e_NILLABLE>
+        NillableAttribute0;
+    const NillableAttribute0 na0;
 
-        typedef TestAttribute<0,
-                              attribute0Name,
-                              TestAttributeDefaults::k_DEFAULT_ANNOTATION,
-                              bdlat_FormattingMode::e_NILLABLE>
-            NillableAttribute0;
-        const NillableAttribute0 na0;
+    typedef TestAttribute<1,
+                          attribute1Name,
+                          TestAttributeDefaults::k_DEFAULT_ANNOTATION,
+                          bdlat_FormattingMode::e_NILLABLE>
+        NillableAttribute1;
+    const NillableAttribute1 na1;
 
-        typedef TestAttribute<1,
-                              attribute1Name,
-                              TestAttributeDefaults::k_DEFAULT_ANNOTATION,
-                              bdlat_FormattingMode::e_NILLABLE>
-            NillableAttribute1;
-        const NillableAttribute1 na1;
+    // Abbreviations for some enumeration enumerators.
+    typedef TestEnumerator<0, enumerator0String> Enumerator0;
+    const Enumerator0 e0;
 
-        // Abbreviations for some enumeration enumerators.
-        typedef TestEnumerator<0, enumerator0String> Enumerator0;
-        const Enumerator0 e0;
+    typedef TestEnumerator<1, enumerator1String> Enumerator1;
+    const Enumerator1 e1;
 
-        typedef TestEnumerator<1, enumerator1String> Enumerator1;
-        const Enumerator1 e1;
+    // Abbreviations for some choice selections.
+    typedef TestSelection<0, selection0Name> Selection0;
+    const Selection0 s0;
 
-        // Abbreviations for some choice selections.
-        typedef TestSelection<0, selection0Name> Selection0;
-        const Selection0 s0;
+    typedef TestSelection<1, selection1Name> Selection1;
+    const Selection1 s1;
 
-        typedef TestSelection<1, selection1Name> Selection1;
-        const Selection1 s1;
+    typedef TestSelection<0,
+                          selection0Name,
+                          TestSelectionDefaults::k_DEFAULT_ANNOTATION,
+                          bdlat_FormattingMode::e_NILLABLE>
+        NillableSelection0;
+    const NillableSelection0 ns0;
 
-        typedef TestSelection<0,
-                              selection0Name,
-                              TestSelectionDefaults::k_DEFAULT_ANNOTATION,
-                              bdlat_FormattingMode::e_NILLABLE>
-            NillableSelection0;
-        const NillableSelection0 ns0;
+    typedef TestSelection<1,
+                          selection1Name,
+                          TestSelectionDefaults::k_DEFAULT_ANNOTATION,
+                          bdlat_FormattingMode::e_NILLABLE>
+        NillableSelection1;
+    const NillableSelection1 ns1;
 
-        typedef TestSelection<1,
-                              selection1Name,
-                              TestSelectionDefaults::k_DEFAULT_ANNOTATION,
-                              bdlat_FormattingMode::e_NILLABLE>
-            NillableSelection1;
-        const NillableSelection1 ns1;
+    // Abbreviation for a function object used to generate XML document
+    // structures for printing.
+    const GenerateXmlElement x;
 
-        // Abbreviation for a function object used to generate XML document
-        // structures for printing.
-        const GenerateXmlElement x;
+    // Abbreviations for some XML attribute keys and values.
+    const bslstl::StringRef Nil = "xsi:nil";
+    const bslstl::StringRef T = "true";
 
-        // Abbreviations for some XML attribute keys and values.
-        const bslstl::StringRef Nil = "xsi:nil";
-        const bslstl::StringRef T = "true";
+    // Abbreviations for function objects used to generate placeholders.
+    const PlaceHolder<int>                   i_;
+    const PlaceHolder<double>                f_;
+    const GenerateTestArrayPlaceHolder       a_;
+    const GenerateTestChoicePlaceHolder      c_;
+    const GenerateTestDynamicPlaceHolder     d_;
+    const GenerateTestEnumerationPlaceHolder e_;
+    const GenerateTestNullablePlaceHolder    n_;
+    const GenerateTestSequencePlaceHolder    s_;
 
-        // Abbreviations for function objects used to generate placeholders.
-        const PlaceHolder<int>                   i_;
-        const PlaceHolder<double>                f_;
-        const GenerateTestArrayPlaceHolder       a_;
-        const GenerateTestChoicePlaceHolder      c_;
-        const GenerateTestDynamicPlaceHolder     d_;
-        const GenerateTestEnumerationPlaceHolder e_;
-        const GenerateTestNullablePlaceHolder    n_;
-        const GenerateTestSequencePlaceHolder    s_;
+    // Abbreviations for possible results of a decoding operation.
+    enum {
+        f = false, // 0, (en/de)coding fails
+        t = true,  // 1, (en/de)coding succeeds
+        _ = 2      // 2, (en/de)coding succeeds, but gives different value
+    };
 
-        // Abbreviations for possible results of a decoding operation.
-        enum {
-            f = false, // 0, (en/de)coding fails
-            t = true,  // 1, (en/de)coding succeeds
-            _ = 2      // 2, (en/de)coding succeeds, but gives different value
-        };
+    // An abbreviation for an XML structure that will not be used when testing
+    // a particular row of the below test table.  The name is short for "Not
+    // Applicable."
+    const TestXmlElement NA("NA");
 
-        // An abbreviation for an XML structure that will not be used when
-        // testing a particular row of the below test table.  The name is short
-        // for "Not Applicable."
-        const TestXmlElement NA("NA");
+    // An abbreviation for the name of the type used to represent one row in
+    // this table-based test.
+    typedef TestCase14Row R;
 
-        // An abbreviation for the name of the type used to represent one
-        // row in this table-based test.
-        typedef TestCase14Row R;
-
-
-        // A macro that is conditionally defined if compiling on platforms
-        // where compilation is known to run into resource limitations (e.g.
-        // running out of memory on IBM.)
+    // A macro that is conditionally defined if compiling on platforms where
+    // compilation is known to run into resource limitations (e.g. running out
+    // of memory on IBM.)
 #ifdef BSLS_PLATFORM_CMP_IBM
-#define U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+// Code restructuring made it possible to build this test driver on AIX/IBM xlC
+// again.  Should out of memory errors start happening again while compiling
+// this file on IBM/AIX using xlC please uncomment the following line, and the
+// '#undef' at the end of this function.
+//#define U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
 #endif
 
-        ///Implementation Note
-        ///-------------------
-        // The following test table shares its structure with the table in case
-        // 19 of the 'balxml_decoder' component test driver.  These two test
-        // cases share an identical test table structure in order to verify
-        // that, abstractly, the encoding and decoding operations they perform
-        // are "consistent".  Note that the "decoding result" is unused in this
-        // test driver.
-        //
-        // Test case rows labeled with an asterisk "*" verify that different
-        // encodings of null values that may be produced by the encoder are
-        // treated as representing the same value (null) by the decoder.  In
-        // particular, lines with a "1" after the asterisk verify the nullness
-        // of decoded values of omitted tags, lines with a "2" verify the
-        // nullness of decoded values of self-closing tags, and lines with a
-        // "3" verify the nullness of decoded values of self-closing tags with
-        // an 'xsi:nil="true"' attribute.
-        const TestCase14Row DATA[] = {
+    ///Implementation Note
+    ///-------------------
+    // The following test table shares its structure with the table in case 19
+    // of the 'balxml_decoder' component test driver.  These two test cases
+    // share an identical test table structure in order to verify that,
+    // abstractly, the encoding and decoding operations they perform are
+    // "consistent".  Note that the "decoding result" is unused in this test
+    // driver.
+    //
+    // Test case rows labeled with an asterisk "*" verify that different
+    // encodings of null values that may be produced by the encoder are treated
+    // as representing the same value (null) by the decoder.  In particular,
+    // lines with a "1" after the asterisk verify the nullness of decoded
+    // values of omitted tags, lines with a "2" verify the nullness of decoded
+    // values of self-closing tags, and lines with a "3" verify the nullness of
+    // decoded values of self-closing tags with an 'xsi:nil="true"' attribute.
+
+    const TestCase14Row DATA[] = {
 //v---------^                       ENCODING RESULT
 //                                 /  DECODING RESULT
 //LINE    BDLAT-AWARE OBJECT      /  /         XML STRUCTURE
@@ -7593,17 +7139,660 @@ R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1      )) ), // *
 R(L_,  s(na0,na1,n(i0),n(i_))   , _, t, x(S,x(A0,V0   ),x(A1,Nil,T)) ), // *
 R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 //^---------v
-        };
+    };
 
-#undef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+//#undef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+#ifdef U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
+#error Please do not forget to uncomment the #undef line above!
+    Please_uncomment_the undef_line_above;
+#endif
 
-        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
+    const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
-        for (int i = 0; i != NUM_DATA; ++i) {
-            const TestCase14Row& ROW = DATA[i];
+    for (int i = 0; i != NUM_DATA; ++i) {
+        const TestCase14Row& ROW = DATA[i];
 
-            ROW.runTest();
+        ROW.runTest();
+    }
+}
+
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+// The following snippets of code illustrate the usage of this component.
+// Suppose we have an XML schema inside a file named 'employee.xsd':
+//..
+//  <?xml version='1.0' encoding='UTF-8'?>
+//  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+//             xmlns:test='http://bloomberg.com/schemas/test'
+//             targetNamespace='http://bloomberg.com/schemas/test'
+//             elementFormDefault='unqualified'>
+//
+//      <xs:complexType name='Address'>
+//          <xs:sequence>
+//              <xs:element name='street' type='xs:string'/>
+//              <xs:element name='city'   type='xs:string'/>
+//              <xs:element name='state'  type='xs:string'/>
+//          </xs:sequence>
+//      </xs:complexType>
+//
+//      <xs:complexType name='Employee'>
+//          <xs:sequence>
+//              <xs:element name='name'        type='xs:string'/>
+//              <xs:element name='homeAddress' type='test:Address'/>
+//              <xs:element name='age'         type='xs:int'/>
+//          </xs:sequence>
+//      </xs:complexType>
+//  </xs:schema>
+//..
+// Using the 'bas_codegen.pl' tool, we generate C++ classes for this schema as
+// follows:
+//..
+//  $ bas_codegen.pl -m msg -p test employee.xsd
+//..
+// This tool will generate the header and implementation files for the
+// 'test_messages' components in the current directory.
+//
+// Now suppose we wanted to encode information about a particular employee
+// using XML encoding to the standard output, using the 'PRETTY' option for
+// formatting the output.  The following function will do this:
+//..
+//  #include <test_messages.h>
+//
+//  #include <balxml_encoder.h>
+//  #include <balxml_encodingstyle.h>
+//
+//  #include <bsl_iostream.h>
+//  #include <bsl_sstream.h>
+//
+//  using namespace BloombergLP;
+
+    void usageExample()
+    {
+        test::Employee bob;
+
+        bob.name()                 = "Bob";
+        bob.homeAddress().street() = "Some Street";
+        bob.homeAddress().city()   = "Some City";
+        bob.homeAddress().state()  = "Some State";
+        bob.age()                  = 21;
+
+        balxml::EncoderOptions options;
+        options.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
+
+        balxml::Encoder encoder(&options, &bsl::cerr, &bsl::cerr);
+
+        const bsl::string EXPECTED_OUTPUT =
+         "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+         "<Employee xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+         "    <name>Bob</name>\n"
+         "    <homeAddress>\n"
+         "        <street>Some Street</street>\n"
+         "        <city>Some City</city>\n"
+         "        <state>Some State</state>\n"
+         "    </homeAddress>\n"
+         "    <age>21</age>\n"
+         "</Employee>\n";
+
+        bsl::ostringstream os;
+        const int rc = encoder.encodeToStream(os, bob);
+
+        ASSERT(0 == rc);
+        ASSERT(EXPECTED_OUTPUT == os.str());
+    }
+//..
+
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
+
+int main(int argc, char *argv[])
+{
+    int test = argc > 1 ? atoi(argv[1]) : 0;
+
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
+
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
+
+    switch (test) { case 0:  // Zero is always the leading case.
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Usage Example"
+                          << "\n=====================" << endl;
+
+        usageExample();
+
+        if (verbose) cout << "\nEnd of Test." << endl;
+      } break;
+      case 17: {
+        //---------------------------------------------------------------------
+        // TEST CASE DOCUMENTATION IS REPEATED IN THE 'runTestCase17()'
+        // function so it is also near the actual test code.  Make sure that
+        // anything you change here, you also changed in 'runTestCase17()' and
+        // vice versa.
+        // --------------------------------------------------------------------
+        // TESTING DECIMAL ATTRIBUTE ENCODING
+        //   This case tests that the "MaxDecimalTotalDigits" and
+        //   "MaxDecimalFractionDigits" options apply when
+        //   encoding attributes of sequence types that are represented by
+        //   'double's and have the 'bdlat_FormattingMode::e_DEC' formatting
+        //   mode.
+        //
+        // Concerns:
+        //: 1 If neither option is set, decimal-formatted, 'double'-valued
+        //:   attributes are encoded as if "MaxDecimalTotalDigits" were 16
+        //:   and "MaxDecimalFractionDigits" were 12.
+        //:
+        //: 2 Neither option affects the number of digits in the encoding of
+        //:   the non-fractional component of such an attribute (i.e. neither
+        //:   option affects the number of digits that can appear to the left
+        //:   of the decimal point.)
+        //:
+        //: 3 The encoding of such an attribute always includes at least 1
+        //:   fractional digit, even if the values of the options would
+        //:   otherwise prohibit it.
+        //:
+        //: 4 The total number of fractional digits in the encoding of
+        //:   such an attribute is exactly equal to the difference between
+        //:   "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits", or 1,
+        //:   whichever is greater.
+        //:
+        //: 5 If the value of the fractional component of the attribute can be
+        //:   represented in fewer than the number of digits alloted, the
+        //:   remaining digits are filled with zeros.
+        //:
+        //: 6 Neither option affects the encoding of 'double'-valued attributes
+        //:   with the 'bdlat_FormattingMode::e_DEFAULT' formatting mode.
+        //:
+        //: 7 Neither option affects the encoding of 'bdldfp::Decimal64'-valued
+        //:   attributes with any formatting mode.
+        //:
+        // Plan:
+        //: 1 Define a set N of numbers that can be exactly represented by
+        //:   the IEEE 754-2008 64-bit binary floating-point format, and that
+        //:   have different numbers of digits in their decimal representation.
+        //:   (Selecting positive and negative powers of 2 works.)
+        //:
+        //: 2 For each number n in N, enumerate several permutations of values
+        //:   for "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits" and
+        //:   perform the following:
+        //:
+        //:   1 Encode an object having a 'double'-valued, decimal-formatted
+        //:     attribute with the value n.
+        //:
+        //:   2 Verify that the encoding of the attribute satisfies the
+        //:     constraints defined in the concerns.
+        //:
+        //:   3 Encode an object having a 'double'-valued, default-formatted
+        //:     attribute with the value n.
+        //:
+        //:   4 Verify that the encoding of the attribute is not affected by
+        //:     the value of "MaxDecimalTotalDigits" or
+        //:     "MaxDecimalFractionDigits".  (Notice that the encoding of the
+        //:     attribute satisfies the constraints defined in the W3C XML
+        //:     specification for 'double' values.)
+        //:
+        //: 3 Define a set P of numbers that can be exactly represented by the
+        //:   IEEE 754-2008 64-bit *decimal* floating-point format, and that
+        //:   have different numbers of digits in their decimal representation.
+        //:   (Selecting positive and negative powers of 10 with different
+        //:   amounts of precision works.)
+        //:
+        //: 4 For each number p in P, enumerate several permutations of
+        //:   values for "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits"
+        //:   and perform the following:
+        //:
+        //:   5 Encode an object having a 'bdldfp::Decimal64'-valued,
+        //:     default-formatted attribute with the value p.
+        //:
+        //:   6 Verify that the encoding of the attribute is not affected
+        //:     by the value of "MaxDecimalTotalDigits" or
+        //:     "MaxDecimalFractionDigits".  (Notice that the encoding of the
+        //:     attribute satisfies the constraints defined in the W3C XML
+        //:     specification for 'precisionDecimal' values.)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Decimal Attribute Encoding"
+                          << "\n==================================" << endl;
+
+        runTestCase17();
+
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING FORMATTER OPTION CALCULATION
+        //   This case tests that 'balxml::Encoder' correctly calculates the
+        //   options to use for its internal XML formatter.
+        //
+        // Concerns:
+        //: 1 If the encoding style is compact, the formatter's initial indent
+        //:   level, spaces per level, and wrap column are 0, 0, and -1,
+        //:   respectively, regardless of what the values for those fields are
+        //:   in the encoder's options.
+        //:
+        //: 2 If the encoding style is pretty, the formatter's initial indent
+        //:   level, spaces per level, and wrap column are equal to the
+        //:   respective values from the encoder's options.
+        //:
+        //: 3 The encoder forwards the values of all other options to the
+        //:   formatter except: "DatetimeFractionalSecondPrecision",
+        //:   "AllowControlCharacters", and "UseZAbbreviationForUtc".  Note
+        //:   that this is to maintain bug-compatibility with a prior version
+        //:   of this component that did not correctly forward the encoder's
+        //:   options to the formatter.
+        //:
+        // Plan:
+        //: 1 Calculate the formatter options from the default encoder options
+        //:   and verify that the formatter options' initial indent level is 0,
+        //:   its spaces per level is 0, and its wrap column is -1.
+        //:
+        //: 2 Calculate the formatter options from a set of encoder options
+        //:   with a compact encoding style, as well as an initial indent
+        //:   level, spaces per level, and a wrap column all set to 10.  Verify
+        //:   that the formatter options' initial indent level is 0, its spaces
+        //:   per level is 0, and its wrap column is -1.
+        //:
+        //: 3 Calculate the formatter options from a set of encoder options
+        //:   with pretty encoding style and all other options default. Verify
+        //:   that the formatter options' initial indent level is 0, its spaces
+        //:   per level if 4, and its wrap column is 80.
+        //:
+        //: 4 Calculate the formatter options from a set of encoder options
+        //:   with pretty encoding style, as well as an initial indent level,
+        //:   spaces per level, and wrap column all set to 10.  Verify that the
+        //:   formatter options' initial indent level, spaces per level, and
+        //:   wrap column are likewise all 10.
+        //:
+        //: 5 Calculate the formatter options from a set of encoder options
+        //:   having each option set to a non-default value.  Verify that all
+        //:   of the formatter's options have the corresponding non-default
+        //:   value, except for "DatetimeFractionalSecondPrecision",
+        //:   "AllowControlCharacters", and "UseZAbbreviationForUtc", which
+        //:   have their respective default values.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Formatter Option Calculation"
+                          << "\n====================================" << endl;
+
+        typedef balxml::Encoder_OptionsCompatibilityUtil Util;
+
+        {
+            EncoderOptions encoderOptions;
+
+            int formatterIndentLevel    = 0;
+            int formatterSpacesPerLevel = 0;
+            int formatterWrapColumn     = 0;
+
+            EncoderOptions formatterOptions;
+
+            Util::getFormatterOptions(&formatterIndentLevel,
+                                      &formatterSpacesPerLevel,
+                                      &formatterWrapColumn,
+                                      &formatterOptions,
+                                      encoderOptions);
+
+            ASSERT(0 == formatterIndentLevel);
+            ASSERT(0 == formatterSpacesPerLevel);
+            ASSERT(-1 == formatterWrapColumn);
         }
+
+        {
+            EncoderOptions encoderOptions;
+            encoderOptions.setEncodingStyle(balxml::EncodingStyle::e_COMPACT);
+            encoderOptions.setInitialIndentLevel(10);
+            encoderOptions.setSpacesPerLevel(10);
+            encoderOptions.setWrapColumn(10);
+
+            int formatterIndentLevel    = 0;
+            int formatterSpacesPerLevel = 0;
+            int formatterWrapColumn     = 0;
+
+            EncoderOptions formatterOptions;
+
+            Util::getFormatterOptions(&formatterIndentLevel,
+                                      &formatterSpacesPerLevel,
+                                      &formatterWrapColumn,
+                                      &formatterOptions,
+                                      encoderOptions);
+
+            ASSERT( 0 == formatterIndentLevel);
+            ASSERT( 0 == formatterSpacesPerLevel);
+            ASSERT(-1 == formatterWrapColumn);
+        }
+
+        {
+            EncoderOptions encoderOptions;
+            encoderOptions.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
+
+            int formatterIndentLevel    = 0;
+            int formatterSpacesPerLevel = 0;
+            int formatterWrapColumn     = 0;
+
+            EncoderOptions formatterOptions;
+
+            Util::getFormatterOptions(&formatterIndentLevel,
+                                      &formatterSpacesPerLevel,
+                                      &formatterWrapColumn,
+                                      &formatterOptions,
+                                      encoderOptions);
+
+            ASSERT( 0 == formatterIndentLevel);
+            ASSERT( 4 == formatterSpacesPerLevel);
+            ASSERT(80 == formatterWrapColumn);
+        }
+
+        {
+            EncoderOptions encoderOptions;
+            encoderOptions.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
+            encoderOptions.setInitialIndentLevel(10);
+            encoderOptions.setSpacesPerLevel(10);
+            encoderOptions.setWrapColumn(10);
+
+            int formatterIndentLevel    = 0;
+            int formatterSpacesPerLevel = 0;
+            int formatterWrapColumn     = 0;
+
+            EncoderOptions formatterOptions;
+
+            Util::getFormatterOptions(&formatterIndentLevel,
+                                      &formatterSpacesPerLevel,
+                                      &formatterWrapColumn,
+                                      &formatterOptions,
+                                      encoderOptions);
+
+            ASSERT(10 == formatterIndentLevel);
+            ASSERT(10 == formatterSpacesPerLevel);
+            ASSERT(10 == formatterWrapColumn);
+        }
+
+        {
+            EncoderOptions encoderOptions;
+            encoderOptions.setObjectNamespace("notDefault");
+            encoderOptions.setSchemaLocation("notDefault");
+            encoderOptions.setTag("notDefault");
+            encoderOptions.setFormattingMode(12345);
+            // skip initial indent level
+            // skip spaces per level
+            // skip wrap column
+            encoderOptions.setMaxDecimalTotalDigits(12345);
+            encoderOptions.setMaxDecimalFractionDigits(12345);
+            encoderOptions.setSignificantDoubleDigits(12345);
+            // skip encoding style
+            encoderOptions.setAllowControlCharacters(true);
+            encoderOptions.setOutputXMLHeader(false);
+            encoderOptions.setOutputXSIAlias(false);
+            encoderOptions.setDatetimeFractionalSecondPrecision(12345);
+            encoderOptions.setUseZAbbreviationForUtc(true);
+
+            // Assert that none of the options set above are equal to their
+            // default values.
+            const EncoderOptions defaultOptions;
+
+            ASSERT(defaultOptions.objectNamespace() !=
+                   encoderOptions.objectNamespace());
+            ASSERT(defaultOptions.schemaLocation() !=
+                   encoderOptions.schemaLocation());
+            ASSERT(defaultOptions.tag() != encoderOptions.tag());
+            ASSERT(defaultOptions.formattingMode() !=
+                   encoderOptions.formattingMode());
+            ASSERT(defaultOptions.maxDecimalTotalDigits() !=
+                   encoderOptions.maxDecimalTotalDigits());
+            ASSERT(defaultOptions.maxDecimalFractionDigits() !=
+                   encoderOptions.maxDecimalFractionDigits());
+            ASSERT(defaultOptions.significantDoubleDigits() !=
+                   encoderOptions.significantDoubleDigits());
+            ASSERT(defaultOptions.allowControlCharacters() !=
+                   encoderOptions.allowControlCharacters());
+            ASSERT(defaultOptions.outputXMLHeader() !=
+                   encoderOptions.outputXMLHeader());
+            ASSERT(defaultOptions.outputXSIAlias() !=
+                   encoderOptions.outputXSIAlias());
+            ASSERT(defaultOptions.datetimeFractionalSecondPrecision() !=
+                   encoderOptions.datetimeFractionalSecondPrecision());
+            ASSERT(defaultOptions.useZAbbreviationForUtc() !=
+                   encoderOptions.useZAbbreviationForUtc());
+
+            int formatterIndentLevel    = 0;
+            int formatterSpacesPerLevel = 0;
+            int formatterWrapColumn     = 0;
+
+            EncoderOptions formatterOptions;
+
+            Util::getFormatterOptions(&formatterIndentLevel,
+                                      &formatterSpacesPerLevel,
+                                      &formatterWrapColumn,
+                                      &formatterOptions,
+                                      encoderOptions);
+
+
+            ASSERT("notDefault" == formatterOptions.objectNamespace());
+            ASSERT(defaultOptions.objectNamespace() !=
+                   formatterOptions.objectNamespace());
+
+            ASSERT("notDefault" == formatterOptions.schemaLocation());
+            ASSERT(defaultOptions.schemaLocation() !=
+                   formatterOptions.schemaLocation());
+
+            ASSERT("notDefault" == formatterOptions.tag());
+            ASSERT(defaultOptions.tag() != formatterOptions.tag());
+
+            ASSERT(12345 == formatterOptions.formattingMode());
+            ASSERT(defaultOptions.formattingMode() !=
+                   formatterOptions.formattingMode());
+
+            ASSERT(12345 == formatterOptions.maxDecimalTotalDigits());
+            ASSERT(defaultOptions.maxDecimalTotalDigits() !=
+                   formatterOptions.maxDecimalTotalDigits());
+
+            ASSERT(12345 == formatterOptions.maxDecimalFractionDigits());
+            ASSERT(defaultOptions.maxDecimalFractionDigits() !=
+                   formatterOptions.maxDecimalFractionDigits());
+
+            ASSERT(12345 == formatterOptions.significantDoubleDigits());
+            ASSERT(defaultOptions.significantDoubleDigits() !=
+                   formatterOptions.significantDoubleDigits());
+
+            // AllowControlCharacters should be defaulted.
+            ASSERT(false == formatterOptions.allowControlCharacters());
+            ASSERT(defaultOptions.allowControlCharacters() ==
+                   formatterOptions.allowControlCharacters());
+
+            ASSERT(false == formatterOptions.outputXMLHeader());
+            ASSERT(defaultOptions.outputXMLHeader() !=
+                   formatterOptions.outputXMLHeader());
+
+            ASSERT(false == formatterOptions.outputXSIAlias());
+            ASSERT(defaultOptions.outputXSIAlias() !=
+                   formatterOptions.outputXSIAlias());
+
+            // DatetimeFractionalSecondPrecision should be defaulted.
+            ASSERT(6 == formatterOptions.datetimeFractionalSecondPrecision());
+            ASSERT(
+                defaultOptions.datetimeFractionalSecondPrecision() ==
+                formatterOptions.datetimeFractionalSecondPrecision());
+
+            // UseZAbbreviationforUtc should be defaulted.
+            ASSERT(false == formatterOptions.useZAbbreviationForUtc());
+            ASSERT(defaultOptions.useZAbbreviationForUtc() ==
+                   formatterOptions.useZAbbreviationForUtc());
+        }
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // Testing Decimal64
+        //
+        // Concerns:
+        //: 1 That the encoder can encoder a field of type 'Decimal64'.
+        //
+        // Plan:
+        //: 1 Copy the 'Employee' type from the usage example, creating a
+        //:   'Contractor' type where the integer 'age' field is replaced by
+        //:   by a 'Decimal64' 'hourlyRate' field.
+        //:
+        //: 2 Create a table containing decimal values are the expected text
+        //:   output from encoding them.
+        //:
+        //: 3 Run the encoder and verify the results.
+        //
+        // Testing:
+        //   Type Decimal64
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing Decimal64\n"
+                             "=================\n";
+
+        using namespace BloombergLP;
+        namespace TC = DECIMALTEST;
+
+#define DFP(X) BDLDFP_DECIMAL_DD(X)
+
+        const char         preField[]  = { "<hourlyRate>" };
+        const char        *postField   = "</hourlyRate>";
+        const bsl::size_t  preFieldLen = sizeof(preField) - 1;
+
+        static const struct Data {
+            int                d_line;
+            bdldfp::Decimal64  d_value;
+            const char        *d_text;
+        } DATA[] = {
+            { L_, DFP(0.0), "0.0" },
+            { L_, DFP(15.13), "15.13" },
+            { L_, DFP(892.0), "892.0" },
+            { L_, DFP(-15.13), "-15.13" },
+            { L_, DFP(-892.0), "-892.0" },
+            { L_, DFP(47.3e34), "4.73e+35" },
+            { L_, DFP(-47.3e34), "-4.73e+35" }
+        };
+        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+            const Data&               data  = DATA[ti];
+            const int                 LINE  = data.d_line;
+            const bdldfp::Decimal64&  VALUE = data.d_value;
+            const bsl::string         TEXT  = data.d_text;
+
+            TC::Contractor bob;
+            bob.name()                 = "Bob";
+            bob.homeAddress().street() = "Some Street";
+            bob.homeAddress().city()   = "Some City";
+            bob.homeAddress().state()  = "Some State";
+            bob.hourlyRate()           = VALUE;
+
+            balxml::EncoderOptions options;
+            options.setEncodingStyle(balxml::EncodingStyle::e_PRETTY);
+
+            balxml::Encoder encoder(&options, &bsl::cerr, &bsl::cerr);
+
+            const bsl::string EXPECTED =
+                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                 "<Contractor xmlns:xsi"
+                            "=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+                 "    <name>Bob</name>\n"
+                 "    <homeAddress>\n"
+                 "        <street>Some Street</street>\n"
+                 "        <city>Some City</city>\n"
+                 "        <state>Some State</state>\n"
+                 "    </homeAddress>\n"
+                 "    <hourlyRate>" + TEXT + "</hourlyRate>\n"
+                 "</Contractor>\n";
+
+            bsl::ostringstream os;
+            const int rc = encoder.encodeToStream(os, bob);
+            ASSERTV(LINE, rc, 0 == rc);
+
+            const bsl::string& OUTPUT = os.str();
+            ASSERTV(EXPECTED, OUTPUT, EXPECTED == OUTPUT);
+
+            const char *field = bsl::strstr(OUTPUT.c_str(), preField);
+            ASSERT(field);    ASSERT(preFieldLen < bsl::strlen(field));
+            field += preFieldLen;
+            const char *end   = bsl::strstr(OUTPUT.c_str(), postField);
+            ASSERT(end && field < end);
+            const bslstl::StringRef fieldRef(field, end);
+
+            ASSERTV(LINE, TEXT, fieldRef, TEXT == fieldRef);
+        }
+      } break;
+      case 14: {
+        //---------------------------------------------------------------------
+        // TEST CASE DOCUMENTATION IS REPEATED IN THE 'runTestCase14()'
+        // function so it is also near the actual test code.  Make sure that
+        // anything you change here, you also changed in 'runTestCase14()' and
+        // vice versa.
+        // --------------------------------------------------------------------
+        // TESTING NILLABLE ELEMENT ENCODING
+        //   This case tests the 'balxml::Encoder::encode' operation when
+        //   encoding objects that may or may not be "nullable", and may or may
+        //   not have the "nillable" formatting mode applied.  In general, it
+        //   is expected that null values encode to nothing in XML, without
+        //   regard to the value of their "nillable" formatting mode.
+        //
+        // Concerns:
+        //: 1 Attributes of sequence types and selections of choice types
+        //:   that do not have the "nillable" formatting mode and are not null
+        //:   encode to XML representations of their value.
+        //:
+        //: 2 Attributes of sequence types and selections of choice types that
+        //:   do not have the "nillable" formatting mode and are null do not
+        //:   appear in the XML representations of their value.
+        //:
+        //: 3 Attributes of sequence types and selections of choice types
+        //:   that have the "nillable" formatting mode and are not null
+        //:   encode to XML representations of their value.
+        //:
+        //: 4 Attributes of sequence types and selections of choice types
+        //:   that have the "nillable" formatting mode and are null do not
+        //:   appear in the XML representations of their value.
+        //:
+        //: 5 Objects of nullable types that do not have the null value encode
+        //:   to XML representations of the underlying value.
+        //:
+        //: 6 Objects of nullable types that have the null value do not appear
+        //:   in the XML representations of their value.
+        //:
+        //: 7 The above 6 properties hold for arbitrary nesting and
+        //:   permutation of 'bdlat' concept implementations.  For example,
+        //:   these properties should not only hold for a sequence of two
+        //:   integers, but also a sequence of an enumeration and a choice
+        //:   between an integer and a string.
+        //
+        // Plan:
+        //: 1 Create objects enumerating all 8 'bdlat' attribute type concepts,
+        //:   and where applicable, recursively up to a depth of 2.
+        //:
+        //: 2 For each of the above objects, create a variant that is non-null
+        //:   but not nillable, a variant that is null but not nillable, a
+        //:   variant that is non-null and nillable, and a variant that is null
+        //:   and nillable.
+        //:
+        //: 3 For each of the above objects, verify that their XML encodings
+        //:   created by 'balxml::Encoder::encode' satisfy the 6 properties
+        //:   defined in the "Concerns".
+        //
+        // Testing:
+        //   int encode(bsl::streambuf *buffer, const TYPE& object);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Encoding of Nillable Elements"
+                          << "\n=====================================" << endl;
+
+        runTestCase14();
 
         if (verbose) cout << "\nEnd of Test." << endl;
       } break;
@@ -7906,12 +8095,12 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                        "</ABC>" }
         };
 
-        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int           LINE   = DATA[i].d_line;
-            const TestXmlElement& XML    = DATA[i].d_xml;
-            const char *const   EXPECTED_STRING = DATA[i].d_string;
+            const int             LINE            = DATA[i].d_line;
+            const TestXmlElement& XML             = DATA[i].d_xml;
+            const char *const     EXPECTED_STRING = DATA[i].d_string;
 
             bdlsb::MemOutStreamBuf xmlStreamBuf;
             bsl::ostream xmlStream(&xmlStreamBuf);
