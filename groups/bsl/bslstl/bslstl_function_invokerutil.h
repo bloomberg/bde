@@ -9,6 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  Function_InvokerUtil: Utility for returning an appropriate invoker function
+//  Function_InvokerUtilNullCheck: Customization point to detect null invocable
 //
 //@SEE_ALSO: bslstl_function
 //
@@ -76,6 +77,26 @@ BSLS_IDENT("$Id: $")
 // Note that, consistent with the C++ Standard definition of *INVOKE*, we
 // consider pointer-to-member-function and pointer-to-data-member types to be
 // "callable" even though, strictly speaking, they lack an 'operator()'.
+//
+///Customization point 'Function_InvokerUtilNullCheck'
+///---------------------------------------------------
+// The class template, 'Function_InvokerUtilNullCheck<T>' provides a single,
+// 'static' member function 'isNull(const T& f)' that returns 'true' iff 'f'
+// represents a "null value".  By default,
+// 'Function_InvokerUtilNullCheck<T>::isNull' returns 'true' iff 'T' is a
+// pointer or pointer-to-member type and has a null value.  For non-pointer
+// types, the primary template always returns 'false'.  However, other
+// components can provide specializations of 'Function_InvokerUtilNullCheck'
+// that add the notion of "nullness" to other invocable types.  In particular,
+// 'bslstl_function.h' specializes this template for 'bsl::function' and
+// 'bdef_function.h' specializes this template for 'bdef_function'.  In both
+// cases, a function object is considered null if it is empty, i.e., it does
+// not wrap an invocable object.  Although it is theoretically possible to
+// specialize 'Function_InvokerUtilNullCheck' for types not related to
+// 'bsl::function', doing so would go outside of the behavior of the standard
+// 'std::function' type that 'bsl::function' is emulating.  For this reason,
+// 'Function_InvokerUtilNullCheck' is tucked away in this private component for
+// use only through explicit collaboration.
 
 #include <bslscm_version.h>
 
@@ -153,6 +174,48 @@ struct Function_InvokerUtil {
 };
 
                // =============================================
+               // template struct Function_InvokerUtilNullCheck
+               // =============================================
+
+template <class FUNC>
+struct Function_InvokerUtilNullCheck {
+    // Provides an 'isNull' static method that that returns whether or not its
+    // argument is "null", i.e., it cannot be invoked.  For must 'FUNC' types
+    // 'isNull' always returns 'false' as every instance of 'FUNC' is
+    // invocable.  However, specializations of this class, especially for
+    // pointer types, have 'isNull' functions that sometimes return 'true'.
+    // This class is a customization point: types outside of this component can
+    // (but rarely should) specialize this template.  In particular,
+    // 'bslstl_function' contains a specialization for 'bsl::function'.
+
+    // CLASS METHODS
+    static bool isNull(const FUNC&);
+        // Return 'false'.
+};
+
+template <class FUNC>
+struct Function_InvokerUtilNullCheck<FUNC *> {
+    // Specialization of dispatcher for pointer objects.
+
+    // CLASS METHODS
+    static bool isNull(FUNC *f);
+        // Return 'true' if the specified 'f' pointer is null; otherwise
+        // 'false'.
+};
+
+template <class CLASS, class MEMTYPE>
+struct Function_InvokerUtilNullCheck<MEMTYPE CLASS::*> {
+    // Specialization of dispatcher for pointer-to-member objects.
+
+  public:
+    // CLASS METHODS
+    static bool isNull(MEMTYPE CLASS::* f);
+        // Return 'true' if the specified 'f' pointer to member is null;
+        // otherwise 'false'.
+};
+
+
+               // =============================================
                // template struct Function_InvokerUtil_Dispatch
                // =============================================
 
@@ -167,12 +230,6 @@ struct Function_InvokerUtil_Dispatch;
     // to member function, pointer to data member, inplace functor (i.e., one
     // that qualifies for the small-object optimization) and out-of-place
     // functor (i.e., one that is not stored in the small-object buffer).
-    // Specializations also contain a static 'isNull' method that identifies if
-    // an instance of 'FUNC' should be treated as null.  The primary template
-    // is never instantiated and has no body.  Compilation will fail unless
-    // 'FUNC' is invokable with the arguments in 'PROTOTYPE' and the return
-    // type of 'PROTOTYPE' is 'void' or the return type of that invokation is
-    // convertible to the return type of 'PROTOTYPE'.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=13
 
@@ -187,10 +244,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS>::Type...  args);
         // For the specified 'rep' and 'args', return
         // 'rep.target<FUNC>()(args...)'.
-
-    static bool isNull(FUNC f);
-        // Return 'true' if the specified 'f' pointer-to-function is null;
-        // otherwise 'false'.
 };
 
 template <class FUNC, class RET, class ARG0, class... ARGS>
@@ -226,10 +279,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
         // specified 'args' and return the result, i.e., '(obj.*f)(args...)'.
         // If 'obj' is a pointer or smart-pointer, dereference 'obj' first,
         // i.e., call '((*obj).*f)(args...)'.
-
-    static bool isNull(FUNC f);
-        // Return 'true' if the specified 'f' pointer to member function is
-        // null; otherwise 'false'
 };
 
 template <class MEMBER_TYPE, class CLASS_TYPE, class RET, class ARG0>
@@ -260,10 +309,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemDataPtr,
         // 'rep', return the specified 'f' member of the specified 'obj', i.e.,
         // 'obj.*f'.  If 'obj' is a pointer or smart-pointer, dereference 'obj'
         // first, i.e., return '(*obj).*f'.
-
-    static bool isNull(Func f);
-        // Return 'true' if the specified 'f' pointer to data member is null;
-        // otherwise 'false'
 };
 
 template <class FUNC, class RET, class... ARGS>
@@ -277,9 +322,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS>::Type...  args);
         // For the specified 'args' and 'rep', return
         // '(*rep.target<FUNC>())(args...)'.
-
-    static bool isNull(const FUNC&);
-        // Return false
 };
 
 template <class FUNC, class RET, class... ARGS>
@@ -293,12 +335,10 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS>::Type...  args);
         // For the specified 'args' and 'rep', return
         // '(*rep.target<FUNC>())(args...)'.
-
-    static bool isNull(const FUNC&);
-        // Return false
 };
 
 #endif
+
 
 // ===========================================================================
 //                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
@@ -337,14 +377,16 @@ bslstl::Function_InvokerUtil::invokerForFunc(const FUNC& f)
         Soo::IsInplaceFunc<FUNC>::value                   ? e_InplaceFunctor :
         e_OutofplaceFunctor;
 
+    // Instantiate the class for checking for null object
+    typedef Function_InvokerUtilNullCheck<UwFuncType> NullCheckerClass;
+
     // Instantiate the class for dispatching the invoker
     typedef Function_InvokerUtil_Dispatch<k_INVOCATION_TYPE,
                                           PROTOTYPE,
                                           UwFuncType> DispatcherClass;
 
-    // If a pointer-to-function or pointer-to-member-function is null, then
-    // return null.
-    if (DispatcherClass::isNull(bslalg::NothrowMovableUtil::unwrap(f)))
+    // If a the object is "null", e.g., for a pointer, then return null.
+    if (NullCheckerClass::isNull(bslalg::NothrowMovableUtil::unwrap(f)))
     {
         return 0;                                                     // RETURN
     }
@@ -357,6 +399,35 @@ bslstl::Function_InvokerUtil::invokerForFunc(const FUNC& f)
     return reinterpret_cast<Function_Rep::GenericInvoker *>(
                                                  &DispatcherClass::invoke);
 }
+
+               // ---------------------------------------------
+               // struct template Function_InvokerUtilNullCheck
+               // ---------------------------------------------
+
+// STATIC MEMBER FUNCTIONS
+
+template <class FUNC>
+inline
+bool Function_InvokerUtilNullCheck<FUNC>::isNull(const FUNC&)
+{
+    return false;
+}
+
+template <class FUNC>
+inline
+bool Function_InvokerUtilNullCheck<FUNC *>::isNull(FUNC* f)
+{
+    return 0 == f;
+}
+
+template <class CLASS, class MEMTYPE>
+inline
+bool
+Function_InvokerUtilNullCheck<MEMTYPE CLASS::*>::isNull(MEMTYPE CLASS::* f)
+{
+    return 0 == f;
+}
+
 
                // ---------------------------------------------
                // struct template Function_InvokerUtil_Dispatch
@@ -383,15 +454,6 @@ invoke(const Function_Rep                            *rep,
         RET,
         f(bslmf::ForwardingTypeUtil<ARGS>::forwardToTarget(args)...));
 }
-
-template <class FUNC, class RET, class... ARGS>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS...), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-
 
 template <class FUNC, class RET, class ARG0, class... ARGS>
 inline
@@ -460,14 +522,6 @@ invoke(const Function_Rep                            *rep,
                                                             args...));
 }
 
-template <class FUNC, class RET, class ARG0, class... ARGS>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS...), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-
 template <class MEMBER_TYPE, class CLASS_TYPE, class RET, class ARG0>
 inline
 RET
@@ -529,15 +583,6 @@ invoke(const Function_Rep                         *rep,
         RET, invokeImp(IsDirect(), f, obj));
 }
 
-template <class MEMBER_TYPE, class CLASS_TYPE, class RET, class ARG0>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemDataPtr,
-                                   RET(ARG0), MEMBER_TYPE CLASS_TYPE::*>::
-isNull(Func f)
-{
-    return 0 == f;
-}
-
 template <class FUNC, class RET, class... ARGS>
 RET
 Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
@@ -555,14 +600,6 @@ invoke(const Function_Rep                            *rep,
 }
 
 template <class FUNC, class RET, class... ARGS>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS...), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-
-template <class FUNC, class RET, class... ARGS>
 RET
 Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                               RET(ARGS...), FUNC>::
@@ -576,14 +613,6 @@ invoke(const Function_Rep                            *rep,
     return BSLSTL_FUNCTION_INVOKERUTIL_CAST_RESULT(
         RET,
         f(bslmf::ForwardingTypeUtil<ARGS>::forwardToTarget(args)...));
-}
-
-template <class FUNC, class RET, class... ARGS>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS...), FUNC>::isNull(const FUNC&)
-{
-    return false;
 }
 
 #endif

@@ -569,6 +569,70 @@ inline bslmf::MovableRef<DEST> upcastMovableRef(bslmf::MovableRef<SRC> ref)
 typedef int                  PROTO(const IntWrapper&, int);
 typedef bsl::function<PROTO> Obj;
 
+// An object of type 'InnerFunction' is a 'bsl::function' that is
+// compatible-with, but has a different type than, 'Obj'.  If stored in an
+// 'Obj', the target of the 'InnerFunction' is effectively wrapped twice, e.g.,
+// 'Obj(InnerFunction(&simpleFunc))' produces a pointer to 'simpleFunc' wrapped
+// inside a 'InnerFunction', wrapped inside an 'Obj'.  This type is used to
+// test that such double wrapping does not cause any issues.  To simplify this
+// test driver, objects of type 'InnerFunction' are always either empty or have
+// a target of type 'int(*)(const IntWrapper& iw, int v)'.
+typedef int PROTOTYPE2(const IntWrapper&, const int&);
+typedef bsl::function<PROTOTYPE2> InnerFunction;
+
+template <class TYPE>
+bool eqTarget(const TYPE& lhs, const TYPE& rhs)
+    // Return true if the specified 'lhs' compares equal to the specified 'rhs'
+    // using 'operator=='.  This function is overloaded for types that don't
+    // have 'operator=='.
+{
+    return lhs == rhs;
+}
+
+template <class TYPE>
+bool eqTarget(const TYPE& lhs, const bslalg::NothrowMovableWrapper<TYPE>& rhs)
+    // 'eqTarget` overload for case where 'rhs' is wrapped.
+{
+    return eqTarget(lhs, NTUNWRAP(rhs));
+}
+
+template <class TYPE>
+bool eqTarget(const bslalg::NothrowMovableWrapper<TYPE>& lhs, const TYPE& rhs)
+    // 'eqTarget` overload for case where 'lhs' is wrapped.
+{
+    return eqTarget(NTUNWRAP(lhs), rhs);
+}
+
+template <class TYPE>
+bool eqTarget(const bslalg::NothrowMovableWrapper<TYPE>& lhs,
+              const bslalg::NothrowMovableWrapper<TYPE>& rhs)
+    // 'eqTarget` overload for case where both 'lhs' and 'rhs' are wrapped.
+{
+    return eqTarget(NTUNWRAP(lhs), NTUNWRAP(rhs));
+}
+
+template <class PROTO>
+bool eqTarget(const bsl::function<PROTO>& lhs, const bsl::function<PROTO>& rhs)
+    // 'eqTarget' overload for case where 'lhs' and 'rhs' are instantiations
+    // of 'bsl::function'.  Since 'bsl::function' does not support
+    // 'operator==', this function approximates equality comparison for the
+    // limited cases of empty 'bsl::function' and 'bsl::function' containing a
+    // target of type 'int(*)(const IntWrapper& iw, int v)', only.  Test cases
+    // are designed so that, if a 'bsl::function' is used as a target type, it
+    // is always one of these two cases.
+{
+    typedef int (*TargetType)(const IntWrapper&, int);
+
+    const TargetType *lhsTarget = lhs.template target<TargetType>();
+    const TargetType *rhsTarget = rhs.template target<TargetType>();
+
+    ASSERT(lhsTarget || !lhs);  // Holds known target type or else empty.
+    ASSERT(rhsTarget || !rhs);  // Holds known target type or else empty.
+
+    // Return true if 'lhs' and 'rhs' have the same target or both are empty.
+    return (lhsTarget && rhsTarget) ? *lhsTarget == *rhsTarget : !lhs == !rhs;
+}
+
 class CountCopies
 {
     // Counts the number of times an object has been copy-constructed or
@@ -1459,27 +1523,40 @@ inline bool isConstPtr(void *) { return false; }
 inline bool isConstPtr(const void *) { return true; }
 
 template <class TYPE>
-inline bool isNullPtrImp(const TYPE& p, bsl::true_type /* is pointer */) {
+inline bool isNullImp(const TYPE& p, bsl::true_type /* is pointer */) {
     return 0 == p;
 }
 
 template <class TYPE>
-inline bool isNullPtrImp(const TYPE&, bsl::false_type /* is pointer */) {
+inline bool isNullImp(const TYPE&, bsl::false_type /* is pointer */) {
     return false;
 }
 
 template <class TYPE>
-inline bool isNullPtr(const TYPE& p) {
+inline bool isNull(const TYPE& p)
+    // Return true if 'TYPE' has the notion of a null value and the specified
+    // 'p' argument has that null value.
+{
     static const bool IS_POINTER =
         bsl::is_pointer<TYPE>::value ||
         bslmf::IsFunctionPointer<TYPE>::value ||
         bslmf::IsMemberFunctionPointer<TYPE>::value;
 
-    return isNullPtrImp(p, bsl::integral_constant<bool, IS_POINTER>());
+    return isNullImp(p, bsl::integral_constant<bool, IS_POINTER>());
 }
 
-inline bool isNullPtr(const bsl::nullptr_t&) {
+inline bool isNull(const bsl::nullptr_t&)
+    // This overload of 'isNull' returns true for 'nullptr_t'.
+{
     return true;
+}
+
+template <class PROTOTYPE>
+inline bool isNull(const bsl::function<PROTOTYPE>& f)
+    // This overload of 'isNull' returns true if the specified 'f' is an empty
+    // 'bsl::function'; else return false.
+{
+    return ! f;
 }
 
 template <class TYPE>
@@ -1487,7 +1564,7 @@ class ArgGeneratorBase {
     // Wrap and make available an object of the specified 'TYPE' for passing
     // into functions and constructors in the test driver.  'TYPE' is
     // constrained to be constructible from 'int' and have a 'value()' method
-    // that returns an 'int'.  ('TrackableValue' and 'TestFunction' meet these
+    // that returns an 'int'.  ('TrackableValue' and 'TestFunctor<>' meet these
     // criteria.)
 
     typedef typename bsl::remove_const<TYPE>::type MutableT;
@@ -1513,7 +1590,7 @@ struct ArgGenerator : ArgGeneratorBase<TYPE> {
     // Wrap and make available an object of the specified 'TYPE' for passing
     // into functions and constructors in the test driver.  'TYPE' is
     // constrained to be constructible from 'int' and have a 'value()' method
-    // that returns an 'int'.  ('TrackableValue' and 'TestFunction' meet these
+    // that returns an 'int'.  ('TrackableValue' and 'TestFunctor<>' meet these
     // criteria.)  The expected usage is to construct an object of this type,
     // 'x', and pass 'x.obj()' to a function or constructor.  After the call,
     // verify that 'x.check(v)' returns true, where 'v' is the value that the
@@ -2230,7 +2307,7 @@ bool checkValue(const OBJ& obj, int exp)
 }
 
 template <class FUNCTOR, class RET, class ARG>
-void testFunctor(const char *prototypeStr)
+void testWithFunctor(const char *prototypeStr)
     // Test invocation of a 'bsl::function' wrapping a functor object.
 {
     if (veryVeryVerbose) printf("\t%s\n", prototypeStr);
@@ -2337,6 +2414,11 @@ bool allocPropagationCheckImp(const Obj& f, bsl::true_type /*usesBslmaAlloc*/)
     // member that returns a stored allocator pointer.  This overload is used
     // when 'bslma::UsesBslmaAllocator<FUNC>' derives from 'true_type'.
 {
+    if (! f) {
+        // Empty 'bsl::functor' has no target to propagate allocator to
+        return true;                                                  // RETURN
+    }
+
     const FUNC *target = f.target<FUNC>();
     return f.allocator() == target->allocator();
 }
@@ -2585,7 +2667,7 @@ void testConstructFromCallableObjImp(FUNC                  func,
             bsls::ObjectBuffer<Obj> fBuf;
             Obj&                    f = CONSTRUCT_UTIL::construct(
                 fBuf.buffer(), REF_UTIL::xform(funcCopy), ta);     // CONSTRUCT
-            ASSERTV(desc, isNullPtr(NTUNWRAP(func)) == !f);
+            ASSERTV(desc, isNull(NTUNWRAP(func)) == !f);
             ASSERTV(desc, ta == f.get_allocator());
             if (f) {
                 ASSERTV(desc, typeid(TargetTp) == f.target_type());
@@ -2598,7 +2680,7 @@ void testConstructFromCallableObjImp(FUNC                  func,
                                 isMovedFrom(NTUNWRAP(funcCopy), expMove));
                     ASSERTV(desc, expMove == isMoved(*target_p, expMove));
                     ASSERTV(desc, expCopy == isCopied(*target_p, expCopy));
-                    ASSERTV(desc, *target_p == func);
+                    ASSERTV(desc, eqTarget(*target_p, func));
                     ASSERTV(desc, allocPropagationCheck<TargetTp>(f));
                     ASSERTV(desc, 0x4005 == f(IntWrapper(0x4000), 5));
                 }
@@ -2742,8 +2824,8 @@ void testCopyCtorWithAlloc(FUNC        func,
 
                 // Check for faithful copy of functor.
                 // Address of original and copy must be different.
-                ASSERT(*copy.target<TargetTp>() ==
-                       *original.target<TargetTp>());
+                ASSERT(eqTarget(*copy.target<TargetTp>(),
+                                *original.target<TargetTp>()));
                 ASSERT(copy.target<TargetTp>() !=
                        original.target<TargetTp>());
 
@@ -2753,8 +2835,8 @@ void testCopyCtorWithAlloc(FUNC        func,
 
                 // Invocation performed identical operations on original and on
                 // copy.  Check that equality relationship was not disturbed.
-                ASSERT(*copy.target<TargetTp>() ==
-                       *original.target<TargetTp>());
+                ASSERT(eqTarget(*copy.target<TargetTp>(),
+                                *original.target<TargetTp>()));
             }
 
             ASSERT(copyTa.numBlocksInUse() == expBlocksUsed);
@@ -2805,14 +2887,14 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended)
     typedef typename
         bslalg::NothrowMovableUtil::UnwrappedType<FUNC>::type TargetTp;
 
-    bool isEmpty = isNullPtr(NTUNWRAP(func));
+    bool isEmpty = isNull(NTUNWRAP(func));
     bool usesSmallObjectOptimization = false;
 
     // Construct a 'FUNC' object in a moved-from state.
     FUNC movedFromFunc(func);
     {
         FUNC movedToFunc(bslmf::MovableRefUtil::move(movedFromFunc));
-        ASSERT(NTUNWRAP(movedToFunc) == NTUNWRAP(func));
+        ASSERT(eqTarget(movedToFunc, func));
     }
 
     bslma::TestAllocator ta;
@@ -2894,7 +2976,7 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended)
 
             // Check for faithful move of functor
             ASSERT(dest.target_type() == typeid(TargetTp));
-            ASSERT(*dest.target<TargetTp>() == NTUNWRAP(func));
+            ASSERT(eqTarget(*dest.target<TargetTp>(), func));
 
             // Invoke
             Obj temp(func);
@@ -2902,7 +2984,8 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended)
 
             // Invocation performed identical operations on func and on 'dest'.
             // Check that equality relationship was not disturbed.
-            ASSERT(*dest.target<TargetTp>() == *temp.target<TargetTp>());
+            ASSERT(eqTarget(*dest.target<TargetTp>(),
+                            *temp.target<TargetTp>()));
         }
 
         ASSERT(ta.numBlocksInUse() == destNumBlocksUsed);
@@ -2928,7 +3011,7 @@ void testMoveCtorWithDifferentAlloc(FUNC funcArg, bool skipExcTest)
     // Copy argument
     const FUNC func = funcArg;
 
-    bool isEmpty = isNullPtr(NTUNWRAP(func));
+    bool isEmpty = isNull(NTUNWRAP(func));
 
     bslma::TestAllocator sourceTa;
     bslma::TestAllocator destTa;
@@ -2984,7 +3067,7 @@ void testMoveCtorWithDifferentAlloc(FUNC funcArg, bool skipExcTest)
 
                     // Check for faithful move of functor
                     ASSERT(dest.target_type() == typeid(TargetTp));
-                    ASSERT(*dest.target<TargetTp>() == NTUNWRAP(func));
+                    ASSERT(eqTarget(*dest.target<TargetTp>(), func));
 
                     // Invoke
                     Obj temp(func);
@@ -2994,8 +3077,8 @@ void testMoveCtorWithDifferentAlloc(FUNC funcArg, bool skipExcTest)
                     // Invocation performed identical operations on 'func' and
                     // on 'dest'.  Check that equality relationship was not
                     // disturbed.
-                    ASSERT(*dest.target<TargetTp>() ==
-                           *temp.target<TargetTp>());
+                    ASSERT(eqTarget(*dest.target<TargetTp>(),
+                                    *temp.target<TargetTp>()));
                 }
 
                 ASSERT(sourceTa.numBlocksInUse() == sourceNumBlocksUsed);
@@ -3090,7 +3173,7 @@ bool AreEqualFunctions(const Obj& inA, const Obj& inB)
     ASSERT(targetA && targetB);
     ASSERT(targetA != targetB);  // Different objects have different targets
 
-    return *targetA == *targetB;
+    return eqTarget(*targetA, *targetB);
 }
 
 void testSwap(const Obj& inA,
@@ -3448,12 +3531,12 @@ void testAssignFromFunctor(const Obj&   lhsIn,
                 LOOP2_ASSERT(lhsFuncName, rhsFuncName,
                              lhs.target_type() == typeid(TargetTp));
                 LOOP2_ASSERT(lhsFuncName, rhsFuncName,
-                             *lhs.target<TargetTp>() == rhsIn);
+                             eqTarget(*lhs.target<TargetTp>(), rhsIn));
             }
             else {
                 LOOP2_ASSERT(lhsFuncName, rhsFuncName, ! lhs);
             }
-            LOOP2_ASSERT(lhsFuncName, rhsFuncName, RHS == rhsIn);
+            LOOP2_ASSERT(lhsFuncName, rhsFuncName, eqTarget(RHS, rhsIn));
             LOOP2_ASSERT(lhsFuncName, rhsFuncName,
                          alloc == lhs.get_allocator());
             LOOP2_ASSERT(lhsFuncName, rhsFuncName,
@@ -3469,7 +3552,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
         }
         EXCEPTION_TEST_CATCH {
             // verify that both lhs and rhs are unchanged
-            LOOP2_ASSERT(lhsFuncName, rhsFuncName, rhs == rhsIn);
+            LOOP2_ASSERT(lhsFuncName, rhsFuncName, eqTarget(rhs, rhsIn));
             LOOP2_ASSERT(lhsFuncName, rhsFuncName,
                          lhs.target_type() == lhsIn.target_type());
             if (lhs && lhsIn) {
@@ -3519,7 +3602,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
         }
         EXCEPTION_TEST_CATCH {
             // verify that both lhs and rhs are unchanged
-            LOOP2_ASSERT(lhsFuncName, rhsFuncName, rhs == rhsIn);
+            LOOP2_ASSERT(lhsFuncName, rhsFuncName, eqTarget(rhs, rhsIn));
             LOOP2_ASSERT(lhsFuncName, rhsFuncName,
                          lhs.target_type() == lhsIn.target_type());
             if (lhs && lhsIn) {
@@ -3574,7 +3657,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
                              lhs.target_type() == typeid(TargetTp));
                 TargetTp *target_p = lhs.target<TargetTp>();
                 LOOP2_ASSERT(lhsFuncName, rhsFuncName,
-                             target_p && *target_p == rhsIn);
+                             target_p && eqTarget(*target_p, rhsIn));
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
                 // TBD: In C++03, there is a limitation in 'destructiveMove'
                 // such that the target is not moved-into.
@@ -3814,18 +3897,18 @@ int main(int argc, char *argv[])
         //  const operator BloombergLP::bdef_Function<PROTOTYPE *>&() const;
         // --------------------------------------------------------------------
 
-          if (verbose) printf("\nTESTING CONVERSION TO 'bdef_Function'"
-                              "\n=====================================\n");
+        if (verbose) printf("\nTESTING CONVERSION TO 'bdef_Function'"
+                            "\n=====================================\n");
 
-          using BloombergLP::bdef_Function;
+        using BloombergLP::bdef_Function;
 
-          bsl::function<int(const char *)>           original;
-          bsl::function<int(const char *)> const&    ORIGINAL = original;
-          bdef_Function<int(*)(const char *)>&       converted = original;
-          bdef_Function<int(*)(const char *)> const& CONVERTED = ORIGINAL;
+        bsl::function<int(const char *)>           original;
+        bsl::function<int(const char *)> const&    ORIGINAL = original;
+        bdef_Function<int(*)(const char *)>&       converted = original;
+        bdef_Function<int(*)(const char *)> const& CONVERTED = ORIGINAL;
 
-          ASSERT(&converted == &ORIGINAL);
-          ASSERT(&CONVERTED == &ORIGINAL);
+        ASSERT(&converted == &ORIGINAL);
+        ASSERT(&CONVERTED == &ORIGINAL);
 
       } break;
 
@@ -4087,18 +4170,21 @@ int main(int argc, char *argv[])
         //:   within the small-object optimization, or is allocated on the
         //:   heap.
         //:
-        //: 7 Side effects are observed even if the 'bsl::function' is
-        //:   const. This surprising fact comes from the idea that a
-        //:   'function' object is an abstraction of a pointer to a
-        //:   function. Moreover, type erasure means that, at compile time, it
-        //:   is not possible to determine whether the callable object
-        //:   even cares whether or not it is const.
+        //: 7 Invocation works correctly 'bsl::function' objects wrapped within
+        //:   other 'bsl::function' object.
         //:
-        //: 8 When the constructor's functor argument is wrapped using a
+        //: 8 Side effects are observed even if the 'bsl::function' is
+        //:   const.  This surprising fact comes from the idea that a
+        //:   'function' object is an abstraction of a pointer to a
+        //:   function.  Moreover, type erasure means that, at compile time, it
+        //:   is not possible to determine whether the callable object
+        //:   cares whether or not it is const.
+        //:
+        //: 9 When the constructor's functor argument is wrapped using a
         //:   'bslalg::NothrowMovableWrapper', invocation procedes as though
         //:   the wrapper were not present.
         //:
-        //: 9 The target can be a C++11 lambda expression.
+        //: 10 The target can be a C++11 lambda expression.
         //
         // Plan:
         //: 1 Create a set of functor class with ten overloads of
@@ -4109,7 +4195,7 @@ int main(int argc, char *argv[])
         //:   in the functor and returns the result.
         //:
         //: 2 For concerns 1 and 2, implement a test function template,
-        //:   'testFunctor' that constructs constructs one instance of the
+        //:   'testWithFunctor' that constructs constructs one instance of the
         //:   specified functor type and creates 13 instances of
         //:   'bsl::function' instantiated for the specified object type,
         //:   specified return type, and 0 to 12 arguments of the specified
@@ -4127,31 +4213,37 @@ int main(int argc, char *argv[])
         //:   'void(int)' and verify that it can be used to wrap the functor
         //:   invoked with a single argument (discarding the return value).
         //:
-        //: 5 For concern 5, instantiate 'testFunctor' with using a class
+        //: 5 For concern 5, instantiate 'testWithFunctor' with using a class
         //:   'ConvertibleToInt' instead of 'int' for the argument types
         //:   and using 'IntWrapper' instead of 'int' for the return type.
         //:
         //: 6 For concern 6, repeat each of the above steps with stateless,
-        //:   small, and large functor classes by instantiating 'testFunctor'
-        //:   with 'EmptyFunctor', 'SmallFunctor', and 'LargeFunctor'.  It is
-        //:   not necessary to test with 'MediumFunctor' as that does not test
-        //:   anything not already tested by 'SmallFunctor'.
+        //:   small, and large functor classes by instantiating
+        //:   'testWithFunctor' with 'EmptyFunctor', 'SmallFunctor', and
+        //:   'LargeFunctor'.  It is not necessary to test with 'MediumFunctor'
+        //:   as that does not test anything not already tested by
+        //:   'SmallFunctor'.
         //:
-        //: 7 For concern 7, augment step 2 with a const 'bsl::function'
+        //: 7 For concern 7, create an 'bsl::function' nested within another
+        //:   'bsl::function' with a different, but compatible, prototype.
+        //:   Verify that invoking the outer function produces the same result
+        //:   and invoking the inner function.
+        //:
+        //: 8 For concern 9, augment step 2 with a const 'bsl::function'
         //:   object. It is necessary to test only one set of arguments in
         //:   order to have confidence in the result.
         //:
-        //: 8 For concern 8, augment step 2, wrapping the constructor argument
+        //: 9 For concern 9, augment step 2, wrapping the constructor argument
         //:   in a 'bslalg::NothrowMovableWrapper'.  It is necessary to test
         //:   only one set of arguments in order to have confidence in the
         //:   result.
         //:
-        //: 9 For concern 9, create a 'bsl::function' that wraps a C++11 lambda
-        //:   expression, with and without captured arguments.  Test that the
-        //:   target info are as expected and that the lambda can be invoked
-        //:   through the 'bsl::function'.  Note that it is not necessary to
-        //:   repeat all of the previous tests, as a lambda is just a special
-        //:   case of a callable class object.
+        //: 10 For concern 10, create a 'bsl::function' that wraps a C++11
+        //:   lambda expression, with and without captured arguments.  Test
+        //:   that the target info are as expected and that the lambda can be
+        //:   invoked through the 'bsl::function'.  Note that it is not
+        //:   necessary to repeat all of the previous tests, as a lambda is
+        //:   just a special case of a callable class object.
         //
         // Testing:
         //  RET operator()(ARGS...) const; // User-defined functor target
@@ -4161,22 +4253,29 @@ int main(int argc, char *argv[])
                             "\n==========================\n");
 
         if (veryVerbose) printf("Plan step 2\n");
-        testFunctor<SmallFunctor, int, int>("SmallFunctor int(int...)");
+        testWithFunctor<SmallFunctor, int, int>("SmallFunctor int(int...)");
 
         if (veryVerbose) printf("Plan step 5\n");
-        testFunctor<SmallFunctor, IntWrapper, ConvertibleToInt>(
+        testWithFunctor<SmallFunctor, IntWrapper, ConvertibleToInt>(
             "SmallFunctor IntWrapper(ConvertibleToInt...)");
 
         if (veryVerbose) printf("Plan step 6\n");
-        testFunctor<EmptyFunctor, int, int>("EmptyFunctor int(int...)");
-        testFunctor<EmptyFunctor, IntWrapper, ConvertibleToInt>(
+        testWithFunctor<EmptyFunctor, int, int>("EmptyFunctor int(int...)");
+        testWithFunctor<EmptyFunctor, IntWrapper, ConvertibleToInt>(
             "EmptyFunctor IntWrapper(ConvertibleToInt...)");
-        testFunctor<LargeFunctor, int, int>("LargeFunctor int(int...)");
-        testFunctor<LargeFunctor, IntWrapper, ConvertibleToInt>(
+        testWithFunctor<LargeFunctor, int, int>("LargeFunctor int(int...)");
+        testWithFunctor<LargeFunctor, IntWrapper, ConvertibleToInt>(
             "LargeFunctor IntWrapper(ConvertibleToInt...)");
+
+        InnerFunction innerFunc(&simpleFunc);
+        ASSERT(3 == innerFunc(1, 2));
+        Obj doubleWrappedFunc(innerFunc);
+        ASSERT(3 == doubleWrappedFunc(1, 2));
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
         // C++11 -- assume lambda support.
+
+        // Test Lambda with no capture
         auto lambda1 = [](int x){ return 2 * x; };
         bsl::function<int(int)> f1(lambda1);
         ASSERT(typeid(lambda1) == f1.target_type());
@@ -4185,6 +4284,7 @@ int main(int argc, char *argv[])
 #endif
         ASSERT(4 == f1(2));
 
+        // Test Lambda with capture by copy
         int multiplier = 3;
         auto lambda2 = [multiplier](int x){ return multiplier * x; };
         bsl::function<int(int)> f2(lambda2);
@@ -5239,6 +5339,7 @@ int main(int argc, char *argv[])
             TEST_ITEM(BMSmallFunctorWithAlloc        , 0x2000            ),
             TEST_ITEM(NTSmallFunctorWithAlloc        , 0x2000            ),
             TEST_ITEM(LargeFunctorWithAlloc          , 0x1000            ),
+            TEST_ITEM(InnerFunction                  , &simpleFunc       )
         };
 
         const int dataSize = sizeof(data) / sizeof(data[0]);
@@ -5276,6 +5377,7 @@ int main(int argc, char *argv[])
             TEST(BMSmallFunctorWithAlloc(0x2000)              );
             TEST(NTSmallFunctorWithAlloc(0x2000)              );
             TEST(LargeFunctorWithAlloc(0x2000)                );
+            TEST(InnerFunction(&simpleFunc2)                  );
 
         } // end for (each array item)
 
@@ -5372,6 +5474,7 @@ int main(int argc, char *argv[])
             TEST_ITEM(BMSmallFunctorWithAlloc, 0x2000            ),
             TEST_ITEM(NTSmallFunctorWithAlloc, 0x2000            ),
             TEST_ITEM(LargeFunctorWithAlloc  , 0x1000            ),
+            TEST_ITEM(InnerFunction          , &simpleFunc       ),
 
             NTTST_ITM(SimpleMemFuncPtr_t     , &IntWrapper::add1 ),
             NTTST_ITM(EmptyFunctor           , 0                 ),
@@ -5570,6 +5673,7 @@ int main(int argc, char *argv[])
             TEST_ITEM(BMSmallFunctorWithAlloc, 0x200             ),
             TEST_ITEM(NTSmallFunctorWithAlloc, 0x200             ),
             TEST_ITEM(LargeFunctorWithAlloc  , 0x100             ),
+            TEST_ITEM(InnerFunction          , &simpleFunc       )
         };
 
         int dataASize = sizeof(dataA) / sizeof(TestData);
@@ -5590,6 +5694,7 @@ int main(int argc, char *argv[])
             TEST_ITEM(BMSmallFunctorWithAlloc, 0x10              ),
             TEST_ITEM(NTSmallFunctorWithAlloc, 0x10              ),
             TEST_ITEM(LargeFunctorWithAlloc  , 0x20              ),
+            TEST_ITEM(InnerFunction          , &simpleFunc2      )
         };
 
 #undef TEST_ITEM
@@ -5659,10 +5764,19 @@ int main(int argc, char *argv[])
         //:   non-default allocator arguments.  Note that the allocators to
         //:   both objects must compare equal in order for them to be swapped.
         //:
-        //: 5 The above concerns apply to 'function's constructed with nothrow
-        //:   wrappers.
+        //: 5 The above concerns apply to 'function's constructed with nothrow-
+        //:   wrapped targets.
         //:
-        //: 6 The namespace-scope function, 'bsl::swap' invokes
+        //: 6 Unless one or both of the 'function' targets was constructed with
+        //:   'nothrow' wrappers, 'swap' is guaranteed not to throw.  If this
+        //:   concern sounds counterintuitive, it is because the nothrow
+        //:   wrapper actually "pretends" that the target won't throw, even if
+        //:   it might actually throw on move. If the target is *known* to
+        //:   possibly throw, then 'bsl::function' ensures that it will never
+        //:   be moved, but rather referenced only through a pointer that is
+        //:   moved.
+        //:
+        //: 7 The namespace-scope function, 'bsl::swap' invokes
         //:   'bsl::function<F>::swap' when invoked with two 'function'
         //:   objects.
         //
@@ -5701,11 +5815,13 @@ int main(int argc, char *argv[])
         //:   call 'testSwap' to perform the test.
         //:
         //: 4 For concern 5, add a nothrow-wrapped version of each 'function'
-        //:   in the arrays described in step 3. Suppress exception tests when
-        //:   nothrow wrappers are used, since throwing an exception from a
-        //:   wrapper would terminate the program.
+        //:   in the arrays described in step 3.
         //:
-        //: 5 For concern 6, reverse the call to member 'swap' in step 1 by
+        //: 5 For concern 6, test 'swap' within the exception-test framework.
+        //:   Suppress exception tests when nothrow wrappers are used, since
+        //:   throwing an exception from a wrapper would terminate the program.
+        //:
+        //: 6 For concern 7, reverse the call to member 'swap' in step 1 by
         //:   using free function 'bsl::swap'.
         //
         // Testing
@@ -5720,9 +5836,9 @@ int main(int argc, char *argv[])
         typedef int (IntWrapper::*SimpleMemFuncPtr_t)(int) const;
         typedef bool (*AreEqualFuncPtr_t)(const Obj&, const Obj&);
 
-        // Null function pointers
-        static const SimpleFuncPtr_t    nullFuncPtr    = 0;
-        static const SimpleMemFuncPtr_t nullMemFuncPtr = 0;
+        // Null functors
+        int (*nullFuncPtr)(IntWrapper, int) = 0;
+        int ( IntWrapper::*nullMemFuncPtr)(int) const = 0;
 
         struct TestData {
             // Data for one dimension of test
@@ -5731,12 +5847,12 @@ int main(int argc, char *argv[])
             Obj                d_function;       // function object to swap
             const char        *d_funcName;       // function object name
             AreEqualFuncPtr_t  d_areEqualFunc_p; // comparison function
-            bool               d_ntUnwrapped;    // Obj is NTUNWRAP()'d
+            bool               d_ntWrapped;      // functor is NTWRAP()'d
         };
 
 #define TEST_ITEM(F, V)                                                 \
         { L_, Obj(F(V)), #F "(" #V ")", &AreEqualFunctions<F>, false }, \
-        { L_, Obj(NTWRAP(F(V))), "NTWRAP(" #F "(" #V "))",        \
+        { L_, Obj(NTWRAP(F(V))), "NTWRAP(" #F "(" #V "))",              \
                 &AreEqualFunctions<F>, true }
 
         TestData dataA[] = {
@@ -5755,6 +5871,7 @@ int main(int argc, char *argv[])
             TEST_ITEM(BMSmallFunctorWithAlloc, 0x1000            ),
             TEST_ITEM(NTSmallFunctorWithAlloc, 0x1000            ),
             TEST_ITEM(LargeFunctorWithAlloc  , 0x2000            ),
+            TEST_ITEM(InnerFunction          , &simpleFunc       )
         };
 
         int dataASize = sizeof(dataA) / sizeof(TestData);
@@ -5775,6 +5892,7 @@ int main(int argc, char *argv[])
             TEST_ITEM(BMSmallFunctorWithAlloc, 0x2000            ),
             TEST_ITEM(NTSmallFunctorWithAlloc, 0x2000            ),
             TEST_ITEM(LargeFunctorWithAlloc  , 0x1000            ),
+            TEST_ITEM(InnerFunction          , &simpleFunc2      )
         };
 
 #undef TEST_ITEM
@@ -5792,8 +5910,8 @@ int main(int argc, char *argv[])
                 const Obj&         funcB       = dataB[j].d_function;
                 const char        *funcBName   = dataB[j].d_funcName;
                 AreEqualFuncPtr_t  areEqualB   = dataB[j].d_areEqualFunc_p;
-                bool               skipExcTest = (dataA[i].d_ntUnwrapped ||
-                                                  dataB[j].d_ntUnwrapped);
+                bool               skipExcTest = (dataA[i].d_ntWrapped ||
+                                                  dataB[j].d_ntWrapped);
 
                 if (veryVerbose) printf("swap(%s, %s)\n",funcAName,funcBName);
 
@@ -5986,6 +6104,9 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator xa;
 
+        // For testing 'bsl::function' wrapped in 'bsl::function'.
+        InnerFunction simpleInnerFunction(bsl::allocator_arg,&xa, &simpleFunc);
+
         //   Callable object                        skipExceptionTest
         //   =====================================  =================
         TEST(nullFuncPtr                          , false);
@@ -6003,6 +6124,7 @@ int main(int argc, char *argv[])
         TEST(BMSmallFunctorWithAlloc(0, &xa)      , false);
         TEST(NTSmallFunctorWithAlloc(0, &xa)      , false);
         TEST(LargeFunctorWithAlloc(0, &xa)        , false);
+        TEST(simpleInnerFunction                  , false);
         TEST(NTWRAP(nullFuncPtr)                  , true );
         TEST(NTWRAP(simpleFunc)                   , true );
         TEST(NTWRAP(EmptyFunctor())               , true );
@@ -6014,6 +6136,7 @@ int main(int argc, char *argv[])
         TEST(NTWRAP(ThrowingEmptyFunctor())       , true );
         TEST(NTWRAP(SmallFunctorWithAlloc(0, &xa)), true );
         TEST(NTWRAP(LargeFunctorWithAlloc(0, &xa)), true );
+        TEST(NTWRAP(simpleInnerFunction)          , true );
 
 #undef TEST
 
@@ -6146,19 +6269,24 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nCOPY CONSTRUCTORS"
                             "\n=================\n");
 
+        bslma::TestAllocator xa;
+
         // Null functors
         int (*nullFuncPtr)(IntWrapper, int) = 0;
         int ( IntWrapper::*nullMemFuncPtr)(int) const = 0;
+
+        // For testing 'bsl::function' wrapped in 'bsl::function'.
+        InnerFunction emptyInnerFunction;
+        InnerFunction simpleInnerFunction(bsl::allocator_arg,&xa, &simpleFunc);
 
 #define TEST(f) do {                                         \
             if (veryVerbose) printf("FUNC is %s\n", #f);     \
             testCopyCtor(f);                                 \
         } while (false)
 
-        bslma::TestAllocator xa;
-
         TEST(nullFuncPtr                          );
         TEST(nullMemFuncPtr                       );
+        TEST(emptyInnerFunction                   );
         TEST(simpleFunc                           );
         TEST(&IntWrapper::add1                    );
         TEST(EmptyFunctor()                       );
@@ -6172,8 +6300,10 @@ int main(int argc, char *argv[])
         TEST(BMSmallFunctorWithAlloc(0, &xa)      );
         TEST(NTSmallFunctorWithAlloc(0, &xa)      );
         TEST(LargeFunctorWithAlloc(0, &xa)        );
+        TEST(simpleInnerFunction                  );
         TEST(NTWRAP(nullFuncPtr)                  );
         TEST(NTWRAP(simpleFunc)                   );
+        TEST(NTWRAP(emptyInnerFunction)           );
         TEST(NTWRAP(EmptyFunctor())               );
         TEST(NTWRAP(SmallFunctor(0x2000))         );
         TEST(NTWRAP(MediumFunctor(0x4000))        );
@@ -6183,6 +6313,7 @@ int main(int argc, char *argv[])
         TEST(NTWRAP(ThrowingEmptyFunctor())       );
         TEST(NTWRAP(SmallFunctorWithAlloc(0, &xa)));
         TEST(NTWRAP(LargeFunctorWithAlloc(0, &xa)));
+        TEST(NTWRAP(simpleInnerFunction)          );
 
 #undef TEST
 
@@ -6388,9 +6519,13 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator xa;
 
-        // Null functors
+        // Null pointers
         int (*nullFuncPtr)(IntWrapper, int) = 0;
         int ( IntWrapper::*nullMemFuncPtr)(int) const = 0;
+
+        // For testing 'bsl::function' wrapped in 'bsl::function'.
+        InnerFunction emptyInnerFunction;
+        InnerFunction simpleInnerFunction(bsl::allocator_arg,&xa, &simpleFunc);
 
 #define TEST(f, W, E) testConstructFromCallableObj(f, #f, W, E)
 
@@ -6399,6 +6534,7 @@ int main(int argc, char *argv[])
         TEST(bsl::nullptr_t()                       , false    , true );
         TEST(nullFuncPtr                            , false    , true );
         TEST(nullMemFuncPtr                         , false    , true );
+        TEST(emptyInnerFunction                     , false    , true );
         TEST(&simpleFunc                            , false    , true );
         TEST(&IntWrapper::add1                      , false    , true );
         TEST(EmptyFunctor()                         , false    , true );
@@ -6413,9 +6549,11 @@ int main(int argc, char *argv[])
         TEST(BMSmallFunctorWithAlloc(0, &xa)        , false    , true );
         TEST(NTSmallFunctorWithAlloc(0, &xa)        , false    , true );
         TEST(LargeFunctorWithAlloc(  0, &xa)        , false    , false);
+        TEST(simpleInnerFunction                    , false    , false);
 
         TEST(NTWRAP(nullFuncPtr)                    , true     , true );
         TEST(NTWRAP(nullMemFuncPtr)                 , true     , true );
+        TEST(NTWRAP(emptyInnerFunction)             , true     , true );
         TEST(NTWRAP(simpleFunc)                     , true     , true );
         TEST(NTWRAP(&IntWrapper::add1)              , true     , true );
         TEST(NTWRAP(EmptyFunctor())                 , true     , true );
@@ -6430,6 +6568,7 @@ int main(int argc, char *argv[])
         TEST(NTWRAP(BMSmallFunctorWithAlloc(0, &xa)), true     , true );
         TEST(NTWRAP(NTSmallFunctorWithAlloc(0, &xa)), true     , true );
         TEST(NTWRAP(LargeFunctorWithAlloc(  0, &xa)), true     , false);
+        TEST(NTWRAP(simpleInnerFunction)            , true     , false);
 
         TEST(FunctorWithoutDedicatedMove(0)         , false    , false);
         TEST(NTWRAP(FunctorWithoutDedicatedMove(0)) , true     , true );
@@ -6440,11 +6579,15 @@ int main(int argc, char *argv[])
 
 #undef TEST
 
-        // Verify that an empty 'function' argument yields an empty 'function'.
-        bsl::function<int(const IntWrapper&, const IntWrapper&)> emptyArg;
-        Obj emptyCopy(emptyArg);
-        // TBD: Known bug: See DRQS 164241820
-        // ASSERT(! emptyCopy);
+        // Concern 15: Construction from an empty 'bsl::function' argument of a
+        // different (but compatible) 'bsl::function' instantiation, yields an
+        // empty 'function' (it does not wrap the empty 'bsl::function').
+        // Empty 'bsl::function' with different prototype.  This concern is
+        // tested indirectly in the table-driven approach above, but a clear,
+        // direct test seems called for.
+        ASSERT(isNull(emptyInnerFunction));
+        Obj emptyCopy(emptyInnerFunction);
+        ASSERT(! emptyCopy);
 
       } break;
 

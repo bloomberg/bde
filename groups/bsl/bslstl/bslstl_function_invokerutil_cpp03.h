@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Tue Dec 15 15:06:38 2020
+// Generated on Thu Mar  4 23:36:07 2021
 // Command line: sim_cpp11_features.pl bslstl_function_invokerutil.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_H
@@ -72,6 +72,48 @@ struct Function_InvokerUtil {
 };
 
                // =============================================
+               // template struct Function_InvokerUtilNullCheck
+               // =============================================
+
+template <class FUNC>
+struct Function_InvokerUtilNullCheck {
+    // Provides an 'isNull' static method that that returns whether or not its
+    // argument is "null", i.e., it cannot be invoked.  For must 'FUNC' types
+    // 'isNull' always returns 'false' as every instance of 'FUNC' is
+    // invocable.  However, specializations of this class, especially for
+    // pointer types, have 'isNull' functions that sometimes return 'true'.
+    // This class is a customization point: types outside of this component can
+    // (but rarely should) specialize this template.  In particular,
+    // 'bslstl_function' contains a specialization for 'bsl::function'.
+
+    // CLASS METHODS
+    static bool isNull(const FUNC&);
+        // Return 'false'.
+};
+
+template <class FUNC>
+struct Function_InvokerUtilNullCheck<FUNC *> {
+    // Specialization of dispatcher for pointer objects.
+
+    // CLASS METHODS
+    static bool isNull(FUNC *f);
+        // Return 'true' if the specified 'f' pointer is null; otherwise
+        // 'false'.
+};
+
+template <class CLASS, class MEMTYPE>
+struct Function_InvokerUtilNullCheck<MEMTYPE CLASS::*> {
+    // Specialization of dispatcher for pointer-to-member objects.
+
+  public:
+    // CLASS METHODS
+    static bool isNull(MEMTYPE CLASS::* f);
+        // Return 'true' if the specified 'f' pointer to member is null;
+        // otherwise 'false'.
+};
+
+
+               // =============================================
                // template struct Function_InvokerUtil_Dispatch
                // =============================================
 
@@ -86,12 +128,6 @@ struct Function_InvokerUtil_Dispatch;
     // to member function, pointer to data member, inplace functor (i.e., one
     // that qualifies for the small-object optimization) and out-of-place
     // functor (i.e., one that is not stored in the small-object buffer).
-    // Specializations also contain a static 'isNull' method that identifies if
-    // an instance of 'FUNC' should be treated as null.  The primary template
-    // is never instantiated and has no body.  Compilation will fail unless
-    // 'FUNC' is invokable with the arguments in 'PROTOTYPE' and the return
-    // type of 'PROTOTYPE' is 'void' or the return type of that invokation is
-    // convertible to the return type of 'PROTOTYPE'.
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -109,8 +145,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                      RET(), FUNC> {
 
     static RET invoke(const Function_Rep                            *rep);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
 
@@ -121,8 +155,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
 
@@ -136,8 +168,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
 
@@ -154,8 +184,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
 
@@ -175,8 +203,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
 
@@ -199,8 +225,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
 
@@ -226,8 +250,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
 
@@ -256,8 +278,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
 
@@ -289,8 +309,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
 
@@ -325,8 +343,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
 
@@ -364,8 +380,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
 
@@ -406,8 +420,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
 
@@ -451,8 +463,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
 
@@ -499,8 +509,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12,
                       typename bslmf::ForwardingType<ARGS_13>::Type args_13);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
 
@@ -522,8 +530,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
   public:
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
 
@@ -547,8 +553,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
 
@@ -577,8 +581,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
 
@@ -612,8 +614,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
 
@@ -652,8 +652,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
 
@@ -697,8 +695,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
 
@@ -747,8 +743,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
 
@@ -802,8 +796,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
 
@@ -862,8 +854,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
 
@@ -927,8 +917,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
 
@@ -997,8 +985,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
 
@@ -1072,8 +1058,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
 
@@ -1152,8 +1136,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
 
@@ -1237,8 +1219,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12,
                       typename bslmf::ForwardingType<ARGS_13>::Type args_13);
-
-    static bool isNull(FUNC f);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
 
@@ -1260,8 +1240,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemDataPtr,
   public:
     static RET invoke(const Function_Rep                         *rep,
                       typename bslmf::ForwardingType<ARG0>::Type  obj);
-
-    static bool isNull(Func f);
 };
 
 #if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
@@ -1270,8 +1248,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                      RET(), FUNC> {
 
     static RET invoke(const Function_Rep                            *rep);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
 
@@ -1282,8 +1258,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
 
@@ -1297,8 +1271,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
 
@@ -1315,8 +1287,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
 
@@ -1336,8 +1306,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
 
@@ -1360,8 +1328,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
 
@@ -1387,8 +1353,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
 
@@ -1417,8 +1381,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
 
@@ -1450,8 +1412,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
 
@@ -1486,8 +1446,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
 
@@ -1525,8 +1483,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
 
@@ -1567,8 +1523,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
 
@@ -1612,8 +1566,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
 
@@ -1660,8 +1612,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12,
                       typename bslmf::ForwardingType<ARGS_13>::Type args_13);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
 
@@ -1672,8 +1622,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                      RET(), FUNC> {
 
     static RET invoke(const Function_Rep                            *rep);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
 
@@ -1684,8 +1632,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
 
@@ -1699,8 +1645,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
 
@@ -1717,8 +1661,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
 
@@ -1738,8 +1680,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
 
@@ -1762,8 +1702,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
 
@@ -1789,8 +1727,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
 
@@ -1819,8 +1755,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
 
@@ -1852,8 +1786,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
 
@@ -1888,8 +1820,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
 
@@ -1927,8 +1857,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
 
@@ -1969,8 +1897,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
 
@@ -2014,8 +1940,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
 
@@ -2062,8 +1986,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12,
                       typename bslmf::ForwardingType<ARGS_13>::Type args_13);
-
-    static bool isNull(const FUNC&);
 };
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
 
@@ -2077,8 +1999,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS>::Type...  args);
-
-    static bool isNull(FUNC f);
 };
 
 template <class FUNC, class RET, class ARG0, class... ARGS>
@@ -2100,8 +2020,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS>::Type...  args);
-
-    static bool isNull(FUNC f);
 };
 
 template <class MEMBER_TYPE, class CLASS_TYPE, class RET, class ARG0>
@@ -2121,8 +2039,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemDataPtr,
   public:
     static RET invoke(const Function_Rep                         *rep,
                       typename bslmf::ForwardingType<ARG0>::Type  obj);
-
-    static bool isNull(Func f);
 };
 
 template <class FUNC, class RET, class... ARGS>
@@ -2131,8 +2047,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS>::Type...  args);
-
-    static bool isNull(const FUNC&);
 };
 
 template <class FUNC, class RET, class... ARGS>
@@ -2141,12 +2055,11 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
 
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS>::Type...  args);
-
-    static bool isNull(const FUNC&);
 };
 
 // }}} END GENERATED CODE
 #endif
+
 
 // ===========================================================================
 //                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
@@ -2185,14 +2098,16 @@ bslstl::Function_InvokerUtil::invokerForFunc(const FUNC& f)
         Soo::IsInplaceFunc<FUNC>::value                   ? e_InplaceFunctor :
         e_OutofplaceFunctor;
 
+    // Instantiate the class for checking for null object
+    typedef Function_InvokerUtilNullCheck<UwFuncType> NullCheckerClass;
+
     // Instantiate the class for dispatching the invoker
     typedef Function_InvokerUtil_Dispatch<k_INVOCATION_TYPE,
                                           PROTOTYPE,
                                           UwFuncType> DispatcherClass;
 
-    // If a pointer-to-function or pointer-to-member-function is null, then
-    // return null.
-    if (DispatcherClass::isNull(bslalg::NothrowMovableUtil::unwrap(f)))
+    // If a the object is "null", e.g., for a pointer, then return null.
+    if (NullCheckerClass::isNull(bslalg::NothrowMovableUtil::unwrap(f)))
     {
         return 0;                                                     // RETURN
     }
@@ -2205,6 +2120,35 @@ bslstl::Function_InvokerUtil::invokerForFunc(const FUNC& f)
     return reinterpret_cast<Function_Rep::GenericInvoker *>(
                                                  &DispatcherClass::invoke);
 }
+
+               // ---------------------------------------------
+               // struct template Function_InvokerUtilNullCheck
+               // ---------------------------------------------
+
+// STATIC MEMBER FUNCTIONS
+
+template <class FUNC>
+inline
+bool Function_InvokerUtilNullCheck<FUNC>::isNull(const FUNC&)
+{
+    return false;
+}
+
+template <class FUNC>
+inline
+bool Function_InvokerUtilNullCheck<FUNC *>::isNull(FUNC* f)
+{
+    return 0 == f;
+}
+
+template <class CLASS, class MEMTYPE>
+inline
+bool
+Function_InvokerUtilNullCheck<MEMTYPE CLASS::*>::isNull(MEMTYPE CLASS::* f)
+{
+    return 0 == f;
+}
+
 
                // ---------------------------------------------
                // struct template Function_InvokerUtil_Dispatch
@@ -2768,304 +2712,6 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_13>::forwardToTarget(args_13)));
 }
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
-
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
-template <class FUNC, class RET>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
-template <class FUNC, class RET, class ARGS_01>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS_01), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS_01,
-                                       ARGS_02), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09,
-                                 class ARGS_10>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09,
-                                       ARGS_10), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09,
-                                 class ARGS_10,
-                                 class ARGS_11>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09,
-                                       ARGS_10,
-                                       ARGS_11), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09,
-                                 class ARGS_10,
-                                 class ARGS_11,
-                                 class ARGS_12>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09,
-                                       ARGS_10,
-                                       ARGS_11,
-                                       ARGS_12), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09,
-                                 class ARGS_10,
-                                 class ARGS_11,
-                                 class ARGS_12,
-                                 class ARGS_13>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09,
-                                       ARGS_10,
-                                       ARGS_11,
-                                       ARGS_12,
-                                       ARGS_13), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
-
 
 
 #if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
@@ -4913,303 +4559,6 @@ invoke(const Function_Rep                            *rep,
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
 
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
-template <class FUNC, class RET, class ARG0>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
-template <class FUNC, class RET, class ARG0, class ARGS_01>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS_01), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
-template <class FUNC, class RET, class ARG0, class ARGS_01,
-                                             class ARGS_02>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS_01,
-                                             ARGS_02), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
-template <class FUNC, class RET, class ARG0, class ARGS_01,
-                                             class ARGS_02,
-                                             class ARGS_03>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS_01,
-                                             ARGS_02,
-                                             ARGS_03), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
-template <class FUNC, class RET, class ARG0, class ARGS_01,
-                                             class ARGS_02,
-                                             class ARGS_03,
-                                             class ARGS_04>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS_01,
-                                             ARGS_02,
-                                             ARGS_03,
-                                             ARGS_04), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
-template <class FUNC, class RET, class ARG0, class ARGS_01,
-                                             class ARGS_02,
-                                             class ARGS_03,
-                                             class ARGS_04,
-                                             class ARGS_05>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS_01,
-                                             ARGS_02,
-                                             ARGS_03,
-                                             ARGS_04,
-                                             ARGS_05), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
-template <class FUNC, class RET, class ARG0, class ARGS_01,
-                                             class ARGS_02,
-                                             class ARGS_03,
-                                             class ARGS_04,
-                                             class ARGS_05,
-                                             class ARGS_06>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS_01,
-                                             ARGS_02,
-                                             ARGS_03,
-                                             ARGS_04,
-                                             ARGS_05,
-                                             ARGS_06), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
-template <class FUNC, class RET, class ARG0, class ARGS_01,
-                                             class ARGS_02,
-                                             class ARGS_03,
-                                             class ARGS_04,
-                                             class ARGS_05,
-                                             class ARGS_06,
-                                             class ARGS_07>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS_01,
-                                             ARGS_02,
-                                             ARGS_03,
-                                             ARGS_04,
-                                             ARGS_05,
-                                             ARGS_06,
-                                             ARGS_07), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
-template <class FUNC, class RET, class ARG0, class ARGS_01,
-                                             class ARGS_02,
-                                             class ARGS_03,
-                                             class ARGS_04,
-                                             class ARGS_05,
-                                             class ARGS_06,
-                                             class ARGS_07,
-                                             class ARGS_08>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS_01,
-                                             ARGS_02,
-                                             ARGS_03,
-                                             ARGS_04,
-                                             ARGS_05,
-                                             ARGS_06,
-                                             ARGS_07,
-                                             ARGS_08), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
-template <class FUNC, class RET, class ARG0, class ARGS_01,
-                                             class ARGS_02,
-                                             class ARGS_03,
-                                             class ARGS_04,
-                                             class ARGS_05,
-                                             class ARGS_06,
-                                             class ARGS_07,
-                                             class ARGS_08,
-                                             class ARGS_09>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS_01,
-                                             ARGS_02,
-                                             ARGS_03,
-                                             ARGS_04,
-                                             ARGS_05,
-                                             ARGS_06,
-                                             ARGS_07,
-                                             ARGS_08,
-                                             ARGS_09), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
-template <class FUNC, class RET, class ARG0, class ARGS_01,
-                                             class ARGS_02,
-                                             class ARGS_03,
-                                             class ARGS_04,
-                                             class ARGS_05,
-                                             class ARGS_06,
-                                             class ARGS_07,
-                                             class ARGS_08,
-                                             class ARGS_09,
-                                             class ARGS_10>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS_01,
-                                             ARGS_02,
-                                             ARGS_03,
-                                             ARGS_04,
-                                             ARGS_05,
-                                             ARGS_06,
-                                             ARGS_07,
-                                             ARGS_08,
-                                             ARGS_09,
-                                             ARGS_10), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
-template <class FUNC, class RET, class ARG0, class ARGS_01,
-                                             class ARGS_02,
-                                             class ARGS_03,
-                                             class ARGS_04,
-                                             class ARGS_05,
-                                             class ARGS_06,
-                                             class ARGS_07,
-                                             class ARGS_08,
-                                             class ARGS_09,
-                                             class ARGS_10,
-                                             class ARGS_11>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS_01,
-                                             ARGS_02,
-                                             ARGS_03,
-                                             ARGS_04,
-                                             ARGS_05,
-                                             ARGS_06,
-                                             ARGS_07,
-                                             ARGS_08,
-                                             ARGS_09,
-                                             ARGS_10,
-                                             ARGS_11), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
-template <class FUNC, class RET, class ARG0, class ARGS_01,
-                                             class ARGS_02,
-                                             class ARGS_03,
-                                             class ARGS_04,
-                                             class ARGS_05,
-                                             class ARGS_06,
-                                             class ARGS_07,
-                                             class ARGS_08,
-                                             class ARGS_09,
-                                             class ARGS_10,
-                                             class ARGS_11,
-                                             class ARGS_12>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS_01,
-                                             ARGS_02,
-                                             ARGS_03,
-                                             ARGS_04,
-                                             ARGS_05,
-                                             ARGS_06,
-                                             ARGS_07,
-                                             ARGS_08,
-                                             ARGS_09,
-                                             ARGS_10,
-                                             ARGS_11,
-                                             ARGS_12), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
-template <class FUNC, class RET, class ARG0, class ARGS_01,
-                                             class ARGS_02,
-                                             class ARGS_03,
-                                             class ARGS_04,
-                                             class ARGS_05,
-                                             class ARGS_06,
-                                             class ARGS_07,
-                                             class ARGS_08,
-                                             class ARGS_09,
-                                             class ARGS_10,
-                                             class ARGS_11,
-                                             class ARGS_12,
-                                             class ARGS_13>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS_01,
-                                             ARGS_02,
-                                             ARGS_03,
-                                             ARGS_04,
-                                             ARGS_05,
-                                             ARGS_06,
-                                             ARGS_07,
-                                             ARGS_08,
-                                             ARGS_09,
-                                             ARGS_10,
-                                             ARGS_11,
-                                             ARGS_12,
-                                             ARGS_13), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
-
-
 template <class MEMBER_TYPE, class CLASS_TYPE, class RET, class ARG0>
 inline
 RET
@@ -5260,15 +4609,6 @@ invoke(const Function_Rep                         *rep,
         RET, invokeImp(IsDirect(), f, obj));
 }
 
-template <class MEMBER_TYPE, class CLASS_TYPE, class RET, class ARG0>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemDataPtr,
-                                   RET(ARG0), MEMBER_TYPE CLASS_TYPE::*>::
-isNull(Func f)
-{
-    return 0 == f;
-}
-
 #if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 template <class FUNC, class RET>
 RET
@@ -5807,303 +5147,6 @@ invoke(const Function_Rep                            *rep,
 
 #if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 template <class FUNC, class RET>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
-template <class FUNC, class RET, class ARGS_01>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS_01), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09,
-                                 class ARGS_10>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09,
-                                       ARGS_10), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09,
-                                 class ARGS_10,
-                                 class ARGS_11>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09,
-                                       ARGS_10,
-                                       ARGS_11), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09,
-                                 class ARGS_10,
-                                 class ARGS_11,
-                                 class ARGS_12>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09,
-                                       ARGS_10,
-                                       ARGS_11,
-                                       ARGS_12), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09,
-                                 class ARGS_10,
-                                 class ARGS_11,
-                                 class ARGS_12,
-                                 class ARGS_13>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09,
-                                       ARGS_10,
-                                       ARGS_11,
-                                       ARGS_12,
-                                       ARGS_13), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
-
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
-template <class FUNC, class RET>
 RET
 Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                               RET(), FUNC>::
@@ -6634,303 +5677,6 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_11>::forwardToTarget(args_11),
           bslmf::ForwardingTypeUtil<ARGS_12>::forwardToTarget(args_12),
           bslmf::ForwardingTypeUtil<ARGS_13>::forwardToTarget(args_13)));
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
-
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
-template <class FUNC, class RET>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
-template <class FUNC, class RET, class ARGS_01>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS_01), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09,
-                                 class ARGS_10>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09,
-                                       ARGS_10), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09,
-                                 class ARGS_10,
-                                 class ARGS_11>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09,
-                                       ARGS_10,
-                                       ARGS_11), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09,
-                                 class ARGS_10,
-                                 class ARGS_11,
-                                 class ARGS_12>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09,
-                                       ARGS_10,
-                                       ARGS_11,
-                                       ARGS_12), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
-
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
-template <class FUNC, class RET, class ARGS_01,
-                                 class ARGS_02,
-                                 class ARGS_03,
-                                 class ARGS_04,
-                                 class ARGS_05,
-                                 class ARGS_06,
-                                 class ARGS_07,
-                                 class ARGS_08,
-                                 class ARGS_09,
-                                 class ARGS_10,
-                                 class ARGS_11,
-                                 class ARGS_12,
-                                 class ARGS_13>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS_01,
-                                       ARGS_02,
-                                       ARGS_03,
-                                       ARGS_04,
-                                       ARGS_05,
-                                       ARGS_06,
-                                       ARGS_07,
-                                       ARGS_08,
-                                       ARGS_09,
-                                       ARGS_10,
-                                       ARGS_11,
-                                       ARGS_12,
-                                       ARGS_13), FUNC>::isNull(const FUNC&)
-{
-    return false;
 }
 #endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
 
@@ -6952,15 +5698,6 @@ invoke(const Function_Rep                            *rep,
         RET,
         f(bslmf::ForwardingTypeUtil<ARGS>::forwardToTarget(args)...));
 }
-
-template <class FUNC, class RET, class... ARGS>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
-                                   RET(ARGS...), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-
 
 template <class FUNC, class RET, class ARG0, class... ARGS>
 inline
@@ -7021,14 +5758,6 @@ invoke(const Function_Rep                            *rep,
                                                             args...));
 }
 
-template <class FUNC, class RET, class ARG0, class... ARGS>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
-                                   RET(ARG0, ARGS...), FUNC>::isNull(FUNC f)
-{
-    return 0 == f;
-}
-
 template <class MEMBER_TYPE, class CLASS_TYPE, class RET, class ARG0>
 inline
 RET
@@ -7079,15 +5808,6 @@ invoke(const Function_Rep                         *rep,
         RET, invokeImp(IsDirect(), f, obj));
 }
 
-template <class MEMBER_TYPE, class CLASS_TYPE, class RET, class ARG0>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemDataPtr,
-                                   RET(ARG0), MEMBER_TYPE CLASS_TYPE::*>::
-isNull(Func f)
-{
-    return 0 == f;
-}
-
 template <class FUNC, class RET, class... ARGS>
 RET
 Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
@@ -7100,14 +5820,6 @@ invoke(const Function_Rep                            *rep,
     return BSLSTL_FUNCTION_INVOKERUTIL_CAST_RESULT(
         RET,
         f(bslmf::ForwardingTypeUtil<ARGS>::forwardToTarget(args)...));
-}
-
-template <class FUNC, class RET, class... ARGS>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
-                                   RET(ARGS...), FUNC>::isNull(const FUNC&)
-{
-    return false;
 }
 
 template <class FUNC, class RET, class... ARGS>
@@ -7124,14 +5836,6 @@ invoke(const Function_Rep                            *rep,
         f(bslmf::ForwardingTypeUtil<ARGS>::forwardToTarget(args)...));
 }
 
-template <class FUNC, class RET, class... ARGS>
-inline
-bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
-                                   RET(ARGS...), FUNC>::isNull(const FUNC&)
-{
-    return false;
-}
-
 // }}} END GENERATED CODE
 #endif
 
@@ -7146,7 +5850,7 @@ bool Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
 #endif // ! defined(INCLUDED_BSLSTL_FUNCTION_INVOKERUTIL_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2021 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

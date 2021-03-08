@@ -646,7 +646,7 @@ extern const char s_bslstl_function_h[];
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Wed Oct  7 20:20:18 2020
+// Generated on Wed Mar  3 00:06:09 2021
 // Command line: sim_cpp11_features.pl bslstl_function.h
 # define COMPILING_BSLSTL_FUNCTION_H
 # include <bslstl_function_cpp03.h>
@@ -1635,6 +1635,31 @@ void bsl::swap(bsl::function<PROTOTYPE>& a,
     a.swap(b);
 }
 
+         // --------------------------------------------------------------
+         // specialization of class template Function_InvokerUtil_Dispatch
+         // --------------------------------------------------------------
+
+
+namespace BloombergLP {
+namespace bslstl {
+
+template <class PROTO>
+struct Function_InvokerUtilNullCheck<bsl::function<PROTO> > {
+    // Specialization of null checker for instantiations of 'bsl::function'.
+    // This specialization treates an empty 'bsl::function' as a null object.
+
+    // CLASS METHODS
+    static bool isNull(const bsl::function<PROTO>& f)
+        // Return true if the 'bsl::function' specified by 'f' is empty; else
+        // false.
+    {
+        return !f;
+    }
+};
+
+}  //  close package namespace
+}  //  close enterprise namespace
+
 // Undo 'BSLS_ASSERT' filename fix -- See {'bsls_assertimputil'}
 #ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
 #undef BSLS_ASSERTIMPUTIL_FILE
@@ -1643,7 +1668,7 @@ void bsl::swap(bsl::function<PROTOTYPE>& a,
 
 #endif // End C++11 code
 
-#endif // ! defined(INCLUDED_BSLSTL_FUNCTION)
+#endif // End C++11 code
 
 // ----------------------------------------------------------------------------
 // Copyright 2020 Bloomberg Finance L.P.

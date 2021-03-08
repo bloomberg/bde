@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Tue Feb 23 17:48:58 2021
+// Generated on Wed Mar  3 14:21:23 2021
 // Command line: sim_cpp11_features.pl bslstl_function.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_H
@@ -2764,6 +2764,31 @@ void bsl::swap(bsl::function<PROTOTYPE>& a,
 {
     a.swap(b);
 }
+
+         // --------------------------------------------------------------
+         // specialization of class template Function_InvokerUtil_Dispatch
+         // --------------------------------------------------------------
+
+
+namespace BloombergLP {
+namespace bslstl {
+
+template <class PROTO>
+struct Function_InvokerUtilNullCheck<bsl::function<PROTO> > {
+    // Specialization of null checker for instantiations of 'bsl::function'.
+    // This specialization treates an empty 'bsl::function' as a null object.
+
+    // CLASS METHODS
+    static bool isNull(const bsl::function<PROTO>& f)
+        // Return true if the 'bsl::function' specified by 'f' is empty; else
+        // false.
+    {
+        return !f;
+    }
+};
+
+}  //  close package namespace
+}  //  close enterprise namespace
 
 // Undo 'BSLS_ASSERT' filename fix -- See {'bsls_assertimputil'}
 #ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
