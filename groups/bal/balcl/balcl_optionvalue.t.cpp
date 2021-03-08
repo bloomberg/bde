@@ -2028,6 +2028,30 @@ void TestDriver<TYPE>::testCase1()
 // BDE_VERIFY pragma: +FABC01  // not in alphabetic order
 
 // ============================================================================
+//                            TEST CASE FUNCTIONS
+// ----------------------------------------------------------------------------
+// Compilers (especially IBM xlC) may run out of resources when compiling code
+// that contains large switch statements (due to 'case' being just a label and
+// so the compiler having to consider *all* the code inside the switch).  To
+// make this thorough test driver compile under such compilers we have factored
+// out certain large-code-generating test cases into separate functions.
+
+void runTestCase9()
+{
+    RUN_EACH_TYPE(TestDriver, testCase9, ALL_SUPPORTED_TYPES);
+}
+
+void runTestCase4()
+{
+    RUN_EACH_TYPE(TestDriver, testCase4, ALL_SUPPORTED_TYPES);
+}
+
+void runTestCase1()
+{
+    RUN_EACH_TYPE(TestDriver, testCase1, ALL_SUPPORTED_TYPES);
+}
+
+// ============================================================================
 //                              USAGE EXAMPLES
 // ----------------------------------------------------------------------------
 
@@ -2371,7 +2395,7 @@ int main(int argc, const char *argv[])  {
                           << "MODIFIABLE ACCESS" << endl
                           << "=================" << endl;
 
-        RUN_EACH_TYPE(TestDriver, testCase9, ALL_SUPPORTED_TYPES);
+        runTestCase9();
 
       } break;
       case 8: {
@@ -2422,76 +2446,76 @@ int main(int argc, const char *argv[])  {
 
         DEFINE_OBJECT_TEST_SET
 
-        const Obj ARRAY[] = { Unset
-                            , NullBool
-                            , NullChar
-                            , NullInt
-                            , NullInt64
-                            , NullDouble
-                            , NullString
-                            , NullDatetime
-                            , NullDate
-                            , NullTime
-                            , NullCharArray
-                            , NullIntArray
-                            , NullInt64Array
-                            , NullDoubleArray
-                            , NullStringArray
-                            , NullDatetimeArray
-                            , NullDateArray
-                            , NullTimeArray
-                            , DfltBool
-                            , DfltChar
-                            , DfltInt
-                            , DfltInt64
-                            , DfltDouble
-                            , DfltString
-                            , DfltDatetime
-                            , DfltDate
-                            , DfltTime
-                            , DfltCharArray
-                            , DfltIntArray
-                            , DfltInt64Array
-                            , DfltDoubleArray
-                            , DfltStringArray
-                            , DfltDatetimeArray
-                            , DfltDateArray
-                            , DfltTimeArray
-                            , Val1Bool
-                            , Val1Char
-                            , Val1Int
-                            , Val1Int64
-                            , Val1Double
-                            , Val1String
-                            , Val1Datetime
-                            , Val1Date
-                            , Val1Time
-                            , Val1CharArray
-                            , Val1IntArray
-                            , Val1Int64Array
-                            , Val1DoubleArray
-                            , Val1StringArray
-                            , Val1DatetimeArray
-                            , Val1DateArray
-                            , Val1TimeArray
-                            , Val2Bool
-                            , Val2Char
-                            , Val2Int
-                            , Val2Int64
-                            , Val2Double
-                            , Val2String
-                            , Val2Datetime
-                            , Val2Date
-                            , Val2Time
-                            , Val2CharArray
-                            , Val2IntArray
-                            , Val2Int64Array
-                            , Val2DoubleArray
-                            , Val2StringArray
-                            , Val2DatetimeArray
-                            , Val2DateArray
-                            , Val2TimeArray
-                            };
+        static const Obj ARRAY[] = { Unset
+                                   , NullBool
+                                   , NullChar
+                                   , NullInt
+                                   , NullInt64
+                                   , NullDouble
+                                   , NullString
+                                   , NullDatetime
+                                   , NullDate
+                                   , NullTime
+                                   , NullCharArray
+                                   , NullIntArray
+                                   , NullInt64Array
+                                   , NullDoubleArray
+                                   , NullStringArray
+                                   , NullDatetimeArray
+                                   , NullDateArray
+                                   , NullTimeArray
+                                   , DfltBool
+                                   , DfltChar
+                                   , DfltInt
+                                   , DfltInt64
+                                   , DfltDouble
+                                   , DfltString
+                                   , DfltDatetime
+                                   , DfltDate
+                                   , DfltTime
+                                   , DfltCharArray
+                                   , DfltIntArray
+                                   , DfltInt64Array
+                                   , DfltDoubleArray
+                                   , DfltStringArray
+                                   , DfltDatetimeArray
+                                   , DfltDateArray
+                                   , DfltTimeArray
+                                   , Val1Bool
+                                   , Val1Char
+                                   , Val1Int
+                                   , Val1Int64
+                                   , Val1Double
+                                   , Val1String
+                                   , Val1Datetime
+                                   , Val1Date
+                                   , Val1Time
+                                   , Val1CharArray
+                                   , Val1IntArray
+                                   , Val1Int64Array
+                                   , Val1DoubleArray
+                                   , Val1StringArray
+                                   , Val1DatetimeArray
+                                   , Val1DateArray
+                                   , Val1TimeArray
+                                   , Val2Bool
+                                   , Val2Char
+                                   , Val2Int
+                                   , Val2Int64
+                                   , Val2Double
+                                   , Val2String
+                                   , Val2Datetime
+                                   , Val2Date
+                                   , Val2Time
+                                   , Val2CharArray
+                                   , Val2IntArray
+                                   , Val2Int64Array
+                                   , Val2DoubleArray
+                                   , Val2StringArray
+                                   , Val2DatetimeArray
+                                   , Val2DateArray
+                                   , Val2TimeArray
+                                   };
 
         const bsl::size_t NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
 
@@ -3086,7 +3110,7 @@ int main(int argc, const char *argv[])  {
                           << "VALUE CONSTRUCTORS" << endl
                           << "==================" << endl;
 
-        RUN_EACH_TYPE(TestDriver, testCase4, ALL_SUPPORTED_TYPES);
+        runTestCase4();
 
       } break;
       case 3: {
@@ -3341,8 +3365,7 @@ int main(int argc, const char *argv[])  {
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
-
-        RUN_EACH_TYPE(TestDriver, testCase1, ALL_SUPPORTED_TYPES);
+        runTestCase1();
 
       } break;
       default: {
