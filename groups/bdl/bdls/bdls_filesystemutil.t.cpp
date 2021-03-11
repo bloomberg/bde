@@ -526,7 +526,7 @@ struct TestUtil {
         // non-esoteric, non-networked file systems backed by disk or
         // solid-state drives.
 
-#if !(defined(BSLS_PLATFORM_OS_WINDOWS) && BSLS_OS_VER_MAJOR < 6)
+#if !(defined(BSLS_PLATFORM_OS_WINDOWS) && BSLS_PLATFORM_OS_VER_MAJOR < 6)
     ///Implementation Note
     ///-------------------
     // The Windows implementation of this function requires system functions
