@@ -235,10 +235,10 @@ struct Float {
     // CLASS METHODS
     static Classification classify(float number);
     static Classification classify(double number);
-        // Return the coarse classification ('BDES_ZERO', 'BDES_NORMAL',
-        // 'BDES_SUBNORMAL', 'BDES_INFINITE', or 'BDES_NAN) for the specified
-        // floating point 'number'.  This function has the same functionality
-        // as the 'fpclassify' macro in C99.
+        // Return the coarse classification ('k_ZERO', 'k_NORMAL',
+        // 'k_SUBNORMAL', 'k_INFINITE', or 'k_NAN) for the specified floating
+        // point 'number'.  This function has the same functionality as the
+        // 'fpclassify' macro in C99.
 
     static FineClassification classifyFine(float number);
     static FineClassification classifyFine(double number);
@@ -247,9 +247,8 @@ struct Float {
         // 'classifyFine' function returns the same integer value as
         // 'classify'.  For negative numbers, 'classifyFine' returns an integer
         // value equal to value returned by 'classify' bit-wise OR'ed with
-        // 'BDES_NEGATIVE'.  For signaling NaNs, 'classifyFine' returns
-        // 'BDES_SNAN', which has the integer value of
-        // 'BDES_NAN | BDES_SIGNALING'.
+        // 'k_NEGATIVE'.  For signaling NaNs, 'classifyFine' returns 'k_SNAN',
+        // which has the integer value of 'k_NAN | k_SIGNALING'.
 
     static bool isZero(float number);
     static bool isZero(double number);

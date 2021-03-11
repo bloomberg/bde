@@ -427,9 +427,18 @@ int main(int argc, char **argv)
             ASSERT(U1 == U2);
             ASSERT(U1 == U3);
 
-           // Self-assignment.
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
+#endif
+#endif
+            // Self-assignment.
 
             mU1 = mU1;
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
             ASSERT(&udt == U1.data());
             ASSERT(type == U1.type());
@@ -561,7 +570,9 @@ int main(int argc, char **argv)
                         result = LHS >= RHS;
                         expected = EXPECTED & GE;
                         break;
-                      default: ASSERT(false);
+                      default:
+                        ASSERT("Unsupported operator selected" == 0);
+                        continue;                                   // CONTINUE
                     }
 
                     ASSERTV(LINE, j, result, result == expected);

@@ -1313,7 +1313,6 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
 
                 bslma::TestAllocator&  oa = *objAllocatorPtr;
-                bslma::TestAllocator& noa = (&da == &oa) ? sa : da;
 
                 // Verify that the object uses the expected allocator.
 

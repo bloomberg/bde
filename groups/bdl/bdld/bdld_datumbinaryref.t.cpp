@@ -256,7 +256,7 @@ int main(int argc, char **argv)
 //..
     releaseData(binaryData);
 //..
-              } break;
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // TESTING TYPE TRAITS
@@ -299,7 +299,8 @@ int main(int argc, char **argv)
                           << "TESTING STREAM OUTPUT" << endl
                           << "=====================" << endl;
 
-        void * const ADDRESS = reinterpret_cast<void *>(0xDEADBEEF);
+        void * const ADDRESS =
+                             reinterpret_cast<void *>(bsl::size_t(0xDEADBEEF));
         const int    SIZE    = 16;
 
         if (verbose) cout << "\nTesting 'print'." << endl;
@@ -461,9 +462,18 @@ int main(int argc, char **argv)
             ASSERT(static_cast<void *>(&data) == B1.data());
             ASSERT(SIZE                       == B1.size());
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#ifdef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
+#endif
+#endif
             // Self-assignment.
 
             mB1 = mB1;
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
             ASSERT(static_cast<void *>(&data) == B1.data());
             ASSERT(SIZE                       == B1.size());
@@ -625,7 +635,9 @@ int main(int argc, char **argv)
                         result = LHS >= RHS;
                         expected = EXPECTED & GE;
                         break;
-                      default: ASSERT(false);
+                      default:
+                        ASSERT("Unsupported operator selected" == 0);
+                        continue;                                   // CONTINUE
                     }
 
                     ASSERTV(LINE, j, result, result == expected);
@@ -656,7 +668,6 @@ int main(int argc, char **argv)
             (void)operatorLeEq;
             (void)operatorGrEq;
         }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -746,7 +757,6 @@ int main(int argc, char **argv)
             ASSERT_SAFE_PASS(Obj(static_cast<void *>(&data), 0   ));
             ASSERT_SAFE_PASS(Obj(static_cast<void *>(&data), SIZE));
         }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -767,15 +777,16 @@ int main(int argc, char **argv)
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
-
         {
-            Obj        mB(reinterpret_cast<void *>(0xDEADBEEF), 16);
-            const Obj& B = mB;
-            ASSERT(reinterpret_cast<void *>(0xDEADBEEF) == B.data());
-            ASSERT(16                                   == B.size());
+            void * const ADDRESS =
+                             reinterpret_cast<void *>(bsl::size_t(0xDEADBEEF));
+            Obj          mB(ADDRESS, 16);
+            const Obj&   B = mB;
+
+            ASSERT(ADDRESS == B.data());
+            ASSERT(16      == B.size());
         }
       } break;
-
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
