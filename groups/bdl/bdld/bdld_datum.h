@@ -62,11 +62,11 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Special Floating Point Values
 ///- - - - - - - - - - - - - - -
-// Such floating point data can represent a special value, and of particular
-// interest for 'Datum' are values for NaN and infinity. 'Datum' may internally
-// store NaN and infinity values in a different way than the IEEE-754
-// representation, and this section describes the resulting behavior for NaN
-// and infinity values.
+// Floating point data can represent special values, and of particular interest
+// for 'Datum' are values of NaN and infinity.  'Datum' may internally store
+// NaN and infinity values in a different way than the IEEE-754 representation,
+// and this section describes the resulting behavior for NaN and infinity
+// values.
 //
 ///Treatment of NaN (Not-A-Number)
 ///- - - - - - - - - - - - - - - -
@@ -81,9 +81,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Treatment of Infinity
 ///- - - - - - - - - - -
-// Similarly to NaN, 'Datum' provides the minimal requirements for
-// representing infinity values found in the IEEE-754 standard, providing
-// unique representations for +/- infinity.  IEEE-754 double precisions format
+// Similarly to NaN, 'Datum' provides the minimal requirements for representing
+// infinity values found in the IEEE-754 standard, providing unique
+// representations for +/- infinity.  IEEE-754 double precisions format
 // requires also only those two infinity values.  Unlike NaN values, these two
 // infinity values have no non-normative bits in their representations.
 //
@@ -1978,6 +1978,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Datum& rhs);
     //..
     // and return a reference to the modifiable 'stream'.  The function will
     // have no effect if the specified 'stream' is not valid.
+
+template <class HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM& hashAlgorithm, const Datum& datum);
+    // Invoke the specified 'hashAlgorithm' on the value of the specified
+    // 'datum' object.  Note that the value of a User Defined Type in Datum is
+    // a combination of its type integer and the address (pointer value), not
+    // the actual value of the object that the pointer points to.
 
 bsl::ostream& operator<<(bsl::ostream& stream, Datum::DataType rhs);
     // Write the string representation of the specified enumeration 'rhs' to
@@ -4794,6 +4801,87 @@ inline
 bsl::ostream& bdld::operator<<(bsl::ostream& stream, const Datum& rhs)
 {
     return rhs.print(stream, 0, -1);
+}
+
+template <class HASH_ALGORITHM>
+void bdld::hashAppend(HASH_ALGORITHM& hashAlg, const bdld::Datum& input)
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlg, input.type());
+
+    switch (input.type()) {
+        case bdld::Datum::e_NIL: {
+          // Do nothing.  This is sufficient because 'type' has already been
+          // hashed (differentiating the nil value).
+        } break;
+        case bdld::Datum::e_INTEGER: {
+            hashAppend(hashAlg, input.theInteger());
+        } break;
+        case bdld::Datum::e_DOUBLE: {
+            hashAppend(hashAlg, input.theDouble());
+        } break;
+        case bdld::Datum::e_STRING: {
+            hashAppend(hashAlg, input.theString());
+        } break;
+        case bdld::Datum::e_BOOLEAN: {
+            hashAppend(hashAlg, input.theBoolean());
+        } break;
+        case bdld::Datum::e_ERROR: {
+            hashAppend(hashAlg, input.theError().code());
+            hashAppend(hashAlg, input.theError().message());
+        } break;
+        case bdld::Datum::e_DATE: {
+            hashAppend(hashAlg, input.theDate());
+        } break;
+        case bdld::Datum::e_TIME: {
+            hashAppend(hashAlg, input.theTime());
+        } break;
+        case bdld::Datum::e_DATETIME: {
+            hashAppend(hashAlg, input.theDatetime());
+        } break;
+        case bdld::Datum::e_DATETIME_INTERVAL: {
+            hashAppend(hashAlg, input.theDatetimeInterval());
+        } break;
+        case bdld::Datum::e_INTEGER64: {
+            hashAppend(hashAlg, input.theInteger64());
+        } break;
+        case bdld::Datum::e_USERDEFINED: {
+            hashAppend(hashAlg, input.theUdt().type());
+            hashAppend(hashAlg, input.theUdt().data());
+        } break;
+        case bdld::Datum::e_ARRAY: {
+            hashAppend(hashAlg, input.theArray().length());
+            for (bsl::size_t i = 0; i < input.theArray().length(); ++i) {
+                bdld::hashAppend(hashAlg, input.theArray()[i]);
+            }
+        } break;
+        case bdld::Datum::e_MAP: {
+            hashAppend(hashAlg, input.theMap().size());
+            for (bsl::size_t i = 0; i < input.theMap().size(); ++i) {
+                hashAppend(hashAlg, input.theMap()[i].key());
+                bdld::hashAppend(hashAlg, input.theMap()[i].value());
+            }
+        } break;
+        case bdld::Datum::e_BINARY: {
+            hashAppend(hashAlg, input.theBinary().size());
+            if (input.theBinary().size() > 0) {
+                hashAlg(input.theBinary().data(), input.theBinary().size());
+            }
+        } break;
+        case bdld::Datum::e_DECIMAL64: {
+            hashAppend(hashAlg, input.theDecimal64());
+        } break;
+        case bdld::Datum::e_INT_MAP: {
+            hashAppend(hashAlg, input.theIntMap().size());
+            for (bsl::size_t i = 0; i < input.theIntMap().size(); ++i) {
+                hashAppend(hashAlg, input.theIntMap()[i].key());
+                bdld::hashAppend(hashAlg, input.theIntMap()[i].value());
+            }
+        } break;
+        default: {
+            BSLS_ASSERT(!"unknown 'bdld::Datum' type");
+        }
+    }
 }
 
 inline

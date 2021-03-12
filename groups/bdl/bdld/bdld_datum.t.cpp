@@ -255,6 +255,7 @@ using bdldfp::Decimal64;
 // [ 4] bsl::ostream& operator<<(ostream&, const Datum&); // non-aggregate
 // [19] bsl::ostream& operator<<(ostream&, const Datum&); // aggregate
 // [29] bsl::ostream& operator<<(ostream&, const Datum::DataType);
+// [34] void hashAppend(hashAlgorithm, datum);
 //
 //                            // -------------------
 //                            // class DatumMapEntry
@@ -371,8 +372,9 @@ using bdldfp::Decimal64;
 // [14] bsl::ostream& operator<<(bsl::ostream&, const DatumMapRef&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [33] USAGE EXAMPLE
+// [35] USAGE EXAMPLE
 // [24] Datum_ArrayProctor
+// [33] DATETIME ALLOCATION TESTS
 // [32] MISALIGNED MEMORY ACCESS TEST (only on SUN machines)
 // [31] COMPRESSIBILITY OF DECIMAL64
 // [30] TYPE TRAITS
@@ -1634,6 +1636,439 @@ bool operator==(bslmf::Nil lhs, bslmf::Nil rhs)
     return true;
 }
 
+                         // ======================
+                         // class RegionHexPrinter
+                         // ======================
+
+class RegionHexPrinter {
+    // DATA
+    const unsigned char *d_data_p;
+    bsl::size_t          d_length;
+
+  public:
+    // CREATORS
+    RegionHexPrinter()
+        // Create a 'RegionHexPrinter' object that prints the text
+        // "<**MISSING**>".
+    : d_data_p(0), d_length(0) {}
+
+    RegionHexPrinter(const unsigned char *data, bsl::size_t length)
+        // Create a 'RegionHexPrinter' object that prints the specified 'data'
+        // of the specified as 'length' as bytes in hexadecimal or prints the
+        // text "<**MISSING**>" if 'data' is 0, in which case 'length' is
+        // ignored.
+    : d_data_p(data), d_length(length) {}
+
+    template <class T>
+    RegionHexPrinter(const T& object)
+        // Create a 'RegionHexPrinter' object that prints the bytes in
+        // hexadecimal notation that make up the specified 'object'.
+    : d_data_p(static_cast<const unsigned char*>(
+                                            static_cast<const void*>(&object)))
+    , d_length(sizeof object)
+    {}
+
+    RegionHexPrinter(const char *data, bsl::size_t length)
+        // Create a 'RegionHexPrinter' object that prints the specified 'data'
+        // of the specified as 'length' as bytes in hexadecimal or prints the
+        // text "<**MISSING**>" if 'data' is 0, in which case 'length' is
+        // ignored.
+    : d_data_p(static_cast<const unsigned char*>(
+                                               static_cast<const void*>(data)))
+    , d_length(length) {}
+
+    friend bsl::ostream& operator<<(bsl::ostream& os, RegionHexPrinter obj)
+    {
+        if (0 == obj.d_data_p) {
+            return os << "<**MISSING**>";                             // RETURN
+        }
+
+        static const char hexdigs[] = "0123456789ABCDEF";
+        os << '[';
+        for (bsl::size_t i = 0; i < obj.d_length; ++i) {
+            if (i != 0) os << ' ';
+            unsigned char e = obj.d_data_p[i];
+            os << hexdigs[e >> 4] << hexdigs[e & 0x0F];
+        }
+        return os << ']';
+    }
+};
+
+inline
+RegionHexPrinter hexPrintMissing()
+    // Return a 'RegionHexPrinter' object that prints the text "<**MISSING**>".
+{
+    return RegionHexPrinter();
+}
+
+inline
+RegionHexPrinter hexPrintRegion(const unsigned char *data, bsl::size_t length)
+    // Return a 'RegionHexPrinter' object that prints the specified 'data' of
+    // the specified as 'length' as bytes in hexadecimal or prints the text
+    // "<**MISSING**>" if 'data' is 0, in which case 'length' is ignored.
+{
+    return RegionHexPrinter(data, length);
+}
+
+template <class T>
+inline
+RegionHexPrinter hexPrintObject(const T& object)
+    // Return a 'RegionHexPrinter' object that prints the bytes in hexadecimal
+    // notation that make up the specified 'object'.
+{
+    return RegionHexPrinter(object);
+}
+
+inline
+RegionHexPrinter hexPrintChars(const char *data, bsl::size_t length)
+    // Return a 'RegionHexPrinter' object that prints the specified 'data' of
+    // the specified as 'length' as bytes in hexadecimal or prints the text
+    // "<**MISSING**>" if 'data' is 0, in which case 'length' is ignored.
+{
+    return RegionHexPrinter(data, length);
+}
+
+                    // ======================================
+                    // class MockAccumulatingHashingAlgorithm
+                    // ======================================
+
+class MockAccumulatingHashingAlgorithm {
+    // This class implements a mock hashing algorithm that provides a way to
+    // accumulate and then examine data that is being passed into hashing
+    // algorithms by 'hashAppend'.
+
+  public:
+    // PUBLIC TYPES
+    typedef bsl::vector<unsigned char> Region;
+    typedef bsl::vector<Region>        Regions;
+
+    // DATA
+    Regions d_data;  // saved hashed data
+
+    // PRIVATE ACCESSORS
+    template <class T>
+    bool regionsAtIdxImp(bsl::size_t idx,
+                         const T&    value) const;
+        // Return 'true' if the next hashed regions starting at the specified
+        // 'idx' contain the hashed segments of the specified 'value'.  Return
+        // 'false' if there aren't enough hashed regions or if those regions
+        // differ in value; that includes if 'idx >= numOfHashedRegions()'.
+
+  public:
+    // CREATORS
+    MockAccumulatingHashingAlgorithm(bslma::Allocator *allocator);
+        // Create an object of this type.
+
+    ~MockAccumulatingHashingAlgorithm();
+        // Destroy this object
+
+    // MANIPULATORS
+    void operator()(const void *voidPtr, bsl::size_t length);
+        // Append the data of the specified 'length' at 'voidPtr' for later
+        // inspection.
+
+    void reset();
+        // Remove all collected data.
+
+    // ACCESSORS
+    RegionHexPrinter regionAsHex(bsl::size_t index) const;
+        // Return an object that when inserted into a 'bsl::ostream' will print
+        // the region with the specified 'index' as bytes using hexadecimal
+        // base or the text "<**MISSING**>" if 'index >= numOfHashedRegions()'.
+        // The behavior is undefined if the returned object or a copy of it is
+        // retained beyond a modifying operation on this algorithm object,
+        // including destruction.
+
+    bool regionAtIndexIs(bsl::size_t idx, const Region& region) const;
+        // Return 'true' if the hashed region indicated by the specified 'idx'
+        // equals to the specified 'value'.  Return 'false' if the hashed
+        // region is different or if 'idx >= numOfHashedRegions()'.
+
+    bool regionsAtIndexAre(bsl::size_t idx, bool                  value) const;
+    bool regionsAtIndexAre(bsl::size_t idx, int                   value) const;
+    bool regionsAtIndexAre(bsl::size_t idx, const bdlt::Date&     value) const;
+    bool regionsAtIndexAre(bsl::size_t idx, const bdlt::Datetime& value) const;
+    bool regionsAtIndexAre(bsl::size_t idx,
+                           const bdlt::DatetimeInterval&          value) const;
+    bool regionsAtIndexAre(bsl::size_t idx, bdldfp::Decimal64     value) const;
+    bool regionsAtIndexAre(bsl::size_t idx, double                value) const;
+    bool regionsAtIndexAre(bsl::size_t idx, bsl::size_t           value) const;
+    bool regionsAtIndexAre(bsl::size_t idx,
+                           const bslstl::StringRef&               value) const;
+    bool regionsAtIndexAre(bsl::size_t idx, bsls::Types::Int64    value) const;
+    bool regionsAtIndexAre(bsl::size_t idx, const bdlt::Time&     value) const;
+    bool regionsAtIndexAre(bsl::size_t idx, const void *          value) const;
+        // Return 'true' if the next hashed regions starting at the specified
+        // 'idx' contain the hashed segments of the specified 'value'.  Return
+        // 'false' if there aren't enough hashed regions or if those regions
+        // differ in value; that includes if 'idx >= numOfHashedRegions()'.
+
+    const Regions& getData() const;
+        // Return a 'const' reference to the collected data.
+
+    bsl::size_t numOfHashedRegions() const;
+        // Return the number of memory regions hashed.
+};
+
+                    // --------------------------------------
+                    // class MockAccumulatingHashingAlgorithm
+                    // --------------------------------------
+
+// PRIVATE ACCESSORS
+template <class T>
+bool MockAccumulatingHashingAlgorithm::regionsAtIdxImp(bsl::size_t idx,
+                                                       const T&    value) const
+{
+    if (idx > d_data.size()) {
+        return false;                                                 // RETURN
+    }
+
+    bslma::TestAllocator la("localhash");
+    MockAccumulatingHashingAlgorithm ma(&la);
+    using bslh::hashAppend;
+    hashAppend(ma, value);
+
+    for (std::size_t i = 0; i < ma.numOfHashedRegions(); ++i) {
+        if (false == this->regionAtIndexIs(idx + i, ma.getData()[i])) {
+            return false;                                             // RETURN
+        }
+    }
+
+    return true;
+}
+
+// CREATORS
+inline
+MockAccumulatingHashingAlgorithm::MockAccumulatingHashingAlgorithm(
+                                                   bslma::Allocator *allocator)
+: d_data(allocator)
+{
+}
+
+inline
+MockAccumulatingHashingAlgorithm::~MockAccumulatingHashingAlgorithm()
+{
+}
+
+// MANIPULATORS
+inline
+void MockAccumulatingHashingAlgorithm::operator()(const void  *voidPtr,
+                                                  bsl::size_t  length)
+{
+    const unsigned char *p = static_cast<const unsigned char *>(voidPtr);
+    d_data.emplace_back(p, p + length);
+}
+
+inline
+void MockAccumulatingHashingAlgorithm::reset()
+{
+    d_data.clear();
+}
+
+// ACCESSORS
+inline
+RegionHexPrinter
+MockAccumulatingHashingAlgorithm::regionAsHex(bsl::size_t index) const
+{
+    if (index >= d_data.size()) {
+        return hexPrintMissing();                                     // RETURN
+    }
+    return hexPrintRegion(d_data[index].data(), d_data[index].size());
+}
+
+inline
+bool MockAccumulatingHashingAlgorithm::regionAtIndexIs(
+                                                    bsl::size_t   idx,
+                                                    const Region& region) const
+{
+    if (idx > d_data.size() || d_data[idx].size() != region.size()) {
+        return false;                                                 // RETURN
+    }
+
+    return memcmp(d_data[idx].data(), region.data(), region.size()) == 0;
+}
+
+inline
+bool MockAccumulatingHashingAlgorithm::regionsAtIndexAre(
+                                                       bsl::size_t idx,
+                                                       bool        value) const
+{
+    return regionsAtIdxImp(idx, value);
+}
+
+inline
+bool MockAccumulatingHashingAlgorithm::regionsAtIndexAre(
+                                                       bsl::size_t idx,
+                                                       int         value) const
+{
+    return regionsAtIdxImp(idx, value);
+}
+
+inline
+bool MockAccumulatingHashingAlgorithm::regionsAtIndexAre(
+                                                 bsl::size_t       idx,
+                                                 const bdlt::Date& value) const
+{
+    return regionsAtIdxImp(idx, value);
+}
+
+inline
+bool MockAccumulatingHashingAlgorithm::regionsAtIndexAre(
+                                             bsl::size_t           idx,
+                                             const bdlt::Datetime& value) const
+{
+    return regionsAtIdxImp(idx, value);
+}
+
+inline
+bool MockAccumulatingHashingAlgorithm::regionsAtIndexAre(
+                                     bsl::size_t                   idx,
+                                     const bdlt::DatetimeInterval& value) const
+{
+    return regionsAtIdxImp(idx,value);
+}
+
+inline
+bool MockAccumulatingHashingAlgorithm::regionsAtIndexAre(
+                                                 bsl::size_t       idx,
+                                                 bdldfp::Decimal64 value) const
+{
+    return regionsAtIdxImp(idx, value);
+}
+
+inline
+bool MockAccumulatingHashingAlgorithm::regionsAtIndexAre(
+                                                       bsl::size_t idx,
+                                                       double      value) const
+{
+    return regionsAtIdxImp(idx, value);
+}
+
+inline
+bool MockAccumulatingHashingAlgorithm::regionsAtIndexAre(
+                                                       bsl::size_t idx,
+                                                       bsl::size_t value) const
+{
+    return regionsAtIdxImp(idx, value);
+}
+
+inline
+bool MockAccumulatingHashingAlgorithm::regionsAtIndexAre(
+                                          bsl::size_t              idx,
+                                          const bslstl::StringRef& value) const
+{
+    return regionsAtIdxImp(idx, value);
+}
+
+inline
+bool MockAccumulatingHashingAlgorithm::regionsAtIndexAre(
+                                                bsl::size_t        idx,
+                                                bsls::Types::Int64 value) const
+{
+    return regionsAtIdxImp(idx, value);
+}
+
+inline
+bool MockAccumulatingHashingAlgorithm::regionsAtIndexAre(
+                                                 bsl::size_t       idx,
+                                                 const bdlt::Time& value) const
+{
+    return regionsAtIdxImp(idx, value);
+}
+
+inline
+bool MockAccumulatingHashingAlgorithm::regionsAtIndexAre(
+                                                      bsl::size_t  idx,
+                                                      const void  *value) const
+{
+    return regionsAtIdxImp(idx, value);
+}
+
+inline
+const MockAccumulatingHashingAlgorithm::Regions&
+MockAccumulatingHashingAlgorithm::getData() const
+{
+    return d_data;
+}
+
+inline
+bsl::size_t MockAccumulatingHashingAlgorithm::numOfHashedRegions() const
+{
+    return d_data.size();
+}
+
+                       // ====================
+                       // class HashHexPrinter
+                       // ====================
+
+class HashHexPrinter {
+    // DATA
+    const MockAccumulatingHashingAlgorithm *d_hasher_p;
+    bsl::size_t                             d_startIndex;
+    bsl::size_t                             d_endIndex;
+
+  public:
+    // CREATORS
+    explicit
+    HashHexPrinter(const MockAccumulatingHashingAlgorithm *hasher)
+        // Create a 'HashHexPrinter' object that prints all the hashed regions
+        // stored in the specified 'hasher'.
+    : d_hasher_p(hasher)
+    , d_startIndex(0)
+    , d_endIndex(hasher->numOfHashedRegions())
+    {}
+
+    explicit
+    HashHexPrinter(const MockAccumulatingHashingAlgorithm *hasher,
+                   bsl::size_t                             startIndex,
+                   bsl::size_t                             length)
+        // Create a 'HashHexPrinter' object that prints all the hashed regions
+        // stored in the specified 'hasher'.
+    : d_hasher_p(hasher)
+    , d_startIndex(startIndex)
+    , d_endIndex(startIndex + length)
+    {}
+
+    friend bsl::ostream& operator<<(bsl::ostream& os, HashHexPrinter obj)
+    {
+        const MockAccumulatingHashingAlgorithm &hasher(*obj.d_hasher_p);
+        const bsl::size_t start = obj.d_startIndex;
+        const bsl::size_t end   = obj.d_endIndex;
+        os << "[ ";
+        for (bsl::size_t i = start; i < end; ++i) {
+            if (i != 0) os << ", ";
+            const bsl::size_t regionBytes = hasher.getData()[i].size();
+            os << regionBytes << "byte" << (regionBytes == 1 ? ":" : "s:");
+            if (i < hasher.numOfHashedRegions()) {
+                os << hasher.regionAsHex(i);
+            }
+            else {
+                os << hexPrintMissing();
+            }
+        }
+        return os << " ]";
+    }
+};
+
+HashHexPrinter hexPrint(const MockAccumulatingHashingAlgorithm& hasher)
+    // Return a 'HashHexPrinter' object that prints all the currently
+    // accumulated regions of the specified 'hasher' in hexadecimal format.
+{
+    return HashHexPrinter(&hasher);
+}
+
+HashHexPrinter hexPrint(const MockAccumulatingHashingAlgorithm& hasher,
+                        bsl::size_t                             startIndex,
+                        bsl::size_t                             numRegions)
+    // Return a 'HashHexPrinter' object that prints in hexadecimal format, from
+    // the currently accumulated regions of the specified 'hasher' the
+    // specified 'numRegions' regions starting from the specified
+    // 'startIndex'.  If there aren't enough accumulated regions the missing
+    // regions are printed using the standard "<**MISSING**>" text.
+{
+    return HashHexPrinter(&hasher, startIndex, numRegions);
+}
+
 //=============================================================================
 //                               MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1654,7 +2089,7 @@ int main(int argc, char *argv[])
     srand(static_cast<unsigned int>(time(static_cast<time_t *>(0))));
 
     switch (test) { case 0:
-      case 34: {
+      case 35: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1944,6 +2379,1286 @@ int main(int argc, char *argv[])
     Datum::destroy(datumBlob, &oa);
 //..
 // Note, that the bytes have been copied.
+      } break;
+      case 34: {
+        // --------------------------------------------------------------------
+        // BSLH HASHING TESTS
+        //
+        // Concerns:
+        //: 1 All data stored in the 'Datum' is hashed, including the data
+        //:   type, and miscellaneous data like size of a collection/string.
+        //:
+        //: 2 No extra information (not forming the value of a 'Datum') is
+        //:   hashed.
+        //:
+        //: 3 No memory is allocated during hashing other than by the hash
+        //:   functor itself.
+        //:
+        //: 4 The 'Datum' parameter of 'hashAppend' is 'const'.
+        //
+        // Plan:
+        //:   Hash 'const' values of each possible 'Datum' type and verify
+        //:   using a 'MockAccumulatingHashingAlgorithm' that the type
+        //:   identifier and all the data, and nothing but the data is hashed.
+        //
+        // Testing:
+        //   void hashAppend(hashAlgorithm, datum);
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "BSLH HASHING TESTS" << endl
+                          << "===================" << endl;
+
+        if (verbose) cout << "\nTesting 'hashAppend' for Datums having "
+                          << "non-aggregate values.\n";
+        {
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&da);
+
+            if (verbose) cout << "\nTesting 'hashAppend' for boolean.\n";
+            {
+                const static bool  DATA[] = { true, false };
+                const size_t       DATA_LEN = sizeof DATA / sizeof *DATA;
+
+                for (size_t i = 0; i < DATA_LEN; ++i) {
+                    const bool VALUE = DATA[i];
+                    const bool TEXT = VALUE ? "true" : "false";
+
+                    if (veryVerbose) { T_ P(VALUE) }
+
+                    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                    bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                    const Datum D = Datum::createBoolean(VALUE);
+
+                    MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                    hashAppend(hasher, D);
+
+                    ASSERTV(TEXT, 0 == oa.numBlocksInUse()); // no allocation
+
+                    ASSERTV(TEXT, hasher.numOfHashedRegions(),
+                            2 == hasher.numOfHashedRegions());
+                    ASSERTV(TEXT, hasher.getData()[0].size(),
+                            hasher.regionAsHex(0),
+                            hexPrintObject(bdld::Datum::e_BOOLEAN),
+                            hasher.regionsAtIndexAre(0,
+                                                     bdld::Datum::e_BOOLEAN));
+                    ASSERTV(TEXT, hasher.getData()[1].size(),
+                            hasher.regionAsHex(1),
+                            hexPrintObject(VALUE),
+                            hasher.regionsAtIndexAre(1, VALUE));
+
+                    Datum::destroy(D, &oa);
+                }
+            }
+
+            if (verbose) cout << "\nTesting 'hashAppend' for 'Date'.\n";
+            {
+                const static struct {
+                    int        d_line;    // line number
+                    bdlt::Date d_value;   // 'Date' value
+                } DATA[] = {
+                    //LINE VALUE
+                    //---- -------------------
+                    { L_,  Date()             },
+                    { L_,  Date(1999, 12, 31) },
+                    { L_,  Date(2015,  1,  1) },
+                    { L_,  Date(2200,  8, 12) },
+                    { L_,  Date(9999, 12, 31) }
+                };
+
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+
+                for (size_t i = 0; i < DATA_LEN; ++i) {
+                    const int        LINE = DATA[i].d_line;
+                    const bdlt::Date VALUE = DATA[i].d_value;
+
+                    if (veryVerbose) { T_ P(VALUE) }
+
+                    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                    bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                    const Datum  D = Datum::createDate(VALUE);
+
+                    MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                    hashAppend(hasher, D);
+
+                    ASSERTV(LINE, 0 == oa.numBlocksInUse()); // no allocation
+
+                    ASSERTV(LINE, hasher.numOfHashedRegions(),
+                            2 == hasher.numOfHashedRegions());
+                    ASSERTV(LINE, hasher.getData()[0].size(),
+                            hasher.regionAsHex(0),
+                            hexPrintObject(bdld::Datum::e_DATE),
+                            hasher.regionsAtIndexAre(0, bdld::Datum::e_DATE));
+                    ASSERTV(LINE, hasher.getData()[1].size(),
+                            hasher.regionAsHex(1),
+                            hexPrintObject(VALUE),
+                            hasher.regionsAtIndexAre(1, VALUE));
+
+                    Datum::destroy(D, &oa);
+                }
+            }
+
+            if (verbose) cout << "\nTesting 'hashAppend' for 'Datetime'.\n";
+            {
+                const static struct {
+                    int            d_line;    // line number
+                    bdlt::Datetime d_value;   // 'Datetime' value
+                } DATA[] = {
+                    //LINE VALUE
+                    //---- ---------------------------------------------
+                    { L_,  Datetime()                                   },
+                    { L_,  Datetime(1999, 12, 31, 12, 45, 31,  18, 34)  },
+                    { L_,  Datetime(2015,  2,  2,  1,  1,  1,   1, 1)   },
+                    { L_,  Datetime(2200,  9, 11, 18, 10, 59, 458, 342) },
+                    { L_,  Datetime(9999,  9,  9,  9,  9,  9, 999, 999) },
+                    { L_,  Datetime(1999, 12, 31, 12, 45, 31,  18)      },
+                    { L_,  Datetime(2015,  2,  2,  1,  1,  1,   1)      },
+                    { L_,  Datetime(2200,  9, 11, 18, 10, 59, 458)      },
+                    { L_,  Datetime(9999,  9,  9,  9,  9,  9, 999)      },
+                };
+
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+
+                for (size_t i = 0; i < DATA_LEN; ++i) {
+                    const int            LINE = DATA[i].d_line;
+                    const bdlt::Datetime VALUE = DATA[i].d_value;
+
+                    if (veryVerbose) { T_ P(VALUE) }
+
+                    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                    bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                    const Datum D = Datum::createDatetime(VALUE, &oa);
+
+                    const Int64 bytesInUse = oa.numBytesInUse();
+
+                    MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                    hashAppend(hasher, D);
+
+                    ASSERTV(LINE, bytesInUse == oa.numBytesInUse());
+
+                    ASSERTV(LINE, hasher.numOfHashedRegions(),
+                            2 == hasher.numOfHashedRegions());
+                    ASSERTV(LINE, hasher.getData()[0].size(),
+                            hasher.regionAsHex(0),
+                            hexPrintObject(bdld::Datum::e_DATETIME),
+                            hasher.regionsAtIndexAre(0,
+                                                     bdld::Datum::e_DATETIME));
+                    ASSERTV(LINE, hasher.getData()[1].size(),
+                            hasher.regionAsHex(1),
+                            hexPrintObject(VALUE),
+                            hasher.regionsAtIndexAre(1, VALUE));
+
+                    Datum::destroy(D, &oa);
+                }
+            }
+
+            if (verbose)
+                cout << "\nTesting 'hashAppend' for 'DatetimeInterval'.\n";
+            {
+                const static struct {
+                    int                    d_line;    // line number
+                    bdlt::DatetimeInterval d_value;   // interval value
+                } DATA[] = {
+                    //LINE VALUE
+                    //---- ---------------------------------------------
+                    { L_,  DatetimeInterval()                          },
+                    { L_,  DatetimeInterval(0, 0, 0, 0,  1)            },
+                    { L_,  DatetimeInterval(0, 0, 0, 0, -1)            },
+                    { L_,  DatetimeInterval(0, 0, 0,  1)               },
+                    { L_,  DatetimeInterval(0, 0, 0, -1)               },
+                    { L_,  DatetimeInterval(0, 0,  1)                  },
+                    { L_,  DatetimeInterval(0, 0, -1)                  },
+                    { L_,  DatetimeInterval(0,  1)                     },
+                    { L_,  DatetimeInterval(0, -1)                     },
+                    { L_,  DatetimeInterval(1)                        },
+                    { L_,  DatetimeInterval(-1)                        },
+                    { L_,  DatetimeInterval(1, 1, 1, 1, 1)             },
+                    { L_,  DatetimeInterval(-1, -1, -1, -1, -1)        },
+                    { L_,  DatetimeInterval(1000, 12, 24)              },
+                    { L_,  DatetimeInterval(100000000, 1, 1, 32, 587)  },
+                    { L_,  DatetimeInterval(-100000000, 3, 2, 14, 319) },
+                };
+
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+
+                for (size_t i = 0; i < DATA_LEN; ++i) {
+                    const int                    LINE = DATA[i].d_line;
+                    const bdlt::DatetimeInterval VALUE = DATA[i].d_value;
+
+                    if (veryVerbose) { T_ P(VALUE) }
+
+                    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                    bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                    const Datum D = Datum::createDatetimeInterval(VALUE, &oa);
+
+                    const Int64 bytesInUse = oa.numBytesInUse();
+
+                    MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                    hashAppend(hasher, D);
+
+                    ASSERTV(LINE, bytesInUse == oa.numBytesInUse());
+
+                    ASSERTV(LINE, hasher.numOfHashedRegions(),
+                            3 == hasher.numOfHashedRegions());
+                    ASSERTV(LINE, hasher.getData()[0].size(),
+                            hasher.regionAsHex(0),
+                            hexPrintObject(bdld::Datum::e_DATETIME_INTERVAL),
+                            hasher.regionsAtIndexAre(
+                                0,
+                                bdld::Datum::e_DATETIME_INTERVAL));
+                    ASSERTV(LINE, hasher.getData()[1].size(),
+                            hasher.regionAsHex(1),
+                            hexPrintObject(VALUE),
+                            hasher.regionsAtIndexAre(1, VALUE));
+
+                    Datum::destroy(D, &oa);
+                }
+            }
+
+            if (verbose) cout << "\nTesting 'hashAppend' for 'Decimal64'.\n";
+            {
+                const static struct {
+                    int               d_line;   // line number
+                    bdldfp::Decimal64 d_value;  // 'Decimal64' value
+                } DATA[] = {
+                    //LINE VALUE
+                    //---- ---------------------
+                    { L_,  BDLDFP_DECIMAL_DD(0.0)        },
+                    { L_,  BDLDFP_DECIMAL_DD(0.253)      },
+                    { L_,  BDLDFP_DECIMAL_DD(-0.253)     },
+                    { L_,  BDLDFP_DECIMAL_DD(1.0)        },
+                    { L_,  BDLDFP_DECIMAL_DD(-1.0)       },
+                    { L_,  BDLDFP_DECIMAL_DD(12.345)     },
+                    { L_,  BDLDFP_DECIMAL_DD(12.3456789) },
+                    { L_,  k_DECIMAL64_MIN               },
+                    { L_,  k_DECIMAL64_MAX               },
+                    { L_,  k_DECIMAL64_INFINITY          },
+                    { L_,  k_DECIMAL64_NEG_INFINITY      },
+                    { L_,  k_DECIMAL64_SNAN              },
+                    { L_,  k_DECIMAL64_QNAN              },
+                };
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+
+                for (size_t i = 0; i < DATA_LEN; ++i) {
+                    const int               LINE = DATA[i].d_line;
+                    const bdldfp::Decimal64 VALUE = DATA[i].d_value;
+
+                    if (veryVerbose) { T_ P_(LINE) P(VALUE) }
+
+                    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                    bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                    const Datum D = Datum::createDecimal64(VALUE, &oa);
+
+                    const Int64 bytesInUse = oa.numBytesInUse();
+
+                    MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                    hashAppend(hasher, D);
+
+                    ASSERTV(LINE, bytesInUse == oa.numBytesInUse());
+
+                    ASSERTV(LINE, hasher.numOfHashedRegions(),
+                            2 == hasher.numOfHashedRegions());
+                    ASSERTV(LINE, hasher.getData()[0].size(),
+                            hasher.regionAsHex(0),
+                            hexPrintObject(bdld::Datum::e_DECIMAL64),
+                            hasher.regionsAtIndexAre(
+                                                    0,
+                                                    bdld::Datum::e_DECIMAL64));
+                    ASSERTV(LINE, hasher.getData()[1].size(),
+                            hasher.regionAsHex(1),
+                            hexPrintObject(VALUE),
+                            hasher.regionsAtIndexAre(1, VALUE));
+
+                    Datum::destroy(D, &oa);
+                }
+            }
+
+            if (verbose) cout << "\nTesting 'hashAppend' for 'double'.\n";
+            {
+                const static struct {
+                    int      d_line;          // line number
+                    double   d_value;         // double value
+                } DATA[] = {
+                    //LINE VALUE
+                    //---- -----------------------
+                    { L_,  0.0                    },
+                    { L_,  k_DOUBLE_NEG_ZERO      },
+                    { L_,  .01                    },
+                    { L_,  -.01                   },
+                    { L_,  2.25e-117              },
+                    { L_,  2.25e117               },
+                    { L_,  1924.25                },
+                    { L_,  -1924.25               },
+                    { L_,  k_DOUBLE_MIN           },
+                    { L_,  k_DOUBLE_MAX           },
+                    { L_,  k_DOUBLE_INFINITY      },
+                    { L_,  k_DOUBLE_NEG_INFINITY  },
+                    { L_,  k_DOUBLE_SNAN          },
+                    { L_,  k_DOUBLE_QNAN          },
+                    { L_,  k_DOUBLE_LOADED_NAN    },
+                };
+
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+
+                for (size_t i = 0; i < DATA_LEN; ++i) {
+                    const int     LINE  = DATA[i].d_line;
+                    const double& VALUE = DATA[i].d_value;
+
+                    if (veryVerbose) { T_ P_(LINE) P(VALUE) }
+
+                    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                    bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                    const Datum D = Datum::createDouble(VALUE);
+
+                    MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                    hashAppend(hasher, D);
+
+                    ASSERTV(LINE, 0 == oa.numBytesInUse());
+
+                    ASSERTV(LINE, hasher.numOfHashedRegions(),
+                            2 == hasher.numOfHashedRegions());
+                    ASSERTV(LINE, hasher.getData()[0].size(),
+                            hasher.regionAsHex(0),
+                            hexPrintObject(bdld::Datum::e_DOUBLE),
+                            hasher.regionsAtIndexAre(0,
+                                                     bdld::Datum::e_DOUBLE));
+
+                    const double HASHED_VALUE =
+                        // 'Datum' may not preserve the extra bits of a NaN
+                                (VALUE != VALUE) && k_DOUBLE_NAN_BITS_PRESERVED
+                                ? VALUE
+                                : D.theDouble();
+                    ASSERTV(LINE, hasher.getData()[1].size(),
+                            hasher.regionAsHex(1),
+                            hexPrintObject(HASHED_VALUE),
+                            hasher.regionsAtIndexAre(1, HASHED_VALUE));
+
+                    Datum::destroy(D, &oa);
+                }
+            }
+
+            if (verbose) cout << "\nTesting 'hashAppend' for 'Error'.\n";
+            {
+                const static struct {
+                    int d_line;   // line number
+                    int d_code;   // error code
+                } DATA[] = {
+                    //LINE CODE
+                    //---- ---------------------------
+                    { L_,   0                          },
+                    { L_,   1                          },
+                    { L_,  -1                          },
+                    { L_,  numeric_limits<int>::min()  },
+                    { L_,  numeric_limits<int>::max()  },
+                };
+
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+
+                for (size_t i = 0; i < DATA_LEN; ++i) {
+                    const int  LINE = DATA[i].d_line;
+                    const int  CODE = DATA[i].d_code;
+
+                    if (veryVerbose) { T_ T_ P(CODE) }
+
+                    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                    bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                    const Datum D = Datum::createError(CODE);
+
+                    MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                    hashAppend(hasher, D);
+
+                    ASSERTV(LINE, 0 == oa.numBytesInUse());
+
+                    ASSERTV(LINE, hasher.numOfHashedRegions(),
+                            4 == hasher.numOfHashedRegions());
+                    ASSERTV(LINE, hasher.getData()[0].size(),
+                            hasher.regionAsHex(0),
+                            hexPrintObject(bdld::Datum::e_ERROR),
+                            hasher.regionsAtIndexAre(0,
+                                                     bdld::Datum::e_ERROR));
+                    ASSERTV(LINE, hasher.getData()[1].size(),
+                            hasher.regionAsHex(1),
+                            hexPrintObject(CODE),
+                            hasher.regionsAtIndexAre(1, CODE));
+                    ASSERTV(LINE, hasher.getData()[2].size(),
+                            hexPrint(hasher, 2, 2),
+                            hexPrintObject(bsl::size_t(0)),
+                            hexPrintChars("", 0),
+                            hasher.regionsAtIndexAre(2, StringRef("", 0)));
+
+                    Datum::destroy(D, &oa);
+                }
+
+                static const char errorMessage[] = "This is an error#$%\".";
+                for (size_t i = 0; i < DATA_LEN; ++i) {
+                    for (size_t j = 0; j <= strlen(errorMessage); ++j) {
+                        const int  LINE = DATA[i].d_line;
+                        const int  CODE = DATA[i].d_code;
+                        const StringRef MSG(errorMessage, j);
+
+                        if (veryVerbose) { T_ T_ P_(CODE) P(MSG) }
+
+                        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                        bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                        const Datum D = Datum::createError(CODE,
+                                                           MSG,
+                                                           &oa);
+
+                        const Int64 bytesInUse = oa.numBytesInUse();
+
+                        MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                        hashAppend(hasher, D);
+
+                        ASSERTV(LINE, bytesInUse == oa.numBytesInUse());
+
+                        ASSERTV(LINE, hasher.numOfHashedRegions(),
+                                4 == hasher.numOfHashedRegions());
+                        ASSERTV(LINE, hasher.getData()[0].size(),
+                                hasher.regionAsHex(0),
+                                hexPrintObject(bdld::Datum::e_ERROR),
+                                hasher.regionsAtIndexAre(
+                                                        0,
+                                                        bdld::Datum::e_ERROR));
+                        ASSERTV(LINE, hasher.getData()[1].size(),
+                                hasher.regionAsHex(1),
+                                hexPrintObject(CODE),
+                                hasher.regionsAtIndexAre(1, CODE));
+                        ASSERTV(LINE, hasher.getData()[2].size(),
+                                hexPrint(hasher, 2, 2),
+                                hexPrintObject(MSG.size()),
+                                hexPrintChars(MSG.data(), MSG.size()),
+                                hasher.regionsAtIndexAre(2, MSG));
+
+                        Datum::destroy(D, &oa);
+                    }
+                }
+            }
+
+            if (verbose) cout << "\nTesting 'hashAppend' for 'int'.\n";
+            {
+                const static struct {
+                    int d_line;   // line number
+                    int d_value;  // integer value
+                } DATA[] = {
+                    //LINE VALUE
+                    //---- -------------------------------------
+                    { L_,   0                                    },
+                    { L_,   1                                    },
+                    { L_,  -1                                    },
+                    { L_,  numeric_limits<char>::min()           },
+                    { L_,  numeric_limits<char>::max()           },
+                    { L_,  numeric_limits<unsigned char>::max()  },
+                    { L_,  numeric_limits<short>::min()          },
+                    { L_,  numeric_limits<short>::max()          },
+                    { L_,  numeric_limits<unsigned short>::max() },
+                    { L_,  numeric_limits<int>::min()            },
+                    { L_,  numeric_limits<int>::max()            },
+                };
+
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+
+                for (size_t i = 0; i < DATA_LEN; ++i) {
+                    const int  LINE = DATA[i].d_line;
+                    const int VALUE = DATA[i].d_value;
+
+                    if (veryVerbose) { T_ P(VALUE) }
+
+                    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                    bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                    const Datum D = Datum::createInteger(VALUE);
+
+                    MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                    hashAppend(hasher, D);
+
+                    ASSERTV(LINE, 0 == oa.numBytesInUse());
+
+                    ASSERTV(LINE, hasher.numOfHashedRegions(),
+                            2 == hasher.numOfHashedRegions());
+                    ASSERTV(LINE, hasher.getData()[0].size(),
+                            hasher.regionAsHex(0),
+                            hexPrintObject(bdld::Datum::e_INTEGER),
+                            hasher.regionsAtIndexAre(0,
+                                                     bdld::Datum::e_INTEGER));
+                    ASSERTV(LINE, hasher.getData()[1].size(),
+                            hasher.regionAsHex(1),
+                            hexPrintObject(VALUE),
+                            hasher.regionsAtIndexAre(1, VALUE));
+
+                    Datum::destroy(D, &oa);
+                }
+            }
+
+            if (verbose) cout << "\nTesting 'hashAppend' for 'int64'.\n";
+            {
+                const static struct {
+                    int   d_line;   // line number
+                    Int64 d_value;  // Int64 value
+                } DATA[] = {
+                    //LINE VALUE
+                    //---- -------------------------------------
+                    { L_,   0                                    },
+                    { L_,   1                                    },
+                    { L_,  -1                                    },
+                    { L_,  numeric_limits<char>::min()           },
+                    { L_,  numeric_limits<char>::max()           },
+                    { L_,  numeric_limits<unsigned char>::max()  },
+                    { L_,  numeric_limits<short>::min()          },
+                    { L_,  numeric_limits<short>::max()          },
+                    { L_,  numeric_limits<unsigned short>::max() },
+                    { L_,  numeric_limits<int>::min()            },
+                    { L_,  numeric_limits<int>::max()            },
+                    { L_,  numeric_limits<Int64>::min()          },
+                    { L_,  numeric_limits<Int64>::max()          },
+                };
+
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+
+                for (size_t i = 0; i < DATA_LEN; ++i) {
+                    const int   LINE = DATA[i].d_line;
+                    const Int64 VALUE = DATA[i].d_value;
+
+                    if (veryVerbose) { T_ P(VALUE) }
+
+                    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                    bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                    const Datum D = Datum::createInteger64(VALUE, &oa);
+
+                    const Int64 bytesInUse = oa.numBytesInUse();
+
+                    MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                    hashAppend(hasher, D);
+
+                    ASSERTV(LINE, bytesInUse == oa.numBytesInUse());
+
+                    ASSERTV(LINE, hasher.numOfHashedRegions(),
+                            2 == hasher.numOfHashedRegions());
+                    ASSERTV(LINE, hasher.getData()[0].size(),
+                            hasher.regionAsHex(0),
+                            hexPrintObject(bdld::Datum::e_INTEGER64),
+                            hasher.regionsAtIndexAre(
+                                0,
+                                bdld::Datum::e_INTEGER64));
+                    ASSERTV(LINE, hasher.getData()[1].size(),
+                            hasher.regionAsHex(1),
+                            hexPrintObject(VALUE),
+                            hasher.regionsAtIndexAre(1, VALUE));
+
+                    Datum::destroy(D, &oa);
+                }
+            }
+
+            if (verbose) cout << "\nTesting 'hashAppend' for 'null'.\n";
+            {
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                const Datum D = Datum::createNull();
+
+                MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                hashAppend(hasher, D);
+
+                ASSERT(0 == oa.numBytesInUse());
+
+                ASSERTV(hasher.numOfHashedRegions(),
+                        1 == hasher.numOfHashedRegions());
+                ASSERTV(hasher.getData()[0].size(),
+                        hasher.regionAsHex(0),
+                        hexPrintObject(bdld::Datum::e_NIL),
+                        hasher.regionsAtIndexAre(0,
+                                                 bdld::Datum::e_NIL));
+
+                Datum::destroy(D, &oa);
+            }
+
+            if (verbose) cout << "\nTesting 'hashAppend' for strings.\n";
+            {
+                const static struct {
+                    int         d_line;    // line number
+                    bsl::size_t d_length;  // length of string
+                } DATA[] = {
+                    //LINE LENGTH
+                    //---- --------------
+                    { L_,            0 },
+                    { L_,            1 },
+                    { L_,            2 },
+                    { L_,            3 },
+                    { L_,            4 },
+                    { L_,            5 },
+                    { L_,            6 },
+                    { L_,            7 },
+                    { L_,            8 },
+                    { L_,           12 },
+                    { L_,           13 },
+                    { L_,           14 },
+                    { L_,           32 },
+                    { L_,          255 },
+                    { L_,          256 },
+                    { L_,        65534 },
+                    { L_,        65535 },
+                    { L_,        65536 },
+                    { L_,  1024 * 1024 },
+                };
+
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+
+                for (size_t i = 0; i < DATA_LEN; ++i) {
+                    bslma::TestAllocator ma("misc", veryVeryVeryVerbose);
+
+                    const int             LINE = DATA[i].d_line;
+                    const Datum::SizeType LENGTH = DATA[i].d_length;
+                    bsl::string buffer;
+                    loadRandomString(&buffer, LENGTH);
+                    const StringRef STRING = buffer;
+
+                    if (veryVerbose) { T_ T_ P(LENGTH) }
+
+                    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                    bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                    // We could use here 'copyString', makes no difference for
+                    // the hash, all hash the string value using the same code.
+                    const Datum D = Datum::createStringRef(buffer, &oa);
+
+                    const Int64 bytesInUse = oa.numBytesInUse();
+
+                    MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                    hashAppend(hasher, D);
+
+                    ASSERTV(LINE, bytesInUse == oa.numBytesInUse());
+
+                    ASSERTV(LINE, hasher.numOfHashedRegions(),
+                            3 == hasher.numOfHashedRegions());
+                    ASSERTV(LINE, hasher.getData()[0].size(),
+                            hasher.regionAsHex(0),
+                            hexPrintObject(bdld::Datum::e_STRING),
+                            hasher.regionsAtIndexAre(0,
+                                                     bdld::Datum::e_STRING));
+                    ASSERTV(LINE, hasher.getData()[1].size(),
+                            hexPrint(hasher, 1, 2),
+                            hexPrintObject(STRING.size()),
+                            hexPrintChars(STRING.data(), STRING.size()),
+                            hasher.regionsAtIndexAre(1, STRING));
+
+                    Datum::destroy(D, &oa);
+                }
+            }
+
+            if (verbose) cout << "\nTesting 'hashAppend' for 'Time'.\n";
+            {
+                const static struct {
+                    int        d_line;   // line number
+                    bdlt::Time d_value;  // 'Time' value
+                } DATA[] = {
+                    //LINE VALUE
+                    //---- --------------
+                    { L_,  Time()                     },
+                    { L_,  Time(0, 1, 1, 1, 1)        },
+                    { L_,  Time(8, 0, 0, 999, 888)    },
+                    { L_,  Time(23, 59, 59, 999, 999) },
+                };
+
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+
+                for (size_t i = 0; i < DATA_LEN; ++i) {
+                    const int        LINE  = DATA[i].d_line;
+                    const bdlt::Time VALUE = DATA[i].d_value;
+
+                    if (veryVerbose) { T_ P(VALUE) }
+
+                    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                    bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                    const Datum D = Datum::createTime(VALUE);
+
+                    MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                    hashAppend(hasher, D);
+
+                    ASSERTV(LINE, 0 == oa.numBytesInUse());
+
+                    ASSERTV(LINE, hasher.numOfHashedRegions(),
+                            2 == hasher.numOfHashedRegions());
+                    ASSERTV(LINE, hasher.getData()[0].size(),
+                            hasher.regionAsHex(0),
+                            hexPrintObject(bdld::Datum::e_TIME),
+                            hasher.regionsAtIndexAre(0,
+                                                     bdld::Datum::e_TIME));
+                    ASSERTV(LINE, hasher.getData()[1].size(),
+                            hasher.regionAsHex(1),
+                            hexPrintObject(VALUE),
+                            hasher.regionsAtIndexAre(1, VALUE));
+
+                    Datum::destroy(D, &oa);
+                }
+            }
+
+            if (verbose) cout << "\nTesting 'hashAppend' for 'Udt'.\n";
+            {
+                static char dummy[]="";
+                const static struct {
+                    int   d_line;   // line number
+                    void *d_ptr;    // UDT pointer value
+                    int   d_type;   // UDT type code
+                } DATA[] = {
+                    //LINE PTR            TYPE
+                    //---- -------------- ------------
+                    { L_,  0,             0           },
+                    { L_,  0,             1           },
+                    { L_,  0,             2           },
+                    { L_,  0,             3           },
+                    { L_,  0,             6553        }, // max type
+                    { L_,  &dummy,        0           },
+                    { L_,  &dummy,        127         },
+                    { L_,  &dummy,        65535       },
+                    { L_,  &reviewGuard,  0           },
+                    { L_,  &reviewGuard,  876         },
+                };
+
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+
+                for (size_t i = 0; i < DATA_LEN; ++i) {
+                    const int   LINE = DATA[i].d_line;
+                    void *const PTR  = DATA[i].d_ptr;
+                    const int   TYPE = DATA[i].d_type;
+
+                    if (veryVerbose) { T_ P_(PTR) P(TYPE) }
+
+                    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                    bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                    const Datum D = Datum::createUdt(PTR, TYPE);
+
+                    MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                    hashAppend(hasher, D);
+
+                    ASSERTV(LINE, 0 == oa.numBytesInUse());
+
+                    ASSERTV(LINE, hasher.numOfHashedRegions(),
+                            3 == hasher.numOfHashedRegions());
+                    ASSERTV(LINE, hasher.getData()[0].size(),
+                            hasher.regionAsHex(0),
+                            hexPrintObject(bdld::Datum::e_USERDEFINED),
+                            hasher.regionsAtIndexAre(
+                                0,
+                                bdld::Datum::e_USERDEFINED));
+                    ASSERTV(LINE, hasher.getData()[1].size(),
+                            hasher.regionAsHex(1),
+                            hexPrintObject(TYPE),
+                            hasher.regionsAtIndexAre(1, TYPE));
+                    ASSERTV(LINE, hasher.getData()[2].size(),
+                            hasher.regionAsHex(2),
+                            hexPrintObject(PTR),
+                            hasher.regionsAtIndexAre(2, PTR));
+
+                    Datum::destroy(D, &oa);
+                }
+            }
+
+            if (verbose) cout << "\nTesting 'hashAppend' for 'Binary'.\n";
+            {
+                const static struct {
+                    int         d_line;  // line number
+                    bsl::size_t d_size;  // length of binary in bytes
+                } DATA[] = {
+                    //LINE SIZE
+                    //---- --------------
+                    { L_,            0 },
+                    { L_,            1 },
+                    { L_,            2 },
+                    { L_,            3 },
+                    { L_,            4 },
+                    { L_,            5 },
+                    { L_,            6 },
+                    { L_,            7 },
+                    { L_,            8 },
+                    { L_,           12 },
+                    { L_,           13 },
+                    { L_,           14 },
+                    { L_,           32 },
+                    { L_,          255 },
+                    { L_,          256 },
+                    { L_,        65534 },
+                    { L_,        65535 },
+                    { L_,        65536 },
+                    { L_,  1024 * 1024 },
+                };
+
+                const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+
+                for (size_t i = 0; i < DATA_LEN; ++i) {
+                    bslma::TestAllocator ma("misc", veryVeryVeryVerbose);
+
+                    const int             LINE = DATA[i].d_line;
+                    const Datum::SizeType SIZE = DATA[i].d_size;
+                    bsl::vector<unsigned char> buffer;
+                    loadRandomBinary(&buffer, SIZE);
+                    const void *PTR = buffer.data();
+
+                    if (veryVerbose) { T_ T_ P(SIZE) }
+
+                    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                    bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+                    const Datum D = Datum::copyBinary(PTR, SIZE, &oa);
+
+                    const Int64 bytesInUse = oa.numBytesInUse();
+
+                    MockAccumulatingHashingAlgorithm hasher(&ha);
+
+                    hashAppend(hasher, D);
+
+                    ASSERTV(LINE, bytesInUse == oa.numBytesInUse());
+
+                    const bsl::size_t EXPECTED_REGIONS = ((SIZE > 0) ? 3 : 2);
+
+                    ASSERTV(LINE,
+                            hasher.numOfHashedRegions(),
+                            EXPECTED_REGIONS,
+                            EXPECTED_REGIONS == hasher.numOfHashedRegions());
+                    ASSERTV(LINE, hasher.getData()[0].size(),
+                            hasher.regionAsHex(0),
+                            hexPrintObject(bdld::Datum::e_BINARY),
+                            hasher.regionsAtIndexAre(0,
+                                                     bdld::Datum::e_BINARY));
+                    ASSERTV(LINE, hasher.getData()[1].size(),
+                            hasher.regionAsHex(1),
+                            hexPrintObject(SIZE),
+                            hasher.regionsAtIndexAre(1, SIZE));
+                    if (SIZE > 0) {
+                        ASSERTV(LINE, hasher.getData()[2].size(),
+                                hasher.regionAsHex(2),
+                                hexPrintRegion(buffer.data(), SIZE),
+                                hasher.regionAtIndexIs(2, buffer));
+                    }
+
+                    Datum::destroy(D, &oa);
+                }
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'hashAppend' for Datums having "
+                          << "aggregate values.\n";
+
+        if (verbose) cout << "\nTesting 'hashAppend' for array.\n";
+        {
+            // Testing 'hashAppend' of an empty array
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+            DatumMutableArrayRef array;
+            const Datum          D = Datum::adoptArray(array);
+
+            const Int64 bytesInUse = oa.numBytesInUse();
+
+            MockAccumulatingHashingAlgorithm hasher(&ha);
+
+            hashAppend(hasher, D);
+
+            ASSERTV(bytesInUse == oa.numBytesInUse());
+
+            ASSERTV(hasher.numOfHashedRegions(),
+                    2 == hasher.numOfHashedRegions());
+            ASSERTV(hasher.getData()[0].size(),
+                    hasher.regionsAtIndexAre(0, bdld::Datum::e_ARRAY));
+            ASSERTV(hasher.getData()[1].size(),
+                    hasher.regionsAtIndexAre(1, bsl::size_t(0)));
+
+            Datum::destroy(D, &oa);
+        }
+
+        {
+            // Testing 'hashAppend' of a non-empty array
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+            const SizeType       SIZE  = 6;
+            DatumMutableArrayRef array;
+
+            Datum::createUninitializedArray(&array, SIZE, &oa);
+            array.data()[0] = Datum::createInteger(0);
+            array.data()[1] = Datum::createDouble(-3.1416);
+            array.data()[2] = Datum::copyString("A long string", &oa);
+            array.data()[3] = Datum::copyString("Abc", &oa);
+            array.data()[4] = Datum::createDate(bdlt::Date(2010,1,5));
+            array.data()[5] = Datum::createDatetime(
+                    bdlt::Datetime(2010,1,5, 16,45,32,12),
+                    &oa);
+            *(array.length()) = SIZE;
+            const Datum D = Datum::adoptArray(array);
+
+            const Int64 bytesInUse = oa.numBytesInUse();
+
+            MockAccumulatingHashingAlgorithm hasher(&ha);
+
+            hashAppend(hasher, D);
+
+            ASSERTV(bytesInUse == oa.numBytesInUse());
+
+            const bsl::size_t EXPECTED_REGIONS =
+                2    +   //  2 - datum type + array size value
+                2    +   //  4 - the integer datum
+                2    +   //  6 - the double datum
+                6    +   // 12 - the string type = length + data for 2 strings
+                4        // 16 - a date and a date-time datum
+                ;
+
+            ASSERTV(hasher.numOfHashedRegions(),
+                    EXPECTED_REGIONS,
+                    EXPECTED_REGIONS == hasher.numOfHashedRegions());
+
+            // "Header" of the array
+            ASSERTV(hasher.getData()[0].size(),
+                    hasher.regionsAtIndexAre(0, bdld::Datum::e_ARRAY));
+            ASSERTV(hasher.getData()[1].size(),
+                    hasher.regionsAtIndexAre(1, SIZE));
+
+                                  // ARRAY ELEMENTS
+            // The integer 0
+            ASSERTV(hasher.getData()[2].size(),
+                    hasher.regionsAtIndexAre(2, bdld::Datum::e_INTEGER));
+            ASSERTV(hasher.getData()[3].size(),
+                    hasher.regionsAtIndexAre(3, D.theArray()[0].theInteger()));
+            // The double -3.1416
+            ASSERTV(hasher.getData()[4].size(),
+                    hasher.regionsAtIndexAre(4, bdld::Datum::e_DOUBLE));
+            ASSERTV(hasher.getData()[5].size(),
+                    hasher.regionsAtIndexAre(5, D.theArray()[1].theDouble()));
+            // "A long string"
+            ASSERTV(hasher.getData()[6].size(),
+                    hasher.regionsAtIndexAre(6, bdld::Datum::e_STRING));
+            ASSERTV(hasher.getData()[7].size(),
+                    hasher.regionsAtIndexAre(7, D.theArray()[2].theString()));
+            // "Abc"
+            ASSERTV(hasher.getData()[9].size(),
+                    hasher.regionsAtIndexAre(9, bdld::Datum::e_STRING));
+            ASSERTV(hasher.getData()[10].size(),
+                    hasher.regionsAtIndexAre(10, D.theArray()[3].theString()));
+            // The date 2010.1.5 (ANSI)
+            ASSERTV(hasher.getData()[12].size(),
+                    hasher.regionsAtIndexAre(12, bdld::Datum::e_DATE));
+            ASSERTV(hasher.getData()[13].size(),
+                    hasher.regionsAtIndexAre(13, D.theArray()[4].theDate()));
+            // The date-time 2010.1.5 16:45:32.012
+            ASSERTV(hasher.getData()[14].size(),
+                    hasher.regionsAtIndexAre(14, bdld::Datum::e_DATETIME));
+            ASSERTV(hasher.getData()[15].size(),
+                    hasher.regionsAtIndexAre(15,
+                                             D.theArray()[5].theDatetime()));
+            Datum::destroy(D, &oa);
+        }
+
+        if (verbose) cout << "\nTesting 'hashAppend' for map.\n";
+        {
+            // Testing 'hashAppend' of an empty map
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+            DatumMutableMapRef map;
+            const Datum        D = Datum::adoptMap(map);
+
+            const Int64 bytesInUse = oa.numBytesInUse();
+
+            MockAccumulatingHashingAlgorithm hasher(&ha);
+
+            hashAppend(hasher, D);
+
+            ASSERTV(bytesInUse == oa.numBytesInUse());
+
+            ASSERTV(hasher.numOfHashedRegions(),
+                    2 == hasher.numOfHashedRegions());
+            ASSERTV(hasher.getData()[0].size(),
+                    hasher.regionsAtIndexAre(0, bdld::Datum::e_MAP));
+            ASSERTV(hasher.getData()[1].size(),
+                    hasher.regionsAtIndexAre(1, bsl::size_t(0)));
+
+            Datum::destroy(D, &oa);
+        }
+        {
+            // Testing 'hashAppend' of a non-empty map
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+            const StringRef key1("one");
+            const StringRef key2("two");
+            const StringRef key3("three");
+            const StringRef key4("four");
+            const StringRef key5("five");
+            const StringRef key6("six");
+
+            const SizeType     SIZE = 6;
+            DatumMutableMapRef map;
+            Datum::createUninitializedMap(&map, SIZE, &oa);
+            map.data()[0] = DatumMapEntry(key1, Datum::createInteger(0));
+            map.data()[1] = DatumMapEntry(key2, Datum::createDouble(-3.141));
+            map.data()[2] = DatumMapEntry(
+                                      key3,
+                                      Datum::copyString("A long string", &oa));
+            map.data()[3] = DatumMapEntry(key4,
+                                          Datum::copyString("Abc", &oa));
+            map.data()[4] = DatumMapEntry(
+                                      key5,
+                                      Datum::createDate(bdlt::Date(2010,1,5)));
+            map.data()[5] = DatumMapEntry(
+                                     key6,
+                                     Datum::createDatetime(
+                                         bdlt::Datetime(2010,1,5, 16,45,32,12),
+                                         &oa));
+            *(map.size())   = SIZE;
+            *(map.sorted()) = false;
+            const Datum D = Datum::adoptMap(map);
+
+            const Int64 bytesInUse = oa.numBytesInUse();
+
+            MockAccumulatingHashingAlgorithm hasher(&ha);
+
+            hashAppend(hasher, D);
+
+            ASSERTV(bytesInUse == oa.numBytesInUse());
+
+            const bsl::size_t EXPECTED_REGIONS =
+                1 + 1 +  //  2 - datum type + map size value
+                2 + 2 +  //  6 - the integer datum and its key
+                2 + 2 +  // 10 - the double datum and its key
+                6 + 4 +  // 20 - the 2 strings and their keys
+                4 + 4    // 28 - a date and a date-time datum and their keys
+                ;
+
+            ASSERTV(hasher.numOfHashedRegions(),
+                    EXPECTED_REGIONS,
+                    EXPECTED_REGIONS == hasher.numOfHashedRegions());
+
+            // "Header" of the array
+            ASSERTV(hasher.getData()[0].size(),
+                    hasher.regionsAtIndexAre(0, bdld::Datum::e_MAP));
+            ASSERTV(hasher.getData()[1].size(),
+                    hasher.regionsAtIndexAre(1, SIZE));
+
+                                  // MAP ELEMENTS
+            // Key at index 0
+            ASSERTV(hasher.getData()[2].size(),
+                    hasher.regionsAtIndexAre(2, key1));
+            // The integer value 0
+            ASSERTV(hasher.getData()[4].size(),
+                    hasher.regionsAtIndexAre(4, bdld::Datum::e_INTEGER));
+            ASSERTV(hasher.getData()[5].size(),
+                    hasher.regionsAtIndexAre(
+                                          5,
+                                          D.theMap()[0].value().theInteger()));
+            // Key at index 1
+            ASSERTV(hasher.getData()[6].size(),
+                    hasher.regionsAtIndexAre(6, key2));
+            // The double -3.1416
+            ASSERTV(hasher.getData()[8].size(),
+                    hasher.regionsAtIndexAre(8, bdld::Datum::e_DOUBLE));
+            ASSERTV(hasher.getData()[9].size(),
+                    hasher.regionsAtIndexAre(
+                                           9,
+                                           D.theMap()[1].value().theDouble()));
+            // Key at index 2
+            ASSERTV(hasher.getData()[10].size(),
+                    hasher.regionsAtIndexAre(10, key3));
+            // "A long string"
+            ASSERTV(hasher.getData()[12].size(),
+                    hasher.regionsAtIndexAre(12, bdld::Datum::e_STRING));
+            ASSERTV(hasher.getData()[13].size(),
+                    hasher.regionsAtIndexAre(
+                                           13,
+                                           D.theMap()[2].value().theString()));
+            // Key at index 3
+            ASSERTV(hasher.getData()[15].size(),
+                    hasher.regionsAtIndexAre(15, key4));
+            // "Abc"
+            ASSERTV(hasher.getData()[17].size(),
+                    hasher.regionsAtIndexAre(17, bdld::Datum::e_STRING));
+            ASSERTV(hasher.getData()[18].size(),
+                    hasher.regionsAtIndexAre(
+                                           18,
+                                           D.theMap()[3].value().theString()));
+            // Key at index 4
+            ASSERTV(hasher.getData()[20].size(),
+                    hasher.regionsAtIndexAre(20, key5));
+            // The date 2010.1.5 (ANSI)
+            ASSERTV(hasher.getData()[22].size(),
+                    hasher.regionsAtIndexAre(22, bdld::Datum::e_DATE));
+            ASSERTV(hasher.getData()[23].size(),
+                    hasher.regionsAtIndexAre(23,
+                                             D.theMap()[4].value().theDate()));
+            // Key at index 5
+            ASSERTV(hasher.getData()[24].size(),
+                    hasher.regionsAtIndexAre(24, key6));
+            // The date-time 2010.1.5 16:45:32.012
+            ASSERTV(hasher.getData()[26].size(),
+                    hasher.regionsAtIndexAre(26, bdld::Datum::e_DATETIME));
+            ASSERTV(hasher.getData()[27].size(),
+                    hasher.regionsAtIndexAre(
+                                         27,
+                                         D.theMap()[5].value().theDatetime()));
+            Datum::destroy(D, &oa);
+        }
+
+        if (verbose) cout << "\nTesting 'hashAppend' for int-map.\n";
+        {
+            // Testing 'hashAppend' of an empty map
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+            DatumMutableIntMapRef map;
+            const Datum           D = Datum::adoptIntMap(map);
+
+            const Int64 bytesInUse = oa.numBytesInUse();
+
+            MockAccumulatingHashingAlgorithm hasher(&ha);
+
+            hashAppend(hasher, D);
+
+            ASSERTV(bytesInUse == oa.numBytesInUse());
+
+            ASSERTV(hasher.numOfHashedRegions(),
+                    2 == hasher.numOfHashedRegions());
+            ASSERTV(hasher.getData()[0].size(),
+                    hasher.regionsAtIndexAre(0, bdld::Datum::e_INT_MAP));
+            ASSERTV(hasher.getData()[1].size(),
+                    hasher.regionsAtIndexAre(1, bsl::size_t(0)));
+
+            Datum::destroy(D, &oa);
+        }
+        {
+            // Testing 'hashAppend' of a non-empty map
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
+
+            const SizeType     SIZE = 6;
+            DatumMutableIntMapRef map;
+            Datum::createUninitializedIntMap(&map, SIZE, &oa);
+            map.data()[0] = DatumIntMapEntry(1, Datum::createInteger(0));
+            map.data()[1] = DatumIntMapEntry(2, Datum::createDouble(-3.141));
+            map.data()[2] = DatumIntMapEntry(
+                                      3,
+                                      Datum::copyString("A long string", &oa));
+            map.data()[3] = DatumIntMapEntry(4,
+                                             Datum::copyString("Abc", &oa));
+            map.data()[4] = DatumIntMapEntry(
+                                      5,
+                                      Datum::createDate(bdlt::Date(2010,1,5)));
+            map.data()[5] = DatumIntMapEntry(
+                                     6,
+                                     Datum::createDatetime(
+                                         bdlt::Datetime(2010,1,5, 16,45,32,12),
+                                         &oa));
+            *(map.size())   = SIZE;
+            *(map.sorted()) = false;
+            const Datum D = Datum::adoptIntMap(map);
+
+            const Int64 bytesInUse = oa.numBytesInUse();
+
+            MockAccumulatingHashingAlgorithm hasher(&ha);
+
+            hashAppend(hasher, D);
+
+            ASSERTV(bytesInUse == oa.numBytesInUse());
+
+            const bsl::size_t EXPECTED_REGIONS =
+                1 + 1 +  //  2 - datum type + map size value
+                2 + 1 +  //  5 - the integer datum and its key
+                2 + 1 +  //  8 - the double datum and its key
+                6 + 2 +  // 16 - the 2 strings and their keys
+                4 + 2    // 22 - a date and a date-time datum and their keys
+                ;
+
+            ASSERTV(hasher.numOfHashedRegions(),
+                    EXPECTED_REGIONS,
+                    EXPECTED_REGIONS == hasher.numOfHashedRegions());
+
+            // "Header" of the array
+            ASSERTV(hasher.getData()[0].size(),
+                    hasher.regionsAtIndexAre(0, bdld::Datum::e_INT_MAP));
+            ASSERTV(hasher.getData()[1].size(),
+                    hasher.regionsAtIndexAre(1, SIZE));
+
+                                  // MAP ELEMENTS
+            // Key at index 0
+            ASSERTV(hasher.getData()[2].size(),
+                    hasher.regionsAtIndexAre(2, 1));
+            // The integer value 0
+            ASSERTV(hasher.getData()[3].size(),
+                    hasher.regionsAtIndexAre(3, bdld::Datum::e_INTEGER));
+            ASSERTV(hasher.getData()[4].size(),
+                    hasher.regionsAtIndexAre(
+                                       4,
+                                       D.theIntMap()[0].value().theInteger()));
+            // Key at index 1
+            ASSERTV(hasher.getData()[5].size(),
+                    hasher.regionsAtIndexAre(5, 2));
+            // The double -3.1416
+            ASSERTV(hasher.getData()[6].size(),
+                    hasher.regionsAtIndexAre(6, bdld::Datum::e_DOUBLE));
+            ASSERTV(hasher.getData()[7].size(),
+                    hasher.regionsAtIndexAre(
+                                        7,
+                                        D.theIntMap()[1].value().theDouble()));
+            // Key at index 2
+            ASSERTV(hasher.getData()[8].size(),
+                    hasher.regionsAtIndexAre(8, 3));
+            // "A long string"
+            ASSERTV(hasher.getData()[9].size(),
+                    hasher.regionsAtIndexAre(9, bdld::Datum::e_STRING));
+            ASSERTV(hasher.getData()[10].size(),
+                    hasher.regionsAtIndexAre(
+                                        10,
+                                        D.theIntMap()[2].value().theString()));
+            // Key at index 3
+            ASSERTV(hasher.getData()[12].size(),
+                    hasher.regionsAtIndexAre(12, 4));
+            // "Abc"
+            ASSERTV(hasher.getData()[13].size(),
+                    hasher.regionsAtIndexAre(13, bdld::Datum::e_STRING));
+            ASSERTV(hasher.getData()[14].size(),
+                    hasher.regionsAtIndexAre(
+                                        14,
+                                        D.theIntMap()[3].value().theString()));
+            // Key at index 4
+            ASSERTV(hasher.getData()[16].size(),
+                    hasher.regionsAtIndexAre(16, 5));
+            // The date 2010.1.5 (ANSI)
+            ASSERTV(hasher.getData()[17].size(),
+                    hasher.regionsAtIndexAre(17, bdld::Datum::e_DATE));
+            ASSERTV(hasher.getData()[18].size(),
+                    hasher.regionsAtIndexAre(18,
+                                          D.theIntMap()[4].value().theDate()));
+            // Key at index 5
+            ASSERTV(hasher.getData()[19].size(),
+                    hasher.regionsAtIndexAre(19, 6));
+            // The date-time 2010.1.5 16:45:32.012
+            ASSERTV(hasher.getData()[20].size(),
+                    hasher.regionsAtIndexAre(20, bdld::Datum::e_DATETIME));
+            ASSERTV(hasher.getData()[21].size(),
+                    hasher.regionsAtIndexAre(
+                                      21,
+                                      D.theIntMap()[5].value().theDatetime()));
+            Datum::destroy(D, &oa);
+        }
       } break;
       case 33: {
         // --------------------------------------------------------------------
@@ -3774,15 +5489,6 @@ int main(int argc, char *argv[])
                     const Datum DC = D.clone(&ca);
 
                     ASSERT(bytesInUse == ca.numBytesInUse());
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-                    ASSERT(0 != bytesInUse);   // always allocate
-#else  // BSLS_PLATFORM_CPU_32_BIT
-                    if (SIZE <= 13) {
-                        ASSERT(0 == bytesInUse);
-                    } else {
-                        ASSERT(0 != bytesInUse);
-                    }
-#endif // BSLS_PLATFORM_CPU_32_BIT
 
                     ASSERT(false == DC.isExternalReference());
                     ASSERT(true  == DC.isBinary());
@@ -3833,17 +5539,6 @@ int main(int argc, char *argv[])
                     const Datum DC = D.clone(&ca);
 
                     ASSERT(bytesInUse == ca.numBytesInUse());
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-                    // Up to length 6 inclusive the strings are stored inline
-                    if (SIZE <= 6) {
-#else  // BSLS_PLATFORM_CPU_32_BIT
-                    // Up to length 13 inclusive the strings are stored inline
-                    if (SIZE <= 13) {
-#endif // BSLS_PLATFORM_CPU_32_BIT
-                        ASSERT(0 == bytesInUse);
-                    } else {
-                        ASSERT(0 != bytesInUse);
-                    }
 
                     ASSERT(false == DC.isExternalReference());
                     ASSERT(true  == DC.isString());
@@ -4786,8 +6481,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting with Datum having array value." << endl;
 
         if (verbose)
-            cout << "\tTesting with Datum having empty array value."
-                 << endl;
+            cout << "\tTesting with Datum having empty array value." << endl;
         {
             DatumMutableArrayRef array;
             const Datum          D = Datum::adoptArray(array);
@@ -7374,8 +9068,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting copy constructor for sorted map."
-                          << endl;
+        if (verbose)
+            cout << "\nTesting copy constructor for sorted map." << endl;
         {
             const DatumIntMapRef obj(map, SIZE, true);
 
@@ -9250,7 +10944,7 @@ int main(int argc, char *argv[])
                 const Datum Z = Datum::createInteger64(VALUE, &oa);
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-                Int64 bytesInUse = oa.numBytesInUse();
+                const Int64 bytesInUse = oa.numBytesInUse();
 #else   // BSLS_PLATFORM_CPU_32_BIT
                 ASSERT(0 == oa.numBytesInUse()); // non allocating type
 #endif  // BSLS_PLATFORM_CPU_32_BIT
@@ -9489,8 +11183,8 @@ int main(int argc, char *argv[])
         {
             for (size_t i = 0; i < 258; ++i) {
                 bslma::TestAllocator ba("buffer", veryVeryVeryVerbose);
-                bsl::string BUFFER(&ba);
-                const size_t SIZE = i;
+                bsl::string          BUFFER(&ba);
+                const size_t         SIZE = i;
                 loadRandomString(&BUFFER, SIZE);
 
                 const StringRef REF(BUFFER.data(), static_cast<int>(SIZE));
@@ -10602,11 +12296,11 @@ int main(int argc, char *argv[])
                      << endl;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
-                bslma::TestAllocator ba("buffer", veryVeryVeryVerbose);
-                const Datum::SizeType  SIZE = DATA[i];
-                const bsl::string      BUFFER(SIZE, 'x', &ba);
-                const StringRef        STRING(BUFFER.data(),
-                                              static_cast<int>(SIZE));
+                bslma::TestAllocator  ba("buffer", veryVeryVeryVerbose);
+                const Datum::SizeType SIZE = DATA[i];
+                const bsl::string     BUFFER(SIZE, 'x', &ba);
+                const StringRef       STRING(BUFFER.data(),
+                                             static_cast<int>(SIZE));
 
                 if (veryVerbose) { T_ T_ P(SIZE) }
                 {
