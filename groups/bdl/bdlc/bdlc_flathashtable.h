@@ -365,23 +365,24 @@ class FlatHashTable
 
   public:
     // PUBLIC CLASS DATA
-    static const bsl::size_t k_MIN_CAPACITY = 2 * GroupControl::k_SIZE;
-                                                     // min. non-zero capacity
+    static const bsl::size_t  k_MIN_CAPACITY = 2 * GroupControl::k_SIZE;
+                                                      // min. non-zero capacity
 
-    static const bsl::int8_t k_HASHLET_MASK = 0x7f;  // hashlet = hash & MASK
+    static const bsl::int8_t  k_HASHLET_MASK = 0x7f;  // hashlet = hash & MASK
 
-    static const bsl::int8_t k_AVAIL_MASK   = 0x80;  // entry is not in use if
-                                                     // this bit is set
+    static const bsl::uint8_t k_AVAIL_MASK = 0x80;    // entry is not in use if
+                                                      // this bit is set
 
-    static const bsl::size_t k_MAX_LOAD_FACTOR_NUMERATOR = 7;
-                                                     // numerator of fraction
-                                                     // that specified the
-                                                     // maximum load factor
+    static const bsl::size_t  k_MAX_LOAD_FACTOR_NUMERATOR = 7;
+                                                      // numerator of fraction
+                                                      // that specifies the
+                                                      // maximum load factor
 
-    static const bsl::size_t k_MAX_LOAD_FACTOR_DENOMINATOR = 8;
-                                                     // denominator of fraction
-                                                     // that specified the
-                                                     // maximum load factor
+    static const bsl::size_t  k_MAX_LOAD_FACTOR_DENOMINATOR = 8;
+                                                      // denominator of
+                                                      // fraction that
+                                                      // specifies the maximum
+                                                      // load factor
 
     // CREATORS
     FlatHashTable(bsl::size_t       capacity,

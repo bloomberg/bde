@@ -138,7 +138,8 @@ bsl::uint32_t FlatHashTable_GroupControl::matchRaw(bsl::uint8_t value) const
     t = t | (t << 2);
     t = t | (t << 1);
 
-    return (((~t) & k_MSB_MASK) * k_DEFLATE) >> k_DEFLATE_SHIFT;
+    return static_cast<bsl::uint32_t>(
+                         (((~t) & k_MSB_MASK) * k_DEFLATE) >> k_DEFLATE_SHIFT);
 #endif
 }
 
@@ -163,7 +164,8 @@ bsl::uint32_t FlatHashTable_GroupControl::available() const
 #if defined(BSLS_PLATFORM_CPU_SSE2)
     return _mm_movemask_epi8(d_value);
 #else
-    return ((d_value & k_MSB_MASK) * k_DEFLATE) >> k_DEFLATE_SHIFT;
+    return static_cast<bsl::uint32_t>(
+                      ((d_value & k_MSB_MASK) * k_DEFLATE) >> k_DEFLATE_SHIFT);
 #endif
 }
 
