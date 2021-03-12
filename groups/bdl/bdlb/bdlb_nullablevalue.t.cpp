@@ -5337,6 +5337,731 @@ void TestDriver<TEST_TYPE>::testCase25()
 }
 
 // ============================================================================
+//                          BEGIN TEST CASE RUNNERS
+// ----------------------------------------------------------------------------
+// Some test cases have been moved into separate functions to stop AIX xlC from
+// trying to optimize them and run out of memory.
+
+void runTestCase14()
+{
+    RUN_EACH_TYPE(TestDriver, testCase14, TEST_TYPES);
+}
+
+void runTestCase15()
+{
+    RUN_EACH_TYPE(TestDriver, testCase15, TEST_TYPES);
+}
+
+void runTestCase16()
+{
+    RUN_EACH_TYPE(TestDriver, testCase16, TEST_TYPES);
+}
+
+void runTestCase18()
+{
+    //-------------------------------------------------------------------------
+    // TEST CASE DOCUMENTATION IS REPEATED HERE SO IT IS WITH THE CODE.  It is
+    // indented wrong so it does not have to be reformatted here if it needs a
+    // change.  Make sure that anything you change here is also changed in
+    // 'main' and vice versa.
+    //---+
+        // --------------------------------------------------------------------
+        // TESTING 'makeValueInplace'
+        //   The interface of this method features variadic templates and
+        //   rvalue references, both features of C++11; however, the method
+        //   must be provided in the absence of either or both of those
+        //   features.  Overloads provided by the 'sim_cpp11_features.pl'
+        //   simulate those features when not available (as determined by the
+        //   build mode).
+        //
+        //: o Variadic Templates can be simulated by a suite of method
+        //:   overloads, each having an additional parameter (up to some
+        //:   practical limit).
+        //:
+        //: o Rvalue References can be replaced (though less efficiently) by
+        //:   'const' references.
+        //
+        //   This test driver must pass in each of the build modes.  Caveat:
+        //   Some types, (e.g., 'bslma::ManagedPtr') are not functionally
+        //   useful when accessed via 'const' references.  Such types are
+        //   avoided in out test cases.
+        //
+        // Concerns:
+        //: 1 The returned reference provides modifiable access to a
+        //:   'TEST_TYPE' object having the same value as a 'TEST_TYPE' object
+        //:   constructed with the specified (variadic) arguments.
+        //:
+        //: 2 The value returned by this method matches that returned by the
+        //:   'value' method.
+        //:
+        //: 3 The object state is not null after the return of this method.
+        //:
+        //: 4 The prior value of the object (if any) is destroyed once.
+        //:
+        //: 5 Allocator concerns:
+        //:   1 The value is created using the allocator specified at the
+        //:     creation of this object, and uses no other allocator.
+        //:   2 Non-allocator-enabled types "work".
+        //:
+        //: 6 All of the variadic arguments contribute to the creation of the
+        //:   value.  In particular:
+        //:
+        //:   1 The 'TEST_TYPE' value can be default constructed (i.e., no
+        //:     arguments).
+        //:
+        //:   2 If 'TEST_TYPE' takes an allocator argument, then specifying an
+        //:     allocator is prevented by compilation error.
+        //:
+        //:   3 If 'TEST_TYPE' takes non-terminal allocator argument, that
+        //:     value is accepted.
+        //:
+        //:   4 The variadic template parameters can be of different types.
+        //:
+        //: 7 Exception guarantee: Exceptions during construction of the
+        //:   object, both allocator-enabled types and non-allocator-enabled
+        //:   types, leave the nullable object in a null state.
+        //:
+        //: 8 Nullable nullable objects can be constructed.
+        //
+        // Plan:
+        //: 1 The many of concerns of this test case require check that the
+        //:   class under test, 'bdlb::NullableValue', correctly forward
+        //:   parameters to the intended parameter of the contained
+        //:   'TEST_TYPE'.
+        //:
+        //:   o Accordingly we design and test two test helper classes (one
+        //:     taking an allocator, another that does not) whose instances can
+        //:     report their most recently called constructor and the values of
+        //:     the arguments received.
+        //:
+        //:   o Additionally, for the scenarios in which the currently
+        //:     contained object must be destroyed, our test classes report the
+        //:     number of times its destructor is called, so we can check for
+        //:     multiple destructions of an object.
+        //:
+        //: 2 Using the 'TEST_TYPES' macro, which defines the set of types in
+        //:   the other cases of this test driver, for each type we run either
+        //:   the 'testCase18_withoutAllocator' or the
+        //:   'testCase18_withAllocator' (as appropriate) of the 'TestDriver'
+        //:   class.  See the function-level documentation of those functions
+        //:   for details.
+        //:
+        //: 3 Ad-hoc Test: We run 'TestCase19_withoutAllocator' for the type
+        //:   'bslma::Allocator *' to show that acceptable when the user
+        //:   is not attempting to avoid using the allocator specified on
+        //:   construction of the nullable object.
+        //:
+        //: 4 Ad-hoc Test: All of the tests have used different numbers of
+        //:   parameters of a single type.  We confirm that the nullable object
+        //:   works as expected for a type with heterogeneous constructor
+        //:   parameters.  'bsl::vector<double>' is used.
+        //:
+        //: 5 Ad-hoc Test: In P-2, exception guarantees were tested for the
+        //:   allocating types; however, thought it is not BDE practice,
+        //:   arbitrary non-allocating types can also throw exceptions.  Thus,
+        //:   we define and test a helper class, 'TmvipSa_WithThrowingCtor',
+        //:   and use it to show that 'bdlb::NullableValue' objects are left in
+        //:   a null state when they execute the code path for a non-allocating
+        //:   'TEST_TYPE'.
+        //
+        // Testing:
+        //   TEST_TYPE& makeValueInplace(ARGS&&... args);
+        // --------------------------------------------------------------------
+
+    if (verbose) cout << "\nTest Helper Class: 'TmipSa'"
+                         "\n===========================" << endl;
+
+    if (veryVerbose)
+        cout << "\nTest Helper Class: 'TmipSa': class methods"
+                "\n==========================================" << endl;
+
+    ASSERT(-1 == TmvipSa<int>::ctorCalled());
+    TmvipSa<int>::resetCtorCalled();
+    ASSERT(-1 == TmvipSa<int>::ctorCalled());
+    {
+        TmvipSa<int> helperObj;
+    }
+    ASSERT( 0 == TmvipSa<int>::ctorCalled());
+    TmvipSa<int>::resetCtorCalled();
+    ASSERT(-1 == TmvipSa<int>::ctorCalled());
+
+    ASSERT( 1 == TmvipSa<int>::dtorCount()); // above "ctor" statics usage
+    TmvipSa<int>::resetDtorCount();
+    ASSERT( 0 == TmvipSa<int>::dtorCount());
+    {
+        TmvipSa<int> helperObj;
+    }
+    ASSERT( 1 == TmvipSa<int>::dtorCount());
+    TmvipSa<int>::resetDtorCount();
+    ASSERT( 0 == TmvipSa<int>::dtorCount());
+
+    if (veryVerbose)
+        cout << "\nTest Helper Class: 'TmvipSa': default & value constructors"
+                "\n=========================================================="
+             << endl;
+
+    TmvipSa<int>::resetDtorCount();ASSERT(0 == TmvipSa<int>::dtorCount());
+
+    {
+        TmvipSa<int> testObj0;
+                                       ASSERT(0 == TmvipSa<int>::ctorCalled());
+
+                                       ASSERT(0 == testObj0.a1());
+                                       ASSERT(0 == testObj0.a2());
+                                       ASSERT(0 == testObj0.a3());
+                                       ASSERT(0 == testObj0.a4());
+                                       ASSERT(0 == testObj0.a5());
+    }
+                                       ASSERT(1 == TmvipSa<int>::dtorCount());
+    {
+        TmvipSa<int> testObj1(1);
+                                       ASSERT(1 == TmvipSa<int>::ctorCalled());
+                                       ASSERT(1 == testObj1.a1());
+                                       ASSERT(0 == testObj1.a2());
+                                       ASSERT(0 == testObj1.a3());
+                                       ASSERT(0 == testObj1.a4());
+                                       ASSERT(0 == testObj1.a5());
+    }
+                                       ASSERT(2 == TmvipSa<int>::dtorCount());
+
+    {
+        TmvipSa<int> testObj2(1, 2);
+                                       ASSERT(2 == TmvipSa<int>::ctorCalled());
+                                       ASSERT(1 == testObj2.a1());
+                                       ASSERT(2 == testObj2.a2());
+                                       ASSERT(0 == testObj2.a3());
+                                       ASSERT(0 == testObj2.a4());
+                                       ASSERT(0 == testObj2.a5());
+    }
+                                       ASSERT(3 == TmvipSa<int>::dtorCount());
+
+    {
+        TmvipSa<int> testObj3(1, 2, 3);
+                                       ASSERT(3 == TmvipSa<int>::ctorCalled());
+                                       ASSERT(1 == testObj3.a1());
+                                       ASSERT(2 == testObj3.a2());
+                                       ASSERT(3 == testObj3.a3());
+                                       ASSERT(0 == testObj3.a4());
+                                       ASSERT(0 == testObj3.a5());
+    }
+                                       ASSERT(4 == TmvipSa<int>::dtorCount());
+
+    {
+        TmvipSa<int> testObj4(1, 2, 3, 4);
+                                       ASSERT(4 == TmvipSa<int>::ctorCalled());
+                                       ASSERT(1 == testObj4.a1());
+                                       ASSERT(2 == testObj4.a2());
+                                       ASSERT(3 == testObj4.a3());
+                                       ASSERT(4 == testObj4.a4());
+                                       ASSERT(0 == testObj4.a5());
+    }
+                                       ASSERT(5 == TmvipSa<int>::dtorCount());
+
+    {
+        TmvipSa<int> testObj5(1, 2, 3, 4, 5);
+                                       ASSERT(5 == TmvipSa<int>::ctorCalled());
+                                       ASSERT(1 == testObj5.a1());
+                                       ASSERT(2 == testObj5.a2());
+                                       ASSERT(3 == testObj5.a3());
+                                       ASSERT(4 == testObj5.a4());
+                                       ASSERT(5 == testObj5.a5());
+    }
+                                       ASSERT(6 == TmvipSa<int>::dtorCount());
+
+    if (veryVerbose)
+        cout << "\nTest Helper Class: 'TmvipSa': copy constructor"
+                "\n==============================================" << endl;
+
+    {
+        TmvipSa<int> objX(1, 2, 3, 4, 5);  const TmvipSa<int>& X = objX;
+        TmvipSa<int> objY(X);              const TmvipSa<int>& Y = objY;
+        ASSERT(Y.a1() == X.a1());
+        ASSERT(Y.a2() == X.a2());
+        ASSERT(Y.a3() == X.a3());
+        ASSERT(Y.a4() == X.a4());
+        ASSERT(Y.a5() == X.a5());
+    }
+
+    if (veryVerbose) cout << "\nTest Helper Class: 'TmvipSa': traits"
+                             "\n====================================" << endl;
+
+    BSLMF_ASSERT(!bslma::UsesBslmaAllocator<int>::value);
+
+    if (verbose) cout << "\nTest Helper Class: 'TmvipAa'"
+                         "\n============================" << endl;
+
+    if (veryVerbose)
+        cout << "\nTest Helper Class: 'TmvipAa': class methods"
+                "\n===========================================" << endl;
+
+    bslma::TestAllocator        ta;
+    bslma::TestAllocatorMonitor tam(&ta);
+
+    typedef bsl::string Str;
+
+    TmvipAa<Str>::resetCtorCalled();
+    ASSERT(0 >  TmvipAa<Str>::ctorCalled());
+    {
+        TmvipAa<Str> obj(&ta);
+    }
+    ASSERT(0 == TmvipAa<Str>::ctorCalled());
+    TmvipAa<Str>::resetCtorCalled();
+    ASSERT(0 >  TmvipAa<Str>::ctorCalled());
+
+    TmvipAa<Str>::resetDtorCount();
+    ASSERT(0 == TmvipAa<Str>::dtorCount());
+    {
+        TmvipAa<Str> obj(&ta);
+    }
+    ASSERT(1 == TmvipAa<Str>::dtorCount());
+    TmvipAa<Str>::resetDtorCount();
+    ASSERT(0 == TmvipAa<Str>::dtorCount());
+
+    if (veryVerbose)
+        cout << "\nTest Helper Class: 'TmvipAa': value constructors"
+                "\n================================================" << endl;
+
+    TmvipAa<Str>::resetDtorCount(); ASSERT(0 == TmvipAa<Str>::dtorCount());
+
+    {
+        TmvipAa<Str> testObj0(&ta);
+                                       ASSERT(0 == TmvipAa<Str>::ctorCalled());
+
+                                       ASSERT("" == testObj0.a1());
+                                       ASSERT("" == testObj0.a2());
+                                       ASSERT("" == testObj0.a3());
+                                       ASSERT("" == testObj0.a4());
+                                       ASSERT("" == testObj0.a5());
+
+                                       ASSERT(&ta == testObj0.allocator());
+    }
+                                       ASSERT(tam.isTotalUp());
+                                       ASSERT(tam.isInUseSame());
+                                       ASSERT(1 == TmvipAa<Str>::dtorCount());
+
+    {
+        TmvipAa<Str> testObj1("1", &ta);
+                                       ASSERT(1 == TmvipAa<Str>::ctorCalled());
+                                       ASSERT("1" == testObj1.a1());
+                                       ASSERT(""  == testObj1.a2());
+                                       ASSERT(""  == testObj1.a3());
+                                       ASSERT(""  == testObj1.a4());
+                                       ASSERT(""  == testObj1.a5());
+
+                                       ASSERT(&ta  == testObj1.allocator());
+    }
+                                       ASSERT(tam.isTotalUp());
+                                       ASSERT(tam.isInUseSame());
+                                       ASSERT(2 == TmvipAa<Str>::dtorCount());
+
+    {
+        TmvipAa<Str> testObj2("1", "2", &ta);
+                                       ASSERT(2 == TmvipAa<Str>::ctorCalled());
+
+                                       ASSERT("1"  == testObj2.a1());
+                                       ASSERT("2"  == testObj2.a2());
+                                       ASSERT(""   == testObj2.a3());
+                                       ASSERT(""   == testObj2.a4());
+                                       ASSERT(""   == testObj2.a5());
+
+                                       ASSERT(&ta  == testObj2.allocator());
+    }
+                                       ASSERT(tam.isTotalUp());
+                                       ASSERT(tam.isInUseSame());
+                                       ASSERT(3 == TmvipAa<Str>::dtorCount());
+
+    {
+        TmvipAa<Str> testObj3("1", "2", "3", &ta);
+                                       ASSERT(3 == TmvipAa<Str>::ctorCalled());
+
+                                       ASSERT("1"  == testObj3.a1());
+                                       ASSERT("2"  == testObj3.a2());
+                                       ASSERT("3"  == testObj3.a3());
+                                       ASSERT(""   == testObj3.a4());
+                                       ASSERT(""   == testObj3.a5());
+
+                                       ASSERT(&ta  == testObj3.allocator());
+    }
+                                       ASSERT(tam.isTotalUp());
+                                       ASSERT(tam.isInUseSame());
+                                       ASSERT(4 == TmvipAa<Str>::dtorCount());
+
+    {
+        TmvipAa<Str> testObj4("1", "2", "3", "4", &ta);
+                                       ASSERT(4 == TmvipAa<Str>::ctorCalled());
+
+                                       ASSERT("1"  == testObj4.a1());
+                                       ASSERT("2"  == testObj4.a2());
+                                       ASSERT("3"  == testObj4.a3());
+                                       ASSERT("4"  == testObj4.a4());
+                                       ASSERT(""   == testObj4.a5());
+
+                                       ASSERT(&ta  == testObj4.allocator());
+    }
+                                       ASSERT(tam.isTotalUp());
+                                       ASSERT(tam.isInUseSame());
+                                       ASSERT(5 == TmvipAa<Str>::dtorCount());
+
+    {
+        TmvipAa<Str> testObj5("1", "2", "3", "4", "5", &ta);
+                                       ASSERT(5 == TmvipAa<Str>::ctorCalled());
+
+                                       ASSERT("1"  == testObj5.a1());
+                                       ASSERT("2"  == testObj5.a2());
+                                       ASSERT("3"  == testObj5.a3());
+                                       ASSERT("4"  == testObj5.a4());
+                                       ASSERT("5"  == testObj5.a5());
+
+                                       ASSERT(&ta  == testObj5.allocator());
+    }
+                                       ASSERT(tam.isTotalUp());
+                                       ASSERT(tam.isInUseSame());
+                                       ASSERT(6 == TmvipAa<Str>::dtorCount());
+
+    if (veryVerbose)
+        cout << "\nTest Helper Class: 'TmvipAa': traits"
+                "\n====================================" << endl;
+
+    BSLMF_ASSERT(bslma::UsesBslmaAllocator<TmvipAa<Str> >::value);
+
+    if (veryVerbose)
+        cout << "\nTest Helper Class: 'TmvipAa': copy constructor"
+                "\n==============================================" << endl;
+
+    {
+        bslma::TestAllocator taX;
+        bslma::TestAllocator taY;
+
+        TmvipAa<Str> objX("1", "2", &taX);  const TmvipAa<Str>& X = objX;
+        TmvipAa<Str> objY(X,        &taY);  const TmvipAa<Str>& Y = objY;
+
+        ASSERT(Y.a1() == X.a1());
+        ASSERT(Y.a2() == X.a2());
+        ASSERT(Y.a3() == X.a3());
+        ASSERT(Y.a4() == X.a4());
+        ASSERT(Y.a5() == X.a5());
+        ASSERT(&taX   == X.allocator());
+        ASSERT(&taY   == Y.allocator());
+    }
+
+    if (veryVerbose)
+        cout << "\nTest Helper Class: 'TmvipAa': Use in standard container"
+                "\n======================================================="
+             << endl;
+
+    {
+        bslma::TestAllocator va;
+        bslma::TestAllocator oa;
+
+        bsl::vector<TmvipAa<Str> > v(&va);
+        ASSERT(&va == v.get_allocator());
+
+        const TmvipAa<Str> obj("1", "2", &oa);
+        ASSERT(&oa == obj.allocator());
+
+        v.push_back(obj);
+        ASSERT(obj.a1() == v.front().a1());
+        ASSERT(obj.a2() == v.front().a2());
+        ASSERT(obj.a3() == v.front().a3());
+        ASSERT(obj.a4() == v.front().a4());
+        ASSERT(obj.a5() == v.front().a5());
+        ASSERT(&va      == v.front().allocator());
+    }
+
+    if (verbose) cout << "\nRun Each Test Type"
+                         "\n==================" << endl;
+
+    RUN_EACH_TYPE(TestDriver,
+                  testCase18_withoutAllocator,
+                  TEST_TYPES_NOT_ALLOCATOR_ENABLED);
+
+    RUN_EACH_TYPE(TestDriver,
+                  testCase18_withAllocator,
+                  TEST_TYPES_ALLOCATOR_ENABLED);
+
+    TestDriver<bslma::Allocator *>::testCase18_withoutAllocator();
+
+    if (verbose) cout << "\nTest With Heterogeneous Parameters"
+                         "\n==================================" << endl;
+    {
+        typedef bdlb::NullableValue<bsl::vector<double> > Obj;
+        Obj mX;  const Obj& X = mX;
+
+        const bsl::vector<double> value(5, 1.0);
+
+        bsl::vector<double>& retValue = mX.makeValueInplace(5, 1.0);
+
+        ASSERT(value    == X.value());
+        ASSERT(retValue == X.value());
+
+        const bsl::vector<double> otherValue(50, 10.0);
+        retValue = otherValue;
+        ASSERT(otherValue == X.value());
+    }
+
+    if (verbose) cout << "\nTest Nullable Nullable Objects"
+                         "\n==============================" << endl;
+    {
+        typedef bdlb::NullableValue<int> Obj1;
+        Obj1 obj1(1);
+        ASSERT(1 == obj1.value());
+
+        obj1.value() = 2;
+        obj1.makeValueInplace(5);
+        ASSERTV(obj1.value(), 5 == obj1.value());
+
+        typedef bdlb::NullableValue<Obj1> Obj2;
+
+        Obj2 obj2;
+        ASSERT(obj2.isNull());
+
+        Obj1 valueObj;
+        ASSERT(valueObj.isNull());
+
+        obj2.makeValueInplace(valueObj);
+        ASSERT(!obj2.isNull());
+        ASSERT( obj2.value().isNull());
+        ASSERT(valueObj == obj2.value());
+    }
+
+#ifdef BDE_BUILD_TARGET_EXC
+    if (verbose)
+        cout << "\nTest Helper Class: 'TmvipSa_WithThrowingCtor'"
+                "\n=============================================" << endl;
+    {
+        if (veryVerbose)
+            cout << "\nTest Helper Class: 'TmvipSa_WithThrowingCtor': "
+                                                 "default & value constructors"
+                    "\n==============================================="
+                                                 "============================"
+                 << endl;
+
+        typedef TmvipSa_WithThrowingCtor<int> ThrowingHelper;
+
+        ThrowingHelper::resetDtorCount();
+        ASSERT(0 == ThrowingHelper::dtorCount());
+
+        for (int numParams = 0; numParams <= MAX_NUM_PARAMS; ++numParams) {
+            try {
+                switch (numParams) {
+                    case  0: { ThrowingHelper helper; }                break;
+                    case  1: { ThrowingHelper helper(1); }             break;
+                    case  2: { ThrowingHelper helper(2, 2); }          break;
+                    case  3: { ThrowingHelper helper(3, 3, 3); }       break;
+                    case  4: { ThrowingHelper helper(4, 4, 4, 4); }    break;
+                    case  5: { ThrowingHelper helper(5, 5, 5, 5, 5); } break;
+                    default: { ASSERT(!"Unexpected argument count"); } break;
+                }
+
+                ASSERTV(numParams, !"expected exception missing");
+
+            } catch (const bsl::exception&) {
+                if (veryVeryVerbose) {
+                    P_(numParams) Q(Caught expected exception)
+                }
+            } catch (...) {
+                ASSERTV(numParams, !"unexpected exception type");
+            }
+
+            ASSERTV(numParams, numParams == ThrowingHelper::ctorCalled());
+            ASSERTV(numParams, 0         == ThrowingHelper::dtorCount());
+        }
+
+        if (veryVerbose)
+            cout << "\nTest Helper Class: 'TmvipSa_WithThrowingCtor': traits"
+                    "\n====================================================="
+                 << endl;
+
+        BSLMF_ASSERT(!bslma::UsesBslmaAllocator<ThrowingHelper>::value);
+    }
+
+    if (verbose)
+        cout << "\nTest Using Class: 'TmvipSa_WithThrowingCtor'"
+                "\n============================================" << endl;
+
+    {
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::TestAllocatorMonitor  dam(&da);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        typedef TmvipSa_WithThrowingCtor<int>       ThrowingHelper;
+        typedef bdlb::NullableValue<ThrowingHelper> Obj;
+
+        Obj mA;
+        Obj mB(ThrowingHelper(1, 2, 3, 4, 5, 0xCAFEFACE));
+
+        const Obj& A = mA;
+        const Obj& B = mB;
+
+        static const struct {
+            int  d_line;
+            Obj  d_obj;
+            bool d_isInitiallyNull;
+        } DATA[] = {
+            //LINE  OBJ  IS_INITIALLY_NULL
+            //----  ---  -----------------
+            { L_,   A,   true             },
+            { L_,   B,   false            }
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int  LINE              = DATA[ti].d_line;
+            const Obj  OBJ               = DATA[ti].d_obj;
+            const bool IS_INITIALLY_NULL = DATA[ti].d_isInitiallyNull;
+
+            if (veryVeryVerbose) {
+                T_ P(IS_INITIALLY_NULL)
+                if (!IS_INITIALLY_NULL) {
+                    T_ P(OBJ.value().a1())
+                    T_ P(OBJ.value().a2())
+                    T_ P(OBJ.value().a3())
+                    T_ P(OBJ.value().a4())
+                    T_ P(OBJ.value().a5())
+                }
+            }
+
+            ASSERTV(LINE, IS_INITIALLY_NULL == OBJ.isNull());
+
+            const int EXPECTED_DTOR_COUNT = static_cast<int>(
+                                                           !IS_INITIALLY_NULL);
+
+            for (int numParams  = 0;
+                     numParams <= MAX_NUM_PARAMS;
+                   ++numParams) {
+
+                if (veryVeryVerbose) { T_ T_ P_(numParams) }
+
+                Obj obj(OBJ);
+
+                ASSERTV(numParams, IS_INITIALLY_NULL == obj.isNull());
+                ThrowingHelper::resetDtorCount();
+
+                try {
+                    switch (numParams) {
+                        case 0: obj.makeValueInplace();              break;
+                        case 1: obj.makeValueInplace(1);             break;
+                        case 2: obj.makeValueInplace(1, 2);          break;
+                        case 3: obj.makeValueInplace(1, 2, 3);       break;
+                        case 4: obj.makeValueInplace(1, 2, 3, 4);    break;
+                        case 5: obj.makeValueInplace(1, 2, 3, 4, 5); break;
+                        default:
+                        ASSERT(!"Too many parameters.");
+                    }
+
+                    ASSERTV(numParams, !"Expected exception missing");
+
+                } catch (const bsl::exception&) {
+                    if (veryVeryVerbose) {
+                        P_(numParams) Q(Caught expected exception)
+                    }
+                } catch (...) {
+                    ASSERTV(numParams, !"Unexpected exception type");
+                }
+
+                ASSERTV(numParams, true      == obj.isNull());
+                ASSERTV(numParams, numParams == ThrowingHelper::ctorCalled());
+                ASSERTV(numParams,
+                        EXPECTED_DTOR_COUNT  == ThrowingHelper::dtorCount());
+            }
+        }
+
+        ASSERT(dam.isTotalSame());
+    }
+#else  // BDE_BUILD_TARGET_EXC
+    if (verbose) {
+        cout << "\nNon-Exception Build: Skip 'TmvipSa_WithThrowingCtor'"
+                "\n===================================================="
+                << endl;
+    }
+#endif // BDE_BUILD_TARGET_EXC
+}
+
+void runTestCase19()
+{
+    RUN_EACH_TYPE(TestDriver,
+                  testCase19,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+}
+
+void runTestCase20()
+{
+    if (verbose) cout << "\nRun Each Test Type"
+                         "\n==================" << endl;
+
+    RUN_EACH_TYPE(TestDriver,
+                  testCase20_withoutAllocator,
+                  TEST_TYPES_NOT_ALLOCATOR_ENABLED);
+
+    RUN_EACH_TYPE(TestDriver,
+                  testCase20_withAllocator,
+                  TEST_TYPES_ALLOCATOR_ENABLED);
+
+    RUN_EACH_TYPE(TestDriver,
+                  testCase20_withAllocator,
+                  bsltf::MoveOnlyAllocTestType);
+}
+
+void runTestCase21()
+{
+    if (verbose) cout << "\nRun Each Test Type"
+                         "\n==================" << endl;
+
+    RUN_EACH_TYPE(TestDriver,
+                  testCase21_withoutAllocator,
+                  TEST_TYPES_NOT_ALLOCATOR_ENABLED);
+
+    RUN_EACH_TYPE(TestDriver,
+                  testCase21_withAllocator,
+                  TEST_TYPES_ALLOCATOR_ENABLED);
+
+    RUN_EACH_TYPE(TestDriver,
+                  testCase21_withAllocator,
+                  bsltf::MoveOnlyAllocTestType);
+}
+
+void runTestCase22()
+{
+    if (verbose) cout << "\nRun Each Test Type"
+                         "\n==================" << endl;
+
+    RUN_EACH_TYPE(TestDriver,
+                  testCase22_withoutAllocator,
+                  TEST_TYPES_NOT_ALLOCATOR_ENABLED);
+
+    RUN_EACH_TYPE(TestDriver,
+                  testCase22_withAllocator,
+                  TEST_TYPES_ALLOCATOR_ENABLED);
+
+    RUN_EACH_TYPE(TestDriver,
+                  testCase22_withAllocator,
+                  bsltf::MoveOnlyAllocTestType);
+}
+
+void runTestCase23()
+{
+    if (verbose) cout << "\nRun Each Test Type"
+                         "\n==================" << endl;
+
+    RUN_EACH_TYPE(TestDriver,
+                  testCase23_withoutAllocator,
+                  TEST_TYPES_NOT_ALLOCATOR_ENABLED);
+
+    RUN_EACH_TYPE(TestDriver,
+                  testCase23_withAllocator,
+                  TEST_TYPES_ALLOCATOR_ENABLED);
+
+    RUN_EACH_TYPE(TestDriver,
+                  testCase23_withAllocator,
+                  bsltf::MoveOnlyAllocTestType);
+}
+
+void runTestCase25()
+{
+    RUN_EACH_TYPE(TestDriver, testCase25, TEST_TYPES);
+}
+
+// ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -5685,8 +6410,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTESTING 'addressOr'"
                              "\n===================\n";
-
-        RUN_EACH_TYPE(TestDriver, testCase25, TEST_TYPES);
+        runTestCase25();
       } break;
       case 24: {
         // --------------------------------------------------------------------
@@ -5782,21 +6506,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTESTING VALUE MOVE-ASSIGNMENT OPERATOR"
                              "\n======================================\n";
-
-        if (verbose) cout << "\nRun Each Test Type"
-                             "\n==================" << endl;
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase23_withoutAllocator,
-                      TEST_TYPES_NOT_ALLOCATOR_ENABLED);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase23_withAllocator,
-                      TEST_TYPES_ALLOCATOR_ENABLED);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase23_withAllocator,
-                      bsltf::MoveOnlyAllocTestType);
+        runTestCase23();
       } break;
       case 22: {
         // --------------------------------------------------------------------
@@ -5805,21 +6515,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTESTING VALUE MOVE CONSTRUCTOR"
                              "\n==============================\n";
-
-        if (verbose) cout << "\nRun Each Test Type"
-                             "\n==================" << endl;
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase22_withoutAllocator,
-                      TEST_TYPES_NOT_ALLOCATOR_ENABLED);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase22_withAllocator,
-                      TEST_TYPES_ALLOCATOR_ENABLED);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase22_withAllocator,
-                      bsltf::MoveOnlyAllocTestType);
+        runTestCase22();
       } break;
       case 21: {
         // --------------------------------------------------------------------
@@ -5828,21 +6524,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTESTING MOVE-ASSIGNMENT OPERATOR"
                              "\n================================\n";
-
-        if (verbose) cout << "\nRun Each Test Type"
-                             "\n==================" << endl;
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase21_withoutAllocator,
-                      TEST_TYPES_NOT_ALLOCATOR_ENABLED);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase21_withAllocator,
-                      TEST_TYPES_ALLOCATOR_ENABLED);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase21_withAllocator,
-                      bsltf::MoveOnlyAllocTestType);
+        runTestCase21();
       } break;
       case 20: {
         // --------------------------------------------------------------------
@@ -5851,21 +6533,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTESTING MOVE CONSTRUCTOR"
                              "\n========================\n";
-
-        if (verbose) cout << "\nRun Each Test Type"
-                             "\n==================" << endl;
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase20_withoutAllocator,
-                      TEST_TYPES_NOT_ALLOCATOR_ENABLED);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase20_withAllocator,
-                      TEST_TYPES_ALLOCATOR_ENABLED);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase20_withAllocator,
-                      bsltf::MoveOnlyAllocTestType);
+        runTestCase20();
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -5874,20 +6542,22 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTESTING HASHING"
                                "\n===============\n";
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase19,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+        runTestCase19();
       } break;
       case 18: {
+        //---------------------------------------------------------------------
+        // TEST CASE DOCUMENTATION IS REPEATED IN THE 'runTestCase18()'
+        // function so it is also near the actual test code.  Make sure that
+        // anything you change here, you also changed in 'runTestCase18()' and
+        // vice versa.
         // --------------------------------------------------------------------
         // TESTING 'makeValueInplace'
         //   The interface of this method features variadic templates and
         //   rvalue references, both features of C++11; however, the method
         //   must be provided in the absence of either or both of those
         //   features.  Overloads provided by the 'sim_cpp11_features.pl'
-        //   simulate those features when when not available (as determined by
-        //   the build mode).
+        //   simulate those features when not available (as determined by the
+        //   build mode).
         //
         //: o Variadic Templates can be simulated by a suite of method
         //:   overloads, each having an additional parameter (up to some
@@ -5985,520 +6655,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTESTING 'makeValueInplace'"
                              "\n==========================\n";
-
-        if (verbose) cout << "\nTest Helper Class: 'TmipSa'"
-                             "\n===========================" << endl;
-
-        if (veryVerbose) cout
-                     << "\nTest Helper Class: 'TmipSa': class methods"
-                        "\n==========================================" << endl;
-
-        ASSERT(-1 == TmvipSa<int>::ctorCalled());
-        TmvipSa<int>::resetCtorCalled();
-        ASSERT(-1 == TmvipSa<int>::ctorCalled());
-        {
-            TmvipSa<int> helperObj;
-        }
-        ASSERT( 0 == TmvipSa<int>::ctorCalled());
-        TmvipSa<int>::resetCtorCalled();
-        ASSERT(-1 == TmvipSa<int>::ctorCalled());
-
-        ASSERT( 1 == TmvipSa<int>::dtorCount()); // above "ctor" statics usage
-        TmvipSa<int>::resetDtorCount();
-        ASSERT( 0 == TmvipSa<int>::dtorCount());
-        {
-            TmvipSa<int> helperObj;
-        }
-        ASSERT( 1 == TmvipSa<int>::dtorCount());
-        TmvipSa<int>::resetDtorCount();
-        ASSERT( 0 == TmvipSa<int>::dtorCount());
-
-        if (veryVerbose) cout
-             << "\nTest Helper Class: 'TmvipSa': default & value constructors"
-                "\n=========================================================="
-             << endl;
-
-        TmvipSa<int>::resetDtorCount();ASSERT(0 == TmvipSa<int>::dtorCount());
-
-        {
-            TmvipSa<int> testObj0;
-                                       ASSERT(0 == TmvipSa<int>::ctorCalled());
-
-                                       ASSERT(0 == testObj0.a1());
-                                       ASSERT(0 == testObj0.a2());
-                                       ASSERT(0 == testObj0.a3());
-                                       ASSERT(0 == testObj0.a4());
-                                       ASSERT(0 == testObj0.a5());
-        }
-                                       ASSERT(1 == TmvipSa<int>::dtorCount());
-        {
-            TmvipSa<int> testObj1(1);
-                                       ASSERT(1 == TmvipSa<int>::ctorCalled());
-                                       ASSERT(1 == testObj1.a1());
-                                       ASSERT(0 == testObj1.a2());
-                                       ASSERT(0 == testObj1.a3());
-                                       ASSERT(0 == testObj1.a4());
-                                       ASSERT(0 == testObj1.a5());
-        }
-                                       ASSERT(2 == TmvipSa<int>::dtorCount());
-
-        {
-            TmvipSa<int> testObj2(1, 2);
-                                       ASSERT(2 == TmvipSa<int>::ctorCalled());
-                                       ASSERT(1 == testObj2.a1());
-                                       ASSERT(2 == testObj2.a2());
-                                       ASSERT(0 == testObj2.a3());
-                                       ASSERT(0 == testObj2.a4());
-                                       ASSERT(0 == testObj2.a5());
-        }
-                                       ASSERT(3 == TmvipSa<int>::dtorCount());
-
-        {
-            TmvipSa<int> testObj3(1, 2, 3);
-                                       ASSERT(3 == TmvipSa<int>::ctorCalled());
-                                       ASSERT(1 == testObj3.a1());
-                                       ASSERT(2 == testObj3.a2());
-                                       ASSERT(3 == testObj3.a3());
-                                       ASSERT(0 == testObj3.a4());
-                                       ASSERT(0 == testObj3.a5());
-        }
-                                       ASSERT(4 == TmvipSa<int>::dtorCount());
-
-        {
-            TmvipSa<int> testObj4(1, 2, 3, 4);
-                                       ASSERT(4 == TmvipSa<int>::ctorCalled());
-                                       ASSERT(1 == testObj4.a1());
-                                       ASSERT(2 == testObj4.a2());
-                                       ASSERT(3 == testObj4.a3());
-                                       ASSERT(4 == testObj4.a4());
-                                       ASSERT(0 == testObj4.a5());
-        }
-                                       ASSERT(5 == TmvipSa<int>::dtorCount());
-
-        {
-            TmvipSa<int> testObj5(1, 2, 3, 4, 5);
-                                       ASSERT(5 == TmvipSa<int>::ctorCalled());
-                                       ASSERT(1 == testObj5.a1());
-                                       ASSERT(2 == testObj5.a2());
-                                       ASSERT(3 == testObj5.a3());
-                                       ASSERT(4 == testObj5.a4());
-                                       ASSERT(5 == testObj5.a5());
-        }
-                                       ASSERT(6 == TmvipSa<int>::dtorCount());
-
-        if (veryVerbose) cout
-             << "\nTest Helper Class: 'TmvipSa': copy constructor"
-                "\n==============================================" << endl;
-
-        {
-            TmvipSa<int> objX(1, 2, 3, 4, 5);  const TmvipSa<int>& X = objX;
-            TmvipSa<int> objY(X);              const TmvipSa<int>& Y = objY;
-            ASSERT(Y.a1() == X.a1());
-            ASSERT(Y.a2() == X.a2());
-            ASSERT(Y.a3() == X.a3());
-            ASSERT(Y.a4() == X.a4());
-            ASSERT(Y.a5() == X.a5());
-        }
-
-        if (veryVerbose) cout
-                           << "\nTest Helper Class: 'TmvipSa': traits"
-                              "\n====================================" << endl;
-
-        BSLMF_ASSERT(!bslma::UsesBslmaAllocator<int>::value);
-
-        if (verbose) cout
-             << "\nTest Helper Class: 'TmvipAa'"
-                "\n============================" << endl;
-
-        if (veryVerbose) cout
-             << "\nTest Helper Class: 'TmvipAa': class methods"
-                "\n===========================================" << endl;
-
-        bslma::TestAllocator        ta;
-        bslma::TestAllocatorMonitor tam(&ta);
-
-        typedef bsl::string Str;
-
-        TmvipAa<Str>::resetCtorCalled();
-        ASSERT(0 >  TmvipAa<Str>::ctorCalled());
-        {
-            TmvipAa<Str> obj(&ta);
-        }
-        ASSERT(0 == TmvipAa<Str>::ctorCalled());
-        TmvipAa<Str>::resetCtorCalled();
-        ASSERT(0 >  TmvipAa<Str>::ctorCalled());
-
-        TmvipAa<Str>::resetDtorCount();
-        ASSERT(0 == TmvipAa<Str>::dtorCount());
-        {
-            TmvipAa<Str> obj(&ta);
-        }
-        ASSERT(1 == TmvipAa<Str>::dtorCount());
-        TmvipAa<Str>::resetDtorCount();
-        ASSERT(0 == TmvipAa<Str>::dtorCount());
-
-        if (veryVerbose) cout
-             << "\nTest Helper Class: 'TmvipAa': value constructors"
-                "\n================================================" << endl;
-
-        TmvipAa<Str>::resetDtorCount(); ASSERT(0 == TmvipAa<Str>::dtorCount());
-
-        {
-            TmvipAa<Str> testObj0(&ta);
-                                       ASSERT(0 == TmvipAa<Str>::ctorCalled());
-
-                                       ASSERT("" == testObj0.a1());
-                                       ASSERT("" == testObj0.a2());
-                                       ASSERT("" == testObj0.a3());
-                                       ASSERT("" == testObj0.a4());
-                                       ASSERT("" == testObj0.a5());
-
-                                       ASSERT(&ta == testObj0.allocator());
-        }
-                                       ASSERT(tam.isTotalUp());
-                                       ASSERT(tam.isInUseSame());
-                                       ASSERT(1 == TmvipAa<Str>::dtorCount());
-
-        {
-            TmvipAa<Str> testObj1("1", &ta);
-                                       ASSERT(1 == TmvipAa<Str>::ctorCalled());
-                                       ASSERT("1" == testObj1.a1());
-                                       ASSERT(""  == testObj1.a2());
-                                       ASSERT(""  == testObj1.a3());
-                                       ASSERT(""  == testObj1.a4());
-                                       ASSERT(""  == testObj1.a5());
-
-                                       ASSERT(&ta  == testObj1.allocator());
-        }
-                                       ASSERT(tam.isTotalUp());
-                                       ASSERT(tam.isInUseSame());
-                                       ASSERT(2 == TmvipAa<Str>::dtorCount());
-
-        {
-            TmvipAa<Str> testObj2("1", "2", &ta);
-                                       ASSERT(2 == TmvipAa<Str>::ctorCalled());
-
-                                       ASSERT("1"  == testObj2.a1());
-                                       ASSERT("2"  == testObj2.a2());
-                                       ASSERT(""   == testObj2.a3());
-                                       ASSERT(""   == testObj2.a4());
-                                       ASSERT(""   == testObj2.a5());
-
-                                       ASSERT(&ta  == testObj2.allocator());
-        }
-                                       ASSERT(tam.isTotalUp());
-                                       ASSERT(tam.isInUseSame());
-                                       ASSERT(3 == TmvipAa<Str>::dtorCount());
-
-        {
-            TmvipAa<Str> testObj3("1", "2", "3", &ta);
-                                       ASSERT(3 == TmvipAa<Str>::ctorCalled());
-
-                                       ASSERT("1"  == testObj3.a1());
-                                       ASSERT("2"  == testObj3.a2());
-                                       ASSERT("3"  == testObj3.a3());
-                                       ASSERT(""   == testObj3.a4());
-                                       ASSERT(""   == testObj3.a5());
-
-                                       ASSERT(&ta  == testObj3.allocator());
-        }
-                                       ASSERT(tam.isTotalUp());
-                                       ASSERT(tam.isInUseSame());
-                                       ASSERT(4 == TmvipAa<Str>::dtorCount());
-
-        {
-            TmvipAa<Str> testObj4("1", "2", "3", "4", &ta);
-                                       ASSERT(4 == TmvipAa<Str>::ctorCalled());
-
-                                       ASSERT("1"  == testObj4.a1());
-                                       ASSERT("2"  == testObj4.a2());
-                                       ASSERT("3"  == testObj4.a3());
-                                       ASSERT("4"  == testObj4.a4());
-                                       ASSERT(""   == testObj4.a5());
-
-                                       ASSERT(&ta  == testObj4.allocator());
-        }
-                                       ASSERT(tam.isTotalUp());
-                                       ASSERT(tam.isInUseSame());
-                                       ASSERT(5 == TmvipAa<Str>::dtorCount());
-
-        {
-            TmvipAa<Str> testObj5("1", "2", "3", "4", "5", &ta);
-                                       ASSERT(5 == TmvipAa<Str>::ctorCalled());
-
-                                       ASSERT("1"  == testObj5.a1());
-                                       ASSERT("2"  == testObj5.a2());
-                                       ASSERT("3"  == testObj5.a3());
-                                       ASSERT("4"  == testObj5.a4());
-                                       ASSERT("5"  == testObj5.a5());
-
-                                       ASSERT(&ta  == testObj5.allocator());
-        }
-                                       ASSERT(tam.isTotalUp());
-                                       ASSERT(tam.isInUseSame());
-                                       ASSERT(6 == TmvipAa<Str>::dtorCount());
-
-        if (veryVerbose) cout
-                           << "\nTest Helper Class: 'TmvipAa': traits"
-                              "\n====================================" << endl;
-
-        BSLMF_ASSERT(bslma::UsesBslmaAllocator<TmvipAa<Str> >::value);
-
-        if (veryVerbose) cout
-                 << "\nTest Helper Class: 'TmvipAa': copy constructor"
-                    "\n==============================================" << endl;
-
-        {
-            bslma::TestAllocator taX;
-            bslma::TestAllocator taY;
-
-            TmvipAa<Str> objX("1", "2", &taX);  const TmvipAa<Str>& X = objX;
-            TmvipAa<Str> objY(X,        &taY);  const TmvipAa<Str>& Y = objY;
-
-            ASSERT(Y.a1() == X.a1());
-            ASSERT(Y.a2() == X.a2());
-            ASSERT(Y.a3() == X.a3());
-            ASSERT(Y.a4() == X.a4());
-            ASSERT(Y.a5() == X.a5());
-            ASSERT(&taX   == X.allocator());
-            ASSERT(&taY   == Y.allocator());
-        }
-
-        if (veryVerbose) cout
-                 << "\nTest Helper Class: 'TmvipAa': Use in standard container"
-                    "\n======================================================="
-                 << endl;
-
-        {
-            bslma::TestAllocator va;
-            bslma::TestAllocator oa;
-
-            bsl::vector<TmvipAa<Str> > v(&va);
-            ASSERT(&va == v.get_allocator());
-
-            const TmvipAa<Str> obj("1", "2", &oa);
-            ASSERT(&oa == obj.allocator());
-
-            v.push_back(obj);
-            ASSERT(obj.a1() == v.front().a1());
-            ASSERT(obj.a2() == v.front().a2());
-            ASSERT(obj.a3() == v.front().a3());
-            ASSERT(obj.a4() == v.front().a4());
-            ASSERT(obj.a5() == v.front().a5());
-            ASSERT(&va      == v.front().allocator());
-        }
-
-        if (verbose) cout << "\nRun Each Test Type"
-                             "\n==================" << endl;
-
-        RUN_EACH_TYPE(TestDriver,
-                     testCase18_withoutAllocator,
-                     TEST_TYPES_NOT_ALLOCATOR_ENABLED);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase18_withAllocator,
-                      TEST_TYPES_ALLOCATOR_ENABLED);
-
-        TestDriver<bslma::Allocator *>::testCase18_withoutAllocator();
-
-        if (verbose) cout << "\nTest With Heterogeneous Parameters"
-                             "\n==================================" << endl;
-        {
-            typedef bdlb::NullableValue<bsl::vector<double> > Obj;
-            Obj mX;  const Obj& X = mX;
-
-            const bsl::vector<double> value(5, 1.0);
-
-            bsl::vector<double>& retValue = mX.makeValueInplace(5, 1.0);
-
-            ASSERT(value    == X.value());
-            ASSERT(retValue == X.value());
-
-            const bsl::vector<double> otherValue(50, 10.0);
-            retValue = otherValue;
-            ASSERT(otherValue == X.value());
-        }
-
-        if (verbose) cout << "\nTest Nullable Nullable Objects"
-                             "\n==============================" << endl;
-        {
-            typedef bdlb::NullableValue<int> Obj1;
-            Obj1 obj1(1);
-            ASSERT(1 == obj1.value());
-
-            obj1.value() = 2;
-            obj1.makeValueInplace(5);
-            ASSERTV(obj1.value(), 5 == obj1.value());
-
-            typedef bdlb::NullableValue<Obj1> Obj2;
-
-            Obj2 obj2;
-            ASSERT(    obj2.isNull());
-
-            Obj1 valueObj;
-            ASSERT(    valueObj.isNull());
-
-            obj2.makeValueInplace(valueObj);
-            ASSERT(!obj2.isNull());
-            ASSERT( obj2.value().isNull());
-            ASSERT(valueObj == obj2.value());
-        }
-
-#ifdef BDE_BUILD_TARGET_EXC
-        if (verbose) cout
-             << "\nTest Helper Class: 'TmvipSa_WithThrowingCtor'"
-                "\n=============================================" << endl;
-        {
-            if (veryVerbose) cout
-                 << "\nTest Helper Class: 'TmvipSa_WithThrowingCtor'"
-                    ": default & value constructors"
-                    "\n============================================="
-                    "=============================="
-                 << endl;
-
-            typedef TmvipSa_WithThrowingCtor<int>       ThrowingHelper;
-
-            ThrowingHelper::resetDtorCount();
-            ASSERT(0 == ThrowingHelper::dtorCount());
-
-            for (int numParams = 0; numParams <= MAX_NUM_PARAMS; ++numParams) {
-
-                try {
-                    switch (numParams) {
-                      case  0: { ThrowingHelper helper; }                break;
-                      case  1: { ThrowingHelper helper(1); }             break;
-                      case  2: { ThrowingHelper helper(2, 2); }          break;
-                      case  3: { ThrowingHelper helper(3, 3, 3); }       break;
-                      case  4: { ThrowingHelper helper(4, 4, 4, 4); }    break;
-                      case  5: { ThrowingHelper helper(5, 5, 5, 5, 5); } break;
-                      default: { ASSERT(!"Unexpected argument count"); } break;
-                    }
-
-                    ASSERTV(numParams, !"expected exception missing");
-
-                } catch (const bsl::exception&) {
-                    if (veryVeryVerbose) {
-                        P_(numParams) Q(Caught expected exception)
-                    }
-                } catch (...) {
-                    ASSERTV(numParams, !"unexpected exception type");
-                }
-
-                ASSERTV(numParams, numParams == ThrowingHelper::ctorCalled());
-                ASSERTV(numParams, 0         == ThrowingHelper::dtorCount());
-            }
-
-            if (veryVerbose) cout
-                   << "\nTest Helper Class: 'TmvipSa_WithThrowingCtor': traits"
-                      "\n====================================================="
-                   << endl;
-
-            BSLMF_ASSERT(!bslma::UsesBslmaAllocator<ThrowingHelper>::value);
-        }
-
-        if (verbose) cout
-                   << "\nTest Using Class: 'TmvipSa_WithThrowingCtor'"
-                      "\n============================================" << endl;
-
-        {
-            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-            bslma::TestAllocatorMonitor  dam(&da);
-            bslma::DefaultAllocatorGuard dag(&da);
-
-            typedef TmvipSa_WithThrowingCtor<int>       ThrowingHelper;
-            typedef bdlb::NullableValue<ThrowingHelper> Obj;
-
-            Obj mA;
-            Obj mB(ThrowingHelper(1, 2, 3, 4, 5, 0xCAFEFACE));
-
-            const Obj& A = mA;
-            const Obj& B = mB;
-
-            const struct {
-                int  d_line;
-                Obj  d_obj;
-                bool d_isInitiallyNull;
-            } DATA[] = {
-                //LINE  OBJ  IS_INITIALLY_NULL
-                //----  ---  -----------------
-                { L_,   A,   true             },
-                { L_,   B,   false            }
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE                = DATA[ti].d_line;
-                const Obj  OBJ                 = DATA[ti].d_obj;
-                const bool IS_INITIALLY_NULL   = DATA[ti].d_isInitiallyNull;
-
-                if (veryVeryVerbose) {
-                    T_ P(IS_INITIALLY_NULL)
-                    if (!IS_INITIALLY_NULL) {
-                        T_ P(OBJ.value().a1())
-                        T_ P(OBJ.value().a2())
-                        T_ P(OBJ.value().a3())
-                        T_ P(OBJ.value().a4())
-                        T_ P(OBJ.value().a5())
-                    }
-                }
-
-                ASSERTV(LINE, IS_INITIALLY_NULL == OBJ.isNull());
-
-                const int EXPECTED_DTOR_COUNT = static_cast<int>(
-                                                           !IS_INITIALLY_NULL);
-
-                for (int numParams  = 0;
-                         numParams <= MAX_NUM_PARAMS;
-                       ++numParams) {
-
-                    if (veryVeryVerbose) { T_ T_ P_(numParams) }
-
-                    Obj obj(OBJ);
-
-                    ASSERTV(numParams, IS_INITIALLY_NULL == obj.isNull());
-                    ThrowingHelper::resetDtorCount();
-
-                    try {
-                        switch (numParams) {
-                          case 0: obj.makeValueInplace();              break;
-                          case 1: obj.makeValueInplace(1);             break;
-                          case 2: obj.makeValueInplace(1, 2);          break;
-                          case 3: obj.makeValueInplace(1, 2, 3);       break;
-                          case 4: obj.makeValueInplace(1, 2, 3, 4);    break;
-                          case 5: obj.makeValueInplace(1, 2, 3, 4, 5); break;
-                          default:
-                            ASSERT(!"Too many parameters.");
-                        }
-
-                        ASSERTV(numParams, !"Expected exception missing");
-
-                    } catch (const bsl::exception&) {
-                        if (veryVeryVerbose) {
-                            P_(numParams) Q(Caught expected exception)
-                        }
-                    } catch (...) {
-                        ASSERTV(numParams, !"Unexpected exception type");
-                    }
-
-                    ASSERTV(numParams, true      == obj.isNull());
-                    ASSERTV(numParams, numParams ==
-                                                 ThrowingHelper::ctorCalled());
-                    ASSERTV(numParams,
-                            EXPECTED_DTOR_COUNT  ==
-                                                  ThrowingHelper::dtorCount());
-                }
-            }
-
-            ASSERT(dam.isTotalSame());
-        }
-#else  // BDE_BUILD_TARGET_EXC
-        if (verbose) {
-            cout << "\nNon-Exception Build: Skip 'TmvipSa_WithThrowingCtor'"
-                    "\n===================================================="
-                 << endl;
-        }
-#endif // BDE_BUILD_TARGET_EXC
-
+        runTestCase18();
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -6533,9 +6690,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTESTING 'valueOrNull'"
                              "\n=====================\n";
-
-        RUN_EACH_TYPE(TestDriver, testCase16, TEST_TYPES);
-
+        runTestCase16();
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -6544,9 +6699,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTESTING 'valueOr(const T *)'"
                              "\n============================\n";
-
-        RUN_EACH_TYPE(TestDriver, testCase15, TEST_TYPES);
-
+        runTestCase15();
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -6556,7 +6709,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING 'valueOr(const T&)'"
                              "\n===========================\n";
 
-        RUN_EACH_TYPE(TestDriver, testCase14, TEST_TYPES);
+        runTestCase14();
 
       } break;
     case 13: {
