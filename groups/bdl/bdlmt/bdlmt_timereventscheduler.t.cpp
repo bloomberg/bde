@@ -9,8 +9,6 @@
 
 #include <bdlmt_timereventscheduler.h>
 
-#include <bslim_testutil.h>
-
 #include <bslma_testallocator.h>
 #include <bslmt_barrier.h>
 #include <bslmt_threadgroup.h>
@@ -29,6 +27,7 @@
 #include <bslmt_timedsemaphore.h>
 #include <bslmt_semaphore.h>
 #include <bslmt_barrier.h>
+#include <bslmt_testutil.h>
 #include <bslmt_threadutil.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -169,23 +168,20 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+#define ASSERT                   BSLMT_TESTUTIL_ASSERT
+#define ASSERTV                  BSLMT_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define GUARD                    BSLMT_TESTUTIL_GUARD
 
-#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLIM_TESTUTIL_L_  // current Line number
+#define Q                        BSLMT_TESTUTIL_Q
+#define P                        BSLMT_TESTUTIL_P
+#define P_                       BSLMT_TESTUTIL_P_
+#define T_                       BSLMT_TESTUTIL_T_
+#define L_                       BSLMT_TESTUTIL_L_
+
+#define GUARDED_STREAM(STREAM)   BSLMT_TESTUTIL_GUARDED_STREAM(STREAM)
+#define COUT                     BSLMT_TESTUTIL_COUT
+#define CERR                     BSLMT_TESTUTIL_CERR
 
 #define E(X)  cout << (X) << endl;     // Print value.
 #define E_(X) cout << (X) << flush;    // Print value.
@@ -201,34 +197,6 @@ static bslmt::Mutex printMutex;  // mutex to protect output macros
 
 static bslmt::Mutex &assertMutex = printMutex;// mutex to protect assert macros
 
-#define ASSERTT(X) { assertMutex.lock(); aSsErT(!(X), #X, __LINE__); \
-                                             assertMutex.unlock();}
-
-#define LOOP_ASSERTT(I,X) { \
-   if (!(X)) { assertMutex.lock(); cout << #I << ": " << I << endl; \
-       aSsErT(1, #X, __LINE__); assertMutex.unlock(); } }
-
-#define LOOP2_ASSERTT(I,J,X) { \
-   if (!(X)) { assertMutex.lock(); cout << #I << ": " << I << "\t" \
-       << #J << ": " << J << endl; aSsErT(1, #X, __LINE__); \
-       assertMutex.unlock(); } }
-
-#define LOOP3_ASSERTT(I,J,K,X) { \
-   if (!(X)) { assertMutex.lock(); cout << #I << ": " << I << "\t" \
-      << #J << ": " << J << "\t" << #K << ": " << K << endl; \
-      aSsErT(1, #X, __LINE__); assertMutex.unlock(); } }
-
-#define LOOP4_ASSERTT(I,J,K,L,X) { \
-   if (!(X)) { assertMutex.lock(); cout << #I << ": " << I << "\t" \
-       << #J << ": " << J << "\t" << #K << ": " << K << "\t" << #L \
-       << ": " << L << endl; aSsErT(1, #X, __LINE__); assertMutex.unlock(); } }
-
-#define LOOP5_ASSERTT(I,J,K,L,M,X) { \
-   if (!(X)) { assertMutex.lock(); cout << #I << ": " << I << "\t" \
-       << #J << ": " << J << "\t" << #K << ": " << K << "\t" << #L \
-       << ": " << L << "\t" << #M << ": " << M << endl; \
-       aSsErT(1, #X, __LINE__); assertMutex.unlock(); } }
-
 // ============================================================================
 //         GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -237,7 +205,8 @@ static int veryVerbose;
 static int veryVeryVerbose;
 
 typedef bdlmt::TimerEventScheduler          Obj;
-typedef Obj::Handle Handle;
+typedef Obj::Handle                         Handle;
+typedef bsls::Types::IntPtr                 IntPtr;
 
 void sleepUntilMs(int ms)
 {
@@ -349,7 +318,7 @@ static void executeInParallel(int                               numThreads,
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
+        bslmt::ThreadUtil::create(&threads[i], func, (void*)(IntPtr)i);
     }
     for (int i = 0; i < numThreads; ++i) {
         bslmt::ThreadUtil::join(threads[i]);
@@ -488,8 +457,8 @@ class TestClass {
 
         // assert that it runs on expected time
         if (d_assertOnFailure) {
-            LOOP3_ASSERTT(d_line, now, d_expectedTimeAtExecution,
-                          isApproxEqual(now, d_expectedTimeAtExecution));
+            ASSERTV(d_line, now, d_expectedTimeAtExecution,
+                    isApproxEqual(now, d_expectedTimeAtExecution));
         }
 
         // in any case, keep track of number of failures
@@ -639,7 +608,7 @@ void cancelEventCallback(Obj *scheduler,
     // 'expectedStatus'.
 {
     int ret = scheduler->cancelEvent(*handlePtr, wait);
-    LOOP_ASSERTT(ret, expectedStatus == ret);
+    ASSERTV(ret, expectedStatus == ret);
 }
 
 void cancelEventCallbackWithState(Obj                         *scheduler,
@@ -650,7 +619,7 @@ void cancelEventCallbackWithState(Obj                         *scheduler,
 {
     const int s = *state;
     int ret = scheduler->cancelEvent(*handlePtr);
-    LOOP_ASSERT(ret, s == *state);
+    ASSERTV(ret, s == *state);
 }
 
 static void cancelClockCallback(Obj *scheduler,
@@ -662,7 +631,7 @@ static void cancelClockCallback(Obj *scheduler,
     // 'expectedStatus'.
 {
     int ret = scheduler->cancelClock(*handlePtr, wait);
-    LOOP_ASSERT(ret, expectedStatus == ret);
+    ASSERTV(ret, expectedStatus == ret);
 }
 
 static void cancelAllEventsCallback(Obj *scheduler, int wait)
@@ -897,7 +866,7 @@ struct Func {
         -- s_numEvents;
 
         int diff = bsl::abs(s_scheduler->numEvents() - s_numEvents);
-        LOOP3_ASSERT(s_scheduler->numEvents(), s_numEvents, diff, 2 >= diff);
+        ASSERTV(s_scheduler->numEvents(), s_numEvents, diff, 2 >= diff);
     }
 };
 const Obj *Func::s_scheduler;
@@ -1070,7 +1039,8 @@ int numBitsRequired(int maxValue)
 {
     ASSERT(0 <= maxValue);
 
-    return (sizeof(maxValue) * CHAR_BIT) - bdlb::BitUtil::numLeadingUnsetBits(
+    const int sz = static_cast<int>(sizeof(maxValue));
+    return (sz * CHAR_BIT) - bdlb::BitUtil::numLeadingUnsetBits(
                                          static_cast<bsl::uint32_t>(maxValue));
 }
 
@@ -1112,7 +1082,7 @@ TestClass1 testObj[NUM_THREADS]; // one test object for each thread
 extern "C" {
 void *workerThread11(void *arg)
 {
-    int id = (int)(bsls::Types::IntPtr)arg;
+    int id = static_cast<int>(reinterpret_cast<IntPtr>(arg));
 
     barrier.wait();
     switch(id % 2) {
@@ -1191,7 +1161,7 @@ TestClass1 testObj[NUM_THREADS]; // one test object for each thread
 extern "C" {
 void *workerThread10(void *arg)
 {
-    int id = (int)(bsls::Types::IntPtr)arg;
+    int id = static_cast<int>(reinterpret_cast<IntPtr>(arg));
 
     barrier.wait();
     switch(id % 2) {
@@ -1210,7 +1180,7 @@ void *workerThread10(void *arg)
                                   bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                          &testObj[id]));
               if (veryVeryVerbose) {
-                  int *handle = (int*)(h & 0x8fffffff);
+                  int *handle = reinterpret_cast<int *>(h & 0x8fffffff);
                   printMutex.lock();
                   cout << "\t\tAdded event: "; P_(id); P_(i); P_(h); P(handle);
                   printMutex.unlock();
@@ -1222,7 +1192,7 @@ void *workerThread10(void *arg)
 
                   bsls::TimeInterval elapsed =
                                     bsls::SystemTime::nowRealtimeClock() - now;
-                  LOOP3_ASSERTT(id, i, (int*)h, elapsed < T6);
+                  ASSERTV(id, i, h, elapsed < T6);
                   testTimingFailure = (elapsed >= T6);
               }
           }
@@ -1243,7 +1213,7 @@ void *workerThread10(void *arg)
                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                       &testObj[id]));
               if (veryVeryVerbose) {
-                  int *handle = (int*)(h & 0x8fffffff);
+                  void *handle = reinterpret_cast<void *>(h & 0x8fffffff);
                   printMutex.lock();
                   cout << "\t\tAdded clock: "; P_(id); P_(i); P_(h); P(handle);
                   printMutex.unlock();
@@ -1255,7 +1225,7 @@ void *workerThread10(void *arg)
 
                   bsls::TimeInterval elapsed =
                                     bsls::SystemTime::nowRealtimeClock() - now;
-                  LOOP3_ASSERTT(id, i, (int*)h, elapsed < T6);
+                  ASSERTV(id, i, reinterpret_cast<void *>(h), elapsed < T6);
                   testTimingFailure = (elapsed >= T6);
               }
           }
@@ -1434,8 +1404,8 @@ void test7_a()
 
     myMicroSleep(T8, 0);
     makeSureTestObjectIsExecuted(event, mT, 200);
-    LOOP_ASSERT(event.numExecuted(), 1 == event.numExecuted() );
-    LOOP_ASSERT(clock.numExecuted(), 1 <= clock.numExecuted() );
+    ASSERTV(event.numExecuted(), 1 == event.numExecuted() );
+    ASSERTV(clock.numExecuted(), 1 <= clock.numExecuted() );
 }
 
 void test7_b()
@@ -2136,7 +2106,7 @@ bool testCallbacks(int                  *failures,
             }
         }
         if (assertOnFailure) {
-            LOOP_ASSERTT(LINE, DELAYED == testObjects[i]->delayed());
+            ASSERTV(LINE, DELAYED == testObjects[i]->delayed());
         } else if (DELAYED != testObjects[i]->delayed()) {
             result = false;
             *failures += 10000; // large number to trigger overall failure
@@ -2148,7 +2118,7 @@ bool testCallbacks(int                  *failures,
                     // and relies on totalTime being a float
                 int n2 = testObjects[i]->numExecuted();
                 if (assertOnFailure) {
-                    LOOP3_ASSERTT(LINE, n1, n2, n1 == n2);
+                    ASSERTV(LINE, n1, n2, n1 == n2);
                 } else if (n1 != n2) {
                     result = false;
                     *failures += 10000; // idem
@@ -2157,7 +2127,7 @@ bool testCallbacks(int                  *failures,
         }
         else {
             if (assertOnFailure) {
-                LOOP_ASSERTT(LINE, 1 == testObjects[i]->numExecuted());
+                ASSERTV(LINE, 1 == testObjects[i]->numExecuted());
             } else if (1 != testObjects[i]->numExecuted()) {
                 result = false;
             }
@@ -2206,16 +2176,16 @@ void test1_a()
     const int NEXEC1 = testObj1.numExecuted();
     const int NEXEC2 = testObj2.numExecuted();
     if (elapsed < T6) {
-        LOOP_ASSERT(NEXEC1, 1 == NEXEC1);
-        LOOP_ASSERT(NEXEC2, 0 == NEXEC2);
+        ASSERTV(NEXEC1, 1 == NEXEC1);
+        ASSERTV(NEXEC2, 0 == NEXEC2);
     } else {
-        LOOP_ASSERT(NEXEC1, 1 <= NEXEC1);
+        ASSERTV(NEXEC1, 1 <= NEXEC1);
     }
     myMicroSleep(T4, 0);
     int nExec = testObj1.numExecuted();
-    LOOP2_ASSERT(NEXEC1, nExec, NEXEC1 == nExec);
+    ASSERTV(NEXEC1, nExec, NEXEC1 == nExec);
     nExec = testObj2.numExecuted();
-    LOOP2_ASSERT(NEXEC2, nExec, NEXEC2 == nExec);
+    ASSERTV(NEXEC2, nExec, NEXEC2 == nExec);
 
     if (0 == NEXEC2) {
         // If testObj2 has already executed its event, there is not much point
@@ -2225,14 +2195,14 @@ void test1_a()
         myMicroSleep(T4, 0);
         makeSureTestObjectIsExecuted(testObj2, mT, 100, NEXEC2);
         nExec = testObj2.numExecuted();
-        LOOP2_ASSERT(NEXEC2, nExec, NEXEC2 + 1 <= nExec);
+        ASSERTV(NEXEC2, nExec, NEXEC2 + 1 <= nExec);
     }
     else {
         // However, if testObj2 has already executed its event, we should make
         // sure it do so legally, i.e., after the requisite period of time.
         // Note that 'elapsed' was measure *after* the 'x.stop()'.
 
-        LOOP2_ASSERT(NEXEC2, elapsed, T6 < elapsed);
+        ASSERTV(NEXEC2, elapsed, T6 < elapsed);
     }
 }
 
@@ -2267,9 +2237,9 @@ void test1_b()
     const int NEXEC2 = testObj2.numExecuted();
     myMicroSleep(T10, 0);
     int nExec = testObj1.numExecuted();
-    LOOP2_ASSERT(NEXEC1, nExec, NEXEC1 == nExec);
+    ASSERTV(NEXEC1, nExec, NEXEC1 == nExec);
     nExec = testObj2.numExecuted();
-    LOOP2_ASSERT(NEXEC2, nExec, NEXEC2 == nExec);
+    ASSERTV(NEXEC2, nExec, NEXEC2 == nExec);
 }
 
 void test1_c()
@@ -2296,7 +2266,7 @@ void test1_c()
     sleepUntilMs(T4 / 1000);
     makeSureTestObjectIsExecuted(testObj, mT, 100);
     int nExec = testObj.numExecuted();
-    LOOP_ASSERT(nExec, 1 <= nExec);
+    ASSERTV(nExec, 1 <= nExec);
 
     bsls::TimeInterval elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T6) {
@@ -2306,7 +2276,7 @@ void test1_c()
         const int NEXEC = testObj.numExecuted();
         sleepUntilMs(T4 / 1000);
         nExec = testObj.numExecuted();
-        LOOP2_ASSERT(NEXEC, nExec, NEXEC == nExec);
+        ASSERTV(NEXEC, nExec, NEXEC == nExec);
     }
     // Else complain but do not stop the test suite.
 }
@@ -2361,15 +2331,15 @@ void test1_d()
     // cannot have been called back.
     if (elapsed < T) {
         nExec = testObj1.numExecuted();
-        LOOP_ASSERT(nExec, 0 == nExec);
+        ASSERTV(nExec, 0 == nExec);
     }
     if (elapsed < T2) {
         nExec = testObj2.numExecuted();
-        LOOP_ASSERT(nExec, 0 == nExec);
+        ASSERTV(nExec, 0 == nExec);
     }
     if (elapsed < T3) {
         nExec = testObj3.numExecuted();
-        LOOP_ASSERT(nExec, 0 == nExec);
+        ASSERTV(nExec, 0 == nExec);
     }
     // Else should we complain that too much time has elapsed?  In any case,
     // this is not a failure, do not stop.
@@ -2398,7 +2368,7 @@ void test1_e()
     myMicroSleep(T3, 0);
     makeSureTestObjectIsExecuted(testObj, mT, 100);
     int nExec = testObj.numExecuted();
-    LOOP_ASSERT(nExec, 1 == nExec);
+    ASSERTV(nExec, 1 == nExec);
     ASSERT( 0 != x.cancelEvent(h) );
 }
 
@@ -2431,7 +2401,7 @@ void test1_f()
 
         sleepUntilMs(T3 / 1000);
         int nExec = testObj.numExecuted();
-        LOOP_ASSERT(nExec, 0 == nExec);
+        ASSERTV(nExec, 0 == nExec);
     }
     // Else should we complain that too much time has elapsed?  In any case,
     // this is not a failure, do not stop.
@@ -2473,14 +2443,14 @@ void test1_g()
     int nExec = testObj1.numExecuted();
     elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T3) {
-        LOOP_ASSERT(nExec, 0 == nExec);
+        ASSERTV(nExec, 0 == nExec);
         ASSERT(1 == x.numEvents());
         // ASSERT(1 == x.numClocks());
     }
     nExec = testObj2.numExecuted();
     elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T3) {
-        LOOP_ASSERT(nExec, 0 == nExec);
+        ASSERTV(nExec, 0 == nExec);
         ASSERT(1 == x.numEvents());
         // ASSERT(1 == x.numClocks());
     }
@@ -2490,11 +2460,11 @@ void test1_g()
     nExec = testObj1.numExecuted();
     elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T5) {
-        LOOP_ASSERT(nExec, 1 == nExec);
+        ASSERTV(nExec, 1 == nExec);
     }
     makeSureTestObjectIsExecuted(testObj2, mT, 100);
     nExec = testObj2.numExecuted();
-    LOOP_ASSERT(nExec, 1 == nExec);
+    ASSERTV(nExec, 1 == nExec);
     ASSERT(0 == x.numEvents());
     // ASSERT(1 == x.numClocks());
 
@@ -2504,12 +2474,12 @@ void test1_g()
     nExec = testObj1.numExecuted();
     elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T8) {
-        LOOP_ASSERT(nExec, 2 == nExec)
+        ASSERTV(nExec, 2 == nExec);
     } else {
-        LOOP_ASSERT(nExec, 2 <= nExec);
+        ASSERTV(nExec, 2 <= nExec);
     }
     nExec = testObj2.numExecuted();
-    LOOP_ASSERT(nExec, 1 == nExec);
+    ASSERTV(nExec, 1 == nExec);
 }
 
 void test1_h()
@@ -2544,7 +2514,7 @@ void test1_h()
     int nExec = testObj.numExecuted();
     elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T3) {
-        LOOP_ASSERT(nExec, 0 == nExec);
+        ASSERTV(nExec, 0 == nExec);
     }
     ASSERT(0 == x.numEvents());
     // ASSERT(1 == x.numClocks());
@@ -2554,16 +2524,16 @@ void test1_h()
     nExec = testObj.numExecuted();
     elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T6) {
-        LOOP_ASSERT(nExec, 1 == nExec);
+        ASSERTV(nExec, 1 == nExec);
     }
     else {
-        LOOP_ASSERT(nExec, 1 <= nExec);
+        ASSERTV(nExec, 1 <= nExec);
     }
 
     myMicroSleep(T4, 0);
     makeSureTestObjectIsExecuted(testObj, mT, 100, nExec);
     nExec = testObj.numExecuted();
-    LOOP_ASSERT(nExec, 2 <= nExec);
+    ASSERTV(nExec, 2 <= nExec);
     ASSERT(0 == x.numEvents());
     // ASSERT(1 == x.numClocks());
 }
@@ -2606,14 +2576,14 @@ void test1_i()
     int nExec = testObj1.numExecuted();
     elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T3) {
-        LOOP_ASSERT(nExec, 0 == nExec);
+        ASSERTV(nExec, 0 == nExec);
         ASSERT(2 == x.numEvents());
         ASSERT(0 == x.numClocks());
     }
     nExec = testObj2.numExecuted();
     elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T5) {
-        LOOP_ASSERT(nExec, 0 == nExec);
+        ASSERTV(nExec, 0 == nExec);
         ASSERT(2 - testObj1.numExecuted() == x.numEvents());
         ASSERT(0 == x.numClocks());
     }
@@ -2621,11 +2591,11 @@ void test1_i()
     sleepUntilMs(T2 / 1000);
     makeSureTestObjectIsExecuted(testObj1, mT, 100);
     nExec = testObj1.numExecuted();
-    LOOP_ASSERT(nExec, 1 == nExec);
+    ASSERTV(nExec, 1 == nExec);
     nExec = testObj2.numExecuted();
     elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     if (elapsed < T5) {
-        LOOP_ASSERT(nExec, 0 == nExec);
+        ASSERTV(nExec, 0 == nExec);
         ASSERT(1 == x.numEvents());
         ASSERT(0 == x.numClocks());
     }
@@ -2633,10 +2603,10 @@ void test1_i()
     myMicroSleep(T2, 0);
     myMicroSleep(T, 0);
     nExec = testObj1.numExecuted();
-    LOOP_ASSERT(nExec, 1 == nExec);
+    ASSERTV(nExec, 1 == nExec);
     makeSureTestObjectIsExecuted(testObj2, mT, 100);
     nExec = testObj2.numExecuted();
-    LOOP_ASSERT(nExec, 1 == nExec);
+    ASSERTV(nExec, 1 == nExec);
     ASSERT(0 == x.numEvents());
     ASSERT(0 == x.numClocks());
 }
@@ -2683,10 +2653,10 @@ void test1_j()
 
     myMicroSleep(T, 0);
     int nExec = testObj.numExecuted();
-    LOOP_ASSERT(nExec, !fast || 0 == nExec); // ok, even if overslept
+    ASSERTV(nExec, !fast || 0 == nExec); // ok, even if overslept
     myMicroSleep(T3, 0);
     nExec = testObj.numExecuted();
-    LOOP_ASSERT(nExec, !fast || 0 == nExec); // ok, even if overslept
+    ASSERTV(nExec, !fast || 0 == nExec); // ok, even if overslept
 }
 
 void test1_k()
@@ -2723,13 +2693,13 @@ void test1_k()
     elapsed = bsls::SystemTime::nowRealtimeClock() - now;
     // myMicroSleep could have overslept, especially if load is high
     if (elapsed < T2) {
-        LOOP_ASSERT(nExec, 0 == nExec);
+        ASSERTV(nExec, 0 == nExec);
     }
 
     sleepUntilMs(T3 / 1000);
     makeSureTestObjectIsExecuted(testObj, mT, 100);
     nExec = testObj.numExecuted();
-    LOOP_ASSERT(nExec, 1 == nExec);
+    ASSERTV(nExec, 1 == nExec);
     ASSERT(0 == x.numEvents());
     ASSERT(0 == x.numClocks());
 }
@@ -3429,9 +3399,9 @@ int main(int argc, char *argv[])
 
         mX.stop();
 
-        LOOP_ASSERT(Func::s_indexes.size(), Func::s_indexes.size() == 10);
+        ASSERTV(Func::s_indexes.size(), Func::s_indexes.size() == 10);
         for (int i = 0; i < 10; ++i) {
-            LOOP2_ASSERT(i, Func::s_indexes[i], i == Func::s_indexes[i]);
+            ASSERTV(i, Func::s_indexes[i], i == Func::s_indexes[i]);
         }
       } break;
       case 17: {
@@ -3604,13 +3574,13 @@ int main(int argc, char *argv[])
             ASSERT(ii < MAX_LOOP || slowfunctorSize >= 35*2);
             ASSERT(ii < MAX_LOOP || slowfunctorSize <= 44*2);
             if (slowfunctorSize < 35*2 || slowfunctorSize > 44*2) {
-                if (verbose || MAX_LOOP == ii) { P_(L_) P(slowfunctorSize); }
+                if (verbose || MAX_LOOP == ii) { P_(L_); P(slowfunctorSize); }
                 continue;    // start over
             }
             ASSERT(ii < MAX_LOOP || 2 == ff.timeList().size());
             if (2 != ff.timeList().size()) {
                 if (verbose || MAX_LOOP == ii) {
-                    P_(L_) P(ff.timeList().size());
+                    P_(L_); P(ff.timeList().size());
                 }
             }
 
@@ -3633,7 +3603,7 @@ int main(int argc, char *argv[])
                 ASSERT(ii < MAX_LOOP || sTolerance > abs(offBy));
                 if (sTolerance <= abs(offBy)) {
                     if (verbose || MAX_LOOP == ii) {
-                        P_(L_) P_(i) P_(sTolerance) P(offBy);
+                        P_(L_); P_(i); P_(sTolerance); P(offBy);
                     }
                     startOver = true;
                 }
@@ -3655,9 +3625,9 @@ int main(int argc, char *argv[])
             for (int i = 1;  i+2 <= slowfunctorSize;  ++sfit, ++sfit, i += 2) {
                 double diff = *sfit - start_time;
                 double offBy = (i/2 + 1)*sf.SLEEP_SECONDS - diff;
-                if (veryVerbose) { P_(L_) P_(i); P_(offBy);
+                if (veryVerbose) { P_(L_); P_(i); P_(offBy);
                                    P(sf.tolerance(i/2)); }
-                LOOP4_ASSERT(i, diff, offBy, sf.tolerance(i/2),
+                ASSERTV(i, diff, offBy, sf.tolerance(i/2),
                                              sf.tolerance(i/2) > abs(offBy));
             }
 #endif
@@ -3670,7 +3640,7 @@ int main(int argc, char *argv[])
             ASSERT(ii < MAX_LOOP || ff.TOLERANCE > abs(ffoffBy));
             if (ff.TOLERANCE <= abs(ffoffBy)) {
                 if (verbose || MAX_LOOP == ii) {
-                    P_(L_) P_(ffdiff) P(ffoffBy);
+                    P_(L_); P_(ffdiff); P(ffoffBy);
                 }
                 continue;
             }
@@ -3682,7 +3652,7 @@ int main(int argc, char *argv[])
             ASSERT(ii < MAX_LOOP || ff.TOLERANCE > abs(ffoffBy));
             if (ff.TOLERANCE <= abs(ffoffBy)) {
                 if (!veryVerbose && MAX_LOOP == ii) {
-                    P_(L_) P_(ffdiff); P_(ffoffBy); P(ff.TOLERANCE);
+                    P_(L_); P_(ffdiff); P_(ffoffBy); P(ff.TOLERANCE);
                 }
                 continue;
             }
@@ -3690,7 +3660,7 @@ int main(int argc, char *argv[])
             break;
         }
         ASSERT(ii <= MAX_LOOP);
-        if (verbose) { P_(L_) P(ii); }
+        if (verbose) { P_(L_); P(ii); }
       } break;
       case 14: {
         // -----------------------------------------------------------------
@@ -3750,7 +3720,7 @@ int main(int argc, char *argv[])
             ASSERT(ii < MAX_LOOP || slowfunctorSize >= 18*2);
             ASSERT(ii < MAX_LOOP || slowfunctorSize <= 22*2);
             if (slowfunctorSize < 18*2 || slowfunctorSize > 22*2) {
-                if (verbose || ii == MAX_LOOP) { P_(L_) P(slowfunctorSize); }
+                if (verbose || ii == MAX_LOOP) { P_(L_); P(slowfunctorSize); }
                 continue;
             }
 
@@ -3767,8 +3737,8 @@ int main(int argc, char *argv[])
                 ASSERT(ii < MAX_LOOP || TOLERANCE_AHEAD > -offBy);
                 if (TOLERANCE_BEHIND <= offBy || TOLERANCE_AHEAD <= -offBy) {
                     if (verbose || ii == MAX_LOOP) {
-                        P_(L_) P_(i) P_(diff)
-                        P_(TOLERANCE_BEHIND) P(TOLERANCE_AHEAD)
+                        P_(L_); P_(i); P_(diff);
+                        P_(TOLERANCE_BEHIND); P(TOLERANCE_AHEAD);
                         P(offBy);
                     }
                     startOver = true;
@@ -3779,7 +3749,7 @@ int main(int argc, char *argv[])
             break;
         }
         ASSERT(ii <= MAX_LOOP);
-        if (verbose) { P_(L_) P(ii); }
+        if (verbose) { P_(L_); P(ii); }
 // TBD
 #if 0
         // This has been commented out because it is really inappropriate to
@@ -3795,7 +3765,7 @@ int main(int argc, char *argv[])
             double diff = *it - start_time;
             double offBy = (i/2)*CLOCKTIME1 + sf.SLEEP_SECONDS - diff;
             if (veryVerbose) { P_(i); P(offBy); }
-            LOOP4_ASSERT(i, diff, offBy, TOLERANCE, TOLERANCE > abs(offBy));
+            ASSERTV(i, diff, offBy, TOLERANCE, TOLERANCE > abs(offBy));
         }
 #endif
       } break;
@@ -3940,12 +3910,12 @@ int main(int argc, char *argv[])
                                     bsls::SystemTime::nowRealtimeClock() - now;
           if (elapsed < T2) {
               nExec = testObj.numExecuted();
-              LOOP_ASSERT(nExec, 0 == nExec);
+              ASSERTV(nExec, 0 == nExec);
               ASSERT( 0 == x.rescheduleEvent(h, now + T4, true) );
               myMicroSleep(T6, 0);
               makeSureTestObjectIsExecuted(testObj, mT, 100);
               nExec = testObj.numExecuted();
-              LOOP_ASSERT(nExec, 1 == nExec);
+              ASSERTV(nExec, 1 == nExec);
               ASSERT( 0 != x.rescheduleEvent(h, now + T8, true) );
           }
         }
@@ -3980,12 +3950,12 @@ int main(int argc, char *argv[])
                                     bsls::SystemTime::nowRealtimeClock() - now;
           if (elapsed < T2) {
               nExec = testObj.numExecuted();
-              LOOP_ASSERT(nExec, 0 == nExec);
+              ASSERTV(nExec, 0 == nExec);
               ASSERT( 0 == x.rescheduleEvent(h, key, now + T4, true) );
               myMicroSleep(T6, 0);
               makeSureTestObjectIsExecuted(testObj, mT, 100);
               nExec = testObj.numExecuted();
-              LOOP_ASSERT(nExec, 1 == nExec);
+              ASSERTV(nExec, 1 == nExec);
               ASSERT( 0 != x.rescheduleEvent(h, key, now + T8, true) );
           }
         }
@@ -4094,8 +4064,8 @@ int main(int argc, char *argv[])
 
         if (!testTimingFailure) {
             for (int i = 0; i < NUM_THREADS; ++i) {
-                LOOP2_ASSERT(i, testObj[i].numExecuted(),
-                             0 == testObj[i].numExecuted() );
+                ASSERTV(i, testObj[i].numExecuted(),
+                        0 == testObj[i].numExecuted() );
             }
         } else {
             // In the highly unlikely event, that one thread could not invoke
@@ -4671,8 +4641,8 @@ int main(int argc, char *argv[])
             bool cancelledInTime = dnow() - start < 0.99;
             myMicroSleep(T20, 0);
             if (cancelledInTime) {
-                LOOP_ASSERT(testObj2.numExecuted(),
-                            0 == testObj2.numExecuted());
+                ASSERTV(testObj2.numExecuted(),
+                        0 == testObj2.numExecuted());
             }
         }
 
@@ -4735,12 +4705,12 @@ int main(int argc, char *argv[])
             ASSERT(0 == x.cancelClock(h, wait));
             int numEx = testObj.numExecuted();
             if (dnow() - start < 0.59) {
-                LOOP_ASSERT(testObj.numExecuted(), 1 == numEx);
+                ASSERTV(testObj.numExecuted(), 1 == numEx);
             }
             myMicroSleep(T5, 0);
             makeSureTestObjectIsExecuted(testObj, mT, 100);
-            LOOP2_ASSERT(numEx, testObj.numExecuted(),
-                         numEx == testObj.numExecuted());
+            ASSERTV(numEx, testObj.numExecuted(),
+                    numEx == testObj.numExecuted());
         }
       } break;
       case 4: {
@@ -4878,13 +4848,13 @@ int main(int argc, char *argv[])
               x.cancelAllEvents();
               if ( 0 == testObj0.numExecuted() ) {
                   if (veryVerbose || MAX_LOOP == ii) {
-                      P_(L_) Q(Events did not get on pending list);
+                      P_(L_); Q(Events did not get on pending list);
                   }
                   continue;   // events did not get on pending list, start over
               }
               if (dnow() - start > 0.59) {
                   if (veryVerbose || MAX_LOOP == ii) {
-                      P_(L_) Q(Overslept);
+                      P_(L_); Q(Overslept);
                   }
                   continue;    // overslept, start over
               }
@@ -4904,7 +4874,7 @@ int main(int argc, char *argv[])
               break;
             }
             ASSERT(ii <= MAX_LOOP);
-            if (veryVerbose) { P_(L_) P(ii); }
+            if (veryVerbose) { P_(L_); P(ii); }
         }
 
         {
@@ -4956,13 +4926,13 @@ int main(int argc, char *argv[])
               myMicroSleep(T3, 0); // give enough time to put on pending list
               if ( 0 == testObj0.numExecuted() ) {
                   if (verbose || MAX_LOOP == ii) {
-                      P_(L_) Q(Events not pending);
+                      P_(L_); Q(Events not pending);
                   }
                   continue;
               }
               if (bsls::SystemTime::nowRealtimeClock() - now >= T6) {
                   if (verbose || MAX_LOOP == ii) {
-                      P_(L_) Q(Overslept);
+                      P_(L_); Q(Overslept);
                   }
                   continue;
               }
@@ -4977,7 +4947,7 @@ int main(int argc, char *argv[])
               break;
           }
           ASSERT(ii <= MAX_LOOP);
-          if (verbose) { P_(L_) P(ii); }
+          if (verbose) { P_(L_); P(ii); }
         }
       } break;
       case 3: {

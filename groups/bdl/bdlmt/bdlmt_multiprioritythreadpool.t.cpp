@@ -9,16 +9,18 @@
 
 #include <bdlmt_multiprioritythreadpool.h>
 
-#include <bslim_testutil.h>
-
 #include <bdlcc_queue.h>
 
 #include <bdlma_concurrentpool.h>
 
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
 #include <bslmt_qlock.h>
+#include <bslmt_testutil.h>
 #include <bsls_systemtime.h>
 
 #include <bsl_algorithm.h>
@@ -39,11 +41,16 @@
 #include <bsls_atomic.h>
 #include <bsls_timeinterval.h>
 
+#include <bsl_algorithm.h>
+
 #include <sys/stat.h>
 #include <sys/types.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
 
 // ============================================================================
 //                             TEST PLAN
@@ -109,23 +116,20 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+#define ASSERT                   BSLMT_TESTUTIL_ASSERT
+#define ASSERTV                  BSLMT_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define GUARD                    BSLMT_TESTUTIL_GUARD
 
-#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLIM_TESTUTIL_L_  // current Line number
+#define Q                        BSLMT_TESTUTIL_Q
+#define P                        BSLMT_TESTUTIL_P
+#define P_                       BSLMT_TESTUTIL_P_
+#define T_                       BSLMT_TESTUTIL_T_
+#define L_                       BSLMT_TESTUTIL_L_
+
+#define GUARDED_STREAM(STREAM)   BSLMT_TESTUTIL_GUARDED_STREAM(STREAM)
+#define COUT                     BSLMT_TESTUTIL_COUT
+#define CERR                     BSLMT_TESTUTIL_CERR
 
 // ============================================================================
 //         GLOBAL TYPEDEFS, CONSTANTS, ROUTINES & MACROS FOR TESTING
@@ -162,10 +166,10 @@ double nowAsDouble()
 }  // close unnamed namespace
 
 // ============================================================================
-//                Classes for test case 13 -- usage example 1
+//                      Classes for usage example 1
 // ============================================================================
 
-namespace MULTIPRIORITYTHREADPOOL_CASE_13 {
+namespace MULTIPRIORITYTHREADPOOL_CASE_USAGE_1 {
 
 // The idea here is we have a large number of jobs submitted in too little time
 // for all of them to be completed.  All jobs take the same amount of time to
@@ -199,10 +203,10 @@ extern "C" void *lessUrgentJob(void *)
     return 0;
 }
 
-}  // close namespace MULTIPRIORITYTHREADPOOL_CASE_13
+}  // close namespace MULTIPRIORITYTHREADPOOL_CASE_USAGE_1
 
 // ============================================================================
-//                Classes for test case 12 -- usage example 2
+//                        Classes for usage example 2
 // ============================================================================
 
 // The idea here is to have a multithreaded algorithm for calculating prime
@@ -220,7 +224,7 @@ extern "C" void *lessUrgentJob(void *)
 // discover bigger and bigger primes until we have covered an entire range, in
 // this example all ints below TOP_NUMBER == 2000.
 
-namespace MULTIPRIORITYTHREADPOOL_CASE_12 {
+namespace MULTIPRIORITYTHREADPOOL_CASE_USAGE_2 {
 
 enum {
     TOP_NUMBER = 2000,
@@ -370,7 +374,7 @@ struct Functor {
 };
 bslmt::Mutex Functor::s_mutex;
 
-}  // close namespace MULTIPRIORITYTHREADPOOL_CASE_12
+}  // close namespace MULTIPRIORITYTHREADPOOL_CASE_USAGE_2
 
 // ============================================================================
 //                         Classes for test case 11
@@ -546,7 +550,7 @@ void checkOutPool(bdlmt::MultipriorityThreadPool *pool)
 {
     ASSERT(pool->isEnabled());
     ASSERT(0 == pool->numActiveThreads());
-    LOOP_ASSERT(pool->numPendingJobs(), 0 == pool->numPendingJobs());
+    ASSERTV(pool->numPendingJobs(), 0 == pool->numPendingJobs());
 
     if (pool->isStarted()) {
         ASSERT(16 == pool->numStartedThreads());
@@ -565,7 +569,7 @@ void checkOutPool(bdlmt::MultipriorityThreadPool *pool)
         pool->drainJobs();
 
         ASSERT(10 == resultsVecIdx);
-        sort(resultsVec, resultsVec + resultsVecIdx);
+        bsl::sort(resultsVec, resultsVec + resultsVecIdx);
         for (int i = 0; 10 > i; ++i) {
             ASSERT(resultsVec[i] == i * i);
         }
@@ -576,7 +580,7 @@ void checkOutPool(bdlmt::MultipriorityThreadPool *pool)
         }
         ASSERT(0 == pool->numActiveThreads());
         bslmt::ThreadUtil::microSleep(10 * 1000);
-        LOOP_ASSERT(pool->numPendingJobs(), 10 == pool->numPendingJobs());
+        ASSERTV(pool->numPendingJobs(), 10 == pool->numPendingJobs());
         pool->removeJobs();
     }
 
@@ -683,7 +687,7 @@ int main(int argc, char *argv[])
                     "===============\n";
         }
 
-        using namespace MULTIPRIORITYTHREADPOOL_CASE_13;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_USAGE_1;
 
         bdlmt::MultipriorityThreadPool pool(20,  // threads
                                             2,   // priorities
@@ -717,7 +721,7 @@ int main(int argc, char *argv[])
         //   That usage example 2 compiles and links.
         // --------------------------------------------------------------------
 
-        using namespace MULTIPRIORITYTHREADPOOL_CASE_12;
+        using namespace MULTIPRIORITYTHREADPOOL_CASE_USAGE_2;
 
         bsls::TimeInterval startTime = bsls::SystemTime::nowRealtimeClock();
 
@@ -901,7 +905,7 @@ int main(int argc, char *argv[])
 
         pool.startThreads();
 
-        LOOP_ASSERT(taDefaultLocal.numBytesMax(),
+        ASSERTV(taDefaultLocal.numBytesMax(),
                                             0 == taDefaultLocal.numBytesMax());
         ASSERT(0 == Worker::s_time);
 
@@ -914,7 +918,7 @@ int main(int argc, char *argv[])
         pool.drainJobs();
         pool.stopThreads();
 
-        LOOP_ASSERT(taDefaultLocal.numBytesInUse(),
+        ASSERTV(taDefaultLocal.numBytesInUse(),
                                           0 == taDefaultLocal.numBytesInUse());
 
         if (verbose) {
@@ -945,12 +949,12 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            T_ P(averages[0]) T_ P(averages[1])
+            T_ P(averages[0]); T_ P(averages[1]);
         }
 
-        LOOP2_ASSERT(averages[0], averages[1], averages[0] < averages[1]);
+        ASSERTV(averages[0], averages[1], averages[0] < averages[1]);
 
-        LOOP_ASSERT(taDefaultLocal.numBytesInUse(),
+        ASSERTV(taDefaultLocal.numBytesInUse(),
                                           0 == taDefaultLocal.numBytesInUse());
       }  break;
       case 9: {
@@ -1145,7 +1149,7 @@ int main(int argc, char *argv[])
         ASSERT(k_SCRAMBLE_LEN == resultsVecIdx);
 
         for (int i = 0; i < k_SCRAMBLE_LEN; ++i) {
-            LOOP2_ASSERT(i, resultsVec[i], i * i == resultsVec[i]);
+            ASSERTV(i, resultsVec[i], i * i == resultsVec[i]);
         }
 
         if (verbose) {
@@ -1253,7 +1257,7 @@ int main(int argc, char *argv[])
                 if (pool.startThreads()) {
                     startOverFromScratch = true;
                     if (verbose) {
-                        P_(L_) P_(ii) P(j)
+                        P_(L_); P_(ii); P(j);
                     }
                     break;
                 }
@@ -1311,7 +1315,7 @@ int main(int argc, char *argv[])
                 if (pool.startThreads()) {
                     startOverFromScratch = true;
                     if (verbose) {
-                        P_(L_) P_(ii) P(j)
+                        P_(L_); P_(ii); P(j);
                     }
                     break;
                 }
@@ -1368,7 +1372,7 @@ int main(int argc, char *argv[])
 
             if (pool.startThreads()) {
                 if (verbose) {
-                    P_(L_) P(ii)
+                    P_(L_); P(ii);
                 }
                 continue;
             }
@@ -1378,7 +1382,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == pool.numPendingJobs());
             ASSERT(NUM_JOBS == resultsVecIdx);
 
-            sort(resultsVec, resultsVec + resultsVecIdx);
+            bsl::sort(resultsVec, resultsVec + resultsVecIdx);
             for (int i = 0; resultsVecIdx > i; ++i) {
                 ASSERT(resultsVec[i] == i * i);
             }
@@ -1411,7 +1415,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == pool.numPendingJobs());
             ASSERT(10 == resultsVecIdx);
 
-            sort(resultsVec, resultsVec + resultsVecIdx);
+            bsl::sort(resultsVec, resultsVec + resultsVecIdx);
             for (int i = 0; resultsVecIdx > i; ++i) {
                 ASSERT(resultsVec[i] == i * i);
             }
@@ -1429,7 +1433,7 @@ int main(int argc, char *argv[])
             break;
         }
         ASSERT(ii <= MAX_LOOP);
-        if (verbose) { P_(L_) P(ii) }
+        if (verbose) { P_(L_); P(ii); }
       }  break;
       case 5: {
         // --------------------------------------------------------------------
@@ -1669,7 +1673,7 @@ int main(int argc, char *argv[])
                         pool->drainJobs();
 
                         if (1 < numThreads) {
-                            sort(resultsVec, resultsVec + resultsVecIdx);
+                            bsl::sort(resultsVec, resultsVec + resultsVecIdx);
                         }
 
                         bool ok = true;
@@ -1678,7 +1682,7 @@ int main(int argc, char *argv[])
                             ok &= (resultsVec[i] == i * i);
                         }
 
-                        LOOP5_ASSERT(allocS, aS, numThreads, numPri,
+                        ASSERTV(allocS, aS, numThreads, numPri,
                                                             resultsVecIdx, ok);
                         if (!ok || veryVeryVeryVerbose) {
                             cout << (ok ? "Vector: " : "Bad vector: ");
@@ -1768,7 +1772,7 @@ int main(int argc, char *argv[])
         pool.startThreads();
         pool.drainJobs();
 
-        LOOP2_ASSERT(counter, otherCounter, counter == otherCounter);
+        ASSERTV(counter, otherCounter, counter == otherCounter);
         if (verbose) {
             cout << "Total sum: " << counter << endl;
         }
@@ -1828,7 +1832,7 @@ int main(int argc, char *argv[])
 
                 otherCounter += incBy[i];
                 otherCounter *= otherCounter;
-                LOOP2_ASSERT(counter, otherCounter, counter == otherCounter);
+                ASSERTV(counter, otherCounter, counter == otherCounter);
                 if (veryVerbose) {
                     cout << "Sum[" << i << "] = " << counter << endl;
                 }
@@ -1880,7 +1884,7 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::yield();
             bslmt::ThreadUtil::microSleep(100 * 1000);       // 0.1 seconds
 
-            LOOP_ASSERT(counter, 5 == counter);
+            ASSERTV(counter, 5 == counter);
 
             if (verbose) {
                 cout << "counter = " << counter << endl;

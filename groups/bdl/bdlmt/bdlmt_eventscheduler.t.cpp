@@ -2375,7 +2375,9 @@ int main(int argc, char *argv[])
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
-    bslma::TestAllocator ta;
+    bslma::TestAllocator ta("test");
+    bslma::TestAllocator da("default");
+    bslma::DefaultAllocatorGuard dGuard(&da);
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 

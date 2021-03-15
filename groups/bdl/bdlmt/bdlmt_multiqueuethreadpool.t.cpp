@@ -2,13 +2,14 @@
 
 #include <bdlmt_multiqueuethreadpool.h>
 
-#include <bslim_testutil.h>
-
 #include <bslma_testallocator.h>
+#include <bslma_defaultallocatorguard.h>
+
 #include <bslmt_barrier.h>
 #include <bslmt_latch.h>
 #include <bslmt_mutex.h>
 #include <bslmt_semaphore.h>
+#include <bslmt_testutil.h>
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
@@ -112,7 +113,6 @@ using namespace BloombergLP;
 // [30] DRQS 140150365: resume fails immediately after pause
 // [31] DRQS 140403279: pause can deadlock with delete and create
 // [32] DRQS 143578129: 'numElements' stress test
-// [34] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -142,23 +142,20 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+#define ASSERT                   BSLMT_TESTUTIL_ASSERT
+#define ASSERTV                  BSLMT_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define GUARD                    BSLMT_TESTUTIL_GUARD
 
-#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLIM_TESTUTIL_L_  // current Line number
+#define Q                        BSLMT_TESTUTIL_Q
+#define P                        BSLMT_TESTUTIL_P
+#define P_                       BSLMT_TESTUTIL_P_
+#define T_                       BSLMT_TESTUTIL_T_
+#define L_                       BSLMT_TESTUTIL_L_
+
+#define GUARDED_STREAM(STREAM)   BSLMT_TESTUTIL_GUARDED_STREAM(STREAM)
+#define COUT                     BSLMT_TESTUTIL_COUT
+#define CERR                     BSLMT_TESTUTIL_CERR
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -821,7 +818,7 @@ void case32Job()
 
             const bsl::string& word = *it;
             int                id = pool.createQueue();
-            LOOP_ASSERT(word, 0 != id);
+            ASSERTV(word, 0 != id);
             my_SearchProfile *profile = new (*allocator)
                                                  my_SearchProfile(word.c_str(),
                                                                   allocator);
@@ -852,7 +849,7 @@ void case32Job()
                 makeFunc(&job, my_SearchCb, rv.second, file.c_str());
                 for (int i = 0; i < repetitions; ++i) {
                     int rc = pool.enqueueJob(rv.first, job);
-                    LOOP_ASSERT(word, 0 == rc);
+                    ASSERTV(word, 0 == rc);
                 }
             }
         }
@@ -1341,7 +1338,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         double time = now() - startTime;
         ASSERT(ii < k_MAX_LOOP || time < SLEEP_A_LITTLE_TIME);
         if (time >= SLEEP_A_LITTLE_TIME) {
-            if (verbose) { P_(L_) P_(concurrency) P(time) }
+            if (verbose) { P_(L_); P_(concurrency); P(time); }
             continue;
         }
 
@@ -1349,10 +1346,10 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         ASSERT(1 == Sleeper::s_finished);
         {
             time = now() - startTime;
-            LOOP_ASSERT(time, time >= SLEEP_A_LITTLE_TIME - jumpTheGun);
+            ASSERTV(time, time >= SLEEP_A_LITTLE_TIME - jumpTheGun);
             ASSERT(ii < k_MAX_LOOP || time <  SLEEP_A_LOT_TIME * 0.90);
             if (time >= SLEEP_A_LOT_TIME * 0.90) {
-                if (verbose) { P_(L_) P(time); }
+                if (verbose) { P_(L_); P(time); }
                 continue;
             }
         }
@@ -1363,7 +1360,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
 
         mX.drain();
         time = now() - startTime;
-        LOOP_ASSERT(time, time >= SLEEP_A_LOT_TIME - jumpTheGun);
+        ASSERTV(time, time >= SLEEP_A_LOT_TIME - jumpTheGun);
         X.numProcessed(&doneJobs, &enqueuedJobs);
         ASSERT(k_NUM_QUEUES == doneJobs);
         ASSERT(k_NUM_QUEUES == enqueuedJobs);
@@ -1429,7 +1426,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         time = now() - startTime;
         ASSERT(ii < k_MAX_LOOP || time < 0.010);
         if (time >= 0.010) {
-            if (verbose) { P_(L_) P(time); }
+            if (verbose) { P_(L_); P(time); }
             continue;
         }
 
@@ -1445,7 +1442,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         time = now() - startTime;
         ASSERT(ii < k_MAX_LOOP || time < 0.010);
         if (time >= 0.010) {
-            if (verbose) { P_(L_) P(time); }
+            if (verbose) { P_(L_); P(time); }
             continue;
         }
 
@@ -1456,7 +1453,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
 
         break;
     }
-    if (verbose) { P_(L_) P(ii); }
+    if (verbose) { P_(L_); P(ii); }
     ASSERT(ii <= k_MAX_LOOP);
 
 }
@@ -1479,6 +1476,9 @@ int main(int argc, char *argv[]) {
     veryVeryVerbose = (argc > 4);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslma::TestAllocator ta("test"), da("default");
+    bslma::DefaultAllocatorGuard dGuard(&da);
 
     switch (test) { case 0:
       case 34: {
@@ -2657,7 +2657,7 @@ int main(int argc, char *argv[]) {
             sema.post(3);
             mX.drainQueue(id1);
 
-            LOOP_ASSERT(value, "abc" == value);
+            ASSERTV(value, "abc" == value);
         }
         {
             if (veryVerbose) {
@@ -2682,7 +2682,7 @@ int main(int argc, char *argv[]) {
             sema.post(2);
             mX.drainQueue(id1);
 
-            LOOP_ASSERT(value, "abc" == value);
+            ASSERTV(value, "abc" == value);
         }
       } break;
 
@@ -2765,7 +2765,7 @@ int main(int argc, char *argv[]) {
                     const int N = 100000;
                     for (int loop = 0; loop <= N; ++loop) {
                         if (veryVeryVerbose) {
-                            if (loop % (N / 10) == 0) { P(loop) }
+                            if (loop % (N / 10) == 0) { P(loop); }
                         }
                         mX.pauseQueue(id);
                         mX.resumeQueue(id);
@@ -2985,7 +2985,7 @@ int main(int argc, char *argv[]) {
                                         (endTime - startTime) << " seconds\n";
         }
 
-        LOOP2_ASSERT(s.s_count, k_JOB_COUNT, k_JOB_COUNT == s.s_count);
+        ASSERTV(s.s_count, k_JOB_COUNT, k_JOB_COUNT == s.s_count);
       }  break;
       case 16: {
         // --------------------------------------------------------------------
@@ -3049,10 +3049,10 @@ int main(int argc, char *argv[]) {
                 }
             }
             ASSERT(0 == Sleeper::s_finished);
-            LOOP_ASSERT(Reproducer::s_counter, 0 <  Reproducer::s_counter);
+            ASSERTV(Reproducer::s_counter, 0 <  Reproducer::s_counter);
 
             mX.drainQueue(queueIds[2]);
-            LOOP_ASSERT(Reproducer::s_counter, 0 == Reproducer::s_counter);
+            ASSERTV(Reproducer::s_counter, 0 == Reproducer::s_counter);
             ASSERT(0 == Sleeper::s_finished);
 
             int numDequeued, numEnqueued;
@@ -3088,10 +3088,10 @@ int main(int argc, char *argv[]) {
                 queueIds.push_back(queueId);
             }
             mX.enqueueJob(queueIds[0], reproducer);
-            LOOP_ASSERT(Reproducer::s_counter, 0 <  Reproducer::s_counter);
+            ASSERTV(Reproducer::s_counter, 0 <  Reproducer::s_counter);
 
             mX.drain();
-            LOOP_ASSERT(Reproducer::s_counter, 0 == Reproducer::s_counter);
+            ASSERTV(Reproducer::s_counter, 0 == Reproducer::s_counter);
 
             int numDequeued, numEnqueued;
             mX.numProcessed(&numDequeued, &numEnqueued);
@@ -3240,13 +3240,13 @@ int main(int argc, char *argv[]) {
                 for (int j = 0; j < k_NUM_QUEUES; ++j) {
                     QUEUE_NOOP[j] = Func(&noop);
                     int id = QUEUE_IDS[j] = mX.createQueue();
-                    LOOP2_ASSERT(i, j, 0 == mX.enqueueJob(id, block));
+                    ASSERTV(i, j, 0 == mX.enqueueJob(id, block));
                 }
                 ASSERT(k_NUM_QUEUES == X.numQueues());
 
                 for (int j = 0; j < i * k_NUM_JOBS; ++j) {
                     for (int k = 0; k < k_NUM_QUEUES; ++k) {
-                        LOOP3_ASSERT(i, j, k,
+                        ASSERTV(i, j, k,
                               0 == mX.enqueueJob(QUEUE_IDS[k], QUEUE_NOOP[k]));
                     }
                 }
@@ -3260,15 +3260,15 @@ int main(int argc, char *argv[]) {
                 int numElements = X.numElements();
                 X.numProcessed(&numExecuted, &numEnqueued);
 
-                LOOP3_ASSERT(i,
-                             k_NUM_QUEUES * (1 + i * k_NUM_JOBS),
-                             numEnqueued,
-                             k_NUM_QUEUES * (1 + i * k_NUM_JOBS)
+                ASSERTV(i,
+                        k_NUM_QUEUES * (1 + i * k_NUM_JOBS),
+                        numEnqueued,
+                        k_NUM_QUEUES * (1 + i * k_NUM_JOBS)
                                                                == numEnqueued);
-                LOOP_ASSERT(i, 0 <  numExecuted);
+                ASSERTV(i, 0 <  numExecuted);
                 // on Linux, IBM, and Solaris 10, code is so optimized that
                 // sometimes equality holds (the pool is already drained)
-                LOOP_ASSERT(i, numExecuted <= numEnqueued);
+                ASSERTV(i, numExecuted <= numEnqueued);
 
                 ASSERT(numEnqueued >= X.numElements());
 
@@ -3282,23 +3282,23 @@ int main(int argc, char *argv[]) {
                     cout << "   threadpool stopped\n";
                 X.numProcessed(&numExecuted, &numEnqueued);
 
-                LOOP3_ASSERT(i,
+                ASSERTV(i,
                              k_NUM_QUEUES * (1 + i * k_NUM_JOBS),
                              numEnqueued,
                              k_NUM_QUEUES * (1 + i * k_NUM_JOBS)
                                                                == numEnqueued);
-                LOOP_ASSERT(i, numExecuted == numEnqueued);
+                ASSERTV(i, numExecuted == numEnqueued);
 
                 ASSERT(0 == X.numElements());
 
                 int numEnqueued2 = -1, numExecuted2 = -1;
                 mX.numProcessedReset(&numExecuted2, &numEnqueued2);
-                LOOP_ASSERT(i, numEnqueued2 == numEnqueued);
-                LOOP_ASSERT(i, numExecuted2 == numExecuted);
+                ASSERTV(i, numEnqueued2 == numEnqueued);
+                ASSERTV(i, numExecuted2 == numExecuted);
 
                 X.numProcessed(&numExecuted, &numEnqueued);
-                LOOP_ASSERT(i, 0 == numExecuted);
-                LOOP_ASSERT(i, 0 == numEnqueued);
+                ASSERTV(i, 0 == numExecuted);
+                ASSERTV(i, 0 == numEnqueued);
 
                 ASSERT(0 == X.numElements());
 
@@ -3311,8 +3311,8 @@ int main(int argc, char *argv[]) {
 
                 mX.stop();
                 mX.numProcessed(&numExecuted, &numEnqueued);
-                LOOP2_ASSERT(i, numExecuted, 0 == numExecuted);
-                LOOP2_ASSERT(i, numEnqueued, 0 == numEnqueued);
+                ASSERTV(i, numExecuted, 0 == numExecuted);
+                ASSERTV(i, numEnqueued, 0 == numEnqueued);
 
                 ASSERT(0 == X.numElements());
             }
@@ -3342,13 +3342,13 @@ int main(int argc, char *argv[]) {
                 for (int j = 0; j < k_NUM_QUEUES; ++j) {
                     QUEUE_NOOP[j] = Func(&noop);
                     int id = QUEUE_IDS[j] = mX.createQueue();
-                    LOOP2_ASSERT(i, j, 0 == mX.enqueueJob(id, block));
+                    ASSERTV(i, j, 0 == mX.enqueueJob(id, block));
                 }
                 ASSERT(k_NUM_QUEUES == X.numQueues());
 
                 for (int j = 0; j < i * k_NUM_JOBS; ++j) {
                     for (int k = 0; k < k_NUM_QUEUES; ++k) {
-                        LOOP3_ASSERT(i, j, k,
+                        ASSERTV(i, j, k,
                               0 == mX.enqueueJob(QUEUE_IDS[k], QUEUE_NOOP[k]));
                     }
                 }
@@ -3362,16 +3362,16 @@ int main(int argc, char *argv[]) {
                 int numElements = X.numElements();
                 X.numProcessed(&numExecuted, &numEnqueued, &numDeleted);
 
-                LOOP3_ASSERT(i,
-                             k_NUM_QUEUES * (1 + i * k_NUM_JOBS),
-                             numEnqueued,
-                             k_NUM_QUEUES * (1 + i * k_NUM_JOBS)
+                ASSERTV(i,
+                        k_NUM_QUEUES * (1 + i * k_NUM_JOBS),
+                        numEnqueued,
+                        k_NUM_QUEUES * (1 + i * k_NUM_JOBS)
                                                                == numEnqueued);
-                LOOP_ASSERT(i, 0 <  numExecuted);
-                LOOP_ASSERT(i, 0 == numDeleted);
+                ASSERTV(i, 0 <  numExecuted);
+                ASSERTV(i, 0 == numDeleted);
                 // on Linux, IBM, and Solaris 10, code is so optimized that
                 // sometimes equality holds (the pool is already drained)
-                LOOP_ASSERT(i, numExecuted <= numEnqueued);
+                ASSERTV(i, numExecuted <= numEnqueued);
 
                 ASSERT(numEnqueued >= X.numElements());
 
@@ -3386,13 +3386,13 @@ int main(int argc, char *argv[]) {
                     cout << "   threadpool stopped\n";
                 X.numProcessed(&numExecuted, &numEnqueued, &numDeleted);
 
-                LOOP3_ASSERT(i,
-                             k_NUM_QUEUES * (1 + i * k_NUM_JOBS),
-                             numEnqueued,
-                             k_NUM_QUEUES * (1 + i * k_NUM_JOBS)
+                ASSERTV(i,
+                        k_NUM_QUEUES * (1 + i * k_NUM_JOBS),
+                        numEnqueued,
+                        k_NUM_QUEUES * (1 + i * k_NUM_JOBS)
                                                                == numEnqueued);
-                LOOP_ASSERT(i, numExecuted == numEnqueued);
-                LOOP_ASSERT(i, 0 == numDeleted);
+                ASSERTV(i, numExecuted == numEnqueued);
+                ASSERTV(i, 0 == numDeleted);
 
                 ASSERT(0 == X.numElements());
 
@@ -3400,14 +3400,14 @@ int main(int argc, char *argv[]) {
                 mX.numProcessedReset(&numExecuted2,
                                      &numEnqueued2,
                                      &numDeleted2);
-                LOOP_ASSERT(i, numEnqueued2 == numEnqueued);
-                LOOP_ASSERT(i, numExecuted2 == numExecuted);
-                LOOP_ASSERT(i, numDeleted2  == numDeleted);
+                ASSERTV(i, numEnqueued2 == numEnqueued);
+                ASSERTV(i, numExecuted2 == numExecuted);
+                ASSERTV(i, numDeleted2  == numDeleted);
 
                 X.numProcessed(&numExecuted, &numEnqueued, &numDeleted);
-                LOOP_ASSERT(i, 0 == numExecuted);
-                LOOP_ASSERT(i, 0 == numEnqueued);
-                LOOP_ASSERT(i, 0 == numDeleted);
+                ASSERTV(i, 0 == numExecuted);
+                ASSERTV(i, 0 == numEnqueued);
+                ASSERTV(i, 0 == numDeleted);
 
                 ASSERT(0 == X.numElements());
 
@@ -3420,9 +3420,9 @@ int main(int argc, char *argv[]) {
 
                 mX.stop();
                 mX.numProcessed(&numExecuted, &numEnqueued, &numDeleted);
-                LOOP2_ASSERT(i, numExecuted, 0 == numExecuted);
-                LOOP2_ASSERT(i, numEnqueued, 0 == numEnqueued);
-                LOOP2_ASSERT(i, numDeleted,  0 == numDeleted);
+                ASSERTV(i, numExecuted, 0 == numExecuted);
+                ASSERTV(i, numEnqueued, 0 == numEnqueued);
+                ASSERTV(i, numDeleted,  0 == numDeleted);
 
                 ASSERT(0 == X.numElements());
             }
@@ -3665,12 +3665,12 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == mX.start());
             for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
                 id = mX.createQueue();
-                LOOP_ASSERT(i, 0 != id);
-                LOOP_ASSERT(i, 0 == mX.deleteQueue(id, cleanupCb));
-                LOOP_ASSERT(i, 0 == counter);
+                ASSERTV(i, 0 != id);
+                ASSERTV(i, 0 == mX.deleteQueue(id, cleanupCb));
+                ASSERTV(i, 0 == counter);
                 barrier.wait();
                 barrier.wait();
-                LOOP_ASSERT(i, counter == 1);
+                ASSERTV(i, counter == 1);
                 counter = 0;
             }
         }
@@ -3748,27 +3748,27 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == mX.enqueueJob(queueIds[i][k_IX], sleepALittle));
             ASSERT(0 == mY.enqueueJob(queueIds[i][k_IY], sleepALittle));
         }
-        LOOP_ASSERT(Sleeper::s_finished, 0 == Sleeper::s_finished);
+        ASSERTV(Sleeper::s_finished, 0 == Sleeper::s_finished);
 
         int numExecuted, numEnqueued;
         X.numProcessed(&numExecuted, &numEnqueued);
-        LOOP_ASSERT(numEnqueued, k_NUM_QUEUES == numEnqueued);
+        ASSERTV(numEnqueued, k_NUM_QUEUES == numEnqueued);
         Y.numProcessed(&numExecuted, &numEnqueued);
-        LOOP_ASSERT(numEnqueued, k_NUM_QUEUES == numEnqueued);
+        ASSERTV(numEnqueued, k_NUM_QUEUES == numEnqueued);
 
         mX.stop();
         mY.stop();
-        LOOP_ASSERT(Sleeper::s_finished,
-                    2 * k_NUM_QUEUES == Sleeper::s_finished);
+        ASSERTV(Sleeper::s_finished,
+                2 * k_NUM_QUEUES == Sleeper::s_finished);
         double time = now() - startTime;
-        LOOP_ASSERT(time, time >= SLEEP_A_LITTLE_TIME - jumpTheGun);
+        ASSERTV(time, time >= SLEEP_A_LITTLE_TIME - jumpTheGun);
 
         X.numProcessed(&numExecuted, &numEnqueued);
-        LOOP_ASSERT(numEnqueued, k_NUM_QUEUES == numEnqueued);
-        LOOP_ASSERT(numExecuted, k_NUM_QUEUES == numExecuted);
+        ASSERTV(numEnqueued, k_NUM_QUEUES == numEnqueued);
+        ASSERTV(numExecuted, k_NUM_QUEUES == numExecuted);
         Y.numProcessed(&numExecuted, &numEnqueued);
-        LOOP_ASSERT(numEnqueued, k_NUM_QUEUES == numEnqueued);
-        LOOP_ASSERT(numExecuted, k_NUM_QUEUES == numExecuted);
+        ASSERTV(numEnqueued, k_NUM_QUEUES == numEnqueued);
+        ASSERTV(numExecuted, k_NUM_QUEUES == numExecuted);
 
         Sleeper::s_finished = 0;
 
@@ -3784,12 +3784,12 @@ int main(int argc, char *argv[]) {
             ASSERT(0 != mX.enqueueJob(queueIds[i][k_IX], sleepALittle));
             ASSERT(0 == mY.enqueueJob(queueIds[i][k_IY], sleepALot));
         }
-        LOOP_ASSERT(Sleeper::s_finished, 0 == Sleeper::s_finished);
+        ASSERTV(Sleeper::s_finished, 0 == Sleeper::s_finished);
 
         mX.stop();
-        LOOP_ASSERT(Sleeper::s_finished, 1 <= Sleeper::s_finished);
+        ASSERTV(Sleeper::s_finished, 1 <= Sleeper::s_finished);
         time = now() - startTime;
-        LOOP_ASSERT(time, time >= SLEEP_A_LITTLE_TIME - jumpTheGun);
+        ASSERTV(time, time >= SLEEP_A_LITTLE_TIME - jumpTheGun);
 
         ta.deleteObjectRaw(pMX);
 
@@ -3798,9 +3798,9 @@ int main(int argc, char *argv[]) {
         }
 
         mY.stop();
-        LOOP_ASSERT(Sleeper::s_finished,
-                    2 * k_NUM_QUEUES + 1 == Sleeper::s_finished);
-        LOOP_ASSERT(now() - startTime, now() - startTime >=
+        ASSERTV(Sleeper::s_finished,
+                2 * k_NUM_QUEUES + 1 == Sleeper::s_finished);
+        ASSERTV(now() - startTime, now() - startTime >=
                           SLEEP_A_LOT_TIME + SLEEP_A_LITTLE_TIME - jumpTheGun);
 
         tp.stop();
@@ -3940,7 +3940,7 @@ int main(int argc, char *argv[]) {
                        k_MAX_IDLE,
                        &ta);
                 const Obj& X = mX;
-                LOOP2_ASSERT(i, LINE, 0 == X.numQueues());
+                ASSERTV(i, LINE, 0 == X.numQueues());
                 ASSERT(0 == mX.start());
 
                 if (verbose) {
@@ -3955,8 +3955,8 @@ int main(int argc, char *argv[]) {
                 // Create queues and enqueue jobs.
                 for (int j = 0; j < k_NUM_QUEUES; ++j) {
                     int id = mX.createQueue();
-                    LOOP3_ASSERT(i, LINE, j, 0 != id);
-                    LOOP3_ASSERT(i, LINE, j, true == results[j].empty());
+                    ASSERTV(i, LINE, j, 0 != id);
+                    ASSERTV(i, LINE, j, true == results[j].empty());
 
                     for (int k = 0; k < k_NUM_JOBS; ++k) {
                         Func job;
@@ -3964,30 +3964,30 @@ int main(int argc, char *argv[]) {
                                  case9Callback,
                                  &counters[j],
                                  &results[j]);
-                        LOOP4_ASSERT(i, LINE, j, k,
-                                     0 == mX.enqueueJob(id, job));
+                        ASSERTV(i, LINE, j, k,
+                                0 == mX.enqueueJob(id, job));
                     }
                 }
-                LOOP2_ASSERT(i, LINE, k_NUM_QUEUES == X.numQueues());
+                ASSERTV(i, LINE, k_NUM_QUEUES == X.numQueues());
 
                 mX.stop();
-                LOOP2_ASSERT(i, LINE, k_NUM_QUEUES == X.numQueues());
-                LOOP2_ASSERT(i, LINE, 0 <  X.threadPool().numWaitingThreads());
-                LOOP2_ASSERT(i, LINE, 0 == X.threadPool().numActiveThreads());
+                ASSERTV(i, LINE, k_NUM_QUEUES == X.numQueues());
+                ASSERTV(i, LINE, 0 <  X.threadPool().numWaitingThreads());
+                ASSERTV(i, LINE, 0 == X.threadPool().numActiveThreads());
 
                 mX.shutdown();
-                LOOP2_ASSERT(i, LINE, 0 == X.numQueues());
-                LOOP2_ASSERT(i, LINE, 0 == X.threadPool().numWaitingThreads());
-                LOOP2_ASSERT(i, LINE, 0 == X.threadPool().numActiveThreads());
+                ASSERTV(i, LINE, 0 == X.numQueues());
+                ASSERTV(i, LINE, 0 == X.threadPool().numWaitingThreads());
+                ASSERTV(i, LINE, 0 == X.threadPool().numActiveThreads());
 
                 // Verify results.
                 for (int j = 0; j < k_NUM_QUEUES; ++j) {
-                    LOOP3_ASSERT(i, LINE, j,
-                                 k_NUM_JOBS == (int)results[j].size());
+                    ASSERTV(i, LINE, j,
+                            k_NUM_JOBS == (int)results[j].size());
                     for (int k = 0; k < k_NUM_JOBS; ++k) {
                         const int VALUE = k + 1;
-                        LOOP4_ASSERT(i, LINE, j, k,
-                                     VALUE == results[j].at(k));
+                        ASSERTV(i, LINE, j, k,
+                                VALUE == results[j].at(k));
                     }
                 }
             }
@@ -4188,7 +4188,7 @@ int main(int argc, char *argv[]) {
                 enum { k_NUM_JOBS = 1000 };
                 ASSERT(0 == mX.enqueueJob(id, block));
                 for (int i = 0; i < k_NUM_JOBS; ++i) {
-                    LOOP_ASSERT(i, 0 == mX.enqueueJob(id, count));
+                    ASSERTV(i, 0 == mX.enqueueJob(id, count));
                 }
                 barrier.wait();
                 ASSERT(k_NUM_JOBS == X.numElements(id));  // 'block' is
@@ -4216,8 +4216,8 @@ int main(int argc, char *argv[]) {
                     bslmt::ThreadUtil::yield();
                 }
 
-                LOOP_ASSERT(tp.numActiveThreads(),
-                            1 >= tp.numActiveThreads());
+                ASSERTV(tp.numActiveThreads(),
+                        1 >= tp.numActiveThreads());
                 ASSERT(k_MIN_THREADS <= tp.numActiveThreads()
                                     + tp.numWaitingThreads());
                 ASSERT(0 == tp.numPendingJobs());
@@ -4456,18 +4456,18 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < k_MAX_QUEUES; ++i) {
                 int k_NUM_QUEUES = i + 1;
                 int id = mX.createQueue();
-                LOOP_ASSERT(i, 0 != id);
-                LOOP_ASSERT(i, k_NUM_QUEUES == X.numQueues());
-                LOOP_ASSERT(i, 0 == mX.enqueueJob(id, block));
+                ASSERTV(i, 0 != id);
+                ASSERTV(i, k_NUM_QUEUES == X.numQueues());
+                ASSERTV(i, 0 == mX.enqueueJob(id, block));
 
                 int k_NUM_JOBS = i + 1;
                 for (int j = 0; j < k_NUM_JOBS; ++j) {
                     Func count;
                     makeFunc(&count, incrementCounter, &counters[i]);
-                    LOOP2_ASSERT(i, j, 0 == mX.enqueueJob(id, count));
+                    ASSERTV(i, j, 0 == mX.enqueueJob(id, count));
                 }
                 int numJobs = X.numElements(id);
-                LOOP_ASSERT(i, k_NUM_JOBS <= numJobs);
+                ASSERTV(i, k_NUM_JOBS <= numJobs);
                 if (verbose) {
                     P_(i); P_(k_NUM_JOBS); P(numJobs);
                 }
@@ -4481,7 +4481,7 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < k_MAX_QUEUES; ++i) {
                 int VALUE = i + 1;
                 int value = counters[i];
-                LOOP_ASSERT(i, VALUE == value);
+                ASSERTV(i, VALUE == value);
                 if (verbose) {
                     P_(i); P_(VALUE); P(value);
                 }
@@ -4729,7 +4729,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(0 == X.numElements(id));
                 ASSERT(0 == mX.enqueueJob(id, block));
                 for (int i = 0; i < k_NUM_JOBS; ++i) {
-                    LOOP_ASSERT(i, 0 == mX.enqueueJob(id, count));
+                    ASSERTV(i, 0 == mX.enqueueJob(id, count));
                 }
                 barrier.wait();
                 ASSERT(k_NUM_JOBS == X.numElements(id));  // 'block' is
@@ -4838,7 +4838,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(0 == X.numElements(id));
                 ASSERT(0 == mX.enqueueJob(id, block));
                 for (int i = 0; i < k_NUM_JOBS; ++i) {
-                    LOOP_ASSERT(i, 0 == mX.enqueueJob(id, count));
+                    ASSERTV(i, 0 == mX.enqueueJob(id, count));
                 }
                 barrier.wait();
                 ASSERT(k_NUM_JOBS == X.numElements(id));  // 'block' is
@@ -4908,7 +4908,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(0 == X.numElements(id));
                 ASSERT(0 == mX.enqueueJob(id, block));
                 for (int i = 0; i < k_NUM_JOBS; ++i) {
-                    LOOP_ASSERT(i, 0 == mX.enqueueJob(id, count));
+                    ASSERTV(i, 0 == mX.enqueueJob(id, count));
                 }
                 barrier.wait();
                 ASSERT(k_NUM_JOBS == X.numElements(id));  // 'block' is
@@ -5027,7 +5027,7 @@ int main(int argc, char *argv[]) {
             }
             ASSERT(0 == mX.enqueueJob(id, block));
             for (int i = 0; i < k_NUM_JOBS; ++i) {
-                LOOP_ASSERT(i, 0 == mX.enqueueJob(id, count));
+                ASSERTV(i, 0 == mX.enqueueJob(id, count));
             }
 
             if (veryVerbose) {
