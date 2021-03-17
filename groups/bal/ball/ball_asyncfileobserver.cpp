@@ -28,7 +28,7 @@ BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 ///IMPLEMENTATION NOTES
 ///--------------------
 // To communicate the last record to be published when 'stopThread' (or
-// 'stopPublicationThread') is called, a special record is enquueued (created using
+// 'stopPublicationThread') is called, a special record is enqueued (created using
 // 'createStopRecord') for which 'isStopRecord' is 'false'.
 
 namespace BloombergLP {
@@ -42,6 +42,8 @@ enum {
 };
 
 static const char *const k_LOG_CATEGORY = "BALL.ASYNCFILEOBSERVER";
+
+static const char *const k_THREAD_NAME = "asyncobserver";
 
 bsl::shared_ptr<ball::Record> createEmptyRecord(
                                               int                   lineNumber,
@@ -80,7 +82,7 @@ void logDroppedMessageWarning(ball::FileObserver *fileObserver, int numDropped)
 }
 
 void logQueueFailureError(ball::FileObserver *fileObserver)
-    // Publish a record to the specified 'fileObserver' at 'ERRORY' severity
+    // Publish a record to the specified 'fileObserver' at 'ERROR' severity
     // level indicating a failure to dequeue methods off of the async file
     // observers record queue.
 {
@@ -99,6 +101,34 @@ void logQueueFailureError(ball::FileObserver *fileObserver)
     fileObserver->publish(record, context);
 }
 
+void logReleaseRecordsError(ball::FileObserver *fileObserver)
+    // Publish a record to the specified 'fileObserver' at 'ERROR' severity
+    // level indicating a failure in flushing the queue as part of release
+    // records.
+{
+    // We log the record unconditionally (i.e., without consulting the logger
+    // manager as to whether ERROR is enabled) to avoid an
+    // observer->loggermanager dependency.
+
+    bsl::shared_ptr<ball::Record> record =
+        createEmptyRecord(__LINE__, ball::Severity::e_ERROR);
+
+    bsl::ostream os(&record->fixedFields().messageStreamBuf());
+    os << "'releaseRecords' unable to restart the publication thread.";
+
+    Context context(Transmission::e_PASSTHROUGH, 0, 0);
+    fileObserver->publish(record, context);
+}
+
+void setPublicationThreadAttributes(bslmt::ThreadAttributes *attributes)
+    // Load the specified 'attributes' with the attributes for the publication
+    // thread (for the moment, the thread name).
+{
+    attributes->setThreadName(k_THREAD_NAME);
+}
+
+        // stop-record functions
+        
 AsyncFileObserver_Record createStopRecord()
     // Return a 'AsyncFileObserver_Record' object for which 'isStopRecord' will
     // return 'true', and that cannot be a user created record from
@@ -292,7 +322,36 @@ void AsyncFileObserver::publish(const bsl::shared_ptr<const Record>& record,
 void AsyncFileObserver::releaseRecords()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    d_recordQueue.removeAll();
+    if (isPublicationThreadRunning()) {
+        d_recordQueue.disablePopFront();
+
+        // If either destroying or creating the publicaiton thread fails, it is
+        // a catastrophic error.
+
+        int rc = bslmt::ThreadUtil::join(d_threadHandle);
+
+        if (0 != rc) {
+            logReleaseRecordsError(&d_fileObserver);
+            return;                                                   // RETURN
+        }
+
+        d_recordQueue.removeAll();
+
+        d_threadState = e_RUNNING;
+        d_recordQueue.enablePopFront();
+
+        bslmt::ThreadAttributes attr;
+        setPublicationThreadAttributes(&attr);
+        rc = bslmt::ThreadUtil::create(
+            &d_threadHandle, attr, d_publishThreadEntryPoint);
+
+        if (0 != rc) {
+            logReleaseRecordsError(&d_fileObserver);
+        }
+    }
+    else {
+        d_recordQueue.removeAll();
+    }
 }
 
 int AsyncFileObserver::shutdownPublicationThread()
@@ -346,6 +405,7 @@ int AsyncFileObserver::startPublicationThread()
         d_recordQueue.enablePopFront();
 
         bslmt::ThreadAttributes attr;
+        setPublicationThreadAttributes(&attr);
         result = bslmt::ThreadUtil::create(&d_threadHandle,
                                            attr,
                                            d_publishThreadEntryPoint);

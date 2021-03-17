@@ -126,12 +126,13 @@ using bsl::flush;
 // [ 1] ball::Severity::Level stdoutThreshold() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [13] CONCERN: MEMORY ACCESS AFTER RELEASERECORDS
 // [12] CONCERN: DEADLOCK ON RELEASERECORDS (DRQS 164688087)
 // [10] CONCERN: CONCURRENT PUBLICATION
 // [ 7] CONCERN: LOGGING TO A FAILING STREAM
 // [ 5] CONCERN: LOG MESSAGE DROP
 // [ 9] CONCERN: ROTATION
-// [13] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 
 // Note assert and debug macros all output to 'cerr' instead of cout, unlike
 // most other test drivers.  This is necessary because test case 2 plays tricks
@@ -696,7 +697,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator *Z = &allocator;
 
     switch (test) { case 0:
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -847,6 +848,71 @@ int main(int argc, char *argv[])
     ASSERT(0 == rc);
 //..
 
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // CONCERN: MEMORY ACCESS AFTER RELEASERECORDS
+        //
+        // Test case for DRQS 165535115.
+        //
+        // Concerns:
+        //:  1 No memory refering to records remains after a call to
+        //:    'releaseRecords'.  This includes the publication thread
+        //:    holding a (still valid shared_ptr) to a record it is
+        //:    activel published.  Note that, on destruction, the logger
+        //:    manager destroys its pool of memory for records after calling
+        //:    'releaseRecords' (so any 'shared_ptr' objects will refer to
+        //:    deallocated memory, even if they remain valid).
+        //
+        // Plan:
+        //:  1 Create a async-file observer, and publish a series a
+        //:    of shared_ptr<Record> objects allocated from a memory
+        //:    pool.  Call 'releaseRecords' and then destroy the pool, without
+        //:    stopping the publication thread.
+        //
+        // Testing:
+        //   CONCERN: MEMORY ACCESS AFTER RELEASERECORDS
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nCONCERN: MEMORY ACCESS AFTER RELEASERECORDS"
+                 << "\n==========================================="
+                 << endl;
+
+        bsl::string LONG_MESSAGE(5000, 'x');
+        TempDirectoryGuard tempDirGuard;
+        bsl::string fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName,
+                                  "asyncfileobserver.t.cpp.case.13");
+
+
+        for (int i = 0; i < 5; ++i) {
+            bslma::TestAllocator oa; // object-allocator
+
+            Obj mX(&oa);
+            mX.startPublicationThread();
+            mX.enableFileLogging(fileName.c_str());
+            {
+                // To reproduce the crash, the allocator for the records should
+                // be destroyed, and at least in practice it helps if that
+                // allocator is on the heap.
+
+                bslma::TestAllocator *ra = new bslma::TestAllocator();
+                ball::Context context;
+                bsl::shared_ptr<ball::Record> record =
+                    createRecord(LONG_MESSAGE, ball::Severity::e_INFO, ra);
+                for (int numRecords = 0; numRecords < 100; ++numRecords) {
+                    mX.publish(record, context);
+                }
+                record.reset();
+                mX.releaseRecords();
+
+                // NOTE: Test allocator 'ra' will be destroyed here while the
+                // publication thread continues.
+
+                delete ra;
+            }
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
