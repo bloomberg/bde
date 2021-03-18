@@ -9,13 +9,20 @@
 
 #include <bdlmt_threadpool.h>
 
-#include <bslim_testutil.h>
-
 #include <bslmt_configuration.h>
 
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
 #include <bdlf_bind.h>
+
+#include <bslmt_barrier.h>    // For test only
+#include <bslmt_latch.h>    // For test only
+#include <bslmt_lockguard.h>  // For test only
+#include <bslmt_testutil.h>
+#include <bslmt_threadattributes.h>     // For test only
+#include <bslmt_threadutil.h>     // For test only
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -27,11 +34,7 @@
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
-#include <bslmt_barrier.h>    // For test only
-#include <bslmt_latch.h>    // For test only
-#include <bslmt_lockguard.h>  // For test only
-#include <bslmt_threadattributes.h>     // For test only
-#include <bslmt_threadutil.h>     // For test only
+#include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdio.h>           // For FILE in usage example
 #include <bsl_cstdlib.h>          // for atoi
@@ -112,23 +115,20 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+#define ASSERT                   BSLMT_TESTUTIL_ASSERT
+#define ASSERTV                  BSLMT_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define GUARD                    BSLMT_TESTUTIL_GUARD
 
-#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLIM_TESTUTIL_L_  // current Line number
+#define Q                        BSLMT_TESTUTIL_Q
+#define P                        BSLMT_TESTUTIL_P
+#define P_                       BSLMT_TESTUTIL_P_
+#define T_                       BSLMT_TESTUTIL_T_
+#define L_                       BSLMT_TESTUTIL_L_
+
+#define GUARDED_STREAM(STREAM)   BSLMT_TESTUTIL_GUARDED_STREAM(STREAM)
+#define COUT                     BSLMT_TESTUTIL_COUT
+#define CERR                     BSLMT_TESTUTIL_CERR
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -142,6 +142,15 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 typedef bdlmt::ThreadPool Obj;
+
+// ============================================================================
+//                          GLOBAL VARIABLES FOR TESTING
+// ----------------------------------------------------------------------------
+
+int test;
+int verbose;
+int veryVerbose;
+int veryVeryVerbose;
 
 // ============================================================================
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
@@ -433,10 +442,10 @@ namespace THREADPOOL_USAGE_EXAMPLE {
 // list.  Function 'myFastSearchJob' uses a 'bslmt::LockGuard' on this mutex to
 // serialize access to the list.
 //..
-        int count = fileList.size();
+        bsl::size_t count = fileList.size();
         my_FastSearchJobInfo *jobInfoArray = new my_FastSearchJobInfo[count];
 
-        for (int i = 0; i < count; ++i) {
+        for (unsigned i = 0; i < count; ++i) {
             my_FastSearchJobInfo &job = jobInfoArray[i];
             job.d_word    = &word;
             job.d_path    = &fileList[i];
@@ -523,14 +532,14 @@ namespace THREADPOOL_USAGE_EXAMPLE {
             return;                                                   // RETURN
         }
 
-        int count = fileList.size();
+        bsl::size_t count = fileList.size();
         my_FastSearchJobInfo  *jobInfoArray = new my_FastSearchJobInfo[count];
 //..
 // We create a functor - a C++ object that acts as a function.  The thread pool
 // will "execute" this functor (by calling its 'operator()' member function) on
 // a thread when one becomes available.
 //..
-        for (int i = 0; i < count; ++i) {
+        for (unsigned i = 0; i < count; ++i) {
             my_FastSearchJobInfo &job = jobInfoArray[i];
             job.d_word    = &word;
             job.d_path    = &fileList[i];
@@ -803,11 +812,10 @@ struct MinusTwoJob {
 
 int main(int argc, char *argv[])
 {
-
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2 ? atoi(argv[2]) : 0;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    test = argc > 1 ? atoi(argv[1]) : 0;
+    verbose = argc > 2 ? atoi(argv[2]) : 0;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
 
     bslmt::Configuration::setDefaultThreadStackSize(
                     bslmt::Configuration::recommendedDefaultThreadStackSize());
@@ -863,11 +871,11 @@ int main(int argc, char *argv[])
 
         case14::CopyCountingFunctor f(&counter);
 
-        LOOP_ASSERT(counter, 0 == counter);  // Sanity check
+        ASSERTV(counter, 0 == counter);  // Sanity check
 
         Obj::Job job(bsl::allocator_arg_t(), &testAllocator, f);
 
-        LOOP_ASSERT(counter, counter > 0);  // We had copies made
+        ASSERTV(counter, counter > 0);  // We had copies made
 
 #ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
         const int buildCopyCounter = counter;
@@ -878,7 +886,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == mX.enqueueJob(bslmf::MovableRefUtil::move(job)));
 
-        LOOP_ASSERT(counter, 0 == counter);  // Mustn't have made copies
+        ASSERTV(counter, 0 == counter);  // Mustn't have made copies
 
 #ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
         // Moving of rvalues are only supported in C++11 mode.
@@ -887,8 +895,8 @@ int main(int argc, char *argv[])
                                   &testAllocator,
                                   f)));
 
-        LOOP2_ASSERT(buildCopyCounter, counter,    // Only made the copies
-                     buildCopyCounter == counter); // needed for construction.
+        ASSERTV(buildCopyCounter, counter,    // Only made the copies
+                buildCopyCounter == counter); // needed for construction.
 #endif
         latch.arrive();
       } break;
@@ -958,7 +966,7 @@ int main(int argc, char *argv[])
 
             double startIdleCpuTime = getCurrentCpuTime();
             if (veryVerbose) {
-                T_ P(startIdleCpuTime)
+                T_ P(startIdleCpuTime);
             }
             bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
             double consumedIdleCpuTime = getCurrentCpuTime()
@@ -966,7 +974,7 @@ int main(int argc, char *argv[])
 
             startIdleCpuTime = getCurrentCpuTime();
             if (veryVerbose) {
-                T_ P_(consumedIdleCpuTime)
+                T_ P_(consumedIdleCpuTime);
             }
             double additiveFudge = 0.01 // to allow for imprecisions in timing
                                  + getCurrentCpuTime() - startIdleCpuTime;
@@ -975,7 +983,7 @@ int main(int argc, char *argv[])
             double maxConsumedCpuTime = fudgeFactor *
                            (additiveFudge + consumedIdleCpuTime * MAX_THREADS);
             if (veryVerbose) {
-                P(maxConsumedCpuTime)
+                P(maxConsumedCpuTime);
             }
 
             Obj x(attr, MIN_THREADS, MAX_THREADS, IDLE_TIME);
@@ -983,28 +991,29 @@ int main(int argc, char *argv[])
             STARTPOOL(x);
 
             if (veryVerbose) {
-                T_ P_(IDLE_TIME) P_(MIN_THREADS) P_(MAX_THREADS) P(SLEEP_TIME)
+                T_ P_(IDLE_TIME); P_(MIN_THREADS); P_(MAX_THREADS);
+                P(SLEEP_TIME);
             }
 
             double startCpuTime = getCurrentCpuTime();
             if (veryVerbose) {
-                 T_ P(startCpuTime)
+                 T_ P(startCpuTime);
             }
             bslmt::ThreadUtil::microSleep(0, SLEEP_TIME);
             double consumedCpuTime = getCurrentCpuTime() - startCpuTime;
 
             if (veryVerbose) {
-                T_ P(consumedCpuTime)
+                T_ P(consumedCpuTime);
             }
             x.stop();
 
             // Failure if more than 10 times idle CPU time consumed per thread
             // plus 50ms (to allow for imprecisions in timing)
             if (verbose && !(consumedCpuTime < maxConsumedCpuTime)) {
-                T_ P(maxConsumedCpuTime)
+                T_ P(maxConsumedCpuTime);
             }
-            LOOP2_ASSERT(consumedCpuTime, maxConsumedCpuTime,
-                         consumedCpuTime < maxConsumedCpuTime);
+            ASSERTV(consumedCpuTime, maxConsumedCpuTime,
+                    consumedCpuTime < maxConsumedCpuTime);
         }
 
       } break;
@@ -1134,11 +1143,11 @@ int main(int argc, char *argv[])
             const Obj& X = mX;
 
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                LOOP_ASSERT(i, 0.0 == X.percentBusy());
+                ASSERTV(i, 0.0 == X.percentBusy());
             }
 
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                LOOP_ASSERT(i, 0.0 == mX.resetPercentBusy());
+                ASSERTV(i, 0.0 == mX.resetPercentBusy());
             }
         }
 
@@ -1164,20 +1173,20 @@ int main(int argc, char *argv[])
             mX.stop();
 
             double percentBusy1 = X.percentBusy();
-            LOOP_ASSERT(percentBusy1, 0 <= percentBusy1);
+            ASSERTV(percentBusy1, 0 <= percentBusy1);
 
             double percentBusy2 = mX.resetPercentBusy();
-            LOOP2_ASSERT(percentBusy1,
-                         percentBusy2,
-                         percentBusy1 >= percentBusy2);
+            ASSERTV(percentBusy1,
+                    percentBusy2,
+                    percentBusy1 >= percentBusy2);
 
-            if (veryVerbose) { T_ P_(percentBusy1) P(percentBusy2) }
+            if (veryVerbose) { T_ P_(percentBusy1); P(percentBusy2); }
 
             double percentX  = X.percentBusy();
             double percentMX = mX.resetPercentBusy();
 
-            LOOP_ASSERT(percentX, 0 == percentX);
-            LOOP_ASSERT(percentMX, 0 == percentMX);
+            ASSERTV(percentX, 0 == percentX);
+            ASSERTV(percentMX, 0 == percentMX);
 
             int result = 0;
 
@@ -1194,17 +1203,17 @@ int main(int argc, char *argv[])
             percentBusy2 = mX.resetPercentBusy();
 
             if (veryVerbose) {
-                T_ P_(percentBusy1) P(percentBusy2) T_ P(result)
+                T_ P_(percentBusy1); P(percentBusy2); T_ P(result);
             }
 
-            LOOP_ASSERT(percentBusy1, 0 <= percentBusy1);
+            ASSERTV(percentBusy1, 0 <= percentBusy1);
             ASSERT(2000000 * NUM_JOBS == result);
-            LOOP2_ASSERT(percentBusy1,
+            ASSERTV(percentBusy1,
                          percentBusy2,
                          percentBusy1 >= percentBusy2);
 
 #if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BDE_BUILD_TARGET_OPT)
-            LOOP_ASSERT(percentBusy1, 50. < percentBusy1);
+            ASSERTV(percentBusy1, 50. < percentBusy1);
             // Should be around 100%, but former values of 99% and 95%
             // triggered occasional failures, so we relax it a bit.  Xlc (at
             // least 8.0) seems to be so aggressive in its optimization that
@@ -1239,7 +1248,7 @@ int main(int argc, char *argv[])
             localX.enqueueJob(TestJobFunction7, NULL);
             barrier.wait();
             ASSERT(DEPTH_LIMIT == depthCounter);
-            if (veryVerbose) { T_ P(depthCounter) }
+            if (veryVerbose) { T_ P(depthCounter); }
         }
 
       } break;
@@ -1288,7 +1297,7 @@ int main(int argc, char *argv[])
             Obj x(attr, MIN, MAX, IDLE);
 
             if (veryVerbose) {
-                T_ P_(IDLE) P_(MIN) P_(MAX) P(BURST)
+                T_ P_(IDLE); P_(MIN); P_(MAX); P(BURST);
             }
 
             STARTPOOL(x);
@@ -1332,7 +1341,7 @@ int main(int argc, char *argv[])
                                           static_cast<double>(duration) * 0.3);
 
             if (veryVerbose) {
-                T_ P_(t1) P_(t2) P(duration)
+                T_ P_(t1); P_(t2); P(duration);
             }
 
             // This suspends for AT LEAST duration... one millisecond has 1000
@@ -1452,16 +1461,16 @@ int main(int argc, char *argv[])
                 const Obj& X = x;
 
                 if (veryVerbose) {
-                    T_ P_(i) P(IDLE) T_ P_(MIN) P(MAX)
+                    T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
                 }
 
-                LOOP_ASSERT(i, MIN == X.minThreads());
-                LOOP_ASSERT(i, MAX == X.maxThreads());
-                LOOP_ASSERT(i, IDLE== X.maxIdleTime());
+                ASSERTV(i, MIN == X.minThreads());
+                ASSERTV(i, MAX == X.maxThreads());
+                ASSERTV(i, IDLE== X.maxIdleTime());
 
                 if (0 != x.start()) {
                     bsl::cout << "Case 5: Thread start failure.  Skipping:\n";
-                    T_ P_(MIN) P(MAX)
+                    T_ P_(MIN); P(MAX);
                     continue;
                 }
                 ASSERT(x.numWaitingThreads() == MIN);
@@ -1477,7 +1486,7 @@ int main(int argc, char *argv[])
                         if (0 != startCond.timedWait(&mutex, timeout)) {
                             bsl::cout << "Case 5: Thread start failure.  "
                                       << "Skipping at: ";
-                            P(j)
+                            P(j);
                             ASSERT(false);
                             args.d_stopSig++;
                             stopCond.broadcast();
@@ -1489,8 +1498,8 @@ int main(int argc, char *argv[])
                 }
 
                 if (veryVeryVerbose) {
-                    T_ P_(MIN) P_(MAX) P(x.numActiveThreads())
-                    P(x.numWaitingThreads())
+                    T_ P_(MIN); P_(MAX); P(x.numActiveThreads());
+                    P(x.numWaitingThreads());
                 }
                 ASSERT(MIN==x.numActiveThreads());
                 ASSERT(0 == x.numWaitingThreads());
@@ -1527,16 +1536,16 @@ int main(int argc, char *argv[])
                 const Obj& X = x;
 
                 if (veryVerbose) {
-                    T_ P_(i) P(IDLE) T_ P_(MIN) P(MAX)
+                    T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
                 }
 
-                LOOP_ASSERT(i, MIN == X.minThreads());
-                LOOP_ASSERT(i, MAX == X.maxThreads());
-                LOOP_ASSERT(i, IDLE== X.maxIdleTime());
+                ASSERTV(i, MIN == X.minThreads());
+                ASSERTV(i, MAX == X.maxThreads());
+                ASSERTV(i, IDLE== X.maxIdleTime());
 
                 if (0 != x.start()) {
                     bsl::cout << "Case 5: Thread start failure.  Skipping:\n";
-                    T_ P_(MIN) P(MAX)
+                    T_ P_(MIN); P(MAX);
                     ASSERT(false);
                     continue;
                 }
@@ -1555,7 +1564,7 @@ int main(int argc, char *argv[])
                         if (0 != startCond.timedWait(&mutex, timeout)) {
                             bsl::cout << "Case 5: Thread start failure.  "
                                          "Skipping at: ";
-                            P(j)
+                            P(j);
                             ASSERT(false);
                             args.d_stopSig++;
                             stopCond.broadcast();
@@ -1567,8 +1576,8 @@ int main(int argc, char *argv[])
                 }
 
                 if (veryVeryVerbose) {
-                    T_ P_(MIN) P_(MAX) P(X.numActiveThreads())
-                    T_ P_(X.numWaitingThreads()) P(X.numPendingJobs())
+                    T_ P_(MIN); P_(MAX); P(X.numActiveThreads());
+                    T_ P_(X.numWaitingThreads()); P(X.numPendingJobs());
                     cout << "\n";
                 }
 
@@ -1581,8 +1590,8 @@ int main(int argc, char *argv[])
 
                 x.enqueueJob(TestJobFunction2, &args);
                 if (veryVeryVerbose) {
-                    T_ P_(MIN) P_(MAX) P(x.numActiveThreads())
-                    T_ P_(X.numWaitingThreads()) P(X.numPendingJobs())
+                    T_ P_(MIN); P_(MAX); P(x.numActiveThreads());
+                    T_ P_(X.numWaitingThreads()); P(X.numPendingJobs());
                     cout << "\n";
                 }
 
@@ -1669,12 +1678,12 @@ int main(int argc, char *argv[])
             const Obj& X = x;
 
             if (veryVerbose) {
-                T_ P_(i) P(IDLE) T_ P_(MIN) P(MAX)
+                T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
             }
 
-            LOOP_ASSERT(i, MIN == X.minThreads());
-            LOOP_ASSERT(i, MAX == X.maxThreads());
-            LOOP_ASSERT(i, IDLE== X.maxIdleTime());
+            ASSERTV(i, MIN == X.minThreads());
+            ASSERTV(i, MAX == X.maxThreads());
+            ASSERTV(i, IDLE== X.maxIdleTime());
 
             STARTPOOL(x);
             ASSERT(1 == x.enabled());
@@ -1689,14 +1698,14 @@ int main(int argc, char *argv[])
                 }
             }
             if (veryVeryVerbose) {
-                T_ P_(x.numActiveThreads()) P(x.numWaitingThreads())
+                T_ P_(x.numActiveThreads()); P(x.numWaitingThreads());
             }
             args.d_stopSig++;
             mutex.unlock();
             stopCond.broadcast();
             x.drain();
             if (veryVeryVerbose) {
-                T_ P_(x.numActiveThreads()) P(x.numWaitingThreads())
+                T_ P_(x.numActiveThreads()); P(x.numWaitingThreads());
             }
             ASSERT(0   == x.numActiveThreads());
             ASSERT(MIN == x.numWaitingThreads());
@@ -1726,12 +1735,12 @@ int main(int argc, char *argv[])
             const Obj& X = x;
 
             if (veryVerbose) {
-                T_ P_(i) P(IDLE) T_ P_(MIN) P(MAX)
+                T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
             }
 
-            LOOP_ASSERT(i, MIN == X.minThreads());
-            LOOP_ASSERT(i, MAX == X.maxThreads());
-            LOOP_ASSERT(i, IDLE== X.maxIdleTime());
+            ASSERTV(i, MIN == X.minThreads());
+            ASSERTV(i, MAX == X.maxThreads());
+            ASSERTV(i, IDLE== X.maxIdleTime());
 
             STARTPOOL(x);
             ASSERT(1 == x.enabled());
@@ -1754,7 +1763,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == x.numActiveThreads());
             ASSERT(0 == x.numWaitingThreads());
             if (veryVeryVerbose) {
-                T_ P_(x.numActiveThreads()) P(x.numWaitingThreads())
+                T_ P_(x.numActiveThreads()); P(x.numWaitingThreads());
             }
 
         }
@@ -1784,12 +1793,12 @@ int main(int argc, char *argv[])
             const Obj& X = x;
 
             if (veryVerbose) {
-                T_ P_(i) P(IDLE) T_ P_(MIN) P(MAX)
+                T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
             }
 
-            LOOP_ASSERT(i, MIN == X.minThreads());
-            LOOP_ASSERT(i, MAX == X.maxThreads());
-            LOOP_ASSERT(i, IDLE== X.maxIdleTime());
+            ASSERTV(i, MIN == X.minThreads());
+            ASSERTV(i, MAX == X.maxThreads());
+            ASSERTV(i, IDLE== X.maxIdleTime());
 
             STARTPOOL(x);
             mutex.lock();
@@ -1806,7 +1815,7 @@ int main(int argc, char *argv[])
                 x.enqueueJob(TestJobFunction2, &args);
             }
             if (veryVeryVerbose) {
-                T_ P(x.numPendingJobs())
+                T_ P(x.numPendingJobs());
             }
 
             ASSERT(MAX == x.numPendingJobs());
@@ -1819,7 +1828,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == x.numActiveThreads());
             ASSERT(0 == x.numWaitingThreads());
             if (veryVeryVerbose) {
-                T_ P_(x.numActiveThreads()) P(x.numWaitingThreads())
+                T_ P_(x.numActiveThreads()); P(x.numWaitingThreads());
             }
         }
 
@@ -1874,13 +1883,13 @@ int main(int argc, char *argv[])
                 const Obj& X = x;
 
                 if (veryVerbose) {
-                    T_ P_(i) P(IDLE) T_ P_(MIN) P(MAX)
+                    T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
                 }
 
-                LOOP_ASSERT(i, MIN  == X.minThreads());
-                LOOP_ASSERT(i, MAX  == X.maxThreads());
-                LOOP_ASSERT(i, IDLE == X.maxIdleTime());
-                LOOP_ASSERT(i, 0    == X.threadFailures());
+                ASSERTV(i, MIN  == X.minThreads());
+                ASSERTV(i, MAX  == X.maxThreads());
+                ASSERTV(i, IDLE == X.maxIdleTime());
+                ASSERTV(i, 0    == X.threadFailures());
             }
 
             if (verbose) cout << "\nNegative Testing." << endl;
@@ -2013,7 +2022,7 @@ int main(int argc, char *argv[])
                 while ( !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }
-                LOOP_ASSERT(i, (i+1) == args.d_count);
+                ASSERTV(i, (i+1) == args.d_count);
             }
             args.d_stopSig++;
             stopCond.broadcast();
@@ -2055,7 +2064,7 @@ int main(int argc, char *argv[])
                 while ( !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }
-                LOOP_ASSERT(i, (i+1) == args.d_count);
+                ASSERTV(i, (i+1) == args.d_count);
                 mutex.unlock();
             }
             ASSERT(NITERATIONS == args.d_count);
@@ -2123,8 +2132,8 @@ int main(int argc, char *argv[])
             }
             localX.drain();
             double averageQueueSize = queueSize / ITERATIONS;
-            P(averageQueueSize)
-            P(timer.elapsedTime())
+            P(averageQueueSize);
+            P(timer.elapsedTime());
             localX.shutdown();
         }
 

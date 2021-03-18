@@ -9,21 +9,28 @@
 
 #include <bslmt_threadgroup.h>
 
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
 #include <bslmt_semaphore.h>
+#include <bslmt_testutil.h>
 #include <bslmt_threadutil.h>
-
-#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_iostream.h>
 #include <bsl_streambuf.h>
+#include <bsl_string.h>
 
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 
 using namespace BloombergLP;
 
@@ -57,7 +64,8 @@ using bsl::flush;
 // [ 2] CONCERN: MULTI-THREADING
 // [ 3] CONCERN: FUNCTOR LIFETIME
 // [ 4] CONCERN: DESTRUCTOR DOES NOT BLOCK
-// [ 5] USAGE EXAMPLE
+// [ 5] THREAD NAMING
+// [ 6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -86,23 +94,20 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+#define ASSERT                   BSLMT_TESTUTIL_ASSERT
+#define ASSERTV                  BSLMT_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define GUARD                    BSLMT_TESTUTIL_GUARD
 
-#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLIM_TESTUTIL_L_  // current Line number
+#define Q                        BSLMT_TESTUTIL_Q
+#define P                        BSLMT_TESTUTIL_P
+#define P_                       BSLMT_TESTUTIL_P_
+#define T_                       BSLMT_TESTUTIL_T_
+#define L_                       BSLMT_TESTUTIL_L_
+
+#define GUARDED_STREAM(STREAM)   BSLMT_TESTUTIL_GUARDED_STREAM(STREAM)
+#define COUT                     BSLMT_TESTUTIL_COUT
+#define CERR                     BSLMT_TESTUTIL_CERR
 
 // ============================================================================
 //            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
@@ -113,6 +118,7 @@ static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
 namespace {
+namespace u {
 
 class ThreadChecker {
 
@@ -126,13 +132,15 @@ class ThreadChecker {
     class ThreadCheckerFunctor {
         ThreadChecker *d_checker_p;
 
-    public:
+      public:
+        explicit
         ThreadCheckerFunctor(ThreadChecker *checker)
         : d_checker_p(checker)
         {}
 
         // MANIPULATORS
-        void operator()() {
+        void operator()()
+        {
             d_checker_p->eval();
         }
     };
@@ -144,7 +152,8 @@ class ThreadChecker {
     {}
 
     // MANIPULATORS
-    void eval() {
+    void eval()
+    {
        d_startBarrier->lock();
        d_startBarrier->unlock();
        d_mutex.lock();
@@ -152,7 +161,8 @@ class ThreadChecker {
        d_mutex.unlock();
     }
 
-    ThreadCheckerFunctor getFunc() {
+    ThreadCheckerFunctor getFunc()
+    {
         return ThreadCheckerFunctor(this);
     }
 
@@ -186,7 +196,8 @@ class ThreadChecker {
         , d_mutex_p(mutex)
         {}
 
-        void operator()() {
+        void operator()()
+        {
             for (int i = 0; i < d_numIterations; ++i) {
                 bslmt::LockGuard<bslmt::Mutex> guard(d_mutex_p);
                 ++*d_value_p;
@@ -198,7 +209,7 @@ class ThreadChecker {
 class MutexTestSyncJob : private MutexTestJob {
     bslmt::Semaphore *d_startSemaphore_p;
 
-public:
+  public:
     MutexTestSyncJob(int              *value,
                      bslmt::Mutex     *mutex,
                      int               numIterations,
@@ -207,7 +218,8 @@ public:
     , d_startSemaphore_p(startSemaphore)
     {}
 
-    void operator()() {
+    void operator()()
+    {
         d_startSemaphore_p->wait();
         MutexTestJob::operator()();
     }
@@ -216,7 +228,7 @@ public:
 class MutexTestDoubleSyncJob : private MutexTestSyncJob {
     bslmt::Semaphore *d_doneSync_p;
 
-public:
+  public:
     MutexTestDoubleSyncJob(int              *value,
                            bslmt::Mutex     *mutex,
                            int               numIterations,
@@ -226,7 +238,8 @@ public:
     , d_doneSync_p(doneSync)
     {}
 
-    void operator()() {
+    void operator()()
+    {
         MutexTestSyncJob::operator()();
         d_doneSync_p->post();
     }
@@ -238,7 +251,7 @@ class SynchronizedAddJob {
     bslmt::Mutex       *d_start_p;
     int                 d_numThreadsToAdd;
 
-public:
+  public:
     SynchronizedAddJob(bslmt::ThreadGroup* threadGroup,
                        const MutexTestJob& job,
                        bslmt::Mutex*       start,
@@ -246,11 +259,13 @@ public:
     : d_tg_p(threadGroup)
     , d_job(job)
     , d_start_p(start)
-    , d_numThreadsToAdd(numThreadsToAdd) {
+    , d_numThreadsToAdd(numThreadsToAdd)
+    {
         BSLS_ASSERT(3 >= numThreadsToAdd);
     }
 
-    void operator()() {
+    void operator()()
+    {
         d_start_p->lock();
         d_start_p->unlock();
         d_tg_p->addThread(d_job);
@@ -258,6 +273,7 @@ public:
     }
 };
 
+}  // close namespace u
 }  // close unnamed namespace
 
 // ============================================================================
@@ -274,6 +290,9 @@ int main(int argc, char *argv[])
     veryVeryVeryVerbose = (argc > 5);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslma::TestAllocator ta("test"), da("default");
+    bslma::DefaultAllocatorGuard dGuard(&da);
 
     switch (test) { case 0:
       case 5: {
@@ -304,7 +323,6 @@ int main(int argc, char *argv[])
 
 // The second executes the main body of the test:
 //..
-    bslma::TestAllocator ta;
     {
         const int NUM_ITERATIONS = 10000;
         const int NUM_THREADS    = 8;
@@ -312,7 +330,7 @@ int main(int argc, char *argv[])
         bslmt::Mutex   mutex;                     // object under test
         int            value = 0;
 
-        MutexTestJob testJob(NUM_ITERATIONS, &value, &mutex);
+        u::MutexTestJob testJob(NUM_ITERATIONS, &value, &mutex);
 
         bslmt::ThreadGroup threadGroup(&ta);
         for (int i = 0; i < NUM_THREADS; ++i) {
@@ -345,7 +363,6 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ga(veryVeryVeryVerbose);
         bslma::Default::setGlobalAllocator(&ga);
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             const int NUM_ITERATIONS = 1000;
             const int NUM_THREADS    = 8;
@@ -357,8 +374,8 @@ int main(int argc, char *argv[])
 
             int value = 0;
 
-            MutexTestDoubleSyncJob testFunc(&value, &mutex, NUM_ITERATIONS,
-                                            &startSemaphore, &doneSemaphore);
+            u::MutexTestDoubleSyncJob testFunc(&value, &mutex, NUM_ITERATIONS,
+                                              &startSemaphore, &doneSemaphore);
 
             {
                 bslmt::ThreadGroup threadGroup(&ta);
@@ -445,8 +462,8 @@ int main(int argc, char *argv[])
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Testing 'addThread'
             {
-                MutexTestSyncJob testFunc(&value, &mutex, NUM_ITERATIONS,
-                                          &startSemaphore);
+                u::MutexTestSyncJob testFunc(&value, &mutex, NUM_ITERATIONS,
+                                             &startSemaphore);
                 ASSERT(0 == mX.addThread(testFunc));
             }
 
@@ -461,8 +478,8 @@ int main(int argc, char *argv[])
             value = 0;
 
             {
-                MutexTestSyncJob testFunc(&value, &mutex, NUM_ITERATIONS,
-                                          &startSemaphore);
+                u::MutexTestSyncJob testFunc(&value, &mutex, NUM_ITERATIONS,
+                                             &startSemaphore);
                 ASSERT(NUM_THREADS == mX.addThreads(testFunc, NUM_THREADS));
             }
 
@@ -514,16 +531,17 @@ int main(int argc, char *argv[])
             bslmt::Mutex   startMutex;
             startMutex.lock();
 
-            MutexTestJob testFunc(NUM_ITERATIONS, &value, &mutex);
+            u::MutexTestJob testFunc(NUM_ITERATIONS, &value, &mutex);
 
             bslmt::ThreadGroup tg(&ta);
             bslmt::ThreadGroup addingGroup(&ta);
             for (int i = 0; i < NUM_ADDING_THREADS; ++i) {
-                LOOP_ASSERT(i, 0 == addingGroup.addThread(SynchronizedAddJob(
-                                            &tg,
-                                            testFunc,
-                                            &startMutex,
-                                            NUM_THREADS_ADDED_PER_THREAD)));
+                ASSERTV(i, 0 == addingGroup.addThread(
+                                     u::SynchronizedAddJob(
+                                               &tg,
+                                               testFunc,
+                                               &startMutex,
+                                               NUM_THREADS_ADDED_PER_THREAD)));
             }
             startMutex.unlock();
             addingGroup.joinAll();
@@ -565,17 +583,15 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ga(veryVeryVeryVerbose);
         bslma::Default::setGlobalAllocator(&ga);
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
            bslmt::ThreadGroup        mX(&ta);
-           const bslmt::ThreadGroup&  X = mX;
 
            bslmt::Mutex startBarrier;
 
            // Perform two iterations to ensure the object behaves correctly
            // after 'joinAll' is called.
            for (int i = 0; i < 2; ++i) {
-               ThreadChecker checker(&startBarrier);
+               u::ThreadChecker checker(&startBarrier);
                startBarrier.lock();
 
                ASSERT(0 == mX.numThreads());
@@ -606,6 +622,8 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    ASSERT(0 == da.numAllocations());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."
