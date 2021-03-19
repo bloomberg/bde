@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmt' package currently has 49 components having 18 levels of physical
+ The 'bslmt' package currently has 50 components having 18 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -59,7 +59,8 @@
       bslmt_semaphoreimpl_win32                                       !PRIVATE!
       bslmt_timedsemaphoreimpl_win32                                  !PRIVATE!
 
-   7. bslmt_mutex
+   7. bslmt_chronoutil
+      bslmt_mutex
       bslmt_recursivemutex
       bslmt_timedsemaphoreimpl_posixadv                               !PRIVATE!
       bslmt_timedsemaphoreimpl_pthread                                !PRIVATE!
@@ -94,6 +95,9 @@
 /------------------
 : 'bslmt_barrier':
 :      Provide a thread barrier component.
+:
+: 'bslmt_chronoutil':
+:      Provide utilities related to threading with C++11-style clocks.
 :
 : 'bslmt_condition':
 :      Provide a portable, efficient condition variable.

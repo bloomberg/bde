@@ -29,12 +29,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 // [1] Breathing test
-// [2] wait(int *signalInterrupted = 0)
-// [2] post()
-// [3] timedWait(bsls::TimeInterval absTime)
-// [4] post(int number)
-// [5] tryWait()
-// [6] USAGE Example
+// [2] bsls::SystemClockType::Enum clockType() const;
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -280,6 +275,44 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING 'clockType'
+        //
+        // Concerns:
+        //: 1 'clockType' returns the clock type passed to the constructor.
+        //:
+        //: 2 'clockType' is declared 'const'.
+        //
+        // Plan:
+        //: 1 Create a 'const' object, and then query it to make sure that the
+        //:   correct clock type is returned.
+        //
+        // Testing:
+        //   bsls::SystemClockType::Enum clockType() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'clockType'" << endl
+                          << "===================" << endl;
+
+        const Obj def;
+        ASSERT(bsls::SystemClockType::e_REALTIME == def.clockType());
+
+        const Obj rt(bsls::SystemClockType::e_REALTIME);
+        ASSERT(bsls::SystemClockType::e_REALTIME == rt.clockType());
+
+        const Obj mt(bsls::SystemClockType::e_MONOTONIC);
+        ASSERT(bsls::SystemClockType::e_MONOTONIC == mt.clockType());
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        const Obj rtC((bsl::chrono::system_clock()));
+        ASSERT(bsls::SystemClockType::e_REALTIME == rtC.clockType());
+
+        const Obj mtC((bsl::chrono::steady_clock()));
+        ASSERT(bsls::SystemClockType::e_MONOTONIC == mtC.clockType());
+#endif
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST:

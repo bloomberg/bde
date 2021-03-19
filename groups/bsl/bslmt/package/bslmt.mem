@@ -1,4 +1,5 @@
 bslmt_barrier
+bslmt_chronoutil
 bslmt_condition
 bslmt_conditionimpl_pthread
 bslmt_conditionimpl_win32

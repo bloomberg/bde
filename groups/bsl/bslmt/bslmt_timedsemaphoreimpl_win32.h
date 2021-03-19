@@ -124,6 +124,10 @@ class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
     TimedSemaphoreImpl& operator=(const TimedSemaphoreImpl&);
 
   public:
+    // TYPES
+    enum { e_TIMED_OUT = 0x102 };
+        // The value 'timedWait' returns when a timeout occurs.
+
     // CREATORS
     explicit
     TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType

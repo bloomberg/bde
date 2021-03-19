@@ -101,6 +101,10 @@ class TimedSemaphoreImpl<Platform::PthreadTimedSemaphore> {
         // error.
 
   public:
+    // TYPES
+    enum { e_TIMED_OUT = 1 };
+        // The value 'timedWait' returns when a timeout occurs.
+
     // CREATORS
     explicit
     TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType
