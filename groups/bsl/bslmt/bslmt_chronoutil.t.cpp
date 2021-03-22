@@ -482,14 +482,15 @@ int main(int argc, char *argv[])
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         using namespace bsl::chrono;
 
+        ASSERT( bslmt::ChronoUtil_ToBslsSystemClockType<system_clock>::value);
+        ASSERT( bslmt::ChronoUtil_ToBslsSystemClockType<steady_clock>::value);
+        ASSERT(!bslmt::ChronoUtil_ToBslsSystemClockType<HalfClock>::value);
+        ASSERT(!bslmt::ChronoUtil_ToBslsSystemClockType<AnotherClock>::value);
+
         ASSERT( bsls::SystemClockType::e_REALTIME  ==
-                 bslmt::ChronoUtil_ToBslsSystemClockType<system_clock>::value);
+          bslmt::ChronoUtil_ToBslsSystemClockType<system_clock>::k_CLOCK_TYPE);
         ASSERT( bsls::SystemClockType::e_MONOTONIC ==
-                 bslmt::ChronoUtil_ToBslsSystemClockType<steady_clock>::value);
-        ASSERT( bsls::SystemClockType::e_REALTIME  !=
-                    bslmt::ChronoUtil_ToBslsSystemClockType<HalfClock>::value);
-        ASSERT( bsls::SystemClockType::e_MONOTONIC !=
-                    bslmt::ChronoUtil_ToBslsSystemClockType<HalfClock>::value);
+          bslmt::ChronoUtil_ToBslsSystemClockType<steady_clock>::k_CLOCK_TYPE);
 #endif
       } break;
       default: {

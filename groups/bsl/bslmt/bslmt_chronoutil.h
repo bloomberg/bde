@@ -219,33 +219,42 @@ struct ChronoUtil {
 // PRIVATE TYPES
 template <class CLOCK>
 struct ChronoUtil_ToBslsSystemClockType;
-    // This 'struct' template implements a metafunction that returns the
-    // 'bsls' system clock type the specified template parameter 'CLOCK'
-    // corresponds to.  See {'bsls_systemclocktype'}.
+    // This 'struct' template implements a metafunction that returns whether
+    // the specified template parameter 'CLOCK' corresponds to a 'bsls' system
+    // clock type, and if so, which one.  See {'bsls_systemclocktype'}.
 
 template <class CLOCK>
-struct ChronoUtil_ToBslsSystemClockType
-    : bsl::integral_constant<bsls::SystemClockType::Enum,
-                             bsls::SystemClockType::Enum(255)> {
-    // This 'struct' template maps all types to an unknown 'bsls' system clock
-    // type.  This is the general template for
-    // 'ChronoUtil_ToBslsSystemClockType'.
+struct ChronoUtil_ToBslsSystemClockType : bsl::bool_constant<false> {
+    // This 'struct' template reports that all types do not correspond to a
+    // 'bsls' system clock type.  This is the general template for
+    // 'ChronoUtil_ToBslsSystemClockType'.  The value of 'k_CLOCK_TYPE' in
+    // instantiations of this general template should not be relied upon.
+
+    // PUBLIC CLASS DATA
+    static const bsls::SystemClockType::Enum k_CLOCK_TYPE =
+                                             bsls::SystemClockType::e_REALTIME;
 };
 
 template <>
 struct ChronoUtil_ToBslsSystemClockType<bsl::chrono::system_clock>
-    : bsl::integral_constant<bsls::SystemClockType::Enum,
-                             bsls::SystemClockType::e_REALTIME> {
-    // This partial specialization of 'ChronoUtil_ToBslsSystemClockType' maps
-    // 'bsl::chrono::system_clock' to 'e_REALTIME'
+    : bsl::bool_constant<true> {
+    // This specialization of 'ChronoUtil_ToBslsSystemClockType' reports that
+    // 'bsl::chrono::system_clock' corresponds to 'e_REALTIME'.
+
+    // PUBLIC CLASS DATA
+    static const bsls::SystemClockType::Enum k_CLOCK_TYPE =
+                                             bsls::SystemClockType::e_REALTIME;
 };
 
 template <>
 struct ChronoUtil_ToBslsSystemClockType<bsl::chrono::steady_clock>
-    : bsl::integral_constant<bsls::SystemClockType::Enum,
-                             bsls::SystemClockType::e_MONOTONIC> {
-    // This partial specialization of 'ChronoUtil_ToBslsSystemClockType' maps
-    // 'bsl::chrono::steady_clock' to 'e_MONOTONIC'
+    : bsl::bool_constant<true> {
+    // This specialization of 'ChronoUtil_ToBslsSystemClockType' reports that
+    // 'bsl::chrono::steady_clock' corresponds to 'e_MONOTONIC'.
+
+    // PUBLIC CLASS DATA
+    static const bsls::SystemClockType::Enum k_CLOCK_TYPE =
+                                            bsls::SystemClockType::e_MONOTONIC;
 };
 
                            // -----------------
@@ -257,7 +266,9 @@ template <class CLOCK>
 inline
 bool ChronoUtil::isMatchingClock(bsls::SystemClockType::Enum clockType)
 {
-    return clockType == ChronoUtil_ToBslsSystemClockType<CLOCK>::value;
+    typedef ChronoUtil_ToBslsSystemClockType<CLOCK> ClockMapper;
+
+    return ClockMapper::value ? clockType == ClockMapper::k_CLOCK_TYPE : false;
 }
 
 // CLASS METHODS
