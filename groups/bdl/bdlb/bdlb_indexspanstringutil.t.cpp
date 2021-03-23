@@ -5,6 +5,8 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_testallocator.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_buildtarget.h>
 
@@ -26,8 +28,12 @@ using namespace bsl;
 // objects.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [2] bslstl::StringRef bind(string, span);
-// [3] IndexSpan create(string, substring);
+// [2] bsl::[w]string_view bind([w]string, span);
+// [3] IndexSpan createFromPositions([w]string, pos, end);
+// [3] IndexSpan create([w]string, pos, len);
+// [3] IndexSpan create([w]string, substring);
+// [3] IndexSpan create([w]string, begin, len);
+// [3] IndexSpan create([w]string, begin, end);
 // ----------------------------------------------------------------------------
 // [1] BREATHING TEST
 // [4] USAGE EXAMPLE
@@ -94,6 +100,49 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdlb::IndexSpanStringUtil Util;
 
 //=============================================================================
+//                           TEMPORARY WORKAROUND
+//-----------------------------------------------------------------------------
+// This temporary workaround needs to remain in place until
+// {DRQS 164229251 <GO>} is fixed, so `bsl::string_view` can be directly
+// compared to a string literal.
+
+namespace BloombergLP {
+namespace bdlb {
+namespace indexSpanStringUtil_TestOnly {
+
+struct Spartacus {
+    bsl::string_view d_value;
+
+    Spartacus(const bsl::string_view& value)  // IMPLICIT
+    : d_value(value) { }
+
+    template <bsl::size_t SIZE>
+    Spartacus(const char (&value)[SIZE])  // IMPLICIT
+    : d_value(value, SIZE - 1)
+    {
+        BSLS_ASSERT('\0' == value[SIZE - 1]);  // Only string literals.
+    }
+};
+
+bool operator==(const Spartacus &lhs, const Spartacus &rhs)
+{
+    return lhs.d_value == rhs.d_value;
+}
+
+}  // close namespace indexSpanStringUtil_TestOnly
+}  // close package namespace
+}  // close enterprise namespace
+
+using BloombergLP::bdlb::indexSpanStringUtil_TestOnly::operator==;
+
+// This temporary workaround needs to remain in place until
+// {DRQS 164229251 <GO>} is fixed, so `bsl::string_view` can be directly
+// compared to a string literal.
+//-----------------------------------------------------------------------------
+//                     END TEMPORARY WORKAROUND
+//=============================================================================
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -102,7 +151,7 @@ int main(int argc, char *argv[])
     int  test            = argc > 1 ? bsl::atoi(argv[1]) : 0;
     bool verbose         = argc > 2;
     bool veryVerbose     = argc > 3;
-    bool veryVeryVerbose = argc > 4; (void)veryVeryVerbose;
+    bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -195,15 +244,15 @@ int main(int argc, char *argv[])
 // First, we define a string reference of the parsed string to show that 'bind'
 // works both on strings and string references:
 //..
-    const bslstl::StringRef fullRef(full);
+    const bsl::string_view full_view(full);
 //..
 // Then we demonstrate binding 'IndexSpan' object to that reference:
 //..
-    ASSERT(bdlb::IndexSpanStringUtil::bind(fullRef, first) == "James");
+    ASSERT(bdlb::IndexSpanStringUtil::bind(full_view, first) == "James");
 
-    ASSERT(bdlb::IndexSpanStringUtil::bind(fullRef, middle) == "Tiberius");
+    ASSERT(bdlb::IndexSpanStringUtil::bind(full_view, middle) == "Tiberius");
 
-    ASSERT(bdlb::IndexSpanStringUtil::bind(fullRef, last) == "Kirk");
+    ASSERT(bdlb::IndexSpanStringUtil::bind(full_view, last) == "Kirk");
 //..
 // Finally we demonstrate binding 'IndexSpan' object to a string:
 //..
@@ -220,28 +269,38 @@ int main(int argc, char *argv[])
         // TESTING CREATE
         //
         // Concerns:
-        //: 1 It creates the expected 'IndexSpan'.
+        //: 1 Calls create the expected 'IndexSpan' values.
         //:
         //: 2 Bad arguments assert in the proper build mode.
         //:
-        //: 3 All functions are callable with 'bsl::string' objects.
+        //: 3 All functions are callable with 'const' references to
+        //:   'bsl::string_view', 'bslstl::StringRef', 'bsl::string',
+        //:   'std::string', and 'std::pmr::string' objects as first argument,
+        //:   as well as their wide equivalents.
         //
         // Plan:
-        //: 1 Use table based testing with both good and bad calls.
+        //: 1 Use table based testing for both good and bad (invalid
+        //:   precondition) calls.
         //:
-        //: 2 Test all overloads for all rows of the table.
+        //: 2 Test all overloads of 'create', as well as 'createFromPositions'
+        //:   for all rows of the tables.
         //:
         //: 3 Test both wide and narrow character versions.
         //:
         //: 4 Separately verify that too low 'begin' for 'create' with
-        //:   'StringRef' input asserts.  It is not possible to portably test
-        //:   this situation with 'bsl::string' input as we cannot create a
-        //:   'bsl::string::iterator' or a 'StringRef' that points into the
-        //:   same allocated area (as required by the C++ standard) and has a
-        //:   lower begin value than 'bslString.begin()'.
+        //:   'bsl::string_view' and 'bslstl::StringRef' inputs asserts.  Note
+        //:   that too low begin position or iterator cannot be tested with a
+        //:   'bsl::string', 'std::string', or 'std::pmr::string' input as we
+        //:   cannot create a valid iterator', or even a 'StringRef', that
+        //:   would point into the same allocated memory area (as required by
+        //:   the C++ standard) and has a lower begin value than 'begin()'.
         //
         // Testing:
-        //   IndexSpan create(string, substring);
+        //   IndexSpan createFromPositions([w]string, pos, end);
+        //   IndexSpan create([w]string, pos, len);
+        //   IndexSpan create([w]string, substring);
+        //   IndexSpan create([w]string, begin, len);
+        //   IndexSpan create([w]string, begin, end);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING CREATE"
@@ -249,290 +308,461 @@ int main(int argc, char *argv[])
 
         typedef bdlb::IndexSpan::size_type size_type;
 
-        if (verbose) cout << "Testing narrow string overloads.\n";
+        if (veryVerbose) cout << "Positive narrow string overload tests.\n";
 
-        static struct TestData {
+        static const struct TestData {
             long long         d_line;
             bslstl::StringRef d_str;
-            char              d_bad;  // 'X' if precondition violation
             size_type         d_pos;
             size_type         d_len;
         } k_DATA[] = {
-            { L_ , "",                 ' ',  0,  0 },
-            { L_ , "",                 'X',  1,  0 },
-            { L_ , "",                 'X',  0,  1 },
-            { L_ , "",                 'X',  1,  1 },
-            { L_ , "0123456789abcdef", ' ',  0,  0 },
-            { L_ , "0123456789abcdef", ' ',  0,  5 },
-            { L_ , "0123456789abcdef", ' ',  5,  5 },
-            { L_ , "0123456789abcdef", ' ',  3, 10 },
-            { L_ , "0123456789abcdef", ' ', 16,  0 },
-            { L_ , "0123456789abcdef", ' ', 15,  1 },
-            { L_ , "0123456789abcdef", ' ',  0,  1 },
-            { L_ , "0123456789abcdef", 'X', 17,  0 },
-            { L_ , "0123456789abcdef", 'X', 16,  1 },
-            { L_ , "0123456789abcdef", 'X', 10,  7 },
-            { L_ , "0123456789abcdef", ' ', 10,  6 },
+            { L_ , "",                  0,  0 },
+            { L_ , "0123456789abcdef",  0,  0 },
+            { L_ , "0123456789abcdef",  0,  5 },
+            { L_ , "0123456789abcdef",  5,  5 },
+            { L_ , "0123456789abcdef",  3, 10 },
+            { L_ , "0123456789abcdef", 16,  0 },
+            { L_ , "0123456789abcdef", 15,  1 },
+            { L_ , "0123456789abcdef",  0,  1 },
+            { L_ , "0123456789abcdef", 10,  6 },
         };
 
         static bsl::size_t NUM_TESTS = sizeof k_DATA / sizeof *k_DATA;
 
         for (bsl::size_t i = 0; i < NUM_TESTS; ++i) {
-            const TestData&          k_TEST     = k_DATA[i];
-            const long long          k_LINE     = k_TEST.d_line;
-            const bslstl::StringRef& k_STR      = k_TEST.d_str;
-            const bool               k_GOOD     = k_TEST.d_bad != 'X';
-            const bdlb::IndexSpan    k_EXPECTED(k_TEST.d_pos, k_TEST.d_len);
-            const bsl::string&       k_BSLSTR = k_STR;
+            bslma::TestAllocator     sa("bslstring", veryVeryVerbose);
+            const TestData&          k_TEST    = k_DATA[i];
+            const long long          k_LINE    = k_TEST.d_line;
+            const bsl::string_view&  k_STRVIEW = k_TEST.d_str;
+            const size_type          k_POS     = k_TEST.d_pos;
+            const size_type          k_LEN     = k_TEST.d_len;
+            const bslstl::StringRef& k_STRREF  = k_STRVIEW;
+            const bsl::string        k_BSLSTR(k_STRVIEW, &sa);
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            const std::string        k_STDSTR(k_STRVIEW);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::string   k_PMRSTR(k_STRVIEW);
+#endif
+#else
+            const std::string       k_STDSTR(k_STRREF.data(), k_STRREF.size());
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::string  k_PMRSTR(k_STRREF.data(), k_STRREF.size());
+#endif
+#endif
+            const bdlb::IndexSpan    k_EXPECTED(k_POS, k_LEN);
 
             if (veryVerbose) {
-                P_(k_LINE); P_(k_STR); P_(k_GOOD); P(k_EXPECTED);
+                P_(k_LINE); P_(k_STRVIEW); P(k_EXPECTED);
             }
 
-            const size_type k_BEGIN_POS = k_EXPECTED.position();
-            const size_type k_END_POS   = k_BEGIN_POS + k_EXPECTED.length();
+            const size_type k_END_POS = k_POS + k_LEN;
 
-            const size_type k_LENGTH = k_EXPECTED.length();
+            bdlb::IndexSpan created;
 
-            const bslstl::StringRef k_SUBSTR(
-                                          k_STR.data() + k_EXPECTED.position(),
-                                          k_EXPECTED.length());
-            const bslstl::StringRef k_BSLSUBSTR(
-                                       k_BSLSTR.data() + k_EXPECTED.position(),
-                                       k_EXPECTED.length());
+#define VERIFY_CREATE ASSERTV(created, k_EXPECTED, k_EXPECTED == created)
 
-            if (k_GOOD) {
-                bdlb::IndexSpan created;
+#define TEST_CREATE_FROM_POSITIONS(input)                                     \
+    created = Util::createFromPositions(input, k_POS, k_END_POS);             \
+    VERIFY_CREATE
 
-                created = Util::createFromPositions(k_STR,
-                                                    k_BEGIN_POS,
-                                                    k_END_POS);
-                ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-                created = Util::createFromPositions(k_BSLSTR,
-                                                    k_BEGIN_POS,
-                                                    k_END_POS);
-                ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-
-                created = Util::create(k_STR, k_BEGIN_POS, k_LENGTH);
-                ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-                created = Util::create(k_BSLSTR, k_BEGIN_POS, k_LENGTH);
-                ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-
-                {
-                    typedef bslstl::StringRef::const_iterator Cit;
-                    const Cit k_BEGIN = k_STR.begin() + k_EXPECTED.position();
-                    const Cit k_END = k_BEGIN + k_EXPECTED.length();
-
-                    created = Util::create(k_STR, k_BEGIN, k_LENGTH);
-                    ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-
-                    created = Util::create(k_STR, k_BEGIN, k_END);
-                    ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-                }
-
-                {
-                    typedef bsl::string::const_iterator StrCit;
-                    const StrCit k_BEGIN = k_BSLSTR.begin()
-                                           + k_EXPECTED.position();
-                    const StrCit k_END = k_BEGIN + k_EXPECTED.length();
-
-                    created = Util::create(k_BSLSTR, k_BEGIN, k_LENGTH);
-                    ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-
-                    created = Util::create(k_BSLSTR, k_BEGIN, k_END);
-                    ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-                }
-
-                created = Util::create(k_STR, k_SUBSTR);
-                ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-                created = Util::create(k_BSLSTR, k_BSLSUBSTR);
-                ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-            }
-            else {
-#ifdef BDE_BUILD_TARGET_EXC
-                bsls::AssertTestHandlerGuard g; (void)g;
-
-                ASSERT_FAIL(Util::createFromPositions(k_STR,
-                                                      k_BEGIN_POS,
-                                                      k_END_POS));
-                ASSERT_FAIL(Util::createFromPositions(k_BSLSTR,
-                                                      k_BEGIN_POS,
-                                                      k_END_POS));
-
-                ASSERT_FAIL(Util::create(k_STR,    k_BEGIN_POS, k_LENGTH));
-                ASSERT_FAIL(Util::create(k_BSLSTR, k_BEGIN_POS, k_LENGTH));
-
-                {
-                    typedef bslstl::StringRef::const_iterator Cit;
-                    const Cit k_BEGIN = k_STR.begin() + k_EXPECTED.position();
-                    const Cit k_END = k_BEGIN + k_EXPECTED.length();
-
-                    ASSERT_FAIL(Util::create(k_STR, k_BEGIN, k_LENGTH));
-                    ASSERT_FAIL(Util::create(k_STR, k_BEGIN, k_END));
-                }
-
-                {
-                    typedef bsl::string::const_iterator StrCit;
-                    const StrCit k_BEGIN = k_BSLSTR.begin()
-                                           + k_EXPECTED.position();
-                    const StrCit k_END = k_BEGIN + k_EXPECTED.length();
-
-                    ASSERT_FAIL(Util::create(k_BSLSTR, k_BEGIN, k_LENGTH));
-                    ASSERT_FAIL(Util::create(k_BSLSTR, k_BEGIN, k_END));
-                }
-
-                ASSERT_FAIL(Util::create(k_STR,    k_SUBSTR));
-                ASSERT_FAIL(Util::create(k_BSLSTR, k_BSLSUBSTR));
+            TEST_CREATE_FROM_POSITIONS(k_STRVIEW);
+            TEST_CREATE_FROM_POSITIONS(k_STRREF);
+            TEST_CREATE_FROM_POSITIONS(k_BSLSTR);
+            TEST_CREATE_FROM_POSITIONS(k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_CREATE_FROM_POSITIONS(k_PMRSTR);
 #endif
-            }
+#undef TEST_CREATE_FROM_POSITIONS
+
+#define TEST_CREATE_FROM_POS_LEN(input)                                       \
+    created = Util::create(input, k_POS, k_LEN);                              \
+    VERIFY_CREATE
+
+            TEST_CREATE_FROM_POS_LEN(k_STRVIEW);
+            TEST_CREATE_FROM_POS_LEN(k_STRREF);
+            TEST_CREATE_FROM_POS_LEN(k_BSLSTR);
+            TEST_CREATE_FROM_POS_LEN(k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_CREATE_FROM_POS_LEN(k_PMRSTR);
+#endif
+#undef TEST_CREATE_FROM_POS_LEN
+
+#define TEST_CREATE_FROM_ITER(inType, input)                                  \
+    {                                                                         \
+        typedef inType::const_iterator Cit;                                   \
+        const Cit k_BEGIN = input.begin() + k_POS;                            \
+        const Cit k_END = k_BEGIN + k_LEN;                                    \
+                                                                              \
+        created = Util::create(input, k_BEGIN, k_LEN);                        \
+        VERIFY_CREATE;                                                        \
+                                                                              \
+        created = Util::create(input, k_BEGIN, k_END);                        \
+        VERIFY_CREATE;                                                        \
+    }
+
+            TEST_CREATE_FROM_ITER(bsl::string_view,  k_STRVIEW);
+            TEST_CREATE_FROM_ITER(bslstl::StringRef, k_STRREF);
+            TEST_CREATE_FROM_ITER(bsl::string,       k_BSLSTR);
+            TEST_CREATE_FROM_ITER(std::string,       k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_CREATE_FROM_ITER(std::pmr::string, k_PMRSTR);
+#endif
+#undef TEST_CREATE_FROM_ITER
+
+#define TEST_CREATE_FROM_SUBSTR(input)                                        \
+    {                                                                         \
+        const bsl::string_view k_SUBVIEW(input.data() + k_POS, k_LEN);        \
+        created = Util::create(input, k_SUBVIEW);                             \
+        VERIFY_CREATE;                                                        \
+    }                                                                         \
+    {                                                                         \
+        const bslstl::StringRef k_SUBREF(input.data() + k_POS,  k_LEN);       \
+        created = Util::create(input, k_SUBREF);                              \
+        VERIFY_CREATE;                                                        \
+    }
+
+            TEST_CREATE_FROM_SUBSTR(k_STRVIEW);
+            TEST_CREATE_FROM_SUBSTR(k_STRREF);
+            TEST_CREATE_FROM_SUBSTR(k_BSLSTR);
+            TEST_CREATE_FROM_SUBSTR(k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_CREATE_FROM_SUBSTR(k_PMRSTR);
+#endif
+#undef TEST_CREATE_FROM_SUBSTR
+#undef VERIFY_CREATE
         }
 
-        if (verbose) cout << "Testing wide string overloads.\n";
+#ifdef BDE_BUILD_TARGET_EXC
+        if (veryVerbose) cout << "Negative narrow string overload tests.\n";
 
-        static struct TestDataWide {
-            long long             d_line;
-            bslstl::StringRefWide d_str;
-            char                  d_bad;  // 'X' if precondition violation
-            size_type             d_pos;
-            size_type             d_len;
+        static const struct NegativeTestData {
+            long long        d_line;
+            bsl::string_view d_str;
+            size_type        d_pos;
+            size_type        d_len;
+        } k_NDATA[] = {
+            { L_ , "",                  1,  0 },
+            { L_ , "",                  0,  1 },
+            { L_ , "",                  1,  1 },
+            { L_ , "0123456789abcdef", 17,  0 },
+            { L_ , "0123456789abcdef", 16,  1 },
+            { L_ , "0123456789abcdef", 10,  7 },
+        };
+
+        static bsl::size_t NUM_NTESTS = sizeof k_NDATA / sizeof *k_NDATA;
+
+        for (bsl::size_t i = 0; i < NUM_NTESTS; ++i) {
+            bslma::TestAllocator     sa("bslstring", veryVeryVerbose);
+            const NegativeTestData&  k_TEST    = k_NDATA[i];
+            const long long          k_LINE    = k_TEST.d_line;
+            const size_type          k_POS     = k_TEST.d_pos;
+            const size_type          k_LEN     = k_TEST.d_len;
+            const bsl::string_view&  k_STRVIEW = k_TEST.d_str;
+            const bslstl::StringRef& k_STRREF  = k_STRVIEW;
+            const bsl::string        k_BSLSTR(k_STRVIEW, &sa);
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            const std::string        k_STDSTR(k_STRVIEW);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::string   k_PMRSTR(k_STRVIEW);
+#endif
+#else
+            const std::string       k_STDSTR(k_STRREF.data(), k_STRREF.size());
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::string  k_PMRSTR(k_STRREF.data(), k_STRREF.size());
+#endif
+#endif
+
+            if (veryVerbose) {
+                P_(k_LINE); P_(k_STRVIEW); P_(k_POS);  P(k_LEN);
+            }
+
+            const size_type k_ENDP = k_POS + k_LEN;
+
+            bsls::AssertTestHandlerGuard g; (void)g;
+
+            ASSERT_FAIL(Util::createFromPositions(k_STRVIEW, k_POS, k_ENDP));
+            ASSERT_FAIL(Util::createFromPositions(k_STRREF,  k_POS, k_ENDP));
+            ASSERT_FAIL(Util::createFromPositions(k_BSLSTR,  k_POS, k_ENDP));
+            ASSERT_FAIL(Util::createFromPositions(k_STDSTR,  k_POS, k_ENDP));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Util::createFromPositions(k_PMRSTR,  k_POS, k_ENDP));
+#endif
+
+            ASSERT_FAIL(Util::create(k_STRVIEW, k_POS, k_LEN));
+            ASSERT_FAIL(Util::create(k_STRREF,  k_POS, k_LEN));
+            ASSERT_FAIL(Util::create(k_BSLSTR,  k_POS, k_LEN));
+            ASSERT_FAIL(Util::create(k_STDSTR,  k_POS, k_LEN));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Util::create(k_PMRSTR,  k_POS, k_LEN));
+#endif
+
+#define TEST_CREATE_FROM_ITER(inType, input)                                  \
+    {                                                                         \
+        typedef inType::const_iterator Cit;                                   \
+        const Cit k_BEGIN = input.begin() + k_POS;                            \
+        const Cit k_END = k_BEGIN + k_LEN;                                    \
+                                                                              \
+        ASSERT_FAIL(Util::create(input, k_BEGIN, k_LEN));                     \
+        ASSERT_FAIL(Util::create(input, k_BEGIN, k_END));                     \
+    }
+            TEST_CREATE_FROM_ITER(bsl::string_view,  k_STRVIEW);
+            TEST_CREATE_FROM_ITER(bslstl::StringRef, k_STRREF);
+            TEST_CREATE_FROM_ITER(bsl::string,       k_BSLSTR);
+            TEST_CREATE_FROM_ITER(std::string,       k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_CREATE_FROM_ITER(std::pmr::string,  k_PMRSTR);
+#endif
+#undef TEST_CREATE_FROM_ITER
+
+#define TEST_CREATE_FROM_SUBSTR(input)                                        \
+    {                                                                         \
+        const bsl::string_view k_SUBVIEW(input.data() + k_POS, k_LEN);        \
+        ASSERT_FAIL(Util::create(input, k_SUBVIEW));                          \
+    }                                                                         \
+    {                                                                         \
+        const bslstl::StringRef k_SUBREF(input.data() + k_POS, k_LEN);        \
+        ASSERT_FAIL(Util::create(input, k_SUBREF));                           \
+    }
+
+            TEST_CREATE_FROM_SUBSTR(k_STRVIEW);
+            TEST_CREATE_FROM_SUBSTR(k_STRREF);
+            TEST_CREATE_FROM_SUBSTR(k_BSLSTR);
+            TEST_CREATE_FROM_SUBSTR(k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_CREATE_FROM_SUBSTR(k_PMRSTR);
+#endif
+#undef TEST_CREATE_FROM_SUBSTR
+        }
+#endif
+
+        if (veryVerbose) cout << "Positive wide string overload tests.\n";
+
+        static const struct TestDataWide {
+            long long         d_line;
+            bsl::wstring_view d_str;
+            size_type         d_pos;
+            size_type         d_len;
         } k_WDATA[] = {
-            { L_ , L"",                 ' ',  0,  0 },
-            { L_ , L"",                 'X',  1,  0 },
-            { L_ , L"",                 'X',  0,  1 },
-            { L_ , L"",                 'X',  1,  1 },
-            { L_ , L"0123456789abcdef", ' ',  0,  0 },
-            { L_ , L"0123456789abcdef", ' ',  0,  5 },
-            { L_ , L"0123456789abcdef", ' ',  5,  5 },
-            { L_ , L"0123456789abcdef", ' ',  3, 10 },
-            { L_ , L"0123456789abcdef", ' ', 16,  0 },
-            { L_ , L"0123456789abcdef", ' ', 15,  1 },
-            { L_ , L"0123456789abcdef", ' ',  0,  1 },
-            { L_ , L"0123456789abcdef", 'X', 17,  0 },
-            { L_ , L"0123456789abcdef", 'X', 16,  1 },
-            { L_ , L"0123456789abcdef", 'X', 10,  7 },
-            { L_ , L"0123456789abcdef", ' ', 10,  6 },
+            { L_ , L"",                  0,  0 },
+            { L_ , L"0123456789abcdef",  0,  0 },
+            { L_ , L"0123456789abcdef",  0,  5 },
+            { L_ , L"0123456789abcdef",  5,  5 },
+            { L_ , L"0123456789abcdef",  3, 10 },
+            { L_ , L"0123456789abcdef", 16,  0 },
+            { L_ , L"0123456789abcdef", 15,  1 },
+            { L_ , L"0123456789abcdef",  0,  1 },
+            { L_ , L"0123456789abcdef", 10,  6 },
         };
 
         static bsl::size_t NUM_WTESTS = sizeof k_WDATA / sizeof *k_WDATA;
 
         for (bsl::size_t i = 0; i < NUM_WTESTS; ++i) {
-            const TestDataWide&          k_TEST     = k_WDATA[i];
-            const long long              k_LINE     = k_TEST.d_line;
-            const bslstl::StringRefWide& k_STR      = k_TEST.d_str;
-            const bool                   k_GOOD     = k_TEST.d_bad != 'X';
-            const bdlb::IndexSpan        k_EXPECTED(k_TEST.d_pos,
-                                                    k_TEST.d_len);
-            const bsl::wstring&          k_BSLSTR = k_STR;
+            bslma::TestAllocator         sa("bslstring", veryVeryVerbose);
+            const TestDataWide&          k_TEST    = k_WDATA[i];
+            const long long              k_LINE    = k_TEST.d_line;
+            const bsl::wstring_view&     k_STRVIEW = k_TEST.d_str;
+            const size_type              k_POS     = k_TEST.d_pos;
+            const size_type              k_LEN     = k_TEST.d_len;
+            const bslstl::StringRefWide& k_STRREF  = k_STRVIEW;
+            const bsl::wstring           k_BSLSTR(k_STRVIEW, &sa);
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            const std::wstring            k_STDSTR(k_STRVIEW);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::wstring       k_PMRSTR(k_STRVIEW);
+#endif
+#else
+            const std::wstring      k_STDSTR(k_STRREF.data(), k_STRREF.size());
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::wstring k_PMRSTR(k_STRREF.data(), k_STRREF.size());
+#endif
+#endif
+            const bdlb::IndexSpan   k_EXPECTED(k_POS, k_LEN);
 
             if (veryVerbose) {
-                P_(k_LINE); P_(k_GOOD); P(k_EXPECTED);
+                P_(k_LINE); P(k_EXPECTED);
             }
 
-            const size_type k_BEGIN_POS = k_EXPECTED.position();
-            const size_type k_END_POS   = k_BEGIN_POS + k_EXPECTED.length();
+            const size_type k_END_POS = k_POS + k_LEN;
 
-            const size_type k_LENGTH = k_EXPECTED.length();
+            bdlb::IndexSpan created;
 
-            const bslstl::StringRefWide k_SUBSTR(
-                                          k_STR.data() + k_EXPECTED.position(),
-                                          k_LENGTH);
-            const bslstl::StringRefWide k_BSLSUBSTR(
-                                       k_BSLSTR.data() + k_EXPECTED.position(),
-                                       k_LENGTH);
+#define VERIFY_CREATE ASSERTV(created, k_EXPECTED, k_EXPECTED == created)
 
-            if (k_GOOD) {
-                bdlb::IndexSpan created;
+#define TEST_CREATE_FROM_POSITIONS(input)                                     \
+    created = Util::createFromPositions(input, k_POS, k_END_POS);             \
+    VERIFY_CREATE
 
-                created = Util::createFromPositions(k_STR,
-                                                    k_BEGIN_POS,
-                                                    k_END_POS);
-                ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-                created = Util::createFromPositions(k_BSLSTR,
-                                                    k_BEGIN_POS,
-                                                    k_END_POS);
-                ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-
-                created = Util::create(k_STR, k_BEGIN_POS, k_LENGTH);
-                ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-                created = Util::create(k_BSLSTR, k_BEGIN_POS, k_LENGTH);
-                ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-
-                {
-                    typedef bslstl::StringRefWide::const_iterator Cit;
-                    const Cit k_BEGIN = k_STR.begin() + k_EXPECTED.position();
-                    const Cit k_END = k_BEGIN + k_EXPECTED.length();
-
-                    created = Util::create(k_STR, k_BEGIN, k_LENGTH);
-                    ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-
-                    created = Util::create(k_STR, k_BEGIN, k_END);
-                    ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-                }
-
-                {
-                    typedef bsl::wstring::const_iterator StrCit;
-                    const StrCit k_BEGIN = k_BSLSTR.begin()
-                        + k_EXPECTED.position();
-                    const StrCit k_END = k_BEGIN + k_EXPECTED.length();
-
-                    created = Util::create(k_BSLSTR, k_BEGIN, k_LENGTH);
-                    ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-
-                    created = Util::create(k_BSLSTR, k_BEGIN, k_END);
-                    ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-                }
-
-                created = Util::create(k_STR, k_SUBSTR);
-                ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-                created = Util::create(k_BSLSTR, k_BSLSUBSTR);
-                ASSERTV(created, k_EXPECTED, k_EXPECTED == created);
-            }
-            else {
-#ifdef BDE_BUILD_TARGET_EXC
-                bsls::AssertTestHandlerGuard g; (void)g;
-
-                ASSERT_FAIL(Util::createFromPositions(k_STR,
-                                                      k_BEGIN_POS,
-                                                      k_END_POS));
-                ASSERT_FAIL(Util::createFromPositions(k_BSLSTR,
-                                                      k_BEGIN_POS,
-                                                      k_END_POS));
-
-                ASSERT_FAIL(Util::create(k_STR,    k_BEGIN_POS, k_LENGTH));
-                ASSERT_FAIL(Util::create(k_BSLSTR, k_BEGIN_POS, k_LENGTH));
-
-                {
-                    typedef bslstl::StringRefWide::const_iterator Cit;
-                    const Cit k_BEGIN = k_STR.begin() + k_EXPECTED.position();
-                    const Cit k_END = k_BEGIN + k_EXPECTED.length();
-
-                    ASSERT_FAIL(Util::create(k_STR, k_BEGIN, k_LENGTH));
-                    ASSERT_FAIL(Util::create(k_STR, k_BEGIN, k_END));
-                }
-
-                {
-                    typedef bsl::wstring::const_iterator StrCit;
-                    const StrCit k_BEGIN = k_BSLSTR.begin()
-                                           + k_EXPECTED.position();
-                    const StrCit k_END = k_BEGIN + k_EXPECTED.length();
-
-                    ASSERT_FAIL(Util::create(k_BSLSTR, k_BEGIN, k_LENGTH));
-                    ASSERT_FAIL(Util::create(k_BSLSTR, k_BEGIN, k_END));
-                }
-
-                ASSERT_FAIL(Util::create(k_STR,    k_SUBSTR));
-                ASSERT_FAIL(Util::create(k_BSLSTR, k_BSLSUBSTR));
+            TEST_CREATE_FROM_POSITIONS(k_STRVIEW);
+            TEST_CREATE_FROM_POSITIONS(k_STRREF);
+            TEST_CREATE_FROM_POSITIONS(k_BSLSTR);
+            TEST_CREATE_FROM_POSITIONS(k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_CREATE_FROM_POSITIONS(k_PMRSTR);
 #endif
-            }
+#undef TEST_CREATE_FROM_POSITIONS
+
+#define TEST_CREATE_FROM_POS_LEN(input)                                       \
+    created = Util::create(input, k_POS, k_LEN);                              \
+    VERIFY_CREATE
+
+            TEST_CREATE_FROM_POS_LEN(k_STRVIEW);
+            TEST_CREATE_FROM_POS_LEN(k_STRREF);
+            TEST_CREATE_FROM_POS_LEN(k_BSLSTR);
+            TEST_CREATE_FROM_POS_LEN(k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_CREATE_FROM_POS_LEN(k_PMRSTR);
+#endif
+#undef TEST_CREATE_FROM_POS_LEN
+
+#define TEST_CREATE_FROM_ITER(inType, input)                                  \
+    {                                                                         \
+        typedef inType::const_iterator Cit;                                   \
+        const Cit k_BEGIN = input.begin() + k_POS;                            \
+        const Cit k_END = k_BEGIN + k_LEN;                                    \
+                                                                              \
+        created = Util::create(input, k_BEGIN, k_LEN);                        \
+        VERIFY_CREATE;                                                        \
+                                                                              \
+        created = Util::create(input, k_BEGIN, k_END);                        \
+        VERIFY_CREATE;                                                        \
+    }
+
+            TEST_CREATE_FROM_ITER(bsl::wstring_view,     k_STRVIEW);
+            TEST_CREATE_FROM_ITER(bslstl::StringRefWide, k_STRREF);
+            TEST_CREATE_FROM_ITER(bsl::wstring,          k_BSLSTR);
+            TEST_CREATE_FROM_ITER(std::wstring,          k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_CREATE_FROM_ITER(std::pmr::wstring,     k_PMRSTR);
+#endif
+#undef TEST_CREATE_FROM_ITER
+
+#define TEST_CREATE_FROM_SUBSTR(input)                                        \
+    {                                                                         \
+        const bsl::wstring_view k_SUBVIEW(input.data() + k_POS, k_LEN);       \
+        created = Util::create(input, k_SUBVIEW);                             \
+        VERIFY_CREATE;                                                        \
+    }                                                                         \
+    {                                                                         \
+        const bslstl::StringRefWide k_SUBREF(input.data() + k_POS, k_LEN);    \
+        created = Util::create(input, k_SUBREF);                              \
+        VERIFY_CREATE;                                                        \
+    }
+
+            TEST_CREATE_FROM_SUBSTR(k_STRVIEW);
+            TEST_CREATE_FROM_SUBSTR(k_STRREF);
+            TEST_CREATE_FROM_SUBSTR(k_BSLSTR);
+            TEST_CREATE_FROM_SUBSTR(k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_CREATE_FROM_SUBSTR(k_PMRSTR);
+#endif
+#undef TEST_CREATE_FROM_SUBSTR
+#undef VERIFY_CREATE
         }
 
 #ifdef BDE_BUILD_TARGET_EXC
-        if (verbose) {
-            cout << "Testing assertions with too low 'begin'.\n";
+        if (veryVerbose) cout << "Negative wide string overload tests.\n";
+
+        static const struct NegativeTestDataWide {
+            long long         d_line;
+            bsl::wstring_view d_str;
+            size_type         d_pos;
+            size_type         d_len;
+        } k_NWDATA[] = {
+            { L_ , L"",                  1,  0 },
+            { L_ , L"",                  0,  1 },
+            { L_ , L"",                  1,  1 },
+            { L_ , L"0123456789abcdef", 17,  0 },
+            { L_ , L"0123456789abcdef", 16,  1 },
+            { L_ , L"0123456789abcdef", 10,  7 },
+        };
+
+        static bsl::size_t NUM_NWTESTS = sizeof k_NWDATA / sizeof *k_NWDATA;
+
+        for (bsl::size_t i = 0; i < NUM_NWTESTS; ++i) {
+            bslma::TestAllocator         sa("bslstring", veryVeryVerbose);
+            const NegativeTestDataWide&  k_TEST    = k_NWDATA[i];
+            const long long              k_LINE    = k_TEST.d_line;
+            const size_type              k_POS     = k_TEST.d_pos;
+            const size_type              k_LEN     = k_TEST.d_len;
+            const bsl::wstring_view&     k_STRVIEW = k_TEST.d_str;
+            const bslstl::StringRefWide& k_STRREF  = k_STRVIEW;
+            const bsl::wstring           k_BSLSTR(k_STRVIEW, &sa);
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            const std::wstring           k_STDSTR(k_STRVIEW);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::wstring      k_PMRSTR(k_STRVIEW);
+#endif
+#else
+            const std::wstring      k_STDSTR(k_STRREF.data(), k_STRREF.size());
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::wstring k_PMRSTR(k_STRREF.data(), k_STRREF.size());
+#endif
+#endif
+
+            if (veryVerbose) {
+                P_(k_LINE); P_(k_POS);  P(k_LEN);
+            }
+
+            const size_type k_ENDP = k_POS + k_LEN;
+
+            bsls::AssertTestHandlerGuard g; (void)g;
+
+            ASSERT_FAIL(Util::createFromPositions(k_STRVIEW, k_POS, k_ENDP));
+            ASSERT_FAIL(Util::createFromPositions(k_STRREF, k_POS,  k_ENDP));
+            ASSERT_FAIL(Util::createFromPositions(k_BSLSTR, k_POS,  k_ENDP));
+            ASSERT_FAIL(Util::createFromPositions(k_STDSTR, k_POS,  k_ENDP));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Util::createFromPositions(k_PMRSTR, k_POS,  k_ENDP));
+#endif
+
+            ASSERT_FAIL(Util::create(k_STRVIEW, k_POS, k_LEN));
+            ASSERT_FAIL(Util::create(k_STRREF,  k_POS, k_LEN));
+            ASSERT_FAIL(Util::create(k_BSLSTR,  k_POS, k_LEN));
+            ASSERT_FAIL(Util::create(k_STDSTR,  k_POS, k_LEN));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Util::create(k_PMRSTR,  k_POS, k_LEN));
+#endif
+
+#define TEST_CREATE_FROM_ITER(inType, input)                                  \
+    {                                                                         \
+        typedef inType::const_iterator Cit;                                   \
+        const Cit k_BEGIN = input.begin() + k_POS;                            \
+        const Cit k_END = k_BEGIN + k_LEN;                                    \
+                                                                              \
+        ASSERT_FAIL(Util::create(input, k_BEGIN, k_LEN));                     \
+        ASSERT_FAIL(Util::create(input, k_BEGIN, k_END));                     \
+    }
+            TEST_CREATE_FROM_ITER(bsl::wstring_view,     k_STRVIEW);
+            TEST_CREATE_FROM_ITER(bslstl::StringRefWide, k_STRREF);
+            TEST_CREATE_FROM_ITER(bsl::wstring,          k_BSLSTR);
+            TEST_CREATE_FROM_ITER(std::wstring,          k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_CREATE_FROM_ITER(std::pmr::wstring,     k_PMRSTR);
+#endif
+#undef TEST_CREATE_FROM_ITER
+
+#define TEST_CREATE_FROM_SUBSTR(input)                                        \
+    {                                                                         \
+        const bsl::wstring_view k_SUBVIEW(input.data() + k_POS, k_LEN);       \
+        ASSERT_FAIL(Util::create(input, k_SUBVIEW));                          \
+    }                                                                         \
+    {                                                                         \
+        const bslstl::StringRefWide k_SUBREF(input.data() + k_POS, k_LEN);    \
+        ASSERT_FAIL(Util::create(input, k_SUBREF));                           \
+    }
+
+            TEST_CREATE_FROM_SUBSTR(k_STRVIEW);
+            TEST_CREATE_FROM_SUBSTR(k_STRREF);
+            TEST_CREATE_FROM_SUBSTR(k_BSLSTR);
+            TEST_CREATE_FROM_SUBSTR(k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_CREATE_FROM_SUBSTR(k_PMRSTR);
+#endif
+#undef TEST_CREATE_FROM_SUBSTR
         }
 
+        if (verbose)  cout << "Testing assertions with too low 'begin'.\n";
         {
-
             bslstl::StringRef string("0123456789");
             bslstl::StringRef input = bdlb::StringRefUtil::substr(string, 1);
 
@@ -547,13 +777,40 @@ int main(int argc, char *argv[])
             ASSERT_FAIL(Util::create(input, string));
             ASSERT_PASS(Util::create(input, input));
         }
+        {
+            bsl::string_view string("0123456789");
+            bsl::string_view input = string.substr(1);
+
+            bsls::AssertTestHandlerGuard g; (void)g;
+
+            ASSERT_FAIL(Util::create(input, string.begin(), (bsl::size_t)0));
+            ASSERT_PASS(Util::create(input, input.begin(), (bsl::size_t)0));
+
+            ASSERT_FAIL(Util::create(input, string.begin(), input.end()));
+            ASSERT_PASS(Util::create(input, input.begin(), input.end()));
+
+            ASSERT_FAIL(Util::create(input, string));
+            ASSERT_PASS(Util::create(input, input));
+        }
 
         {
+            bslstl::StringRefWide string(L"0123456789");
+            bslstl::StringRefWide input(string.data() + 1, string.size() - 1);
 
-            using bslstl::StringRefWide;
+            bsls::AssertTestHandlerGuard g; (void)g;
 
-            StringRefWide string(L"0123456789");
-            StringRefWide input = StringRefWide(string.data() + 1, 1u);
+            ASSERT_FAIL(Util::create(input, string.begin(), (bsl::size_t)0));
+            ASSERT_PASS(Util::create(input, input.begin(), (bsl::size_t)0));
+
+            ASSERT_FAIL(Util::create(input, string.begin(), input.end()));
+            ASSERT_PASS(Util::create(input, input.begin(), input.end()));
+
+            ASSERT_FAIL(Util::create(input, string));
+            ASSERT_PASS(Util::create(input, input));
+        }
+        {
+            bsl::wstring_view string(L"0123456789");
+            bsl::wstring_view input(string.data() + 1, string.size() - 1);
 
             bsls::AssertTestHandlerGuard g; (void)g;
 
@@ -581,18 +838,41 @@ int main(int argc, char *argv[])
         //: 3 If the specified span does not fit into the specified string an
         //:   assertion is raised (if the build mode calls for it).
         //:
-        //: 4 'bind' can be called with a 'bsl::string' argument.
+        //: 4 'bind' can be called with 'bsl::string', 'bsl::string_view',
+        //:    'bslstl::StringRef', 'std::string', and 'std::pmr::string'
+        //:    first argument.
+        //:
+        //: 5 'bind' result can be assigned to 'bslstl::StringRef', or
+        //:   'const bslstl::StringRef&', 'bsl::string' variable.
+        //:
+        //: 6 'bind' result can initialize a 'bslstl::StringRef', or
+        //:   'const bslstl::StringRef&', 'bsl::string' variable.
+        //:
+        //: 7 When 'bsl::string_view' is an alias to the native
+        //:   'std::string_view' the result of 'bind' can direct-initialize a
+        //:   'std::string', or 'std::pmr::string' variable.
         //
         // Plan:
         //: 1 Table based testing with values that test
+        //:
         //:   1 Valid and invalid substrings of an empty string
+        //:
         //:   2 Valid substrings of a string
+        //:
         //:   3 Boundary substrings at the beginning and the end of the string
+        //:
         //:   4 Spans that does not define a valid substring
-        //:   5 The same calls with a 'bsl::string' first argument
+        //:
+        //:   5 The same calls with all possible combinations of first argument
+        //:     and results types both with initialization and assignment
+        //:
+        //:   6 Test all with assigning result to 'StringRef' and 'const' ref
+        //:
+        //:   7 Verify 'StringRef' results are identical
+        //:
         //
         // Testing:
-        //   bslstl::StringRef bind(string, span);
+        //   bsl::[w]string_view bind([w]string, span);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING BIND"
@@ -600,127 +880,462 @@ int main(int argc, char *argv[])
 
         typedef bdlb::IndexSpan::size_type size_type;
 
-        static struct TestData {
-            long long         d_line;
-            bslstl::StringRef d_str;
-            char              d_bad;  // 'X' if precondition violation
-            size_type         d_pos;
-            size_type         d_len;
-            bslstl::StringRef d_expected;
+        if (veryVeryVerbose) cout << "Positive testing of narrow strings\n";
+
+        static const struct TestData {
+            long long        d_line;
+            bsl::string_view d_str;
+            size_type        d_pos;
+            size_type        d_len;
+            bsl::string_view d_expected;
         } k_DATA[] = {
-            { L_ , "",                 ' ',  0,  0, ""           },
-            { L_ , "",                 'X',  1,  0, ""           },
-            { L_ , "",                 'X',  0,  1, ""           },
-            { L_ , "",                 'X',  1,  1, ""           },
-            { L_ , "0123456789abcdef", ' ',  0,  0, ""           },
-            { L_ , "0123456789abcdef", ' ',  0,  5, "01234"      },
-            { L_ , "0123456789abcdef", ' ',  5,  5, "56789"      },
-            { L_ , "0123456789abcdef", ' ',  3, 10, "3456789abc" },
-            { L_ , "0123456789abcdef", ' ', 16,  0, ""           },
-            { L_ , "0123456789abcdef", ' ', 15,  1, "f"          },
-            { L_ , "0123456789abcdef", ' ',  0,  1, "0"          },
-            { L_ , "0123456789abcdef", 'X', 17,  0, ""           },
-            { L_ , "0123456789abcdef", 'X', 16,  1, ""           },
-            { L_ , "0123456789abcdef", 'X', 10,  7, ""           },
-            { L_ , "0123456789abcdef", ' ', 10,  6, "abcdef"     },
+            { L_ , "",                  0,  0, ""           },
+            { L_ , "0123456789abcdef",  0,  0, ""           },
+            { L_ , "0123456789abcdef",  0,  5, "01234"      },
+            { L_ , "0123456789abcdef",  5,  5, "56789"      },
+            { L_ , "0123456789abcdef",  3, 10, "3456789abc" },
+            { L_ , "0123456789abcdef", 16,  0, ""           },
+            { L_ , "0123456789abcdef", 15,  1, "f"          },
+            { L_ , "0123456789abcdef",  0,  1, "0"          },
+            { L_ , "0123456789abcdef", 10,  6, "abcdef"     },
         };
 
         static bsl::size_t NUM_TESTS = sizeof k_DATA / sizeof *k_DATA;
 
         for (bsl::size_t i = 0; i < NUM_TESTS; ++i) {
-            const TestData&          k_TEST     = k_DATA[i];
-            const long long          k_LINE     = k_TEST.d_line;
-            const bslstl::StringRef& k_STR      = k_TEST.d_str;
-            const bool               k_GOOD     = k_TEST.d_bad != 'X';
+            bslma::TestAllocator     sa("bslstring", veryVeryVerbose);
+            const TestData&          k_TEST    = k_DATA[i];
+            const long long          k_LINE    = k_TEST.d_line;
+            const bsl::string_view&  k_STRVIEW = k_TEST.d_str;
+            const bslstl::StringRef& k_STRREF  = k_STRVIEW;
+            const bsl::string        k_BSLSTR(k_STRVIEW, &sa);
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            const std::string        k_STDSTR(k_STRVIEW);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::string   k_PMRSTR(k_STRVIEW);
+#endif
+#else
+            const std::string       k_STDSTR(k_STRREF.data(), k_STRREF.size());
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::string  k_PMRSTR(k_STRREF.data(), k_STRREF.size());
+#endif
+#endif
             const bdlb::IndexSpan    k_SPAN(k_TEST.d_pos, k_TEST.d_len);
-            const bslstl::StringRef& k_EXPECTED = k_TEST.d_expected;
-            const bsl::string&       k_BSLSTR   = k_STR;
+            const bsl::string_view&  k_EXPECTED = k_TEST.d_expected;
 
             if (veryVerbose) {
-                P_(k_LINE); P_(k_STR); P_(k_GOOD); P_(k_SPAN); P(k_EXPECTED);
+                P_(k_LINE); P_(k_STRVIEW); P_(k_SPAN); P(k_EXPECTED);
             }
 
-            if (k_GOOD) {
-                bslstl::StringRef bound = Util::bind(k_STR, k_SPAN);
-                ASSERTV(bound, k_EXPECTED, k_EXPECTED == bound);
-                ASSERT(bound.data()   == k_STR.data() + k_SPAN.position());
-                ASSERT(bound.length() == k_SPAN.length());
+#define TEST_BIND_VERIFY(ResultType, InputName)                               \
+    ASSERTV(bound, k_EXPECTED, k_EXPECTED == bound);                          \
+    ASSERT(bound.data() == InputName.data() + k_SPAN.position());             \
+    ASSERT(bound.length() == k_SPAN.length())
 
-                bound = Util::bind(k_BSLSTR, k_SPAN);
-                ASSERTV(bound, k_EXPECTED, k_EXPECTED == bound);
-                ASSERT(bound.data()   == k_BSLSTR.data() + k_SPAN.position());
-                ASSERT(bound.length() == k_SPAN.length());
-            }
-            else {
-#ifdef BDE_BUILD_TARGET_EXC
-                bsls::AssertTestHandlerGuard g; (void)g;
+#define TEST_BIND_IMPLICIT(ResultType, InputName)                             \
+    {                                                                         \
+        const ResultType bound = Util::bind(InputName, k_SPAN);               \
+        TEST_BIND_VERIFY(ResultType, InputName);                              \
+    }
 
-                ASSERT_FAIL(Util::bind(k_STR,    k_SPAN));
-                ASSERT_FAIL(Util::bind(k_BSLSTR, k_SPAN));
+#define TEST_BIND_EXPLICIT(ResultType, InputName)                             \
+    {                                                                         \
+        const ResultType bound(Util::bind(InputName, k_SPAN));                \
+        TEST_BIND_VERIFY(ResultType, InputName);                              \
+    }
+
+#define TEST_BIND_ASSIGN(ResultType, InputName)                               \
+    {                                                                         \
+        ResultType bound;                                                     \
+        bound = Util::bind(InputName, k_SPAN);                                \
+        TEST_BIND_VERIFY(ResultType, InputName);                              \
+    }
+
+            TEST_BIND_IMPLICIT(bsl::string_view, k_STRVIEW);
+            TEST_BIND_IMPLICIT(bsl::string_view, k_STRREF);
+            TEST_BIND_IMPLICIT(bsl::string_view, k_BSLSTR);
+            TEST_BIND_IMPLICIT(bsl::string_view, k_STDSTR);
+            TEST_BIND_ASSIGN(bsl::string_view,   k_STRVIEW);
+            TEST_BIND_ASSIGN(bsl::string_view,   k_STRREF);
+            TEST_BIND_ASSIGN(bsl::string_view,   k_BSLSTR);
+            TEST_BIND_ASSIGN(bsl::string_view,   k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_BIND_IMPLICIT(bsl::string_view, k_PMRSTR);
+            TEST_BIND_ASSIGN(bsl::string_view,   k_PMRSTR);
 #endif
-            }
+
+            TEST_BIND_IMPLICIT(bslstl::StringRef, k_STRVIEW);
+            TEST_BIND_IMPLICIT(bslstl::StringRef, k_STRREF);
+            TEST_BIND_IMPLICIT(bslstl::StringRef, k_BSLSTR);
+            TEST_BIND_IMPLICIT(bslstl::StringRef, k_STDSTR);
+            TEST_BIND_ASSIGN(bslstl::StringRef,   k_STRVIEW);
+            TEST_BIND_ASSIGN(bslstl::StringRef,   k_STRREF);
+            TEST_BIND_ASSIGN(bslstl::StringRef,   k_BSLSTR);
+            TEST_BIND_ASSIGN(bslstl::StringRef,   k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_BIND_IMPLICIT(bslstl::StringRef, k_PMRSTR);
+            TEST_BIND_ASSIGN(bslstl::StringRef,   k_PMRSTR);
+#endif
+
+            TEST_BIND_IMPLICIT(bslstl::StringRef&, k_STRVIEW);
+            TEST_BIND_IMPLICIT(bslstl::StringRef&, k_STRREF);
+            TEST_BIND_IMPLICIT(bslstl::StringRef&, k_BSLSTR);
+            TEST_BIND_IMPLICIT(bslstl::StringRef&, k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_BIND_IMPLICIT(bslstl::StringRef&, k_PMRSTR);
+#endif
+
+#undef TEST_BIND_ASSIGN
+#undef TEST_BIND_EXPLICIT
+#undef TEST_BIND_IMPLICIT
+#undef TEST_BIND_VERIFY
+
+#define TEST_BIND_VERIFY(ResultType, InputName)                               \
+    ASSERTV(bound, k_EXPECTED, k_EXPECTED == bound);                          \
+    ASSERT(bound.length() == k_SPAN.length());
+
+#define TEST_BIND_EXPLICIT(ResultType, InputName)                             \
+    {                                                                         \
+        const ResultType bound(Util::bind(InputName, k_SPAN));                \
+        TEST_BIND_VERIFY(ResultType, InputName);                              \
+    }
+
+#define TEST_BIND_ASSIGN(ResultType, InputName)                               \
+    {                                                                         \
+        ResultType bound;                                                     \
+        bound = Util::bind(InputName, k_SPAN);                                \
+        TEST_BIND_VERIFY(ResultType, InputName);                              \
+    }
+
+            TEST_BIND_EXPLICIT(bsl::string, k_STRVIEW);
+            TEST_BIND_EXPLICIT(bsl::string, k_STRREF);
+            TEST_BIND_EXPLICIT(bsl::string, k_BSLSTR);
+            TEST_BIND_EXPLICIT(bsl::string, k_STDSTR);
+            TEST_BIND_ASSIGN(bsl::string,   k_STRVIEW);
+            TEST_BIND_ASSIGN(bsl::string,   k_STRREF);
+            TEST_BIND_ASSIGN(bsl::string,   k_BSLSTR);
+            TEST_BIND_ASSIGN(bsl::string,   k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_BIND_EXPLICIT(bsl::string, k_PMRSTR);
+            TEST_BIND_ASSIGN(bsl::string,   k_PMRSTR);
+#endif
+
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            TEST_BIND_EXPLICIT(std::string, k_STRVIEW);
+            TEST_BIND_EXPLICIT(std::string, k_STRREF);
+            TEST_BIND_EXPLICIT(std::string, k_BSLSTR);
+            TEST_BIND_EXPLICIT(std::string, k_STDSTR);
+            TEST_BIND_ASSIGN(std::string,   k_STRVIEW);
+            TEST_BIND_ASSIGN(std::string,   k_STRREF);
+            TEST_BIND_ASSIGN(std::string,   k_BSLSTR);
+            TEST_BIND_ASSIGN(std::string,   k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_BIND_EXPLICIT(std::string, k_PMRSTR);
+            TEST_BIND_ASSIGN(std::string,   k_PMRSTR);
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_BIND_EXPLICIT(std::pmr::string, k_STRVIEW);
+            TEST_BIND_EXPLICIT(std::pmr::string, k_STRREF);
+            TEST_BIND_EXPLICIT(std::pmr::string, k_BSLSTR);
+            TEST_BIND_EXPLICIT(std::pmr::string, k_STDSTR);
+            TEST_BIND_EXPLICIT(std::pmr::string, k_PMRSTR);
+            TEST_BIND_ASSIGN(std::pmr::string,   k_STRVIEW);
+            TEST_BIND_ASSIGN(std::pmr::string,   k_STRREF);
+            TEST_BIND_ASSIGN(std::pmr::string,   k_BSLSTR);
+            TEST_BIND_ASSIGN(std::pmr::string,   k_STDSTR);
+            TEST_BIND_ASSIGN(std::pmr::string,   k_PMRSTR);
+#endif
+#endif
+
+#undef TEST_BIND_ASSIGN
+#undef TEST_BIND_EXPLICIT
+#undef TEST_BIND_VERIFY
         }
 
-        static struct TestDataWide {
-            long long             d_line;
-            bslstl::StringRefWide d_str;
-            char                  d_bad;  // 'X' if precondition violation
-            size_type             d_pos;
-            size_type             d_len;
-            bslstl::StringRefWide d_expected;
+#ifdef BDE_BUILD_TARGET_EXC
+        if (veryVeryVerbose) cout << "Negative testing of narrow strings\n";
+
+        static const struct NegativeTestData {
+            long long        d_line;
+            bsl::string_view d_str;
+            size_type        d_pos;
+            size_type        d_len;
+        } k_NDATA[] = {
+            { L_ , "",                  1,  0 },
+            { L_ , "",                  0,  1 },
+            { L_ , "",                  1,  1 },
+            { L_ , "0123456789abcdef", 17,  0 },
+            { L_ , "0123456789abcdef", 16,  1 },
+            { L_ , "0123456789abcdef", 10,  7 },
+        };
+
+        static bsl::size_t NUM_NTESTS = sizeof k_NDATA / sizeof *k_NDATA;
+
+        for (bsl::size_t i = 0; i < NUM_NTESTS; ++i) {
+            bslma::TestAllocator     sa("bslstring", veryVeryVerbose);
+            const NegativeTestData&  k_TEST     = k_NDATA[i];
+            const long long          k_LINE     = k_TEST.d_line;
+            const bsl::string_view&  k_STRVIEW  = k_TEST.d_str;
+            const bslstl::StringRef& k_STRREF   = k_STRVIEW;
+            const bsl::string        k_BSLSTR(k_STRVIEW, &sa);
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            const std::string        k_STDSTR(k_STRVIEW);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::string   k_PMRSTR(k_STRVIEW);
+#endif
+#else
+            const std::string       k_STDSTR(k_STRREF.data(), k_STRREF.size());
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::string  k_PMRSTR(k_STRREF.data(), k_STRREF.size());
+#endif
+#endif
+            const bdlb::IndexSpan    k_SPAN(k_TEST.d_pos, k_TEST.d_len);
+
+            if (veryVerbose) {
+                P_(k_LINE); P_(k_STRVIEW); P_(k_SPAN);
+            }
+
+            bsls::AssertTestHandlerGuard g; (void)g;
+
+            ASSERT_FAIL(Util::bind(k_STRVIEW, k_SPAN));
+            ASSERT_FAIL(Util::bind(k_BSLSTR,  k_SPAN));
+            ASSERT_FAIL(Util::bind(k_STRREF,  k_SPAN));
+            ASSERT_FAIL(Util::bind(k_STDSTR,  k_SPAN));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Util::bind(k_PMRSTR,  k_SPAN));
+#endif
+        }
+#endif
+
+        if (veryVeryVerbose) cout << "Positive testing of wide strings\n";
+
+        static const struct TestDataWide {
+            long long         d_line;
+            bsl::wstring_view d_str;
+            size_type         d_pos;
+            size_type         d_len;
+            bsl::wstring_view d_expected;
         } k_WDATA[] = {
-            { L_ , L"",                 ' ',  0,  0, L""           },
-            { L_ , L"",                 'X',  1,  0, L""           },
-            { L_ , L"",                 'X',  0,  1, L""           },
-            { L_ , L"",                 'X',  1,  1, L""           },
-            { L_ , L"0123456789abcdef", ' ',  0,  0, L""           },
-            { L_ , L"0123456789abcdef", ' ',  0,  5, L"01234"      },
-            { L_ , L"0123456789abcdef", ' ',  5,  5, L"56789"      },
-            { L_ , L"0123456789abcdef", ' ',  3, 10, L"3456789abc" },
-            { L_ , L"0123456789abcdef", ' ', 16,  0, L""           },
-            { L_ , L"0123456789abcdef", ' ', 15,  1, L"f"          },
-            { L_ , L"0123456789abcdef", ' ',  0,  1, L"0"          },
-            { L_ , L"0123456789abcdef", 'X', 17,  0, L""           },
-            { L_ , L"0123456789abcdef", 'X', 16,  1, L""           },
-            { L_ , L"0123456789abcdef", 'X', 10,  7, L""           },
-            { L_ , L"0123456789abcdef", ' ', 10,  6, L"abcdef"     },
+            { L_ , L"",                  0,  0, L""           },
+            { L_ , L"0123456789abcdef",  0,  0, L""           },
+            { L_ , L"0123456789abcdef",  0,  5, L"01234"      },
+            { L_ , L"0123456789abcdef",  5,  5, L"56789"      },
+            { L_ , L"0123456789abcdef",  3, 10, L"3456789abc" },
+            { L_ , L"0123456789abcdef", 16,  0, L""           },
+            { L_ , L"0123456789abcdef", 15,  1, L"f"          },
+            { L_ , L"0123456789abcdef",  0,  1, L"0"          },
+            { L_ , L"0123456789abcdef", 10,  6, L"abcdef"     },
         };
 
         static bsl::size_t NUM_WTESTS = sizeof k_WDATA / sizeof *k_WDATA;
 
         for (bsl::size_t i = 0; i < NUM_WTESTS; ++i) {
+            bslma::TestAllocator         sa("bslstring", veryVeryVerbose);
             const TestDataWide&          k_TEST     = k_WDATA[i];
-            const long long              k_LINE     = k_TEST.d_line;
-            const bslstl::StringRefWide& k_STR      = k_TEST.d_str;
-            const bool                   k_GOOD     = k_TEST.d_bad != 'X';
+            const long long              k_LINE    = k_TEST.d_line;
+            const bsl::wstring_view&     k_STRVIEW = k_TEST.d_str;
+            const bslstl::StringRefWide& k_STRREF  = k_STRVIEW;
+            const bsl::wstring           k_BSLSTR(k_STRVIEW, &sa);
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            const std::wstring           k_STDSTR(k_STRVIEW);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::wstring      k_PMRSTR(k_STRVIEW);
+#endif
+#else
+            const std::wstring      k_STDSTR(k_STRREF.data(), k_STRREF.size());
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::wstring k_PMRSTR(k_STRREF.data(), k_STRREF.size());
+#endif
+#endif
             const bdlb::IndexSpan        k_SPAN(k_TEST.d_pos, k_TEST.d_len);
-            const bslstl::StringRefWide& k_EXPECTED = k_TEST.d_expected;
-            const bsl::wstring&          k_BSLSTR   = k_STR;
+            const bsl::wstring_view&     k_EXPECTED = k_TEST.d_expected;
 
             if (veryVerbose) {
-                P_(k_LINE); P_(k_GOOD); P_(k_SPAN);
+                P_(k_LINE); P_(k_SPAN);
             }
 
-            if (k_GOOD) {
-                bslstl::StringRefWide bound = Util::bind(k_STR, k_SPAN);
-                ASSERT(k_EXPECTED == bound);
-                ASSERT(bound.data()   == k_STR.data() + k_SPAN.position());
-                ASSERT(bound.length() == k_SPAN.length());
 
-                bound = Util::bind(k_BSLSTR, k_SPAN);
-                ASSERT(k_EXPECTED == bound);
-                ASSERT(bound.data()   == k_BSLSTR.data() + k_SPAN.position());
-                ASSERT(bound.length() == k_SPAN.length());
-            }
-            else {
-#ifdef BDE_BUILD_TARGET_EXC
-                bsls::AssertTestHandlerGuard g; (void)g;
+#define TEST_BIND_VERIFY(ResultType, InputName)                               \
+    ASSERT(k_EXPECTED == bound);                                              \
+    ASSERT(bound.data() == InputName.data() + k_SPAN.position());             \
+    ASSERT(bound.length() == k_SPAN.length())
 
-                ASSERT_FAIL(Util::bind(k_STR,    k_SPAN));
-                ASSERT_FAIL(Util::bind(k_BSLSTR, k_SPAN));
+#define TEST_BIND_IMPLICIT(ResultType, InputName)                             \
+    {                                                                         \
+        const ResultType bound = Util::bind(InputName, k_SPAN);               \
+        TEST_BIND_VERIFY(ResultType, InputName);                              \
+    }
+
+#define TEST_BIND_EXPLICIT(ResultType, InputName)                             \
+    {                                                                         \
+        const ResultType bound(Util::bind(InputName, k_SPAN));                \
+        TEST_BIND_VERIFY(ResultType, InputName);                              \
+    }
+
+#define TEST_BIND_ASSIGN(ResultType, InputName)                               \
+    {                                                                         \
+        ResultType bound;                                                     \
+        bound = Util::bind(InputName, k_SPAN);                                \
+        TEST_BIND_VERIFY(ResultType, InputName);                              \
+    }
+
+            TEST_BIND_IMPLICIT(bsl::wstring_view, k_STRVIEW);
+            TEST_BIND_IMPLICIT(bsl::wstring_view, k_STRREF);
+            TEST_BIND_IMPLICIT(bsl::wstring_view, k_BSLSTR);
+            TEST_BIND_IMPLICIT(bsl::wstring_view, k_STDSTR);
+            TEST_BIND_ASSIGN(bsl::wstring_view,   k_STRVIEW);
+            TEST_BIND_ASSIGN(bsl::wstring_view,   k_STRREF);
+            TEST_BIND_ASSIGN(bsl::wstring_view,   k_BSLSTR);
+            TEST_BIND_ASSIGN(bsl::wstring_view,   k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_BIND_IMPLICIT(bsl::wstring_view, k_PMRSTR);
+            TEST_BIND_ASSIGN(bsl::wstring_view,   k_PMRSTR);
 #endif
-            }
+
+            TEST_BIND_IMPLICIT(bslstl::StringRefWide, k_STRVIEW);
+            TEST_BIND_IMPLICIT(bslstl::StringRefWide, k_STRREF);
+            TEST_BIND_IMPLICIT(bslstl::StringRefWide, k_BSLSTR);
+            TEST_BIND_IMPLICIT(bslstl::StringRefWide, k_STDSTR);
+            TEST_BIND_ASSIGN(bslstl::StringRefWide,   k_STRVIEW);
+            TEST_BIND_ASSIGN(bslstl::StringRefWide,   k_STRREF);
+            TEST_BIND_ASSIGN(bslstl::StringRefWide,   k_BSLSTR);
+            TEST_BIND_ASSIGN(bslstl::StringRefWide,   k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_BIND_IMPLICIT(bslstl::StringRefWide, k_PMRSTR);
+            TEST_BIND_ASSIGN(bslstl::StringRefWide,   k_PMRSTR);
+#endif
+
+            TEST_BIND_IMPLICIT(bslstl::StringRefWide&, k_STRVIEW);
+            TEST_BIND_IMPLICIT(bslstl::StringRefWide&, k_STRREF);
+            TEST_BIND_IMPLICIT(bslstl::StringRefWide&, k_BSLSTR);
+            TEST_BIND_IMPLICIT(bslstl::StringRefWide&, k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_BIND_IMPLICIT(bslstl::StringRefWide&, k_PMRSTR);
+#endif
+
+#undef TEST_BIND_ASSIGN
+#undef TEST_BIND_EXPLICIT
+#undef TEST_BIND_IMPLICIT
+#undef TEST_BIND_VERIFY
+
+#define TEST_BIND_VERIFY(ResultType, InputName)                               \
+    ASSERT(k_EXPECTED == bound);                                              \
+    ASSERT(bound.length() == k_SPAN.length());
+
+#define TEST_BIND_EXPLICIT(ResultType, InputName)                             \
+    {                                                                         \
+        const ResultType bound(Util::bind(InputName, k_SPAN));                \
+        TEST_BIND_VERIFY(ResultType, InputName);                              \
+    }
+
+#define TEST_BIND_ASSIGN(ResultType, InputName)                               \
+    {                                                                         \
+        ResultType bound;                                                     \
+        bound = Util::bind(InputName, k_SPAN);                                \
+        TEST_BIND_VERIFY(ResultType, InputName);                              \
+    }
+
+            TEST_BIND_EXPLICIT(bsl::wstring, k_STRVIEW);
+            TEST_BIND_EXPLICIT(bsl::wstring, k_STRREF);
+            TEST_BIND_EXPLICIT(bsl::wstring, k_BSLSTR);
+            TEST_BIND_EXPLICIT(bsl::wstring, k_STDSTR);
+            TEST_BIND_ASSIGN(bsl::wstring,   k_STRVIEW);
+            TEST_BIND_ASSIGN(bsl::wstring,   k_STRREF);
+            TEST_BIND_ASSIGN(bsl::wstring,   k_BSLSTR);
+            TEST_BIND_ASSIGN(bsl::wstring,   k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_BIND_EXPLICIT(bsl::wstring, k_PMRSTR);
+            TEST_BIND_ASSIGN(bsl::wstring,   k_PMRSTR);
+#endif
+
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            TEST_BIND_EXPLICIT(std::wstring, k_STRVIEW);
+            TEST_BIND_EXPLICIT(std::wstring, k_STRREF);
+            TEST_BIND_EXPLICIT(std::wstring, k_BSLSTR);
+            TEST_BIND_EXPLICIT(std::wstring, k_STDSTR);
+            TEST_BIND_ASSIGN(std::wstring,   k_STRVIEW);
+            TEST_BIND_ASSIGN(std::wstring,   k_STRREF);
+            TEST_BIND_ASSIGN(std::wstring,   k_BSLSTR);
+            TEST_BIND_ASSIGN(std::wstring,   k_STDSTR);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_BIND_EXPLICIT(std::wstring, k_PMRSTR);
+            TEST_BIND_ASSIGN(std::wstring,   k_PMRSTR);
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            TEST_BIND_EXPLICIT(std::pmr::wstring, k_STRVIEW);
+            TEST_BIND_EXPLICIT(std::pmr::wstring, k_STRREF);
+            TEST_BIND_EXPLICIT(std::pmr::wstring, k_BSLSTR);
+            TEST_BIND_EXPLICIT(std::pmr::wstring, k_STDSTR);
+            TEST_BIND_EXPLICIT(std::pmr::wstring, k_PMRSTR);
+            TEST_BIND_ASSIGN(std::pmr::wstring,   k_STRVIEW);
+            TEST_BIND_ASSIGN(std::pmr::wstring,   k_STRREF);
+            TEST_BIND_ASSIGN(std::pmr::wstring,   k_BSLSTR);
+            TEST_BIND_ASSIGN(std::pmr::wstring,   k_STDSTR);
+            TEST_BIND_ASSIGN(std::pmr::wstring,   k_PMRSTR);
+#endif
+#endif
+
+#undef TEST_BIND_ASSIGN
+#undef TEST_BIND_EXPLICIT
+#undef TEST_BIND_VERIFY
         }
+
+#ifdef BDE_BUILD_TARGET_EXC
+        if (veryVeryVerbose) cout << "Negative testing of wide strings\n";
+
+        static const struct NegativeTestDataWide {
+            long long         d_line;
+            bsl::wstring_view d_str;
+            size_type         d_pos;
+            size_type         d_len;
+        } k_NWDATA[] = {
+            { L_ , L"",                  1,  0 },
+            { L_ , L"",                  0,  1 },
+            { L_ , L"",                  1,  1 },
+            { L_ , L"0123456789abcdef", 17,  0 },
+            { L_ , L"0123456789abcdef", 16,  1 },
+            { L_ , L"0123456789abcdef", 10,  7 },
+        };
+
+        static bsl::size_t NUM_NWTESTS = sizeof k_NWDATA / sizeof *k_NWDATA;
+
+        for (bsl::size_t i = 0; i < NUM_NWTESTS; ++i) {
+            bslma::TestAllocator         sa("bslstring", veryVeryVerbose);
+            const NegativeTestDataWide&  k_TEST     = k_NWDATA[i];
+            const long long              k_LINE     = k_TEST.d_line;
+            const bsl::wstring_view&     k_STRVIEW  = k_TEST.d_str;
+            const bslstl::StringRefWide& k_STRREF   = k_STRVIEW;
+            const bsl::wstring           k_BSLSTR(k_STRVIEW, &sa);
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+            const std::wstring           k_STDSTR(k_STRVIEW);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::wstring      k_PMRSTR(k_STRVIEW);
+#endif
+#else
+            const std::wstring      k_STDSTR(k_STRREF.data(), k_STRREF.size());
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            const std::pmr::wstring k_PMRSTR(k_STRREF.data(), k_STRREF.size());
+#endif
+#endif
+            const bdlb::IndexSpan   k_SPAN(k_TEST.d_pos, k_TEST.d_len);
+
+            if (veryVerbose) {
+                P_(k_LINE); P_(k_SPAN);
+            }
+
+            bsls::AssertTestHandlerGuard g; (void)g;
+
+            ASSERT_FAIL(Util::bind(k_STRVIEW, k_SPAN));
+            ASSERT_FAIL(Util::bind(k_BSLSTR,  k_SPAN));
+            ASSERT_FAIL(Util::bind(k_STRREF,  k_SPAN));
+            ASSERT_FAIL(Util::bind(k_STDSTR,  k_SPAN));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            ASSERT_FAIL(Util::bind(k_PMRSTR,  k_SPAN));
+#endif
+        }
+#endif
       } break;
 
       case 1: {
@@ -742,9 +1357,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBREATHING TEST"
                              "\n==============\n";
 
-        bslstl::StringRef str("0123456789abcdef");
+        const bsl::string_view str("0123456789abcdef");
 
-        ASSERT(bdlb::IndexSpan(5, 3) == Util::create(str, str.data() + 5, 3));
+        ASSERT(bdlb::IndexSpan(5, 3) == Util::create(str, str.begin() + 5, 3));
 
         ASSERT("89abc" == Util::bind(str, bdlb::IndexSpan(8, 5)));
 
@@ -762,7 +1377,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2021 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
