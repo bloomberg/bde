@@ -177,8 +177,9 @@ using namespace bsl;
 // FREE FUNCTIONS
 // [ 8] void swap(FlatHashMap&, FlatHashMap&);
 // ----------------------------------------------------------------------------
-// [27] USAGE EXAMPLE
+// [28] USAGE EXAMPLE
 // [26] CONCERN: 'FlatHashMap' has the necessary type traits
+// [27] DRQS 165583038: 'insert' with conversion can crash
 // [ 1] BREATHING TEST
 // [-1] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
@@ -957,7 +958,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 27: {
+      case 28: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1104,6 +1105,51 @@ int main(int argc, char *argv[])
 //  them          3
 //  among         3
 //..
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // DRQS 165583038: 'insert' with conversion can crash
+        //
+        // Concerns:
+        //: 1 The 'insert' method does not crash when a conversion occurs.
+        //
+        // Plan:
+        //: 1 Verify the following code does not crash.  (C-1)
+        //
+        // Testing:
+        //   DRQS 165583038: 'insert' with conversion can crash
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl
+                 << "DRQS 165583038: 'insert' with conversion can crash"
+                 << endl
+                 << "=================================================="
+                 << endl;
+        }
+
+        typedef bdlc::FlatHashMap<bsl::string, int> Obj;
+
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+        Obj mX(64, &oa);  const Obj& X = mX;
+
+        mX.insert(bsl::pair<const char *, int>("abc", 1));
+
+        ASSERT(1 == X.size());
+        ASSERT(1 == X.find("abc")->second);
+
+#if !defined(BSLS_PLATFORM_CMP_SUN)
+        // The SUN compiler does not compile the reported 'bsl::make_pair'
+        // example.  Also, the observed crash occured when trying to hash the
+        // key, well before the actual insertion, so the following does
+        // recreate the issue, and provides additional sanity checks.
+
+        mX.insert(bsl::make_pair("abc", 2));
+
+        ASSERT(1 == X.size());
+        ASSERT(1 == X.find("abc")->second);
+#endif
       } break;
       case 26: {
         // --------------------------------------------------------------------

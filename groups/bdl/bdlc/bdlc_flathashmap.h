@@ -324,22 +324,8 @@ struct FlatHashMap_EntryUtil
         // specified 'allocator' to supply memory.  'allocator' is ignored if
         // the (template parameter) type 'ENTRY' is not allocator aware.
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-    template <class ENTRY_TYPE>
-    static const KEY& key(const ENTRY_TYPE& entry)
-#else
-    template <class ENTRY_TYPE>
-    static typename bsl::enable_if<bsl::is_convertible<ENTRY_TYPE,
-                                                       ENTRY>::value,
-                              const KEY&>::type key(const ENTRY_TYPE& entry)
-#endif
+    static const KEY& key(const ENTRY& entry);
         // Return the key of the specified 'entry'.
-    {
-        // Note that some compilers require functions declared with 'enable_if'
-        // to be defined inline.
-
-        return entry.first;
-    }
 };
 
                             // =================
@@ -846,6 +832,7 @@ void swap(FlatHashMap<KEY, VALUE, HASH, EQUAL>& a,
 // CLASS METHODS
 template <class KEY, class VALUE, class ENTRY>
 template <class KEY_TYPE>
+inline
 void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
                         ENTRY                                       *entry,
                         bslma::Allocator                            *allocator,
@@ -863,6 +850,13 @@ void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
                                   allocator,
                                   BSLS_COMPILERFEATURES_FORWARD(KEY_TYPE, key),
                                   bslmf::MovableRefUtil::move(value.object()));
+}
+
+template <class KEY, class VALUE, class ENTRY>
+inline
+const KEY& FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::key(const ENTRY& entry)
+{
+    return entry.first;
 }
 
                             // -----------------
