@@ -48,7 +48,7 @@ int bslmt::Barrier::timedWait(const bsls::TimeInterval& absTime)
             if (d_cond.timedWait(&d_mutex, absTime) &&
                 d_sigCount == prevSigCount) {
                 --d_numWaiting;
-                return -1;                                            // RETURN
+                return e_TIMED_OUT;                                   // RETURN
             }
         }
         --d_numPending;

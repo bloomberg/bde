@@ -115,9 +115,7 @@ void initializeCondition(pthread_cond_t              *condition,
 // CREATORS
 bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::ConditionImpl(
                                          bsls::SystemClockType::Enum clockType)
-#ifdef BSLS_PLATFORM_OS_DARWIN
 : d_clockType(clockType)
-#endif
 {
     initializeCondition(&d_cond, clockType);
 }
@@ -150,7 +148,7 @@ int bslmt::ConditionImpl<bslmt::Platform::PosixThreads>::timedWait(
 #endif
     int status = pthread_cond_timedwait(&d_cond, &mutex->nativeMutex(), &ts);
 
-    return 0 == status ? 0 : (ETIMEDOUT == status ? -1 : -2);
+    return 0 == status ? 0 : (ETIMEDOUT == status ? e_TIMED_OUT : -2);
 }
 
 }  // close enterprise namespace

@@ -155,6 +155,10 @@ class Sluice {
     Sluice& operator=(const Sluice&);
 
   public:
+    // TYPES
+    enum { e_TIMED_OUT = TimedSemaphore::e_TIMED_OUT };
+        // The value 'timedWait' returns when a timeout occurs.
+
     // CREATORS
     explicit
     Sluice(bslma::Allocator *basicAllocator = 0);
@@ -193,20 +197,43 @@ class Sluice {
         // specified 'absTime' timeout expires.  'absTime' is an *absolute*
         // time represented as an interval from some epoch, which is determined
         // by the clock indicated at construction (see {Supported Clock-Types}
-        // in the component documentation).  Return 0 on success, and a
-        // non-zero value on timeout.  The 'token' is released whether or not a
-        // timeout occurred.  The behavior is undefined unless 'token' was
-        // obtained from a call to 'enter' by this thread, and was not
-        // subsequently released (via a call to 'timedWait' or 'wait').
+        // in the component-level documentation).  Return 0 on success, and
+        // 'e_TIMED_OUT' on timeout.  Any other value indicates that an error
+        // has occurred.  Errors are unrecoverable.  After an error, the sluice
+        // may be destroyed, but any other use has undefined behavior.  The
+        // 'token' is released whether or not a timeout occurred.  The behavior
+        // is undefined unless 'token' was obtained from a call to 'enter' by
+        // this thread, and was not subsequently released (via a call to
+        // 'timedWait' or 'wait').
 
     void wait(const void *token);
         // Wait for the specified 'token' to be signaled, and release the
         // 'token'.  The behavior is undefined unless 'token' was obtained from
         // a call to 'enter' by this thread, and was not subsequently released
         // (via a call to 'timedWait' or 'wait').
+
+    // ACCESSORS
+    bsls::SystemClockType::Enum clockType() const;
+        // Return the clock type used for timeouts.
 };
 
 }  // close package namespace
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                             // ------------
+                             // class Sluice
+                             // ------------
+
+// ACCESSORS
+inline
+bsls::SystemClockType::Enum bslmt::Sluice::clockType() const
+{
+    return d_clockType;
+}
+
 }  // close enterprise namespace
 
 #endif

@@ -252,6 +252,36 @@ int main(int argc, char *argv[])
     My_TestAllocator ta(veryVeryVerbose);
 
     switch (test) {  case 0:
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING 'clockType'
+        //
+        // Concerns:
+        //: 1 'clockType' returns the clock type passed to the constructor.
+        //:
+        //: 2 'clockType' is declared 'const'.
+        //
+        // Plan:
+        //: 1 Create a 'const' object, and then query it to make sure that the
+        //:   correct clock type is returned.
+        //
+        // Testing:
+        //   bsls::SystemClockType::Enum clockType() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'clockType'" << endl
+                          << "===================" << endl;
+
+        const Obj def;
+        ASSERT(bsls::SystemClockType::e_REALTIME == def.clockType());
+
+        const Obj rt(bsls::SystemClockType::e_REALTIME);
+        ASSERT(bsls::SystemClockType::e_REALTIME == rt.clockType());
+
+        const Obj mt(bsls::SystemClockType::e_MONOTONIC);
+        ASSERT(bsls::SystemClockType::e_MONOTONIC == mt.clockType());
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // STRESS AND ALLOCATOR TEST
@@ -403,6 +433,14 @@ int main(int argc, char *argv[])
             x.signalAll();
             x.wait(t1);
             ASSERT(0 == x.timedWait(t2, future));
+        }
+        {
+            Obj                x;
+            bsls::TimeInterval plus2seconds =
+               bsls::SystemTime::nowRealtimeClock().addSeconds(2);
+
+            const void *t2 = x.enter();
+            ASSERT(Obj::e_TIMED_OUT == x.timedWait(t2, plus2seconds));
         }
       } break;
       default: {

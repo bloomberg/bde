@@ -52,7 +52,7 @@ int bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::timedWait(
         return 0;                                                     // RETURN
     }
     DWORD err = GetLastError();
-    return ERROR_TIMEOUT == err ? -1 : -2;
+    return ERROR_TIMEOUT == err ? e_TIMED_OUT : -2;
 }
 
 int bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::wait(Mutex *mutex)

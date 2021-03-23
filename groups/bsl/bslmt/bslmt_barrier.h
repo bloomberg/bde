@@ -319,6 +319,10 @@ class Barrier {
     Barrier& operator=(const Barrier&);
 
   public:
+    // TYPES
+    enum { e_TIMED_OUT = -1 };
+        // The value 'timedWait' returns when a timeout occurs.
+
     // CREATORS
     explicit Barrier(
     int                         numThreads,
@@ -327,7 +331,7 @@ class Barrier {
         // unblock.  Optionally specify a 'clockType' indicating the type of
         // the system clock against which the 'bsls::TimeInterval' 'absTime'
         // timeouts passed to the 'timedWait' method are to be interpreted (see
-        // {Supported Clock-Types} in the component documentation).  If
+        // {Supported Clock-Types} in the component-level documentation).  If
         // 'clockType' is not specified then the realtime system clock is used.
         // The behavior is undefined unless '0 < numThreads'.
 
@@ -346,15 +350,17 @@ class Barrier {
         // this barrier to its initial state, and return 0.  If this method
         // times out before the required number of threads are waiting, the
         // thread is released to proceed and ceases to contribute to the number
-        // of threads waiting.  Return a non-zero value if a timeout or error
-        // occurs.  'absTime' is an *absolute* time represented as an interval
-        // from some epoch, which is determined by the clock indicated at
-        // construction (see {Supported Clock-Types} in the component
-        // documentation).  Note that 'timedWait' and 'wait' should not
-        // generally be used together; if one or more threads called 'wait'
-        // while others called 'timedWait', then if the thread(s) that called
-        // 'timedWait' were to time out and not retry, the threads that called
-        // 'wait' would never unblock.
+        // of threads waiting, and 'e_TIMED_OUT' is returned.  Any other return
+        // value indicates that an error has occurred.  Errors are
+        // unrecoverable.  After an error, the barrier may be destroyed, but
+        // any other use has undefined behavior.  'absTime' is an *absolute*
+        // time represented as an interval from some epoch, which is determined
+        // by the clock indicated at construction (see {Supported Clock-Types}
+        // in the component-level documentation).  Note that 'timedWait' and
+        // 'wait' should not generally be used together; if one or more threads
+        // called 'wait' while others called 'timedWait', then if the thread(s)
+        // that called 'timedWait' were to time out and not retry, the threads
+        // that called 'wait' would never unblock.
 
     void wait();
         // Block until the required number of threads have called either 'wait'
@@ -365,6 +371,9 @@ class Barrier {
         // in the documentation of 'timedWait'.
 
     // ACCESSORS
+    bsls::SystemClockType::Enum clockType() const;
+        // Return the clock type used for timeouts.
+
     int numThreads() const;
         // Return the number of threads that are required to call 'wait' before
         // all waiting threads will unblock.
@@ -388,6 +397,12 @@ inline bslmt::Barrier::Barrier(int                         numThreads,
 }
 
 // ACCESSORS
+inline
+bsls::SystemClockType::Enum bslmt::Barrier::clockType() const
+{
+    return d_cond.clockType();
+}
+
 inline
 int bslmt::Barrier::numThreads() const
 {

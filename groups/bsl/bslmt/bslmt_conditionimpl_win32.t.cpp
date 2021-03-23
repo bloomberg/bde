@@ -286,6 +286,36 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING 'clockType'
+        //
+        // Concerns:
+        //: 1 'clockType' returns the clock type passed to the constructor.
+        //:
+        //: 2 'clockType' is declared 'const'.
+        //
+        // Plan:
+        //: 1 Create a 'const' object, and then query it to make sure that the
+        //:   correct clock type is returned.
+        //
+        // Testing:
+        //   bsls::SystemClockType::Enum clockType() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'clockType'" << endl
+                          << "===================" << endl;
+
+        const Obj def;
+        ASSERT(bsls::SystemClockType::e_REALTIME == def.clockType());
+
+        const Obj rt(bsls::SystemClockType::e_REALTIME);
+        ASSERT(bsls::SystemClockType::e_REALTIME == rt.clockType());
+
+        const Obj mt(bsls::SystemClockType::e_MONOTONIC);
+        ASSERT(bsls::SystemClockType::e_MONOTONIC == mt.clockType());
+      } break;
     case 5: {
         // --------------------------------------------------------------------
         // TESTING CONDITION::TIMEDWAIT() ACCURACY WITH MONOTONIC CLOCK
@@ -478,7 +508,7 @@ int main(int argc, char *argv[])
         int sts;
         for (i = 1; 10 >= i; ++i) {
             sts = cond.timedWait(&mutex, endT);
-            if (-1 == sts) {
+            if (Obj::e_TIMED_OUT == sts) {
                 break;
             }
             if (bsls::SystemTime::nowRealtimeClock() > endT2) {
@@ -500,7 +530,7 @@ int main(int argc, char *argv[])
         sts    = cond.timedWait(&mutex, startT - 1);
         double duration = (  bsls::SystemTime::nowRealtimeClock()
                            - startT).totalSecondsAsDouble();
-        ASSERT( -1 == sts);
+        ASSERT(Obj::e_TIMED_OUT == sts);
         ASSERT(0.0 <= duration && duration <= 0.1);
     } break;
 

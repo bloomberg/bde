@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
 // The following usage pattern should always be followed:
 //..
       // ...
@@ -160,6 +160,36 @@ int main(int argc, char *argv[])
       // ...
 //..
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING 'clockType'
+        //
+        // Concerns:
+        //: 1 'clockType' returns the clock type passed to the constructor.
+        //:
+        //: 2 'clockType' is declared 'const'.
+        //
+        // Plan:
+        //: 1 Create a 'const' object, and then query it to make sure that the
+        //:   correct clock type is returned.
+        //
+        // Testing:
+        //   bsls::SystemClockType::Enum clockType() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'clockType'" << endl
+                          << "===================" << endl;
+
+        const Obj def;
+        ASSERT(bsls::SystemClockType::e_REALTIME == def.clockType());
+
+        const Obj rt(bsls::SystemClockType::e_REALTIME);
+        ASSERT(bsls::SystemClockType::e_REALTIME == rt.clockType());
+
+        const Obj mt(bsls::SystemClockType::e_MONOTONIC);
+        ASSERT(bsls::SystemClockType::e_MONOTONIC == mt.clockType());
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // TEST THAT THIS IS A CONDITION
@@ -200,14 +230,14 @@ int main(int argc, char *argv[])
               int    rv      = x.timedWait(&lock,
                                      bsls::SystemTime::nowRealtimeClock() + 2);
               double elapsed = timer.elapsedTime();
-              ASSERT( -1 == rv);
+              ASSERT(Obj::e_TIMED_OUT == rv);
               ASSERT(1.8 <= elapsed && elapsed <= 2.2);
 
               timer.start();
               rv      = x.timedWait(&lock,
                                     bsls::SystemTime::nowRealtimeClock() - 1);
               elapsed = timer.elapsedTime();
-              ASSERT( -1 == rv);
+              ASSERT(Obj::e_TIMED_OUT == rv);
               ASSERT(0.0 <= elapsed && elapsed <= 3.0);
 
               lock.unlock();
@@ -227,14 +257,14 @@ int main(int argc, char *argv[])
               int    rv      = x.timedWait(&lock,
                                     bsls::SystemTime::nowMonotonicClock() + 2);
               double elapsed = timer.elapsedTime();
-              ASSERT( -1 == rv);
+              ASSERT(Obj::e_TIMED_OUT == rv);
               ASSERT(1.8 <= elapsed && elapsed <= 2.2);
 
               timer.start();
               rv      = x.timedWait(&lock,
                                     bsls::SystemTime::nowMonotonicClock() - 1);
               elapsed = timer.elapsedTime();
-              ASSERT( -1 == rv);
+              ASSERT(Obj::e_TIMED_OUT == rv);
               ASSERT(0.0 <= elapsed && elapsed <= 3.0);
 
               lock.unlock();

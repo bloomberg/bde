@@ -277,6 +277,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_systemclocktype.h>
 
 namespace BloombergLP {
 namespace bslmt {
@@ -306,6 +307,10 @@ class Latch {
     Latch& operator=(const Latch&);
 
   public:
+    // TYPES
+    enum { e_TIMED_OUT = Condition::e_TIMED_OUT };
+        // The value 'timedWait' returns when a timeout occurs.
+
     // CREATORS
     explicit Latch(int                         count,
                    bsls::SystemClockType::Enum clockType
@@ -357,17 +362,22 @@ class Latch {
     int timedWait(const bsls::TimeInterval& absTime);
         // Block until the number of events that this latch is waiting for
         // reaches 0, or until the specified 'absTime' timeout expires.  Return
-        // 0 on success, -1 on timeout, and a non-zero value different from -1
-        // if an error occurs.  'absTime' is an *absolute* time represented as
-        // an interval from some epoch as determined by the clock specified at
-        // construction (see {Supported Clock-Types} in the component
-        // documentation).
+        // 0 on success, 'e_TIMED_OUT' on timeout, and a non-zero value
+        // different from 'e_TIMED_OUT' if an error occurs.  Errors are
+        // unrecoverable.  After an error, the latch may be destroyed, but any
+        // other use has undefined behavior.  'absTime' is an *absolute* time
+        // represented as an interval from some epoch as determined by the
+        // clock specified at construction (see {Supported Clock-Types} in the
+        // component-level documentation).
 
     void wait();
         // Block until the number of events that this latch is waiting for
         // reaches 0.
 
     // ACCESSORS
+    bsls::SystemClockType::Enum clockType() const;
+        // Return the clock type used for timeouts.
+
     int currentCount() const;
         // Return the current number of events for which this latch is waiting.
         // Note that this method is provided primarily for debugging purposes
@@ -401,6 +411,13 @@ Latch::Latch(int count, bsls::SystemClockType::Enum clockType)
 , d_sigCount(count)
 {
     BSLS_ASSERT_SAFE(0 <= count);
+}
+
+// ACCESSORS
+inline
+bsls::SystemClockType::Enum Latch::clockType() const
+{
+    return d_cond.clockType();
 }
 
 }  // close package namespace

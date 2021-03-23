@@ -39,12 +39,13 @@ using namespace bsl;
 // [ 5] int wait();
 //
 // ACCESSORS
+// [ 8] bsls::SystemClockType::Enum clockType() const;
 // [ 4] int getDisabledState() const;
 // [ 6] int getValue() const;
 // [ 4] bool isDisabled() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 8] USAGE EXAMPLE
+// [ 9] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -291,7 +292,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -340,6 +341,36 @@ int main(int argc, char *argv[])
 //..
 //  ASSERT(IntQueue::e_SUCCESS == queue.waitUntilEmpty());
 //..
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING 'clockType'
+        //
+        // Concerns:
+        //: 1 'clockType' returns the clock type passed to the constructor.
+        //:
+        //: 2 'clockType' is declared 'const'.
+        //
+        // Plan:
+        //: 1 Create a 'const' object, and then query it to make sure that the
+        //:   correct clock type is returned.
+        //
+        // Testing:
+        //   bsls::SystemClockType::Enum clockType() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'clockType'" << endl
+                          << "===================" << endl;
+
+        const Obj def;
+        ASSERT(bsls::SystemClockType::e_REALTIME == def.clockType());
+
+        const Obj rt(bsls::SystemClockType::e_REALTIME);
+        ASSERT(bsls::SystemClockType::e_REALTIME == rt.clockType());
+
+        const Obj mt(bsls::SystemClockType::e_MONOTONIC);
+        ASSERT(bsls::SystemClockType::e_MONOTONIC == mt.clockType());
       } break;
       case 7: {
         // --------------------------------------------------------------------

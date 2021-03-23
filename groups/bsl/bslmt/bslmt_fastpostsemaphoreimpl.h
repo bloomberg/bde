@@ -126,7 +126,7 @@ class FastPostSemaphoreImpl {
         // return 'e_TIMED_OUT' with no effect on the count.  'absTime' is an
         // absolute time represented as an interval from some epoch, which is
         // determined by the clock indicated at construction (see {Supported
-        // Clock-Types} in the component documentation).  This method is
+        // Clock-Types} in the component-level documentation).  This method is
         // invoked from 'timedWait' when the invoking thread may have to be
         // blocked.
 
@@ -183,7 +183,7 @@ class FastPostSemaphoreImpl {
         // 0.  Optionally specify a 'clockType' indicating the type of the
         // system clock against which the 'bsls::TimeInterval' 'absTime'
         // timeouts passed to the 'timedWait' method are to be interpreted (see
-        // {Supported Clock-Types} in the component documentation).  If
+        // {Supported Clock-Types} in the component-level documentation).  If
         // 'clockType' is not specified then the realtime system clock is used.
 
     explicit
@@ -237,7 +237,7 @@ class FastPostSemaphoreImpl {
         // value or the specified 'absTime' timeout expires.  If the count of
         // this semaphore is a positive value, return 0 and atomically
         // decrement the count.  If the 'absTime' timeout expires, return
-        // 'e_TIMEDOUT' with no effect on the count.  Return 'e_FAILED' if an
+        // 'e_TIMED_OUT' with no effect on the count.  Return 'e_FAILED' if an
         // error occurs.  'absTime' is an *absolute* time represented as an
         // interval from some epoch, which is determined by the clock indicated
         // at construction (see {Supported Clock-Types} in the component
@@ -259,6 +259,9 @@ class FastPostSemaphoreImpl {
         // 'e_FAILED' if an error occurs.
 
     // ACCESSORS
+    bsls::SystemClockType::Enum clockType() const;
+        // Return the clock type used for timeouts.
+
     int getDisabledState() const;
         // Return an odd value if this semaphore is wait disabled, and an even
         // value otherwise.  The returned value can be used to detect a rapid
@@ -758,6 +761,15 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>::wait()
 }
 
 // ACCESSORS
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
+inline
+bsls::SystemClockType::Enum
+FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                                                            ::clockType() const
+{
+    return d_waitCondition.clockType();
+}
+
 template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
 inline
 int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>

@@ -127,6 +127,10 @@ class ConditionImpl<Platform::Win32Threads> {
     ConditionImpl& operator=(const ConditionImpl&);
 
   public:
+    // TYPES
+    enum { e_TIMED_OUT = -1 };
+        // The value 'timedWait' returns when a timeout occurs.
+
     // CREATORS
     explicit
     ConditionImpl(bsls::SystemClockType::Enum clockType
@@ -135,8 +139,8 @@ class ConditionImpl<Platform::Win32Threads> {
         // 'clockType' indicating the type of the system clock against which
         // the 'bsls::TimeInterval' 'absTime' timeouts passed to the
         // 'timedWait' method are to be interpreted (see {Supported
-        // Clock-Types} in the component documentation).  If 'clockType' is not
-        // specified then the realtime system clock is used.
+        // Clock-Types} in the component-level documentation).  If 'clockType'
+        // is not specified then the realtime system clock is used.
 
     ~ConditionImpl();
         // Destroy condition variable this object.
@@ -158,17 +162,18 @@ class ConditionImpl<Platform::Win32Threads> {
         // lock on the 'mutex'.  'absTime' is an *absolute* time represented as
         // an interval from some epoch, which is determined by the clock
         // indicated at construction (see {Supported Clock-Types} in the
-        // component documentation), and is the earliest time at which the
-        // timeout may occur.  The 'mutex' remains locked by the calling thread
-        // upon returning from this function.  Return 0 on success, -1 on
-        // timeout, and a non-zero value different from -1 if an error occurs.
-        // The behavior is undefined unless 'mutex' is locked by the calling
-        // thread prior to calling this method.  Note that spurious wakeups are
-        // rare but possible, i.e., this method may succeed (return 0) and
-        // return control to the thread without the condition object being
-        // signaled.  Also note that the actual time of the timeout depends on
-        // many factors including system scheduling and system timer
-        // resolution, and may be significantly later than the time requested.
+        // component-level documentation), and is the earliest time at which
+        // the timeout may occur.  The 'mutex' remains locked by the calling
+        // thread upon returning from this function.  Return 0 on success,
+        // 'e_TIMED_OUT' on timeout, and a non-zero value different from
+        // 'e_TIMED_OUT' if an error occurs.  The behavior is undefined unless
+        // 'mutex' is locked by the calling thread prior to calling this
+        // method.  Note that spurious wakeups are rare but possible, i.e.,
+        // this method may succeed return 0) and return control to the thread
+        // without the condition object being signaled.  Also note that the
+        // actual time of the timeout depends on many factors including system
+        // scheduling and system timer resolution, and may be significantly
+        // later than the time requested.
 
     int wait(Mutex *mutex);
         // Atomically unlock the specified 'mutex' and suspend execution of the
@@ -181,6 +186,10 @@ class ConditionImpl<Platform::Win32Threads> {
         // The behavior is undefined unless 'mutex' is locked by the calling
         // thread prior to calling this method.  Note that 'mutex' remains
         // locked by the calling thread upon return from this function.
+
+    // ACCESSORS
+    bsls::SystemClockType::Enum clockType() const;
+        // Return the clock type used for timeouts.
 };
 
 }  // close package namespace
@@ -221,6 +230,14 @@ void bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::signal()
 {
     WakeConditionVariable(
                          reinterpret_cast<_RTL_CONDITION_VARIABLE *>(&d_cond));
+}
+
+// ACCESSORS
+inline
+bsls::SystemClockType::Enum
+bslmt::ConditionImpl<bslmt::Platform::Win32Threads>::clockType() const
+{
+    return d_clockType;
 }
 
 }  // close enterprise namespace

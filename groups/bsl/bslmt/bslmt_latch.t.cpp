@@ -97,6 +97,7 @@ using namespace bsl;
 // [ 3] bool tryWait() const;
 //
 // Interactions between manipulators, concurrent usage:
+// [14] bsls::SystemClockType::Enum clockType() const;
 // [13] countDown(int n); wait(); arriveAndWait();
 // [12] arrive();         wait(); arriveAndWait();
 // [11] countDown(int n); wait();
@@ -105,7 +106,7 @@ using namespace bsl;
 // [ 8] countDown(int n);
 // [ 7] arrive();
 // ----------------------------------------------------------------------------
-// [14] USAGE EXAMPLE
+// [15] USAGE EXAMPLE
 
 // The following table shows how the three groups of threads described are
 // mixed together in each test case, where:
@@ -872,7 +873,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -926,6 +927,36 @@ int main(int argc, char *argv[])
             }
         }
 
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING 'clockType'
+        //
+        // Concerns:
+        //: 1 'clockType' returns the clock type passed to the constructor.
+        //:
+        //: 2 'clockType' is declared 'const'.
+        //
+        // Plan:
+        //: 1 Create a 'const' object, and then query it to make sure that the
+        //:   correct clock type is returned.
+        //
+        // Testing:
+        //   bsls::SystemClockType::Enum clockType() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'clockType'" << endl
+                          << "===================" << endl;
+
+        const Obj def(1);
+        ASSERT(bsls::SystemClockType::e_REALTIME == def.clockType());
+
+        const Obj rt(1, bsls::SystemClockType::e_REALTIME);
+        ASSERT(bsls::SystemClockType::e_REALTIME == rt.clockType());
+
+        const Obj mt(1, bsls::SystemClockType::e_MONOTONIC);
+        ASSERT(bsls::SystemClockType::e_MONOTONIC == mt.clockType());
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -1243,7 +1274,7 @@ int main(int argc, char *argv[])
             absTime.addMicroseconds(1000000);
 
             const int rc = myLatch.timedWait(absTime);
-            ASSERT(-1 == rc);
+            ASSERT(bslmt::Latch::e_TIMED_OUT == rc);
             const int myCount = myLatch.currentCount();
             ASSERT(5 == myCount);
         }

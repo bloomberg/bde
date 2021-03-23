@@ -54,15 +54,16 @@ using namespace bsl;  // automatically added by script
 // 'timedWait' can be unblocked by a call to 'wait' and vice versa.  Finally,
 // we make sure the usage example compiles and runs as expected.
 //-----------------------------------------------------------------------------
-// [2] bslmt::Barrier(int numThreads);
-// [2] ~bslmt::Barrier();
-// [3] void wait();
-// [4] void timedWait(const bsls::TimeInterval& absTime);
-// [2] int numThreads();
+// [ 2] bslmt::Barrier(int numThreads);
+// [ 2] ~bslmt::Barrier();
+// [ 3] void wait();
+// [ 4] void timedWait(const bsls::TimeInterval& absTime);
+// [ 2] int numThreads();
+// [10] bsls::SystemClockType::Enum clockType() const;
 //-----------------------------------------------------------------------------
-// [1] Breathing test
-// [5] Testing interactions between 'wait' and 'timedWait'
-// [6] USAGE Example
+// [ 1] Breathing test
+// [ 5] Testing interactions between 'wait' and 'timedWait'
+// [ 6] USAGE Example
 
 static bsls::SpinLock coutLock = BSLS_SPINLOCK_UNLOCKED;
 
@@ -710,6 +711,38 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING 'clockType'
+        //
+        // Concerns:
+        //: 1 'clockType' returns the clock type passed to the constructor.
+        //:
+        //: 2 'clockType' is declared 'const'.
+        //
+        // Plan:
+        //: 1 Create a 'const' object, and then query it to make sure that the
+        //:   correct clock type is returned.
+        //
+        // Testing:
+        //   bsls::SystemClockType::Enum clockType() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'clockType'" << endl
+                          << "===================" << endl;
+
+        typedef bslmt::Barrier Obj;
+
+        const Obj def(2);
+        ASSERT(bsls::SystemClockType::e_REALTIME == def.clockType());
+
+        const Obj rt(2, bsls::SystemClockType::e_REALTIME);
+        ASSERT(bsls::SystemClockType::e_REALTIME == rt.clockType());
+
+        const Obj mt(2, bsls::SystemClockType::e_MONOTONIC);
+        ASSERT(bsls::SystemClockType::e_MONOTONIC == mt.clockType());
+      } break;
       case 9: {
         if (verbose) {
            cout << "Thread-safety of the destructor test" << endl;
@@ -1361,6 +1394,11 @@ int main(int argc, char *argv[])
             ASSERT(1 == b.numThreads());
             b.wait();
             ASSERT(0 == b.timedWait(k_TIMEOUT));
+
+            const bsls::TimeInterval k_1S_TIMEOUT(1);
+            bslmt::Barrier           b1(2);
+            ASSERT(bslmt::Barrier::e_TIMED_OUT == b1.timedWait(k_1S_TIMEOUT));
+
         }
       } break;
 
