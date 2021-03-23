@@ -128,15 +128,16 @@ struct String {
                                  int                 rhsLength);
     static bool areEqualCaseless(const bsl::string& lhsString,
                                  const bsl::string& rhsString);
-        // Compare the specified 'lhsString' and 'rhsString' having the
-        // optionally specified 'lhsLength' and 'rhsLength', respectively, *as*
-        // *if* the strings were converted to lower case before the comparison.
-        // Return 1 if 'lhsString' is lexically greater than 'rhsString', 0 if
-        // they are equal, and -1 otherwise.  The behavior is undefined unless
-        // '0 <= lhsLength' and '0 <= rhsLength' (if specified), and
-        // 'lhsString.size() <= INT_MAX' and 'rhsString.size() <= INT_MAX' (if
-        // applicable).  See {'bdlb_stringviewutil'} for an identically named
-        // method having the same semantics taking 'bsl::string_view'.
+        // Compare for equality the specified 'lhsString' and 'rhsString'
+        // having the optionally specified 'lhsLength' and 'rhsLength',
+        // respectively, *as if* the strings were converted to lower case
+        // before the equality comparison.  Return 'true' if 'lhsString' is
+        // equal to 'rhsString', and 'false' otherwise.  The behavior is
+        // undefined unless '0 <= lhsLength' and '0 <= rhsLength' (if
+        // specified), and 'lhsString.size() <= INT_MAX' and
+        // 'rhsString.size() <= INT_MAX' (if applicable).  See
+        // {'bdlb_stringviewutil'} for an identically named method having the
+        // same semantics taking 'bsl::string_view'.
 
     static char *copy(const char *string, bslma::Allocator *basicAllocator);
         // Create a null-terminated copy of the specified 'string', using the
