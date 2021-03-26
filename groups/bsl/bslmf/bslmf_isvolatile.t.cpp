@@ -106,7 +106,14 @@ void aSsErT(bool condition, const char *message, int line)
 // (the negation of) 'is_function', but that simply exposes that our current
 // implementation of 'is_function' does not detect such types either.
 #   define BSLMF_ISVOLATILE_COMPILER_CANNOT_QUALIFY_ABOMINABLE_FUNCTION_TYPES
-# endif
+#   if BSLS_PLATFORM_CMP_VERSION == 0x1001 // 0x1001 is xlc version 16.01
+//    The xlC 12 compiler can correctly parse abominable function types, but
+//    the xlC 16.01 compiler has regressed and cannot do so.
+//    This has been reported to IBM who have stated that this will be fixed in
+//    the next compiler release (16.02).
+#       define BSLMF_ISVOLATILE_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES
+#   endif
+#endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800
 // The Microsoft Visual C++ compiler. prior to VC2015, will correctly match an
