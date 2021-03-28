@@ -1,5 +1,18 @@
-bsl-internal (3.76.0.0) unstable; urgency=low
+bsl-internal (3.77.0.0) unstable; urgency=low
 
+  * efa74c608 Bumped version to 3.77.0.0
+  * 38a526596 Merge pull request #3159 from afeher/drqs-164339013-indexspanstringutil-BDE-4.0
+  * 505491bef Merge pull request #3162 from bchapman/bdlmt-bslmt-use-bslmt_testutil-drqs-165533928
+  * 87a743760 Merge pull request #3156 from afeher/drqs-127796905-add-bdld_datum-hashappend
+  * 238251952 Merge pull request #3151 from afeher/drqs-165417973-bdld_datum-32bit-preserve-snan-qnan
+  * 067231560 Merge pull request #3152 from afeher/drqs-165268497-balc_optionvalue-test-xlC16-fix
+  * e55c86081 Merge pull request #3148 from afeher/drqs-165268497-fix-balxml-en-decoder-tests-aix
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 28 Mar 2021 10:01:41 -0400
+
+bsl-internal (3.76.0.0) git; urgency=low
+
+  * 1c9e443c7 Changelog for version 3.76.0.0
   * 7008cc9eb Bumped version to 3.76.0.0
   * a0d83b389 Merge pull request #3145 from bde/nburgers-patch-1
   * da8c9d57c Merge pull request #3144 from bchapman/bsl+bslhdrs.pub-make-consistent-drqs-165406123
@@ -7,7 +20,7 @@ bsl-internal (3.76.0.0) unstable; urgency=low
   * 78905ff5a Merge pull request #3130 from dsokolov7/review/bde-libraryfeatures-macros-split-drqs-165206618
   * 6dbaa0ffa Merge pull request #3123 from dsokolov7/review/bde-libraryfeatures-macros-renaming-drqs-165206589
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 5 Mar 2021 12:18:58 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 5 Mar 2021 12:21:51 -0500
 
 bsl-internal (3.75.1.0) git; urgency=low
 
