@@ -47,6 +47,7 @@
 #endif
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
+#include <bsl_iterator.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_unordered_set.h>
@@ -134,6 +135,7 @@ using namespace bsl;
 // [17] const_iterator erase(const_iterator);
 // [18] const_iterator erase(const_iterator, const_iterator);
 // [ 2] bsl::pair<iterator, bool> insert(FORWARD_REF(ENTRY_TYPE) entry)
+// [26] iterator insert(const_iterator, FORWARD_REF(ENTRY_TYPE) entry)
 // [16] void insert(INPUT_ITERATOR, INPUT_ITERATOR);
 // #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 // [23] void insert(bsl::initializer_list<KEY> values);
@@ -170,7 +172,7 @@ using namespace bsl;
 // FREE FUNCTIONS
 // [ 8] void swap(FlatHashSet&, FlatHashSet&);
 // ----------------------------------------------------------------------------
-// [26] USAGE EXAMPLE
+// [27] USAGE EXAMPLE
 // [24] CONCERN: 'FlatHashMap' has the necessary type traits
 // [25] DRQS 165258625: 'insert' could create reference to temporary
 // [ 1] BREATHING TEST
@@ -664,17 +666,19 @@ void testCase13MoveConstructorWithoutAllocator(int id)
 }
 
 template <class KEY>
-void testCase2Insert(int id, bool allocates, bool allocatesOnRehash)
-    // Address the 'insert' concerns of test case 2 for the specified 'id',
-    // that can be used to determine the 'KEY' in case of a test failure, for a
-    // type that allocates if the specified 'allocates' is 'true', and
+void testCaseInsert(int  id,
+                    bool allocates,
+                    bool allocatesOnRehash,
+                    bool useHint)
+    // Address the 'insert' concerns of test cases 2 and 26 for the specified
+    // 'id', that can be used to determine the 'KEY' in case of a test failure,
+    // for a type that allocates if the specified 'allocates' is 'true', and
     // allocates on rehashes if the specified 'allocatesOnRehash' is 'true'.
+    // Use 'insert' with a hint if the specified 'useHint' is 'true'.
 {
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
     typedef bdlc::FlatHashSet<KEY, TestValueIsHash<KEY> > Obj;
-
-    bsl::pair<typename Obj::iterator, bool> rv;
 
     const int secondAlloc = 2 * 7 * (k_SIZE / 8);
     const int thirdAlloc  = 4 * 7 * (k_SIZE / 8);
@@ -690,13 +694,26 @@ void testCase2Insert(int id, bool allocates, bool allocatesOnRehash)
 
         bslma::DestructorGuard<KEY> guard(&key.object());
 
-        rv = mX.insert(key.object());
-        LOOP2_ASSERT(id, i,    i == rv.first->data());
-        LOOP2_ASSERT(id, i, true == rv.second);
+        if (!useHint) {
+            bsl::pair<typename Obj::iterator, bool> rv;
 
-        rv = mX.insert(key.object());
-        LOOP2_ASSERT(id, i,     i == rv.first->data());
-        LOOP2_ASSERT(id, i, false == rv.second);
+            rv = mX.insert(key.object());
+            LOOP2_ASSERT(id, i,    i == rv.first->data());
+            LOOP2_ASSERT(id, i, true == rv.second);
+
+            rv = mX.insert(key.object());
+            LOOP2_ASSERT(id, i,     i == rv.first->data());
+            LOOP2_ASSERT(id, i, false == rv.second);
+        }
+        else {
+            typename Obj::iterator rv;
+
+            rv = mX.insert(X.begin(), key.object());
+            LOOP2_ASSERT(id, i, i == rv->data());
+
+            rv = mX.insert(X.end(), key.object());
+            LOOP2_ASSERT(id, i, i == rv->data());
+        }
 
         typename Obj::const_iterator iter = X.find(key.object());
         LOOP2_ASSERT(id, i, i == iter->data());
@@ -745,17 +762,16 @@ void testCase2Insert(int id, bool allocates, bool allocatesOnRehash)
 }
 
 template <class KEY>
-void testCase2InsertMove(int id, bool allocates, bool moveable)
-    // Address the move 'insert' concerns of test case 2 for the specified 'id'
-    // that can be used to determine 'KEY' in case of a test failure, for a
-    // type that allocates if the specified 'allocates' is 'true', and can be
-    // moved if the specified 'moveable' is 'true'.
+void testCaseInsertMove(int id, bool allocates, bool moveable, bool useHint)
+    // Address the move 'insert' concerns of test cases 2 and 26 for the
+    // specified 'id' that can be used to determine 'KEY' in case of a test
+    // failure, for a type that allocates if the specified 'allocates' is
+    // 'true', and can be moved if the specified 'moveable' is 'true'.  Use
+    // 'insert' with a hint if the specified 'useHint' is 'true'.
 {
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
     typedef bdlc::FlatHashSet<KEY, TestValueIsHash<KEY> > Obj;
-
-    bsl::pair<typename Obj::iterator, bool> rv;
 
     const int secondAlloc = 2 * 7 * (k_SIZE / 8);
     const int thirdAlloc  = 4 * 7 * (k_SIZE / 8);
@@ -776,13 +792,28 @@ void testCase2InsertMove(int id, bool allocates, bool moveable)
 
         bslma::DestructorGuard<KEY> guard2(&key2.object());
 
-        rv = mX.insert(bslmf::MovableRefUtil::move(key1.object()));
-        LOOP2_ASSERT(id, i,    i == rv.first->data());
-        LOOP2_ASSERT(id, i, true == rv.second);
+        if (!useHint) {
+            bsl::pair<typename Obj::iterator, bool> rv;
 
-        rv = mX.insert(bslmf::MovableRefUtil::move(key2.object()));
-        LOOP2_ASSERT(id, i,     i == rv.first->data());
-        LOOP2_ASSERT(id, i, false == rv.second);
+            rv = mX.insert(bslmf::MovableRefUtil::move(key1.object()));
+            LOOP2_ASSERT(id, i,    i == rv.first->data());
+            LOOP2_ASSERT(id, i, true == rv.second);
+
+            rv = mX.insert(bslmf::MovableRefUtil::move(key2.object()));
+            LOOP2_ASSERT(id, i,     i == rv.first->data());
+            LOOP2_ASSERT(id, i, false == rv.second);
+        }
+        else {
+            typename Obj::iterator rv;
+
+            rv = mX.insert(X.begin(),
+                           bslmf::MovableRefUtil::move(key1.object()));
+            LOOP2_ASSERT(id, i, i == rv->data());
+
+            rv = mX.insert(X.end(),
+                           bslmf::MovableRefUtil::move(key2.object()));
+            LOOP2_ASSERT(id, i, i == rv->data());
+        }
 
         typename Obj::const_iterator iter = X.find(key2.object());
         LOOP2_ASSERT(id, i, i == iter->data());
@@ -1185,7 +1216,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1232,6 +1263,123 @@ int main(int argc, char *argv[])
 //..
 //  100 84
 //..
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // HINT INSERT
+        //   The hint insert method operates as expected.
+        //
+        // Concerns:
+        //: 1 The manipulator 'insert' with a hint correctly forwards to the
+        //:   implementation class, correctly forwards the return value from
+        //:   the implementation class, and honors
+        //:   bitwise-copy/bitwise-move/move.
+        //
+        // Plan:
+        //: 1 Create objects using the 'bslma::TestAllocator', use the 'insert'
+        //:   with a hint method with various values, verify the return value,
+        //:   and use the basic accessors to verify the value of the object.
+        //:   Use 'bsltf' test types to verify bitwise-copy/bitwise-move/move
+        //:   are honored.  (C-1)
+        //
+        // Testing:
+        //   iterator insert(const_iterator, FORWARD_REF(ENTRY_TYPE) entry)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "HINT INSERT" << endl
+                          << "===========" << endl;
+
+        if (verbose) cout << "Testing copy 'insert' with hint." << endl;
+        {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+            testCaseInsert<bsltf::AllocBitwiseMoveableTestType>(1,
+                                                                true,
+                                                                false,
+                                                                true);
+            testCaseInsert<bsltf::AllocTestType>(2, true, true, true);
+            testCaseInsert<bsltf::BitwiseCopyableTestType>(3,
+                                                           false,
+                                                           false,
+                                                           true);
+            testCaseInsert<bsltf::BitwiseMoveableTestType>(4,
+                                                           false,
+                                                           false,
+                                                           true);
+            testCaseInsert<bsltf::MovableAllocTestType>(5, true, false, true);
+            testCaseInsert<bsltf::MovableTestType>(6, false, false, true);
+            testCaseInsert<bsltf::NonDefaultConstructibleTestType>(7,
+                                                                   false,
+                                                                   false,
+                                                                   true);
+            testCaseInsert<bsltf::NonOptionalAllocTestType>(8,
+                                                            true,
+                                                            true,
+                                                            true);
+#else
+            testCaseInsert<bsltf::AllocBitwiseMoveableTestType>(1,
+                                                                true,
+                                                                false,
+                                                                true);
+            testCaseInsert<bsltf::AllocTestType>(2, true, true, true);
+            testCaseInsert<bsltf::BitwiseCopyableTestType>(3,
+                                                           false,
+                                                           false,
+                                                           true);
+            testCaseInsert<bsltf::BitwiseMoveableTestType>(4,
+                                                           false,
+                                                           false,
+                                                           true);
+            testCaseInsert<bsltf::MovableAllocTestType>(5, true, true, true);
+            testCaseInsert<bsltf::MovableTestType>(6, false, false, true);
+            testCaseInsert<bsltf::NonDefaultConstructibleTestType>(7,
+                                                                   false,
+                                                                   false,
+                                                                   true);
+            testCaseInsert<bsltf::NonOptionalAllocTestType>(8,
+                                                            true,
+                                                            true,
+                                                            true);
+#endif
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        if (verbose) cout << "Testing move 'insert' with hint." << endl;
+        {
+            testCaseInsertMove<bsltf::AllocBitwiseMoveableTestType>(1,
+                                                                    true,
+                                                                    true,
+                                                                    true);
+            testCaseInsertMove<bsltf::AllocTestType>(2, true, false, true);
+            testCaseInsertMove<bsltf::BitwiseCopyableTestType>(3,
+                                                               false,
+                                                               true,
+                                                               true);
+            testCaseInsertMove<bsltf::BitwiseMoveableTestType>(4,
+                                                               false,
+                                                               true,
+                                                               true);
+            testCaseInsertMove<bsltf::MovableAllocTestType>(5,
+                                                            true,
+                                                            true,
+                                                            true);
+            testCaseInsertMove<bsltf::MovableTestType>(6, false, true, true);
+
+            testCaseInsertMove<bsltf::MoveOnlyAllocTestType>(7,
+                                                             true,
+                                                             true,
+                                                             true);
+
+            testCaseInsertMove<bsltf::NonDefaultConstructibleTestType>(8,
+                                                                       false,
+                                                                       false,
+                                                                       true);
+            testCaseInsertMove<bsltf::NonOptionalAllocTestType>(9,
+                                                                true,
+                                                                false,
+                                                                true);
+        }
+#endif
       } break;
       case 25: {
         // --------------------------------------------------------------------
@@ -3963,58 +4111,91 @@ cout << endl
         if (verbose) cout << "Testing copy 'insert'." << endl;
         {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-            testCase2Insert<bsltf::AllocBitwiseMoveableTestType>(1,
-                                                                 true,
-                                                                 false);
-            testCase2Insert<bsltf::AllocTestType>(2, true, true);
-            testCase2Insert<bsltf::BitwiseCopyableTestType>(3, false, false);
-            testCase2Insert<bsltf::BitwiseMoveableTestType>(4, false, false);
-            testCase2Insert<bsltf::MovableAllocTestType>(5, true, false);
-            testCase2Insert<bsltf::MovableTestType>(6, false, false);
-            testCase2Insert<bsltf::NonDefaultConstructibleTestType>(7,
-                                                                    false,
-                                                                    false);
-            testCase2Insert<bsltf::NonOptionalAllocTestType>(8, true, true);
+            testCaseInsert<bsltf::AllocBitwiseMoveableTestType>(1,
+                                                                true,
+                                                                false,
+                                                                false);
+            testCaseInsert<bsltf::AllocTestType>(2, true, true, false);
+            testCaseInsert<bsltf::BitwiseCopyableTestType>(3,
+                                                           false,
+                                                           false,
+                                                           false);
+            testCaseInsert<bsltf::BitwiseMoveableTestType>(4,
+                                                           false,
+                                                           false,
+                                                           false);
+            testCaseInsert<bsltf::MovableAllocTestType>(5, true, false, false);
+            testCaseInsert<bsltf::MovableTestType>(6, false, false, false);
+            testCaseInsert<bsltf::NonDefaultConstructibleTestType>(7,
+                                                                   false,
+                                                                   false,
+                                                                   false);
+            testCaseInsert<bsltf::NonOptionalAllocTestType>(8,
+                                                            true,
+                                                            true,
+                                                            false);
 #else
-            testCase2Insert<bsltf::AllocBitwiseMoveableTestType>(1,
-                                                                 true,
-                                                                 false);
-            testCase2Insert<bsltf::AllocTestType>(2, true, true);
-            testCase2Insert<bsltf::BitwiseCopyableTestType>(3, false, false);
-            testCase2Insert<bsltf::BitwiseMoveableTestType>(4, false, false);
-            testCase2Insert<bsltf::MovableAllocTestType>(5, true, true);
-            testCase2Insert<bsltf::MovableTestType>(6, false, false);
-            testCase2Insert<bsltf::NonDefaultConstructibleTestType>(7,
-                                                                    false,
-                                                                    false);
-            testCase2Insert<bsltf::NonOptionalAllocTestType>(8, true, true);
+            testCaseInsert<bsltf::AllocBitwiseMoveableTestType>(1,
+                                                                true,
+                                                                false,
+                                                                false);
+            testCaseInsert<bsltf::AllocTestType>(2, true, true, false);
+            testCaseInsert<bsltf::BitwiseCopyableTestType>(3,
+                                                           false,
+                                                           false,
+                                                           false);
+            testCaseInsert<bsltf::BitwiseMoveableTestType>(4,
+                                                           false,
+                                                           false,
+                                                           false);
+            testCaseInsert<bsltf::MovableAllocTestType>(5, true, true, false);
+            testCaseInsert<bsltf::MovableTestType>(6, false, false, false);
+            testCaseInsert<bsltf::NonDefaultConstructibleTestType>(7,
+                                                                   false,
+                                                                   false,
+                                                                   false);
+            testCaseInsert<bsltf::NonOptionalAllocTestType>(8,
+                                                            true,
+                                                            true,
+                                                            false);
 #endif
         }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         if (verbose) cout << "Testing move 'insert'." << endl;
         {
-            testCase2InsertMove<bsltf::AllocBitwiseMoveableTestType>(1,
-                                                                     true,
-                                                                     true);
-            testCase2InsertMove<bsltf::AllocTestType>(2, true, false);
-            testCase2InsertMove<bsltf::BitwiseCopyableTestType>(3,
-                                                                false,
-                                                                true);
-            testCase2InsertMove<bsltf::BitwiseMoveableTestType>(4,
-                                                                false,
-                                                                true);
-            testCase2InsertMove<bsltf::MovableAllocTestType>(5, true, true);
-            testCase2InsertMove<bsltf::MovableTestType>(6, false, true);
+            testCaseInsertMove<bsltf::AllocBitwiseMoveableTestType>(1,
+                                                                    true,
+                                                                    true,
+                                                                    false);
+            testCaseInsertMove<bsltf::AllocTestType>(2, true, false, false);
+            testCaseInsertMove<bsltf::BitwiseCopyableTestType>(3,
+                                                               false,
+                                                               true,
+                                                               false);
+            testCaseInsertMove<bsltf::BitwiseMoveableTestType>(4,
+                                                               false,
+                                                               true,
+                                                               false);
+            testCaseInsertMove<bsltf::MovableAllocTestType>(5,
+                                                            true,
+                                                            true,
+                                                            false);
+            testCaseInsertMove<bsltf::MovableTestType>(6, false, true, false);
 
-            testCase2InsertMove<bsltf::MoveOnlyAllocTestType>(7, true, true);
+            testCaseInsertMove<bsltf::MoveOnlyAllocTestType>(7,
+                                                             true,
+                                                             true,
+                                                             false);
 
-            testCase2InsertMove<bsltf::NonDefaultConstructibleTestType>(8,
-                                                                        false,
-                                                                        false);
-            testCase2InsertMove<bsltf::NonOptionalAllocTestType>(9,
-                                                                 true,
-                                                                 false);
+            testCaseInsertMove<bsltf::NonDefaultConstructibleTestType>(8,
+                                                                       false,
+                                                                       false,
+                                                                       false);
+            testCaseInsertMove<bsltf::NonOptionalAllocTestType>(9,
+                                                                true,
+                                                                false,
+                                                                false);
         }
 #endif
 

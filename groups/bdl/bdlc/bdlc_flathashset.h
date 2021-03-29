@@ -730,6 +730,30 @@ class FlatHashSet {
         return d_impl.insert(BSLS_COMPILERFEATURES_FORWARD(KEY_TYPE, value));
     }
 
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+    template <class KEY_TYPE>
+    const_iterator insert(const_iterator                              ,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) value)
+#else
+    template <class KEY_TYPE>
+    typename bsl::enable_if<bsl::is_convertible<KEY_TYPE, KEY>::value,
+                            const_iterator>::type
+                      insert(const_iterator                              ,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) value)
+#endif
+        // Insert the specified 'value' into this set if the 'value' does not
+        // already exist in this set; otherwise, this method has no effect.
+        // Return a 'const_iterator' referring to the (possibly newly inserted)
+        // element in this set whose value is equivalent to that of the
+        // element to be inserted.  The supplied 'const_iterator' is ignored.
+    {
+        // Note that some compilers require functions declared with 'enable_if'
+        // to be defined inline.
+
+        return d_impl.insert(BSLS_COMPILERFEATURES_FORWARD(KEY_TYPE,
+                                                           value)).first;
+    }
+
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
         // Insert into this set the value of each element in the input iterator

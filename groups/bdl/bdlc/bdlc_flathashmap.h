@@ -621,6 +621,31 @@ class FlatHashMap {
         return d_impl.insert(BSLS_COMPILERFEATURES_FORWARD(VALUE_TYPE, value));
     }
 
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+    template <class VALUE_TYPE>
+    iterator insert(const_iterator                                ,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(VALUE_TYPE) value)
+#else
+    template <class VALUE_TYPE>
+    typename bsl::enable_if<bsl::is_convertible<VALUE_TYPE, value_type>::value,
+                            iterator>::type
+                    insert(const_iterator                                ,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(VALUE_TYPE) value)
+#endif
+        // Insert the specified 'value' into this map if the key of 'value'
+        // does not already exist in this map; otherwise, this method has no
+        // effect.  Return an iterator referring to the (possibly newly
+        // inserted) modifiable element in this map whose key is equivalent to
+        // that of the element to be inserted.  The supplied 'const_iterator'
+        // is ignored.
+    {
+        // Note that some compilers require functions declared with 'enable_if'
+        // to be defined inline.
+
+        return d_impl.insert(BSLS_COMPILERFEATURES_FORWARD(VALUE_TYPE,
+                                                           value)).first;
+    }
+
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
         // Insert into this map the value of each element in the input iterator
