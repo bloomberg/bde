@@ -6,6 +6,11 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslstl_forwarditerator.h>     // for testing only
 
+char BSLSTL_STRING_TEST_ONLY_INCOMPLETE_CHAR_ARRAY[] = "TEST ONLY";
+// This variable is required to reproduce specific AIX issue, when we are not
+// able to convert inclomplete char arrays to 'bsl::string_view'.  To reproduce
+// this situation we declare this variable as 'extern' in the test driver and
+// define it here.
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.
