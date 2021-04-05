@@ -95,6 +95,97 @@ void aSsErT(bool condition, const char *message, int line)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -MN03
+
+            // ==================
+            // class AnotherClock
+            // ==================
+
+class AnotherClock {
+    // 'AnotherClock' is a C++11-compatible clock that is very similar to
+    // 'bsl::chrono::steady_clock'.  The only difference is that it uses a
+    // different epoch; it begins 10000 "ticks" after the beginning of
+    // 'steady_clock's epoch.
+
+  private:
+    typedef bsl::chrono::steady_clock base_clock;
+
+  public:
+    typedef base_clock::duration                  duration;
+    typedef base_clock::rep                       rep;
+    typedef base_clock::period                    period;
+    typedef bsl::chrono::time_point<AnotherClock> time_point;
+
+    static const bool is_steady = base_clock::is_steady;
+
+    // CLASS METHODS
+    static time_point now() noexcept;
+        // Return a time point representing the time since the beginning of the
+        // epoch.
+};
+
+// CLASS METHODS
+AnotherClock::time_point AnotherClock::now() noexcept
+{
+    base_clock::duration ret = base_clock::now().time_since_epoch();
+    return AnotherClock::time_point(ret - duration(10000));
+}
+
+            // ===============
+            // class HalfClock
+            // ===============
+
+class HalfClock {
+    // 'HalfClock' is a C++11-compatible clock that is very similar to
+    // 'bsl::chrono::steady_clock'.  The difference is that it runs "half as
+    // fast" as 'steady_clock'.
+
+  private:
+    typedef bsl::chrono::steady_clock base_clock;
+
+  public:
+    typedef base_clock::duration               duration;
+    typedef base_clock::rep                    rep;
+    typedef base_clock::period                 period;
+    typedef bsl::chrono::time_point<HalfClock> time_point;
+
+    static const bool is_steady = base_clock::is_steady;
+
+    // CLASS METHODS
+    static time_point now() noexcept;
+        // Return a time point representing the time since the beginning of the
+        // epoch.
+};
+
+// CLASS METHODS
+HalfClock::time_point HalfClock::now() noexcept
+{
+    base_clock::duration ret = base_clock::now().time_since_epoch();
+    return HalfClock::time_point(ret/2);
+}
+
+// BDE_VERIFY pragma: pop
+
+template <class CLOCK>
+int WaitForTimeout(bslmt::FastPostSemaphore& mX, int secondsToWait)
+    // Wait on the specified 'FastPostSemaphore' 'mX' for the specified
+    // 'secondsToWait' seconds based on the specified 'CLOCK'.  If the call to
+    // 'timedWait' returns 'e_TIMED_OUT', indicating that a timeout has
+    // occurred, verify that at least that much time has elapsed (measured by
+    // the clock).
+{
+    typename CLOCK::time_point tp = CLOCK::now() +
+                                           bsl::chrono::seconds(secondsToWait);
+    int                        ret = mX.timedWait(tp);
+    if (bslmt::FastPostSemaphore::e_TIMED_OUT == ret) {
+        ASSERT(CLOCK::now() >= tp);
+    }
+    return ret;
+}
+#endif
+
 typedef bslmt::FastPostSemaphore Obj;
 
 // ============================================================================
@@ -109,7 +200,7 @@ typedef bslmt::FastPostSemaphore Obj;
 ///- - - - - - - - - - - - -
 // This example illustrates a very simple fixed-size queue where potential
 // clients can push integers to a queue, and later retrieve the integer values
-// from the queue in FIFO order.  Also, 'waitUntilEmpty' is implimented to
+// from the queue in FIFO order.  Also, 'waitUntilEmpty' is implemented to
 // depict the common usage of 'getDisabledState'.
 //
 // First, we define the 'IntQueue' class:
@@ -371,6 +462,20 @@ int main(int argc, char *argv[])
 
         const Obj mt(bsls::SystemClockType::e_MONOTONIC);
         ASSERT(bsls::SystemClockType::e_MONOTONIC == mt.clockType());
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        const Obj rt0((bsl::chrono::system_clock()));
+        ASSERT(bsls::SystemClockType::e_REALTIME == rt0.clockType());
+
+        const Obj mt0((bsl::chrono::steady_clock()));
+        ASSERT(bsls::SystemClockType::e_MONOTONIC == mt0.clockType());
+
+        const Obj rt1(1, bsl::chrono::system_clock());
+        ASSERT(bsls::SystemClockType::e_REALTIME == rt1.clockType());
+
+        const Obj mt1(1, bsl::chrono::steady_clock());
+        ASSERT(bsls::SystemClockType::e_MONOTONIC == mt1.clockType());
+#endif
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -550,6 +655,30 @@ int main(int argc, char *argv[])
             ASSERT(Obj::e_SUCCESS     == mX.tryWait());
             ASSERT(Obj::e_WOULD_BLOCK == mX.tryWait());
         }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        {
+            Obj mX;
+            int rc;
+
+            rc = WaitForTimeout<bsl::chrono::system_clock>(mX, 1);
+            ASSERT(Obj::e_TIMED_OUT == rc);
+
+            rc = WaitForTimeout<bsl::chrono::steady_clock>(mX, 1);
+            ASSERT(Obj::e_TIMED_OUT == rc);
+
+            rc = WaitForTimeout<HalfClock>(mX, 1);
+            ASSERT(Obj::e_TIMED_OUT == rc);
+
+            rc = WaitForTimeout<AnotherClock>(mX, 1);
+            ASSERT(Obj::e_TIMED_OUT == rc);
+
+            mX.post();
+
+            ASSERT(Obj::e_SUCCESS     == mX.tryWait());
+            ASSERT(Obj::e_WOULD_BLOCK == mX.tryWait());
+        }
+#endif
 
         if (verbose) {
             cout << "\nDirect test of return value when disabled." << endl;

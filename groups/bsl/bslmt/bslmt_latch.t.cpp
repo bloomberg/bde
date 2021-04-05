@@ -201,6 +201,96 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -MN03
+
+            // ==================
+            // class AnotherClock
+            // ==================
+
+class AnotherClock {
+    // 'AnotherClock' is a C++11-compatible clock that is very similar to
+    // 'bsl::chrono::steady_clock'.  The only difference is that it uses a
+    // different epoch; it begins 10000 "ticks" after the beginning of
+    // 'steady_clock's epoch.
+
+  private:
+    typedef bsl::chrono::steady_clock base_clock;
+
+  public:
+    typedef base_clock::duration                  duration;
+    typedef base_clock::rep                       rep;
+    typedef base_clock::period                    period;
+    typedef bsl::chrono::time_point<AnotherClock> time_point;
+
+    static const bool is_steady = base_clock::is_steady;
+
+    // CLASS METHODS
+    static time_point now() noexcept;
+        // Return a time point representing the time since the beginning of the
+        // epoch.
+};
+
+// CLASS METHODS
+AnotherClock::time_point AnotherClock::now() noexcept
+{
+    base_clock::duration ret = base_clock::now().time_since_epoch();
+    return AnotherClock::time_point(ret - duration(10000));
+}
+
+            // ===============
+            // class HalfClock
+            // ===============
+
+class HalfClock {
+    // 'HalfClock' is a C++11-compatible clock that is very similar to
+    // 'bsl::chrono::steady_clock'.  The difference is that it runs "half as
+    // fast" as 'steady_clock'.
+
+  private:
+    typedef bsl::chrono::steady_clock base_clock;
+
+  public:
+    typedef base_clock::duration               duration;
+    typedef base_clock::rep                    rep;
+    typedef base_clock::period                 period;
+    typedef bsl::chrono::time_point<HalfClock> time_point;
+
+    static const bool is_steady = base_clock::is_steady;
+
+    // CLASS METHODS
+    static time_point now() noexcept;
+        // Return a time point representing the time since the beginning of the
+        // epoch.
+};
+
+// CLASS METHODS
+HalfClock::time_point HalfClock::now() noexcept
+{
+    base_clock::duration ret = base_clock::now().time_since_epoch();
+    return HalfClock::time_point(ret/2);
+}
+
+// BDE_VERIFY pragma: pop
+
+template <class CLOCK>
+int WaitForTimeout(bslmt::Latch& mX, int secondsToWait)
+    // Wait on the specified 'Latch' 'mX' for the specified 'secondsToWait'
+    // seconds based on the specified 'CLOCK'.  If the call to 'timedWait'
+    // returns 'e_TIMED_OUT', indicating that a timeout has occurred, verify
+    // that at least that much time has elapsed (measured by the clock).
+{
+    typename CLOCK::time_point tp = CLOCK::now() +
+                                           bsl::chrono::seconds(secondsToWait);
+    int                        ret = mX.timedWait(tp);
+    if (bslmt::Latch::e_TIMED_OUT == ret) {
+        ASSERT(CLOCK::now() >= tp);
+    }
+    return ret;
+}
+#endif
+
 typedef bslmt::Latch Obj;
 
 // ============================================================================
@@ -957,6 +1047,14 @@ int main(int argc, char *argv[])
 
         const Obj mt(1, bsls::SystemClockType::e_MONOTONIC);
         ASSERT(bsls::SystemClockType::e_MONOTONIC == mt.clockType());
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        const Obj rt1(1, bsl::chrono::system_clock());
+        ASSERT(bsls::SystemClockType::e_REALTIME == rt.clockType());
+
+        const Obj mt1(1, bsl::chrono::steady_clock());
+        ASSERT(bsls::SystemClockType::e_MONOTONIC == mt.clockType());
+#endif
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -1262,22 +1360,45 @@ int main(int argc, char *argv[])
                           << "===================" << endl;
 
         {
-            bslmt::Latch myLatch(0);
+            Obj myLatch(0);
             myLatch.wait();
         }
 
         {
-            bslmt::Latch myLatch(5);
+            Obj myLatch(5);
 
             // define a timeout of 1s
             bsls::TimeInterval absTime = bsls::SystemTime::nowRealtimeClock();
             absTime.addMicroseconds(1000000);
 
             const int rc = myLatch.timedWait(absTime);
-            ASSERT(bslmt::Latch::e_TIMED_OUT == rc);
+            ASSERT(Obj::e_TIMED_OUT == rc);
             const int myCount = myLatch.currentCount();
             ASSERT(5 == myCount);
         }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        {
+            Obj myLatch(5);
+            int rc;
+
+            rc = WaitForTimeout<bsl::chrono::system_clock>(myLatch, 1);
+            ASSERT(Obj::e_TIMED_OUT == rc);
+            ASSERT(5 == myLatch.currentCount());
+
+            rc = WaitForTimeout<bsl::chrono::steady_clock>(myLatch, 1);
+            ASSERT(Obj::e_TIMED_OUT == rc);
+            ASSERT(5 == myLatch.currentCount());
+
+            rc = WaitForTimeout<HalfClock>(myLatch, 1);
+            ASSERT(Obj::e_TIMED_OUT == rc);
+            ASSERT(5 == myLatch.currentCount());
+
+            rc = WaitForTimeout<AnotherClock>(myLatch, 1);
+            ASSERT(Obj::e_TIMED_OUT == rc);
+            ASSERT(5 == myLatch.currentCount());
+        }
+#endif
 
       } break;
       case 5: {

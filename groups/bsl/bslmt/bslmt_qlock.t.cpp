@@ -1084,7 +1084,7 @@ int main(int argc, char *argv[])
         MyTask task71(testCase7, &data1);
         MyTask task72(testCase7, &data2);
 
-        for (int i=0; i < 10; ++i) {
+        for (int i=1; i < 10; ++i) {
 
             bslmt::Barrier  barrier(i*2);
 
@@ -1149,7 +1149,7 @@ int main(int argc, char *argv[])
 
         MyTask task6(testCase6, &data);
 
-        for (int i=0; i < 10; ++i) {
+        for (int i=1; i < 10; ++i) {
 
             data.d_slots.assign(i,0);
 
@@ -1196,7 +1196,7 @@ int main(int argc, char *argv[])
             CaseData5 data;
             MyTask task51(testCase5_fn1, &data);
 
-            for (int i=0; i < k_MAX_THREADS; ++i) {
+            for (int i=1; i < k_MAX_THREADS; ++i) {
 
                 data.d_numIter = k_MAX_ITER;
                 data.d_numElements = k_MAX_SLOTS;
@@ -1231,7 +1231,7 @@ int main(int argc, char *argv[])
             CaseData5 data;
             MyTask task52(testCase5_fn2, &data);
 
-            for (int i=0; i < k_MAX_THREADS; ++i) {
+            for (int i=1; i < k_MAX_THREADS; ++i) {
 
                 data.d_numIter = k_MAX_ITER;
                 data.d_numElements = k_MAX_SLOTS;
@@ -1289,7 +1289,7 @@ int main(int argc, char *argv[])
             MyTask task41(testCase4_fn1, &data);
             MyTask task42(testCase4_fn2, &data);
 
-            for (int i=0; i < 20; ++i) {
+            for (int i=1; i < 20; ++i) {
                 data.reset();
                 ASSERT(0 == task41.start(1));
                 ASSERT(0 == task42.start(1));
@@ -1354,7 +1354,7 @@ int main(int argc, char *argv[])
             MyTask task3(testCase3, &data);
 
             sw.start();
-            for (int i=0; i < 10; ++i) {
+            for (int i=1; i < 10; ++i) {
 
                 data.d_count = 0;
                 ASSERT(0 == task3.start(i));
@@ -1375,7 +1375,7 @@ int main(int argc, char *argv[])
             MyTask task3a(testCase3a, &data);
 
             sw.start();
-            for (int i=0; i < 10; ++i) {
+            for (int i=1; i < 10; ++i) {
 
                 data.d_count = 0;
                 ASSERT(0 == task3a.start(i));
@@ -1442,7 +1442,7 @@ int main(int argc, char *argv[])
         int count1 = 0;
         MyTask task1(testCase1, &count1);
 
-        for (int i=0; i < 10; ++i) {
+        for (int i=1; i < 10; ++i) {
 
             count1 = 0;
             ASSERT(0 == task1.start(i));

@@ -243,14 +243,14 @@ template <class CLOCK>
 int WaitForTimeout(bslmt::TimedSemaphore& mX, int secondsToWait)
     // Wait on the specified 'TimedSemaphore' 'mX' for the specified
     // 'secondsToWait' seconds based on the specified 'CLOCK'.  If the call to
-    // 'timedWait' returns a non-zero status, indicating that a timeout has
+    // 'timedWait' returns 'e_TIMED_OUT', indicating that a timeout has
     // occurred, verify that at least that much time has elapsed (measured by
     // the clock).
 {
     typename CLOCK::time_point tp = CLOCK::now() +
                                            bsl::chrono::seconds(secondsToWait);
     int                        ret = mX.timedWait(tp);
-    if (0 != ret) {
+    if (bslmt::TimedSemaphore::e_TIMED_OUT == ret) {
         ASSERT(CLOCK::now() >= tp);
     }
     return ret;
@@ -355,10 +355,10 @@ int main(int argc, char *argv[])
             ASSERT(0 == mX.tryWait());
             ASSERT(0 != mX.tryWait());
 
-            ASSERT(0 != WaitForTimeout<steady_clock>(mX, 1));
-            ASSERT(0 != WaitForTimeout<system_clock>(mX, 1));
-            ASSERT(0 != WaitForTimeout<AnotherClock>(mX, 1));
-            ASSERT(0 != WaitForTimeout<HalfClock>(mX, 1));
+            ASSERT(Obj::e_TIMED_OUT == WaitForTimeout<steady_clock>(mX, 1));
+            ASSERT(Obj::e_TIMED_OUT == WaitForTimeout<system_clock>(mX, 1));
+            ASSERT(Obj::e_TIMED_OUT == WaitForTimeout<AnotherClock>(mX, 1));
+            ASSERT(Obj::e_TIMED_OUT == WaitForTimeout<HalfClock>(mX, 1));
         }
         {
             using namespace bsl::chrono;
@@ -376,10 +376,10 @@ int main(int argc, char *argv[])
             ASSERT(0 == mX.tryWait());
             ASSERT(0 != mX.tryWait());
 
-            ASSERT(0 != WaitForTimeout<steady_clock>(mX, 1));
-            ASSERT(0 != WaitForTimeout<system_clock>(mX, 1));
-            ASSERT(0 != WaitForTimeout<AnotherClock>(mX, 1));
-            ASSERT(0 != WaitForTimeout<HalfClock>(mX, 1));
+            ASSERT(Obj::e_TIMED_OUT == WaitForTimeout<steady_clock>(mX, 1));
+            ASSERT(Obj::e_TIMED_OUT == WaitForTimeout<system_clock>(mX, 1));
+            ASSERT(Obj::e_TIMED_OUT == WaitForTimeout<AnotherClock>(mX, 1));
+            ASSERT(Obj::e_TIMED_OUT == WaitForTimeout<HalfClock>(mX, 1));
         }
 #endif
       } break;

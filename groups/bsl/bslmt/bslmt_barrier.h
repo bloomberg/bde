@@ -62,7 +62,7 @@ BSLS_IDENT("$Id: $")
 // "checkpoints" in a threaded "basket trade" processing logic.  In this
 // example, a "basket" is a series of trades submitted as one logical trade.
 // If any given trade fails to process for any reason, then all the trades must
-// be cancelled.
+// be canceled.
 //
 // The example is driven through function 'processBasketTrade', which takes as
 // its argument a reference to a 'BasketTrade' structure.  The 'BasketTrade'
@@ -288,8 +288,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_condition.h>
 #include <bslmt_mutex.h>
 
-#include <bsls_timeinterval.h>
+#include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_systemclocktype.h>
+#include <bsls_timeinterval.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <bslmt_chronoutil.h>
+
+#include <bsl_chrono.h>
+#endif
 
 namespace BloombergLP {
 namespace bslmt {
@@ -335,6 +343,22 @@ class Barrier {
         // 'clockType' is not specified then the realtime system clock is used.
         // The behavior is undefined unless '0 < numThreads'.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    Barrier(int numThreads, const bsl::chrono::system_clock&);
+        // Create a barrier that requires the specified 'numThreads' to
+        // unblock.  Use the realtime system clock as the clock against which
+        // the 'absTime' timeouts passed to the 'timedWait' methods are
+        // interpreted (see {Supported Clock-Types} in the component-level
+        // documentation).  The behavior is undefined unless '0 < numThreads'.
+
+    Barrier(int numThreads, const bsl::chrono::steady_clock&);
+        // Create a barrier that requires the specified 'numThreads' to
+        // unblock.  Use the monotonic system clock as the clock against which
+        // the 'absTime' timeouts passed to the 'timedWait' methods are
+        // interpreted (see {Supported Clock-Types} in the component-level
+        // documentation).  The behavior is undefined unless '0 < numThreads'.
+#endif
+
     ~Barrier();
         // Wait for all *signaled* threads to unblock and destroy this barrier.
         // (See 'wait' and 'timedWait' below for the meaning of *signaled*.)
@@ -362,6 +386,28 @@ class Barrier {
         // that called 'timedWait' were to time out and not retry, the threads
         // that called 'wait' would never unblock.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class CLOCK, class DURATION>
+    int timedWait(const bsl::chrono::time_point<CLOCK, DURATION>& absTime);
+        // Block until the required number of threads have called 'wait' or
+        // 'timedWait' on this barrier, or until the specified 'absTime'
+        // timeout expires.  In the former case, *signal* all the threads that
+        // are currently waiting on this barrier to unblock, reset the state of
+        // this barrier to its initial state, and return 0.  If this method
+        // times out before the required number of threads are waiting, the
+        // thread is released to proceed and ceases to contribute to the number
+        // of threads waiting, and 'e_TIMED_OUT' is returned.  Any other return
+        // value indicates that an error has occurred.  Errors are
+        // unrecoverable.  After an error, the barrier may be destroyed, but
+        // any other use has undefined behavior.  'absTime' is an *absolute*
+        // time represented as an interval from some epoch, which is determined
+        // by the clock associated with the time point.  Note that 'timedWait'
+        // and 'wait' should not generally be used together; if one or more
+        // threads called 'wait' while others called 'timedWait', then if the
+        // thread(s) that called 'timedWait' were to time out and not retry,
+        // the threads that called 'wait' would never unblock.
+#endif
+
     void wait();
         // Block until the required number of threads have called either 'wait'
         // or 'timedWait' on this barrier.  Then *signal* all the threads that
@@ -385,8 +431,8 @@ class Barrier {
 // ============================================================================
 
 // CREATORS
-inline bslmt::Barrier::Barrier(int                         numThreads,
-                               bsls::SystemClockType::Enum clockType)
+inline
+bslmt::Barrier::Barrier(int numThreads, bsls::SystemClockType::Enum clockType)
 : d_mutex()
 , d_cond(clockType)
 , d_numThreads(numThreads)
@@ -394,7 +440,43 @@ inline bslmt::Barrier::Barrier(int                         numThreads,
 , d_sigCount(0)
 , d_numPending(0)
 {
+    BSLS_ASSERT_SAFE(0 < numThreads);
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+inline
+bslmt::Barrier::Barrier(int numThreads, const bsl::chrono::system_clock&)
+: d_mutex()
+, d_cond(bsls::SystemClockType::e_REALTIME)
+, d_numThreads(numThreads)
+, d_numWaiting(0)
+, d_sigCount(0)
+, d_numPending(0)
+{
+    BSLS_ASSERT_SAFE(0 < numThreads);
+}
+
+inline
+bslmt::Barrier::Barrier(int numThreads, const bsl::chrono::steady_clock&)
+: d_mutex()
+, d_cond(bsls::SystemClockType::e_MONOTONIC)
+, d_numThreads(numThreads)
+, d_numWaiting(0)
+, d_sigCount(0)
+, d_numPending(0)
+{
+    BSLS_ASSERT_SAFE(0 < numThreads);
+}
+
+// MANIPULATORS
+template <class CLOCK, class DURATION>
+inline
+int bslmt::Barrier::timedWait(
+                       const bsl::chrono::time_point<CLOCK, DURATION>& absTime)
+{
+    return bslmt::ChronoUtil::timedWait(this, absTime);
+}
+#endif
 
 // ACCESSORS
 inline

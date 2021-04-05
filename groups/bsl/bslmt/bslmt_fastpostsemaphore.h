@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - -
 // This example illustrates a very simple fixed-size queue where potential
 // clients can push integers to a queue, and later retrieve the integer values
-// from the queue in FIFO order.  Also, 'waitUntilEmpty' is implimented to
+// from the queue in FIFO order.  Also, 'waitUntilEmpty' is implemented to
 // depict the common usage of 'getDisabledState'.
 //
 // First, we define the 'IntQueue' class:
@@ -257,9 +257,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutil.h>
 
 #include <bsls_atomicoperations.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <bslmt_chronoutil.h>
+
+#include <bsl_chrono.h>
+#endif
 
 namespace BloombergLP {
 namespace bslmt {
@@ -313,6 +320,22 @@ class FastPostSemaphore {
         // {Supported Clock-Types} in the component-level documentation).  If
         // 'clockType' is not specified then the realtime system clock is used.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    explicit
+    FastPostSemaphore(const bsl::chrono::system_clock&);
+        // Create a 'FastPostSemaphore' object initially having a count of 0.
+        // Use the realtime system clock as the clock against which the
+        // 'absTime' timeouts passed to the 'timedWait' methods are interpreted
+        // (see {Supported Clock-Types} in the component-level documentation).
+
+    explicit
+    FastPostSemaphore(const bsl::chrono::steady_clock&);
+        // Create a 'FastPostSemaphore' object initially having a count of 0.
+        // Use the monotonic system clock as the clock against which the
+        // 'absTime' timeouts passed to the 'timedWait' methods are interpreted
+        // (see {Supported Clock-Types} in the component-level documentation).
+#endif
+
     explicit
     FastPostSemaphore(
     int                         count,
@@ -323,6 +346,22 @@ class FastPostSemaphore {
         // timeouts passed to the 'timedWait' method are to be interpreted (see
         // {Supported Clock-Types} in the component-level documentation).  If
         // 'clockType' is not specified then the realtime system clock is used.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    FastPostSemaphore(int count, const bsl::chrono::system_clock&);
+        // Create a 'FastPostSemaphore' object initially having the specified
+        // 'count'.  Use the realtime system clock as the clock against which
+        // the 'absTime' timeouts passed to the 'timedWait' methods are
+        // interpreted (see {Supported Clock-Types} in the component-level
+        // documentation).
+
+    FastPostSemaphore(int count, const bsl::chrono::steady_clock&);
+        // Create a 'FastPostSemaphore' object initially having the specified
+        // 'count'.  Use the monotonic system clock as the clock against which
+        // the 'absTime' timeouts passed to the 'timedWait' methods are
+        // interpreted (see {Supported Clock-Types} in the component-level
+        // documentation).
+#endif
 
     //! ~FastPostSemaphore() = default;
         // Destroy this object.
@@ -371,6 +410,24 @@ class FastPostSemaphore {
         // interval from some epoch, which is determined by the clock indicated
         // at construction (see {Supported Clock-Types} in the component
         // documentation).
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class CLOCK, class DURATION>
+    int timedWait(const bsl::chrono::time_point<CLOCK, DURATION>& absTime);
+        // If this semaphore is initially disabled, or becomes disabled while
+        // blocking, return 'e_DISABLED' with no effect on the count.
+        // Otherwise, block until the count of this semaphore is a positive
+        // value or the specified 'absTime' timeout expires.  If the count of
+        // this semaphore is a positive value, return 0 and atomically
+        // decrement the count.  If the 'absTime' timeout expires, return
+        // 'e_TIMEDOUT' with no effect on the count.  Return 'e_FAILED' if an
+        // error occurs.  Errors are unrecoverable.  After an error, the
+        // semaphore may be destroyed, but any other use has undefined
+        // behavior.  'absTime' is an *absolute* time represented as an
+        // interval from some epoch, which is determined by the clock indicated
+        // at construction (see {Supported Clock-Types} in the component
+        // documentation).
+#endif
 
     int tryWait();
         // If this semaphore is initially disabled, return 'e_DISABLED' with no
@@ -432,12 +489,42 @@ FastPostSemaphore::FastPostSemaphore(bsls::SystemClockType::Enum clockType)
 {
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+inline
+FastPostSemaphore::FastPostSemaphore(const bsl::chrono::system_clock&)
+: d_impl(bsls::SystemClockType::e_REALTIME)
+{
+}
+
+inline
+FastPostSemaphore::FastPostSemaphore(const bsl::chrono::steady_clock&)
+: d_impl(bsls::SystemClockType::e_MONOTONIC)
+{
+}
+#endif
+
 inline
 FastPostSemaphore::FastPostSemaphore(int                         count,
                                      bsls::SystemClockType::Enum clockType)
 : d_impl(count, clockType)
 {
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+inline
+FastPostSemaphore::FastPostSemaphore(int                              count,
+                                     const bsl::chrono::system_clock&)
+: d_impl(count, bsls::SystemClockType::e_REALTIME)
+{
+}
+
+inline
+FastPostSemaphore::FastPostSemaphore(int                              count,
+                                     const bsl::chrono::steady_clock&)
+: d_impl(count, bsls::SystemClockType::e_MONOTONIC)
+{
+}
+#endif
 
 // MANIPULATORS
 inline
@@ -481,6 +568,16 @@ int FastPostSemaphore::timedWait(const bsls::TimeInterval& absTime)
 {
     return d_impl.timedWait(absTime);
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class CLOCK, class DURATION>
+inline
+int FastPostSemaphore::timedWait(
+                       const bsl::chrono::time_point<CLOCK, DURATION>& absTime)
+{
+    return bslmt::ChronoUtil::timedWait(this, absTime);
+}
+#endif
 
 inline
 int FastPostSemaphore::tryWait()

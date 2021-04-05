@@ -277,7 +277,14 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_systemclocktype.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <bslmt_chronoutil.h>
+
+#include <bsl_chrono.h>
+#endif
 
 namespace BloombergLP {
 namespace bslmt {
@@ -315,14 +322,34 @@ class Latch {
     explicit Latch(int                         count,
                    bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
-        // Create a latch that will synchronize on the specified 'count' of
-        // events, and when 'count' events have been recorded will release any
-        // waiting threads.  Optionally specify a 'clockType' indicating the
-        // type of the system clock against which the 'bsls::TimeInterval'
-        // 'absTime' timeouts passed to the 'timedWait' method are to be
-        // interpreted.  If 'clockType' is not specified then the realtime
-        // system clock is used.  The behavior is undefined unless
+        // Create a latch that will synchronize on the specified 'count'
+        // number of events, and when 'count' events have been recorded will
+        // release any waiting threads.  Optionally specify a 'clockType'
+        // indicating the type of the system clock against which the
+        // 'bsls::TimeInterval' 'absTime' timeouts passed to the 'timedWait'
+        // method are to be interpreted.  If 'clockType' is not specified then
+        // the realtime system clock is used.  The behavior is undefined unless
         // '0 <= count'.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    Latch(int count, const bsl::chrono::system_clock&);
+        // Create a latch that will synchronize on the specified 'count' number
+        // of events, and when 'count' events have been recorded will release
+        // any waiting threads.  Use the realtime system clock as the clock
+        // against which the 'absTime' timeouts passed to the 'timedWait'
+        // methods are interpreted (see {Supported Clock-Types} in the
+        // component-level documentation).  The behavior is undefined unless
+        // '0 <= count'.
+
+    Latch(int count, const bsl::chrono::steady_clock&);
+        // Create a latch that will synchronize on the specified 'count' number
+        // of events, and when 'count' events have been recorded will release
+        // any waiting threads.  Use the monotonic system clock as the clock
+        // against which the 'absTime' timeouts passed to the 'timedWait'
+        // methods are interpreted (see {Supported Clock-Types} in the
+        // component-level documentation).  The behavior is undefined unless
+        // '0 <= count'.
+#endif
 
     ~Latch();
         // Destroy this latch.  The behavior is undefined if any threads are
@@ -370,6 +397,19 @@ class Latch {
         // clock specified at construction (see {Supported Clock-Types} in the
         // component-level documentation).
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class CLOCK, class DURATION>
+    int timedWait(const bsl::chrono::time_point<CLOCK, DURATION>& absTime);
+        // Block until the number of events that this latch is waiting for
+        // reaches 0, or until the specified 'absTime' timeout expires.  Return
+        // 0 on success, 'e_TIMED_OUT' on timeout, and a non-zero value
+        // different from 'e_TIMED_OUT' if an error occurs.  Errors are
+        // unrecoverable.  After an error, the latch may be destroyed, but any
+        // other use has undefined behavior.  'absTime' is an *absolute* time
+        // represented as an interval from some epoch, which is determined by
+        // the clock associated with the time point.
+#endif
+
     void wait();
         // Block until the number of events that this latch is waiting for
         // reaches 0.
@@ -412,6 +452,34 @@ Latch::Latch(int count, bsls::SystemClockType::Enum clockType)
 {
     BSLS_ASSERT_SAFE(0 <= count);
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+inline
+Latch::Latch(int count, const bsl::chrono::system_clock&)
+: d_mutex()
+, d_cond(bsls::SystemClockType::e_REALTIME)
+, d_sigCount(count)
+{
+    BSLS_ASSERT_SAFE(0 <= count);
+}
+
+inline
+Latch::Latch(int count, const bsl::chrono::steady_clock&)
+: d_mutex()
+, d_cond(bsls::SystemClockType::e_MONOTONIC)
+, d_sigCount(count)
+{
+    BSLS_ASSERT_SAFE(0 <= count);
+}
+
+// MANIPULATORS
+template <class CLOCK, class DURATION>
+inline
+int Latch::timedWait(const bsl::chrono::time_point<CLOCK, DURATION>& absTime)
+{
+    return bslmt::ChronoUtil::timedWait(this, absTime);
+}
+#endif
 
 // ACCESSORS
 inline
