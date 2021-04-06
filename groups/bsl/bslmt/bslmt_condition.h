@@ -153,8 +153,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_conditionimpl_win32.h>
 #include <bslmt_platform.h>
 
+#include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_timeinterval.h>
 #include <bsls_systemclocktype.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <bslmt_chronoutil.h>
+
+#include <bsl_chrono.h>
+#endif
 
 namespace BloombergLP {
 namespace bslmt {
@@ -195,6 +203,22 @@ class Condition {
         // Clock-Types} in the component-level documentation).  If 'clockType'
         // is not specified then the realtime system clock is used.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    explicit
+    Condition(const bsl::chrono::system_clock&);
+        // Create a condition variable object.  Use the realtime system clock
+        // as the clock against which the 'absTime' timeouts passed to the
+        // 'timedWait' methods are interpreted (see {Supported Clock-Types} in
+        // the component-level documentation).
+
+    explicit
+    Condition(const bsl::chrono::steady_clock&);
+        // Create a condition variable object.  Use the monotonic system clock
+        // as the clock against which the 'absTime' timeouts passed to the
+        // 'timedWait' methods are interpreted (see {Supported Clock-Types} in
+        // the component-level documentation).
+#endif
+
     ~Condition();
         // Destroy this condition variable object.
 
@@ -231,6 +255,33 @@ class Condition {
         // scheduling and system timer resolution, and may be significantly
         // later than the time requested.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class CLOCK, class DURATION>
+    int timedWait(Mutex                                           *mutex,
+                  const bsl::chrono::time_point<CLOCK, DURATION>&  absTime);
+        // Atomically unlock the specified 'mutex' and suspend execution of the
+        // current thread until this condition object is "signaled" (i.e., one
+        // of the 'signal' or 'broadcast' methods is invoked on this object) or
+        // until the specified 'absTime' timeout expires, then re-acquire a
+        // lock on the 'mutex'.  'absTime' is an *absolute* time represented as
+        // an interval from some epoch, which is determined by the clock
+        // associated with the time point, and is the earliest time at which
+        // the timeout may occur.  The 'mutex' remains locked by the calling
+        // thread upon returning from this function.  Return 0 on success, and
+        // 'e_TIMED_OUT' on timeout.  Any other value indicates that an error
+        // has occurred.  After an error, the condition may be destroyed, but
+        // any other use has undefined behavior.  The behavior is undefined
+        // unless 'mutex' is locked by the calling thread prior to calling this
+        // method.  Note that spurious wakeups are rare but possible, i.e.,
+        // this method may succeed (return 0) and return control to the thread
+        // without the condition object being signaled.  Also note that the
+        // actual time of the timeout depends on many factors including system
+        // scheduling and system timer resolution, and may be significantly
+        // later than the time requested.  Also note that the lock on 'mutex'
+        // may be released and reacquired more than once before this method
+        // returns.
+#endif
+
     int wait(Mutex *mutex);
         // Atomically unlock the specified 'mutex' and suspend execution of the
         // current thread until this condition object is "signaled" (i.e.,
@@ -265,6 +316,20 @@ bslmt::Condition::Condition(bsls::SystemClockType::Enum clockType)
 {
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+inline
+bslmt::Condition::Condition(const bsl::chrono::system_clock&)
+: d_imp(bsls::SystemClockType::e_REALTIME)
+{
+}
+
+inline
+bslmt::Condition::Condition(const bsl::chrono::steady_clock&)
+: d_imp(bsls::SystemClockType::e_MONOTONIC)
+{
+}
+#endif
+
 inline
 bslmt::Condition::~Condition()
 {
@@ -287,12 +352,29 @@ inline
 int bslmt::Condition::timedWait(Mutex                     *mutex,
                                 const bsls::TimeInterval&  absTime)
 {
+    BSLS_ASSERT_SAFE(mutex);
+
     return d_imp.timedWait(mutex, absTime);
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class CLOCK, class DURATION>
+inline
+int bslmt::Condition::timedWait(
+                      Mutex                                           *mutex,
+                      const bsl::chrono::time_point<CLOCK, DURATION>&  absTime)
+{
+    BSLS_ASSERT_SAFE(mutex);
+
+    return bslmt::ChronoUtil::timedWait(this, mutex, absTime);
+}
+#endif
 
 inline
 int bslmt::Condition::wait(Mutex *mutex)
 {
+    BSLS_ASSERT_SAFE(mutex);
+
     return d_imp.wait(mutex);
 }
 

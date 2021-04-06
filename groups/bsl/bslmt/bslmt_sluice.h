@@ -80,12 +80,21 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
 #include <bslmt_timedsemaphore.h>
 
+#include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_systemclocktype.h>
 
 #include <bslma_allocator.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <bslmt_chronoutil.h>
+
+#include <bsl_chrono.h>
+#endif
 
 namespace BloombergLP {
 namespace bslmt {
@@ -174,6 +183,28 @@ class Sluice {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    explicit
+    Sluice(const bsl::chrono::system_clock&,
+           bslma::Allocator                 *basicAllocator = 0);
+        // Create a sluice.  Use the realtime system clock as the clock against
+        // which the 'absTime' timeouts passed to the 'timedWait' methods are
+        // interpreted (see {Supported Clock-Types} in the component-level
+        // documentation).  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    explicit
+    Sluice(const bsl::chrono::steady_clock&,
+           bslma::Allocator                 *basicAllocator = 0);
+        // Create a sluice.  Use the monotonic system clock as the clock
+        // against which the 'absTime' timeouts passed to the 'timedWait'
+        // methods are interpreted (see {Supported Clock-Types} in the
+        // component-level documentation).  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
+#endif
+
     ~Sluice();
         // Destroy this sluice.
 
@@ -206,6 +237,23 @@ class Sluice {
         // this thread, and was not subsequently released (via a call to
         // 'timedWait' or 'wait').
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class CLOCK, class DURATION>
+    int timedWait(const void                                      *token,
+                  const bsl::chrono::time_point<CLOCK, DURATION>&  absTime);
+        // Wait for the specified 'token' to be signaled, or until the
+        // specified 'absTime' timeout expires.  'absTime' is an *absolute*
+        // time represented as an interval from some epoch, which is determined
+        // by the clock associated with the time point.  Return 0 on success,
+        // and 'e_TIMED_OUT' on timeout.  Any other value indicates that an
+        // error has occurred.  Errors are unrecoverable.  After an error, the
+        // sluice may be destroyed, but any other use has undefined behavior.
+        // The 'token' is released whether or not a timeout occurred.  The
+        // behavior is undefined unless 'token' was obtained from a call to
+        // 'enter' by this thread, and was not subsequently released (via a
+        // call to 'timedWait' or 'wait').
+#endif
+
     void wait(const void *token);
         // Wait for the specified 'token' to be signaled, and release the
         // 'token'.  The behavior is undefined unless 'token' was obtained from
@@ -226,6 +274,55 @@ class Sluice {
                              // ------------
                              // class Sluice
                              // ------------
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+// MANIPULATORS
+template <class CLOCK, class DURATION>
+int bslmt::Sluice::timedWait(
+                    const void                                      *token,
+                    const bsl::chrono::time_point<CLOCK, DURATION>&  absTime) {
+
+    GenerationDescriptor *g =
+                static_cast<GenerationDescriptor *>(const_cast<void *>(token));
+
+    for (;;) {
+        int rc = g->d_sema.timedWait(absTime);
+
+        LockGuard<Mutex> lock(&d_mutex);
+
+        if (g->d_numSignaled) {
+            BSLS_ASSERT(d_pendingGeneration != g);
+
+            --g->d_numSignaled;
+
+            rc = 0;
+        }
+        else if (0 == rc) {
+            continue;
+        }
+
+        const int numThreads = --g->d_numThreads;
+
+        if (0 == numThreads) {
+            // The last thread is responsible for cleanup.
+
+            if (d_signaledGeneration == g) {
+                BSLS_ASSERT(0 != rc);
+                d_signaledGeneration = 0;
+            }
+
+            if (d_pendingGeneration == g) {
+                BSLS_ASSERT(0 != rc);
+                d_pendingGeneration = 0;
+            }
+
+            g->d_next = d_descriptorPool;
+            d_descriptorPool = g;
+        }
+        return rc;                                                    // RETURN
+    }
+}
+#endif
 
 // ACCESSORS
 inline

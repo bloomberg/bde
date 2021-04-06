@@ -27,13 +27,15 @@ BSLS_IDENT("$Id: $")
 // (1) an enumeration containing 'e_TIMED_OUT'.
 //
 // (2) a member function, 'timedWait', that takes a 'const bsls::TimeInterval&'
-// denoting the timeout value.  This should return 0 upon success,
-// 'e_TIMED_OUT' on a timeout, and some other value on failure.
-// 'ChronoUtil::timedWait' will convert the 'bsl::chrono::time_point' that is
-// passed to it into a 'bsls::TimeInterval' that can be used by the
-// synchronization primitive:
+// denoting the timeout value, and possibly an additional pointer argument.
+// This function should return 0 upon success, 'e_TIMED_OUT' on a timeout, and
+// some other value on failure.  'ChronoUtil::timedWait' will convert the
+// 'bsl::chrono::time_point' that is passed to it into a 'bsls::TimeInterval'
+// that can be used by the synchronization primitive ('ARG_TYPE' is just a
+// placeholder name; the primitive will have its own type):
 //..
 //  int timedWait(const bsls::TimeInterval&);
+//  int timedWait(ARG_TYPE *argument, const bsls::TimeInterval&);
 //..
 //
 // (3) a 'const' member function, 'clockType', that takes no parameters and
@@ -69,6 +71,7 @@ BSLS_IDENT("$Id: $")
 //      // succeeds.
 //
 //    private:
+//      // DATA
 //      bsls::SystemClockType::Enum d_clockType;
 //
 //    public:
@@ -87,7 +90,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // MANIPULATORS
 //      int timedWait(const bsls::TimeInterval&);
-//          // Returns 0 immediately.  Note that this is for demonstration and
+//          // Return 0 immediately.  Note that this is for demonstration and
 //          // testing purposes only.
 //
 //      // ACCESSORS
@@ -210,6 +213,26 @@ struct ChronoUtil {
         // than once otherwise.  Note that error codes returned from this
         // method, necessarily distinct from 0 and 'PRIMITIVE::e_TIMED_OUT',
         // are defined by 'PRIMITIVE'.
+
+    template <class PRIMITIVE, class ARG_TYPE, class CLOCK, class DURATION>
+    static
+    int timedWait(PRIMITIVE                                       *primitive,
+                  ARG_TYPE                                        *argument,
+                  const bsl::chrono::time_point<CLOCK, DURATION>&  absTime);
+        // Block on the specified 'primitive' object of the (template
+        // parameter) 'PRIMITIVE' type by calling its 'timedWait' method,
+        // passing the specified 'argument' of the (template parameter)
+        // 'ARG_TYPE' and a timeout calculated from the specified 'absTime'.
+        // 'absTime' is an *absolute* time represented by a time point with
+        // respect to some epoch, which is determined by the clock associated
+        // with the time point.  Return 0 on success, 'PRIMITIVE::e_TIMED_OUT'
+        // if the 'absTime' timeout expired, and other return values on error.
+        // The 'timedWait' method of 'primitive' is called only once if the
+        // clock type specified by the (template parameter) type 'CLOCK'
+        // corresponds to the clock used by 'primitive', and may be called more
+        // than once otherwise.  Note that error codes returned from this
+        // method, necessarily distinct from 0 and 'PRIMITIVE::e_TIMED_OUT',
+        // are defined by 'PRIMITIVE'.
 };
 
 // ============================================================================
@@ -277,8 +300,7 @@ int ChronoUtil::timedWait(
                     PRIMITIVE                                       *primitive,
                     const bsl::chrono::time_point<CLOCK, DURATION>&  absTime)
 {
-    if (ChronoUtil::isMatchingClock<CLOCK>(primitive->clockType()))
-    {
+    if (ChronoUtil::isMatchingClock<CLOCK>(primitive->clockType())) {
         return primitive->timedWait(
                      bsls::TimeInterval(absTime.time_since_epoch())); // RETURN
     }
@@ -294,6 +316,38 @@ int ChronoUtil::timedWait(
                                   bsls::SystemTime::now(primitive->clockType())
                                                    .addDuration(absTime - now);
             ret = primitive->timedWait(ti);
+            if (PRIMITIVE::e_TIMED_OUT != ret) {
+                return ret;                                           // RETURN
+            }
+            now = CLOCK::now();
+        }
+        return PRIMITIVE::e_TIMED_OUT;                                // RETURN
+    }
+}
+
+template <class PRIMITIVE, class ARG_TYPE, class CLOCK, class DURATION>
+int ChronoUtil::timedWait(
+                    PRIMITIVE                                       *primitive,
+                    ARG_TYPE                                        *argument,
+                    const bsl::chrono::time_point<CLOCK, DURATION>&  absTime)
+{
+    if (ChronoUtil::isMatchingClock<CLOCK>(primitive->clockType())) {
+        return primitive->timedWait(
+                     argument,
+                     bsls::TimeInterval(absTime.time_since_epoch())); // RETURN
+    }
+    else {
+        typename CLOCK::time_point now = CLOCK::now();
+        int                        ret;
+
+        // Iteration is necessary because the specified 'CLOCK' type is known
+        // to be different from that used internally by 'primitive'.
+
+        while (absTime > now) {
+            bsls::TimeInterval ti =
+                                  bsls::SystemTime::now(primitive->clockType())
+                                                   .addDuration(absTime - now);
+            ret = primitive->timedWait(argument, ti);
             if (PRIMITIVE::e_TIMED_OUT != ret) {
                 return ret;                                           // RETURN
             }

@@ -12,15 +12,12 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_sluice_cpp,"$Id$ $CSID$")
 
-#include <bslmt_lockguard.h>
-
 #include <bslmt_semaphore.h>    // for testing only
 #include <bslmt_threadgroup.h>  // for testing only
 #include <bslmt_threadutil.h>   // for testing only
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
-#include <bsls_assert.h>
 
 namespace BloombergLP {
 
@@ -61,6 +58,28 @@ bslmt::Sluice::Sluice(bsls::SystemClockType::Enum  clockType,
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+bslmt::Sluice::Sluice(const bsl::chrono::system_clock&,
+                      bslma::Allocator                 *basicAllocator)
+: d_signaledGeneration(0)
+, d_pendingGeneration(0)
+, d_descriptorPool(0)
+, d_clockType(bsls::SystemClockType::e_REALTIME)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+bslmt::Sluice::Sluice(const bsl::chrono::steady_clock&,
+                      bslma::Allocator                 *basicAllocator)
+: d_signaledGeneration(0)
+, d_pendingGeneration(0)
+, d_descriptorPool(0)
+, d_clockType(bsls::SystemClockType::e_MONOTONIC)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+#endif
 
 bslmt::Sluice::~Sluice()
 {
