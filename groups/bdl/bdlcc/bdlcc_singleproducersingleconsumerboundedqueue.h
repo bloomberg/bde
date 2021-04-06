@@ -56,7 +56,7 @@ BSLS_IDENT("$Id: $")
 // 'bslma::Allocator' trait (see 'bslma_usesbslmaallocator') so that the
 // allocator of the queue is propagated to the elements contained in the queue.
 //
-///Exception safety
+///Exception Safety
 ///----------------
 // A 'bdlcc::SingleProducerSingleConsumerBoundedQueue' is exception neutral,
 // and all of the methods of 'bdlcc::SingleProducerSingleConsumerBoundedQueue'
@@ -470,10 +470,10 @@ class SingleProducerSingleConsumerBoundedQueue {
     SingleProducerSingleConsumerBoundedQueue(
                                          bsl::size_t       capacity,
                                          bslma::Allocator *basicAllocator = 0);
-        // Create a thread-aware queue with, at least, the specified
-        // 'capacity'.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
+        // Create a thread-aware queue with at least the specified 'capacity'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     ~SingleProducerSingleConsumerBoundedQueue();
         // Destroy this object.
@@ -570,6 +570,11 @@ class SingleProducerSingleConsumerBoundedQueue {
         // has no effect.
 
     // ACCESSORS
+    bsl::size_t capacity() const;
+        // Return the maximum number of elements that may be stored in this
+        // queue.  Note that the value returned may be greater than that
+        // supplied at construction.
+
     bool isEmpty() const;
         // Return 'true' if this queue is empty (has no elements), or 'false'
         // otherwise.
@@ -1143,6 +1148,13 @@ void SingleProducerSingleConsumerBoundedQueue<TYPE>::enablePushBack()
 }
 
 // ACCESSORS
+template <class TYPE>
+inline
+bsl::size_t SingleProducerSingleConsumerBoundedQueue<TYPE>::capacity() const
+{
+    return d_popCapacity;
+}
+
 template <class TYPE>
 inline
 bool SingleProducerSingleConsumerBoundedQueue<TYPE>::isEmpty() const

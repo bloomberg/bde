@@ -52,11 +52,15 @@ BSLS_IDENT("$Id: $")
 // (see 'bslma_usesbslmaallocator') so that the allocator of the queue is
 // propagated to the elements contained in the queue.
 //
-///Exception safety
+///Exception Safety
 ///----------------
 // A 'bdlcc::BoundedQueue' is exception neutral, and all of the methods of
 // 'bdlcc::BoundedQueue' provide the basic exception safety guarantee (see
-// 'bsldoc_glossary').
+// 'bsldoc_glossary').  If an exception occurs while writing to an element,
+// the element is marked unusable until after a read attempt from the element
+// (at which point the element is "reclaimed").  This failure to write does
+// not increment the result returned by 'numElements'.  Hence,
+// 'numElements() == capacity()' is not a valid replacement for 'isFull()'.
 //
 ///Move Semantics in C++03
 ///-----------------------
@@ -523,10 +527,10 @@ class BoundedQueue {
     // CREATORS
     explicit
     BoundedQueue(bsl::size_t capacity, bslma::Allocator *basicAllocator = 0);
-        // Create a thread-aware queue with, at least, the specified
-        // 'capacity'.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
+        // Create a thread-aware queue with at least the specified 'capacity'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     ~BoundedQueue();
         // Destroy this object.
@@ -614,6 +618,11 @@ class BoundedQueue {
         // no effect.
 
     // ACCESSORS
+    bsl::size_t capacity() const;
+        // Return the maximum number of elements that may be stored in this
+        // queue.  Note that the value returned may be greater than that
+        // supplied at construction.
+
     bool isEmpty() const;
         // Return 'true' if this queue is empty (has no elements), or 'false'
         // otherwise.
@@ -634,7 +643,9 @@ class BoundedQueue {
         // state.
 
     bsl::size_t numElements() const;
-        // Returns the number of elements currently in this queue.
+        // Returns the number of elements currently in this queue.  Note that
+        // 'numElements() == capacity()' is not a valid replacement for
+        // 'isFull' (see {Exception Safety} for details).
 
     int waitUntilEmpty() const;
         // Block until all the elements in this queue are removed.  Return 0 on
@@ -750,12 +761,14 @@ bool BoundedQueue_Node<TYPE, false>::isUnconstructed() const
 
 // PRIVATE CLASS METHODS
 template <class TYPE>
+inline
 bool BoundedQueue<TYPE>::isQuiescentState(bsls::Types::Uint64 count)
 {
     return (count >> k_FINISHED_SHIFT) == (count & k_STARTED_MASK);
 }
 
 template <class TYPE>
+inline
 bsls::Types::Uint64 BoundedQueue<TYPE>::markFinishedOperation(
                                                            AtomicUint64 *count)
 {
@@ -763,6 +776,7 @@ bsls::Types::Uint64 BoundedQueue<TYPE>::markFinishedOperation(
 }
 
 template <class TYPE>
+inline
 bsls::Types::Uint64 BoundedQueue<TYPE>::markFinishedOperation(
                                                            AtomicUint64 *count,
                                                            int           num)
@@ -771,24 +785,28 @@ bsls::Types::Uint64 BoundedQueue<TYPE>::markFinishedOperation(
 }
 
 template <class TYPE>
+inline
 void BoundedQueue<TYPE>::markReclaimed(AtomicUint64 *count)
 {
     AtomicOp::addUint64AcqRel(count, k_STARTED_INC + k_FINISHED_INC);
 }
 
 template <class TYPE>
+inline
 void BoundedQueue<TYPE>::markStartedOperation(AtomicUint64 *count)
 {
     AtomicOp::addUint64AcqRel(count, k_STARTED_INC);
 }
 
 template <class TYPE>
+inline
 void BoundedQueue<TYPE>::markStartedOperation(AtomicUint64 *count, int num)
 {
     AtomicOp::addUint64AcqRel(count, num * k_STARTED_INC);
 }
 
 template <class TYPE>
+inline
 bsls::Types::Uint64 BoundedQueue<TYPE>::unmarkStartedOperation(
                                                            AtomicUint64 *count)
 {
@@ -797,6 +815,7 @@ bsls::Types::Uint64 BoundedQueue<TYPE>::unmarkStartedOperation(
 
 // PRIVATE MANIPULATORS
 template <class TYPE>
+inline
 void BoundedQueue<TYPE>::popComplete(Node *node, bool isEmpty)
 {
     node->d_value.object().~TYPE();
@@ -864,6 +883,7 @@ void BoundedQueue<TYPE>::popFrontHelper(TYPE *value)
 }
 
 template <class TYPE>
+inline
 void BoundedQueue<TYPE>::pushComplete()
 {
     Uint64 count = markFinishedOperation(&d_pushCount);
@@ -882,6 +902,7 @@ void BoundedQueue<TYPE>::pushComplete()
 }
 
 template <class TYPE>
+inline
 void BoundedQueue<TYPE>::pushExceptionComplete()
 {
     Uint64 count = unmarkStartedOperation(&d_pushCount);
@@ -1196,6 +1217,7 @@ int BoundedQueue<TYPE>::tryPushBack(bslmf::MovableRef<TYPE> value)
                        // Enqueue/Dequeue State
 
 template <class TYPE>
+inline
 void BoundedQueue<TYPE>::disablePopFront()
 {
     d_popSemaphore.disable();
@@ -1209,18 +1231,21 @@ void BoundedQueue<TYPE>::disablePopFront()
 }
 
 template <class TYPE>
+inline
 void BoundedQueue<TYPE>::disablePushBack()
 {
     d_pushSemaphore.disable();
 }
 
 template <class TYPE>
+inline
 void BoundedQueue<TYPE>::enablePopFront()
 {
     d_popSemaphore.enable();
 }
 
 template <class TYPE>
+inline
 void BoundedQueue<TYPE>::enablePushBack()
 {
     d_pushSemaphore.enable();
@@ -1228,30 +1253,42 @@ void BoundedQueue<TYPE>::enablePushBack()
 
 // ACCESSORS
 template <class TYPE>
+inline
+bsl::size_t BoundedQueue<TYPE>::capacity() const
+{
+    return d_capacity;
+}
+
+template <class TYPE>
+inline
 bool BoundedQueue<TYPE>::isEmpty() const
 {
     return 0 == d_popSemaphore.getValue();
 }
 
 template <class TYPE>
+inline
 bool BoundedQueue<TYPE>::isFull() const
 {
     return 0 == d_pushSemaphore.getValue();
 }
 
 template <class TYPE>
+inline
 bool BoundedQueue<TYPE>::isPopFrontDisabled() const
 {
     return d_popSemaphore.isDisabled();
 }
 
 template <class TYPE>
+inline
 bool BoundedQueue<TYPE>::isPushBackDisabled() const
 {
     return d_pushSemaphore.isDisabled();
 }
 
 template <class TYPE>
+inline
 bsl::size_t BoundedQueue<TYPE>::numElements() const
 {
     return d_popSemaphore.getValue();
@@ -1301,6 +1338,7 @@ int BoundedQueue<TYPE>::waitUntilEmpty() const
                                   // Aspects
 
 template <class TYPE>
+inline
 bslma::Allocator *BoundedQueue<TYPE>::allocator() const
 {
     return d_allocator_p;

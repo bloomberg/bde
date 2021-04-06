@@ -93,6 +93,7 @@ using namespace bsl;
 // [ 5] void disablePushBack();
 // [ 5] void enablePopFront();
 // [ 5] void enablePushBack();
+// [ 4] bsl::size_t capacity() const;
 // [ 4] bool isEmpty() const;
 // [ 4] bool isFull() const;
 // [ 5] bool isPopFrontDisabled() const;
@@ -2048,20 +2049,24 @@ int main(int argc, char *argv[])
         //: 1 To test 'allocator', create object with various allocators and
         //:   ensure the returned value matches the supplied allocator.
         //:
-        //: 2 Use the generator function to produce objects of arbitrary state
+        //: 2 To test 'capacity', create object with various initial capacities
+        //:   and ensure the returned value matches the expected value.
+        //:
+        //: 3 Use the generator function to produce objects of arbitrary state
         //:   and verify the accessor return value against expected values.
         //:   (C-1)
         //:
-        //: 3 The accessors will only be accessed from a 'const' reference to
+        //: 4 The accessors will only be accessed from a 'const' reference to
         //:   the created object.  (C-2)
         //:
-        //: 4 The default allocator will be used for all created objects
+        //: 5 The default allocator will be used for all created objects
         //:   (excluding those used to test 'allocator') and the number of
         //:   allocation will be verified to ensure that no memory was
         //:   allocated during use of the accessors.  (C-3)
         //
         // Testing:
         //   bslma::Allocator *allocator() const;
+        //   bsl::size_t capacity() const;
         //   bool isEmpty() const;
         //   bool isFull() const;
         //   bsl::size_t numElements() const;
@@ -2086,6 +2091,20 @@ int main(int argc, char *argv[])
 
             Obj mX(8, &sa);  const Obj& X = mX;
             ASSERT(&sa == X.allocator());
+        }
+
+        if (verbose) cout << "\nTesting 'capacity'." << endl;
+        {
+            Obj mX(8);  const Obj& X = mX;
+            ASSERT(8 == X.capacity());
+        }
+        {
+            Obj mX(16);  const Obj& X = mX;
+            ASSERT(16 == X.capacity());
+        }
+        {
+            Obj mX(17);  const Obj& X = mX;
+            ASSERT(17 == X.capacity());
         }
 
         if (verbose) cout << "\nTesting residual accessors." << endl;
