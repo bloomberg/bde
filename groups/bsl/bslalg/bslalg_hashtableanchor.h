@@ -58,7 +58,7 @@ BSLS_IDENT("$Id: $")
 // Suppose we want to create a hash table that keeps track of pointers.
 // Pointers can be added ('insert'ed) or removed ('erase'd) from the table, and
 // the table will keep track, at any time, of whether a pointer is currently
-// stored in the table using the 'count' method.  It will also be table to
+// stored in the table using the 'count' method.  It will also be able to
 // return the total number of objects stored in the table (the 'size' method).
 // Redundant 'insert's have no effect -- a given pointer may only be stored in
 // the table once.
