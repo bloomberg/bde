@@ -10,8 +10,7 @@
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component defines a concrete mechanism, 'DatumMaker' that
-// allows 'bdld::Datum' objects to be created with minimal syntax.  Note that
-// this is frequently useful in testing contexts.
+// allows 'bdld::Datum' objects to be created with minimal syntax.
 //
 ///Usage
 ///-----
