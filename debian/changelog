@@ -1,5 +1,13 @@
-bsl-internal (3.77.0.0) unstable; urgency=low
+bsl-internal (3.78.0.0) unstable; urgency=low
 
+  * eff2db0da Bumped version to 3.78.0.0
+  * 8a48c7fc9 Merge pull request #3183 from afeher/drqs-165758572-bdld_datummaker-docu-fix
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 9 Apr 2021 12:02:39 -0400
+
+bsl-internal (3.77.0.0) git; urgency=low
+
+  * 5135e7ab8 Changelog for version 3.77.0.0
   * efa74c608 Bumped version to 3.77.0.0
   * 38a526596 Merge pull request #3159 from afeher/drqs-164339013-indexspanstringutil-BDE-4.0
   * 505491bef Merge pull request #3162 from bchapman/bdlmt-bslmt-use-bslmt_testutil-drqs-165533928
@@ -8,7 +16,7 @@ bsl-internal (3.77.0.0) unstable; urgency=low
   * 067231560 Merge pull request #3152 from afeher/drqs-165268497-balc_optionvalue-test-xlC16-fix
   * e55c86081 Merge pull request #3148 from afeher/drqs-165268497-fix-balxml-en-decoder-tests-aix
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 28 Mar 2021 10:01:41 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 28 Mar 2021 10:11:29 -0400
 
 bsl-internal (3.76.0.0) git; urgency=low
 
