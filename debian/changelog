@@ -1,9 +1,10 @@
 bsl-internal (3.78.0.0) unstable; urgency=low
 
+  * b0bfce3ed Changelog for version 3.78.0.0
   * eff2db0da Bumped version to 3.78.0.0
   * 8a48c7fc9 Merge pull request #3183 from afeher/drqs-165758572-bdld_datummaker-docu-fix
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 9 Apr 2021 12:02:39 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 9 Apr 2021 12:04:44 -0400
 
 bsl-internal (3.77.0.0) git; urgency=low
 
