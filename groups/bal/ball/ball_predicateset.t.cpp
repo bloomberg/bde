@@ -76,8 +76,9 @@ int main(int argc, char *argv[])
         //   TESTING TYPEDEFS
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING TYPEDEFS"
-                          << "\n================" << endl;
+        if (verbose)
+            cout << "\nTESTING TYPEDEFS"
+                 << "\n================" << endl;
 
         // typedef ball::ManagedAttributeSet ball::PredicateSet;
         {

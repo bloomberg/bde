@@ -34,6 +34,7 @@ ball_predicateset
 ball_record
 ball_recordattributes
 ball_recordbuffer
+ball_recordjsonformatter
 ball_recordstringformatter
 ball_rule
 ball_ruleset
