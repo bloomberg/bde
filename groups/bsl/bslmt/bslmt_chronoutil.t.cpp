@@ -26,7 +26,7 @@ using namespace bsl;
 //
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-// [1] struct ChronoUtil_ToBslsSystemClockType<CLOCK>;
+// [1] bool isMatchingClock<CLOCK>(bsls::SystemClockType::Enum cT);
 // [2] int timedWait(PRIMITIVE *, const time_point&);
 // [2] int timedWait(PRIMITIVE *, ARG_TYPE *, const time_point&);
 // [3] USAGE EXAMPLE
@@ -551,38 +551,51 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'ChronoUtil_ToBslsSystemClockType'
+        // TESTING 'isMatchingClockType'
         //   Ensure the accessor forwards as expected.
         //
         // Concerns:
-        //: 1 The accessor forwards to the underlying implementation correctly.
+        //: 1 The method correctly matches the (template parameter) 'CLOCK' to
+        //:   the specified 'bsls::SystemClockType::Enum' value, for standard
+        //:   and user-provided clocks.
         //
         // Plan:
-        //: 1 Directly verify the result of 'getValue' throughout a sequence of
-        //:   operations on the semaphore.  (C-1)
+        //: 1 Directly verify the result of 'isMatchingClock' with all standard
+        //:   clocks and 'bsls::SystemClockType::Enum' values, and the test
+        //:   clocks 'HalfClock' and 'AnotherClock'.  (C-1)
         //
         // Testing:
-        //   struct ChronoUtil_ToBslsSystemClockType<CLOCK>;
+        //   bool isMatchingClock<CLOCK>(bsls::SystemClockType::Enum cT);
         // --------------------------------------------------------------------
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'ChronoUtil_ToBslsSystemClockType'" << endl
-                 << "==========================================" << endl;
+                 << "TESTING 'isMatchingClockType'" << endl
+                 << "=============================" << endl;
         }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         using namespace bsl::chrono;
 
-        ASSERT( bslmt::ChronoUtil_ToBslsSystemClockType<system_clock>::value);
-        ASSERT( bslmt::ChronoUtil_ToBslsSystemClockType<steady_clock>::value);
-        ASSERT(!bslmt::ChronoUtil_ToBslsSystemClockType<HalfClock>::value);
-        ASSERT(!bslmt::ChronoUtil_ToBslsSystemClockType<AnotherClock>::value);
+        ASSERT( bslmt::ChronoUtil::isMatchingClock<system_clock>(
+                                           bsls::SystemClockType::e_REALTIME));
+        ASSERT(!bslmt::ChronoUtil::isMatchingClock<system_clock>(
+                                           bsls::SystemClockType::e_MONOTONIC));
 
-        ASSERT( bsls::SystemClockType::e_REALTIME  ==
-          bslmt::ChronoUtil_ToBslsSystemClockType<system_clock>::k_CLOCK_TYPE);
-        ASSERT( bsls::SystemClockType::e_MONOTONIC ==
-          bslmt::ChronoUtil_ToBslsSystemClockType<steady_clock>::k_CLOCK_TYPE);
+        ASSERT(!bslmt::ChronoUtil::isMatchingClock<steady_clock>(
+                                           bsls::SystemClockType::e_REALTIME));
+        ASSERT( bslmt::ChronoUtil::isMatchingClock<steady_clock>(
+                                           bsls::SystemClockType::e_MONOTONIC));
+
+        ASSERT(!bslmt::ChronoUtil::isMatchingClock<HalfClock>(
+                                           bsls::SystemClockType::e_REALTIME));
+        ASSERT(!bslmt::ChronoUtil::isMatchingClock<HalfClock>(
+                                           bsls::SystemClockType::e_MONOTONIC));
+
+        ASSERT(!bslmt::ChronoUtil::isMatchingClock<AnotherClock>(
+                                           bsls::SystemClockType::e_REALTIME));
+        ASSERT(!bslmt::ChronoUtil::isMatchingClock<AnotherClock>(
+                                           bsls::SystemClockType::e_MONOTONIC));
 #endif
       } break;
       default: {

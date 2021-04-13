@@ -173,7 +173,6 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #include <bsl_chrono.h>
-#include <bsl_type_traits.h>
 
 namespace BloombergLP {
 namespace bslmt {
@@ -186,16 +185,14 @@ struct ChronoUtil {
     // This 'struct' provides a namespace for utility functions that operate on
     // 'bsl::chrono' facilities.
 
-  private:
-    // PRIVATE CLASS METHODS
+  public:
+    // CLASS METHODS
     template <class CLOCK>
     static
     bool isMatchingClock(bsls::SystemClockType::Enum clockType);
         // Return 'true' if the specified (template parameter) type 'CLOCK'
         // matches the specified 'clockType', and 'false' otherwise.
 
-  public:
-    // CLASS METHODS
     template <class PRIMITIVE, class CLOCK, class DURATION>
     static
     int timedWait(PRIMITIVE                                       *primitive,
@@ -239,62 +236,34 @@ struct ChronoUtil {
 //                             INLINE DEFINITIONS
 // ============================================================================
 
-// PRIVATE TYPES
-template <class CLOCK>
-struct ChronoUtil_ToBslsSystemClockType;
-    // This 'struct' template implements a metafunction that returns whether
-    // the specified template parameter 'CLOCK' corresponds to a 'bsls' system
-    // clock type, and if so, which one.  See {'bsls_systemclocktype'}.
-
-template <class CLOCK>
-struct ChronoUtil_ToBslsSystemClockType : bsl::bool_constant<false> {
-    // This 'struct' template reports that all types do not correspond to a
-    // 'bsls' system clock type.  This is the general template for
-    // 'ChronoUtil_ToBslsSystemClockType'.  The value of 'k_CLOCK_TYPE' in
-    // instantiations of this general template should not be relied upon.
-
-    // PUBLIC CLASS DATA
-    static const bsls::SystemClockType::Enum k_CLOCK_TYPE =
-                                             bsls::SystemClockType::e_REALTIME;
-};
-
-template <>
-struct ChronoUtil_ToBslsSystemClockType<bsl::chrono::system_clock>
-    : bsl::bool_constant<true> {
-    // This specialization of 'ChronoUtil_ToBslsSystemClockType' reports that
-    // 'bsl::chrono::system_clock' corresponds to 'e_REALTIME'.
-
-    // PUBLIC CLASS DATA
-    static const bsls::SystemClockType::Enum k_CLOCK_TYPE =
-                                             bsls::SystemClockType::e_REALTIME;
-};
-
-template <>
-struct ChronoUtil_ToBslsSystemClockType<bsl::chrono::steady_clock>
-    : bsl::bool_constant<true> {
-    // This specialization of 'ChronoUtil_ToBslsSystemClockType' reports that
-    // 'bsl::chrono::steady_clock' corresponds to 'e_MONOTONIC'.
-
-    // PUBLIC CLASS DATA
-    static const bsls::SystemClockType::Enum k_CLOCK_TYPE =
-                                            bsls::SystemClockType::e_MONOTONIC;
-};
-
                            // -----------------
                            // struct ChronoUtil
                            // -----------------
 
-// PRIVATE CLASS METHODS
+// CLASS METHODS
 template <class CLOCK>
 inline
-bool ChronoUtil::isMatchingClock(bsls::SystemClockType::Enum clockType)
+bool ChronoUtil::isMatchingClock(bsls::SystemClockType::Enum)
 {
-    typedef ChronoUtil_ToBslsSystemClockType<CLOCK> ClockMapper;
-
-    return ClockMapper::value ? clockType == ClockMapper::k_CLOCK_TYPE : false;
+    return false;
 }
 
-// CLASS METHODS
+template <>
+inline
+bool ChronoUtil::isMatchingClock<bsl::chrono::system_clock>(
+                                         bsls::SystemClockType::Enum clockType)
+{
+    return bsls::SystemClockType::e_REALTIME == clockType;
+}
+
+template <>
+inline
+bool ChronoUtil::isMatchingClock<bsl::chrono::steady_clock>(
+                                         bsls::SystemClockType::Enum clockType)
+{
+    return bsls::SystemClockType::e_MONOTONIC == clockType;
+}
+
 template <class PRIMITIVE, class CLOCK, class DURATION>
 int ChronoUtil::timedWait(
                     PRIMITIVE                                       *primitive,
