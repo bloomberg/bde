@@ -4,6 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bsls_bsllockimpl_win32_cpp,"$Id$ $CSID$")
 
+#include <bsls_annotation.h>
 #include <bsls_platform.h>
 
 // Include 'windows.h' here to check that our declarations of windows API
@@ -18,17 +19,26 @@ BSLS_IDENT_RCSID(bsls_bsllockimpl_win32_cpp,"$Id$ $CSID$")
 #include <windows.h>
 
 namespace {
+    // This code is below bslmf (and we cannot use BSLMF_ASSERT), so we have to
+    // implement minimalistic compile time assert.
 
-template<bool> // generic
-struct my_static_assert;
+template <bool>
+struct CompileTimeAssert;
+    // Primary template for compile-time assertion that has no definition to
+    // cause a compile-time failure if instantiated.
 
 template<>
-struct my_static_assert<true>{};
+struct CompileTimeAssert<true>
+    // Explicit specialization with an empty definition for the compile-time
+    // assertion predicate being 'true'.
+{
+};
 
-void size_check() {
-    my_static_assert<sizeof(CRITICAL_SECTION) ==
+
+BSLS_ANNOTATION_UNUSED void size_check() {
+    CompileTimeAssert<sizeof(CRITICAL_SECTION) ==
                  sizeof(void *) * BloombergLP::bsls::BslLockImpl_win32::
-                                            k_CRITICAL_SECTION_BUFFER_SIZE> {};
+                                            k_CRITICAL_SECTION_BUFFER_SIZE>();
 }
 
 }  // close unnamed namespace

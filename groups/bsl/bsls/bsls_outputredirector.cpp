@@ -4,6 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>   // for testing only
 
@@ -14,13 +15,49 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <sys/types.h> // 'struct stat': required on Sun and Windows only
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 # include <fcntl.h>     // '_O_BINARY'
 # include <io.h>        // '_dup2', '_dup', '_close'
+# include <windows.h>
+
 # define snprintf _snprintf
 #else
 # include <unistd.h>
 #endif
+
+namespace {
+    // This code is below bslmf (and we cannot use BSLMF_ASSERT), so we have to
+    // implement minimalistic compile time assert.
+
+template <bool>
+struct CompileTimeAssert;
+    // Primary template for compile-time assertion that has no definition to
+    // cause a compile-time failure if instantiated.
+
+template<>
+struct CompileTimeAssert<true>
+    // Explicit specialization with an empty definition for the compile-time
+    // assertion predicate being 'true'.
+{
+};
+
+BSLS_ANNOTATION_UNUSED void checkPathBufferSize() {
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    enum { k_MAX_PATH = MAX_PATH };
+#else
+    enum { k_MAX_PATH = PATH_MAX };
+#endif
+    static const bool k_BUFFER_SUFFICIENTLY_LARGE =
+        BloombergLP::bsls::OutputRedirector::k_PATH_BUFFER_SIZE > k_MAX_PATH;
+    CompileTimeAssert<k_BUFFER_SUFFICIENTLY_LARGE>();
+}
+
+}  // close unnamed namespace
+
 
 namespace BloombergLP {
 namespace bsls {
@@ -103,10 +140,6 @@ OutputRedirector::OutputRedirector(Stream which,
 , d_veryVerbose(veryVerbose)
 {
     BSLS_ASSERT(which == e_STDOUT_STREAM || which == e_STDERR_STREAM);
-
-#if 0  // These are workarounds for compilers not doing value initialization
-    d_fileName[0] = '\0';
-#endif
 }
 
 OutputRedirector::~OutputRedirector()

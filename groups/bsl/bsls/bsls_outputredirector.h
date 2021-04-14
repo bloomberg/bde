@@ -10,39 +10,24 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::OutputRedirector: namespace for low-level logging functions
 //
-//@MACROS:
-//
 //@DESCRIPTION: This component provides a mechanism, 'bsls::OutputRedirector',
 // to redirect output sent to either of the standard out or error streams and
 // capture that output so that it can be read back and parsed, such as to allow
 // a test driver to verify the expected output of a streaming operation.
 //
-// THIS COMPONENT IS IN A PREVIEW STATE AND SHOULD NOT BE USED OUTSIDE OF BDE
-// TEST DRIVERS
+// THIS COMPONENT MUST NOT BE USED OUTSIDE OF BDE TEST DRIVERS
 //
 ///Usage
 ///-----
-// This section illustrates the intended use of this component, or at least, it
-// will once the usage example is written.
+// This component is an implementation detail of 'bsls' and is *not* intended
+// for direct client use.  It is subject to change without notice.  As such, a
+// usage example is not provided.
 
 #include <bsls_platform.h>
 
 #include <limits.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <sys/stat.h>  // 'struct stat[64]': required on Sun and Windows only
-
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-# ifndef INCLUDED_WINDOWS
-// windows.h defaults to include winsock.h unless WIN32_LEAN_AND_MEAN is
-// defined. BDE uses winsocks2.h for its transport facilities.
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-# include <windows.h>  // Required for 'MAX_PATH' plus a few other names
-# define INCLUDED_WINDOWS
-# endif
-#endif
 
 namespace BloombergLP {
 namespace bsls {
@@ -50,9 +35,6 @@ namespace bsls {
                          // ======================
                          // class OutputRedirector
                          // ======================
-
-// Temp file creation and output redirection re-purposed from the pre-existing
-// module in 'bsls_bsltestutil.t.cpp'.
 
 class OutputRedirector {
     // This class provides a facility for redirecting 'stdout' and 'stderr' to
@@ -81,14 +63,15 @@ class OutputRedirector {
     };
 
     static const size_t k_OUTPUT_REDIRECTOR_BUFFER_SIZE          = 4096;
-        // This represents the size of the buffer used by the class
-        // 'OutputRedirector' to store the captured values loaded in the
-        // 'stdout' and 'stderr' error streams.
+        // The size of the buffer used to store the captured values loaded in
+        // the 'stdout' and 'stderr' error streams.
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    static const size_t k_PATH_BUFFER_SIZE = MAX_PATH + 1;
+    static const size_t k_PATH_BUFFER_SIZE = 512;
+        // The size of the buffer used to hold a file name.
 #else
     static const size_t k_PATH_BUFFER_SIZE = PATH_MAX + 1;
+        // The size of the buffer used to hold a file name.
 #endif
 
   private:
