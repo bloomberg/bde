@@ -86,39 +86,40 @@ using namespace bsl;
 // [ 6] Offset getAvailableSpace(const bsl::string&)
 // [ 6] Offset getAvailableSpace(const char *)
 // [ 6] Offset getAvailableSpace(FileDescriptor)
-// [ 7] Offset getFileSize(const bsl::string&)
-// [ 7] Offset getFileSize(const char *)
-// [ 7] Offset getFileSize(FileDescriptor)
-// [ 9] FD open(const char *p, bool writable, bool exist, bool append)
-// [10] static Offset getFileSizeLimit()
-// [11] int tryLock(FileDescriptor, bool ) (Unix)
-// [12] int tryLock(FileDescriptor, bool ) (Windows)
-// [13] int sync(char *, int , bool )
-// [14] int close(FileDescriptor )
-// [18] makeUnsafeTemporaryFilename(string *, const StringRef&)
-// [19] createTemporaryFile(string *, const StringRef&)
-// [20] createTemporaryDirectory(string *, const StringRef&)
-// [21] int createDirectories(const string&, bool);
-// [21] int createPrivateDirectory(const string&);
-// [22] int visitTree(const char *, const string&, const Func&, bool);
-// [22] int visitTree(const string&, const string&, const Func&, bool);
-// [22] int visitPaths(const string&, const Func&);
-// [22] int visitPaths(const char *, const Func&);
-// [23] int getLastModificationTime(bdlt::Datetime *, FileDescriptor);
+// [ 7] int getSystemTemporaryDirectory(bsl::string *path);
+// [ 8] Offset getFileSize(const bsl::string&)
+// [ 8] Offset getFileSize(const char *)
+// [ 8] Offset getFileSize(FileDescriptor)
+// [10] FD open(const char *p, bool writable, bool exist, bool append)
+// [11] static Offset getFileSizeLimit()
+// [12] int tryLock(FileDescriptor, bool ) (Unix)
+// [13] int tryLock(FileDescriptor, bool ) (Windows)
+// [14] int sync(char *, int , bool )
+// [15] int close(FileDescriptor )
+// [19] makeUnsafeTemporaryFilename(string *, const StringRef&)
+// [20] createTemporaryFile(string *, const StringRef&)
+// [21] createTemporaryDirectory(string *, const StringRef&)
+// [22] int createDirectories(const string&, bool);
+// [22] int createPrivateDirectory(const string&);
+// [23] int visitTree(const char *, const string&, const Func&, bool);
+// [23] int visitTree(const string&, const string&, const Func&, bool);
+// [23] int visitPaths(const string&, const Func&);
+// [23] int visitPaths(const char *, const Func&);
+// [24] int getLastModificationTime(bdlt::Datetime *, FileDescriptor);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 8] CONCERN: findMatchingPaths incorrect on ibm 64-bit
-// [14] CONCERN: Open in append-mode behavior (particularly on windows)
-// [15] CONCERN: Unix File Permissions for 'open'
-// [16] CONCERN: Unix File Permissions for 'createDirectories' et al
-// [17] CONCERN: UTF-8 Filename handling
-// [18] CONCERN: entropy in temp file name generation
-// [19] CONCERN: file permissions
-// [20] CONCERN: directory permissions
-// [21] CONCERN: error codes for 'createDirectories'
-// [21] CONCERN: error codes for 'createPrivateDirectory'
-// [24] USAGE EXAMPLE 1
-// [25] USAGE EXAMPLE 2
+// [ 9] CONCERN: findMatchingPaths incorrect on ibm 64-bit
+// [15] CONCERN: Open in append-mode behavior (particularly on windows)
+// [16] CONCERN: Unix File Permissions for 'open'
+// [17] CONCERN: Unix File Permissions for 'createDirectories' et al
+// [18] CONCERN: UTF-8 Filename handling
+// [19] CONCERN: entropy in temp file name generation
+// [20] CONCERN: file permissions
+// [21] CONCERN: directory permissions
+// [22] CONCERN: error codes for 'createDirectories'
+// [22] CONCERN: error codes for 'createPrivateDirectory'
+// [25] USAGE EXAMPLE 1
+// [26] USAGE EXAMPLE 2
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -565,14 +566,6 @@ struct TestUtil {
         // store the value precisely nor accurately.
 
     BSLA_MAYBE_UNUSED
-    static int getTemporaryDirectory(bsl::string *path);
-        // Load a valid path to a temporary directory to the specified 'path'.
-        // Return 0 on success, and a non-zero value otherwise.  A temporary
-        // directory is one in which the operating system has permission to
-        // delete its contents, but not necessarily the directory itself, the
-        // next time the computer reboots.
-
-    BSLA_MAYBE_UNUSED
     static int getTemporaryFilePath(bsl::string *path);
         // Load a valid path to a likely non-existent file in a temporary
         // directory to the specified 'path'.  Return 0 on success, and a
@@ -676,13 +669,6 @@ struct TestUtil_UnixImpUtil {
         // because a file time is greater than or equal to the value reported
         // by this function, does not mean that the underlying file system can
         // store the value precisely nor accurately.
-
-    static int getTemporaryDirectory(bsl::string *path);
-        // Load a valid path to a temporary directory to the specified 'path'.
-        // Return 0 on success, and a non-zero value otherwise.  A temporary
-        // directory is one in which the operating system has permission to
-        // delete its contents, but not necessarily the directory itself, the
-        // next time the computer reboots.
 
     static int getTemporaryFilePath(bsl::string *path);
         // Load a valid path to a likely non-existent file in a temporary
@@ -797,13 +783,6 @@ struct TestUtil_WindowsImpUtil {
         // temporary file is a file that resides in a temporary directory,
         // which the operating system reserves the right to delete the next
         // time the computer reboots.
-
-    static int getTemporaryDirectory(bsl::string *path);
-        // Load a valid path to a temporary directory to the specified 'path'.
-        // Return 0 on success, and a non-zero value otherwise.  A temporary
-        // directory is one in which the operating system has permission to
-        // delete its contents, but not necessarily the directory itself, the
-        // next time the computer reboots.
 
     static int getTemporaryFilePath(bsl::string *path);
         // Load a valid path to a likely non-existent file in a temporary
@@ -978,11 +957,6 @@ bdlt::Datetime TestUtil::getMinFileTime()
     return TestUtil_UnixImpUtil::getMinFileTime();
 }
 
-int TestUtil::getTemporaryDirectory(bsl::string *path)
-{
-    return TestUtil_UnixImpUtil::getTemporaryDirectory(path);
-}
-
 int TestUtil::getTemporaryFilePath(bsl::string *path)
 {
     return TestUtil_UnixImpUtil::getTemporaryFilePath(path);
@@ -1055,11 +1029,6 @@ bdlt::Datetime TestUtil::getMaxFileTime()
 bdlt::Datetime TestUtil::getMinFileTime()
 {
     return TestUtil_UnixImpUtil::getMinFileTime();
-}
-
-int TestUtil::getTemporaryDirectory(bsl::string *path)
-{
-    return TestUtil_UnixImpUtil::getTemporaryDirectory(path);
 }
 
 int TestUtil::getTemporaryFilePath(bsl::string *path)
@@ -1190,11 +1159,6 @@ bdlt::Datetime TestUtil::getMinFileTime()
 bdlt::Datetime TestUtil::getMaxFileTime()
 {
     return bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999, 999);
-}
-
-int TestUtil::getTemporaryDirectory(bsl::string *path)
-{
-    return TestUtil_WindowsImpUtil::getTemporaryDirectory(path);
 }
 
 int TestUtil::getTemporaryFilePath(bsl::string *path)
@@ -1371,26 +1335,10 @@ bdlt::Datetime TestUtil_UnixImpUtil::getMinFileTime()
                : minDatetime;
 }
 
-int TestUtil_UnixImpUtil::getTemporaryDirectory(bsl::string *path)
-{
-    // 'TMPDIR' is not chosen arbitrarily, it is an environment variable that
-    // all versions of the IEEE Std 1003.1 (POSIX) specification mandate exist
-    // and contain a path-name of a directory made available for programs that
-    // need a place to create temporary files.
-
-    const char *const tmpdir = ::getenv("TMPDIR");
-    if (0 == tmpdir) {
-        return -1;                                                    // RETURN
-    }
-
-    *path = tmpdir;
-    return 0;
-}
-
 int TestUtil_UnixImpUtil::getTemporaryFilePath(bsl::string *path)
 {
     bsl::string result;
-    int rc = getTemporaryDirectory(&result);
+    int rc = bdls::FilesystemUtil::getSystemTemporaryDirectory(&result);
     if (0 != rc) {
         return -1;                                                    // RETURN
     }
@@ -1544,28 +1492,10 @@ TestUtil_WindowsImpUtil::createTemporaryFile(bsl::string *path)
     return createTemporaryFile(path, TempFileCloseBehavior::e_RETAIN_ON_CLOSE);
 }
 
-int TestUtil_WindowsImpUtil::getTemporaryDirectory(bsl::string *path)
-{
-    WCHAR wpath[MAX_PATH];
-    const DWORD getTempPathStatus = ::GetTempPathW(MAX_PATH, wpath);
-    if (0 == getTempPathStatus) {
-        return -1;                                                    // RETURN
-    }
-
-    bsl::string result;
-    int rc = bdlde::CharConvertUtf16::utf16ToUtf8(&result, wpath);
-    if (0 != rc) {
-        return -1;                                                    // RETURN
-    }
-
-    *path = result;
-    return 0;
-}
-
 int TestUtil_WindowsImpUtil::getTemporaryFilePath(bsl::string *path)
 {
     bsl::string result;
-    int rc = getTemporaryDirectory(&result);
+    int rc = bdls::FilesystemUtil::getSystemTemporaryDirectory(&result);
     if (0 != rc) {
         return -1;                                                    // RETURN
     }
@@ -1771,7 +1701,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == Obj::setWorkingDirectory(tmpWorkingDir));
 
     switch(test) { case 0:
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -1857,7 +1787,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
       } break;
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1973,7 +1903,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
       } break;
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // TESTING GET LAST MODIFICATION TIME FOR FILE DESCRIPTORS
         //
@@ -2238,7 +2168,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT_GE(LINE, MOD_TIME_PRECISION, modTimeSkew);
         }
       } break;
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING VISITTREE AND VISITPATHS
         //
@@ -2444,7 +2374,7 @@ int main(int argc, char *argv[])
         ASSERT(!Obj::exists(root));
 #endif
       } break;
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING: Specific error codes for 'createDirectories' and
         // 'createPrivateDirectory'
@@ -2545,7 +2475,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == Obj::remove(testBaseDir, true));
         }
       } break;
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING 'createTemporaryDirectory' METHOD
         //
@@ -2614,7 +2544,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING 'createTemporaryFile' METHOD
         //
@@ -2690,7 +2620,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING 'makeUnsafeTemporaryFilename' METHOD
         //
@@ -2808,7 +2738,7 @@ int main(int argc, char *argv[])
 
         ASSERTV(names.size(), k_NUM_NAMES == names.size());
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING: UTF-8 Filenames
         //
@@ -2872,7 +2802,7 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bsl::string dir = "bdls_filesystemutil.temp.17";
+        bsl::string dir = "bdls_filesystemutil.temp.18";
         bsl::string logPath = dir;
 
         Obj::remove(dir, true);
@@ -2970,7 +2900,7 @@ int main(int argc, char *argv[])
             WIN32_FIND_DATAW   findDataW;
             const bsl::wstring name = bsl::wstring(filenames[i]) + L".log";
             const bsl::wstring path =
-                            L"bdls_filesystemutil.temp.17\\logs2\\" + name;
+                            L"bdls_filesystemutil.temp.18\\logs2\\" + name;
 
             if (veryVerbose) {
                 int mode = _setmode(_fileno(stdout), _O_U16TEXT);
@@ -2994,7 +2924,7 @@ int main(int argc, char *argv[])
             WIN32_FIND_DATAA findDataA;
             const bsl::string name = bsl::string(NAMES[i]) + ".log";
             const bsl::string path =
-                           "bdls_filesystemutil.temp.17" PS "logs2" PS + name;
+                           "bdls_filesystemutil.temp.18" PS "logs2" PS + name;
 
             if (veryVerbose) { T_; P_(i); P(name); }
 
@@ -3123,7 +3053,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING: Unix File Permissions for 'createDirectories' et al
         //
@@ -3151,7 +3081,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing 'createDirectories'\n";
         {
             const bsl::string& testBaseDir = ::tempFileName(test,
-                                         "tmp.bdls_filesystemutil_16.mkdir1");
+                                         "tmp.bdls_filesystemutil_17.mkdir1");
             bsl::string fullPath = testBaseDir;
             bdls::PathUtil::appendRaw(&fullPath, "dir2");
 
@@ -3213,7 +3143,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing 'createPrivateDirectory'\n";
         {
             const bsl::string& fullPath = ::tempFileName(test,
-                                         "tmp.bdls_filesystemutil_16.mkdir1");
+                                         "tmp.bdls_filesystemutil_17.mkdir1");
 
             if (veryVerbose) { P(fullPath); }
 
@@ -3247,7 +3177,7 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING: Unix File Permissions for 'open'
         //
@@ -3276,7 +3206,7 @@ int main(int argc, char *argv[])
             typedef Obj::FileDescriptor FD;
 
             const bsl::string& testFile = ::tempFileName(test,
-                                       "tmp.bdls_filesystemutil_15.open.txt");
+                                       "tmp.bdls_filesystemutil_16.open.txt");
             if (veryVerbose) P(testFile);
 
             (void) Obj::remove(testFile, false);
@@ -3321,7 +3251,7 @@ int main(int argc, char *argv[])
             typedef Obj::FileDescriptor FD;
 
             const bsl::string& testFile = ::tempFileName(test,
-                                     "tmp.bdls_filesystemutil_15_pv.open.txt");
+                                     "tmp.bdls_filesystemutil_16_pv.open.txt");
             if (veryVerbose) P(testFile);
 
             (void) Obj::remove(testFile, false);
@@ -3360,7 +3290,7 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // Append test
         //
@@ -3374,9 +3304,9 @@ int main(int argc, char *argv[])
 
         typedef Obj::FileDescriptor FD;
 
-        const char *testFile = "tmp.bdls_filesystemutil_14.append.txt";
-        const char *tag1     = "tmp.bdls_filesystemutil_14.tag.1.txt";
-        const char *success  = "tmp.bdls_filesystemutil_14.success.txt";
+        const char *testFile = "tmp.bdls_filesystemutil_15.append.txt";
+        const char *tag1     = "tmp.bdls_filesystemutil_15.tag.1.txt";
+        const char *success  = "tmp.bdls_filesystemutil_15.success.txt";
 
         const char testString[] = { "123456789" };
 
@@ -3520,7 +3450,7 @@ int main(int argc, char *argv[])
             return testStatus;                                        // RETURN
         }
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING: close
         //
@@ -3583,7 +3513,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING: sync
         //
@@ -3743,7 +3673,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
       } break;
 
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TRYLOCK TEST
         //
@@ -3792,11 +3722,11 @@ int main(int argc, char *argv[])
         // It is important not to use '::tempFileName' here because otherwise
         // the parent and child will have different file names.
 
-        bsl::string unlockedFn     = "tmp.filesystemutil.case_11.unlock.txt";
-        bsl::string writeLockedFn  = "tmp.filesystemutil.case_11.write.txt";
-        bsl::string readLockedFn   = "tmp.filesystemutil.case_11.read.txt";
-        bsl::string touchOnSuccess = "tmp.filesystemutil.case_11.success.txt";
-        bsl::string touchWhenDone  = "tmp.filesystemutil.case_11.done.txt";
+        bsl::string unlockedFn     = "tmp.filesystemutil.case_12.unlock.txt";
+        bsl::string writeLockedFn  = "tmp.filesystemutil.case_12.write.txt";
+        bsl::string readLockedFn   = "tmp.filesystemutil.case_12.read.txt";
+        bsl::string touchOnSuccess = "tmp.filesystemutil.case_12.success.txt";
+        bsl::string touchWhenDone  = "tmp.filesystemutil.case_12.done.txt";
 
         FD fdUnlocked = Obj::k_INVALID_FD;
         FD fdWrite    = Obj::k_INVALID_FD;
@@ -3985,7 +3915,7 @@ int main(int argc, char *argv[])
             return 0;                                                 // RETURN
         }
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // GETFILESIZELIMIT TEST
         // --------------------------------------------------------------------
@@ -4000,7 +3930,7 @@ int main(int argc, char *argv[])
 
         if (verbose) P(limit);
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // APPEND TEST -- SINGLE PROCESS
         //
@@ -4069,7 +3999,7 @@ int main(int argc, char *argv[])
 
         Obj::remove(fileName);
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // MATCHING TESTS
         //
@@ -4181,7 +4111,7 @@ int main(int argc, char *argv[])
             ASSERT(Obj::remove("tmp", true) == 0);
         }
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING 'getFileSize'
         //
@@ -4230,7 +4160,8 @@ int main(int argc, char *argv[])
                              "=====================\n";
 
         // Setup by first creating a tmp file
-        string fileName = ::tempFileName(test, "tmp.getFileSizeTest.7");
+
+        string fileName = ::tempFileName(test, "tmp.getFileSizeTest.8");
         if (veryVerbose) P(fileName);
         Obj::FileDescriptor fd = Obj::open(fileName,
                                            Obj::e_OPEN_OR_CREATE,
@@ -4567,6 +4498,60 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT_EQ(LINE, FILE_SIZE, newFileSize);
             }
         }
+      } break;
+     case 7: {
+        // --------------------------------------------------------------------
+        // TESTING 'getSystemTemporaryDirectory'
+        //   The only possible ways to obtain the required data (for Unix and
+        //   Windows respectively) are already used in the method.  And it
+        //   would be pointless to repeat these approaches in the test.
+        //   Therefore, we will only check that the specified directory exists,
+        //   that the user can create and delete files from it.
+        //
+        // Concerns:
+        //
+        //: 1 The returned value indicates the path to an existing directory
+        //:
+        //: 2 User can create files in the specified directory and delete files
+        //:   from it.
+        //
+        // Plan:
+        //: 1 Using 'getSystemTemporaryDirectory' obtain path to the directory
+        //:   and verify it exists.  (C-1)
+        //:
+        //: 2 Create file in the specified directory, verify it shown up and
+        //:   delete it.  (C-2)
+        //
+        // Testing
+        //    int getSystemTemporaryDirectory(bsl::string *path);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing 'getSystemTemporaryDirectory'\n"
+                             "=====================================\n";
+
+        string tempFileName = "tmp.getSystemTemporaryDirectoryTest.7";
+
+        string tempDirectoryName;
+        ASSERT(0 == Obj::getSystemTemporaryDirectory(&tempDirectoryName));
+        ASSERT(true == Obj::exists(tempDirectoryName));
+
+        string absoluteFileName = tempDirectoryName;
+        bdls::PathUtil::appendRaw(&absoluteFileName, tempFileName.c_str());
+
+        ASSERT(false == Obj::exists(absoluteFileName));
+
+        Obj::FileDescriptor tempFD =
+            Obj::open(absoluteFileName, Obj::e_CREATE, Obj::e_READ_ONLY);
+        ASSERT(Obj::k_INVALID_FD != tempFD);
+
+        Obj::close(tempFD);
+
+        ASSERT(true == Obj::exists(absoluteFileName));
+
+        ASSERT(0 == Obj::remove(absoluteFileName));
+
+        ASSERT(false == Obj::exists(absoluteFileName));
+
       } break;
       case 6: {
         // --------------------------------------------------------------------

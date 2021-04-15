@@ -575,6 +575,13 @@ struct FilesystemUtil {
         // caller's userid only.  Note that directories created on Microsoft
         // Windows may receive default, not restricted permissions.
 
+    static int getSystemTemporaryDirectory(bsl::string *path);
+        // Load a valid path to the system temporary directory to the specified
+        // 'path'.  Return 0 on success, and a non-zero value otherwise.  A
+        // temporary directory is one in which the operating system has
+        // permission to delete its contents, but not necessarily the directory
+        // itself, the next time the computer reboots.
+
     static FileDescriptor createTemporaryFile(bsl::string             *outPath,
                                               const bslstl::StringRef& prefix);
         // Create and open a new file with a name constructed by appending an

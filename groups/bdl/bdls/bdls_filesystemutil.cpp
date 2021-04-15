@@ -1331,6 +1331,24 @@ int FilesystemUtil::visitPaths(
     return numFiles;
 }
 
+int FilesystemUtil::getSystemTemporaryDirectory(bsl::string *path)
+{
+    WCHAR wpath[MAX_PATH + 1];
+    const DWORD getTempPathStatus = ::GetTempPathW(MAX_PATH, wpath);
+    if (0 == getTempPathStatus) {
+        return -1;                                                    // RETURN
+    }
+
+    bsl::string result;
+    int rc = bdlde::CharConvertUtf16::utf16ToUtf8(&result, wpath);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    *path = result;
+    return 0;
+}
+
 int FilesystemUtil::visitTree(
                         const bsl::string&                            root,
                         const bsl::string&                            pattern,
@@ -2040,6 +2058,21 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
 # endif
 }
 
+int FilesystemUtil::getSystemTemporaryDirectory(bsl::string *path)
+{
+    // 'TMPDIR' is not chosen arbitrarily, it is an environment variable that
+    // all versions of the IEEE Std 1003.1 (POSIX) specification mandate exist
+    // and contain a path-name of a directory made available for programs that
+    // need a place to create temporary files.
+
+    const char *const tmpdir = ::getenv("TMPDIR");
+    if (0 == tmpdir) {
+        return -1;                                                    // RETURN
+    }
+
+    *path = tmpdir;
+    return 0;
+}
 
 int FilesystemUtil::visitPaths(
                              const char                               *pattern,
