@@ -812,21 +812,13 @@ struct String_IsConvertibleToCString<CHAR_TYPE, const CHAR_TYPE (&)[]>
     // to the 'const CHAR_TYPE *'.
 };
 
-#define BSLSTL_STRING_DECLARE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW               \
-    typename bsl::enable_if<                                                  \
-        String_IsConvertibleToStringView<CHAR_TYPE,                           \
-                                         CHAR_TRAITS,                         \
-                                         const TYPE&>::value &&               \
-            !String_IsConvertibleToCString<CHAR_TYPE, const TYPE&>::value,    \
-        void *>::type = 0
-
 #define BSLSTL_STRING_DEFINE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW                \
     typename bsl::enable_if<                                                  \
         String_IsConvertibleToStringView<CHAR_TYPE,                           \
                                          CHAR_TRAITS,                         \
                                          const TYPE&>::value &&               \
             !String_IsConvertibleToCString<CHAR_TYPE, const TYPE&>::value,    \
-        void *>::type
+         basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&>::type
 
                               // ================
                               // class String_Imp
@@ -1782,20 +1774,18 @@ class basic_string
         // to this string.
 
     template <class TYPE>
-    basic_string&
-    append(const TYPE& suffix,
-           BSLSTL_STRING_DECLARE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW);
+    BSLSTL_STRING_DEFINE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW
+    append(const TYPE& suffix);
         // Append to this string the 'bsl::string_view' object, obtained from
         // the specified 'suffix', and return a reference providing modifiable
         // access to this string.  Throw 'length_error' if the length
         // of the resulting string exceeds 'max_size()'.
 
     template <class TYPE>
-    basic_string& append(
+    BSLSTL_STRING_DEFINE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW append(
                       const TYPE& suffix,
                       size_type   position,
-                      size_type   numChars = npos,
-                      BSLSTL_STRING_DECLARE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW);
+                      size_type   numChars = npos);
         // Append to this string the optionally specified 'numChars' characters
         // starting at the specified 'position' in the 'bsl::string_view'
         // object, obtained from the specified 'suffix', or its tail starting
@@ -1968,10 +1958,9 @@ class basic_string
         // this string.
 
     template <class TYPE>
-    basic_string& insert(
+    BSLSTL_STRING_DEFINE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW insert(
                       size_type   position,
-                      const TYPE& other,
-                      BSLSTL_STRING_DECLARE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW);
+                      const TYPE& other);
         // Insert at the specified 'position' in this string the
         // 'bsl::string_view' object, obtained from the specified 'other', and
         // return a reference providing modifiable access to this string.
@@ -1979,12 +1968,11 @@ class basic_string
         // if the length of the resulting string exceeds 'max_size()'.
 
     template <class TYPE>
-    basic_string& insert(
+    BSLSTL_STRING_DEFINE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW insert(
                       size_type   position,
                       const TYPE& other,
                       size_type   sourcePosition,
-                      size_type   numChars = npos,
-                      BSLSTL_STRING_DECLARE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW);
+                      size_type   numChars = npos);
         // Insert at the specified 'position' in this string the optionally
         // specified 'numChars' characters starting at the specified
         // 'sourcePosition' in the 'bsl::string_view' object, obtained from the
@@ -4727,10 +4715,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(size_type numChars,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class TYPE>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
+BSLSTL_STRING_DEFINE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::append(
-                        const TYPE& suffix,
-                        BSLSTL_STRING_DEFINE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW)
+                        const TYPE& suffix)
 {
     const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView = suffix;
     return privateAppend(
@@ -4741,12 +4728,11 @@ basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::append(
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class TYPE>
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+BSLSTL_STRING_DEFINE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                         const TYPE& suffix,
                         size_type   position,
-                        size_type   numChars,
-                        BSLSTL_STRING_DEFINE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW)
+                        size_type   numChars)
 {
     const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView = suffix;
     privateThrowOutOfRange(
@@ -5023,11 +5009,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class TYPE>
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
+BSLSTL_STRING_DEFINE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::insert(
                         size_type   position,
-                        const TYPE& other,
-                        BSLSTL_STRING_DEFINE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW)
+                        const TYPE& other)
 {
     const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView = other;
     privateThrowOutOfRange(
@@ -5041,13 +5026,12 @@ basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::insert(
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class TYPE>
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
+BSLSTL_STRING_DEFINE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::insert(
                         size_type   position,
                         const TYPE& other,
                         size_type   sourcePosition,
-                        size_type   numChars,
-                        BSLSTL_STRING_DEFINE_IF_TYPE_CONVERTIBLE_TO_STRINGVIEW)
+                        size_type   numChars)
 {
     const bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView = other;
     privateThrowOutOfRange(
