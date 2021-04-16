@@ -56,6 +56,7 @@
 
    8. bsls_atomicoperations_sparc32_sun_cc                            !PRIVATE!
       bsls_atomicoperations_sparc64_sun_cc                            !PRIVATE!
+      bsls_bsllock
       bsls_objectbuffer
       bsls_protocoltest
 
@@ -63,6 +64,7 @@
       bsls_assertimputil
       bsls_asserttestexception
       bsls_atomicoperations_sparc_sun_cc_default                      !PRIVATE!
+      bsls_bsllockimpl_win32                                          !PRIVATE!
       bsls_cpp11                                         !DEPRECATED!
       bsls_libraryfeatures
       bsls_pointercastutil
@@ -72,7 +74,6 @@
       bsls_annotation                                    !DEPRECATED!
       bsls_atomicoperations_powerpc32_aix_xlc                         !PRIVATE!
       bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
-      bsls_bsllock
       bsls_keyword
       bsls_nullptr
 
@@ -102,7 +103,6 @@
       bsls_unspecifiedbool
 
    3. bsls_alignmentimp
-      bsls_bsllockimpl_win32                                          !PRIVATE!
       bsls_bsltestutil
       bsls_linkcoercion
       bsls_types

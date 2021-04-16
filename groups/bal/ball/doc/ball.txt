@@ -192,7 +192,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'ball' package currently has 50 components having 17 levels of physical
+ The 'ball' package currently has 51 components having 17 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -235,6 +235,7 @@
    5. ball_fixedsizerecordbuffer
       ball_observer
       ball_predicateset                                  !DEPRECATED!
+      ball_recordjsonformatter
       ball_recordstringformatter
 
    4. ball_managedattributeset
@@ -374,6 +375,9 @@
 :
 : 'ball_recordbuffer':
 :      Provide a protocol for managing log record handles.
+:
+: 'ball_recordjsonformatter':
+:      Provide a formatter for log records that renders output in JSON.
 :
 : 'ball_recordstringformatter':
 :      Provide a record formatter that uses a 'printf'-style format spec.
