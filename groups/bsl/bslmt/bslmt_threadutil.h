@@ -291,17 +291,11 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
-#include <bsls_libraryfeatures.h>
 #include <bsls_systemclocktype.h>
-#include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsl_string.h>
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#include <bsl_chrono.h>
-#endif
 
 namespace BloombergLP {
 
@@ -566,19 +560,9 @@ struct ThreadUtil {
 
     static void sleep(const bsls::TimeInterval& sleepTime);
         // Suspend execution of the current thread for a period of at least the
-        // specified (relative) 'sleepTime'.  Note that the actual time
+        // specified 'sleepTime' (relative time).  Note that the actual time
         // suspended depends on many factors including system scheduling and
         // system timer resolution.
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    template <class REP_TYPE, class PERIOD_TYPE>
-    static void sleep(
-                const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& sleepTime);
-        // Suspend execution of the current thread for a period of at least the
-        // specified (relative) 'sleepTime'.  Note that the actual time
-        // suspended depends on many factors including system scheduling and
-        // system timer resolution.
-#endif
 
     static void sleepUntil(const bsls::TimeInterval&   absoluteTime,
                            bsls::SystemClockType::Enum clockType
@@ -593,20 +577,6 @@ struct ThreadUtil {
         // 253,402,300,800 seconds).  Note that the actual time suspended
         // depends on many factors including system scheduling and system timer
         // resolution.
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    template <class CLOCK, class DURATION>
-    static void sleepUntil(
-                 const bsl::chrono::time_point<CLOCK, DURATION>& absoluteTime);
-        // Suspend execution of the current thread until the specified
-        // 'absoluteTime', which is an *absolute* time represented as an
-        // interval from some epoch, determined by the clock associated with
-        // the time point.  The behavior is undefined unless 'absoluteTime'
-        // represents a time after January 1, 1970 and before the end of
-        // December 31, 9999.  Note that the actual time suspended depends on
-        // many factors including system scheduling and system timer
-        // resolution.
-#endif
 
     static void yield();
         // Move the current thread to the end of the scheduler's queue and
@@ -927,16 +897,6 @@ void bslmt::ThreadUtil::sleep(const bsls::TimeInterval& sleepTime)
     Imp::sleep(sleepTime);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-template <class REP_TYPE, class PERIOD_TYPE>
-inline
-void bslmt::ThreadUtil::sleep(
-                 const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& sleepTime)
-{
-    bslmt::ThreadUtil::sleep(bsls::TimeInterval(sleepTime));
-}
-#endif
-
 inline
 void bslmt::ThreadUtil::sleepUntil(const bsls::TimeInterval&   absoluteTime,
                                    bsls::SystemClockType::Enum clockType)
@@ -945,28 +905,6 @@ void bslmt::ThreadUtil::sleepUntil(const bsls::TimeInterval&   absoluteTime,
     (void) status;  // Suppress an unused variable error.
     BSLS_ASSERT(0 == status);
 }
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-template <class CLOCK, class DURATION>
-inline
-void bslmt::ThreadUtil::sleepUntil(
-                  const bsl::chrono::time_point<CLOCK, DURATION>& absoluteTime)
-{
-    typename CLOCK::time_point        now = CLOCK::now();
-    const bsls::SystemClockType::Enum bslsClockType
-                                           = bsls::SystemClockType::e_REALTIME;
-
-    // Iteration is necessary because the specified 'CLOCK' type may not
-    // progress at the same rate as the realtime system clock.
-
-    while (absoluteTime > now) {
-        bsls::TimeInterval ti = bsls::SystemTime::now(bslsClockType)
-                                              .addDuration(absoluteTime - now);
-        bslmt::ThreadUtil::sleepUntil(ti);
-        now = CLOCK::now();
-    }
-}
-#endif
 
 inline
 void bslmt::ThreadUtil::yield()

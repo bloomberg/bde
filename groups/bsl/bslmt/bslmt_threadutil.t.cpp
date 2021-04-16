@@ -161,111 +161,6 @@ bsl::ostream& operator<<(bsl::ostream&                             stream,
     return stream;
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -MN03
-
-            // ==================
-            // class AnotherClock
-            // ==================
-
-class AnotherClock {
-    // 'AnotherClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The only difference is that it uses a
-    // different epoch; it begins 10000 "ticks" after the beginning of
-    // 'steady_clock's epoch.
-
-  private:
-    // PRIVATE TYPES
-    typedef bsl::chrono::steady_clock base_clock;
-
-  public:
-    // TYPES
-    typedef base_clock::duration                  duration;
-    typedef base_clock::rep                       rep;
-    typedef base_clock::period                    period;
-    typedef bsl::chrono::time_point<AnotherClock> time_point;
-
-    // PUBLIC CLASS DATA
-    static const bool is_steady = base_clock::is_steady;
-
-    // CLASS METHODS
-    static time_point now() noexcept;
-        // Return a time point representing the time since the beginning of the
-        // epoch.
-};
-
-// CLASS METHODS
-AnotherClock::time_point AnotherClock::now() noexcept
-{
-    base_clock::duration ret = base_clock::now().time_since_epoch();
-    return AnotherClock::time_point(ret - duration(10000));
-}
-
-            // ===============
-            // class HalfClock
-            // ===============
-
-class HalfClock {
-    // 'HalfClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The difference is that it runs "half as
-    // fast" as 'steady_clock'.
-
-  private:
-    // PRIVATE TYPES
-    typedef bsl::chrono::steady_clock base_clock;
-
-  public:
-    // TYPES
-    typedef base_clock::duration               duration;
-    typedef base_clock::rep                    rep;
-    typedef base_clock::period                 period;
-    typedef bsl::chrono::time_point<HalfClock> time_point;
-
-    // PUBLIC CLASS DATA
-    static const bool is_steady = base_clock::is_steady;
-
-    // CLASS METHODS
-    static time_point now() noexcept;
-        // Return a time point representing the time since the beginning of the
-        // epoch.
-};
-
-// CLASS METHODS
-HalfClock::time_point HalfClock::now() noexcept
-{
-    base_clock::duration ret = base_clock::now().time_since_epoch();
-    return HalfClock::time_point(ret/2);
-}
-
-// BDE_VERIFY pragma: pop
-
-template <class REP_TYPE, class PERIOD_TYPE>
-bool SleepOnADuration(
-                 const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& sleepTime)
-    // Sleep for the specified 'sleepTime'.  Return 'true' if the elapsed time
-    // is greater than 'sleepTime', and 'false' otherwise.
-{
-    using namespace bsl::chrono;
-
-    steady_clock::time_point tp = steady_clock::now() + sleepTime;
-    bslmt::ThreadUtil::sleep(sleepTime);
-    return steady_clock::now() >= tp;
-}
-
-template <class CLOCK>
-bool SleepOnAClock(int secondsToSleep)
-    // Sleep until the specified 'CLOCK' has counted off the specified
-    // 'secondsToSleep' seconds.  Return 'true' if the elapsed time on the
-    // 'CLOCK' has elapsed, and 'false' otherwise.
-{
-    typename CLOCK::time_point tp = CLOCK::now() +
-                                          bsl::chrono::seconds(secondsToSleep);
-    bslmt::ThreadUtil::sleepUntil(tp);
-    return CLOCK::now() >= tp;
-}
-#endif
-
 //=============================================================================
 
 namespace {
@@ -1462,42 +1357,12 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
-        // --------------------------------------------------------------------
-        // TESTING 'sleep'
-        //   Ensure that the 'sleep' function actually pauses execution.
-        //
-        // Concerns:
-        //: 1 'sleep' sleeps for at least the appropriate amount of time.
-        //
-        // Plan:
-        //: 1 Capture a time_point from the monotonic system clock, then call
-        //:   'sleep'.  After the call has returned. compare the current time
-        //:   from the clock and ensure that at least that much time has
-        //:   elapsed.
-        //
-        // Testing:
-        //   void sleep(const bsl::chrono::duration& sleepTime)
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "TESTING 'sleep'\n"
-                             "===============\n";
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-        using namespace bsl::chrono;
-
-        ASSERT(SleepOnADuration(seconds(2)));
-        ASSERT(SleepOnADuration(milliseconds(700)));
-        ASSERT(SleepOnADuration(microseconds(100000)));
-#endif
-
-      } break;
       case 17: {
         // --------------------------------------------------------------------
         // TESTING 'hardwareConcurrency'
         //   As there is no universal alternative function to get number of
         //   logical processors (and so available threads), we will recon on
-        //   C++11 realization on supporting platforms.  And perform formal
+        //   C++11 realisation on supporting platforms.  And perform formal
         //   check for AIX and Solaris, which compilers do not support C++11
         //   standard.  Negative manual test '-7' can be used for supplementary
         //   check on these platforms.
@@ -1508,7 +1373,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Compare value returned by the 'hardwareConcurrency' function with
         //:   the result returned by 'std::thread:hardware_concurrency'
-        //:   function on platforms supporting C++11, and perform formal check
+        //:   function on platworms supporting C++11, and perform formal check
         //:   on the other platforms.
         //
         // Testing:
@@ -2078,7 +1943,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void sleepUntil(const bsls::TimeInterval& );
-        //   void sleepUntil(const bsl::chrono::time_point& );
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -2170,19 +2034,6 @@ int main(int argc, char *argv[])
             ASSERT_FAIL_RAW(Obj::sleepUntil(bsls::TimeInterval(253402300800LL,
                                                               0)));
         }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-        if (verbose) {
-            cout << "Testing chrono clocks." << endl;
-        }
-        {
-            using namespace bsl::chrono;
-
-            ASSERT(SleepOnAClock<system_clock>(2));
-            ASSERT(SleepOnAClock<steady_clock>(2));
-            ASSERT(SleepOnAClock<AnotherClock>(2));
-            ASSERT(SleepOnAClock<HalfClock>(2));
-        }
-#endif
       }  break;
       case 11: {
         // --------------------------------------------------------------------
@@ -3070,7 +2921,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The 'hardwareConcurrency' test cannot be run nightly on AIX and
         //:   Solaris since it uses C++11 code to verify values, so we give an
-        //:   opportunity to verify them manually as a negative test case here.
+        //:   opportunity to veify them manually as a negative test case here.
         //
         // Testing
         //: unsigned int hardwareConcurrency();
