@@ -1523,6 +1523,7 @@ void RecordJsonFormatter::operator()(bsl::ostream& stream,
     }
 
     formatter.closeObject();
+    stream.flush();
 
     return;
 }

@@ -20,6 +20,10 @@ BSLS_IDENT("$Id: $")
 // expected by many concrete 'ball::Observer' implementations that publish log
 // records (for example, see 'ball::FileObserver2::setLogFileFunctor').
 //
+// NOTE: 'ball::RecorJsonFormatter' renders individual log records as JSON,
+// but, for example, a resulting log file would contain a sequence of JSON
+// strings, which is not itself valid JSON text.
+//
 ///Record Format Specification
 ///---------------------------
 // A format specification is, itself, a JSON array, supplied to a
