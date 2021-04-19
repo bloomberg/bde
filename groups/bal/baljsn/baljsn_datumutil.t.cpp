@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocatorMonitor gam(&ga);
 
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -460,6 +460,42 @@ int main(int argc, char *argv[])
 // Notice that the 'type' of "age" is 'double', since "age" was encoded as a
 // number, and 'double' is the supported representation of a JSON number (see
 // {'Supported Types'}).
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // REPRODUCE BUG FROM DRQS 165776192
+        //
+        // Concerns:
+        //: 1 The 'baljsn::DatumUtil::decode' is exception-neutral w.r.t.
+        //:   memory allocation.
+        //
+        // Plan:
+        //:  1 Invoke 'baljsn::DatumUtil::decode' in the presence of exception
+        //:    (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "REPRODUCE BUG FROM DRQS 165776192\n"
+                             "=================================\n";
+        bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+
+        const char   *jsn = "[\"first element\",\"second element\","
+                            "{\"object\":{\"key\":\"value\"}}]";
+
+        bsl::string   JSON(jsn, &ta);
+
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta) {
+            if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+            MD result(&ta);
+
+            bdlsb::FixedMemInStreamBuf isb(JSON.c_str(), JSON.length());
+            bsl::ostringstream         os(&ta);
+
+            int rc = Util::decode(&result, &os, &isb);
+            ASSERTV(rc, 0 == rc);
+
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
       } break;
       case 7: {
         //---------------------------------------------------------------------

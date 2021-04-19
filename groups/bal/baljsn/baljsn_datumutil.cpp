@@ -115,7 +115,8 @@ static int decodeObject(bdld::ManagedDatum *result,
         // Keep the FIRST instance of any duplicate keys.
         if (keys.find(key) == keys.end()) {
             keys.insert(key);
-            builder.pushBack(key, elementValue.release());
+            builder.pushBack(key, elementValue.datum());
+            elementValue.release();
         }
 
         // Advance from e_ELEMENT_VALUE to e_ELEMENT_NAME or e_END_OBJECT
@@ -166,7 +167,8 @@ static int decodeArray(bdld::ManagedDatum *result,
             return -2;                                                // RETURN
         }
 
-        builder.pushBack(elementValue.release());
+        builder.pushBack(elementValue.datum());
+        elementValue.release();
 
         // Advance from e_ELEMENT_VALUE to e_ELEMENT_VALUE or e_END_ARRAY
         tokenizer->advanceToNextToken();
@@ -477,7 +479,8 @@ int DatumUtil::decode(bdld::ManagedDatum         *result,
         return -3;                                                    // RETURN
     }
 
-    result->adopt(value.release());
+    result->adopt(value.datum());
+    value.release();
     return 0;
 }
 
