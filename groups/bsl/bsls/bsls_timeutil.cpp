@@ -678,10 +678,10 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 
     // Imp Note:
     // 'read_wall_time' is very fast (<100 nsec), and guaranteed monotonic per
-    // http://publib.boulder.ibm.com/infocenter/systems doc.  (It has not been
+    // http://publib.boulder.ibm.com/infocenter/systems doc.  It has not been
     // observed to be non-monotonic when tested to better than 3 parts in 10^10
-    // on ibm2.)  Converting the time to nanoseconds is much slower
-    // (~1.2 usec).
+    // on an ibm dev host (the deprecated ibmTwo).  Converting the time to
+    // nanoseconds is much slower (~1.2 usec).
 
     read_wall_time(timeValue, TIMEBASE_SZ);
 
@@ -689,10 +689,10 @@ void TimeUtil::getTimerRaw(TimeUtil::OpaqueNativeTime *timeValue)
 
     // The call to 'clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts)' has never
     // been observed to be non-monotonic when tested at better than 1 parts in
-    // 10^9 on linxdev5, in a tight loop.  However, not all users will own the
-    // process, and for multi-processor systems the value returned may be
-    // meaningless.  Therefore, for the standard timer, the CLOCK_MONOTONIC
-    // clock is preferred.
+    // 10^9 on a linux dev host (the deprecated linxdevFive), in a tight loop.
+    // However, not all users will own the process, and for multi-processor
+    // systems the value returned may be meaningless.  Therefore, for the
+    // standard timer, the CLOCK_MONOTONIC clock is preferred.
     //..
     //         Clock ID            Performance (arbitrary but consistent test)
     // ------------------------    -------------------------------------------
