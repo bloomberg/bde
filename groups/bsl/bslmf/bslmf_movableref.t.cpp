@@ -7,11 +7,12 @@
 #include <bslmf_addpointer.h>
 #include <bslmf_addrvaluereference.h>
 #include <bslmf_addvolatile.h>
-#include <bslmf_isarray.h>      // MSVC workaround, pre-VC 2017
+#include <bslmf_isarray.h>  // MSVC workaround, pre-VC 2017
 #include <bslmf_isclass.h>
 #include <bslmf_issame.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_voidtype.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
@@ -45,9 +46,11 @@ using namespace BloombergLP;
 // [ 4] MovableRefUtil::RemoveReference<TYPE>
 // [ 4] MovableRefUtil::AddLvalueReference<TYPE>
 // [ 4] MovableRefUtil::AddMovableReference<TYPE>
+// [ 4] MovableRefUtil::Decay<TYPE>
 // [ 8] MovableRef<TYPE> VS. RVALUE
 // [ 9] EXTENDING 'bsl::is_nothrow_move_constructible'
-// [10] USAGE EXAMPLE
+// [10] CONCERN: IBM XL C++ functions with default arguments workaround
+// [11] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -74,10 +77,10 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+#define ASSERT BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP_ASSERT BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
@@ -86,24 +89,24 @@ void aSsErT(bool condition, const char *message, int line)
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q BSLS_BSLTESTUTIL_Q    // Quote identifier literally.
+#define P BSLS_BSLTESTUTIL_P    // Print identifier and value.
+#define P_ BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_ BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_ BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                      DEFECT DETECTION MACROS
 // ----------------------------------------------------------------------------
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)                      \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-# define BSLMF_MOVABLEREF_USE_NATIVE_ORACLE     1
-    // 'native_std::is_nothrow_move_constructible' is available as a trusted
-    // oracle of the correct value for the 'bsl::is_nothrow_move_constructible'
-    // trait.  Note that MSVC 2013 provides the 'nothrow' traits, but does not
-    // support the 'noexcept' operator so the traits erroneously return 'false'
-    // in many cases.
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER) &&                   \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+#define BSLMF_MOVABLEREF_USE_NATIVE_ORACLE 1
+// 'native_std::is_nothrow_move_constructible' is available as a trusted
+// oracle of the correct value for the 'bsl::is_nothrow_move_constructible'
+// trait.  Note that MSVC 2013 provides the 'nothrow' traits, but does not
+// support the 'noexcept' operator so the traits erroneously return 'false'
+// in many cases.
 #endif
 
 //=============================================================================
@@ -411,9 +414,11 @@ namespace {
 
 namespace {
 
+class Class;
+    // This class declaration provides a name for an incomplete class type.
+
 template <class TYPE>
-struct TestMovableRefArgument
-{
+struct TestMovableRefArgument {
     static bool test(TYPE&) { return false; }
         // Return 'false', indicating that the argument is not an r-value
         // reference.
@@ -427,9 +432,8 @@ struct TestMovableRefArgument
 };
 
 template <class TYPE>
-struct MovableAddress
-{
-    static TYPE* get(bslmf::MovableRef<TYPE> movable)
+struct MovableAddress {
+    static TYPE *get(bslmf::MovableRef<TYPE> movable)
         // Return a pointer to object referenced by the specified 'movable'.
     {
         TYPE& reference(bslmf::MovableRefUtil::access(movable));
@@ -446,27 +450,32 @@ class TestMoving {
 
   private:
     // NOT IMPLEMENTED
-    void operator= (TestMoving&); // = delete;
+    void operator=(TestMoving&);  // = delete;
 
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
   public:
 #endif
     TestMoving(const TestMoving& other)
-        // Create a 'TestMoving' object that is a copy of the specified
-        // 'other'.  In this case copying 'other' means allocating a new 'int'
-        // with a new unique pointer.
-        : d_pointer(new int(1 + *other.d_pointer)) {
+    // Create a 'TestMoving' object that is a copy of the specified
+    // 'other'.  In this case copying 'other' means allocating a new 'int'
+    // with a new unique pointer.
+    : d_pointer(new int(1 + *other.d_pointer))
+    {
     }
 
   public:
-    TestMoving(): d_pointer(new int(0)) {}
+    TestMoving()
+    : d_pointer(new int(0))
         // Create a 'TestMoving' object using the default constructor.  The
         // object is initialized with a unique pointer to 'int'.
+    {
+    }
 
     explicit TestMoving(bslmf::MovableRef<TestMoving> rvalue)
         // Create a 'TestMoving' object that moves the value referenced by the
         // specified 'rvalue'.
-        : d_pointer(bslmf::MovableRefUtil::access(rvalue).d_pointer) {
+    : d_pointer(bslmf::MovableRefUtil::access(rvalue).d_pointer)
+    {
         bslmf::MovableRefUtil::access(rvalue).d_pointer = 0;
     }
 
@@ -479,7 +488,7 @@ class TestMoving {
     TestMoving *getAddress() { return this; }
         // Return the address of this object.
 
-    const int  *getPointer() const { return this->d_pointer; }
+    const int *getPointer() const { return this->d_pointer; }
         // Return the held pointer.
 };
 
@@ -490,9 +499,55 @@ bool testForwardRefArgument(BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) arg)
     // arguments can be passed and used through forwarding references.
 {
     TestMoving moveTo(bslmf::MovableRefUtil::move(arg));
-    // Return true if 'arg' was moved from
+        // Return true if 'arg' was moved from
     return 0 == bslmf::MovableRefUtil::access(arg).getPointer();
 }
+
+void f(int)
+    // This function takes a single integer argument, which does not have a
+    // default value, and returns nothing.  This function, along with 'g'
+    // below, are used to test that the type traits provided by
+    // 'bslmf::MovableRefUtil' work correctly when applied to deduced function
+    // types having arguments with and without default values using the IBM XL
+    // C++ compiler line.  Said line of compilers have a defect in which
+    // 'typedef's cannot be formed to function types coming from functions that
+    // have default arguments.
+{
+}
+
+void g(int = 0)
+    // This function takes a single integer argument, which has a default
+    // value, and returns nothing.  This function, along with 'f' above, are
+    // used to test that the type traits provided by 'bslmf::MovableRefUtil'
+    // work correctly when applied to deduced function types having arguments
+    // with and without default values using the IBM XL C++ compiler line.
+    // Said line of compilers have a defect in which 'typedef's cannot be
+    // formed to function types coming from functions that have default
+    // arguments.
+{
+}
+
+template <bool EXPECTED_VALUE, template <class> class TRAIT, class TYPE>
+void testBooleanTrait(int LINE, TYPE&)
+    // Apply the specified 'TYPE' to the specified 'TRAIT' template and assert
+    // that the so-appplied 'TRAIT' template provides a static, Boolean data
+    // member named 'value' that is equal to the specified 'EXPECTED_VALUE'.
+{
+    ASSERTV(LINE,
+            EXPECTED_VALUE,
+            TRAIT<TYPE>::value,
+            EXPECTED_VALUE == TRAIT<TYPE>::value);
+}
+
+template <class EXPECTED_TYPE, template <class> class TRAIT, class TYPE>
+void testTransformationTrait(int LINE, TYPE&)
+    // Apply the specified 'TYPE' to the specified 'TRAIT' template and assert
+    // that the so-applied 'TRAIT' template provides a member 'typedef' named
+    // 'type' that is the same as the specified 'EXPECTED_TYPE'.
+{
+    ASSERTV(LINE,
+            (bsl::is_same<EXPECTED_TYPE, typename TRAIT<TYPE>::type>::value));
+};
 
 //=============================================================================
 //              TEST VOCABULARY FOR BSL_IS_NOTHROW_MOVE_CONSTRUCTIBLE
@@ -1015,13 +1070,14 @@ struct IgnoreOracle<LyingNestedTraitMovableUnion> : bsl::true_type {};
 
 int main(int argc, char *argv[])
 {
-    int  test = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
+    const int  test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool verbose = argc > 2;
+    const bool veryVerbose = argc > 3;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1094,6 +1150,78 @@ int main(int argc, char *argv[])
 // Compiling this code with both C++03 and C++11 compilers shows that there is
 // no need for conditional compilation in when using 'MovableRef<TYPE>' while
 // move semantics is enabled in both modes.
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING IBM XL C++ FUNCTIONS WITH DEFAULT ARGUMENTS WORKAROUND
+        //   Ensure that the property and transformation traits provided by
+        //   the 'bslmf::MovableRefUtil' utility 'struct' provide correct
+        //   results when applied to function types deduced from functions,
+        //   where possible, including when compiled with the IBM XL C++ line
+        //   of compilers.  These compilers have a defect in which 'typedef's
+        //   to function types deduced from functions that have default
+        //   arguments cannot be formed.
+        //
+        // Concerns:
+        //: 1 All property and transformation traits in
+        //:   'bslmf::MovableRefUtil', except 'RemoveReference', are
+        //:   instantiable with function types deduced from functions with
+        //:   default arguments when compiled with the IBM XL C++ line of
+        //:   compilers.
+        //:
+        //: 2 All property and transformation traits in 'bslmf::MovableRefUtil'
+        //:   are instantiable with function types deduced from arbitrary
+        //:   functions with all other compiler lines.
+        //:
+        //: 3 Such instantiations provide correct results.
+        //
+        // Plan:
+        //: 1 For each property and transformation trait in
+        //:   'bslmf::MovableRefUtil', instantiate the trait template with
+        //:   a type deduced from a function without default arguments, and
+        //:   a function with default arguments, and verify that the value of
+        //:   the trait is correct per its contract.  However, do not attempt
+        //:   to instantiate the 'RemoveReference' trait using a type deduced
+        //:   from a function with default arguments using the IBM XL C++ line
+        //:   of compilers.  Such an attempt will cause compilation to fail as
+        //:   a result of triggering a compiler defect.
+        //
+        // Testing:
+        //   CONCERN: IBM XL C++ functions with default arguments workaround
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING IBM XL C++ FUNCTIONS WITH DEFAULT ARGUMENTS "
+                   "WORKAROUND"
+                   "\n===================================================="
+                   "==========\n");
+
+        typedef bslmf::MovableRefUtil Util;
+
+        testBooleanTrait<false, Util::IsLvalueReference >(L_, f);
+        testBooleanTrait<false, Util::IsLvalueReference >(L_, g);
+        testBooleanTrait<false, Util::IsMovableReference>(L_, f);
+        testBooleanTrait<false, Util::IsMovableReference>(L_, g);
+        testBooleanTrait<false, Util::IsReference       >(L_, f);
+        testBooleanTrait<false, Util::IsReference       >(L_, g);
+
+#define MR ::BloombergLP::bslmf::MovableRef
+
+        typedef void F(int);
+
+        testTransformationTrait<F    , Util::RemoveReference    >(L_, f);
+#if !defined(BSLS_PLATFORM_CMP_IBM) || BSLS_PLATFORM_CMP_VERSION > 4097
+        testTransformationTrait<F    , Util::RemoveReference    >(L_, g);
+#endif
+        testTransformationTrait<F&   , Util::AddLvalueReference >(L_, f);
+        testTransformationTrait<F&   , Util::AddLvalueReference >(L_, g);
+        testTransformationTrait<MR<F>, Util::AddMovableReference>(L_, f);
+        testTransformationTrait<MR<F>, Util::AddMovableReference>(L_, g);
+        testTransformationTrait<F *  , Util::Decay              >(L_, f);
+        testTransformationTrait<F *  , Util::Decay              >(L_, g);
+
+#undef MR
+
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1551,24 +1679,38 @@ int main(int argc, char *argv[])
         //: 4 In C++03, 'MovableRef<TYPE>' is an object type that simulates a
         //:   reference type.  Ensure that these three traits work correctly
         //:   for 'const MovableRef<TYPE>' and reference to 'MovableRef' types.
+        //: 5 'MovableRefUtil::Decay<TYPE>::type' evaluates to the same
+        //:   type as 'bsl::decay<TYPE>::type' if 'bsl::decay' also treated
+        //:   'MovableRef<T>' as a (movable) reference-qualified T.
         //
         // Plan:
-        //: 1 Use a compile-time table where the first column is the type to
-        //:   test and the other tree columns are the expected types of the
-        //:   three traits being tested here.  Each row tests a different
-        //:   type.  Test that each trait evaluation is the same as the
-        //:   expected type for that column.
+        //: 1 For concerns 1 through 4, use a compile-time table where the
+        //:   first column is the type to test and the other three columns are
+        //:   the expected types of the three reference addition and removal
+        //:   traits.  Each row tests a different type.  Test that each trait
+        //:   evaluation is the same as the expected type for that column.
+        //:
+        //: 2 For concern 5, use a compile-time table where the first column
+        //:   is the type to test and the second column is the expected type
+        //:   of 'MovableRefUtil::Decay'.  Test that the trait evaluation is
+        //:   the same as the expected type.
         //
         // Testing:
         //      MovableRefUtil::RemoveReference<TYPE>
         //      MovableRefUtil::AddLvalueReference<TYPE>
         //      MovableRefUtil::AddMovableReference<TYPE>
+        //      MovableRefUtil::Decay<TYPE>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTRANSFORMATION TRAITS"
-                            "\n=====================\n");
+        if (verbose)
+            printf("\nTRANSFORMATION TRAITS"
+                   "\n=====================\n");
 
         typedef bslmf::MovableRefUtil Util;
+
+        if (veryVerbose)
+            printf("\nRemoveRef, AddLvalueRef, AddMovableRef"
+                   "\n--------------------------------------");
 
 #define MR bslmf::MovableRef
 
@@ -1606,6 +1748,100 @@ int main(int argc, char *argv[])
         TEST(const MR<const int> , const int , const int& , MR<const int> );
         TEST(const MR<const int>&, const int , const int& , MR<const int> );
 #endif
+
+#undef TEST
+
+        if (veryVerbose)
+            printf("\nDecay"
+                   "\n-----");
+
+#define TEST(T, DECAY)                                                        \
+    do {                                                                      \
+        ASSERTV(#T, (bsl::is_same<DECAY, Util::Decay<T >::type>::value));     \
+    } while (false)
+
+        //   TYPE                           DECAYED TYPE
+        //   -----------------------------  --------------------
+        // void types
+        TEST(void                         , void                );
+        TEST(const void                   , void                );
+        TEST(volatile void                , void                );
+        TEST(const volatile void          , void                );
+
+        // (example) object types
+        TEST(int                          , int                 );
+        TEST(int&                         , int                 );
+        TEST(MR<int>                      , int                 );
+        TEST(const int                    , int                 );
+        TEST(const int&                   , int                 );
+        TEST(MR<const int>                , int                 );
+        TEST(volatile int                 , int                 );
+        TEST(volatile int&                , int                 );
+        TEST(MR<volatile int>             , int                 );
+        TEST(const volatile int           , int                 );
+        TEST(const volatile int&          , int                 );
+        TEST(MR<const volatile int>       , int                 );
+
+        // function types
+        TEST(void ()                      , void (*)()          );
+        TEST(void (&)()                   , void (*)()          );
+        TEST(MR<void ()>                  , void (*)()          );
+
+        // pointer-to-function types
+        TEST(void (*)()                   , void (*)()          );
+        TEST(void (*&)()                  , void (*)()          );
+        TEST(MR<void (*)()>               , void (*)()          );
+        TEST(void (* const)()             , void (*)()          );
+        TEST(void (* const&)()            , void (*)()          );
+        TEST(MR<void (* const)()>         , void (*)()          );
+        TEST(void (* volatile)()          , void (*)()          );
+        TEST(void (* volatile&)()         , void (*)()          );
+        TEST(MR<void (* volatile)()>      , void (*)()          );
+        TEST(void (* const volatile)()    , void (*)()          );
+        TEST(void (* const volatile&)()   , void (*)()          );
+        TEST(MR<void (* const volatile)()>, void (*)()          );
+
+        // pointer types
+        TEST(int *                        , int *               );
+        TEST(int *&                       , int *               );
+        TEST(MR<int *>                    , int *               );
+        TEST(const int *                  , const int *         );
+        TEST(const int *&                 , const int *         );
+        TEST(MR<const int *>              , const int *         );
+        TEST(volatile int *               , volatile int *      );
+        TEST(volatile int *&              , volatile int *      );
+        TEST(MR<volatile int *>           , volatile int *      );
+        TEST(const volatile int *         , const volatile int *);
+        TEST(const volatile int *&        , const volatile int *);
+        TEST(MR<const volatile int *>     , const volatile int *);
+
+        // array types with extent
+        TEST(int[10]                      , int *               );
+        TEST(int(&)[10]                   , int *               );
+        TEST(MR<int[10]>                  , int *               );
+        TEST(const int[10]                , const int *         );
+        TEST(const int(&)[10]             , const int *         );
+        TEST(MR<const int[10]>            , const int *         );
+        TEST(volatile int[10]             , volatile int *      );
+        TEST(volatile int(&)[10]          , volatile int *      );
+        TEST(MR<volatile int[10]>         , volatile int *      );
+        TEST(const volatile int[10]       , const volatile int *);
+        TEST(const volatile int(&)[10]    , const volatile int *);
+        TEST(MR<const volatile int[10]>   , const volatile int *);
+
+        // array types without extent
+        TEST(int[]                        , int *               );
+        TEST(int(&)[]                     , int *               );
+        TEST(MR<int[]>                    , int *               );
+        TEST(const int[]                  , const int *         );
+        TEST(const int(&)[]               , const int *         );
+        TEST(MR<const int[]>              , const int *         );
+        TEST(volatile int[]               , volatile int *      );
+        TEST(volatile int(&)[]            , volatile int *      );
+        TEST(MR<volatile int[]>           , volatile int *      );
+        TEST(const volatile int[]         , const volatile int *);
+        TEST(const volatile int(&)[]      , const volatile int *);
+        TEST(MR<const volatile int[]>     , const volatile int *);
 
 #undef TEST
 #undef MR

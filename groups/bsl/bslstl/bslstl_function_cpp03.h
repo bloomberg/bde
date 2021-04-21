@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Wed Mar  3 14:21:23 2021
+// Generated on Tue Apr 20 18:49:40 2021
 // Command line: sim_cpp11_features.pl bslstl_function.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_H
@@ -1096,18 +1096,15 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     typedef BloombergLP::bslmf::MovableRefUtil                MovableRefUtil;
 
     template <class FROM, class TO>
-    struct IsReferenceCompatible :
-        BloombergLP::bslstl::Function_IsReferenceCompatible<
-            typename MovableRefUtil::RemoveReference<FROM>::type, TO>::type {
+    struct IsReferenceCompatible
+    : BloombergLP::bslstl::Function_IsReferenceCompatible<FROM, TO>::type {
         // Abbreviation for metafunction that determines whether a reference
         // from 'FROM' can be cast to a reference to 'TO' without loss of
         // information.
     };
 
     template <class TYPE>
-    struct Decay
-    : bsl::decay<typename BloombergLP::bslmf::MovableRefUtil::RemoveReference<
-          TYPE>::type> {
+    struct Decay : MovableRefUtil::Decay<TYPE> {
         // Abbreviation for metafunction used to provide a C++03-compatible
         // implementation of 'std::decay' that treats 'bslmf::MovableReference'
         // as an rvalue reference.
@@ -1412,10 +1409,10 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // 'get_allocator() == rhs.get_allocator()'.
 
     template <class FUNC>
-    typename enable_if<! (IsReferenceCompatible<FUNC, function>::value ||
-                          is_integral<
-                           typename MovableRefUtil::RemoveReference<FUNC>::type
-                          >::value), function&>::type
+    typename enable_if<
+           ! IsReferenceCompatible<typename Decay<FUNC>::type, function>::value
+        && ! is_integral<typename Decay<FUNC>::type>::value
+        , function&>::type
     operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) rhs)
         // Set the target of this object to the specified 'rhs' callable
         // object, destroy the previous target (if any), and return '*this'.

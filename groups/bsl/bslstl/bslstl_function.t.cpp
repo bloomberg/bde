@@ -456,6 +456,14 @@ void increment(int *val)
     ++*val;
 }
 
+// Do nothing, but provide a function with a default argument, for testing
+// constructibility from such a function.  See test case 5 ("CONSTRUCT FROM
+// CALLABLE OBJECT") for more information about the compiler defects for which
+// this function is used to test 'bsl::function's workaround.
+void functionWithDefaultArgument(int = 0)
+{
+}
+
 // Create 11 functions with 0 to 13 integer arguments, returning the sum of the
 // arguments + 0x4000.
 SUMMING_FUNC(0)
@@ -6425,6 +6433,12 @@ int main(int argc, char *argv[])
         //: 15 If 'FUNC' is an empty 'function' with a different, but
         //:   compatible, prototype, then the constructed 'function' is empty;
         //:   it does not wrap the empty 'function' as a target.
+        //:
+        //: 16 When compiling with an IBM XL C++ compiler, 'bsl::function' is
+        //:   constructible from a function having default arguments despite a
+        //:   defect in said compiler that disallows forming 'typedef's to
+        //:   function types deduced from functions that have default
+        //:   arguments.
         //
         // Plan:
         //: 1 For concern 1, construct 'function' objects using a null pointer
@@ -6503,9 +6517,12 @@ int main(int argc, char *argv[])
         //:   than a conversion from 'MovableRef<FUNC>' to 'bsl::function'
         //:   (regression test from prior ambiguity).
         //:
-        //: 14 For concern 15, construct a 'function' from an empty 'function'
-        //:   having a different prototype.  Verify that the resulting object
-        //:   is empty.
+        //: 14 For concern 15, construct a 'bsl::function' from an empty
+        //:   'function' having a different prototype.  Verify that the
+        //:   resulting object is empty.
+        //:
+        //: 15 For concern 16, construct a 'bsl::function' from a function that
+        //:   has at least 1 default argument.
         //
         // Testing
         //  function(FUNC func);
@@ -6588,6 +6605,13 @@ int main(int argc, char *argv[])
         ASSERT(isNull(emptyInnerFunction));
         Obj emptyCopy(emptyInnerFunction);
         ASSERT(! emptyCopy);
+
+        // Concern 16: Construction from a function that has a default argument
+        // is possible despite defects in certain compilers.
+        {
+            bsl::function<void(int)> f( functionWithDefaultArgument);
+            bsl::function<void(int)> g(&functionWithDefaultArgument);
+        }
 
       } break;
 

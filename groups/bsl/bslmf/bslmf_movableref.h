@@ -11,6 +11,9 @@ BSLS_IDENT("$Id: $")
 //  bslmf::MovableRef: a template indicating that an object can be moved from
 //  bslmf::MovableRefUtil: a namespace for functions dealing with movables
 //
+//@MACROS:
+//  BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES: defined if MovableRef<T> is 'T&&'
+//
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a class template, 'bslmf::MovableRef'
@@ -63,9 +66,9 @@ BSLS_IDENT("$Id: $")
 // C++11.
 //
 // In addition to the 'move' and 'access' functions, the
-// 'bslmf::MovableRefUtil' namespace provides six metafunctions that closely
+// 'bslmf::MovableRefUtil' namespace provides 7 metafunctions that closely
 // correspond to similar metafunctions in the C++11 standard library (and
-// which defer to the standard library where available).  These six
+// which defer to the standard library where available).  These 7
 // metafunctions and their C++11 equivalents are shown in the table below:
 //..
 //    +---------------------------+----------------------------+
@@ -77,6 +80,7 @@ BSLS_IDENT("$Id: $")
 //    | RemoveReference<TYPE>     | remove_reference<TYPE>     |
 //    | AddLvalueReference<TYPE>  | add_lvalue_reference<TYPE> |
 //    | AddMovableReference<TYPE> | add_rvalue_reference<TYPE> |
+//    | Decay<TYPE>               | decay<TYPE>                |
 //    +---------------------------+----------------------------+
 //..
 // Note that volatile-qualified 'MovableRef' objects are non-sensical; unlike
@@ -162,7 +166,7 @@ BSLS_IDENT("$Id: $")
 //:   transfer their internal representation to another object in some
 //:   situations.  To become move-enabled a class needs to implement, at
 //:   least, a move constructor.  It should probably also implement a move
-//:   assignment.
+//:   assignment operator.
 //: 2 Users of a potentially move-enabled class may take advantage of moving
 //:   objects by explicitly indicating that ownership of resources may be
 //:   transferred.  When using C++11 the compiler can automatically detect
@@ -505,6 +509,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_addlvaluereference.h>
 #include <bslmf_addrvaluereference.h>
+#include <bslmf_decay.h>
 #include <bslmf_enableif.h>
 #include <bslmf_iscopyconstructible.h>
 #include <bslmf_islvaluereference.h>
@@ -516,11 +521,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_platform.h>
 #include <bsls_util.h>
-
-namespace BloombergLP {
-
-namespace bslmf {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
@@ -532,32 +534,52 @@ namespace bslmf {
     // both r-value reference and alias templates need to be supported.
 #endif
 
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+namespace BloombergLP {
+namespace bslmf {
+
+struct MovableRefUtil;
+    // forward declaration
 
 template <class TYPE>
-struct MovableRef_Helper {
-    // The class template 'MovableRef_Helper' just defines a nested type
-    // 'type' that is used by an alias template.  Using this indirection the
-    // template argument of the alias template is prevented from being deduced.
+struct MovableRefUtil_AddLvalueReference;
+    // forward declaration
 
-  public:
-    // PUBLIC TYPES
+template <class TYPE>
+struct MovableRefUtil_AddMovableReference;
+    // forward declaration
 
-    using type = TYPE&&;
-        // The type 'type' defined to be an r-value reference to the argument
-        // type of 'MovableRef_Helper.
-};
+template <class TYPE>
+struct MovableRefUtil_Decay;
+    // forward declaration
+
+template <class TYPE>
+struct MovableRefUtil_PropertyTraits;
+    // forward declaration
+
+template <class TYPE>
+struct MovableRefUtil_RemoveReference;
+    // forward declaration
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+
+template <class TYPE>
+struct MovableRef_Helper;
+    // forward declaration
+
+#endif
+
+                               // ===============
+                               // type MovableRef
+                               // ===============
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
 
 template <class TYPE>
 using MovableRef = typename MovableRef_Helper<TYPE>::type;
     // The alias template 'MovableRef<TYPE>' yields an r-value reference of
     // type 'TYPE&&'.
 
-#else // support r-value references and alias templates
-
-// FORWARD DECLARTIONS
-struct MovableRefUtil;
-template <class TYPE> struct MovableRef_Traits;
+#else // if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
 template <class TYPE>
 class MovableRef {
@@ -568,10 +590,11 @@ class MovableRef {
     // although valid (i.e., it obeys all class invariants), state.  With
     // C++11 an r-value reference ('TYPE&&') is used to represent the same
     // semantics.
-    friend struct MovableRefUtil;
+
+    // DATA
     TYPE *d_pointer;
 
-    // PRIVATE CONSTRUCTORS
+    // PRIVATE CREATORS
     explicit MovableRef(TYPE *pointer);
         // Create an 'MovableRef<TYPE>' object referencing the object pointed
         // to by the specified 'pointer'.  The behavior is undefined if
@@ -579,6 +602,9 @@ class MovableRef {
         // because a C++11 r-value reference cannot be created like this.  For
         // information on how to create objects of type 'MovableRef<TYPE>' see
         // 'MovableRefUtil::move()'.
+
+    // FRIENDS
+    friend struct MovableRefUtil;
 
   public:
     // ACCESSORS
@@ -590,9 +616,11 @@ class MovableRef {
         // be used see 'MovableRefUtil::access()'.
 };
 
-#endif // support r-value references and alias templates
+#endif // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
-// ----------------------------------------------------------------------------
+                            // =====================
+                            // struct MovableRefUtil
+                            // =====================
 
 struct MovableRefUtil {
     // This 'struct' provides a collection of utility functions operating on
@@ -602,82 +630,85 @@ struct MovableRefUtil {
 
   public:
     // TYPES
-#if ! defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-
     template <class TYPE>
-    struct IsLvalueReference : MovableRef_Traits<TYPE>::IsLvalueReference {
-        // Inherit from 'bsl::true_type' if the specified 'TYPE' is an lvalue
-        // reference; otherwise inherit from 'bsl::false_type'.
+    struct IsLvalueReference
+    : MovableRefUtil_PropertyTraits<TYPE>::IsLvalueReference {
+        // This 'struct' template provides a Boolean metafunction that inherits
+        // from 'bsl::true_type' if the specified 'TYPE' is an lvalue
+        // reference, and inherits from 'bsl::false_type' otherwise.
     };
 
     template <class TYPE>
-    struct IsMovableReference : MovableRef_Traits<TYPE>::IsMovableReference {
-        // Inherit from 'bsl::true_type' if the specified 'TYPE' is a
-        // specialization of 'MovableRef'; otherwise inherit from
-        // 'bsl::false_type'.
+    struct IsMovableReference
+    : MovableRefUtil_PropertyTraits<TYPE>::IsMovableReference {
+        // This 'struct' template provides a Boolean metafunction that inherits
+        // from 'bsl::true_type' if the specified 'TYPE' is a specialization of
+        // 'MovableRef', and inherits from 'bsl::false_type' otherwise.
     };
 
     template <class TYPE>
-    struct IsReference : MovableRef_Traits<TYPE>::IsReference {
-        // Inherit from 'bsl::true_type' if the specified 'TYPE' is either an
-        // lvalue reference or a 'MovableRef'; otherwise inherit from
-        // 'bsl::false_type'.
+    struct IsReference : MovableRefUtil_PropertyTraits<TYPE>::IsReference {
+        // This 'struct' template provides a Boolean metafunction that inherits
+        // from 'bsl::true_type' if the specified 'TYPE' is either an lvalue
+        // reference or a specialization of 'MovableRef', and inherits from
+        // 'bsl::false_type' otherwise.
     };
 
     template <class TYPE>
-    struct RemoveReference {
-        // If 'TYPE' is a reference type, then the nested 'type' is an alias
-        // of the type to which 'TYPE' refers.
-        typedef typename MovableRef_Traits<TYPE>::RemoveReference type;
+    struct RemoveReference : MovableRefUtil_RemoveReference<TYPE> {
+        // This 'struct' template provides a metafunction that, if the
+        // specified 'TYPE' is a reference type, defines a nested 'type'
+        // typedef of the type to which 'TYPE' refers, and defines a nested
+        // 'type' typedef of 'TYPE' otherwise.
     };
 
     template <class TYPE>
-    struct AddLvalueReference {
-        // The nested 'type' is an lvalue reference to 'TYPE'.  If 'TYPE' is
-        // already an 'lvalue' reference, then 'type' is 'TYPE'.  If 'TYPE' is
-        // 'MovableRef<T2>', then 'type' is 'T2&'.  This transformation
-        // reflects the semantics of _reference collapsing_ in section
-        // [dec.ref] of the standard.
-        typedef typename MovableRef_Traits<TYPE>::AddLvalueReference type;
+    struct AddLvalueReference : MovableRefUtil_AddLvalueReference<TYPE> {
+        // This 'struct' template provides a metafunction that defines a nested
+        // 'type' typedef that is an lvalue reference to 'TYPE'.  If 'TYPE' is
+        // already an 'lvalue' reference, then 'type' is 'TYPE'.  Otherwise, if
+        // 'TYPE' is 'MovableRef<T2>', then 'type' is 'T2&'.  This
+        // transformation reflects the semantics of _reference collapsing_ in
+        // section [dec.ref] of the standard.
     };
 
     template <class TYPE>
-    struct AddMovableReference {
-        // The nested 'type' is an lvalue reference to 'TYPE'.  If 'TYPE' is
-        // already a (lvalue or movable) reference to 'T2', then 'type' is
-        // 'T2&'. This transformation reflects the semantics of _reference
-        // collapsing_ in section [dec.ref] of the standard.
-        typedef typename MovableRef_Traits<TYPE>::AddMovableReference type;
+    struct AddMovableReference : MovableRefUtil_AddMovableReference<TYPE> {
+        // This 'struct' template provides a metafunction that defines a nested
+        // 'type' typedef that, if 'TYPE' is not a reference type, is
+        // 'MovableRef<TYPE>'.  Otherwise, if 'TYPE' is a specialization of
+        // 'MovableRef', 'type' is the same as 'TYPE'.  Otherwise, 'type' is
+        // 'TYPE&'.  This transformation reflects the semantics of
+        // _reference collapsing_ in section [dec.ref] of the standard.
     };
 
-#else // if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-
     template <class TYPE>
-    struct IsLvalueReference : bsl::is_lvalue_reference<TYPE>::type { };
-    template <class TYPE>
-    struct IsMovableReference : bsl::is_rvalue_reference<TYPE>::type { };
-    template <class TYPE>
-    struct IsReference : bsl::is_reference<TYPE>::type { };
-
-    template <class TYPE>
-    struct RemoveReference : bsl::remove_reference<TYPE> { };
-    template <class TYPE>
-    struct AddLvalueReference : bsl::add_lvalue_reference<TYPE> { };
-    template <class TYPE>
-    struct AddMovableReference : bsl::add_rvalue_reference<TYPE> { };
-
-#endif // defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    struct Decay : MovableRefUtil_Decay<TYPE> {
+        // This 'struct' template provides a metafunction that defines a nested
+        // 'type' typedef that applies lvalue-to-rvalue, array-to-pointer, and
+        // function-to-pointer conversions that occur when an lvalue of type
+        // 'TYPE' is used as an rvalue, and also removes 'const', 'volatile',
+        // and reference qualifiers from class types in order to model by-value
+        // argument passing.  For the purpose of this type trait,
+        // 'MovableRef<T>' is considered a (movable) reference-qualified 'T'.
+        //
+        // Formally, let 'U' be 'MovableRefUtil::RemoveReference<TYPE>::type'.
+        // If 'bsl::is_array<U>::value' is true, the member typedef 'type'
+        // is 'bsl::remove_extent<U>::type *'.  If 'bsl::is_function<U>::value'
+        // is true, the member typedef 'type' is 'bsl::add_pointer<U>::type'.
+        // Otherwise, the member typedef 'type' is 'bsl::remove_cv<U>::type'.
+    };
 
     // CLASS METHODS
-#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+    template <class TYPE>
+    static typename bsl::remove_reference<TYPE>::type&
+    access(TYPE&& ref) BSLS_KEYWORD_NOEXCEPT;
+#else
     template <class TYPE>
     static TYPE& access(TYPE& ref) BSLS_KEYWORD_NOEXCEPT;
     template <class TYPE>
     static TYPE& access(MovableRef<TYPE> ref) BSLS_KEYWORD_NOEXCEPT;
-#else
-    template <class TYPE>
-    static typename bsl::remove_reference<TYPE>::type&
-    access(TYPE&& ref) BSLS_KEYWORD_NOEXCEPT;
 #endif
         // Return an lvalue reference to the object referenced by the specified
         // 'ref' object.  This function is used to provide a uniform interface
@@ -689,28 +720,24 @@ struct MovableRefUtil {
         // Please see the component-level documentation for more information on
         // this function.
 
-#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
     template <class TYPE>
-    static MovableRef<TYPE> move(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT;
-        // Return a movable reference of type 'MovableRef<TYPE>' from the
-        // specified 'lvalue'.  For a C++03 implementation this function
-        // behaves like a factory for 'MovableRef<TYPE>' objects.  For a C++11
-        // implementation this function behaves exactly like 'std::move(value)'
-        // applied to l-values.
-
-    template <class TYPE>
-    static
-    MovableRef<typename bsl::remove_reference<TYPE>::type>
-    move(MovableRef<TYPE> reference) BSLS_KEYWORD_NOEXCEPT;
-#else // support r-value references and alias templates
-    template <class TYPE>
-    static
-    BSLS_KEYWORD_CONSTEXPR
+    static BSLS_KEYWORD_CONSTEXPR
     MovableRef<typename bsl::remove_reference<TYPE>::type>
     move(TYPE&& reference) BSLS_KEYWORD_NOEXCEPT;
+#else
+    template <class TYPE>
+    static MovableRef<TYPE>
+    move(TYPE& reference) BSLS_KEYWORD_NOEXCEPT;
+    template <class TYPE>
+    static MovableRef<typename bsl::remove_reference<TYPE>::type>
+    move(MovableRef<TYPE> reference) BSLS_KEYWORD_NOEXCEPT;
 #endif
         // Return a movable reference to the object referred to by the
-        // specified 'reference'.
+        // specified 'reference'.  Note that the C++03 implementation of this
+        // function behaves like a factory for 'MovableRef<TYPE>' objects.
+        // The C++11 implementation of this function behaves exactly like
+        // 'std::move(value)' applied to lvalues.
 
     template <class TYPE>
     static
@@ -730,6 +757,7 @@ struct MovableRefUtil {
         // is used.
         return lvalue;
     }
+
     template <class TYPE>
     static
     typename bsl::enable_if<!bsl::is_copy_constructible<TYPE>::value
@@ -748,7 +776,7 @@ struct MovableRefUtil {
         // around a Microsoft C++ compiler (version 16) bug where the
         // definition cannot be matched to the declaration when an 'enable_if'
         // is used.
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
         return static_cast<typename bsl::remove_reference<TYPE>::type&&>(
                                                                        lvalue);
 #else
@@ -757,166 +785,73 @@ struct MovableRefUtil {
     }
 };
 
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+
+                          // ========================
+                          // struct MovableRef_Helper
+                          // ========================
+
+template <class TYPE>
+struct MovableRef_Helper {
+    // The class template 'MovableRef_Helper' just defines a nested type
+    // 'type' that is used by an alias template.  Using this indirection the
+    // template argument of the alias template is prevented from being deduced.
+
+  public:
+    // TYPES
+    using type = TYPE&&;
+        // The type 'type' defined to be an r-value reference to the argument
+        // type of 'MovableRef_Helper.
+};
+
+#endif // defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
 // ============================================================================
-//                          INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-// ----------------------------------------------------------------------------
-//                              struct MovableRef_Traits
-// ----------------------------------------------------------------------------
+                              // ----------------
+                              // class MovableRef
+                              // ----------------
 
-#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+#ifndef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
 
-template <>
-struct MovableRef_Traits<void> {
-    // Component-private class: do not use.  Define movable-reference traits
-    // for 'void'.
-
-    typedef bsl::false_type  IsLvalueReference;
-    typedef bsl::false_type  IsMovableReference;
-    typedef bsl::false_type  IsReference;
-
-    typedef void             RemoveReference;
-    typedef void             AddLvalueReference;
-    typedef void             AddMovableReference;
-};
-
-template <>
-struct MovableRef_Traits<const void> {
-    // Component-private class: do not use.  Define movable-reference traits
-    // for 'const void'.
-
-    typedef bsl::false_type  IsLvalueReference;
-    typedef bsl::false_type  IsMovableReference;
-    typedef bsl::false_type  IsReference;
-
-    typedef const void       RemoveReference;
-    typedef const void       AddLvalueReference;
-    typedef const void       AddMovableReference;
-};
-
-template <>
-struct MovableRef_Traits<volatile void> {
-    // Component-private class: do not use.  Define movable-reference traits
-    // for 'volatile void'.
-
-    typedef bsl::false_type  IsLvalueReference;
-    typedef bsl::false_type  IsMovableReference;
-    typedef bsl::false_type  IsReference;
-
-    typedef volatile void    RemoveReference;
-    typedef volatile void    AddLvalueReference;
-    typedef volatile void    AddMovableReference;
-};
-
-template <>
-struct MovableRef_Traits<const volatile void> {
-    // Component-private class: do not use.  Define movable-reference traits
-    // for 'const volatile void'.
-
-    typedef bsl::false_type     IsLvalueReference;
-    typedef bsl::false_type     IsMovableReference;
-    typedef bsl::false_type     IsReference;
-
-    typedef const volatile void RemoveReference;
-    typedef const volatile void AddLvalueReference;
-    typedef const volatile void AddMovableReference;
-};
-
-template <class TYPE>
-struct MovableRef_Traits {
-    // Component-private class: do not use.  Define movable-reference traits
-    // for rvalues of the specified 'TYPE'.
-
-    typedef bsl::false_type  IsLvalueReference;
-    typedef bsl::false_type  IsMovableReference;
-    typedef bsl::false_type  IsReference;
-
-    typedef TYPE             RemoveReference;
-    typedef TYPE&            AddLvalueReference;
-    typedef MovableRef<TYPE> AddMovableReference;
-};
-
-template <class TYPE>
-struct MovableRef_Traits<TYPE&> {
-    // Component-private class: do not use.  Define movable-reference traits
-    // for lvalues of the specified 'TYPE'.
-
-    typedef bsl::true_type  IsLvalueReference;
-    typedef bsl::false_type IsMovableReference;
-    typedef bsl::true_type  IsReference;
-
-    typedef TYPE            RemoveReference;
-    typedef TYPE&           AddLvalueReference;
-    typedef TYPE&           AddMovableReference;  // No-op; still an lvalue ref
-};
-
-template <class TYPE>
-struct MovableRef_Traits<MovableRef<TYPE> > {
-    // Component-private class: do not use.  Define movable-reference traits
-    // for movable references to the specified 'TYPE'.
-
-    typedef bsl::false_type  IsLvalueReference;
-    typedef bsl::true_type   IsMovableReference;
-    typedef bsl::true_type   IsReference;
-
-    typedef TYPE             RemoveReference;
-    typedef TYPE&            AddLvalueReference;
-    typedef MovableRef<TYPE> AddMovableReference;
-};
-
-template <class TYPE>
-struct MovableRef_Traits<MovableRef<TYPE>&>
-    : MovableRef_Traits<MovableRef<TYPE> > { };
-
-template <class TYPE>
-struct MovableRef_Traits<const MovableRef<TYPE> >
-    : MovableRef_Traits<MovableRef<TYPE> > { };
-
-template <class TYPE>
-struct MovableRef_Traits<const MovableRef<TYPE>&>
-    : MovableRef_Traits<MovableRef<TYPE> > { };
-
-// Any attempt to instantiate a trait with a volatile 'MovableRef' would
-// result in a compilation error from instantiating one of the following
-// partial specializations.
-template <class TYPE>
-struct MovableRef_Traits<volatile MovableRef<TYPE> >;        // No body
-template <class TYPE>
-struct MovableRef_Traits<volatile MovableRef<TYPE>&>;        // No body
-template <class TYPE>
-struct MovableRef_Traits<const volatile MovableRef<TYPE> >;  // No body
-template <class TYPE>
-struct MovableRef_Traits<const volatile MovableRef<TYPE>&>;  // No body
-
-#endif // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-
-                        // ----------------
-                        // class MovableRef
-                        // ----------------
-
-#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-
+// CREATORS
 template <class TYPE>
 inline
 MovableRef<TYPE>::MovableRef(TYPE *pointer)
-    : d_pointer(pointer) {
+: d_pointer(pointer)
+{
     BSLS_ASSERT(0 != pointer);
 }
 
+// ACCESSORS
 template <class TYPE>
 inline
-MovableRef<TYPE>::operator TYPE&() const {
+MovableRef<TYPE>::operator TYPE&() const
+{
     return *d_pointer;
 }
 
-#endif // support r-value references and alias templates
+#endif // defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
-                        // ---------------------
-                        // struct MovableRefUtil
-                        // ---------------------
+                           // ---------------------
+                           // struct MovableRefUtil
+                           // ---------------------
 
-#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+
+// CLASS METHODS
+template <class TYPE>
+inline
+typename bsl::remove_reference<TYPE>::type&
+MovableRefUtil::access(TYPE&& ref) BSLS_KEYWORD_NOEXCEPT
+{
+    return ref;
+}
+
+#else // if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
 template <class TYPE>
 inline
 TYPE& MovableRefUtil::access(TYPE& ref) BSLS_KEYWORD_NOEXCEPT
@@ -930,41 +865,509 @@ TYPE& MovableRefUtil::access(MovableRef<TYPE> ref) BSLS_KEYWORD_NOEXCEPT
 {
     return ref;
 }
-#else
-template <class TYPE>
-inline
-typename bsl::remove_reference<TYPE>::type&
-MovableRefUtil::access(TYPE&& ref) BSLS_KEYWORD_NOEXCEPT
-{
-    return ref;
-}
-#endif
 
-#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+#endif // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+
 template <class TYPE>
 inline
-MovableRef<TYPE> MovableRefUtil::move(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT {
+BSLS_KEYWORD_CONSTEXPR MovableRef<typename bsl::remove_reference<TYPE>::type>
+MovableRefUtil::move(TYPE&& rvalue) BSLS_KEYWORD_NOEXCEPT
+{
+    return static_cast<typename bsl::remove_reference<TYPE>::type&&>(rvalue);
+}
+
+#else // if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+template <class TYPE>
+inline
+MovableRef<TYPE> MovableRefUtil::move(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT
+{
     return MovableRef<TYPE>(bsls::Util::addressOf(lvalue));
 }
 
 template <class TYPE>
 inline
 MovableRef<typename bsl::remove_reference<TYPE>::type>
-MovableRefUtil::move(MovableRef<TYPE> rvalue) BSLS_KEYWORD_NOEXCEPT {
+MovableRefUtil::move(MovableRef<TYPE> rvalue) BSLS_KEYWORD_NOEXCEPT
+{
     return rvalue;
 }
-#else  // support r-value references and alias templates
+
+#endif // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+                    // ------------------------------------
+                    // struct MovableRefUtil_PropertyTraits
+                    // ------------------------------------
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+
 template <class TYPE>
-inline
-BSLS_KEYWORD_CONSTEXPR
-MovableRef<typename bsl::remove_reference<TYPE>::type>
-MovableRefUtil::move(TYPE&& rvalue) BSLS_KEYWORD_NOEXCEPT {
-    return static_cast<typename bsl::remove_reference<TYPE>::type&&>(rvalue);
-}
-#endif // support r-value references and alias templates
+struct MovableRefUtil_PropertyTraits {
+    // Component-private class: do not use.  Define Boolean-valued
+    // movable-reference traits for the specified 'TYPE'.
+
+    // TYPES
+    typedef bsl::is_lvalue_reference<TYPE> IsLvalueReference;
+    typedef bsl::is_rvalue_reference<TYPE> IsMovableReference;
+    typedef bsl::is_reference<TYPE>        IsReference;
+};
+
+#else // if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+template <class TYPE>
+struct MovableRefUtil_PropertyTraits {
+    // Component-private class: do not use.  Define Boolean-valued
+    // movable-reference traits for rvalues of the specified 'TYPE'.
+
+    typedef bsl::false_type IsLvalueReference;
+    typedef bsl::false_type IsMovableReference;
+    typedef bsl::false_type IsReference;
+};
+
+template <class TYPE>
+struct MovableRefUtil_PropertyTraits<TYPE&> {
+    // Component-private class: do not use.  Define Boolean-valued
+    // movable-reference traits for lvalues of the specified 'TYPE'.
+
+    typedef bsl::true_type  IsLvalueReference;
+    typedef bsl::false_type IsMovableReference;
+    typedef bsl::true_type  IsReference;
+};
+
+template <class TYPE>
+struct MovableRefUtil_PropertyTraits<MovableRef<TYPE> > {
+    // Component-private class: do not use.  Define Boolean-valued
+    // movable-reference traits for movable references to the specified 'TYPE'.
+
+    typedef bsl::false_type IsLvalueReference;
+    typedef bsl::true_type  IsMovableReference;
+    typedef bsl::true_type  IsReference;
+};
+
+template <class TYPE>
+struct MovableRefUtil_PropertyTraits<MovableRef<TYPE>&>
+     : MovableRefUtil_PropertyTraits<MovableRef<TYPE> > { };
+
+template <class TYPE>
+struct MovableRefUtil_PropertyTraits<const MovableRef<TYPE> >
+     : MovableRefUtil_PropertyTraits<      MovableRef<TYPE> > { };
+
+template <class TYPE>
+struct MovableRefUtil_PropertyTraits<const MovableRef<TYPE>&>
+     : MovableRefUtil_PropertyTraits<      MovableRef<TYPE> > { };
+
+template <class TYPE>
+struct MovableRefUtil_PropertyTraits<volatile MovableRef<TYPE> >;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_PropertyTraits<volatile MovableRef<TYPE>&>;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_PropertyTraits<const volatile MovableRef<TYPE> >;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_PropertyTraits<const volatile MovableRef<TYPE>&>;
+    // This partial 'struct' template specialization is not defined.
+
+#endif // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+                    // -------------------------------------
+                    // struct MovableRefUtil_RemoveReference
+                    // -------------------------------------
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+
+template <class TYPE>
+struct MovableRefUtil_RemoveReference : bsl::remove_reference<TYPE> {
+    // This component-private 'struct' template provides a metafunction that,
+    // if the specified 'TYPE' is a reference type, defines a nested 'type'
+    // typedef of the type to which 'TYPE' refers, and defines a nested 'type'
+    // typedef of 'TYPE' otherwise.
+};
+
+#else // if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+template <class TYPE>
+struct MovableRefUtil_RemoveReference {
+    // TYPES
+    typedef TYPE type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_RemoveReference<TYPE&> {
+    // TYPES
+    typedef TYPE type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_RemoveReference<bslmf::MovableRef<TYPE> > {
+    // TYPES
+    typedef TYPE type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_RemoveReference<bslmf::MovableRef<TYPE>&> {
+    // TYPES
+    typedef TYPE type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_RemoveReference<const bslmf::MovableRef<TYPE> > {
+    // TYPES
+    typedef TYPE type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_RemoveReference<const bslmf::MovableRef<TYPE>&> {
+    // TYPES
+    typedef TYPE type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_RemoveReference<volatile MovableRef<TYPE> >;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_RemoveReference<volatile MovableRef<TYPE>&>;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_RemoveReference<const volatile MovableRef<TYPE> >;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_RemoveReference<const volatile MovableRef<TYPE>&>;
+    // This partial 'struct' template specialization is not defined.
+
+#endif // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+                  // ----------------------------------------
+                  // struct MovableRefUtil_AddLvalueReference
+                  // ----------------------------------------
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+
+template <class TYPE>
+struct MovableRefUtil_AddLvalueReference : bsl::add_lvalue_reference<TYPE> {
+    // This component-private 'struct' template provides a metafunction that
+    // defines a nested 'type' typedef that is an lvalue reference to 'TYPE'.
+    // If 'TYPE' is already an 'lvalue' reference, then 'type' is 'TYPE'.
+    // Otherwise, if 'TYPE' is 'MovableRef<T2>', then 'type' is 'T2&'.  This
+    // transformation reflects the semantics of _reference collapsing_ in
+    // section [dec.ref] of the standard.
+};
+
+#else // if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+template <>
+struct MovableRefUtil_AddLvalueReference<void> {
+    // TYPES
+    typedef void type;
+};
+
+template <>
+struct MovableRefUtil_AddLvalueReference<const void> {
+    // TYPES
+    typedef const void type;
+};
+
+template <>
+struct MovableRefUtil_AddLvalueReference<volatile void> {
+    // TYPES
+    typedef volatile void type;
+};
+
+template <>
+struct MovableRefUtil_AddLvalueReference<const volatile void> {
+    // TYPES
+    typedef const volatile void type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_AddLvalueReference {
+    // TYPES
+    typedef TYPE& type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_AddLvalueReference<TYPE&> {
+    // TYPES
+    typedef TYPE& type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_AddLvalueReference<MovableRef<TYPE> > {
+    // TYPES
+    typedef TYPE& type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_AddLvalueReference<MovableRef<TYPE>&> {
+    // TYPES
+    typedef TYPE& type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_AddLvalueReference<const MovableRef<TYPE> > {
+    // TYPES
+    typedef TYPE& type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_AddLvalueReference<const MovableRef<TYPE>&> {
+    // TYPES
+    typedef TYPE& type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_AddLvalueReference<volatile MovableRef<TYPE> >;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_AddLvalueReference<volatile MovableRef<TYPE>&>;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_AddLvalueReference<const volatile MovableRef<TYPE> >;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_AddLvalueReference<const volatile MovableRef<TYPE>&>;
+    // This partial 'struct' template specialization is not defined.
+
+#endif // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+                  // -----------------------------------------
+                  // struct MovableRefUtil_AddMovableReference
+                  // -----------------------------------------
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+
+template <class TYPE>
+struct MovableRefUtil_AddMovableReference : bsl::add_rvalue_reference<TYPE> {
+    // This component-private 'struct' template provides a metafunction that
+    // defines a nested 'type' typedef that, if 'TYPE' is not a reference type,
+    // is 'MovableRef<TYPE>'.  Otherwise, if 'TYPE' is a specialization of
+    // 'MovableRef', 'type' is the same as 'TYPE'.  Otherwise, 'type' is
+    // 'TYPE&'.  This transformation reflects the semantics of
+    // _reference collapsing_ in section [dec.ref] of the standard.
+};
+
+#else // if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+template <>
+struct MovableRefUtil_AddMovableReference<void> {
+    // TYPES
+    typedef void type;
+};
+
+template <>
+struct MovableRefUtil_AddMovableReference<const void> {
+    // TYPES
+    typedef const void type;
+};
+
+template <>
+struct MovableRefUtil_AddMovableReference<volatile void> {
+    // TYPES
+    typedef volatile void type;
+};
+
+template <>
+struct MovableRefUtil_AddMovableReference<const volatile void> {
+    // TYPES
+    typedef const volatile void type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_AddMovableReference {
+    // TYPES
+    typedef bslmf::MovableRef<TYPE> type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_AddMovableReference<TYPE&> {
+    // TYPES
+    typedef TYPE& type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_AddMovableReference<MovableRef<TYPE> > {
+    // TYPES
+    typedef bslmf::MovableRef<TYPE> type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_AddMovableReference<MovableRef<TYPE>&> {
+    // TYPES
+    typedef bslmf::MovableRef<TYPE> type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_AddMovableReference<const MovableRef<TYPE> > {
+    // TYPES
+    typedef bslmf::MovableRef<TYPE> type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_AddMovableReference<const MovableRef<TYPE>&> {
+    // TYPES
+    typedef bslmf::MovableRef<TYPE> type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_AddMovableReference<volatile MovableRef<TYPE> >;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_AddMovableReference<volatile MovableRef<TYPE>&>;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_AddMovableReference<const volatile MovableRef<TYPE> >;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_AddMovableReference<const volatile MovableRef<TYPE>&>;
+    // This partial 'struct' template specialization is not defined.
+
+#endif // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+                         // ---------------------------
+                         // struct MovableRefUtil_Decay
+                         // ---------------------------
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+
+template <class TYPE>
+struct MovableRefUtil_Decay : bsl::decay<TYPE> {
+    // This component-private 'struct' template provides a metafunction that
+    // defines a nested 'type' typedef that applies lvalue-to-rvalue,
+    // array-to-pointer, and function-to-pointer conversions that occur when an
+    // lvalue of type 'TYPE' is used as an rvalue, and also removes 'const',
+    // 'volatile', and reference qualifiers from class types in order to model
+    // by-value argument passing.  For the purpose of this type trait,
+    // 'MovableRef<T>' is considered a (movable) reference-qualified 'T'.
+    //
+    // Formally, let 'U' be 'MovableRefUtil::RemoveReference<TYPE>::type'.  If
+    // 'bsl::is_array<U>::value' is true, the member typedef 'type' is
+    // 'bsl::remove_extent<U>::type *'.  If 'bsl::is_function<U>::value' is
+    // true, the member typedef 'type' is 'bsl::add_pointer<U>::type'.
+    // Otherwise, the member typedef 'type' is 'bsl::remove_cv<U>::type'.
+};
+
+#elif !defined(BSLS_PLATFORM_CMP_IBM) || BSLS_PLATFORM_CMP_VERSION > 4097
+
+///Implementation Note
+///- - - - - - - - - -
+// The following definition of 'MovableRefUtil_Decay' is for C++03 compilers,
+// *except* versions of IBM XL C++ prior to 16.0.2.
+
+template <class TYPE>
+struct MovableRefUtil_Decay
+: bsl::decay<typename MovableRefUtil_RemoveReference<TYPE>::type> {
+};
+
+#else
+
+///Implementation Note
+///- - - - - - - - - -
+// The following implementation of 'MovableRefUtil_Decay' is exclusively for
+// the IBM XL C++ line of compilers prior to version 16.0.2.  This line of
+// compilers has a defect in which the compiler retains default-argument
+// information in the type of functions that have default arguments.  If the
+// program attempts to form a typedef to the type of a function with default
+// arguments, the IBM XL C++ compiler rejects the typedef because it attempts
+// to form it with default arguments.  Since default arguments cannot be
+// specified anywhere except function declarations, compilation then fails.
+//
+// For example, the following code will be rejected:
+//..
+//  void f(int = 0);
+//
+//  template <class TYPE>
+//  void g(TYPE)
+//  {
+//      typedef TYPE type; // ERROR: Default arguments cannot be specified
+//                         //        in a 'typedef'.
+//  }
+//
+//  void example()
+//  {
+//      g(f);              // ERROR: From the 'g' template instantiation here.
+//  }
+//..
+// However, typedefs to *pointers* to such function types do not run afoul of
+// this defect.  Fortunately, the specification of 'decay' requires
+// transforming function types and reference-to-function types to
+// pointer-to-function types.  So, with some careful metaprogramming, the
+// following implementation avoids triggering this defect.
+
+template <class TYPE, bool IS_FUNCTION = bsl::is_function<TYPE>::value>
+struct MovableRefUtil_DecayImp;
+
+template <class TYPE>
+struct MovableRefUtil_DecayImp<TYPE, /* IS_FUNCTION */ false>
+: bsl::decay<TYPE> {
+};
+
+template <class TYPE>
+struct MovableRefUtil_DecayImp<TYPE, /* IS_FUNCTION */ true> {
+    typedef TYPE *type;
+};
+
+template <class TYPE>
+struct MovableRefUtil_Decay : MovableRefUtil_DecayImp<TYPE> {
+};
+
+template <class TYPE>
+struct MovableRefUtil_Decay<TYPE&> : MovableRefUtil_DecayImp<TYPE> {
+};
+
+template <class TYPE>
+struct MovableRefUtil_Decay<MovableRef<TYPE> >
+: MovableRefUtil_DecayImp<TYPE> {
+};
+
+template <class TYPE>
+struct MovableRefUtil_Decay<MovableRef<TYPE>&>
+: MovableRefUtil_DecayImp<TYPE> {
+};
+
+template <class TYPE>
+struct MovableRefUtil_Decay<const MovableRef<TYPE> >
+: MovableRefUtil_DecayImp<TYPE> {
+};
+
+template <class TYPE>
+struct MovableRefUtil_Decay<const MovableRef<TYPE>&>
+: MovableRefUtil_DecayImp<TYPE> {
+};
+
+template <class TYPE>
+struct MovableRefUtil_Decay<volatile MovableRef<TYPE> >;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_Decay<volatile MovableRef<TYPE>&>;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_Decay<const volatile MovableRef<TYPE> >;
+    // This partial 'struct' template specialization is not defined.
+
+template <class TYPE>
+struct MovableRefUtil_Decay<const volatile MovableRef<TYPE>&>;
+    // This partial 'struct' template specialization is not defined.
+
+#endif // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif
