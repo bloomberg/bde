@@ -1576,28 +1576,40 @@ int main(int argc, char *argv[])
             bsl::string        fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            bdlt::Datetime startTime = bdlt::CurrentTime::local();
-            startTime += bdlt::DatetimeInterval(-1, 0, 0, 3);
-            mX->rotateOnTimeInterval(bdlt::DatetimeInterval(1), startTime);
-            ASSERT(0 == mX->enableFileLogging(fileName.c_str()));
+            for (int i = 0; i < 2; ++i) {
+                bdlt::Datetime startTime;
+                if (i == 0) {
+                    mX->enablePublishInLocalTime();
+                    startTime = bdlt::CurrentTime::local();
+                }
+                else {
+                    mX->disablePublishInLocalTime();
+                    startTime = bdlt::CurrentTime::utc();
+                }
 
-            BALL_LOG_TRACE << "log";
-            ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
+                startTime += bdlt::DatetimeInterval(-1, 0, 0, 3);
+                mX->rotateOnTimeInterval(bdlt::DatetimeInterval(1), startTime);
+                ASSERT(0 == mX->enableFileLogging(fileName.c_str()));
 
-            bslmt::ThreadUtil::microSleep(0, 2);
-            BALL_LOG_TRACE << "log";
+                BALL_LOG_TRACE << "log";
+                ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
-            ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
+                bslmt::ThreadUtil::microSleep(0, 2);
+                BALL_LOG_TRACE << "log";
 
-            bslmt::ThreadUtil::microSleep(0, 2);
-            BALL_LOG_TRACE << "log";
+                ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
-            ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
-            ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
+                bslmt::ThreadUtil::microSleep(0, 2);
+                BALL_LOG_TRACE << "log";
 
-            mX->disableFileLogging();
-            cb.reset();
+                ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+                ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
+
+                mX->disableFileLogging();
+                cb.reset();
+            }
         }
+
         if (veryVerbose) cout << "\tTesting forced rotation" << endl;
         {
             // Temporary directory for test files.

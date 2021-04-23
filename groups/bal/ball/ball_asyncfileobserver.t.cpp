@@ -1052,7 +1052,7 @@ int main(int argc, char *argv[])
             record->fixedFields().setSeverity(ERROR);
             ball::Context context;
 
-            for (int i = 0; i < MAX_QUEUE_LENGTH; ++i) {
+            for (size_t i = 0; i < MAX_QUEUE_LENGTH; ++i) {
                 ASSERT(i == X.recordQueueLength());
 
                 mX.publish(record, context);
@@ -1121,9 +1121,9 @@ int main(int argc, char *argv[])
                 bsls::Stopwatch timer;
                 timer.start();
 
-                int prevQueueLength = X.recordQueueLength();
+                size_t prevQueueLength = X.recordQueueLength();
                 do {
-                    int queueLength = X.recordQueueLength();
+                    size_t queueLength = X.recordQueueLength();
                     ASSERT(queueLength <= prevQueueLength);
                     prevQueueLength = queueLength;
                 } while (X.recordQueueLength() > 0
@@ -1290,30 +1290,44 @@ int main(int argc, char *argv[])
 
             mX->disableFileLogging();
 
-            bdlt::Datetime refTime = bdlt::CurrentTime::local();
-            refTime += bdlt::DatetimeInterval(-1, 0, 0, 3);
-            mX->rotateOnTimeInterval(bdlt::DatetimeInterval(1), refTime);
-            ASSERT(0 == mX->enableFileLogging(fileName.c_str()));
+            for (int i = 0; i < 2; ++i) {
+                bdlt::Datetime startTime;
+                if (i == 0) {
+                    mX->enablePublishInLocalTime();
+                    startTime = bdlt::CurrentTime::local();
+                }
+                else {
+                    mX->disablePublishInLocalTime();
+                    startTime = bdlt::CurrentTime::utc();
+                }
 
-            BALL_LOG_TRACE << "log";
-            bslmt::ThreadUtil::microSleep(0, 1);
-            ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
+                startTime += bdlt::DatetimeInterval(-1, 0, 0, 3);
+                mX->rotateOnTimeInterval(bdlt::DatetimeInterval(1), startTime);
+                ASSERT(0 == mX->enableFileLogging(fileName.c_str()));
 
-            bslmt::ThreadUtil::microSleep(0, 3);
-
-            BALL_LOG_TRACE << "log";
-            bslmt::ThreadUtil::microSleep(0, 1);
-
-            // Wait up to 3 seconds for the file rotation to complete.
-
-            int loopCount = 0;
-            do {
+                BALL_LOG_TRACE << "log";
                 bslmt::ThreadUtil::microSleep(0, 1);
-            } while (0 == cb.numInvocations() && loopCount++ < 3);
+                ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
-            ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+                bslmt::ThreadUtil::microSleep(0, 3);
 
-            ASSERT(true == FsUtil::exists(cb.rotatedFileName().c_str()));
+                BALL_LOG_TRACE << "log";
+                bslmt::ThreadUtil::microSleep(0, 1);
+
+                // Wait up to 3 seconds for the file rotation to complete.
+
+                int loopCount = 0;
+                do {
+                    bslmt::ThreadUtil::microSleep(0, 1);
+                } while (0 == cb.numInvocations() && loopCount++ < 3);
+
+                ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+
+                ASSERT(true == FsUtil::exists(cb.rotatedFileName().c_str()));
+
+                cb.reset();
+                mX->disableFileLogging();
+            }
         }
 
         if (veryVerbose) cout << "Testing 'disableTimeIntervalRotation'"

@@ -1395,7 +1395,8 @@ int main(int argc, char *argv[])
         //: 1 'rotateOnTimeInterval' accepts any valid datetime value as the
         //:   reference time.
         //:
-        //: 2 Reference time is a local time.
+        //: 2 Reference time is interpreted as ether local or UTC time
+        //:   depending on the 'isPublishInLocalTime()'.
         //
         // Plan:
         //: 1 Setup test infrastructure.
@@ -1442,104 +1443,125 @@ int main(int argc, char *argv[])
             RotCb cb(&ta);
 
             mX->setOnFileRotationCallback(cb);
-            mX->enablePublishInLocalTime();
 
-            {
-                TempDirectoryGuard tempDirGuard;
-                bsl::string        fileName(tempDirGuard.getTempDirName());
-                bdls::PathUtil::appendRaw(&fileName, "testLog");
+            // Testing 3 cases: 0 - default UTC, 1 - local, 2 - UTC
+            for (int i = 0; i < 3; ++i) {
+                switch (i) {
+                  case 1: {
+                    mX->enablePublishInLocalTime();
+                  } break;
+                  case 2: {
+                    mX->disablePublishInLocalTime();
+                  } break;
+                  default:
+                    break;
+                }
 
-                // Set callback to monitor rotation.
+                {
+                    TempDirectoryGuard tempDirGuard;
+                    bsl::string        fileName(tempDirGuard.getTempDirName());
+                    bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-                enableFileLogging(mX, fileName);
-                ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
+                    // Set callback to monitor rotation.
 
-                mX->disableFileLogging();
-            }
+                    enableFileLogging(mX, fileName);
+                    ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
-            if (veryVerbose)
-                cout << "Test lower bound of absolute time reference." << endl;
-            {
-                BALL_LOG_SET_CATEGORY("TestCategory");
+                    mX->disableFileLogging();
+                }
 
-                TempDirectoryGuard tempDirGuard;
-                bsl::string        fileName(tempDirGuard.getTempDirName());
-                bdls::PathUtil::appendRaw(&fileName, "testLog");
+                if (veryVerbose)
+                    cout << "Test lower bound of absolute time reference."
+                         << endl;
+                {
+                    BALL_LOG_SET_CATEGORY("TestCategory");
 
-                mX->rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 2),
-                                         bdlt::Datetime(1, 1, 1));
+                    TempDirectoryGuard tempDirGuard;
+                    bsl::string        fileName(tempDirGuard.getTempDirName());
+                    bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-                enableFileLogging(mX, fileName);
+                    mX->rotateOnTimeInterval(
+                                            bdlt::DatetimeInterval(0, 0, 0, 1),
+                                            bdlt::Datetime(1, 1, 1));
 
-                bslmt::ThreadUtil::microSleep(0, 2);
+                    enableFileLogging(mX, fileName);
 
-                ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
+                    bslmt::ThreadUtil::microSleep(0, 1);
 
-                BALL_LOG_TRACE << "log";
+                    ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
-                ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
-                ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
+                    BALL_LOG_TRACE << "log";
 
-                mX->disableFileLogging();
-                cb.reset();
-            }
+                    ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+                    ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
 
-            if (veryVerbose)
-                cout << "Test upper bound of absolute time reference." << endl;
-            {
-                BALL_LOG_SET_CATEGORY("TestCategory");
+                    mX->disableFileLogging();
+                    cb.reset();
+                }
 
-                TempDirectoryGuard tempDirGuard;
-                bsl::string        fileName(tempDirGuard.getTempDirName());
-                bdls::PathUtil::appendRaw(&fileName, "testLog");
+                if (veryVerbose)
+                    cout << "Test upper bound of absolute time reference."
+                         << endl;
+                {
+                    BALL_LOG_SET_CATEGORY("TestCategory");
 
-                mX->rotateOnTimeInterval(
-                                     bdlt::DatetimeInterval(0, 0, 0, 2),
+                    TempDirectoryGuard tempDirGuard;
+                    bsl::string        fileName(tempDirGuard.getTempDirName());
+                    bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+                    mX->rotateOnTimeInterval(
+                                     bdlt::DatetimeInterval(0, 0, 0, 1),
                                      bdlt::Datetime(9999, 12, 31, 23, 59, 59));
 
-                enableFileLogging(mX, fileName);
+                    enableFileLogging(mX, fileName);
 
-                bslmt::ThreadUtil::microSleep(0, 2);
+                    bslmt::ThreadUtil::microSleep(0, 1);
 
-                ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
+                    ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
-                BALL_LOG_TRACE << "log";
+                    BALL_LOG_TRACE << "log";
 
-                ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
-                ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
+                    ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+                    ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
 
-                mX->disableFileLogging();
-                cb.reset();
-            }
+                    mX->disableFileLogging();
+                    cb.reset();
+                }
 
-            if (veryVerbose)
-                cout << "Test absolute time reference." << endl;
-            {
-                BALL_LOG_SET_CATEGORY("TestCategory");
+                if (veryVerbose)
+                    cout << "Test absolute time reference." << endl;
+                {
+                    BALL_LOG_SET_CATEGORY("TestCategory");
 
-                TempDirectoryGuard tempDirGuard;
-                bsl::string        fileName(tempDirGuard.getTempDirName());
-                bdls::PathUtil::appendRaw(&fileName, "testLog");
+                    TempDirectoryGuard tempDirGuard;
+                    bsl::string        fileName(tempDirGuard.getTempDirName());
+                    bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-                bdlt::Datetime startTime = bdlt::CurrentTime::local();
-                startTime += bdlt::DatetimeInterval(-1, 0, 0, 3);
+                    bdlt::Datetime startTime = bdlt::CurrentTime::utc();
+                    if (i == 1) {
+                        startTime = bdlt::CurrentTime::local();
+                    }
 
-                mX->rotateOnTimeInterval(bdlt::DatetimeInterval(1), startTime);
+                    startTime += bdlt::DatetimeInterval(-1, 0, 0, 1);
 
-                enableFileLogging(mX, fileName);
+                    mX->rotateOnTimeInterval(bdlt::DatetimeInterval(1),
+                                             startTime);
 
-                BALL_LOG_TRACE << "log";
-                bslmt::ThreadUtil::microSleep(0, 2);        // 2s
-                ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
+                    enableFileLogging(mX, fileName);
 
-                bslmt::ThreadUtil::microSleep(250000, 1);  // 3.25s
-                BALL_LOG_TRACE << "log";
+                    BALL_LOG_TRACE << "log";
+                    bslmt::ThreadUtil::microSleep(0, 1);        // 1s
+                    ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
-                ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
-                ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
+                    bslmt::ThreadUtil::microSleep(250000, 1);  // 2.25s
+                    BALL_LOG_TRACE << "log";
 
-                mX->disableFileLogging();
-                cb.reset();
+                    ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+                    ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
+
+                    mX->disableFileLogging();
+                    cb.reset();
+                }
             }
 
             ASSERT(0 == manager.deregisterObserver("testObserver"));

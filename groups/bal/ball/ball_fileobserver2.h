@@ -399,10 +399,12 @@ class FileObserver2 : public Observer {
                                                        // before rotation (in
                                                        // kilobytes)
 
-    bdlt::Datetime         d_rotationReferenceLocalTime;
-                                                       // reference *local*
-                                                       // start time for
-                                                       // time-based rotation
+    bdlt::Datetime         d_rotationReferenceTime;    // reference start time
+                                                       // (time-zone determined
+                                                       // by
+                                                       // d_publishInLocalTime)
+                                                       // for time-based
+                                                       // rotation
 
     bdlt::DatetimeInterval d_rotationInterval;         // time interval between
                                                        // two time-based
@@ -609,14 +611,16 @@ class FileObserver2 : public Observer {
                               const bdlt::Datetime&         startTime);
         // Set this file observer to perform a periodic log file rotation at
         // multiples of the specified 'interval'.  Optionally specify a
-        // 'startTime' indicating the *local* datetime to use as the starting
-        // point for computing the periodic rotation schedule.  If 'startTime'
-        // is not specified, the current time is used.  This rule replaces any
-        // rotation-on-time-interval rule currently in effect.  The behavior is
-        // undefined unless '0 < interval.totalMilliseconds()'.  Note that
-        // 'startTime' may be a fixed time in the past; e.g., a reference time
-        // of 'bdlt::Datetime(1, 1, 1)' and an interval of 24 hours would
-        // configure a periodic rotation at midnight each day.
+        // 'startTime' indicating the datetime to use as the starting point for
+        // computing the periodic rotation schedule.  If
+        // 'isPublishInLocalTimeEnabled' is 'true', the 'startTime' is
+        // interpreted as local time, and as a UTC time otherwise.  If
+        // 'startTime' is not specified, the current time is used.  This rule
+        // replaces any rotation-on-time-interval rule currently in effect.
+        // The behavior is undefined unless '0 < interval.totalMilliseconds()'.
+        // Note that 'startTime' may be a fixed time in the past; e.g., a
+        // reference time of 'bdlt::Datetime(1, 1, 1)' and an interval of 24
+        // hours would configure a periodic rotation at midnight each day.
 
     void setLogFileFunctor(const LogRecordFunctor& logFileFunctor);
         // Set the formatting functor used when writing records to the log file

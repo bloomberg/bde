@@ -810,16 +810,18 @@ class AsyncFileObserver : public Observer {
     void rotateOnTimeInterval(const bdlt::DatetimeInterval& interval);
     void rotateOnTimeInterval(const bdlt::DatetimeInterval& interval,
                               const bdlt::Datetime&         startTime);
-        // Set this async file observer to perform a periodic log file rotation
-        // at multiples of the specified 'interval'.  Optionally specify a
-        // 'startTime' indicating the *local* datetime to use as the starting
-        // point for computing the periodic rotation schedule.  If 'startTime'
-        // is unspecified, the current time is used.  This rule replaces any
-        // rotation-on-time-interval rule currently in effect.  The behavior is
-        // undefined unless '0 < interval.totalMilliseconds()'.  Note that
-        // 'startTime' may be a fixed time in the past; e.g., a reference time
-        // of 'bdlt::Datetime(1, 1, 1)' and an interval of 24 hours would
-        // configure a periodic rotation at midnight each day.
+        // Set this file observer to perform a periodic log file rotation at
+        // multiples of the specified 'interval'.  Optionally specify a
+        // 'startTime' indicating the datetime to use as the starting point for
+        // computing the periodic rotation schedule.  If
+        // 'isPublishInLocalTimeEnabled' is 'true', the 'startTime' is
+        // interpreted as local time, and as a UTC time otherwise.  If
+        // 'startTime' is not specified, the current time is used.  This rule
+        // replaces any rotation-on-time-interval rule currently in effect.
+        // The behavior is undefined unless '0 < interval.totalMilliseconds()'.
+        // Note that 'startTime' may be a fixed time in the past; e.g., a
+        // reference time of 'bdlt::Datetime(1, 1, 1)' and an interval of 24
+        // hours would configure a periodic rotation at midnight each day.
 
     void setLogFormat(const char *logFileFormat, const char *stdoutFormat);
         // Set the format specifications for log records written to the log

@@ -142,14 +142,6 @@ static bsl::string getTimestampSuffix(const bdlt::Datetime& timestamp)
     return bsl::string(buffer);
 }
 
-static bdlt::DatetimeInterval localTimeOffsetInterval(bdlt::Datetime timeUtc)
-    // Return the offset of local time from UTC time at the specified
-    // 'timeUtc'.
-{
-    return bdlt::IntervalConversionUtil::convertToDatetimeInterval(
-                              bdlt::LocalTimeOffset::localTimeOffset(timeUtc));
-}
-
 static void getLogFileName(bsl::string    *logFileName,
                            bdlt::Datetime *timestampUtc,
                            const char     *logFilePattern,
@@ -170,7 +162,8 @@ static void getLogFileName(bsl::string    *logFileName,
     bdlt::Datetime logFileTimestamp = *timestampUtc;
 
     if (publishInLocalTime) {
-        logFileTimestamp += localTimeOffsetInterval(*timestampUtc);
+        logFileTimestamp +=
+            bdlt::LocalTimeOffset::localTimeOffset(*timestampUtc);
     }
 
     bsl::ostringstream os;
@@ -341,43 +334,42 @@ bool fuzzyEqual(const bdlt::Datetime&         a,
 }
 
 static bdlt::Datetime computeNextRotationTime(
-                         const bdlt::Datetime&         referenceStartTimeLocal,
-                         const bdlt::DatetimeInterval& interval,
-                         const bdlt::Datetime&         fileCreationTimeUtc)
+                   const bdlt::Datetime&         referenceStartTime,
+                   bool                          referenceStartTimeInLocalTime,
+                   const bdlt::DatetimeInterval& interval,
+                   const bdlt::Datetime&         fileCreationTimeUtc)
     // Return the UTC time for the next scheduled file rotation after the
     // specified 'fileCreationTimeUtc', for a schedule that has a start
-    // reference time indicated by the specified 'referenceStartTimeLocal' and
-    // rotated every specified 'interval'.  'referenceStartTimeLocal' must be a
-    // local time value, and 'fileCreationTimeUtc' must be a UTC time value.
-    // The behavior is undefined unless '0 <= interval.totalMilliseconds()'.
-    // Note that 'referenceStartTimeLocal' is a local time value because
-    // 'rotateOnTimeInterval' accepts a local time value and converting that
-    // value to UTC might cause an underflow.
+    // reference time indicated by the specified 'referenceStartTime' and
+    // rotated every specified 'interval'.  If the specified
+    // 'referenceStartTimeInLocalTime' is 'true', the 'referenceStartTime'
+    // interpreted as local time value, and as UTC time value otherwise.
+    // 'fileCreationTimeUtc' must be a UTC time value.  The behavior is
+    // undefined unless '0 <= interval.totalMilliseconds()'.
 {
     BSLS_ASSERT(0 < interval.totalMilliseconds());
 
-    // Note that all the computations must be done in local time because the
-    // 'referenceStartTimeLocal' when converted to UTC might be out of the
-    // representable range of 'bdlt::Datetime' ('bdlt::Datetime(1, 1, 1)' is a
-    // common reference time).
+    bdlt::Datetime fileCreationTime(fileCreationTimeUtc);
 
-    bdlt::Datetime fileCreationTimeLocal =
-        fileCreationTimeUtc + localTimeOffsetInterval(fileCreationTimeUtc);
+    if (referenceStartTimeInLocalTime) {
+        fileCreationTime +=
+            bdlt::LocalTimeOffset::localTimeOffset(fileCreationTimeUtc);
+    }
 
     // If the reference start time is (effectively) equal to the file creation
     // time, don't rotate until at least one interval has occurred.  A fuzzy
     // comparison is required because the time stamps come from different
     // sources, which may occur in close proximity during the configuration of
     // logging at task startup (the 'fileCreationTime' is determined when
-    // logging is enabled, while the 'referenceStartTimeLocal' may be
+    // logging is enabled, while the 'referenceStartTime' may be
     // determined on a call to 'rotateOnTimeInterval').
 
-    if (fuzzyEqual(referenceStartTimeLocal, fileCreationTimeLocal, interval)) {
+    if (fuzzyEqual(referenceStartTime, fileCreationTime, interval)) {
         return fileCreationTimeUtc + interval;                        // RETURN
     }
 
     bsls::Types::Int64 timeLeft =
-       (fileCreationTimeLocal - referenceStartTimeLocal).totalMilliseconds() %
+       (fileCreationTime - referenceStartTime).totalMilliseconds() %
        interval.totalMilliseconds();
 
     // The modulo operator may return a negative number depending on
@@ -497,7 +489,8 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
         bdlt::Datetime timeStampSuffix(oldLogFileTimestamp);
 
         if (d_publishInLocalTime) {
-            timeStampSuffix += localTimeOffsetInterval(oldLogFileTimestamp);
+            timeStampSuffix +=
+                bdlt::LocalTimeOffset::localTimeOffset(oldLogFileTimestamp);
         }
 
         bsl::string newFileName(d_logFileName);
@@ -526,7 +519,8 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
 
     if (0 < d_rotationInterval.totalSeconds()) {
         d_nextRotationTimeUtc = computeNextRotationTime(
-                                                  d_rotationReferenceLocalTime,
+                                                  d_rotationReferenceTime,
+                                                  d_publishInLocalTime,
                                                   d_rotationInterval,
                                                   d_logFileTimestampUtc);
     }
@@ -690,10 +684,11 @@ int FileObserver2::enableFileLogging(const char *logFilenamePattern)
                                                   d_logFileName);
 
     if (0 < d_rotationInterval.totalSeconds()) {
-        d_nextRotationTimeUtc = computeNextRotationTime(
-                                                  d_rotationReferenceLocalTime,
-                                                  d_rotationInterval,
-                                                  d_logFileTimestampUtc);
+        d_nextRotationTimeUtc =
+            computeNextRotationTime(d_rotationReferenceTime,
+                                    d_publishInLocalTime,
+                                    d_rotationInterval,
+                                    d_logFileTimestampUtc);
     }
 
     return openLogFile(&d_logOutStream, d_logFileName.c_str());
@@ -789,7 +784,9 @@ void FileObserver2::rotateOnLifetime(
 void FileObserver2::rotateOnTimeInterval(
                                         const bdlt::DatetimeInterval& interval)
 {
-    rotateOnTimeInterval(interval, bdlt::CurrentTime::local());
+    rotateOnTimeInterval(interval,
+                         d_publishInLocalTime ? bdlt::CurrentTime::local()
+                                              : bdlt::CurrentTime::utc());
 }
 
 void FileObserver2::rotateOnTimeInterval(
@@ -802,16 +799,17 @@ void FileObserver2::rotateOnTimeInterval(
 
     d_rotationInterval = interval;
 
-    // Reference time is stored as local time as conversion to UTC time may
-    // cause an underflow (or overflow).
+    // Reference time is interpreted as local or UTC time depending on the
+    // value of d_publishInLocalTime.
 
-    d_rotationReferenceLocalTime = startTime;
+    d_rotationReferenceTime = startTime;
 
     // Need to determine the next rotation time if the file is already opened.
 
     if (d_logStreamBuf.isOpened()) {
         d_nextRotationTimeUtc = computeNextRotationTime(
-                                                  d_rotationReferenceLocalTime,
+                                                  d_rotationReferenceTime,
+                                                  d_publishInLocalTime,
                                                   d_rotationInterval,
                                                   d_logFileTimestampUtc);
     }
@@ -878,7 +876,8 @@ bdlt::DatetimeInterval FileObserver2::localTimeOffset() const
                                ? d_logFileTimestampUtc
                                : bdlt::CurrentTime::utc();
 
-    return localTimeOffsetInterval(timestamp);
+    return bdlt::IntervalConversionUtil::convertToDatetimeInterval(
+                            bdlt::LocalTimeOffset::localTimeOffset(timestamp));
 }
 
 bdlt::DatetimeInterval FileObserver2::rotationLifetime() const
