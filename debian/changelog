@@ -1,8 +1,15 @@
-bsl-internal (3.79.0.0) unstable; urgency=low
+bsl-internal (3.80.0.0) unstable; urgency=low
 
+  * 3a6432a03 Bumped version to 3.80.0.0
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 23 Apr 2021 15:39:54 -0400
+
+bsl-internal (3.79.0.0) git; urgency=low
+
+  * e0c887c01 Changelog for version 3.79.0.0
   * 1a72ef52e Bumped version to 3.79.0.0
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 16 Apr 2021 17:42:24 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 16 Apr 2021 17:43:55 -0400
 
 bsl-internal (3.78.0.0) git; urgency=low
 
