@@ -330,6 +330,20 @@ using bsls::nameOfType;
 // [  ] basic_istream& operator>>(basic_istream& stream, string& str);
 // [29] hashAppend(HASHALG& hashAlg, const basic_string& str);
 // [29] hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
+// [37] string operator+(const string&, const string&);
+// [37] string operator+(const nstd::string&, const string&);
+// [37] string operator+(const string&, const nstd::string&);
+// [37] string operator+(const nstd::string&, const nstd::string&);
+// [37] string operator+(const string&, const CHAR *);
+// [37] string operator+(const CHAR *, const string&);
+// [37] string operator+(const nstd::string&, const CHAR *);
+// [37] string operator+(const CHAR *, const nstd::string&);
+// [37] string operator+(const string_view&, CHAR);
+// [37] string operator+(CHAR, const string_view&);
+// [37] string operator+(const string&, CHAR);
+// [37] string operator+(CHAR, const string&);
+// [37] string operator+(const nstd::string&, CHAR);
+// [37] string operator+(CHAR, const nstd::string&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [35] USAGE EXAMPLE
@@ -1132,6 +1146,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase37();
+        // Test '+' operator.
+
     static void testCase36();
         // Test 'data' manipulator.
 
@@ -1404,6 +1421,195 @@ void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'operator+'
+    //
+    // Concerns:
+    //: 1 That all overloads of 'operator+' compile and work properly.
+    //
+    // Plan:
+    //: 1 Create a table of a number of strings.
+    //:
+    //: 2 Iterate through the 'I' loop, and create a buffer of 'TYPE's
+    //:   initialized with the values from the spec (note that the buffer may
+    //:   be 'wchar_t's while the spec is always 'char's).
+    //:   o Initialize a 'const TYPE *' string 'IPC' pointing to the
+    //:     null-terminated string in the buffer.
+    //:
+    //:   o Initialize a 'native_std::string', a 'bsl::basic_string', and a
+    //:     'bsl::basic_string_view', all of them with 'IPC'.
+    //:
+    //:   o Create a 'TYPE' variable 'ISC' which, if the length of the I string
+    //:     is 1, contains the first element of the string, and otherwise
+    //:     contains 0.
+    //:
+    //:   o Iterate through the 'J' loop, creating a buffer of 'TYPE's.
+    //:     1 Initialize a 'const TYPE *' string 'JPC' pointing to the
+    //:       null-terminated string in the buffer.
+    //:
+    //:     2 Initialize a 'native_std::string', a 'bsl::basic_string', and a
+    //:       'bsl::basic_string_view', all of them with 'JPC'.
+    //:
+    //:     3 Create a 'TYPE' variable 'JSC' which, if the length of the I
+    //:       string is 1, contains the first element of the string, and
+    //:       otherwise contains 0.
+    //:
+    //:     4 Create a buffer 'RAW_SUM' that is the null-terminated
+    //:       concatenation of the I buffer and the J buffer, and create a
+    //:       basic string view 'SUM' that refers to it.
+    //:
+    //:     5 Do additions with the I values on the lhs and J values on the
+    //:       rhs, for every supported combination of types, but not with ISC
+    //:       or JSC if those values are 0, and compare the result to 'SUM'
+    //
+    // Testing:
+    //   string operator+(const string&, const string&);
+    //   string operator+(const nstd::string&, const string&);
+    //   string operator+(const string&, const nstd::string&);
+    //   string operator+(const nstd::string&, const nstd::string&);
+    //   string operator+(const string&, const CHAR *);
+    //   string operator+(const CHAR *, const string&);
+    //   string operator+(const nstd::string&, const CHAR *);
+    //   string operator+(const CHAR *, const nstd::string&);
+    //   string operator+(const string_view&, CHAR);
+    //   string operator+(CHAR, const string_view&);
+    //   string operator+(const string&, CHAR);
+    //   string operator+(CHAR, const string&);
+    //   string operator+(const nstd::string&, CHAR);
+    //   string operator+(CHAR, const nstd::string&);
+    // ------------------------------------------------------------------------
+
+    const char *ty = bsls::NameOf<TYPE>();
+
+    typedef native_std::basic_string<TYPE, TRAITS> NObj;
+    typedef bsl::basic_string_view<TYPE, TRAITS>   SV;
+
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec_p;   // specification string
+    } DATA[] = {
+        //line  spec
+        //----  -----------------------------------
+        { L_,   ""                                 },
+        { L_,   "A"                                },
+        { L_,   "B"                                },
+        { L_,   "C"                                },
+        { L_,   "D"                                },
+        { L_,   "AB"                               },
+        { L_,   "BC"                               },
+        { L_,   "BCA"                              },
+        { L_,   "CAB"                              },
+        { L_,   "CDAB"                             },
+        { L_,   "DABC"                             },
+        { L_,   "ABCDE"                            },
+        { L_,   "EDCBA"                            },
+        { L_,   "ABCDEA"                           },
+        { L_,   "ABCDEAB"                          },
+        { L_,   "BACDEABC"                         },
+        { L_,   "CBADEABCD"                        },
+        { L_,   "CBADEABCDAB"                      },
+        { L_,   "CBADEABCDABC"                     },
+        { L_,   "CBADEABCDABCDE"                   },
+        { L_,   "CBADEABCDABCDEA"                  },
+        { L_,   "CBADEABCDABCDEAB"                 },
+        { L_,   "CBADEABCDABCDEABCBADEABCDABCDEA"  },
+        { L_,   "CBADEABCDABCDEABCBADEABCDABCDEAB" }
+    };
+
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int   LINEI      = DATA[ti].d_lineNum;
+        const char *RAW_SPEC_I = DATA[ti].d_spec_p;
+        int         LENI;
+
+        TYPE SPEC_I[100];
+        memset(SPEC_I, 0, sizeof(SPEC_I));
+        {
+            int ii = 0;
+            for (; RAW_SPEC_I[ii]; ++ii) {
+                SPEC_I[ii] = RAW_SPEC_I[ii];
+            }
+            LENI = ii;
+        }
+
+        const TYPE *IPC = &SPEC_I[0];
+
+        const NObj INS(IPC);
+        const Obj  IS(IPC);
+        const SV   ISV(IPC);    (void) ISV;
+        const TYPE ISC = 1 == LENI ? *IPC : 0;
+
+        for (int tj = 0; tj < NUM_DATA; ++tj) {
+            const int   LINEJ      = DATA[tj].d_lineNum;
+            const char *RAW_SPEC_J = DATA[tj].d_spec_p;
+            int         LENJ;
+
+            TYPE SPEC_J[100];
+            memset(SPEC_J, 0, sizeof(SPEC_J));
+            {
+                int ii = 0;
+                for (; RAW_SPEC_J[ii]; ++ii) {
+                    SPEC_J[ii] = RAW_SPEC_J[ii];
+                }
+                LENJ = ii;
+            }
+            const TYPE *JPC = &SPEC_J[0];
+
+            TYPE RAW_SUM[100];
+            memset(RAW_SUM, 0, sizeof(RAW_SUM));
+            {
+                int ii = 0;
+                for (; IPC[ii]; ++ii) {
+                    RAW_SUM[ii] = IPC[ii];
+                }
+                ASSERT(LENI == ii);
+                for (int jj = 0; JPC[jj]; ++ii, ++jj) {
+                    RAW_SUM[ii] = JPC[jj];
+                }
+                ASSERT(0 == RAW_SUM[ii]);
+                ASSERT(LENI + LENJ == ii);
+            }
+            const TYPE *SPC = &RAW_SUM[0];
+
+            const SV   SUM(SPC);
+
+            const NObj JNS(JPC);
+            const Obj  JS(JPC);
+            const SV   JSV(JPC);    (void) JSV;
+            const TYPE JSC = 1 == LENJ ? *JPC : 0;
+
+            ASSERT(SUM == IPC + JNS);
+            ASSERT(SUM == IPC + JS);
+
+            ASSERT(SUM == INS + JPC);
+            ASSERT(SUM == INS + JNS);
+            ASSERT(SUM == INS + JS);
+//          ASSERT(SUM == INS + JSV);
+            ASSERT(!JSC || SUM == INS + JSC);
+
+            ASSERT(SUM == IS  + JPC);
+            ASSERT(SUM == IS  + JNS);
+            ASSERT(SUM == IS  + JS);
+//          ASSERT(SUM == IS  + JSV);
+            ASSERT(!JSC || SUM == IS  + JSC);
+
+//          ASSERT(SUM == ISV + JNS);
+//          ASSERT(SUM == ISV + JS);
+
+            bsl::basic_string<TYPE> s;
+            ASSERTV(ty, char(ISC), LINEI, LINEJ,
+                                            !ISC || SUM == (s = ISC + JNS, s));
+            ASSERTV(ty, char(ISC), LINEI, LINEJ,
+                                            !ISC || SUM == (s = ISC + JS,  s));
+        }
+    }
+}
+
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase36()
 {
@@ -15275,6 +15481,26 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 37: {
+        // --------------------------------------------------------------------
+        // TESTING 'data' MANIPULATOR
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "TESTING 'operator+'\n"
+                                 "===================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase37();
+
+        if (verbose) printf("\n... with 'wchar_t'.\n");
+        TestDriver<wchar_t>::testCase37();
+
+        if (verbose) printf("\n... with 'int'.\n");
+        TestDriver<int>::testCase37();
+
+        if (verbose) printf("\n... with 'unsigned'.\n");
+        TestDriver<unsigned>::testCase37();
+      } break;
       case 36: {
         // --------------------------------------------------------------------
         // TESTING 'data' MANIPULATOR
