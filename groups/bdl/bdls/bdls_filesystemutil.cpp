@@ -2562,13 +2562,18 @@ int FilesystemUtil::growFile(FileDescriptor         descriptor,
         }
     }
 #endif
-#if defined(BSLS_PLATFORM_OS_LINUX) ||                                        \
-    defined(BSLS_PLATFORM_OS_SOLARIS) ||                                      \
+#if defined(BSLS_PLATFORM_OS_LINUX) ||          \
+    defined(BSLS_PLATFORM_OS_SOLARIS) ||        \
     defined(BSLS_PLATFORM_OS_AIX)
-    if (   reserveFlag
-        && 0 == posix_fallocate(descriptor, 0, static_cast<off_t>(size))) {
+#if defined(U_USE_TRANSITIONAL_UNIX_FILE_SYSTEM_INTERFACE)
+    if (reserveFlag && 0 == ftruncate64(descriptor, size)) {
         reserveFlag = false;  //  File space has been allocated
     }
+#else
+    if (reserveFlag && 0 == ftruncate(descriptor, size)) {
+        reserveFlag = false;  //  File space has been allocated
+    }
+#endif
 #endif
     if (reserveFlag) {
         // Reserve space the old-fashioned way.
@@ -2597,16 +2602,6 @@ int FilesystemUtil::growFile(FileDescriptor         descriptor,
     {
         return -1;                                                    // RETURN
     }
-
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-    if (!FlushFileBuffers(descriptor)) {
-        return -1;                                                    // RETURN
-    }
-#else
-    if (0 != fsync(descriptor)) {
-        return errno;                                                 // RETURN
-    }
-#endif
 
     return 0;
 }
