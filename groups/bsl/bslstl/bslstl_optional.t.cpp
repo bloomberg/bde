@@ -191,6 +191,7 @@ using namespace bsl;
 // [16] optional make_optional(initializer_list, ARGS&&...);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [19] DRQS 165776192
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -284,6 +285,27 @@ namespace {
 #define BSLSTL_OPTIONAL_TEST_TYPES_VARIADIC_ARGS                              \
     ConstructTestTypeNoAlloc, ConstructTestTypeAlloc,                         \
         ConstructTestTypeAllocArgT
+
+#define BSLSTL_OPTIONAL_TEST_NESTED_TYPE(X)                                   \
+     bsl::optional<X>
+
+#define BSLSTL_OPTIONAL_TEST_NESTED_TYPES                                     \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(signed char),                              \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(size_t),                                   \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(const char *),                             \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::TemplateTestFacility::ObjectPtr),   \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::TemplateTestFacility::FunctionPtr), \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::TemplateTestFacility::MethodPtr),   \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::EnumeratedTestType::Enum),          \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::UnionTestType),                     \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::SimpleTestType),                    \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::AllocTestType),                     \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::BitwiseCopyableTestType),           \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::BitwiseMoveableTestType),           \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::AllocBitwiseMoveableTestType),      \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::MovableTestType),                   \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::MovableAllocTestType),              \
+  BSLSTL_OPTIONAL_TEST_NESTED_TYPE(bsltf::NonTypicalOverloadsTestType)
 
                               // ================
                               // class MyClassDef
@@ -5793,6 +5815,9 @@ class TestDriver {
 
   public:
 
+    static void testCase19();
+        // TESTING DRQS 165776192
+
     static void testCase18();
         // TESTING type deduction
 
@@ -5803,6 +5828,7 @@ class TestDriver {
     static void testCase16();
     static void testCase16b();
         // TESTING 'make_optional' FACILITY
+
 
     static void testCase15();
     static void testCase15b();
@@ -5924,6 +5950,31 @@ void bslstl_optional_value_type_deduce(const bsl::optional<TYPE>&)
 template <class TYPE>
 void bslstl_optional_optional_type_deduce(const TYPE&)
 {
+}
+
+template <class TYPE>
+void TestDriver<TYPE>::testCase19()
+{
+    // ------------------------------------------------------------------------
+    // REPRODUCE BUG FROM DRQS 165776192
+    //
+    // Concerns:
+    //: 1 The copy constructor is selected when constructing a copy of nested
+    //:   'bsl::optional', i.e., 'bsl::optional<bsl::optional<TYPE>>'.
+    //
+    // Plan:
+    //: 1 Create an 'optional' object of the
+    //:   'bsl::optional<bsl::optional<TYPE>>' type.
+    //:
+    //: 2 Create a copy the object created in (P-1) and ensure that compiler
+    //:   can compile it.
+    //
+    // Testing:
+    //   DRQS 165776192
+    // ------------------------------------------------------------------------
+
+    bsl::optional<bsl::optional<TYPE> > s;
+    bsl::optional<bsl::optional<TYPE> > ss(s);
 }
 
 template <class TYPE>
@@ -12068,12 +12119,23 @@ int main(int argc, char **argv)
 
     switch (test) {
       case 0:
+      case 19: {
+        if (verbose)
+            printf("\nTESTING DRQS 165776192"
+                   "\n======================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase19,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
       case 18:
         RUN_EACH_TYPE(TestDriver,
                       testCase18,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver,
+                      testCase18,
+                      BSLSTL_OPTIONAL_TEST_NESTED_TYPES);
         break;
-
       case 17:
         RUN_EACH_TYPE(TestDriver, testCase17, MyClass2, MyClass2a);
         RUN_EACH_TYPE(TestDriver,
@@ -12092,8 +12154,14 @@ int main(int argc, char **argv)
       case 15:
         RUN_EACH_TYPE(TestDriver,
                       testCase15,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR)
+        RUN_EACH_TYPE(TestDriver,
+                      testCase15,
+                      BSLSTL_OPTIONAL_TEST_NESTED_TYPES);
         RUN_EACH_TYPE(TestDriver, testCase15b, MyClass2, MyClass2a);
+        RUN_EACH_TYPE(TestDriver, testCase15b,
+                      BSLSTL_OPTIONAL_TEST_NESTED_TYPE(MyClass2),
+                      BSLSTL_OPTIONAL_TEST_NESTED_TYPE(MyClass2a));
         break;
       case 14:
         RUN_EACH_TYPE(TestDriver,
@@ -12290,7 +12358,6 @@ int main(int argc, char **argv)
                       testCase3d,
                       ConstructTestTypeAlloc,
                       ConstructTestTypeAllocArgT);
-
         break;
       case 2:
         if (verbose)

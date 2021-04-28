@@ -1568,6 +1568,7 @@ class optional<TYPE, false> : public std::optional<TYPE> {
     template <class ANY_TYPE = TYPE>
     optional(
        ANY_TYPE&&                                                        value,
+       BSLSTL_OPTIONAL_DECLARE_IF_SAME(ANY_TYPE, TYPE),
        BSLSTL_OPTIONAL_DECLARE_IF_NOT_EXPLICIT_CONSTRUCT(TYPE, ANY_TYPE));
         // Create an 'optional' object having the same value as the specified
         // 'value' object by forwarding the contents of 'value' to the
@@ -1576,6 +1577,25 @@ class optional<TYPE, false> : public std::optional<TYPE> {
     template <class ANY_TYPE = TYPE>
     explicit optional(
            ANY_TYPE&&                                                    value,
+           BSLSTL_OPTIONAL_DECLARE_IF_SAME(ANY_TYPE, TYPE),
+           BSLSTL_OPTIONAL_DECLARE_IF_EXPLICIT_CONSTRUCT(TYPE, ANY_TYPE));
+        // Create an 'optional' object having the same value as the specified
+        // 'value' object by forwarding the contents of 'value' to the
+        // newly-created object.
+
+    template <class ANY_TYPE = TYPE>
+    optional(
+       ANY_TYPE&&                                                        value,
+       BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM(TYPE, ANYTYPE),
+       BSLSTL_OPTIONAL_DECLARE_IF_NOT_EXPLICIT_CONSTRUCT(TYPE, ANY_TYPE));
+        // Create an 'optional' object having the same value as the specified
+        // 'value' object by forwarding the contents of 'value' to the
+        // newly-created object.
+
+    template <class ANY_TYPE = TYPE>
+    explicit optional(
+           ANY_TYPE&&                                                    value,
+           BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM(TYPE, ANYTYPE),
            BSLSTL_OPTIONAL_DECLARE_IF_EXPLICIT_CONSTRUCT(TYPE, ANY_TYPE));
         // Create an 'optional' object having the same value as the specified
         // 'value' object by forwarding the contents of 'value' to the
@@ -3923,6 +3943,7 @@ template <class ANY_TYPE>
 inline
 optional<TYPE, false>::optional(
     ANY_TYPE&& value,
+    BSLSTL_OPTIONAL_DEFINE_IF_SAME(ANY_TYPE, TYPE),
     BSLSTL_OPTIONAL_DEFINE_IF_NOT_EXPLICIT_CONSTRUCT(TYPE, ANY_TYPE))
 : OptionalBase(std::forward<ANY_TYPE>(value))
 {
@@ -3933,6 +3954,29 @@ template <class ANY_TYPE>
 inline
 optional<TYPE, false>::optional(
     ANY_TYPE&& value,
+    BSLSTL_OPTIONAL_DEFINE_IF_SAME(ANY_TYPE, TYPE),
+    BSLSTL_OPTIONAL_DEFINE_IF_EXPLICIT_CONSTRUCT(TYPE, ANY_TYPE))
+: OptionalBase(std::forward<ANY_TYPE>(value))
+{
+}
+
+template <class TYPE>
+template <class ANY_TYPE>
+inline
+optional<TYPE, false>::optional(
+    ANY_TYPE&& value,
+    BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCTS_FROM(TYPE, ANYTYPE),
+    BSLSTL_OPTIONAL_DEFINE_IF_NOT_EXPLICIT_CONSTRUCT(TYPE, ANY_TYPE))
+: OptionalBase(std::forward<ANY_TYPE>(value))
+{
+}
+
+template <class TYPE>
+template <class ANY_TYPE>
+inline
+optional<TYPE, false>::optional(
+    ANY_TYPE&& value,
+    BSLSTL_OPTIONAL_DEFINE_IF_CONSTRUCTS_FROM(TYPE, ANYTYPE),
     BSLSTL_OPTIONAL_DEFINE_IF_EXPLICIT_CONSTRUCT(TYPE, ANY_TYPE))
 : OptionalBase(std::forward<ANY_TYPE>(value))
 {
