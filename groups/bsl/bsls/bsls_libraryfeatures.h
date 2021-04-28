@@ -1115,10 +1115,12 @@ BSLS_IDENT("$Id: $")
         #endif
         #if BSLS_PLATFORM_CMP_VERSION >= 90000
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM                 1
-            #if __has_include(<tbb/blocked-range.h>)
+            #ifdef BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+            # if __has_include(<tbb/blocked-range.h>)
                 // GCC 9 needs at least 2018 Intel Thread Building Blocks (TBB)
                 // installed for full C++17 parallel algorithm support.
                 #define BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS    1
+            # endif
             #endif
             #if defined(_GLIBCXX_USE_CXX11_ABI) && 1 == _GLIBCXX_USE_CXX11_ABI
                 #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                    1
