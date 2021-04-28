@@ -189,7 +189,7 @@ void testSignedTimespec(const char *timeSpecName)
     int ns, ct;
 
     if (sizeof(tm.tv_sec) == 4) {
-        if (veryVerbose) Q(Vary secondss across non-saturating range);
+        if (veryVerbose) Q(Vary seconds across non-saturating range);
         ns = 500 * k_MILLION, ct = 0;
         for (Int64 i = intMin; i <= intMax; i += i16, ++ns, ++ct) {
             bsls::TimeInterval ti(i, ns * sign(i));
@@ -430,7 +430,7 @@ void testUnsignedTimespec(const char *timeSpecName)
 
         if (veryVerbose) {
             Q(Test across full range:);
-            Q(... saturates on negative and no saturatiion on positive);
+            Q(... saturates on negative and no saturation on positive);
         }
         ns = 500 * k_MILLION, ct = 0;
         for (Int64 i = int64Min; i < int64Max - i48; i += i48, ++ns, ++ct) {
@@ -565,13 +565,22 @@ int main(int argc, char *argv[])
                                        &destinationInterval, aboveMaxInterval);
     ASSERT(maxDestinationInterval == destinationInterval);
 //..
-// Finally, we try a value less than 0 and observe the result of the saturated
+// Next, we try a value less than 0 and observe the result of the saturated
 // conversion is 0 (the minimum representable value):
 //..
     bsls::TimeInterval belowMinimumInterval(-1, 0);
     bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                    &destinationInterval, belowMinimumInterval);
     ASSERT(0 == destinationInterval);
+//..
+// Finally, when we convert a 'bsls::TimeInterval' containing a fractional
+// millisecond using 'toMillisec', the converted value is greater than the
+// input value:
+//..
+    bsls::TimeInterval piMSec(0, 3141593);  // 'pi' millseconds
+    unsigned int       mSec;
+    bslmt::SaturatedTimeConversionImpUtil::toMillisec(&mSec, piMSec);
+    ASSERT(4 == mSec);
 //..
       } break;
       case 6: {
@@ -623,7 +632,7 @@ int main(int argc, char *argv[])
         // TESTING 'toMillisec'
         //
         // Concerns:
-        //: 1 That 'toMilliSec' copies values that are in range without
+        //: 1 That 'toMillisec' copies values that are in range without
         //:   distortion.
         //: 2 That for values above the range that can be copied properly,
         //:   '*dst' is set to its max value;
@@ -634,8 +643,8 @@ int main(int argc, char *argv[])
         //: o Calculate 'maxSec' and 'maxNSec', the 'seconds' and 'nanoSeconds'
         //:   fields that a 'bsls::TimeInterval' will have and map to the exact
         //:   highest value of 'DWORD (== uintMax)' when properly converted
-        //:   by 'toMilliSec'.
-        //: o Do trials with 'seconds() == maxSex', and 'nanoseconds()' varying
+        //:   by 'toMillisec'.
+        //: o Do trials with 'seconds() == maxSec', and 'nanoseconds()' varying
         //:   between the max possible value and 0 by increments of a million,
         //:   observing that for nanoseconds greater than 'maxNSec', the
         //:   result is saturate, and below that it is not.
@@ -669,8 +678,8 @@ int main(int argc, char *argv[])
         //   'toMillisec'
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'toMilliseec'\n"
-                             "=====================\n";
+        if (verbose) cout << "TESTING 'toMillisec'\n"
+                             "====================\n";
 
 #ifdef BSLMT_PLATFORM_POSIX_THREADS
         typedef unsigned int DWORD;
@@ -698,8 +707,10 @@ int main(int argc, char *argv[])
             bsls::TimeInterval ti(maxSec, ns);
             Obj::toMillisec(&dst, ti);
 
-            Int64 expected = ns > maxNSec ? uintMax
-                                          : 1000 * maxSec + ns / k_MILLION;
+            const int partialMS = ns % k_MILLION ? 1 : 0;
+            Int64 expected = ns > maxNSec
+                                  ? uintMax
+                                  : 1000 * maxSec + ns / k_MILLION + partialMS;
             ASSERTV(uintMax, maxNSec, ns, dst, expected,
                                                       (Int64) dst == expected);
         }
@@ -739,6 +750,9 @@ int main(int argc, char *argv[])
             Int64 expected = i * 1000 + ns / k_MILLION;
             if (i > maxSec || (i == maxSec && ns > maxNSec)) {
                 expected = uintMax;
+            }
+            else if (ns % k_MILLION != 0) {
+                ++expected;
             }
             ASSERT(expected >= 0 && expected <= uintMax);
 
@@ -796,7 +810,12 @@ int main(int argc, char *argv[])
             }
             else {
                 ASSERT(ns / k_MILLION >= 0);
-                ASSERT((DWORD) (ns / k_MILLION) == dst);
+                if (ns % k_MILLION != 0) {
+                    ASSERT((DWORD) (ns / k_MILLION) + 1 == dst);
+                }
+                else {
+                    ASSERT((DWORD) (ns / k_MILLION) == dst);
+                }
             }
         }
 
@@ -823,7 +842,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) {
-            cout << "\tTest 64bit toMilleconds" << endl;
+            cout << "\tTest 64bit toMillisec" << endl;
         }
         {
             typedef bsls::Types::Int64 Int64;
@@ -859,7 +878,16 @@ int main(int argc, char *argv[])
                 int    d_nanoseconds;
                 Uint64 d_expectedResult;
             } VALUES[] = {
+                { L_,            -1,         0,                 0 },
+                { L_,            -1,        -1,                 0 },
                 { L_,             0,         0,                 0 },
+                { L_,             0,         1,                 1 },
+                { L_,             0, 499999999,               500 },
+                { L_,             0, 500000000,               500 },
+                { L_,             0, 500000001,               501 },
+                { L_,             0, 999999999,              1000 },
+                { L_,             1,         0,              1000 },
+                { L_,             1,         1,              1001 },
                 { L_,     MAX_INT64, 999999999,        MAX_UINT64 },
                 { L_,            -1,         0,                 0 },
                 { L_,     MIN_INT64,         0,                 0 },
@@ -868,6 +896,9 @@ int main(int argc, char *argv[])
 
                 // Test values approach and just past the limit
        { L_, SEC_LIMIT - 1,         0, ((Uint64)SEC_LIMIT -1) * 1000 },
+       { L_, SEC_LIMIT - 1,         1, ((Uint64)SEC_LIMIT -1) * 1000 +   1 },
+       { L_, SEC_LIMIT - 1, 500000000, ((Uint64)SEC_LIMIT -1) * 1000 + 500 },
+       { L_, SEC_LIMIT - 1, 999999999,      (Uint64)SEC_LIMIT * 1000 },
        { L_,     SEC_LIMIT,         0,      (Uint64)SEC_LIMIT * 1000 },
 
        { L_,     SEC_LIMIT, NANO_SEC_LIMIT - 1000000, MAX_UINT64 - 1 },
@@ -983,7 +1014,7 @@ int main(int argc, char *argv[])
             }
             ASSERT(ct > 65000);
 
-            if (veryVerbose) Q(Vary across full positve-saturating range);
+            if (veryVerbose) Q(Vary across full positive-saturating range);
             ct = 0;
             for (Int64 i = intMax; i < int64Max - i48; i += i48, ++ct) {
                 Obj::toTimeT(&tt, i);
@@ -992,7 +1023,7 @@ int main(int argc, char *argv[])
             }
             ASSERT(ct > 32000);
 
-            if (veryVerbose) Q(Vary across full negatve-saturating range);
+            if (veryVerbose) Q(Vary across full negative-saturating range);
             ct = 0;
             for (Int64 i = intMin; i > int64Min + i48; i -= i48, ++ct) {
                 Obj::toTimeT(&tt, i);
@@ -1262,7 +1293,7 @@ int main(int argc, char *argv[])
                 ASSERT(k_MAX_NANOSECONDS                 == ts.tv_nsec);
 
                 int matcher = bsl::numeric_limits<int>::max();
-                matcher = -matcher - 1;    // numeric_limites::min
+                matcher = -matcher - 1;    // numeric_limits::min
 
                 Obj::toTimeSpec(&ts, bsls::TimeInterval(-(1LL << 48),
                                                        -987654321));

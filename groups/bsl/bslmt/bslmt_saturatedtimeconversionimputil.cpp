@@ -49,7 +49,7 @@ TYPE minOf(const TYPE&)
 
 static inline
 void toTimeTImp(int *dst, bsls::Types::Int64 src)
-    // Assign to the specified 'dst' the value of the sepcified 'src', and if
+    // Assign to the specified 'dst' the value of the specified 'src', and if
     // 'src' is less than the lowest representable 'time_t' value, set 'dst' to
     // the minimum 'time_t' value, and if 'src' is greater than the highest
     // representable 'time_t' value, set 'dst' to the maximum 'time_t' value.
@@ -60,7 +60,7 @@ void toTimeTImp(int *dst, bsls::Types::Int64 src)
 
 static inline
 void toTimeTImp(long long *dst, bsls::Types::Int64 src)
-    // Assign to the specified 'dst' the value of the sepcified 'src', and if
+    // Assign to the specified 'dst' the value of the specified 'src', and if
     // 'src' is less than the lowest representable 'time_t' value, set 'dst' to
     // the minimum 'time_t' value, and if 'src' is greater than the highest
     // representable 'time_t' value, set 'dst' to the maximum 'time_t' value.
@@ -70,7 +70,7 @@ void toTimeTImp(long long *dst, bsls::Types::Int64 src)
 
 static inline
 void toTimeTImp(unsigned int *dst, bsls::Types::Int64 src)
-    // Assign to the specified 'dst' the value of the sepcified 'src', and if
+    // Assign to the specified 'dst' the value of the specified 'src', and if
     // 'src' is less than the lowest representable 'time_t' value, set 'dst' to
     // the minimum 'time_t' value, and if 'src' is greater than the highest
     // representable 'time_t' value, set 'dst' to the maximum 'time_t' value.
@@ -81,7 +81,7 @@ void toTimeTImp(unsigned int *dst, bsls::Types::Int64 src)
 
 static inline
 void toTimeTImp(unsigned long long *dst, bsls::Types::Int64 src)
-    // Assign to the specified 'dst' the value of the sepcified 'src', and if
+    // Assign to the specified 'dst' the value of the specified 'src', and if
     // 'src' is less than the lowest representable 'time_t' value, set 'dst' to
     // the minimum 'time_t' value, and if 'src' is greater than the highest
     // representable 'time_t' value, set 'dst' to the maximum 'time_t' value.
@@ -91,7 +91,7 @@ void toTimeTImp(unsigned long long *dst, bsls::Types::Int64 src)
 
 static inline
 void toTimeTImp(long *dst, bsls::Types::Int64 src)
-    // Assign to the specified 'dst' the value of the sepcified 'src', and if
+    // Assign to the specified 'dst' the value of the specified 'src', and if
     // 'src' is less than the lowest representable 'time_t' value, set 'dst' to
     // the minimum 'time_t' value, and if 'src' is greater than the highest
     // representable 'time_t' value, set 'dst' to the maximum 'time_t' value.
@@ -109,7 +109,7 @@ void toTimeTImp(long *dst, bsls::Types::Int64 src)
 
 static inline
 void toTimeTImp(unsigned long *dst, bsls::Types::Int64 src)
-    // Assign to the specified 'dst' the value of the sepcified 'src', and if
+    // Assign to the specified 'dst' the value of the specified 'src', and if
     // 'src' is less than the lowest representable 'time_t' value, set 'dst' to
     // the minimum 'time_t' value, and if 'src' is greater than the highest
     // representable 'time_t' value, set 'dst' to the maximum 'time_t' value.
@@ -189,9 +189,11 @@ void bslmt::SaturatedTimeConversionImpUtil::toMillisec(
 {
     BSLS_ASSERT(dst);
 
-    const int nanoMilliSeconds = src.nanoseconds() / k_NANOSEC_PER_MILLISEC;
+    const int fracMilliSeconds = src.nanoseconds() % k_NANOSEC_PER_MILLISEC;
+    const int milliSeconds     = src.nanoseconds() / k_NANOSEC_PER_MILLISEC
+                                            + (fracMilliSeconds != 0 ? 1 : 0);
 
-    if (src.seconds() < 0 || (0 == src.seconds() && nanoMilliSeconds <= 0)) {
+    if (src.seconds() < 0 || (0 == src.seconds() && src.nanoseconds() <= 0)) {
         *dst = 0;
     }
     else if (src.seconds() > maxOf(*dst)) {
@@ -202,7 +204,7 @@ void bslmt::SaturatedTimeConversionImpUtil::toMillisec(
         // 'src.seconds() * 1000 + 999 < 2^63', so this will work.  We also
         // know that 'src' is a positive time interval.
 
-        toTimeTImp(dst, src.seconds() * 1000 + nanoMilliSeconds);
+        toTimeTImp(dst, src.seconds() * 1000 + milliSeconds);
     }
 }
 
@@ -231,19 +233,21 @@ void bslmt::SaturatedTimeConversionImpUtil::toMillisec(
 
     typedef bsls::Types::Uint64 Uint64;
 
-    const int nanoMilliSeconds = src.nanoseconds() / k_NANOSEC_PER_MILLISEC;
+    const int fracMilliSeconds = src.nanoseconds() % k_NANOSEC_PER_MILLISEC;
+    const int milliSeconds     = src.nanoseconds() / k_NANOSEC_PER_MILLISEC
+                                            + (fracMilliSeconds != 0 ? 1 : 0);
     const Uint64 MAX_UINT64 = maxOf(*dst);
     const Uint64 MAX_SEC    = MAX_UINT64 / 1000;
     const Uint64 MAX_MILLI_FOR_MAX_SEC =
                                       MAX_UINT64 - ((MAX_UINT64)/1000) * 1000;
 
-    if (src.seconds() < 0 || (0 == src.seconds() && nanoMilliSeconds <= 0)) {
+    if (src.seconds() < 0 || (0 == src.seconds() && src.nanoseconds() <= 0)) {
         *dst = 0;
     }
     else if ((Uint64)src.seconds() < MAX_SEC ||
                ((Uint64)src.seconds() == MAX_SEC &&
-                (Uint64)nanoMilliSeconds < MAX_MILLI_FOR_MAX_SEC))  {
-        *dst = (bsls::Types::Uint64)src.seconds() * 1000 + nanoMilliSeconds;
+                (Uint64)milliSeconds < MAX_MILLI_FOR_MAX_SEC))  {
+        *dst = (bsls::Types::Uint64)src.seconds() * 1000 + milliSeconds;
     }
     else {
         *dst = maxOf(*dst);

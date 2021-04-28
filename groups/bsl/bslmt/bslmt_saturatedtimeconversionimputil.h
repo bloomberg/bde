@@ -34,6 +34,18 @@ BSLS_IDENT("$Id: $")
 // return an error status or define complex undefined behavior for the
 // function.
 //
+///Conversion to Milliseconds
+///--------------------------
+// This component defines an overloaded function named 'toMillisec'.  In
+// addition to the saturating behavior defined above, 'toMillisec' may also
+// involve a loss of precision but without a concomitant loss of value.  In
+// particular, the converted value will be the smallest representable value
+// greater than or equal to the original value.
+//
+// For example, when 'bsls::TimeInterval(0, 1234567)' is converted to an
+// 'unsigned int' using 'toMillisec', the result is 2 since 1234567 nanoseconds
+// includes a fractional millisecond.
+//
 ///Usage
 ///-----
 // Suppose we need to assign a value held in a 'bsls::TimeInterval' to an
@@ -84,13 +96,22 @@ BSLS_IDENT("$Id: $")
 //                                     &destinationInterval, aboveMaxInterval);
 //  assert(maxDestinationInterval == destinationInterval);
 //..
-// Finally, we try a value less than 0 and observe the result of the saturated
+// Next, we try a value less than 0 and observe the result of the saturated
 // conversion is 0 (the minimum representable value):
 //..
 //  bsls::TimeInterval belowMinimumInterval(-1, 0);
 //  bslmt::SaturatedTimeConversionImpUtil::toMillisec(
 //                                 &destinationInterval, belowMinimumInterval);
 //  assert(0 == destinationInterval);
+//..
+// Finally, when we convert a 'bsls::TimeInterval' containing a fractional
+// millisecond using 'toMillisec', the converted value is greater than the
+// input value:
+//..
+//  bsls::TimeInterval piMSec(0, 3141593);  // 'pi' millseconds
+//  unsigned int       mSec;
+//  bslmt::SaturatedTimeConversionImpUtil::toMillisec(&mSec, piMSec);
+//  assert(4 == mSec);
 //..
 
 #include <bslscm_version.h>
@@ -175,7 +196,7 @@ struct SaturatedTimeConversionImpUtil {
         // converted to milliseconds, and if that value is a negative time
         // interval, set 'dst' to 0, and if that value is greater than the
         // maximum representable value of 'dst' set 'dst' to its maximum
-        // representable value.
+        // representable value.  See {Conversion to Milliseconds}.
 };
 
 }  // close package namespace
