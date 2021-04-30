@@ -26,10 +26,11 @@ using namespace bsl;
 //
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+// [3] bsls::TimeInterval ChronoUtil::durationToTimeInterval(duration);
 // [1] bool isMatchingClock<CLOCK>(bsls::SystemClockType::Enum cT);
 // [2] int timedWait(PRIMITIVE *, const time_point&);
 // [2] int timedWait(PRIMITIVE *, ARG_TYPE *, const time_point&);
-// [3] USAGE EXAMPLE
+// [4] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -423,7 +424,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -479,6 +480,66 @@ int main(int argc, char *argv[])
 // defined on* is greater than the timeout value that was passed in.
 
         ASSERT(0 == rc);
+#endif
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING 'durationToTimeInterval'
+        //   Ensure the function converts values correctly.
+        //
+        // Concerns:
+        //: 1 The template converts both integral-based and floating-point
+        //:   based durations correctly.
+        //
+        // Plan:
+        //: 1 Convert both integral and floating-point-based durations, and
+        //:   check the results.  (C-1)
+        //
+        // Testing:
+        //   bsls::TimeInterval ChronoUtil::durationToTimeInterval(duration);
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl
+                 << "TESTING 'durationToTimeInterval'" << endl
+                 << "================================" << endl;
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        using namespace bsl::chrono;
+
+        // implicit and explicit conversions give the same answer
+        ASSERT(bsls::TimeInterval(seconds(2)) ==
+                    bslmt::ChronoUtil::durationToTimeInterval(seconds(2)));
+
+        bsls::TimeInterval fp1 = bslmt::ChronoUtil::durationToTimeInterval(
+                                                        duration<double>(4.0));
+        bsls::TimeInterval fp2 = bslmt::ChronoUtil::durationToTimeInterval(
+                                                        duration<double>(6.5));
+        bsls::TimeInterval fp3 = bslmt::ChronoUtil::durationToTimeInterval(
+                                                      duration<double>(8.275));
+        bsls::TimeInterval fp4 = bslmt::ChronoUtil::durationToTimeInterval(
+                                                       duration<double>(1.67));
+
+        ASSERT(4 == fp1.seconds());
+        ASSERT(0 == fp1.nanoseconds());
+        ASSERT(6 == fp2.seconds());
+        ASSERT(500000000 == fp2.nanoseconds());
+        ASSERT(8 == fp3.seconds());
+        ASSERT(274999999 <= fp3.nanoseconds());
+        ASSERT(275000001 >= fp3.nanoseconds());
+        ASSERT(1 == fp4.seconds());
+        ASSERT(669999999 <= fp4.nanoseconds());
+        ASSERT(670000001 >= fp4.nanoseconds());
+
+
+        bsls::TimeInterval fp5 = bslmt::ChronoUtil::durationToTimeInterval(
+                                                        duration<double>(4.0));
+        bsls::TimeInterval fp6 = bslmt::ChronoUtil::durationToTimeInterval(
+                                                        seconds(4));
+        ASSERT(fp5 == fp6);
+
 #endif
 
       } break;
@@ -580,22 +641,22 @@ int main(int argc, char *argv[])
         ASSERT( bslmt::ChronoUtil::isMatchingClock<system_clock>(
                                            bsls::SystemClockType::e_REALTIME));
         ASSERT(!bslmt::ChronoUtil::isMatchingClock<system_clock>(
-                                           bsls::SystemClockType::e_MONOTONIC));
+                                          bsls::SystemClockType::e_MONOTONIC));
 
         ASSERT(!bslmt::ChronoUtil::isMatchingClock<steady_clock>(
                                            bsls::SystemClockType::e_REALTIME));
         ASSERT( bslmt::ChronoUtil::isMatchingClock<steady_clock>(
-                                           bsls::SystemClockType::e_MONOTONIC));
+                                          bsls::SystemClockType::e_MONOTONIC));
 
         ASSERT(!bslmt::ChronoUtil::isMatchingClock<HalfClock>(
                                            bsls::SystemClockType::e_REALTIME));
         ASSERT(!bslmt::ChronoUtil::isMatchingClock<HalfClock>(
-                                           bsls::SystemClockType::e_MONOTONIC));
+                                          bsls::SystemClockType::e_MONOTONIC));
 
         ASSERT(!bslmt::ChronoUtil::isMatchingClock<AnotherClock>(
                                            bsls::SystemClockType::e_REALTIME));
         ASSERT(!bslmt::ChronoUtil::isMatchingClock<AnotherClock>(
-                                           bsls::SystemClockType::e_MONOTONIC));
+                                          bsls::SystemClockType::e_MONOTONIC));
 #endif
       } break;
       default: {

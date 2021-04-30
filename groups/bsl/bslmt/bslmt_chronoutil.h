@@ -16,7 +16,10 @@ BSLS_IDENT("$Id: $")
 // that serves as a namespace for a suite of classes and functions for
 // interfacing C++11-style clocks with the clocks that BDE provides.
 //
-// 'bslmt::ChronoUtil' defines a 'timedWait' function for waiting on a
+// 'bslmt::ChronoUtil' defines a 'durationToTimeInterval' function for
+// converting an arbitrary 'bsl::chrono::duration' to a 'bsls::TimeInterval'.
+//
+// 'bslmt::ChronoUtil' also defines a 'timedWait' function for waiting on a
 // synchronization primitive that uses a 'bsls' system clock type internally
 // (see {'bsls_systemclocktype'}), while allowing the user to specify the
 // timeout using a 'bsl::chrono::time_point'.
@@ -49,6 +52,10 @@ BSLS_IDENT("$Id: $")
 // the clock used by the underlying synchronization primitive, then the
 // 'timedWait' function of the primitive may be called more than once, so the
 // method is potentially more efficient if the clocks match.
+//
+// Finally, 'bslmt::ChronoUtil' defines an 'isMatchingClock' function that
+// checks to see if a C++11-style clock matches a 'bsls' system clock.  See
+// {'bsls_systemclocktype'}.
 //
 ///Usage
 ///-----
@@ -187,6 +194,14 @@ struct ChronoUtil {
 
   public:
     // CLASS METHODS
+    template <class REP_TYPE, class PERIOD_TYPE>
+    static bsls::TimeInterval durationToTimeInterval(
+                 const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& duration);
+        // Return a 'bsls::TimeInterval' having the value represented by the
+        // specified 'duration'.  Unlike the implicit conversion defined from
+        // duration defined in 'bsls::TimeInterval', this conversion handles
+        // floating-point-based durations as well as integral ones.
+
     template <class CLOCK>
     static
     bool isMatchingClock(bsls::SystemClockType::Enum clockType);
@@ -241,6 +256,19 @@ struct ChronoUtil {
                            // -----------------
 
 // CLASS METHODS
+template <class REP_TYPE, class PERIOD_TYPE>
+inline
+bsls::TimeInterval ChronoUtil::durationToTimeInterval(
+                  const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& duration)
+{
+    using namespace bsl::chrono;
+
+    seconds     wholeSecs = duration_cast<seconds>(duration);
+    nanoseconds nanoSecs  = duration_cast<nanoseconds>(duration - wholeSecs);
+    return bsls::TimeInterval(wholeSecs.count(),
+                              static_cast<int>(nanoSecs.count()));
+}
+
 template <class CLOCK>
 inline
 bool ChronoUtil::isMatchingClock(bsls::SystemClockType::Enum)
