@@ -106,13 +106,13 @@ class AnotherClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
-    static time_point now() noexcept;
+    static time_point now();
         // Return a time point representing the time since the beginning of the
         // epoch.
 };
 
 // CLASS METHODS
-AnotherClock::time_point AnotherClock::now() noexcept
+AnotherClock::time_point AnotherClock::now()
 {
     base_clock::duration ret = base_clock::now().time_since_epoch();
     return AnotherClock::time_point(ret - duration(10000));
@@ -139,13 +139,13 @@ class HalfClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
-    static time_point now() noexcept;
+    static time_point now();
         // Return a time point representing the time since the beginning of the
         // epoch.
 };
 
 // CLASS METHODS
-HalfClock::time_point HalfClock::now() noexcept
+HalfClock::time_point HalfClock::now()
 {
     base_clock::duration ret = base_clock::now().time_since_epoch();
     return HalfClock::time_point(ret/2);
