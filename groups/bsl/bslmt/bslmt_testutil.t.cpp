@@ -703,13 +703,13 @@ int OutputRedirector::redirectStderrToStdout()
     FILE *from = stderr;
     FILE *to   = stdout;
 
-    const int redirected = dup2(fileno(from), fileno(to));
-    return redirected == fileno(to) ? 0 : -1;
+    const int redirected = dup2(fileno(to), fileno(from));
+    return redirected == fileno(from) ? 0 : -1;
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
     FILE *from = stderr;
     FILE *to   = stdout;
 
-    return _dup2(_fileno(from), _fileno(to));
+    return _dup2(_fileno(to), _fileno(from));
 #else
     return (stderr == freopen("/dev/stdout", "w", stderr)) ? 0 : -1;
 #endif
