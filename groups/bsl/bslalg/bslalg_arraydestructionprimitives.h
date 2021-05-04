@@ -191,8 +191,9 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
     // destructor.
 
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-    bsls::Types::size_type numBytes = (const char*)end - (const char*)begin;
-    std::memset((void *)begin, 0xa5, numBytes);
+    if (begin) {
+        std::memset((void *) begin, 0xa5, (end - begin) * sizeof(TARGET_TYPE));
+    }
 #else
     (void) begin;
     (void) end;
