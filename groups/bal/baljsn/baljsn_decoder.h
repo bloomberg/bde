@@ -965,6 +965,8 @@ int Decoder::decode(bsl::istream&          stream,
                     const DecoderOptions&  options)
 {
     if (!stream.good()) {
+        d_logStream
+            << "Input stream state is not 'good()' - nothing to decode\n";
         return -1;                                                    // RETURN
     }
 
