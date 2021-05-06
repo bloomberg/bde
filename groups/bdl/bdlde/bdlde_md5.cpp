@@ -410,13 +410,20 @@ static void append(unsigned int *state, const unsigned char *data)
     bsl::memset(xArray, 0, sizeof(xArray));
 }
 
+inline
+static int getLengthInUse(bsls::Types::Int64 length)
+    // Return the number of bytes in use in the buffer for the total specified
+    // 'length'.
+{
+    // Return value equivalent to 'length % BYTEBLOCKSIZE'.
+    return length & 0x3f;
+}
+
 static void padLengthToBuffer(unsigned int       *state,
                               unsigned char      *buffer,
                               bsls::Types::Int64  length)
 {
-    // The same as 'int inUse = length % BYTEBLOCKSIZE;'
-
-    int inUse = length & 0x3f;
+    int inUse = getLengthInUse(length);
     int start = 0;
     const int PADLENGTHINDEX = BYTEBLOCKSIZE - BYTELENGTHPADSIZE;
 
@@ -524,7 +531,7 @@ Md5::Md5(const Md5& original)
     d_state[1] = original.d_state[1];
     d_state[2] = original.d_state[2];
     d_state[3] = original.d_state[3];
-    bsl::memcpy(d_buffer, original.d_buffer, sizeof(d_buffer));
+    bsl::memcpy(d_buffer, original.d_buffer, getLengthInUse(d_length));
 }
 
 Md5::~Md5()
@@ -543,9 +550,7 @@ void Md5::update(const void *data, int length)
 
     const unsigned char *input = (const unsigned char *)data;
 
-    // The same as 'int inUse = d_length % BYTEBLOCKSIZE;'
-
-    int inUse = d_length & 0x3f;
+    int inUse = getLengthInUse(d_length);
     int start = 0;
 
     if (inUse) {
@@ -651,9 +656,7 @@ bool bdlde::operator==(const Md5& lhs, const Md5& rhs)
         return false;                                                 // RETURN
     }
 
-    // Same as 'int inUse = lhs.d_length % BYTEBLOCKSIZE;'.
-
-    int inUse = lhs.d_length & 0x3f;
+    int inUse = getLengthInUse(lhs.d_length);
     return 0 == bsl::memcmp(lhs.d_buffer,
                             rhs.d_buffer,
                             (sizeof *lhs.d_buffer) * inUse);
