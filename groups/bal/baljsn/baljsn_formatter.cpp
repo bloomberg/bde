@@ -32,14 +32,6 @@ Formatter::Formatter(bsl::ostream&     stream,
     d_callSequence.append(false);
 }
 
-Formatter::~Formatter()
-{
-    // Verify that the dummy value added in the constructor is the only value
-    // remaining in 'd_callSequence'.
-
-    BSLS_ASSERT(1 == d_callSequence.length() && false == isArrayElement());
-}
-
 // MANIPULATORS
 void Formatter::openObject()
 {

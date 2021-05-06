@@ -1461,13 +1461,21 @@ int Encoder_EncodeImplUtil::encode(bsl::ostream          *logStream,
                                 options.spacesPerLevel());
 
     bool valueIsEmpty = false;
-    return encode(&valueIsEmpty,
-                  &formatter,
-                  logStream,
-                  value,
-                  s_MODE,
-                  options,
-                  s_FIRST_MEMBER_FLAG);
+
+    int rc = encode(&valueIsEmpty,
+                    &formatter,
+                    logStream,
+                    value,
+                    s_MODE,
+                    options,
+                    s_FIRST_MEMBER_FLAG);
+
+    if (0 != formatter.nestingDepth()) {
+        *logStream << "Encoding failed leaving an unclosed element (rc = "
+                   << rc << ")\n";
+    }
+
+    return rc;
 }
 
 template <class TYPE>

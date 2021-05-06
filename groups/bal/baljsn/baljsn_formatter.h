@@ -263,11 +263,8 @@ class Formatter {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    ~Formatter();
-        // Destroy this object.  The behavior is undefined unless each call to
-        // 'openObject', 'openArray', and 'openMember' made on this object was
-        // matched with a corresponding call to 'closeObject', 'closeArray',
-        // and 'closeMember'.
+    //! ~Formatter() = default;
+        // Destroy this object.
 
     // MANIPULATORS
     void openObject();
@@ -331,6 +328,10 @@ class Formatter {
         // characters designating an array element separator (i.e., ',').  The
         // behavior is undefined unless this 'Formatter' is currently
         // formatting a member.
+
+    // ACCESSORS
+    int nestingDepth() const;
+        // Return the number of currently open nested objects or arrays.
 };
 
 // ============================================================================
@@ -374,6 +375,15 @@ int Formatter::putValue(const TYPE& value, const EncoderOptions *options)
         indent();
     }
     return baljsn::PrintUtil::printValue(d_outputStream, value, options);
+}
+
+// ACCESSORS
+inline
+int Formatter::nestingDepth() const
+{
+    // The call sequence contains a "dummy" initial element, so subtract one
+    // from the length.
+    return static_cast<int>(d_callSequence.length()) - 1;
 }
 
 }  // close package namespace

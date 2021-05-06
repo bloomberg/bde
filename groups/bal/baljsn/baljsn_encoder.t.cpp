@@ -32,8 +32,8 @@
 #include <balxml_minireader.h>
 #include <balxml_errorinfo.h>
 
-#include <bdlb_nullablevalue.h>
 #include <bdlb_nullableallocatedvalue.h>
+#include <bdlb_nullablevalue.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetz.h>
@@ -63,6 +63,7 @@
 #include <s_baltst_employee.h>
 #include <s_baltst_featuretestmessage.h>
 #include <s_baltst_featuretestmessageutil.h>
+#include <s_baltst_mysequencewithchoice.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -508,7 +509,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -619,6 +620,44 @@ int main(int argc, char *argv[])
 
     ASSERT(EXP_OUTPUT == os.str());
 //..
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING ENCODING UNSET CHOICE
+        //   This case tests that 'baljsn::Encoder::encode' returns a non-zero
+        //   value if the supplied object contains an unset choice.
+        //
+        // Concerns:
+        //: 1 When encoding an object containing an unset choice, the encoder
+        //:   returns a non-0 value, and does not trigger any assertions.
+        //
+        // Plan:
+        //: 1 Create a message object of type 'drqs165920075::MyType' which
+        //:   contains an unset choice in its sub-object of type
+        //:   'drqs165920075::MyChoice' and ensure than 'encode' returns a
+        //:   non-0 value.
+        //
+        // Testing:
+        //   int encode(stream, value, options);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "TESTING ENCODING UNSET CHOICE"
+                 << endl
+                 << "============================="
+                 << endl;
+
+        bsl::ostringstream                          out;
+        BloombergLP::s_baltst::MySequenceWithChoice obj;
+
+        baljsn::Encoder        encoder;
+        baljsn::EncoderOptions options;
+        options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
+
+        const int rc = encoder.encode(out, obj, options);
+        ASSERT(0 != rc);
+        if (verbose) { P(rc); P(encoder.loggedMessages()); P(out.str()); }
       } break;
       case 19: {
         // --------------------------------------------------------------------

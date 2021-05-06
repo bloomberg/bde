@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<schema xmlns              = 'http://www.w3.org/2001/XMLSchema'
+        xmlns:bdem         = 'http://bloomberg.com/schemas/bdem'
+        xmlns:tst          = 'urn:x-bloomberg-com:tst'
+        targetNamespace='http://bloomberg.com/schemas/s_baltst'
+        bdem:package       = 's_baltst'
+        elementFormDefault = 'qualified'>
+
+  <complexType name='MySequenceWithChoice'>
+    <sequence>
+      <element name='mode' type='tst:MySequenceWithChoiceChoice'/>
+    </sequence>
+  </complexType>
+
+  <complexType name='MySequenceWithChoiceChoice'>
+    <choice>
+      <element name='choiceA' type='int'/>
+    </choice>
+  </complexType>
+</schema>
