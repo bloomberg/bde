@@ -263,6 +263,7 @@ BSLS_IDENT("$Id: $")
 #include <balxml_typesparserutil.h>
 #include <balxml_errorinfo.h>
 #include <balxml_reader.h>
+#include <balxml_utf8readerwrapper.h>
 
 #include <bdlat_arrayfunctions.h>
 #include <bdlat_choicefunctions.h>
@@ -395,9 +396,10 @@ class Decoder {
     };
 
     // DATA
-    const DecoderOptions     *d_options;        // held, not owned
-    Reader                   *d_reader;         // held, not owned
-    ErrorInfo                *d_errorInfo;      // held, not owned
+    const DecoderOptions            *d_options;        // held, not owned
+    Utf8ReaderWrapper                d_utf8ReaderWrapper;
+    Reader                          *d_reader;         // held, not owned
+    ErrorInfo                       *d_errorInfo;      // held, not owned
 
     bslma::Allocator                *d_allocator;      // held, not owned
 

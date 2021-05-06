@@ -15,9 +15,12 @@ BSLS_IDENT_RCSID(bdlde_utf8util_cpp,"$Id$ $CSID$")
 #include <bsla_fallthrough.h>
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
+#include <bsls_platform.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_fstream.h>
+#include <bsl_ios.h>
 #include <bsl_streambuf.h>
 
 // LOCAL MACROS
@@ -1364,18 +1367,22 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
     BSLS_ASSERT(4 <= outputBufferLength);
     BSLS_ASSERT(input);
 
+    typedef bsl::char_traits<char>   Traits;
+    typedef Traits::int_type         int_type;
+    typedef bsl::streambuf::pos_type pos_type;
+
     // We first write the UTF-8 sequence into 'tmpBuf', of length 'tmpLen'.
     // Only if it turns out to be valid UTF-8 do we copy it into
     // 'outputBuffer'.
 
-    char        tmpBuf[4] = { 0 };    // zero out to silence purify
-    char       *tmpPtr;
+    char             tmpBuf[4] = { 0 };    // zero out to silence purify
+    char            *tmpPtr;
 
-    char       *out = outputBuffer;
-    const char *end = outputBuffer + outputBufferLength - 3;
-    const int   eof = bsl::char_traits<char>::eof();
-    int         rc  = 0;
-    int         c;
+    char            *out = outputBuffer;
+    const char      *end = outputBuffer + outputBufferLength - 3;
+    const int_type   eof = Traits::eof();
+    int              rc  = 0;
+    int              c;
 
     while (true) {
         BSLS_ASSERT(0 == rc);
@@ -1470,7 +1477,6 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
                 break;
             }
 
-
             bsl::memcpy(out, tmpBuf, 3);
             out += 3;
           } continue;
@@ -1524,9 +1530,22 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
         }
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-        while (tmpBuf < tmpPtr) {
-            input->sputbackc(*--tmpPtr);
-        }
+        // Windows and AIX have a problem with 'std::filebuf::sputbackc'
+        // malfunctions under some circumstances when called multiple times, so
+        // we use 'pubseekoff' to move backward.  However, some 'streambuf's
+        // (including the 'streambuf' in a 'std::stringstream' on Unix) are not
+        // seekable, so we do not check the return value here.
+
+        const pos_type pos = input->pubseekoff(tmpBuf - tmpPtr,
+                                               bsl::ios_base::cur,
+                                               bsl::ios_base::in);
+
+        // If the seek succeeds, it will return a non-negative value.  This may
+        // be the case if '*input' is non-seekable (which is rare).  Check it
+        // with a safe assert, so we will find out about it in development, but
+        // just continue on if the problem occurs in production.
+
+        BSLS_ASSERT_SAFE(0 <= pos);    (void) pos;
 
         break;
     }

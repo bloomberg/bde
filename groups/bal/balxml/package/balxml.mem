@@ -16,5 +16,6 @@ balxml_prefixstack
 balxml_reader
 balxml_typesparserutil
 balxml_typesprintutil
+balxml_utf8readerwrapper
 balxml_util
 balxml_validatingreader

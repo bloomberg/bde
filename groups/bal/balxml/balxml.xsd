@@ -50,9 +50,7 @@
         the default).
 
         The generated C++ code for this schema element is created by using
-        bas_codegen.pl, run by balxml/code_from_xsd.pl. The resulting C++ code
-        must be hand edited to make 'DatetimeFractionalSecondPrecision' default
-        to 3 rather than 6.
+        bas_codegen.pl, run by balxml/code_from_xsd.pl, with no hand-editing.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
@@ -205,6 +203,10 @@
           <xs:documentation>
             This option controls the number of decimal places used for seconds
             when encoding 'Datetime' and 'DatetimeTz'.
+
+            Note that the default of this field is '6' in
+            'balxml_encoderoptions.cpp', but is edited to '3' in
+            'balxml_configschema.cpp' by balxml/code_from_xsd.pl.
           </xs:documentation>
         </xs:annotation>
       </xs:element>
@@ -260,6 +262,16 @@
         <xs:annotation>
           <xs:documentation>
             Option to skip unknown elements
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='ValidateInputIsUtf8' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='false'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            option to check that input is valid UTF-8
           </xs:documentation>
         </xs:annotation>
       </xs:element>
