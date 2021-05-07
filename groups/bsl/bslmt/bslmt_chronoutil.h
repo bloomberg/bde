@@ -263,7 +263,10 @@ bsls::TimeInterval ChronoUtil::durationToTimeInterval(
 {
     using namespace bsl::chrono;
 
-    seconds     wholeSecs = duration_cast<seconds>(duration);
+    // Explicit scope needed due to legacy code using 'seconds' at BloombergLP
+    // namespace scope.
+    bsl::chrono::seconds wholeSecs =
+        duration_cast<bsl::chrono::seconds>(duration);
     nanoseconds nanoSecs  = duration_cast<nanoseconds>(duration - wholeSecs);
     return bsls::TimeInterval(wholeSecs.count(),
                               static_cast<int>(nanoSecs.count()));
