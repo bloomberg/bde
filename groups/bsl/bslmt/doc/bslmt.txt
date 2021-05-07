@@ -59,8 +59,7 @@
       bslmt_semaphoreimpl_win32                                       !PRIVATE!
       bslmt_timedsemaphoreimpl_win32                                  !PRIVATE!
 
-   7. bslmt_chronoutil
-      bslmt_mutex
+   7. bslmt_mutex
       bslmt_recursivemutex
       bslmt_timedsemaphoreimpl_posixadv                               !PRIVATE!
       bslmt_timedsemaphoreimpl_pthread                                !PRIVATE!
@@ -83,7 +82,8 @@
       bslmt_saturatedtimeconversionimputil
       bslmt_threadattributes
 
-   1. bslmt_lockguard
+   1. bslmt_chronoutil
+      bslmt_lockguard
       bslmt_platform
       bslmt_readlockguard
       bslmt_threadlocalvariable
