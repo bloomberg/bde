@@ -5,8 +5,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_chronoutil_cpp,"$Id$ $CSID$")
 
-#include <bslmt_threadutil.h>    // for testing only
-
 namespace BloombergLP {
 namespace bslmt {
 

@@ -4,8 +4,6 @@
 
 #include <bslim_testutil.h>
 
-#include <bslmt_threadutil.h>  // for sleep
-
 #include <bsl_iostream.h>
 
 #include <stdlib.h>
@@ -386,14 +384,12 @@ TimedWaitTimeout::TimedWaitTimeout(bsls::SystemClockType::Enum clockType)
 int TimedWaitTimeout::timedWait(const bsls::TimeInterval&)
 {
     ++d_numCalls;
-    bslmt::ThreadUtil::microSleep(250000);
     return e_TIMED_OUT;
 }
 
 int TimedWaitTimeout::timedWait(void *, const bsls::TimeInterval&)
 {
     ++d_numCalls;
-    bslmt::ThreadUtil::microSleep(250000);
     return e_TIMED_OUT;
 }
 
