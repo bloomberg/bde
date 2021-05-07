@@ -1,8 +1,16 @@
-bsl-internal (3.80.0.0) unstable; urgency=low
+bsl-internal (3.81.0.0) unstable; urgency=low
 
+  * 9546277e5 Bumped version to 3.81.0.0
+  * 63bdaafdc Change 'SaturatedTimeConversionImpUtil::toMillisec' to round up fractional msec (#3203)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 7 May 2021 10:50:56 -0400
+
+bsl-internal (3.80.0.0) git; urgency=low
+
+  * fa2fbab95 Changelog for version 3.80.0.0
   * 3a6432a03 Bumped version to 3.80.0.0
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 23 Apr 2021 15:39:54 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 23 Apr 2021 15:48:16 -0400
 
 bsl-internal (3.79.0.0) git; urgency=low
 
