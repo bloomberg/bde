@@ -325,7 +325,7 @@ void *loopForEightSeconds(void *arg)
         int depth = expDepth;
 
         for (int ii = 0; ii < iterations; ++ii, ++tracesDone) {
-            recurseABunchOfTimes(&depth, 0, &ii, 0, idMod);
+            u::foilOptimizer(recurseABunchOfTimes)(&depth, 0, &ii, 0, idMod);
             ASSERT(expDepth == depth);
         }
     } while ((bsls::SystemTime::nowMonotonicClock() -
@@ -462,66 +462,21 @@ static int findIndex(const void *retAddress)
     return ret;
 }
 
-// Then, we define a volatile global variable that we will use in calculation
-// to discourage compiler optimizers from inlining:
-
-volatile unsigned int volatileGlobal = 1;
-
 // Next, we define a set of functions that will be called in a nested fashion
-// -- 'func5' calls 'func4' who calls 'fun3' and so on.  In each function, we
-// will perform some inconsequential instructions to prevent the compiler from
-// inlining the functions.
-//
-// Note that we know the 'if' conditions in these 5 subroutines never evaluate
-// to 'true', however, the optimizer cannot figure that out, and that will
-// prevent it from inlining here.
+// -- 'func5' calls 'func4' who calls 'fun3' and so on.
+
+#define CASE4_FUNC(nMinus1, n)                                  \
+    static unsigned int func ## n()                             \
+    {                                                           \
+            return n * u::foilOptimizer(func ## nMinus1)();     \
+    }
 
 static unsigned int func1();
-static unsigned int func2()
-{
-    if (volatileGlobal > 10) {
-        return (volatileGlobal -= 100) * 2 * func2();                 // RETURN
-    }
-    else {
-        return volatileGlobal * 2 * func1();                          // RETURN
-    }
-}
-static unsigned int func3()
-{
-    if (volatileGlobal > 10) {
-        return (volatileGlobal -= 100) * 2 * func3();                 // RETURN
-    }
-    else {
-        return volatileGlobal * 3 * func2();                          // RETURN
-    }
-}
-static unsigned int func4()
-{
-    if (volatileGlobal > 10) {
-        return (volatileGlobal -= 100) * 2 * func4();                 // RETURN
-    }
-    else {
-        return volatileGlobal * 4 * func3();                          // RETURN
-    }
-}
-static unsigned int func5()
-{
-    if (volatileGlobal > 10) {
-        return (volatileGlobal -= 100) * 2 * func5();                 // RETURN
-    }
-    else {
-        return volatileGlobal * 5 * func4();                          // RETURN
-    }
-}
-static unsigned int func6()
-{
-    if (volatileGlobal > 10) {
-        return (volatileGlobal -= 100) * 2 * func6();                 // RETURN
-    }
-    else {
-        return volatileGlobal * 6 * func5();                          // RETURN
-    }
-}
+CASE4_FUNC(1, 2)
+CASE4_FUNC(2, 3)
+CASE4_FUNC(3, 4)
+CASE4_FUNC(4, 5)
+CASE4_FUNC(5, 6)
 
 // Next, we define the macro FUNC_ADDRESS, which will take a parameter of
 // '&<function name>' and return a pointer to the actual beginning of the
@@ -603,7 +558,7 @@ unsigned int func1()
         }
     }
 
-    return volatileGlobal;
+    return 1;
 }
 
 #undef FUNC_ADDRESS
@@ -652,13 +607,7 @@ static int findIndex(AddressEntry *entries, int numAddresses, UintPtr funcP)
     void func ## n(int *pi)                                                  \
     {                                                                        \
         ++*pi;                                                               \
-        if (*pi > 100) {                                                     \
-            func ## n(pi);                                                   \
-        }                                                                    \
-        else if (*pi < 100) {                                                \
-            func ## nMinus1(pi);                                             \
-        }                                                                    \
-                                                                             \
+        u::foilOptimizer(func ## nMinus1)(pi);                               \
         ++*pi;                                                               \
     }
 
@@ -750,17 +699,19 @@ void func0(int *pi)
 
 namespace CASE_ONE {
 
-volatile int recurseDepth = 50;
+int recurseDepth = 50;
 
 enum {
     BUFFER_LENGTH = 1000
 };
 
-void recurser(volatile int *depth)
+void recurser(int *depth)
+    // Recurses to a depth of the specified 'depth' then copies the stack
+    // addresses into 'buffer' for evaluation by subsequent tests.
 {
 
     if (--*depth > 0) {
-        recurser(depth);
+        u::foilOptimizer(recurser)(depth);
     }
     else {
         void *buffer[BUFFER_LENGTH];
@@ -826,7 +777,7 @@ void recurser(int  iterations,
         }
     }
     else {
-        recurser(iterations, depth);
+        u::foilOptimizer(recurser)(iterations, depth);
     }
 
     ++*depth;         // prevent tail recursion optimization
@@ -925,7 +876,11 @@ int main(int argc, char *argv[])
 
                 ASSERT(p == stack[jj - 1]);
                 for (int kk = 2; kk < 11; ++kk) {
-                    ASSERT(q == stack[jj - kk]);
+                    if (veryVerbose) {
+                        P_(p) P_(q) P_(ii) P_(jj) P_(kk) P_(jj - kk)
+                            P(stack[jj - kk]);
+                    }
+                    ASSERTV(q, jj, kk, stack[jj - kk], q == stack[jj - kk]);
                 }
             }
         }
@@ -1204,7 +1159,7 @@ int main(int argc, char *argv[])
         // 'thunk' functions that just call the actual routine.  I wish they
         // wouldn't do that.
 
-        unsigned int result = CASE_FOUR::func6();
+        unsigned int result = u::foilOptimizer(CASE_FOUR::func6)();
         ASSERTV(result, 6 * 5 * 4 * 3 * 2, result == 6 * 5 * 4 * 3 * 2);
 #endif
       }  break;
@@ -1250,7 +1205,7 @@ int main(int argc, char *argv[])
         // wouldn't do that.
 
         int i = 0;
-        CASE_THREE::func5(&i);
+        u::foilOptimizer(CASE_THREE::func5)(&i);
         ASSERTV(i, 12 == i);
 #endif
       }  break;
@@ -1314,7 +1269,7 @@ int main(int argc, char *argv[])
         veryVerbose = std::max(0, veryVerbose);
         TC::recurseDepth += veryVerbose;
         int depth = TC::recurseDepth;
-        TC::recurser(&depth);
+        u::foilOptimizer(TC::recurser)(&depth);
         ASSERT(TC::recurseDepth == depth);
 
         if (verbose) P(BSLS_PLATFORM_CMP_VERSION);      // Used to calculate
