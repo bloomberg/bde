@@ -86,6 +86,8 @@ using namespace BloombergLP;
 // [14] reverse_iterator<T *> rend(T (&array)[N]);
 // [14] reverse_iterator<const T *> rend(std::initializer_list<T> il);
 // [14] T::const_reverse_iterator crend(const T& container);
+// [16] size_t size(const CONTAINER&);
+// [16] ptrdiff_t ssize(const CONTAINER&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TESTING (PRIMITIVE) GENERATORS
@@ -95,6 +97,7 @@ using namespace BloombergLP;
 // [ 9] TESTING ASSIGNMENT OPERATOR: Not Applicable
 // [10] STREAMING FUNCTIONALITY:     Not Applicable
 // [15] CONCERN: Range functions are not ambiguous with 'std' under ADL
+// [16] TEST CONTAINER SIZE CALLS
 // [17] USAGE EXAMPLE 1
 //-----------------------------------------------------------------------------
 
@@ -678,13 +681,13 @@ int main(int argc, char *argv[])
     MyFixedSizeArray<int, 5>::reverse_iterator rfinish = fixedArray.rend();
 //..
 // Now, we note that we could have acquired the iterators and container size by
-// calling the appropriate free functions.
+// calling the appropriate free functions:
 //..
     ASSERT(rstart  == bsl::rbegin(fixedArray));
     ASSERT(rfinish == bsl::rend(  fixedArray));
 
     ASSERT(fixedArray.size() == bsl::size(fixedArray));
-    ASSERT(rfinish - rstart == bsl::ssize(fixedArray));
+    ASSERT(rfinish - rstart  == bsl::ssize(fixedArray));
 //..
 // Finally, we traverse the fixed array again in reverse order using the two
 // generated reverse iterators:

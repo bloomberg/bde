@@ -144,13 +144,13 @@ BSLS_IDENT("$Id: $")
 //  MyFixedSizeArray<int, 5>::reverse_iterator rfinish = fixedArray.rend();
 //..
 // Now, we note that we could have acquired the iterators and container size by
-// calling the appropriate free functions.
+// calling the appropriate free functions:
 //..
 //  assert(rstart  == bsl::rbegin(fixedArray));
 //  assert(rfinish == bsl::rend(  fixedArray));
 //
 //  assert(fixedArray.size() == bsl::size(fixedArray));
-//  assert(rfinish - rstart == bsl::ssize(fixedArray));
+//  assert(rfinish - rstart  == bsl::ssize(fixedArray));
 //..
 // Finally, we traverse the fixed array again in reverse order using the two
 // generated reverse iterators:
