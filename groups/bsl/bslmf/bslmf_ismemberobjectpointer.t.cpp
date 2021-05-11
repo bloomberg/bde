@@ -96,9 +96,9 @@ void aSsErT(bool condition, const char *message, int line)
     defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
 // Visual Studio 2019 runs out of memory compiling this file.  If you have
 // installed a new update and still runs out of memory, bump the upper limit
-// number in the '#if' below to 1925, and do not forget to update the number in
+// number in the '#if' below to 1929, and do not forget to update the number in
 // this comment as well.
-# if (BSLS_PLATFORM_CMP_VERSION >= 1920) && (BSLS_PLATFORM_CMP_VERSION <= 1924)
+# if (BSLS_PLATFORM_CMP_VERSION >= 1920) && (BSLS_PLATFORM_CMP_VERSION <= 1928)
 #   define DO_FEWER_TESTS 1
 # endif
 // Visual Studio 2017 runs out of memory optimizing this file.  If you have
