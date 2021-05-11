@@ -86,6 +86,8 @@ using namespace BloombergLP;
 // [14] reverse_iterator<T *> rend(T (&array)[N]);
 // [14] reverse_iterator<const T *> rend(std::initializer_list<T> il);
 // [14] T::const_reverse_iterator crend(const T& container);
+// [16] size_t size(const CONTAINER&);
+// [16] ptrdiff_t ssize(const CONTAINER&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TESTING (PRIMITIVE) GENERATORS
@@ -95,7 +97,8 @@ using namespace BloombergLP;
 // [ 9] TESTING ASSIGNMENT OPERATOR: Not Applicable
 // [10] STREAMING FUNCTIONALITY:     Not Applicable
 // [15] CONCERN: Range functions are not ambiguous with 'std' under ADL
-// [16] USAGE EXAMPLE
+// [16] TEST CONTAINER SIZE CALLS
+// [17] USAGE EXAMPLE 1
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -156,6 +159,24 @@ void aSsErT(bool condition, const char *message, int line)
 //=============================================================================
 //                  TESTING APPARATUS/CLASS FOR USAGE EXAMPLE
 //-----------------------------------------------------------------------------
+
+class SizeContainer {
+    // DATA
+    std::size_t d_size;
+
+  public:
+    // CREATOR
+    explicit
+    SizeContainer(std::size_t value)
+    : d_size(value)
+    {}
+
+    // ACCESSOR
+    std::size_t size() const
+    {
+        return d_size;
+    }
+};
 
 namespace testcontainer {
 
@@ -376,7 +397,8 @@ class AccessTestContainer
         e_END                 = 16,
         e_CONST_END           = 32,
         e_REVERSE_END         = 64,
-        e_CONST_REVERSE_END   = 128
+        e_CONST_REVERSE_END   = 128,
+        e_SIZE                = 256,
     };
 
     // DATA
@@ -429,6 +451,9 @@ class AccessTestContainer
         // Return the reverse iterator providing non-modifiable access to
         // the position one before the first valid element of this object.
 
+    size_t size() const;
+        // Return the length of this container.
+
     int functionCalled() const;
     bool beginCalled() const;
     bool constBeginCalled() const;
@@ -438,6 +463,7 @@ class AccessTestContainer
     bool constEndCalled() const;
     bool reverseEndCalled() const;
     bool constReverseEndCalled() const;
+    bool sizeCalled() const;
 };
 
                             // -------------------
@@ -509,6 +535,13 @@ AccessTestContainer::rend() const
     return const_reverse_iterator(begin());
 }
 
+size_t
+AccessTestContainer::size() const
+{
+    d_functionCalled |= e_SIZE;
+    return 1;
+}
+
 int AccessTestContainer::functionCalled() const
 {
     return d_functionCalled;
@@ -556,6 +589,11 @@ bool AccessTestContainer::constReverseEndCalled() const
 {
     return ((e_CONST_REVERSE_END | e_CONST_BEGIN) ==
                    (d_functionCalled & (e_CONST_REVERSE_END | e_CONST_BEGIN)));
+}
+
+bool AccessTestContainer::sizeCalled() const
+{
+    return e_SIZE == d_functionCalled;
 }
 
 }  // close namespace testcontainer
@@ -614,13 +652,13 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // TESTING USAGE EXAMPLE 1
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============");
+        if (verbose) printf("USAGE EXAMPLE 1\n"
+                            "===============\n");
 
         using namespace testcontainer;
 
@@ -636,11 +674,20 @@ int main(int argc, char *argv[])
         fixedArray[i] = i + 1;
     }
 //..
-// Now, we generate reverse iterators using the 'rbegin' and 'rend' methods of
+// Next, we generate reverse iterators using the 'rbegin' and 'rend' methods of
 // the fixed array object:
 //..
     MyFixedSizeArray<int, 5>::reverse_iterator rstart  = fixedArray.rbegin();
     MyFixedSizeArray<int, 5>::reverse_iterator rfinish = fixedArray.rend();
+//..
+// Now, we note that we could have acquired the iterators and container size by
+// calling the appropriate free functions:
+//..
+    ASSERT(rstart  == bsl::rbegin(fixedArray));
+    ASSERT(rfinish == bsl::rend(  fixedArray));
+
+    ASSERT(fixedArray.size() == bsl::size(fixedArray));
+    ASSERT(rfinish - rstart  == bsl::ssize(fixedArray));
 //..
 // Finally, we traverse the fixed array again in reverse order using the two
 // generated reverse iterators:
@@ -663,6 +710,41 @@ int main(int argc, char *argv[])
 //       Element: 1
 //..
       } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TEST CONTAINER SIZE CALLS
+        //
+        // Concern:
+        //: 1 That the functions under test return the number of elements in a
+        //:   container that provides a 'size' accessor.
+        //
+        // Plan:
+        //: 1 Create a type, 'MyContainer', in the unnamed namespace.
+        //:
+        //: 2 Create an object of type 'MyContainer'.
+        //:
+        //: 3 Call the functions under test on that object.
+        //
+        // Testing:
+        //   size_t size(const CONTAINER&);
+        //   ptrdiff_t ssize(const CONTAINER&);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TEST CONTAINER SIZE CALLS\n"
+                            "=========================\n");
+
+        for (unsigned uu = 0; uu <= 10 * 1000; uu += 100) {
+            SizeContainer c(uu);
+
+            ASSERT(bsl::size(c) == uu);
+            ASSERT(bsl::size(c) == c.size());
+
+            const int ii = uu;
+
+            ASSERT(bsl::ssize(c) == ii);
+            ASSERT(bsl::ssize(c) == static_cast<int>(c.size()));
+        }
+      } break;
       case 15: {
         // --------------------------------------------------------------------
         // TESTING ADL CONCERN
@@ -671,14 +753,14 @@ int main(int argc, char *argv[])
         //: 1 Range functions can be used with 'std' containers under ADL.
         //
         // Plan:
-        //: 1 Call all 8 range functions (unqualified) for a 'bsl::set<int>',
+        //: 1 Call all 10 range functions (unqualified) for a 'bsl::set<int>',
         //:   as this will be associated with both namespace 'bsl' and native
         //:   'std' (for 'std::less' as a template parameter).  Note that this
         //:   test scenario is implemented in the test driver of the
         //:   'bslim_bslstandardheadertest' component to avoid include loop.
         //:
         //: 2 Explicitly introduce both namespaces ('bsl' and 'native_std') and
-        //:   call all 8 range functions for an array of integers.  (C-1)
+        //:   call all 10 range functions for an array of integers.  (C-1)
         //
         // Testing
         //   CONCERN: Range functions are not ambiguous with 'std' under ADL
@@ -690,16 +772,58 @@ int main(int argc, char *argv[])
         using namespace bsl;
         using namespace native_std;
 
-        int mX[] = {1, 2, 3, 4, 5};
+        {
+            bsl::set<int> mY;
+            mY.insert(1);
+            mY.insert(2);
+            mY.insert(3);
 
-        (void)begin(mX);
-        (void)end(mX);
-        (void)rbegin(mX);
-        (void)rend(mX);
-        (void)cbegin(mX);
-        (void)cend(mX);
-        (void)crbegin(mX);
-        (void)crend(mX);
+            bsl::set<int>::iterator it;
+            bsl::reverse_iterator<bsl::set<int>::iterator> rit;
+
+            ASSERT(1 == *begin(mY));
+            it = end(mY);
+            ASSERT(3 == *--it);
+            ASSERT(3 == *rbegin(mY));
+            rit = rend(mY);
+            ASSERT(1 == *--rit);
+            ASSERT(1 == *cbegin(mY));
+            it = cend(mY);
+            ASSERT(3 == *--it);
+            ASSERT(3 == *crbegin(mY));
+            rit = crend(mY);
+            ASSERT(1 == *--rit);
+
+            ASSERT(3 == size(mY));
+            ASSERT(3 == ssize(mY));
+        }
+
+        {
+            int mY[] = {1, 2, 3, 4, 5};
+
+            const int *p;
+            bsl::reverse_iterator<const int *> rp;
+
+            ASSERT(1 == *begin(mY));
+            p = end(mY);
+            ASSERT(5 == *--p);
+            ASSERT(end(mY) - begin(mY) == ssize(mY));
+            ASSERT(5 == *rbegin(mY));
+            rp = rend(mY);
+            ASSERT(1 == *--rp);
+            ASSERT(rend(mY) - rbegin(mY) == ssize(mY));
+            ASSERT(1 == *cbegin(mY));
+            p = cend(mY);
+            ASSERT(5 == *--p);
+            ASSERT(cend(mY) - cbegin(mY) == ssize(mY));
+            ASSERT(5 == *crbegin(mY));
+            rp = crend(mY);
+            ASSERT(1 == *--rp);
+            ASSERT(crend(mY) - crbegin(mY) == ssize(mY));
+
+            ASSERT(5 == size(mY));
+            ASSERT(5 == ssize(mY));
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -775,6 +899,26 @@ int main(int argc, char *argv[])
             const Container  XRE;
             const Container  XCRE;
 
+            const Container  XS;
+            const Container  XSS;
+
+            ASSERTV(mXB.functionCalled(),  ! mXB.beginCalled()              );
+            ASSERTV( XB.functionCalled(),  !  XB.constBeginCalled()         );
+            ASSERTV( XCB.functionCalled(), !  XCB.constBeginCalled()        );
+            ASSERTV(mXRB.functionCalled(), ! mXRB.reverseBeginCalled()      );
+            ASSERTV( XRB.functionCalled(), !  XRB.constReverseBeginCalled() );
+            ASSERTV( XCRB.functionCalled(),!  XCRB.constReverseBeginCalled());
+
+            ASSERTV(mXE.functionCalled(),  ! mXE.endCalled()              );
+            ASSERTV( XE.functionCalled(),  !  XE.constEndCalled()         );
+            ASSERTV( XCE.functionCalled(), !  XCE.constEndCalled()        );
+            ASSERTV(mXRE.functionCalled(), ! mXRE.reverseEndCalled()      );
+            ASSERTV( XRE.functionCalled(), !  XRE.constReverseEndCalled() );
+            ASSERTV( XCRE.functionCalled(),!  XCRE.constReverseEndCalled());
+
+            ASSERTV( XS .functionCalled(), ! XS .sizeCalled());
+            ASSERTV( XSS.functionCalled(), ! XSS.sizeCalled());
+
 #ifndef BSLS_PLATFORM_CMP_SUN
             // Sun compiler is not able to distinguish
             // isConstIterator<Container>(const int*) from
@@ -812,6 +956,9 @@ int main(int argc, char *argv[])
             const_reverse_iterator  XREIt  = bsl::rend ( XRE );
             const_reverse_iterator  XCREIt = bsl::crend( XCRE);
 
+            ASSERT(1 == bsl::size(XS));
+            ASSERT(1 == bsl::ssize(XSS));
+
             ASSERTV(mXB.functionCalled(),   mXB.beginCalled()              );
             ASSERTV( XB.functionCalled(),    XB.constBeginCalled()         );
             ASSERTV( XCB.functionCalled(),   XCB.constBeginCalled()        );
@@ -825,6 +972,9 @@ int main(int argc, char *argv[])
             ASSERTV(mXRE.functionCalled(),  mXRE.reverseEndCalled()      );
             ASSERTV( XRE.functionCalled(),   XRE.constReverseEndCalled() );
             ASSERTV( XCRE.functionCalled(),  XCRE.constReverseEndCalled());
+
+            ASSERTV( XS .functionCalled(),  XS .sizeCalled());
+            ASSERTV( XSS.functionCalled(),  XSS.sizeCalled());
 
             ASSERT(mXB.begin()    == mXBIt  );
             ASSERT( XB.begin()    ==  XBIt  );
@@ -876,6 +1026,21 @@ int main(int argc, char *argv[])
             const int  *XBIt5 = bsl::begin( X5);
                   int *mXEIt5 = bsl::end  (mX5);
             const int  *XEIt5 = bsl::end  ( X5);
+
+            // Testing 'size' and 'ssize'.
+
+            ASSERT(1 == bsl::size(mX1));
+            ASSERT(1 == bsl::size(X1));
+            ASSERT(5 == bsl::size(mX5));
+            ASSERT(5 == bsl::size(X5));
+
+            ASSERT(1 == bsl::ssize(mX1));
+            ASSERT(1 == bsl::ssize(X1));
+            ASSERT(5 == bsl::ssize(mX5));
+            ASSERT(5 == bsl::ssize(X5));
+
+            ASSERT( XEIt5 -  XBIt5 == bsl::ssize( X5));
+            ASSERT(mXEIt5 - mXBIt5 == bsl::ssize(mX5));
 
             // Moving pointers to the last element.
 
@@ -989,6 +1154,8 @@ int main(int argc, char *argv[])
             bsl::reverse_iterator<const int *>  XRBIt5 = bsl::rbegin( X5);
             bsl::reverse_iterator<      int *> mXREIt5 = bsl::rend  (mX5);
             bsl::reverse_iterator<const int *>  XREIt5 = bsl::rend  ( X5);
+
+            ASSERT(XREIt5 - XRBIt5 == bsl::ssize(X5));
 
             // Moving iterators to the first element.
 
@@ -1116,6 +1283,8 @@ int main(int argc, char *argv[])
             ASSERTV(reverse_iterator(mX4.begin()) == mXREIt4);
             ASSERTV(reverse_iterator(mX5.end()  ) == mXRBIt5);
             ASSERTV(reverse_iterator(mX5.begin()) == mXREIt5);
+
+            ASSERT(mXREIt5 - mXRBIt5 == bsl::ssize(mX5));
         }
 #else
         if (verbose) printf("\tInitializer lists are not supported.\n");
@@ -1829,6 +1998,14 @@ int main(int argc, char *argv[])
     "\nVerify that writes through one iterator are visible through another\n");
         LOOP_ASSERT( *it2,         42 == *it2);
         LOOP2_ASSERT(*it1, *it2, *it1 == *it2);
+
+        if (verbose) printf("Test length of array\n");
+        {
+            int x[5];
+
+            ASSERT(5 == bsl::size(x));
+            ASSERT(5 == bsl::ssize(x));
+        }
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
