@@ -385,7 +385,7 @@ bool StringViewUtil::startsWith(const bsl::string_view& string,
                                 const bsl::string_view& characters)
 {
     if (characters.length() > string.length()) {
-       return false;                                                  // RETURN
+        return false;                                                 // RETURN
     }
     return characters == bsl::string_view(string.data(), characters.length());
 }

@@ -1,33 +1,13 @@
 // bdlb_stringviewutil.cpp                                            -*-C++-*-
 #include <bdlb_stringviewutil.h>
 
+#include <bdlb_chartype.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>  // 'bsl::memcmp'
 
 namespace BloombergLP {
 namespace bdlb {
-
-static inline int u_upperToLower(int ch)
-    // Return the lower case analog of the specified 'ch' if 'ch' is an upper
-    // case character, and return 'ch' otherwise; the sequence of characters
-    // '[A .. Z]' is mapped to '[a .. z]'.  The behavior is undefined unless
-    // characters are ASCII encoded.
-{
-    return 'A' <= ch && ch <= 'Z'
-           ? ch |=  0x20  // upper -> lower
-           : ch;
-}
-
-static inline int u_lowerToUpper(int ch)
-    // Return the upper case analog of the specified 'ch' if 'ch' is a lower
-    // case character, and return 'ch' otherwise; the sequence of characters
-    // '[a .. z]' is mapped to '[A .. Z]'.  The behavior is undefined unless
-    // characters are ASCII encoded.
-{
-    return 'a' <= ch && ch <= 'z'
-           ? ch &= ~0x20  // lower -> upper
-           : ch;
-}
 
 static inline bool u_isWhitespace(unsigned char ch)
     // Return 'true' is the specified 'ch' is one of the ASCII whitespace
@@ -43,7 +23,6 @@ static inline bool u_isWhitespace(unsigned char ch)
 
     return true;
 }
-
 
 static const bsl::string_view u_NOT_FOUND;
 
@@ -63,13 +42,14 @@ int StringViewUtil::lowerCaseCmp(const bsl::string_view& lhs,
                                 ? lhsLength : rhsLength;
 
     for (bsl::size_t i = 0; i < min; ++i) {
-        char lhsChar  = *(lhs.data() + i);
-        char rhsChar  = *(rhs.data() + i);
-        int  lhsUpper = u_upperToLower(static_cast<unsigned char>(lhsChar));
-        int  rhsUpper = u_upperToLower(static_cast<unsigned char>(rhsChar));
+        // Standard library comparison functions do comparisons between
+        // unsigned 'char' values.
 
-        if (lhsUpper != rhsUpper) {
-            return lhsUpper < rhsUpper ? -1 : 1;                      // RETURN
+        const unsigned char lhsLower = CharType::toLower(*(lhs.data() + i));
+        const unsigned char rhsLower = CharType::toLower(*(rhs.data() + i));
+
+        if (lhsLower != rhsLower) {
+            return lhsLower < rhsLower ? -1 : 1;                      // RETURN
         }
     }
     return lhsLength <  rhsLength ? -1:
@@ -86,10 +66,11 @@ int StringViewUtil::upperCaseCmp(const bsl::string_view& lhs,
                                 ? lhsLength : rhsLength;
 
     for (bsl::size_t i = 0; i < min; ++i) {
-        char lhsChar  = *(lhs.data() + i);
-        char rhsChar  = *(rhs.data() + i);
-        int  lhsUpper = u_lowerToUpper(static_cast<unsigned char>(lhsChar));
-        int  rhsUpper = u_lowerToUpper(static_cast<unsigned char>(rhsChar));
+        // Standard library comparison functions do comparisons between
+        // unsigned 'char' values.
+
+        const unsigned char lhsUpper = CharType::toUpper(*(lhs.data() + i));
+        const unsigned char rhsUpper = CharType::toUpper(*(rhs.data() + i));
 
         if (lhsUpper != rhsUpper) {
             return lhsUpper < rhsUpper ? -1 : 1;                      // RETURN
@@ -175,7 +156,7 @@ bsl::string_view StringViewUtil::strstrCaseless(const bsl::string_view& string,
                           string.data() + (string.length() - subStrLength + 1);
 
     for (const char *cur = string.data(); cur < end; ++cur) {
-         if (0 == lowerCaseCmp(
+        if (0 == lowerCaseCmp(
                               bsl::string_view(cur,           subStrLength),
                               bsl::string_view(subStr.data(), subStrLength))) {
             return bsl::string_view(cur, subStrLength);               // RETURN

@@ -21,6 +21,9 @@
 
   4. bdlb_bigendian
      bdlb_bitstringimputil
+     bdlb_caselessstringviewequalto
+     bdlb_caselessstringviewhash
+     bdlb_caselessstringviewless
      bdlb_indexspan
      bdlb_nullableallocatedvalue
      bdlb_nullablevalue
@@ -32,6 +35,8 @@
      bdlb_printmethods
      bdlb_random
      bdlb_string
+     bdlb_stringrefutil                                  !DEPRECATED!
+     bdlb_stringviewutil
 
   2. bdlb_algorithmworkaroundutil
      bdlb_arrayutil
@@ -51,8 +56,6 @@
      bdlb_print
      bdlb_randomdevice
      bdlb_scopeexit
-     bdlb_stringrefutil                                  !DEPRECATED!
-     bdlb_stringviewutil
      bdlb_testinputiterator
      bdlb_tokenizer
      bdlb_topologicalsortutil
@@ -83,6 +86,15 @@
 :
 : 'bdlb_bitutil':
 :      Provide efficient bit-manipulation of 'uint32_t'/'uint64_t' values.
+:
+: 'bdlb_caselessstringviewequalto':
+:      Provide case-insensitive equality comparison of string views.
+:
+: 'bdlb_caselessstringviewhash':
+:      Provide case-insensitive hashing of string views.
+:
+: 'bdlb_caselessstringviewless':
+:      Provide case-insensitive ordered comparison of string views.
 :
 : 'bdlb_chartype':
 :      Supply local-independent version of '<ctype.h>' functionality.
