@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::NullableValue: template for nullable (in-place) objects
 //
-//@SEE_ALSO: bdlb_nullableallocatedvalue
+//@SEE_ALSO: bdlb_nullableallocatedvalue, bslstl_optional
 //
 //@DESCRIPTION: This component provides a template class,
 // 'bdlb::NullableValue<TYPE>', that can be used to augment an arbitrary
@@ -50,6 +50,29 @@ BSLS_IDENT("$Id: $")
 // Furthermore, a move constructor (taking an optional allocator) and a
 // move-assignment operator are also provided.  Note that move semantics are
 // emulated with C++03 compilers.
+//
+///Conversion to 'bool': Explicit with C++11 but Implicit with C++03
+///-----------------------------------------------------------------
+// 'bdlb::NullableValue<TYPE>' provides a standard-compliant allocator-aware
+// implementation of 'std::optional<TYPE>'.  Hence, 'bdlb::NullableValue<TYPE>'
+// converts to 'bool', where the resulting Boolean value indicates whether the
+// 'bdlb::NullableValue<TYPE>' object is "engaged" (see {'bslstl_optional'}).
+// With C++11 and later, this conversion is explicit (per the C++ Standard) but
+// the conversion is *implicit* with C++03 because 'explicit' conversion
+// operators were not available until C++11.  Note that this implicit
+// conversion on C++03 platforms is implemented using the "unspecified Boolean
+// type" idiom.
+//
+// For example, consider the following code snippet where we assert behavior
+// that holds with C++11 (and later), i.e., that there is not an *implicit*
+// conversion from 'bdlb::NullableValue<double>' to 'bool':
+//..
+//  typedef bdlb::NullableValue<double> AnyNullableValue;
+//
+//  assert(!(bsl::is_convertible<AnyNullableValue, bool>::value));
+//..
+// However, as explained above, the assertion fails with C++03.  The result is
+// the same when 'double' is substituted with any other type.
 //
 ///Usage
 ///-----

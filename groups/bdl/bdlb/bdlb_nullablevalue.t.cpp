@@ -24,6 +24,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_isconvertible.h>
 #include <bslmf_matchanytype.h>
 #include <bslmf_usesallocator.h>
 
@@ -154,8 +155,9 @@ using bsls::NameOf;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST 1: Using 'bsl::string'
 // [ 2] BREATHING TEST 2: Using 'int'
-// [28] USAGE EXAMPLE
+// [29] USAGE EXAMPLE
 // [24] Concern: Types that are not copy-assignable can be used.
+// [28] DRQS 166024189: 'NullableValue<T> -> bool' implicit conv. w/C++03.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // [ 8] int maxSupportedBdexVersion() const;
 #endif
@@ -2665,6 +2667,8 @@ void dummyFunction()
     // Do nothing.
 {
 }
+
+struct EmptyStruct { };  // for CASE 28
 
 // ASPECTS
 namespace BloombergLP {
@@ -6084,7 +6088,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 28: {
+      case 29: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -6126,6 +6130,77 @@ int main(int argc, char *argv[])
     nullableInt.reset();
     ASSERT( nullableInt.isNull());
 //..
+
+      } break;
+      case 28: {
+        // --------------------------------------------------------------------
+        // IMPLICIT CONVERSION TO BOOL W/C++03
+        //
+        // Concerns:
+        //: 1 An implicit conversion from 'NullableValue<T>' to 'bool' (using
+        //:   the "unspecified Boolean type" idiom) is in effect for C++03
+        //:   only.
+        //
+        // Plan:
+        //: 1 Using 'bsl::is_convertible', verify for a few representative 'T'
+        //:   that 'NullableValue<T>' implicitly converts to 'bool' in C++03
+        //:   mode only.
+        //
+        // Testing:
+        //   DRQS 166024189: 'NullableValue<T> -> bool' implicit conv. w/C++03.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "IMPLICIT CONVERSION TO BOOL W/C++03" << endl
+                          << "===================================" << endl;
+
+        bool isCpp03 =
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+                       true;
+#else
+                       false;
+#endif
+
+        if (veryVerbose) cout << "NullableValue<bool> -> bool" << bsl::endl;
+        {
+            typedef bdlb::NullableValue<bool> SRCTYPE;
+            typedef bool                      DSTTYPE;
+
+            ASSERT(isCpp03 == (bsl::is_convertible<SRCTYPE, DSTTYPE>::value));
+        }
+
+        if (veryVerbose) cout << "NullableValue<double> -> bool" << bsl::endl;
+        {
+            typedef bdlb::NullableValue<double> SRCTYPE;
+            typedef bool                        DSTTYPE;
+
+            ASSERT(isCpp03 == (bsl::is_convertible<SRCTYPE, DSTTYPE>::value));
+        }
+
+        if (veryVerbose) cout << "NullableValue<EmptyStruct> -> bool"
+                              << bsl::endl;
+        {
+            typedef bdlb::NullableValue<EmptyStruct> SRCTYPE;
+            typedef bool                             DSTTYPE;
+
+            ASSERT(isCpp03 == (bsl::is_convertible<SRCTYPE, DSTTYPE>::value));
+        }
+
+        if (veryVerbose) cout << "NullableValue<double> -> int" << bsl::endl;
+        {
+            typedef bdlb::NullableValue<double> SRCTYPE;
+            typedef int                         DSTTYPE;
+
+            ASSERT(!(bsl::is_convertible<SRCTYPE, DSTTYPE>::value));
+        }
+
+        if (veryVerbose) cout << "NullableValue<int> -> int" << bsl::endl;
+        {
+            typedef bdlb::NullableValue<int> SRCTYPE;
+            typedef int                      DSTTYPE;
+
+            ASSERT(!(bsl::is_convertible<SRCTYPE, DSTTYPE>::value));
+        }
 
       } break;
       case 27: {
