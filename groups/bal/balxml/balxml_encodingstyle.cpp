@@ -1,17 +1,24 @@
-// balxml_encodingstyle.cpp         *DO NOT EDIT*          @generated -*-C++-*-
+// balxml_encodingstyle.cpp   -*-C++-*-   GENERATED FILE -- DO NOT EDIT
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balxml_encodingstyle_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balxml_encodingstyle_cpp,"$Id$ $CSID$ $CCId$")
 
 #include <balxml_encodingstyle.h>
 
 #include <bdlat_formattingmode.h>
 #include <bdlat_valuetypefunctions.h>
+#include <bdlb_chartype.h>
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
-#include <bdlb_string.h>
 
-#include <bslim_printer.h>
 #include <bsls_assert.h>
 
 #include <bsl_iomanip.h>
@@ -19,91 +26,115 @@ BSLS_IDENT_RCSID(balxml_encodingstyle_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-namespace balxml {
 
-                            // -------------------
-                            // class EncodingStyle
-                            // -------------------
+                        // ---------------------------
+                        // class balxml::EncodingStyle
+                        // ---------------------------
 
 // CONSTANTS
 
-const char EncodingStyle::CLASS_NAME[] = "EncodingStyle";
+const char balxml::EncodingStyle::CLASS_NAME[] = "balxml::EncodingStyle";
 
-const bdlat_EnumeratorInfo EncodingStyle::ENUMERATOR_INFO_ARRAY[] = {
+const bdlat_EnumeratorInfo balxml::EncodingStyle::ENUMERATOR_INFO_ARRAY[] = {
     {
-        EncodingStyle::COMPACT,
+        balxml::EncodingStyle::e_COMPACT,
         "COMPACT",
         sizeof("COMPACT") - 1,
         ""
     },
     {
-        EncodingStyle::PRETTY,
+        balxml::EncodingStyle::e_PRETTY,
         "PRETTY",
         sizeof("PRETTY") - 1,
         ""
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    },
-    {
-        EncodingStyle::e_COMPACT,
-        "e_COMPACT",
-        sizeof("e_COMPACT") - 1,
-        ""
-    },
-    {
-        EncodingStyle::e_PRETTY,
-        "e_PRETTY",
-        sizeof("e_PRETTY") - 1,
-        ""
-    },
-    {
-        EncodingStyle::BAEXML_COMPACT,
-        "BAEXML_COMPACT",
-        sizeof("BAEXML_COMPACT") - 1,
-        ""
-    },
-    {
-        EncodingStyle::BAEXML_PRETTY,
-        "BAEXML_PRETTY",
-        sizeof("BAEXML_PRETTY") - 1,
-        ""
-#endif
     }
 };
 
+namespace balxml {
 // CLASS METHODS
 
 int EncodingStyle::fromInt(EncodingStyle::Value *result, int number)
 {
     switch (number) {
-      case EncodingStyle::COMPACT:
-      case EncodingStyle::PRETTY:
-        *result = static_cast<EncodingStyle::Value>(number);
-        return 0;
+      case EncodingStyle::e_COMPACT:
+      case EncodingStyle::e_PRETTY:
+        *result = (EncodingStyle::Value)number;
+        return 0;                                                     // RETURN
       default:
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
-int EncodingStyle::fromString(
-        EncodingStyle::Value *result,
-        const char         *string,
-        int                 stringLength)
+int EncodingStyle::fromString(EncodingStyle::Value *result,
+                            const char         *string,
+                            int                 stringLength)
 {
-    enum { k_SIZE_ENUMERATOR_INFO_ARRAY = sizeof ENUMERATOR_INFO_ARRAY /
-                                               sizeof *ENUMERATOR_INFO_ARRAY };
 
-    for (int i = 0; i < k_SIZE_ENUMERATOR_INFO_ARRAY; ++i) {
-        const bdlat_EnumeratorInfo& enumeratorInfo =
-                    EncodingStyle::ENUMERATOR_INFO_ARRAY[i];
-
-        if (bdlb::String::areEqualCaseless(string,
-                                           stringLength,
-                                           enumeratorInfo.d_name_p,
-                                           enumeratorInfo.d_nameLength))
-        {
-            *result = static_cast<EncodingStyle::Value>(enumeratorInfo.d_value);
-            return 0;
-        }
+    switch(stringLength) {
+        case 6: {
+            if ((string[0]|0x20)=='p'
+             && (string[1]|0x20)=='r'
+             && (string[2]|0x20)=='e'
+             && (string[3]|0x20)=='t'
+             && (string[4]|0x20)=='t'
+             && (string[5]|0x20)=='y')
+            {
+                *result = EncodingStyle::e_PRETTY;
+                return 0;                                             // RETURN
+            }
+        } break;
+        case 7: {
+            if ((string[0]|0x20)=='c'
+             && (string[1]|0x20)=='o'
+             && (string[2]|0x20)=='m'
+             && (string[3]|0x20)=='p'
+             && (string[4]|0x20)=='a'
+             && (string[5]|0x20)=='c'
+             && (string[6]|0x20)=='t')
+            {
+                *result = EncodingStyle::e_COMPACT;
+                return 0;                                             // RETURN
+            }
+        } break;
+        case 13: {
+            if ((string[0]|0x20)=='b'
+             && (string[1]|0x20)=='a'
+             && (string[2]|0x20)=='e'
+             && (string[3]|0x20)=='x'
+             && (string[4]|0x20)=='m'
+             && (string[5]|0x20)=='l'
+             &&  string[6]      =='_'
+             && (string[7]|0x20)=='p'
+             && (string[8]|0x20)=='r'
+             && (string[9]|0x20)=='e'
+             && (string[10]|0x20)=='t'
+             && (string[11]|0x20)=='t'
+             && (string[12]|0x20)=='y')
+            {
+                *result = EncodingStyle::e_PRETTY;
+                return 0;                                             // RETURN
+            }
+        } break;
+        case 14: {
+            if ((string[0]|0x20)=='b'
+             && (string[1]|0x20)=='a'
+             && (string[2]|0x20)=='e'
+             && (string[3]|0x20)=='x'
+             && (string[4]|0x20)=='m'
+             && (string[5]|0x20)=='l'
+             &&  string[6]      =='_'
+             && (string[7]|0x20)=='c'
+             && (string[8]|0x20)=='o'
+             && (string[9]|0x20)=='m'
+             && (string[10]|0x20)=='p'
+             && (string[11]|0x20)=='a'
+             && (string[12]|0x20)=='c'
+             && (string[13]|0x20)=='t')
+            {
+                *result = EncodingStyle::e_COMPACT;
+                return 0;                                             // RETURN
+            }
+        } break;
     }
 
     return -1;
@@ -112,27 +143,23 @@ int EncodingStyle::fromString(
 const char *EncodingStyle::toString(EncodingStyle::Value value)
 {
     switch (value) {
-      case COMPACT: {
-        return "COMPACT";
-      }
-      case PRETTY: {
-        return "PRETTY";
-      }
+      case e_COMPACT: {
+        return "COMPACT";                                             // RETURN
+      } break;
+      case e_PRETTY: {
+        return "PRETTY";                                              // RETURN
+      } break;
     }
 
     BSLS_ASSERT(!"invalid enumerator");
     return 0;
 }
-
 }  // close package namespace
+
 }  // close enterprise namespace
 
-// BAS_CODEGEN RUN BY code_from_xsd.pl RUN ON Thu Sep 24 20:40:02 EDT 2020
-// GENERATED BY BLP_BAS_CODEGEN_2020.09.14
-// USING bas_codegen.pl -m msg -p balxml -E --noExternalization --noAggregateConversion --noHashSupport balxml.xsd
-
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -399,8 +399,7 @@ class MiniReader :  public Reader {
     char                     *d_attrValPtr;
 
     int                       d_lineNum;      // current line number
-
-    int                       d_lineOffset;   // offset at the beginning of
+    char                     *d_linePtr;      // position of the beginning of
                                               // current line
 
     ErrorInfo                 d_errorInfo;
@@ -937,11 +936,9 @@ bool MiniReader::checkForNewLine()
 {
     if (*d_scanPtr == '\n') {
         ++d_lineNum;
-        d_lineOffset = getCurrentPosition() + 1;
-
+        d_linePtr = d_scanPtr + 1;
         return true;                                                  // RETURN
     }
-
     return false;
 }
 
@@ -963,7 +960,7 @@ inline
 const char *MiniReader::rebasePointer(const char *ptr, const char *newBase)
 {
     if (ptr && ptr >= d_markPtr && ptr <= d_endPtr) {
-        return newBase + (ptr - d_markPtr);                           // RETURN
+        return newBase + (ptr-d_markPtr);                             // RETURN
     }
     return ptr;
 }

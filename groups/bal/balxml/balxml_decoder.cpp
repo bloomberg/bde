@@ -186,9 +186,7 @@ Decoder::Decoder(const DecoderOptions *options,
                  ErrorInfo            *errInfo,
                  bslma::Allocator     *basicAllocator)
 : d_options(options)
-, d_utf8ReaderWrapper(reader, basicAllocator)
-, d_reader(options->validateInputIsUtf8() ? &d_utf8ReaderWrapper
-                                          : reader)
+, d_reader(reader)
 , d_errorInfo(errInfo)
 , d_allocator(bslma::Default::allocator(basicAllocator))
 , d_logStream(0)
@@ -212,9 +210,7 @@ Decoder::Decoder(const DecoderOptions *options,
                  bsl::ostream         *warningStream,
                  bslma::Allocator     *basicAllocator)
 : d_options(options)
-, d_utf8ReaderWrapper(reader, basicAllocator)
-, d_reader(options->validateInputIsUtf8() ? &d_utf8ReaderWrapper
-                                          : reader)
+, d_reader(reader)
 , d_errorInfo(errInfo)
 , d_allocator(bslma::Default::allocator(basicAllocator))
 , d_logStream(0)

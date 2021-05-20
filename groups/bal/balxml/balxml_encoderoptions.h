@@ -1,23 +1,40 @@
-// balxml_encoderoptions.h          *DO NOT EDIT*          @generated -*-C++-*-
+// balxml_encoderoptions.h-- GENERATED FILE - DO NOT EDIT ---*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALXML_ENCODEROPTIONS
 #define INCLUDED_BALXML_ENCODEROPTIONS
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balxml_encoderoptions_h,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(baexml_encoderoptions_h,"$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
-//@PURPOSE: Provide value-semantic attribute classes
+//@PURPOSE: Provide value-semantic attribute classes.
+//
+//@DESCRIPTION:  Options for performing XML encodings.  Encoding style is
+// either COMPACT or PRETTY.  If encoding style is COMPACT, no whitespace will
+// be added between elements.  If encoding style is 'PRETTY', then the
+// 'InitialIndentLevel', 'SpacesPerLevel', and 'WrapColumn' parameters are used
+// to specify the formatting of the output.  Note that 'InitialIndentLevel',
+// 'SpacesPerLevel', and 'WrapColumn' are ignored when 'EncodingStyle' is
+// COMPACT (this is the default).
+//
+// This class was initially generated using baexml_generateoptions.pl
 
-#include <bslalg_typetraits.h>
+#include <balscm_version.h>
 
 #include <bdlat_attributeinfo.h>
-
 #include <bdlat_selectioninfo.h>
-
 #include <bdlat_typetraits.h>
 
 #include <bsls_objectbuffer.h>
 
+#include <bslma_allocator.h>
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
@@ -27,15 +44,10 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bdlb_nullablevalue.h>
 
 #include <bsl_string.h>
-
 #include <bsl_iosfwd.h>
-#include <bsl_limits.h>
 
 namespace BloombergLP {
 
-namespace bslma { class Allocator; }
-
-namespace balxml { class EncoderOptions; }
 namespace balxml {
 
                             // ====================
@@ -50,92 +62,130 @@ class EncoderOptions {
     // used to specify the formatting of the output.  Note that
     // 'InitialIndentLevel', 'SpacesPerLevel', and 'WrapColumn' are ignored
     // when 'EncodingStyle' is COMPACT (this is the default).
-    // This struct is generated using bas_codegen.pl called by
-    // balxml/code_from_xsd.pl
+    // This class is generated using baexml_generateoptions.pl
 
     // INSTANCE DATA
-    bsl::string               d_objectNamespace;
+    bsl::string                      d_objectNamespace;
         // namespace where object is defined
-    bsl::string               d_schemaLocation;
+    bsl::string                      d_schemaLocation;
         // location of the schema
-    bsl::string               d_tag;
+    bsl::string                      d_tag;
         // tag for top level
-    int                       d_formattingMode;
+    int                              d_formattingMode;
         // Formatting mode
-    int                       d_initialIndentLevel;
+    int                              d_initialIndentLevel;
         // initial indentation level
-    int                       d_spacesPerLevel;
+    int                              d_spacesPerLevel;
         // spaces per level of indentation
-    int                       d_wrapColumn;
+    int                              d_wrapColumn;
         // number of characters to wrap text
-    int                       d_datetimeFractionalSecondPrecision;
+    int                              d_datetimeFractionalSecondPrecision;
         // This option controls the number of decimal places used for seconds
         // when encoding 'Datetime' and 'DatetimeTz'.
-    bdlb::NullableValue<int>  d_maxDecimalTotalDigits;
+    bdlb::NullableValue<int>         d_maxDecimalTotalDigits;
         // Maximum total digits of the decimal value that should be displayed
-    bdlb::NullableValue<int>  d_maxDecimalFractionDigits;
+    bdlb::NullableValue<int>         d_maxDecimalFractionDigits;
         // Maximum fractional digits of the decimal value that should be
         // displayed
-    bdlb::NullableValue<int>  d_significantDoubleDigits;
+    bdlb::NullableValue<int>         d_significantDoubleDigits;
         // The number of significant digits that must be displayed for the
         // double value.
-    EncodingStyle::Value      d_encodingStyle;
+    EncodingStyle::Value  d_encodingStyle;
         // encoding style (see component-level doc)
-    bool                      d_allowControlCharacters;
+    bool                             d_allowControlCharacters;
         // Allow control characters to be encoded.
-    bool                      d_outputXMLHeader;
+    bool                             d_outputXMLHeader;
         // This option controls if the baexml encoder should output the XML
         // header.
-    bool                      d_outputXSIAlias;
+    bool                             d_outputXSIAlias;
         // This option controls if the baexml encoder should output the XSI
         // alias with the top-level element.
-    bool                      d_useZAbbreviationForUtc;
+    bool                             d_useZAbbreviationForUtc;
         // This option control whether 'Z' should be used for the zone
-        // designator of 'DateTz', TimeTz, and 'DatetimeTz' or instead of
-        // +00:00' (specific to UTC).
+        // designator of 'DateTz', 'TimeTz', and 'DatetimeTz' instead of
+        // '+00:00' (specific to UTC).
 
   public:
     // TYPES
     enum {
-        ATTRIBUTE_ID_OBJECT_NAMESPACE                     = 0
-      , ATTRIBUTE_ID_SCHEMA_LOCATION                      = 1
-      , ATTRIBUTE_ID_TAG                                  = 2
-      , ATTRIBUTE_ID_FORMATTING_MODE                      = 3
-      , ATTRIBUTE_ID_INITIAL_INDENT_LEVEL                 = 4
-      , ATTRIBUTE_ID_SPACES_PER_LEVEL                     = 5
-      , ATTRIBUTE_ID_WRAP_COLUMN                          = 6
-      , ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS             = 7
-      , ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS          = 8
-      , ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS            = 9
-      , ATTRIBUTE_ID_ENCODING_STYLE                       = 10
-      , ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS             = 11
-      , ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER                  = 12
-      , ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS                   = 13
-      , ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION = 14
-      , ATTRIBUTE_ID_USE_Z_ABBREVIATION_FOR_UTC           = 15
+        e_ATTRIBUTE_ID_OBJECT_NAMESPACE                     = 0
+      , e_ATTRIBUTE_ID_SCHEMA_LOCATION                      = 1
+      , e_ATTRIBUTE_ID_TAG                                  = 2
+      , e_ATTRIBUTE_ID_FORMATTING_MODE                      = 3
+      , e_ATTRIBUTE_ID_INITIAL_INDENT_LEVEL                 = 4
+      , e_ATTRIBUTE_ID_SPACES_PER_LEVEL                     = 5
+      , e_ATTRIBUTE_ID_WRAP_COLUMN                          = 6
+      , e_ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS             = 7
+      , e_ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS          = 8
+      , e_ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS            = 9
+      , e_ATTRIBUTE_ID_ENCODING_STYLE                       = 10
+      , e_ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS             = 11
+      , e_ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER                  = 12
+      , e_ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS                   = 13
+      , e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION = 14
+      , e_ATTRIBUTE_ID_USE_Z_ABBREVIATION_FOR_UTC           = 15
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_ID_OBJECT_NAMESPACE = e_ATTRIBUTE_ID_OBJECT_NAMESPACE
+      , ATTRIBUTE_ID_SCHEMA_LOCATION = e_ATTRIBUTE_ID_SCHEMA_LOCATION
+      , ATTRIBUTE_ID_TAG = e_ATTRIBUTE_ID_TAG
+      , ATTRIBUTE_ID_FORMATTING_MODE = e_ATTRIBUTE_ID_FORMATTING_MODE
+      , ATTRIBUTE_ID_INITIAL_INDENT_LEVEL = e_ATTRIBUTE_ID_INITIAL_INDENT_LEVEL
+      , ATTRIBUTE_ID_SPACES_PER_LEVEL = e_ATTRIBUTE_ID_SPACES_PER_LEVEL
+      , ATTRIBUTE_ID_WRAP_COLUMN = e_ATTRIBUTE_ID_WRAP_COLUMN
+      , ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS = e_ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS
+      , ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS = e_ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS
+      , ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS = e_ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS
+      , ATTRIBUTE_ID_ENCODING_STYLE = e_ATTRIBUTE_ID_ENCODING_STYLE
+      , ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS = e_ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS
+      , ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER = e_ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER
+      , ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS = e_ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS
+      , ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION = e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION
+      , ATTRIBUTE_ID_USE_Z_ABBREVIATION_FOR_UTC = e_ATTRIBUTE_ID_USE_Z_ABBREVIATION_FOR_UTC
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        NUM_ATTRIBUTES = 16
+        k_NUM_ATTRIBUTES = 16
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        ATTRIBUTE_INDEX_OBJECT_NAMESPACE                     = 0
-      , ATTRIBUTE_INDEX_SCHEMA_LOCATION                      = 1
-      , ATTRIBUTE_INDEX_TAG                                  = 2
-      , ATTRIBUTE_INDEX_FORMATTING_MODE                      = 3
-      , ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL                 = 4
-      , ATTRIBUTE_INDEX_SPACES_PER_LEVEL                     = 5
-      , ATTRIBUTE_INDEX_WRAP_COLUMN                          = 6
-      , ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS             = 7
-      , ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS          = 8
-      , ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS            = 9
-      , ATTRIBUTE_INDEX_ENCODING_STYLE                       = 10
-      , ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS             = 11
-      , ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER                  = 12
-      , ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS                   = 13
-      , ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION = 14
-      , ATTRIBUTE_INDEX_USE_Z_ABBREVIATION_FOR_UTC           = 15
+        e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE                     = 0
+      , e_ATTRIBUTE_INDEX_SCHEMA_LOCATION                      = 1
+      , e_ATTRIBUTE_INDEX_TAG                                  = 2
+      , e_ATTRIBUTE_INDEX_FORMATTING_MODE                      = 3
+      , e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL                 = 4
+      , e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL                     = 5
+      , e_ATTRIBUTE_INDEX_WRAP_COLUMN                          = 6
+      , e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS             = 7
+      , e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS          = 8
+      , e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS            = 9
+      , e_ATTRIBUTE_INDEX_ENCODING_STYLE                       = 10
+      , e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS             = 11
+      , e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER                  = 12
+      , e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS                   = 13
+      , e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION = 14
+      , e_ATTRIBUTE_INDEX_USE_Z_ABBREVIATION_FOR_UTC           = 15
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_INDEX_OBJECT_NAMESPACE = e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE
+      , ATTRIBUTE_INDEX_SCHEMA_LOCATION = e_ATTRIBUTE_INDEX_SCHEMA_LOCATION
+      , ATTRIBUTE_INDEX_TAG = e_ATTRIBUTE_INDEX_TAG
+      , ATTRIBUTE_INDEX_FORMATTING_MODE = e_ATTRIBUTE_INDEX_FORMATTING_MODE
+      , ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL = e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL
+      , ATTRIBUTE_INDEX_SPACES_PER_LEVEL = e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL
+      , ATTRIBUTE_INDEX_WRAP_COLUMN = e_ATTRIBUTE_INDEX_WRAP_COLUMN
+      , ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS = e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS
+      , ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS = e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS
+      , ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS = e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS
+      , ATTRIBUTE_INDEX_ENCODING_STYLE = e_ATTRIBUTE_INDEX_ENCODING_STYLE
+      , ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS = e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS
+      , ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER = e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER
+      , ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS = e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS
+      , ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION = e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION
+      , ATTRIBUTE_INDEX_USE_Z_ABBREVIATION_FOR_UTC = e_ATTRIBUTE_INDEX_USE_Z_ABBREVIATION_FOR_UTC
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CONSTANTS
@@ -170,42 +220,25 @@ class EncoderOptions {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                       const char *name,
-                                                       int         nameLength);
+                                                    const char *name,
+                                                    int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
 
     // CREATORS
     explicit EncoderOptions(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'EncoderOptions' having the default value.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // Create an object of type 'EncoderOptions' having the
+        // default value.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
 
     EncoderOptions(const EncoderOptions& original,
-                   bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'EncoderOptions' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    EncoderOptions(EncoderOptions&& original) noexcept;
-        // Create an object of type 'EncoderOptions' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
-
-    EncoderOptions(EncoderOptions&& original,
-                   bslma::Allocator *basicAllocator);
-        // Create an object of type 'EncoderOptions' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
-#endif
+                              bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'EncoderOptions' having the
+        // value of the specified 'original' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     ~EncoderOptions();
         // Destroy this object.
@@ -213,14 +246,6 @@ class EncoderOptions {
     // MANIPULATORS
     EncoderOptions& operator=(const EncoderOptions& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    EncoderOptions& operator=(EncoderOptions&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
-#endif
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -446,105 +471,106 @@ bsl::ostream& operator<<(bsl::ostream& stream, const EncoderOptions& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-}  // close package namespace
 
 // TRAITS
 
+}  // close package namespace
+
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(balxml::EncoderOptions)
 
+namespace balxml {
+
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-namespace balxml {
 
                             // --------------------
                             // class EncoderOptions
                             // --------------------
 
-// CLASS METHODS
 // MANIPULATORS
 template <class MANIPULATOR>
 int EncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_objectNamespace, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
+    ret = manipulator(&d_objectNamespace, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_schemaLocation, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
+    ret = manipulator(&d_schemaLocation, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_tag, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TAG]);
+    ret = manipulator(&d_tag, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TAG]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    ret = manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
+    ret = manipulator(&d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
+    ret = manipulator(&d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_wrapColumn, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRAP_COLUMN]);
+    ret = manipulator(&d_wrapColumn, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRAP_COLUMN]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
+    ret = manipulator(&d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
+    ret = manipulator(&d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
+    ret = manipulator(&d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_encodingStyle, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODING_STYLE]);
+    ret = manipulator(&d_encodingStyle, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODING_STYLE]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
+    ret = manipulator(&d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+    ret = manipulator(&d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+    ret = manipulator(&d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_datetimeFractionalSecondPrecision, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
+    ret = manipulator(&d_datetimeFractionalSecondPrecision, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_useZAbbreviationForUtc, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_USE_Z_ABBREVIATION_FOR_UTC]);
+    ret = manipulator(&d_useZAbbreviationForUtc, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_USE_Z_ABBREVIATION_FOR_UTC]);
     if (ret) {
         return ret;
     }
@@ -555,59 +581,75 @@ int EncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int EncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_OBJECT_NAMESPACE: {
-        return manipulator(&d_objectNamespace, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
-      }
-      case ATTRIBUTE_ID_SCHEMA_LOCATION: {
-        return manipulator(&d_schemaLocation, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
-      }
-      case ATTRIBUTE_ID_TAG: {
-        return manipulator(&d_tag, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TAG]);
-      }
-      case ATTRIBUTE_ID_FORMATTING_MODE: {
-        return manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
-      }
-      case ATTRIBUTE_ID_INITIAL_INDENT_LEVEL: {
-        return manipulator(&d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
-      }
-      case ATTRIBUTE_ID_SPACES_PER_LEVEL: {
-        return manipulator(&d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
-      }
-      case ATTRIBUTE_ID_WRAP_COLUMN: {
-        return manipulator(&d_wrapColumn, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRAP_COLUMN]);
-      }
-      case ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS: {
-        return manipulator(&d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
-      }
-      case ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS: {
-        return manipulator(&d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
-      }
-      case ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS: {
-        return manipulator(&d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
-      }
-      case ATTRIBUTE_ID_ENCODING_STYLE: {
-        return manipulator(&d_encodingStyle, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODING_STYLE]);
-      }
-      case ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS: {
-        return manipulator(&d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
-      }
-      case ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER: {
-        return manipulator(&d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
-      }
-      case ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS: {
-        return manipulator(&d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
-      }
-      case ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION: {
-        return manipulator(&d_datetimeFractionalSecondPrecision, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
-      }
-      case ATTRIBUTE_ID_USE_Z_ABBREVIATION_FOR_UTC: {
-        return manipulator(&d_useZAbbreviationForUtc, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_USE_Z_ABBREVIATION_FOR_UTC]);
-      }
+      case e_ATTRIBUTE_ID_OBJECT_NAMESPACE: {
+        return manipulator(&d_objectNamespace, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SCHEMA_LOCATION: {
+        return manipulator(&d_schemaLocation, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_TAG: {
+        return manipulator(&d_tag, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TAG]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_FORMATTING_MODE: {
+        return manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_INITIAL_INDENT_LEVEL: {
+        return manipulator(&d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SPACES_PER_LEVEL: {
+        return manipulator(&d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_WRAP_COLUMN: {
+        return manipulator(&d_wrapColumn, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRAP_COLUMN]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS: {
+        return manipulator(&d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS: {
+        return manipulator(&d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS: {
+        return manipulator(&d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_ENCODING_STYLE: {
+        return manipulator(&d_encodingStyle, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODING_STYLE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS: {
+        return manipulator(&d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER: {
+        return manipulator(&d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS: {
+        return manipulator(&d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION: {
+        return manipulator(&d_datetimeFractionalSecondPrecision, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_USE_Z_ABBREVIATION_FOR_UTC: {
+        return manipulator(&d_useZAbbreviationForUtc, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_USE_Z_ABBREVIATION_FOR_UTC]);
+      } break;
+
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -617,12 +659,12 @@ int EncoderOptions::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
-                                         lookupAttributeInfo(name, nameLength);
+           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -730,82 +772,82 @@ int EncoderOptions::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_objectNamespace, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
+    ret = accessor(d_objectNamespace, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_schemaLocation, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_tag, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TAG]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_wrapColumn, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRAP_COLUMN]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_encodingStyle, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODING_STYLE]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_datetimeFractionalSecondPrecision, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
     if (ret) {
         return ret;
     }
 
-    ret = accessor(d_schemaLocation, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_tag, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TAG]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_wrapColumn, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRAP_COLUMN]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_encodingStyle, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODING_STYLE]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_datetimeFractionalSecondPrecision, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
-    if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_useZAbbreviationForUtc, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_USE_Z_ABBREVIATION_FOR_UTC]);
+    ret = accessor(d_useZAbbreviationForUtc, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_USE_Z_ABBREVIATION_FOR_UTC]);
     if (ret) {
         return ret;
     }
@@ -816,59 +858,74 @@ int EncoderOptions::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int EncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_OBJECT_NAMESPACE: {
-        return accessor(d_objectNamespace, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
-      }
-      case ATTRIBUTE_ID_SCHEMA_LOCATION: {
-        return accessor(d_schemaLocation, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
-      }
-      case ATTRIBUTE_ID_TAG: {
-        return accessor(d_tag, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TAG]);
-      }
-      case ATTRIBUTE_ID_FORMATTING_MODE: {
-        return accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
-      }
-      case ATTRIBUTE_ID_INITIAL_INDENT_LEVEL: {
-        return accessor(d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
-      }
-      case ATTRIBUTE_ID_SPACES_PER_LEVEL: {
-        return accessor(d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
-      }
-      case ATTRIBUTE_ID_WRAP_COLUMN: {
-        return accessor(d_wrapColumn, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_WRAP_COLUMN]);
-      }
-      case ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS: {
-        return accessor(d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
-      }
-      case ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS: {
-        return accessor(d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
-      }
-      case ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS: {
-        return accessor(d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
-      }
-      case ATTRIBUTE_ID_ENCODING_STYLE: {
-        return accessor(d_encodingStyle, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODING_STYLE]);
-      }
-      case ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS: {
-        return accessor(d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
-      }
-      case ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER: {
-        return accessor(d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
-      }
-      case ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS: {
-        return accessor(d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
-      }
-      case ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION: {
-        return accessor(d_datetimeFractionalSecondPrecision, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
-      }
-      case ATTRIBUTE_ID_USE_Z_ABBREVIATION_FOR_UTC: {
-        return accessor(d_useZAbbreviationForUtc, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_USE_Z_ABBREVIATION_FOR_UTC]);
-      }
+      case e_ATTRIBUTE_ID_OBJECT_NAMESPACE: {
+        return accessor(d_objectNamespace, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SCHEMA_LOCATION: {
+        return accessor(d_schemaLocation, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_TAG: {
+        return accessor(d_tag, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TAG]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_FORMATTING_MODE: {
+        return accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_INITIAL_INDENT_LEVEL: {
+        return accessor(d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SPACES_PER_LEVEL: {
+        return accessor(d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_WRAP_COLUMN: {
+        return accessor(d_wrapColumn, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRAP_COLUMN]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS: {
+        return accessor(d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS: {
+        return accessor(d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS: {
+        return accessor(d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_ENCODING_STYLE: {
+        return accessor(d_encodingStyle, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODING_STYLE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS: {
+        return accessor(d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER: {
+        return accessor(d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS: {
+        return accessor(d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION: {
+        return accessor(d_datetimeFractionalSecondPrecision, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_USE_Z_ABBREVIATION_FOR_UTC: {
+        return accessor(d_useZAbbreviationForUtc, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_USE_Z_ABBREVIATION_FOR_UTC]);
+      } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -878,12 +935,12 @@ int EncoderOptions::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -984,15 +1041,14 @@ bool EncoderOptions::useZAbbreviationForUtc() const
 {
     return d_useZAbbreviationForUtc;
 }
-
 }  // close package namespace
 
 // FREE FUNCTIONS
 
 inline
 bool balxml::operator==(
-        const balxml::EncoderOptions& lhs,
-        const balxml::EncoderOptions& rhs)
+        const EncoderOptions& lhs,
+        const EncoderOptions& rhs)
 {
     return  lhs.objectNamespace() == rhs.objectNamespace()
          && lhs.schemaLocation() == rhs.schemaLocation()
@@ -1014,29 +1070,41 @@ bool balxml::operator==(
 
 inline
 bool balxml::operator!=(
-        const balxml::EncoderOptions& lhs,
-        const balxml::EncoderOptions& rhs)
+        const EncoderOptions& lhs,
+        const EncoderOptions& rhs)
 {
-    return !(lhs == rhs);
+    return  lhs.objectNamespace() != rhs.objectNamespace()
+         || lhs.schemaLocation() != rhs.schemaLocation()
+         || lhs.tag() != rhs.tag()
+         || lhs.formattingMode() != rhs.formattingMode()
+         || lhs.initialIndentLevel() != rhs.initialIndentLevel()
+         || lhs.spacesPerLevel() != rhs.spacesPerLevel()
+         || lhs.wrapColumn() != rhs.wrapColumn()
+         || lhs.maxDecimalTotalDigits() != rhs.maxDecimalTotalDigits()
+         || lhs.maxDecimalFractionDigits() != rhs.maxDecimalFractionDigits()
+         || lhs.significantDoubleDigits() != rhs.significantDoubleDigits()
+         || lhs.encodingStyle() != rhs.encodingStyle()
+         || lhs.allowControlCharacters() != rhs.allowControlCharacters()
+         || lhs.outputXMLHeader() != rhs.outputXMLHeader()
+         || lhs.outputXSIAlias() != rhs.outputXSIAlias()
+         || lhs.datetimeFractionalSecondPrecision() != rhs.datetimeFractionalSecondPrecision()
+         || lhs.useZAbbreviationForUtc() != rhs.useZAbbreviationForUtc();
 }
 
 inline
 bsl::ostream& balxml::operator<<(
         bsl::ostream& stream,
-        const balxml::EncoderOptions& rhs)
+        const EncoderOptions& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 }  // close enterprise namespace
+
 #endif
 
-// BAS_CODEGEN RUN BY code_from_xsd.pl RUN ON Thu Sep 24 20:40:02 EDT 2020
-// GENERATED BY BLP_BAS_CODEGEN_2020.09.14
-// USING bas_codegen.pl -m msg -p balxml -E --noExternalization --noAggregateConversion --noHashSupport balxml.xsd
-
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -1,31 +1,35 @@
-// balxml_decoderoptions.h          *DO NOT EDIT*          @generated -*-C++-*-
+// balxml_decoderoptions.h   -*-C++-*-   GENERATED FILE -- DO NOT EDIT
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALXML_DECODEROPTIONS
 #define INCLUDED_BALXML_DECODEROPTIONS
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balxml_decoderoptions_h,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(baexml_decoderoptions_h,"$Id$ $CSID$ $CCId$")
 BSLS_IDENT_PRAGMA_ONCE
 
-//@PURPOSE: Provide value-semantic attribute classes
+//@PURPOSE: Provide value-semantic attribute classes.
+//
+//@DESCRIPTION: Options for controlling the XML decoding process.
 
-#include <bslalg_typetraits.h>
+#include <balscm_version.h>
 
 #include <bdlat_attributeinfo.h>
-
 #include <bdlat_selectioninfo.h>
-
 #include <bdlat_typetraits.h>
 
+#include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
 
-#include <bsls_assert.h>
-
 #include <bsl_iosfwd.h>
-#include <bsl_limits.h>
 
 namespace BloombergLP {
-
-namespace balxml { class DecoderOptions; }
 namespace balxml {
 
                             // ====================
@@ -34,8 +38,6 @@ namespace balxml {
 
 class DecoderOptions {
     // Options for controlling the XML decoding process.
-    // This struct is generated using bas_codegen.pl called by
-    // balxml/code_from_xsd.pl
 
     // INSTANCE DATA
     int   d_maxDepth;
@@ -44,27 +46,38 @@ class DecoderOptions {
         // Formatting mode
     bool  d_skipUnknownElements;
         // Option to skip unknown elements
-    bool  d_validateInputIsUtf8;
-        // option to check that input is valid UTF-8
 
   public:
     // TYPES
     enum {
-        ATTRIBUTE_ID_MAX_DEPTH              = 0
-      , ATTRIBUTE_ID_FORMATTING_MODE        = 1
-      , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS  = 2
-      , ATTRIBUTE_ID_VALIDATE_INPUT_IS_UTF8 = 3
+        e_ATTRIBUTE_ID_MAX_DEPTH             = 0
+      , e_ATTRIBUTE_ID_FORMATTING_MODE       = 1
+      , e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = 2
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_ID_MAX_DEPTH = e_ATTRIBUTE_ID_MAX_DEPTH
+      , ATTRIBUTE_ID_FORMATTING_MODE = e_ATTRIBUTE_ID_FORMATTING_MODE
+      , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS =
+                                           e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        NUM_ATTRIBUTES = 4
+        k_NUM_ATTRIBUTES = 3
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        ATTRIBUTE_INDEX_MAX_DEPTH              = 0
-      , ATTRIBUTE_INDEX_FORMATTING_MODE        = 1
-      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS  = 2
-      , ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8 = 3
+        e_ATTRIBUTE_INDEX_MAX_DEPTH             = 0
+      , e_ATTRIBUTE_INDEX_FORMATTING_MODE       = 1
+      , e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = 2
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_INDEX_MAX_DEPTH = e_ATTRIBUTE_INDEX_MAX_DEPTH
+      , ATTRIBUTE_INDEX_FORMATTING_MODE = e_ATTRIBUTE_INDEX_FORMATTING_MODE
+      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS =
+                                        e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CONSTANTS
@@ -76,8 +89,6 @@ class DecoderOptions {
 
     static const bool DEFAULT_INITIALIZER_SKIP_UNKNOWN_ELEMENTS;
 
-    static const bool DEFAULT_INITIALIZER_VALIDATE_INPUT_IS_UTF8;
-
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
@@ -87,8 +98,8 @@ class DecoderOptions {
         // specified 'id' if the attribute exists, and 0 otherwise.
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(
-                                                       const char *name,
-                                                       int         nameLength);
+                                                    const char *name,
+                                                    int         nameLength);
         // Return attribute information for the attribute indicated by the
         // specified 'name' of the specified 'nameLength' if the attribute
         // exists, and 0 otherwise.
@@ -101,28 +112,12 @@ class DecoderOptions {
         // Create an object of type 'DecoderOptions' having the value of the
         // specified 'original' object.
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    DecoderOptions(DecoderOptions&& original) = default;
-        // Create an object of type 'DecoderOptions' having the value of the
-        // specified 'original' object.  After performing this action, the
-        // 'original' object will be left in a valid, but unspecified state.
-#endif
-
     ~DecoderOptions();
         // Destroy this object.
 
     // MANIPULATORS
     DecoderOptions& operator=(const DecoderOptions& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    DecoderOptions& operator=(DecoderOptions&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
-#endif
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -169,10 +164,6 @@ class DecoderOptions {
         // Set the "SkipUnknownElements" attribute of this object to the
         // specified 'value'.
 
-    void setValidateInputIsUtf8(bool value);
-        // Set the "ValidateInputIsUtf8" attribute of this object to the
-        // specified 'value'.
-
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -217,20 +208,16 @@ class DecoderOptions {
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
 
-    int maxDepth() const;
+    const int& maxDepth() const;
         // Return a reference to the non-modifiable "MaxDepth" attribute of
         // this object.
 
-    int formattingMode() const;
+    const int& formattingMode() const;
         // Return a reference to the non-modifiable "FormattingMode" attribute
         // of this object.
 
-    bool skipUnknownElements() const;
+    const bool& skipUnknownElements() const;
         // Return a reference to the non-modifiable "SkipUnknownElements"
-        // attribute of this object.
-
-    bool validateInputIsUtf8() const;
-        // Return a reference to the non-modifiable "ValidateInputIsUtf8"
         // attribute of this object.
 };
 
@@ -255,45 +242,40 @@ bsl::ostream& operator<<(bsl::ostream& stream, const DecoderOptions& rhs);
 
 }  // close package namespace
 
-// TRAITS
-
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(balxml::DecoderOptions)
 
-// ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
 namespace balxml {
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
                             // --------------------
                             // class DecoderOptions
                             // --------------------
 
-// CLASS METHODS
 // MANIPULATORS
 template <class MANIPULATOR>
 int DecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+    ret = manipulator(&d_maxDepth,
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    ret = manipulator(&d_formattingMode,
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+    ret = manipulator(&d_skipUnknownElements,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
     if (ret) {
-        return ret;
-    }
-
-    ret = manipulator(&d_validateInputIsUtf8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8]);
-    if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -302,23 +284,26 @@ int DecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int DecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MAX_DEPTH: {
-        return manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
-      }
-      case ATTRIBUTE_ID_FORMATTING_MODE: {
-        return manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
-      }
-      case ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
-        return manipulator(&d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
-      }
-      case ATTRIBUTE_ID_VALIDATE_INPUT_IS_UTF8: {
-        return manipulator(&d_validateInputIsUtf8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8]);
-      }
+      case e_ATTRIBUTE_ID_MAX_DEPTH: {
+        return manipulator(&d_maxDepth,
+                           ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_FORMATTING_MODE: {
+        return manipulator(&d_formattingMode,
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
+        return manipulator(&d_skipUnknownElements,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+                                                                      // RETURN
+      } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -328,12 +313,12 @@ int DecoderOptions::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
-                                         lookupAttributeInfo(name, nameLength);
+           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -357,36 +342,28 @@ void DecoderOptions::setSkipUnknownElements(bool value)
     d_skipUnknownElements = value;
 }
 
-inline
-void DecoderOptions::setValidateInputIsUtf8(bool value)
-{
-    d_validateInputIsUtf8 = value;
-}
-
 // ACCESSORS
 template <class ACCESSOR>
 int DecoderOptions::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+    ret = accessor(d_maxDepth,
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    ret = accessor(d_formattingMode,
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+    ret = accessor(d_skipUnknownElements,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
     if (ret) {
-        return ret;
-    }
-
-    ret = accessor(d_validateInputIsUtf8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8]);
-    if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -395,23 +372,26 @@ int DecoderOptions::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int DecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MAX_DEPTH: {
-        return accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
-      }
-      case ATTRIBUTE_ID_FORMATTING_MODE: {
-        return accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FORMATTING_MODE]);
-      }
-      case ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
-        return accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
-      }
-      case ATTRIBUTE_ID_VALIDATE_INPUT_IS_UTF8: {
-        return accessor(d_validateInputIsUtf8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8]);
-      }
+      case e_ATTRIBUTE_ID_MAX_DEPTH: {
+        return accessor(d_maxDepth,
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_FORMATTING_MODE: {
+        return accessor(d_formattingMode,
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
+        return accessor(d_skipUnknownElements,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+                                                                      // RETURN
+      } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
@@ -421,68 +401,57 @@ int DecoderOptions::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdlat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return k_NOT_FOUND;                                            // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
 }
 
 inline
-int DecoderOptions::maxDepth() const
+const int& DecoderOptions::maxDepth() const
 {
     return d_maxDepth;
 }
 
 inline
-int DecoderOptions::formattingMode() const
+const int& DecoderOptions::formattingMode() const
 {
     return d_formattingMode;
 }
 
 inline
-bool DecoderOptions::skipUnknownElements() const
+const bool& DecoderOptions::skipUnknownElements() const
 {
     return d_skipUnknownElements;
-}
-
-inline
-bool DecoderOptions::validateInputIsUtf8() const
-{
-    return d_validateInputIsUtf8;
 }
 
 }  // close package namespace
 
 // FREE FUNCTIONS
-
 inline
-bool balxml::operator==(
-        const balxml::DecoderOptions& lhs,
-        const balxml::DecoderOptions& rhs)
+bool balxml::operator==(const DecoderOptions& lhs, const DecoderOptions& rhs)
 {
     return  lhs.maxDepth() == rhs.maxDepth()
          && lhs.formattingMode() == rhs.formattingMode()
-         && lhs.skipUnknownElements() == rhs.skipUnknownElements()
-         && lhs.validateInputIsUtf8() == rhs.validateInputIsUtf8();
+         && lhs.skipUnknownElements() == rhs.skipUnknownElements();
 }
 
 inline
-bool balxml::operator!=(
-        const balxml::DecoderOptions& lhs,
-        const balxml::DecoderOptions& rhs)
+bool balxml::operator!=(const DecoderOptions& lhs, const DecoderOptions& rhs)
 {
-    return !(lhs == rhs);
+    return  lhs.maxDepth() != rhs.maxDepth()
+         || lhs.formattingMode() != rhs.formattingMode()
+         || lhs.skipUnknownElements() != rhs.skipUnknownElements();
 }
 
 inline
-bsl::ostream& balxml::operator<<(
-        bsl::ostream& stream,
-        const balxml::DecoderOptions& rhs)
+bsl::ostream& balxml::operator<<(bsl::ostream&         stream,
+                                 const DecoderOptions& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
@@ -490,12 +459,8 @@ bsl::ostream& balxml::operator<<(
 }  // close enterprise namespace
 #endif
 
-// BAS_CODEGEN RUN BY code_from_xsd.pl RUN ON Thu Sep 24 20:40:02 EDT 2020
-// GENERATED BY BLP_BAS_CODEGEN_2020.09.14
-// USING bas_codegen.pl -m msg -p balxml -E --noExternalization --noAggregateConversion --noHashSupport balxml.xsd
-
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
