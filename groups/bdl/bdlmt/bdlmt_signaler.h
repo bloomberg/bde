@@ -637,7 +637,7 @@ class Signaler_SlotNode : public Signaler_SlotNode_Base {
   public:
     // CREATORS
     template <class FUNC>
-    Signaler_SlotNode(const bsl::shared_ptr<SignalerNode>&     signalerNodePtr,
+    Signaler_SlotNode(const bsl::weak_ptr<SignalerNode>&       signalerNodePtr,
                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC)  slot,
                       SlotMapKey                               slotMapKey,
                       bslma::Allocator                        *allocator);
@@ -1718,7 +1718,7 @@ void Signaler_SlotNode<PROT>::doInvoke(
 template <class PROT>
 template <class FUNC>
 Signaler_SlotNode<PROT>::Signaler_SlotNode(
-                      const bsl::shared_ptr<SignalerNode>&     signalerNodePtr,
+                      const bsl::weak_ptr<SignalerNode>&       signalerNodePtr,
                       BSLS_COMPILERFEATURES_FORWARD_REF(FUNC)  func,
                       SlotMapKey                               slotMapKey,
                       bslma::Allocator                        *allocator)
@@ -1729,7 +1729,7 @@ Signaler_SlotNode<PROT>::Signaler_SlotNode(
          allocator,
          BSLS_COMPILERFEATURES_FORWARD(FUNC, func))
 {
-    BSLS_ASSERT(signalerNodePtr);
+    BSLS_ASSERT(!signalerNodePtr.expired());
     BSLS_ASSERT(allocator);
 }
 
@@ -1900,7 +1900,7 @@ Signaler_Node<PROT>::connect(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func,
     bsl::shared_ptr<SlotNode> slotNodePtr =
                          bsl::allocate_shared<SlotNode>(
                                      d_slotMap.allocator(),
-                                     this->shared_from_this(),
+                                     this->weak_from_this(),
                                      BSLS_COMPILERFEATURES_FORWARD(FUNC, func),
                                      slotMapKey,
                                      d_slotMap.allocator());

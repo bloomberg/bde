@@ -8,7 +8,12 @@
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
+#include <bdlt_datetime.h>
+#include <bdlt_currenttime.h>
+
 #include <bdlsb_memoutstreambuf.h>
+
+#include <bdlma_sequentialallocator.h>
 
 #include <bslim_testutil.h>
 
@@ -22,7 +27,6 @@
 #include <bslmf_movableref.h>
 
 #include <bslmt_threadutil.h>
-
 #include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
@@ -343,6 +347,7 @@ TYPE abs(TYPE x)
 {
     return x < 0 ? -x : x;
 }
+
                                 // -------
                                 // RandGen
                                 // -------
@@ -896,7 +901,7 @@ static void test4_signaler_connect()
 {
     bslma::TestAllocator alloc;
 
-    // 1. general case
+    if (veryVerbose) cout << "1. general case\n";
     {
         bsl::ostringstream      out(&alloc);
         bdlmt::Signaler<void()> sig(&alloc);
@@ -948,7 +953,7 @@ static void test4_signaler_connect()
         }
     }
 
-    // 2. connect one slot from another
+    if (veryVerbose) cout << "2. connect one slot from another\n";
     {
         bsl::ostringstream      out(&alloc);
         bdlmt::Signaler<void()> sig(&alloc);
@@ -996,7 +1001,35 @@ static void test4_signaler_connect()
         ASSERTV(sig.slotCount(), 1 == sig.slotCount());
     }
 
-    // 3. connect a slot that thows on copy
+#if defined(BSLS_PLATFORM_CMP_IBM)
+    const int major = (0xff00 & BSLS_PLATFORM_CMP_VERSION) >> 8;
+    const int minor =  0x00ff & BSLS_PLATFORM_CMP_VERSION;
+
+    const bdlt::Datetime now = bdlt::CurrentTime::local();
+
+    if ((major < 16 || (16 == major && minor <= 1)) &&
+                                           now < bdlt::Datetime(2022, 5, 14)) {
+        // There is a compiler bug on Aix {DRQS 166134166<GO>} that causes the
+        // 'this' pointer to be corrupted when a base class d'tor is called if
+        // the derived class c'tor throws.
+
+        // We want to discontinue this workaround once we get to xlC_r 16.2 or
+        // later, or on May 14, 2022 (one year from today) whichever comes
+        // first.
+
+        cout << "Quitting before '3' to avoid xlC_r compiler bug.\n";
+
+        return;       // Quit test.
+    }
+    else if (now > bdlt::Datetime(2023, 5, 14)) {
+        // We want this workaround to be removed once it has outlived its
+        // usefulness.
+
+        ASSERT(0 && "Clean me up after May 14, 2023 or sooner.");
+    }
+#endif
+
+    if (veryVerbose) cout << "3. connect a slot that thows on copy\n";
     {
         bsl::ostringstream      out(&alloc);
         bdlmt::Signaler<void()> sig(&alloc);
