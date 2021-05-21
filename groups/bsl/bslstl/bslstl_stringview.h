@@ -199,6 +199,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_enableif.h>
 #include <bslmf_isconvertible.h>
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
@@ -376,13 +378,16 @@ class basic_string_view {
         // 'lhsPosition <= length() - lhsNumChars'.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(basic_string_view,
+                                   bsl::is_trivially_copyable);
+
     // CREATORS
     BSLS_KEYWORD_CONSTEXPR
     basic_string_view() BSLS_KEYWORD_NOEXCEPT;
         // Create an empty view.
 
-    BSLS_KEYWORD_CONSTEXPR
-    basic_string_view(const basic_string_view& original) BSLS_KEYWORD_NOEXCEPT;
+    //! basic_string_view(const basic_string_view& original) = default;
         // Create a view that has the same value as the specified 'original'
         // object.
 
@@ -405,10 +410,11 @@ class basic_string_view {
        const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str);
         // Create a view of the specified 'string'.
 
+    //! ~basic_string_view() = default;
+        // Destroy this object.
+
     // MANIPULATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP14
-    basic_string_view& operator=(const basic_string_view& rhs)
-    BSLS_KEYWORD_NOEXCEPT;
+    //! basic_string_view& operator=(const basic_string_view& rhs) = default;
         // Assign to this view the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this view.
 
@@ -1325,16 +1331,6 @@ basic_string_view<CHAR_TYPE,CHAR_TRAITS>::basic_string_view()
 {}
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
-inline
-BSLS_KEYWORD_CONSTEXPR
-basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
-                       const basic_string_view& original) BSLS_KEYWORD_NOEXCEPT
-: d_start_p(original.d_start_p)
-, d_length(original.d_length)
-{
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 BSLS_KEYWORD_CONSTEXPR_CPP14
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
@@ -1374,19 +1370,6 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
 }
 
 // MANIPULATORS
-template <class CHAR_TYPE, class CHAR_TRAITS>
-BSLS_PLATFORM_AGGRESSIVE_INLINE
-BSLS_KEYWORD_CONSTEXPR_CPP14
-basic_string_view<CHAR_TYPE, CHAR_TRAITS>&
-basic_string_view<CHAR_TYPE, CHAR_TRAITS>::operator=(
-                                                  const basic_string_view& rhs)
-BSLS_KEYWORD_NOEXCEPT
-{
-    d_start_p = rhs.d_start_p;
-    d_length  = rhs.d_length;
-    return *this;
-}
-
 template <class CHAR_TYPE, class CHAR_TRAITS>
 template <class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE

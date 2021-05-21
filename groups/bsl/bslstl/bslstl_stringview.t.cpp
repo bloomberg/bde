@@ -124,7 +124,8 @@
 // [ 6] swap(basic_string_view& lhs, basic_string_view& rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [23] USAGE EXAMPLE
+// [25] USAGE EXAMPLE
+// [24] TRAITS
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -6514,7 +6515,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -6584,6 +6585,30 @@ int main(int argc, char *argv[])
         sfa.deleteObject(sPtr);
         svfa.deleteObject(svPtr);
 //..
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // TESTING TYPE TRAITS
+        //   The object is trivially copyable, bitwise moveable and should have
+        //   appropriate bsl type traits to reflect this.
+        //
+        // Concerns:
+        //: 1 The class has the bsl::is_trivially_copyable trait.
+        //:
+        //: 2 The class has the bslmf::IsBitwiseMoveable trait.
+        //
+        // Plan:
+        //: 1 ASSERT the presence of each trait required by the type.  (C-1..2)
+        //
+        // Testing:
+        //   TYPE TRAITS
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING TYPE TRAITS"
+                            "\n===================\n");
+
+        ASSERT((bsl::is_trivially_copyable<bsl::string_view>::value));
+        ASSERT((bslmf::IsBitwiseMoveable<bsl::string_view>::value));
+
       } break;
       case 23: {
         // --------------------------------------------------------------------

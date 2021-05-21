@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslmf_assert.h>
+
 //=============================================================================
 //                            // Implementation Note
 //
@@ -46,6 +48,13 @@ BSLS_IDENT("$Id$ $CSID$")
 // taking a string view on one side and a 'StringView_Identity<string_view>' on
 // the other.
 //=============================================================================
+
+namespace bsl {
+    BSLMF_ASSERT(bsl::is_trivially_copyable<string_view>::value);
+    BSLMF_ASSERT(BloombergLP::bslmf::IsBitwiseMoveable<string_view>::value);
+}  // close namespace bsl
+
+
 
 #if defined (BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY) && \
     defined (BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)
