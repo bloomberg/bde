@@ -61,7 +61,7 @@ namespace bdlb {
                         // class Tokenizer_Data
                         // --------------------
 
-Tokenizer_Data::Tokenizer_Data(const bslstl::StringRef& softDelimiters)
+Tokenizer_Data::Tokenizer_Data(const bsl::string_view& softDelimiters)
 {
     bsl::memset(d_charTypes, TOK, k_MAX_CHARS);
 
@@ -75,8 +75,8 @@ Tokenizer_Data::Tokenizer_Data(const bslstl::StringRef& softDelimiters)
     }
 }
 
-Tokenizer_Data::Tokenizer_Data(const bslstl::StringRef& softDelimiters,
-                               const bslstl::StringRef& hardDelimiters)
+Tokenizer_Data::Tokenizer_Data(const bsl::string_view& softDelimiters,
+                               const bsl::string_view& hardDelimiters)
 {
     bsl::memset(d_charTypes, TOK, k_MAX_CHARS);
 
@@ -278,33 +278,32 @@ void Tokenizer::resetImpl(const char *input, const char *endOfInput)
 }
 
 // CREATORS
-Tokenizer::Tokenizer(const char               *input,
-                     const bslstl::StringRef&  soft)
+Tokenizer::Tokenizer(const char *input, const bsl::string_view& soft)
 : d_sharedData(soft)
 {
     BSLS_ASSERT(input);
     reset(input);
 }
 
-Tokenizer::Tokenizer(const char               *input,
-                     const bslstl::StringRef&  soft,
-                     const bslstl::StringRef&  hard)
+Tokenizer::Tokenizer(const char              *input,
+                     const bsl::string_view&  soft,
+                     const bsl::string_view&  hard)
 : d_sharedData(soft, hard)
 {
     BSLS_ASSERT(input);
     reset(input);
 }
 
-Tokenizer::Tokenizer(const bslstl::StringRef&  input,
-                     const bslstl::StringRef&  soft)
+Tokenizer::Tokenizer(const bsl::string_view& input,
+                     const bsl::string_view& soft)
 : d_sharedData(soft)
 {
     reset(input);
 }
 
-Tokenizer::Tokenizer(const bslstl::StringRef&  input,
-                     const bslstl::StringRef&  soft,
-                     const bslstl::StringRef&  hard)
+Tokenizer::Tokenizer(const bsl::string_view& input,
+                     const bsl::string_view& soft,
+                     const bsl::string_view& hard)
 : d_sharedData(soft, hard)
 {
     reset(input);
@@ -402,7 +401,7 @@ void Tokenizer::reset(const char *input)
     resetImpl(input, 0);
 }
 
-void Tokenizer::reset(const bslstl::StringRef& input)
+void Tokenizer::reset(const bsl::string_view& input)
 {
     const char *begin = input.begin() ? input.begin() : "";
     const char *end   = input.begin() ? input.end()   : begin;

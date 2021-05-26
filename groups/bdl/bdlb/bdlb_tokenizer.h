@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 // provides non-destructive sequential (read-only) access to tokens in a given
 // input string as characterized by two disjoint sets of user-specified
 // delimiter characters, each of which is supplied at construction via either a
-// 'const bslstl::StringRef&' or (for efficiency, when only the leading
+// 'const bsl::string_view&' or (for efficiency, when only the leading
 // characters of the input string may need to be parsed) a 'const char *'.
 // Note that each character (including '\0') that is not explicitly designated
 // as a delimiter character is assumed to be *token* character.
@@ -562,9 +562,9 @@ class Tokenizer_Data {
 
   public:
     // CREATORS
-    explicit Tokenizer_Data(const bslstl::StringRef& softDelimiters);
-    Tokenizer_Data(const bslstl::StringRef& softDelimiters,
-                   const bslstl::StringRef& hardDelimiters);
+    explicit Tokenizer_Data(const bsl::string_view& softDelimiters);
+    Tokenizer_Data(const bsl::string_view& softDelimiters,
+                   const bsl::string_view& hardDelimiters);
         // Create a 'Tokenizer_Data' object and load the 'd_charTypes' data
         // member such that it has the same value *as* *if* this (overly
         // prescriptive) algorithm were used: (I) initialize each entry in
@@ -607,7 +607,7 @@ class Tokenizer_Proxy {
 
   public:
     // CREATORS
-    Tokenizer_Proxy(const bslstl::StringRef &obj);
+    Tokenizer_Proxy(const bsl::string_view &obj);
         // Create a 'ProxyHolder' object with a copy the specified 'obj'.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
@@ -793,14 +793,14 @@ class Tokenizer {
     typedef TokenizerIterator iterator;
 
     // CREATORS
-    Tokenizer(const char               *input, const bslstl::StringRef& soft);
-    Tokenizer(const bslstl::StringRef&  input, const bslstl::StringRef& soft);
-    Tokenizer(const char               *input,
-              const bslstl::StringRef&  soft,
-              const bslstl::StringRef&  hard);
-    Tokenizer(const bslstl::StringRef&  input,
-              const bslstl::StringRef&  soft,
-              const bslstl::StringRef&  hard);
+    Tokenizer(const char              *input, const bsl::string_view& soft);
+    Tokenizer(const bsl::string_view&  input, const bsl::string_view& soft);
+    Tokenizer(const char              *input,
+              const bsl::string_view&  soft,
+              const bsl::string_view&  hard);
+    Tokenizer(const bsl::string_view&  input,
+              const bsl::string_view&  soft,
+              const bsl::string_view&  hard);
         // Create a 'Tokenizer' object bound to the specified sequence of
         // 'input' characters having the specified set of (unique) 'soft'
         // delimiter characters to be used to separate *tokens* (i.e., maximal
@@ -826,7 +826,7 @@ class Tokenizer {
         // references into the underlying 'input' string, and hence remain
         // valid so long as that string is not modified or destroyed --
         // irrespective of the state (or even the existence) of this object.
-        // Finally note that supplying a default constructed 'StringRef' is
+        // Finally note that supplying a default constructed 'string_view' is
         // equivalent to supplying an empty c-string (i.e., "").
 
     ~Tokenizer();
@@ -849,14 +849,14 @@ class Tokenizer {
         // was most recently reset (or created).
 
     void reset(const char *input);
-    void reset(const bslstl::StringRef& input);
+    void reset(const bsl::string_view& input);
         // Rebind this object to refer to the specified sequence of 'input'
         // characters.  The state of the tokenizer following this call is *as*
         // *if* it had been constructed with 'input' and its current sets of
         // *soft* and *hard* delimiter characters.  The behavior is
         // undefined if this object is used in any way (other than to reset or
         // destroy it) after its underlying 'input' string is modified.  Note
-        // that supplying a default constructed 'StringRef' is equivalent to
+        // that supplying a default constructed 'string_view' is equivalent to
         // supplying an empty c-string (i.e., "").
 
     // ACCESSORS
@@ -959,7 +959,7 @@ int Tokenizer_Data::inputType(char character) const
                         // ---------------------------
 // CREATORS
 inline
-bdlb::Tokenizer_Proxy::Tokenizer_Proxy(const bslstl::StringRef &obj)
+bdlb::Tokenizer_Proxy::Tokenizer_Proxy(const bsl::string_view &obj)
 : d_obj(obj)
 {
 }

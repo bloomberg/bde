@@ -15,6 +15,8 @@
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
+#include <string>       // for 'native_std::string'
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -53,15 +55,20 @@ using namespace bsl;
 ///Tokenizer_Data
 ///--------------
 //: o Primary Manipulators:
-//:   - Tokenizer_Data(const StringRef& softD, const StringRef& hardD);
+//:   - Tokenizer_Data(const bsl::string_view& softD,
+//                     const bsl::string_view& hardD);
 //: o Basic Accessors:
 //:   - int inputType(char character) const;
 //
 ///Tokenizer
 ///---------
 //: o Primary Manipulators:
-//:   - Tokenizer(const StringRef& i, const StringRef& s, const StringRef& h);
-//:   - Tokenizer(const char *i, const StringRef& s, const StringRef& h);
+//:   - Tokenizer(const bsl::string_view& input,
+//                      const bsl::string_view& soft,
+//                      const bsl::string_view& hard);
+//:   - Tokenizer(const char              *input,
+//                const bsl::string_view&  soft,
+//                const bsl::string_view&  hard);
 //:   - Tokenizer& operator++();
 //: o Basic Accessors:
 //:   - bool isValid() const;
@@ -103,8 +110,8 @@ using namespace bsl;
 //                      // private class Tokenizer_Data
 //                      // ----------------------------
 // CREATORS
-// [ 2] Tokenizer_Data(const StringRef& softD);
-// [ 2] Tokenizer_Data(const StringRef& softD, const StringRef& hardD);
+// [ 2] Tokenizer_Data(const bsl::string_view& softD);
+// [ 2] Tokenizer_Data(const string_view& softD, const string_view& hardD);
 // [ 2] ~Tokenizer_Data();
 //
 // ACCESSORS
@@ -139,16 +146,16 @@ using namespace bsl;
 // [  ] typedef TokenizerIterator iterator;
 //
 // CREATORS
-// [ 4] Tokenizer(const char *, const StringRef&);
-// [ 4] Tokenizer(const StringRef&, const StringRef&);
-// [ 4] Tokenizer(const char *, const StringRef&, const StringRef&);
-// [ 4] Tokenizer(const StringRef&, const StringRef&, const StringRef&);
+// [ 4] Tokenizer(const char *, const bsl::string_view&);
+// [ 4] Tokenizer(const bsl::string_view&, const bsl::string_view&);
+// [ 4] Tokenizer(const char *, const string_view&, const string_view&);
+// [ 4] Tokenizer(const string_view&, const string_view&, const string_view&);
 // [ 4] ~Tokenizer();
 //
 // MANIPULATORS
 // [ 4] Tokenizer& operator++();
 // [ 6] void reset(const char *input);
-// [ 6] void reset(const StringRef& input);
+// [ 6] void reset(const bsl::string_view& input);
 //
 // ACCESSORS
 // [ 5] bool hasPreviousSoft() const;
@@ -254,10 +261,10 @@ const char HARD_DELIM_CHARS[] = "HIJK";
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-bool isValid(const StringRef input,
-             const StringRef soft,
-             const StringRef hard,
-             const StringRef token);
+bool isValid(const string_view input,
+             const string_view soft,
+             const string_view hard,
+             const string_view token);
     // Validate the specified 'input', 'soft', 'hard' and 'token' character
     // sets and return 'true' if the supplied character sets are valid and
     // 'false' otherwise.  Valid character sets must confirm to the following
@@ -274,10 +281,10 @@ bool isValid(const StringRef input,
     //   input string.
     //
     // All strings that do not confirm the to rules above are invalid.
-bool isValid(const StringRef input,
-             const StringRef soft,
-             const StringRef hard,
-             const StringRef token)
+bool isValid(const string_view input,
+             const string_view soft,
+             const string_view hard,
+             const string_view token)
 {
     int inputLength = static_cast<int>(input.length());
     int softLength  = static_cast<int>(soft.length());
@@ -1330,8 +1337,8 @@ int main(int argc, char **argv)
                 ASSERTV(LINE, INPUT, true == VALID);
 
                 Obj          mT(INPUT,
-                                StringRef(SOFT_DELIM_CHARS),
-                                StringRef(HARD_DELIM_CHARS));
+                                string_view(SOFT_DELIM_CHARS),
+                                string_view(HARD_DELIM_CHARS));
                 const Obj&   T = mT;
                 ObjIt        mIt = T.begin();
                 const ObjIt& It  = mIt;
@@ -1380,12 +1387,12 @@ int main(int argc, char **argv)
             // Using a still untested comparison operator, verify 'begin()'
             // result for object, created with supplyed empty c-string.  Note
             // that exactly the same state can be obtained supplying empty or
-            // default constructed 'StringRef'.
+            // default constructed 'string_view'.
 
             {
                 Obj         mT("",
-                               StringRef(SOFT_DELIM_CHARS),
-                               StringRef(HARD_DELIM_CHARS));
+                               string_view(SOFT_DELIM_CHARS),
+                               string_view(HARD_DELIM_CHARS));
                 const Obj&   T = mT;
                 ObjIt        mIt = T.begin();
                 const ObjIt DEFAULT;
@@ -1407,7 +1414,7 @@ int main(int argc, char **argv)
         //: 3 'reset' method preserve delimiter sets, supplied at construction.
         //:
         //: 4 'reset' method successfully handles default constructed
-        //:   'StringRef' object passed as parameter.
+        //:   'string_view' object passed as parameter.
         //:
         //: 5 QoI: asserted precondition violations are detected when enabled.
         //
@@ -1425,14 +1432,14 @@ int main(int argc, char **argv)
         //:   with the same character set, arranged in the opposite order.
         //:   Verify that delimiter hasn't been changed.  (C-3)
         //:
-        //: 4 Reset the object with the default constructed 'StringRef'.
+        //: 4 Reset the object with the default constructed 'string_view'.
         //:   Verify the result.  (C-4)
         //:
         //: 5 Verify that defensive checks are addressed.  (C-5)
         //
         // Testing:
         //   void reset(const char *input);
-        //   void reset(const StringRef& input);
+        //   void reset(const bsl::string_view& input);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1443,7 +1450,7 @@ int main(int argc, char **argv)
 
         if (verbose) cout << "\tTesting input string resetting" << endl;
         {
-            const StringRef  DFLT_CONSTR_STRING_REF;
+            const string_view  DFLT_CONSTR_STRING_REF;
 
             static const struct {
                 int         d_line;            // line number
@@ -1489,7 +1496,7 @@ int main(int argc, char **argv)
                 const char *RESET_TOKEN  = DATA[i].d_resetValues[1];
                 const char *RESET_DELIM  = DATA[i].d_resetValues[2];
 
-                const StringRef RESET_INPUT_STRING_REF(RESET_INPUT);
+                const string_view RESET_INPUT_STRING_REF(RESET_INPUT);
 
                 if (veryVerbose) {
                     T_ T_ P_(LINE) P_(CTOR_INPUT) P(RESET_INPUT)
@@ -1566,9 +1573,13 @@ int main(int argc, char **argv)
                 resetInput[256-i-1] = static_cast<char>(i);
             }
 
-            Obj        mTSoft(ctorInput, StringRef(delim, 1), (StringRef()));
+            Obj        mTSoft(ctorInput,
+                              string_view(delim, 1),
+                              (string_view()));
             const Obj& TSoft = mTSoft;
-            Obj        mTHard(ctorInput, (StringRef()), StringRef(delim, 1));
+            Obj        mTHard(ctorInput,
+                              (string_view()),
+                              string_view(delim, 1));
             const Obj& THard = mTHard;
 
             ASSERT(ctorInput == TSoft.token());
@@ -1602,7 +1613,7 @@ int main(int argc, char **argv)
         //: 2 Embedded null character is correctly handled by the accessors.
         //:
         //: 3 Accessors can be successfully invoked for objects, having default
-        //:   constructed 'StringRef' supplied on construction.
+        //:   constructed 'bsl::string_view' supplied on construction.
         //
         // Plan:
         //: 1 Take 'Tokenizer' object through different states and verify
@@ -1612,10 +1623,11 @@ int main(int argc, char **argv)
         //:   and token sets respectively and verify accessors responses.
         //:   (C-2)
         //:
-        //: 3 Supply default constructed 'StringRef' to the object constructor
-        //:   and invoke appropriate accessors.  Verify the results.  Note that
-        //:   invocation of 'hasTrailingSoft()', 'isTrailingHard()' or
-        //:   'token()' for such objects leads to undefined behavior. (C-3)
+        //: 3 Supply default constructed 'bsl::string_view' to the object
+        //:   constructor and invoke appropriate accessors.  Verify the
+        //:   results.  Note that invocation of 'hasTrailingSoft()',
+        //:   'isTrailingHard()' or 'token()' for such objects leads to
+        //:   undefined behavior. (C-3)
         //
         // Testing:
         //   bool isValid() const;
@@ -1818,8 +1830,8 @@ int main(int argc, char **argv)
                           << endl;
         {
             const char      INPUT_DATA[] = {'\0', '0', '\0'};
-            const StringRef INPUT(INPUT_DATA, 3);
-            const StringRef NULL_STRING_REF("\0", 1);
+            const string_view INPUT(INPUT_DATA, 3);
+            const string_view NULL_STRING_REF("\0", 1);
             {
                 // soft delimiter with embedded null
 
@@ -1864,29 +1876,29 @@ int main(int argc, char **argv)
 
             if (verbose)
                 cout << "\tTesting objects accepting default constructed"
-                     << " 'StringRef' object upon creation."
+                     << " 'bsl::string_view' object upon creation."
                      << endl;
             {
-                const StringRef  DFLT_CONSTR_STRING_REF;
+                const string_view  DFLT_CONSTR_STRING_REF;
 
-                const StringRef SOFT_DELIMITERS[3] = {
-                    StringRef(   ),
-                    StringRef("" ),
-                    StringRef(";")
+                const string_view SOFT_DELIMITERS[3] = {
+                    string_view(   ),
+                    string_view("" ),
+                    string_view(";")
                 };
                 const size_t SOFT_NUM =
                               sizeof SOFT_DELIMITERS / sizeof *SOFT_DELIMITERS;
 
-                const StringRef HARD_DELIMITERS[3] = {
-                    StringRef(   ),
-                    StringRef("" ),
-                    StringRef(".")
+                const string_view HARD_DELIMITERS[3] = {
+                    string_view(   ),
+                    string_view("" ),
+                    string_view(".")
                 };
                 const size_t HARD_NUM =
                               sizeof HARD_DELIMITERS / sizeof *HARD_DELIMITERS;
 
                 for (size_t i = 0; i < SOFT_NUM; ++i ) {
-                    const StringRef SOFT = SOFT_DELIMITERS[i];
+                    const string_view SOFT = SOFT_DELIMITERS[i];
 
                     Obj        mX1(DFLT_CONSTR_STRING_REF, SOFT);
                     const Obj& X1 = mX1;
@@ -1896,7 +1908,7 @@ int main(int argc, char **argv)
                     ASSERT(false == X1.isPreviousHard());
 
                     for (size_t j = 0; j < HARD_NUM; ++j ) {
-                        const StringRef HARD = HARD_DELIMITERS[j];
+                        const string_view HARD = HARD_DELIMITERS[j];
 
                         Obj        mX2(DFLT_CONSTR_STRING_REF, SOFT, HARD);
                         const Obj& X2 = mX2;
@@ -1935,7 +1947,7 @@ int main(int argc, char **argv)
         //:
         //: 7 Inputs having large tokens/delimiters succeed.
         //:
-        //: 8 Default constructed 'StringRef' input succeeds.
+        //: 8 Default constructed 'bsl::string_view' input succeeds.
         //:
         //: 9 QoI: asserted precondition violations are detected when enabled.
         //:
@@ -1965,10 +1977,10 @@ int main(int argc, char **argv)
         //: 4 Verify that defensive checks are addressed.  (C-8)
         //
         // Testing:
-        //   Tokenizer(const char *, const StringRef&, const StringRef&);
-        //   Tokenizer(const StringRef&, const StringRef&, const StringRef&);
-        //   Tokenizer(const char *, const StringRef&);
-        //   Tokenizer(const StringRef&, const StringRef&);
+        //   Tokenizer(const char *, const string_view&, const string_view&);
+        //   Tokenizer(cnst string_view&, cnst string_view&,cnst string_view&);
+        //   Tokenizer(const char *, const bsl::string_view&);
+        //   Tokenizer(const bsl::string_view&, const bsl::string_view&);
         //   Tokenizer& operator++();
         //   StringRef trailingDelimiter() const;
         //   StringRef previousDelimiter() const;
@@ -2199,11 +2211,11 @@ int main(int argc, char **argv)
                 ASSERTV(LINE, INPUT, true == VALID);
 
                 Obj        mT3(INPUT,
-                               StringRef(SOFT_DELIM_CHARS),
-                               StringRef(HARD_DELIM_CHARS));
+                               string_view(SOFT_DELIM_CHARS),
+                               string_view(HARD_DELIM_CHARS));
 
                 Obj        mT2(INPUT,
-                               StringRef(SOFT_DELIM_CHARS));
+                               string_view(SOFT_DELIM_CHARS));
 
                 for (int i = 0; i < 2; ++i) {
                     Obj       &mT = (!(i % 2)) ? mT3 : mT2;
@@ -2303,8 +2315,8 @@ int main(int argc, char **argv)
                 char      input[11]    = {"ss00H00ss"};
 
                 Obj        mT(input,
-                              StringRef(softDelim),
-                              StringRef(hardDelim));
+                              string_view(softDelim),
+                              string_view(hardDelim));
                 const Obj& T = mT;
 
                 ASSERT(softDelim == T.previousDelimiter());
@@ -2321,8 +2333,8 @@ int main(int argc, char **argv)
             if (verbose) cout << "\tTesting embedded null character." << endl;
             {
                 const char      INPUT_DATA[] = {'\0', '0', '\0'};
-                const StringRef INPUT(INPUT_DATA, 3);
-                const StringRef NULL_STRING_REF("\0", 1);
+                const string_view INPUT(INPUT_DATA, 3);
+                const string_view NULL_STRING_REF("\0", 1);
                 {
                     // soft delimiter with embedded null
 
@@ -2371,7 +2383,9 @@ int main(int argc, char **argv)
                     input[128] = '0';  // token symbol
                     input[129] = 0;    // end of input string
 
-                    Obj        mT(input, StringRef(delim), StringRef(""));
+                    Obj        mT(input,
+                                  string_view(delim),
+                                  string_view(""));
                     const Obj& T = mT;
 
                     ASSERT(StringRef(delim) == T.previousDelimiter());
@@ -2390,7 +2404,9 @@ int main(int argc, char **argv)
 
                     input[128] = 0;    // end of input string
 
-                    Obj        mT(input, StringRef(""), StringRef(input));
+                    Obj        mT(input,
+                                  string_view(""),
+                                  string_view(input));
                     const Obj& T = mT;
 
                     for (int i = 0; i < 128; ++i) {
@@ -2418,7 +2434,7 @@ int main(int argc, char **argv)
 
                     input[128] = 0;    // end of input string
 
-                    Obj        mT(input, StringRef(""), StringRef(""));
+                    Obj mT(input, string_view(""), string_view(""));
                     const Obj& T = mT;
 
                     ASSERT(""               == T.previousDelimiter());
@@ -2452,13 +2468,13 @@ int main(int argc, char **argv)
                 hardInput[INPUT_SIZE] = 0;
 
                 Obj        softMT(softInput,
-                                  StringRef(SOFT_DELIM_CHARS),
-                                  StringRef(""));
+                                  string_view(SOFT_DELIM_CHARS),
+                                  string_view(""));
                 const Obj& softT = softMT;
 
                 Obj        hardMT(hardInput,
-                                  StringRef(""),
-                                  StringRef(HARD_DELIM_CHARS));
+                                  string_view(""),
+                                  string_view(HARD_DELIM_CHARS));
                 const Obj& hardT = hardMT;
 
                 for (int i = 0; i < INPUT_SIZE; i+=2) {
@@ -2523,8 +2539,8 @@ int main(int argc, char **argv)
                 input[(4*BUF_SIZE)+1] = 0;
 
                 Obj        mT(input,
-                              StringRef(softDelim),
-                              StringRef(hardDelim));
+                              string_view(softDelim),
+                              string_view(hardDelim));
                 const Obj& T = mT;
 
                 ASSERT(softDelim == T.previousDelimiter());
@@ -2539,36 +2555,37 @@ int main(int argc, char **argv)
             }
         }
 
-        if (verbose) cout << "\tTesting default constructed 'StringRef' input."
-                          << endl;
+        if (verbose)
+            cout << "\tTesting default constructed 'string_view' input."
+                 << endl;
         {
-            const StringRef  DFLT_CONSTR_STRING_REF;
-            const StringRef  EMPTY_STRING_REF("");
+            const string_view  DFLT_CONSTR_STRING_REF;
+            const string_view  EMPTY_STRING_REF("");
 
-            const StringRef SOFT_DELIMITERS[3] = {
-                StringRef(   ),
-                StringRef("" ),
-                StringRef(";")
+            const string_view SOFT_DELIMITERS[3] = {
+                string_view(   ),
+                string_view("" ),
+                string_view(";")
             };
             const size_t SOFT_NUM =
                               sizeof SOFT_DELIMITERS / sizeof *SOFT_DELIMITERS;
 
-            const StringRef HARD_DELIMITERS[3] = {
-                StringRef(   ),
-                StringRef("" ),
-                StringRef(".")
+            const string_view HARD_DELIMITERS[3] = {
+                string_view(   ),
+                string_view("" ),
+                string_view(".")
             };
             const size_t HARD_NUM =
                               sizeof HARD_DELIMITERS / sizeof *HARD_DELIMITERS;
             for (size_t i = 0; i < SOFT_NUM; ++i ) {
-                const StringRef SOFT = SOFT_DELIMITERS[i];
+                const string_view SOFT = SOFT_DELIMITERS[i];
 
                 Obj        mX1(DFLT_CONSTR_STRING_REF, SOFT);
                 const Obj& X1 = mX1;
                 ASSERT(EMPTY_STRING_REF == X1.previousDelimiter());
 
                 for (size_t j = 0; j < HARD_NUM; ++j ) {
-                    const StringRef HARD = HARD_DELIMITERS[j];
+                    const string_view HARD = HARD_DELIMITERS[j];
 
                     Obj        mX2(DFLT_CONSTR_STRING_REF, SOFT, HARD);
                     const Obj& X2 = mX2;
@@ -3062,10 +3079,10 @@ int main(int argc, char **argv)
             const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
             for (size_t i = 0; i < DATA_LEN; ++i ) {
                 const int       LINE      = DATA[i].d_line;
-                const StringRef INPUT     = StringRef(DATA[i].d_input);
-                const StringRef SOFT      = StringRef(DATA[i].d_soft);
-                const StringRef HARD      = StringRef(DATA[i].d_hard);
-                const StringRef TOKEN     = StringRef(DATA[i].d_token);
+                const string_view INPUT   = string_view(DATA[i].d_input);
+                const string_view SOFT    = string_view(DATA[i].d_soft);
+                const string_view HARD    = string_view(DATA[i].d_hard);
+                const string_view TOKEN   = string_view(DATA[i].d_token);
                 const bool      EXP_VALID = DATA[i].d_isValid;
 
                 if (veryVerbose) {
@@ -3119,8 +3136,8 @@ int main(int argc, char **argv)
         //:
         //
         // Testing:
-        //   Tokenizer_Data(const StringRef& softD);
-        //   Tokenizer_Data(const StringRef& softD, const StringRef& hardD);
+        //   Tokenizer_Data(const string_view& softD);
+        //   Tokenizer_Data(const string_view& s, const string_view& h);
         //   ~Tokenizer_Data();
         //   int inputType(char character) const;
         // --------------------------------------------------------------------
@@ -3139,14 +3156,15 @@ int main(int argc, char **argv)
 
         typedef bdlb::Tokenizer_Data ObjData;
 
-        if (verbose) cout << "\nTesting Tokenizer_Data(const StringRef&)."
+        if (verbose) cout << "\nTesting Tokenizer_Data(const string_view&)."
                           << endl;
         {
-            if (veryVerbose) cout <<
-                      "\tTesting default constructed StringRef as a delimiter."
-                                  << endl;
+            if (veryVerbose)
+                cout << "\tTesting default constructed bsl::string_view as a "
+                        "delimiter."
+                     << endl;
             {
-                ObjData        mD((StringRef()));
+                ObjData        mD((string_view()));
                 const ObjData& D = mD;
 
                 for (int i = 0; i < 256; ++i) {
@@ -3161,11 +3179,11 @@ int main(int argc, char **argv)
                 }
             }
 
-            if (veryVerbose) cout <<
-                                    "\tTesting empty StringRef as a delimiter."
-                                  << endl;
+            if (veryVerbose)
+                cout << "\tTesting empty bsl::string_view as a delimiter."
+                     << endl;
             {
-                ObjData        mD(StringRef(""));
+                ObjData        mD(string_view(""));
                 const ObjData& D = mD;
 
                 for (int i = 0; i < 256; ++i) {
@@ -3188,7 +3206,7 @@ int main(int argc, char **argv)
                     char delim[1];
                     delim[0] = static_cast<char>(i);
 
-                    ObjData        mD(StringRef(delim, 1));
+                    ObjData        mD(string_view(delim, 1));
                     const ObjData& D = mD;
 
                     for (int j = 0; j < 256; j++) {
@@ -3217,7 +3235,7 @@ int main(int argc, char **argv)
                     delim[0] = static_cast<char>(i);
                     delim[1] = static_cast<char>(i);
 
-                    ObjData        mD(StringRef(delim, 2));
+                    ObjData        mD(string_view(delim, 2));
                     const ObjData& D = mD;
 
                     for (int j = 0; j < 256; j++) {
@@ -3247,7 +3265,7 @@ int main(int argc, char **argv)
                         delim[j] = static_cast<char>(j);
                     }
 
-                    ObjData        mD(StringRef(delim, i));
+                    ObjData        mD(string_view(delim, i));
                     const ObjData& D = mD;
 
                     for (int j = 0; j < 256; ++j) {
@@ -3268,15 +3286,16 @@ int main(int argc, char **argv)
             }
         }
 
-        if (verbose) cout << "\nTesting Tokenizer_Data(const StringRef&, "
-                          << "const StringRef&)."
+        if (verbose) cout << "\nTesting Tokenizer_Data(const string_view&, "
+                          << "const string_view&)."
                           << endl;
         {
-            if (veryVerbose) cout <<
-                       "\tTesting default constructed StringRef as delimiters."
-                                  << endl;
+            if (veryVerbose)
+                cout << "\tTesting default constructed string_view as "
+                        "delimiters."
+                     << endl;
             {
-                ObjData        mD((StringRef()), (StringRef()));
+                ObjData        mD((string_view()), (string_view()));
                 const ObjData& D = mD;
 
                 for (int i = 0; i < 256; ++i) {
@@ -3291,10 +3310,10 @@ int main(int argc, char **argv)
                 }
             }
 
-            if (veryVerbose) cout << "\tTesting empty StringRef as delimiters."
-                                  << endl;
+            if (veryVerbose)
+                cout << "\tTesting empty string_view as delimiters." << endl;
             {
-                ObjData        mD(StringRef(""), StringRef(""));
+                ObjData        mD(string_view(""), string_view(""));
                 const ObjData& D = mD;
 
                 for (int i = 0; i < 256; ++i) {
@@ -3317,7 +3336,7 @@ int main(int argc, char **argv)
                     char delim[1];
                     delim[0] = static_cast<char>(i);
 
-                    ObjData        mD(StringRef(delim, 1), (StringRef()));
+                    ObjData        mD(string_view(delim, 1), (string_view()));
                     const ObjData& D = mD;
 
                     for (int j = 0; j < 256; j++) {
@@ -3345,7 +3364,7 @@ int main(int argc, char **argv)
                     char delim[1];
                     delim[0] = static_cast<char>(i);
 
-                    ObjData        mD(StringRef(""), StringRef(delim, 1));
+                    ObjData        mD(string_view(""), string_view(delim, 1));
                     const ObjData& D = mD;
 
                     for (int j = 0; j < 256; j++) {
@@ -3374,7 +3393,7 @@ int main(int argc, char **argv)
                     delim[0] = static_cast<char>(i);
                     delim[1] = static_cast<char>(i);
 
-                    ObjData        mD(StringRef(""), StringRef(delim, 2));
+                    ObjData        mD(string_view(""), string_view(delim, 2));
                     const ObjData& D = mD;
 
                     for (int j = 0; j < 256; j++) {
@@ -3404,7 +3423,7 @@ int main(int argc, char **argv)
                         delim[j] = static_cast<char>(j);
                     }
 
-                    ObjData        mD(StringRef(""), StringRef(delim, i));
+                    ObjData        mD(string_view(""), string_view(delim, i));
                     const ObjData& D = mD;
 
                     for (int j = 0; j < 256; ++j) {
@@ -3432,8 +3451,8 @@ int main(int argc, char **argv)
                     char delim[1];
                     delim[0] = static_cast<char>(i);
 
-                    ObjData        mD(StringRef(delim, 1),
-                                      StringRef(delim, 1));
+                    ObjData        mD(string_view(delim, 1),
+                                      string_view(delim, 1));
                     const ObjData& D = mD;
 
                     for (int j = 0; j < 256; j++) {
@@ -3463,8 +3482,8 @@ int main(int argc, char **argv)
                         delim[j] = static_cast<char>(j);
                     }
 
-                    ObjData        mD(StringRef(delim, i),
-                                      StringRef(delim, i));
+                    ObjData        mD(string_view(delim, i),
+                                      string_view(delim, i));
                     const ObjData& D = mD;
 
                     for (int j = 0; j < 256; ++j) {
@@ -3529,11 +3548,11 @@ int main(int argc, char **argv)
             }
         }
 
-        if (verbose) cout << "\n'bdlb::Tokenizer' with StringRef."  << endl;
+        if (verbose) cout << "\n'bdlb::Tokenizer' with string_view."  << endl;
         {
-            Obj tokenizer(StringRef(",,Hello, world,,,"),
-                          StringRef(" "),
-                          StringRef(","));
+            Obj tokenizer(string_view(",,Hello, world,,,"),
+                          string_view(" "),
+                          string_view(","));
 
             while (tokenizer.isValid()) {
                 if (veryVeryVerbose) {
@@ -3555,11 +3574,11 @@ int main(int argc, char **argv)
             }
         }
 
-        if (verbose) cout << "\n'bdlb::Tokenizer' with StringRef."  << endl;
+        if (verbose) cout << "\n'bdlb::Tokenizer' with string_view."  << endl;
         {
-            Obj tokenizer(StringRef("   I've : been a : :bad   boy!"),
-                          StringRef(" "),
-                          StringRef(":/"));
+            Obj tokenizer(string_view("   I've : been a : :bad   boy!"),
+                          string_view(" "),
+                          string_view(":/"));
 
             for (; tokenizer.isValid(); ++tokenizer) {
                 if (veryVeryVerbose) {
@@ -3582,9 +3601,9 @@ int main(int argc, char **argv)
 
         if (verbose) cout << "\n'bdlb::TokenizerIterator' test." << endl;
         {
-            Obj tokenizer(StringRef("   I've : been a : :  bad   boy!   "),
-                          StringRef(" "),
-                          StringRef(":/"));
+            Obj tokenizer(string_view("   I've : been a : :  bad   boy!   "),
+                          string_view(" "),
+                          string_view(":/"));
 
             for (Obj::iterator it=tokenizer.begin(), end = tokenizer.end();
                                it != end;
@@ -3611,8 +3630,8 @@ int main(int argc, char **argv)
         if (verbose) cout << "\n'bdlb::TokenizerIterator' test." << endl;
         {
             Obj tokenizer("   I've : been a : :  bad   boy!   ",
-                          StringRef(" "),
-                          StringRef(":/"));
+                          string_view(" "),
+                          string_view(":/"));
 
             for (Obj::iterator it=tokenizer.begin(), end = tokenizer.end();
                                it != end;
@@ -3636,10 +3655,53 @@ int main(int argc, char **argv)
             ASSERT(t1 == t2);
 
         }
+
         if (verbose) cout << "\nTesting example from DRQS 164650579." << endl;
         {
-            StringRef ref;
-            Obj tokenizer(ref, ref);
+            string_view ref;
+            Obj         tokenizer(ref, ref);
+        }
+
+        if (verbose)
+            cout << "\nTesting the compatibility of 'StringRef' return values "
+                    "with standard types."
+                 << endl;
+        {
+            // 'bslstl::StringRef' should be, if possible, replaced with
+            // 'bsl::string_view' in accordance with BDE 4.0 recommendations.
+            // But  some 'bdlb::Tokenizer's accessors return
+            // 'bslstl::StringRef' objects.  The 'TokenizerIterator's
+            // dereference operator does the same.  The problem is that
+            // 'bslstl::StringRef' object can be implicitly converted to
+            // 'bsl::string' object, while 'bsl::string_view' object cannot.
+            // So such replacement  for returned values can break existing
+            // code.  Therefore 'StringRef' return values remain unaffected.
+            // But we want to make sure, that such behavior does not break the
+            // plans of customers who use standard types in their code.
+
+            Obj tokenizer(string_view("   I've : been a : :bad   boy!"),
+                          string_view(" "),
+                          string_view(":/"));
+
+            bsl::vector<std::string> vStr;
+
+            for (; tokenizer.isValid(); ++tokenizer) {
+                vStr.push_back(tokenizer.previousDelimiter());
+                vStr.push_back(tokenizer.token());
+                vStr.push_back(tokenizer.trailingDelimiter());
+            }
+
+            ASSERTV(vStr.size(), 18 == vStr.size());
+
+            tokenizer.reset("   I've : been a : :bad   boy!");
+            vStr.clear();
+
+            for (Obj::iterator it = tokenizer.begin(), end = tokenizer.end();
+                 it != end;
+                 ++it) {
+                vStr.push_back(*it);
+            }
+            ASSERTV(vStr.size(), 6 == vStr.size());
         }
       } break;
 
