@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Tue Apr 20 18:49:40 2021
+// Generated on Wed Apr 28 15:58:26 2021
 // Command line: sim_cpp11_features.pl bslstl_function.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_H
@@ -120,10 +120,10 @@ class Function_Variadic<RET()> : public Function_ArgTypes<RET()>
 
     typedef RET Invoker(const Function_Rep *);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -151,10 +151,10 @@ class Function_Variadic<RET(ARGS_01)> : public Function_ArgTypes<RET(ARGS_01)>
     typedef RET Invoker(const Function_Rep *,
                         typename bslmf::ForwardingType<ARGS_01>::Type);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -186,10 +186,10 @@ class Function_Variadic<RET(ARGS_01,
                         typename bslmf::ForwardingType<ARGS_01>::Type,
                         typename bslmf::ForwardingType<ARGS_02>::Type);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -227,10 +227,10 @@ class Function_Variadic<RET(ARGS_01,
                         typename bslmf::ForwardingType<ARGS_02>::Type,
                         typename bslmf::ForwardingType<ARGS_03>::Type);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -274,10 +274,10 @@ class Function_Variadic<RET(ARGS_01,
                         typename bslmf::ForwardingType<ARGS_03>::Type,
                         typename bslmf::ForwardingType<ARGS_04>::Type);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -327,10 +327,10 @@ class Function_Variadic<RET(ARGS_01,
                         typename bslmf::ForwardingType<ARGS_04>::Type,
                         typename bslmf::ForwardingType<ARGS_05>::Type);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -386,10 +386,10 @@ class Function_Variadic<RET(ARGS_01,
                         typename bslmf::ForwardingType<ARGS_05>::Type,
                         typename bslmf::ForwardingType<ARGS_06>::Type);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -451,10 +451,10 @@ class Function_Variadic<RET(ARGS_01,
                         typename bslmf::ForwardingType<ARGS_06>::Type,
                         typename bslmf::ForwardingType<ARGS_07>::Type);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -522,10 +522,10 @@ class Function_Variadic<RET(ARGS_01,
                         typename bslmf::ForwardingType<ARGS_07>::Type,
                         typename bslmf::ForwardingType<ARGS_08>::Type);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -599,10 +599,10 @@ class Function_Variadic<RET(ARGS_01,
                         typename bslmf::ForwardingType<ARGS_08>::Type,
                         typename bslmf::ForwardingType<ARGS_09>::Type);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -682,10 +682,10 @@ class Function_Variadic<RET(ARGS_01,
                         typename bslmf::ForwardingType<ARGS_09>::Type,
                         typename bslmf::ForwardingType<ARGS_10>::Type);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -771,10 +771,10 @@ class Function_Variadic<RET(ARGS_01,
                         typename bslmf::ForwardingType<ARGS_10>::Type,
                         typename bslmf::ForwardingType<ARGS_11>::Type);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -866,10 +866,10 @@ class Function_Variadic<RET(ARGS_01,
                         typename bslmf::ForwardingType<ARGS_11>::Type,
                         typename bslmf::ForwardingType<ARGS_12>::Type);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -967,10 +967,10 @@ class Function_Variadic<RET(ARGS_01,
                         typename bslmf::ForwardingType<ARGS_12>::Type,
                         typename bslmf::ForwardingType<ARGS_13>::Type);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -1028,10 +1028,10 @@ class Function_Variadic<RET(ARGS...)> : public Function_ArgTypes<RET(ARGS...)>
     typedef RET Invoker(const Function_Rep *,
                         typename bslmf::ForwardingType<ARGS>::Type...);
 
-protected:
+  protected:
     Function_Rep d_rep;
 
-private:
+  private:
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
     operator=(const Function_Variadic&) BSLS_KEYWORD_DELETED;
@@ -1050,6 +1050,28 @@ private:
 
 // }}} END GENERATED CODE
 #endif
+
+              // =================================================
+              // struct template Function_IsInvocableWithPrototype
+              // =================================================
+
+template <class PROTOTYPE, class FUNC>
+struct Function_IsInvocableWithPrototype;
+    // Forward declaration of the component-private
+    // 'Function_IsInvocableWithPrototype' 'struct' template.  The primary
+    // (unspecialized) template is not defined.  This 'struct' template
+    // implements a boolean metafunction that publicly inherits from
+    // 'bsl::true_type' if an object of the specified 'FUNC' type is invocable
+    // under the specified 'PROTOTYPE', and inherits from 'bsl::false_type'
+    // otherwise.  An object of 'FUNC' type is invocable under the 'PROTOTYPE'
+    // if it is Lvalue-Callable with the arguments of the 'PROTOTYPE', and
+    // returns an object of type convertible to the return type of the
+    // 'PROTOTYPE'.  If the return type of the 'PROTOTYPE' is 'void', then any
+    // type is considered convertible to the return type of the 'PROTOTYPE'.
+    // In C++03, 'FUNC' is considered Lvalue-Callable with the argument and
+    // return types of the 'PROTOTYPE' if it is not an integral type.  This
+    // 'struct' template requires 'PROTOTYPE" to be an unqualified function
+    // type.
 
 }  // close package namespace
 }  // close enterprise namespace
@@ -1110,6 +1132,15 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // as an rvalue reference.
     };
 
+    template <class FUNC>
+    struct IsInvocableWithPrototype
+    : BloombergLP::bslstl::Function_IsInvocableWithPrototype<PROTOTYPE, FUNC> {
+        // Abbreviation for a metafunction used to determine whether an object
+        // of the specified 'FUNC' is callable with argument types of the
+        // specified 'PROTOTYPE' and returns a type convertible to the return
+        // type of the 'PROTOTYPE'.
+    };
+
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     typedef BloombergLP::bsls::UnspecifiedBool<function> UnspecifiedBoolUtil;
     typedef typename UnspecifiedBoolUtil::BoolType       UnspecifiedBool;
@@ -1168,7 +1199,8 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
              typename enable_if<
                     ! IsReferenceCompatible<typename Decay<FUNC>::type,
                                             function>::value
-                 && ! is_integral<typename Decay<FUNC>::type>::value
+                 &&   IsInvocableWithPrototype<
+                                             typename Decay<FUNC>::type>::value
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
                  && ! MovableRefUtil::IsMovableReference<FUNC>::value
 #endif
@@ -1184,20 +1216,19 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // object (to avoid ambiguity with the copy and move constructors) or
         // is an integral type (to avoid matching null pointer literals).  In
         // C++03, this function will not participate in overload resolution if
-        // 'FUNC' is a 'MovableRef' (see overload, below).  Instantiation will
-        // fail unless 'FUNC' is invocable using the arguments and return value
-        // specified in 'PROTOTYPE'.  Note that this constructor implicitly
-        // converts from any callable type; the aformentioned instantiation
-        // failure will be eventually be replaced by a SFINAE check that in
-        // C++11 will exclude this constructor from overload resolution; in
-        // C++03, unfortunately, such a SFINAE check for invocability is not
-        // possible.
+        // 'FUNC' is a 'MovableRef' (see overload, below), and instantiation
+        // will fail unless 'FUNC' is invocable using the arguments and return
+        // type specified in 'PROTOTYPE'.  In C++11 and later, this function
+        // will not participate in overload resolution if 'FUNC' is not
+        // invocable using the arguments and return type specified in
+        // 'PROTOTYPE'.  Note that this constructor implicitly converts from
+        // any type that is so invocable.
         : Base(allocator_type())
     {
         ///Implementation Note
         ///- - - - - - - - - -
-        // The body of this constructor must inlined inplace because the use of
-        // 'enable_if' will otherwise break the MSVC 2010 compiler.
+        // The body of this constructor must be inlined inplace because the use
+        // of 'enable_if' will otherwise break the MSVC 2010 compiler.
         //
         // The '! bsl::is_function<FUNC>::value' constraint is required in
         // C++03 mode when using the IBM XL C++ compiler.  In C++03,
@@ -1218,9 +1249,9 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
 
 #ifdef BSLS_PLATFORM_CMP_IBM
     template <class FUNC>
-    function(FUNC                                                        *func,
+    function(FUNC                                            *func, // IMPLICIT
              typename enable_if<is_function<FUNC>::value, int>::type = 0)
-                                                                    // IMPLICIT
+
         : Base(allocator_type())
     {
         ///Implementation Note
@@ -1232,6 +1263,11 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // This constructor also forwards the 'func' as a pointer-to-function
         // type to downstream operations in order to work around the
         // aforementioned reference-to-function type deduction defects.
+        //
+        // Further, note that instantiation of this constructor will fail
+        // unless 'FUNC' is invocable using the arguments and return type
+        // specified in 'PROTOTYPE'.  This component assumes that the IBM XL
+        // C++ compiler does not support C++11 or later.
 
         installFunc(func);
     }
@@ -1243,7 +1279,8 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
              typename enable_if<
                     ! IsReferenceCompatible<typename Decay<FUNC>::type,
                                             function>::value
-                 && ! is_integral<typename Decay<FUNC>::type>::value
+                 &&   IsInvocableWithPrototype<
+                                             typename Decay<FUNC>::type>::value
                  , int>::type = 0)
         // Create an object wrapping the specified 'func' callable object.
         // This constructor (ctor 2) is identical to the previous constructor
@@ -1294,7 +1331,8 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
              typename enable_if<
                     ! IsReferenceCompatible<typename Decay<FUNC>::type,
                                             function>::value
-                 && ! is_integral<typename Decay<FUNC>::type>::value
+                 &&   IsInvocableWithPrototype<
+                                             typename Decay<FUNC>::type>::value
 #ifdef BSLS_PLATFORM_CMP_IBM
                  && ! is_function<FUNC>::value
 #endif
@@ -1306,13 +1344,15 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // constructor will not participate in overload resolution if 'func' is
         // of the same type as (or reference compatible with) this object (to
         // avoid ambiguity with the extended copy and move constructors) or is
-        // an integral type (to avoid matching null pointer literals).
-        // Instantiation will fail unless 'FUNC' is invocable using the
-        // arguments and return value specified in 'PROTOTYPE'.  Note that the
-        // aformentioned instantiation failure will be eventually be replaced
-        // by a SFINAE check that in C++11 will exclude this constructor from
-        // overload resolution; in C++03, unfortunately, such a SFINAE check
-        // for invocability is not possible.
+        // an integral type (to avoid matching null pointer literals).  In
+        // C++03, this function will not participate in overload resolution if
+        // 'FUNC' is a 'MovableRef' (see overload, below), and instantiation
+        // will fail unless 'FUNC' is invocable using the arguments and return
+        // type specified in 'PROTOTYPE'.  In C++11 and later, this function
+        // will not participate in overload resolution if 'FUNC' is not
+        // invocable using the arguments and return type specified in
+        // 'PROTOTYPE'.  Note that this constructor implicitly converts from
+        // any type that is so invocable.
         : Base(allocator)
     {
         ///Implementation Note
@@ -1354,6 +1394,11 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // This constructor also forwards the 'func' as a pointer-to-function
         // type to downstream operations in order to work around the
         // aforementioned reference-to-function type deduction defects.
+        //
+        // Further, note that instantiation of this constructor will fail
+        // unless 'FUNC' is invocable using the arguments and return type
+        // specified in 'PROTOTYPE'.  This component assumes that the IBM XL
+        // C++ compiler does not support C++11 or later.
 
         installFunc(func);
     }
@@ -1411,22 +1456,21 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     template <class FUNC>
     typename enable_if<
            ! IsReferenceCompatible<typename Decay<FUNC>::type, function>::value
-        && ! is_integral<typename Decay<FUNC>::type>::value
-        , function&>::type
+        &&   IsInvocableWithPrototype<typename Decay<FUNC>::type>::value
+     , function&>::type
     operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) rhs)
         // Set the target of this object to the specified 'rhs' callable
         // object, destroy the previous target (if any), and return '*this'.
         // The result is equivalent to having constructed '*this' from
-        // 'std::forward<FUNC>(rhs)' and 'this->get_allocator()'.  Note that,
-        // if the argument is a function, it will decay, causing 'FUNC' to be a
-        // pointer-to-function type.  Note also that this assignment operator
-        // will not participate in overload resolution if 'func' is of the same
-        // type as this object (to avoid ambiguity with the copy and move
-        // assignment operators) or is not invocable using the arguments and
-        // return value specified in 'PROTOTYPE'.  TBD: We have not implemented
-        // the latter SFINAE check, but we do check for integer types (so as
-        // not to match null pointer literals).  In C++03, matching the
-        // 'PROTOTYPE' is not possible.
+        // 'std::forward<FUNC>(rhs)' and 'this->get_allocator()'.  Note that
+        // this assignment operator will not participate in overload resolution
+        // if 'func' is of the same type as this object (to avoid ambiguity
+        // with the copy and move assignment operators.)  In C++03,
+        // instantiation will fail unless 'FUNC' is invocable with the
+        // arguments and return type specified in 'PROTOTYPE'.  In C++11 and
+        // later, this assignment operator will not participate in overload
+        // resolution unless 'FUNC' is invocable with the arguments and return
+        // type specified in 'PROTOTYPE'.
     {
         ///Implementation Note
         ///- - - - - - - - - -
@@ -1450,6 +1494,11 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         ///Implementation Note
         ///- - - - - - - - - -
         // The body of this operator must inlined inplace.
+        //
+        // Further, note that instantiation of this assignment operator will
+        // fail unless 'FUNC' is invocable using the arguments and return type
+        // specified in 'PROTOTYPE'.  This component assumes that the IBM XL
+        // C++ compiler does not support C++11 or later.
 
         function(allocator_arg, this->get_allocator(), rhs).swap(*this);
         return *this;
@@ -2506,6 +2555,636 @@ RET bslstl::Function_Variadic<RET(ARGS...)>::operator()(ARGS... args) const
 // }}} END GENERATED CODE
 #endif
 
+namespace bslstl {
+
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_function.h
+#ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT
+#define BSLSTL_FUNCTION_VARIADIC_LIMIT 13
+#endif
+#ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT_C
+#define BSLSTL_FUNCTION_VARIADIC_LIMIT_C BSLSTL_FUNCTION_VARIADIC_LIMIT
+#endif
+
+
+#ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
+template <class RET, class FUNC>
+struct Function_IsInvocableWithPrototype<RET(), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(), FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
+template <class RET, class FUNC, class ARGS_01>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS_01), FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS_01,
+                                            ARGS_02), FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03), FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04), FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05), FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05,
+                                            ARGS_06), FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05,
+                                            ARGS_06,
+                                            ARGS_07), FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05,
+                                            ARGS_06,
+                                            ARGS_07,
+                                            ARGS_08), FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05,
+                                            ARGS_06,
+                                            ARGS_07,
+                                            ARGS_08,
+                                            ARGS_09), FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09,
+                                             ARGS_10), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05,
+                                            ARGS_06,
+                                            ARGS_07,
+                                            ARGS_08,
+                                            ARGS_09,
+                                            ARGS_10), FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 11
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10,
+                                 class ARGS_11>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09,
+                                             ARGS_10,
+                                             ARGS_11), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05,
+                                            ARGS_06,
+                                            ARGS_07,
+                                            ARGS_08,
+                                            ARGS_09,
+                                            ARGS_10,
+                                            ARGS_11), FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 11
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10,
+                                 class ARGS_11,
+                                 class ARGS_12>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09,
+                                             ARGS_10,
+                                             ARGS_11,
+                                             ARGS_12), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05,
+                                            ARGS_06,
+                                            ARGS_07,
+                                            ARGS_08,
+                                            ARGS_09,
+                                            ARGS_10,
+                                            ARGS_11,
+                                            ARGS_12), FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10,
+                                 class ARGS_11,
+                                 class ARGS_12,
+                                 class ARGS_13>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09,
+                                             ARGS_10,
+                                             ARGS_11,
+                                             ARGS_12,
+                                             ARGS_13), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS_01,
+                                            ARGS_02,
+                                            ARGS_03,
+                                            ARGS_04,
+                                            ARGS_05,
+                                            ARGS_06,
+                                            ARGS_07,
+                                            ARGS_08,
+                                            ARGS_09,
+                                            ARGS_10,
+                                            ARGS_11,
+                                            ARGS_12,
+                                            ARGS_13), FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+
+
+#else
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
+template <class RET, class FUNC>
+struct Function_IsInvocableWithPrototype<RET(), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
+template <class RET, class FUNC, class ARGS_01>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09,
+                                             ARGS_10), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 11
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10,
+                                 class ARGS_11>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09,
+                                             ARGS_10,
+                                             ARGS_11), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 11
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10,
+                                 class ARGS_11,
+                                 class ARGS_12>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09,
+                                             ARGS_10,
+                                             ARGS_11,
+                                             ARGS_12), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
+
+#if BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10,
+                                 class ARGS_11,
+                                 class ARGS_12,
+                                 class ARGS_13>
+struct Function_IsInvocableWithPrototype<RET(ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09,
+                                             ARGS_10,
+                                             ARGS_11,
+                                             ARGS_12,
+                                             ARGS_13), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+#endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
+
+
+#endif
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+
+
+#ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+
+template <class RET, class FUNC, class... ARGS>
+struct Function_IsInvocableWithPrototype<RET(ARGS...), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS...), FUNC> {
+};
+
+#else
+
+template <class RET, class FUNC, class... ARGS>
+struct Function_IsInvocableWithPrototype<RET(ARGS...), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+};
+
+#endif
+// }}} END GENERATED CODE
+#endif
+
+}  // close package namespace
 }  // close enterprise namespace
 
                         // ----------------------------
@@ -2762,10 +3441,9 @@ void bsl::swap(bsl::function<PROTOTYPE>& a,
     a.swap(b);
 }
 
-         // --------------------------------------------------------------
-         // specialization of class template Function_InvokerUtil_Dispatch
-         // --------------------------------------------------------------
-
+       // --------------------------------------------------------------
+       // specialization of class template Function_InvokerUtil_Dispatch
+       // --------------------------------------------------------------
 
 namespace BloombergLP {
 namespace bslstl {

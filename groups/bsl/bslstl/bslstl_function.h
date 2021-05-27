@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bsl::function: polymorphic function object with a specific prototype.
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component provides a single class template,
 // 'bsl::function', implementing the standard template 'std::function', a
 // runtime-polymorphic wrapper that encapsulates an arbitrary callable object
@@ -591,8 +589,6 @@ BSL_OVERRIDES_STD mode"
 
 #include <bslmf_allocatorargt.h>
 #include <bslmf_assert.h>
-#include <bslmf_conditional.h>
-#include <bslmf_decay.h>
 #include <bslmf_forwardingtype.h>
 #include <bslmf_isintegral.h>
 #include <bslmf_movableref.h>
@@ -646,7 +642,7 @@ extern const char s_bslstl_function_h[];
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Wed Mar  3 00:06:09 2021
+// Generated on Wed Apr 28 15:58:26 2021
 // Command line: sim_cpp11_features.pl bslstl_function.h
 # define COMPILING_BSLSTL_FUNCTION_H
 # include <bslstl_function_cpp03.h>
@@ -759,11 +755,11 @@ class Function_Variadic<RET(ARGS...)> : public Function_ArgTypes<RET(ARGS...)>
     // 'protected' to workaround a Sun bug when instantiating 'bsl::function'
     // implicitly from an 'extern "C"' function pointer, e.g. in a 'bind'
     // expression.
-protected:
+  protected:
     // DATA
     Function_Rep d_rep;   // Non-templated representation
 
-private:
+  private:
     // NOT IMPLEMENTED
     Function_Variadic(const Function_Variadic&) BSLS_KEYWORD_DELETED;
     Function_Variadic&
@@ -796,6 +792,28 @@ private:
 };
 
 #endif
+
+              // =================================================
+              // struct template Function_IsInvocableWithPrototype
+              // =================================================
+
+template <class PROTOTYPE, class FUNC>
+struct Function_IsInvocableWithPrototype;
+    // Forward declaration of the component-private
+    // 'Function_IsInvocableWithPrototype' 'struct' template.  The primary
+    // (unspecialized) template is not defined.  This 'struct' template
+    // implements a boolean metafunction that publicly inherits from
+    // 'bsl::true_type' if an object of the specified 'FUNC' type is invocable
+    // under the specified 'PROTOTYPE', and inherits from 'bsl::false_type'
+    // otherwise.  An object of 'FUNC' type is invocable under the 'PROTOTYPE'
+    // if it is Lvalue-Callable with the arguments of the 'PROTOTYPE', and
+    // returns an object of type convertible to the return type of the
+    // 'PROTOTYPE'.  If the return type of the 'PROTOTYPE' is 'void', then any
+    // type is considered convertible to the return type of the 'PROTOTYPE'.
+    // In C++03, 'FUNC' is considered Lvalue-Callable with the argument and
+    // return types of the 'PROTOTYPE' if it is not an integral type.  This
+    // 'struct' template requires 'PROTOTYPE" to be an unqualified function
+    // type.
 
 }  // close package namespace
 }  // close enterprise namespace
@@ -856,6 +874,15 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // as an rvalue reference.
     };
 
+    template <class FUNC>
+    struct IsInvocableWithPrototype
+    : BloombergLP::bslstl::Function_IsInvocableWithPrototype<PROTOTYPE, FUNC> {
+        // Abbreviation for a metafunction used to determine whether an object
+        // of the specified 'FUNC' is callable with argument types of the
+        // specified 'PROTOTYPE' and returns a type convertible to the return
+        // type of the 'PROTOTYPE'.
+    };
+
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     typedef BloombergLP::bsls::UnspecifiedBool<function> UnspecifiedBoolUtil;
     typedef typename UnspecifiedBoolUtil::BoolType       UnspecifiedBool;
@@ -914,7 +941,8 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
              typename enable_if<
                     ! IsReferenceCompatible<typename Decay<FUNC>::type,
                                             function>::value
-                 && ! is_integral<typename Decay<FUNC>::type>::value
+                 &&   IsInvocableWithPrototype<
+                                             typename Decay<FUNC>::type>::value
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
                  && ! MovableRefUtil::IsMovableReference<FUNC>::value
 #endif
@@ -930,20 +958,19 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // object (to avoid ambiguity with the copy and move constructors) or
         // is an integral type (to avoid matching null pointer literals).  In
         // C++03, this function will not participate in overload resolution if
-        // 'FUNC' is a 'MovableRef' (see overload, below).  Instantiation will
-        // fail unless 'FUNC' is invocable using the arguments and return value
-        // specified in 'PROTOTYPE'.  Note that this constructor implicitly
-        // converts from any callable type; the aformentioned instantiation
-        // failure will be eventually be replaced by a SFINAE check that in
-        // C++11 will exclude this constructor from overload resolution; in
-        // C++03, unfortunately, such a SFINAE check for invocability is not
-        // possible.
+        // 'FUNC' is a 'MovableRef' (see overload, below), and instantiation
+        // will fail unless 'FUNC' is invocable using the arguments and return
+        // type specified in 'PROTOTYPE'.  In C++11 and later, this function
+        // will not participate in overload resolution if 'FUNC' is not
+        // invocable using the arguments and return type specified in
+        // 'PROTOTYPE'.  Note that this constructor implicitly converts from
+        // any type that is so invocable.
         : Base(allocator_type())
     {
         ///Implementation Note
         ///- - - - - - - - - -
-        // The body of this constructor must inlined inplace because the use of
-        // 'enable_if' will otherwise break the MSVC 2010 compiler.
+        // The body of this constructor must be inlined inplace because the use
+        // of 'enable_if' will otherwise break the MSVC 2010 compiler.
         //
         // The '! bsl::is_function<FUNC>::value' constraint is required in
         // C++03 mode when using the IBM XL C++ compiler.  In C++03,
@@ -964,9 +991,9 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
 
 #ifdef BSLS_PLATFORM_CMP_IBM
     template <class FUNC>
-    function(FUNC                                                        *func,
+    function(FUNC                                            *func, // IMPLICIT
              typename enable_if<is_function<FUNC>::value, int>::type = 0)
-                                                                    // IMPLICIT
+
         : Base(allocator_type())
     {
         ///Implementation Note
@@ -978,6 +1005,11 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // This constructor also forwards the 'func' as a pointer-to-function
         // type to downstream operations in order to work around the
         // aforementioned reference-to-function type deduction defects.
+        //
+        // Further, note that instantiation of this constructor will fail
+        // unless 'FUNC' is invocable using the arguments and return type
+        // specified in 'PROTOTYPE'.  This component assumes that the IBM XL
+        // C++ compiler does not support C++11 or later.
 
         installFunc(func);
     }
@@ -989,7 +1021,8 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
              typename enable_if<
                     ! IsReferenceCompatible<typename Decay<FUNC>::type,
                                             function>::value
-                 && ! is_integral<typename Decay<FUNC>::type>::value
+                 &&   IsInvocableWithPrototype<
+                                             typename Decay<FUNC>::type>::value
                  , int>::type = 0)
         // Create an object wrapping the specified 'func' callable object.
         // This constructor (ctor 2) is identical to the previous constructor
@@ -1040,7 +1073,8 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
              typename enable_if<
                     ! IsReferenceCompatible<typename Decay<FUNC>::type,
                                             function>::value
-                 && ! is_integral<typename Decay<FUNC>::type>::value
+                 &&   IsInvocableWithPrototype<
+                                             typename Decay<FUNC>::type>::value
 #ifdef BSLS_PLATFORM_CMP_IBM
                  && ! is_function<FUNC>::value
 #endif
@@ -1052,13 +1086,15 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // constructor will not participate in overload resolution if 'func' is
         // of the same type as (or reference compatible with) this object (to
         // avoid ambiguity with the extended copy and move constructors) or is
-        // an integral type (to avoid matching null pointer literals).
-        // Instantiation will fail unless 'FUNC' is invocable using the
-        // arguments and return value specified in 'PROTOTYPE'.  Note that the
-        // aformentioned instantiation failure will be eventually be replaced
-        // by a SFINAE check that in C++11 will exclude this constructor from
-        // overload resolution; in C++03, unfortunately, such a SFINAE check
-        // for invocability is not possible.
+        // an integral type (to avoid matching null pointer literals).  In
+        // C++03, this function will not participate in overload resolution if
+        // 'FUNC' is a 'MovableRef' (see overload, below), and instantiation
+        // will fail unless 'FUNC' is invocable using the arguments and return
+        // type specified in 'PROTOTYPE'.  In C++11 and later, this function
+        // will not participate in overload resolution if 'FUNC' is not
+        // invocable using the arguments and return type specified in
+        // 'PROTOTYPE'.  Note that this constructor implicitly converts from
+        // any type that is so invocable.
         : Base(allocator)
     {
         ///Implementation Note
@@ -1100,6 +1136,11 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         // This constructor also forwards the 'func' as a pointer-to-function
         // type to downstream operations in order to work around the
         // aforementioned reference-to-function type deduction defects.
+        //
+        // Further, note that instantiation of this constructor will fail
+        // unless 'FUNC' is invocable using the arguments and return type
+        // specified in 'PROTOTYPE'.  This component assumes that the IBM XL
+        // C++ compiler does not support C++11 or later.
 
         installFunc(func);
     }
@@ -1157,22 +1198,21 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     template <class FUNC>
     typename enable_if<
            ! IsReferenceCompatible<typename Decay<FUNC>::type, function>::value
-        && ! is_integral<typename Decay<FUNC>::type>::value
-        , function&>::type
+        &&   IsInvocableWithPrototype<typename Decay<FUNC>::type>::value
+     , function&>::type
     operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) rhs)
         // Set the target of this object to the specified 'rhs' callable
         // object, destroy the previous target (if any), and return '*this'.
         // The result is equivalent to having constructed '*this' from
-        // 'std::forward<FUNC>(rhs)' and 'this->get_allocator()'.  Note that,
-        // if the argument is a function, it will decay, causing 'FUNC' to be a
-        // pointer-to-function type.  Note also that this assignment operator
-        // will not participate in overload resolution if 'func' is of the same
-        // type as this object (to avoid ambiguity with the copy and move
-        // assignment operators) or is not invocable using the arguments and
-        // return value specified in 'PROTOTYPE'.  TBD: We have not implemented
-        // the latter SFINAE check, but we do check for integer types (so as
-        // not to match null pointer literals).  In C++03, matching the
-        // 'PROTOTYPE' is not possible.
+        // 'std::forward<FUNC>(rhs)' and 'this->get_allocator()'.  Note that
+        // this assignment operator will not participate in overload resolution
+        // if 'func' is of the same type as this object (to avoid ambiguity
+        // with the copy and move assignment operators.)  In C++03,
+        // instantiation will fail unless 'FUNC' is invocable with the
+        // arguments and return type specified in 'PROTOTYPE'.  In C++11 and
+        // later, this assignment operator will not participate in overload
+        // resolution unless 'FUNC' is invocable with the arguments and return
+        // type specified in 'PROTOTYPE'.
     {
         ///Implementation Note
         ///- - - - - - - - - -
@@ -1196,6 +1236,11 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         ///Implementation Note
         ///- - - - - - - - - -
         // The body of this operator must inlined inplace.
+        //
+        // Further, note that instantiation of this assignment operator will
+        // fail unless 'FUNC' is invocable using the arguments and return type
+        // specified in 'PROTOTYPE'.  This component assumes that the IBM XL
+        // C++ compiler does not support C++11 or later.
 
         function(allocator_arg, this->get_allocator(), rhs).swap(*this);
         return *this;
@@ -1376,6 +1421,53 @@ RET bslstl::Function_Variadic<RET(ARGS...)>::operator()(ARGS... args) const
 
 #endif
 
+namespace bslstl {
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=13
+
+             // -------------------------------------------------
+             // struct template Function_IsInvocableWithPrototype
+             // -------------------------------------------------
+
+#ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+
+template <class RET, class FUNC, class... ARGS>
+struct Function_IsInvocableWithPrototype<RET(ARGS...), FUNC>
+: Function_InvokerUtil::IsFuncInvocable<RET(ARGS...), FUNC> {
+    // This component-private 'struct' template provides a boolean metafunction
+    // that derives from 'bsl::true_type' if a 'bsl::function' object having a
+    // prototype of 'RET(ARGS...)' is constructible from an object of type
+    // 'FUNC', and derives from 'bsl::false_type' otherwise.  This metafunction
+    // is a wrapper around 'bsl::invoke_result' that unwraps 'FUNC' if it is a
+    // specialization of 'bslalg::NothrowMovableWrapper'; and, if
+    // 'bsl::invoke_result' provides a nested 'type' typedef for 'FUNC' and
+    // 'RET' is non-void, checks that the return type of the invoke operation
+    // on 'FUNC' is convertible to 'RET'.
+};
+
+#else // if !defined(BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE)
+
+template <class RET, class FUNC, class... ARGS>
+struct Function_IsInvocableWithPrototype<RET(ARGS...), FUNC>
+: bsl::integral_constant<bool, !bsl::is_integral<FUNC>::value> {
+    // This component-private 'struct' template provides a partial
+    // specialization of 'Function_IsInvocableWithPrototype' for any 'FUNC'
+    // type, and for 'PROTOTYPE' types that are function types.  This
+    // specialization only exists in pre-C++11 (e.g. C++03) compilers.  It
+    // approximates a boolean metafunction for detecting whether the specified
+    // 'FUNC' type is Lvalue-Callable with the prototype 'RET(ARGS...)'.  This
+    // approximation is extremely coarse, and only checks that the 'FUNC' is
+    // not an integral type.  It does this for the sole purpose of ensuring
+    // that there are no overload resolution ambiguities in the constructors
+    // and assignment operators of 'bsl::function', which provide overloads for
+    // both integral types (to accept the literal '0' is a null pointer
+    // constant), and for callable types like 'FUNC'.
+};
+
+#endif // !defined(BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE)
+#endif
+
+}  // close package namespace
 }  // close enterprise namespace
 
                         // ----------------------------
@@ -1632,10 +1724,9 @@ void bsl::swap(bsl::function<PROTOTYPE>& a,
     a.swap(b);
 }
 
-         // --------------------------------------------------------------
-         // specialization of class template Function_InvokerUtil_Dispatch
-         // --------------------------------------------------------------
-
+       // --------------------------------------------------------------
+       // specialization of class template Function_InvokerUtil_Dispatch
+       // --------------------------------------------------------------
 
 namespace BloombergLP {
 namespace bslstl {

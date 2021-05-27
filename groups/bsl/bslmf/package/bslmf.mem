@@ -45,6 +45,7 @@ bslmf_ispair
 bslmf_ispointer
 bslmf_ispolymorphic
 bslmf_isreference
+bslmf_isreferencewrapper
 bslmf_isrvaluereference
 bslmf_issame
 bslmf_istransparentpredicate

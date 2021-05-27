@@ -21,14 +21,28 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Thu Mar  4 23:36:07 2021
+// Generated on Tue May 25 23:37:06 2021
 // Command line: sim_cpp11_features.pl bslstl_function_invokerutil.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_H
 
-namespace BloombergLP {
+#if defined(BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS)      \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)          \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#define BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+#endif
 
+namespace BloombergLP {
 namespace bslstl {
+
+#ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+
+template <class PROTOTYPE, class FUNC>
+struct Function_InvokerUtil_IsFuncInvocable;
+    // forward declaration
+
+#endif
 
                         // ===========================
                         // struct Function_InvokerUtil
@@ -54,6 +68,36 @@ struct Function_InvokerUtil {
     typedef Function_Rep::GenericInvoker GenericInvoker;
         // Generic function pointer.  This type is as close as we can get to
         // 'void *' for function pointers.
+
+#ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+    template <class PROTOTYPE, class FUNC>
+    struct IsFuncInvocable
+    : Function_InvokerUtil_IsFuncInvocable<PROTOTYPE, FUNC> {
+        // This 'struct' template implements a Boolean metafunction that
+        // publicly inherits from 'bsl::true_type' if an object of the
+        // specified 'FUNC' type is invocable under the specified 'PROTOTYPE',
+        // and publicly inherits from 'bsl::false_type' otherwise.  An object
+        // of 'FUNC' type is invocable under the 'PROTOTYPE' if it is
+        // Lvalue-Callable with the arguments of the 'PROTOTYPE' (as forwarded
+        // by the facilities of 'bslmf_forwardingtype), and returns an object
+        // of type explicitly convertible to the return type of the
+        // 'PROTOTYPE'.  If the return type of the 'PROTOTYPE' is 'void', then
+        // any type is considered explicitly convertible to the return type of
+        // the 'PROTOTYPE'.  This 'struct' template requires 'PROTOTYPE" to be
+        // an unqualified function type.
+        //
+        // Note that 'IsFuncInvocable' is qualitatively different than
+        // 'std::is_invocable_r', in that it makes concessions for supporting
+        // legacy behavior of 'bsl::function'.
+        // 'std::is_invocable_r<RET, FUNC, ARGS...>' requires that the return
+        // type of the invocation of 'FUNC' with 'ARGS...' be implicitly
+        // convertible to 'RET', as opposed to explicitly convertible.
+        // Further, the use of 'bslmf::ForwardingType' to forward arguments in
+        // the invoker of a 'bsl::function' creates qualitatively different
+        // behavior than the argument forwarding mechanism used by the standard
+        // 'INVOKE' pseudo-expression.
+    };
+#endif
 
     // CLASS METHODS
     template <class PROTOTYPE>
@@ -112,6 +156,2605 @@ struct Function_InvokerUtilNullCheck<MEMTYPE CLASS::*> {
         // otherwise 'false'.
 };
 
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_function_invokerutil.h
+#ifndef BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT
+#define BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT 13
+#endif
+#ifndef BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A
+#define BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT
+#endif
+
+
+#ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+
+template <class VOID_TYPE,
+          class RET,
+          class FUNC
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+        , class ARGS_0 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+        , class ARGS_1 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+        , class ARGS_2 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+        , class ARGS_3 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+        , class ARGS_4 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+        , class ARGS_5 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+        , class ARGS_6 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+        , class ARGS_7 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+        , class ARGS_8 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+        , class ARGS_9 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+        , class ARGS_10 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+        , class ARGS_11 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+        , class ARGS_12 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+        , class = BSLS_COMPILERFEATURES_NILT>
+struct Function_InvokerUtil_IsFuncInvocableImp;
+
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+template <class RET, class FUNC>
+struct Function_InvokerUtil_IsFuncInvocable<RET(), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+template <class RET, class FUNC, class ARGS_01>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS_01), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS_01> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS_01,
+                                                ARGS_02), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS_01,
+                                                           ARGS_02> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06,
+                                                           ARGS_07> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06,
+                                                           ARGS_07,
+                                                           ARGS_08> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06,
+                                                           ARGS_07,
+                                                           ARGS_08,
+                                                           ARGS_09> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09,
+                                                ARGS_10), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06,
+                                                           ARGS_07,
+                                                           ARGS_08,
+                                                           ARGS_09,
+                                                           ARGS_10> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10,
+                                 class ARGS_11>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09,
+                                                ARGS_10,
+                                                ARGS_11), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06,
+                                                           ARGS_07,
+                                                           ARGS_08,
+                                                           ARGS_09,
+                                                           ARGS_10,
+                                                           ARGS_11> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10,
+                                 class ARGS_11,
+                                 class ARGS_12>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09,
+                                                ARGS_10,
+                                                ARGS_11,
+                                                ARGS_12), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06,
+                                                           ARGS_07,
+                                                           ARGS_08,
+                                                           ARGS_09,
+                                                           ARGS_10,
+                                                           ARGS_11,
+                                                           ARGS_12> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10,
+                                 class ARGS_11,
+                                 class ARGS_12,
+                                 class ARGS_13>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS_01,
+                                                ARGS_02,
+                                                ARGS_03,
+                                                ARGS_04,
+                                                ARGS_05,
+                                                ARGS_06,
+                                                ARGS_07,
+                                                ARGS_08,
+                                                ARGS_09,
+                                                ARGS_10,
+                                                ARGS_11,
+                                                ARGS_12,
+                                                ARGS_13), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06,
+                                                           ARGS_07,
+                                                           ARGS_08,
+                                                           ARGS_09,
+                                                           ARGS_10,
+                                                           ARGS_11,
+                                                           ARGS_12,
+                                                           ARGS_13> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+
+
+
+template <class ARG>
+struct Function_InvokerUtil_ForwardType;
+
+template <class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertible;
+
+template <class FUNC
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+        , class ARGS_0 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+        , class ARGS_1 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+        , class ARGS_2 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+        , class ARGS_3 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+        , class ARGS_4 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+        , class ARGS_5 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+        , class ARGS_6 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+        , class ARGS_7 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+        , class ARGS_8 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+        , class ARGS_9 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+        , class ARGS_10 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+        , class ARGS_11 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+        , class ARGS_12 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+        , class = BSLS_COMPILERFEATURES_NILT>
+struct Function_InvokerUtil_ResultType;
+
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+template <class VOID_TYPE, class RET, class FUNC>
+struct Function_InvokerUtil_IsFuncInvocableImp<VOID_TYPE, RET, FUNC
+                                                          > : bsl::false_type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+template <class VOID_TYPE, class RET, class FUNC, class ARGS_01>
+struct Function_InvokerUtil_IsFuncInvocableImp<VOID_TYPE, RET, FUNC, ARGS_01
+                                                          > : bsl::false_type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+template <class VOID_TYPE, class RET, class FUNC, class ARGS_01,
+                                                  class ARGS_02>
+struct Function_InvokerUtil_IsFuncInvocableImp<VOID_TYPE, RET, FUNC, ARGS_01,
+                                                                     ARGS_02
+                                                          > : bsl::false_type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+template <class VOID_TYPE, class RET, class FUNC, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03>
+struct Function_InvokerUtil_IsFuncInvocableImp<VOID_TYPE, RET, FUNC, ARGS_01,
+                                                                     ARGS_02,
+                                                                     ARGS_03
+                                                          > : bsl::false_type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+template <class VOID_TYPE, class RET, class FUNC, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04>
+struct Function_InvokerUtil_IsFuncInvocableImp<VOID_TYPE, RET, FUNC, ARGS_01,
+                                                                     ARGS_02,
+                                                                     ARGS_03,
+                                                                     ARGS_04
+                                                          > : bsl::false_type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+template <class VOID_TYPE, class RET, class FUNC, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05>
+struct Function_InvokerUtil_IsFuncInvocableImp<VOID_TYPE, RET, FUNC, ARGS_01,
+                                                                     ARGS_02,
+                                                                     ARGS_03,
+                                                                     ARGS_04,
+                                                                     ARGS_05
+                                                          > : bsl::false_type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+template <class VOID_TYPE, class RET, class FUNC, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06>
+struct Function_InvokerUtil_IsFuncInvocableImp<VOID_TYPE, RET, FUNC, ARGS_01,
+                                                                     ARGS_02,
+                                                                     ARGS_03,
+                                                                     ARGS_04,
+                                                                     ARGS_05,
+                                                                     ARGS_06
+                                                          > : bsl::false_type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+template <class VOID_TYPE, class RET, class FUNC, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07>
+struct Function_InvokerUtil_IsFuncInvocableImp<VOID_TYPE, RET, FUNC, ARGS_01,
+                                                                     ARGS_02,
+                                                                     ARGS_03,
+                                                                     ARGS_04,
+                                                                     ARGS_05,
+                                                                     ARGS_06,
+                                                                     ARGS_07
+                                                          > : bsl::false_type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+template <class VOID_TYPE, class RET, class FUNC, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08>
+struct Function_InvokerUtil_IsFuncInvocableImp<VOID_TYPE, RET, FUNC, ARGS_01,
+                                                                     ARGS_02,
+                                                                     ARGS_03,
+                                                                     ARGS_04,
+                                                                     ARGS_05,
+                                                                     ARGS_06,
+                                                                     ARGS_07,
+                                                                     ARGS_08
+                                                          > : bsl::false_type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+template <class VOID_TYPE, class RET, class FUNC, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08,
+                                                  class ARGS_09>
+struct Function_InvokerUtil_IsFuncInvocableImp<VOID_TYPE, RET, FUNC, ARGS_01,
+                                                                     ARGS_02,
+                                                                     ARGS_03,
+                                                                     ARGS_04,
+                                                                     ARGS_05,
+                                                                     ARGS_06,
+                                                                     ARGS_07,
+                                                                     ARGS_08,
+                                                                     ARGS_09
+                                                          > : bsl::false_type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+template <class VOID_TYPE, class RET, class FUNC, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08,
+                                                  class ARGS_09,
+                                                  class ARGS_10>
+struct Function_InvokerUtil_IsFuncInvocableImp<VOID_TYPE, RET, FUNC, ARGS_01,
+                                                                     ARGS_02,
+                                                                     ARGS_03,
+                                                                     ARGS_04,
+                                                                     ARGS_05,
+                                                                     ARGS_06,
+                                                                     ARGS_07,
+                                                                     ARGS_08,
+                                                                     ARGS_09,
+                                                                     ARGS_10
+                                                          > : bsl::false_type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+template <class VOID_TYPE, class RET, class FUNC, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08,
+                                                  class ARGS_09,
+                                                  class ARGS_10,
+                                                  class ARGS_11>
+struct Function_InvokerUtil_IsFuncInvocableImp<VOID_TYPE, RET, FUNC, ARGS_01,
+                                                                     ARGS_02,
+                                                                     ARGS_03,
+                                                                     ARGS_04,
+                                                                     ARGS_05,
+                                                                     ARGS_06,
+                                                                     ARGS_07,
+                                                                     ARGS_08,
+                                                                     ARGS_09,
+                                                                     ARGS_10,
+                                                                     ARGS_11
+                                                          > : bsl::false_type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+template <class VOID_TYPE, class RET, class FUNC, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08,
+                                                  class ARGS_09,
+                                                  class ARGS_10,
+                                                  class ARGS_11,
+                                                  class ARGS_12>
+struct Function_InvokerUtil_IsFuncInvocableImp<VOID_TYPE, RET, FUNC, ARGS_01,
+                                                                     ARGS_02,
+                                                                     ARGS_03,
+                                                                     ARGS_04,
+                                                                     ARGS_05,
+                                                                     ARGS_06,
+                                                                     ARGS_07,
+                                                                     ARGS_08,
+                                                                     ARGS_09,
+                                                                     ARGS_10,
+                                                                     ARGS_11,
+                                                                     ARGS_12
+                                                          > : bsl::false_type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+template <class VOID_TYPE, class RET, class FUNC, class ARGS_01,
+                                                  class ARGS_02,
+                                                  class ARGS_03,
+                                                  class ARGS_04,
+                                                  class ARGS_05,
+                                                  class ARGS_06,
+                                                  class ARGS_07,
+                                                  class ARGS_08,
+                                                  class ARGS_09,
+                                                  class ARGS_10,
+                                                  class ARGS_11,
+                                                  class ARGS_12,
+                                                  class ARGS_13>
+struct Function_InvokerUtil_IsFuncInvocableImp<VOID_TYPE, RET, FUNC, ARGS_01,
+                                                                     ARGS_02,
+                                                                     ARGS_03,
+                                                                     ARGS_04,
+                                                                     ARGS_05,
+                                                                     ARGS_06,
+                                                                     ARGS_07,
+                                                                     ARGS_08,
+                                                                     ARGS_09,
+                                                                     ARGS_10,
+                                                                     ARGS_11,
+                                                                     ARGS_12,
+                                                                     ARGS_13
+                                                          > : bsl::false_type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+template <class RET, class FUNC>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC>::type>::type,
+    RET,
+    FUNC>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC>::type,
+          RET> >::type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+template <class RET, class FUNC, class ARGS_01>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS_01>::type>::type,
+    RET,
+    FUNC,
+    ARGS_01>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS_01>::type,
+          RET> >::type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                       ARGS_02>::type>::type,
+    RET,
+    FUNC,
+    ARGS_01,
+    ARGS_02>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                         ARGS_02>::type,
+          RET> >::type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                       ARGS_02,
+                                                       ARGS_03>::type>::type,
+    RET,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                         ARGS_02,
+                                                         ARGS_03>::type,
+          RET> >::type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                       ARGS_02,
+                                                       ARGS_03,
+                                                       ARGS_04>::type>::type,
+    RET,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                         ARGS_02,
+                                                         ARGS_03,
+                                                         ARGS_04>::type,
+          RET> >::type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                       ARGS_02,
+                                                       ARGS_03,
+                                                       ARGS_04,
+                                                       ARGS_05>::type>::type,
+    RET,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                         ARGS_02,
+                                                         ARGS_03,
+                                                         ARGS_04,
+                                                         ARGS_05>::type,
+          RET> >::type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                       ARGS_02,
+                                                       ARGS_03,
+                                                       ARGS_04,
+                                                       ARGS_05,
+                                                       ARGS_06>::type>::type,
+    RET,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                         ARGS_02,
+                                                         ARGS_03,
+                                                         ARGS_04,
+                                                         ARGS_05,
+                                                         ARGS_06>::type,
+          RET> >::type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                       ARGS_02,
+                                                       ARGS_03,
+                                                       ARGS_04,
+                                                       ARGS_05,
+                                                       ARGS_06,
+                                                       ARGS_07>::type>::type,
+    RET,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06,
+    ARGS_07>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                         ARGS_02,
+                                                         ARGS_03,
+                                                         ARGS_04,
+                                                         ARGS_05,
+                                                         ARGS_06,
+                                                         ARGS_07>::type,
+          RET> >::type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                       ARGS_02,
+                                                       ARGS_03,
+                                                       ARGS_04,
+                                                       ARGS_05,
+                                                       ARGS_06,
+                                                       ARGS_07,
+                                                       ARGS_08>::type>::type,
+    RET,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06,
+    ARGS_07,
+    ARGS_08>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                         ARGS_02,
+                                                         ARGS_03,
+                                                         ARGS_04,
+                                                         ARGS_05,
+                                                         ARGS_06,
+                                                         ARGS_07,
+                                                         ARGS_08>::type,
+          RET> >::type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                       ARGS_02,
+                                                       ARGS_03,
+                                                       ARGS_04,
+                                                       ARGS_05,
+                                                       ARGS_06,
+                                                       ARGS_07,
+                                                       ARGS_08,
+                                                       ARGS_09>::type>::type,
+    RET,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06,
+    ARGS_07,
+    ARGS_08,
+    ARGS_09>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                         ARGS_02,
+                                                         ARGS_03,
+                                                         ARGS_04,
+                                                         ARGS_05,
+                                                         ARGS_06,
+                                                         ARGS_07,
+                                                         ARGS_08,
+                                                         ARGS_09>::type,
+          RET> >::type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                       ARGS_02,
+                                                       ARGS_03,
+                                                       ARGS_04,
+                                                       ARGS_05,
+                                                       ARGS_06,
+                                                       ARGS_07,
+                                                       ARGS_08,
+                                                       ARGS_09,
+                                                       ARGS_10>::type>::type,
+    RET,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06,
+    ARGS_07,
+    ARGS_08,
+    ARGS_09,
+    ARGS_10>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                         ARGS_02,
+                                                         ARGS_03,
+                                                         ARGS_04,
+                                                         ARGS_05,
+                                                         ARGS_06,
+                                                         ARGS_07,
+                                                         ARGS_08,
+                                                         ARGS_09,
+                                                         ARGS_10>::type,
+          RET> >::type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10,
+                                 class ARGS_11>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                       ARGS_02,
+                                                       ARGS_03,
+                                                       ARGS_04,
+                                                       ARGS_05,
+                                                       ARGS_06,
+                                                       ARGS_07,
+                                                       ARGS_08,
+                                                       ARGS_09,
+                                                       ARGS_10,
+                                                       ARGS_11>::type>::type,
+    RET,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06,
+    ARGS_07,
+    ARGS_08,
+    ARGS_09,
+    ARGS_10,
+    ARGS_11>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                         ARGS_02,
+                                                         ARGS_03,
+                                                         ARGS_04,
+                                                         ARGS_05,
+                                                         ARGS_06,
+                                                         ARGS_07,
+                                                         ARGS_08,
+                                                         ARGS_09,
+                                                         ARGS_10,
+                                                         ARGS_11>::type,
+          RET> >::type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10,
+                                 class ARGS_11,
+                                 class ARGS_12>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                       ARGS_02,
+                                                       ARGS_03,
+                                                       ARGS_04,
+                                                       ARGS_05,
+                                                       ARGS_06,
+                                                       ARGS_07,
+                                                       ARGS_08,
+                                                       ARGS_09,
+                                                       ARGS_10,
+                                                       ARGS_11,
+                                                       ARGS_12>::type>::type,
+    RET,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06,
+    ARGS_07,
+    ARGS_08,
+    ARGS_09,
+    ARGS_10,
+    ARGS_11,
+    ARGS_12>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                         ARGS_02,
+                                                         ARGS_03,
+                                                         ARGS_04,
+                                                         ARGS_05,
+                                                         ARGS_06,
+                                                         ARGS_07,
+                                                         ARGS_08,
+                                                         ARGS_09,
+                                                         ARGS_10,
+                                                         ARGS_11,
+                                                         ARGS_12>::type,
+          RET> >::type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+template <class RET, class FUNC, class ARGS_01,
+                                 class ARGS_02,
+                                 class ARGS_03,
+                                 class ARGS_04,
+                                 class ARGS_05,
+                                 class ARGS_06,
+                                 class ARGS_07,
+                                 class ARGS_08,
+                                 class ARGS_09,
+                                 class ARGS_10,
+                                 class ARGS_11,
+                                 class ARGS_12,
+                                 class ARGS_13>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                       ARGS_02,
+                                                       ARGS_03,
+                                                       ARGS_04,
+                                                       ARGS_05,
+                                                       ARGS_06,
+                                                       ARGS_07,
+                                                       ARGS_08,
+                                                       ARGS_09,
+                                                       ARGS_10,
+                                                       ARGS_11,
+                                                       ARGS_12,
+                                                       ARGS_13>::type>::type,
+    RET,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06,
+    ARGS_07,
+    ARGS_08,
+    ARGS_09,
+    ARGS_10,
+    ARGS_11,
+    ARGS_12,
+    ARGS_13>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                                         ARGS_02,
+                                                         ARGS_03,
+                                                         ARGS_04,
+                                                         ARGS_05,
+                                                         ARGS_06,
+                                                         ARGS_07,
+                                                         ARGS_08,
+                                                         ARGS_09,
+                                                         ARGS_10,
+                                                         ARGS_11,
+                                                         ARGS_12,
+                                                         ARGS_13>::type,
+          RET> >::type {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+
+
+
+template <class VOID_TYPE,
+          class FUNC
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+        , class ARGS_0 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+        , class ARGS_1 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+        , class ARGS_2 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+        , class ARGS_3 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+        , class ARGS_4 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+        , class ARGS_5 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+        , class ARGS_6 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+        , class ARGS_7 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+        , class ARGS_8 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+        , class ARGS_9 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+        , class ARGS_10 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+        , class ARGS_11 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+        , class ARGS_12 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+        , class = BSLS_COMPILERFEATURES_NILT>
+struct Function_InvokerUtil_ResultTypeImp;
+
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+template <class FUNC>
+struct Function_InvokerUtil_ResultType<FUNC>
+: Function_InvokerUtil_ResultTypeImp<void, FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+template <class FUNC, class ARGS_01>
+struct Function_InvokerUtil_ResultType<FUNC, ARGS_01>
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS_01> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+template <class FUNC, class ARGS_01,
+                      class ARGS_02>
+struct Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                             ARGS_02>
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS_01,
+                                                 ARGS_02> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03>
+struct Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03>
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS_01,
+                                                 ARGS_02,
+                                                 ARGS_03> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04>
+struct Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04>
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS_01,
+                                                 ARGS_02,
+                                                 ARGS_03,
+                                                 ARGS_04> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05>
+struct Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05>
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS_01,
+                                                 ARGS_02,
+                                                 ARGS_03,
+                                                 ARGS_04,
+                                                 ARGS_05> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06>
+struct Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06>
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS_01,
+                                                 ARGS_02,
+                                                 ARGS_03,
+                                                 ARGS_04,
+                                                 ARGS_05,
+                                                 ARGS_06> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07>
+struct Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07>
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS_01,
+                                                 ARGS_02,
+                                                 ARGS_03,
+                                                 ARGS_04,
+                                                 ARGS_05,
+                                                 ARGS_06,
+                                                 ARGS_07> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08>
+struct Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08>
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS_01,
+                                                 ARGS_02,
+                                                 ARGS_03,
+                                                 ARGS_04,
+                                                 ARGS_05,
+                                                 ARGS_06,
+                                                 ARGS_07,
+                                                 ARGS_08> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09>
+struct Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09>
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS_01,
+                                                 ARGS_02,
+                                                 ARGS_03,
+                                                 ARGS_04,
+                                                 ARGS_05,
+                                                 ARGS_06,
+                                                 ARGS_07,
+                                                 ARGS_08,
+                                                 ARGS_09> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09,
+                      class ARGS_10>
+struct Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09,
+                                             ARGS_10>
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS_01,
+                                                 ARGS_02,
+                                                 ARGS_03,
+                                                 ARGS_04,
+                                                 ARGS_05,
+                                                 ARGS_06,
+                                                 ARGS_07,
+                                                 ARGS_08,
+                                                 ARGS_09,
+                                                 ARGS_10> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09,
+                      class ARGS_10,
+                      class ARGS_11>
+struct Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09,
+                                             ARGS_10,
+                                             ARGS_11>
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS_01,
+                                                 ARGS_02,
+                                                 ARGS_03,
+                                                 ARGS_04,
+                                                 ARGS_05,
+                                                 ARGS_06,
+                                                 ARGS_07,
+                                                 ARGS_08,
+                                                 ARGS_09,
+                                                 ARGS_10,
+                                                 ARGS_11> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09,
+                      class ARGS_10,
+                      class ARGS_11,
+                      class ARGS_12>
+struct Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09,
+                                             ARGS_10,
+                                             ARGS_11,
+                                             ARGS_12>
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS_01,
+                                                 ARGS_02,
+                                                 ARGS_03,
+                                                 ARGS_04,
+                                                 ARGS_05,
+                                                 ARGS_06,
+                                                 ARGS_07,
+                                                 ARGS_08,
+                                                 ARGS_09,
+                                                 ARGS_10,
+                                                 ARGS_11,
+                                                 ARGS_12> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09,
+                      class ARGS_10,
+                      class ARGS_11,
+                      class ARGS_12,
+                      class ARGS_13>
+struct Function_InvokerUtil_ResultType<FUNC, ARGS_01,
+                                             ARGS_02,
+                                             ARGS_03,
+                                             ARGS_04,
+                                             ARGS_05,
+                                             ARGS_06,
+                                             ARGS_07,
+                                             ARGS_08,
+                                             ARGS_09,
+                                             ARGS_10,
+                                             ARGS_11,
+                                             ARGS_12,
+                                             ARGS_13>
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS_01,
+                                                 ARGS_02,
+                                                 ARGS_03,
+                                                 ARGS_04,
+                                                 ARGS_05,
+                                                 ARGS_06,
+                                                 ARGS_07,
+                                                 ARGS_08,
+                                                 ARGS_09,
+                                                 ARGS_10,
+                                                 ARGS_11,
+                                                 ARGS_12,
+                                                 ARGS_13> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+
+
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+template <class VOID_TYPE, class FUNC>
+struct Function_InvokerUtil_ResultTypeImp<VOID_TYPE, FUNC> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+template <class VOID_TYPE, class FUNC, class ARGS_01>
+struct Function_InvokerUtil_ResultTypeImp<VOID_TYPE, FUNC, ARGS_01> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+template <class VOID_TYPE, class FUNC, class ARGS_01,
+                                       class ARGS_02>
+struct Function_InvokerUtil_ResultTypeImp<VOID_TYPE, FUNC, ARGS_01,
+                                                           ARGS_02> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+template <class VOID_TYPE, class FUNC, class ARGS_01,
+                                       class ARGS_02,
+                                       class ARGS_03>
+struct Function_InvokerUtil_ResultTypeImp<VOID_TYPE, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+template <class VOID_TYPE, class FUNC, class ARGS_01,
+                                       class ARGS_02,
+                                       class ARGS_03,
+                                       class ARGS_04>
+struct Function_InvokerUtil_ResultTypeImp<VOID_TYPE, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+template <class VOID_TYPE, class FUNC, class ARGS_01,
+                                       class ARGS_02,
+                                       class ARGS_03,
+                                       class ARGS_04,
+                                       class ARGS_05>
+struct Function_InvokerUtil_ResultTypeImp<VOID_TYPE, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+template <class VOID_TYPE, class FUNC, class ARGS_01,
+                                       class ARGS_02,
+                                       class ARGS_03,
+                                       class ARGS_04,
+                                       class ARGS_05,
+                                       class ARGS_06>
+struct Function_InvokerUtil_ResultTypeImp<VOID_TYPE, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+template <class VOID_TYPE, class FUNC, class ARGS_01,
+                                       class ARGS_02,
+                                       class ARGS_03,
+                                       class ARGS_04,
+                                       class ARGS_05,
+                                       class ARGS_06,
+                                       class ARGS_07>
+struct Function_InvokerUtil_ResultTypeImp<VOID_TYPE, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06,
+                                                           ARGS_07> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+template <class VOID_TYPE, class FUNC, class ARGS_01,
+                                       class ARGS_02,
+                                       class ARGS_03,
+                                       class ARGS_04,
+                                       class ARGS_05,
+                                       class ARGS_06,
+                                       class ARGS_07,
+                                       class ARGS_08>
+struct Function_InvokerUtil_ResultTypeImp<VOID_TYPE, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06,
+                                                           ARGS_07,
+                                                           ARGS_08> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+template <class VOID_TYPE, class FUNC, class ARGS_01,
+                                       class ARGS_02,
+                                       class ARGS_03,
+                                       class ARGS_04,
+                                       class ARGS_05,
+                                       class ARGS_06,
+                                       class ARGS_07,
+                                       class ARGS_08,
+                                       class ARGS_09>
+struct Function_InvokerUtil_ResultTypeImp<VOID_TYPE, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06,
+                                                           ARGS_07,
+                                                           ARGS_08,
+                                                           ARGS_09> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+template <class VOID_TYPE, class FUNC, class ARGS_01,
+                                       class ARGS_02,
+                                       class ARGS_03,
+                                       class ARGS_04,
+                                       class ARGS_05,
+                                       class ARGS_06,
+                                       class ARGS_07,
+                                       class ARGS_08,
+                                       class ARGS_09,
+                                       class ARGS_10>
+struct Function_InvokerUtil_ResultTypeImp<VOID_TYPE, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06,
+                                                           ARGS_07,
+                                                           ARGS_08,
+                                                           ARGS_09,
+                                                           ARGS_10> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+template <class VOID_TYPE, class FUNC, class ARGS_01,
+                                       class ARGS_02,
+                                       class ARGS_03,
+                                       class ARGS_04,
+                                       class ARGS_05,
+                                       class ARGS_06,
+                                       class ARGS_07,
+                                       class ARGS_08,
+                                       class ARGS_09,
+                                       class ARGS_10,
+                                       class ARGS_11>
+struct Function_InvokerUtil_ResultTypeImp<VOID_TYPE, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06,
+                                                           ARGS_07,
+                                                           ARGS_08,
+                                                           ARGS_09,
+                                                           ARGS_10,
+                                                           ARGS_11> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+template <class VOID_TYPE, class FUNC, class ARGS_01,
+                                       class ARGS_02,
+                                       class ARGS_03,
+                                       class ARGS_04,
+                                       class ARGS_05,
+                                       class ARGS_06,
+                                       class ARGS_07,
+                                       class ARGS_08,
+                                       class ARGS_09,
+                                       class ARGS_10,
+                                       class ARGS_11,
+                                       class ARGS_12>
+struct Function_InvokerUtil_ResultTypeImp<VOID_TYPE, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06,
+                                                           ARGS_07,
+                                                           ARGS_08,
+                                                           ARGS_09,
+                                                           ARGS_10,
+                                                           ARGS_11,
+                                                           ARGS_12> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+template <class VOID_TYPE, class FUNC, class ARGS_01,
+                                       class ARGS_02,
+                                       class ARGS_03,
+                                       class ARGS_04,
+                                       class ARGS_05,
+                                       class ARGS_06,
+                                       class ARGS_07,
+                                       class ARGS_08,
+                                       class ARGS_09,
+                                       class ARGS_10,
+                                       class ARGS_11,
+                                       class ARGS_12,
+                                       class ARGS_13>
+struct Function_InvokerUtil_ResultTypeImp<VOID_TYPE, FUNC, ARGS_01,
+                                                           ARGS_02,
+                                                           ARGS_03,
+                                                           ARGS_04,
+                                                           ARGS_05,
+                                                           ARGS_06,
+                                                           ARGS_07,
+                                                           ARGS_08,
+                                                           ARGS_09,
+                                                           ARGS_10,
+                                                           ARGS_11,
+                                                           ARGS_12,
+                                                           ARGS_13> {
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+template <class FUNC>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        >::type,
+    FUNC>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type> {
+
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+template <class FUNC, class ARGS_01>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS_01>::Type>::type,
+    FUNC,
+    ARGS_01>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS_01>::Type> {
+
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+template <class FUNC, class ARGS_01,
+                      class ARGS_02>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_02>::Type>::type,
+    FUNC,
+    ARGS_01,
+    ARGS_02>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_02>::Type> {
+
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_03>::Type>::type,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_03>::Type> {
+
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_04>::Type>::type,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_04>::Type> {
+
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_05>::Type>::type,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_05>::Type> {
+
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_06>::Type>::type,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_06>::Type> {
+
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_06>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_07>::Type>::type,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06,
+    ARGS_07>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_06>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_07>::Type> {
+
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_06>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_07>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_08>::Type>::type,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06,
+    ARGS_07,
+    ARGS_08>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_06>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_07>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_08>::Type> {
+
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_06>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_07>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_08>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_09>::Type>::type,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06,
+    ARGS_07,
+    ARGS_08,
+    ARGS_09>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_06>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_07>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_08>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_09>::Type> {
+
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09,
+                      class ARGS_10>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_06>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_07>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_08>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_09>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_10>::Type>::type,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06,
+    ARGS_07,
+    ARGS_08,
+    ARGS_09,
+    ARGS_10>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_06>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_07>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_08>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_09>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_10>::Type> {
+
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09,
+                      class ARGS_10,
+                      class ARGS_11>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_06>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_07>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_08>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_09>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_10>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_11>::Type>::type,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06,
+    ARGS_07,
+    ARGS_08,
+    ARGS_09,
+    ARGS_10,
+    ARGS_11>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_06>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_07>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_08>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_09>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_10>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_11>::Type> {
+
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09,
+                      class ARGS_10,
+                      class ARGS_11,
+                      class ARGS_12>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_06>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_07>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_08>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_09>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_10>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_11>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_12>::Type>::type,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06,
+    ARGS_07,
+    ARGS_08,
+    ARGS_09,
+    ARGS_10,
+    ARGS_11,
+    ARGS_12>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_06>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_07>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_08>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_09>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_10>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_11>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_12>::Type> {
+
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+template <class FUNC, class ARGS_01,
+                      class ARGS_02,
+                      class ARGS_03,
+                      class ARGS_04,
+                      class ARGS_05,
+                      class ARGS_06,
+                      class ARGS_07,
+                      class ARGS_08,
+                      class ARGS_09,
+                      class ARGS_10,
+                      class ARGS_11,
+                      class ARGS_12,
+                      class ARGS_13>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_06>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_07>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_08>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_09>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_10>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_11>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_12>::Type,
+        typename Function_InvokerUtil_ForwardType<ARGS_13>::Type>::type,
+    FUNC,
+    ARGS_01,
+    ARGS_02,
+    ARGS_03,
+    ARGS_04,
+    ARGS_05,
+    ARGS_06,
+    ARGS_07,
+    ARGS_08,
+    ARGS_09,
+    ARGS_10,
+    ARGS_11,
+    ARGS_12,
+    ARGS_13>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS_01>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_02>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_03>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_04>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_05>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_06>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_07>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_08>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_09>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_10>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_11>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_12>::Type,
+      typename Function_InvokerUtil_ForwardType<ARGS_13>::Type> {
+
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+
+
+
+template <class VOID_TYPE, class ARG>
+struct Function_InvokerUtil_ForwardTypeImp;
+
+template <class ARG>
+struct Function_InvokerUtil_ForwardType
+: Function_InvokerUtil_ForwardTypeImp<void, ARG> {
+};
+
+
+template <class VOID_TYPE, class ARG>
+struct Function_InvokerUtil_ForwardTypeImp {
+};
+
+template <class ARG>
+struct Function_InvokerUtil_ForwardTypeImp<
+    typename bslmf::VoidType<decltype(
+        bslmf::ForwardingTypeUtil<ARG>::forwardToTarget(
+            std::declval<typename bsl::add_lvalue_reference<
+                typename bslmf::ForwardingType<ARG>::Type>::type>()))>::type,
+    ARG> {
+
+    typedef decltype(bslmf::ForwardingTypeUtil<ARG>::forwardToTarget(
+        std::declval<typename bsl::add_lvalue_reference<
+            typename bslmf::ForwardingType<ARG>::Type>::type>())) Type;
+};
+
+
+template <class VOID_TYPE, class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertibleImp;
+
+template <class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertible
+: Function_InvokerUtil_IsExplicitlyConvertibleImp<void, FROM, TO> {
+};
+
+
+template <class VOID_TYPE, class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertibleImp :  bsl::false_type {
+};
+
+template <class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertibleImp<
+    typename bslmf::VoidType<decltype(
+        static_cast<TO>(std::declval<FROM>()))>::type,
+    FROM,
+    TO> : bsl::true_type {
+};
+
+#endif
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+
+
+#ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+
+template <class VOID_TYPE, class RET, class FUNC, class... ARGS>
+struct Function_InvokerUtil_IsFuncInvocableImp;
+
+template <class RET, class FUNC, class... ARGS>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS...), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS...> {
+};
+
+
+template <class ARG>
+struct Function_InvokerUtil_ForwardType;
+
+template <class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertible;
+
+template <class FUNC, class... ARGS>
+struct Function_InvokerUtil_ResultType;
+
+template <class VOID_TYPE, class RET, class FUNC, class... ARGS>
+struct Function_InvokerUtil_IsFuncInvocableImp : bsl::false_type {
+};
+
+template <class RET, class FUNC, class... ARGS>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS...>::type>::type,
+    RET,
+    FUNC,
+    ARGS...>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS...>::type,
+          RET> >::type {
+};
+
+
+template <class VOID_TYPE, class FUNC, class... ARGS>
+struct Function_InvokerUtil_ResultTypeImp;
+
+template <class FUNC, class... ARGS>
+struct Function_InvokerUtil_ResultType
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS...> {
+};
+
+
+template <class VOID_TYPE, class FUNC, class... ARGS>
+struct Function_InvokerUtil_ResultTypeImp {
+};
+
+template <class FUNC, class... ARGS>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS>::Type...>::type,
+    FUNC,
+    ARGS...>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS>::Type...> {
+
+};
+
+
+template <class VOID_TYPE, class ARG>
+struct Function_InvokerUtil_ForwardTypeImp;
+
+template <class ARG>
+struct Function_InvokerUtil_ForwardType
+: Function_InvokerUtil_ForwardTypeImp<void, ARG> {
+};
+
+
+template <class VOID_TYPE, class ARG>
+struct Function_InvokerUtil_ForwardTypeImp {
+};
+
+template <class ARG>
+struct Function_InvokerUtil_ForwardTypeImp<
+    typename bslmf::VoidType<decltype(
+        bslmf::ForwardingTypeUtil<ARG>::forwardToTarget(
+            std::declval<typename bsl::add_lvalue_reference<
+                typename bslmf::ForwardingType<ARG>::Type>::type>()))>::type,
+    ARG> {
+
+    typedef decltype(bslmf::ForwardingTypeUtil<ARG>::forwardToTarget(
+        std::declval<typename bsl::add_lvalue_reference<
+            typename bslmf::ForwardingType<ARG>::Type>::type>())) Type;
+};
+
+
+template <class VOID_TYPE, class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertibleImp;
+
+template <class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertible
+: Function_InvokerUtil_IsExplicitlyConvertibleImp<void, FROM, TO> {
+};
+
+
+template <class VOID_TYPE, class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertibleImp :  bsl::false_type {
+};
+
+template <class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertibleImp<
+    typename bslmf::VoidType<decltype(
+        static_cast<TO>(std::declval<FROM>()))>::type,
+    FROM,
+    TO> : bsl::true_type {
+};
+
+#endif
+// }}} END GENERATED CODE
+#endif
 
                // =============================================
                // template struct Function_InvokerUtil_Dispatch
@@ -135,20 +2778,20 @@ struct Function_InvokerUtil_Dispatch;
 #ifndef BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT
 #define BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT 13
 #endif
-#ifndef BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A
-#define BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT
+#ifndef BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B
+#define BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT
 #endif
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 template <class FUNC, class RET>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                      RET(), FUNC> {
 
     static RET invoke(const Function_Rep                            *rep);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
 template <class FUNC, class RET, class ARGS_01>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                                      RET(ARGS_01), FUNC> {
@@ -156,9 +2799,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
@@ -169,9 +2812,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03>
@@ -185,9 +2828,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -204,9 +2847,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -226,9 +2869,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -251,9 +2894,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -279,9 +2922,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -310,9 +2953,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -344,9 +2987,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -381,9 +3024,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -421,9 +3064,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -464,9 +3107,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -510,10 +3153,10 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12,
                       typename bslmf::ForwardingType<ARGS_13>::Type args_13);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
 
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 template <class FUNC, class RET, class ARG0>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                      RET(ARG0), FUNC> {
@@ -531,9 +3174,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARG0>::Type     obj);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
 template <class FUNC, class RET, class ARG0, class ARGS_01>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                                      RET(ARG0, ARGS_01), FUNC> {
@@ -554,9 +3197,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARG0>::Type     obj,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
@@ -582,9 +3225,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03>
@@ -615,9 +3258,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -653,9 +3296,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -696,9 +3339,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -744,9 +3387,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -797,9 +3440,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -855,9 +3498,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -918,9 +3561,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -986,9 +3629,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -1059,9 +3702,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -1137,9 +3780,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -1220,7 +3863,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12,
                       typename bslmf::ForwardingType<ARGS_13>::Type args_13);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
 
 
 template <class MEMBER_TYPE, class CLASS_TYPE, class RET, class ARG0>
@@ -1242,16 +3885,16 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemDataPtr,
                       typename bslmf::ForwardingType<ARG0>::Type  obj);
 };
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 template <class FUNC, class RET>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                      RET(), FUNC> {
 
     static RET invoke(const Function_Rep                            *rep);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
 template <class FUNC, class RET, class ARGS_01>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                                      RET(ARGS_01), FUNC> {
@@ -1259,9 +3902,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
@@ -1272,9 +3915,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03>
@@ -1288,9 +3931,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1307,9 +3950,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1329,9 +3972,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1354,9 +3997,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1382,9 +4025,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1413,9 +4056,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1447,9 +4090,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1484,9 +4127,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1524,9 +4167,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1567,9 +4210,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1613,19 +4256,19 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12,
                       typename bslmf::ForwardingType<ARGS_13>::Type args_13);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
 
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 template <class FUNC, class RET>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                      RET(), FUNC> {
 
     static RET invoke(const Function_Rep                            *rep);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
 template <class FUNC, class RET, class ARGS_01>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                                      RET(ARGS_01), FUNC> {
@@ -1633,9 +4276,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
     static RET invoke(const Function_Rep                            *rep,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02>
 struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
@@ -1646,9 +4289,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_01>::Type args_01,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03>
@@ -1662,9 +4305,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_02>::Type args_02,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1681,9 +4324,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_03>::Type args_03,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1703,9 +4346,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_04>::Type args_04,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1728,9 +4371,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_05>::Type args_05,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1756,9 +4399,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_06>::Type args_06,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1787,9 +4430,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_07>::Type args_07,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1821,9 +4464,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_08>::Type args_08,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1858,9 +4501,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_09>::Type args_09,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1898,9 +4541,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_10>::Type args_10,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1941,9 +4584,9 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_11>::Type args_11,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -1987,7 +4630,7 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
                       typename bslmf::ForwardingType<ARGS_12>::Type args_12,
                       typename bslmf::ForwardingType<ARGS_13>::Type args_13);
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -2059,7 +4702,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
 
 // }}} END GENERATED CODE
 #endif
-
 
 // ===========================================================================
 //                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
@@ -2160,11 +4802,11 @@ Function_InvokerUtilNullCheck<MEMTYPE CLASS::*>::isNull(MEMTYPE CLASS::* f)
 #ifndef BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT
 #define BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT 13
 #endif
-#ifndef BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B
-#define BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT
+#ifndef BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C
+#define BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT
 #endif
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 0
 template <class FUNC, class RET>
 RET
 Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
@@ -2178,9 +4820,9 @@ invoke(const Function_Rep                            *rep)
         RET,
         f());
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 1
 template <class FUNC, class RET, class ARGS_01>
 RET
 Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_FunctionPtr,
@@ -2195,9 +4837,9 @@ invoke(const Function_Rep                            *rep,
         RET,
         f(bslmf::ForwardingTypeUtil<ARGS_01>::forwardToTarget(args_01)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 2
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02>
 RET
@@ -2216,9 +4858,9 @@ invoke(const Function_Rep                            *rep,
         f(bslmf::ForwardingTypeUtil<ARGS_01>::forwardToTarget(args_01),
           bslmf::ForwardingTypeUtil<ARGS_02>::forwardToTarget(args_02)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 3
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03>
@@ -2241,9 +4883,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_02>::forwardToTarget(args_02),
           bslmf::ForwardingTypeUtil<ARGS_03>::forwardToTarget(args_03)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 4
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -2270,9 +4912,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_03>::forwardToTarget(args_03),
           bslmf::ForwardingTypeUtil<ARGS_04>::forwardToTarget(args_04)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 5
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -2303,9 +4945,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_04>::forwardToTarget(args_04),
           bslmf::ForwardingTypeUtil<ARGS_05>::forwardToTarget(args_05)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 6
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -2340,9 +4982,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_05>::forwardToTarget(args_05),
           bslmf::ForwardingTypeUtil<ARGS_06>::forwardToTarget(args_06)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 7
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -2381,9 +5023,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_06>::forwardToTarget(args_06),
           bslmf::ForwardingTypeUtil<ARGS_07>::forwardToTarget(args_07)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 8
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -2426,9 +5068,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_07>::forwardToTarget(args_07),
           bslmf::ForwardingTypeUtil<ARGS_08>::forwardToTarget(args_08)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 9
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -2475,9 +5117,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_08>::forwardToTarget(args_08),
           bslmf::ForwardingTypeUtil<ARGS_09>::forwardToTarget(args_09)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 10
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -2528,9 +5170,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_09>::forwardToTarget(args_09),
           bslmf::ForwardingTypeUtil<ARGS_10>::forwardToTarget(args_10)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 10
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 11
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -2585,9 +5227,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_10>::forwardToTarget(args_10),
           bslmf::ForwardingTypeUtil<ARGS_11>::forwardToTarget(args_11)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 11
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 12
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -2646,9 +5288,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_11>::forwardToTarget(args_11),
           bslmf::ForwardingTypeUtil<ARGS_12>::forwardToTarget(args_12)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 12
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 13
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -2711,10 +5353,10 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_12>::forwardToTarget(args_12),
           bslmf::ForwardingTypeUtil<ARGS_13>::forwardToTarget(args_13)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 13
 
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 0
 template <class FUNC, class RET, class ARG0>
 inline
 RET
@@ -2731,9 +5373,9 @@ invokeImp(bsl::true_type ,
         RET, (const_cast<Arg0Ref>(obj).*f)(
             ));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 1
 template <class FUNC, class RET, class ARG0, class ARGS_01>
 inline
 RET
@@ -2751,9 +5393,9 @@ invokeImp(bsl::true_type ,
         RET, (const_cast<Arg0Ref>(obj).*f)(
             bslmf::ForwardingTypeUtil<ARGS_01>::forwardToTarget(args_01)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 2
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02>
 inline
@@ -2775,9 +5417,9 @@ invokeImp(bsl::true_type ,
             bslmf::ForwardingTypeUtil<ARGS_01>::forwardToTarget(args_01),
             bslmf::ForwardingTypeUtil<ARGS_02>::forwardToTarget(args_02)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 3
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03>
@@ -2803,9 +5445,9 @@ invokeImp(bsl::true_type ,
             bslmf::ForwardingTypeUtil<ARGS_02>::forwardToTarget(args_02),
             bslmf::ForwardingTypeUtil<ARGS_03>::forwardToTarget(args_03)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 4
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -2835,9 +5477,9 @@ invokeImp(bsl::true_type ,
             bslmf::ForwardingTypeUtil<ARGS_03>::forwardToTarget(args_03),
             bslmf::ForwardingTypeUtil<ARGS_04>::forwardToTarget(args_04)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 5
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -2871,9 +5513,9 @@ invokeImp(bsl::true_type ,
             bslmf::ForwardingTypeUtil<ARGS_04>::forwardToTarget(args_04),
             bslmf::ForwardingTypeUtil<ARGS_05>::forwardToTarget(args_05)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 6
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -2911,9 +5553,9 @@ invokeImp(bsl::true_type ,
             bslmf::ForwardingTypeUtil<ARGS_05>::forwardToTarget(args_05),
             bslmf::ForwardingTypeUtil<ARGS_06>::forwardToTarget(args_06)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 7
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -2955,9 +5597,9 @@ invokeImp(bsl::true_type ,
             bslmf::ForwardingTypeUtil<ARGS_06>::forwardToTarget(args_06),
             bslmf::ForwardingTypeUtil<ARGS_07>::forwardToTarget(args_07)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 8
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3003,9 +5645,9 @@ invokeImp(bsl::true_type ,
             bslmf::ForwardingTypeUtil<ARGS_07>::forwardToTarget(args_07),
             bslmf::ForwardingTypeUtil<ARGS_08>::forwardToTarget(args_08)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 9
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3055,9 +5697,9 @@ invokeImp(bsl::true_type ,
             bslmf::ForwardingTypeUtil<ARGS_08>::forwardToTarget(args_08),
             bslmf::ForwardingTypeUtil<ARGS_09>::forwardToTarget(args_09)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 10
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3111,9 +5753,9 @@ invokeImp(bsl::true_type ,
             bslmf::ForwardingTypeUtil<ARGS_09>::forwardToTarget(args_09),
             bslmf::ForwardingTypeUtil<ARGS_10>::forwardToTarget(args_10)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 10
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 11
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3171,9 +5813,9 @@ invokeImp(bsl::true_type ,
             bslmf::ForwardingTypeUtil<ARGS_10>::forwardToTarget(args_10),
             bslmf::ForwardingTypeUtil<ARGS_11>::forwardToTarget(args_11)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 11
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 12
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3235,9 +5877,9 @@ invokeImp(bsl::true_type ,
             bslmf::ForwardingTypeUtil<ARGS_11>::forwardToTarget(args_11),
             bslmf::ForwardingTypeUtil<ARGS_12>::forwardToTarget(args_12)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 12
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 13
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3303,10 +5945,10 @@ invokeImp(bsl::true_type ,
             bslmf::ForwardingTypeUtil<ARGS_12>::forwardToTarget(args_12),
             bslmf::ForwardingTypeUtil<ARGS_13>::forwardToTarget(args_13)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 13
 
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 0
 template <class FUNC, class RET, class ARG0>
 inline
 RET
@@ -3323,9 +5965,9 @@ invokeImp(bsl::false_type ,
         RET, ((*const_cast<Arg0Ref>(obj)).*f)(
             ));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 1
 template <class FUNC, class RET, class ARG0, class ARGS_01>
 inline
 RET
@@ -3343,9 +5985,9 @@ invokeImp(bsl::false_type ,
         RET, ((*const_cast<Arg0Ref>(obj)).*f)(
             bslmf::ForwardingTypeUtil<ARGS_01>::forwardToTarget(args_01)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 2
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02>
 inline
@@ -3367,9 +6009,9 @@ invokeImp(bsl::false_type ,
             bslmf::ForwardingTypeUtil<ARGS_01>::forwardToTarget(args_01),
             bslmf::ForwardingTypeUtil<ARGS_02>::forwardToTarget(args_02)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 3
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03>
@@ -3395,9 +6037,9 @@ invokeImp(bsl::false_type ,
             bslmf::ForwardingTypeUtil<ARGS_02>::forwardToTarget(args_02),
             bslmf::ForwardingTypeUtil<ARGS_03>::forwardToTarget(args_03)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 4
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3427,9 +6069,9 @@ invokeImp(bsl::false_type ,
             bslmf::ForwardingTypeUtil<ARGS_03>::forwardToTarget(args_03),
             bslmf::ForwardingTypeUtil<ARGS_04>::forwardToTarget(args_04)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 5
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3463,9 +6105,9 @@ invokeImp(bsl::false_type ,
             bslmf::ForwardingTypeUtil<ARGS_04>::forwardToTarget(args_04),
             bslmf::ForwardingTypeUtil<ARGS_05>::forwardToTarget(args_05)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 6
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3503,9 +6145,9 @@ invokeImp(bsl::false_type ,
             bslmf::ForwardingTypeUtil<ARGS_05>::forwardToTarget(args_05),
             bslmf::ForwardingTypeUtil<ARGS_06>::forwardToTarget(args_06)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 7
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3547,9 +6189,9 @@ invokeImp(bsl::false_type ,
             bslmf::ForwardingTypeUtil<ARGS_06>::forwardToTarget(args_06),
             bslmf::ForwardingTypeUtil<ARGS_07>::forwardToTarget(args_07)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 8
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3595,9 +6237,9 @@ invokeImp(bsl::false_type ,
             bslmf::ForwardingTypeUtil<ARGS_07>::forwardToTarget(args_07),
             bslmf::ForwardingTypeUtil<ARGS_08>::forwardToTarget(args_08)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 9
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3647,9 +6289,9 @@ invokeImp(bsl::false_type ,
             bslmf::ForwardingTypeUtil<ARGS_08>::forwardToTarget(args_08),
             bslmf::ForwardingTypeUtil<ARGS_09>::forwardToTarget(args_09)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 10
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3703,9 +6345,9 @@ invokeImp(bsl::false_type ,
             bslmf::ForwardingTypeUtil<ARGS_09>::forwardToTarget(args_09),
             bslmf::ForwardingTypeUtil<ARGS_10>::forwardToTarget(args_10)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 10
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 11
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3763,9 +6405,9 @@ invokeImp(bsl::false_type ,
             bslmf::ForwardingTypeUtil<ARGS_10>::forwardToTarget(args_10),
             bslmf::ForwardingTypeUtil<ARGS_11>::forwardToTarget(args_11)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 11
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 12
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3827,9 +6469,9 @@ invokeImp(bsl::false_type ,
             bslmf::ForwardingTypeUtil<ARGS_11>::forwardToTarget(args_11),
             bslmf::ForwardingTypeUtil<ARGS_12>::forwardToTarget(args_12)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 12
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 13
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -3895,10 +6537,10 @@ invokeImp(bsl::false_type ,
             bslmf::ForwardingTypeUtil<ARGS_12>::forwardToTarget(args_12),
             bslmf::ForwardingTypeUtil<ARGS_13>::forwardToTarget(args_13)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 13
 
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 0
 template <class FUNC, class RET, class ARG0>
 RET
 Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
@@ -3919,9 +6561,9 @@ invoke(const Function_Rep                            *rep,
     return BSLSTL_FUNCTION_INVOKERUTIL_CAST_RESULT(RET,
                                                   invokeImp(IsDirect(), f, obj));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 1
 template <class FUNC, class RET, class ARG0, class ARGS_01>
 RET
 Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_MemFunctionPtr,
@@ -3944,9 +6586,9 @@ invoke(const Function_Rep                            *rep,
                                                   invokeImp(IsDirect(), f, obj,
                                                             args_01));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 2
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02>
 RET
@@ -3973,9 +6615,9 @@ invoke(const Function_Rep                            *rep,
                                                             args_01,
                                                             args_02));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 3
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03>
@@ -4006,9 +6648,9 @@ invoke(const Function_Rep                            *rep,
                                                             args_02,
                                                             args_03));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 4
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -4043,9 +6685,9 @@ invoke(const Function_Rep                            *rep,
                                                             args_03,
                                                             args_04));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 5
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -4084,9 +6726,9 @@ invoke(const Function_Rep                            *rep,
                                                             args_04,
                                                             args_05));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 6
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -4129,9 +6771,9 @@ invoke(const Function_Rep                            *rep,
                                                             args_05,
                                                             args_06));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 7
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -4178,9 +6820,9 @@ invoke(const Function_Rep                            *rep,
                                                             args_06,
                                                             args_07));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 8
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -4231,9 +6873,9 @@ invoke(const Function_Rep                            *rep,
                                                             args_07,
                                                             args_08));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 9
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -4288,9 +6930,9 @@ invoke(const Function_Rep                            *rep,
                                                             args_08,
                                                             args_09));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 10
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -4349,9 +6991,9 @@ invoke(const Function_Rep                            *rep,
                                                             args_09,
                                                             args_10));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 10
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 11
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -4414,9 +7056,9 @@ invoke(const Function_Rep                            *rep,
                                                             args_10,
                                                             args_11));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 11
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 12
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -4483,9 +7125,9 @@ invoke(const Function_Rep                            *rep,
                                                             args_11,
                                                             args_12));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 12
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 13
 template <class FUNC, class RET, class ARG0, class ARGS_01,
                                              class ARGS_02,
                                              class ARGS_03,
@@ -4556,7 +7198,7 @@ invoke(const Function_Rep                            *rep,
                                                             args_12,
                                                             args_13));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 13
 
 
 template <class MEMBER_TYPE, class CLASS_TYPE, class RET, class ARG0>
@@ -4609,7 +7251,7 @@ invoke(const Function_Rep                         *rep,
         RET, invokeImp(IsDirect(), f, obj));
 }
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 0
 template <class FUNC, class RET>
 RET
 Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
@@ -4622,9 +7264,9 @@ invoke(const Function_Rep                            *rep)
         RET,
         f());
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 1
 template <class FUNC, class RET, class ARGS_01>
 RET
 Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_InplaceFunctor,
@@ -4638,9 +7280,9 @@ invoke(const Function_Rep                            *rep,
         RET,
         f(bslmf::ForwardingTypeUtil<ARGS_01>::forwardToTarget(args_01)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 2
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02>
 RET
@@ -4658,9 +7300,9 @@ invoke(const Function_Rep                            *rep,
         f(bslmf::ForwardingTypeUtil<ARGS_01>::forwardToTarget(args_01),
           bslmf::ForwardingTypeUtil<ARGS_02>::forwardToTarget(args_02)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 3
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03>
@@ -4682,9 +7324,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_02>::forwardToTarget(args_02),
           bslmf::ForwardingTypeUtil<ARGS_03>::forwardToTarget(args_03)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 4
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -4710,9 +7352,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_03>::forwardToTarget(args_03),
           bslmf::ForwardingTypeUtil<ARGS_04>::forwardToTarget(args_04)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 5
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -4742,9 +7384,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_04>::forwardToTarget(args_04),
           bslmf::ForwardingTypeUtil<ARGS_05>::forwardToTarget(args_05)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 6
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -4778,9 +7420,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_05>::forwardToTarget(args_05),
           bslmf::ForwardingTypeUtil<ARGS_06>::forwardToTarget(args_06)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 7
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -4818,9 +7460,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_06>::forwardToTarget(args_06),
           bslmf::ForwardingTypeUtil<ARGS_07>::forwardToTarget(args_07)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 8
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -4862,9 +7504,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_07>::forwardToTarget(args_07),
           bslmf::ForwardingTypeUtil<ARGS_08>::forwardToTarget(args_08)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 9
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -4910,9 +7552,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_08>::forwardToTarget(args_08),
           bslmf::ForwardingTypeUtil<ARGS_09>::forwardToTarget(args_09)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 10
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -4962,9 +7604,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_09>::forwardToTarget(args_09),
           bslmf::ForwardingTypeUtil<ARGS_10>::forwardToTarget(args_10)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 10
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 11
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -5018,9 +7660,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_10>::forwardToTarget(args_10),
           bslmf::ForwardingTypeUtil<ARGS_11>::forwardToTarget(args_11)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 11
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 12
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -5078,9 +7720,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_11>::forwardToTarget(args_11),
           bslmf::ForwardingTypeUtil<ARGS_12>::forwardToTarget(args_12)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 12
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 13
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -5142,10 +7784,10 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_12>::forwardToTarget(args_12),
           bslmf::ForwardingTypeUtil<ARGS_13>::forwardToTarget(args_13)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 13
 
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 0
 template <class FUNC, class RET>
 RET
 Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
@@ -5158,9 +7800,9 @@ invoke(const Function_Rep                            *rep)
         RET,
         f());
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 1
 template <class FUNC, class RET, class ARGS_01>
 RET
 Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
@@ -5174,9 +7816,9 @@ invoke(const Function_Rep                            *rep,
         RET,
         f(bslmf::ForwardingTypeUtil<ARGS_01>::forwardToTarget(args_01)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 2
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02>
 RET
@@ -5194,9 +7836,9 @@ invoke(const Function_Rep                            *rep,
         f(bslmf::ForwardingTypeUtil<ARGS_01>::forwardToTarget(args_01),
           bslmf::ForwardingTypeUtil<ARGS_02>::forwardToTarget(args_02)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 3
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03>
@@ -5218,9 +7860,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_02>::forwardToTarget(args_02),
           bslmf::ForwardingTypeUtil<ARGS_03>::forwardToTarget(args_03)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 4
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -5246,9 +7888,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_03>::forwardToTarget(args_03),
           bslmf::ForwardingTypeUtil<ARGS_04>::forwardToTarget(args_04)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 5
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -5278,9 +7920,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_04>::forwardToTarget(args_04),
           bslmf::ForwardingTypeUtil<ARGS_05>::forwardToTarget(args_05)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 6
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -5314,9 +7956,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_05>::forwardToTarget(args_05),
           bslmf::ForwardingTypeUtil<ARGS_06>::forwardToTarget(args_06)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 7
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -5354,9 +7996,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_06>::forwardToTarget(args_06),
           bslmf::ForwardingTypeUtil<ARGS_07>::forwardToTarget(args_07)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 8
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -5398,9 +8040,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_07>::forwardToTarget(args_07),
           bslmf::ForwardingTypeUtil<ARGS_08>::forwardToTarget(args_08)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 9
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -5446,9 +8088,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_08>::forwardToTarget(args_08),
           bslmf::ForwardingTypeUtil<ARGS_09>::forwardToTarget(args_09)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 10
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -5498,9 +8140,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_09>::forwardToTarget(args_09),
           bslmf::ForwardingTypeUtil<ARGS_10>::forwardToTarget(args_10)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 10
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 11
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -5554,9 +8196,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_10>::forwardToTarget(args_10),
           bslmf::ForwardingTypeUtil<ARGS_11>::forwardToTarget(args_11)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 11
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 12
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -5614,9 +8256,9 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_11>::forwardToTarget(args_11),
           bslmf::ForwardingTypeUtil<ARGS_12>::forwardToTarget(args_12)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 12
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 13
 template <class FUNC, class RET, class ARGS_01,
                                  class ARGS_02,
                                  class ARGS_03,
@@ -5678,7 +8320,7 @@ invoke(const Function_Rep                            *rep,
           bslmf::ForwardingTypeUtil<ARGS_12>::forwardToTarget(args_12),
           bslmf::ForwardingTypeUtil<ARGS_13>::forwardToTarget(args_13)));
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_C >= 13
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -5840,7 +8482,6 @@ invoke(const Function_Rep                            *rep,
 #endif
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #else // if ! defined(DEFINED_BSLSTL_FUNCTION_INVOKERUTIL_H)

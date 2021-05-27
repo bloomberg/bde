@@ -11,6 +11,9 @@ BSLS_IDENT("$Id: $")
 //  Function_InvokerUtil: Utility for returning an appropriate invoker function
 //  Function_InvokerUtilNullCheck: Customization point to detect null invocable
 //
+//@MACROS
+//  BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE: defined if supported
+//
 //@SEE_ALSO: bslstl_function
 //
 //@DESCRIPTION: This component provides a struct, 'Function_InvokerUtil',
@@ -39,6 +42,13 @@ BSLS_IDENT("$Id: $")
 //
 // The classes in this component are stateless and contain only static
 // functions.
+//
+///Macros
+///------
+// If this component supports checking whether an object of an arbitrary
+// non-cvref-qualified type is invocable under a particular prototype, the
+// 'BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE' macro is defined,
+// and it is not defined otherwise.
 //
 ///Return value of 'Function_InvokerUtil::invokerForFunc'
 ///------------------------------------------------------
@@ -102,16 +112,25 @@ BSLS_IDENT("$Id: $")
 
 #include <bslalg_nothrowmovableutil.h>
 
+#include <bslmf_addrvaluereference.h>
+#include <bslmf_conditional.h>
 #include <bslmf_forwardingtype.h>
+#include <bslmf_integralconstant.h>
+#include <bslmf_invokeresult.h>
 #include <bslmf_ismemberpointer.h>
+#include <bslmf_isvoid.h>
 #include <bslmf_memberfunctionpointertraits.h>
 #include <bslmf_movableref.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nullptr.h>
 
 #include <bslstl_function_rep.h>
 #include <bslstl_function_smallobjectoptimization.h>
+
+#include <utility>
 
 #ifndef BSLS_PLATFORM_CMP_SUN
 #define BSLSTL_FUNCTION_INVOKERUTIL_CAST_RESULT(RET, X) static_cast<RET>(X)
@@ -121,16 +140,30 @@ BSLS_IDENT("$Id: $")
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Fri Dec  4 19:11:45 2020
+// Generated on Wed Apr 28 15:58:26 2021
 // Command line: sim_cpp11_features.pl bslstl_function_invokerutil.h
 # define COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_H
 # include <bslstl_function_invokerutil_cpp03.h>
 # undef COMPILING_BSLSTL_FUNCTION_INVOKERUTIL_H
 #else
 
-namespace BloombergLP {
+#if defined(BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS)      \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)          \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#define BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+#endif
 
+namespace BloombergLP {
 namespace bslstl {
+
+#ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+
+template <class PROTOTYPE, class FUNC>
+struct Function_InvokerUtil_IsFuncInvocable;
+    // forward declaration
+
+#endif
 
                         // ===========================
                         // struct Function_InvokerUtil
@@ -156,6 +189,36 @@ struct Function_InvokerUtil {
     typedef Function_Rep::GenericInvoker GenericInvoker;
         // Generic function pointer.  This type is as close as we can get to
         // 'void *' for function pointers.
+
+#ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+    template <class PROTOTYPE, class FUNC>
+    struct IsFuncInvocable
+    : Function_InvokerUtil_IsFuncInvocable<PROTOTYPE, FUNC> {
+        // This 'struct' template implements a Boolean metafunction that
+        // publicly inherits from 'bsl::true_type' if an object of the
+        // specified 'FUNC' type is invocable under the specified 'PROTOTYPE',
+        // and publicly inherits from 'bsl::false_type' otherwise.  An object
+        // of 'FUNC' type is invocable under the 'PROTOTYPE' if it is
+        // Lvalue-Callable with the arguments of the 'PROTOTYPE' (as forwarded
+        // by the facilities of 'bslmf_forwardingtype), and returns an object
+        // of type explicitly convertible to the return type of the
+        // 'PROTOTYPE'.  If the return type of the 'PROTOTYPE' is 'void', then
+        // any type is considered explicitly convertible to the return type of
+        // the 'PROTOTYPE'.  This 'struct' template requires 'PROTOTYPE" to be
+        // an unqualified function type.
+        //
+        // Note that 'IsFuncInvocable' is qualitatively different than
+        // 'std::is_invocable_r', in that it makes concessions for supporting
+        // legacy behavior of 'bsl::function'.
+        // 'std::is_invocable_r<RET, FUNC, ARGS...>' requires that the return
+        // type of the invocation of 'FUNC' with 'ARGS...' be implicitly
+        // convertible to 'RET', as opposed to explicitly convertible.
+        // Further, the use of 'bslmf::ForwardingType' to forward arguments in
+        // the invoker of a 'bsl::function' creates qualitatively different
+        // behavior than the argument forwarding mechanism used by the standard
+        // 'INVOKE' pseudo-expression.
+    };
+#endif
 
     // CLASS METHODS
     template <class PROTOTYPE>
@@ -214,6 +277,274 @@ struct Function_InvokerUtilNullCheck<MEMTYPE CLASS::*> {
         // otherwise 'false'.
 };
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=13
+
+            // ====================================================
+            // template struct Function_InvokerUtil_IsFuncInvocable
+            // ====================================================
+
+#ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+
+template <class VOID_TYPE, class RET, class FUNC, class... ARGS>
+struct Function_InvokerUtil_IsFuncInvocableImp;
+    // forward declaration
+
+template <class RET, class FUNC, class... ARGS>
+struct Function_InvokerUtil_IsFuncInvocable<RET(ARGS...), FUNC>
+: Function_InvokerUtil_IsFuncInvocableImp<void, RET, FUNC, ARGS...> {
+    // This 'struct' template implements a Boolean metafunction that publicly
+    // inherits from 'bsl::true_type' if an object of the specified 'FUNC' type
+    // is invocable with the specified 'RET' and 'ARGS...', and publicly
+    // inherits from 'bsl::false_type' otherwise.  An object of 'FUNC' type is
+    // invocable with 'RET' and 'ARGS...' if it is Lvalue-Callable with
+    // arguments having the types of the 'ARGS...', and returns an object of
+    // type explicitly convertible to 'RET'.  If 'RET' is 'void', then any type
+    // is considered explicitly convertible to 'RET'.
+};
+
+          // =======================================================
+          // template struct Function_InvokerUtil_IsFuncInvocableImp
+          // =======================================================
+
+template <class ARG>
+struct Function_InvokerUtil_ForwardType;
+    // forward declaration
+
+template <class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertible;
+    // forward declaration
+
+template <class FUNC, class... ARGS>
+struct Function_InvokerUtil_ResultType;
+    // forward declaration
+
+template <class VOID_TYPE, class RET, class FUNC, class... ARGS>
+struct Function_InvokerUtil_IsFuncInvocableImp : bsl::false_type {
+    // This component-private 'struct' template provides the primary template
+    // definition for the 'Function_InvokerUtil_IsFuncInvocableImp' Boolean
+    // metafunction, which is an implementation detail of the
+    // 'Function_InvokerUtil_IsFuncInvocable' Boolean metafunction.  This
+    // specialization is instantiated when 'std::invoke_result<T, FWD_ARGS...>'
+    // does not provide a nested 'type' typedef, where 'T' is the result of
+    // stripping a nothrow-movable wrapper from 'FUNC', if present, and adding
+    // an lvalue reference, and where 'FWD_ARGS...' are the types that result
+    // from forwarding objects of respective 'ARGS...' types.  This 'struct'
+    // template requires that the specified 'VOID_TYPE' type to be 'void'.
+};
+
+template <class RET, class FUNC, class... ARGS>
+struct Function_InvokerUtil_IsFuncInvocableImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ResultType<FUNC, ARGS...>::type>::type,
+    RET,
+    FUNC,
+    ARGS...>
+: bsl::conditional<
+      bsl::is_void<RET>::value,
+      bsl::true_type,
+      Function_InvokerUtil_IsExplicitlyConvertible<
+          typename Function_InvokerUtil_ResultType<FUNC, ARGS...>::type,
+          RET> >::type {
+    // This component-private 'struct' template provides a partial
+    // specialization of 'Function_InvokerUtil_IsFuncInvocableImp' for 'FUNC'
+    // types for which 'bsl::invoke_result<T, FWD_ARGS...>' provides a nested
+    // 'type' typedef, where 'T' is the result of stripping a nothrow-movable
+    // wrapper from 'FUNC', if present, and adding an lvalue reference, and
+    // where 'FWD_ARGS...' are the types that result from forwarding objects
+    // of respective 'ARGS...' types.
+    //
+    // Specifically, 'T' is
+    // 'bslalg::NothrowMovableUtil::UnwrappedType<FUNC>::type&', and
+    // 'FWD_ARGS...' are the types of respective
+    // 'bslmf::ForwardingTypeUtil<ARGS...>::forwardToTarget(args...)'
+    // expressions where 'args...' are lvalue expressions of respective
+    // 'bslmf::ForwardingType<ARGS>::Type...' types.  See the class-level
+    // documentation of the primary 'Function_InvokerUtil::IsFuncInvocable'
+    // declaration for more information about the behavior of this 'struct'
+    // template.
+};
+
+              // ===============================================
+              // template struct Function_InvokerUtil_ResultType
+              // ===============================================
+
+template <class VOID_TYPE, class FUNC, class... ARGS>
+struct Function_InvokerUtil_ResultTypeImp;
+    // forward declaration
+
+template <class FUNC, class... ARGS>
+struct Function_InvokerUtil_ResultType
+: Function_InvokerUtil_ResultTypeImp<void, FUNC, ARGS...> {
+    // This component-private 'struct' template provides a metafunction that
+    // conditionally defines a nested 'type' typedef if the standard
+    // 'INVOKE(f, fwdArgs...)' pseudo-expression is well-formed, where 'f' is
+    // an lvalue of 'bslalg::NothrowMoveableUtil::UnwrappedType<FUNC>' type,
+    // and 'fwdArgs...' are defined to be the expressions
+    // 'bslmf::ForwardingTypeUtil<ARGS>::forwardToTarget(args)...' where
+    // 'args...' are lvalue expressions of the corresponding
+    // 'bslmf::ForwardingType<ARGS>::Type...' types.  If such an 'INVOKE'
+    // expression is well-formed, this struct defines 'type' to be the result
+    // type of the expression, and defines no such typedef otherwise.
+};
+
+             // ==================================================
+             // template struct Function_InvokerUtil_ResultTypeImp
+             // ==================================================
+
+template <class VOID_TYPE, class FUNC, class... ARGS>
+struct Function_InvokerUtil_ResultTypeImp {
+    // This component-private 'struct' template provides the primary template
+    // definition for the 'Function_InvokerUtil_ResultTypeImp' metafunction,
+    // which is an implementation detail of the
+    // 'Function_InvokerUtil_ResultType' metafunction.  This specialization is
+    // instantiated when the standard 'INVOKE(f, fwdArgs...)' pseudo-expression
+    // is not well-formed, where 'f' is an lvalue of
+    // 'bslalg::NothrowMoveableUtil::UnwrappedType<FUNC>' type, and
+    // 'fwdArgs...' are defined to be the expressions
+    // 'bslmf::ForwardingTypeUtil<ARGS>::forwardToTarget(args)...' where
+    // 'args...' are lvalue expressions of the corresponding
+    // 'bslmf::ForwardingType<ARGS>::Type...' types.
+};
+
+template <class FUNC, class... ARGS>
+struct Function_InvokerUtil_ResultTypeImp<
+    typename bslmf::VoidType<
+        typename Function_InvokerUtil_ForwardType<ARGS>::Type...>::type,
+    FUNC,
+    ARGS...>
+: bsl::invoke_result<
+      typename bsl::add_lvalue_reference<typename bslalg::NothrowMovableUtil::
+                                             UnwrappedType<FUNC>::type>::type,
+      typename Function_InvokerUtil_ForwardType<ARGS>::Type...> {
+
+    // This component-private 'struct' template provides a partial
+    // specialization of 'Function_InvokerUtil_ResultTypeImp' for 'FUNC' and
+    // 'ARGS...' types for which standard 'INVOKE(f, fwdArgs...)'
+    // pseudo-expression is well-formed, where 'f' is an lvalue of
+    // 'bslalg::NothrowMoveableUtil::UnwrappedType<FUNC>' type, and
+    // 'fwdArgs...' are defined to be the expressions
+    // 'bslmf::ForwardingTypeUtil<ARGS>::forwardToTarget(args)...' where
+    // 'args...' are lvalue expressions of the corresponding
+    // 'bslmf::ForwardingType<ARGS>::Type...' types.  This 'struct' defines a
+    // nested typedef 'type' that is the type of this expression.
+};
+
+              // ================================================
+              // template struct Function_InvokerUtil_ForwardType
+              // ================================================
+
+template <class VOID_TYPE, class ARG>
+struct Function_InvokerUtil_ForwardTypeImp;
+    // forward declaration
+
+template <class ARG>
+struct Function_InvokerUtil_ForwardType
+: Function_InvokerUtil_ForwardTypeImp<void, ARG> {
+    // This component-private 'struct' template provides a metafunction that
+    // conditionally defines a nested 'type' typedef that is the type resulting
+    // from forwarding an lvalue of the specified 'ARG' type using the
+    // machinery from 'bslmf_forwardingtype'.  If it is not possible to forward
+    // an object of 'ARG' type (if, for example, 'ARG' is 'void') then this
+    // 'struct' template does not define a 'type' typedef.
+    //
+    // Specifically, 'type' is defined to be the type of the expression
+    // 'bslmf::ForwardingTypeUtil<ARG>::forwardingToTarget(arg)', where 'arg'
+    // is an lvalue expression of 'bslmf::ForwardingType<ARG>::Type' type.
+    // 'type' is not defined when this expression is not well-formed.
+};
+
+            // ===================================================
+            // template struct Function_InvokerUtil_ForwardTypeImp
+            // ===================================================
+
+template <class VOID_TYPE, class ARG>
+struct Function_InvokerUtil_ForwardTypeImp {
+    // This component-private 'struct' template provides the primary template
+    // definition for the 'Function_InvokerUtil_ForwardTypeImp' metafunction,
+    // which is an implementation detail of the
+    // 'Function_InvokerUtil_IsFuncInvocable' metafunction.  This
+    // specialization is instantiated when the expression
+    // 'bslmf::ForwardingTypeUtil<ARG>::forwardToTarget(arg)' is not
+    // well-formed, where 'arg' is an lvalue expression of
+    // 'bslmf::ForwardingType<ARG>::Type' type.
+};
+
+template <class ARG>
+struct Function_InvokerUtil_ForwardTypeImp<
+    typename bslmf::VoidType<decltype(
+        bslmf::ForwardingTypeUtil<ARG>::forwardToTarget(
+            std::declval<typename bsl::add_lvalue_reference<
+                typename bslmf::ForwardingType<ARG>::Type>::type>()))>::type,
+    ARG> {
+    // This component-private 'struct' template provides a partial
+    // specialization of 'Function_InvokerUtil_ForwardTypeImp' for 'ARG' types
+    // for which the expression
+    // 'bslmf::ForwardingTypeUtil<ARG>::forwardToTarget(arg)' is well-formed,
+    // where 'arg' is an lvalue expression of
+    // 'bslmf::ForwardingType<ARG>::Type' type.  This 'struct' template
+    // defines a nested 'type' typedef that is the type of the expression.
+    // This is the type resulting from forwarding an lvalue of the specified
+    // 'ARG' type using the machinery from 'bslmf_forwardingtype'.
+
+    // TYPES
+    typedef decltype(bslmf::ForwardingTypeUtil<ARG>::forwardToTarget(
+        std::declval<typename bsl::add_lvalue_reference<
+            typename bslmf::ForwardingType<ARG>::Type>::type>())) Type;
+        // 'Type' is an alias to the "forwarded" type of the specified 'ARG'
+        // type.  Specifically, it is the type of the expression
+        // 'bslmf::ForwardingTypeUtil<ARG>::forwardingToTarget(arg)', where
+        // 'arg' is an lvalue expression of 'bslmf::ForwardingType<ARG>::Type'
+        // type.
+};
+
+        // ============================================================
+        // template struct Function_InvokerUtil_IsExplicitlyConvertible
+        // ============================================================
+
+template <class VOID_TYPE, class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertibleImp;
+    // forward declaration
+
+template <class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertible
+: Function_InvokerUtil_IsExplicitlyConvertibleImp<void, FROM, TO> {
+    // This component-private 'struct' template provides a Boolean metafunction
+    // that publicly derives from 'bsl::true_type' if the specified 'FROM' type
+    // can be explicitly converted to the specified 'TO' type, and derives from
+    // 'bsl::false_type' otherwise.  The type 'FROM' is explicitly convertible
+    // to the type 'TO' if the expression
+    // 'static_cast<TO>(std::declval<FROM>())' is well-formed.
+};
+
+      // ===============================================================
+      // template struct Function_InvokerUtil_IsExplicitlyConvertibleImp
+      // ===============================================================
+
+template <class VOID_TYPE, class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertibleImp :  bsl::false_type {
+    // This component-private 'struct' template provides the primary
+    // specialization of the 'Function_InvokerUtil_IsExplicitlyConvertibleImp'
+    // metafunction.  This specialization is instantiated when the specified
+    // 'FROM' type is not explicitly convertible to the specified 'TO' type,
+    // and publicly ihherits from 'bsl::false_type'.  This 'struct' template
+    // requires the specified 'VOID_TYPE' type to be 'void'.
+};
+
+template <class FROM, class TO>
+struct Function_InvokerUtil_IsExplicitlyConvertibleImp<
+    typename bslmf::VoidType<decltype(
+        static_cast<TO>(std::declval<FROM>()))>::type,
+    FROM,
+    TO> : bsl::true_type {
+    // This component-private 'struct' template provides a partial
+    // specialization of the 'Function_InvokerUtil_IsExplicitlyConvertibleImp'
+    // metafunction.  This specialization is instantiated when the specified
+    // 'FROM' type is explicitly convertible to the specified 'TO' type, and
+    // publicly inherits from 'bsl::true_type'.
+};
+
+#endif // defined(BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE)
+#endif
 
                // =============================================
                // template struct Function_InvokerUtil_Dispatch
@@ -338,7 +669,6 @@ struct Function_InvokerUtil_Dispatch<Function_InvokerUtil::e_OutofplaceFunctor,
 };
 
 #endif
-
 
 // ===========================================================================
 //                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
@@ -618,7 +948,6 @@ invoke(const Function_Rep                            *rep,
 #endif
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif // End C++11 code

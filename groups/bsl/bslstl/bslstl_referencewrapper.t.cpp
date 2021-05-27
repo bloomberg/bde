@@ -1,7 +1,9 @@
 // bslstl_referencewrapper.t.cpp                                      -*-C++-*-
 #include <bslstl_referencewrapper.h>
 
+#include <bslmf_isreferencewrapper.h>
 #include <bslmf_issame.h>
+
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 
@@ -26,7 +28,7 @@
 // [ 1] reference_wrapper<T>& operator=(reference_wrapper<T>&);
 // [ 1] operator T&() const;
 // [ 1] T& get() const;
-// [ 3] operator()(...) const;    
+// [ 3] operator()(...) const;
 // [ 1] reference_wrapper<T> cref(const T&);
 // [ 1] reference_wrapper<T> cref(reference_wrapper<T>);
 // [ 1] reference_wrapper<T> ref(T&);
@@ -316,11 +318,18 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'bslmf::IsBitwiseMoveable<reference_wrapper<T>>::value' is
         //:   true regardless of the type of 'T'.
+        //:
+        //: 2 'bslmf::IsReferenceWrapper<reference_wrapper<T>>::value' is
+        //:   true regardless of the type of 'T'.
         //
         // Plan:
         //: 1 For concern 1, instantiate 'reference_wrapper' with both bitwise
         //:   moveable and non-bitwise moveable types and verify that the
         //:   'bslmf::isBitwiseMovable' trait is true for both cases.
+        //:
+        //: 2 For concern 2, instantiate 'reference_wrapper' with 2
+        //:   unrelated types and verify that the 'bslmf::IsReferenceWrapper'
+        //:   trait is true for both cases.
         //
         // Testing:
         //    TYPE TRAITS
@@ -330,6 +339,7 @@ int main(int argc, char *argv[])
                             "\n===========\n");
 
         using BloombergLP::bslmf::IsBitwiseMoveable;
+        using BloombergLP::bslmf::IsReferenceWrapper;
         using bsl::reference_wrapper;
 
         // First, verify that we have one bitwise movable type and one not
@@ -341,6 +351,16 @@ int main(int argc, char *argv[])
         // case.
         ASSERT(IsBitwiseMoveable<reference_wrapper<int> >::value);
         ASSERT(IsBitwiseMoveable<reference_wrapper<NonBitwiseDummy> >::value);
+
+        // Test that 'reference_wrapper' is indeed a reference wrapper.
+        ASSERT(  IsReferenceWrapper<reference_wrapper<int> >::value);
+        ASSERT(  IsReferenceWrapper<reference_wrapper<Dummy> >::value);
+
+        // Test that the trait specialization provided by this component does
+        // not incidentally cause 'IsReferenceWrapper' to be true for actual
+        // reference types.
+        ASSERT(! IsReferenceWrapper<int&>::value);
+        ASSERT(! IsReferenceWrapper<Dummy&>::value);
 
       } break;
       case 1: {

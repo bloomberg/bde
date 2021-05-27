@@ -9,6 +9,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_isreferencewrapper.h>
 #include <bslmf_issame.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
@@ -18,6 +19,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_macrorepeat.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_types.h>
@@ -148,8 +150,8 @@ using std::printf;
 // [ 2] T const* target<T>() const;
 //
 // INTERNAL DEPRECATED METHODS
-// [21] operator BloombergLP::bdef_Function<PROTOTYPE *>&();
-// [21] const operator BloombergLP::bdef_Function<PROTOTYPE *>&() const;
+// [22] operator BloombergLP::bdef_Function<PROTOTYPE *>&();
+// [22] const operator BloombergLP::bdef_Function<PROTOTYPE *>&() const;
 // [ 4] BloombergLP::bslma::Allocator *allocator() const noexcept;
 // [ 5] bool isInplace() const noexcept;
 //
@@ -162,13 +164,14 @@ using std::printf;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [22] USAGE EXAMPLE
+// [23] USAGE EXAMPLE
 // [ 3] 'TrackableValue' TEST INFRASTRUCTURE
 // [ 2] PRIMITIVE CONSTRUCTORS (BOOTSTRAP)
 // [ 6] CONCERN: Construction from 'bdef_Function' does not double-wrap
 // [ 9] CONCERN: Assignment from 'bdef_Function' does not double-wrap
 // [19] CONCERN: Workaround for SunCC bug
 // [20] CONCERN: Workaround for MSVC compiler bug (DRQS 94831150)
+// [21] CONCERN: Constructor SFINAE prevents overload resolution ambiguities.
 // [-1] CONCERN: 'a == b' does not compile for 'function' types.
 // [-1] CONCERN: 'swap' does not compile for different 'function' types.
 // ----------------------------------------------------------------------------
@@ -425,6 +428,36 @@ bslma::TestAllocator defaultTestAllocator("defaultTestAllocator");
 
 #define NTWRAP(r)   bslalg::NothrowMovableUtil::wrap(r)
 #define NTUNWRAP(r) bslalg::NothrowMovableUtil::unwrap(r)
+
+template <class TYPE>
+class RWrap {
+    // This class represents an ersatz 'bsl::reference_wrapper', that is
+    // understood to be a reference wrapper for the purpose of detecting
+    // invocability during overload resolution when constructing
+    // 'bsl::function' objects.
+
+  public:
+    // ACCESSORS
+    operator TYPE&() const BSLS_KEYWORD_NOEXCEPT;
+        // This function is declared but not defined.
+
+    TYPE& get() const BSLS_KEYWORD_NOEXCEPT;
+        // This function is declared but not defined.
+};
+
+} // close unnamed namespace
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <class TYPE>
+struct IsReferenceWrapper<RWrap<TYPE> > : bsl::true_type {
+};
+
+}  // close namespace bslmf
+}  // close enterprise namespace
+
+namespace {
 
 template <class TYPE>
 class SmartPtr
@@ -1527,6 +1560,33 @@ class FunctorWithFunctionCtor {
         { return ! (a == b); }
 };
 
+template <class PROTOTYPE>
+struct HypotheticalFunctor;
+
+template <class RET>
+struct HypotheticalFunctor<RET()> {
+    // ACCESSORS
+    RET operator()() const;
+};
+
+template <class RET, class ARG0>
+struct HypotheticalFunctor<RET(ARG0)> {
+    // ACCESSORS
+    RET operator()(ARG0) const;
+};
+
+template <class RET, class ARG0, class ARG1>
+struct HypotheticalFunctor<RET(ARG0, ARG1)> {
+    // ACCESSORS
+    RET operator()(ARG0, ARG1) const;
+};
+
+template <class RET, class ARG0, class ARG1, class ARG2>
+struct HypotheticalFunctor<RET(ARG0, ARG1, ARG2)> {
+    // ACCESSORS
+    RET operator()(ARG0, ARG1, ARG2) const;
+};
+
 inline bool isConstPtr(void *) { return false; }
 inline bool isConstPtr(const void *) { return true; }
 
@@ -1669,6 +1729,17 @@ struct ArgGenerator<SmartPtr<TYPE> > : ArgGeneratorBase<TYPE> {
 // Special marker for moved-from comparisons
 bsls::ObjectBuffer<Obj> movedFromMarkerBuf;
 const Obj&              movedFromMarker = movedFromMarkerBuf.object();
+
+class ConvertibleToObj {
+  public:
+    // CREATORS
+    ConvertibleToObj();
+        // This constructor is declared but not defined.
+
+    // ACCESSORS
+    operator Obj() const;
+        // This implicit conversion operator is declared but not defined.
+};
 
 }  // close unnamed namespace
 
@@ -2513,6 +2584,10 @@ struct LvalueRefUtil {
     struct OutType { typedef ARG& type; };
 
     template <class ARG>
+    static ARG& declare();
+        // This function is declared but not defined.
+
+    template <class ARG>
     static ARG& xform(ARG& arg) { return arg; }
 
     static char* xformName(char *argName) { return argName; }
@@ -2523,6 +2598,10 @@ struct ConstLvalueRefUtil {
 
     template <class ARG>
     struct OutType { typedef const ARG& type; };
+
+    template <class ARG>
+    static const ARG& declare();
+        // This function is declared but not defined.
 
     template <class ARG>
     static const ARG& xform(ARG& arg) { return arg; }
@@ -2537,6 +2616,10 @@ struct RvalueRefUtil {
     struct OutType { typedef bslmf::MovableRef<ARG> type; };
 
     template <class ARG>
+    static bslmf::MovableRef<ARG> declare();
+        // This function is declared but not defined.
+
+    template <class ARG>
     static bslmf::MovableRef<ARG> xform(ARG& arg)
         { return bslmf::MovableRefUtil::move(arg); }
 
@@ -2549,6 +2632,10 @@ struct ConstRvalueRefUtil {
 
     template <class ARG>
     struct OutType { typedef bslmf::MovableRef<const ARG> type; };
+
+    template <class ARG>
+    static bslmf::MovableRef<const ARG> declare();
+        // This function is declared but not defined.
 
     template <class ARG>
     static bslmf::MovableRef<const ARG> xform(const ARG& arg)
@@ -2631,9 +2718,7 @@ void testConstructFromCallableObjImp(FUNC                  func,
 
     // Build description string.
     char desc[160];
-    CONSTRUCT_UTIL::xformName(
-        REF_UTIL::xformName(
-            strcpy(desc, funcName)));
+    CONSTRUCT_UTIL::xformName(REF_UTIL::xformName(strcpy(desc, funcName)));
     if (sa != ta) {
         strcat(desc, " (diff alloc)");
     }
@@ -2771,6 +2856,190 @@ void testConstructFromCallableObj(const FUNC&  func,
 
 #undef CALL_IMP
 }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+
+template <class VOID, class PROTOTYPE, class REF_UTIL, class FUNC>
+struct TestIsConstructibleImp : bsl::false_type {
+    // This 'struct' template implements a partial boolean metafunction that
+    // publicly derives from 'bsl::false_type', and for which template argument
+    // substitution will succeed, if the expression
+    //..
+    //  bsl::function<PROTOTYPE>(func);
+    //..
+    // is *not* well-formed, where 'func' is an expression of 'FUNC' type
+    // qualified according to the 'REF_UTIL', as obtained by
+    // 'REF_UTIL::declare<FUNC>()'.
+};
+
+template <class PROTOTYPE, class REF_UTIL, class FUNC>
+struct TestIsConstructibleImp<
+    typename bslmf::VoidType<decltype(
+        bsl::function<PROTOTYPE>(REF_UTIL::template declare<FUNC>()))>::type,
+    PROTOTYPE,
+    REF_UTIL,
+    FUNC> : bsl::true_type {
+    // This 'struct' template implements a partial boolean metafunction that
+    // publicly derives from 'bsl::true_type', and for which template argument
+    // substitution will succeed, if the expression
+    //..
+    //  bsl::function<PROTOTYPE>(func);
+    //..
+    // is well-formed, where 'func' is an expression of 'FUNC' type qualified
+    // according to the 'REF_UTIL', as obtained by 'REF_UTIL::declare<FUNC>()'.
+};
+
+template <class PROTOTYPE, class REF_UTIL, class FUNC>
+struct TestIsConstructible
+: TestIsConstructibleImp<void, PROTOTYPE, REF_UTIL, FUNC> {
+    // This 'struct' template implements a boolean metafunction that publicly
+    // derives from 'bsl::true_type' if a 'bsl::function<PROTOTYPE>' is
+    // constructible with an object of 'FUNC' type qualified according to the
+    // 'REF_UTIL'.  Otherwise, this 'struct' template publicly derives from
+    // 'bsl::false_type'.
+};
+
+struct TestIsConstructibleUtil {
+    // This utility 'struct' provides a suite for a set of functions used in
+    // testing whether a 'bsl::function' specialization is constructible with
+    // an object of a particular type.
+
+    template <class PROTOTYPE, class REF_UTIL, class FUNC>
+    static bool check()
+        // Return 'true' if a 'bsl::function<PROTOTYPE>' is constructible with
+        // an object of 'FUNC' type qualified according to the 'REF_UTIL', and
+        // return 'false' otherwise.
+        { return TestIsConstructible<PROTOTYPE, REF_UTIL, FUNC>(); }
+
+    static char *xformName(char *funcName)
+        { return strSurround(funcName, "Obj(", ")"); }
+};
+
+template <class VOID, class PROTOTYPE, class REF_UTIL, class FUNC>
+struct TestIsConstructibleWithAllocImp : bsl::false_type {
+    // This 'struct' template implements a partial boolean metafunction that
+    // publicly derives from 'bsl::false_type', and for which template argument
+    // substitution will succeed, if the expression
+    //..
+    //  bsl::function<PROTOTYPE>(bsl::allocator_arg,
+    //                           bsl::allocator<char>(),
+    //                           func);
+    //..
+    // is *not* well-formed, where 'func' is an expression of 'FUNC' type
+    // qualified according to the 'REF_UTIL', as obtained by
+    // 'REF_UTIL::declare<FUNC>()'.
+};
+
+template <class PROTOTYPE, class REF_UTIL, class FUNC>
+struct TestIsConstructibleWithAllocImp<
+    typename bslmf::VoidType<decltype(
+        bsl::function<PROTOTYPE>(bsl::allocator_arg,
+                                 bsl::allocator<char>(),
+                                 REF_UTIL::template declare<FUNC>()))>::type,
+    PROTOTYPE,
+    REF_UTIL,
+    FUNC> : bsl::true_type {
+    // This 'struct' template implements a partial boolean metafunction that
+    // publicly derives from 'bsl::true_type', and for which template argument
+    // substitution will succeed, if the expression
+    //..
+    //  bsl::function<PROTOTYPE>(bsl::allocator_arg,
+    //                           bsl::allocator<char>(),
+    //                           func);
+    //..
+    // is well-formed, where 'func' is an expression of 'FUNC' type qualified
+    // according to the 'REF_UTIL', as obtained by 'REF_UTIL::declare<FUNC>()'.
+};
+
+template <class PROTOTYPE, class REF_UTIL, class FUNC>
+struct TestIsConstructibleWithAlloc
+: TestIsConstructibleWithAllocImp<void, PROTOTYPE, REF_UTIL, FUNC> {
+    // This 'struct' template implements a boolean metafunction that publicly
+    // derives from 'bsl::true_type' if a 'bsl::function<PROTOTYPE>' is
+    // constructible with an object of 'FUNC' type qualified according to the
+    // 'REF_UTIL' and an allocator.  Otherwise, this 'struct' template publicly
+    // derives from 'bsl::false_type'.
+};
+
+struct TestIsConstructibleWithAllocUtil {
+    // This utility 'struct' provides a suite for a set of functions used in
+    // testing whether a 'bsl::function' specialization is constructible with
+    // an object of a particular type and no allocator.
+
+    template <class PROTOTYPE, class REF_UTIL, class FUNC>
+    static bool check()
+        // Return 'true' if a 'bsl::function<PROTOTYPE>' is constructible with
+        // an object of 'FUNC' type qualified according to the 'REF_UTIL'
+        // and an allocator, and return 'false' otherwise.
+        { return TestIsConstructibleWithAlloc<PROTOTYPE, REF_UTIL, FUNC>(); }
+
+    static char *xformName(char *funcName)
+        { return strSurround(funcName, "Obj(allocator_arg, alloc, ", ")"); }
+};
+
+template <class PROTOTYPE,
+          class FUNC,
+          class TEST_IS_CONSTRUCTIBLE_UTIL,
+          class REF_UTIL>
+void testIsConstructibleImp(int         line,
+                            const char *funcName,
+                            bool        isConstructible)
+    // Test the constructibility of a 'bsl::function<PROTOTYPE>' with an object
+    // of 'FUNC' type qualified according to the qualifiers of the ('const'
+    // and/or 'lvalue' or 'rvalue') 'REF_UTIL'.  If
+    // 'TEST_IS_CONSTRUCTIBLE_UTIL' is 'TestIsConstructibleUtil', test the
+    // constructibility of a 'bsl::function<PROTOTYPE>' with a so-qualified
+    // 'FUNC' type without an allocator.  If 'TEST_IS_CONSTRUCTIBLE_UTIL' is
+    // 'TestIsConstructibleWithAllocUtil', test the constructibility of a
+    // 'bsl::function<PROTOTYPE>' with a so-qualified 'FUNC' type with a
+    // specified allocator.  If 'isConstructible' is 'true', test that a
+    // 'bsl::function<PROTOTYPE>' is so constructible, and test that it is not
+    // so constructible otherwise.  If the test fails for any reason, log an
+    // error message indicating the 'line' and 'funcName'.
+{
+    char desc[160];
+    TEST_IS_CONSTRUCTIBLE_UTIL::xformName(
+                                  REF_UTIL::xformName(strcpy(desc, funcName)));
+
+    ASSERTV(line,
+            desc,
+            (isConstructible ==
+             TEST_IS_CONSTRUCTIBLE_UTIL::
+                 template check<PROTOTYPE, REF_UTIL, FUNC>()));
+}
+
+template <class PROTOTYPE, class FUNC>
+void testIsConstructible(int          line,
+                         const char  *funcName,
+                         bool         isConstructible)
+    // Test the constructibility of a 'bsl::function<PROTOTYPE>' with an object
+    // of 'FUNC' type, with various 'const'-, 'volatile'-, and
+    // reference-qualifications applied to the type of the object.  Test
+    // construction with and without a specified allocator.  If
+    // 'isConstructible' is 'true', test that a 'bsl::function<PROTOTYPE>' is
+    // so constructible, and test that it is not so constructible otherwise.
+    // If the test fails for any reason, log an error message indicating the
+    // 'line' and 'funcName'.
+{
+#define CALL_IMP(TEST_IS_CONSTRUCTIBLE, LRVAL)                                \
+    testIsConstructibleImp<PROTOTYPE,                                         \
+                           FUNC,                                              \
+                           TEST_IS_CONSTRUCTIBLE##Util,                       \
+                           LRVAL##RefUtil>(line, funcName, isConstructible)
+
+    CALL_IMP(TestIsConstructible         , Lvalue     );
+    CALL_IMP(TestIsConstructible         , Rvalue     );
+    CALL_IMP(TestIsConstructible         , ConstLvalue);
+    CALL_IMP(TestIsConstructible         , ConstRvalue);
+    CALL_IMP(TestIsConstructibleWithAlloc, Lvalue     );
+    CALL_IMP(TestIsConstructibleWithAlloc, Rvalue     );
+    CALL_IMP(TestIsConstructibleWithAlloc, ConstLvalue);
+    CALL_IMP(TestIsConstructibleWithAlloc, ConstRvalue);
+
+#undef CALL_IMP
+}
+
+#endif // defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
 
 template <class FUNC>
 void testCopyCtorWithAlloc(FUNC        func,
@@ -3711,6 +3980,179 @@ void testAssignFromFunctor(const Obj&   lhsIn,
     LOOP2_ASSERT(lhsFuncName, rhsFuncName, funcMonitor2.isSameCount());
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+template <class VOID, class PROTOTYPE, class REF_UTIL, class FUNC>
+struct TestIsAssignableImp : bsl::false_type {
+    // This 'struct' template implements a partial boolean metafunction that
+    // publicly derives from 'bsl::false_type', and for which template argument
+    // substitution will succeed, if the expression 'f = func' is *not*
+    // well-formed, where 'f' is a non-'const' lvalue expression of
+    // 'bsl::function<PROTOTYPE>' type and 'func' is an expression of 'FUNC'
+    // type qualified according to the 'REF_UTIL', as obtained by
+    // 'REF_UTIL::declare<FUNC>()'.
+};
+
+template <class PROTOTYPE, class REF_UTIL, class FUNC>
+struct TestIsAssignableImp<
+    typename bslmf::VoidType<decltype(
+        LvalueRefUtil::declare<bsl::function<PROTOTYPE> >() =
+            REF_UTIL::template declare<FUNC>())>::type,
+    PROTOTYPE,
+    REF_UTIL,
+    FUNC> : bsl::true_type {
+    // This 'struct' template implements a partial boolean metafunction that
+    // publicly derives from 'bsl::true_type', and for which template argument
+    // substitution will succeed, if the expression 'f = func' is well-formed,
+    // where 'f' is a non-'const' lvalue expression of
+    // 'bsl::function<PROTOTYPE>' type and 'func' is an expression of 'FUNC'
+    // type qualified according to the 'REF_UTIL', as obtained by
+    // 'REF_UTIL::declare<FUNC>()'.
+};
+
+template <class PROTOTYPE, class REF_UTIL, class FUNC>
+struct TestIsAssignable
+: TestIsAssignableImp<void, PROTOTYPE, REF_UTIL, FUNC> {
+    // This 'struct' template implements a boolean metafunction that publicly
+    // derives from 'bsl::true_type' if a 'bsl::function<PROTOTYPE>' is
+    // assignable from an object of 'FUNC' type qualified according to the
+    // 'REF_UTIL'.  Otherwise, this 'struct' template publicly derives from
+    // 'bsl::false_type'.
+};
+
+struct TestIsAssignableUtil {
+    // This utility 'struct' provides a suite for a set of functions used in
+    // testing whether a 'bsl::function' specialization is assignable from
+    // an object of a particular type.
+
+    template <class PROTOTYPE, class REF_UTIL, class FUNC>
+    static bool check()
+        // Return 'true' if a 'bsl::function<PROTOTYPE>' is assignable from
+        // an object of 'FUNC' type qualified according to the 'REF_UTIL', and
+        // return 'false' otherwise.
+        { return TestIsAssignable<PROTOTYPE, REF_UTIL, FUNC>(); }
+
+    static char *xformName(char *funcName)
+        { return strSurround(funcName, "Obj obj = ", ";"); }
+};
+
+template <class PROTOTYPE,
+          class FUNC,
+          class TEST_IS_ASSIGNABLE_UTIL,
+          class REF_UTIL>
+void testIsAssignableImp(int line, const char *funcName, bool isAssignable)
+    // Test the assignability of a 'bsl::function<PROTOTYPE>' from an object of
+    // 'FUNC' type qualified according to the qualifiers of the ('const' and/or
+    // 'lvalue' or 'rvalue') 'REF_UTIL'.  Use the 'check' function template of
+    // the 'TEST_IS_ASSIGNABLE_UTIL' template to determine whether a
+    // 'bsl::function<PROTOTYPE>' is so assignable.  If 'isAssignable' is
+    // 'true', test that a 'bsl::function<PROTOTYPE>' is so assignable, and
+    // test that it is not so assignable otherwise.  If the test fails for any
+    // reason, log an error message indicating the 'line' and 'funcName'.
+{
+    char desc[160];
+    TEST_IS_ASSIGNABLE_UTIL::xformName(
+                                  REF_UTIL::xformName(strcpy(desc, funcName)));
+
+    ASSERTV(line,
+            desc,
+            (isAssignable == TEST_IS_ASSIGNABLE_UTIL::
+                                 template check<PROTOTYPE, REF_UTIL, FUNC>()));
+}
+
+template <class PROTOTYPE, class FUNC>
+void testIsAssignable(int line, const char *funcName, bool isAssignable)
+    // Test the assignability of a 'bsl::function<PROTOTYPE>' with an object of
+    // 'FUNC' type, with various 'const'-, 'volatile'-, and
+    // reference-qualifications applied to the type of the object.  If
+    // 'isAssignable' is 'true', test that a 'bsl::function<PROTOTYPE>' is so
+    // assignable, and test that it is not so assignable otherwise.  If the
+    // test fails for any reason, log an error message indicating the 'line'
+    // and 'funcName'.
+{
+#define CALL_IMP(TEST_IS_ASSIGNABLE, LRVAL)                                   \
+    testIsAssignableImp<PROTOTYPE,                                            \
+                        FUNC,                                                 \
+                        TEST_IS_ASSIGNABLE##Util,                             \
+                        LRVAL##RefUtil>(line, funcName, isAssignable)
+
+    CALL_IMP(TestIsAssignable, Lvalue     );
+    CALL_IMP(TestIsAssignable, Rvalue     );
+    CALL_IMP(TestIsAssignable, ConstLvalue);
+    CALL_IMP(TestIsAssignable, ConstRvalue);
+
+#undef CALL_IMP
+}
+#endif // defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
+class MyPredicate {
+    // This class provides a type invocable with the prototype 'bool (int)'.
+
+  public:
+    // CREATORS
+    MyPredicate()
+    {
+    }
+
+    // ACCESSORS
+    bool operator()(int) const
+    {
+        return false;
+    }
+};
+
+class MyPredicateWrapper {
+    // This class provides a type that is implicitly convertible from a
+    // 'MyPredicate'.
+
+  public:
+    // CREATORS
+    MyPredicateWrapper(MyPredicate)                                 // IMPLICIT
+    {
+    }
+};
+
+struct MyDetectionUtil {
+    // This utility 'struct' provides a suite of overload sets, 'isInt',
+    // 'isMyPredicateWrapper', and 'isPredicateFunction', that each accept
+    // various kinds of invocable types.  These overload sets are intended to
+    // test that 'bsl::function' avoids creating overload set resolution
+    // ambiguity problems by culling itself from overload resolution when the
+    // compiler attempts to construct a 'bsl::function' temporary from a
+    // callable type that is not compatible with the prototype of the
+    // 'bsl::function'.
+
+    // CLASS METHODS
+    static bool isInt(int)
+    {
+        return true;
+    }
+
+    static bool isInt(const bsl::function<void()>&)
+    {
+        return false;
+    }
+
+    static bool isMyPredicateWrapper(const MyPredicateWrapper&)
+    {
+        return true;
+    }
+
+    static bool isMyPredicateWrapper(const bsl::function<void()>&)
+    {
+        return false;
+    }
+
+    static bool isPredicateFunction(const bsl::function<void()>&)
+    {
+        return false;
+    }
+
+    static bool isPredicateFunction(const bsl::function<bool(int)>&)
+    {
+        return true;
+    }
+};
+
 // Functions for testing the workaround to the SunCC compiler bug (case 19)
 template <class RET_TYPE>
 void sun1(const bsl::function<RET_TYPE()>&)
@@ -3850,7 +4292,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //
@@ -3875,7 +4317,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION TO 'bdef_Function'
         //
@@ -3919,7 +4361,73 @@ int main(int argc, char *argv[])
         ASSERT(&CONVERTED == &ORIGINAL);
 
       } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING CONSTRUCTOR SFINAE DURING OVERLOAD RESOLUTION
+        //
+        // Concerns:
+        //: 1 The SFINAE constraints on the functor constructor of
+        //:   'bsl::function', which ensure that the constructor only
+        //:   participates in overload resolution if the supplied functor is
+        //:   invocable according to the prototype of the 'bsl::function',
+        //:   allow one to create an overload set for a function, for example,
+        //..
+        //  void registerCallback(const bsl::function<void(   )>& callback);
+        //  void registerCallback(const bsl::function<void(int)>& callback);
+        //..
+        //:   such that one can invoke functions like 'registerCallback' and
+        //:   have no ambiguity errors because the overloads that take
+        //:   incompatible 'bsl::function's for the supplied argument are
+        //:   culled during overload resolution.  For example, the following
+        //:   would not be an ambiguous call:
+        //..
+        //  registerCallback([](int status)
+        //  {
+        //      bsl::cout << "status: " << status << "\n";
+        //  });
+        //..
+        //:   because the lambda can bind to an argument of type
+        //:   'const bsl::function<void(int)>&' but not
+        //:   'const bsl::function<void()>&'.
+        //
+        // Plan:
+        //: 1 Create a suite of overload sets in which each overload accepts
+        //:   1 argument of an invocable type or 'bsl::function'
+        //:   specialization.
+        //:
+        //: 2 Invoke each overload set with invocable types and 'bsl::function'
+        //:   objects with various signatures, and observe that no ambiguity
+        //:   occurs, and an overload is chosen that is compatible with the
+        //:   supplied invocable / 'bsl::function'.
+        //
+        // Testing:
+        //  bsl::function<PROTOTYPE>(FORWARD(FUNC) func);
+        // --------------------------------------------------------------------
 
+        if (verbose)
+            printf(
+                "\nTESTING CONSTRUCTOR SFINAE DURING OVERLOAD RESOLUTION"
+                "\n=====================================================\n");
+
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+
+        const MyPredicate           myPredicate;
+        const bsl::function<void()> myFunction;
+
+        ASSERT( MyDetectionUtil::isInt(0));
+        ASSERT(!MyDetectionUtil::isInt(myFunction));
+        ASSERT( MyDetectionUtil::isMyPredicateWrapper(myPredicate));
+        ASSERT(!MyDetectionUtil::isMyPredicateWrapper(myFunction));
+
+        const bsl::function<bool(int)> myPredicateFunction;
+
+        ASSERT( MyDetectionUtil::isPredicateFunction(myPredicate));
+        ASSERT(!MyDetectionUtil::isPredicateFunction(myFunction));
+        ASSERT( MyDetectionUtil::isPredicateFunction(myPredicateFunction));
+
+#endif
+
+      } break;
       case 20: {
         // --------------------------------------------------------------------
         // TESTING DRQS94831150 BUG FIX
@@ -5258,6 +5766,11 @@ int main(int argc, char *argv[])
         //:   including for functors in nothrow wrappers.
         //:
         //: 8 If an exception is thrown, both lhs and rhs are unchanged.
+        //:
+        //: 9 In C++11, if assignment is from a functor that is not
+        //:   Lvalue-Callable with the arguments and return type of the
+        //:   signature of the lhs, the assignment operator does not
+        //:   participate in overload resolution.
         //
         // Plan:
         //: 1 For concern 1, assign from functor to a 'function' object and
@@ -5303,6 +5816,12 @@ int main(int argc, char *argv[])
         //: 8 For concern 8, test assignments in within the exception-test
         //:   framework and verify that, on exception, both operands retain
         //:   their original values.
+        //:
+        //: 9 For concern 9, in C++11, test assignments from a wide variety of
+        //:   functors, and verify that the assignment operator only
+        //:   participates in overload resolution for functors that are
+        //:   Lvalue-Callable with the return type and arguments of the
+        //:   signature of the lhs.
         //
         // Testing:
         //  function& operator=(FUNC&& rhs);
@@ -5390,6 +5909,392 @@ int main(int argc, char *argv[])
         } // end for (each array item)
 
 #undef TEST
+
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+#define TEST(p, f, c) testIsAssignable<p, f>(__LINE__, #f, c)
+
+        typedef IntWrapper                        IW;
+        typedef SmartPtr<IntWrapper>              SIW;
+        typedef SmartPtr<const IntWrapper>        ScIW;
+        typedef RWrap<IntWrapper>                 RIW;
+        typedef RWrap<const IntWrapper>           RcIW;
+
+        typedef IntWrapperDerived                 IWD;
+        typedef SmartPtr<IntWrapperDerived>       SIWD;
+        typedef SmartPtr<const IntWrapperDerived> ScIWD;
+        typedef RWrap<IntWrapperDerived>          RIWD;
+        typedef RWrap<const IntWrapperDerived>    RcIWD;
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+        static const bool MSVC = true;
+#else
+        static const bool MSVC = false;
+#endif
+
+        //                                                 Constructible?
+        //  Proto Functor Type                                           \.
+        //  ===== ==================================================== =======
+
+        // 'bsl::function' objects having 'PROTO' prototype constructed with
+        // const- and/or reference-qualified functions, pointer to functions,
+        // and pointers to member functions that vary in arity and return-type
+        // compatibility.
+        TEST(PROTO, int     ()                                        , false);
+        TEST(PROTO, int     (IW)                                      , false);
+        TEST(PROTO, int     (IW, int)                                 , true );
+        TEST(PROTO, int     (IW, int, int)                            , false);
+        TEST(PROTO, void    ()                                        , false);
+        TEST(PROTO, void    (IW)                                      , false);
+        TEST(PROTO, void    (IW, int)                                 , false);
+        TEST(PROTO, void    (IW, int, int)                            , false);
+        TEST(PROTO, int     ()                                        , false);
+        TEST(PROTO, int     (IWD)                                     , false);
+        TEST(PROTO, int     (IWD, int)                                , false);
+        TEST(PROTO, int     (IWD, int, int)                           , false);
+        TEST(PROTO, int  (*)()                                        , false);
+        TEST(PROTO, int  (*)(IW)                                      , false);
+        TEST(PROTO, int  (*)(IW, int)                                 , true );
+        TEST(PROTO, int  (*)(IW, int, int)                            , false);
+        TEST(PROTO, void (*)()                                        , false);
+        TEST(PROTO, void (*)(IW)                                      , false);
+        TEST(PROTO, void (*)(IW, int)                                 , false);
+        TEST(PROTO, void (*)(IW, int, int)                            , false);
+        TEST(PROTO, int  (IW::*)()                                    , false);
+        TEST(PROTO, int  (IW::*)(int)                                 , false);
+        TEST(PROTO, int  (IW::*)(int, int)                            , false);
+        TEST(PROTO, void (IW::*)()                                    , false);
+        TEST(PROTO, void (IW::*)(int)                                 , false);
+        TEST(PROTO, void (IW::*)(int, int)                            , false);
+        TEST(PROTO, int  (IW::*)(int) &                               , false);
+        TEST(PROTO, void (IW::*)(int) &                               , false);
+        TEST(PROTO, int  (IW::*)(int) const                           , true );
+        TEST(PROTO, void (IW::*)(int) const                           , false);
+        TEST(PROTO, int  (IW::*)(int) const&                          , true );
+        TEST(PROTO, void (IW::*)(int) const&                          , false);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(PROTO, int  (IW::*)(int) &&                              , false);
+        TEST(PROTO, void (IW::*)(int) &&                              , false);
+        TEST(PROTO, int  (IW::*)(int) const&&                         , false);
+        TEST(PROTO, void (IW::*)(int) const&&                         , false);
+#endif
+
+        // 'bsl::function' objects having 'PROTO' prototype constructed with
+        // pointers to member objects.
+        TEST(PROTO, int IW::*                                         , false);
+
+        // 'bsl::function' objects having 'PROTO' prototype constructed with
+        // optionally const- and/or reference-qualified function objects,
+        // having function-call operators that vary in arity and return type
+        // compatibility.
+        TEST(PROTO,       HypotheticalFunctor<int ()>                 , false);
+        TEST(PROTO,       HypotheticalFunctor<int (IW)>               , false);
+        TEST(PROTO,       HypotheticalFunctor<int (IW, int)>          , true );
+        TEST(PROTO,       HypotheticalFunctor<int (IW, int, int)>     , false);
+        TEST(PROTO,       HypotheticalFunctor<void()>                 , false);
+        TEST(PROTO,       HypotheticalFunctor<void(IW)>               , false);
+        TEST(PROTO,       HypotheticalFunctor<void(IW, int)>          , false);
+        TEST(PROTO,       HypotheticalFunctor<void(IW, int, int)>     , false);
+        TEST(PROTO, const HypotheticalFunctor<int (IW, int)>          , true );
+        TEST(PROTO, const HypotheticalFunctor<int (IW, int)>&         , true );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(PROTO,       HypotheticalFunctor<int (IW, int)>&&        , true );
+        TEST(PROTO, const HypotheticalFunctor<int (IW, int)>&&        , true );
+#endif
+
+        //                                           Constructible?
+        //  Prototype                    Functor Type              \.
+        //  ============================ ======================= =======
+
+        // 'bsl::function' objects having prototypes with arguments and return
+        // values implicitly convertible to and/or from those of the function
+        // object from which they're constructed.
+        TEST(      int   (int          ), int   (int  )         , true );
+        TEST(      int   (int          ), int   (float)         , true );
+        TEST(      int   (int          ), float (int  )         , true );
+        TEST(      int   (int          ), float (float)         , true );
+        TEST(      int   (float        ), int   (int  )         , true );
+        TEST(      int   (float        ), int   (float)         , true );
+        TEST(      int   (float        ), float (int  )         , true );
+        TEST(      int   (float        ), float (float)         , true );
+        TEST(      float (int          ), int   (int  )         , true );
+        TEST(      float (int          ), int   (float)         , true );
+        TEST(      float (int          ), float (int  )         , true );
+        TEST(      float (int          ), float (float)         , true );
+        TEST(      float (float        ), int   (int  )         , true );
+        TEST(      float (float        ), int   (float)         , true );
+        TEST(      float (float        ), float (int  )         , true );
+        TEST(      float (float        ), float (float)         , true );
+
+        // 'bsl::function' objects having prototypes with const- and/or
+        // reference-qualified arguments and results, constructed with pointers
+        // to member objects.
+        TEST(      void  (        IW   ), int IW::*             , true );
+        TEST(      void  (        IW&  ), int IW::*             , true );
+        TEST(      void  (const   IW   ), int IW::*             , true );
+        TEST(      void  (const   IW&  ), int IW::*             , true );
+        TEST(      int   (        IW   ), int IW::*             , true );
+        TEST(      int   (        IW&  ), int IW::*             , true );
+        TEST(      int   (const   IW   ), int IW::*             , true );
+        TEST(      int   (const   IW&  ), int IW::*             , true );
+        TEST(      int&  (        IW   ), int IW::*             , false);
+        TEST(      int&  (        IW&  ), int IW::*             , true );
+        TEST(      int&  (const   IW   ), int IW::*             , false);
+        TEST(      int&  (const   IW&  ), int IW::*             , false);
+        TEST(const int&  (        IW   ), int IW::*             , true );
+        TEST(const int&  (        IW&  ), int IW::*             , true );
+        TEST(const int&  (const   IW   ), int IW::*             , true );
+        TEST(const int&  (const   IW&  ), int IW::*             , true );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(      void  (        IW&& ), int IW::*             , true );
+        TEST(      void  (const   IW&& ), int IW::*             , true );
+        TEST(      int   (        IW&& ), int IW::*             , true );
+        TEST(      int   (const   IW&& ), int IW::*             , true );
+        TEST(      int&  (        IW&& ), int IW::*             , false);
+        TEST(      int&  (const   IW&& ), int IW::*             , false);
+        TEST(const int&  (        IW&& ), int IW::*             , true );
+        TEST(const int&  (const   IW&& ), int IW::*             , true );
+        TEST(      int&& (        IW   ), int IW::*             , true );
+        TEST(      int&& (        IW&  ), int IW::*             , true );
+        TEST(      int&& (        IW&& ), int IW::*             , true );
+        TEST(      int&& (const   IW   ), int IW::*             , true );
+        TEST(      int&& (const   IW&  ), int IW::*             , false);
+        TEST(      int&& (const   IW&& ), int IW::*             , false);
+        TEST(const int&& (        IW   ), int IW::*             , true );
+        TEST(const int&& (        IW&  ), int IW::*             , true );
+        TEST(const int&& (        IW&& ), int IW::*             , true );
+        TEST(const int&& (const   IW   ), int IW::*             , true );
+        TEST(const int&& (const   IW&  ), int IW::*             , true );
+        TEST(const int&& (const   IW&& ), int IW::*             , true );
+#endif
+
+        // 'bsl::function' objects having prototypes with smart pointer to, and
+        // reference-wrapped class types, constructed with pointers to member
+        // objects.
+        TEST(       int  (        IW   ), int  IW::*            , true );
+        TEST(       int  (        IW&  ), int  IW::*            , true );
+        TEST(       int  (const   IW   ), int  IW::*            , true );
+        TEST(       int  (const   IW&  ), int  IW::*            , true );
+        TEST(       int  (       RIW   ), int  IW::*            , true );
+        TEST(       int  (       RIW&  ), int  IW::*            , true );
+        TEST(       int  (const  RIW   ), int  IW::*            , true );
+        TEST(       int  (const  RIW&  ), int  IW::*            , true );
+        TEST(       int  (      RcIW   ), int  IW::*            , true );
+        TEST(       int  (      RcIW&  ), int  IW::*            , true );
+        TEST(       int  (const RcIW   ), int  IW::*            , true );
+        TEST(       int  (const RcIW&  ), int  IW::*            , true );
+        TEST(       int  (       SIW   ), int  IW::*            , true );
+        TEST(       int  (       SIW&  ), int  IW::*            , true );
+        TEST(       int  (const  SIW   ), int  IW::*            , true );
+        TEST(       int  (const  SIW&  ), int  IW::*            , true );
+        TEST(       int  (      ScIW   ), int  IW::*            , true );
+        TEST(       int  (      ScIW&  ), int  IW::*            , true );
+        TEST(       int  (const ScIW   ), int  IW::*            , true );
+        TEST(       int  (const ScIW&  ), int  IW::*            , true );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(       int  (        IW&& ), int  IW::*            , true );
+        TEST(       int  (const   IW&& ), int  IW::*            , true );
+        TEST(       int  (       RIW&& ), int  IW::*            , true );
+        TEST(       int  (const  RIW&& ), int  IW::*            , true );
+        TEST(       int  (      RcIW&& ), int  IW::*            , true );
+        TEST(       int  (const RcIW&& ), int  IW::*            , true );
+        TEST(       int  (       SIW&& ), int  IW::*            , true );
+        TEST(       int  (const  SIW&& ), int  IW::*            , true );
+        TEST(       int  (      ScIW&& ), int  IW::*            , true );
+        TEST(       int  (const ScIW&& ), int  IW::*            , true );
+#endif
+
+        // 'bsl::function' objects having prototypes with smart pointer to, and
+        // reference-wrapped class types, constructed with pointers to member
+        // objects of a base type.
+        TEST(       int  (        IWD  ), int  IW::*            , true );
+        TEST(       int  (        IWD& ), int  IW::*            , true );
+        TEST(       int  (const   IWD  ), int  IW::*            , true );
+        TEST(       int  (const   IWD& ), int  IW::*            , true );
+        TEST(       int  (       RIWD  ), int  IW::*            , true );
+        TEST(       int  (       RIWD& ), int  IW::*            , true );
+        TEST(       int  (const  RIWD  ), int  IW::*            , true );
+        TEST(       int  (const  RIWD& ), int  IW::*            , true );
+        TEST(       int  (      RcIWD  ), int  IW::*            , true );
+        TEST(       int  (      RcIWD& ), int  IW::*            , true );
+        TEST(       int  (const RcIWD  ), int  IW::*            , true );
+        TEST(       int  (const RcIWD& ), int  IW::*            , true );
+        TEST(       int  (       SIWD  ), int  IW::*            , true );
+        TEST(       int  (       SIWD& ), int  IW::*            , true );
+        TEST(       int  (const  SIWD  ), int  IW::*            , true );
+        TEST(       int  (const  SIWD& ), int  IW::*            , true );
+        TEST(       int  (      ScIWD  ), int  IW::*            , true );
+        TEST(       int  (      ScIWD& ), int  IW::*            , true );
+        TEST(       int  (const ScIWD  ), int  IW::*            , true );
+        TEST(       int  (const ScIWD& ), int  IW::*            , true );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(       int  (        IWD&&), int  IW::*            , true );
+        TEST(       int  (const   IWD&&), int  IW::*            , true );
+        TEST(       int  (       RIWD&&), int  IW::*            , true );
+        TEST(       int  (const  RIWD&&), int  IW::*            , true );
+        TEST(       int  (      RcIWD&&), int  IW::*            , true );
+        TEST(       int  (const RcIWD&&), int  IW::*            , true );
+        TEST(       int  (       SIWD&&), int  IW::*            , true );
+        TEST(       int  (const  SIWD&&), int  IW::*            , true );
+        TEST(       int  (      ScIWD&&), int  IW::*            , true );
+        TEST(       int  (const ScIWD&&), int  IW::*            , true );
+#endif
+
+        // 'bsl::function' objects with prototypes having smart pointer to, and
+        // reference-wrapped, class types, constructed with pointers to member
+        // functions.
+        TEST(       int  (        IW   ), int (IW::*)()         , true );
+        TEST(       int  (       RIW   ), int (IW::*)()         , true );
+        TEST(       int  (      RcIW   ), int (IW::*)()         , false);
+        TEST(       int  (       SIW   ), int (IW::*)()         , true );
+        TEST(       int  (      ScIW   ), int (IW::*)()         , false);
+        TEST(       int  (        IW   ), int (IW::*)() &       , false);
+        TEST(       int  (       RIW   ), int (IW::*)() &       , true );
+        TEST(       int  (      RcIW   ), int (IW::*)() &       , false);
+        TEST(       int  (       SIW   ), int (IW::*)() &       , true );
+        TEST(       int  (      ScIW   ), int (IW::*)() &       , false);
+        TEST(       int  (        IW   ), int (IW::*)() const   , true );
+        TEST(       int  (       RIW   ), int (IW::*)() const   , true );
+        TEST(       int  (      RcIW   ), int (IW::*)() const   , true );
+        TEST(       int  (       SIW   ), int (IW::*)() const   , true );
+        TEST(       int  (      ScIW   ), int (IW::*)() const   , true );
+        TEST(       int  (        IW   ), int (IW::*)() const&  , MSVC );
+        TEST(       int  (       RIW   ), int (IW::*)() const&  , true );
+        TEST(       int  (      RcIW   ), int (IW::*)() const&  , true );
+        TEST(       int  (       SIW   ), int (IW::*)() const&  , true );
+        TEST(       int  (      ScIW   ), int (IW::*)() const&  , true );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(       int  (        IW   ), int (IW::*)() &&      , true );
+        TEST(       int  (       RIW   ), int (IW::*)() &&      , false);
+        TEST(       int  (      RcIW   ), int (IW::*)() &&      , false);
+        TEST(       int  (       SIW   ), int (IW::*)() &&      , false);
+        TEST(       int  (      ScIW   ), int (IW::*)() &&      , false);
+        TEST(       int  (        IW   ), int (IW::*)() const&& , true );
+        TEST(       int  (       RIW   ), int (IW::*)() const&& , false);
+        TEST(       int  (      RcIW   ), int (IW::*)() const&& , false);
+        TEST(       int  (       SIW   ), int (IW::*)() const&& , false);
+        TEST(       int  (      ScIW   ), int (IW::*)() const&& , false);
+#endif
+
+        // 'bsl::function' objects with prototypes having smart pointer to, and
+        // reference-wrapped, class types, constructed with pointers to member
+        // functions of base types.
+        TEST(       int  (        IWD  ), int (IW::*)()         , true );
+        TEST(       int  (       RIWD  ), int (IW::*)()         , true );
+        TEST(       int  (      RcIWD  ), int (IW::*)()         , false);
+        TEST(       int  (       SIWD  ), int (IW::*)()         , true );
+        TEST(       int  (      ScIWD  ), int (IW::*)()         , false);
+        TEST(       int  (        IWD  ), int (IW::*)() &       , false);
+        TEST(       int  (       RIWD  ), int (IW::*)() &       , true );
+        TEST(       int  (      RcIWD  ), int (IW::*)() &       , false);
+        TEST(       int  (       SIWD  ), int (IW::*)() &       , true );
+        TEST(       int  (      ScIWD  ), int (IW::*)() &       , false);
+        TEST(       int  (        IWD  ), int (IW::*)() const   , true );
+        TEST(       int  (       RIWD  ), int (IW::*)() const   , true );
+        TEST(       int  (      RcIWD  ), int (IW::*)() const   , true );
+        TEST(       int  (       SIWD  ), int (IW::*)() const   , true );
+        TEST(       int  (      ScIWD  ), int (IW::*)() const   , true );
+        TEST(       int  (        IWD  ), int (IW::*)() const&  , MSVC );
+        TEST(       int  (       RIWD  ), int (IW::*)() const&  , true );
+        TEST(       int  (      RcIWD  ), int (IW::*)() const&  , true );
+        TEST(       int  (       SIWD  ), int (IW::*)() const&  , true );
+        TEST(       int  (      ScIWD  ), int (IW::*)() const&  , true );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(       int  (        IWD  ), int (IW::*)() &&      , true );
+        TEST(       int  (       RIWD  ), int (IW::*)() &&      , false);
+        TEST(       int  (      RcIWD  ), int (IW::*)() &&      , false);
+        TEST(       int  (       SIWD  ), int (IW::*)() &&      , false);
+        TEST(       int  (      ScIWD  ), int (IW::*)() &&      , false);
+        TEST(       int  (        IWD  ), int (IW::*)() const&& , true );
+        TEST(       int  (       RIWD  ), int (IW::*)() const&& , false);
+        TEST(       int  (      RcIWD  ), int (IW::*)() const&& , false);
+        TEST(       int  (       SIWD  ), int (IW::*)() const&& , false);
+        TEST(       int  (      ScIWD  ), int (IW::*)() const&& , false);
+#endif
+
+        // 'bsl::function' objects having prototypes with const- and/or
+        // reference-qualified 'IntWrapper' return values, constructed with
+        // lvalue-callable objects that return compatible types.
+        TEST(      IW    (             ),       IW    ()        , true );
+        TEST(      IW    (             ),       IW&   ()        , true );
+        TEST(      IW    (             ), const IW    ()        , true );
+        TEST(      IW    (             ), const IW&   ()        , true );
+        TEST(      IW&   (             ),       IW    ()        , MSVC );
+        TEST(      IW&   (             ),       IW&   ()        , true );
+        TEST(      IW&   (             ), const IW    ()        , false);
+        TEST(      IW&   (             ), const IW&   ()        , false);
+        TEST(const IW    (             ),       IW    ()        , true );
+        TEST(const IW    (             ),       IW&   ()        , true );
+        TEST(const IW    (             ), const IW    ()        , true );
+        TEST(const IW    (             ), const IW&   ()        , true );
+        TEST(const IW&   (             ),       IW    ()        , true );
+        TEST(const IW&   (             ),       IW&   ()        , true );
+        TEST(const IW&   (             ), const IW    ()        , true );
+        TEST(const IW&   (             ), const IW&   ()        , true );
+        TEST(      IWD   (             ),       IW    ()        , false);
+        TEST(      IW    (             ),       IWD   ()        , true );
+        TEST(      IW    (             ),       IWD&  ()        , true );
+        TEST(      IW    (             ), const IWD   ()        , true );
+        TEST(      IW    (             ), const IWD&  ()        , true );
+        TEST(      IW&   (             ),       IWD   ()        , MSVC );
+        TEST(      IW&   (             ),       IWD&  ()        , true );
+        TEST(      IW&   (             ), const IWD   ()        , false);
+        TEST(      IW&   (             ), const IWD&  ()        , false);
+        TEST(const IW    (             ),       IWD   ()        , true );
+        TEST(const IW    (             ),       IWD&  ()        , true );
+        TEST(const IW    (             ), const IWD   ()        , true );
+        TEST(const IW    (             ), const IWD&  ()        , true );
+        TEST(const IW&   (             ),       IWD   ()        , true );
+        TEST(const IW&   (             ),       IWD&  ()        , true );
+        TEST(const IW&   (             ), const IWD   ()        , true );
+        TEST(const IW&   (             ), const IWD&  ()        , true );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(      IW    (             ),       IW&&  ()        , true );
+        TEST(      IW    (             ), const IW&&  ()        , true );
+        TEST(      IW&   (             ),       IW&&  ()        , MSVC );
+        TEST(      IW&   (             ), const IW&&  ()        , false);
+        TEST(      IW&   (             ),       IW&&  ()        , MSVC );
+        TEST(      IW&   (             ), const IW&&  ()        , false);
+        TEST(const IW    (             ),       IW&&  ()        , true );
+        TEST(const IW    (             ), const IW&&  ()        , true );
+        TEST(const IW&   (             ),       IW&&  ()        , true );
+        TEST(const IW&   (             ), const IW&&  ()        , true );
+        TEST(      IW&&  (             ),       IW    ()        , true );
+        TEST(      IW&&  (             ),       IW&   ()        , true );
+        TEST(      IW&&  (             ), const IW    ()        , false);
+        TEST(      IW&&  (             ), const IW&   ()        , false);
+        TEST(const IW&&  (             ),       IW    ()        , true );
+        TEST(const IW&&  (             ),       IW&   ()        , true );
+        TEST(const IW&&  (             ), const IW    ()        , true );
+        TEST(const IW&&  (             ), const IW&   ()        , true );
+        TEST(      IW    (             ),       IWD&& ()        , true );
+        TEST(      IW    (             ), const IWD&& ()        , true );
+        TEST(      IW&   (             ),       IWD&& ()        , MSVC );
+        TEST(      IW&   (             ), const IWD&& ()        , false);
+        TEST(const IW    (             ),       IWD&& ()        , true );
+        TEST(const IW    (             ), const IWD&& ()        , true );
+        TEST(const IW&   (             ),       IWD&& ()        , true );
+        TEST(const IW&   (             ), const IWD&& ()        , true );
+        TEST(      IW&&  (             ),       IWD   ()        , true );
+        TEST(      IW&&  (             ),       IWD&  ()        , true );
+        TEST(      IW&&  (             ), const IWD   ()        , false);
+        TEST(      IW&&  (             ), const IWD&  ()        , false);
+        TEST(const IW&&  (             ),       IWD   ()        , true );
+        TEST(const IW&&  (             ),       IWD&  ()        , true );
+        TEST(const IW&&  (             ), const IWD   ()        , true );
+        TEST(const IW&&  (             ), const IWD&  ()        , true );
+#endif
+
+        // Verify that 'bsl::function<PROTO>' is assignable from types that
+        // are implicitly convertible to 'bsl::function<PROTO>'.  Note this
+        // should should be the case for all 'PROTO' types that are function
+        // types without const, volatile, or reference qualifiers.  Further
+        // note that this "test vector" verifies that {DRQS 138769521} has been
+        // addressed.
+        TEST(PROTO, ConvertibleToObj, true);
+
+#undef TEST
+#endif // defined(BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS)
+
 
       } break;
 
@@ -6406,39 +7311,43 @@ int main(int argc, char *argv[])
         //: 9 If memory is allocated, the destructor frees it.
         //:
         //: 10 If 'FUNC' takes a 'bslma::Allocator*', or 'bsl::allocator',
-        //:   then the 'function' allocator is propagated to the wrapped
-        //:   functor.
+        //:    then the 'function' allocator is propagated to the wrapped
+        //:    functor.
         //:
         //: 11 The above concerns apply to 'func' arguments of type pointer to
-        //:   function, pointer to member function, or functor types of
-        //:   various sizes and cv-qualified rvalue and lvalue references to
-        //:   functor types of various sizes, with or without throwing move
-        //:   constructors. TBD pointer-to-data-member
+        //:    function, pointer to member function, or functor types of
+        //:    various sizes and cv-qualified rvalue and lvalue references to
+        //:    functor types of various sizes, with or without throwing move
+        //:    constructors. TBD pointer-to-data-member
         //:
         //: 12 If memory allocation or functor construction fails with an
-        //:   exception, then no resources are leaked.
+        //:    exception, then no resources are leaked.
         //:
         //: 13 If 'FUNC' is wrapped in a nothrow wrapper, all of the above
-        //:   concerns hold. For concerns that hinge on the presence or
-        //:   absence of the small object optimization, any sufficiently-small
-        //:   'FUNC' is eligible for the optimization when wrapped in a
-        //:   nothrow wrapper, even if it would otherwise throw.
+        //:    concerns hold. For concerns that hinge on the presence or
+        //:    absence of the small object optimization, any sufficiently-small
+        //:    'FUNC' is eligible for the optimization when wrapped in a
+        //:    nothrow wrapper, even if it would otherwise throw.
         //:
         //: 14 An object or reference to a compatible 'FUNC' is implicitly
-        //:   convertible to 'bsl::function'.  Regression test: If 'FUNC' is
-        //:   constructible from 'function', no constructor ambiguity is
-        //:   created as a result of an internal implicit move in C++03, even
-        //:   if 'FUNC' does not have a dedicated move constructor.
+        //:    convertible to 'bsl::function'.  Regression test: If 'FUNC' is
+        //:    constructible from 'function', no constructor ambiguity is
+        //:    created as a result of an internal implicit move in C++03, even
+        //:    if 'FUNC' does not have a dedicated move constructor.
         //:
         //: 15 If 'FUNC' is an empty 'function' with a different, but
-        //:   compatible, prototype, then the constructed 'function' is empty;
-        //:   it does not wrap the empty 'function' as a target.
+        //:    compatible, prototype, then the constructed 'function' is empty;
+        //:    it does not wrap the empty 'function' as a target.
         //:
         //: 16 When compiling with an IBM XL C++ compiler, 'bsl::function' is
-        //:   constructible from a function having default arguments despite a
-        //:   defect in said compiler that disallows forming 'typedef's to
-        //:   function types deduced from functions that have default
-        //:   arguments.
+        //:    constructible from a function having default arguments despite a
+        //:    defect in said compiler that disallows forming 'typedef's to
+        //:    function types deduced from functions that have default
+        //:    arguments.
+        //:
+        //: 17 In C++11, if 'FUNC' is not Lvalue-Callable with the arguments
+        //:    and return type of the prototype of the 'bsl::function', the
+        //:    constructor does not participate in overload resolution.
         //
         // Plan:
         //: 1 For concern 1, construct 'function' objects using a null pointer
@@ -6490,39 +7399,45 @@ int main(int argc, char *argv[])
         //:   allocator as the 'function' object in the former case.
         //:
         //: 10 For concern 11, wrap the common parts of the above steps into a
-        //:   function template, 'testConstructFromCallableObj', which takes
-        //:   'FUNC' as a template parameter.  Instantiate this
-        //:   template with each of the following callable types: pointer to
-        //:   function, pointer to member function, and functor types of of
-        //:   all varieties.
+        //:    function template, 'testConstructFromCallableObj', which takes
+        //:    'FUNC' as a template parameter.  Instantiate this
+        //:    template with each of the following callable types: pointer to
+        //:    function, pointer to member function, and functor types of of
+        //:    all varieties.
         //:
         //: 11 For concern 12, within 'testConstructFromCallableObj', construct
-        //:   the 'function' within the exception test framework.  On
-        //:   exception, verify that any allocated memory has been released
-        //:   and that no copies of 'func' have been leaked.
+        //:    the 'function' within the exception test framework.  On
+        //:    exception, verify that any allocated memory has been released
+        //:    and that no copies of 'func' have been leaked.
         //:
         //: 12 For concern 13, invoke 'testConstructFromCallableObj' on an
-        //:   interesting selection of functor types wrapped in a nothrow
-        //:   wrapper. Verify that for all functors that fit in the small
-        //:   object buffer, even if they have throwing move constructors, no
-        //:   memory is allocated (i.e., the functor is stored in the small
-        //:   object buffer).
+        //:    interesting selection of functor types wrapped in a nothrow
+        //:    wrapper. Verify that for all functors that fit in the small
+        //:    object buffer, even if they have throwing move constructors, no
+        //:    memory is allocated (i.e., the functor is stored in the small
+        //:    object buffer).
         //:
         //: 13 For concern 14, add tests to 'testConstructFromCallableObj' that
-        //:   require conversion from 'FUNC' to 'bsl::function'.  Invoke
-        //:   'testConstructFromCallableObj' on a class that lacks dedicated
-        //:   move operations.  Repeat for such a class that also is
-        //:   constructuble from 'function'.  Verify that a transformation from
-        //:   'MovableRef<FUNC>' to 'FUNC' is a better match for overloading
-        //:   than a conversion from 'MovableRef<FUNC>' to 'bsl::function'
-        //:   (regression test from prior ambiguity).
+        //:    require conversion from 'FUNC' to 'bsl::function'.  Invoke
+        //:    'testConstructFromCallableObj' on a class that lacks dedicated
+        //:    move operations.  Repeat for such a class that also is
+        //:    constructuble from 'function'.  Verify that a transformation
+        //:    from 'MovableRef<FUNC>' to 'FUNC' is a better match for
+        //:    overloading than a conversion from 'MovableRef<FUNC>' to
+        //:    'bsl::function' (regression test from prior ambiguity).
         //:
-        //: 14 For concern 15, construct a 'bsl::function' from an empty
-        //:   'function' having a different prototype.  Verify that the
-        //:   resulting object is empty.
+        //: 14 For concern 15, construct a 'function' from an empty 'function'
+        //:    having a different prototype.  Verify that the resulting object
+        //:    is empty.
         //:
         //: 15 For concern 16, construct a 'bsl::function' from a function that
-        //:   has at least 1 default argument.
+        //:    has at least 1 default argument.
+        //:
+        //: 16 For concern 17, In C++11, test constructing 'bsl::function'
+        //:    objects with a wide variety of functors, and verify that the
+        //:    constructor from that functor only participates in overload
+        //:    resolution if the functor is Lvalue-Callable with the return
+        //:    type and arguments of the prototype of the 'bsl::function'.
         //
         // Testing
         //  function(FUNC func);
@@ -6596,6 +7511,391 @@ int main(int argc, char *argv[])
 
 #undef TEST
 
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+#define TEST(p, f, c) testIsConstructible<p, f>(__LINE__, #f, c)
+
+        typedef IntWrapper                        IW;
+        typedef SmartPtr<IntWrapper>              SIW;
+        typedef SmartPtr<const IntWrapper>        ScIW;
+        typedef RWrap<IntWrapper>                 RIW;
+        typedef RWrap<const IntWrapper>           RcIW;
+
+        typedef IntWrapperDerived                 IWD;
+        typedef SmartPtr<IntWrapperDerived>       SIWD;
+        typedef SmartPtr<const IntWrapperDerived> ScIWD;
+        typedef RWrap<IntWrapperDerived>          RIWD;
+        typedef RWrap<const IntWrapperDerived>    RcIWD;
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+        static const bool MSVC = true;
+#else
+        static const bool MSVC = false;
+#endif
+
+        //                                                 Constructible?
+        //  Proto Functor Type                                           \.
+        //  ===== ==================================================== =======
+
+        // 'bsl::function' objects having 'PROTO' prototype constructed with
+        // const- and/or reference-qualified functions, pointer to functions,
+        // and pointers to member functions that vary in arity and return-type
+        // compatibility.
+        TEST(PROTO, int     ()                                        , false);
+        TEST(PROTO, int     (IW)                                      , false);
+        TEST(PROTO, int     (IW, int)                                 , true );
+        TEST(PROTO, int     (IW, int, int)                            , false);
+        TEST(PROTO, void    ()                                        , false);
+        TEST(PROTO, void    (IW)                                      , false);
+        TEST(PROTO, void    (IW, int)                                 , false);
+        TEST(PROTO, void    (IW, int, int)                            , false);
+        TEST(PROTO, int     ()                                        , false);
+        TEST(PROTO, int     (IWD)                                     , false);
+        TEST(PROTO, int     (IWD, int)                                , false);
+        TEST(PROTO, int     (IWD, int, int)                           , false);
+        TEST(PROTO, int  (*)()                                        , false);
+        TEST(PROTO, int  (*)(IW)                                      , false);
+        TEST(PROTO, int  (*)(IW, int)                                 , true );
+        TEST(PROTO, int  (*)(IW, int, int)                            , false);
+        TEST(PROTO, void (*)()                                        , false);
+        TEST(PROTO, void (*)(IW)                                      , false);
+        TEST(PROTO, void (*)(IW, int)                                 , false);
+        TEST(PROTO, void (*)(IW, int, int)                            , false);
+        TEST(PROTO, int  (IW::*)()                                    , false);
+        TEST(PROTO, int  (IW::*)(int)                                 , false);
+        TEST(PROTO, int  (IW::*)(int, int)                            , false);
+        TEST(PROTO, void (IW::*)()                                    , false);
+        TEST(PROTO, void (IW::*)(int)                                 , false);
+        TEST(PROTO, void (IW::*)(int, int)                            , false);
+        TEST(PROTO, int  (IW::*)(int) &                               , false);
+        TEST(PROTO, void (IW::*)(int) &                               , false);
+        TEST(PROTO, int  (IW::*)(int) const                           , true );
+        TEST(PROTO, void (IW::*)(int) const                           , false);
+        TEST(PROTO, int  (IW::*)(int) const&                          , true );
+        TEST(PROTO, void (IW::*)(int) const&                          , false);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(PROTO, int  (IW::*)(int) &&                              , false);
+        TEST(PROTO, void (IW::*)(int) &&                              , false);
+        TEST(PROTO, int  (IW::*)(int) const&&                         , false);
+        TEST(PROTO, void (IW::*)(int) const&&                         , false);
+#endif
+
+        // 'bsl::function' objects having 'PROTO' prototype constructed with
+        // pointers to member objects.
+        TEST(PROTO, int IW::*                                         , false);
+
+        // 'bsl::function' objects having 'PROTO' prototype constructed with
+        // optionally const- and/or reference-qualified function objects,
+        // having function-call operators that vary in arity and return type
+        // compatibility.
+        TEST(PROTO,       HypotheticalFunctor<int ()>                 , false);
+        TEST(PROTO,       HypotheticalFunctor<int (IW)>               , false);
+        TEST(PROTO,       HypotheticalFunctor<int (IW, int)>          , true );
+        TEST(PROTO,       HypotheticalFunctor<int (IW, int, int)>     , false);
+        TEST(PROTO,       HypotheticalFunctor<void()>                 , false);
+        TEST(PROTO,       HypotheticalFunctor<void(IW)>               , false);
+        TEST(PROTO,       HypotheticalFunctor<void(IW, int)>          , false);
+        TEST(PROTO,       HypotheticalFunctor<void(IW, int, int)>     , false);
+        TEST(PROTO, const HypotheticalFunctor<int (IW, int)>          , true );
+        TEST(PROTO, const HypotheticalFunctor<int (IW, int)>&         , true );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(PROTO,       HypotheticalFunctor<int (IW, int)>&&        , true );
+        TEST(PROTO, const HypotheticalFunctor<int (IW, int)>&&        , true );
+#endif
+
+        //                                           Constructible?
+        //  Prototype                    Functor Type              \.
+        //  ============================ ======================= =======
+
+        // 'bsl::function' objects having prototypes with arguments and return
+        // values implicitly convertible to and/or from those of the function
+        // object from which they're constructed.
+        TEST(      int   (int          ), int   (int  )         , true );
+        TEST(      int   (int          ), int   (float)         , true );
+        TEST(      int   (int          ), float (int  )         , true );
+        TEST(      int   (int          ), float (float)         , true );
+        TEST(      int   (float        ), int   (int  )         , true );
+        TEST(      int   (float        ), int   (float)         , true );
+        TEST(      int   (float        ), float (int  )         , true );
+        TEST(      int   (float        ), float (float)         , true );
+        TEST(      float (int          ), int   (int  )         , true );
+        TEST(      float (int          ), int   (float)         , true );
+        TEST(      float (int          ), float (int  )         , true );
+        TEST(      float (int          ), float (float)         , true );
+        TEST(      float (float        ), int   (int  )         , true );
+        TEST(      float (float        ), int   (float)         , true );
+        TEST(      float (float        ), float (int  )         , true );
+        TEST(      float (float        ), float (float)         , true );
+
+        // 'bsl::function' objects having prototypes with const- and/or
+        // reference-qualified arguments and results, constructed with pointers
+        // to member objects.
+        TEST(      void  (        IW   ), int IW::*             , true );
+        TEST(      void  (        IW&  ), int IW::*             , true );
+        TEST(      void  (const   IW   ), int IW::*             , true );
+        TEST(      void  (const   IW&  ), int IW::*             , true );
+        TEST(      int   (        IW   ), int IW::*             , true );
+        TEST(      int   (        IW&  ), int IW::*             , true );
+        TEST(      int   (const   IW   ), int IW::*             , true );
+        TEST(      int   (const   IW&  ), int IW::*             , true );
+        TEST(      int&  (        IW   ), int IW::*             , false);
+        TEST(      int&  (        IW&  ), int IW::*             , true );
+        TEST(      int&  (const   IW   ), int IW::*             , false);
+        TEST(      int&  (const   IW&  ), int IW::*             , false);
+        TEST(const int&  (        IW   ), int IW::*             , true );
+        TEST(const int&  (        IW&  ), int IW::*             , true );
+        TEST(const int&  (const   IW   ), int IW::*             , true );
+        TEST(const int&  (const   IW&  ), int IW::*             , true );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(      void  (        IW&& ), int IW::*             , true );
+        TEST(      void  (const   IW&& ), int IW::*             , true );
+        TEST(      int   (        IW&& ), int IW::*             , true );
+        TEST(      int   (const   IW&& ), int IW::*             , true );
+        TEST(      int&  (        IW&& ), int IW::*             , false);
+        TEST(      int&  (const   IW&& ), int IW::*             , false);
+        TEST(const int&  (        IW&& ), int IW::*             , true );
+        TEST(const int&  (const   IW&& ), int IW::*             , true );
+        TEST(      int&& (        IW   ), int IW::*             , true );
+        TEST(      int&& (        IW&  ), int IW::*             , true );
+        TEST(      int&& (        IW&& ), int IW::*             , true );
+        TEST(      int&& (const   IW   ), int IW::*             , true );
+        TEST(      int&& (const   IW&  ), int IW::*             , false);
+        TEST(      int&& (const   IW&& ), int IW::*             , false);
+        TEST(const int&& (        IW   ), int IW::*             , true );
+        TEST(const int&& (        IW&  ), int IW::*             , true );
+        TEST(const int&& (        IW&& ), int IW::*             , true );
+        TEST(const int&& (const   IW   ), int IW::*             , true );
+        TEST(const int&& (const   IW&  ), int IW::*             , true );
+        TEST(const int&& (const   IW&& ), int IW::*             , true );
+#endif
+
+        // 'bsl::function' objects having prototypes with smart pointer to, and
+        // reference-wrapped class types, constructed with pointers to member
+        // objects.
+        TEST(       int  (        IW   ), int  IW::*            , true );
+        TEST(       int  (        IW&  ), int  IW::*            , true );
+        TEST(       int  (const   IW   ), int  IW::*            , true );
+        TEST(       int  (const   IW&  ), int  IW::*            , true );
+        TEST(       int  (       RIW   ), int  IW::*            , true );
+        TEST(       int  (       RIW&  ), int  IW::*            , true );
+        TEST(       int  (const  RIW   ), int  IW::*            , true );
+        TEST(       int  (const  RIW&  ), int  IW::*            , true );
+        TEST(       int  (      RcIW   ), int  IW::*            , true );
+        TEST(       int  (      RcIW&  ), int  IW::*            , true );
+        TEST(       int  (const RcIW   ), int  IW::*            , true );
+        TEST(       int  (const RcIW&  ), int  IW::*            , true );
+        TEST(       int  (       SIW   ), int  IW::*            , true );
+        TEST(       int  (       SIW&  ), int  IW::*            , true );
+        TEST(       int  (const  SIW   ), int  IW::*            , true );
+        TEST(       int  (const  SIW&  ), int  IW::*            , true );
+        TEST(       int  (      ScIW   ), int  IW::*            , true );
+        TEST(       int  (      ScIW&  ), int  IW::*            , true );
+        TEST(       int  (const ScIW   ), int  IW::*            , true );
+        TEST(       int  (const ScIW&  ), int  IW::*            , true );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(       int  (        IW&& ), int  IW::*            , true );
+        TEST(       int  (const   IW&& ), int  IW::*            , true );
+        TEST(       int  (       RIW&& ), int  IW::*            , true );
+        TEST(       int  (const  RIW&& ), int  IW::*            , true );
+        TEST(       int  (      RcIW&& ), int  IW::*            , true );
+        TEST(       int  (const RcIW&& ), int  IW::*            , true );
+        TEST(       int  (       SIW&& ), int  IW::*            , true );
+        TEST(       int  (const  SIW&& ), int  IW::*            , true );
+        TEST(       int  (      ScIW&& ), int  IW::*            , true );
+        TEST(       int  (const ScIW&& ), int  IW::*            , true );
+#endif
+
+        // 'bsl::function' objects having prototypes with smart pointer to, and
+        // reference-wrapped class types, constructed with pointers to member
+        // objects of a base type.
+        TEST(       int  (        IWD  ), int  IW::*            , true );
+        TEST(       int  (        IWD& ), int  IW::*            , true );
+        TEST(       int  (const   IWD  ), int  IW::*            , true );
+        TEST(       int  (const   IWD& ), int  IW::*            , true );
+        TEST(       int  (       RIWD  ), int  IW::*            , true );
+        TEST(       int  (       RIWD& ), int  IW::*            , true );
+        TEST(       int  (const  RIWD  ), int  IW::*            , true );
+        TEST(       int  (const  RIWD& ), int  IW::*            , true );
+        TEST(       int  (      RcIWD  ), int  IW::*            , true );
+        TEST(       int  (      RcIWD& ), int  IW::*            , true );
+        TEST(       int  (const RcIWD  ), int  IW::*            , true );
+        TEST(       int  (const RcIWD& ), int  IW::*            , true );
+        TEST(       int  (       SIWD  ), int  IW::*            , true );
+        TEST(       int  (       SIWD& ), int  IW::*            , true );
+        TEST(       int  (const  SIWD  ), int  IW::*            , true );
+        TEST(       int  (const  SIWD& ), int  IW::*            , true );
+        TEST(       int  (      ScIWD  ), int  IW::*            , true );
+        TEST(       int  (      ScIWD& ), int  IW::*            , true );
+        TEST(       int  (const ScIWD  ), int  IW::*            , true );
+        TEST(       int  (const ScIWD& ), int  IW::*            , true );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(       int  (        IWD&&), int  IW::*            , true );
+        TEST(       int  (const   IWD&&), int  IW::*            , true );
+        TEST(       int  (       RIWD&&), int  IW::*            , true );
+        TEST(       int  (const  RIWD&&), int  IW::*            , true );
+        TEST(       int  (      RcIWD&&), int  IW::*            , true );
+        TEST(       int  (const RcIWD&&), int  IW::*            , true );
+        TEST(       int  (       SIWD&&), int  IW::*            , true );
+        TEST(       int  (const  SIWD&&), int  IW::*            , true );
+        TEST(       int  (      ScIWD&&), int  IW::*            , true );
+        TEST(       int  (const ScIWD&&), int  IW::*            , true );
+#endif
+
+        // 'bsl::function' objects with prototypes having smart pointer to, and
+        // reference-wrapped, class types, constructed with pointers to member
+        // functions.
+        TEST(       int  (        IW   ), int (IW::*)()         , true );
+        TEST(       int  (       RIW   ), int (IW::*)()         , true );
+        TEST(       int  (      RcIW   ), int (IW::*)()         , false);
+        TEST(       int  (       SIW   ), int (IW::*)()         , true );
+        TEST(       int  (      ScIW   ), int (IW::*)()         , false);
+        TEST(       int  (        IW   ), int (IW::*)() &       , false);
+        TEST(       int  (       RIW   ), int (IW::*)() &       , true );
+        TEST(       int  (      RcIW   ), int (IW::*)() &       , false);
+        TEST(       int  (       SIW   ), int (IW::*)() &       , true );
+        TEST(       int  (      ScIW   ), int (IW::*)() &       , false);
+        TEST(       int  (        IW   ), int (IW::*)() const   , true );
+        TEST(       int  (       RIW   ), int (IW::*)() const   , true );
+        TEST(       int  (      RcIW   ), int (IW::*)() const   , true );
+        TEST(       int  (       SIW   ), int (IW::*)() const   , true );
+        TEST(       int  (      ScIW   ), int (IW::*)() const   , true );
+        TEST(       int  (        IW   ), int (IW::*)() const&  , MSVC );
+        TEST(       int  (       RIW   ), int (IW::*)() const&  , true );
+        TEST(       int  (      RcIW   ), int (IW::*)() const&  , true );
+        TEST(       int  (       SIW   ), int (IW::*)() const&  , true );
+        TEST(       int  (      ScIW   ), int (IW::*)() const&  , true );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(       int  (        IW   ), int (IW::*)() &&      , true );
+        TEST(       int  (       RIW   ), int (IW::*)() &&      , false);
+        TEST(       int  (      RcIW   ), int (IW::*)() &&      , false);
+        TEST(       int  (       SIW   ), int (IW::*)() &&      , false);
+        TEST(       int  (      ScIW   ), int (IW::*)() &&      , false);
+        TEST(       int  (        IW   ), int (IW::*)() const&& , true );
+        TEST(       int  (       RIW   ), int (IW::*)() const&& , false);
+        TEST(       int  (      RcIW   ), int (IW::*)() const&& , false);
+        TEST(       int  (       SIW   ), int (IW::*)() const&& , false);
+        TEST(       int  (      ScIW   ), int (IW::*)() const&& , false);
+#endif
+
+        // 'bsl::function' objects with prototypes having smart pointer to, and
+        // reference-wrapped, class types, constructed with pointers to member
+        // functions of base types.
+        TEST(       int  (        IWD  ), int (IW::*)()         , true );
+        TEST(       int  (       RIWD  ), int (IW::*)()         , true );
+        TEST(       int  (      RcIWD  ), int (IW::*)()         , false);
+        TEST(       int  (       SIWD  ), int (IW::*)()         , true );
+        TEST(       int  (      ScIWD  ), int (IW::*)()         , false);
+        TEST(       int  (        IWD  ), int (IW::*)() &       , false);
+        TEST(       int  (       RIWD  ), int (IW::*)() &       , true );
+        TEST(       int  (      RcIWD  ), int (IW::*)() &       , false);
+        TEST(       int  (       SIWD  ), int (IW::*)() &       , true );
+        TEST(       int  (      ScIWD  ), int (IW::*)() &       , false);
+        TEST(       int  (        IWD  ), int (IW::*)() const   , true );
+        TEST(       int  (       RIWD  ), int (IW::*)() const   , true );
+        TEST(       int  (      RcIWD  ), int (IW::*)() const   , true );
+        TEST(       int  (       SIWD  ), int (IW::*)() const   , true );
+        TEST(       int  (      ScIWD  ), int (IW::*)() const   , true );
+        TEST(       int  (        IWD  ), int (IW::*)() const&  , MSVC );
+        TEST(       int  (       RIWD  ), int (IW::*)() const&  , true );
+        TEST(       int  (      RcIWD  ), int (IW::*)() const&  , true );
+        TEST(       int  (       SIWD  ), int (IW::*)() const&  , true );
+        TEST(       int  (      ScIWD  ), int (IW::*)() const&  , true );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(       int  (        IWD  ), int (IW::*)() &&      , true );
+        TEST(       int  (       RIWD  ), int (IW::*)() &&      , false);
+        TEST(       int  (      RcIWD  ), int (IW::*)() &&      , false);
+        TEST(       int  (       SIWD  ), int (IW::*)() &&      , false);
+        TEST(       int  (      ScIWD  ), int (IW::*)() &&      , false);
+        TEST(       int  (        IWD  ), int (IW::*)() const&& , true );
+        TEST(       int  (       RIWD  ), int (IW::*)() const&& , false);
+        TEST(       int  (      RcIWD  ), int (IW::*)() const&& , false);
+        TEST(       int  (       SIWD  ), int (IW::*)() const&& , false);
+        TEST(       int  (      ScIWD  ), int (IW::*)() const&& , false);
+#endif
+
+        // 'bsl::function' objects having prototypes with const- and/or
+        // reference-qualified 'IntWrapper' return values, constructed with
+        // lvalue-callable objects that return compatible types.
+        TEST(      IW    (             ),       IW    ()        , true );
+        TEST(      IW    (             ),       IW&   ()        , true );
+        TEST(      IW    (             ), const IW    ()        , true );
+        TEST(      IW    (             ), const IW&   ()        , true );
+        TEST(      IW&   (             ),       IW    ()        , MSVC );
+        TEST(      IW&   (             ),       IW&   ()        , true );
+        TEST(      IW&   (             ), const IW    ()        , false);
+        TEST(      IW&   (             ), const IW&   ()        , false);
+        TEST(const IW    (             ),       IW    ()        , true );
+        TEST(const IW    (             ),       IW&   ()        , true );
+        TEST(const IW    (             ), const IW    ()        , true );
+        TEST(const IW    (             ), const IW&   ()        , true );
+        TEST(const IW&   (             ),       IW    ()        , true );
+        TEST(const IW&   (             ),       IW&   ()        , true );
+        TEST(const IW&   (             ), const IW    ()        , true );
+        TEST(const IW&   (             ), const IW&   ()        , true );
+        TEST(      IWD   (             ),       IW    ()        , false);
+        TEST(      IW    (             ),       IWD   ()        , true );
+        TEST(      IW    (             ),       IWD&  ()        , true );
+        TEST(      IW    (             ), const IWD   ()        , true );
+        TEST(      IW    (             ), const IWD&  ()        , true );
+        TEST(      IW&   (             ),       IWD   ()        , MSVC );
+        TEST(      IW&   (             ),       IWD&  ()        , true );
+        TEST(      IW&   (             ), const IWD   ()        , false);
+        TEST(      IW&   (             ), const IWD&  ()        , false);
+        TEST(const IW    (             ),       IWD   ()        , true );
+        TEST(const IW    (             ),       IWD&  ()        , true );
+        TEST(const IW    (             ), const IWD   ()        , true );
+        TEST(const IW    (             ), const IWD&  ()        , true );
+        TEST(const IW&   (             ),       IWD   ()        , true );
+        TEST(const IW&   (             ),       IWD&  ()        , true );
+        TEST(const IW&   (             ), const IWD   ()        , true );
+        TEST(const IW&   (             ), const IWD&  ()        , true );
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        TEST(      IW    (             ),       IW&&  ()        , true );
+        TEST(      IW    (             ), const IW&&  ()        , true );
+        TEST(      IW&   (             ),       IW&&  ()        , MSVC );
+        TEST(      IW&   (             ), const IW&&  ()        , false);
+        TEST(      IW&   (             ),       IW&&  ()        , MSVC );
+        TEST(      IW&   (             ), const IW&&  ()        , false);
+        TEST(const IW    (             ),       IW&&  ()        , true );
+        TEST(const IW    (             ), const IW&&  ()        , true );
+        TEST(const IW&   (             ),       IW&&  ()        , true );
+        TEST(const IW&   (             ), const IW&&  ()        , true );
+        TEST(      IW&&  (             ),       IW    ()        , true );
+        TEST(      IW&&  (             ),       IW&   ()        , true );
+        TEST(      IW&&  (             ), const IW    ()        , false);
+        TEST(      IW&&  (             ), const IW&   ()        , false);
+        TEST(const IW&&  (             ),       IW    ()        , true );
+        TEST(const IW&&  (             ),       IW&   ()        , true );
+        TEST(const IW&&  (             ), const IW    ()        , true );
+        TEST(const IW&&  (             ), const IW&   ()        , true );
+        TEST(      IW    (             ),       IWD&& ()        , true );
+        TEST(      IW    (             ), const IWD&& ()        , true );
+        TEST(      IW&   (             ),       IWD&& ()        , MSVC );
+        TEST(      IW&   (             ), const IWD&& ()        , false);
+        TEST(const IW    (             ),       IWD&& ()        , true );
+        TEST(const IW    (             ), const IWD&& ()        , true );
+        TEST(const IW&   (             ),       IWD&& ()        , true );
+        TEST(const IW&   (             ), const IWD&& ()        , true );
+        TEST(      IW&&  (             ),       IWD   ()        , true );
+        TEST(      IW&&  (             ),       IWD&  ()        , true );
+        TEST(      IW&&  (             ), const IWD   ()        , false);
+        TEST(      IW&&  (             ), const IWD&  ()        , false);
+        TEST(const IW&&  (             ),       IWD   ()        , true );
+        TEST(const IW&&  (             ),       IWD&  ()        , true );
+        TEST(const IW&&  (             ), const IWD   ()        , true );
+        TEST(const IW&&  (             ), const IWD&  ()        , true );
+#endif
+
+        // Verify that 'bsl::function<PROTO>' is constructible from types that
+        // are implicitly convertible to 'bsl::function<PROTO>'.  Note this
+        // should should be the case for all 'PROTO' types that are function
+        // types without const, volatile, or reference qualifiers.  Further
+        // note that this "test vector" verifies that {DRQS 138769521} has been
+        // addressed.
+        TEST(PROTO, ConvertibleToObj, true);
+
+#undef TEST
+#endif // defined(BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS)
+
         // Concern 15: Construction from an empty 'bsl::function' argument of a
         // different (but compatible) 'bsl::function' instantiation, yields an
         // empty 'function' (it does not wrap the empty 'bsl::function').
@@ -6604,17 +7904,16 @@ int main(int argc, char *argv[])
         // direct test seems called for.
         ASSERT(isNull(emptyInnerFunction));
         Obj emptyCopy(emptyInnerFunction);
-        ASSERT(! emptyCopy);
+        ASSERT(!emptyCopy);
 
-        // Concern 16: Construction from a function that has a default argument
+        // Concern 17: Construction from a function that has a default argument
         // is possible despite defects in certain compilers.
         {
-            bsl::function<void(int)> f( functionWithDefaultArgument);
+            bsl::function<void(int)> f(functionWithDefaultArgument);
             bsl::function<void(int)> g(&functionWithDefaultArgument);
         }
 
       } break;
-
       case 4: {
         // --------------------------------------------------------------------
         // TESTING DEFAULT AND 'nullptr' CONSTRUCTORS

@@ -16,7 +16,7 @@
 // minimal 'main' program that tests nothing and is not '#include'd in the
 // original.
 //
-// Generated on Wed Feb 17 15:14:49 2021
+// Generated on Mon May 17 11:34:47 2021
 // Command line: sim_cpp11_features.pl bslstl_function_invokerutil.t.cpp
 
 // Expanded test driver only when compiling bslstl_function_invokerutil.cpp
@@ -42,6 +42,7 @@ using namespace BloombergLP;
 // [ 3] invokerForFunc(const FUNC& f); // 'FUNC' == ptr to member function
 // [ 4] invokerForFunc(const FUNC& f); // 'FUNC' == ptr to data member
 // [ 5] invokerForFunc(const FUNC& f); // 'FUNC' == user-defined functor
+// [ 6] IsFuncInvocable<PROTOTYPE, FUNC>
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -168,6 +169,413 @@ void increment(int *val)
 {
     ++*val;
 }
+
+class Base {
+    // a complete class type
+};
+
+class Derived : public Base {
+    // a complete class type that derives from 'Base'
+};
+
+class Explicit {
+    // a complete class type that is explicitly convertible from 'Base'
+
+  public:
+    // CREATORS
+    explicit Explicit(Base);
+        // declared but not defined
+};
+
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_function_invokerutil.t.cpp
+#ifndef BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT
+#define BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT 13
+#endif
+#ifndef BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A
+#define BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT
+#endif
+
+template <class PROTOTYPE>
+class F;
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+template <class RET>
+class F<RET()> {
+
+  public:
+    RET operator()() const;
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+template <class RET, class ARGS_01>
+class F<RET(ARGS_01)> {
+
+  public:
+    RET operator()(ARGS_01) const;
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+template <class RET, class ARGS_01,
+                     class ARGS_02>
+class F<RET(ARGS_01,
+            ARGS_02)> {
+
+  public:
+    RET operator()(ARGS_01,
+                   ARGS_02) const;
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03>
+class F<RET(ARGS_01,
+            ARGS_02,
+            ARGS_03)> {
+
+  public:
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03) const;
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04>
+class F<RET(ARGS_01,
+            ARGS_02,
+            ARGS_03,
+            ARGS_04)> {
+
+  public:
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04) const;
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05>
+class F<RET(ARGS_01,
+            ARGS_02,
+            ARGS_03,
+            ARGS_04,
+            ARGS_05)> {
+
+  public:
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05) const;
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06>
+class F<RET(ARGS_01,
+            ARGS_02,
+            ARGS_03,
+            ARGS_04,
+            ARGS_05,
+            ARGS_06)> {
+
+  public:
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06) const;
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07>
+class F<RET(ARGS_01,
+            ARGS_02,
+            ARGS_03,
+            ARGS_04,
+            ARGS_05,
+            ARGS_06,
+            ARGS_07)> {
+
+  public:
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07) const;
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08>
+class F<RET(ARGS_01,
+            ARGS_02,
+            ARGS_03,
+            ARGS_04,
+            ARGS_05,
+            ARGS_06,
+            ARGS_07,
+            ARGS_08)> {
+
+  public:
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07,
+                   ARGS_08) const;
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09>
+class F<RET(ARGS_01,
+            ARGS_02,
+            ARGS_03,
+            ARGS_04,
+            ARGS_05,
+            ARGS_06,
+            ARGS_07,
+            ARGS_08,
+            ARGS_09)> {
+
+  public:
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07,
+                   ARGS_08,
+                   ARGS_09) const;
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10>
+class F<RET(ARGS_01,
+            ARGS_02,
+            ARGS_03,
+            ARGS_04,
+            ARGS_05,
+            ARGS_06,
+            ARGS_07,
+            ARGS_08,
+            ARGS_09,
+            ARGS_10)> {
+
+  public:
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07,
+                   ARGS_08,
+                   ARGS_09,
+                   ARGS_10) const;
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11>
+class F<RET(ARGS_01,
+            ARGS_02,
+            ARGS_03,
+            ARGS_04,
+            ARGS_05,
+            ARGS_06,
+            ARGS_07,
+            ARGS_08,
+            ARGS_09,
+            ARGS_10,
+            ARGS_11)> {
+
+  public:
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07,
+                   ARGS_08,
+                   ARGS_09,
+                   ARGS_10,
+                   ARGS_11) const;
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12>
+class F<RET(ARGS_01,
+            ARGS_02,
+            ARGS_03,
+            ARGS_04,
+            ARGS_05,
+            ARGS_06,
+            ARGS_07,
+            ARGS_08,
+            ARGS_09,
+            ARGS_10,
+            ARGS_11,
+            ARGS_12)> {
+
+  public:
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07,
+                   ARGS_08,
+                   ARGS_09,
+                   ARGS_10,
+                   ARGS_11,
+                   ARGS_12) const;
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+template <class RET, class ARGS_01,
+                     class ARGS_02,
+                     class ARGS_03,
+                     class ARGS_04,
+                     class ARGS_05,
+                     class ARGS_06,
+                     class ARGS_07,
+                     class ARGS_08,
+                     class ARGS_09,
+                     class ARGS_10,
+                     class ARGS_11,
+                     class ARGS_12,
+                     class ARGS_13>
+class F<RET(ARGS_01,
+            ARGS_02,
+            ARGS_03,
+            ARGS_04,
+            ARGS_05,
+            ARGS_06,
+            ARGS_07,
+            ARGS_08,
+            ARGS_09,
+            ARGS_10,
+            ARGS_11,
+            ARGS_12,
+            ARGS_13)> {
+
+  public:
+    RET operator()(ARGS_01,
+                   ARGS_02,
+                   ARGS_03,
+                   ARGS_04,
+                   ARGS_05,
+                   ARGS_06,
+                   ARGS_07,
+                   ARGS_08,
+                   ARGS_09,
+                   ARGS_10,
+                   ARGS_11,
+                   ARGS_12,
+                   ARGS_13) const;
+};
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+
+template <class PROTOTYPE>
+class F;
+
+template <class RET, class... ARGS>
+class F<RET(ARGS...)> {
+
+  public:
+    RET operator()(ARGS...) const;
+};
+
+// }}} END GENERATED CODE
+#endif
 
 class ConvertibleToInt
 {
@@ -607,66 +1015,66 @@ struct ArgGenerator<DeducibleMovableRef<TYPE> > : ArgGeneratorBase<TYPE> {
 #ifndef BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT
 #define BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT 13
 #endif
-#ifndef BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A
-#define BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT
+#ifndef BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B
+#define BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT
 #endif
 
 template <class RET
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
         , class ARGS_0 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
         , class ARGS_1 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
         , class ARGS_2 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
         , class ARGS_3 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
         , class ARGS_4 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
         , class ARGS_5 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
         , class ARGS_6 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
         , class ARGS_7 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
         , class ARGS_8 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
         , class ARGS_9 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
         , class ARGS_10 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
         , class ARGS_11 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
         , class ARGS_12 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
         , class = BSLS_COMPILERFEATURES_NILT>
 struct TestUtil;
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 template <class RET>
 struct TestUtil<RET> {
 
@@ -675,9 +1083,9 @@ struct TestUtil<RET> {
     typedef RET PROTOTYPE();
     typedef RET Invoker(const Rep                                     * );
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
 template <class RET, class ARGS_01>
 struct TestUtil<RET, ARGS_01> {
 
@@ -687,9 +1095,9 @@ struct TestUtil<RET, ARGS_01> {
     typedef RET Invoker(const Rep                                     *,
                         typename bslmf::ForwardingType<ARGS_01>::Type );
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02>
 struct TestUtil<RET, ARGS_01,
@@ -703,9 +1111,9 @@ struct TestUtil<RET, ARGS_01,
                         typename bslmf::ForwardingType<ARGS_01>::Type,
                         typename bslmf::ForwardingType<ARGS_02>::Type );
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
@@ -723,9 +1131,9 @@ struct TestUtil<RET, ARGS_01,
                         typename bslmf::ForwardingType<ARGS_02>::Type,
                         typename bslmf::ForwardingType<ARGS_03>::Type );
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -747,9 +1155,9 @@ struct TestUtil<RET, ARGS_01,
                         typename bslmf::ForwardingType<ARGS_03>::Type,
                         typename bslmf::ForwardingType<ARGS_04>::Type );
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -775,9 +1183,9 @@ struct TestUtil<RET, ARGS_01,
                         typename bslmf::ForwardingType<ARGS_04>::Type,
                         typename bslmf::ForwardingType<ARGS_05>::Type );
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -807,9 +1215,9 @@ struct TestUtil<RET, ARGS_01,
                         typename bslmf::ForwardingType<ARGS_05>::Type,
                         typename bslmf::ForwardingType<ARGS_06>::Type );
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -843,9 +1251,9 @@ struct TestUtil<RET, ARGS_01,
                         typename bslmf::ForwardingType<ARGS_06>::Type,
                         typename bslmf::ForwardingType<ARGS_07>::Type );
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -883,9 +1291,9 @@ struct TestUtil<RET, ARGS_01,
                         typename bslmf::ForwardingType<ARGS_07>::Type,
                         typename bslmf::ForwardingType<ARGS_08>::Type );
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -927,9 +1335,9 @@ struct TestUtil<RET, ARGS_01,
                         typename bslmf::ForwardingType<ARGS_08>::Type,
                         typename bslmf::ForwardingType<ARGS_09>::Type );
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -975,9 +1383,9 @@ struct TestUtil<RET, ARGS_01,
                         typename bslmf::ForwardingType<ARGS_09>::Type,
                         typename bslmf::ForwardingType<ARGS_10>::Type );
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -1027,9 +1435,9 @@ struct TestUtil<RET, ARGS_01,
                         typename bslmf::ForwardingType<ARGS_10>::Type,
                         typename bslmf::ForwardingType<ARGS_11>::Type );
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -1083,9 +1491,9 @@ struct TestUtil<RET, ARGS_01,
                         typename bslmf::ForwardingType<ARGS_11>::Type,
                         typename bslmf::ForwardingType<ARGS_12>::Type );
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -1143,10 +1551,10 @@ struct TestUtil<RET, ARGS_01,
                         typename bslmf::ForwardingType<ARGS_12>::Type,
                         typename bslmf::ForwardingType<ARGS_13>::Type );
 };
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
 
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 template <class RET, class FUNC>
 typename TestUtil<RET, BSLS_COMPILERFEATURES_FILLT(13)>::Invoker *
 getInvoker(Rep *rep, FUNC target)
@@ -1162,9 +1570,9 @@ getInvoker(Rep *rep, FUNC target)
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 0
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 0
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
 template <class RET, class ARGS_01, class FUNC>
 typename TestUtil<RET, ARGS_01,
                        BSLS_COMPILERFEATURES_FILLT(12)>::Invoker *
@@ -1181,9 +1589,9 @@ getInvoker(Rep *rep, FUNC target)
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 1
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 1
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
 template <class RET, class ARGS_01,
                      class ARGS_02, class FUNC>
 typename TestUtil<RET, ARGS_01,
@@ -1203,9 +1611,9 @@ getInvoker(Rep *rep, FUNC target)
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 2
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 2
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03, class FUNC>
@@ -1228,9 +1636,9 @@ getInvoker(Rep *rep, FUNC target)
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 3
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 3
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -1256,9 +1664,9 @@ getInvoker(Rep *rep, FUNC target)
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 4
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 4
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -1287,9 +1695,9 @@ getInvoker(Rep *rep, FUNC target)
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 5
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 5
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -1321,9 +1729,9 @@ getInvoker(Rep *rep, FUNC target)
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 6
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 6
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -1358,9 +1766,9 @@ getInvoker(Rep *rep, FUNC target)
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 7
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 7
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -1398,9 +1806,9 @@ getInvoker(Rep *rep, FUNC target)
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 8
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 8
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -1441,9 +1849,9 @@ getInvoker(Rep *rep, FUNC target)
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 9
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 9
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -1487,9 +1895,9 @@ getInvoker(Rep *rep, FUNC target)
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 10
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 10
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -1536,9 +1944,9 @@ getInvoker(Rep *rep, FUNC target)
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 11
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 11
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -1588,9 +1996,9 @@ getInvoker(Rep *rep, FUNC target)
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 12
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 12
 
-#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+#if BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
@@ -1643,7 +2051,7 @@ getInvoker(Rep *rep, FUNC target)
 
     return reinterpret_cast<Invoker *>(ginv_p);
 }
-#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_A >= 13
+#endif  // BSLSTL_FUNCTION_INVOKERUTIL_VARIADIC_LIMIT_B >= 13
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -2019,6 +2427,31 @@ void testFunctor()
     ASSERT(0x4000 == rep.target<FUNC>()->value());
 }
 
+#ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+
+class TestIsFuncInvocable {
+
+  public:
+    // CREATORS
+    TestIsFuncInvocable()
+    {
+    }
+
+    // ACCESSORS
+    template <class PROTOTYPE, class FUNC>
+    void run(int LINE, bool EXPECTED_VALUE) const
+    {
+        if (EXPECTED_VALUE) {
+            ASSERTV(LINE, (Util::IsFuncInvocable<PROTOTYPE, FUNC>::value));
+        }
+        else {
+            ASSERTV(LINE, (! Util::IsFuncInvocable<PROTOTYPE, FUNC>::value));
+        }
+    }
+};
+
+#endif // defined(BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE)
+
 }  // Close unnamed namespace
 
 // ============================================================================
@@ -2042,6 +2475,605 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING 'IsFuncInvocable<PROTOTYPE, FUNC>'
+        //   This case tests that 'IsFuncInvocable' correctly detects whether
+        //   objects of 'FUNC' type are invocable with the
+        //   'bslmf::ForwardingType'-forwarded argument types of the
+        //   'PROTOTYPE'.  This case also tests that 'IsFuncInvocable'
+        //   correctly detects whether objects of 'FUNC' type return an object
+        //   of a type that is explicitly convertible to the return type of the
+        //   'PROTOTYPE'.  If both of these criteria are met, 'IsFuncInvocable'
+        //   should declare a 'true' 'value', and should declare a 'false'
+        //   'value' otherwise.
+        //
+        //   Note that 'IsFuncInvocable' is qualitatively different than
+        //   'std::is_invocable_r', in that it makes concessions for supporting
+        //   legacy behavior of 'bsl::function'.  'std::is_invocable_r<RET,
+        //   FUNC, ARGS...>' requires that the return type of the invocation of
+        //   'FUNC' with 'ARGS...' be implicitly convertible to 'RET', as
+        //   opposed to explicitly convertible.  Further, the use of
+        //   'bslmf::ForwardingType' to forward arguments in the invoker of a
+        //   'bsl::function' creates qualitatively different behavior than
+        //   the argument forwarding mechanism used by the standard 'INVOKE'
+        //   pseudo-expression.
+        //
+        //   In the concerns and plan, 'PROTOTYPE' is a function prototype
+        //   and 'RET(ARGS...)' is the same function prototype, where 'RET' is
+        //   the return type and 'ARGS...' are the argument types.
+        //
+        // Concerns:
+        //: 1 If 'FUNC' is invocable with the arguments 'ARGS...' forwarded
+        //:   through 'bslmf::ForwardingType', and the return type of invoking
+        //:   'FUNC' as such is explicitly convertible to 'RET',
+        //:   'IsFuncInvocable' declares a static, Boolean data member 'value'
+        //:   that is 'true', and declares such a 'value' that is 'false'
+        //:   otherwise.
+        //
+        // Plan:
+        //: 1 Using a large combination of cvr-qualified fundamental and
+        //:   class types in argument and return positions of 'PROTOTYPE" and
+        //:   the call operator of 'FUNC',  verify that the results of
+        //:   'IsFuncInvocable<PROTOTYPE, FUNC>' meet the specification of
+        //:   concern 1.
+        //:
+        //: 2 Verify that explicit conversions are permitted between the
+        //:   return type of 'FUNC' and 'RET'.
+        //:
+        //: 3 Verify that, for backward compatibility,
+        //:   'IsFuncInvocable<PROTOTYPE, FUNC>' permits bindings rvalues
+        //:   of fundamental types in 'ARGS...' to corresponding lvalues in the
+        //:   parameter list of 'FUNC'.  For more information, see
+        //:   {DRQS 164834023}.
+        //
+        // Testing
+        //  IsFuncInvocable<PROTOTYPE, FUNC>
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING 'IsFuncInvocable<PROTOTYPE, FUNC>'"
+                   "\n==========================================\n");
+
+#ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
+
+          const TestIsFuncInvocable TEST;
+
+          static const bool YES = true;
+          static const bool NO  = false;
+
+          typedef int                          I;
+          typedef const int                    cI;
+          typedef volatile int                 vI;
+          typedef const volatile int           cvI;
+          typedef int&                         rI;
+          typedef const int&                   rcI;
+          typedef volatile int&                rvI;
+          typedef const volatile int&          rcvI;
+          typedef bslmf::MovableRef<int>       rrI;
+          typedef bslmf::MovableRef<const int> rrcI;
+
+          typedef int                      *PI;
+          typedef int *&                    rPI;
+          typedef bslmf::MovableRef<int *>  rrPI;
+
+          typedef const int                      *PcI;
+          typedef const int *&                    rPcI;
+          typedef bslmf::MovableRef<const int *>  rrPcI;
+
+          typedef int       AI[10];
+          typedef const int AcI[10];
+          typedef int(&rAI)[10];
+          typedef const int(&rAcI)[10];
+          typedef int(&&rrAI)[10];
+          typedef const int(&&rrAcI)[10];
+
+          typedef Base                       B;
+          typedef const B                    cB;
+          typedef volatile B                 vB;
+          typedef const volatile B           cvB;
+          typedef B&                         rB;
+          typedef const B&                   rcB;
+          typedef volatile B&                rvB;
+          typedef const volatile B&          rcvB;
+          typedef bslmf::MovableRef<B>       rrB;
+          typedef bslmf::MovableRef<const B> rrcB;
+
+          typedef Derived                    D;
+          typedef D&                         rD;
+          typedef const D&                   rcD;
+          typedef bslmf::MovableRef<D>       rrD;
+          typedef bslmf::MovableRef<const D> rrcD;
+
+          typedef Explicit                   E;
+          typedef E&                         rE;
+          typedef const E&                   rcE;
+          typedef bslmf::MovableRef<E>       rrE;
+          typedef bslmf::MovableRef<const E> rrcE;
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)    \
+ && BSLS_PLATFORM_CMP_VERSION >= 100000 \
+ && BSLS_PLATFORM_CMP_VERSION <  110000
+          BSLA_MAYBE_UNUSED static const bool CLANG10 = true;
+#else
+          BSLA_MAYBE_UNUSED static const bool CLANG10 = false;
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)    \
+ && BSLS_PLATFORM_CMP_VERSION >= 110000 \
+ && BSLS_PLATFORM_CMP_VERSION <  120000
+          BSLA_MAYBE_UNUSED static const bool CLANG11 = true;
+#else
+          BSLA_MAYBE_UNUSED static const bool CLANG11 = false;
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1900
+          BSLA_MAYBE_UNUSED static const bool MSVC15 = true;
+#else
+          BSLA_MAYBE_UNUSED static const bool MSVC15 = false;
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)   \
+ && BSLS_PLATFORM_CMP_VERSION >= 1910 \
+ && BSLS_PLATFORM_CMP_VERSION <= 1916
+          BSLA_MAYBE_UNUSED static const bool MSVC17 = true;
+#else
+          BSLA_MAYBE_UNUSED static const bool MSVC17 = false;
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)   \
+ && BSLS_PLATFORM_CMP_VERSION >= 1920 \
+ && BSLS_PLATFORM_CMP_VERSION <  1929
+          BSLA_MAYBE_UNUSED static const bool MSVC19 = true;
+#else
+          BSLA_MAYBE_UNUSED static const bool MSVC19 = false;
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_MSVC
+          BSLA_MAYBE_UNUSED static const bool MSVC = true;
+#else
+          BSLA_MAYBE_UNUSED static const bool MSVC = false;
+#endif
+
+          //                                       LINE        IS INVOCABLE
+          //                                       ----.      .------------
+          //        PROTOTYPE       INVOCAND TYPE       \.   /
+          //       ------------ ----------------------  -- ----
+          // invocations with conversions of cvr-qualified 'int' argument types
+          TEST.run<void (    I),  void       (    I)  >(L_, YES);
+          TEST.run<void (    I),  void       (   cI)  >(L_, YES);
+          TEST.run<void (    I),  void       (   vI)  >(L_, YES);
+          TEST.run<void (    I),  void       (  cvI)  >(L_, YES);
+          TEST.run<void (    I),  void       (   rI)  >(L_, YES);
+          TEST.run<void (    I),  void       (  rcI)  >(L_, YES);
+          TEST.run<void (    I),  void       (  rvI)  >(L_, YES);
+          TEST.run<void (    I),  void       ( rcvI)  >(L_, YES);
+          TEST.run<void (    I),  void       (  rrI)  >(L_, NO );
+          TEST.run<void (    I),  void       ( rrcI)  >(L_, NO );
+          TEST.run<void (   cI),  void       (    I)  >(L_, YES);
+          TEST.run<void (   cI),  void       (   cI)  >(L_, YES);
+          TEST.run<void (   cI),  void       (   vI)  >(L_, YES);
+          TEST.run<void (   cI),  void       (  cvI)  >(L_, YES);
+          TEST.run<void (   cI),  void       (   rI)  >(L_, YES);
+          TEST.run<void (   cI),  void       (  rcI)  >(L_, YES);
+          TEST.run<void (   cI),  void       (  rvI)  >(L_, YES);
+          TEST.run<void (   cI),  void       ( rcvI)  >(L_, YES);
+          TEST.run<void (   cI),  void       (  rrI)  >(L_, NO );
+          TEST.run<void (   cI),  void       ( rrcI)  >(L_, NO );
+          TEST.run<void (   vI),  void       (    I)  >(L_, YES);
+          TEST.run<void (   vI),  void       (   cI)  >(L_, YES);
+          TEST.run<void (   vI),  void       (   vI)  >(L_, YES);
+          TEST.run<void (   vI),  void       (  cvI)  >(L_, YES);
+          TEST.run<void (   vI),  void       (   rI)  >(L_, YES);
+          TEST.run<void (   vI),  void       (  rcI)  >(L_, YES);
+          TEST.run<void (   vI),  void       (  rvI)  >(L_, YES);
+          TEST.run<void (   vI),  void       ( rcvI)  >(L_, YES);
+          TEST.run<void (   vI),  void       (  rrI)  >(L_, NO );
+          TEST.run<void (   vI),  void       ( rrcI)  >(L_, NO );
+          TEST.run<void (  cvI),  void       (    I)  >(L_, YES);
+          TEST.run<void (  cvI),  void       (   cI)  >(L_, YES);
+          TEST.run<void (  cvI),  void       (   vI)  >(L_, YES);
+          TEST.run<void (  cvI),  void       (  cvI)  >(L_, YES);
+          TEST.run<void (  cvI),  void       (   rI)  >(L_, YES);
+          TEST.run<void (  cvI),  void       (  rcI)  >(L_, YES);
+          TEST.run<void (  cvI),  void       (  rvI)  >(L_, YES);
+          TEST.run<void (  cvI),  void       ( rcvI)  >(L_, YES);
+          TEST.run<void (  cvI),  void       (  rrI)  >(L_, NO );
+          TEST.run<void (  cvI),  void       ( rrcI)  >(L_, NO );
+          TEST.run<void (   rI),  void       (    I)  >(L_, YES);
+          TEST.run<void (   rI),  void       (   cI)  >(L_, YES);
+          TEST.run<void (   rI),  void       (   vI)  >(L_, YES);
+          TEST.run<void (   rI),  void       (  cvI)  >(L_, YES);
+          TEST.run<void (   rI),  void       (   rI)  >(L_, YES);
+          TEST.run<void (   rI),  void       (  rcI)  >(L_, YES);
+          TEST.run<void (   rI),  void       (  rvI)  >(L_, YES);
+          TEST.run<void (   rI),  void       ( rcvI)  >(L_, YES);
+          TEST.run<void (   rI),  void       (  rrI)  >(L_, NO );
+          TEST.run<void (   rI),  void       ( rrcI)  >(L_, NO );
+          TEST.run<void (  rcI),  void       (    I)  >(L_, YES);
+          TEST.run<void (  rcI),  void       (   cI)  >(L_, YES);
+          TEST.run<void (  rcI),  void       (   vI)  >(L_, YES);
+          TEST.run<void (  rcI),  void       (  cvI)  >(L_, YES);
+          TEST.run<void (  rcI),  void       (   rI)  >(L_, NO );
+          TEST.run<void (  rcI),  void       (  rcI)  >(L_, YES);
+          TEST.run<void (  rcI),  void       (  rvI)  >(L_, NO );
+          TEST.run<void (  rcI),  void       ( rcvI)  >(L_, YES);
+          TEST.run<void (  rcI),  void       (  rrI)  >(L_, NO );
+          TEST.run<void (  rcI),  void       ( rrcI)  >(L_, NO );
+          TEST.run<void (  rvI),  void       (    I)  >(L_, YES);
+          TEST.run<void (  rvI),  void       (   cI)  >(L_, YES);
+          TEST.run<void (  rvI),  void       (   vI)  >(L_, YES);
+          TEST.run<void (  rvI),  void       (  cvI)  >(L_, YES);
+          TEST.run<void (  rvI),  void       (   rI)  >(L_, NO );
+          TEST.run<void (  rvI),  void       (  rcI)  >(L_, NO );
+          TEST.run<void (  rvI),  void       (  rvI)  >(L_, YES);
+          TEST.run<void (  rvI),  void       ( rcvI)  >(L_, YES);
+          TEST.run<void (  rvI),  void       (  rrI)  >(L_, NO );
+          TEST.run<void (  rvI),  void       ( rrcI)  >(L_, NO );
+          TEST.run<void ( rcvI),  void       (    I)  >(L_, YES);
+          TEST.run<void ( rcvI),  void       (   cI)  >(L_, YES);
+          TEST.run<void ( rcvI),  void       (   vI)  >(L_, YES);
+          TEST.run<void ( rcvI),  void       (  cvI)  >(L_, YES);
+          TEST.run<void ( rcvI),  void       (   rI)  >(L_, NO );
+          TEST.run<void ( rcvI),  void       (  rcI)  >(L_, NO );
+          TEST.run<void ( rcvI),  void       (  rvI)  >(L_, NO );
+          TEST.run<void ( rcvI),  void       ( rcvI)  >(L_, YES);
+          TEST.run<void ( rcvI),  void       (  rrI)  >(L_, NO );
+          TEST.run<void ( rcvI),  void       ( rrcI)  >(L_, NO );
+          TEST.run<void (  rrI),  void       (    I)  >(L_, YES);
+          TEST.run<void (  rrI),  void       (   cI)  >(L_, YES);
+          TEST.run<void (  rrI),  void       (   vI)  >(L_, YES);
+          TEST.run<void (  rrI),  void       (  cvI)  >(L_, YES);
+          TEST.run<void (  rrI),  void       (   rI)  >(L_, NO );
+          TEST.run<void (  rrI),  void       (  rcI)  >(L_, YES);
+          TEST.run<void (  rrI),  void       (  rvI)  >(L_, NO );
+          TEST.run<void (  rrI),  void       ( rcvI)  >(L_, MSVC);
+          TEST.run<void (  rrI),  void       (  rrI)  >(L_, YES);
+          TEST.run<void (  rrI),  void       ( rrcI)  >(L_, YES);
+          TEST.run<void ( rrcI),  void       (    I)  >(L_, YES);
+          TEST.run<void ( rrcI),  void       (   cI)  >(L_, YES);
+          TEST.run<void ( rrcI),  void       (   vI)  >(L_, YES);
+          TEST.run<void ( rrcI),  void       (  cvI)  >(L_, YES);
+          TEST.run<void ( rrcI),  void       (   rI)  >(L_, NO );
+          TEST.run<void ( rrcI),  void       (  rcI)  >(L_, YES);
+          TEST.run<void ( rrcI),  void       (  rvI)  >(L_, NO );
+          TEST.run<void ( rrcI),  void       ( rcvI)  >(L_, MSVC);
+          TEST.run<void ( rrcI),  void       (  rrI)  >(L_, NO );
+          TEST.run<void ( rrcI),  void       ( rrcI)  >(L_, YES);
+
+          // invocations with conversions of cvr-qualified complete class
+          // argument types
+          TEST.run<void (    B),  void       (    B)  >(L_, YES);
+          TEST.run<void (    B),  void       (   cB)  >(L_, YES);
+          TEST.run<void (    B),  void       (   vB)  >(L_, YES);
+          TEST.run<void (    B),  void       (  cvB)  >(L_, YES);
+          TEST.run<void (    B),  void       (   rB)  >(L_, MSVC);
+          TEST.run<void (    B),  void       (  rcB)  >(L_, YES);
+          TEST.run<void (    B),  void       (  rvB)  >(L_, NO );
+          TEST.run<void (    B),  void       ( rcvB)  >(L_, NO );
+          TEST.run<void (    B),  void       (  rrB)  >(L_, YES);
+          TEST.run<void (    B),  void       ( rrcB)  >(L_, YES);
+          TEST.run<void (   cB),  void       (    B)  >(L_, YES);
+          TEST.run<void (   cB),  void       (   cB)  >(L_, YES);
+          TEST.run<void (   cB),  void       (   vB)  >(L_, YES);
+          TEST.run<void (   cB),  void       (  cvB)  >(L_, YES);
+          TEST.run<void (   cB),  void       (   rB)  >(L_, MSVC);
+          TEST.run<void (   cB),  void       (  rcB)  >(L_, YES);
+          TEST.run<void (   cB),  void       (  rvB)  >(L_, NO );
+          TEST.run<void (   cB),  void       ( rcvB)  >(L_, NO );
+          TEST.run<void (   cB),  void       (  rrB)  >(L_, YES);
+          TEST.run<void (   cB),  void       ( rrcB)  >(L_, YES);
+          TEST.run<void (   vB),  void       (    B)  >(L_, YES);
+          TEST.run<void (   vB),  void       (   cB)  >(L_, YES);
+          TEST.run<void (   vB),  void       (   vB)  >(L_, YES);
+          TEST.run<void (   vB),  void       (  cvB)  >(L_, YES);
+          TEST.run<void (   vB),  void       (   rB)  >(L_, MSVC);
+          TEST.run<void (   vB),  void       (  rcB)  >(L_, YES);
+          TEST.run<void (   vB),  void       (  rvB)  >(L_, NO );
+          TEST.run<void (   vB),  void       ( rcvB)  >(L_, NO );
+          TEST.run<void (   vB),  void       (  rrB)  >(L_, YES);
+          TEST.run<void (   vB),  void       ( rrcB)  >(L_, YES);
+          TEST.run<void (  cvB),  void       (    B)  >(L_, YES);
+          TEST.run<void (  cvB),  void       (   cB)  >(L_, YES);
+          TEST.run<void (  cvB),  void       (   vB)  >(L_, YES);
+          TEST.run<void (  cvB),  void       (  cvB)  >(L_, YES);
+          TEST.run<void (  cvB),  void       (   rB)  >(L_, MSVC);
+          TEST.run<void (  cvB),  void       (  rcB)  >(L_, YES);
+          TEST.run<void (  cvB),  void       (  rvB)  >(L_, NO );
+          TEST.run<void (  cvB),  void       ( rcvB)  >(L_, NO );
+          TEST.run<void (  cvB),  void       (  rrB)  >(L_, YES);
+          TEST.run<void (  cvB),  void       ( rrcB)  >(L_, YES);
+          TEST.run<void (   rB),  void       (    B)  >(L_, YES);
+          TEST.run<void (   rB),  void       (   cB)  >(L_, YES);
+          TEST.run<void (   rB),  void       (   vB)  >(L_, YES);
+          TEST.run<void (   rB),  void       (  cvB)  >(L_, YES);
+          TEST.run<void (   rB),  void       (   rB)  >(L_, YES);
+          TEST.run<void (   rB),  void       (  rcB)  >(L_, YES);
+          TEST.run<void (   rB),  void       (  rvB)  >(L_, YES);
+          TEST.run<void (   rB),  void       ( rcvB)  >(L_, YES);
+          TEST.run<void (   rB),  void       (  rrB)  >(L_, NO );
+          TEST.run<void (   rB),  void       ( rrcB)  >(L_, NO );
+          TEST.run<void (  rcB),  void       (    B)  >(L_, YES);
+          TEST.run<void (  rcB),  void       (   cB)  >(L_, YES);
+          TEST.run<void (  rcB),  void       (   vB)  >(L_, YES);
+          TEST.run<void (  rcB),  void       (  cvB)  >(L_, YES);
+          TEST.run<void (  rcB),  void       (   rB)  >(L_, NO );
+          TEST.run<void (  rcB),  void       (  rcB)  >(L_, YES);
+          TEST.run<void (  rcB),  void       (  rvB)  >(L_, NO );
+          TEST.run<void (  rcB),  void       ( rcvB)  >(L_, YES);
+          TEST.run<void (  rcB),  void       (  rrB)  >(L_, NO );
+          TEST.run<void (  rcB),  void       ( rrcB)  >(L_, NO );
+          TEST.run<void (  rvB),  void       (    B)  >(L_, NO );
+          TEST.run<void (  rvB),  void       (   cB)  >(L_, NO );
+          TEST.run<void (  rvB),  void       (   vB)  >(L_, NO );
+          TEST.run<void (  rvB),  void       (  cvB)  >(L_, NO );
+          TEST.run<void (  rvB),  void       (   rB)  >(L_, NO );
+          TEST.run<void (  rvB),  void       (  rcB)  >(L_, NO );
+          TEST.run<void (  rvB),  void       (  rvB)  >(L_, YES);
+          TEST.run<void (  rvB),  void       ( rcvB)  >(L_, YES);
+          TEST.run<void (  rvB),  void       (  rrB)  >(L_, NO );
+          TEST.run<void (  rvB),  void       ( rrcB)  >(L_, NO );
+          TEST.run<void ( rcvB),  void       (    B)  >(L_, NO );
+          TEST.run<void ( rcvB),  void       (   cB)  >(L_, NO );
+          TEST.run<void ( rcvB),  void       (   vB)  >(L_, NO );
+          TEST.run<void ( rcvB),  void       (  cvB)  >(L_, NO );
+          TEST.run<void ( rcvB),  void       (   rB)  >(L_, NO );
+          TEST.run<void ( rcvB),  void       (  rcB)  >(L_, NO );
+          TEST.run<void ( rcvB),  void       (  rvB)  >(L_, NO );
+          TEST.run<void ( rcvB),  void       ( rcvB)  >(L_, YES);
+          TEST.run<void ( rcvB),  void       (  rrB)  >(L_, NO );
+          TEST.run<void ( rcvB),  void       ( rrcB)  >(L_, NO );
+          TEST.run<void (  rrB),  void       (    B)  >(L_, YES);
+          TEST.run<void (  rrB),  void       (   cB)  >(L_, YES);
+          TEST.run<void (  rrB),  void       (   vB)  >(L_, YES);
+          TEST.run<void (  rrB),  void       (  cvB)  >(L_, YES);
+          TEST.run<void (  rrB),  void       (   rB)  >(L_, MSVC);
+          TEST.run<void (  rrB),  void       (  rcB)  >(L_, YES);
+          TEST.run<void (  rrB),  void       (  rvB)  >(L_, NO );
+          TEST.run<void (  rrB),  void       ( rcvB)  >(L_, NO );
+          TEST.run<void (  rrB),  void       (  rrB)  >(L_, YES);
+          TEST.run<void (  rrB),  void       ( rrcB)  >(L_, YES);
+          TEST.run<void ( rrcB),  void       (    B)  >(L_, YES);
+          TEST.run<void ( rrcB),  void       (   cB)  >(L_, YES);
+          TEST.run<void ( rrcB),  void       (   vB)  >(L_, YES);
+          TEST.run<void ( rrcB),  void       (  cvB)  >(L_, YES);
+          TEST.run<void ( rrcB),  void       (   rB)  >(L_, NO );
+          TEST.run<void ( rrcB),  void       (  rcB)  >(L_, YES);
+          TEST.run<void ( rrcB),  void       (  rvB)  >(L_, NO );
+          TEST.run<void ( rrcB),  void       ( rcvB)  >(L_, NO );
+          TEST.run<void ( rrcB),  void       (  rrB)  >(L_, NO );
+          TEST.run<void ( rrcB),  void       ( rrcB)  >(L_, YES);
+
+          // invocations with conversions of cvr-qualified array argument types
+          TEST.run<void (   AI),  void       (   AI)  >(L_, YES);
+          TEST.run<void (   AI),  void       (  AcI)  >(L_, YES);
+          TEST.run<void (   AI),  void       (  rAI)  >(L_, NO );
+          TEST.run<void (   AI),  void       ( rAcI)  >(L_, NO );
+          TEST.run<void (   AI),  void       ( rrAI)  >(L_, NO );
+          TEST.run<void (   AI),  void       (rrAcI)  >(L_, NO );
+          TEST.run<void (  AcI),  void       (   AI)  >(L_, NO );
+          TEST.run<void (  AcI),  void       (  AcI)  >(L_, YES);
+          TEST.run<void (  AcI),  void       (  rAI)  >(L_, NO );
+          TEST.run<void (  AcI),  void       ( rAcI)  >(L_, NO );
+          TEST.run<void (  AcI),  void       ( rrAI)  >(L_, NO );
+          TEST.run<void (  AcI),  void       (rrAcI)  >(L_, NO );
+          TEST.run<void (  rAI),  void       (   AI)  >(L_, YES);
+          TEST.run<void (  rAI),  void       (  AcI)  >(L_, YES);
+          TEST.run<void (  rAI),  void       (  rAI)  >(L_, YES);
+          TEST.run<void (  rAI),  void       ( rAcI)  >(L_, YES);
+          TEST.run<void (  rAI),  void       ( rrAI)  >(L_, MSVC17);
+          TEST.run<void (  rAI),  void       (rrAcI)  >(L_, MSVC17);
+          TEST.run<void ( rAcI),  void       (   AI)  >(L_, NO );
+          TEST.run<void ( rAcI),  void       (  AcI)  >(L_, YES);
+          TEST.run<void ( rAcI),  void       (  rAI)  >(L_, NO );
+          TEST.run<void ( rAcI),  void       ( rAcI)  >(L_, YES);
+          TEST.run<void ( rAcI),  void       ( rrAI)  >(L_, NO );
+          TEST.run<void ( rAcI),  void       (rrAcI)  >(L_, MSVC17);
+          TEST.run<void ( rrAI),  void       (   AI)  >(L_, YES);
+          TEST.run<void ( rrAI),  void       (  AcI)  >(L_, YES);
+          TEST.run<void ( rrAI),  void       (  rAI)  >(L_, MSVC17);
+          TEST.run<void ( rrAI),  void       ( rAcI)  >(L_, YES);
+          TEST.run<void ( rrAI),  void       ( rrAI)  >(L_, YES);
+          TEST.run<void ( rrAI),  void       (rrAcI)  >(L_, YES);
+          TEST.run<void (rrAcI),  void       (   AI)  >(L_, NO );
+          TEST.run<void (rrAcI),  void       (  AcI)  >(L_, YES);
+          TEST.run<void (rrAcI),  void       (  rAI)  >(L_, NO );
+          TEST.run<void (rrAcI),  void       ( rAcI)  >(L_, YES);
+          TEST.run<void (rrAcI),  void       ( rrAI)  >(L_, NO );
+          TEST.run<void (rrAcI),  void       (rrAcI)  >(L_, YES);
+
+          // invocations with decay of cvr-qualified array argument types to
+          // pointer argument types
+          TEST.run<void (   AI),  void       (   PI)  >(L_, YES);
+          TEST.run<void (   AI),  void       (  PcI)  >(L_, YES);
+          TEST.run<void (   AI),  void       (  rPI)  >(L_, YES);
+          TEST.run<void (   AI),  void       ( rPcI)  >(L_, NO );
+          TEST.run<void (   AI),  void       ( rrPI)  >(L_, NO );
+          TEST.run<void (   AI),  void       (rrPcI)  >(L_, !MSVC
+                                                         && !CLANG10
+                                                         && !CLANG11);
+          TEST.run<void (  AcI),  void       (   PI)  >(L_, NO );
+          TEST.run<void (  AcI),  void       (  PcI)  >(L_, YES);
+          TEST.run<void (  AcI),  void       (  rPI)  >(L_, NO );
+          TEST.run<void (  AcI),  void       ( rPcI)  >(L_, YES);
+          TEST.run<void (  AcI),  void       ( rrPI)  >(L_, NO );
+          TEST.run<void (  AcI),  void       (rrPcI)  >(L_, NO );
+          TEST.run<void (  rAI),  void       (   PI)  >(L_, YES);
+          TEST.run<void (  rAI),  void       (  PcI)  >(L_, YES);
+          TEST.run<void (  rAI),  void       (  rPI)  >(L_, NO );
+          TEST.run<void (  rAI),  void       ( rPcI)  >(L_, NO );
+          TEST.run<void (  rAI),  void       ( rrPI)  >(L_, !MSVC19);
+          TEST.run<void (  rAI),  void       (rrPcI)  >(L_, !MSVC19);
+          TEST.run<void ( rAcI),  void       (   PI)  >(L_, NO );
+          TEST.run<void ( rAcI),  void       (  PcI)  >(L_, YES);
+          TEST.run<void ( rAcI),  void       (  rPI)  >(L_, NO );
+          TEST.run<void ( rAcI),  void       ( rPcI)  >(L_, NO );
+          TEST.run<void ( rAcI),  void       ( rrPI)  >(L_, NO );
+          TEST.run<void ( rAcI),  void       (rrPcI)  >(L_, !MSVC19);
+          TEST.run<void ( rrAI),  void       (   PI)  >(L_, YES);
+          TEST.run<void ( rrAI),  void       (  PcI)  >(L_, YES);
+          TEST.run<void ( rrAI),  void       (  rPI)  >(L_, NO );
+          TEST.run<void ( rrAI),  void       ( rPcI)  >(L_, NO );
+          TEST.run<void ( rrAI),  void       ( rrPI)  >(L_, YES);
+          TEST.run<void ( rrAI),  void       (rrPcI)  >(L_, YES);
+          TEST.run<void (rrAcI),  void       (   PI)  >(L_, NO );
+          TEST.run<void (rrAcI),  void       (  PcI)  >(L_, YES);
+          TEST.run<void (rrAcI),  void       (  rPI)  >(L_, NO );
+          TEST.run<void (rrAcI),  void       ( rPcI)  >(L_, NO );
+          TEST.run<void (rrAcI),  void       ( rrPI)  >(L_, NO );
+          TEST.run<void (rrAcI),  void       (rrPcI)  >(L_, YES);
+
+          // invocations of various callable types without argument or return
+          // type conversions
+          TEST.run<int  (int  ),   int       (int  )  >(L_, YES);
+          TEST.run<int  (int  ),   int (*   )(int  )  >(L_, YES);
+          TEST.run<int  (int  ),   int (&   )(int  )  >(L_, YES);
+          TEST.run<int  (int  ), F<int       (int  )> >(L_, YES);
+          TEST.run<int  (B    ),   int  B::*          >(L_, YES);
+          TEST.run<int  (B    ),   int (B::*)(     )  >(L_, YES);
+
+          // invocations that perform derived-to-base and base-to-derived
+          // conversions of argument types
+          TEST.run<int  (B    ),   int       (B    )  >(L_, YES);
+          TEST.run<int  (B    ),   int  B::*          >(L_, YES);
+          TEST.run<int  (B    ),   int (B::*)(     )  >(L_, YES);
+          TEST.run<int  (B    ),   int       (D    )  >(L_,  NO);
+          TEST.run<int  (B    ),   int  D::*          >(L_,  NO);
+          TEST.run<int  (B    ),   int (D::*)(     )  >(L_,  NO);
+          TEST.run<int  (D    ),   int       (B    )  >(L_, YES);
+          TEST.run<int  (D    ),   int  B::*          >(L_, YES);
+          TEST.run<int  (D    ),   int (B::*)(     )  >(L_, YES);
+          TEST.run<int  (D    ),   int       (D    )  >(L_, YES);
+          TEST.run<int  (D    ),   int  D::*          >(L_, YES);
+          TEST.run<int  (D    ),   int (D::*)(     )  >(L_, YES);
+
+          // invocations that drop the return type
+          TEST.run<void (     ),      I      (     )  >(L_, YES);
+          TEST.run<void (     ),     cI      (     )  >(L_, YES);
+          TEST.run<void (     ),     vI      (     )  >(L_, YES);
+          TEST.run<void (     ),    cvI      (     )  >(L_, YES);
+          TEST.run<void (     ),     rI      (     )  >(L_, YES);
+          TEST.run<void (     ),    rcI      (     )  >(L_, YES);
+          TEST.run<void (     ),    rvI      (     )  >(L_, YES);
+          TEST.run<void (     ),   rcvI      (     )  >(L_, YES);
+          TEST.run<void (     ),    rrI      (     )  >(L_, YES);
+          TEST.run<void (     ),   rrcI      (     )  >(L_, YES);
+
+          // invocations that perform cvr-qualification conversions of
+          // class return types
+          TEST.run<   B (     ),      B      (     )  >(L_, YES);
+          TEST.run<   B (     ),     rB      (     )  >(L_, YES);
+          TEST.run<   B (     ),    rcB      (     )  >(L_, YES);
+          TEST.run<   B (     ),    rrB      (     )  >(L_, YES);
+          TEST.run<   B (     ),   rrcB      (     )  >(L_, YES);
+          TEST.run<  rB (     ),      B      (     )  >(L_, MSVC);
+          TEST.run<  rB (     ),     rB      (     )  >(L_, YES);
+          TEST.run<  rB (     ),    rcB      (     )  >(L_, NO );
+          TEST.run<  rB (     ),    rrB      (     )  >(L_, MSVC);
+          TEST.run<  rB (     ),   rrcB      (     )  >(L_, NO );
+          TEST.run< rcB (     ),      B      (     )  >(L_, YES);
+          TEST.run< rcB (     ),     rB      (     )  >(L_, YES);
+          TEST.run< rcB (     ),    rcB      (     )  >(L_, YES);
+          TEST.run< rcB (     ),    rrB      (     )  >(L_, YES);
+          TEST.run< rcB (     ),   rrcB      (     )  >(L_, YES);
+          TEST.run< rrB (     ),      B      (     )  >(L_, YES);
+          TEST.run< rrB (     ),     rB      (     )  >(L_, YES);
+          TEST.run< rrB (     ),    rcB      (     )  >(L_, NO );
+          TEST.run< rrB (     ),    rrB      (     )  >(L_, YES);
+          TEST.run< rrB (     ),   rrcB      (     )  >(L_, NO );
+          TEST.run<rrcB (     ),      B      (     )  >(L_, YES);
+          TEST.run<rrcB (     ),     rB      (     )  >(L_, YES);
+          TEST.run<rrcB (     ),    rcB      (     )  >(L_, YES);
+          TEST.run<rrcB (     ),    rrB      (     )  >(L_, YES);
+          TEST.run<rrcB (     ),   rrcB      (     )  >(L_, YES);
+
+          // invocations that perform explicit conversions of cvr-qualified
+          // class return types
+          TEST.run<   E (     ),      B      (     )  >(L_, YES);
+          TEST.run<   E (     ),     rB      (     )  >(L_, YES);
+          TEST.run<   E (     ),    rcB      (     )  >(L_, YES);
+          TEST.run<   E (     ),    rrB      (     )  >(L_, YES);
+          TEST.run<   E (     ),   rrcB      (     )  >(L_, YES);
+          TEST.run<  rE (     ),      B      (     )  >(L_, NO );
+          TEST.run<  rE (     ),     rB      (     )  >(L_, NO );
+          TEST.run<  rE (     ),    rcB      (     )  >(L_, NO );
+          TEST.run<  rE (     ),    rrB      (     )  >(L_, NO );
+          TEST.run<  rE (     ),   rrcB      (     )  >(L_, NO );
+          TEST.run< rcE (     ),      B      (     )  >(L_, NO );
+          TEST.run< rcE (     ),     rB      (     )  >(L_, NO );
+          TEST.run< rcE (     ),    rcB      (     )  >(L_, NO );
+          TEST.run< rcE (     ),    rrB      (     )  >(L_, NO );
+          TEST.run< rcE (     ),   rrcB      (     )  >(L_, NO );
+          TEST.run< rrE (     ),      B      (     )  >(L_, NO );
+          TEST.run< rrE (     ),     rB      (     )  >(L_, NO );
+          TEST.run< rrE (     ),    rcB      (     )  >(L_, NO );
+          TEST.run< rrE (     ),    rrB      (     )  >(L_, NO );
+          TEST.run< rrE (     ),   rrcB      (     )  >(L_, NO );
+          TEST.run<rrcE (     ),      B      (     )  >(L_, NO );
+          TEST.run<rrcE (     ),     rB      (     )  >(L_, NO );
+          TEST.run<rrcE (     ),    rcB      (     )  >(L_, NO );
+          TEST.run<rrcE (     ),    rrB      (     )  >(L_, NO );
+          TEST.run<rrcE (     ),   rrcB      (     )  >(L_, NO );
+
+          // invocations that perform derived-to-base conversions of
+          // cvr-qualified class return types
+          TEST.run<   B (     ),      D      (     )  >(L_, YES);
+          TEST.run<   B (     ),     rD      (     )  >(L_, YES);
+          TEST.run<   B (     ),    rcD      (     )  >(L_, YES);
+          TEST.run<   B (     ),    rrD      (     )  >(L_, YES);
+          TEST.run<   B (     ),   rrcD      (     )  >(L_, YES);
+          TEST.run<  rB (     ),      D      (     )  >(L_, MSVC);
+          TEST.run<  rB (     ),     rD      (     )  >(L_, YES);
+          TEST.run<  rB (     ),    rcD      (     )  >(L_, NO );
+          TEST.run<  rB (     ),    rrD      (     )  >(L_, MSVC);
+          TEST.run<  rB (     ),   rrcD      (     )  >(L_, NO );
+          TEST.run< rcB (     ),      D      (     )  >(L_, YES);
+          TEST.run< rcB (     ),     rD      (     )  >(L_, YES);
+          TEST.run< rcB (     ),    rcD      (     )  >(L_, YES);
+          TEST.run< rcB (     ),    rrD      (     )  >(L_, YES);
+          TEST.run< rcB (     ),   rrcD      (     )  >(L_, YES);
+          TEST.run< rrB (     ),      D      (     )  >(L_, YES);
+          TEST.run< rrB (     ),     rD      (     )  >(L_, YES);
+          TEST.run< rrB (     ),    rcD      (     )  >(L_, NO );
+          TEST.run< rrB (     ),    rrD      (     )  >(L_, YES);
+          TEST.run< rrB (     ),   rrcD      (     )  >(L_, NO );
+          TEST.run<rrcB (     ),      D      (     )  >(L_, YES);
+          TEST.run<rrcB (     ),     rD      (     )  >(L_, YES);
+          TEST.run<rrcB (     ),    rcD      (     )  >(L_, YES);
+          TEST.run<rrcB (     ),    rrD      (     )  >(L_, YES);
+          TEST.run<rrcB (     ),   rrcD      (     )  >(L_, YES);
+          TEST.run<   D (     ),      B      (     )  >(L_, NO );
+
+          // invocations that perform base-to-derived conversions of
+          // cvr-qualified class return types
+          TEST.run<   D (     ),     rB      (     )  >(L_, NO );
+          TEST.run<   D (     ),    rcB      (     )  >(L_, NO );
+          TEST.run<   D (     ),    rrB      (     )  >(L_, NO );
+          TEST.run<   D (     ),   rrcB      (     )  >(L_, NO );
+          TEST.run<  rD (     ),      B      (     )  >(L_, MSVC);
+          TEST.run<  rD (     ),     rB      (     )  >(L_, YES);
+          TEST.run<  rD (     ),    rcB      (     )  >(L_, NO );
+          TEST.run<  rD (     ),    rrB      (     )  >(L_, MSVC);
+          TEST.run<  rD (     ),   rrcB      (     )  >(L_, NO );
+          TEST.run< rcD (     ),      B      (     )  >(L_, MSVC);
+          TEST.run< rcD (     ),     rB      (     )  >(L_, YES);
+          TEST.run< rcD (     ),    rcB      (     )  >(L_, YES);
+          TEST.run< rcD (     ),    rrB      (     )  >(L_, MSVC);
+          TEST.run< rcD (     ),   rrcB      (     )  >(L_, MSVC);
+          TEST.run< rrD (     ),      B      (     )  >(L_, YES);
+          TEST.run< rrD (     ),     rB      (     )  >(L_, YES);
+          TEST.run< rrD (     ),    rcB      (     )  >(L_, NO );
+          TEST.run< rrD (     ),    rrB      (     )  >(L_, YES);
+          TEST.run< rrD (     ),   rrcB      (     )  >(L_, NO );
+          TEST.run<rrcD (     ),      B      (     )  >(L_, YES);
+          TEST.run<rrcD (     ),     rB      (     )  >(L_, YES);
+          TEST.run<rrcD (     ),    rcB      (     )  >(L_, YES);
+          TEST.run<rrcD (     ),    rrB      (     )  >(L_, YES);
+          TEST.run<rrcD (     ),   rrcB      (     )  >(L_, YES);
+
+#endif // defined(BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE)
+
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // FUNCTION OBJECT TARGET

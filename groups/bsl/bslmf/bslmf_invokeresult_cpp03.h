@@ -21,29 +21,47 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Fri Oct 23 15:03:55 2020
+// Generated on Tue Apr 27 13:41:48 2021
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.h
 
 #ifdef COMPILING_BSLMF_INVOKERESULT_H
 
 namespace BloombergLP {
-
 namespace bslmf {
+
+                 // ==========================================
+                 // class template InvokeResultDeductionFailed
+                 // ==========================================
+
+struct InvokeResultDeductionFailed {
+    // When 'invoke_result' cannot deduce the actual return type of a functor
+    // (in C++03 mode), it yields this type as a placeholder.  The advantage of
+    // using this placeholder instead of a compilation failure (e.g., using a
+    // static assert) is that the return type of an INVOKE() operation is
+    // often discarded, so our failure to deduce the return type is often
+    // harmless.  Since 'InvokeResultDeductionFailed' is a return type, it must
+    // be convertible from the actual return type; this conversion is
+    // accomplished by means of a constructor that makes it convertible from
+    // *any* type.
+
+    // CREATORS
+    template <class TYPE>
+    InvokeResultDeductionFailed(const TYPE&) { }
+        // Convert from an arbitrary type.  The actual argument value is
+        // discarded.
+};
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.h
 #ifndef BSLMF_INVOKERESULT_VARIADIC_LIMIT
-#define BSLMF_INVOKERESULT_VARIADIC_LIMIT 10
+#define BSLMF_INVOKERESULT_VARIADIC_LIMIT 13
 #endif
 #ifndef BSLMF_INVOKERESULT_VARIADIC_LIMIT_A
 #define BSLMF_INVOKERESULT_VARIADIC_LIMIT_A BSLMF_INVOKERESULT_VARIADIC_LIMIT
 #endif
 
-template <bool IS_FUNCPTR,
-          bool IS_MEMFUNCPTR,
-          bool IS_MEMOBJPTR,
-          class FN
+template <class FN
 #if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 0
         , class ARGTYPES_0 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 0
@@ -83,44 +101,30 @@ template <bool IS_FUNCPTR,
 #if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 9
         , class ARGTYPES_9 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 10
+        , class ARGTYPES_10 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 11
+        , class ARGTYPES_11 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 12
+        , class ARGTYPES_12 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_A >= 12
         , class = BSLS_COMPILERFEATURES_NILT>
-struct InvokeResult_Imp;
+struct InvokeResult_BaseCalcUtil;
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 
-template <bool  IS_FUNCPTR,
-          bool  IS_MEMFUNCPTR,
-          bool  IS_MEMOBJPTR,
-          class FN,
-          class... ARGTYPES>
-struct InvokeResult_Imp;
+template <class FN, class... ARGTYPES>
+struct InvokeResult_BaseCalcUtil;
 
 // }}} END GENERATED CODE
 #endif
-
-                        // ==========================================
-                        // class template InvokeResultDeductionFailed
-                        // ==========================================
-
-struct InvokeResultDeductionFailed {
-    // When 'invoke_result' cannot deduce the actual return type of a functor
-    // (in C++03 mode), it yields this type as a placeholder.  The advantage of
-    // using this placeholder instead of a compilation failure (e.g., using a
-    // static assert) is that the return type of an INVOKE() operation is
-    // often discarded, so our failure to deduce the return type is often
-    // harmless.  Since 'InvokeResultDeductionFailed' is a return type, it must
-    // be convertible from the actual return type; this conversion is
-    // accomplished by means of a constructor that makes it convertible from
-    // *any* type.
-
-    // CREATORS
-    template <class TYPE>
-    InvokeResultDeductionFailed(const TYPE&) { }
-        // Convert from an arbitrary type.  The actual argument value is
-        // discarded.
-};
 
 }  // close package namespace
 }  // close enterprise namespace
@@ -135,7 +139,7 @@ namespace bsl {
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.h
 #ifndef BSLMF_INVOKERESULT_VARIADIC_LIMIT
-#define BSLMF_INVOKERESULT_VARIADIC_LIMIT 10
+#define BSLMF_INVOKERESULT_VARIADIC_LIMIT 13
 #endif
 #ifndef BSLMF_INVOKERESULT_VARIADIC_LIMIT_B
 #define BSLMF_INVOKERESULT_VARIADIC_LIMIT_B BSLMF_INVOKERESULT_VARIADIC_LIMIT
@@ -181,52 +185,35 @@ template <class FN
 #if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 9
         , class ARGTYPES_9 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 10
+        , class ARGTYPES_10 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 11
+        , class ARGTYPES_11 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 12
+        , class ARGTYPES_12 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 12
         , class = BSLS_COMPILERFEATURES_NILT>
 class invoke_result;
 
 #if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 0
 template <class FN>
-class invoke_result<FN> {
+class invoke_result<FN>
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN>::BaseType {
 
-    typedef typename bsl::decay<FN>::type F;
-
-    enum {
-        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
-        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
-        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
-    };
-
-    typedef typename
-    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
-                     F, FN>::type FwdFn;
-
-  public:
-    typedef typename
-    BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR, k_IS_MEMFUNCPTR,
-                                k_IS_MEMOBJPTR, FwdFn>::type type;
 };
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 0
 
 #if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 1
 template <class FN, class ARGTYPES_01>
-class invoke_result<FN, ARGTYPES_01> {
+class invoke_result<FN, ARGTYPES_01>
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN,
+                                                       ARGTYPES_01>::BaseType {
 
-    typedef typename bsl::decay<FN>::type F;
-
-    enum {
-        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
-        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
-        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
-    };
-
-    typedef typename
-    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
-                     F, FN>::type FwdFn;
-
-  public:
-    typedef typename
-    BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR, k_IS_MEMFUNCPTR,
-                                k_IS_MEMOBJPTR, FwdFn, ARGTYPES_01>::type type;
 };
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 1
 
@@ -234,25 +221,11 @@ class invoke_result<FN, ARGTYPES_01> {
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02>
 class invoke_result<FN, ARGTYPES_01,
-                        ARGTYPES_02> {
+                        ARGTYPES_02>
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN,
+                                                       ARGTYPES_01,
+                                                       ARGTYPES_02>::BaseType {
 
-    typedef typename bsl::decay<FN>::type F;
-
-    enum {
-        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
-        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
-        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
-    };
-
-    typedef typename
-    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
-                     F, FN>::type FwdFn;
-
-  public:
-    typedef typename
-    BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR, k_IS_MEMFUNCPTR,
-                                k_IS_MEMOBJPTR, FwdFn, ARGTYPES_01,
-                                                       ARGTYPES_02>::type type;
 };
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 2
 
@@ -262,26 +235,12 @@ template <class FN, class ARGTYPES_01,
                     class ARGTYPES_03>
 class invoke_result<FN, ARGTYPES_01,
                         ARGTYPES_02,
-                        ARGTYPES_03> {
-
-    typedef typename bsl::decay<FN>::type F;
-
-    enum {
-        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
-        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
-        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
-    };
-
-    typedef typename
-    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
-                     F, FN>::type FwdFn;
-
-  public:
-    typedef typename
-    BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR, k_IS_MEMFUNCPTR,
-                                k_IS_MEMOBJPTR, FwdFn, ARGTYPES_01,
+                        ARGTYPES_03>
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN,
+                                                       ARGTYPES_01,
                                                        ARGTYPES_02,
-                                                       ARGTYPES_03>::type type;
+                                                       ARGTYPES_03>::BaseType {
+
 };
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 3
 
@@ -293,27 +252,13 @@ template <class FN, class ARGTYPES_01,
 class invoke_result<FN, ARGTYPES_01,
                         ARGTYPES_02,
                         ARGTYPES_03,
-                        ARGTYPES_04> {
-
-    typedef typename bsl::decay<FN>::type F;
-
-    enum {
-        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
-        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
-        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
-    };
-
-    typedef typename
-    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
-                     F, FN>::type FwdFn;
-
-  public:
-    typedef typename
-    BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR, k_IS_MEMFUNCPTR,
-                                k_IS_MEMOBJPTR, FwdFn, ARGTYPES_01,
+                        ARGTYPES_04>
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN,
+                                                       ARGTYPES_01,
                                                        ARGTYPES_02,
                                                        ARGTYPES_03,
-                                                       ARGTYPES_04>::type type;
+                                                       ARGTYPES_04>::BaseType {
+
 };
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 4
 
@@ -327,28 +272,14 @@ class invoke_result<FN, ARGTYPES_01,
                         ARGTYPES_02,
                         ARGTYPES_03,
                         ARGTYPES_04,
-                        ARGTYPES_05> {
-
-    typedef typename bsl::decay<FN>::type F;
-
-    enum {
-        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
-        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
-        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
-    };
-
-    typedef typename
-    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
-                     F, FN>::type FwdFn;
-
-  public:
-    typedef typename
-    BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR, k_IS_MEMFUNCPTR,
-                                k_IS_MEMOBJPTR, FwdFn, ARGTYPES_01,
+                        ARGTYPES_05>
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN,
+                                                       ARGTYPES_01,
                                                        ARGTYPES_02,
                                                        ARGTYPES_03,
                                                        ARGTYPES_04,
-                                                       ARGTYPES_05>::type type;
+                                                       ARGTYPES_05>::BaseType {
+
 };
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 5
 
@@ -364,29 +295,15 @@ class invoke_result<FN, ARGTYPES_01,
                         ARGTYPES_03,
                         ARGTYPES_04,
                         ARGTYPES_05,
-                        ARGTYPES_06> {
-
-    typedef typename bsl::decay<FN>::type F;
-
-    enum {
-        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
-        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
-        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
-    };
-
-    typedef typename
-    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
-                     F, FN>::type FwdFn;
-
-  public:
-    typedef typename
-    BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR, k_IS_MEMFUNCPTR,
-                                k_IS_MEMOBJPTR, FwdFn, ARGTYPES_01,
+                        ARGTYPES_06>
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN,
+                                                       ARGTYPES_01,
                                                        ARGTYPES_02,
                                                        ARGTYPES_03,
                                                        ARGTYPES_04,
                                                        ARGTYPES_05,
-                                                       ARGTYPES_06>::type type;
+                                                       ARGTYPES_06>::BaseType {
+
 };
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 6
 
@@ -404,30 +321,16 @@ class invoke_result<FN, ARGTYPES_01,
                         ARGTYPES_04,
                         ARGTYPES_05,
                         ARGTYPES_06,
-                        ARGTYPES_07> {
-
-    typedef typename bsl::decay<FN>::type F;
-
-    enum {
-        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
-        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
-        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
-    };
-
-    typedef typename
-    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
-                     F, FN>::type FwdFn;
-
-  public:
-    typedef typename
-    BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR, k_IS_MEMFUNCPTR,
-                                k_IS_MEMOBJPTR, FwdFn, ARGTYPES_01,
+                        ARGTYPES_07>
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN,
+                                                       ARGTYPES_01,
                                                        ARGTYPES_02,
                                                        ARGTYPES_03,
                                                        ARGTYPES_04,
                                                        ARGTYPES_05,
                                                        ARGTYPES_06,
-                                                       ARGTYPES_07>::type type;
+                                                       ARGTYPES_07>::BaseType {
+
 };
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 7
 
@@ -447,31 +350,17 @@ class invoke_result<FN, ARGTYPES_01,
                         ARGTYPES_05,
                         ARGTYPES_06,
                         ARGTYPES_07,
-                        ARGTYPES_08> {
-
-    typedef typename bsl::decay<FN>::type F;
-
-    enum {
-        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
-        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
-        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
-    };
-
-    typedef typename
-    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
-                     F, FN>::type FwdFn;
-
-  public:
-    typedef typename
-    BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR, k_IS_MEMFUNCPTR,
-                                k_IS_MEMOBJPTR, FwdFn, ARGTYPES_01,
+                        ARGTYPES_08>
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN,
+                                                       ARGTYPES_01,
                                                        ARGTYPES_02,
                                                        ARGTYPES_03,
                                                        ARGTYPES_04,
                                                        ARGTYPES_05,
                                                        ARGTYPES_06,
                                                        ARGTYPES_07,
-                                                       ARGTYPES_08>::type type;
+                                                       ARGTYPES_08>::BaseType {
+
 };
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 8
 
@@ -493,24 +382,9 @@ class invoke_result<FN, ARGTYPES_01,
                         ARGTYPES_06,
                         ARGTYPES_07,
                         ARGTYPES_08,
-                        ARGTYPES_09> {
-
-    typedef typename bsl::decay<FN>::type F;
-
-    enum {
-        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
-        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
-        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
-    };
-
-    typedef typename
-    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
-                     F, FN>::type FwdFn;
-
-  public:
-    typedef typename
-    BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR, k_IS_MEMFUNCPTR,
-                                k_IS_MEMOBJPTR, FwdFn, ARGTYPES_01,
+                        ARGTYPES_09>
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN,
+                                                       ARGTYPES_01,
                                                        ARGTYPES_02,
                                                        ARGTYPES_03,
                                                        ARGTYPES_04,
@@ -518,7 +392,8 @@ class invoke_result<FN, ARGTYPES_01,
                                                        ARGTYPES_06,
                                                        ARGTYPES_07,
                                                        ARGTYPES_08,
-                                                       ARGTYPES_09>::type type;
+                                                       ARGTYPES_09>::BaseType {
+
 };
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 9
 
@@ -542,24 +417,9 @@ class invoke_result<FN, ARGTYPES_01,
                         ARGTYPES_07,
                         ARGTYPES_08,
                         ARGTYPES_09,
-                        ARGTYPES_10> {
-
-    typedef typename bsl::decay<FN>::type F;
-
-    enum {
-        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
-        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
-        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
-    };
-
-    typedef typename
-    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
-                     F, FN>::type FwdFn;
-
-  public:
-    typedef typename
-    BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR, k_IS_MEMFUNCPTR,
-                                k_IS_MEMOBJPTR, FwdFn, ARGTYPES_01,
+                        ARGTYPES_10>
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN,
+                                                       ARGTYPES_01,
                                                        ARGTYPES_02,
                                                        ARGTYPES_03,
                                                        ARGTYPES_04,
@@ -568,33 +428,146 @@ class invoke_result<FN, ARGTYPES_01,
                                                        ARGTYPES_07,
                                                        ARGTYPES_08,
                                                        ARGTYPES_09,
-                                                       ARGTYPES_10>::type type;
+                                                       ARGTYPES_10>::BaseType {
+
 };
 #endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 11
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11>
+class invoke_result<FN, ARGTYPES_01,
+                        ARGTYPES_02,
+                        ARGTYPES_03,
+                        ARGTYPES_04,
+                        ARGTYPES_05,
+                        ARGTYPES_06,
+                        ARGTYPES_07,
+                        ARGTYPES_08,
+                        ARGTYPES_09,
+                        ARGTYPES_10,
+                        ARGTYPES_11>
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN,
+                                                       ARGTYPES_01,
+                                                       ARGTYPES_02,
+                                                       ARGTYPES_03,
+                                                       ARGTYPES_04,
+                                                       ARGTYPES_05,
+                                                       ARGTYPES_06,
+                                                       ARGTYPES_07,
+                                                       ARGTYPES_08,
+                                                       ARGTYPES_09,
+                                                       ARGTYPES_10,
+                                                       ARGTYPES_11>::BaseType {
+
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 12
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12>
+class invoke_result<FN, ARGTYPES_01,
+                        ARGTYPES_02,
+                        ARGTYPES_03,
+                        ARGTYPES_04,
+                        ARGTYPES_05,
+                        ARGTYPES_06,
+                        ARGTYPES_07,
+                        ARGTYPES_08,
+                        ARGTYPES_09,
+                        ARGTYPES_10,
+                        ARGTYPES_11,
+                        ARGTYPES_12>
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN,
+                                                       ARGTYPES_01,
+                                                       ARGTYPES_02,
+                                                       ARGTYPES_03,
+                                                       ARGTYPES_04,
+                                                       ARGTYPES_05,
+                                                       ARGTYPES_06,
+                                                       ARGTYPES_07,
+                                                       ARGTYPES_08,
+                                                       ARGTYPES_09,
+                                                       ARGTYPES_10,
+                                                       ARGTYPES_11,
+                                                       ARGTYPES_12>::BaseType {
+
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 13
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12,
+                    class ARGTYPES_13>
+class invoke_result<FN, ARGTYPES_01,
+                        ARGTYPES_02,
+                        ARGTYPES_03,
+                        ARGTYPES_04,
+                        ARGTYPES_05,
+                        ARGTYPES_06,
+                        ARGTYPES_07,
+                        ARGTYPES_08,
+                        ARGTYPES_09,
+                        ARGTYPES_10,
+                        ARGTYPES_11,
+                        ARGTYPES_12,
+                        ARGTYPES_13>
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN,
+                                                       ARGTYPES_01,
+                                                       ARGTYPES_02,
+                                                       ARGTYPES_03,
+                                                       ARGTYPES_04,
+                                                       ARGTYPES_05,
+                                                       ARGTYPES_06,
+                                                       ARGTYPES_07,
+                                                       ARGTYPES_08,
+                                                       ARGTYPES_09,
+                                                       ARGTYPES_10,
+                                                       ARGTYPES_11,
+                                                       ARGTYPES_12,
+                                                       ARGTYPES_13>::BaseType {
+
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_B >= 13
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 
 template <class FN, class... ARGTYPES>
-class invoke_result {
+class invoke_result
+: public BloombergLP::bslmf::InvokeResult_BaseCalcUtil<FN,
+                                                       ARGTYPES...>::BaseType {
 
-    typedef typename bsl::decay<FN>::type F;
-
-    enum {
-        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
-        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
-        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
-    };
-
-    typedef typename
-    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
-                     F, FN>::type FwdFn;
-
-  public:
-    typedef typename
-    BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR, k_IS_MEMFUNCPTR,
-                                k_IS_MEMOBJPTR, FwdFn, ARGTYPES...>::type type;
 };
 
 // }}} END GENERATED CODE
@@ -609,8 +582,776 @@ class invoke_result {
 namespace BloombergLP {
 namespace bslmf {
 
-struct InvokeResult_VoidChecker : Tag<true>
-{
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslmf_invokeresult.h
+#ifndef BSLMF_INVOKERESULT_VARIADIC_LIMIT
+#define BSLMF_INVOKERESULT_VARIADIC_LIMIT 13
+#endif
+#ifndef BSLMF_INVOKERESULT_VARIADIC_LIMIT_C
+#define BSLMF_INVOKERESULT_VARIADIC_LIMIT_C BSLMF_INVOKERESULT_VARIADIC_LIMIT
+#endif
+
+template <bool IS_FUNCPTR,
+          bool IS_MEMFUNCPTR,
+          bool IS_MEMOBJPTR,
+          class FN
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 0
+        , class ARGTYPES_0 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 1
+        , class ARGTYPES_1 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 2
+        , class ARGTYPES_2 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 3
+        , class ARGTYPES_3 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 4
+        , class ARGTYPES_4 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 5
+        , class ARGTYPES_5 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 6
+        , class ARGTYPES_6 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 7
+        , class ARGTYPES_7 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 8
+        , class ARGTYPES_8 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 9
+        , class ARGTYPES_9 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 10
+        , class ARGTYPES_10 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 11
+        , class ARGTYPES_11 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 12
+        , class ARGTYPES_12 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 12
+        , class = BSLS_COMPILERFEATURES_NILT>
+struct InvokeResult_Imp;
+
+
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 0
+template <class FN>
+struct InvokeResult_BaseCalcUtil<FN> {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn>
+        BaseType;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 1
+template <class FN, class ARGTYPES_01>
+struct InvokeResult_BaseCalcUtil<FN, ARGTYPES_01> {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn,
+                                                          ARGTYPES_01>
+        BaseType;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 2
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02>
+struct InvokeResult_BaseCalcUtil<FN, ARGTYPES_01,
+                                     ARGTYPES_02> {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn,
+                                                          ARGTYPES_01,
+                                                          ARGTYPES_02>
+        BaseType;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 3
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03>
+struct InvokeResult_BaseCalcUtil<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03> {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn,
+                                                          ARGTYPES_01,
+                                                          ARGTYPES_02,
+                                                          ARGTYPES_03>
+        BaseType;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 4
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04>
+struct InvokeResult_BaseCalcUtil<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04> {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn,
+                                                          ARGTYPES_01,
+                                                          ARGTYPES_02,
+                                                          ARGTYPES_03,
+                                                          ARGTYPES_04>
+        BaseType;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 5
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05>
+struct InvokeResult_BaseCalcUtil<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05> {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn,
+                                                          ARGTYPES_01,
+                                                          ARGTYPES_02,
+                                                          ARGTYPES_03,
+                                                          ARGTYPES_04,
+                                                          ARGTYPES_05>
+        BaseType;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 6
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06>
+struct InvokeResult_BaseCalcUtil<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06> {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn,
+                                                          ARGTYPES_01,
+                                                          ARGTYPES_02,
+                                                          ARGTYPES_03,
+                                                          ARGTYPES_04,
+                                                          ARGTYPES_05,
+                                                          ARGTYPES_06>
+        BaseType;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 7
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07>
+struct InvokeResult_BaseCalcUtil<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07> {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn,
+                                                          ARGTYPES_01,
+                                                          ARGTYPES_02,
+                                                          ARGTYPES_03,
+                                                          ARGTYPES_04,
+                                                          ARGTYPES_05,
+                                                          ARGTYPES_06,
+                                                          ARGTYPES_07>
+        BaseType;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 8
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08>
+struct InvokeResult_BaseCalcUtil<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08> {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn,
+                                                          ARGTYPES_01,
+                                                          ARGTYPES_02,
+                                                          ARGTYPES_03,
+                                                          ARGTYPES_04,
+                                                          ARGTYPES_05,
+                                                          ARGTYPES_06,
+                                                          ARGTYPES_07,
+                                                          ARGTYPES_08>
+        BaseType;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 9
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09>
+struct InvokeResult_BaseCalcUtil<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09> {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn,
+                                                          ARGTYPES_01,
+                                                          ARGTYPES_02,
+                                                          ARGTYPES_03,
+                                                          ARGTYPES_04,
+                                                          ARGTYPES_05,
+                                                          ARGTYPES_06,
+                                                          ARGTYPES_07,
+                                                          ARGTYPES_08,
+                                                          ARGTYPES_09>
+        BaseType;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 10
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10>
+struct InvokeResult_BaseCalcUtil<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10> {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn,
+                                                          ARGTYPES_01,
+                                                          ARGTYPES_02,
+                                                          ARGTYPES_03,
+                                                          ARGTYPES_04,
+                                                          ARGTYPES_05,
+                                                          ARGTYPES_06,
+                                                          ARGTYPES_07,
+                                                          ARGTYPES_08,
+                                                          ARGTYPES_09,
+                                                          ARGTYPES_10>
+        BaseType;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 11
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11>
+struct InvokeResult_BaseCalcUtil<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10,
+                                     ARGTYPES_11> {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn,
+                                                          ARGTYPES_01,
+                                                          ARGTYPES_02,
+                                                          ARGTYPES_03,
+                                                          ARGTYPES_04,
+                                                          ARGTYPES_05,
+                                                          ARGTYPES_06,
+                                                          ARGTYPES_07,
+                                                          ARGTYPES_08,
+                                                          ARGTYPES_09,
+                                                          ARGTYPES_10,
+                                                          ARGTYPES_11>
+        BaseType;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 12
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12>
+struct InvokeResult_BaseCalcUtil<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10,
+                                     ARGTYPES_11,
+                                     ARGTYPES_12> {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn,
+                                                          ARGTYPES_01,
+                                                          ARGTYPES_02,
+                                                          ARGTYPES_03,
+                                                          ARGTYPES_04,
+                                                          ARGTYPES_05,
+                                                          ARGTYPES_06,
+                                                          ARGTYPES_07,
+                                                          ARGTYPES_08,
+                                                          ARGTYPES_09,
+                                                          ARGTYPES_10,
+                                                          ARGTYPES_11,
+                                                          ARGTYPES_12>
+        BaseType;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 13
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12,
+                    class ARGTYPES_13>
+struct InvokeResult_BaseCalcUtil<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10,
+                                     ARGTYPES_11,
+                                     ARGTYPES_12,
+                                     ARGTYPES_13> {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn,
+                                                          ARGTYPES_01,
+                                                          ARGTYPES_02,
+                                                          ARGTYPES_03,
+                                                          ARGTYPES_04,
+                                                          ARGTYPES_05,
+                                                          ARGTYPES_06,
+                                                          ARGTYPES_07,
+                                                          ARGTYPES_08,
+                                                          ARGTYPES_09,
+                                                          ARGTYPES_10,
+                                                          ARGTYPES_11,
+                                                          ARGTYPES_12,
+                                                          ARGTYPES_13>
+        BaseType;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 13
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+
+template <bool  IS_FUNCPTR,
+          bool  IS_MEMFUNCPTR,
+          bool  IS_MEMOBJPTR,
+          class FN,
+          class... ARGTYPES>
+struct InvokeResult_Imp;
+
+
+template <class FN, class... ARGTYPES>
+struct InvokeResult_BaseCalcUtil {
+
+  private:
+    typedef typename bslmf::MovableRefUtil::Decay<FN>::type F;
+
+    enum {
+        k_IS_FUNCPTR   = BloombergLP::bslmf::IsFunctionPointer<F>::value,
+        k_IS_MEMFUNCPTR= BloombergLP::bslmf::IsMemberFunctionPointer<F>::value,
+        k_IS_MEMOBJPTR = bsl::is_member_object_pointer<F>::value
+    };
+
+    typedef typename
+    bsl::conditional<k_IS_FUNCPTR || k_IS_MEMFUNCPTR || k_IS_MEMOBJPTR,
+                     F, FN>::type FwdFn;
+
+  public:
+    typedef typename BloombergLP::bslmf::InvokeResult_Imp<k_IS_FUNCPTR,
+                                                          k_IS_MEMFUNCPTR,
+                                                          k_IS_MEMOBJPTR,
+                                                          FwdFn,
+                                                          ARGTYPES...>
+        BaseType;
+};
+
+// }}} END GENERATED CODE
+#endif
+
+                        // ============================
+                        // struct InvokeResult_IsBaseOf
+                        // ============================
+
+template <class BASE, class DERIVED>
+struct InvokeResult_IsBaseOf
+: bsl::integral_constant<
+    bool,
+    bsl::is_class<typename bsl::remove_cv<BASE>::type>::value
+ && bsl::is_class<typename bsl::remove_cv<DERIVED>::type>::value
+ && bsl::is_convertible<typename bsl::remove_cv<DERIVED>::type *,
+                        typename bsl::remove_cv<BASE>::type *>::value> {
+    // This component-private 'struct' template provides an implementation
+    // of the 'std::is_base_of' type trait that may be used when a C++11
+    // baseline library is not necessarily available.
+};
+
+               // =============================================
+               // struct InvokeResult_MemberObjectPointerTraits
+               // =============================================
+
+template <class TYPE>
+struct InvokeResult_MemberObjectPointerTraits;
+    // This component-private utility 'struct' template provides the following
+    // nested typedefs:
+    //: 'ClassType': The type of the class for which the specified 'TYPE' is a
+    //:              pointer to member object.
+    //: 'MemberType': The type of the member object of the class for which the
+    //:               specified 'TYPE' is a pointer to member object.
+    // Instantiation will fail unless 'TYPE' is a pointer-to-member-object
+    // type.  This primary (unspecialized) template is not defined.
+
+template <class MEMBER_TYPE, class CLASS_TYPE>
+struct InvokeResult_MemberObjectPointerTraits<MEMBER_TYPE CLASS_TYPE::*> {
+    // TYPES
+    typedef CLASS_TYPE ClassType;
+        // 'ClassType' is an alias to the type of the class for which the
+        // specified 'TYPE' is a pointer to member object.
+
+    typedef MEMBER_TYPE MemberType;
+        // 'MemberType' is an alias to the type of the member object of the
+        // class for which the specified 'TYPE' is a pointer to member object.
+};
+
+                      // ===============================
+                      // struct InvokeResult_VoidChecker
+                      // ===============================
+
+struct InvokeResult_VoidChecker : Tag<true> {
     // Empty type used to detect void expressions.  The size of this type is
     // the same as 'bslmf::Tag<1>'.
 };
@@ -956,58 +1697,70 @@ struct InvokeResult_AddCVRef {
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.h
 #ifndef BSLMF_INVOKERESULT_VARIADIC_LIMIT
-#define BSLMF_INVOKERESULT_VARIADIC_LIMIT 10
+#define BSLMF_INVOKERESULT_VARIADIC_LIMIT 13
 #endif
-#ifndef BSLMF_INVOKERESULT_VARIADIC_LIMIT_C
-#define BSLMF_INVOKERESULT_VARIADIC_LIMIT_C BSLMF_INVOKERESULT_VARIADIC_LIMIT
+#ifndef BSLMF_INVOKERESULT_VARIADIC_LIMIT_D
+#define BSLMF_INVOKERESULT_VARIADIC_LIMIT_D BSLMF_INVOKERESULT_VARIADIC_LIMIT
 #endif
 
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#ifndef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
 template <bool __Param__0,
           class FN
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 0
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 0
         , class ARGTYPES_0 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 0
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 0
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 1
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 1
         , class ARGTYPES_1 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 1
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 1
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 2
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 2
         , class ARGTYPES_2 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 2
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 2
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 3
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 3
         , class ARGTYPES_3 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 3
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 3
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 4
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 4
         , class ARGTYPES_4 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 4
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 4
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 5
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 5
         , class ARGTYPES_5 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 5
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 5
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 6
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 6
         , class ARGTYPES_6 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 6
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 6
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 7
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 7
         , class ARGTYPES_7 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 7
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 7
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 8
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 8
         , class ARGTYPES_8 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 8
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 8
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 9
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 9
         , class ARGTYPES_9 = BSLS_COMPILERFEATURES_NILT
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 9
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 10
+        , class ARGTYPES_10 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 11
+        , class ARGTYPES_11 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 12
+        , class ARGTYPES_12 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 12
         , class = BSLS_COMPILERFEATURES_NILT>
 struct InvokeResult_FunctorDeduction;
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 0
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 0
 template <bool __Param__0, class FN>
 struct InvokeResult_FunctorDeduction<__Param__0, FN> : InvokeResult_ImpUtils {
 
@@ -1041,28 +1794,34 @@ struct InvokeResult_FunctorDeduction<__Param__0, FN> : InvokeResult_ImpUtils {
 
     typedef typename
     InvokeResult_AddCVRef<UnqualTargetType,
-                          k_IS_CONST_TARGET    && ! k_CANT_DEDUCE_TYPE,
-                          k_IS_VOLATILE_TARGET && ! k_CANT_DEDUCE_TYPE,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                           false>::type CVQualTargetType;
 
     typedef typename
-    bsl::conditional<k_IS_POINTER && ! k_CANT_DEDUCE_TYPE,
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                      typename bsl::add_pointer<CVQualTargetType>::type,
                      CVQualTargetType>::type UnqualType;
 
     typedef typename
     InvokeResult_AddCVRef<
         UnqualType,
-        k_IS_CONST_PTR    && ! k_CANT_DEDUCE_TYPE,
-        k_IS_VOLATILE_PTR && ! k_CANT_DEDUCE_TYPE,
-        k_IS_LVALUE       && ! k_CANT_DEDUCE_TYPE>::type Qtype;
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
 
-    typedef typename bsl::conditional<k_IS_LVALUE, Qtype,
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
                       typename bsl::remove_cv<Qtype>::type>::type type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 0
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 0
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 1
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 1
 template <bool __Param__0, class FN, class ARGTYPES_01>
 struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01
                                                     > : InvokeResult_ImpUtils {
@@ -1097,28 +1856,34 @@ struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01
 
     typedef typename
     InvokeResult_AddCVRef<UnqualTargetType,
-                          k_IS_CONST_TARGET    && ! k_CANT_DEDUCE_TYPE,
-                          k_IS_VOLATILE_TARGET && ! k_CANT_DEDUCE_TYPE,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                           false>::type CVQualTargetType;
 
     typedef typename
-    bsl::conditional<k_IS_POINTER && ! k_CANT_DEDUCE_TYPE,
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                      typename bsl::add_pointer<CVQualTargetType>::type,
                      CVQualTargetType>::type UnqualType;
 
     typedef typename
     InvokeResult_AddCVRef<
         UnqualType,
-        k_IS_CONST_PTR    && ! k_CANT_DEDUCE_TYPE,
-        k_IS_VOLATILE_PTR && ! k_CANT_DEDUCE_TYPE,
-        k_IS_LVALUE       && ! k_CANT_DEDUCE_TYPE>::type Qtype;
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
 
-    typedef typename bsl::conditional<k_IS_LVALUE, Qtype,
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
                       typename bsl::remove_cv<Qtype>::type>::type type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 1
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 1
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 2
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 2
 template <bool __Param__0, class FN, class ARGTYPES_01,
                                      class ARGTYPES_02>
 struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01,
@@ -1162,28 +1927,34 @@ struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01,
 
     typedef typename
     InvokeResult_AddCVRef<UnqualTargetType,
-                          k_IS_CONST_TARGET    && ! k_CANT_DEDUCE_TYPE,
-                          k_IS_VOLATILE_TARGET && ! k_CANT_DEDUCE_TYPE,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                           false>::type CVQualTargetType;
 
     typedef typename
-    bsl::conditional<k_IS_POINTER && ! k_CANT_DEDUCE_TYPE,
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                      typename bsl::add_pointer<CVQualTargetType>::type,
                      CVQualTargetType>::type UnqualType;
 
     typedef typename
     InvokeResult_AddCVRef<
         UnqualType,
-        k_IS_CONST_PTR    && ! k_CANT_DEDUCE_TYPE,
-        k_IS_VOLATILE_PTR && ! k_CANT_DEDUCE_TYPE,
-        k_IS_LVALUE       && ! k_CANT_DEDUCE_TYPE>::type Qtype;
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
 
-    typedef typename bsl::conditional<k_IS_LVALUE, Qtype,
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
                       typename bsl::remove_cv<Qtype>::type>::type type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 2
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 2
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 3
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 3
 template <bool __Param__0, class FN, class ARGTYPES_01,
                                      class ARGTYPES_02,
                                      class ARGTYPES_03>
@@ -1236,28 +2007,34 @@ struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01,
 
     typedef typename
     InvokeResult_AddCVRef<UnqualTargetType,
-                          k_IS_CONST_TARGET    && ! k_CANT_DEDUCE_TYPE,
-                          k_IS_VOLATILE_TARGET && ! k_CANT_DEDUCE_TYPE,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                           false>::type CVQualTargetType;
 
     typedef typename
-    bsl::conditional<k_IS_POINTER && ! k_CANT_DEDUCE_TYPE,
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                      typename bsl::add_pointer<CVQualTargetType>::type,
                      CVQualTargetType>::type UnqualType;
 
     typedef typename
     InvokeResult_AddCVRef<
         UnqualType,
-        k_IS_CONST_PTR    && ! k_CANT_DEDUCE_TYPE,
-        k_IS_VOLATILE_PTR && ! k_CANT_DEDUCE_TYPE,
-        k_IS_LVALUE       && ! k_CANT_DEDUCE_TYPE>::type Qtype;
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
 
-    typedef typename bsl::conditional<k_IS_LVALUE, Qtype,
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
                       typename bsl::remove_cv<Qtype>::type>::type type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 3
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 3
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 4
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 4
 template <bool __Param__0, class FN, class ARGTYPES_01,
                                      class ARGTYPES_02,
                                      class ARGTYPES_03,
@@ -1319,28 +2096,34 @@ struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01,
 
     typedef typename
     InvokeResult_AddCVRef<UnqualTargetType,
-                          k_IS_CONST_TARGET    && ! k_CANT_DEDUCE_TYPE,
-                          k_IS_VOLATILE_TARGET && ! k_CANT_DEDUCE_TYPE,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                           false>::type CVQualTargetType;
 
     typedef typename
-    bsl::conditional<k_IS_POINTER && ! k_CANT_DEDUCE_TYPE,
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                      typename bsl::add_pointer<CVQualTargetType>::type,
                      CVQualTargetType>::type UnqualType;
 
     typedef typename
     InvokeResult_AddCVRef<
         UnqualType,
-        k_IS_CONST_PTR    && ! k_CANT_DEDUCE_TYPE,
-        k_IS_VOLATILE_PTR && ! k_CANT_DEDUCE_TYPE,
-        k_IS_LVALUE       && ! k_CANT_DEDUCE_TYPE>::type Qtype;
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
 
-    typedef typename bsl::conditional<k_IS_LVALUE, Qtype,
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
                       typename bsl::remove_cv<Qtype>::type>::type type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 4
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 4
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 5
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 5
 template <bool __Param__0, class FN, class ARGTYPES_01,
                                      class ARGTYPES_02,
                                      class ARGTYPES_03,
@@ -1411,28 +2194,34 @@ struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01,
 
     typedef typename
     InvokeResult_AddCVRef<UnqualTargetType,
-                          k_IS_CONST_TARGET    && ! k_CANT_DEDUCE_TYPE,
-                          k_IS_VOLATILE_TARGET && ! k_CANT_DEDUCE_TYPE,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                           false>::type CVQualTargetType;
 
     typedef typename
-    bsl::conditional<k_IS_POINTER && ! k_CANT_DEDUCE_TYPE,
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                      typename bsl::add_pointer<CVQualTargetType>::type,
                      CVQualTargetType>::type UnqualType;
 
     typedef typename
     InvokeResult_AddCVRef<
         UnqualType,
-        k_IS_CONST_PTR    && ! k_CANT_DEDUCE_TYPE,
-        k_IS_VOLATILE_PTR && ! k_CANT_DEDUCE_TYPE,
-        k_IS_LVALUE       && ! k_CANT_DEDUCE_TYPE>::type Qtype;
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
 
-    typedef typename bsl::conditional<k_IS_LVALUE, Qtype,
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
                       typename bsl::remove_cv<Qtype>::type>::type type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 5
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 5
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 6
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 6
 template <bool __Param__0, class FN, class ARGTYPES_01,
                                      class ARGTYPES_02,
                                      class ARGTYPES_03,
@@ -1512,28 +2301,34 @@ struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01,
 
     typedef typename
     InvokeResult_AddCVRef<UnqualTargetType,
-                          k_IS_CONST_TARGET    && ! k_CANT_DEDUCE_TYPE,
-                          k_IS_VOLATILE_TARGET && ! k_CANT_DEDUCE_TYPE,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                           false>::type CVQualTargetType;
 
     typedef typename
-    bsl::conditional<k_IS_POINTER && ! k_CANT_DEDUCE_TYPE,
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                      typename bsl::add_pointer<CVQualTargetType>::type,
                      CVQualTargetType>::type UnqualType;
 
     typedef typename
     InvokeResult_AddCVRef<
         UnqualType,
-        k_IS_CONST_PTR    && ! k_CANT_DEDUCE_TYPE,
-        k_IS_VOLATILE_PTR && ! k_CANT_DEDUCE_TYPE,
-        k_IS_LVALUE       && ! k_CANT_DEDUCE_TYPE>::type Qtype;
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
 
-    typedef typename bsl::conditional<k_IS_LVALUE, Qtype,
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
                       typename bsl::remove_cv<Qtype>::type>::type type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 6
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 6
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 7
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 7
 template <bool __Param__0, class FN, class ARGTYPES_01,
                                      class ARGTYPES_02,
                                      class ARGTYPES_03,
@@ -1622,28 +2417,34 @@ struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01,
 
     typedef typename
     InvokeResult_AddCVRef<UnqualTargetType,
-                          k_IS_CONST_TARGET    && ! k_CANT_DEDUCE_TYPE,
-                          k_IS_VOLATILE_TARGET && ! k_CANT_DEDUCE_TYPE,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                           false>::type CVQualTargetType;
 
     typedef typename
-    bsl::conditional<k_IS_POINTER && ! k_CANT_DEDUCE_TYPE,
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                      typename bsl::add_pointer<CVQualTargetType>::type,
                      CVQualTargetType>::type UnqualType;
 
     typedef typename
     InvokeResult_AddCVRef<
         UnqualType,
-        k_IS_CONST_PTR    && ! k_CANT_DEDUCE_TYPE,
-        k_IS_VOLATILE_PTR && ! k_CANT_DEDUCE_TYPE,
-        k_IS_LVALUE       && ! k_CANT_DEDUCE_TYPE>::type Qtype;
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
 
-    typedef typename bsl::conditional<k_IS_LVALUE, Qtype,
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
                       typename bsl::remove_cv<Qtype>::type>::type type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 7
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 7
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 8
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 8
 template <bool __Param__0, class FN, class ARGTYPES_01,
                                      class ARGTYPES_02,
                                      class ARGTYPES_03,
@@ -1741,28 +2542,34 @@ struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01,
 
     typedef typename
     InvokeResult_AddCVRef<UnqualTargetType,
-                          k_IS_CONST_TARGET    && ! k_CANT_DEDUCE_TYPE,
-                          k_IS_VOLATILE_TARGET && ! k_CANT_DEDUCE_TYPE,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                           false>::type CVQualTargetType;
 
     typedef typename
-    bsl::conditional<k_IS_POINTER && ! k_CANT_DEDUCE_TYPE,
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                      typename bsl::add_pointer<CVQualTargetType>::type,
                      CVQualTargetType>::type UnqualType;
 
     typedef typename
     InvokeResult_AddCVRef<
         UnqualType,
-        k_IS_CONST_PTR    && ! k_CANT_DEDUCE_TYPE,
-        k_IS_VOLATILE_PTR && ! k_CANT_DEDUCE_TYPE,
-        k_IS_LVALUE       && ! k_CANT_DEDUCE_TYPE>::type Qtype;
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
 
-    typedef typename bsl::conditional<k_IS_LVALUE, Qtype,
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
                       typename bsl::remove_cv<Qtype>::type>::type type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 8
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 8
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 9
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 9
 template <bool __Param__0, class FN, class ARGTYPES_01,
                                      class ARGTYPES_02,
                                      class ARGTYPES_03,
@@ -1869,28 +2676,34 @@ struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01,
 
     typedef typename
     InvokeResult_AddCVRef<UnqualTargetType,
-                          k_IS_CONST_TARGET    && ! k_CANT_DEDUCE_TYPE,
-                          k_IS_VOLATILE_TARGET && ! k_CANT_DEDUCE_TYPE,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                           false>::type CVQualTargetType;
 
     typedef typename
-    bsl::conditional<k_IS_POINTER && ! k_CANT_DEDUCE_TYPE,
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                      typename bsl::add_pointer<CVQualTargetType>::type,
                      CVQualTargetType>::type UnqualType;
 
     typedef typename
     InvokeResult_AddCVRef<
         UnqualType,
-        k_IS_CONST_PTR    && ! k_CANT_DEDUCE_TYPE,
-        k_IS_VOLATILE_PTR && ! k_CANT_DEDUCE_TYPE,
-        k_IS_LVALUE       && ! k_CANT_DEDUCE_TYPE>::type Qtype;
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
 
-    typedef typename bsl::conditional<k_IS_LVALUE, Qtype,
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
                       typename bsl::remove_cv<Qtype>::type>::type type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 9
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 9
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 10
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 10
 template <bool __Param__0, class FN, class ARGTYPES_01,
                                      class ARGTYPES_02,
                                      class ARGTYPES_03,
@@ -2006,47 +2819,536 @@ struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01,
 
     typedef typename
     InvokeResult_AddCVRef<UnqualTargetType,
-                          k_IS_CONST_TARGET    && ! k_CANT_DEDUCE_TYPE,
-                          k_IS_VOLATILE_TARGET && ! k_CANT_DEDUCE_TYPE,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                           false>::type CVQualTargetType;
 
     typedef typename
-    bsl::conditional<k_IS_POINTER && ! k_CANT_DEDUCE_TYPE,
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                      typename bsl::add_pointer<CVQualTargetType>::type,
                      CVQualTargetType>::type UnqualType;
 
     typedef typename
     InvokeResult_AddCVRef<
         UnqualType,
-        k_IS_CONST_PTR    && ! k_CANT_DEDUCE_TYPE,
-        k_IS_VOLATILE_PTR && ! k_CANT_DEDUCE_TYPE,
-        k_IS_LVALUE       && ! k_CANT_DEDUCE_TYPE>::type Qtype;
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
 
-    typedef typename bsl::conditional<k_IS_LVALUE, Qtype,
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
                       typename bsl::remove_cv<Qtype>::type>::type type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 10
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 11
+template <bool __Param__0, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11>
+struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01,
+                                                     ARGTYPES_02,
+                                                     ARGTYPES_03,
+                                                     ARGTYPES_04,
+                                                     ARGTYPES_05,
+                                                     ARGTYPES_06,
+                                                     ARGTYPES_07,
+                                                     ARGTYPES_08,
+                                                     ARGTYPES_09,
+                                                     ARGTYPES_10,
+                                                     ARGTYPES_11
+                                                    > : InvokeResult_ImpUtils {
+
+    typedef typename bsl::decay<FN>::type F;
+
+    enum {
+
+        k_INDEX       = BSLMF_TAG_TO_INT(InvokeResult_Index::fromVal(
+                           uncv(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>())))),
+        k_IS_POINTER  = (k_INDEX == InvokeResult_Index::e_POINTER),
+        k_IS_LVALUE   = BSLMF_TAG_TO_INT(checkLvalue(
+                                myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>()), 0)),
+        k_IS_CONST_PTR = k_IS_POINTER && BSLMF_TAG_TO_INT(checkConst(
+                                myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>()))),
+        k_IS_VOLATILE_PTR  = k_IS_POINTER && BSLMF_TAG_TO_INT(checkVolatile(
+                                myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>()))),
+        k_TARGET_INDEX   = BSLMF_TAG_TO_INT(InvokeResult_Index::fromVal(
+                   uncv(unpoint(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>()))))),
+        k_IS_CONST_TARGET    = BSLMF_TAG_TO_INT(checkConst(
+                        unpoint(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>())))),
+        k_IS_VOLATILE_TARGET = BSLMF_TAG_TO_INT(checkVolatile(
+                        unpoint(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>())))),
+        k_CANT_DEDUCE_TYPE = (k_TARGET_INDEX==(int)InvokeResult_Index::e_OTHER)
+    };
+
+    typedef typename bsl::conditional<
+            ! k_CANT_DEDUCE_TYPE,
+            typename InvokeResult_Type<k_TARGET_INDEX>::type,
+            typename ResultType<F,InvokeResultDeductionFailed>::type
+        >::type UnqualTargetType;
+
+    typedef typename
+    InvokeResult_AddCVRef<UnqualTargetType,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          false>::type CVQualTargetType;
+
+    typedef typename
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                     typename bsl::add_pointer<CVQualTargetType>::type,
+                     CVQualTargetType>::type UnqualType;
+
+    typedef typename
+    InvokeResult_AddCVRef<
+        UnqualType,
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
+
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
+                      typename bsl::remove_cv<Qtype>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 12
+template <bool __Param__0, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11,
+                                     class ARGTYPES_12>
+struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01,
+                                                     ARGTYPES_02,
+                                                     ARGTYPES_03,
+                                                     ARGTYPES_04,
+                                                     ARGTYPES_05,
+                                                     ARGTYPES_06,
+                                                     ARGTYPES_07,
+                                                     ARGTYPES_08,
+                                                     ARGTYPES_09,
+                                                     ARGTYPES_10,
+                                                     ARGTYPES_11,
+                                                     ARGTYPES_12
+                                                    > : InvokeResult_ImpUtils {
+
+    typedef typename bsl::decay<FN>::type F;
+
+    enum {
+
+        k_INDEX       = BSLMF_TAG_TO_INT(InvokeResult_Index::fromVal(
+                           uncv(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>(),
+                                                myDeclval<ARGTYPES_12>())))),
+        k_IS_POINTER  = (k_INDEX == InvokeResult_Index::e_POINTER),
+        k_IS_LVALUE   = BSLMF_TAG_TO_INT(checkLvalue(
+                                myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>(),
+                                                myDeclval<ARGTYPES_12>()), 0)),
+        k_IS_CONST_PTR = k_IS_POINTER && BSLMF_TAG_TO_INT(checkConst(
+                                myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>(),
+                                                myDeclval<ARGTYPES_12>()))),
+        k_IS_VOLATILE_PTR  = k_IS_POINTER && BSLMF_TAG_TO_INT(checkVolatile(
+                                myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>(),
+                                                myDeclval<ARGTYPES_12>()))),
+        k_TARGET_INDEX   = BSLMF_TAG_TO_INT(InvokeResult_Index::fromVal(
+                   uncv(unpoint(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>(),
+                                                myDeclval<ARGTYPES_12>()))))),
+        k_IS_CONST_TARGET    = BSLMF_TAG_TO_INT(checkConst(
+                        unpoint(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>(),
+                                                myDeclval<ARGTYPES_12>())))),
+        k_IS_VOLATILE_TARGET = BSLMF_TAG_TO_INT(checkVolatile(
+                        unpoint(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>(),
+                                                myDeclval<ARGTYPES_12>())))),
+        k_CANT_DEDUCE_TYPE = (k_TARGET_INDEX==(int)InvokeResult_Index::e_OTHER)
+    };
+
+    typedef typename bsl::conditional<
+            ! k_CANT_DEDUCE_TYPE,
+            typename InvokeResult_Type<k_TARGET_INDEX>::type,
+            typename ResultType<F,InvokeResultDeductionFailed>::type
+        >::type UnqualTargetType;
+
+    typedef typename
+    InvokeResult_AddCVRef<UnqualTargetType,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          false>::type CVQualTargetType;
+
+    typedef typename
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                     typename bsl::add_pointer<CVQualTargetType>::type,
+                     CVQualTargetType>::type UnqualType;
+
+    typedef typename
+    InvokeResult_AddCVRef<
+        UnqualType,
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
+
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
+                      typename bsl::remove_cv<Qtype>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 13
+template <bool __Param__0, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11,
+                                     class ARGTYPES_12,
+                                     class ARGTYPES_13>
+struct InvokeResult_FunctorDeduction<__Param__0, FN, ARGTYPES_01,
+                                                     ARGTYPES_02,
+                                                     ARGTYPES_03,
+                                                     ARGTYPES_04,
+                                                     ARGTYPES_05,
+                                                     ARGTYPES_06,
+                                                     ARGTYPES_07,
+                                                     ARGTYPES_08,
+                                                     ARGTYPES_09,
+                                                     ARGTYPES_10,
+                                                     ARGTYPES_11,
+                                                     ARGTYPES_12,
+                                                     ARGTYPES_13
+                                                    > : InvokeResult_ImpUtils {
+
+    typedef typename bsl::decay<FN>::type F;
+
+    enum {
+
+        k_INDEX       = BSLMF_TAG_TO_INT(InvokeResult_Index::fromVal(
+                           uncv(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>(),
+                                                myDeclval<ARGTYPES_12>(),
+                                                myDeclval<ARGTYPES_13>())))),
+        k_IS_POINTER  = (k_INDEX == InvokeResult_Index::e_POINTER),
+        k_IS_LVALUE   = BSLMF_TAG_TO_INT(checkLvalue(
+                                myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>(),
+                                                myDeclval<ARGTYPES_12>(),
+                                                myDeclval<ARGTYPES_13>()), 0)),
+        k_IS_CONST_PTR = k_IS_POINTER && BSLMF_TAG_TO_INT(checkConst(
+                                myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>(),
+                                                myDeclval<ARGTYPES_12>(),
+                                                myDeclval<ARGTYPES_13>()))),
+        k_IS_VOLATILE_PTR  = k_IS_POINTER && BSLMF_TAG_TO_INT(checkVolatile(
+                                myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>(),
+                                                myDeclval<ARGTYPES_12>(),
+                                                myDeclval<ARGTYPES_13>()))),
+        k_TARGET_INDEX   = BSLMF_TAG_TO_INT(InvokeResult_Index::fromVal(
+                   uncv(unpoint(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>(),
+                                                myDeclval<ARGTYPES_12>(),
+                                                myDeclval<ARGTYPES_13>()))))),
+        k_IS_CONST_TARGET    = BSLMF_TAG_TO_INT(checkConst(
+                        unpoint(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>(),
+                                                myDeclval<ARGTYPES_12>(),
+                                                myDeclval<ARGTYPES_13>())))),
+        k_IS_VOLATILE_TARGET = BSLMF_TAG_TO_INT(checkVolatile(
+                        unpoint(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                                myDeclval<ARGTYPES_02>(),
+                                                myDeclval<ARGTYPES_03>(),
+                                                myDeclval<ARGTYPES_04>(),
+                                                myDeclval<ARGTYPES_05>(),
+                                                myDeclval<ARGTYPES_06>(),
+                                                myDeclval<ARGTYPES_07>(),
+                                                myDeclval<ARGTYPES_08>(),
+                                                myDeclval<ARGTYPES_09>(),
+                                                myDeclval<ARGTYPES_10>(),
+                                                myDeclval<ARGTYPES_11>(),
+                                                myDeclval<ARGTYPES_12>(),
+                                                myDeclval<ARGTYPES_13>())))),
+        k_CANT_DEDUCE_TYPE = (k_TARGET_INDEX==(int)InvokeResult_Index::e_OTHER)
+    };
+
+    typedef typename bsl::conditional<
+            ! k_CANT_DEDUCE_TYPE,
+            typename InvokeResult_Type<k_TARGET_INDEX>::type,
+            typename ResultType<F,InvokeResultDeductionFailed>::type
+        >::type UnqualTargetType;
+
+    typedef typename
+    InvokeResult_AddCVRef<UnqualTargetType,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          false>::type CVQualTargetType;
+
+    typedef typename
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                     typename bsl::add_pointer<CVQualTargetType>::type,
+                     CVQualTargetType>::type UnqualType;
+
+    typedef typename
+    InvokeResult_AddCVRef<
+        UnqualType,
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
+
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
+                      typename bsl::remove_cv<Qtype>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 13
 
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 0
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 0
 template <class FN>
 struct InvokeResult_FunctorDeduction<true , FN>
 {
 
     typedef void type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 0
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 0
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 1
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 1
 template <class FN, class ARGTYPES_01>
 struct InvokeResult_FunctorDeduction<true , FN, ARGTYPES_01>
 {
 
     typedef void type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 1
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 1
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 2
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 2
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02>
 struct InvokeResult_FunctorDeduction<true , FN, ARGTYPES_01,
@@ -2055,9 +3357,9 @@ struct InvokeResult_FunctorDeduction<true , FN, ARGTYPES_01,
 
     typedef void type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 2
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 2
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 3
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 3
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03>
@@ -2068,9 +3370,9 @@ struct InvokeResult_FunctorDeduction<true , FN, ARGTYPES_01,
 
     typedef void type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 3
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 3
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 4
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 4
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -2083,9 +3385,9 @@ struct InvokeResult_FunctorDeduction<true , FN, ARGTYPES_01,
 
     typedef void type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 4
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 4
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 5
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 5
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -2100,9 +3402,9 @@ struct InvokeResult_FunctorDeduction<true , FN, ARGTYPES_01,
 
     typedef void type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 5
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 5
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 6
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 6
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -2119,9 +3421,9 @@ struct InvokeResult_FunctorDeduction<true , FN, ARGTYPES_01,
 
     typedef void type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 6
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 6
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 7
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 7
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -2140,9 +3442,9 @@ struct InvokeResult_FunctorDeduction<true , FN, ARGTYPES_01,
 
     typedef void type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 7
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 7
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 8
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 8
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -2163,9 +3465,9 @@ struct InvokeResult_FunctorDeduction<true , FN, ARGTYPES_01,
 
     typedef void type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 8
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 8
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 9
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 9
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -2188,9 +3490,9 @@ struct InvokeResult_FunctorDeduction<true , FN, ARGTYPES_01,
 
     typedef void type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 9
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 9
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 10
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 10
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -2215,14 +3517,107 @@ struct InvokeResult_FunctorDeduction<true , FN, ARGTYPES_01,
 
     typedef void type;
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 10
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 11
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11>
+struct InvokeResult_FunctorDeduction<true , FN, ARGTYPES_01,
+                                                ARGTYPES_02,
+                                                ARGTYPES_03,
+                                                ARGTYPES_04,
+                                                ARGTYPES_05,
+                                                ARGTYPES_06,
+                                                ARGTYPES_07,
+                                                ARGTYPES_08,
+                                                ARGTYPES_09,
+                                                ARGTYPES_10,
+                                                ARGTYPES_11>
+{
+
+    typedef void type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 12
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12>
+struct InvokeResult_FunctorDeduction<true , FN, ARGTYPES_01,
+                                                ARGTYPES_02,
+                                                ARGTYPES_03,
+                                                ARGTYPES_04,
+                                                ARGTYPES_05,
+                                                ARGTYPES_06,
+                                                ARGTYPES_07,
+                                                ARGTYPES_08,
+                                                ARGTYPES_09,
+                                                ARGTYPES_10,
+                                                ARGTYPES_11,
+                                                ARGTYPES_12>
+{
+
+    typedef void type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 13
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12,
+                    class ARGTYPES_13>
+struct InvokeResult_FunctorDeduction<true , FN, ARGTYPES_01,
+                                                ARGTYPES_02,
+                                                ARGTYPES_03,
+                                                ARGTYPES_04,
+                                                ARGTYPES_05,
+                                                ARGTYPES_06,
+                                                ARGTYPES_07,
+                                                ARGTYPES_08,
+                                                ARGTYPES_09,
+                                                ARGTYPES_10,
+                                                ARGTYPES_11,
+                                                ARGTYPES_12,
+                                                ARGTYPES_13>
+{
+
+    typedef void type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 13
 
 #endif
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#ifndef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
 template <bool , class FN, class... ARGTYPES>
 struct InvokeResult_FunctorDeduction : InvokeResult_ImpUtils {
 
@@ -2256,23 +3651,29 @@ struct InvokeResult_FunctorDeduction : InvokeResult_ImpUtils {
 
     typedef typename
     InvokeResult_AddCVRef<UnqualTargetType,
-                          k_IS_CONST_TARGET    && ! k_CANT_DEDUCE_TYPE,
-                          k_IS_VOLATILE_TARGET && ! k_CANT_DEDUCE_TYPE,
+                          static_cast<bool>(k_IS_CONST_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+                          static_cast<bool>(k_IS_VOLATILE_TARGET)
+                          && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                           false>::type CVQualTargetType;
 
     typedef typename
-    bsl::conditional<k_IS_POINTER && ! k_CANT_DEDUCE_TYPE,
+    bsl::conditional<static_cast<bool>(k_IS_POINTER)
+                     && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
                      typename bsl::add_pointer<CVQualTargetType>::type,
                      CVQualTargetType>::type UnqualType;
 
     typedef typename
     InvokeResult_AddCVRef<
         UnqualType,
-        k_IS_CONST_PTR    && ! k_CANT_DEDUCE_TYPE,
-        k_IS_VOLATILE_PTR && ! k_CANT_DEDUCE_TYPE,
-        k_IS_LVALUE       && ! k_CANT_DEDUCE_TYPE>::type Qtype;
+        static_cast<bool>(k_IS_CONST_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_VOLATILE_PTR)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE),
+        static_cast<bool>(k_IS_LVALUE)
+        && ! static_cast<bool>(k_CANT_DEDUCE_TYPE)>::type Qtype;
 
-    typedef typename bsl::conditional<k_IS_LVALUE, Qtype,
+    typedef typename bsl::conditional<static_cast<bool>(k_IS_LVALUE), Qtype,
                       typename bsl::remove_cv<Qtype>::type>::type type;
 };
 
@@ -2328,7 +3729,7 @@ struct InvokeResult_MemPtrArgQualifiers<MEMOF_CLASS, ARG_TYPE, false>
     // volatile-qualified reference.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-private:
+  private:
     // CLASS METHODS
     template <class TP>
     static TP& tolvalue(TP&&);
@@ -2369,78 +3770,268 @@ private:
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.h
 #ifndef BSLMF_INVOKERESULT_VARIADIC_LIMIT
-#define BSLMF_INVOKERESULT_VARIADIC_LIMIT 10
+#define BSLMF_INVOKERESULT_VARIADIC_LIMIT 13
 #endif
-#ifndef BSLMF_INVOKERESULT_VARIADIC_LIMIT_D
-#define BSLMF_INVOKERESULT_VARIADIC_LIMIT_D BSLMF_INVOKERESULT_VARIADIC_LIMIT
+#ifndef BSLMF_INVOKERESULT_VARIADIC_LIMIT_E
+#define BSLMF_INVOKERESULT_VARIADIC_LIMIT_E BSLMF_INVOKERESULT_VARIADIC_LIMIT
 #endif
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 0
+template <class VOID_TYPE,
+          class FN
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+        , class ARGTYPES_0 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+        , class ARGTYPES_1 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+        , class ARGTYPES_2 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+        , class ARGTYPES_3 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+        , class ARGTYPES_4 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+        , class ARGTYPES_5 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+        , class ARGTYPES_6 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+        , class ARGTYPES_7 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+        , class ARGTYPES_8 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+        , class ARGTYPES_9 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+        , class ARGTYPES_10 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+        , class ARGTYPES_11 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+        , class ARGTYPES_12 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+        , class = BSLS_COMPILERFEATURES_NILT>
+struct InvokeResult_FunctorImp;
+
+
+template <class VOID_TYPE,
+          class FN
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+        , class ARGTYPES_0 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+        , class ARGTYPES_1 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+        , class ARGTYPES_2 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+        , class ARGTYPES_3 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+        , class ARGTYPES_4 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+        , class ARGTYPES_5 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+        , class ARGTYPES_6 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+        , class ARGTYPES_7 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+        , class ARGTYPES_8 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+        , class ARGTYPES_9 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+        , class ARGTYPES_10 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+        , class ARGTYPES_11 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+        , class ARGTYPES_12 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+        , class = BSLS_COMPILERFEATURES_NILT>
+struct InvokeResult_FuncPtrImp;
+
+
+template <class FN
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+        , class ARGTYPES_0 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+        , class ARGTYPES_1 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+        , class ARGTYPES_2 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+        , class ARGTYPES_3 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+        , class ARGTYPES_4 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+        , class ARGTYPES_5 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+        , class ARGTYPES_6 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+        , class ARGTYPES_7 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+        , class ARGTYPES_8 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+        , class ARGTYPES_9 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+        , class ARGTYPES_10 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+        , class ARGTYPES_11 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+        , class ARGTYPES_12 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+        , class = BSLS_COMPILERFEATURES_NILT>
+struct InvokeResult_MemFuncPtrImp;
+
+
+template <class FN
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+        , class ARGTYPES_0 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+        , class ARGTYPES_1 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+        , class ARGTYPES_2 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+        , class ARGTYPES_3 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+        , class ARGTYPES_4 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+        , class ARGTYPES_5 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+        , class ARGTYPES_6 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+        , class ARGTYPES_7 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+        , class ARGTYPES_8 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+        , class ARGTYPES_9 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+        , class ARGTYPES_10 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+        , class ARGTYPES_11 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+        , class ARGTYPES_12 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+        , class = BSLS_COMPILERFEATURES_NILT>
+struct InvokeResult_MemObjPtrImp;
+
+
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
 template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN>
-struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN
-                                                    > : InvokeResult_ImpUtils {
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    typedef decltype(myDeclval<FN>()()) type;
-#else
-    enum {
-        k_IS_VOID= BSLMF_TAG_TO_INT((myDeclval<FN>()(),
-                                     InvokeResult_VoidChecker()))
-    };
-
-    typedef typename
-      InvokeResult_FunctorDeduction<k_IS_VOID, FN>::type type;
-#endif
+struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN>
+     : InvokeResult_FunctorImp<void, FN> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 0
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 1
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
 template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN,
           class ARGTYPES_01>
-struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN,ARGTYPES_01
-                                                    > : InvokeResult_ImpUtils {
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>())) type;
-#else
-    enum {
-        k_IS_VOID= BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>()),
-                                     InvokeResult_VoidChecker()))
-    };
-
-    typedef typename
-      InvokeResult_FunctorDeduction<k_IS_VOID, FN, ARGTYPES_01>::type type;
-#endif
+struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN,
+                                                                   ARGTYPES_01>
+     : InvokeResult_FunctorImp<void, FN, ARGTYPES_01> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 1
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 2
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
 template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN,
           class ARGTYPES_01,
           class ARGTYPES_02>
 struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN,
                                                                    ARGTYPES_01,
-                                                                   ARGTYPES_02
-                                                    > : InvokeResult_ImpUtils {
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                     myDeclval<ARGTYPES_02>())) type;
-#else
-    enum {
-        k_IS_VOID= BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                                     myDeclval<ARGTYPES_02>()),
-                                     InvokeResult_VoidChecker()))
-    };
-
-    typedef typename
-      InvokeResult_FunctorDeduction<k_IS_VOID, FN, ARGTYPES_01,
-                                                   ARGTYPES_02>::type type;
-#endif
+                                                                   ARGTYPES_02>
+     : InvokeResult_FunctorImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 2
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 3
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
 template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN,
           class ARGTYPES_01,
           class ARGTYPES_02,
@@ -2448,30 +4039,14 @@ template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN,
 struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN,
                                                                    ARGTYPES_01,
                                                                    ARGTYPES_02,
-                                                                   ARGTYPES_03
-                                                    > : InvokeResult_ImpUtils {
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                     myDeclval<ARGTYPES_02>(),
-                                     myDeclval<ARGTYPES_03>())) type;
-#else
-    enum {
-        k_IS_VOID= BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                                     myDeclval<ARGTYPES_02>(),
-                                                     myDeclval<ARGTYPES_03>()),
-                                     InvokeResult_VoidChecker()))
-    };
-
-    typedef typename
-      InvokeResult_FunctorDeduction<k_IS_VOID, FN, ARGTYPES_01,
-                                                   ARGTYPES_02,
-                                                   ARGTYPES_03>::type type;
-#endif
+                                                                   ARGTYPES_03>
+     : InvokeResult_FunctorImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 3
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 4
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
 template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN,
           class ARGTYPES_01,
           class ARGTYPES_02,
@@ -2481,33 +4056,15 @@ struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN,
                                                                    ARGTYPES_01,
                                                                    ARGTYPES_02,
                                                                    ARGTYPES_03,
-                                                                   ARGTYPES_04
-                                                    > : InvokeResult_ImpUtils {
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                     myDeclval<ARGTYPES_02>(),
-                                     myDeclval<ARGTYPES_03>(),
-                                     myDeclval<ARGTYPES_04>())) type;
-#else
-    enum {
-        k_IS_VOID= BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                                     myDeclval<ARGTYPES_02>(),
-                                                     myDeclval<ARGTYPES_03>(),
-                                                     myDeclval<ARGTYPES_04>()),
-                                     InvokeResult_VoidChecker()))
-    };
-
-    typedef typename
-      InvokeResult_FunctorDeduction<k_IS_VOID, FN, ARGTYPES_01,
-                                                   ARGTYPES_02,
-                                                   ARGTYPES_03,
-                                                   ARGTYPES_04>::type type;
-#endif
+                                                                   ARGTYPES_04>
+     : InvokeResult_FunctorImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 4
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 5
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
 template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN,
           class ARGTYPES_01,
           class ARGTYPES_02,
@@ -2519,36 +4076,16 @@ struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN,
                                                                    ARGTYPES_02,
                                                                    ARGTYPES_03,
                                                                    ARGTYPES_04,
-                                                                   ARGTYPES_05
-                                                    > : InvokeResult_ImpUtils {
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                     myDeclval<ARGTYPES_02>(),
-                                     myDeclval<ARGTYPES_03>(),
-                                     myDeclval<ARGTYPES_04>(),
-                                     myDeclval<ARGTYPES_05>())) type;
-#else
-    enum {
-        k_IS_VOID= BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                                     myDeclval<ARGTYPES_02>(),
-                                                     myDeclval<ARGTYPES_03>(),
-                                                     myDeclval<ARGTYPES_04>(),
-                                                     myDeclval<ARGTYPES_05>()),
-                                     InvokeResult_VoidChecker()))
-    };
-
-    typedef typename
-      InvokeResult_FunctorDeduction<k_IS_VOID, FN, ARGTYPES_01,
-                                                   ARGTYPES_02,
-                                                   ARGTYPES_03,
-                                                   ARGTYPES_04,
-                                                   ARGTYPES_05>::type type;
-#endif
+                                                                   ARGTYPES_05>
+     : InvokeResult_FunctorImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 5
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 6
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
 template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN,
           class ARGTYPES_01,
           class ARGTYPES_02,
@@ -2562,39 +4099,17 @@ struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN,
                                                                    ARGTYPES_03,
                                                                    ARGTYPES_04,
                                                                    ARGTYPES_05,
-                                                                   ARGTYPES_06
-                                                    > : InvokeResult_ImpUtils {
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                     myDeclval<ARGTYPES_02>(),
-                                     myDeclval<ARGTYPES_03>(),
-                                     myDeclval<ARGTYPES_04>(),
-                                     myDeclval<ARGTYPES_05>(),
-                                     myDeclval<ARGTYPES_06>())) type;
-#else
-    enum {
-        k_IS_VOID= BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                                     myDeclval<ARGTYPES_02>(),
-                                                     myDeclval<ARGTYPES_03>(),
-                                                     myDeclval<ARGTYPES_04>(),
-                                                     myDeclval<ARGTYPES_05>(),
-                                                     myDeclval<ARGTYPES_06>()),
-                                     InvokeResult_VoidChecker()))
-    };
-
-    typedef typename
-      InvokeResult_FunctorDeduction<k_IS_VOID, FN, ARGTYPES_01,
-                                                   ARGTYPES_02,
-                                                   ARGTYPES_03,
-                                                   ARGTYPES_04,
-                                                   ARGTYPES_05,
-                                                   ARGTYPES_06>::type type;
-#endif
+                                                                   ARGTYPES_06>
+     : InvokeResult_FunctorImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 6
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 7
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
 template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN,
           class ARGTYPES_01,
           class ARGTYPES_02,
@@ -2610,42 +4125,18 @@ struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN,
                                                                    ARGTYPES_04,
                                                                    ARGTYPES_05,
                                                                    ARGTYPES_06,
-                                                                   ARGTYPES_07
-                                                    > : InvokeResult_ImpUtils {
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                     myDeclval<ARGTYPES_02>(),
-                                     myDeclval<ARGTYPES_03>(),
-                                     myDeclval<ARGTYPES_04>(),
-                                     myDeclval<ARGTYPES_05>(),
-                                     myDeclval<ARGTYPES_06>(),
-                                     myDeclval<ARGTYPES_07>())) type;
-#else
-    enum {
-        k_IS_VOID= BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                                     myDeclval<ARGTYPES_02>(),
-                                                     myDeclval<ARGTYPES_03>(),
-                                                     myDeclval<ARGTYPES_04>(),
-                                                     myDeclval<ARGTYPES_05>(),
-                                                     myDeclval<ARGTYPES_06>(),
-                                                     myDeclval<ARGTYPES_07>()),
-                                     InvokeResult_VoidChecker()))
-    };
-
-    typedef typename
-      InvokeResult_FunctorDeduction<k_IS_VOID, FN, ARGTYPES_01,
-                                                   ARGTYPES_02,
-                                                   ARGTYPES_03,
-                                                   ARGTYPES_04,
-                                                   ARGTYPES_05,
-                                                   ARGTYPES_06,
-                                                   ARGTYPES_07>::type type;
-#endif
+                                                                   ARGTYPES_07>
+     : InvokeResult_FunctorImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06,
+                                         ARGTYPES_07> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 7
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 8
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
 template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN,
           class ARGTYPES_01,
           class ARGTYPES_02,
@@ -2663,45 +4154,19 @@ struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN,
                                                                    ARGTYPES_05,
                                                                    ARGTYPES_06,
                                                                    ARGTYPES_07,
-                                                                   ARGTYPES_08
-                                                    > : InvokeResult_ImpUtils {
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                     myDeclval<ARGTYPES_02>(),
-                                     myDeclval<ARGTYPES_03>(),
-                                     myDeclval<ARGTYPES_04>(),
-                                     myDeclval<ARGTYPES_05>(),
-                                     myDeclval<ARGTYPES_06>(),
-                                     myDeclval<ARGTYPES_07>(),
-                                     myDeclval<ARGTYPES_08>())) type;
-#else
-    enum {
-        k_IS_VOID= BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                                     myDeclval<ARGTYPES_02>(),
-                                                     myDeclval<ARGTYPES_03>(),
-                                                     myDeclval<ARGTYPES_04>(),
-                                                     myDeclval<ARGTYPES_05>(),
-                                                     myDeclval<ARGTYPES_06>(),
-                                                     myDeclval<ARGTYPES_07>(),
-                                                     myDeclval<ARGTYPES_08>()),
-                                     InvokeResult_VoidChecker()))
-    };
-
-    typedef typename
-      InvokeResult_FunctorDeduction<k_IS_VOID, FN, ARGTYPES_01,
-                                                   ARGTYPES_02,
-                                                   ARGTYPES_03,
-                                                   ARGTYPES_04,
-                                                   ARGTYPES_05,
-                                                   ARGTYPES_06,
-                                                   ARGTYPES_07,
-                                                   ARGTYPES_08>::type type;
-#endif
+                                                                   ARGTYPES_08>
+     : InvokeResult_FunctorImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06,
+                                         ARGTYPES_07,
+                                         ARGTYPES_08> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 8
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 9
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
 template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN,
           class ARGTYPES_01,
           class ARGTYPES_02,
@@ -2721,48 +4186,20 @@ struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN,
                                                                    ARGTYPES_06,
                                                                    ARGTYPES_07,
                                                                    ARGTYPES_08,
-                                                                   ARGTYPES_09
-                                                    > : InvokeResult_ImpUtils {
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                     myDeclval<ARGTYPES_02>(),
-                                     myDeclval<ARGTYPES_03>(),
-                                     myDeclval<ARGTYPES_04>(),
-                                     myDeclval<ARGTYPES_05>(),
-                                     myDeclval<ARGTYPES_06>(),
-                                     myDeclval<ARGTYPES_07>(),
-                                     myDeclval<ARGTYPES_08>(),
-                                     myDeclval<ARGTYPES_09>())) type;
-#else
-    enum {
-        k_IS_VOID= BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                                     myDeclval<ARGTYPES_02>(),
-                                                     myDeclval<ARGTYPES_03>(),
-                                                     myDeclval<ARGTYPES_04>(),
-                                                     myDeclval<ARGTYPES_05>(),
-                                                     myDeclval<ARGTYPES_06>(),
-                                                     myDeclval<ARGTYPES_07>(),
-                                                     myDeclval<ARGTYPES_08>(),
-                                                     myDeclval<ARGTYPES_09>()),
-                                     InvokeResult_VoidChecker()))
-    };
-
-    typedef typename
-      InvokeResult_FunctorDeduction<k_IS_VOID, FN, ARGTYPES_01,
-                                                   ARGTYPES_02,
-                                                   ARGTYPES_03,
-                                                   ARGTYPES_04,
-                                                   ARGTYPES_05,
-                                                   ARGTYPES_06,
-                                                   ARGTYPES_07,
-                                                   ARGTYPES_08,
-                                                   ARGTYPES_09>::type type;
-#endif
+                                                                   ARGTYPES_09>
+     : InvokeResult_FunctorImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06,
+                                         ARGTYPES_07,
+                                         ARGTYPES_08,
+                                         ARGTYPES_09> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 9
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 10
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
 template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN,
           class ARGTYPES_01,
           class ARGTYPES_02,
@@ -2784,110 +4221,185 @@ struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN,
                                                                    ARGTYPES_07,
                                                                    ARGTYPES_08,
                                                                    ARGTYPES_09,
-                                                                   ARGTYPES_10
-                                                    > : InvokeResult_ImpUtils {
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                     myDeclval<ARGTYPES_02>(),
-                                     myDeclval<ARGTYPES_03>(),
-                                     myDeclval<ARGTYPES_04>(),
-                                     myDeclval<ARGTYPES_05>(),
-                                     myDeclval<ARGTYPES_06>(),
-                                     myDeclval<ARGTYPES_07>(),
-                                     myDeclval<ARGTYPES_08>(),
-                                     myDeclval<ARGTYPES_09>(),
-                                     myDeclval<ARGTYPES_10>())) type;
-#else
-    enum {
-        k_IS_VOID= BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
-                                                     myDeclval<ARGTYPES_02>(),
-                                                     myDeclval<ARGTYPES_03>(),
-                                                     myDeclval<ARGTYPES_04>(),
-                                                     myDeclval<ARGTYPES_05>(),
-                                                     myDeclval<ARGTYPES_06>(),
-                                                     myDeclval<ARGTYPES_07>(),
-                                                     myDeclval<ARGTYPES_08>(),
-                                                     myDeclval<ARGTYPES_09>(),
-                                                     myDeclval<ARGTYPES_10>()),
-                                     InvokeResult_VoidChecker()))
-    };
-
-    typedef typename
-      InvokeResult_FunctorDeduction<k_IS_VOID, FN, ARGTYPES_01,
-                                                   ARGTYPES_02,
-                                                   ARGTYPES_03,
-                                                   ARGTYPES_04,
-                                                   ARGTYPES_05,
-                                                   ARGTYPES_06,
-                                                   ARGTYPES_07,
-                                                   ARGTYPES_08,
-                                                   ARGTYPES_09,
-                                                   ARGTYPES_10>::type type;
-#endif
+                                                                   ARGTYPES_10>
+     : InvokeResult_FunctorImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06,
+                                         ARGTYPES_07,
+                                         ARGTYPES_08,
+                                         ARGTYPES_09,
+                                         ARGTYPES_10> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 10
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN,
+          class ARGTYPES_01,
+          class ARGTYPES_02,
+          class ARGTYPES_03,
+          class ARGTYPES_04,
+          class ARGTYPES_05,
+          class ARGTYPES_06,
+          class ARGTYPES_07,
+          class ARGTYPES_08,
+          class ARGTYPES_09,
+          class ARGTYPES_10,
+          class ARGTYPES_11>
+struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN,
+                                                                   ARGTYPES_01,
+                                                                   ARGTYPES_02,
+                                                                   ARGTYPES_03,
+                                                                   ARGTYPES_04,
+                                                                   ARGTYPES_05,
+                                                                   ARGTYPES_06,
+                                                                   ARGTYPES_07,
+                                                                   ARGTYPES_08,
+                                                                   ARGTYPES_09,
+                                                                   ARGTYPES_10,
+                                                                   ARGTYPES_11>
+     : InvokeResult_FunctorImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06,
+                                         ARGTYPES_07,
+                                         ARGTYPES_08,
+                                         ARGTYPES_09,
+                                         ARGTYPES_10,
+                                         ARGTYPES_11> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN,
+          class ARGTYPES_01,
+          class ARGTYPES_02,
+          class ARGTYPES_03,
+          class ARGTYPES_04,
+          class ARGTYPES_05,
+          class ARGTYPES_06,
+          class ARGTYPES_07,
+          class ARGTYPES_08,
+          class ARGTYPES_09,
+          class ARGTYPES_10,
+          class ARGTYPES_11,
+          class ARGTYPES_12>
+struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN,
+                                                                   ARGTYPES_01,
+                                                                   ARGTYPES_02,
+                                                                   ARGTYPES_03,
+                                                                   ARGTYPES_04,
+                                                                   ARGTYPES_05,
+                                                                   ARGTYPES_06,
+                                                                   ARGTYPES_07,
+                                                                   ARGTYPES_08,
+                                                                   ARGTYPES_09,
+                                                                   ARGTYPES_10,
+                                                                   ARGTYPES_11,
+                                                                   ARGTYPES_12>
+     : InvokeResult_FunctorImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06,
+                                         ARGTYPES_07,
+                                         ARGTYPES_08,
+                                         ARGTYPES_09,
+                                         ARGTYPES_10,
+                                         ARGTYPES_11,
+                                         ARGTYPES_12> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <bool IS_FUNCPTR, bool IS_MEMFUNCPTR, bool IS_MEMOBJPTR, class FN,
+          class ARGTYPES_01,
+          class ARGTYPES_02,
+          class ARGTYPES_03,
+          class ARGTYPES_04,
+          class ARGTYPES_05,
+          class ARGTYPES_06,
+          class ARGTYPES_07,
+          class ARGTYPES_08,
+          class ARGTYPES_09,
+          class ARGTYPES_10,
+          class ARGTYPES_11,
+          class ARGTYPES_12,
+          class ARGTYPES_13>
+struct InvokeResult_Imp<IS_FUNCPTR, IS_MEMFUNCPTR, IS_MEMOBJPTR, FN,
+                                                                   ARGTYPES_01,
+                                                                   ARGTYPES_02,
+                                                                   ARGTYPES_03,
+                                                                   ARGTYPES_04,
+                                                                   ARGTYPES_05,
+                                                                   ARGTYPES_06,
+                                                                   ARGTYPES_07,
+                                                                   ARGTYPES_08,
+                                                                   ARGTYPES_09,
+                                                                   ARGTYPES_10,
+                                                                   ARGTYPES_11,
+                                                                   ARGTYPES_12,
+                                                                   ARGTYPES_13>
+     : InvokeResult_FunctorImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06,
+                                         ARGTYPES_07,
+                                         ARGTYPES_08,
+                                         ARGTYPES_09,
+                                         ARGTYPES_10,
+                                         ARGTYPES_11,
+                                         ARGTYPES_12,
+                                         ARGTYPES_13> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
 
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 0
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
 template <class FN>
-struct InvokeResult_Imp<true , false, false, FN> {
-
-    typedef typename
-      bslmf::FunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+struct InvokeResult_Imp<true , false, false, FN>
+     : InvokeResult_FuncPtrImp<void, FN> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 0
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 1
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
 template <class FN, class ARGTYPES_01>
-struct InvokeResult_Imp<true , false, false, FN, ARGTYPES_01> {
-
-    typedef typename
-      bslmf::FunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+struct InvokeResult_Imp<true , false, false, FN, ARGTYPES_01>
+     : InvokeResult_FuncPtrImp<void, FN, ARGTYPES_01> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 1
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 2
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02>
 struct InvokeResult_Imp<true , false, false, FN, ARGTYPES_01,
-                                                 ARGTYPES_02> {
-
-    typedef typename
-      bslmf::FunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+                                                 ARGTYPES_02>
+     : InvokeResult_FuncPtrImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 2
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 3
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03>
 struct InvokeResult_Imp<true , false, false, FN, ARGTYPES_01,
                                                  ARGTYPES_02,
-                                                 ARGTYPES_03> {
-
-    typedef typename
-      bslmf::FunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+                                                 ARGTYPES_03>
+     : InvokeResult_FuncPtrImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 3
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 4
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -2895,18 +4407,15 @@ template <class FN, class ARGTYPES_01,
 struct InvokeResult_Imp<true , false, false, FN, ARGTYPES_01,
                                                  ARGTYPES_02,
                                                  ARGTYPES_03,
-                                                 ARGTYPES_04> {
-
-    typedef typename
-      bslmf::FunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+                                                 ARGTYPES_04>
+     : InvokeResult_FuncPtrImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 4
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 5
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -2916,18 +4425,16 @@ struct InvokeResult_Imp<true , false, false, FN, ARGTYPES_01,
                                                  ARGTYPES_02,
                                                  ARGTYPES_03,
                                                  ARGTYPES_04,
-                                                 ARGTYPES_05> {
-
-    typedef typename
-      bslmf::FunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+                                                 ARGTYPES_05>
+     : InvokeResult_FuncPtrImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 5
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 6
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -2939,18 +4446,17 @@ struct InvokeResult_Imp<true , false, false, FN, ARGTYPES_01,
                                                  ARGTYPES_03,
                                                  ARGTYPES_04,
                                                  ARGTYPES_05,
-                                                 ARGTYPES_06> {
-
-    typedef typename
-      bslmf::FunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+                                                 ARGTYPES_06>
+     : InvokeResult_FuncPtrImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 6
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 7
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -2964,18 +4470,18 @@ struct InvokeResult_Imp<true , false, false, FN, ARGTYPES_01,
                                                  ARGTYPES_04,
                                                  ARGTYPES_05,
                                                  ARGTYPES_06,
-                                                 ARGTYPES_07> {
-
-    typedef typename
-      bslmf::FunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+                                                 ARGTYPES_07>
+     : InvokeResult_FuncPtrImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06,
+                                         ARGTYPES_07> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 7
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 8
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -2991,18 +4497,19 @@ struct InvokeResult_Imp<true , false, false, FN, ARGTYPES_01,
                                                  ARGTYPES_05,
                                                  ARGTYPES_06,
                                                  ARGTYPES_07,
-                                                 ARGTYPES_08> {
-
-    typedef typename
-      bslmf::FunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+                                                 ARGTYPES_08>
+     : InvokeResult_FuncPtrImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06,
+                                         ARGTYPES_07,
+                                         ARGTYPES_08> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 8
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 9
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -3020,18 +4527,20 @@ struct InvokeResult_Imp<true , false, false, FN, ARGTYPES_01,
                                                  ARGTYPES_06,
                                                  ARGTYPES_07,
                                                  ARGTYPES_08,
-                                                 ARGTYPES_09> {
-
-    typedef typename
-      bslmf::FunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+                                                 ARGTYPES_09>
+     : InvokeResult_FuncPtrImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06,
+                                         ARGTYPES_07,
+                                         ARGTYPES_08,
+                                         ARGTYPES_09> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 9
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 10
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -3051,77 +4560,179 @@ struct InvokeResult_Imp<true , false, false, FN, ARGTYPES_01,
                                                  ARGTYPES_07,
                                                  ARGTYPES_08,
                                                  ARGTYPES_09,
-                                                 ARGTYPES_10> {
-
-    typedef typename
-      bslmf::FunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+                                                 ARGTYPES_10>
+     : InvokeResult_FuncPtrImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06,
+                                         ARGTYPES_07,
+                                         ARGTYPES_08,
+                                         ARGTYPES_09,
+                                         ARGTYPES_10> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 10
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11>
+struct InvokeResult_Imp<true , false, false, FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05,
+                                                 ARGTYPES_06,
+                                                 ARGTYPES_07,
+                                                 ARGTYPES_08,
+                                                 ARGTYPES_09,
+                                                 ARGTYPES_10,
+                                                 ARGTYPES_11>
+     : InvokeResult_FuncPtrImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06,
+                                         ARGTYPES_07,
+                                         ARGTYPES_08,
+                                         ARGTYPES_09,
+                                         ARGTYPES_10,
+                                         ARGTYPES_11> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12>
+struct InvokeResult_Imp<true , false, false, FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05,
+                                                 ARGTYPES_06,
+                                                 ARGTYPES_07,
+                                                 ARGTYPES_08,
+                                                 ARGTYPES_09,
+                                                 ARGTYPES_10,
+                                                 ARGTYPES_11,
+                                                 ARGTYPES_12>
+     : InvokeResult_FuncPtrImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06,
+                                         ARGTYPES_07,
+                                         ARGTYPES_08,
+                                         ARGTYPES_09,
+                                         ARGTYPES_10,
+                                         ARGTYPES_11,
+                                         ARGTYPES_12> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12,
+                    class ARGTYPES_13>
+struct InvokeResult_Imp<true , false, false, FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05,
+                                                 ARGTYPES_06,
+                                                 ARGTYPES_07,
+                                                 ARGTYPES_08,
+                                                 ARGTYPES_09,
+                                                 ARGTYPES_10,
+                                                 ARGTYPES_11,
+                                                 ARGTYPES_12,
+                                                 ARGTYPES_13>
+     : InvokeResult_FuncPtrImp<void, FN, ARGTYPES_01,
+                                         ARGTYPES_02,
+                                         ARGTYPES_03,
+                                         ARGTYPES_04,
+                                         ARGTYPES_05,
+                                         ARGTYPES_06,
+                                         ARGTYPES_07,
+                                         ARGTYPES_08,
+                                         ARGTYPES_09,
+                                         ARGTYPES_10,
+                                         ARGTYPES_11,
+                                         ARGTYPES_12,
+                                         ARGTYPES_13> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
 
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 0
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
 template <class FN>
 struct InvokeResult_Imp<false, true , false, FN>
-{
-
-    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+     : InvokeResult_MemFuncPtrImp<FN> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 0
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 1
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
 template <class FN, class ARGTYPES_01>
 struct InvokeResult_Imp<false, true , false, FN, ARGTYPES_01>
-{
-
-    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+     : InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 1
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 2
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02>
 struct InvokeResult_Imp<false, true , false, FN, ARGTYPES_01,
                                                  ARGTYPES_02>
-{
-
-    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+     : InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 2
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 3
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03>
 struct InvokeResult_Imp<false, true , false, FN, ARGTYPES_01,
                                                  ARGTYPES_02,
                                                  ARGTYPES_03>
-{
-
-    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+     : InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 3
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 4
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -3130,17 +4741,14 @@ struct InvokeResult_Imp<false, true , false, FN, ARGTYPES_01,
                                                  ARGTYPES_02,
                                                  ARGTYPES_03,
                                                  ARGTYPES_04>
-{
-
-    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+     : InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 4
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 5
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -3151,17 +4759,15 @@ struct InvokeResult_Imp<false, true , false, FN, ARGTYPES_01,
                                                  ARGTYPES_03,
                                                  ARGTYPES_04,
                                                  ARGTYPES_05>
-{
-
-    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+     : InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 5
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 6
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -3174,17 +4780,16 @@ struct InvokeResult_Imp<false, true , false, FN, ARGTYPES_01,
                                                  ARGTYPES_04,
                                                  ARGTYPES_05,
                                                  ARGTYPES_06>
-{
-
-    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+     : InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 6
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 7
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -3199,17 +4804,17 @@ struct InvokeResult_Imp<false, true , false, FN, ARGTYPES_01,
                                                  ARGTYPES_05,
                                                  ARGTYPES_06,
                                                  ARGTYPES_07>
-{
-
-    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+     : InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06,
+                                      ARGTYPES_07> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 7
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 8
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -3226,17 +4831,18 @@ struct InvokeResult_Imp<false, true , false, FN, ARGTYPES_01,
                                                  ARGTYPES_06,
                                                  ARGTYPES_07,
                                                  ARGTYPES_08>
-{
-
-    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+     : InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06,
+                                      ARGTYPES_07,
+                                      ARGTYPES_08> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 8
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 9
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -3255,17 +4861,19 @@ struct InvokeResult_Imp<false, true , false, FN, ARGTYPES_01,
                                                  ARGTYPES_07,
                                                  ARGTYPES_08,
                                                  ARGTYPES_09>
-{
-
-    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+     : InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06,
+                                      ARGTYPES_07,
+                                      ARGTYPES_08,
+                                      ARGTYPES_09> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 9
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
 
-#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 10
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
 template <class FN, class ARGTYPES_01,
                     class ARGTYPES_02,
                     class ARGTYPES_03,
@@ -3286,109 +4894,6552 @@ struct InvokeResult_Imp<false, true , false, FN, ARGTYPES_01,
                                                  ARGTYPES_08,
                                                  ARGTYPES_09,
                                                  ARGTYPES_10>
-{
-
-    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
-
-    typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
-                       QType, typename bsl::remove_cv<QType>::type>::type type;
+     : InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06,
+                                      ARGTYPES_07,
+                                      ARGTYPES_08,
+                                      ARGTYPES_09,
+                                      ARGTYPES_10> {
 };
-#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_D >= 10
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
 
-
-template <class CLASS, class RET, class ARGTYPE>
-struct InvokeResult_Imp<false, false, true ,
-                        RET CLASS::*, ARGTYPE> {
-
-  private:
-    typedef InvokeResult_MemPtrArgQualifiers<CLASS, ARGTYPE> ArgQualifiers;
-
-    typedef typename
-    InvokeResult_AddCVRef<RET, ArgQualifiers::k_IS_CONST,
-                          ArgQualifiers::k_IS_VOLATILE,
-                          ArgQualifiers::k_IS_LVALUE>::type cvtype;
-
-  public:
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    typedef typename bsl::conditional<
-        ArgQualifiers::k_IS_LVALUE,
-        cvtype,
-        typename bsl::add_rvalue_reference<cvtype>::type
-      >::type type;
-#else
-    typedef cvtype type;
-#endif
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11>
+struct InvokeResult_Imp<false, true , false, FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05,
+                                                 ARGTYPES_06,
+                                                 ARGTYPES_07,
+                                                 ARGTYPES_08,
+                                                 ARGTYPES_09,
+                                                 ARGTYPES_10,
+                                                 ARGTYPES_11>
+     : InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06,
+                                      ARGTYPES_07,
+                                      ARGTYPES_08,
+                                      ARGTYPES_09,
+                                      ARGTYPES_10,
+                                      ARGTYPES_11> {
 };
-#else
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
 
-template <bool  IS_FUNCPTR,
-          bool  IS_MEMFUNCPTR,
-          bool  IS_MEMOBJPTR,
-          class FN,
-          class... ARGTYPES>
-struct InvokeResult_Imp : InvokeResult_ImpUtils {
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12>
+struct InvokeResult_Imp<false, true , false, FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05,
+                                                 ARGTYPES_06,
+                                                 ARGTYPES_07,
+                                                 ARGTYPES_08,
+                                                 ARGTYPES_09,
+                                                 ARGTYPES_10,
+                                                 ARGTYPES_11,
+                                                 ARGTYPES_12>
+     : InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06,
+                                      ARGTYPES_07,
+                                      ARGTYPES_08,
+                                      ARGTYPES_09,
+                                      ARGTYPES_10,
+                                      ARGTYPES_11,
+                                      ARGTYPES_12> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES>()...)) type;
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12,
+                    class ARGTYPES_13>
+struct InvokeResult_Imp<false, true , false, FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05,
+                                                 ARGTYPES_06,
+                                                 ARGTYPES_07,
+                                                 ARGTYPES_08,
+                                                 ARGTYPES_09,
+                                                 ARGTYPES_10,
+                                                 ARGTYPES_11,
+                                                 ARGTYPES_12,
+                                                 ARGTYPES_13>
+     : InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06,
+                                      ARGTYPES_07,
+                                      ARGTYPES_08,
+                                      ARGTYPES_09,
+                                      ARGTYPES_10,
+                                      ARGTYPES_11,
+                                      ARGTYPES_12,
+                                      ARGTYPES_13> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class FN>
+struct InvokeResult_Imp<false, false, true , FN>
+     : InvokeResult_MemObjPtrImp<FN> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class FN, class ARGTYPES_01>
+struct InvokeResult_Imp<false, false, true , FN, ARGTYPES_01>
+     : InvokeResult_MemObjPtrImp<FN, ARGTYPES_01> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02>
+struct InvokeResult_Imp<false, false, true , FN, ARGTYPES_01,
+                                                 ARGTYPES_02>
+     : InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03>
+struct InvokeResult_Imp<false, false, true , FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03>
+     : InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04>
+struct InvokeResult_Imp<false, false, true , FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04>
+     : InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05>
+struct InvokeResult_Imp<false, false, true , FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05>
+     : InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06>
+struct InvokeResult_Imp<false, false, true , FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05,
+                                                 ARGTYPES_06>
+     : InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07>
+struct InvokeResult_Imp<false, false, true , FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05,
+                                                 ARGTYPES_06,
+                                                 ARGTYPES_07>
+     : InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08>
+struct InvokeResult_Imp<false, false, true , FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05,
+                                                 ARGTYPES_06,
+                                                 ARGTYPES_07,
+                                                 ARGTYPES_08>
+     : InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09>
+struct InvokeResult_Imp<false, false, true , FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05,
+                                                 ARGTYPES_06,
+                                                 ARGTYPES_07,
+                                                 ARGTYPES_08,
+                                                 ARGTYPES_09>
+     : InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10>
+struct InvokeResult_Imp<false, false, true , FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05,
+                                                 ARGTYPES_06,
+                                                 ARGTYPES_07,
+                                                 ARGTYPES_08,
+                                                 ARGTYPES_09,
+                                                 ARGTYPES_10>
+     : InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11>
+struct InvokeResult_Imp<false, false, true , FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05,
+                                                 ARGTYPES_06,
+                                                 ARGTYPES_07,
+                                                 ARGTYPES_08,
+                                                 ARGTYPES_09,
+                                                 ARGTYPES_10,
+                                                 ARGTYPES_11>
+     : InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10,
+                                     ARGTYPES_11> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12>
+struct InvokeResult_Imp<false, false, true , FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05,
+                                                 ARGTYPES_06,
+                                                 ARGTYPES_07,
+                                                 ARGTYPES_08,
+                                                 ARGTYPES_09,
+                                                 ARGTYPES_10,
+                                                 ARGTYPES_11,
+                                                 ARGTYPES_12>
+     : InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10,
+                                     ARGTYPES_11,
+                                     ARGTYPES_12> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12,
+                    class ARGTYPES_13>
+struct InvokeResult_Imp<false, false, true , FN, ARGTYPES_01,
+                                                 ARGTYPES_02,
+                                                 ARGTYPES_03,
+                                                 ARGTYPES_04,
+                                                 ARGTYPES_05,
+                                                 ARGTYPES_06,
+                                                 ARGTYPES_07,
+                                                 ARGTYPES_08,
+                                                 ARGTYPES_09,
+                                                 ARGTYPES_10,
+                                                 ARGTYPES_11,
+                                                 ARGTYPES_12,
+                                                 ARGTYPES_13>
+     : InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10,
+                                     ARGTYPES_11,
+                                     ARGTYPES_12,
+                                     ARGTYPES_13> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
+
+
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class VOID_TYPE, class FN>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class VOID_TYPE, class FN, class ARGTYPES_01>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10,
+                                              ARGTYPES_11> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11,
+                                     class ARGTYPES_12>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10,
+                                              ARGTYPES_11,
+                                              ARGTYPES_12> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11,
+                                     class ARGTYPES_12,
+                                     class ARGTYPES_13>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10,
+                                              ARGTYPES_11,
+                                              ARGTYPES_12,
+                                              ARGTYPES_13> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class FN>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        ))>::type,
+    FN> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()()) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class FN, class ARGTYPES_01>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>()))>::type,
+    FN,
+    ARGTYPES_01> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>(),
+                                     myDeclval<ARGTYPES_07>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>(),
+                                     myDeclval<ARGTYPES_07>(),
+                                     myDeclval<ARGTYPES_08>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>(),
+                                     myDeclval<ARGTYPES_07>(),
+                                     myDeclval<ARGTYPES_08>(),
+                                     myDeclval<ARGTYPES_09>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>(),
+                                     myDeclval<ARGTYPES_07>(),
+                                     myDeclval<ARGTYPES_08>(),
+                                     myDeclval<ARGTYPES_09>(),
+                                     myDeclval<ARGTYPES_10>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>(),
+                                     myDeclval<ARGTYPES_07>(),
+                                     myDeclval<ARGTYPES_08>(),
+                                     myDeclval<ARGTYPES_09>(),
+                                     myDeclval<ARGTYPES_10>(),
+                                     myDeclval<ARGTYPES_11>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_12>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11,
+    ARGTYPES_12> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>(),
+                                     myDeclval<ARGTYPES_07>(),
+                                     myDeclval<ARGTYPES_08>(),
+                                     myDeclval<ARGTYPES_09>(),
+                                     myDeclval<ARGTYPES_10>(),
+                                     myDeclval<ARGTYPES_11>(),
+                                     myDeclval<ARGTYPES_12>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12,
+                    class ARGTYPES_13>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_12>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_13>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11,
+    ARGTYPES_12,
+    ARGTYPES_13> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>(),
+                                     myDeclval<ARGTYPES_07>(),
+                                     myDeclval<ARGTYPES_08>(),
+                                     myDeclval<ARGTYPES_09>(),
+                                     myDeclval<ARGTYPES_10>(),
+                                     myDeclval<ARGTYPES_11>(),
+                                     myDeclval<ARGTYPES_12>(),
+                                     myDeclval<ARGTYPES_13>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
 #else
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class VOID_TYPE, class FN>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN> : InvokeResult_ImpUtils {
+
     enum {
-        k_IS_VOID= BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES>()...),
-                                     InvokeResult_VoidChecker()))
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(),
+                              InvokeResult_VoidChecker()))
     };
 
-    typedef typename
-      InvokeResult_FunctorDeduction<k_IS_VOID, FN, ARGTYPES...>::type type;
-#endif
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN>::type type;
 };
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
 
-template <class FN, class... ARGTYPES>
-struct InvokeResult_Imp<true , false, false, FN, ARGTYPES...> {
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class VOID_TYPE, class FN, class ARGTYPES_01>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01
+                                              > : InvokeResult_ImpUtils {
+
+    enum {
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>()),
+                              InvokeResult_VoidChecker()))
+    };
+
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN,
+                                                   ARGTYPES_01>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02
+                                              > : InvokeResult_ImpUtils {
+
+    enum {
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>()),
+                              InvokeResult_VoidChecker()))
+    };
+
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN,
+                                                   ARGTYPES_01,
+                                                   ARGTYPES_02>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03
+                                              > : InvokeResult_ImpUtils {
+
+    enum {
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>()),
+                              InvokeResult_VoidChecker()))
+    };
+
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN,
+                                                   ARGTYPES_01,
+                                                   ARGTYPES_02,
+                                                   ARGTYPES_03>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04
+                                              > : InvokeResult_ImpUtils {
+
+    enum {
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>()),
+                              InvokeResult_VoidChecker()))
+    };
+
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN,
+                                                   ARGTYPES_01,
+                                                   ARGTYPES_02,
+                                                   ARGTYPES_03,
+                                                   ARGTYPES_04>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05
+                                              > : InvokeResult_ImpUtils {
+
+    enum {
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>()),
+                              InvokeResult_VoidChecker()))
+    };
+
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN,
+                                                   ARGTYPES_01,
+                                                   ARGTYPES_02,
+                                                   ARGTYPES_03,
+                                                   ARGTYPES_04,
+                                                   ARGTYPES_05>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06
+                                              > : InvokeResult_ImpUtils {
+
+    enum {
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>()),
+                              InvokeResult_VoidChecker()))
+    };
+
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN,
+                                                   ARGTYPES_01,
+                                                   ARGTYPES_02,
+                                                   ARGTYPES_03,
+                                                   ARGTYPES_04,
+                                                   ARGTYPES_05,
+                                                   ARGTYPES_06>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07
+                                              > : InvokeResult_ImpUtils {
+
+    enum {
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>(),
+                                              myDeclval<ARGTYPES_07>()),
+                              InvokeResult_VoidChecker()))
+    };
+
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN,
+                                                   ARGTYPES_01,
+                                                   ARGTYPES_02,
+                                                   ARGTYPES_03,
+                                                   ARGTYPES_04,
+                                                   ARGTYPES_05,
+                                                   ARGTYPES_06,
+                                                   ARGTYPES_07>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08
+                                              > : InvokeResult_ImpUtils {
+
+    enum {
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>(),
+                                              myDeclval<ARGTYPES_07>(),
+                                              myDeclval<ARGTYPES_08>()),
+                              InvokeResult_VoidChecker()))
+    };
+
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN,
+                                                   ARGTYPES_01,
+                                                   ARGTYPES_02,
+                                                   ARGTYPES_03,
+                                                   ARGTYPES_04,
+                                                   ARGTYPES_05,
+                                                   ARGTYPES_06,
+                                                   ARGTYPES_07,
+                                                   ARGTYPES_08>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09
+                                              > : InvokeResult_ImpUtils {
+
+    enum {
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>(),
+                                              myDeclval<ARGTYPES_07>(),
+                                              myDeclval<ARGTYPES_08>(),
+                                              myDeclval<ARGTYPES_09>()),
+                              InvokeResult_VoidChecker()))
+    };
+
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN,
+                                                   ARGTYPES_01,
+                                                   ARGTYPES_02,
+                                                   ARGTYPES_03,
+                                                   ARGTYPES_04,
+                                                   ARGTYPES_05,
+                                                   ARGTYPES_06,
+                                                   ARGTYPES_07,
+                                                   ARGTYPES_08,
+                                                   ARGTYPES_09>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10
+                                              > : InvokeResult_ImpUtils {
+
+    enum {
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>(),
+                                              myDeclval<ARGTYPES_07>(),
+                                              myDeclval<ARGTYPES_08>(),
+                                              myDeclval<ARGTYPES_09>(),
+                                              myDeclval<ARGTYPES_10>()),
+                              InvokeResult_VoidChecker()))
+    };
+
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN,
+                                                   ARGTYPES_01,
+                                                   ARGTYPES_02,
+                                                   ARGTYPES_03,
+                                                   ARGTYPES_04,
+                                                   ARGTYPES_05,
+                                                   ARGTYPES_06,
+                                                   ARGTYPES_07,
+                                                   ARGTYPES_08,
+                                                   ARGTYPES_09,
+                                                   ARGTYPES_10>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10,
+                                              ARGTYPES_11
+                                              > : InvokeResult_ImpUtils {
+
+    enum {
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>(),
+                                              myDeclval<ARGTYPES_07>(),
+                                              myDeclval<ARGTYPES_08>(),
+                                              myDeclval<ARGTYPES_09>(),
+                                              myDeclval<ARGTYPES_10>(),
+                                              myDeclval<ARGTYPES_11>()),
+                              InvokeResult_VoidChecker()))
+    };
+
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN,
+                                                   ARGTYPES_01,
+                                                   ARGTYPES_02,
+                                                   ARGTYPES_03,
+                                                   ARGTYPES_04,
+                                                   ARGTYPES_05,
+                                                   ARGTYPES_06,
+                                                   ARGTYPES_07,
+                                                   ARGTYPES_08,
+                                                   ARGTYPES_09,
+                                                   ARGTYPES_10,
+                                                   ARGTYPES_11>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11,
+                                     class ARGTYPES_12>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10,
+                                              ARGTYPES_11,
+                                              ARGTYPES_12
+                                              > : InvokeResult_ImpUtils {
+
+    enum {
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>(),
+                                              myDeclval<ARGTYPES_07>(),
+                                              myDeclval<ARGTYPES_08>(),
+                                              myDeclval<ARGTYPES_09>(),
+                                              myDeclval<ARGTYPES_10>(),
+                                              myDeclval<ARGTYPES_11>(),
+                                              myDeclval<ARGTYPES_12>()),
+                              InvokeResult_VoidChecker()))
+    };
+
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN,
+                                                   ARGTYPES_01,
+                                                   ARGTYPES_02,
+                                                   ARGTYPES_03,
+                                                   ARGTYPES_04,
+                                                   ARGTYPES_05,
+                                                   ARGTYPES_06,
+                                                   ARGTYPES_07,
+                                                   ARGTYPES_08,
+                                                   ARGTYPES_09,
+                                                   ARGTYPES_10,
+                                                   ARGTYPES_11,
+                                                   ARGTYPES_12>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11,
+                                     class ARGTYPES_12,
+                                     class ARGTYPES_13>
+struct InvokeResult_FunctorImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10,
+                                              ARGTYPES_11,
+                                              ARGTYPES_12,
+                                              ARGTYPES_13
+                                              > : InvokeResult_ImpUtils {
+
+    enum {
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>(),
+                                              myDeclval<ARGTYPES_07>(),
+                                              myDeclval<ARGTYPES_08>(),
+                                              myDeclval<ARGTYPES_09>(),
+                                              myDeclval<ARGTYPES_10>(),
+                                              myDeclval<ARGTYPES_11>(),
+                                              myDeclval<ARGTYPES_12>(),
+                                              myDeclval<ARGTYPES_13>()),
+                              InvokeResult_VoidChecker()))
+    };
+
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN,
+                                                   ARGTYPES_01,
+                                                   ARGTYPES_02,
+                                                   ARGTYPES_03,
+                                                   ARGTYPES_04,
+                                                   ARGTYPES_05,
+                                                   ARGTYPES_06,
+                                                   ARGTYPES_07,
+                                                   ARGTYPES_08,
+                                                   ARGTYPES_09,
+                                                   ARGTYPES_10,
+                                                   ARGTYPES_11,
+                                                   ARGTYPES_12,
+                                                   ARGTYPES_13>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
+#endif
+
+
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class VOID_TYPE, class FN>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class VOID_TYPE, class FN, class ARGTYPES_01>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10,
+                                              ARGTYPES_11> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11,
+                                     class ARGTYPES_12>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10,
+                                              ARGTYPES_11,
+                                              ARGTYPES_12> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11,
+                                     class ARGTYPES_12,
+                                     class ARGTYPES_13>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10,
+                                              ARGTYPES_11,
+                                              ARGTYPES_12,
+                                              ARGTYPES_13> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class FN>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        ))>::type,
+    FN> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()()) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class FN, class ARGTYPES_01>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>()))>::type,
+    FN,
+    ARGTYPES_01> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>(),
+                                     myDeclval<ARGTYPES_07>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>(),
+                                     myDeclval<ARGTYPES_07>(),
+                                     myDeclval<ARGTYPES_08>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>(),
+                                     myDeclval<ARGTYPES_07>(),
+                                     myDeclval<ARGTYPES_08>(),
+                                     myDeclval<ARGTYPES_09>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>(),
+                                     myDeclval<ARGTYPES_07>(),
+                                     myDeclval<ARGTYPES_08>(),
+                                     myDeclval<ARGTYPES_09>(),
+                                     myDeclval<ARGTYPES_10>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>(),
+                                     myDeclval<ARGTYPES_07>(),
+                                     myDeclval<ARGTYPES_08>(),
+                                     myDeclval<ARGTYPES_09>(),
+                                     myDeclval<ARGTYPES_10>(),
+                                     myDeclval<ARGTYPES_11>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_12>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11,
+    ARGTYPES_12> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>(),
+                                     myDeclval<ARGTYPES_07>(),
+                                     myDeclval<ARGTYPES_08>(),
+                                     myDeclval<ARGTYPES_09>(),
+                                     myDeclval<ARGTYPES_10>(),
+                                     myDeclval<ARGTYPES_11>(),
+                                     myDeclval<ARGTYPES_12>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12,
+                    class ARGTYPES_13>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_12>(),
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES_13>()))>::type,
+    FN,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11,
+    ARGTYPES_12,
+    ARGTYPES_13> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES_01>(),
+                                     myDeclval<ARGTYPES_02>(),
+                                     myDeclval<ARGTYPES_03>(),
+                                     myDeclval<ARGTYPES_04>(),
+                                     myDeclval<ARGTYPES_05>(),
+                                     myDeclval<ARGTYPES_06>(),
+                                     myDeclval<ARGTYPES_07>(),
+                                     myDeclval<ARGTYPES_08>(),
+                                     myDeclval<ARGTYPES_09>(),
+                                     myDeclval<ARGTYPES_10>(),
+                                     myDeclval<ARGTYPES_11>(),
+                                     myDeclval<ARGTYPES_12>(),
+                                     myDeclval<ARGTYPES_13>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
+#else
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class VOID_TYPE, class FN>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN> {
 
     typedef typename
       bslmf::FunctionPointerTraits<FN>::ResultType QType;
 
     typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
                        QType, typename bsl::remove_cv<QType>::type>::type type;
 };
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
 
-template <class FN, class... ARGTYPES>
-struct InvokeResult_Imp<false, true , false, FN, ARGTYPES...>
-{
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class VOID_TYPE, class FN, class ARGTYPES_01>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01> {
+
+    typedef typename
+      bslmf::FunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02> {
+
+    typedef typename
+      bslmf::FunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03> {
+
+    typedef typename
+      bslmf::FunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04> {
+
+    typedef typename
+      bslmf::FunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05> {
+
+    typedef typename
+      bslmf::FunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06> {
+
+    typedef typename
+      bslmf::FunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07> {
+
+    typedef typename
+      bslmf::FunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08> {
+
+    typedef typename
+      bslmf::FunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09> {
+
+    typedef typename
+      bslmf::FunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10> {
+
+    typedef typename
+      bslmf::FunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10,
+                                              ARGTYPES_11> {
+
+    typedef typename
+      bslmf::FunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11,
+                                     class ARGTYPES_12>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10,
+                                              ARGTYPES_11,
+                                              ARGTYPES_12> {
+
+    typedef typename
+      bslmf::FunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class VOID_TYPE, class FN, class ARGTYPES_01,
+                                     class ARGTYPES_02,
+                                     class ARGTYPES_03,
+                                     class ARGTYPES_04,
+                                     class ARGTYPES_05,
+                                     class ARGTYPES_06,
+                                     class ARGTYPES_07,
+                                     class ARGTYPES_08,
+                                     class ARGTYPES_09,
+                                     class ARGTYPES_10,
+                                     class ARGTYPES_11,
+                                     class ARGTYPES_12,
+                                     class ARGTYPES_13>
+struct InvokeResult_FuncPtrImp<VOID_TYPE, FN, ARGTYPES_01,
+                                              ARGTYPES_02,
+                                              ARGTYPES_03,
+                                              ARGTYPES_04,
+                                              ARGTYPES_05,
+                                              ARGTYPES_06,
+                                              ARGTYPES_07,
+                                              ARGTYPES_08,
+                                              ARGTYPES_09,
+                                              ARGTYPES_10,
+                                              ARGTYPES_11,
+                                              ARGTYPES_12,
+                                              ARGTYPES_13> {
+
+    typedef typename
+      bslmf::FunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
+#endif
+
+
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+template <class VOID_TYPE,
+          bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER,
+          class FN,
+          class ARG1TYPE
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+        , class ARGTYPES_0 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+        , class ARGTYPES_1 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+        , class ARGTYPES_2 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+        , class ARGTYPES_3 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+        , class ARGTYPES_4 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+        , class ARGTYPES_5 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+        , class ARGTYPES_6 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+        , class ARGTYPES_7 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+        , class ARGTYPES_8 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+        , class ARGTYPES_9 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+        , class ARGTYPES_10 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+        , class ARGTYPES_11 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+        , class ARGTYPES_12 = BSLS_COMPILERFEATURES_NILT
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+        , class = BSLS_COMPILERFEATURES_NILT>
+struct InvokeResult_MemFuncPtrImpDispatch;
+
+
+template <class FN>
+struct InvokeResult_MemFuncPtrImp<FN> {
+};
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class FN, class ARG1TYPE>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class FN, class ARG1TYPE, class ARGTYPES_01>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE,
+      ARGTYPES_01> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
+                                                ARGTYPES_02>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE,
+      ARGTYPES_01,
+      ARGTYPES_02> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
+                                                ARGTYPES_02,
+                                                ARGTYPES_03>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE,
+      ARGTYPES_01,
+      ARGTYPES_02,
+      ARGTYPES_03> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
+                                                ARGTYPES_02,
+                                                ARGTYPES_03,
+                                                ARGTYPES_04>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE,
+      ARGTYPES_01,
+      ARGTYPES_02,
+      ARGTYPES_03,
+      ARGTYPES_04> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
+                                                ARGTYPES_02,
+                                                ARGTYPES_03,
+                                                ARGTYPES_04,
+                                                ARGTYPES_05>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE,
+      ARGTYPES_01,
+      ARGTYPES_02,
+      ARGTYPES_03,
+      ARGTYPES_04,
+      ARGTYPES_05> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
+                                                ARGTYPES_02,
+                                                ARGTYPES_03,
+                                                ARGTYPES_04,
+                                                ARGTYPES_05,
+                                                ARGTYPES_06>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE,
+      ARGTYPES_01,
+      ARGTYPES_02,
+      ARGTYPES_03,
+      ARGTYPES_04,
+      ARGTYPES_05,
+      ARGTYPES_06> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
+                                                ARGTYPES_02,
+                                                ARGTYPES_03,
+                                                ARGTYPES_04,
+                                                ARGTYPES_05,
+                                                ARGTYPES_06,
+                                                ARGTYPES_07>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE,
+      ARGTYPES_01,
+      ARGTYPES_02,
+      ARGTYPES_03,
+      ARGTYPES_04,
+      ARGTYPES_05,
+      ARGTYPES_06,
+      ARGTYPES_07> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
+                                                ARGTYPES_02,
+                                                ARGTYPES_03,
+                                                ARGTYPES_04,
+                                                ARGTYPES_05,
+                                                ARGTYPES_06,
+                                                ARGTYPES_07,
+                                                ARGTYPES_08>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE,
+      ARGTYPES_01,
+      ARGTYPES_02,
+      ARGTYPES_03,
+      ARGTYPES_04,
+      ARGTYPES_05,
+      ARGTYPES_06,
+      ARGTYPES_07,
+      ARGTYPES_08> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
+                                                ARGTYPES_02,
+                                                ARGTYPES_03,
+                                                ARGTYPES_04,
+                                                ARGTYPES_05,
+                                                ARGTYPES_06,
+                                                ARGTYPES_07,
+                                                ARGTYPES_08,
+                                                ARGTYPES_09>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE,
+      ARGTYPES_01,
+      ARGTYPES_02,
+      ARGTYPES_03,
+      ARGTYPES_04,
+      ARGTYPES_05,
+      ARGTYPES_06,
+      ARGTYPES_07,
+      ARGTYPES_08,
+      ARGTYPES_09> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
+                                                ARGTYPES_02,
+                                                ARGTYPES_03,
+                                                ARGTYPES_04,
+                                                ARGTYPES_05,
+                                                ARGTYPES_06,
+                                                ARGTYPES_07,
+                                                ARGTYPES_08,
+                                                ARGTYPES_09,
+                                                ARGTYPES_10>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE,
+      ARGTYPES_01,
+      ARGTYPES_02,
+      ARGTYPES_03,
+      ARGTYPES_04,
+      ARGTYPES_05,
+      ARGTYPES_06,
+      ARGTYPES_07,
+      ARGTYPES_08,
+      ARGTYPES_09,
+      ARGTYPES_10> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10,
+                                    class ARGTYPES_11>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
+                                                ARGTYPES_02,
+                                                ARGTYPES_03,
+                                                ARGTYPES_04,
+                                                ARGTYPES_05,
+                                                ARGTYPES_06,
+                                                ARGTYPES_07,
+                                                ARGTYPES_08,
+                                                ARGTYPES_09,
+                                                ARGTYPES_10,
+                                                ARGTYPES_11>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE,
+      ARGTYPES_01,
+      ARGTYPES_02,
+      ARGTYPES_03,
+      ARGTYPES_04,
+      ARGTYPES_05,
+      ARGTYPES_06,
+      ARGTYPES_07,
+      ARGTYPES_08,
+      ARGTYPES_09,
+      ARGTYPES_10,
+      ARGTYPES_11> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10,
+                                    class ARGTYPES_11,
+                                    class ARGTYPES_12>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
+                                                ARGTYPES_02,
+                                                ARGTYPES_03,
+                                                ARGTYPES_04,
+                                                ARGTYPES_05,
+                                                ARGTYPES_06,
+                                                ARGTYPES_07,
+                                                ARGTYPES_08,
+                                                ARGTYPES_09,
+                                                ARGTYPES_10,
+                                                ARGTYPES_11,
+                                                ARGTYPES_12>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE,
+      ARGTYPES_01,
+      ARGTYPES_02,
+      ARGTYPES_03,
+      ARGTYPES_04,
+      ARGTYPES_05,
+      ARGTYPES_06,
+      ARGTYPES_07,
+      ARGTYPES_08,
+      ARGTYPES_09,
+      ARGTYPES_10,
+      ARGTYPES_11,
+      ARGTYPES_12> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10,
+                                    class ARGTYPES_11,
+                                    class ARGTYPES_12,
+                                    class ARGTYPES_13>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES_01,
+                                                ARGTYPES_02,
+                                                ARGTYPES_03,
+                                                ARGTYPES_04,
+                                                ARGTYPES_05,
+                                                ARGTYPES_06,
+                                                ARGTYPES_07,
+                                                ARGTYPES_08,
+                                                ARGTYPES_09,
+                                                ARGTYPES_10,
+                                                ARGTYPES_11,
+                                                ARGTYPES_12,
+                                                ARGTYPES_13>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE,
+      ARGTYPES_01,
+      ARGTYPES_02,
+      ARGTYPES_03,
+      ARGTYPES_04,
+      ARGTYPES_05,
+      ARGTYPES_06,
+      ARGTYPES_07,
+      ARGTYPES_08,
+      ARGTYPES_09,
+      ARGTYPES_10,
+      ARGTYPES_11,
+      ARGTYPES_12,
+      ARGTYPES_13> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
+#else
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class FN>
+struct InvokeResult_MemFuncPtrImp<FN> {
 
     typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
 
     typedef typename
-      bsl::conditional<bsl::is_reference<QType>::value,
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
                        QType, typename bsl::remove_cv<QType>::type>::type type;
 };
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class FN, class ARGTYPES_01>
+struct InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01> {
+
+    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02>
+struct InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02> {
+
+    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03>
+struct InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03> {
+
+    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04>
+struct InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04> {
+
+    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05>
+struct InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05> {
+
+    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06>
+struct InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06> {
+
+    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07>
+struct InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06,
+                                      ARGTYPES_07> {
+
+    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08>
+struct InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06,
+                                      ARGTYPES_07,
+                                      ARGTYPES_08> {
+
+    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09>
+struct InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06,
+                                      ARGTYPES_07,
+                                      ARGTYPES_08,
+                                      ARGTYPES_09> {
+
+    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10>
+struct InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06,
+                                      ARGTYPES_07,
+                                      ARGTYPES_08,
+                                      ARGTYPES_09,
+                                      ARGTYPES_10> {
+
+    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11>
+struct InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06,
+                                      ARGTYPES_07,
+                                      ARGTYPES_08,
+                                      ARGTYPES_09,
+                                      ARGTYPES_10,
+                                      ARGTYPES_11> {
+
+    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12>
+struct InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06,
+                                      ARGTYPES_07,
+                                      ARGTYPES_08,
+                                      ARGTYPES_09,
+                                      ARGTYPES_10,
+                                      ARGTYPES_11,
+                                      ARGTYPES_12> {
+
+    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12,
+                    class ARGTYPES_13>
+struct InvokeResult_MemFuncPtrImp<FN, ARGTYPES_01,
+                                      ARGTYPES_02,
+                                      ARGTYPES_03,
+                                      ARGTYPES_04,
+                                      ARGTYPES_05,
+                                      ARGTYPES_06,
+                                      ARGTYPES_07,
+                                      ARGTYPES_08,
+                                      ARGTYPES_09,
+                                      ARGTYPES_10,
+                                      ARGTYPES_11,
+                                      ARGTYPES_12,
+                                      ARGTYPES_13> {
+
+    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
+#endif
+
+
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class VOID_TYPE, bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER, class FN, class ARG1TYPE>
+struct InvokeResult_MemFuncPtrImpDispatch<VOID_TYPE, ARG1_DERIVES_FROM_CLASS, ARG1_IS_REFERENCE_WRAPPER, FN, ARG1TYPE> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class VOID_TYPE, bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER, class FN, class ARG1TYPE,
+          class ARGTYPES_01>
+struct InvokeResult_MemFuncPtrImpDispatch<VOID_TYPE, ARG1_DERIVES_FROM_CLASS, ARG1_IS_REFERENCE_WRAPPER, FN, ARG1TYPE,
+                                                                 ARGTYPES_01> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class VOID_TYPE, bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER, class FN, class ARG1TYPE,
+          class ARGTYPES_01,
+          class ARGTYPES_02>
+struct InvokeResult_MemFuncPtrImpDispatch<VOID_TYPE, ARG1_DERIVES_FROM_CLASS, ARG1_IS_REFERENCE_WRAPPER, FN, ARG1TYPE,
+                                                                 ARGTYPES_01,
+                                                                 ARGTYPES_02> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class VOID_TYPE, bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER, class FN, class ARG1TYPE,
+          class ARGTYPES_01,
+          class ARGTYPES_02,
+          class ARGTYPES_03>
+struct InvokeResult_MemFuncPtrImpDispatch<VOID_TYPE, ARG1_DERIVES_FROM_CLASS, ARG1_IS_REFERENCE_WRAPPER, FN, ARG1TYPE,
+                                                                 ARGTYPES_01,
+                                                                 ARGTYPES_02,
+                                                                 ARGTYPES_03> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class VOID_TYPE, bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER, class FN, class ARG1TYPE,
+          class ARGTYPES_01,
+          class ARGTYPES_02,
+          class ARGTYPES_03,
+          class ARGTYPES_04>
+struct InvokeResult_MemFuncPtrImpDispatch<VOID_TYPE, ARG1_DERIVES_FROM_CLASS, ARG1_IS_REFERENCE_WRAPPER, FN, ARG1TYPE,
+                                                                 ARGTYPES_01,
+                                                                 ARGTYPES_02,
+                                                                 ARGTYPES_03,
+                                                                 ARGTYPES_04> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class VOID_TYPE, bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER, class FN, class ARG1TYPE,
+          class ARGTYPES_01,
+          class ARGTYPES_02,
+          class ARGTYPES_03,
+          class ARGTYPES_04,
+          class ARGTYPES_05>
+struct InvokeResult_MemFuncPtrImpDispatch<VOID_TYPE, ARG1_DERIVES_FROM_CLASS, ARG1_IS_REFERENCE_WRAPPER, FN, ARG1TYPE,
+                                                                 ARGTYPES_01,
+                                                                 ARGTYPES_02,
+                                                                 ARGTYPES_03,
+                                                                 ARGTYPES_04,
+                                                                 ARGTYPES_05> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class VOID_TYPE, bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER, class FN, class ARG1TYPE,
+          class ARGTYPES_01,
+          class ARGTYPES_02,
+          class ARGTYPES_03,
+          class ARGTYPES_04,
+          class ARGTYPES_05,
+          class ARGTYPES_06>
+struct InvokeResult_MemFuncPtrImpDispatch<VOID_TYPE, ARG1_DERIVES_FROM_CLASS, ARG1_IS_REFERENCE_WRAPPER, FN, ARG1TYPE,
+                                                                 ARGTYPES_01,
+                                                                 ARGTYPES_02,
+                                                                 ARGTYPES_03,
+                                                                 ARGTYPES_04,
+                                                                 ARGTYPES_05,
+                                                                 ARGTYPES_06> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class VOID_TYPE, bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER, class FN, class ARG1TYPE,
+          class ARGTYPES_01,
+          class ARGTYPES_02,
+          class ARGTYPES_03,
+          class ARGTYPES_04,
+          class ARGTYPES_05,
+          class ARGTYPES_06,
+          class ARGTYPES_07>
+struct InvokeResult_MemFuncPtrImpDispatch<VOID_TYPE, ARG1_DERIVES_FROM_CLASS, ARG1_IS_REFERENCE_WRAPPER, FN, ARG1TYPE,
+                                                                 ARGTYPES_01,
+                                                                 ARGTYPES_02,
+                                                                 ARGTYPES_03,
+                                                                 ARGTYPES_04,
+                                                                 ARGTYPES_05,
+                                                                 ARGTYPES_06,
+                                                                 ARGTYPES_07> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class VOID_TYPE, bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER, class FN, class ARG1TYPE,
+          class ARGTYPES_01,
+          class ARGTYPES_02,
+          class ARGTYPES_03,
+          class ARGTYPES_04,
+          class ARGTYPES_05,
+          class ARGTYPES_06,
+          class ARGTYPES_07,
+          class ARGTYPES_08>
+struct InvokeResult_MemFuncPtrImpDispatch<VOID_TYPE, ARG1_DERIVES_FROM_CLASS, ARG1_IS_REFERENCE_WRAPPER, FN, ARG1TYPE,
+                                                                 ARGTYPES_01,
+                                                                 ARGTYPES_02,
+                                                                 ARGTYPES_03,
+                                                                 ARGTYPES_04,
+                                                                 ARGTYPES_05,
+                                                                 ARGTYPES_06,
+                                                                 ARGTYPES_07,
+                                                                 ARGTYPES_08> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class VOID_TYPE, bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER, class FN, class ARG1TYPE,
+          class ARGTYPES_01,
+          class ARGTYPES_02,
+          class ARGTYPES_03,
+          class ARGTYPES_04,
+          class ARGTYPES_05,
+          class ARGTYPES_06,
+          class ARGTYPES_07,
+          class ARGTYPES_08,
+          class ARGTYPES_09>
+struct InvokeResult_MemFuncPtrImpDispatch<VOID_TYPE, ARG1_DERIVES_FROM_CLASS, ARG1_IS_REFERENCE_WRAPPER, FN, ARG1TYPE,
+                                                                 ARGTYPES_01,
+                                                                 ARGTYPES_02,
+                                                                 ARGTYPES_03,
+                                                                 ARGTYPES_04,
+                                                                 ARGTYPES_05,
+                                                                 ARGTYPES_06,
+                                                                 ARGTYPES_07,
+                                                                 ARGTYPES_08,
+                                                                 ARGTYPES_09> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class VOID_TYPE, bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER, class FN, class ARG1TYPE,
+          class ARGTYPES_01,
+          class ARGTYPES_02,
+          class ARGTYPES_03,
+          class ARGTYPES_04,
+          class ARGTYPES_05,
+          class ARGTYPES_06,
+          class ARGTYPES_07,
+          class ARGTYPES_08,
+          class ARGTYPES_09,
+          class ARGTYPES_10>
+struct InvokeResult_MemFuncPtrImpDispatch<VOID_TYPE, ARG1_DERIVES_FROM_CLASS, ARG1_IS_REFERENCE_WRAPPER, FN, ARG1TYPE,
+                                                                 ARGTYPES_01,
+                                                                 ARGTYPES_02,
+                                                                 ARGTYPES_03,
+                                                                 ARGTYPES_04,
+                                                                 ARGTYPES_05,
+                                                                 ARGTYPES_06,
+                                                                 ARGTYPES_07,
+                                                                 ARGTYPES_08,
+                                                                 ARGTYPES_09,
+                                                                 ARGTYPES_10> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class VOID_TYPE, bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER, class FN, class ARG1TYPE,
+          class ARGTYPES_01,
+          class ARGTYPES_02,
+          class ARGTYPES_03,
+          class ARGTYPES_04,
+          class ARGTYPES_05,
+          class ARGTYPES_06,
+          class ARGTYPES_07,
+          class ARGTYPES_08,
+          class ARGTYPES_09,
+          class ARGTYPES_10,
+          class ARGTYPES_11>
+struct InvokeResult_MemFuncPtrImpDispatch<VOID_TYPE, ARG1_DERIVES_FROM_CLASS, ARG1_IS_REFERENCE_WRAPPER, FN, ARG1TYPE,
+                                                                 ARGTYPES_01,
+                                                                 ARGTYPES_02,
+                                                                 ARGTYPES_03,
+                                                                 ARGTYPES_04,
+                                                                 ARGTYPES_05,
+                                                                 ARGTYPES_06,
+                                                                 ARGTYPES_07,
+                                                                 ARGTYPES_08,
+                                                                 ARGTYPES_09,
+                                                                 ARGTYPES_10,
+                                                                 ARGTYPES_11> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class VOID_TYPE, bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER, class FN, class ARG1TYPE,
+          class ARGTYPES_01,
+          class ARGTYPES_02,
+          class ARGTYPES_03,
+          class ARGTYPES_04,
+          class ARGTYPES_05,
+          class ARGTYPES_06,
+          class ARGTYPES_07,
+          class ARGTYPES_08,
+          class ARGTYPES_09,
+          class ARGTYPES_10,
+          class ARGTYPES_11,
+          class ARGTYPES_12>
+struct InvokeResult_MemFuncPtrImpDispatch<VOID_TYPE, ARG1_DERIVES_FROM_CLASS, ARG1_IS_REFERENCE_WRAPPER, FN, ARG1TYPE,
+                                                                 ARGTYPES_01,
+                                                                 ARGTYPES_02,
+                                                                 ARGTYPES_03,
+                                                                 ARGTYPES_04,
+                                                                 ARGTYPES_05,
+                                                                 ARGTYPES_06,
+                                                                 ARGTYPES_07,
+                                                                 ARGTYPES_08,
+                                                                 ARGTYPES_09,
+                                                                 ARGTYPES_10,
+                                                                 ARGTYPES_11,
+                                                                 ARGTYPES_12> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class VOID_TYPE, bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER, class FN, class ARG1TYPE,
+          class ARGTYPES_01,
+          class ARGTYPES_02,
+          class ARGTYPES_03,
+          class ARGTYPES_04,
+          class ARGTYPES_05,
+          class ARGTYPES_06,
+          class ARGTYPES_07,
+          class ARGTYPES_08,
+          class ARGTYPES_09,
+          class ARGTYPES_10,
+          class ARGTYPES_11,
+          class ARGTYPES_12,
+          class ARGTYPES_13>
+struct InvokeResult_MemFuncPtrImpDispatch<VOID_TYPE, ARG1_DERIVES_FROM_CLASS, ARG1_IS_REFERENCE_WRAPPER, FN, ARG1TYPE,
+                                                                 ARGTYPES_01,
+                                                                 ARGTYPES_02,
+                                                                 ARGTYPES_03,
+                                                                 ARGTYPES_04,
+                                                                 ARGTYPES_05,
+                                                                 ARGTYPES_06,
+                                                                 ARGTYPES_07,
+                                                                 ARGTYPES_08,
+                                                                 ARGTYPES_09,
+                                                                 ARGTYPES_10,
+                                                                 ARGTYPES_11,
+                                                                 ARGTYPES_12,
+                                                                 ARGTYPES_13> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class FN, class ARG1TYPE>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            ))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())()) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class FN, class ARG1TYPE, class ARGTYPES_01>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>()))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>()))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>()))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>()))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>()))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>()))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>()))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>(),
+                                       myDeclval<ARGTYPES_07>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>()))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>(),
+                                       myDeclval<ARGTYPES_07>(),
+                                       myDeclval<ARGTYPES_08>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>()))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>(),
+                                       myDeclval<ARGTYPES_07>(),
+                                       myDeclval<ARGTYPES_08>(),
+                                       myDeclval<ARGTYPES_09>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>()))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>(),
+                                       myDeclval<ARGTYPES_07>(),
+                                       myDeclval<ARGTYPES_08>(),
+                                       myDeclval<ARGTYPES_09>(),
+                                       myDeclval<ARGTYPES_10>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10,
+                                    class ARGTYPES_11>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>()))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>(),
+                                       myDeclval<ARGTYPES_07>(),
+                                       myDeclval<ARGTYPES_08>(),
+                                       myDeclval<ARGTYPES_09>(),
+                                       myDeclval<ARGTYPES_10>(),
+                                       myDeclval<ARGTYPES_11>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10,
+                                    class ARGTYPES_11,
+                                    class ARGTYPES_12>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_12>()))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11,
+    ARGTYPES_12> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>(),
+                                       myDeclval<ARGTYPES_07>(),
+                                       myDeclval<ARGTYPES_08>(),
+                                       myDeclval<ARGTYPES_09>(),
+                                       myDeclval<ARGTYPES_10>(),
+                                       myDeclval<ARGTYPES_11>(),
+                                       myDeclval<ARGTYPES_12>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10,
+                                    class ARGTYPES_11,
+                                    class ARGTYPES_12,
+                                    class ARGTYPES_13>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_12>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_13>()))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11,
+    ARGTYPES_12,
+    ARGTYPES_13> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>(),
+                                       myDeclval<ARGTYPES_07>(),
+                                       myDeclval<ARGTYPES_08>(),
+                                       myDeclval<ARGTYPES_09>(),
+                                       myDeclval<ARGTYPES_10>(),
+                                       myDeclval<ARGTYPES_11>(),
+                                       myDeclval<ARGTYPES_12>(),
+                                       myDeclval<ARGTYPES_13>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class FN, class ARG1TYPE>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            ))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())()) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class FN, class ARG1TYPE, class ARGTYPES_01>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>()))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())(myDeclval<ARGTYPES_01>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>()))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>()))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>()))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>()))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>()))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>()))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>(),
+                                              myDeclval<ARGTYPES_07>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>()))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>(),
+                                              myDeclval<ARGTYPES_07>(),
+                                              myDeclval<ARGTYPES_08>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>()))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>(),
+                                              myDeclval<ARGTYPES_07>(),
+                                              myDeclval<ARGTYPES_08>(),
+                                              myDeclval<ARGTYPES_09>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>()))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>(),
+                                              myDeclval<ARGTYPES_07>(),
+                                              myDeclval<ARGTYPES_08>(),
+                                              myDeclval<ARGTYPES_09>(),
+                                              myDeclval<ARGTYPES_10>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10,
+                                    class ARGTYPES_11>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>()))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>(),
+                                              myDeclval<ARGTYPES_07>(),
+                                              myDeclval<ARGTYPES_08>(),
+                                              myDeclval<ARGTYPES_09>(),
+                                              myDeclval<ARGTYPES_10>(),
+                                              myDeclval<ARGTYPES_11>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10,
+                                    class ARGTYPES_11,
+                                    class ARGTYPES_12>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_12>()))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11,
+    ARGTYPES_12> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>(),
+                                              myDeclval<ARGTYPES_07>(),
+                                              myDeclval<ARGTYPES_08>(),
+                                              myDeclval<ARGTYPES_09>(),
+                                              myDeclval<ARGTYPES_10>(),
+                                              myDeclval<ARGTYPES_11>(),
+                                              myDeclval<ARGTYPES_12>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10,
+                                    class ARGTYPES_11,
+                                    class ARGTYPES_12,
+                                    class ARGTYPES_13>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_12>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_13>()))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11,
+    ARGTYPES_12,
+    ARGTYPES_13> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                              myDeclval<ARGTYPES_02>(),
+                                              myDeclval<ARGTYPES_03>(),
+                                              myDeclval<ARGTYPES_04>(),
+                                              myDeclval<ARGTYPES_05>(),
+                                              myDeclval<ARGTYPES_06>(),
+                                              myDeclval<ARGTYPES_07>(),
+                                              myDeclval<ARGTYPES_08>(),
+                                              myDeclval<ARGTYPES_09>(),
+                                              myDeclval<ARGTYPES_10>(),
+                                              myDeclval<ARGTYPES_11>(),
+                                              myDeclval<ARGTYPES_12>(),
+                                              myDeclval<ARGTYPES_13>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class FN, class ARG1TYPE>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            ))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())()) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class FN, class ARG1TYPE, class ARGTYPES_01>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>()))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>()))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>()))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>()))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>()))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>()))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>()))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>(),
+                                       myDeclval<ARGTYPES_07>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>()))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>(),
+                                       myDeclval<ARGTYPES_07>(),
+                                       myDeclval<ARGTYPES_08>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>()))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>(),
+                                       myDeclval<ARGTYPES_07>(),
+                                       myDeclval<ARGTYPES_08>(),
+                                       myDeclval<ARGTYPES_09>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>()))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>(),
+                                       myDeclval<ARGTYPES_07>(),
+                                       myDeclval<ARGTYPES_08>(),
+                                       myDeclval<ARGTYPES_09>(),
+                                       myDeclval<ARGTYPES_10>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10,
+                                    class ARGTYPES_11>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>()))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>(),
+                                       myDeclval<ARGTYPES_07>(),
+                                       myDeclval<ARGTYPES_08>(),
+                                       myDeclval<ARGTYPES_09>(),
+                                       myDeclval<ARGTYPES_10>(),
+                                       myDeclval<ARGTYPES_11>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10,
+                                    class ARGTYPES_11,
+                                    class ARGTYPES_12>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_12>()))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11,
+    ARGTYPES_12> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>(),
+                                       myDeclval<ARGTYPES_07>(),
+                                       myDeclval<ARGTYPES_08>(),
+                                       myDeclval<ARGTYPES_09>(),
+                                       myDeclval<ARGTYPES_10>(),
+                                       myDeclval<ARGTYPES_11>(),
+                                       myDeclval<ARGTYPES_12>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class FN, class ARG1TYPE, class ARGTYPES_01,
+                                    class ARGTYPES_02,
+                                    class ARGTYPES_03,
+                                    class ARGTYPES_04,
+                                    class ARGTYPES_05,
+                                    class ARGTYPES_06,
+                                    class ARGTYPES_07,
+                                    class ARGTYPES_08,
+                                    class ARGTYPES_09,
+                                    class ARGTYPES_10,
+                                    class ARGTYPES_11,
+                                    class ARGTYPES_12,
+                                    class ARGTYPES_13>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_01>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_02>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_03>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_04>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_05>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_06>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_07>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_08>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_09>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_10>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_11>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_12>(),
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES_13>()))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE,
+    ARGTYPES_01,
+    ARGTYPES_02,
+    ARGTYPES_03,
+    ARGTYPES_04,
+    ARGTYPES_05,
+    ARGTYPES_06,
+    ARGTYPES_07,
+    ARGTYPES_08,
+    ARGTYPES_09,
+    ARGTYPES_10,
+    ARGTYPES_11,
+    ARGTYPES_12,
+    ARGTYPES_13> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())(myDeclval<ARGTYPES_01>(),
+                                       myDeclval<ARGTYPES_02>(),
+                                       myDeclval<ARGTYPES_03>(),
+                                       myDeclval<ARGTYPES_04>(),
+                                       myDeclval<ARGTYPES_05>(),
+                                       myDeclval<ARGTYPES_06>(),
+                                       myDeclval<ARGTYPES_07>(),
+                                       myDeclval<ARGTYPES_08>(),
+                                       myDeclval<ARGTYPES_09>(),
+                                       myDeclval<ARGTYPES_10>(),
+                                       myDeclval<ARGTYPES_11>(),
+                                       myDeclval<ARGTYPES_12>(),
+                                       myDeclval<ARGTYPES_13>())) type;
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
+
+#endif
+
+
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+template <class VOID_TYPE,
+          bool ARG_DERIVES_FROM_CLASS,
+          bool ARG_IS_REFERENCE_WRAPPER,
+          class FN,
+          class ARGTYPE>
+struct InvokeResult_MemObjPtrImpDispatch;
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class FN>
+struct InvokeResult_MemObjPtrImp<FN> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class FN, class ARGTYPES_01>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10,
+                                     ARGTYPES_11> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10,
+                                     ARGTYPES_11,
+                                     ARGTYPES_12> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12,
+                    class ARGTYPES_13>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10,
+                                     ARGTYPES_11,
+                                     ARGTYPES_12,
+                                     ARGTYPES_13> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
+
+template <class FN, class ARGTYPE>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPE>
+: InvokeResult_MemObjPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename InvokeResult_MemberObjectPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARGTYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARGTYPE>::type>::type>::value,
+      FN,
+      ARGTYPE> {
+};
+
+#else
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+template <class FN>
+struct InvokeResult_MemObjPtrImp<FN> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 0
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+template <class FN, class ARGTYPES_01>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 1
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 2
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 3
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 4
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 5
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 6
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 7
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 8
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 9
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 10
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10,
+                                     ARGTYPES_11> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 11
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10,
+                                     ARGTYPES_11,
+                                     ARGTYPES_12> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 12
+
+#if BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+template <class FN, class ARGTYPES_01,
+                    class ARGTYPES_02,
+                    class ARGTYPES_03,
+                    class ARGTYPES_04,
+                    class ARGTYPES_05,
+                    class ARGTYPES_06,
+                    class ARGTYPES_07,
+                    class ARGTYPES_08,
+                    class ARGTYPES_09,
+                    class ARGTYPES_10,
+                    class ARGTYPES_11,
+                    class ARGTYPES_12,
+                    class ARGTYPES_13>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPES_01,
+                                     ARGTYPES_02,
+                                     ARGTYPES_03,
+                                     ARGTYPES_04,
+                                     ARGTYPES_05,
+                                     ARGTYPES_06,
+                                     ARGTYPES_07,
+                                     ARGTYPES_08,
+                                     ARGTYPES_09,
+                                     ARGTYPES_10,
+                                     ARGTYPES_11,
+                                     ARGTYPES_12,
+                                     ARGTYPES_13> {
+};
+#endif  // BSLMF_INVOKERESULT_VARIADIC_LIMIT_E >= 13
+
 
 template <class CLASS, class RET, class ARGTYPE>
-struct InvokeResult_Imp<false, false, true ,
-                        RET CLASS::*, ARGTYPE> {
+struct InvokeResult_MemObjPtrImp<RET CLASS::*, ARGTYPE> {
 
   private:
     typedef InvokeResult_MemPtrArgQualifiers<CLASS, ARGTYPE> ArgQualifiers;
 
-    typedef typename
-    InvokeResult_AddCVRef<RET, ArgQualifiers::k_IS_CONST,
-                          ArgQualifiers::k_IS_VOLATILE,
-                          ArgQualifiers::k_IS_LVALUE>::type cvtype;
+    typedef typename InvokeResult_AddCVRef<RET,
+                                           ArgQualifiers::k_IS_CONST,
+                                           ArgQualifiers::k_IS_VOLATILE,
+                                           ArgQualifiers::k_IS_LVALUE>::type
+        cvtype;
 
   public:
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     typedef typename bsl::conditional<
         ArgQualifiers::k_IS_LVALUE,
         cvtype,
-        typename bsl::add_rvalue_reference<cvtype>::type
-      >::type type;
+        typename bsl::add_rvalue_reference<cvtype>::type>::type type;
 #else
     typedef cvtype type;
 #endif
 };
+#endif
+
+
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+template <class VOID_TYPE,
+          bool ARG_DERIVES_FROM_CLASS,
+          bool ARG_IS_REFERENCE_WRAPPER,
+          class FN,
+          class ARGTYPE>
+struct InvokeResult_MemObjPtrImpDispatch {
+};
+
+template <class FN, class ARGTYPE>
+struct InvokeResult_MemObjPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (*InvokeResult_ImpUtils::myDeclval<ARGTYPE>()).*
+        InvokeResult_ImpUtils::myDeclval<FN>())>::type,
+false,
+false,
+    FN,
+    ARGTYPE> : InvokeResult_ImpUtils {
+
+    typedef decltype((*myDeclval<ARGTYPE>()).*myDeclval<FN>()) type;
+};
+
+template <class FN, class ARGTYPE>
+struct InvokeResult_MemObjPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPE>().*
+        InvokeResult_ImpUtils::myDeclval<FN>())>::type,
+true,
+false,
+    FN,
+    ARGTYPE> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<ARGTYPE>().*myDeclval<FN>()) type;
+};
+
+template <class FN, class ARGTYPE>
+struct InvokeResult_MemObjPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPE>().get().*
+        InvokeResult_ImpUtils::myDeclval<FN>())>::type,
+false,
+true,
+    FN,
+    ARGTYPE> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<ARGTYPE>().get().*myDeclval<FN>()) type;
+};
+
+#endif
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+
+template <class VOID_TYPE, class FN, class... ARGTYPES>
+struct InvokeResult_FunctorImp;
+
+template <class VOID_TYPE, class FN, class... ARGTYPES>
+struct InvokeResult_FuncPtrImp;
+
+template <class FN, class... ARGTYPES>
+struct InvokeResult_MemFuncPtrImp;
+
+template <class FN, class... ARGTYPES>
+struct InvokeResult_MemObjPtrImp;
+
+
+template <bool IS_FUNCPTR,
+          bool IS_MEMFUNCPTR,
+          bool IS_MEMOBJPTR,
+          class FN,
+          class... ARGTYPES>
+struct InvokeResult_Imp
+     : InvokeResult_FunctorImp<void, FN, ARGTYPES...> {
+};
+
+template <class FN, class... ARGTYPES>
+struct InvokeResult_Imp<true , false, false, FN, ARGTYPES...>
+     : InvokeResult_FuncPtrImp<void, FN, ARGTYPES...> {
+};
+
+template <class FN, class... ARGTYPES>
+struct InvokeResult_Imp<false, true , false, FN, ARGTYPES...>
+     : InvokeResult_MemFuncPtrImp<FN, ARGTYPES...> {
+};
+
+template <class FN, class... ARGTYPES>
+struct InvokeResult_Imp<false, false, true , FN, ARGTYPES...>
+     : InvokeResult_MemObjPtrImp<FN, ARGTYPES...> {
+};
+
+
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+template <class VOID_TYPE, class FN, class... ARGTYPES>
+struct InvokeResult_FunctorImp {
+};
+
+template <class FN, class... ARGTYPES>
+struct InvokeResult_FunctorImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES>()...))>::type,
+    FN,
+    ARGTYPES...> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES>()...)) type;
+};
+#else
+template <class VOID_TYPE, class FN, class... ARGTYPES>
+struct InvokeResult_FunctorImp : InvokeResult_ImpUtils {
+
+    enum {
+        k_IS_VOID =
+            BSLMF_TAG_TO_INT((myDeclval<FN>()(myDeclval<ARGTYPES>()...),
+                              InvokeResult_VoidChecker()))
+    };
+
+    typedef typename InvokeResult_FunctorDeduction<k_IS_VOID,
+                                                   FN,
+                                                   ARGTYPES...>::type type;
+};
+#endif
+
+
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+template <class VOID_TYPE, class FN, class... ARGTYPES>
+struct InvokeResult_FuncPtrImp {
+};
+
+template <class FN, class... ARGTYPES>
+struct InvokeResult_FuncPtrImp<
+    typename bslmf::VoidType<decltype(InvokeResult_ImpUtils::myDeclval<FN>()(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPES>()...))>::type,
+    FN,
+    ARGTYPES...> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<FN>()(myDeclval<ARGTYPES>()...)) type;
+};
+#else
+template <class VOID_TYPE, class FN, class... ARGTYPES>
+struct InvokeResult_FuncPtrImp {
+
+    typedef typename
+      bslmf::FunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif
+
+
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+template <class VOID_TYPE,
+          bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER,
+          class FN,
+          class ARG1TYPE,
+          class... ARGTYPES>
+struct InvokeResult_MemFuncPtrImpDispatch;
+
+template <class FN>
+struct InvokeResult_MemFuncPtrImp<FN> {
+};
+
+template <class FN, class ARG1TYPE, class... ARGTYPES>
+struct InvokeResult_MemFuncPtrImp<FN, ARG1TYPE, ARGTYPES...>
+: InvokeResult_MemFuncPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename MemberFunctionPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARG1TYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARG1TYPE>::type>::type>::value,
+      FN,
+      ARG1TYPE,
+      ARGTYPES...> {
+};
+#else
+template <class FN, class... ARGTYPES>
+struct InvokeResult_MemFuncPtrImp<FN, ARGTYPES...> {
+
+    typedef typename MemberFunctionPointerTraits<FN>::ResultType QType;
+
+    typedef typename
+      bsl::conditional<bsl::is_reference<QType>::value ||
+                       bsl::is_class<QType>::value,
+                       QType, typename bsl::remove_cv<QType>::type>::type type;
+};
+#endif
+
+
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+template <class VOID_TYPE,
+          bool ARG1_DERIVES_FROM_CLASS,
+          bool ARG1_IS_REFERENCE_WRAPPER,
+          class FN,
+          class ARG1TYPE,
+          class... ARGTYPES>
+struct InvokeResult_MemFuncPtrImpDispatch {
+};
+
+template <class FN, class ARG1TYPE, class... ARGTYPES>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        ((*InvokeResult_ImpUtils::myDeclval<ARG1TYPE>()).*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES>()...))>::type,
+false,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES...> : InvokeResult_ImpUtils {
+
+    typedef decltype(((*myDeclval<ARG1TYPE>()).*
+                      myDeclval<FN>())(myDeclval<ARGTYPES>()...)) type;
+};
+
+template <class FN, class ARG1TYPE, class... ARGTYPES>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES>()...))>::type,
+true,
+false,
+    FN,
+    ARG1TYPE,
+    ARGTYPES...> : InvokeResult_ImpUtils {
+
+    typedef decltype(
+     (myDeclval<ARG1TYPE>().*myDeclval<FN>())(myDeclval<ARGTYPES>()...)) type;
+};
+
+template <class FN, class ARG1TYPE, class... ARGTYPES>
+struct InvokeResult_MemFuncPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (InvokeResult_ImpUtils::myDeclval<ARG1TYPE>().get().*
+         InvokeResult_ImpUtils::myDeclval<FN>())(
+            InvokeResult_ImpUtils::myDeclval<ARGTYPES>()...))>::type,
+false,
+true,
+    FN,
+    ARG1TYPE,
+    ARGTYPES...> : InvokeResult_ImpUtils {
+
+    typedef decltype((myDeclval<ARG1TYPE>().get().*
+                      myDeclval<FN>())(myDeclval<ARGTYPES>()...)) type;
+};
+
+#endif
+
+
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+template <class VOID_TYPE,
+          bool ARG_DERIVES_FROM_CLASS,
+          bool ARG_IS_REFERENCE_WRAPPER,
+          class FN,
+          class ARGTYPE>
+struct InvokeResult_MemObjPtrImpDispatch;
+
+template <class FN, class... ARGTYPES>
+struct InvokeResult_MemObjPtrImp {
+};
+
+template <class FN, class ARGTYPE>
+struct InvokeResult_MemObjPtrImp<FN, ARGTYPE>
+: InvokeResult_MemObjPtrImpDispatch<
+      void,
+      InvokeResult_IsBaseOf<
+          typename InvokeResult_MemberObjectPointerTraits<FN>::ClassType,
+          typename bsl::remove_reference<ARGTYPE>::type>::value,
+      IsReferenceWrapper<typename bsl::remove_const<
+          typename bsl::remove_reference<ARGTYPE>::type>::type>::value,
+      FN,
+      ARGTYPE> {
+};
+
+#else
+
+template <class FN, class... ARGTYPES>
+struct InvokeResult_MemObjPtrImp {
+};
+
+template <class CLASS, class RET, class ARGTYPE>
+struct InvokeResult_MemObjPtrImp<RET CLASS::*, ARGTYPE> {
+
+  private:
+    typedef InvokeResult_MemPtrArgQualifiers<CLASS, ARGTYPE> ArgQualifiers;
+
+    typedef typename InvokeResult_AddCVRef<RET,
+                                           ArgQualifiers::k_IS_CONST,
+                                           ArgQualifiers::k_IS_VOLATILE,
+                                           ArgQualifiers::k_IS_LVALUE>::type
+        cvtype;
+
+  public:
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    typedef typename bsl::conditional<
+        ArgQualifiers::k_IS_LVALUE,
+        cvtype,
+        typename bsl::add_rvalue_reference<cvtype>::type>::type type;
+#else
+    typedef cvtype type;
+#endif
+};
+#endif
+
+
+#ifdef BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS
+template <class VOID_TYPE,
+          bool ARG_DERIVES_FROM_CLASS,
+          bool ARG_IS_REFERENCE_WRAPPER,
+          class FN,
+          class ARGTYPE>
+struct InvokeResult_MemObjPtrImpDispatch {
+};
+
+template <class FN, class ARGTYPE>
+struct InvokeResult_MemObjPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        (*InvokeResult_ImpUtils::myDeclval<ARGTYPE>()).*
+        InvokeResult_ImpUtils::myDeclval<FN>())>::type,
+false,
+false,
+    FN,
+    ARGTYPE> : InvokeResult_ImpUtils {
+
+    typedef decltype((*myDeclval<ARGTYPE>()).*myDeclval<FN>()) type;
+};
+
+template <class FN, class ARGTYPE>
+struct InvokeResult_MemObjPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPE>().*
+        InvokeResult_ImpUtils::myDeclval<FN>())>::type,
+true,
+false,
+    FN,
+    ARGTYPE> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<ARGTYPE>().*myDeclval<FN>()) type;
+};
+
+template <class FN, class ARGTYPE>
+struct InvokeResult_MemObjPtrImpDispatch<
+    typename bslmf::VoidType<decltype(
+        InvokeResult_ImpUtils::myDeclval<ARGTYPE>().get().*
+        InvokeResult_ImpUtils::myDeclval<FN>())>::type,
+false,
+true,
+    FN,
+    ARGTYPE> : InvokeResult_ImpUtils {
+
+    typedef decltype(myDeclval<ARGTYPE>().get().*myDeclval<FN>()) type;
+};
+
+#endif
 
 // }}} END GENERATED CODE
 #endif
@@ -3403,7 +11454,7 @@ struct InvokeResult_Imp<false, false, true ,
 #endif // ! defined(INCLUDED_BSLMF_INVOKERESULT_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2021 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
