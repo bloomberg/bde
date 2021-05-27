@@ -58,7 +58,7 @@ int charToHex(unsigned char* hex, unsigned char c)
     return 0;
 }
 
-int vaildateGuidString(bslstl::StringRef guidString)
+int vaildateGuidString(const bsl::string_view& guidString)
     // Validate the specified 'guidString' against the language given in
     // {LANGUAGE SPECIFICATION}.  Return 0 if 'guidString' is accepted, and
     // non-zero otherwise.
@@ -79,7 +79,7 @@ int vaildateGuidString(bslstl::StringRef guidString)
         // check for spaces
         front_p++;
         back_p--;
-        if (' ' == *front_p)  {
+        if (' ' == *front_p) {
             if (' ' != *back_p) {
                 return -1;                                            // RETURN
             }
@@ -95,21 +95,21 @@ int vaildateGuidString(bslstl::StringRef guidString)
         return -1;                                                    // RETURN
     }
 
-    int digitCnt = 0;
+    int digitCount = 0;
     while (front_p <= back_p) {
         switch (*front_p++) {
-          default:
+        default:
             return -1;                                                // RETURN
-          case '0': case '1': case '2': case '3': case '4':
-          case '5': case '6': case '7': case '8': case '9':
-          case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
-          case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
-            ++digitCnt;
-          case '-':
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+        case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+        case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+            ++digitCount;
+        case '-':
             ;
         }
     }
-    if (32 != digitCnt) {
+    if (32 != digitCount) {
         return -1;                                                    // RETURN
     }
     return 0;
@@ -133,6 +133,18 @@ void makeRfc4122Compliant(unsigned char *bytes, const unsigned char *end)
         bytes[8] = Uchar(0x80 | (bytes[8] & 0x3F));
         bytes += Guid::k_GUID_NUM_BYTES;
     }
+}
+
+template <class STRING, class OSTRINGSTREAM>
+void guidToStringImpl(STRING *result, const Guid& guid)
+    // Load into the specified 'result' the string representation of the
+    // specified 'guid'.
+{
+    BSLS_ASSERT(result);
+
+    OSTRINGSTREAM oss;
+    guid.print(oss, 0, -1);
+    *result = oss.str();
 }
 
 }  // close unnamed namespace
@@ -215,37 +227,38 @@ bsls::Types::Uint64 GuidUtil::getMostSignificantBits(const Guid& guid)
     return result;
 }
 
-int GuidUtil::guidFromString(Guid *result, bslstl::StringRef guidString)
+int GuidUtil::guidFromString(Guid *result, const bsl::string_view& guidString)
 {
+    BSLS_ASSERT(result);
+
     int valid = vaildateGuidString(guidString);
     if (0 != valid) {
         return -1;                                                    // RETURN
     }
 
-    unsigned char        t_guid[Guid::k_GUID_NUM_BYTES];
-    const unsigned char *curr_p =
-                   reinterpret_cast<const unsigned char *>(guidString.begin());
-    const unsigned char *end =
-                   reinterpret_cast<const unsigned char *>(guidString.end());
-    bsl::size_t          i = 0;
-    while (curr_p != end && i < Guid::k_GUID_NUM_BYTES) {
+    unsigned char t_guid[Guid::k_GUID_NUM_BYTES];
+
+    bsl::string_view::const_iterator iter = guidString.begin();
+    bsl::string_view::const_iterator end  = guidString.end();
+    bsl::size_t i = 0;
+    while (iter != end && i < Guid::k_GUID_NUM_BYTES) {
         unsigned char upper, lower;
-        if (0 == charToHex(&upper, *curr_p)
-        &&  0 == charToHex(&lower, *(curr_p + 1))) {
+        if (0 == charToHex(&upper, *iter)
+        &&  0 == charToHex(&lower, *(iter + 1))) {
             t_guid[i] = static_cast<unsigned char>((
                                         (upper << 4) & 0Xf0) | (lower & 0x0f));
             i++;
-            curr_p +=2;
+            iter +=2;
         }
         else {
-            curr_p++;
+            ++iter;
         }
     }
     *result =  Guid(t_guid);
     return 0;
 }
 
-Guid GuidUtil::guidFromString(bslstl::StringRef guidString)
+Guid GuidUtil::guidFromString(const bsl::string_view& guidString)
 {
     Guid result;
     guidFromString(&result, guidString);
@@ -254,10 +267,20 @@ Guid GuidUtil::guidFromString(bslstl::StringRef guidString)
 
 void GuidUtil::guidToString(bsl::string *result, const Guid& guid)
 {
-    bsl::ostringstream oss;
-    guid.print(oss, 0, -1);
-    *result = oss.str();
+    guidToStringImpl<bsl::string, bsl::ostringstream>(result, guid);
 }
+
+void GuidUtil::guidToString(std::string *result, const Guid& guid)
+{
+    guidToStringImpl<std::string, std::ostringstream>(result, guid);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+void GuidUtil::guidToString(std::pmr::string *result, const Guid& guid)
+{
+    guidToStringImpl<std::pmr::string, std::ostringstream>(result, guid);
+}
+#endif
 
 bsl::string GuidUtil::guidToString(const Guid& guid)
 {

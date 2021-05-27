@@ -40,9 +40,11 @@ using namespace bsl;
 // [1] void generate(unsigned char *out, size_t numGuids)
 // [1] Guid generate()
 // [2] int getVersion(const Guid& guid)
-// [3] int guidFromString(Guid *result, StrRef guidString)
-// [3] Guid guidFromString(StrRef guidString)
+// [3] int guidFromString(Guid *result, bsl::string_view guidString)
+// [3] Guid guidFromString(bsl::string_view guidString)
 // [4] void guidToString(bsl::string *result, const Guid& guid)
+// [4] void guidToString(std::string *result, const Guid& guid)
+// [4] void guidToString(std::pmr::string *result, const Guid& guid)
 // [4] bsl::string guidToString(const Guid& guid)
 // [5] Uint64 getMostSignificantBits(const Guid& guid)
 // [6] Uint64 getLeastSignificantBits(const Guid& guid)
@@ -626,6 +628,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //  void guidToString(bsl::string *result, const Guid& guid)
+        //  void guidToString(std::string *result, const Guid& guid)
+        //  void guidToString(std::pmr::string *result, const Guid& guid)
         //  bsl::string guidToString(const Guid& guid)
         // --------------------------------------------------------------------
         if (verbose) cout << endl
@@ -654,14 +658,33 @@ int main(int argc, char *argv[])
             const Element&    GUID_ARRAY = DATA[ti].d_guidArray;
 
             const Obj          guid(GUID_ARRAY);
-            bsl::string        result;
-            const bsl::string  EXP(GUID_STR);
-            Util::guidToString(&result, guid);
-            if (veryVeryVerbose) { P_(LINE) P(result.c_str()) }
-            LOOP_ASSERT(LINE, EXP == result);
-            result = Util::guidToString(guid);
-            if (veryVeryVerbose) { P_(LINE) P(result.c_str()) }
-            LOOP_ASSERT(LINE, EXP == result);
+            {
+                bsl::string        result;
+                const bsl::string  EXP(GUID_STR);
+                Util::guidToString(&result, guid);
+                if (veryVeryVerbose) { P_(LINE) P(result.c_str()) }
+                LOOP_ASSERT(LINE, EXP == result);
+                result = Util::guidToString(guid);
+                if (veryVeryVerbose) { P_(LINE) P(result.c_str()) }
+                LOOP_ASSERT(LINE, EXP == result);
+            }
+
+            {
+                std::string        result;
+                const std::string  EXP(GUID_STR);
+                Util::guidToString(&result, guid);
+                if (veryVeryVerbose) { P_(LINE) P(result.c_str()) }
+                LOOP_ASSERT(LINE, EXP == result);
+            }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            {
+                std::pmr::string        result;
+                const std::pmr::string  EXP(GUID_STR);
+                Util::guidToString(&result, guid);
+                if (veryVeryVerbose) { P_(LINE) P(result.c_str()) }
+                LOOP_ASSERT(LINE, EXP == result);
+            }
+#endif
         }
       } break;
       case 3: {
@@ -683,8 +706,8 @@ int main(int argc, char *argv[])
         //:    return values.
         //
         // Testing:
-        //   int guidFromString(Guid *result, StrRef guidString)
-        //   Guid guidFromString(StrRef guidString)
+        //   int guidFromString(Guid *result, bsl::string_view guidString)
+        //   Guid guidFromString(bsl::string_view guidString)
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "TESTING 'guidFromString''" << endl
