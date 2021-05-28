@@ -1,9 +1,18 @@
-bsl-internal (3.81.0.0) unstable; urgency=low
+bsl-internal (3.82.0.0) unstable; urgency=low
 
+  * fdab06e66 Bumped version to 3.82.0.0
+  * d3a0033b5 document implicit conversion to bool w/C++03 (DRQS 166024189) (#3223)
+  * bc2628476 Merge pull request #3021 from bchapman/bslstl_iterator-size-ssize-drqs-158473072
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 28 May 2021 16:42:51 -0400
+
+bsl-internal (3.81.0.0) git; urgency=low
+
+  * 9375df531 Changelog for version 3.81.0.0
   * 9546277e5 Bumped version to 3.81.0.0
   * 63bdaafdc Change 'SaturatedTimeConversionImpUtil::toMillisec' to round up fractional msec (#3203)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 7 May 2021 10:50:56 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 7 May 2021 10:55:59 -0400
 
 bsl-internal (3.80.0.0) git; urgency=low
 
