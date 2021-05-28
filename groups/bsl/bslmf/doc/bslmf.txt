@@ -52,12 +52,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 80 components having 19 levels of physical
+ The 'bslmf' package currently has 81 components having 19 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   19. bslmf_forwardingtype
+      bslmf_invokeresult
       bslmf_util
 
   18. bslmf_movableref
@@ -76,8 +77,7 @@
   15. bslmf_detectnestedtrait
       bslmf_isenum
 
-  14. bslmf_invokeresult
-      bslmf_isconvertibletoany
+  14. bslmf_isconvertibletoany
       bslmf_nestedtraitdeclaration
       bslmf_usesallocator
 
@@ -141,6 +141,7 @@
    3. bslmf_isarray
       bslmf_islvaluereference
       bslmf_ispair
+      bslmf_isreferencewrapper
       bslmf_isrvaluereference
       bslmf_issame
       bslmf_istransparentpredicate
@@ -299,6 +300,9 @@
 :
 : 'bslmf_isreference':
 :      Provide a meta-function to test reference types.
+:
+: 'bslmf_isreferencewrapper':
+:      Provide a trait to detect reference-wrapper specializations.
 :
 : 'bslmf_isrvaluereference':
 :      Provide a compile-time check for rvalue reference types.

@@ -12,7 +12,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'balxml' package currently has 21 components having 6 levels of physical
+ The 'balxml' package currently has 20 components having 6 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -21,7 +21,6 @@
 
   5. balxml_encoder
      balxml_minireader
-     balxml_utf8readerwrapper
      balxml_validatingreader
 
   4. balxml_formatter
@@ -57,7 +56,7 @@
 :      Provide a generic translation from XML into C++ objects.
 :
 : 'balxml_decoderoptions':
-:      Provide value-semantic attribute classes
+:      Provide value-semantic attribute classes.
 :
 : 'balxml_elementattribute':
 :      Provide the properties of an attribute in an XML element tag.
@@ -66,10 +65,10 @@
 :      Provide an XML encoder utility.
 :
 : 'balxml_encoderoptions':
-:      Provide value-semantic attribute classes
+:      Provide value-semantic attribute classes.
 :
 : 'balxml_encodingstyle':
-:      Provide value-semantic attribute classes
+:      Provide value-semantic attribute classes.
 :
 : 'balxml_errorinfo':
 :      Provide common error information for XML components.
@@ -100,9 +99,6 @@
 :
 : 'balxml_typesprintutil':
 :      Provide a utility for printing types using XML formatting.
-:
-: 'balxml_utf8readerwrapper':
-:      Provide wrapper for 'Reader' to check input UTF-8 validity.
 :
 : 'balxml_util':
 :      Provide a suite of common XML utilities.

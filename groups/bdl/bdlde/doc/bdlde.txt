@@ -13,7 +13,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlde' package currently has 16 components having 2 levels of physical
+ The 'bdlde' package currently has 15 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -22,7 +22,6 @@
      bdlde_charconvertucs2
      bdlde_charconvertutf16
      bdlde_charconvertutf32
-     bdlde_utf8checkinginstreambufwrapper
 
   1. bdlde_base64encoder
      bdlde_byteorder
@@ -80,9 +79,6 @@
 :
 : 'bdlde_sha2':
 :      Provide a value-semantic type encoding a message in a SHA-2 digest.
-:
-: 'bdlde_utf8checkinginstreambufwrapper':
-:      Provide a stream buffer wrapper for validating UTF-8 input.
 :
 : 'bdlde_utf8util':
 :      Provide basic utilities for UTF-8 encodings.
