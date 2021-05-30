@@ -67,9 +67,9 @@ Tokenizer_Data::Tokenizer_Data(const bsl::string_view& softDelimiters)
 
     unsigned char index;
 
-    for(bslstl::StringRef::const_iterator it = softDelimiters.begin();
-            it != softDelimiters.end();
-            ++it) {
+    for (bsl::string_view::const_iterator it = softDelimiters.begin();
+         it != softDelimiters.end();
+         ++it) {
         index = static_cast<unsigned char>(*it);
         d_charTypes[index] = SFT;
     }
@@ -82,16 +82,16 @@ Tokenizer_Data::Tokenizer_Data(const bsl::string_view& softDelimiters,
 
     unsigned char index;
 
-    for(bslstl::StringRef::const_iterator it = softDelimiters.begin();
-            it != softDelimiters.end();
-            ++it) {
+    for (bsl::string_view::const_iterator it = softDelimiters.begin();
+         it != softDelimiters.end();
+         ++it) {
         index = static_cast<unsigned char>(*it);
         d_charTypes[index] = SFT;
     }
 
-    for(bslstl::StringRef::const_iterator it = hardDelimiters.begin();
-            it != hardDelimiters.end();
-            ++it) {
+    for (bsl::string_view::const_iterator it = hardDelimiters.begin();
+         it != hardDelimiters.end();
+         ++it) {
         index = static_cast<unsigned char>(*it);
         d_charTypes[index] = HRD;
     }
@@ -391,7 +391,6 @@ Tokenizer& Tokenizer::operator++()
             ++d_cursor_p;
         }
     }
-
     return *this;
 }
 
@@ -403,8 +402,8 @@ void Tokenizer::reset(const char *input)
 
 void Tokenizer::reset(const bsl::string_view& input)
 {
-    const char *begin = input.begin() ? input.begin() : "";
-    const char *end   = input.begin() ? input.end()   : begin;
+    const char *begin = input.data() ? input.data()                  : "";
+    const char *end   = input.data() ? input.data() + input.length() : begin;
     resetImpl(begin, end);
 }
 
