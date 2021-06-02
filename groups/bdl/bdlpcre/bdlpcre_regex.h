@@ -24,17 +24,19 @@ BSLS_IDENT("$Id$ $CSID$")
 // matched against the prepared pattern using the set of overloaded 'match'
 // methods.
 //
-// The component provides the following groups of 'match' overloads:
+// The component provides the following groups of 'match' overloads (and
+// similarly for 'matchRaw'):
+//
 //: 1 The first group of 'match' overloads simply returns 0 if a given subject
 //:   string matches the prepared regular expression, and returns a non-zero
 //:   value otherwise.
 //:
 //: 2 The second group of 'match' overloads returns the substring of the
-//:   subject that was matched, either as a 'bslstl::StringRef', or as a
+//:   subject that was matched, either as a 'bsl::string_view', or as a
 //:   'bsl::pair<size_t, size_t>' holding the (offset, length) pair.
 //:
 //: 3 The third group of 'match' overloads returns a vector of either
-//:   'bslstl::StringRef' or 'bsl::pair<size_t, size_t>' holding the matched
+//:   'bsl::string_view' or 'bsl::pair<size_t, size_t>' holding the matched
 //:   substrings.  The first element of the vector indicate the substring of
 //:   the subject that matched the entire pattern.  Subsequent elements
 //:   indicate the substrings of the subject that matched respective
@@ -92,10 +94,13 @@ BSLS_IDENT("$Id$ $CSID$")
 ///- - - - - - -
 // If 'RegEx::k_FLAG_UTF8' is included in the flags supplied to 'prepare', then
 // the regular expression pattern supplied to 'prepare', as well as the subject
-// strings subsequently supplied to 'match', are interpreted as strings of
-// UTF-8 characters instead of strings of ASCII characters.  The behavior of
-// 'match' methods is undefined if 'pattern()' was prepared with 'k_FLAG_UTF8',
-// but 'subject' is not a valid UTF-8 string.
+// strings subsequently supplied to 'match' and 'matchRaw', are interpreted as
+// strings of UTF-8 characters instead of strings of ASCII characters.  'match'
+// returns a non-zero value if 'pattern()' was prepared with 'k_FLAG_UTF8', but
+// the subject is not a valid UTF-8 string.  The behavior of 'matchRaw' is
+// undefined if 'pattern()' was prepared with 'k_FLAG_UTF8', but the subject is
+// not a valid UTF-8 string.  Note that JIT optimization (see below) is
+// disabled for 'match' if 'pattern()' was prepared with 'k_FLAG_UTF8'.
 //
 ///Dot Matches All
 ///- - - - - - - -
@@ -110,7 +115,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // negative class such as '[^a]' always matches newline characters, independent
 // of the setting of this option.
 //
-///JIT Compiling optimization
+///JIT Compiling Optimization
 ///--------------------------
 // Just-in-time compiling is a heavyweight optimization that can greatly speed
 // up pattern matching on supported platforms.  However, it comes at the cost
@@ -122,11 +127,14 @@ BSLS_IDENT("$Id$ $CSID$")
 // very long, it may still pay to use JIT even for one-off matches.
 //
 // If 'RegEx::k_FLAG_JIT' is included in the flags supplied to 'prepare', then
-// all following matches will be performed with JIT optimization.  To turn off
-// JIT optimization support, regular expression should be prepared again,
-// without using 'k_FLAG_JIT'.
+// all following matches performed by 'matchRaw' will be JIT optimized.
+// Matches performed by 'match' will also be JIT optimized provided that
+// 'RegEx::k_FLAG_UTF8' was not supplied to 'prepare' (since UTF-8 string
+// validity checking is not done during JIT compilation).  To disable JIT
+// optimization for all matches, prepare the regular expression again omitting
+// the 'k_FLAG_JIT' flag.
 //
-// JIT is supported on following platforms:
+// JIT is supported on the following platforms:
 //..
 //  ARM 32-bit (v5, v7, and Thumb2)
 //  ARM 64-bit
@@ -198,8 +206,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 // Note that 'bdlpcre::RegEx' incurs some overhead in order to provide
 // thread-safe pattern matching functionality.  To perform the pattern match,
-// the underlaying PCRE2 library requires a set of buffers that cannot be
-// shared between threads.
+// the underlying PCRE2 library requires a set of buffers that cannot be shared
+// between threads.
 //
 // The table below demonstrate the difference of invoking the 'match' method
 // from main (thread that invokes 'prepare') and other threads:
@@ -219,11 +227,11 @@ BSLS_IDENT("$Id$ $CSID$")
 // JIT stack can incur additional performance penalty in the multi-threaded
 // applications.
 //
-///Note on memory allocation exceptions
+///Note on Memory Allocation Exceptions
 ///------------------------------------
 // PCRE2 library supports memory allocation/deallocation functions supplied by
-// the client.  'bdlpcre_regex' provides wrappers around bslma allocators that
-// are called from the context of the PCRE2 library (C linkage).  Any
+// the client.  'bdlpcre_regex' provides wrappers around 'bslma' allocators
+// that are called from the context of the PCRE2 library (C linkage).  Any
 // exceptions thrown during memory allocation are caught by the wrapper
 // functions and are not propagated to the PCRE2 library.
 //
@@ -517,17 +525,24 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_managedptr.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_enableif.h>
+#include <bslmf_issame.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_atomicoperations.h>
+#include <bsls_libraryfeatures.h>
+
 #include <bsl_cstddef.h>
-
-#include <bsls_types.h>
-
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_utility.h>        // 'bsl::pair'
 #include <bsl_vector.h>
 
-#include <bsls_atomicoperations.h>
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#include <memory_resource>
+#endif
+#include <string>
+#include <vector>
 
 #ifndef _PCRE2_H
 #define PCRE2_CODE_UNIT_WIDTH 8
@@ -535,8 +550,11 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <pcre2/pcre2.h>
 #endif
 
-namespace BloombergLP {
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_types.h>
+#endif
 
+namespace BloombergLP {
 namespace bdlpcre {
 
 class RegEx_MatchContext;
@@ -550,9 +568,10 @@ class RegEx {
     // expressions.  A regular expression approximately compatible with Perl
     // 5.10 is compiled with the 'prepare' method.  Subsequently, strings are
     // matched against the compiled (prepared) pattern using the overloaded
-    // 'match' methods.  Note that the underlying implementation uses the
-    // open-source Perl Compatible Regular Expressions (PCRE2) library that was
-    // developed at the University of Cambridge ('http://www.pcre.org/').
+    // 'match' and 'matchRaw' methods.  Note that the underlying implementation
+    // uses the open-source Perl Compatible Regular Expressions (PCRE2) library
+    // that was developed at the University of Cambridge
+    // ('http://www.pcre.org/').
 
     // CLASS DATA
     static
@@ -586,73 +605,64 @@ class RegEx {
     RegEx(const RegEx&);
     RegEx& operator=(const RegEx&);
 
+    // PRIVATE MANIPULATORS
+    int prepareImp(char        *errorBuffer,
+                   size_t       errorBufferLength,
+                   size_t      *errorOffset,
+                   const char  *pattern,
+                   int          flags,
+                   size_t       jitStackSize);
+        // Prepare this regular-expression object with the specified 'pattern',
+        // 'flags', and 'jitStackSize' that indicates the size of the allocated
+        // JIT stack to be used for 'pattern'.  On success, put this object
+        // into the "prepared" state and return 0, with no effect on the
+        // specified 'errorBuffer' and 'errorOffset'.  Otherwise, (1) put this
+        // object into the "unprepared" state, (2) load 'errorBuffer' with a
+        // message describing the error detected truncated to the specified
+        // 'errorBufferLength' (including a null terminator), (3) load
+        // 'errorOffset' with the offset in 'pattern' at which the error was
+        // detected, and (4) return a non-zero value.  The behavior is
+        // undefined unless 'flags' is the bit-wise inclusive-or of 0 or more
+        // of the following values:
+        //..
+        //  k_FLAG_CASELESS
+        //  k_FLAG_DOTMATCHESALL
+        //  k_FLAG_MULTILINE
+        //  k_FLAG_UTF8
+        //  k_FLAG_JIT
+        //..
+        // Note that the flag 'k_FLAG_JIT' is ignored if 'isJitAvailable()' is
+        // 'false'.
+
     // PRIVATE ACCESSORS
-    int privateMatch(const char          *subject,
-                     size_t               subjectLength,
-                     size_t               subjectOffset,
-                     bool                 skipValidation,
-                     pcre2_match_data    *matchData,
-                     pcre2_match_context *matchContext) const;
+    template <class RESULT_EXTRACTOR>
+    int matchImp(const RESULT_EXTRACTOR&  extractor,
+                 const char              *subject,
+                 size_t                   subjectLength,
+                 size_t                   subjectOffset,
+                 bool                     skipUTF8Validation) const;
         // Match the specified 'subject', having the specified 'subjectLength',
         // against the pattern held by this regular-expression object
-        // ('pattern()').  Begin matching at the specified 'subjectOffset' in
-        // 'subject'.  The specified 'skipValidation' flag indicates whether
-        // UTF string validity check should be bypassed or not.  Use the
-        // specified 'matchData' and 'matchContext' as PCRE2 match data and
-        // context buffers respectively.  Return 0 on success, 1 if the depth
-        // limit was exceeded, 2 if memory available for the JIT stack is not
-        // large enough (applicable only if 'pattern()' was prepared with
-        // 'k_FLAG_JIT'), and another non-zero value otherwise.  The behavior
-        // is undefined unless 'isPrepared() == true',
-        // 'subject || subjectLength == 0', 'subjectOffset <= subjectLength',
-        // and 'matchData' and 'matchContext' point to a valid PCRE2 match data
-        // buffers.  The behavior is also undefined if 'pattern()' was prepared
-        // with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8.  Note that
-        // 'subject' need not be null-terminated and may contain embedded null
-        // characters.
-
-    void extractMatchResult(pcre2_match_data          *matchData,
-                            bsl::pair<size_t, size_t> *result) const;
-        // Extract result of matching from the specified 'matchData' and load
-        // the specified 'result' with the '(offset, length)' pair indicating
-        // the leftmost match of 'pattern()'.
-
-    void extractMatchResult(pcre2_match_data  *matchData,
-                            bslstl::StringRef *result,
-                            const char        *subject) const;
-        // Extract result of matching the specified 'subject' from the
-        // specified 'matchData' and load the specified 'result' with the
-        // 'bslstl::StringRef' indicating the leftmost match of 'pattern()'.
-
-    void extractMatchResult(
-                        pcre2_match_data                        *matchData,
-                        bsl::vector<bsl::pair<size_t, size_t> > *result) const;
-        // Extract result of matching from the specified 'matchData' and (1)
-        // load the first element of the specified 'result' with
-        // '(offset, length)' pair indicating the leftmost match of
-        // 'pattern()', (2) load elements of 'result' in the range
-        // '[ 1 .. numSubpatterns() ]' with the pairs indicating the respective
-        // matches of sub-patterns (unmatched sub-patterns have their
-        // respective 'result' elements loaded with the '(k_INVALID_OFFSET, 0)'
-        // pair; sub-patterns matching multiple times have their respective
-        // 'result' elements loaded with the pairs indicating the rightmost
-        // match).  'result' will contain exactly 'numSubpatterns() + 1'
-        // elements.
-
-    void extractMatchResult(pcre2_match_data               *matchData,
-                            bsl::vector<bslstl::StringRef> *result,
-                            const char                     *subject) const;
-        // Extract result of matching the specified 'subject' from the
-        // specified 'matchData' and (1) load the first element of the
-        // specified 'result' with 'bslstl::StringRef' indicating the leftmost
-        // match of 'pattern()', (2) load elements of 'result' in the range
-        // '[ 1 ..  numSubpatterns() ]' with the 'bslstl::StringRef' objects
-        // indicating the respective matches of sub-patterns (unmatched
-        // sub-patterns have their respective 'result' elements loaded with
-        // empty 'StringRef'; sub-patterns matching multiple times have their
-        // respective 'result' elements loaded with the objects indicating the
-        // rightmost match).  'result' will contain exactly
-        // 'numSubpatterns() + 1' elements.
+        // ('pattern()').  'subject' need not be null-terminated and may
+        // contain embedded null characters.  The specified
+        // 'skipUTF8Validation' flag indicates whether UTF-8 string validity
+        // checking is skipped.  Begin matching at the specified
+        // 'subjectOffset' in 'subject'.  Return:
+        //
+        //: o 0 on success and invoke the specified 'extractor' to extract the
+        //:   result of the match
+        //:
+        //: o 1 if the 'depthLimit()' was exceeded
+        //:
+        //: o 2 if memory available for the JIT stack is not large enough
+        //:   (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
+        //:
+        //: o another non-zero value, otherwise
+        //
+        // The behavior is undefined unless 'true == isPrepared()',
+        // 'subject || 0 == subjectLength', 'subjectOffset <= subjectLength',
+        // and 'subject' is valid UTF-8 if 'pattern()' was prepared with
+        // 'k_FLAG_UTF8' but 'false == skipUTF8Validation'.
 
   public:
     // TRAITS
@@ -670,7 +680,7 @@ class RegEx {
         k_FLAG_UTF8          = 1 << 3,  // UTF-8 support
 
         k_FLAG_JIT           = 1 << 4   // just-in-time compiling optimization
-                                        // required
+                                        // requested
     };
         // This enumeration defines the flags that may be supplied to the
         // 'prepare' method to effect specific pattern matching behavior.
@@ -681,7 +691,7 @@ class RegEx {
 
     // CLASS METHODS
     static int defaultDepthLimit();
-        // Returns the process-wide default evaluation recursion depth limit.
+        // Return the process-wide default evaluation recursion depth limit.
 
     static bool isJitAvailable();
         // Return 'true' if just-in-time compiling optimization is supported by
@@ -698,7 +708,7 @@ class RegEx {
 
     static int setDefaultDepthLimit(int depthLimit);
         // Set the process-wide default evaluation recursion depth limit to the
-        // specified 'depthLimit'.  Returns the previous depth limit.
+        // specified 'depthLimit'.  Return the previous depth limit.
 
     // CREATORS
     RegEx(bslma::Allocator *basicAllocator = 0);                    // IMPLICIT
@@ -717,11 +727,24 @@ class RegEx {
         // object into the "unprepared" state.  This method has no effect if
         // this object is already in the "unprepared" state.
 
-    int prepare(bsl::string *errorMessage,
-                size_t      *errorOffset,
-                const char  *pattern,
-                int          flags = 0,
-                size_t       jitStackSize = 0);
+    int prepare(bsl::nullptr_t         errorMessage,
+                size_t                *errorOffset,
+                const char            *pattern,
+                int                    flags = 0,
+                size_t                 jitStackSize = 0);
+
+    template <class STRING>
+    typename bsl::enable_if<   bsl::is_same<STRING, bsl::string>::value
+                            || bsl::is_same<STRING, std::string>::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                            || bsl::is_same<STRING, std::pmr::string>::value
+#endif
+                            ,  int>::type
+    prepare(STRING                    *errorMessage,
+            size_t                    *errorOffset,
+            const char                *pattern,
+            int                        flags = 0,
+            size_t                     jitStackSize = 0);
         // Prepare this regular-expression object with the specified 'pattern'
         // and the optionally specified 'flags'.  'flags', if supplied, should
         // contain a bit-wise or of the 'k_FLAG_*' constants defined by this
@@ -732,7 +755,7 @@ class RegEx {
         // has the 'k_FLAG_JIT' bit set and 'jitStackSize' is 0 (or not
         // supplied), no memory will be allocated for the JIT stack and the
         // program stack will be used as the JIT stack.  If 'flags' does not
-        // have 'k_FLAG_JIT' set, or 'isJitAvailable is 'false', the
+        // have 'k_FLAG_JIT' set, or 'isJitAvailable()' is 'false', the
         // 'jitStackSize' parameter, if supplied, is ignored.  On success, put
         // this object into the "prepared" state and return 0, with no effect
         // on the specified 'errorMessage' and 'errorOffset'.  Otherwise, (1)
@@ -749,7 +772,7 @@ class RegEx {
         //  k_FLAG_UTF8
         //  k_FLAG_JIT
         //..
-        // Note that the flag 'k_FLAG_JIT' is ignored if 'isJitAvailable' is
+        // Note that the flag 'k_FLAG_JIT' is ignored if 'isJitAvailable()' is
         // 'false'.
 
     int setDepthLimit(int depthLimit);
@@ -759,7 +782,7 @@ class RegEx {
 
     // ACCESSORS
     int depthLimit() const;
-        // Returns the evaluation recursion depth limit for this
+        // Return the evaluation recursion depth limit for this
         // regular-expression object.
 
     int flags() const;
@@ -776,7 +799,7 @@ class RegEx {
         //  k_FLAG_JIT
         //..
         // Also note that 'k_FLAG_JIT' is ignored, but still returned by this
-        // method, if 'isJitAvailable' is 'false'.
+        // method, if 'isJitAvailable()' is 'false'.
 
     bool isPrepared() const;
         // Return 'true' if this regular-expression object is in the "prepared"
@@ -784,173 +807,408 @@ class RegEx {
 
     size_t jitStackSize() const;
         // Return the size of the dynamically allocated JIT stack if it has
-        // been specified explicitly with 'prepare' method.  Return '0' if zero
-        // 'jitStackSize' value has been passed to 'prepare' method (or not
-        // supplied at all).  Return '0' if 'isPrepared' is 'false'.
+        // been specified explicitly with the 'prepare' method.  Return 0 if a
+        // zero 'jitStackSize' value was passed to the 'prepare' method (or not
+        // supplied at all) or if 'isPrepared()' is 'false'.
+
+    int match(const bsl::string_view& subject,
+              size_t                  subjectOffset = 0) const;
+        // Match the specified 'subject' against 'pattern()'.  Begin matching
+        // at the optionally specified 'subjectOffset' in 'subject'.  If
+        // 'subjectOffset' is not specified, matching begins at the start of
+        // 'subject'.  UTF-8 validity checking is performed on 'subject' if
+        // 'pattern()' was prepared with 'k_FLAG_UTF8'.  Return:
+        //
+        //: o 0 on success
+        //:
+        //: o 1 if 'depthLimit()' was exceeded
+        //:
+        //: o 2 if memory available for the JIT stack is not large enough
+        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
+        //:
+        //: o another non-zero value, for example, if 'pattern()' was prepared
+        //:   with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8
+        //
+        // The behavior is undefined unless 'true == isPrepared()' and
+        // 'subjectOffset <= subject.length()'.  Note that JIT optimization is
+        // disabled if 'pattern()' was prepared with 'k_FLAG_UTF8'; use
+        // 'matchRaw' if JIT is preferred and UTF-8 validation of 'subject' is
+        // not required.
 
     int match(const char *subject,
               size_t      subjectLength,
               size_t      subjectOffset = 0) const;
-        // Match the specified 'subject', having the specified 'subjectLength',
-        // against the pattern held by this regular-expression object
-        // ('pattern()').  Begin matching at the optionally specified
+        // Match the specified 'subject' having the specified 'subjectLength'
+        // against 'pattern()'.  Begin matching at the optionally specified
         // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
-        // then begin matching from the start of 'subject'.  Return 0 on
-        // success, 1 if the depth limit was exceeded, 2 if memory available
-        // for the JIT stack is not large enough (applicable only if
-        // 'pattern()' was prepared with 'k_FLAG_JIT'), and another non-zero
-        // value otherwise.  The behavior is undefined unless
-        // 'isPrepared() == true', 'subject || subjectLength == 0', and
-        // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
-        // 'pattern()' was prepared with 'k_FLAG_UTF8', but 'subject' is not
-        // valid UTF-8.  Note that 'subject' need not be null-terminated and
-        // may contain embedded null characters.
+        // matching begins at the start of 'subject'.  'subject' may contain
+        // embedded null characters.  UTF-8 validity checking is performed on
+        // 'subject' if 'pattern()' was prepared with 'k_FLAG_UTF8'.  Return:
+        //
+        //: o 0 on success
+        //:
+        //: o 1 if 'depthLimit()' was exceeded
+        //:
+        //: o 2 if memory available for the JIT stack is not large enough
+        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
+        //:
+        //: o another non-zero value, for example, if 'pattern()' was prepared
+        //:   with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8
+        //
+        // The behavior is undefined unless 'true == isPrepared()',
+        // 'subject || 0 == subjectLength', and
+        // 'subjectOffset <= subjectLength'.  Note that JIT optimization is
+        // disabled if 'pattern()' was prepared with 'k_FLAG_UTF8'; use
+        // 'matchRaw' if JIT is preferred and UTF-8 validation of 'subject' is
+        // not required.
 
     int match(bsl::pair<size_t, size_t> *result,
               const char                *subject,
               size_t                     subjectLength,
               size_t                     subjectOffset = 0) const;
-    int match(bslstl::StringRef *result,
-              const char        *subject,
-              size_t             subjectLength,
-              size_t             subjectOffset = 0) const;
-        // Match the specified 'subject', having the specified 'subjectLength',
-        // against the pattern held by this regular-expression object
-        // ('pattern()').  Begin matching at the optionally specified
+    int match(bsl::string_view          *result,
+              const char                *subject,
+              size_t                     subjectLength,
+              size_t                     subjectOffset = 0) const;
+        // Match the specified 'subject' having the specified 'subjectLength'
+        // against 'pattern()'.  Begin matching at the optionally specified
         // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
-        // then begin matching from the start of 'subject'.  On success, load
-        // the specified 'result' with respectively the '(offset, length)' pair
-        // or 'bslstl::StringRef' indicating the leftmost match of 'pattern()',
-        // and return 0.  Otherwise, return a non-zero value with no effect on
-        // 'result'.  The return value is 1 if the failure is caused by
-        // exceeding the depth limit, and 2 if memory available for the JIT
-        // stack is not large enough (applicable only if 'pattern()' was
-        // prepared with 'k_FLAG_JIT').  The behavior is undefined unless
-        // 'isPrepared() == true', 'subject || subjectLength == 0' , and
-        // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
-        // 'pattern()' was prepared with 'k_FLAG_UTF8', but 'subject' is not
-        // valid UTF-8.  Note that 'subject' need not be null-terminated and
-        // may contain embedded null characters.
+        // matching begins at the start of 'subject'.  'subject' may contain
+        // embedded null characters.  UTF-8 validity checking is performed on
+        // 'subject' if 'pattern()' was prepared with 'k_FLAG_UTF8'.  Return:
+        //
+        //: o 0 on success and load the specified 'result' with, respectively,
+        //:   a '(offset, length)' pair or a 'bsl::string_view' indicating the
+        //:   leftmost match of 'pattern()'
+        //:
+        //: o 1 if 'depthLimit()' was exceeded
+        //:
+        //: o 2 if memory available for the JIT stack is not large enough
+        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
+        //:
+        //: o another non-zero value, for example, if 'pattern()' was prepared
+        //:   with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8
+        //
+        // 'result' is unchanged if a non-zero value is returned.  The behavior
+        // is undefined unless 'true == isPrepared()',
+        // 'subject || 0 == subjectLength', and
+        // 'subjectOffset <= subjectLength'.  Note that JIT optimization is
+        // disabled if 'pattern()' was prepared with 'k_FLAG_UTF8'; use
+        // 'matchRaw' if JIT is preferred and UTF-8 validation of 'subject' is
+        // not required.
+
+    int match(bsl::string_view        *result,
+              const bsl::string_view&  subject,
+              size_t                   subjectOffset = 0) const;
+        // Match the specified 'subject' against 'pattern()'.  Begin matching
+        // at the optionally specified 'subjectOffset' in 'subject'.  If
+        // 'subjectOffset' is not specified, matching begins at the start of
+        // 'subject'.  UTF-8 validity checking is performed on 'subject' if
+        // 'pattern()' was prepared with 'k_FLAG_UTF8'.  Return:
+        //
+        //: o 0 on success and load the specified 'result' with a
+        //:   'bsl::string_view' indicating the leftmost match of 'pattern()'
+        //:
+        //: o 1 if 'depthLimit()' was exceeded
+        //:
+        //: o 2 if memory available for the JIT stack is not large enough
+        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
+        //:
+        //: o another non-zero value, for example, if 'pattern()' was prepared
+        //:   with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8
+        //
+        // 'result' is unchanged if a non-zero value is returned.  The behavior
+        // is undefined unless 'true == isPrepared()' and
+        // 'subjectOffset <= subject.length()'.  Note that JIT optimization is
+        // disabled if 'pattern()' was prepared with 'k_FLAG_UTF8'; use
+        // 'matchRaw' if JIT is preferred and UTF-8 validation of 'subject' is
+        // not required.
 
     int match(bsl::vector<bsl::pair<size_t, size_t> > *result,
               const char                              *subject,
               size_t                                   subjectLength,
               size_t                                   subjectOffset = 0)
                                                                          const;
-    int match(bsl::vector<bslstl::StringRef> *result,
-              const char                     *subject,
-              size_t                          subjectLength,
-              size_t                          subjectOffset = 0) const;
-        // Match the specified 'subject', having the specified 'subjectLength',
-        // against the pattern held by this regular-expression object
-        // ('pattern()').  Begin matching at the optionally specified
+    int match(bsl::vector<bslstl::StringRef>          *result,
+              const char                              *subject,
+              size_t                                   subjectLength,
+              size_t                                   subjectOffset = 0)
+                                                                         const;
+        // Match the specified 'subject' having the specified 'subjectLength'
+        // against 'pattern()'.  Begin matching at the optionally specified
         // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
-        // then begin matching from the start of 'subject'.  On success, (1)
-        // load the first element of the specified 'result' with respectively
-        // '(offset, length)' pair or 'bslstl::StringRef' indicating the
-        // leftmost match of 'pattern()', (2) load elements of 'result' in the
-        // range '[ 1 .. numSubpatterns() ]' with the pairs
-        // ('bslstl::StringRef') indicating the respective matches of
-        // sub-patterns (unmatched sub-patterns have their respective 'result'
-        // elements loaded with either the '(k_INVALID_OFFSET, 0)' pair or an
-        // empty 'StringRef'; sub-patterns matching multiple times have their
-        // respective 'result' elements loaded with the pairs indicating the
-        // rightmost match), and (3) return 0.  Otherwise, return a non-zero
-        // value with no effect on 'result'.  The return value is 1 if the
-        // failure is caused by exceeding the depth limit, and 2 if memory
-        // available for the JIT stack is not large enough (applicable only if
-        // 'pattern()' was prepared with 'k_FLAG_JIT').  The behavior is
-        // undefined unless 'isPrepared() == true', 'subject || subjectLength
-        // == 0', and 'subjectOffset <= subjectLength'.  The behavior is also
-        // undefined if 'pattern()' was prepared with 'k_FLAG_UTF8', but
-        // 'subject' is not valid UTF-8.  Note that 'subject' need not be
-        // null-terminated and may contain embedded null characters.  Also note
-        // that after a successful call, 'result' will contain exactly
-        // 'numSubpatterns() + 1' elements.
+        // matching begins at the start of 'subject'.  'subject' may contain
+        // embedded null characters.  UTF-8 validity checking is performed on
+        // 'subject' if 'pattern()' was prepared with 'k_FLAG_UTF8'.  On
+        // success:
+        //
+        //: 1 Load the first element of the specified 'result' with,
+        //:   respectively, a '(offset, length)' pair or a 'bslstl::StringRef'
+        //:   indicating the leftmost match of 'pattern()'.
+        //:
+        //: 2 Load elements of 'result' in the range '[1 .. numSubpatterns()]'
+        //:   with, respectively, a '(offset, length)' pair or a
+        //:   'bslstl::StringRef' indicating the respective matches of
+        //:   sub-patterns (unmatched sub-patterns have their respective
+        //:   'result' elements loaded with either the '(k_INVALID_OFFSET, 0)'
+        //:   pair or an empty 'bslstl::StringRef'); sub-patterns matching
+        //:   multiple times have their respective 'result' elements loaded
+        //:   with the pairs or 'bslstl::StringRef' indicating the rightmost
+        //:   match, and return 0.
+        //
+        // Otherwise, return:
+        //
+        //: o 1 if 'depthLimit()' was exceeded
+        //:
+        //: o 2 if memory available for the JIT stack is not large enough
+        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
+        //:
+        //: o another non-zero value, for example, if 'pattern()' was prepared
+        //:   with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8
+        //
+        // 'result' is unchanged if a non-zero value is returned.  The behavior
+        // is undefined unless 'true == isPrepared()',
+        // 'subject || 0 == subjectLength', and
+        // 'subjectOffset <= subjectLength'.  Note that JIT optimization is
+        // disabled if 'pattern()' was prepared with 'k_FLAG_UTF8'; use
+        // 'matchRaw' if JIT is preferred and UTF-8 validation of 'subject' is
+        // not required.  Also note that after a successful call, 'result' will
+        // contain exactly 'numSubpatterns() + 1' elements.
 
-    int matchRaw(const char *subject,
-                 size_t      subjectLength,
-                 size_t      subjectOffset = 0) const;
-        // Match the specified 'subject', having the specified 'subjectLength',
-        // against the pattern held by this regular-expression object
-        // ('pattern()'), but bypassing UTF string validity check.  Begin
-        // matching at the optionally specified 'subjectOffset' in 'subject'.
-        // If 'subjectOffset' is not specified, then begin matching from the
-        // start of 'subject'.  Return 0 on success, 1 if the depth limit was
-        // exceeded, 2 if memory available for the JIT stack is not large
-        // enough (applicable only if 'pattern()' was prepared with
-        // 'k_FLAG_JIT'), and another non-zero value otherwise.  The behavior
-        // is undefined unless 'isPrepared() == true',
-        // 'subject || subjectLength == 0', and
-        // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
-        // 'pattern()' was prepared with 'k_FLAG_UTF8', but 'subject' is not
-        // valid UTF-8.  Note that 'subject' need not be null-terminated and
-        // may contain embedded null characters.  Also note that 'subject' may
-        // be null if '0 == subjectLength' (denoting the empty string).
+    int match(bsl::vector<bsl::string_view>      *result,
+              const bsl::string_view&             subject,
+              size_t                              subjectOffset = 0) const;
+    int match(std::vector<bsl::string_view>      *result,
+              const bsl::string_view&             subject,
+              size_t                              subjectOffset = 0) const;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    int match(std::pmr::vector<bsl::string_view> *result,
+              const bsl::string_view&             subject,
+              size_t                              subjectOffset = 0) const;
+#endif
+        // Match the specified 'subject' against 'pattern()'.  Begin matching
+        // at the optionally specified 'subjectOffset' in 'subject'.  If
+        // 'subjectOffset' is not specified, matching begins at the start of
+        // 'subject'.  UTF-8 validity checking is performed on 'subject' if
+        // 'pattern()' was prepared with 'k_FLAG_UTF8'.  On success:
+        //
+        //: 1 Load the first element of the specified 'result' with a
+        //:   'bsl::string_view' indicating the leftmost match of 'pattern()'.
+        //:
+        //: 2 Load elements of 'result' in the range '[1 .. numSubpatterns()]'
+        //:   with a 'bsl::string_view' indicating the respective matches of
+        //:   sub-patterns (unmatched sub-patterns have their respective
+        //:   'result' elements loaded with an empty 'bsl::string_view');
+        //:   sub-patterns matching multiple times have their respective
+        //:   'result' elements loaded with a 'bsl::string_view' indicating the
+        //:   rightmost match, and return 0.
+        //
+        // Otherwise, return:
+        //
+        //: o 1 if 'depthLimit()' was exceeded
+        //:
+        //: o 2 if memory available for the JIT stack is not large enough
+        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
+        //:
+        //: o another non-zero value, for example, if 'pattern()' was prepared
+        //:   with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8
+        //
+        // 'result' is unchanged if a non-zero value is returned.  The behavior
+        // is undefined unless 'true == isPrepared()' and
+        // 'subjectOffset <= subject.length()'.  Note that JIT optimization is
+        // disabled if 'pattern()' was prepared with 'k_FLAG_UTF8'; use
+        // 'matchRaw' if JIT is preferred and UTF-8 validation of 'subject' is
+        // not required.  Also note that after a successful call, 'result'
+        // will contain exactly 'numSubpatterns() + 1' elements.
+
+    int matchRaw(const bsl::string_view& subject,
+                 size_t                  subjectOffset = 0) const;
+        // Match the specified 'subject' against 'pattern()'.  Begin matching
+        // at the optionally specified 'subjectOffset' in 'subject'.  If
+        // 'subjectOffset' is not specified, matching begins at the start of
+        // 'subject'.  Return:
+        //
+        //: o 0 on success
+        //:
+        //: o 1 if 'depthLimit()' was exceeded
+        //:
+        //: o 2 if memory available for the JIT stack is not large enough
+        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
+        //:
+        //: o another non-zero value, otherwise
+        //
+        // The behavior is undefined unless 'true == isPrepared()',
+        // 'subjectOffset <= subject.length()', and 'subject' is valid UTF-8 if
+        // 'pattern()' was prepared with 'k_FLAG_UTF8'.
+
+    int matchRaw(const char             *subject,
+                 size_t                  subjectLength,
+                 size_t                  subjectOffset = 0) const;
+        // Match the specified 'subject' having the specified 'subjectLength'
+        // against 'pattern()'.  Begin matching at the optionally specified
+        // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
+        // matching begins at the start of 'subject'.  'subject' may contain
+        // embedded null characters.  Return:
+        //
+        //: o 0 on success
+        //:
+        //: o 1 if 'depthLimit()' was exceeded
+        //:
+        //: o 2 if memory available for the JIT stack is not large enough
+        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
+        //:
+        //: o another non-zero value, otherwise
+        //
+        // The behavior is undefined unless 'true == isPrepared()',
+        // 'subject || 0 == subjectLength', 'subjectOffset <= subjectLength',
+        //  and 'subject' is valid UTF-8 if 'pattern()' was prepared with
+        // 'k_FLAG_UTF8'.
 
     int matchRaw(bsl::pair<size_t, size_t> *result,
                  const char                *subject,
                  size_t                     subjectLength,
                  size_t                     subjectOffset = 0) const;
-    int matchRaw(bslstl::StringRef *result,
-                 const char        *subject,
-                 size_t             subjectLength,
-                 size_t             subjectOffset = 0) const;
-        // Match the specified 'subject', having the specified 'subjectLength',
-        // against the pattern held by this regular-expression object
-        // ('pattern()'), but bypassing UTF string validity check.  Begin
-        // matching at the optionally specified 'subjectOffset' in 'subject'.
-        // If 'subjectOffset' is not specified, then begin matching from the
-        // start of 'subject'.  On success, load the specified 'result' with
-        // respectively the '(offset, length)' pair or 'bslstl::StringRef'
-        // indicating the leftmost match of 'pattern()', and return 0.
-        // Otherwise, return a non-zero value with no effect on 'result'.  The
-        // return value is 1 if the failure is caused by exceeding the depth
-        // limit, and 2 if memory available for the JIT stack is not large
-        // enough (applicable only if 'pattern()' was prepared with
-        // 'k_FLAG_JIT').  The behavior is undefined unless
-        // 'isPrepared() == true', 'subject || subjectLength == 0', and
-        // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
-        // 'pattern()' was prepared with 'k_FLAG_UTF8', but 'subject' is not
-        // valid UTF-8.  Note that 'subject' need not be null-terminated and
-        // may contain embedded null characters.
+    int matchRaw(bsl::string_view          *result,
+                 const char                *subject,
+                 size_t                     subjectLength,
+                 size_t                     subjectOffset = 0) const;
+        // Match the specified 'subject' having the specified 'subjectLength'
+        // against 'pattern()'.  Begin matching at the optionally specified
+        // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
+        // matching begins at the start of 'subject'.  'subject' may contain
+        // embedded null characters.  Return:
+        //
+        //: o 0 on success and load the specified 'result' with, respectively,
+        //:   a '(offset, length)' pair or a 'bsl::string_view' indicating the
+        //:   leftmost match of 'pattern()'
+        //:
+        //: o 1 if 'depthLimit()' was exceeded
+        //:
+        //: o 2 if memory available for the JIT stack is not large enough
+        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
+        //:
+        //: o another non-zero value, otherwise
+        //
+        // 'result' is unchanged if a non-zero value is returned.  The behavior
+        // is undefined unless 'true == isPrepared()',
+        // 'subject || 0 == subjectLength', 'subjectOffset <= subjectLength',
+        // and 'subject' is valid UTF-8 if 'pattern()' was prepared with
+        // 'k_FLAG_UTF8'.
+
+    int matchRaw(bsl::string_view        *result,
+                 const bsl::string_view&  subject,
+                 size_t                   subjectOffset = 0) const;
+        // Match the specified 'subject' against 'pattern()'.  Begin matching
+        // at the optionally specified 'subjectOffset' in 'subject'.  If
+        // 'subjectOffset' is not specified, matching begins at the start of
+        // 'subject'.  Return:
+        //
+        //: o 0 on success and load the specified 'result' with a
+        //:   'bsl::string_view' indicating the leftmost match of 'pattern()'
+        //:
+        //: o 1 if 'depthLimit()' was exceeded
+        //:
+        //: o 2 if memory available for the JIT stack is not large enough
+        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
+        //:
+        //: o another non-zero value, otherwise
+        //
+        // 'result' is unchanged if a non-zero value is returned.  The behavior
+        // is undefined unless 'true == isPrepared()',
+        // 'subjectOffset <= subject.length()', and 'subject' is valid UTF-8 if
+        // 'pattern()' was prepared with 'k_FLAG_UTF8'.
 
     int matchRaw(bsl::vector<bsl::pair<size_t, size_t> > *result,
                  const char                              *subject,
                  size_t                                   subjectLength,
                  size_t                                   subjectOffset = 0)
                                                                          const;
-    int matchRaw(bsl::vector<bslstl::StringRef> *result,
-                 const char                     *subject,
-                 size_t                          subjectLength,
-                 size_t                          subjectOffset = 0) const;
-        // Match the specified 'subject', having the specified 'subjectLength',
-        // against the pattern held by this regular-expression object
-        // ('pattern()'), but bypassing UTF string validity check.  Begin
-        // matching at the optionally specified 'subjectOffset' in 'subject'.
-        // If 'subjectOffset' is not specified, then begin matching from the
-        // start of 'subject'.  On success, (1) load the first element of the
-        // specified 'result' with respectively '(offset, length)' pair or
-        // 'bslstl::StringRef' indicating the leftmost match of 'pattern()',
-        // (2) load elements of 'result' in the range
-        // '[ 1 .. numSubpatterns() ]' with the pairs ('bslstl::StringRef')
-        // indicating the respective matches of sub-patterns (unmatched
-        // sub-patterns have their respective 'result' elements loaded with
-        // either the '(k_INVALID_OFFSET, 0)' pair or an empty 'StringRef';
-        // sub-patterns matching multiple times have their respective 'result'
-        // elements loaded with the pairs indicating the rightmost match), and
-        // (3) return 0.  Otherwise, return a non-zero value with no effect on
-        // 'result'.  The return value is 1 if the failure is caused by
-        // exceeding the depth limit, and 2 if memory available for the JIT
-        // stack is not large enough (applicable only if 'pattern()' was
-        // prepared with 'k_FLAG_JIT').  The behavior is undefined unless
-        // 'isPrepared() == true', 'subject || subjectLength == 0', and
-        // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
-        // 'pattern()' was prepared with 'k_FLAG_UTF8', but 'subject' is not
-        // valid UTF-8.  Note that 'subject' need not be null-terminated and
-        // may contain embedded null characters.  Also note that after a
-        // successful call, 'result' will contain exactly 'numSubpatterns() +
-        // 1' elements.
+    int matchRaw(bsl::vector<bslstl::StringRef>          *result,
+                 const char                              *subject,
+                 size_t                                   subjectLength,
+                 size_t                                   subjectOffset = 0)
+                                                                         const;
+        // Match the specified 'subject' having the specified 'subjectLength'
+        // against 'pattern()'.  Begin matching at the optionally specified
+        // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
+        // matching begins at the start of 'subject'.  'subject' may contain
+        // embedded null characters.  On success:
+        //
+        //: 1 Load the first element of the specified 'result' with,
+        //:   respectively, a '(offset, length)' pair or a 'bslstl::StringRef'
+        //:   indicating the leftmost match of 'pattern()'.
+        //:
+        //: 2 Load elements of 'result' in the range '[1 .. numSubpatterns()]'
+        //:   with, respectively, a '(offset, length)' pair or a
+        //:   'bslstl::StringRef' indicating the respective matches of
+        //:   sub-patterns (unmatched sub-patterns have their respective
+        //:   'result' elements loaded with either the '(k_INVALID_OFFSET, 0)'
+        //:   pair or an empty 'bslstl::StringRef'); sub-patterns matching
+        //:   multiple times have their respective 'result' elements loaded
+        //:   with the pairs or 'bslstl::StringRef' indicating the rightmost
+        //:   match, and return 0.
+        //
+        // Otherwise, return:
+        //
+        //: o 1 if 'depthLimit()' was exceeded
+        //:
+        //: o 2 if memory available for the JIT stack is not large enough
+        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
+        //:
+        //: o another non-zero value
+        //
+        // 'result' is unchanged if a non-zero value is returned.  The behavior
+        // is undefined unless 'true == isPrepared()',
+        // 'subject || 0 == subjectLength', 'subjectOffset <= subjectLength',
+        // and 'subject' is valid UTF-8 if 'pattern()' was prepared with
+        // 'k_FLAG_UTF8'.  Note that after a successful call, 'result' will
+        // contain exactly 'numSubpatterns() + 1' elements.
+
+    int matchRaw(bsl::vector<bsl::string_view>           *result,
+                 const bsl::string_view&                  subject,
+                 size_t                                   subjectOffset = 0)
+                                                                         const;
+    int matchRaw(std::vector<bsl::string_view>           *result,
+                 const bsl::string_view&                  subject,
+                 size_t                                   subjectOffset = 0)
+                                                                         const;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    int matchRaw(std::pmr::vector<bsl::string_view>      *result,
+                 const bsl::string_view&                  subject,
+                 size_t                                   subjectOffset = 0)
+                                                                        const;
+#endif
+        // Match the specified 'subject' against 'pattern()'.  Begin matching
+        // at the optionally specified 'subjectOffset' in 'subject'.  If
+        // 'subjectOffset' is not specified, matching begins at the start of
+        // 'subject'.  On success:
+        //
+        //: 1 Load the first element of the specified 'result' with a
+        //:   'bsl::string_view' indicating the leftmost match of 'pattern()'.
+        //:
+        //: 2 Load elements of 'result' in the range '[1 .. numSubpatterns()]'
+        //:   with a 'bsl::string_view' indicating the respective matches of
+        //:   sub-patterns (unmatched sub-patterns have their respective
+        //:   'result' elements loaded with an empty 'bsl::string_view');
+        //:   sub-patterns matching multiple times have their respective
+        //:   'result' elements loaded with a 'bsl::string_view' indicating the
+        //:   rightmost match, and return 0.
+        //
+        // Otherwise, return:
+        //
+        //: o 1 if 'depthLimit()' was exceeded
+        //:
+        //: o 2 if memory available for the JIT stack is not large enough
+        //:     (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT')
+        //:
+        //: o another non-zero value
+        //
+        // 'result' is unchanged if a non-zero value is returned.  The behavior
+        // is undefined unless 'true == isPrepared()',
+        // 'subjectOffset <= subject.length()', and 'subject' is valid UTF-8 if
+        // 'pattern()' was prepared with 'k_FLAG_UTF8'.  Also note that after a
+        // successful call, 'result' will contain exactly
+        // 'numSubpatterns() + 1' elements.
 
     int numSubpatterns() const;
         // Return the number of sub-patterns in the pattern held by this
@@ -1006,6 +1264,43 @@ RegEx::~RegEx()
     pcre2_general_context_free(d_pcre2Context_p);
 }
 
+// MANIPULATORS
+template <class STRING>
+typename bsl::enable_if<   bsl::is_same<STRING, bsl::string>::value
+                        || bsl::is_same<STRING, std::string>::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        || bsl::is_same<STRING, std::pmr::string>::value
+#endif
+                        ,  int>::type
+RegEx::prepare(STRING     *errorMessage,
+               size_t     *errorOffset,
+               const char *pattern,
+               int         flags,
+               size_t      jitStackSize)
+{
+    const int  k_BUFFER_LEN = 256;
+    char       buffer[k_BUFFER_LEN] = {0};
+    size_t     offset;
+
+    int ret = prepareImp(&buffer[0],
+                         k_BUFFER_LEN - 1,
+                         &offset,
+                         pattern,
+                         flags,
+                         jitStackSize);
+
+    if (ret) {
+        if (errorMessage) {
+            errorMessage->assign(&buffer[0]);
+        }
+        if (errorOffset) {
+            *errorOffset = offset;
+        }
+    }
+
+    return ret;
+}
+
 // ACCESSORS
 inline
 int RegEx::depthLimit() const
@@ -1030,7 +1325,6 @@ size_t RegEx::jitStackSize() const
 {
     return d_jitStackSize;
 }
-
 
 inline
 const bsl::string& RegEx::pattern() const

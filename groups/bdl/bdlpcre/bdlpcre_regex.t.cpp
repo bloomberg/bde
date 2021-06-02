@@ -55,12 +55,20 @@ using namespace bdlpcre;
 // [ 6] int flags() const;
 // [ 3] bool isPrepared() const;
 // [14] size_t jitStackSize() const;
+// [ 4] int match(const bsl::string_view& subject, ...) const;
 // [ 4] int match(const char *subject, ...) const;
 // [ 4] int match(bsl::pair<size_t, size_t> *result, ...) const;
 // [ 4] int match(bsl::vector<bsl::pair<size_t, size_t> > *result, ...) const;
+// [ 4] int match(bsl::vector<bsl::string_view> *result, ...) const;
+// [ 4] int match(std::vector<bsl::string_view> *result, ...) const;
+// [ 4] int match(std::pmr::vector<bsl::string_view> *result, ...) const;
+// [ 4] int matchRaw(const bsl::string_view& subject, ...) const;
 // [ 4] int matchRaw(const char *subject, ...) const;
 // [ 4] int matchRaw(bsl::pair<size_t, size_t> *result, ...) const;
-// [ 4] int matchRaw(vector<bsl::pair<size_t, size_t> > *result,...)const;
+// [ 4] int matchRaw(bsl::vector<bsl::pair<size_t, size_t> > *result,...)const;
+// [ 4] int matchRaw(bsl::vector<bsl::string_view> *result, ...) const;
+// [ 4] int matchRaw(std::vector<bsl::string_view> *result, ...) const;
+// [ 4] int matchRaw(std::pmr::vector<bsl::string_view> *result, ...) const;
 // [ 5] int match(bslstl::StringRef *result, ...) const;
 // [ 5] int match(bsl::vector<bslstl::StringRef> *result, ...) const;
 // [ 5] int matchRaw(bslstl::StringRef *result, ...) const;
@@ -2041,13 +2049,89 @@ int main(int argc, char *argv[])
                 const unsigned char *UTF8_SUBJECT = DATA[i].d_utf8Subject;
 
                 retCode = X.match((const char*)UTF8_SUBJECT, 2);
-
                 ASSERTV(LINE, retCode, 0 == retCode);
 
                 retCode = Y.match((const char*)UTF8_SUBJECT, 2);
-
                 ASSERTV(LINE, retCode, 0 != retCode);
-            }
+
+                retCode = X.match(string_view((const char*)UTF8_SUBJECT, 2));
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                retCode = Y.match(string_view((const char*)UTF8_SUBJECT, 2));
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                bsl::pair<size_t, size_t> p;
+
+                retCode = X.match(&p, (const char*)UTF8_SUBJECT, 2);
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                retCode = Y.match(&p, (const char*)UTF8_SUBJECT, 2);
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                string_view sv;
+
+                retCode = X.match(&sv, (const char*)UTF8_SUBJECT, 2);
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                retCode = Y.match(&sv, (const char*)UTF8_SUBJECT, 2);
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                retCode = X.match(&sv,
+                                  string_view((const char*)UTF8_SUBJECT, 2));
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                retCode = Y.match(&sv,
+                                  string_view((const char*)UTF8_SUBJECT, 2));
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                bsl::vector<bsl::pair<size_t, size_t> > vp;
+
+                retCode = X.match(&vp, (const char*)UTF8_SUBJECT, 2);
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                retCode = Y.match(&vp, (const char*)UTF8_SUBJECT, 2);
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                bsl::vector<bslstl::StringRef> vsr;
+
+                retCode = X.match(&vsr, (const char*)UTF8_SUBJECT, 2);
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                retCode = Y.match(&vsr, (const char*)UTF8_SUBJECT, 2);
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                bsl::vector<bsl::string_view> vsv1;
+
+                retCode = X.match(&vsv1,
+                                  string_view( (const char*)UTF8_SUBJECT, 2));
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                retCode = Y.match(&vsv1,
+                                  string_view( (const char*)UTF8_SUBJECT, 2));
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                std::vector<bsl::string_view> vsv2;
+
+                retCode = X.match(&vsv2,
+                                  string_view( (const char*)UTF8_SUBJECT, 2));
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                retCode = Y.match(&vsv2,
+                                  string_view( (const char*)UTF8_SUBJECT, 2));
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::vector<bsl::string_view> vsv3;
+
+                retCode = X.match(&vsv3,
+                                  string_view( (const char*)UTF8_SUBJECT, 2));
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                retCode = Y.match(&vsv3,
+                                  string_view( (const char*)UTF8_SUBJECT, 2));
+                ASSERTV(LINE, retCode, 0 != retCode);
+#endif
+          }
 
             {
                 if (veryVeryVerbose) {
@@ -2057,12 +2141,96 @@ int main(int argc, char *argv[])
                 const unsigned char REGULAR_SUBJECT = DATA[i].d_regularSubject;
 
                 retCode = X.match((const char*)&REGULAR_SUBJECT, 1);
-
                 ASSERTV(LINE, retCode, 0 != retCode);
 
                 retCode = Y.match((const char*)&REGULAR_SUBJECT, 1);
-
                 ASSERTV(LINE, retCode, 0 == retCode);
+
+                retCode = X.match(
+                                string_view((const char*)&REGULAR_SUBJECT, 1));
+                ASSERTV(LINE, retCode, 0 != retCode);
+                retCode = Y.match(
+                                string_view((const char*)&REGULAR_SUBJECT, 1));
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                bsl::pair<size_t, size_t> p;
+
+                retCode = X.match(&p, (const char*)&REGULAR_SUBJECT, 1);
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                retCode = Y.match(&p, (const char*)&REGULAR_SUBJECT, 1);
+                ASSERTV(LINE, retCode, 0 == retCode);
+                string_view sv;
+
+                retCode = X.match(&sv, (const char*)&REGULAR_SUBJECT, 1);
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                retCode = Y.match(&sv, (const char*)&REGULAR_SUBJECT, 1);
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                retCode = X.match(
+                                &sv,
+                                string_view((const char*)&REGULAR_SUBJECT, 1));
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                retCode = Y.match(
+                                &sv,
+                                string_view((const char*)&REGULAR_SUBJECT, 1));
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                bsl::vector<bsl::pair<size_t, size_t> > vp;
+
+                retCode = X.match(&vp, (const char*)&REGULAR_SUBJECT, 1);
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                retCode = Y.match(&vp, (const char*)&REGULAR_SUBJECT, 1);
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                bsl::vector<bslstl::StringRef> vsr;
+
+                retCode = X.match(&vsr, (const char*)&REGULAR_SUBJECT, 1);
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                retCode = Y.match(&vsr, (const char*)&REGULAR_SUBJECT, 1);
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                bsl::vector<bsl::string_view> vsv1;
+
+                retCode = X.match(
+                               &vsv1,
+                               string_view( (const char*)&REGULAR_SUBJECT, 1));
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                retCode = Y.match(
+                               &vsv1,
+                               string_view( (const char*)&REGULAR_SUBJECT, 1));
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+                std::vector<bsl::string_view> vsv2;
+
+                retCode = X.match(
+                               &vsv2,
+                               string_view( (const char*)&REGULAR_SUBJECT, 1));
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                retCode = Y.match(
+                               &vsv2,
+                               string_view( (const char*)&REGULAR_SUBJECT, 1));
+                ASSERTV(LINE, retCode, 0 == retCode);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::vector<bsl::string_view> vsv3;
+
+                retCode = X.match(
+                               &vsv3,
+                               string_view( (const char*)&REGULAR_SUBJECT, 1));
+                ASSERTV(LINE, retCode, 0 != retCode);
+
+                retCode = Y.match(
+                               &vsv3,
+                               string_view( (const char*)&REGULAR_SUBJECT, 1));
+                ASSERTV(LINE, retCode, 0 == retCode);
+#endif
             }
         }
       } break;
@@ -2579,7 +2747,7 @@ int main(int argc, char *argv[])
             { L_,    "ba",         1,                "a"         },
             { L_,    "Za",         1,                "a"         },
 
-            // subject length = 3
+            // // subject length = 3
             { L_,    "abb",        0,                "ab"        },
             { L_,    "abc",        0,                "abc"       },
             { L_,    "abZ",        0,                "ab"        },
@@ -2589,7 +2757,7 @@ int main(int argc, char *argv[])
             { L_,    "Zab",        1,                "ab"        },
             { L_,    "ZZa",        2,                "a"         },
 
-            // subject length = 4
+            // // subject length = 4
             { L_,    "aZZZ",       0,                "a"         },
             { L_,    "abZZ",       0,                "ab"        },
             { L_,    "abcZ",       0,                "abc"       },
@@ -2607,8 +2775,10 @@ int main(int argc, char *argv[])
         bsl::string errorMsg;
         size_t      errorOffset;
 
+        int retCodeView;
         int retCode = mX.prepare(&errorMsg, &errorOffset, PATTERN, 0, 0);
         int retCodeRaw;
+        int retCodeRawView;
         ASSERTV(errorMsg, errorOffset, 0 == retCode);
 
         if (verbose) {
@@ -2630,10 +2800,14 @@ int main(int argc, char *argv[])
                 T_ P_(LINE) P_(SUBJECT) P(MATCH_STRING)
             }
 
-            bslstl::StringRef          match;
-            bslstl::StringRef          matchRaw;
-            vector<bslstl::StringRef>  vMatch;
-            vector<bslstl::StringRef>  vMatchRaw;
+            string_view               matchView;
+            bslstl::StringRef         match;
+            string_view               matchRawView;
+            bslstl::StringRef         matchRaw;
+            vector<string_view>       vMatchView;
+            vector<bslstl::StringRef> vMatch;
+            vector<string_view>       vMatchRawView;
+            vector<bslstl::StringRef> vMatchRaw;
 
             for (size_t subjectStart = 0; subjectStart <= SUBJECT_LEN;
                                                               ++subjectStart) {
@@ -2641,39 +2815,67 @@ int main(int argc, char *argv[])
                     T_ T_ P(subjectStart)
                 }
 
-                retCode = X.match(&match, SUBJECT, SUBJECT_LEN, subjectStart);
-                retCodeRaw = X.matchRaw(&matchRaw,
-                                        SUBJECT,
-                                        SUBJECT_LEN,
-                                        subjectStart);
+                retCodeView    = X.match(   &matchView,
+                                            string_view(SUBJECT, SUBJECT_LEN),
+                                            subjectStart);
+                retCode        = X.match(   &match,
+                                            SUBJECT, SUBJECT_LEN,
+                                            subjectStart);
+                retCodeRawView = X.matchRaw(&matchRawView,
+                                            string_view(SUBJECT, SUBJECT_LEN),
+                                            subjectStart);
+                retCodeRaw     = X.matchRaw(&matchRaw,
+                                            SUBJECT, SUBJECT_LEN,
+                                            subjectStart);
 
                 if (subjectStart <= MATCH_OFFSET) {
+                    ASSERTV(LINE, subjectStart, 0 == retCodeView);
                     ASSERTV(LINE, subjectStart, 0 == retCode);
+                    ASSERTV(LINE, subjectStart, 0 == retCodeRawView);
                     ASSERTV(LINE, subjectStart, 0 == retCodeRaw);
+                    ASSERTV(LINE, subjectStart, MATCH_STRING == matchView);
                     ASSERTV(LINE, subjectStart, MATCH_STRING == match);
+                    ASSERTV(LINE, subjectStart, MATCH_STRING == matchRawView);
                     ASSERTV(LINE, subjectStart, MATCH_STRING == matchRaw);
                 }
                 else {
+                    ASSERTV(LINE, subjectStart, 0 != retCodeView);
                     ASSERTV(LINE, subjectStart, 0 != retCode);
+                    ASSERTV(LINE, subjectStart, 0 != retCodeRawView);
                     ASSERTV(LINE, subjectStart, 0 != retCodeRaw);
                 }
 
-                retCode = X.match(&vMatch, SUBJECT, SUBJECT_LEN, subjectStart);
-                retCode = X.matchRaw(&vMatchRaw,
-                                     SUBJECT,
-                                     SUBJECT_LEN,
-                                     subjectStart);
+                retCodeView    = X.match(   &vMatchView,
+                                            string_view(SUBJECT, SUBJECT_LEN),
+                                            subjectStart);
+                retCode        = X.match(   &vMatch,
+                                            SUBJECT, SUBJECT_LEN,
+                                            subjectStart);
+                retCodeRawView = X.matchRaw(&vMatchRawView,
+                                            string_view(SUBJECT, SUBJECT_LEN),
+                                            subjectStart);
+                retCodeRaw     = X.matchRaw(&vMatchRaw,
+                                            SUBJECT, SUBJECT_LEN,
+                                            subjectStart);
 
                 if (subjectStart <= MATCH_OFFSET) {
+                    ASSERTV(LINE, subjectStart, 0 == retCodeView);
                     ASSERTV(LINE, subjectStart, 0 == retCode);
+                    ASSERTV(LINE, subjectStart, 0 == retCodeRawView);
                     ASSERTV(LINE, subjectStart, 0 == retCodeRaw);
+                    ASSERTV(LINE, subjectStart, MATCH_STRING == vMatchView[0]);
                     ASSERTV(LINE, subjectStart, MATCH_STRING == vMatch[0]);
+                    ASSERTV(LINE, subjectStart, MATCH_STRING ==
+                                                             vMatchRawView[0]);
                     ASSERTV(LINE, subjectStart, MATCH_STRING == vMatchRaw[0]);
                 }
                 else {
+                    ASSERTV(LINE, subjectStart, 0 != retCodeView);
                     ASSERTV(LINE, subjectStart, 0 != retCode);
+                    ASSERTV(LINE, subjectStart, 0 != retCodeRawView);
                     ASSERTV(LINE, subjectStart, 0 != retCodeRaw);
                 }
+
             }
         }
 
@@ -2705,20 +2907,39 @@ int main(int argc, char *argv[])
                 cout << "\tTesting good pattern." << endl;
             }
 
-            bslstl::StringRef         match;
+            string_view               matchView;
+            string_view               match;
+
+            vector<string_view>       vMatchView;
             vector<bslstl::StringRef> vMatch;
+
+            retCode = GOOD.match(&matchView, string_view("", 0));
+            ASSERT(0 == retCode);
+            ASSERTV(match,   "" == matchView);
 
             retCode = GOOD.match(&match, "", 0);
             ASSERT(0 == retCode);
             ASSERTV(match,   "" == match);
 
+            retCode = GOOD.matchRaw(&matchView, string_view("", 0));
+            ASSERT(0 == retCode);
+            ASSERTV(match,   "" == matchView);
+
             retCode = GOOD.matchRaw(&match, "", 0);
             ASSERT(0 == retCode);
             ASSERTV(match,   "" == match);
 
+            retCode = GOOD.match(&vMatchView, string_view("", 0));
+            ASSERT(0 == retCode);
+            ASSERTV(vMatchView[0],  "" == vMatchView[0]);
+
             retCode = GOOD.match(&vMatch, "", 0);
             ASSERT(0 == retCode);
             ASSERTV(vMatch[0],  "" == vMatch[0]);
+
+            retCode = GOOD.matchRaw(&vMatchView, string_view("", 0));
+            ASSERT(0 == retCode);
+            ASSERTV(vMatchView[0],  "" == vMatchView[0]);
 
             retCode = GOOD.matchRaw(&vMatch, "", 0);
             ASSERT(0 == retCode);
@@ -2728,18 +2949,29 @@ int main(int argc, char *argv[])
                 cout << "\tTesting not so good pattern." << endl;
             }
 
+            retCode = NOT_GOOD.match(&matchView, string_view("", 0));
+            ASSERT(0 != retCode);
+
             retCode = NOT_GOOD.match(&match, "", 0);
+            ASSERT(0 != retCode);
+
+            retCode = NOT_GOOD.matchRaw(&matchView, string_view("", 0));
             ASSERT(0 != retCode);
 
             retCode = NOT_GOOD.matchRaw(&match, "", 0);
             ASSERT(0 != retCode);
 
+            retCode = NOT_GOOD.match(&vMatchView, string_view("", 0));
+            ASSERT(0 != retCode);
+
             retCode = NOT_GOOD.match(&vMatch, "", 0);
+            ASSERT(0 != retCode);
+
+            retCode = NOT_GOOD.matchRaw(&vMatchView, string_view("", 0));
             ASSERT(0 != retCode);
 
             retCode = NOT_GOOD.matchRaw(&vMatch, "", 0);
             ASSERT(0 != retCode);
-
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -2753,8 +2985,11 @@ int main(int argc, char *argv[])
             const char  PATTERN[] = "(abc)*";
             const char  SUBJECT[] = "XXXabcZZZ";
 
-            bslstl::StringRef              p, *zp = 0;
-            bsl::vector<bslstl::StringRef> v, *zv = 0;
+            string_view                    r, *zr = 0;
+            string_view                    p, *zp = 0;
+
+            bsl::vector<string_view>       z, *zz = 0;
+            bsl::vector<bslstl::StringRef>       v, *zv = 0;
 
             (void)zp;
             (void)zv;
@@ -2763,68 +2998,109 @@ int main(int argc, char *argv[])
 
             // 'match' taking 'StringRef'
             {
-                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,  1));
-                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.match(   zp, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.matchRaw(zp, SUBJECT,  9,  1));
+                ASSERT_SAFE_PASS(X.match(   &r, string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&r, string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.match(        zr, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.match(        zp, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.matchRaw(     zr, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.matchRaw(     zp, SUBJECT,  9,               1));
 
-                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,  1));
-                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.match(   &p,       0,  9,  1));
-                ASSERT_FAIL(X.matchRaw(&p,       0,  9,  1));
+                ASSERT_SAFE_PASS(X.match(   &r, string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&r, string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,               1));
+                // string_view can not be passed (0,  9)
+                ASSERT_FAIL(X.match(        &p,  0,  9,                    1));
+                ASSERT_FAIL(X.matchRaw(     &p,  0,  9,                    1));
 
-                ASSERT_SAFE_PASS(X.match(   &p,       0,  0,  0));
-                ASSERT_SAFE_PASS(X.matchRaw(&p,       0,  0,  0));
-                ASSERT_FAIL(X.match(   &p,       0,  1,  0));
-                ASSERT_FAIL(X.matchRaw(&p,       0,  1,  0));
+                ASSERT_SAFE_PASS(X.match(   &r,  string_view(0,  0),  0));
+                ASSERT_SAFE_PASS(X.match(   &p,  0,  0,               0));
+                ASSERT_SAFE_PASS(X.matchRaw(&r,  string_view(0,  0),  0));
+                ASSERT_SAFE_PASS(X.matchRaw(&p,  0,  0,               0));
+                // string_view can not be passed (0,  1)
+                ASSERT_FAIL(X.match(        &p,       0,  1,  0));
+                ASSERT_FAIL(X.matchRaw(     &p,       0,  1,  0));
 
-                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  0,  0));
-                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  0,  0));
-                ASSERT_FAIL(X.match(   &p, SUBJECT,  0, -1));
-                ASSERT_FAIL(X.matchRaw(&p, SUBJECT,  0, -1));
+                ASSERT_SAFE_PASS(X.match(   &r, string_view(SUBJECT,  0),  0));
+                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  0,               0));
+                ASSERT_SAFE_PASS(X.matchRaw(&r, string_view(SUBJECT,  0),  0));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  0,               0));
+                ASSERT_FAIL(X.match(        &r, string_view(SUBJECT,  0), -1));
+                ASSERT_FAIL(X.match(        &p, SUBJECT,  0,              -1));
+                ASSERT_FAIL(X.matchRaw(     &r, string_view(SUBJECT,  0), -1));
+                ASSERT_FAIL(X.matchRaw(     &p, SUBJECT,  0,              -1));
 
-                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  1,  1));
-                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  1,  1));
-                ASSERT_FAIL(X.match(   &p, SUBJECT,  1,  2));
-                ASSERT_FAIL(X.matchRaw(&p, SUBJECT,  1,  2));
+                ASSERT_SAFE_PASS(X.match(   &r, string_view(SUBJECT,  1),  1));
+                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  1,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&r, string_view(SUBJECT,  1),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  1,               1));
+                ASSERT_FAIL(X.match(        &r, string_view(SUBJECT,  1),  2));
+                ASSERT_FAIL(X.match(        &p, SUBJECT,  1,               2));
+                ASSERT_FAIL(X.matchRaw(     &r, string_view(SUBJECT,  1),  2));
+                ASSERT_FAIL(X.matchRaw(     &p, SUBJECT,  1,               2));
             }
 
             // 'match' taking 'bsl::vector' of 'StringRef'
             {
-                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,  1));
-                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.match(   zv, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.matchRaw(zv, SUBJECT,  9,  1));
+                ASSERT_SAFE_PASS(X.match(   &z, string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&z, string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.match(        zz, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.match(        zv, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.matchRaw(     zz, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.matchRaw(     zv, SUBJECT,  9,               1));
 
-                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,  1));
-                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.match(   &v,       0,  9,  1));
-                ASSERT_FAIL(X.matchRaw(&v,       0,  9,  1));
+                ASSERT_SAFE_PASS(X.match(   &z, string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&z, string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,               1));
+                // string_view can not be passed (0,  9)
+                ASSERT_FAIL(X.match(        &v,  0,  9,                    1));
+                ASSERT_FAIL(X.matchRaw(     &v,  0,  9,                    1));
 
-                ASSERT_SAFE_PASS(X.match(   &v,       0,  0,  0));
-                ASSERT_SAFE_PASS(X.matchRaw(&v,       0,  0,  0));
-                ASSERT_FAIL(X.match(   &v,       0,  1,  0));
-                ASSERT_FAIL(X.matchRaw(&v,       0,  1,  0));
+                ASSERT_SAFE_PASS(X.match(   &z,  string_view(0,  0),       0));
+                ASSERT_SAFE_PASS(X.match(   &v,  0,  0,                    0));
+                ASSERT_SAFE_PASS(X.matchRaw(&z,  string_view(0,  0),       0));
+                ASSERT_SAFE_PASS(X.matchRaw(&v,  0,  0,                    0));
+                // string_view can not be passed (0,  1)
+                ASSERT_FAIL(X.match(        &v,  0,  1,                    0));
+                ASSERT_FAIL(X.matchRaw(     &v,  0,  1,                    0));
 
-                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  0,  0));
-                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  0,  0));
-                ASSERT_FAIL(X.match(   &v, SUBJECT,  0, -1));
-                ASSERT_FAIL(X.matchRaw(&v, SUBJECT,  0, -1));
+                ASSERT_SAFE_PASS(X.match(   &z, string_view(SUBJECT,  0),  0));
+                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  0,               0));
+                ASSERT_SAFE_PASS(X.matchRaw(&z, string_view(SUBJECT,  0),  0));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  0,               0));
+                ASSERT_FAIL(X.match(        &z, string_view(SUBJECT,  0), -1));
+                ASSERT_FAIL(X.match(        &v, SUBJECT,  0,              -1));
+                ASSERT_FAIL(X.matchRaw(     &z, string_view(SUBJECT,  0), -1));
+                ASSERT_FAIL(X.matchRaw(     &v, SUBJECT,  0,              -1));
 
-                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  1,  1));
-                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  1,  1));
-                ASSERT_FAIL(X.match(   &v, SUBJECT,  1,  2));
-                ASSERT_FAIL(X.matchRaw(&v, SUBJECT,  1,  2));
+                ASSERT_SAFE_PASS(X.match(   &z, string_view(SUBJECT,  1),  1));
+                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  1,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&z, string_view(SUBJECT,  1),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  1,               1));
+                ASSERT_FAIL(X.match(        &z, string_view(SUBJECT,  1),  2));
+                ASSERT_FAIL(X.match(        &v, SUBJECT,  1,               2));
+                ASSERT_FAIL(X.matchRaw(     &z, string_view(SUBJECT,  1),  2));
+                ASSERT_FAIL(X.matchRaw(     &v, SUBJECT,  1,               2));
             }
 
             // restore object to unprepared state
             {
                 mX.clear();
 
-                ASSERT_FAIL(X.match(   &p, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.matchRaw(&p, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.match(   &v, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.matchRaw(&v, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.match(        &r, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.match(        &p, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.matchRaw(     &r, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.matchRaw(     &p, SUBJECT,  9,               1));
+
+                ASSERT_FAIL(X.match(        &z, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.match(        &v, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.matchRaw(     &z, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.matchRaw(     &v, SUBJECT,  9,               1));
             }
         }
       } break;
@@ -2859,14 +3135,21 @@ int main(int argc, char *argv[])
         //: 3 Finally, exercise the special case where 'subjectLength' is 0.
         //
         // Testing:
+        //   int match(const bsl::string_view&, ...) const;
         //   int match(const char *subject, ...) const;
         //   int match(bsl::pair<size_t, size_t>*, ...) const;
         //   int match(bsl::vector<bsl::pair<size_t, size_t> >*, ...) const;
-        //   int match(bslstl::StringRef*, ...) const;
-        //   int match(bsl::vector<bslstl::StringRef>*, ...) const;
+        //   int match(bsl::string_view*, ...) const;
+        //   int match(bsl::vector<bslstl::string_view>*, ...) const;
+        //   int match(bsl::vector<bsl::string_view> *result, ...) const;
+        //   int match(std::vector<bsl::string_view> *result, ...) const;
+        //   int match(std::pmr::vector<bsl::string_view> *result, ...) const;
         //   int matchRaw(const char *subject, ...) const;
         //   int matchRaw(bsl::pair<size_t, size_t> *result, ...) const;
         //   int matchRaw(vector<bsl::pair<size_t, size_t> > *result,...)const;
+        //   int matchRaw(bsl::vector<bsl::string_view> *result, ...) const;
+        //   int matchRaw(bsl::vector<bsl::string_view> *result, ...) const;
+        //   int matchRaw(std::pmr::vector<bsl::string_view> *result,...)const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "TESTING 'match' AND 'matchRaw' METHODS" << endl
@@ -2951,7 +3234,6 @@ int main(int argc, char *argv[])
         size_t      errorOffset;
 
         int retCode = mX.prepare(&errorMsg, &errorOffset, PATTERN, 0, 0);
-        int retCodeRaw;
 
         ASSERTV(errorMsg, errorOffset, 0 == retCode);
 
@@ -2969,76 +3251,180 @@ int main(int argc, char *argv[])
             const size_t  MATCH_OFFSET = DATA[i].d_matchOffset;
             const size_t  MATCH_LENGTH = DATA[i].d_matchLength;
             const size_t  SUBJECT_LEN  = strlen(SUBJECT);
+            const string_view EXPECTED = string_view(SUBJECT + MATCH_OFFSET,
+                                                      MATCH_LENGTH);
 
             if (veryVerbose) {
                 T_ P_(LINE) P_(SUBJECT) P_(MATCH_OFFSET) P(MATCH_LENGTH)
             }
 
-            pair<size_t, size_t>          match;
-            pair<size_t, size_t>          matchRaw;
-            vector<pair<size_t, size_t> > vMatch;
-            vector<pair<size_t, size_t> > vMatchRaw;
+            int retCode1;
+            int retCodePr;
+            int retCodeSr;
+            int retCodeSv;
+            int retCodeVPr;
+            int retCodeVSr;
+            int retCodeVSv;
+            int retCodeVSv1;
+            int retCodeVSv2;
 
+            bsl::pair<size_t, size_t>           pr;
+            bslstl::StringRef                   sr;
+            bsl::string_view                    sv;
+            bsl::vector<pair<size_t, size_t> >  vpr;
+            bsl::vector<bslstl::StringRef>      vsr;
+            bsl::vector<bsl::string_view>       vsv;
+            std::vector<bsl::string_view>       vsv1;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            std::pmr::vector<bsl::string_view>  vsv2;
+#endif
             for (size_t subjectStart = 0; subjectStart <= SUBJECT_LEN;
                                                               ++subjectStart) {
                 if (veryVeryVerbose) {
                     T_ T_ P(subjectStart)
                 }
 
-                retCode = X.match(SUBJECT, SUBJECT_LEN, subjectStart);
-                retCodeRaw = X.matchRaw(SUBJECT, SUBJECT_LEN, subjectStart);
-
+                retCode     = X.match(       string_view(SUBJECT, SUBJECT_LEN),
+                                             subjectStart);
+                retCode1    = X.match(       SUBJECT, SUBJECT_LEN,
+                                             subjectStart);
+                retCodePr   = X.match(&pr,   SUBJECT, SUBJECT_LEN,
+                                             subjectStart);
+                retCodeSr   = X.match(&sr,   SUBJECT, SUBJECT_LEN,
+                                             subjectStart);
+                retCodeSv   = X.match(&sv,   string_view(SUBJECT, SUBJECT_LEN),
+                                             subjectStart);
+                retCodeVPr  = X.match(&vpr,  SUBJECT, SUBJECT_LEN,
+                                             subjectStart);
+                retCodeVSr  = X.match(&vsr,  SUBJECT, SUBJECT_LEN,
+                                             subjectStart);
+                retCodeVSv  = X.match(&vsv,  string_view(SUBJECT, SUBJECT_LEN),
+                                             subjectStart);
+                retCodeVSv1 = X.match(&vsv1, string_view(SUBJECT, SUBJECT_LEN),
+                                             subjectStart);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                retCodeVSv2 = X.match(&vsv2, string_view(SUBJECT, SUBJECT_LEN),
+                                             subjectStart);
+#endif
                 if (subjectStart <= MATCH_OFFSET) {
                     ASSERTV(LINE, subjectStart, 0 == retCode);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeRaw);
+                    ASSERTV(LINE, subjectStart, 0 == retCode1);
+                    ASSERTV(LINE, subjectStart, 0 == retCodePr);
+                    ASSERTV(LINE, subjectStart,                 pr.first,
+                                                MATCH_OFFSET == pr.first);
+                    ASSERTV(LINE, subjectStart,                 pr.second,
+                                                MATCH_LENGTH == pr.second);
+                    ASSERTV(LINE, subjectStart, 0 == retCodeSr);
+                    ASSERTV(LINE, subjectStart, EXPECTED, sr, EXPECTED == sr);
+                    ASSERTV(LINE, subjectStart, 0 == retCodeSv);
+                    ASSERTV(LINE, subjectStart, EXPECTED, sv, EXPECTED == sv);
+                    ASSERTV(LINE, subjectStart, 0 == retCodeVPr);
+                    ASSERTV(LINE, subjectStart,                 vpr[0].first,
+                                                MATCH_OFFSET == vpr[0].first);
+                    ASSERTV(LINE, subjectStart,                 vpr[0].second,
+                                                MATCH_LENGTH == vpr[0].second);
+                    ASSERTV(LINE, subjectStart, 0 == retCodeVSr);
+                    ASSERTV(LINE, subjectStart, EXPECTED,   vsr[0],
+                                                EXPECTED == vsr[0]);
+                    ASSERTV(LINE, subjectStart, 0 == retCodeVSv);
+                    ASSERTV(LINE, subjectStart, EXPECTED,   vsv[0],
+                                                EXPECTED == vsv[0]);
+                    ASSERTV(LINE, subjectStart, 0 == retCodeVSv1);
+                    ASSERTV(LINE, subjectStart, EXPECTED,   vsv1[0],
+                                                EXPECTED == vsv1[0]);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    ASSERTV(LINE, subjectStart, 0 == retCodeVSv2);
+                    ASSERTV(LINE, subjectStart, EXPECTED,   vsv2[0],
+                                                EXPECTED == vsv2[0]);
+#endif
                 }
                 else {
                     ASSERTV(LINE, subjectStart, 0 != retCode);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeRaw);
+                    ASSERTV(LINE, subjectStart, 0 != retCode1);
+                    ASSERTV(LINE, subjectStart, 0 != retCodePr);
+                    ASSERTV(LINE, subjectStart, 0 != retCodeSr);
+                    ASSERTV(LINE, subjectStart, 0 != retCodeSv);
+                    ASSERTV(LINE, subjectStart, 0 != retCodeVPr);
+                    ASSERTV(LINE, subjectStart, 0 != retCodeVSr);
+                    ASSERTV(LINE, subjectStart, 0 != retCodeVSv);
+                    ASSERTV(LINE, subjectStart, 0 != retCodeVSv1);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    ASSERTV(LINE, subjectStart, 0 != retCodeVSv2);
+#endif
                 }
 
-                retCode = X.match(&match, SUBJECT, SUBJECT_LEN, subjectStart);
-                retCodeRaw = X.matchRaw(&matchRaw,
-                                        SUBJECT,
-                                        SUBJECT_LEN,
-                                        subjectStart);
+                retCode     = X.matchRaw(       string_view(SUBJECT,
+                                                            SUBJECT_LEN),
+                                                subjectStart);
+                retCode1    = X.matchRaw(       SUBJECT, SUBJECT_LEN,
+                                                subjectStart);
+                retCodePr   = X.matchRaw(&pr,   SUBJECT, SUBJECT_LEN,
+                                                subjectStart);
+                retCodeSr   = X.matchRaw(&sr,   SUBJECT, SUBJECT_LEN,
+                                                subjectStart);
+                retCodeSv   = X.matchRaw(&sv,   string_view(SUBJECT,
+                                                            SUBJECT_LEN),
+                                                subjectStart);
+                retCodeVPr  = X.matchRaw(&vpr,  SUBJECT, SUBJECT_LEN,
+                                                subjectStart);
+                retCodeVSr  = X.matchRaw(&vsr,  SUBJECT, SUBJECT_LEN,
+                                                subjectStart);
+                retCodeVSv  = X.matchRaw(&vsv,  string_view(SUBJECT,
+                                                            SUBJECT_LEN),
+                                                subjectStart);
+                retCodeVSv1 = X.matchRaw(&vsv1, string_view(SUBJECT,
+                                                            SUBJECT_LEN),
+                                                subjectStart);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                retCodeVSv2 = X.matchRaw(&vsv2, string_view(SUBJECT,
+                                                            SUBJECT_LEN),
+                                                subjectStart);
+#endif
                 if (subjectStart <= MATCH_OFFSET) {
                     ASSERTV(LINE, subjectStart, 0 == retCode);
-                    ASSERTV(LINE, subjectStart, match.first,
-                                                  MATCH_OFFSET == match.first);
-                    ASSERTV(LINE, subjectStart, match.second,
-                                                 MATCH_LENGTH == match.second);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeRaw);
-                    ASSERTV(LINE, subjectStart, matchRaw.first,
-                                               MATCH_OFFSET == matchRaw.first);
-                    ASSERTV(LINE, subjectStart, match.second,
-                                              MATCH_LENGTH == matchRaw.second);
+                    ASSERTV(LINE, subjectStart, 0 == retCode1);
+                    ASSERTV(LINE, subjectStart, 0 == retCodePr);
+                    ASSERTV(LINE, subjectStart,                 pr.first,
+                                                MATCH_OFFSET == pr.first);
+                    ASSERTV(LINE, subjectStart,                 pr.second,
+                                                MATCH_LENGTH == pr.second);
+                    ASSERTV(LINE, subjectStart, 0 == retCodeSr);
+                    ASSERTV(LINE, subjectStart, EXPECTED, sr, EXPECTED == sr);
+                    ASSERTV(LINE, subjectStart, 0 == retCodeSv);
+                    ASSERTV(LINE, subjectStart, EXPECTED, sv, EXPECTED == sv);
+                    ASSERTV(LINE, subjectStart, 0 == retCodeVPr);
+                    ASSERTV(LINE, subjectStart,                 vpr[0].first,
+                                                MATCH_OFFSET == vpr[0].first);
+                    ASSERTV(LINE, subjectStart,                 vpr[0].second,
+                                                MATCH_LENGTH == vpr[0].second);
+                    ASSERTV(LINE, subjectStart, 0 == retCodeVSr);
+                    ASSERTV(LINE, subjectStart, EXPECTED,   vsr[0],
+                                                EXPECTED == vsr[0]);
+                    ASSERTV(LINE, subjectStart, 0 == retCodeVSv);
+                    ASSERTV(LINE, subjectStart, EXPECTED,   vsv[0],
+                                                EXPECTED == vsv[0]);
+                    ASSERTV(LINE, subjectStart, 0 == retCodeVSv1);
+                    ASSERTV(LINE, subjectStart, EXPECTED,   vsv1[0],
+                                                EXPECTED == vsv1[0]);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    ASSERTV(LINE, subjectStart, 0 == retCodeVSv2);
+                    ASSERTV(LINE, subjectStart, EXPECTED,   vsv2[0],
+                                                EXPECTED == vsv2[0]);
+#endif
                 }
                 else {
                     ASSERTV(LINE, subjectStart, 0 != retCode);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeRaw);
-                }
-
-                retCode = X.match(&vMatch, SUBJECT, SUBJECT_LEN, subjectStart);
-                retCodeRaw = X.matchRaw(&vMatchRaw,
-                                        SUBJECT,
-                                        SUBJECT_LEN,
-                                        subjectStart);
-                if (subjectStart <= MATCH_OFFSET) {
-                    ASSERTV(LINE, subjectStart, 0 == retCode);
-                    ASSERTV(LINE, subjectStart, vMatch[0].first,
-                                              MATCH_OFFSET == vMatch[0].first);
-                    ASSERTV(LINE, subjectStart, vMatch[0].second,
-                                             MATCH_LENGTH == vMatch[0].second);
-                    ASSERTV(LINE, subjectStart, 0 == retCodeRaw);
-                    ASSERTV(LINE, subjectStart, vMatchRaw[0].first,
-                                           MATCH_OFFSET == vMatchRaw[0].first);
-                    ASSERTV(LINE, subjectStart, vMatchRaw[0].second,
-                                          MATCH_LENGTH == vMatchRaw[0].second);
-                }
-                else {
-                    ASSERTV(LINE, subjectStart, 0 != retCode);
-                    ASSERTV(LINE, subjectStart, 0 != retCodeRaw);
+                    ASSERTV(LINE, subjectStart, 0 != retCode1);
+                    ASSERTV(LINE, subjectStart, 0 != retCodePr);
+                    ASSERTV(LINE, subjectStart, 0 != retCodeSr);
+                    ASSERTV(LINE, subjectStart, 0 != retCodeSv);
+                    ASSERTV(LINE, subjectStart, 0 != retCodeVPr);
+                    ASSERTV(LINE, subjectStart, 0 != retCodeVSr);
+                    ASSERTV(LINE, subjectStart, 0 != retCodeVSv);
+                    ASSERTV(LINE, subjectStart, 0 != retCodeVSv1);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    ASSERTV(LINE, subjectStart, 0 != retCodeVSv2);
+#endif
                 }
             }
         }
@@ -3076,57 +3462,137 @@ int main(int argc, char *argv[])
                 cout << "\tTesting good pattern." << endl;
             }
 
-            pair<size_t, size_t>          match;
-            pair<size_t, size_t>          matchRaw;
-            vector<pair<size_t, size_t> > vMatch;
-            vector<pair<size_t, size_t> > vMatchRaw;
+            retCode = GOOD.match(string_view("", 0));
+            ASSERT(0 == retCode);
 
             retCode = GOOD.match("", 0);
             ASSERT(0 == retCode);
+
             retCode = GOOD.matchRaw("", 0);
             ASSERT(0 == retCode);
 
-            retCode = GOOD.match(&match, "", 0);
+            retCode = GOOD.matchRaw(string_view("", 0));
             ASSERT(0 == retCode);
-            ASSERTV(match.first,   0 == match.first);
-            ASSERTV(match.second , 0 == match.second);
 
-            retCode = GOOD.matchRaw(&matchRaw, "", 0);
+            bsl::pair<size_t, size_t>           pr;
+            bslstl::StringRef                   sr;
+            bsl::string_view                    sv;
+            bsl::vector<pair<size_t, size_t> >  vpr;
+            bsl::vector<bslstl::StringRef>      vsr;
+            bsl::vector<bsl::string_view>       vsv;
+            std::vector<bsl::string_view>       vsv1;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            std::pmr::vector<bsl::string_view>  vsv2;
+#endif
+            retCode = GOOD.match(&pr, "", 0);
             ASSERT(0 == retCode);
-            ASSERTV(matchRaw.first,   0 == matchRaw.first);
-            ASSERTV(matchRaw.second , 0 == matchRaw.second);
+            ASSERTV(pr.first,   0 == pr.first);
+            ASSERTV(pr.second , 0 == pr.second);
 
-            retCode = GOOD.match(&vMatch, "", 0);
+            retCode = GOOD.match(&sr, "", 0);
             ASSERT(0 == retCode);
-            ASSERTV(vMatch[0].first,   0 == vMatch[0].first);
-            ASSERTV(vMatch[0].second , 0 == vMatch[0].second);
+            ASSERTV(sr, sr.empty());
 
-            retCode = GOOD.matchRaw(&vMatchRaw, "", 0);
+            retCode = GOOD.match(&sv, string_view("", 0));
             ASSERT(0 == retCode);
-            ASSERTV(vMatchRaw[0].first,   0 == vMatchRaw[0].first);
-            ASSERTV(vMatchRaw[0].second , 0 == vMatchRaw[0].second);
+            ASSERTV(sv, sv.empty());
+
+            retCode = GOOD.match(&vpr, "", 0);
+            ASSERT(0 == retCode);
+            ASSERTV(vpr[0].first,   0 == vpr[0].first);
+            ASSERTV(vpr[0].second , 0 == vpr[0].second);
+
+            retCode = GOOD.match(&vsr, "", 0);
+            ASSERT(0 == retCode);
+            ASSERTV(vsr[0], bslstl::StringRef("", 0) == vsr[0]);
+
+            retCode = GOOD.match(&vsv, string_view("", 0));
+            ASSERT(0 == retCode);
+            ASSERTV(vsv[0], string_view("", 0) == vsv[0]);
+
+            retCode = GOOD.match(&vsv1, string_view("", 0));
+            ASSERT(0 == retCode);
+            ASSERTV(vsv1[0], string_view("", 0) == vsv1[0]);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            retCode = GOOD.match(&vsv2, string_view("", 0));
+            ASSERT(0 == retCode);
+            ASSERTV(vsv2[0], string_view("", 0) == vsv2[0]);
+#endif
+
+            retCode = GOOD.matchRaw(&pr, "", 0);
+            ASSERT(0 == retCode);
+            ASSERTV(pr.first,   0 == pr.first);
+            ASSERTV(pr.second , 0 == pr.second);
+
+            retCode = GOOD.matchRaw(&sr, "", 0);
+            ASSERT(0 == retCode);
+            ASSERTV(sr, sr.empty());
+
+            retCode = GOOD.matchRaw(&vpr, "", 0);
+            ASSERT(0 == retCode);
+            ASSERTV(vpr[0].first,   0 == vpr[0].first);
+            ASSERTV(vpr[0].second , 0 == vpr[0].second);
+
+            retCode = GOOD.matchRaw(&vsr, "", 0);
+            ASSERT(0 == retCode);
+            ASSERTV(vsr[0], bslstl::StringRef("", 0) == vsr[0]);
 
             if (veryVerbose) {
                 cout << "\tTesting not so good pattern." << endl;
             }
 
-            retCode = NOT_GOOD.match("", 0);
+            retCode = NOT_GOOD.match(   string_view("", 0));
+            ASSERT(0 != retCode);
+            retCode = NOT_GOOD.matchRaw(string_view("", 0));
             ASSERT(0 != retCode);
 
+            retCode = NOT_GOOD.match(   "", 0);
+            ASSERT(0 != retCode);
             retCode = NOT_GOOD.matchRaw("", 0);
             ASSERT(0 != retCode);
 
-            retCode = NOT_GOOD.match(&match, "", 0);
+            retCode = NOT_GOOD.match(   &pr,    "", 0);
+            ASSERT(0 != retCode);
+            retCode = NOT_GOOD.matchRaw(&pr,    "", 0);
             ASSERT(0 != retCode);
 
-            retCode = NOT_GOOD.matchRaw(&matchRaw, "", 0);
+            retCode = NOT_GOOD.match(   &sr,    "", 0);
+            ASSERT(0 != retCode);
+            retCode = NOT_GOOD.matchRaw(&sr,    "", 0);
             ASSERT(0 != retCode);
 
-            retCode = NOT_GOOD.match(&vMatch, "", 0);
+            retCode = NOT_GOOD.match(   &sv,    string_view("", 0));
+            ASSERT(0 != retCode);
+            retCode = NOT_GOOD.matchRaw(&sv,    string_view("", 0));
             ASSERT(0 != retCode);
 
-            retCode = NOT_GOOD.matchRaw(&vMatchRaw, "", 0);
+            retCode = NOT_GOOD.match(   &vpr,   "", 0);
             ASSERT(0 != retCode);
+            retCode = NOT_GOOD.matchRaw(&vpr,   "", 0);
+            ASSERT(0 != retCode);
+
+            retCode = NOT_GOOD.match(   &vsr,   "", 0);
+            ASSERT(0 != retCode);
+            retCode = NOT_GOOD.matchRaw(&vsr,   "", 0);
+            ASSERT(0 != retCode);
+
+            retCode = NOT_GOOD.match(   &vsv,  string_view("", 0));
+            ASSERT(0 != retCode);
+            retCode = NOT_GOOD.matchRaw(&vsv,  string_view("", 0));
+            ASSERT(0 != retCode);
+
+            retCode = NOT_GOOD.match(   &vsv1, string_view("", 0));
+            ASSERT(0 != retCode);
+            retCode = NOT_GOOD.matchRaw(&vsv1, string_view("", 0));
+            ASSERT(0 != retCode);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            retCode = NOT_GOOD.match(   &vsv2, string_view("", 0));
+            ASSERT(0 != retCode);
+            retCode = NOT_GOOD.matchRaw(&vsv2, string_view("", 0));
+            ASSERT(0 != retCode);
+#endif
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -3140,103 +3606,296 @@ int main(int argc, char *argv[])
             const char  PATTERN[] = "(abc)*";
             const char  SUBJECT[] = "XXXabcZZZ";
 
-            bsl::pair<size_t, size_t>               p, *zp = 0;
-            bsl::vector<bsl::pair<size_t, size_t> > v, *zv = 0;
-
-            (void)zp;
-            (void)zv;
-
             ASSERT(0 == mX.prepare(&errorMsg, &errorOffset, PATTERN, 0, 0));
 
             // basic 'match
             {
-                ASSERT_SAFE_PASS(X.match(       SUBJECT,  9,  1));
-                ASSERT_SAFE_PASS(X.matchRaw(    SUBJECT,  9,  1));
-                ASSERT_FAIL(X.match(             0,  9,  1));
-                ASSERT_FAIL(X.matchRaw(          0,  9,  1));
+                ASSERT_SAFE_PASS(X.match(   string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.match(   SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(SUBJECT,  9,               1));
+                // string_view can not be created with (0,  9)
+                ASSERT_FAIL(X.match(        0,  9,                     1));
+                ASSERT_FAIL(X.matchRaw(     0,  9,                     1));
 
-                ASSERT_SAFE_PASS(X.match(             0,  0));
-                ASSERT_SAFE_PASS(X.matchRaw(          0,  0));
-                ASSERT_FAIL(X.match(             0,  1));
-                ASSERT_FAIL(X.matchRaw(          0,  1));
+                ASSERT_SAFE_PASS(X.match(   string_view(0,  0)));
+                ASSERT_SAFE_PASS(X.match(   0,  0));
+                ASSERT_SAFE_PASS(X.matchRaw(string_view(0,  0)));
+                ASSERT_SAFE_PASS(X.matchRaw(0,  0));
+                // string_view can not be created with (0,  1)
+                ASSERT_FAIL(X.match(        0,  1));
+                ASSERT_FAIL(X.matchRaw(     0,  1));
 
-                ASSERT_SAFE_PASS(X.match(       SUBJECT,  0,  0));
-                ASSERT_SAFE_PASS(X.matchRaw(    SUBJECT,  0,  0));
-                ASSERT_FAIL(X.match(       SUBJECT,  0, -1));
-                ASSERT_FAIL(X.matchRaw(    SUBJECT,  0, -1));
+                ASSERT_SAFE_PASS(X.match(   string_view(SUBJECT,  0),  0));
+                ASSERT_SAFE_PASS(X.match(   SUBJECT,  0,               0));
+                ASSERT_SAFE_PASS(X.matchRaw(string_view(SUBJECT,  0),  0));
+                ASSERT_SAFE_PASS(X.matchRaw(SUBJECT,  0,               0));
+                ASSERT_FAIL(X.match(        string_view(SUBJECT,  0), -1));
+                ASSERT_FAIL(X.match(        SUBJECT,  0,              -1));
+                ASSERT_FAIL(X.matchRaw(     string_view(SUBJECT,  0), -1));
+                ASSERT_FAIL(X.matchRaw(     SUBJECT,  0,              -1));
 
-                ASSERT_SAFE_PASS(X.match(       SUBJECT,  1,  1));
-                ASSERT_SAFE_PASS(X.matchRaw(    SUBJECT,  1,  1));
-                ASSERT_FAIL(X.match(       SUBJECT,  1,  2));
-                ASSERT_FAIL(X.matchRaw(    SUBJECT,  1,  2));
+                ASSERT_SAFE_PASS(X.match(   string_view(SUBJECT,  1),  1));
+                ASSERT_SAFE_PASS(X.match(   SUBJECT,  1,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(string_view(SUBJECT,  1),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(SUBJECT,  1,               1));
+                ASSERT_FAIL(X.match(        string_view(SUBJECT,  1),  2));
+                ASSERT_FAIL(X.match(        SUBJECT,  1,               2));
+                ASSERT_FAIL(X.matchRaw(     string_view(SUBJECT,  1),  2));
+                ASSERT_FAIL(X.matchRaw(     SUBJECT,  1,               2));
+            }
+
+            // 'match' taking 'bsl::string_view'
+            {
+                bsl::string_view p, *zp = 0; (void)zp;
+
+                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.match(   &p, string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.match(        zp, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.match(        zp, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.matchRaw(     zp, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.matchRaw(     zp, string_view(SUBJECT,  9),  1));
+
+                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.match(   &p, string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, string_view(SUBJECT,  9),  1));
+                // string_view can not be created with (0,  9)
+                ASSERT_FAIL(X.match(        &p, 0,  9,                     1));
+                ASSERT_FAIL(X.matchRaw(     &p, 0,  9,                     1));
+
+                ASSERT_SAFE_PASS(X.match(   &p, 0,  0,                     0));
+                ASSERT_SAFE_PASS(X.match(   &p, string_view(0,  0),        0));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, 0,  0,                     0));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, string_view(0,  0),        0));
+                // string_view can not be created with (0,  1)
+                ASSERT_FAIL(X.match(        &p, 0,  1,                     0));
+                ASSERT_FAIL(X.matchRaw(     &p, 0,  1,                     0));
+
+                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  0,               0));
+                ASSERT_SAFE_PASS(X.match(   &p, string_view(SUBJECT,  0),  0));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  0,               0));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, string_view(SUBJECT,  0),  0));
+                ASSERT_FAIL(X.match(        &p, SUBJECT,  0,              -1));
+                ASSERT_FAIL(X.match(        &p, string_view(SUBJECT,  0), -1));
+                ASSERT_FAIL(X.matchRaw(     &p, SUBJECT,  0,              -1));
+                ASSERT_FAIL(X.matchRaw(     &p, string_view(SUBJECT,  0), -1));
+
+                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  1,               1));
+                ASSERT_SAFE_PASS(X.match(   &p, string_view(SUBJECT,  1),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  1,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, string_view(SUBJECT,  1),  1));
+                ASSERT_FAIL(X.match(        &p, SUBJECT,  1,               2));
+                ASSERT_FAIL(X.match(        &p, string_view(SUBJECT,  1),  2));
+                ASSERT_FAIL(X.matchRaw(     &p, SUBJECT,  1,               2));
+                ASSERT_FAIL(X.matchRaw(     &p, string_view(SUBJECT,  1),  2));
             }
 
             // 'match' taking 'bsl::pair'
             {
-                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,  1));
-                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.match(   zp, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.matchRaw(zp, SUBJECT,  9,  1));
+                bsl::pair<size_t, size_t> p, *zp = 0; (void)zp;
 
-                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,  1));
-                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.match(   &p,       0,  9,  1));
-                ASSERT_FAIL(X.matchRaw(&p,       0,  9,  1));
+                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.match(        zp, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.matchRaw(     zp, SUBJECT,  9,               1));
 
-                ASSERT_SAFE_PASS(X.match(   &p,       0,  0,  0));
-                ASSERT_SAFE_PASS(X.matchRaw(&p,       0,  0,  0));
-                ASSERT_FAIL(X.match(   &p,       0,  1,  0));
-                ASSERT_FAIL(X.matchRaw(&p,       0,  1,  0));
+                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.match(        &p,  0,  9,                    1));
+                ASSERT_FAIL(X.matchRaw(     &p,  0,  9,                    1));
 
-                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  0,  0));
-                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  0,  0));
-                ASSERT_FAIL(X.match(   &p, SUBJECT,  0, -1));
-                ASSERT_FAIL(X.matchRaw(&p, SUBJECT,  0, -1));
+                ASSERT_SAFE_PASS(X.match(   &p,  0,  0,                    0));
+                ASSERT_SAFE_PASS(X.matchRaw(&p,  0,  0,                    0));
+                ASSERT_FAIL(X.match(        &p,  0,  1,                    0));
+                ASSERT_FAIL(X.matchRaw(     &p,  0,  1,                    0));
 
-                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  1,  1));
-                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  1,  1));
-                ASSERT_FAIL(X.match(   &p, SUBJECT,  1,  2));
-                ASSERT_FAIL(X.matchRaw(&p, SUBJECT,  1,  2));
+                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  0,               0));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  0,               0));
+                ASSERT_FAIL(X.match(        &p, SUBJECT,  0,              -1));
+                ASSERT_FAIL(X.matchRaw(     &p, SUBJECT,  0,              -1));
+
+                ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  1,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  1,               1));
+                ASSERT_FAIL(X.match(        &p, SUBJECT,  1,               2));
+                ASSERT_FAIL(X.matchRaw(     &p, SUBJECT,  1,               2));
             }
 
-            // 'match' taking 'bsl::vector'
+            // 'match' taking 'bsl::vector<bsl::pair<size_t, size_t>'
             {
-                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,  1));
-                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.match(   zv, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.matchRaw(zv, SUBJECT,  9,  1));
+                bsl::vector<bsl::pair<size_t, size_t> > v, *zv = 0; (void)zv;
 
-                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,  1));
-                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.match(   &v,       0,  9,  1));
-                ASSERT_FAIL(X.matchRaw(&v,       0,  9,  1));
+                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.match(        zv, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.matchRaw(     zv, SUBJECT,  9,               1));
 
-                ASSERT_SAFE_PASS(X.match(   &v,       0,  0,  0));
-                ASSERT_SAFE_PASS(X.matchRaw(&v,       0,  0,  0));
-                ASSERT_FAIL(X.match(   &v,       0,  1,  0));
-                ASSERT_FAIL(X.matchRaw(&v,       0,  1,  0));
+                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.match(        &v,  0,  9,                    1));
+                ASSERT_FAIL(X.matchRaw(     &v,  0,  9,                    1));
 
-                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  0,  0));
-                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  0,  0));
-                ASSERT_FAIL(X.match(   &v, SUBJECT,  0, -1));
-                ASSERT_FAIL(X.matchRaw(&v, SUBJECT,  0, -1));
+                ASSERT_SAFE_PASS(X.match(   &v,  0,  0,                    0));
+                ASSERT_SAFE_PASS(X.matchRaw(&v,  0,  0,                    0));
+                ASSERT_FAIL(X.match(        &v,  0,  1,                    0));
+                ASSERT_FAIL(X.matchRaw(     &v,  0,  1,                    0));
 
-                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  1,  1));
-                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  1,  1));
-                ASSERT_FAIL(X.match(   &v, SUBJECT,  1,  2));
-                ASSERT_FAIL(X.matchRaw(&v, SUBJECT,  1,  2));
+                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  0,               0));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  0,               0));
+                ASSERT_FAIL(X.match(        &v, SUBJECT,  0,              -1));
+                ASSERT_FAIL(X.matchRaw(     &v, SUBJECT,  0,              -1));
+
+                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  1,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  1,               1));
+                ASSERT_FAIL(X.match(        &v, SUBJECT,  1,               2));
+                ASSERT_FAIL(X.matchRaw(     &v, SUBJECT,  1,               2));
             }
+
+            // 'match' taking 'bsl::vector<bslstl::StringRef>'
+            {
+                bsl::vector<bslstl::StringRef> v, *zv = 0; (void)zv;
+
+                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.match(        zv, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.matchRaw(     zv, SUBJECT,  9,               1));
+
+                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,               1));
+                ASSERT_FAIL(X.match(        &v,  0,  9,                    1));
+                ASSERT_FAIL(X.matchRaw(     &v,  0,  9,                    1));
+
+                ASSERT_SAFE_PASS(X.match(   &v,  0,  0,                    0));
+                ASSERT_SAFE_PASS(X.matchRaw(&v,  0,  0,                    0));
+                ASSERT_FAIL(X.match(        &v,  0,  1,                    0));
+                ASSERT_FAIL(X.matchRaw(     &v,  0,  1,                    0));
+
+                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  0,               0));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  0,               0));
+                ASSERT_FAIL(X.match(        &v, SUBJECT,  0,              -1));
+                ASSERT_FAIL(X.matchRaw(     &v, SUBJECT,  0,              -1));
+
+                ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  1,               1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  1,               1));
+                ASSERT_FAIL(X.match(        &v, SUBJECT,  1,               2));
+                ASSERT_FAIL(X.matchRaw(     &v, SUBJECT,  1,               2));
+            }
+
+            // 'match' taking 'bsl::vector<bsl::string_view>'
+            {
+                bsl::vector<bsl::string_view> v, *zv = 0; (void)zv;
+
+                ASSERT_SAFE_PASS(X.match(   &v, string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.match(        zv, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.matchRaw(     zv, string_view(SUBJECT,  9),  1));
+
+                ASSERT_SAFE_PASS(X.match(   &v, string_view(SUBJECT,  0),  0));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, string_view(SUBJECT,  0),  0));
+                ASSERT_FAIL(X.match(        &v, string_view(SUBJECT,  0), -1));
+                ASSERT_FAIL(X.matchRaw(     &v, string_view(SUBJECT,  0), -1));
+
+                ASSERT_SAFE_PASS(X.match(   &v, string_view(SUBJECT,  1),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, string_view(SUBJECT,  1),  1));
+                ASSERT_FAIL(X.match(        &v, string_view(SUBJECT,  1),  2));
+                ASSERT_FAIL(X.matchRaw(     &v, string_view(SUBJECT,  1),  2));
+            }
+
+            // 'match' taking 'std::vector<bsl::string_view>'
+            {
+                std::vector<bsl::string_view> v, *zv = 0; (void)zv;
+
+                ASSERT_SAFE_PASS(X.match(   &v, string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.match(        zv, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.matchRaw(     zv, string_view(SUBJECT,  9),  1));
+
+                ASSERT_SAFE_PASS(X.match(   &v, string_view(SUBJECT,  0),  0));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, string_view(SUBJECT,  0),  0));
+                ASSERT_FAIL(X.match(        &v, string_view(SUBJECT,  0), -1));
+                ASSERT_FAIL(X.matchRaw(     &v, string_view(SUBJECT,  0), -1));
+
+                ASSERT_SAFE_PASS(X.match(   &v, string_view(SUBJECT,  1),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, string_view(SUBJECT,  1),  1));
+                ASSERT_FAIL(X.match(        &v, string_view(SUBJECT,  1),  2));
+                ASSERT_FAIL(X.matchRaw(     &v, string_view(SUBJECT,  1),  2));
+            }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            // 'match' taking 'std::pmr::vector<bsl::string_view>'
+            {
+                std::pmr::vector<bsl::string_view> v, *zv = 0; (void)zv;
+
+                ASSERT_SAFE_PASS(X.match(   &v, string_view(SUBJECT,  9),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.match(        zv, string_view(SUBJECT,  9),  1));
+                ASSERT_FAIL(X.matchRaw(     zv, string_view(SUBJECT,  9),  1));
+
+                ASSERT_SAFE_PASS(X.match(   &v, string_view(SUBJECT,  0),  0));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, string_view(SUBJECT,  0),  0));
+                ASSERT_FAIL(X.match(        &v, string_view(SUBJECT,  0), -1));
+                ASSERT_FAIL(X.matchRaw(     &v, string_view(SUBJECT,  0), -1));
+
+                ASSERT_SAFE_PASS(X.match(   &v, string_view(SUBJECT,  1),  1));
+                ASSERT_SAFE_PASS(X.matchRaw(&v, string_view(SUBJECT,  1),  1));
+                ASSERT_FAIL(X.match(        &v, string_view(SUBJECT,  1),  2));
+                ASSERT_FAIL(X.matchRaw(     &v, string_view(SUBJECT,  1),  2));
+            }
+#endif
 
             // restore object to unprepared state
             {
+                bsl::pair<size_t, size_t>           p;
+                bsl::string_view                    s;
+                bsl::vector<pair<size_t, size_t> >  vp;
+                bsl::vector<bslstl::StringRef>      vsr;
+                bsl::vector<bsl::string_view>       vsv;
+                std::vector<bsl::string_view>       vsv1;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::vector<bsl::string_view>  vsv2;
+#endif
+
                 mX.clear();
 
-                ASSERT_FAIL(X.match(       SUBJECT,  9,  1));
-                ASSERT_FAIL(X.matchRaw(    SUBJECT,  9,  1));
-                ASSERT_FAIL(X.match(   &p, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.matchRaw(&p, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.match(   &v, SUBJECT,  9,  1));
-                ASSERT_FAIL(X.matchRaw(&v, SUBJECT,  9,  1));
+                // basic 'match'
+                ASSERT_FAIL(X.match(          string_view(SUBJECT,  9), 1));
+                ASSERT_FAIL(X.match(          SUBJECT,  9,              1));
+                ASSERT_FAIL(X.matchRaw(       string_view(SUBJECT,  9), 1));
+                ASSERT_FAIL(X.matchRaw(       SUBJECT,  9,              1));
+
+                // 'match' taking 'bsl::pair'
+                ASSERT_FAIL(X.match(   &p,    SUBJECT,  9,              1));
+                ASSERT_FAIL(X.matchRaw(&p,    SUBJECT,  9,              1));
+
+                // 'match' taking 'bsl::string_view'
+                ASSERT_FAIL(X.match(   &s,    SUBJECT,  9,              1));
+                ASSERT_FAIL(X.match(   &s,    string_view(SUBJECT,  9), 1));
+                ASSERT_FAIL(X.matchRaw(&s,    SUBJECT,  9,              1));
+                ASSERT_FAIL(X.matchRaw(&s,    string_view(SUBJECT,  9), 1));
+
+                // 'match' taking 'bsl::vector<bsl::pair<size_t, size_t>'
+                ASSERT_FAIL(X.match(   &vp,   SUBJECT,  9,              1));
+                ASSERT_FAIL(X.matchRaw(&vp,   SUBJECT,  9,              1));
+
+                // 'match' taking 'bsl::vector<bslstl::StringRef>'
+                ASSERT_FAIL(X.match(   &vsr,  SUBJECT,  9,              1));
+                ASSERT_FAIL(X.matchRaw(&vsr,  SUBJECT,  9,              1));
+
+                // 'match' taking 'bsl::vector<bsl::string_view>'
+                ASSERT_FAIL(X.match(   &vsv,  string_view(SUBJECT,  9), 1));
+                ASSERT_FAIL(X.matchRaw(&vsv,  string_view(SUBJECT,  9), 1));
+
+                // 'match' taking 'std::vector<bsl::string_view>'
+                ASSERT_FAIL(X.match(   &vsv1, string_view(SUBJECT,  9), 1));
+                ASSERT_FAIL(X.matchRaw(&vsv1, string_view(SUBJECT,  9), 1));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                // 'match' taking 'std::pmr::vector<bsl::string_view>'
+                ASSERT_FAIL(X.match(   &vsv2, string_view(SUBJECT,  9), 1));
+                ASSERT_FAIL(X.matchRaw(&vsv2, string_view(SUBJECT,  9), 1));
+#endif
             }
         }
 
