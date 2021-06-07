@@ -17,6 +17,7 @@
 #include <bsl_limits.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_vector.h>
 
 #include <bsl_climits.h>
@@ -58,8 +59,8 @@ using namespace bdlb;
 // [ 2] parseUnsignedInteger(result, in, base, maxVal, maxDigit)
 // [ 3] parseSignedInteger(result, rest, input, base, minVal, maxVal)
 // [ 3] parseSignedInteger(result, input, base, minVal, maxVal)
-// [ 4] parseDouble(double *res, StringRef *rest, StringRef in)
-// [ 4] parseDouble(double *res, StringRef in)
+// [ 4] parseDouble(double *res, string_view *rest, string_view in)
+// [ 4] parseDouble(double *res, string_view in)
 // [ 5] parseInt(result, rest, input, base = 10)
 // [ 5] parseInt(result, input, base = 10)
 // [ 6] parseInt64(result, rest, input, base = 10)
@@ -160,7 +161,7 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-    using bslstl::StringRef;
+    using bsl::string_view;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 11: {
@@ -182,20 +183,20 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "TESTING USAGE EXAMPLE" << endl
                           << "=====================" << endl;
-///Example 1: Parsing an Integer Value from a 'StringRef'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we have a 'StringRef' that presumably contains a (not
+///Example 1: Parsing an Integer Value from a 'string_view'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we have a 'string_view' that presumably contains a (not
 // necessarily NUL terminated) string representing a 32-bit integer value and
 // we want to convert that string into an 'int' (32-bit integer).
 //
 // First, we create the string:
 //..
-    bslstl::StringRef input("2017");
+    bsl::string_view input("2017");
 //..
 // Then we create the output variables for the parser:
 //..
-    int               year;
-    bslstl::StringRef rest;
+    int              year;
+    bsl::string_view rest;
 //..
 // Next we call the parser function:
 //..
@@ -359,7 +360,7 @@ int main(int argc, char *argv[])
 
                 {  // test with first initial value
                     unsigned short result = INITIAL_VALUE_1;
-                    StringRef      rest;
+                    string_view    rest;
                     int            rv = NumericParseUtil::parseUshort(&result,
                                                                       &rest,
                                                                       SPEC,
@@ -371,7 +372,7 @@ int main(int argc, char *argv[])
 
                 {  // test with second initial value
                     unsigned short result = INITIAL_VALUE_2;
-                    StringRef      rest;
+                    string_view    rest;
                     int            rv = NumericParseUtil::parseUshort(&result,
                                                                       &rest,
                                                                       SPEC,
@@ -572,9 +573,9 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with first initial value
-                    short     result = INITIAL_VALUE_1;
-                    StringRef rest;
-                    int       rv = NumericParseUtil::
+                    short       result = INITIAL_VALUE_1;
+                    string_view rest;
+                    int         rv = NumericParseUtil::
                                         parseShort(&result, &rest, SPEC, BASE);
                     LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
@@ -582,9 +583,9 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with second initial value
-                    short     result = INITIAL_VALUE_2;
-                    StringRef rest;
-                    int       rv = NumericParseUtil::
+                    short       result = INITIAL_VALUE_2;
+                    string_view rest;
+                    int         rv = NumericParseUtil::
                                         parseShort(&result, &rest, SPEC, BASE);
                     LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
@@ -594,16 +595,16 @@ int main(int argc, char *argv[])
                 // Test without the 'remainder' argument
 
                 {  // test with first initial value
-                    short     result = INITIAL_VALUE_1;
-                    int       rv = NumericParseUtil::
+                    short result = INITIAL_VALUE_1;
+                    int   rv = NumericParseUtil::
                                                parseShort(&result, SPEC, BASE);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_1 : VALUE));
                 }
 
                 {  // test with second initial value
-                    short     result = INITIAL_VALUE_2;
-                    int       rv = NumericParseUtil::
+                    short result = INITIAL_VALUE_2;
+                    int   rv = NumericParseUtil::
                                                parseShort(&result, SPEC, BASE);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
@@ -770,9 +771,9 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with first initial value
-                    Uint64    result = INITIAL_VALUE_1;
-                    StringRef rest;
-                    int       rv = NumericParseUtil::
+                    Uint64      result = INITIAL_VALUE_1;
+                    string_view rest;
+                    int         rv = NumericParseUtil::
                                        parseUint64(&result, &rest, SPEC, BASE);
                     LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
@@ -781,9 +782,9 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with second initial value
-                    Uint64    result = INITIAL_VALUE_2;
-                    StringRef rest;
-                    int       rv = NumericParseUtil::
+                    Uint64      result = INITIAL_VALUE_2;
+                    string_view rest;
+                    int         rv = NumericParseUtil::
                                        parseUint64(&result, &rest, SPEC, BASE);
                     LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
@@ -794,8 +795,8 @@ int main(int argc, char *argv[])
                 // Test without the 'remainder' argument
 
                 {  // test with first initial value
-                    Uint64    result = INITIAL_VALUE_1;
-                    int       rv = NumericParseUtil::
+                    Uint64 result = INITIAL_VALUE_1;
+                    int    rv = NumericParseUtil::
                                               parseUint64(&result, SPEC, BASE);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? (Uint64)INITIAL_VALUE_1
@@ -803,8 +804,8 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with second initial value
-                    Uint64    result = INITIAL_VALUE_2;
-                    int       rv = NumericParseUtil::
+                    Uint64 result = INITIAL_VALUE_2;
+                    int    rv = NumericParseUtil::
                                               parseUint64(&result, SPEC, BASE);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? (Uint64)INITIAL_VALUE_2
@@ -967,9 +968,9 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with first initial value
-                    unsigned  result = INITIAL_VALUE_1;
-                    StringRef rest;
-                    int       rv = NumericParseUtil::
+                    unsigned    result = INITIAL_VALUE_1;
+                    string_view rest;
+                    int         rv = NumericParseUtil::
                                          parseUint(&result, &rest, SPEC, BASE);
                     LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
@@ -977,9 +978,9 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with second initial value
-                    unsigned  result = INITIAL_VALUE_2;
-                    StringRef rest;
-                    int       rv = NumericParseUtil::
+                    unsigned    result = INITIAL_VALUE_2;
+                    string_view rest;
+                    int         rv = NumericParseUtil::
                                          parseUint(&result, &rest, SPEC, BASE);
                     LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
@@ -989,16 +990,16 @@ int main(int argc, char *argv[])
                 // Test without the 'remainder' argument
 
                 {  // test with first initial value
-                    unsigned  result = INITIAL_VALUE_1;
-                    int       rv = NumericParseUtil::
+                    unsigned result = INITIAL_VALUE_1;
+                    int      rv = NumericParseUtil::
                                                 parseUint(&result, SPEC, BASE);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_1 : VALUE));
                 }
 
                 {  // test with second initial value
-                    unsigned  result = INITIAL_VALUE_2;
-                    int       rv = NumericParseUtil::
+                    unsigned result = INITIAL_VALUE_2;
+                    int      rv = NumericParseUtil::
                                                 parseUint(&result, SPEC, BASE);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
@@ -1200,9 +1201,9 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with first initial value
-                    Int64     result = INITIAL_VALUE_1;
-                    StringRef rest;
-                    int       rv = NumericParseUtil::
+                    Int64       result = INITIAL_VALUE_1;
+                    string_view rest;
+                    int         rv = NumericParseUtil::
                                         parseInt64(&result, &rest, SPEC, BASE);
                     LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
@@ -1211,9 +1212,9 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with second initial value
-                    Int64     result = INITIAL_VALUE_2;
-                    StringRef rest;
-                    int       rv = NumericParseUtil::
+                    Int64       result = INITIAL_VALUE_2;
+                    string_view rest;
+                    int         rv = NumericParseUtil::
                                         parseInt64(&result, &rest, SPEC, BASE);
                     LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
@@ -1224,8 +1225,8 @@ int main(int argc, char *argv[])
                 // Test without the 'remainder' argument
 
                 {  // test with first initial value
-                    Int64     result = INITIAL_VALUE_1;
-                    int       rv = NumericParseUtil::
+                    Int64 result = INITIAL_VALUE_1;
+                    int   rv = NumericParseUtil::
                                                parseInt64(&result, SPEC, BASE);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP3_ASSERT(LINE, result, VALUE,
@@ -1233,8 +1234,8 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with second initial value
-                    Int64     result = INITIAL_VALUE_2;
-                    int       rv = NumericParseUtil::
+                    Int64 result = INITIAL_VALUE_2;
+                    int   rv = NumericParseUtil::
                                                parseInt64(&result, SPEC, BASE);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP3_ASSERT(LINE, result, VALUE,
@@ -1420,9 +1421,9 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with first initial value
-                    int       result = INITIAL_VALUE_1;
-                    StringRef rest;
-                    int       rv = NumericParseUtil::
+                    int         result = INITIAL_VALUE_1;
+                    string_view rest;
+                    int         rv = NumericParseUtil::
                                           parseInt(&result, &rest, SPEC, BASE);
                     LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
@@ -1430,9 +1431,9 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with second initial value
-                    int       result = INITIAL_VALUE_2;
-                    StringRef rest;
-                    int       rv = NumericParseUtil::
+                    int         result = INITIAL_VALUE_2;
+                    string_view rest;
+                    int         rv = NumericParseUtil::
                                           parseInt(&result, &rest, SPEC, BASE);
                     LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
@@ -1442,17 +1443,15 @@ int main(int argc, char *argv[])
                 // Test without the 'remainder' argument
 
                 {  // test with first initial value
-                    int       result = INITIAL_VALUE_1;
-                    int       rv = NumericParseUtil::
-                                                 parseInt(&result, SPEC, BASE);
+                    int result = INITIAL_VALUE_1;
+                    int rv = NumericParseUtil::parseInt(&result, SPEC, BASE);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_1 : VALUE));
                 }
 
                 {  // test with second initial value
-                    int       result = INITIAL_VALUE_2;
-                    int       rv = NumericParseUtil::
-                                                 parseInt(&result, SPEC, BASE);
+                    int result = INITIAL_VALUE_2;
+                    int rv = NumericParseUtil::parseInt(&result, SPEC, BASE);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
                 }
@@ -1483,8 +1482,8 @@ int main(int argc, char *argv[])
         //:   test vectors for an enumerated set of bases.
         //
         // Testing:
-        //   parseDouble(double *res, StringRef *rest, StringRef in)
-        //   parseDouble(double *res, StringRef in)
+        //   parseDouble(double *res, string_view *rest, string_view in)
+        //   parseDouble(double *res, string_view in)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1742,124 +1741,124 @@ int main(int argc, char *argv[])
                 // fails to scan strings that contain the "special" values of
                 // 'double': infinity and NaN.
 
-                if (bslstl::StringRef("inf") == SPEC) {
+                if (bsl::string_view("inf") == SPEC) {
                     VALUE = inf;
                 }
-                else if (bslstl::StringRef("-inf") == SPEC) {
+                else if (bsl::string_view("-inf") == SPEC) {
                     VALUE = -inf;
                 }
-                else if (bslstl::StringRef("INF") == SPEC) {
+                else if (bsl::string_view("INF") == SPEC) {
                     VALUE = inf;
                 }
-                else if (bslstl::StringRef("-INF") == SPEC) {
+                else if (bsl::string_view("-INF") == SPEC) {
                     VALUE = -inf;
                 }
-                else if (bslstl::StringRef("Inf") == SPEC) {
+                else if (bsl::string_view("Inf") == SPEC) {
                     VALUE = inf;
                 }
-                else if (bslstl::StringRef("-Inf") == SPEC) {
+                else if (bsl::string_view("-Inf") == SPEC) {
                     VALUE = -inf;
                 }
-                else if (bslstl::StringRef("InF") == SPEC) {
+                else if (bsl::string_view("InF") == SPEC) {
                     VALUE = inf;
                 }
-                else if (bslstl::StringRef("-InF") == SPEC) {
+                else if (bsl::string_view("-InF") == SPEC) {
                     VALUE = -inf;
                 }
-                else if (bslstl::StringRef("infinity") == SPEC) {
+                else if (bsl::string_view("infinity") == SPEC) {
                     VALUE = inf;
                 }
-                else if (bslstl::StringRef("-infinity") == SPEC) {
+                else if (bsl::string_view("-infinity") == SPEC) {
                     VALUE = -inf;
                 }
-                else if (bslstl::StringRef("INFINITY") == SPEC) {
+                else if (bsl::string_view("INFINITY") == SPEC) {
                     VALUE = inf;
                 }
-                else if (bslstl::StringRef("-INFINITY") == SPEC) {
+                else if (bsl::string_view("-INFINITY") == SPEC) {
                     VALUE = -inf;
                 }
-                else if (bslstl::StringRef("Infinity") == SPEC) {
+                else if (bsl::string_view("Infinity") == SPEC) {
                     VALUE = inf;
                 }
-                else if (bslstl::StringRef("-Infinity") == SPEC) {
+                else if (bsl::string_view("-Infinity") == SPEC) {
                     VALUE = -inf;
                 }
-                else if (bslstl::StringRef("InFiNiTy") == SPEC) {
+                else if (bsl::string_view("InFiNiTy") == SPEC) {
                     VALUE = inf;
                 }
-                else if (bslstl::StringRef("-InFiNiTy") == SPEC) {
+                else if (bsl::string_view("-InFiNiTy") == SPEC) {
                     VALUE = -inf;
                 }
-                else if (bslstl::StringRef("nan") == SPEC) {
+                else if (bsl::string_view("nan") == SPEC) {
                     VALUE = NaN;
                 }
-                else if (bslstl::StringRef("-nan") == SPEC) {
+                else if (bsl::string_view("-nan") == SPEC) {
                     VALUE = -NaN;
                 }
-                else if (bslstl::StringRef("NAN") == SPEC) {
+                else if (bsl::string_view("NAN") == SPEC) {
                     VALUE = NaN;
                 }
-                else if (bslstl::StringRef("-NAN") == SPEC) {
+                else if (bsl::string_view("-NAN") == SPEC) {
                     VALUE = -NaN;
                 }
-                else if (bslstl::StringRef("Nan") == SPEC) {
+                else if (bsl::string_view("Nan") == SPEC) {
                     VALUE = NaN;
                 }
-                else if (bslstl::StringRef("-Nan") == SPEC) {
+                else if (bsl::string_view("-Nan") == SPEC) {
                     VALUE = -NaN;
                 }
-                else if (bslstl::StringRef("NaN") == SPEC) {
+                else if (bsl::string_view("NaN") == SPEC) {
                     VALUE = NaN;
                 }
-                else if (bslstl::StringRef("-NaN") == SPEC) {
+                else if (bsl::string_view("-NaN") == SPEC) {
                     VALUE = -NaN;
                 }
-                else if (bslstl::StringRef("nan()") == SPEC) {
+                else if (bsl::string_view("nan()") == SPEC) {
                     VALUE = NaN;
                 }
-                else if (bslstl::StringRef("-nan()") == SPEC) {
+                else if (bsl::string_view("-nan()") == SPEC) {
                     VALUE = -NaN;
                 }
-                else if (bslstl::StringRef("NAN()") == SPEC) {
+                else if (bsl::string_view("NAN()") == SPEC) {
                     VALUE = NaN;
                 }
-                else if (bslstl::StringRef("-NAN()") == SPEC) {
+                else if (bsl::string_view("-NAN()") == SPEC) {
                     VALUE = -NaN;
                 }
-                else if (bslstl::StringRef("Nan()") == SPEC) {
+                else if (bsl::string_view("Nan()") == SPEC) {
                     VALUE = NaN;
                 }
-                else if (bslstl::StringRef("-Nan()") == SPEC) {
+                else if (bsl::string_view("-Nan()") == SPEC) {
                     VALUE = -NaN;
                 }
-                else if (bslstl::StringRef("NaN()") == SPEC) {
+                else if (bsl::string_view("NaN()") == SPEC) {
                     VALUE = NaN;
                 }
-                else if (bslstl::StringRef("-NaN()") == SPEC) {
+                else if (bsl::string_view("-NaN()") == SPEC) {
                     VALUE = -NaN;
                 }
-                else if (bslstl::StringRef("nan(ananana_batmaaan)") == SPEC) {
+                else if (bsl::string_view("nan(ananana_batmaaan)") == SPEC) {
                     VALUE = NaN;
                 }
-                else if (bslstl::StringRef("-nan(ananana_batmaaan)") == SPEC) {
+                else if (bsl::string_view("-nan(ananana_batmaaan)") == SPEC) {
                     VALUE = -NaN;
                 }
-                else if (bslstl::StringRef("NAN(ananana_batmaaan)") == SPEC) {
+                else if (bsl::string_view("NAN(ananana_batmaaan)") == SPEC) {
                     VALUE = NaN;
                 }
-                else if (bslstl::StringRef("-NAN(ananana_batmaaan)") == SPEC) {
+                else if (bsl::string_view("-NAN(ananana_batmaaan)") == SPEC) {
                     VALUE = -NaN;
                 }
-                else if (bslstl::StringRef("Nan(ananana_batmaaan)") == SPEC) {
+                else if (bsl::string_view("Nan(ananana_batmaaan)") == SPEC) {
                     VALUE = NaN;
                 }
-                else if (bslstl::StringRef("-Nan(ananana_batmaaan)") == SPEC) {
+                else if (bsl::string_view("-Nan(ananana_batmaaan)") == SPEC) {
                     VALUE = -NaN;
                 }
-                else if (bslstl::StringRef("NaN(ananana_batmaaan)") == SPEC) {
+                else if (bsl::string_view("NaN(ananana_batmaaan)") == SPEC) {
                     VALUE = NaN;
                 }
-                else if (bslstl::StringRef("-NaN(ananana_batmaaan)") == SPEC) {
+                else if (bsl::string_view("-NaN(ananana_batmaaan)") == SPEC) {
                     VALUE = -NaN;
                 }
                 else {
@@ -1877,12 +1876,12 @@ int main(int argc, char *argv[])
                 // partial floating point number instead of a (0) integer
                 // followed by an (unparsed) "e" or "ee".
 
-                if (bslstl::StringRef("0e")  == SPEC ||
-                    bslstl::StringRef("0E")  == SPEC ||
-                    bslstl::StringRef("0ee") == SPEC ||
-                    bslstl::StringRef("0eE") == SPEC ||
-                    bslstl::StringRef("0Ee") == SPEC ||
-                    bslstl::StringRef("0EE") == SPEC) {
+                if (bsl::string_view("0e")  == SPEC ||
+                    bsl::string_view("0E")  == SPEC ||
+                    bsl::string_view("0ee") == SPEC ||
+                    bsl::string_view("0eE") == SPEC ||
+                    bsl::string_view("0Ee") == SPEC ||
+                    bsl::string_view("0EE") == SPEC) {
                     VALUE = 0;
                 }
                 else {
@@ -1921,11 +1920,11 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with first initial value
-                        double    result = INITIAL_VALUE_1;
-                        StringRef rest;
-                        int       rv = NumericParseUtil::parseDouble(&result,
-                                                                     &rest,
-                                                                     buffer);
+                        double      result = INITIAL_VALUE_1;
+                        string_view rest;
+                        int         rv = NumericParseUtil::parseDouble(&result,
+                                                                       &rest,
+                                                                       buffer);
                         if (veryVerbose) {
                             P_(SPEC);
                             P_(rv);
@@ -1960,11 +1959,11 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with second initial value
-                        double    result = INITIAL_VALUE_2;
-                        StringRef rest;
-                        int       rv = NumericParseUtil::parseDouble(&result,
-                                                                     &rest,
-                                                                     buffer);
+                        double      result = INITIAL_VALUE_2;
+                        string_view rest;
+                        int         rv = NumericParseUtil::parseDouble(&result,
+                                                                       &rest,
+                                                                       buffer);
                         if (veryVerbose) {
                             P_(SPEC);
                             P_(rv);
@@ -2244,9 +2243,9 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with first initial value
-                        Int64     result = INITIAL_VALUE_1;
-                        StringRef rest;
-                        int       rv = NumericParseUtil::
+                        Int64       result = INITIAL_VALUE_1;
+                        string_view rest;
+                        int         rv = NumericParseUtil::
                                                     parseSignedInteger(&result,
                                                                        &rest,
                                                                        buffer,
@@ -2266,9 +2265,9 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with second initial value
-                        Int64     result = INITIAL_VALUE_2;
-                        StringRef rest;
-                        int       rv = NumericParseUtil::
+                        Int64       result = INITIAL_VALUE_2;
+                        string_view rest;
+                        int         rv = NumericParseUtil::
                                                     parseSignedInteger(&result,
                                                                        &rest,
                                                                        buffer,
@@ -2284,8 +2283,8 @@ int main(int argc, char *argv[])
                     // Test without the 'remainder' argument
 
                     {  // test with first initial value
-                        Int64     result = INITIAL_VALUE_1;
-                        int       rv = NumericParseUtil::
+                        Int64 result = INITIAL_VALUE_1;
+                        int   rv = NumericParseUtil::
                                                     parseSignedInteger(&result,
                                                                        buffer,
                                                                        BASE,
@@ -2303,8 +2302,8 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with second initial value
-                        Int64     result = INITIAL_VALUE_2;
-                        int       rv = NumericParseUtil::
+                        Int64 result = INITIAL_VALUE_2;
+                        int   rv = NumericParseUtil::
                                                     parseSignedInteger(&result,
                                                                        buffer,
                                                                        BASE,
@@ -2496,9 +2495,9 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with first initial value
-                        Uint64    result = INITIAL_VALUE_1;
-                        StringRef rest;
-                        int       rv = NumericParseUtil::
+                        Uint64      result = INITIAL_VALUE_1;
+                        string_view rest;
+                        int         rv = NumericParseUtil::
                                                   parseUnsignedInteger(&result,
                                                                        &rest,
                                                                        buffer,
@@ -2511,9 +2510,9 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with second initial value
-                        Uint64    result = INITIAL_VALUE_2;
-                        StringRef rest;
-                        int       rv = NumericParseUtil::
+                        Uint64      result = INITIAL_VALUE_2;
+                        string_view rest;
+                        int         rv = NumericParseUtil::
                                                   parseUnsignedInteger(&result,
                                                                        &rest,
                                                                        buffer,
@@ -2528,8 +2527,8 @@ int main(int argc, char *argv[])
                     // Test without the 'remainder' argument
 
                     {  // test with first initial value
-                        Uint64    result = INITIAL_VALUE_1;
-                        int       rv = NumericParseUtil::
+                        Uint64 result = INITIAL_VALUE_1;
+                        int    rv = NumericParseUtil::
                                                   parseUnsignedInteger(&result,
                                                                        buffer,
                                                                        BASE,
@@ -2540,8 +2539,8 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with second initial value
-                        Uint64    result = INITIAL_VALUE_2;
-                        int       rv = NumericParseUtil::
+                        Uint64 result = INITIAL_VALUE_2;
+                        int    rv = NumericParseUtil::
                                                   parseUnsignedInteger(&result,
                                                                        buffer,
                                                                        BASE,
@@ -2685,9 +2684,9 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with first initial value
-                        Uint64    result = INITIAL_VALUE_1;
-                        StringRef rest;
-                        int       rv = NumericParseUtil::
+                        Uint64      result = INITIAL_VALUE_1;
+                        string_view rest;
+                        int         rv = NumericParseUtil::
                                                   parseUnsignedInteger(&result,
                                                                        &rest,
                                                                        buffer,
@@ -2701,9 +2700,9 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with second initial value
-                        Uint64    result = INITIAL_VALUE_2;
-                        StringRef rest;
-                        int       rv = NumericParseUtil::
+                        Uint64      result = INITIAL_VALUE_2;
+                        string_view rest;
+                        int         rv = NumericParseUtil::
                                                   parseUnsignedInteger(&result,
                                                                        &rest,
                                                                        buffer,
@@ -2719,8 +2718,8 @@ int main(int argc, char *argv[])
                     // Test without the 'remainder' argument
 
                     {  // test with first initial value
-                        Uint64    result = INITIAL_VALUE_1;
-                        int       rv = NumericParseUtil::
+                        Uint64 result = INITIAL_VALUE_1;
+                        int    rv = NumericParseUtil::
                                                   parseUnsignedInteger(&result,
                                                                        buffer,
                                                                        BASE,
@@ -2732,8 +2731,8 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with second initial value
-                        Uint64    result = INITIAL_VALUE_2;
-                        int       rv = NumericParseUtil::
+                        Uint64 result = INITIAL_VALUE_2;
+                        int    rv = NumericParseUtil::
                                                   parseUnsignedInteger(&result,
                                                                        buffer,
                                                                        BASE,

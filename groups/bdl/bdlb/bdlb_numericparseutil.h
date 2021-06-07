@@ -130,20 +130,20 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // In this section, we show the intended usage of this component.
 //
-///Example 1: Parsing an Integer Value from a 'StringRef'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we have a 'StringRef' that presumably contains a (not
+///Example 1: Parsing an Integer Value from a 'string_view'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we have a 'string_view' that presumably contains a (not
 // necessarily NUL terminated) string representing a 32-bit integer value and
 // we want to convert that string into an 'int' (32-bit integer).
 //
 // First, we create the string:
 //..
-//  bslstl::StringRef input("20171024", 4);
+//  bsl::string_view input("20171024", 4);
 //..
 // Then we create the output variables for the parser:
 //..
-//  int               year;
-//  bslstl::StringRef rest;
+//  int              year;
+//  bsl::string_view rest;
 //..
 // Next we call the parser function:
 //..
@@ -162,6 +162,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 
 namespace BloombergLP {
 
@@ -176,7 +177,7 @@ struct NumericParseUtil {
 
   public:
     // TYPES
-    typedef bslstl::StringRef::size_type size_type;
+    typedef bsl::string_view::size_type size_type;
         // Shorter name for readability.
 
     // CLASS METHODS
@@ -188,11 +189,11 @@ struct NumericParseUtil {
         // where digits are representable by characters in the range ['0'-'9'],
         // ['a'-'z'], or ['A'-'Z']).
 
-    static int parseDouble(double                   *result,
-                           const bslstl::StringRef&  inputString);
-    static int parseDouble(double                   *result,
-                           bslstl::StringRef        *remainder,
-                           const bslstl::StringRef&  inputString);
+    static int parseDouble(double                  *result,
+                           const bsl::string_view&  inputString);
+    static int parseDouble(double                  *result,
+                           bsl::string_view        *remainder,
+                           const bsl::string_view&  inputString);
         // Parse the specified 'inputString' for a sequence of characters
         // matching the production rule <DOUBLE> (see {GRAMMAR PRODUCTION
         // RULES}) and place into the specified 'result' the corresponding
@@ -205,13 +206,13 @@ struct NumericParseUtil {
         // "C" locale, such that 'strcmp(setlocale(0, 0), "C") == 0'.  For more
         // information see {Floating Point Values}.
 
-    static int parseInt(int                      *result,
-                        const bslstl::StringRef&  inputString,
-                        int                       base = 10);
-    static int parseInt(int                      *result,
-                        bslstl::StringRef        *remainder,
-                        const bslstl::StringRef&  inputString,
-                        int                       base = 10);
+    static int parseInt(int                     *result,
+                        const bsl::string_view&  inputString,
+                        int                      base = 10);
+    static int parseInt(int                     *result,
+                        bsl::string_view        *remainder,
+                        const bsl::string_view&  inputString,
+                        int                      base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
         // characters forming an <INT> (see {GRAMMAR PRODUCTION RULES}) in the
         // optionally specified 'base' or in base 10 if 'base' is not
@@ -236,13 +237,13 @@ struct NumericParseUtil {
         //      'base', or an optional sign followed by a valid digit.
         //..
 
-    static int parseInt64(bsls::Types::Int64       *result,
-                          const bslstl::StringRef&  inputString,
-                          int                       base = 10);
-    static int parseInt64(bsls::Types::Int64       *result,
-                          bslstl::StringRef        *remainder,
-                          const bslstl::StringRef&  inputString,
-                          int                       base = 10);
+    static int parseInt64(bsls::Types::Int64      *result,
+                          const bsl::string_view&  inputString,
+                          int                      base = 10);
+    static int parseInt64(bsls::Types::Int64      *result,
+                          bsl::string_view        *remainder,
+                          const bsl::string_view&  inputString,
+                          int                      base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
         // characters forming a valid <INT64> (see {GRAMMAR PRODUCTION RULES})
         // in the optionally specified 'base' or in base 10 if 'base' is not
@@ -267,13 +268,13 @@ struct NumericParseUtil {
         //      'base', or an optional sign followed by a valid digit.
         //..
 
-    static int parseShort(short                    *result,
-                          const bslstl::StringRef&  inputString,
-                          int                       base = 10);
-    static int parseShort(short                    *result,
-                          bslstl::StringRef        *remainder,
-                          const bslstl::StringRef&  inputString,
-                          int                       base = 10);
+    static int parseShort(short                   *result,
+                          const bsl::string_view&  inputString,
+                          int                      base = 10);
+    static int parseShort(short                   *result,
+                          bsl::string_view        *remainder,
+                          const bsl::string_view&  inputString,
+                          int                      base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
         // characters forming a valid <SHORT> (see {GRAMMAR PRODUCTION RULES})
         // in the optionally specified 'base' or in base 10 if 'base' is not
@@ -298,13 +299,13 @@ struct NumericParseUtil {
         //      'base', or an optional sign followed by a valid digit.
         //..
 
-    static int parseUint(unsigned int             *result,
-                         const bslstl::StringRef&  inputString,
-                         int                       base = 10);
-    static int parseUint(unsigned int             *result,
-                         bslstl::StringRef        *remainder,
-                         const bslstl::StringRef&  inputString,
-                         int                       base = 10);
+    static int parseUint(unsigned int            *result,
+                         const bsl::string_view&  inputString,
+                         int                      base = 10);
+    static int parseUint(unsigned int            *result,
+                         bsl::string_view        *remainder,
+                         const bsl::string_view&  inputString,
+                         int                      base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
         // characters forming an <UNSIGNED> (see {GRAMMAR PRODUCTION RULES}) in
         // the optionally specified 'base' or in base 10 if 'base' is not
@@ -328,13 +329,13 @@ struct NumericParseUtil {
         //      'base', or an optional sign followed by a valid digit.
         //..
 
-    static int parseUint64(bsls::Types::Uint64      *result,
-                           const bslstl::StringRef&  inputString,
-                           int                       base = 10);
-    static int parseUint64(bsls::Types::Uint64      *result,
-                           bslstl::StringRef        *remainder,
-                           const bslstl::StringRef&  inputString,
-                           int                       base = 10);
+    static int parseUint64(bsls::Types::Uint64     *result,
+                           const bsl::string_view&  inputString,
+                           int                      base = 10);
+    static int parseUint64(bsls::Types::Uint64     *result,
+                           bsl::string_view        *remainder,
+                           const bsl::string_view&  inputString,
+                           int                      base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
         // characters forming a valid <UNSIGNED64> (see {GRAMMAR PRODUCTION
         // RULES}) in the optionally specified 'base' or in base 10 if 'base'
@@ -359,13 +360,13 @@ struct NumericParseUtil {
         //      'base', or an optional sign followed by a valid digit.
         //..
 
-    static int parseUshort(unsigned short           *result,
-                           const bslstl::StringRef&  inputString,
-                           int                       base = 10);
-    static int parseUshort(unsigned short           *result,
-                           bslstl::StringRef        *remainder,
-                           const bslstl::StringRef&  inputString,
-                           int                       base = 10);
+    static int parseUshort(unsigned short          *result,
+                           const bsl::string_view&  inputString,
+                           int                      base = 10);
+    static int parseUshort(unsigned short          *result,
+                           bsl::string_view        *remainder,
+                           const bsl::string_view&  inputString,
+                           int                      base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
         // characters forming a valid <USHORT> (see {GRAMMAR PRODUCTION RULES})
         // in the optionally specified 'base' or in base 10 if 'base' is not
@@ -391,13 +392,13 @@ struct NumericParseUtil {
         //..
 
     static int parseSignedInteger(bsls::Types::Int64       *result,
-                                  const bslstl::StringRef&  inputString,
+                                  const bsl::string_view&   inputString,
                                   int                       base,
                                   const bsls::Types::Int64  minValue,
                                   const bsls::Types::Int64  maxValue);
     static int parseSignedInteger(bsls::Types::Int64       *result,
-                                  bslstl::StringRef        *remainder,
-                                  const bslstl::StringRef&  inputString,
+                                  bsl::string_view         *remainder,
+                                  const bsl::string_view&   inputString,
                                   int                       base,
                                   const bsls::Types::Int64  minValue,
                                   const bsls::Types::Int64  maxValue);
@@ -427,22 +428,22 @@ struct NumericParseUtil {
         //..
 
     static int parseUnsignedInteger(bsls::Types::Uint64       *result,
-                                    const bslstl::StringRef&   inputString,
+                                    const bsl::string_view&    inputString,
                                     int                        base,
                                     const bsls::Types::Uint64  maxValue);
     static int parseUnsignedInteger(bsls::Types::Uint64       *result,
-                                    bslstl::StringRef         *remainder,
-                                    const bslstl::StringRef&   inputString,
+                                    bsl::string_view          *remainder,
+                                    const bsl::string_view&    inputString,
                                     int                        base,
                                     const bsls::Types::Uint64  maxValue);
     static int parseUnsignedInteger(bsls::Types::Uint64       *result,
-                                    const bslstl::StringRef&   inputString,
+                                    const bsl::string_view&    inputString,
                                     int                        base,
                                     const bsls::Types::Uint64  maxValue,
                                     int                        maxNumDigits);
     static int parseUnsignedInteger(bsls::Types::Uint64       *result,
-                                    bslstl::StringRef         *remainder,
-                                    const bslstl::StringRef&   inputString,
+                                    bsl::string_view          *remainder,
+                                    const bsl::string_view&    inputString,
                                     int                        base,
                                     const bsls::Types::Uint64  maxValue,
                                     int                        maxNumDigits);
@@ -480,131 +481,122 @@ struct NumericParseUtil {
                           // -----------------------
 
 inline
-int NumericParseUtil::parseDouble(double                   *result,
-                                  const bslstl::StringRef&  inputString)
+int NumericParseUtil::parseDouble(double                  *result,
+                                  const bsl::string_view&  inputString)
 {
     BSLS_ASSERT(result);
 
-    bslstl::StringRef rest;
+    bsl::string_view rest;
     return parseDouble(result, &rest, inputString);
 }
 
 inline
-int NumericParseUtil::parseInt(int                      *result,
-                               const bslstl::StringRef&  inputString,
-                               int                       base)
+int NumericParseUtil::parseInt(int                     *result,
+                               const bsl::string_view&  inputString,
+                               int                      base)
 {
     BSLS_ASSERT(result);
 
-    bslstl::StringRef rest;
+    bsl::string_view rest;
     return parseInt(result, &rest, inputString, base);
 }
 
 inline
-int NumericParseUtil::parseInt64(bsls::Types::Int64       *result,
-                                 const bslstl::StringRef&  inputString,
-                                 int                       base)
+int NumericParseUtil::parseInt64(bsls::Types::Int64      *result,
+                                 const bsl::string_view&  inputString,
+                                 int                      base)
 {
     BSLS_ASSERT(result);
 
-    bslstl::StringRef rest;
+    bsl::string_view rest;
     return parseInt64(result, &rest, inputString, base);
 }
 
 inline
-int NumericParseUtil::parseShort(short                    *result,
-                                 const bslstl::StringRef&  inputString,
-                                 int                       base)
+int NumericParseUtil::parseShort(short                   *result,
+                                 const bsl::string_view&  inputString,
+                                 int                      base)
 {
     BSLS_ASSERT(result);
 
-    bslstl::StringRef rest;
+    bsl::string_view rest;
     return parseShort(result, &rest, inputString, base);
 }
 
 inline
-int NumericParseUtil::parseUint(unsigned int             *result,
-                                const bslstl::StringRef&  inputString,
-                                int                       base)
+int NumericParseUtil::parseUint(unsigned int            *result,
+                                const bsl::string_view&  inputString,
+                                int                      base)
 {
     BSLS_ASSERT(result);
 
-    bslstl::StringRef rest;
+    bsl::string_view rest;
     return parseUint(result, &rest, inputString, base);
 }
 
 inline
-int NumericParseUtil::parseUint64(bsls::Types::Uint64      *result,
-                                  const bslstl::StringRef&  inputString,
-                                  int                       base)
+int NumericParseUtil::parseUint64(bsls::Types::Uint64     *result,
+                                  const bsl::string_view&  inputString,
+                                  int                      base)
 {
     BSLS_ASSERT(result);
 
-    bslstl::StringRef rest;
+    bsl::string_view rest;
     return parseUint64(result, &rest, inputString, base);
 }
 
 inline
-int NumericParseUtil::parseUshort(unsigned short           *result,
-                                  const bslstl::StringRef&  inputString,
-                                  int                       base)
+int NumericParseUtil::parseUshort(unsigned short          *result,
+                                  const bsl::string_view&  inputString,
+                                  int                      base)
 {
     BSLS_ASSERT(result);
 
-    bslstl::StringRef rest;
+    bsl::string_view rest;
     return parseUshort(result, &rest, inputString, base);
 }
 
 inline
 int NumericParseUtil::parseSignedInteger(bsls::Types::Int64       *result,
-                                         const bslstl::StringRef&  inputString,
+                                         const bsl::string_view&   inputString,
                                          int                       base,
                                          const bsls::Types::Int64  minValue,
                                          const bsls::Types::Int64  maxValue)
 {
     BSLS_ASSERT(result);
 
-    bslstl::StringRef rest;
-    return parseSignedInteger(result,
-                              &rest,
-                              inputString,
-                              base,
-                              minValue,
-                              maxValue);
+    bsl::string_view rest;
+    return parseSignedInteger(
+        result, &rest, inputString, base, minValue, maxValue);
 }
 
 inline
 int NumericParseUtil::parseUnsignedInteger(
-                                         bsls::Types::Uint64      *result,
-                                         const bslstl::StringRef&  inputString,
-                                         int                       base,
-                                         const bsls::Types::Uint64 maxValue)
+                                        bsls::Types::Uint64       *result,
+                                        const bsl::string_view&    inputString,
+                                        int                        base,
+                                        const bsls::Types::Uint64  maxValue)
 {
     BSLS_ASSERT(result);
 
-    bslstl::StringRef rest;
+    bsl::string_view rest;
     return parseUnsignedInteger(result, &rest, inputString, base, maxValue);
 }
 
 inline
 int NumericParseUtil::parseUnsignedInteger(
-                                        bsls::Types::Uint64      *result,
-                                        const bslstl::StringRef&  inputString,
-                                        int                       base,
-                                        const bsls::Types::Uint64 maxValue,
-                                        int                       maxNumDigits)
+                                       bsls::Types::Uint64       *result,
+                                       const bsl::string_view&    inputString,
+                                       int                        base,
+                                       const bsls::Types::Uint64  maxValue,
+                                       int                        maxNumDigits)
 {
     BSLS_ASSERT(result);
 
-    bslstl::StringRef rest;
-    return parseUnsignedInteger(result,
-                                &rest,
-                                inputString,
-                                base,
-                                maxValue,
-                                maxNumDigits);
+    bsl::string_view rest;
+    return parseUnsignedInteger(
+        result, &rest, inputString, base, maxValue, maxNumDigits);
 }
-
 
 }  // close package namespace
 }  // close enterprise namespace
