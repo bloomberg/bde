@@ -665,15 +665,17 @@ namespace BALST_STACKTRACEUTIL_TEST_CASE_11 {
 
 bool straightTrace = true;
 
-void stackTop();    // forward dclaration
+void stackTop();    // forward declaration
 
 void recurseABunchOfTimes(int *depth, int, void *, int, void *)
+    // Recurse to the specified 'depth' and then call 'topOfTheStack', passing
+    // in the specified 'numRecurses'.
 {
     if (--*depth <= 0) {
-        stackTop();
+        (*foilOptimizer(stackTop))();
     }
     else {
-        recurseABunchOfTimes(depth, 0, depth, 0, depth);
+        (*foilOptimizer(recurseABunchOfTimes))(depth, 0, depth, 0, depth);
     }
 
     ++*depth;
@@ -801,6 +803,54 @@ double elapsed()
     return diff.totalSecondsAsDouble();
 }
 
+void recurseABunchOfTimes(int *, int, void *, int, int);
+    // Recurse to the specified 'depth' and then call 'topOfTheStack', passing
+    // in the specified 'numRecurses'.
+
+void topOfTheStack(void *, void *, void *, int);
+    // Perform various tests after having recursed for several stack frames.
+
+void loopForSevenSeconds()
+    // For seven seconds, repeatedly recurse to various depths, each time
+    // testing the resulting stack frame.
+{
+    // 'numRecurses' is the number of times 'recurseABunchOfTimes' occurs on
+    // the stack.  The idea here is that it varies between threads, to make
+    // sure that all threads aren't doing exactly the same stack traces.
+
+    const int numRecurses     = threadId++ % 10 + 10;
+    int       localTracesDone = 0;
+    do {
+        int depth = numRecurses;
+        for (int i = 0; i < 10; ++i, ++localTracesDone) {
+            (*foilOptimizer(recurseABunchOfTimes))(
+                &depth, 0, &i, 0, numRecurses);
+            ASSERT(numRecurses == depth);
+        }
+    } while (elapsed() < 7);
+
+    static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;
+    bsls::SpinLockGuard   guard(&lock);
+
+    tracesDone    += localTracesDone;
+    minTracesDone =  bsl::min(localTracesDone, minTracesDone);
+}
+
+void recurseABunchOfTimes(int *depth, int, void *, int, int numRecurses)
+    // Recurse to the specified 'depth' and then call 'topOfTheStack', passing
+    // in the specified 'numRecurses'.
+{
+    if (--*depth <= 0) {
+        (*foilOptimizer(topOfTheStack))(depth, depth, depth, numRecurses);
+    }
+    else {
+        (*foilOptimizer(recurseABunchOfTimes))(
+            depth, 0, depth, 0, numRecurses);
+    }
+
+    ++*depth;
+}
+
 void topOfTheStack(void *, void *, void *, int numRecurses)
 {
     ST st;
@@ -857,41 +907,6 @@ void topOfTheStack(void *, void *, void *, int numRecurses)
     ASSERTV(numRecurses, ns3,  numRecurses + 2 == ns3);
     ASSERTV(numRecurses, ns4,  numRecurses + 2 == ns4);
 #endif
-}
-
-void recurseABunchOfTimes(int *depth, int, void *, int, int numRecurses)
-{
-    if (--*depth <= 0) {
-        topOfTheStack(depth, depth, depth, numRecurses);
-    }
-    else {
-        recurseABunchOfTimes(depth, 0, depth, 0, numRecurses);
-    }
-
-    ++*depth;
-}
-
-void loopForSevenSeconds()
-{
-    // 'numRecurses' is the number of times 'recurseABunchOfTimes' occurs on
-    // the stack.  The idea here is that it varies between threads, to make
-    // sure that all threads aren't doing exactly the same stack traces.
-
-    const int numRecurses     = threadId++ % 10 + 10;
-    int       localTracesDone = 0;
-    do {
-        int depth = numRecurses;
-        for (int i = 0; i < 10; ++i, ++localTracesDone) {
-            recurseABunchOfTimes(&depth, 0, &i, 0, numRecurses);
-            ASSERT(numRecurses == depth);
-        }
-    } while (elapsed() < 7);
-
-    static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;
-    bsls::SpinLockGuard guard(&lock);
-
-    tracesDone    += localTracesDone;
-    minTracesDone =  bsl::min(localTracesDone, minTracesDone);
 }
 
 }  // close namespace NS_10_4
@@ -2399,7 +2414,8 @@ int main(int argc, char *argv[])
         straightTrace = false;
 
         int depth = 5;
-        recurseABunchOfTimes(&depth, depth, &depth, depth, &depth);
+        (*foilOptimizer(recurseABunchOfTimes))(
+            &depth, depth, &depth, depth, &depth);
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -2410,9 +2426,12 @@ int main(int argc, char *argv[])
         //   function pointers.
         //
         // Plan:
-        //   Do the output to a stringstream, then parse the hex pointers, put
-        //   them into a stack trace and resolve them and verify that reslts
-        //   in the expected symbols.
+        //: 1 Do the output to a stringstream, then parse the hex pointers, put
+        //    them into a stack trace and resolve them and verify that results
+        //    in the expected symbols.
+        //
+        // Testing:
+        //         hexStackTrace
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING << HEX STACK TRACE\n"
@@ -2424,7 +2443,8 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&da2);
 
         int depth = 5;
-        recurseABunchOfTimes(&depth, depth, &depth, depth, &depth);
+        (*foilOptimizer(recurseABunchOfTimes))(
+            &depth, depth, &depth, depth, &depth);
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -2435,13 +2455,16 @@ int main(int argc, char *argv[])
         //   demangling that aren't BDE code, might not be thread-safe.
         //
         // Plan:
-        //   Repeatedly do stack traces in 2 threads simultanously.  Don't
-        //   bother streaming them -- the streaming code is entirely ours and
-        //   we know it's safe.
+        //: 1 Repeatedly do stack traces in 2 threads simultaneously.  Don't
+        //    bother streaming them -- the streaming code is entirely ours and
+        //    we know it's safe.
+        //
+        // Testing:
+        //         multithreaded
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Multithreaded Test\n"
-                             "==================\n";
+        if (verbose) cout << "MULTITHREADED TEST" "\n"
+                             "==================" "\n";
 
 #ifndef BALST_STACKTRACEUTIL_TEST_10_SYMBOLS
         cout << "Not built with symbols -- no symbols checked\n";
