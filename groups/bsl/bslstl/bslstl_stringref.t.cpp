@@ -6554,7 +6554,10 @@ int main(int argc, char *argv[])
             ASSERT(X1.isEmpty());
             ASSERT(X1.length()    == 0);
             ASSERT(X1.begin()     == X1.end());
+            ASSERT(X1.begin()     == s_emptyString_p.data());
             ASSERT(s_emptyString_p.c_str() == X1.end());
+            ASSERT(s_emptyString_p.data() +
+                                         s_emptyString_p.length() == X1.end());
 
             // Non-empty string
             bsl::string s_nonEmptyString_p(NON_EMPTY_STRING);
@@ -6570,31 +6573,23 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             std::cout
-                << "\nbslstl_StringRef(const native_std::string& begin)"
-                << "\n=  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  ="
+                << "\nbslstl_StringRef(const std::string& begin)"
+                << "\n=  =  =  =  =  =  =  =  =  =  =  =  =  =  "
                 << std::endl;
 
         {
             // Empty string
-            const native_std::string s_emptyString_p(EMPTY_STRING);
+            const std::string s_emptyString_p(EMPTY_STRING);
             Obj x1(s_emptyString_p);  const Obj& X1 = x1;
             ASSERT(X1.isEmpty());
             ASSERT(X1.length()    == 0);
             ASSERT(X1.begin()     == X1.end());
-
-// DRQS 24793537: When built in optimized mode on IBM, the following assert
-// fails.  The address returned from data() here is different from the address
-// returned in the constructor of StringRef. data() returns a pointer to a
-// function local static char variable and the compiler generates multiple
-// copies of that static variable.
-
-#if !defined(BSLS_PLATFORM_CMP_IBM) || !defined(BDE_BUILD_TARGET_OPT)
+            ASSERT(X1.begin()     == s_emptyString_p.data());
             ASSERT(s_emptyString_p.data() +
                                          s_emptyString_p.length() == X1.end());
-#endif
 
             // Non-empty string
-            native_std::string s_nonEmptyString_p(NON_EMPTY_STRING);
+            std::string s_nonEmptyString_p(NON_EMPTY_STRING);
             Obj x2(s_nonEmptyString_p);  const Obj& X2 = x2;
             ASSERT(!X2.isEmpty());
             ASSERT(X2.length()  == std::strlen(NON_EMPTY_STRING));
@@ -6604,6 +6599,37 @@ int main(int argc, char *argv[])
                   (&*s_nonEmptyString_p.begin() + (s_nonEmptyString_p.end() -
                                                  s_nonEmptyString_p.begin())));
         }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        if (veryVerbose)
+            std::cout
+                << "\nbslstl_StringRef(const std::pmr::string& begin)"
+                << "\n=  =  =  =  =  =  =  =  =  =  =  =  =  =  "
+                << std::endl;
+
+        {
+            // Empty string
+            const std::pmr::string s_emptyString_p(EMPTY_STRING);
+            Obj x1(s_emptyString_p);  const Obj& X1 = x1;
+            ASSERT(X1.isEmpty());
+            ASSERT(X1.length()    == 0);
+            ASSERT(X1.begin()     == X1.end());
+            ASSERT(X1.begin()     == s_emptyString_p.data());
+            ASSERT(s_emptyString_p.data() +
+                                         s_emptyString_p.length() == X1.end());
+
+            // Non-empty string
+            std::pmr::string s_nonEmptyString_p(NON_EMPTY_STRING);
+            Obj x2(s_nonEmptyString_p);  const Obj& X2 = x2;
+            ASSERT(!X2.isEmpty());
+            ASSERT(X2.length()  == std::strlen(NON_EMPTY_STRING));
+            ASSERT(X2.begin()   != X2.end());
+            ASSERT(&*X2.begin()   == &*s_nonEmptyString_p.begin());
+            ASSERT((&*X2.begin() + (X2.end() - X2.begin())) ==
+                  (&*s_nonEmptyString_p.begin() + (s_nonEmptyString_p.end() -
+                                                 s_nonEmptyString_p.begin())));
+        }
+#endif
 
         if (verbose) std::cout << "\nTesting copy constructor"
                                << "\n= = = = = = = = = = = = " << std::endl;

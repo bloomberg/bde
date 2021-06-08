@@ -276,6 +276,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -284,6 +285,10 @@ BSLS_IDENT("$Id: $")
 #include <cstddef>              // for 'std::size_t'
 #include <cstring>
 #include <iosfwd>
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+#include <memory_resource>  // 'std::pmr::polymorphic_allocator'
+#endif
 
 namespace BloombergLP {
 namespace bslstl {
@@ -405,8 +410,11 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // unless 'data' is null-terminated.
 
     StringRefImp(const bsl::basic_string_view<CHAR_TYPE>& str);     // IMPLICIT
-    StringRefImp(const native_std::basic_string<CHAR_TYPE>& str);   // IMPLICIT
+    StringRefImp(const std::basic_string<CHAR_TYPE>& str);          // IMPLICIT
     StringRefImp(const bsl::basic_string<CHAR_TYPE>& str);          // IMPLICIT
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    StringRefImp(const std::pmr::basic_string<CHAR_TYPE>& str);     // IMPLICIT
+#endif
         // Create a string-reference object having a valid 'std::string' value,
         // whose external representation is defined by the specified 'str'
         // object.  The external representation must remain valid as long as it
@@ -738,11 +746,20 @@ StringRefImp<CHAR_TYPE>::StringRefImp(const bsl::basic_string<CHAR_TYPE>& str)
 
 template <class CHAR_TYPE>
 inline
-StringRefImp<CHAR_TYPE>::StringRefImp(
-                                const native_std::basic_string<CHAR_TYPE>& str)
+StringRefImp<CHAR_TYPE>::StringRefImp(const std::basic_string<CHAR_TYPE>& str)
 : Base(str.data(), str.data() + str.length())
 {
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class CHAR_TYPE>
+inline
+StringRefImp<CHAR_TYPE>::StringRefImp(
+                                  const std::pmr::basic_string<CHAR_TYPE>& str)
+: Base(str.data(), str.data() + str.length())
+{
+}
+#endif
 
 template <class CHAR_TYPE>
 inline
