@@ -390,9 +390,9 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - -
 // The default traits, identified by 'bdlc::HashTableDefaultTraits', can be
 // used when 'KEY' and 'VALUE' are either:
-// o 'const char *'
-// o 'bsl::string'
-// o POD types
+//: o 'const char *'
+//: o 'bsl::string'
+//: o POD types
 //
 // The following expressions are implemented as:
 //..

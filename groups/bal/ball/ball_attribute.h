@@ -34,12 +34,13 @@ BSLS_IDENT("$Id: $")
 // post-processing and analysis.  It is recommended to use the following naming
 // conventions for attribute names:
 //
-// o An attribute name should start with an alphabetic character, no other
-//   special characters, digits should be allowed as the first character of the
-//   attribute name.
-// o An attribute name should not contain whitespaces.
-// o An attribute name should contain only alphanumeric characters,
-//   underscores('_'), and dots('.').  Do not use any other special characters.
+//: o An attribute name should start with an alphabetic character, no other
+//:   special characters, digits should be allowed as the first character of
+//:   the attribute name.
+//: o An attribute name should not contain whitespaces.
+//: o An attribute name should contain only alphanumeric characters,
+//:   underscores('_'), and dots('.').  Do not use any other special
+//:   characters.
 //
 // Disregarding these conventions may prevent the log output from being
 // correctly parsed by commonly used log processing software.

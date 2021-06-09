@@ -94,15 +94,15 @@ BSLS_IDENT("$Id: $")
 // a fixed record field or a user-defined attribute has the following
 // constrains:
 //
-// o The key is a string of known value listed in the column "Key" in the
-//   tables below.  Any string that does not match the listed values is
-//   ignored.
-//
-// o The value is a string of known value (except for the "name" key) in the
-//   column "Value Constraint" in the tables below.  If the value does not
-//   match the string values specified in the tables, the format specification
-//   is considered to be inconsistent with the expected schema, and is rejected
-//   by the 'RecordJsonFormatter::setFormat' method.
+//: o The key is a string of known value listed in the column "Key" in the
+//:   tables below.  Any string that does not match the listed values is
+//:   ignored.
+//:
+//: o The value is a string of known value (except for the "name" key) in the
+//:   column "Value Constraint" in the tables below.  If the value does not
+//:   match the string values specified in the tables, the format specification
+//:   is considered to be inconsistent with the expected schema, and is
+//:   rejected by the 'RecordJsonFormatter::setFormat' method.
 //
 ///The "timestamp" field format
 ///-  -  -  -  -  -  -  -  -  -
