@@ -374,6 +374,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutil.h>
 
 #include <bsls_atomic.h>
+#include <bsls_keyword.h>
 #include <bsls_util.h>
 
 #include <bdlb_print.h>
@@ -827,6 +828,12 @@ class SkipList {
     static const KEY& key(const Pair *reference);
         // Return a 'const' reference to the "key" value of the pair identified
         // by the specified 'reference'.
+
+    static inline BSLS_KEYWORD_CONSTEXPR bsls::Types::IntPtr offsetOfPtrs();
+        // Return the offset in bytes of 'd_ptrs' from the start of the
+        // 'SkipList_Node' struct.  (similar to
+        // 'offsetof(SkipList_Node, d_ptrs)' but with no requirement that
+        // 'DATA' or 'KEY' be PODs)
 
     static Node *pairToNode(Pair *reference);
         // Cast the specified 'reference' to a 'Node *'.
@@ -1871,6 +1878,21 @@ const KEY& SkipList<KEY, DATA>::key(const Pair *reference)
     return node->d_key;
 }
 
+
+template<class KEY, class DATA>
+inline
+BSLS_KEYWORD_CONSTEXPR
+bsls::Types::IntPtr SkipList<KEY, DATA>::offsetOfPtrs()
+{
+    typedef bsls::Types::IntPtr IntPtr;
+
+    // The null pointer dereference is just used for taking offsets and sizes
+    // in the 'Node' struct.  Note that we don't want to just create a default
+    // constructed 'Node', because if 'KEY' or 'DATA' lack default constructors
+    // then 'Node' has no default constructor.
+    return reinterpret_cast<IntPtr>(&reinterpret_cast<Node*>(0)->d_ptrs);
+}
+
 template<class KEY, class DATA>
 inline
 typename SkipList<KEY, DATA>::Node
@@ -2001,22 +2023,15 @@ void SkipList<KEY, DATA>::initialize()
 
     static const int alignMask = bsls::AlignmentFromType<Node>::VALUE - 1;
 
-    // 'dummyNode_p' is just used for taking offsets and sizes in the 'Node'
-    // struct.  Note that we don't want to just create a default constructed
-    // 'Node', because if 'KEY' or 'DATA' lack default c'ttors, then 'Node' has
-    // no default c'tor.
-
-    static Node * volatile dummyNode_p = 0;
-
     // Assert that this method has not been invoked.
 
     BSLS_ASSERT(0 == d_poolManager_p);
 
     int nodeSizes[k_MAX_NUM_LEVELS];
 
-    const IntPtr offsetofPtrs = reinterpret_cast<IntPtr>(&dummyNode_p->d_ptrs);
+    const IntPtr offset = offsetOfPtrs();
     for (int i = 0; i < k_MAX_NUM_LEVELS; ++i) {
-        IntPtr nodeSize = offsetofPtrs + (i + 1) * sizeof(dummyNode_p->d_ptrs);
+        IntPtr nodeSize = offset + (i + 1) * sizeof(Node::d_ptrs);
         nodeSize = (nodeSize + alignMask) & ~alignMask;
         nodeSizes[i] = static_cast<int>(nodeSize);
     }

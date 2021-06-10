@@ -37,6 +37,7 @@
 #include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 #include <bsltf_streamutil.h>
@@ -4121,14 +4122,19 @@ bsls::AtomicInt index(0);
 
 Obj *g_skipList_p = 0;
 
-int numThreads        =   16;
-int numNodesPerThread = 1000;
+int numThreads            =   16;
+int numNodesPerThread     = 1000;
+int barrierTimeoutSeconds =   60;
 
-void addNodes()
-    // Add 'numNodesPerThread' nodes to the skip list.
+void addNodes(bslmt::Barrier *barrier)
+    // Add 'numNodesPerThread' nodes to the skip list.  Ensure threads run
+    // simultaneously by waiting on the specified 'barrier'.
 {
-    static bslmt::Barrier barrier(numThreads);
-    barrier.wait();
+    bsls::TimeInterval timeout(bsls::SystemTime::now(barrier->clockType()));
+    timeout.addSeconds(barrierTimeoutSeconds);
+
+    int barrierTimedWaitResult = barrier->timedWait(timeout);
+    ASSERT(!barrierTimedWaitResult);
 
     Payload payload;
     for (unsigned uu = 0; uu < sizeof(Payload); ++uu) {
@@ -4704,18 +4710,26 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::setThreadName("Main Thread");
 
         bsl::vector<bslmt::ThreadUtil::Handle> handles(&ta);
-        for (int ii = 0; ii < 16; ++ii) {
+
+        bslmt::Barrier barrier(numThreads);
+
+        for (int ii = 0; ii < numThreads; ++ii) {
             bslmt::ThreadAttributes attr(&ta);
             bsl::ostringstream oss(&ta);
             oss << "Thread " << ii;
             attr.setThreadName(oss.str());
             bslmt::ThreadUtil::Handle handle;
-            int rc = bslmt::ThreadUtil::create(&handle, attr, &addNodes);
+
+            int rc = bslmt::ThreadUtil::create(
+                &handle,
+                attr,
+                bdlf::BindUtil::bind(&addNodes, &barrier));
             ASSERT(0 == rc);
+
             handles.push_back(handle);
         }
 
-        for (int ii = 0; ii < 16; ++ii) {
+        for (int ii = 0; ii < numThreads; ++ii) {
             bslmt::ThreadUtil::join(handles[ii]);
         }
 
