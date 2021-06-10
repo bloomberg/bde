@@ -872,6 +872,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_arraytopointer.h>
 #include <bslmf_forwardingtype.h>
+#include <bslmf_forwardingreftype.h>
 #include <bslmf_functionpointertraits.h>
 #include <bslmf_haspointersemantics.h>
 #include <bslmf_if.h>
@@ -6336,7 +6337,7 @@ struct Bind_Evaluator {
     // This utility provides a default argument evaluator that simply returns
     // whatever value is passed.
 
-    typedef typename  bslmf::ForwardingType<
+    typedef typename bslmf::ForwardingRefType<
         typename bslmf::ArrayToConstPointer<ARG>::Type>::Type ArgType;
 
     static

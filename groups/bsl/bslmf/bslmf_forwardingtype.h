@@ -13,13 +13,19 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_removecvq
 //
-//@DESCRIPTION: This component provides a meta function,
-// 'bslmf::ForwardingType', determining the most efficient forwarding type for
-// a given template type 'TYPE'.  The forwarding type is used to pass an
-// argument from the client of a component through a chain of nested function
-// calls to the ultimate consumer of the argument.  This component also
-// provides a utility class template, 'bslmf::ForwardingTypeUtil', supplying
-// functions to most efficiently forward an argument to another function.
+//@DESCRIPTION: This component, while not deprecated, is largely **superseded**
+// by the simpler 'bslmf_forwardingreftype'.  Although there may be use cases
+// for which 'bslmf_forwardingtype' is to be prefered, new users are encouraged
+// to consider 'bslmf_forwardingreftype' and understand the differences between
+// the two components (see {Comparison to 'bslmf_forwardingreftype'}).
+//
+// This component provides a meta function, 'bslmf::ForwardingType',
+// determining the most efficient forwarding type for a given template type
+// 'TYPE'.  The forwarding type is used to pass an argument from the client of
+// a component through a chain of nested function calls to the ultimate
+// consumer of the argument.  This component also provides a utility class
+// template, 'bslmf::ForwardingTypeUtil', supplying functions to most
+// efficiently forward an argument to another function.
 //
 // For instance, basic types (e.g., fundamental types, pointer types, function
 // references and pointers) can efficiently be passed by value down a chain of
@@ -59,6 +65,31 @@ BSLS_IDENT("$Id: $")
 // references in all cases, including for basic types, except in the case of
 // arrays and functions (that decay to pointers).
 //
+///Comparison to 'bslmf_forwardingreftype'
+///---------------------------------------
+// The components 'bslmf_forwardingtype' and 'bslmf_forwardingreftype' serve
+// the same purpose but have small behavioral differences.  In general, we
+// recommend 'bslmf_forwardingreftype' (the new component) in most contexts.
+//
+// Most notably, 'bslmf::ForwardingType' (the older class) forwards fundamental
+// and pointer types by value, where as 'bslmf::ForwardingRefType' will forward
+// fundamental and pointer types by const-reference.  For example,
+// 'bslmf::ForwardingType<int>::Type' is 'int' where as
+// 'bslmf::ForwardingRefType<int>::Type' is 'const int&'.  This applies to
+// fundamental types, pointer types (including member-pointer types), and enum
+// types (which we'll collectively call "basic types").  Forwarding these basic
+// types by value was a performance optimization (and in some rare
+// circumstances was hack needed by older compilers), which predated the
+// standardization of many of the places where 'bslmf::ForwardingType' was used
+// (function and bind components in particular).  The optimzation (potentially)
+// being that passing an 'int' by value is more likely to be done through a
+// register, where as passing by reference is more likely to require
+// de-referencing memory.  Forwarding the types by const-reference, as the
+// newer 'bslmf::ForwardingRefType' does', is generally simpler and more in
+// line with the modern C++ standard.  Using 'bslmf::ForwardingRefType' avoids
+// some awkward edge cases at the expense of a possible optimization in
+// parameter passing.
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -84,6 +115,8 @@ BSLS_IDENT("$Id: $")
 //      typedef const MyType&           T8;
 //      typedef MyType&                 T9;
 //      typedef MyType                 *T10;
+//      typedef int                     T11[];
+//      typedef int                     T12[3];
 //
 //      typedef int                     EXP1;
 //      typedef int&                    EXP2;
@@ -95,6 +128,8 @@ BSLS_IDENT("$Id: $")
 //      typedef const MyType&           EXP8;
 //      typedef MyType&                 EXP9;
 //      typedef MyType                 *EXP10;
+//      typedef int                    *EXP11;
+//      typedef int                    *EXP12;
 //
 //      assert((bsl::is_same<bslmf::ForwardingType<T1>::Type, EXP1>::value));
 //      assert((bsl::is_same<bslmf::ForwardingType<T2>::Type, EXP2>::value));
@@ -106,6 +141,8 @@ BSLS_IDENT("$Id: $")
 //      assert((bsl::is_same<bslmf::ForwardingType<T8>::Type, EXP8>::value));
 //      assert((bsl::is_same<bslmf::ForwardingType<T9>::Type, EXP9>::value));
 //      assert((bsl::is_same<bslmf::ForwardingType<T10>::Type, EXP10>::value));
+//      assert((bsl::is_same<bslmf::ForwardingType<T11>::Type, EXP11>::value));
+//      assert((bsl::is_same<bslmf::ForwardingType<T12>::Type, EXP12>::value));
 //  }
 //..
 //

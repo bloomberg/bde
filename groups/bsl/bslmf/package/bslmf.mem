@@ -12,6 +12,7 @@ bslmf_conditional
 bslmf_decay
 bslmf_detectnestedtrait
 bslmf_enableif
+bslmf_forwardingreftype
 bslmf_forwardingtype
 bslmf_functionpointertraits
 bslmf_functionpointertraits_cpp03

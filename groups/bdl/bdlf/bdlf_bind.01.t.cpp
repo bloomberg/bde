@@ -89,6 +89,7 @@
 // [ 7] USAGE EXAMPLE
 // [ 8] USAGE EXAMPLE FROM TEST DRIVERS
 // [ 9] DRQS 123288293 REGRESSION
+// [10] DRQS 165560983
 //-----------------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
@@ -1689,6 +1690,33 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
 // ============================================================================
 //                                TEST CASES
 // ----------------------------------------------------------------------------
+
+
+DEFINE_TEST_CASE(10) {
+        // ------------------------------------------------------------------
+        // TESTING DRQS 165560983
+        //
+        // Concerns:
+        //: 1 That a binder for an identity function bound to a fundamental
+        //:   type ('int') correctly passes the bound value (by
+        //:   const-reference) to the identity function.
+        //
+        // Plan:
+        //: 1 Call 'bind' with 'bsl::identity<int>' and make sure it returns
+        //:   the correct bound value.
+        //
+        // Testing:
+        //      DRQS 165560983
+        // ------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING DRQS 165560983"
+                            "\n======================\n");
+
+        (void)veryVerbose;
+        (void)veryVeryVerbose;
+        using namespace bdlf;
+        ASSERT(3 == BindUtil::bind(bsl::identity<int>(), 3)());
+      }
 
 DEFINE_TEST_CASE(9) {
         // ------------------------------------------------------------------
@@ -4682,6 +4710,7 @@ int main(int argc, char *argv[])
       case NUMBER: {                                                          \
         testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose);              \
       } break
+        CASE(10);
         CASE(9);
         CASE(8);
         CASE(7);
