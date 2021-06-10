@@ -15,9 +15,9 @@ namespace baljsn {
 
 // CLASS METHODS
 int Encoder_EncodeImplUtil::encodeCharArray(
-                                  Formatter *formatter,
-                                  const bsl::vector<char>& value,
-                                  const EncoderOptions& encoderOptions)
+                                      Formatter                *formatter,
+                                      const bsl::vector<char>& value,
+                                      const EncoderOptions&    encoderOptions)
 {
     bsl::string base64String;
     bdlde::Base64Encoder encoder(0);
@@ -56,7 +56,7 @@ int Encoder_EncodeImplUtil::encodeMember(
                                      bool                      *memberIsEmpty,
                                      Formatter                 *formatter,
                                      bsl::ostream              *logStream,
-                                     const bslstl::StringRef&   memberName,
+                                     const bsl::string_view&    memberName,
                                      const bsl::vector<char>&   member,
                                      FormattingMode             formattingMode,
                                      const EncoderOptions&      options,

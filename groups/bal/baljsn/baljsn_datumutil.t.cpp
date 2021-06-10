@@ -71,10 +71,10 @@ using namespace bsl;
 // [ 6] int encode(string *, const Datum&, const DEOptions*, Allocator *);
 // [ 6] int encode(ostream&, const Datum&, const DEOptions&, Allocator *);
 // [ 6] int encode(ostream&, const Datum&, const DEOptions*, Allocator *);
-// [ 5] int decode(MgedDatum*, const StringRef&);
+// [ 5] int decode(MgedDatum*, const string_view&);
 // [ 5] int decode(MgedDatum*, const StringRef&, const DDOptions&);
-// [ 5] int decode(MgedDatum*, os*, const StrRef&);
-// [ 5] int decode(MgedDatum*, os*, const StrRef&, const DDOptions&);
+// [ 5] int decode(MgedDatum*, os*, const string_view&);
+// [ 5] int decode(MgedDatum*, os*, const string_view&, const DDOptions&);
 // [ 5] int decode(MgedDatum*, streamBuf*);
 // [ 5] int decode(MgedDatum*, streamBuf*, const DDOptions&);
 // [ 5] int decode(MgedDatum*, ostream*, streamBuf*);
@@ -148,6 +148,15 @@ void aSsErT(bool condition, const char *message, int line)
 #define PV(X)   if         (verbose) cout << endl << X << endl;
 #define PVV(X)  if     (veryVerbose) cout << endl << X << endl;
 #define PVVV(X) if (veryVeryVerbose) cout << endl << X << endl;
+
+// ============================================================================
+//                          GLOBRAL VARIABLES
+// ----------------------------------------------------------------------------
+
+bool             verbose;
+bool         veryVerbose;
+bool     veryVeryVerbose;
+bool veryVeryVeryVerbose;
 
 // ============================================================================
 //                    GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -234,17 +243,906 @@ const char *DEEP_JSON_AOA = "["
 //                                TEST APPARATUS
 // ----------------------------------------------------------------------------
 
+                                // ------
+                                // case 7
+                                // ------
+
+namespace TestCase07 {
+
+struct TestCase07Data {
+    int         d_line;
+    const char *d_testName;        // name of the test file
+    const char *d_JSON;            // JSON contents of the test
+    bool        d_isValid;         // 'true' if d_JSON is valid JSON
+};
+
+struct FailureListData {
+    int         d_line;
+    const char *d_testName;  // name of the test file
+    const char *d_reason;    // reason this test is allowed to fail
+};
+
+template <class STRING>
+void testCase07(const TestCase07Data  *data,
+                int                    numData,
+                const FailureListData *failureList,
+                int                    numFailureList)
+{
+    bsl::unordered_set<STRING> allowedFailureList;
+
+    for (int ti = 0; ti < numFailureList; ++ti) {
+        allowedFailureList.insert(failureList[ti].d_testName);
+    }
+
+    if (verbose)
+        cout << "\nTest decoding JSON test suite test cases."
+             << endl;
+
+    for (int ti = 0; ti < numData; ++ti) {
+        const int   LINE      = data[ti].d_line;
+        const char *TEST_NAME = data[ti].d_testName;
+        const char *JSON      = data[ti].d_JSON;
+        const bool  IS_VALID  = data[ti].d_isValid;
+        const bool  IS_ALLOWED_FAILURE_LISTED =
+            (allowedFailureList.find(TEST_NAME) !=
+             allowedFailureList.end());
+
+        bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+        bslma::TestAllocatorMonitor tam(&ta);
+
+        MD result(&ta);
+
+        bdlsb::FixedMemInStreamBuf isb(JSON, bsl::strlen(JSON));
+        bsl::ostringstream         os(&ta);
+
+        int rc = Util::decode(&result, &os, &isb);
+
+        if (veryVerbose) {
+            if (IS_VALID && (0 == rc)) {
+                STRING encoded;
+                int    encodeRC;
+
+                encodeRC = Util::encode(&encoded, *result);
+
+                cout << "ROUND TRIP: " << LINE << "\n"
+                     << "\t" << "TEST_NAME :  "   << TEST_NAME << "\n"
+                     << "\t" << "JSON      :    "   << JSON << "\n"
+                     << "\t" << "result    :    "   << result << "\n"
+                     << "\t" << "encodeRC :    "   << encodeRC << "\n"
+                     << "\t" << "ENCODED   :   \""  << encoded << "\"\n";
+            }
+        }
+
+        if (IS_VALID != (0 == rc)) {
+            if (!IS_ALLOWED_FAILURE_LISTED) {
+                cout << "FAILED: " << LINE << "\n"
+                     << "\t" << "TEST_NAME: " << TEST_NAME << "\n"
+                     << "\t" << "JSON   : "   << JSON << "\n"
+                     << "\t" << "result : "   << result << "\n";
+
+                ASSERTV(LINE,
+                        rc,
+                        IS_VALID,
+                        IS_VALID == (rc == 0));
+            }
+        }
+        else if (IS_ALLOWED_FAILURE_LISTED) {
+            ASSERTV("UNEXPECTED ALLOWED_FAILURE_LIST ENTRY RESULT",
+                    LINE,
+                    TEST_NAME,
+                    IS_VALID,
+                    rc,
+                    false);
+        }
+    }
+
+    // Reproduce the "n_structure_100000_opening_arrays.json"
+    // test case, which is too large to be placed in the DATA
+    // array.
+
+    {
+        const int   LINE      = __LINE__;
+        const char *TEST_NAME = "n_structure_100000_opening_arrays.json";
+        const bool  IS_VALID  = false;
+        const bool  IS_ALLOWED_FAILURE_LISTED =
+            (allowedFailureList.find(TEST_NAME) !=
+             allowedFailureList.end());
+
+        bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+        bslma::TestAllocatorMonitor tam(&ta);
+
+        STRING    JSON;
+        const int TARGET_SIZE = 100000;
+        // Over-reserve, since our construction loop is likely to
+        // overshoot.
+        JSON.reserve(TARGET_SIZE + 1000);
+        while (JSON.length() < TARGET_SIZE) {
+            JSON+="[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                  "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                  "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                  "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                  "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                  "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                  "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                  "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                  "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
+                  "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[";
+        }
+
+        MD result(&ta);
+
+        bdlsb::FixedMemInStreamBuf isb(JSON.c_str(), JSON.length());
+        bsl::ostringstream         os(&ta);
+
+        int rc = Util::decode(&result, &os, &isb);
+
+        if (veryVerbose) {
+            if (IS_VALID && (0 == rc)) {
+                STRING encoded;
+                int    encodeRC;
+
+                encodeRC = Util::encode(&encoded, *result);
+
+                cout << "ROUND TRIP: " << LINE << "\n"
+                     << "\t" << "TEST_NAME :  "   << TEST_NAME << "\n"
+                     << "\t" << "JSON      :    "   << JSON << "\n"
+                     << "\t" << "result    :    "   << result << "\n"
+                     << "\t" << "encodeRC :    "   << encodeRC << "\n"
+                     << "\t" << "ENCODED   :   \""  << encoded << "\"\n";
+            }
+        }
+
+        if (IS_VALID != (0 == rc)) {
+            if (!IS_ALLOWED_FAILURE_LISTED) {
+                cout << "FAILED: " << LINE << "\n"
+                     << "\t" << "TEST_NAME: " << TEST_NAME << "\n"
+                     << "\t" << "JSON   : "   << JSON << "\n"
+                     << "\t" << "result : "   << result << "\n";
+
+                ASSERTV(LINE,
+                        rc,
+                        IS_VALID,
+                        IS_VALID == (rc == 0));
+            }
+        }
+        else if (IS_ALLOWED_FAILURE_LISTED) {
+            ASSERTV("UNEXPECTED ALLOWED_FAILURE_LIST ENTRY RESULT",
+                    LINE,
+                    TEST_NAME,
+                    IS_VALID,
+                    rc,
+                    false);
+        }
+    }
+
+    // Reproduce the "n_structure_open_array_object.json"
+    // test case, which is too large to be placed in the DATA
+    // array.
+
+    {
+        const int   LINE      = __LINE__;
+        const char *TEST_NAME = "n_structure_open_array_object.json";
+        const bool  IS_VALID  = false;
+        const bool  IS_ALLOWED_FAILURE_LISTED =
+            (allowedFailureList.find(TEST_NAME) !=
+             allowedFailureList.end());
+
+        bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+        bslma::TestAllocatorMonitor tam(&ta);
+
+        STRING    JSON;
+        const int TARGET_SIZE = 250000;
+        // Over-reserve, since our construction loop is likely to
+        // overshoot.
+        JSON.reserve(TARGET_SIZE + 1000);
+        while (JSON.length() < TARGET_SIZE) {
+            JSON += "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
+                    "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":";
+        }
+
+        MD result(&ta);
+
+        bdlsb::FixedMemInStreamBuf isb(JSON.c_str(), JSON.length());
+        bsl::ostringstream         os(&ta);
+
+        int rc = Util::decode(&result, &os, &isb);
+
+        if (veryVerbose) {
+            if (IS_VALID && (0 == rc)) {
+                STRING encoded;
+                int    encodeRC;
+
+                encodeRC = Util::encode(&encoded, *result);
+
+                cout << "ROUND TRIP: " << LINE << "\n"
+                     << "\t" << "TEST_NAME :  "   << TEST_NAME << "\n"
+                     << "\t" << "JSON      :    "   << JSON << "\n"
+                     << "\t" << "result    :    "   << result << "\n"
+                     << "\t" << "encodeRC :    "   << encodeRC << "\n"
+                     << "\t" << "ENCODED   :   \""  << encoded << "\"\n";
+            }
+        }
+
+        if (IS_VALID != (0 == rc)) {
+            if (!IS_ALLOWED_FAILURE_LISTED) {
+                cout << "FAILED: " << LINE << "\n"
+                     << "\t" << "TEST_NAME: " << TEST_NAME << "\n"
+                     << "\t" << "JSON   : "   << JSON << "\n"
+                     << "\t" << "result : "   << result << "\n";
+
+                ASSERTV(LINE,
+                        rc,
+                        IS_VALID,
+                        IS_VALID == (rc == 0));
+            }
+        }
+        else if (IS_ALLOWED_FAILURE_LISTED) {
+            ASSERTV("UNEXPECTED ALLOWED_FAILURE_LIST ENTRY RESULT",
+                    LINE,
+                    TEST_NAME,
+                    IS_VALID,
+                    rc,
+                    false);
+        }
+    }
+}
+
+}  // close namespace TestCase07
+
+                                // ------
+                                // case 6
+                                // ------
+
+namespace TestCase06 {
+
+typedef baljsn::EncodingStyle::Value TStyle;
+
+struct TestCase6Data {
+    int          d_line;
+    bdld::Datum  d_datum;
+    TStyle       d_encodingStyle;
+    int          d_initialIndentLevel;
+    int          d_spacesPerLevel;
+    const char  *d_json;
+    int          d_rcNoStrictTypes;
+    int          d_rcWithStrictTypes;
+};
+
+template <class STRING>
+void testCase06(const TestCase6Data *data, int numData)
+{
+    if (verbose)
+        cout << "\nTest encoding various datums."
+             << endl;
+
+    for (int ti = 0; ti < numData; ++ti) {
+        const int           LINE           = data[ti].d_line;
+        const bdld::Datum&  DATUM          = data[ti].d_datum;
+        const TStyle        ES             = data[ti].d_encodingStyle;
+        const int           IIL            = data[ti].d_initialIndentLevel;
+        const int           SPL            = data[ti].d_spacesPerLevel;
+        const STRING        JSON           = data[ti].d_json;
+        const int           RC_BY_STRICT[] = {
+                                               data[ti].d_rcNoStrictTypes,
+                                               data[ti].d_rcWithStrictTypes
+                                             };
+
+        if(veryVerbose) {
+            T_ P_(LINE) P_(DATUM) P_(ES) P_(IIL) P_(SPL) P_(JSON)
+                P_(RC_BY_STRICT[0]) P(RC_BY_STRICT[1]);
+        }
+
+        bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
+        bslma::TestAllocatorMonitor tam(&ta);
+
+        {
+            baljsn::DatumEncoderOptions opts;
+            opts.setEncodingStyle(ES);
+            opts.setInitialIndentLevel(IIL);
+            opts.setSpacesPerLevel(SPL);
+
+            for (int strictTypes = 0; strictTypes < 2; ++strictTypes) {
+                const int RC = RC_BY_STRICT[strictTypes];
+                opts.setStrictTypes(bool(RC));
+
+                if(veryVeryVerbose) {
+                    T_ T_ P_(strictTypes) P(RC);
+                }
+
+                if (veryVeryVerbose)
+                    cout
+                        << "int encode(string*,const Datum&,Opts&);"
+                        << endl;
+                {
+                    STRING result;
+
+                    int rc = Util::encode(&result, DATUM, opts);
+                    ASSERTV(LINE, strictTypes, RC, rc, RC == rc);
+
+                    if (0 == rc || 2 <= rc) {
+                        ASSERTV(LINE,
+                                RC,
+                                rc,
+                                DATUM,
+                                JSON,
+                                result,
+                                JSON == result);
+                    }
+                }
+
+                // Test that default Options are handled correctly.
+                if (baljsn::EncodingStyle::e_COMPACT == ES && 0 == IIL &&
+                    0 == SPL && 0 == strictTypes) {
+                    if (veryVeryVerbose)
+                        cout << "int encode(string*,const Datum&);"
+                             << endl;
+                    {
+                        STRING result;
+
+                        int rc = Util::encode(&result, DATUM);
+                        ASSERTV(LINE, strictTypes, RC, rc, RC == rc);
+
+                        if (0 == rc || 2 <= rc) {
+                            ASSERTV(LINE,
+                                    RC,
+                                    rc,
+                                    DATUM,
+                                    JSON,
+                                    result,
+                                    JSON == result);
+                        }
+                    }
+                }
+
+                if (veryVeryVerbose)
+                    cout << "int encode(ostream&, const Datum&,Opts&);"
+                         << endl;
+                {
+                    bdlsb::MemOutStreamBuf sb(&ta);
+                    bsl::ostream           os(&sb);
+
+                    int rc = Util::encode(os, DATUM, opts);
+                    ASSERTV(LINE, strictTypes, RC, rc, RC == rc);
+
+                    if (0 == rc || 2 <= rc) {
+                        const bslstl::StringRef result(
+                            sb.data(), sb.length());
+
+                        ASSERTV(LINE,
+                                RC,
+                                rc,
+                                DATUM,
+                                JSON,
+                                result,
+                                JSON == result);
+                    }
+                }
+
+                // Test that default Options are handled correctly.
+                if (baljsn::EncodingStyle::e_COMPACT == ES && 0 == IIL &&
+                    0 == SPL && 0 == strictTypes) {
+                    if (veryVeryVerbose)
+                        cout << "int encode(ostream&,const Datum&);"
+                             << endl;
+                    {
+                        bdlsb::MemOutStreamBuf sb(&ta);
+                        bsl::ostream           os(&sb);
+
+                        int rc = Util::encode(os, DATUM);
+                        ASSERTV(LINE, strictTypes, RC, rc, RC == rc);
+
+                        if (0 <= rc) {
+                            const bslstl::StringRef result(sb.data(),
+                                                           sb.length());
+
+                            ASSERTV(LINE,
+                                    RC,
+                                    rc,
+                                    DATUM,
+                                    JSON,
+                                    result,
+                                    JSON == result);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+}  // close namespace TestCaes06;
+
+
+                                    // ------
+                                    // case 4
+                                    // ------
+
+
+template <class STRING>
+void testCase04()
+{
+    bslma::TestAllocator ta("test");
+
+    baljsn::DatumEncoderOptions strict_options;
+    strict_options.setStrictTypes(true);
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("1. Verify we can round-trip strings");
+
+    // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+
+    PVVV("\ta. round-trip simple string.");
+    {
+        const STRING      EXP_STRING = "hello";
+        const STRING      EXP_JSON   = "\"" + EXP_STRING + "\"";
+        MD                datum(D::copyString(EXP_STRING, &ta), &ta);
+        STRING            json;
+
+        int result = Util::encode(&json, *datum, strict_options);
+        ASSERT(0 == result);
+        LOOP_ASSERT(json, EXP_JSON == json);
+
+        MD other(&ta);
+        result = Util::decode(&other, json);
+        ASSERTV(result, 0 == result);
+        ASSERTV(other->isString(), other->isString());
+        ASSERTV(EXP_STRING,
+                other->theString(),
+                EXP_STRING == other->theString());
+    }
+
+    // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+
+    PVVV("\tb. round-trip string with special characters.");
+    {
+        const STRING      EXP_STRING = "\" \\ \b \f \n \r \t \x01";
+        const STRING      EXP_JSON =
+            "\"\\\" \\\\ \\b \\f \\n \\r \\t \\u0001\"";
+
+        MD          datum(D::copyString(EXP_STRING, &ta), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum, strict_options);
+        ASSERT(0 == result);
+        LOOP_ASSERT(json, EXP_JSON == json);
+
+        MD other(&ta);
+        result = Util::decode(&other, json);
+        ASSERTV(result, 0 == result);
+        ASSERTV(other->isString(), other->isString());
+        ASSERTV(EXP_STRING,
+                other->theString(),
+                EXP_STRING == other->theString());
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("2. Verify we can round-trip 'int's");
+    {
+        int               obj      = 123;
+        const STRING      EXP_JSON = "123";
+
+        MD          datum(D::createInteger(obj), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum, strict_options);
+        // int's are not a "safely" encode-able type
+        ASSERTV(result, 1 == result);
+        ASSERTV(EXP_JSON, json, EXP_JSON == json);
+
+        MD other(&ta);
+        result = Util::decode(&other, json);
+        ASSERTV(result, 0 == result);
+        ASSERTV(other->isDouble(), other->isDouble());
+        ASSERTV(double(obj),
+                other->theDouble(),
+                double(obj) == other->theDouble());
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("3. Verify we can round-trip 'double's");
+    {
+        double            obj      = 1.375;
+        const STRING      EXP_JSON = "1.375";
+
+        MD          datum(D::createDouble(obj), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum, strict_options);
+        ASSERTV(result, 0 == result);
+        ASSERTV(EXP_JSON, json, EXP_JSON == json);
+
+        MD other(&ta);
+        result = Util::decode(&other, json);
+        ASSERTV(result, 0 == result);
+        ASSERTV(other->isDouble(), other->isDouble());
+        ASSERTV(obj, other->theDouble(), obj == other->theDouble());
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("4. Verify we can round-trip 'bool's");
+
+    // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+
+    PVVV("\ta. false");
+    {
+        bool              obj      = false;
+        const STRING      EXP_JSON = "false";
+
+        MD          datum(D::createBoolean(obj), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum, strict_options);
+        ASSERTV(result, 0 == result);
+        ASSERTV(EXP_JSON, json, EXP_JSON == json);
+
+        MD other(&ta);
+        result = Util::decode(&other, json);
+        ASSERTV(result, 0 == result);
+        ASSERTV(other->isBoolean(), other->isBoolean());
+        ASSERTV(obj, other->theBoolean(), obj == other->theBoolean());
+    }
+
+    // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+
+    PVVV("\tb. true");
+    {
+        bool              obj      = true;
+        const STRING      EXP_JSON = "true";
+
+        MD          datum(D::createBoolean(obj), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum, strict_options);
+        ASSERTV(result, 0 == result);
+        ASSERTV(EXP_JSON, json, EXP_JSON == json);
+
+        MD other(&ta);
+        result = Util::decode(&other, json);
+        ASSERTV(result, 0 == result);
+        ASSERTV(other->isBoolean(), other->isBoolean());
+        ASSERTV(obj, other->theBoolean(), obj == other->theBoolean());
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("5. Verify we can round-trip 'null's");
+    {
+        const STRING      EXP_JSON = "null";
+
+        MD          datum(D::createNull(), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum, strict_options);
+        ASSERTV(result, 0 == result);
+        ASSERTV(EXP_JSON, json, EXP_JSON == json);
+
+        MD other(&ta);
+        result = Util::decode(&other, json);
+        ASSERTV(result, 0 == result);
+        ASSERTV(other->isNull(), other->isNull());
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("6. Verify we can round-trip 'Date's");
+    {
+        bdlt::Date        obj(2001, 12, 25);
+        const STRING      EXP_STRING = "2001-12-25";
+        const STRING      EXP_JSON   = "\"" + EXP_STRING + "\"";
+
+        MD          datum(D::createDate(obj), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum, strict_options);
+        // Date's are not a "safely" encode-able type
+        ASSERTV(result, 1 == result);
+        ASSERTV(EXP_JSON, json, EXP_JSON == json);
+
+        MD other(&ta);
+        result = Util::decode(&other, json);
+        ASSERTV(result, 0 == result);
+        ASSERTV(other->isString(), other->isString());
+        ASSERTV(EXP_STRING,
+                other->theString(),
+                EXP_STRING == other->theString());
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("7. Verify we can round-trip 'Datetime's");
+    {
+        bdlt::Datetime    obj(2001, 12, 25, 15, 59, 57, 123);
+        const STRING      EXP_STRING = "2001-12-25T15:59:57.123";
+        const STRING      EXP_JSON   = "\"" + EXP_STRING + "\"";
+
+        MD          datum(D::createDatetime(obj, &ta), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum, strict_options);
+        // Datetime's are not a "safely" encode-able type
+        ASSERTV(result, 1 == result);
+        ASSERTV(EXP_JSON, json, EXP_JSON == json);
+
+        MD other(&ta);
+        result = Util::decode(&other, json);
+        ASSERTV(result, 0 == result);
+        ASSERTV(other->isString(), other->isString());
+        ASSERTV(EXP_STRING,
+                other->theString(),
+                EXP_STRING == other->theString());
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("8. Verify we can round-trip 'DatetimeInterval's");
+    {
+        bdlt::DatetimeInterval obj(1, 23, 59, 59, 987, 654);
+        const STRING           EXP_STRING = "+1_23:59:59.987654";
+        const STRING           EXP_JSON   = "\"" + EXP_STRING + "\"";
+
+        MD          datum(D::createDatetimeInterval(obj, &ta), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum, strict_options);
+        // DatetimeInterval's are not a "safely" encode-able type
+        ASSERTV(result, 1 == result);
+        ASSERTV(EXP_JSON, json, EXP_JSON == json);
+
+        MD other(&ta);
+        result = Util::decode(&other, json);
+        ASSERTV(result, 0 == result);
+        ASSERTV(other->isString(), other->isString());
+        ASSERTV(EXP_STRING,
+                other->theString(),
+                EXP_STRING == other->theString());
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("9. Verify we can round-trip 'Time's");
+    {
+        bdlt::Time        obj(13, 14, 15, 678);
+        const STRING      EXP_STRING = "13:14:15.678";
+        const STRING      EXP_JSON   = "\"" + EXP_STRING + "\"";
+
+        MD          datum(D::createTime(obj), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum, strict_options);
+        // Time's are not a "safely" encode-able type
+        ASSERTV(result, 1 == result);
+        ASSERTV(EXP_JSON, json, EXP_JSON == json);
+
+        MD other(&ta);
+        result = Util::decode(&other, json);
+        ASSERTV(result, 0 == result);
+        ASSERTV(other->isString(), other->isString());
+        ASSERTV(EXP_STRING,
+                other->theString(),
+                EXP_STRING == other->theString());
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("10. Verify we can round-trip 'int64's");
+    {
+        bsls::Types::Int64 obj      = 12345;
+        const STRING       EXP_JSON = "12345";
+
+        MD          datum(D::createInteger64(obj, &ta), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum, strict_options);
+        // Int64's are not a "safely" encode-able type
+        ASSERTV(result, 1 == result);
+        ASSERTV(EXP_JSON, json, EXP_JSON == json);
+
+        MD other(&ta);
+        result = Util::decode(&other, json);
+        ASSERTV(result, 0 == result);
+
+        PVVV("\tobj: " << obj
+                       << ", other->theDouble(): " << other->theDouble());
+
+        ASSERTV(other->isDouble(), other->isDouble());
+        ASSERTV(double(obj),
+                other->theDouble(),
+                double(obj) == other->theDouble());
+    }
+}
+
+                                // ------
+                                // case 3
+                                // ------
+
+template <class STRING>
+void testCase03()
+{
+    bslma::TestAllocator ta("test");
+
+    baljsn::DatumEncoderOptions strict_options;
+    strict_options.setStrictTypes(true);
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("1. Verify we can encode strings");
+
+    // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+
+    PVVV("\ta. Stringify simple string.");
+    {
+        MD          datum(D::copyString("hello", &ta), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum);
+        ASSERT(0 == result);
+        LOOP_ASSERT(json, "\"hello\"" == json);
+
+        STRING json2;
+        result = Util::encode(&json2, *datum, strict_options);
+        ASSERT(0 == result);
+        ASSERTV(json, json2, json == json2);
+    }
+
+    // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+
+    PVVV("\tb. Stringify string with special characters.");
+    {
+        MD          datum(D::copyString("\" \\ \b \f \n \r \t \x01", &ta),
+                          &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum);
+        ASSERT(0 == result);
+        LOOP_ASSERT(json,
+                    "\"\\\" \\\\ \\b \\f \\n \\r \\t \\u0001\"" == json);
+
+        STRING      json2;
+        result = Util::encode(&json2, *datum, strict_options);
+        ASSERT(0 == result);
+        ASSERTV(json, json2, json == json2);
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("2. Verify we can encode 'Date's");
+    {
+        bdlt::Date             obj(2001, 12, 25);
+        const STRING           EXP_STRING = "2001-12-25";
+        const STRING           EXP_JSON   = "\"" + EXP_STRING + "\"";
+
+        MD          datum(D::createDate(obj), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum);
+        ASSERTV(result, 0 == result);
+        ASSERTV(EXP_JSON, json, EXP_JSON == json);
+
+        STRING      json2;
+        result = Util::encode(&json2, *datum, strict_options);
+        ASSERT(1 == result);
+        ASSERTV(json, json2, json == json2);
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("3. Verify we can encode 'Datetime's");
+    {
+        bdlt::Datetime         obj(2001, 12, 25, 15, 59, 57, 123);
+        const STRING           EXP_STRING = "2001-12-25T15:59:57.123";
+        const STRING           EXP_JSON   = "\"" + EXP_STRING + "\"";
+
+        MD          datum(D::createDatetime(obj, &ta), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum);
+        ASSERTV(result, 0 == result);
+        ASSERTV(EXP_JSON, json, EXP_JSON == json);
+
+        STRING      json2;
+        result = Util::encode(&json2, *datum, strict_options);
+        ASSERT(1 == result);
+        ASSERTV(json, json2, json == json2);
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("4. Verify we can encode 'DatetimeInterval's");
+    {
+        bdlt::DatetimeInterval obj(1, 23, 59, 59, 987, 654);
+        const STRING           EXP_STRING = "+1_23:59:59.987654";
+        const STRING           EXP_JSON   = "\"" + EXP_STRING + "\"";
+
+        MD          datum(D::createDatetimeInterval(obj, &ta), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum);
+        ASSERTV(result, 0 == result);
+        ASSERTV(EXP_JSON, json, EXP_JSON == json);
+
+        STRING      json2;
+        result = Util::encode(&json2, *datum, strict_options);
+        ASSERT(1 == result);
+        ASSERTV(json, json2, json == json2);
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    PVV("5. Verify we can encode 'Time's");
+    {
+        bdlt::Time             obj(13, 14, 15, 678);
+        const STRING           EXP_STRING = "13:14:15.678";
+        const bsl::string      EXP_JSON   = "\"" + EXP_STRING + "\"";
+
+        MD          datum(D::createTime(obj), &ta);
+        STRING      json;
+        int         result = Util::encode(&json, *datum);
+        ASSERTV(result, 0 == result);
+        ASSERTV(EXP_JSON, json, EXP_JSON == json);
+
+        STRING      json2;
+        result = Util::encode(&json2, *datum, strict_options);
+        ASSERT(1 == result);
+        ASSERTV(json, json2, json == json2);
+    }
+}
+
+                                // ------
+                                // case 1
+                                // ------
+
+template <class STRING>
+void testCase01()
+{
+    bslma::TestAllocator ta("test");
+
+    DMB map(&ta);
+
+    map.pushBack("integer", D::createDouble(42));
+    map.pushBack("double",  D::createDouble(4.75));
+    map.pushBack("string",  D::copyString("hello", &ta));
+
+    DAB array(&ta);
+    array.pushBack(D::createDouble(0));
+    array.pushBack(D::createDouble(-3.1416));
+    array.pushBack(D::copyString("A long string", &ta));
+    array.pushBack(D::copyString("Abc", &ta));
+
+    map.pushBack("array", array.commit());
+    MD          datum(map.commit(), &ta);
+    STRING      json;
+    int         result = Util::encode(&json, *datum);
+    ASSERTV(result, 0 == result);
+    if (veryVerbose) P(json);
+
+    MD other(&ta);
+    result = Util::decode(&other, json);
+    ASSERTV(result, 0 == result);
+    ASSERTV(datum, other, datum == other);
+}
+
 // ============================================================================
 //                                 MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -516,17 +1414,15 @@ int main(int argc, char *argv[])
         //---------------------------------------------------------------------
 
 
+        namespace TC = TestCase07;
+
         // Test data generated from https://github.com/nst/JSONTestSuite (MIT
         // License)
         // Generation done by the
         // https://bbgithub.dev.bloomberg.com/mgiroux/JSONTestSuite fork's
         // `cpp-test-data-converter.pl` script.
-        struct {
-            int         d_line;
-            const char *d_testName;        // name of the test file
-            const char *d_JSON;            // JSON contents of the test
-            bool        d_isValid;         // 'true' if d_JSON is valid JSON
-        } DATA[] = {
+
+        static const TC::TestCase07Data DATA[] = {
             { L_, "n_array_1_true_without_comma.json",
               "[1 true]",
               false }
@@ -1395,14 +2291,9 @@ int main(int argc, char *argv[])
               "\\ud83d\\ude00\"",
               true }
         };
+        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
-
-        struct {
-            int         d_line;
-            const char *d_testName;  // name of the test file
-            const char *d_reason;    // reason this test is allowed to fail
-        } ALLOWED_FAILURE_LIST_DATA[] = {
+        static const struct TC::FailureListData failureList[] = {
             { L_, "n_array_comma_after_close.json", "TBD" }
           , { L_, "n_array_double_comma.json", "TBD" }
           , { L_, "n_multidigit_number_then_00.json", "TBD" }
@@ -1451,252 +2342,23 @@ int main(int argc, char *argv[])
           , { L_, "n_structure_trailing_#.json", "TBD" }
           , { L_, "n_structure_whitespace_formfeed.json", "TBD" }
         };
+        enum { k_NUM_FAILURE_LIST = sizeof(failureList) /
+                                                        sizeof(*failureList) };
 
-        const int NUM_ALLOWED_FAILURE_LIST_DATA =
-            sizeof(ALLOWED_FAILURE_LIST_DATA) /
-            sizeof(*ALLOWED_FAILURE_LIST_DATA);
-
-        bsl::unordered_set<bsl::string> allowedFailureList;
-
-        for (int ti = 0; ti < NUM_ALLOWED_FAILURE_LIST_DATA; ++ti) {
-            allowedFailureList.insert(
-                ALLOWED_FAILURE_LIST_DATA[ti].d_testName);
-        }
-
-        if (verbose)
-            cout << "\nTest decoding JSON test suite test cases."
-                 << endl;
-
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE      = DATA[ti].d_line;
-            const char *TEST_NAME = DATA[ti].d_testName;
-            const char *JSON      = DATA[ti].d_JSON;
-            const bool  IS_VALID  = DATA[ti].d_isValid;
-            const bool  IS_ALLOWED_FAILURE_LISTED =
-                (allowedFailureList.find(TEST_NAME) !=
-                 allowedFailureList.end());
-
-            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
-            bslma::TestAllocatorMonitor tam(&ta);
-
-            MD result(&ta);
-
-            bdlsb::FixedMemInStreamBuf isb(JSON, bsl::strlen(JSON));
-            bsl::ostringstream         os(&ta);
-
-            int rc = Util::decode(&result, &os, &isb);
-
-            if (veryVerbose) {
-                if (IS_VALID && (0 == rc)) {
-                    bsl::string encoded;
-                    int         encodeRC;
-
-                    encodeRC = Util::encode(&encoded, *result);
-
-                    cout << "ROUND TRIP: " << LINE << "\n"
-                         << "\t" << "TEST_NAME :  "   << TEST_NAME << "\n"
-                         << "\t" << "JSON      :    "   << JSON << "\n"
-                         << "\t" << "result    :    "   << result << "\n"
-                         << "\t" << "encodeRC :    "   << encodeRC << "\n"
-                         << "\t" << "ENCODED   :   \""  << encoded << "\"\n";
-                }
-            }
-
-            if (IS_VALID != (0 == rc)) {
-                if (!IS_ALLOWED_FAILURE_LISTED) {
-                    cout << "FAILED: " << LINE << "\n"
-                         << "\t" << "TEST_NAME: " << TEST_NAME << "\n"
-                         << "\t" << "JSON   : "   << JSON << "\n"
-                         << "\t" << "result : "   << result << "\n";
-
-                    ASSERTV(LINE,
-                            rc,
-                            IS_VALID,
-                            IS_VALID == (rc == 0));
-                }
-            }
-            else if (IS_ALLOWED_FAILURE_LISTED) {
-                ASSERTV("UNEXPECTED ALLOWED_FAILURE_LIST ENTRY RESULT",
-                        LINE,
-                        TEST_NAME,
-                        IS_VALID,
-                        rc,
-                        false);
-            }
-        }
-
-        // Reproduce the "n_structure_100000_opening_arrays.json"
-        // test case, which is too large to be placed in the DATA
-        // array.
-
-        {
-            const int   LINE      = __LINE__;
-            const char *TEST_NAME = "n_structure_100000_opening_arrays.json";
-            const bool  IS_VALID  = false;
-            const bool  IS_ALLOWED_FAILURE_LISTED =
-                (allowedFailureList.find(TEST_NAME) !=
-                 allowedFailureList.end());
-
-            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
-            bslma::TestAllocatorMonitor tam(&ta);
-
-            bsl::string JSON(&ta);
-            const int TARGET_SIZE = 100000;
-            // Over-reserve, since our construction loop is likely to
-            // overshoot.
-            JSON.reserve(TARGET_SIZE + 1000);
-            while (JSON.length() < TARGET_SIZE) {
-                JSON+="[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
-                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
-                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
-                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
-                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
-                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
-                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
-                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
-                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[["
-                      "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[";
-            }
-
-            MD result(&ta);
-
-            bdlsb::FixedMemInStreamBuf isb(JSON.c_str(), JSON.length());
-            bsl::ostringstream         os(&ta);
-
-            int rc = Util::decode(&result, &os, &isb);
-
-            if (veryVerbose) {
-                if (IS_VALID && (0 == rc)) {
-                    bsl::string encoded;
-                    int         encodeRC;
-
-                    encodeRC = Util::encode(&encoded, *result);
-
-                    cout << "ROUND TRIP: " << LINE << "\n"
-                         << "\t" << "TEST_NAME :  "   << TEST_NAME << "\n"
-                         << "\t" << "JSON      :    "   << JSON << "\n"
-                         << "\t" << "result    :    "   << result << "\n"
-                         << "\t" << "encodeRC :    "   << encodeRC << "\n"
-                         << "\t" << "ENCODED   :   \""  << encoded << "\"\n";
-                }
-            }
-
-            if (IS_VALID != (0 == rc)) {
-                if (!IS_ALLOWED_FAILURE_LISTED) {
-                    cout << "FAILED: " << LINE << "\n"
-                         << "\t" << "TEST_NAME: " << TEST_NAME << "\n"
-                         << "\t" << "JSON   : "   << JSON << "\n"
-                         << "\t" << "result : "   << result << "\n";
-
-                    ASSERTV(LINE,
-                            rc,
-                            IS_VALID,
-                            IS_VALID == (rc == 0));
-                }
-            }
-            else if (IS_ALLOWED_FAILURE_LISTED) {
-                ASSERTV("UNEXPECTED ALLOWED_FAILURE_LIST ENTRY RESULT",
-                        LINE,
-                        TEST_NAME,
-                        IS_VALID,
-                        rc,
-                        false);
-            }
-        }
-
-        // Reproduce the "n_structure_open_array_object.json"
-        // test case, which is too large to be placed in the DATA
-        // array.
-
-        {
-            const int   LINE      = __LINE__;
-            const char *TEST_NAME = "n_structure_open_array_object.json";
-            const bool  IS_VALID  = false;
-            const bool  IS_ALLOWED_FAILURE_LISTED =
-                (allowedFailureList.find(TEST_NAME) !=
-                 allowedFailureList.end());
-
-            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
-            bslma::TestAllocatorMonitor tam(&ta);
-
-            bsl::string JSON(&ta);
-            const int TARGET_SIZE = 250000;
-            // Over-reserve, since our construction loop is likely to
-            // overshoot.
-            JSON.reserve(TARGET_SIZE + 1000);
-            while (JSON.length() < TARGET_SIZE) {
-                JSON += "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":"
-                        "[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":[{\"\":";
-            }
-
-            MD result(&ta);
-
-            bdlsb::FixedMemInStreamBuf isb(JSON.c_str(), JSON.length());
-            bsl::ostringstream         os(&ta);
-
-            int rc = Util::decode(&result, &os, &isb);
-
-            if (veryVerbose) {
-                if (IS_VALID && (0 == rc)) {
-                    bsl::string encoded;
-                    int         encodeRC;
-
-                    encodeRC = Util::encode(&encoded, *result);
-
-                    cout << "ROUND TRIP: " << LINE << "\n"
-                         << "\t" << "TEST_NAME :  "   << TEST_NAME << "\n"
-                         << "\t" << "JSON      :    "   << JSON << "\n"
-                         << "\t" << "result    :    "   << result << "\n"
-                         << "\t" << "encodeRC :    "   << encodeRC << "\n"
-                         << "\t" << "ENCODED   :   \""  << encoded << "\"\n";
-                }
-            }
-
-            if (IS_VALID != (0 == rc)) {
-                if (!IS_ALLOWED_FAILURE_LISTED) {
-                    cout << "FAILED: " << LINE << "\n"
-                         << "\t" << "TEST_NAME: " << TEST_NAME << "\n"
-                         << "\t" << "JSON   : "   << JSON << "\n"
-                         << "\t" << "result : "   << result << "\n";
-
-                    ASSERTV(LINE,
-                            rc,
-                            IS_VALID,
-                            IS_VALID == (rc == 0));
-                }
-            }
-            else if (IS_ALLOWED_FAILURE_LISTED) {
-                ASSERTV("UNEXPECTED ALLOWED_FAILURE_LIST ENTRY RESULT",
-                        LINE,
-                        TEST_NAME,
-                        IS_VALID,
-                        rc,
-                        false);
-            }
-        }
+        TC::testCase07<bsl::string>(DATA,
+                                    k_NUM_DATA,
+                                    failureList,
+                                    k_NUM_FAILURE_LIST);
+        TC::testCase07<std::string>(DATA,
+                                    k_NUM_DATA,
+                                    failureList,
+                                    k_NUM_FAILURE_LIST);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+        TC::testCase07<std::pmr::string>(DATA,
+                                         k_NUM_DATA,
+                                         failureList,
+                                         k_NUM_FAILURE_LIST);
+#endif
       } break;
       case 6: {
         //---------------------------------------------------------------------
@@ -1734,28 +2396,19 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "ENCODE AND PRINT TEST" << endl
                                   << "=====================" << endl;
 
+        namespace TC = TestCase06;
+
         bsls::AlignedBuffer<8 * 1024>      buffer;
         bdlma::BufferedSequentialAllocator bsa(
             buffer.buffer(), sizeof(buffer));
 
         bdld::DatumMaker m(&bsa);
 
-        typedef baljsn::EncodingStyle::Value TStyle;
-
 #define PR   baljsn::EncodingStyle::e_PRETTY
 #define CO   baljsn::EncodingStyle::e_COMPACT
 #define L   L_
 
-        struct {
-            int          d_line;
-            bdld::Datum  d_datum;
-            TStyle       d_encodingStyle;
-            int          d_initialIndentLevel;
-            int          d_spacesPerLevel;
-            bsl::string  d_json;
-            int          d_rcNoStrictTypes;
-            int          d_rcWithStrictTypes;
-        } DATA[] = {
+        static const TC::TestCase6Data  DATA[] = {
            // L  datum      ES  IIL SPL  d_json                    rcNS rcWS
            // -- -----      --  --- ---  ------                    ---- ----
            // e_NIL
@@ -2156,145 +2809,13 @@ int main(int argc, char *argv[])
 #undef PR
 #undef CO
 #undef L
+        enum { k_NUM_DATA = sizeof(DATA) / sizeof(*DATA) };
 
-        if (verbose)
-            cout << "\nTest encoding various datums."
-                 << endl;
-
-        const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int           LINE           = DATA[ti].d_line;
-            const bdld::Datum&  DATUM          = DATA[ti].d_datum;
-            const TStyle        ES             = DATA[ti].d_encodingStyle;
-            const int           IIL            = DATA[ti].d_initialIndentLevel;
-            const int           SPL            = DATA[ti].d_spacesPerLevel;
-            const bsl::string&  JSON           = DATA[ti].d_json;
-            const int           RC_BY_STRICT[] = {
-                                                   DATA[ti].d_rcNoStrictTypes,
-                                                   DATA[ti].d_rcWithStrictTypes
-                                                 };
-
-            if(veryVerbose) {
-                T_ P_(LINE) P_(DATUM) P_(ES) P_(IIL) P_(SPL) P_(JSON)
-                    P_(RC_BY_STRICT[0]) P(RC_BY_STRICT[1]);
-            }
-
-            bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
-            bslma::TestAllocatorMonitor tam(&ta);
-
-            {
-                baljsn::DatumEncoderOptions opts;
-                opts.setEncodingStyle(ES);
-                opts.setInitialIndentLevel(IIL);
-                opts.setSpacesPerLevel(SPL);
-
-                for (int strictTypes = 0; strictTypes < 2; ++strictTypes) {
-                    const int RC = RC_BY_STRICT[strictTypes];
-                    opts.setStrictTypes(bool(RC));
-
-                    if(veryVeryVerbose) {
-                        T_ T_ P_(strictTypes) P(RC);
-                    }
-
-                    if (veryVeryVerbose)
-                        cout
-                            << "int encode(string*,const Datum&,Opts&);"
-                            << endl;
-                    {
-                        bsl::string result(&ta);
-
-                        int rc = Util::encode(&result, DATUM, opts);
-                        ASSERTV(LINE, strictTypes, RC, rc, RC == rc);
-
-                        if (0 == rc || 2 <= rc) {
-                            ASSERTV(LINE,
-                                    RC,
-                                    rc,
-                                    DATUM,
-                                    JSON,
-                                    result,
-                                    JSON == result);
-                        }
-                    }
-
-                    // Test that default Options are handled correctly.
-                    if (baljsn::EncodingStyle::e_COMPACT == ES && 0 == IIL &&
-                        0 == SPL && 0 == strictTypes) {
-                        if (veryVeryVerbose)
-                            cout << "int encode(string*,const Datum&);"
-                                 << endl;
-                        {
-                            bsl::string result(&ta);
-
-                            int rc = Util::encode(&result, DATUM);
-                            ASSERTV(LINE, strictTypes, RC, rc, RC == rc);
-
-                            if (0 == rc || 2 <= rc) {
-                                ASSERTV(LINE,
-                                        RC,
-                                        rc,
-                                        DATUM,
-                                        JSON,
-                                        result,
-                                        JSON == result);
-                            }
-                        }
-                    }
-
-                    if (veryVeryVerbose)
-                        cout << "int encode(ostream&, const Datum&,Opts&);"
-                             << endl;
-                    {
-                        bdlsb::MemOutStreamBuf sb(&ta);
-                        bsl::ostream           os(&sb);
-
-                        int rc = Util::encode(os, DATUM, opts);
-                        ASSERTV(LINE, strictTypes, RC, rc, RC == rc);
-
-                        if (0 == rc || 2 <= rc) {
-                            const bslstl::StringRef result(
-                                sb.data(), sb.length());
-
-                            ASSERTV(LINE,
-                                    RC,
-                                    rc,
-                                    DATUM,
-                                    JSON,
-                                    result,
-                                    JSON == result);
-                        }
-                    }
-
-                    // Test that default Options are handled correctly.
-                    if (baljsn::EncodingStyle::e_COMPACT == ES && 0 == IIL &&
-                        0 == SPL && 0 == strictTypes) {
-                        if (veryVeryVerbose)
-                            cout << "int encode(ostream&,const Datum&);"
-                                 << endl;
-                        {
-                            bdlsb::MemOutStreamBuf sb(&ta);
-                            bsl::ostream           os(&sb);
-
-                            int rc = Util::encode(os, DATUM);
-                            ASSERTV(LINE, strictTypes, RC, rc, RC == rc);
-
-                            if (0 <= rc) {
-                                const bslstl::StringRef result(sb.data(),
-                                                               sb.length());
-
-                                ASSERTV(LINE,
-                                        RC,
-                                        rc,
-                                        DATUM,
-                                        JSON,
-                                        result,
-                                        JSON == result);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        TC::testCase06<bsl::string>(     DATA, k_NUM_DATA);
+        TC::testCase06<std::string>(     DATA, k_NUM_DATA);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+        TC::testCase06<std::pmr::string>(DATA, k_NUM_DATA);
+#endif
       } break;
       case 5: {
         //---------------------------------------------------------------------
@@ -2324,10 +2845,10 @@ int main(int argc, char *argv[])
         //:   the string is otherwise valid.
         //
         // Testing:
-        //  int decode(MgedDatum*, const StringRef&);
-        //  int decode(MgedDatum*, const StringRef&, const DDOptions&);
-        //  int decode(MgedDatum*, os*, const StrRef&);
-        //  int decode(MgedDatum*, os*, const StrRef&, const DDOptions&);
+        //  int decode(MgedDatum*, const string_view&);
+        //  int decode(MgedDatum*, const string_view&, const DDOptions&);
+        //  int decode(MgedDatum*, os*, const string_view&);
+        //  int decode(MgedDatum*, os*, const string_view&, const DDOptions&);
         //  int decode(MgedDatum*, streamBuf*);
         //  int decode(MgedDatum*, streamBuf*, const DDOptions&);
         //  int decode(MgedDatum*, ostream*, streamBuf*);
@@ -2882,7 +3403,7 @@ int main(int argc, char *argv[])
         }
 
         // Testing that args are forwarded correctly for:
-        //   int decode(MgedDatum*, const StringRef&);
+        //   int decode(MgedDatum*, const string_view&);
         {
             bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
             bslma::TestAllocatorMonitor tam(&ta);
@@ -2898,7 +3419,7 @@ int main(int argc, char *argv[])
         }
 
         // Testing that args are forwarded correctly for:
-        //   int decode(MgedDatum*, const StringRef&, const DDOptions&);
+        //   int decode(MgedDatum*, const string_view&, const DDOptions&);
         {
             bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
             bslma::TestAllocatorMonitor tam(&ta);
@@ -2921,7 +3442,7 @@ int main(int argc, char *argv[])
 
 
         // Testing that args are forwarded correctly for:
-        //   int decode(MgedDatum*, os*, const StrRef&);
+        //   int decode(MgedDatum*, os*, const string_view&);
         {
             bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
             bslma::TestAllocatorMonitor tam(&ta);
@@ -2944,7 +3465,7 @@ int main(int argc, char *argv[])
         }
 
         // Testing that args are forwarded correctly for:
-        //   int decode(MgedDatum*, os*, const StrRef&, const DDOptions&);
+        //   int decode(MgedDatum*, os*, const string_view&, const DDOptions&);
         {
             bslma::TestAllocator        ta("test", veryVeryVeryVerbose);
             bslma::TestAllocatorMonitor tam(&ta);
@@ -3110,285 +3631,11 @@ int main(int argc, char *argv[])
                  << "BREATHING ROUND-TRIP TEST" << endl
                  << "=========================" << endl;
 
-        baljsn::DatumEncoderOptions strict_options;
-        strict_options.setStrictTypes(true);
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("1. Verify we can round-trip strings");
-
-        // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-
-        PVVV("\ta. round-trip simple string.");
-        {
-            const bsl::string EXP_STRING = "hello";
-            const bsl::string EXP_JSON   = "\"" + EXP_STRING + "\"";
-            MD                datum(D::copyString(EXP_STRING, &ta), &ta);
-            bsl::string       json(&ta);
-
-            int result = Util::encode(&json, *datum, strict_options);
-            ASSERT(0 == result);
-            LOOP_ASSERT(json, EXP_JSON == json);
-
-            MD other(&ta);
-            result = Util::decode(&other, json);
-            ASSERTV(result, 0 == result);
-            ASSERTV(other->isString(), other->isString());
-            ASSERTV(EXP_STRING,
-                    other->theString(),
-                    EXP_STRING == other->theString());
-        }
-
-        // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-
-        PVVV("\tb. round-trip string with special characters.");
-        {
-            const bsl::string EXP_STRING = "\" \\ \b \f \n \r \t \x01";
-            const bsl::string EXP_JSON =
-                "\"\\\" \\\\ \\b \\f \\n \\r \\t \\u0001\"";
-
-            MD          datum(D::copyString(EXP_STRING, &ta), &ta);
-            bsl::string json(&ta);
-            int         result = Util::encode(&json, *datum, strict_options);
-            ASSERT(0 == result);
-            LOOP_ASSERT(json, EXP_JSON == json);
-
-            MD other(&ta);
-            result = Util::decode(&other, json);
-            ASSERTV(result, 0 == result);
-            ASSERTV(other->isString(), other->isString());
-            ASSERTV(EXP_STRING,
-                    other->theString(),
-                    EXP_STRING == other->theString());
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("2. Verify we can round-trip 'int's");
-        {
-            int               obj      = 123;
-            const bsl::string EXP_JSON = "123";
-
-            MD          datum(D::createInteger(obj), &ta);
-            bsl::string json;
-            int         result = Util::encode(&json, *datum, strict_options);
-            // int's are not a "safely" encode-able type
-            ASSERTV(result, 1 == result);
-            ASSERTV(EXP_JSON, json, EXP_JSON == json);
-
-            MD other(&ta);
-            result = Util::decode(&other, json);
-            ASSERTV(result, 0 == result);
-            ASSERTV(other->isDouble(), other->isDouble());
-            ASSERTV(double(obj),
-                    other->theDouble(),
-                    double(obj) == other->theDouble());
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("3. Verify we can round-trip 'double's");
-        {
-            double            obj      = 1.375;
-            const bsl::string EXP_JSON = "1.375";
-
-            MD          datum(D::createDouble(obj), &ta);
-            bsl::string json;
-            int         result = Util::encode(&json, *datum, strict_options);
-            ASSERTV(result, 0 == result);
-            ASSERTV(EXP_JSON, json, EXP_JSON == json);
-
-            MD other(&ta);
-            result = Util::decode(&other, json);
-            ASSERTV(result, 0 == result);
-            ASSERTV(other->isDouble(), other->isDouble());
-            ASSERTV(obj, other->theDouble(), obj == other->theDouble());
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("4. Verify we can round-trip 'bool's");
-
-        // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-
-        PVVV("\ta. false");
-        {
-            bool              obj      = false;
-            const bsl::string EXP_JSON = "false";
-
-            MD          datum(D::createBoolean(obj), &ta);
-            bsl::string json;
-            int         result = Util::encode(&json, *datum, strict_options);
-            ASSERTV(result, 0 == result);
-            ASSERTV(EXP_JSON, json, EXP_JSON == json);
-
-            MD other(&ta);
-            result = Util::decode(&other, json);
-            ASSERTV(result, 0 == result);
-            ASSERTV(other->isBoolean(), other->isBoolean());
-            ASSERTV(obj, other->theBoolean(), obj == other->theBoolean());
-        }
-
-        // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-
-        PVVV("\tb. true");
-        {
-            bool              obj      = true;
-            const bsl::string EXP_JSON = "true";
-
-            MD          datum(D::createBoolean(obj), &ta);
-            bsl::string json;
-            int         result = Util::encode(&json, *datum, strict_options);
-            ASSERTV(result, 0 == result);
-            ASSERTV(EXP_JSON, json, EXP_JSON == json);
-
-            MD other(&ta);
-            result = Util::decode(&other, json);
-            ASSERTV(result, 0 == result);
-            ASSERTV(other->isBoolean(), other->isBoolean());
-            ASSERTV(obj, other->theBoolean(), obj == other->theBoolean());
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("5. Verify we can round-trip 'null's");
-        {
-            const bsl::string EXP_JSON = "null";
-
-            MD          datum(D::createNull(), &ta);
-            bsl::string json;
-            int         result = Util::encode(&json, *datum, strict_options);
-            ASSERTV(result, 0 == result);
-            ASSERTV(EXP_JSON, json, EXP_JSON == json);
-
-            MD other(&ta);
-            result = Util::decode(&other, json);
-            ASSERTV(result, 0 == result);
-            ASSERTV(other->isNull(), other->isNull());
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("6. Verify we can round-trip 'Date's");
-        {
-            bdlt::Date        obj(2001, 12, 25);
-            const bsl::string EXP_STRING = "2001-12-25";
-            const bsl::string EXP_JSON   = "\"" + EXP_STRING + "\"";
-
-            MD          datum(D::createDate(obj), &ta);
-            bsl::string json;
-            int         result = Util::encode(&json, *datum, strict_options);
-            // Date's are not a "safely" encode-able type
-            ASSERTV(result, 1 == result);
-            ASSERTV(EXP_JSON, json, EXP_JSON == json);
-
-            MD other(&ta);
-            result = Util::decode(&other, json);
-            ASSERTV(result, 0 == result);
-            ASSERTV(other->isString(), other->isString());
-            ASSERTV(EXP_STRING,
-                    other->theString(),
-                    EXP_STRING == other->theString());
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("7. Verify we can round-trip 'Datetime's");
-        {
-            bdlt::Datetime    obj(2001, 12, 25, 15, 59, 57, 123);
-            const bsl::string EXP_STRING = "2001-12-25T15:59:57.123";
-            const bsl::string EXP_JSON   = "\"" + EXP_STRING + "\"";
-
-            MD          datum(D::createDatetime(obj, &ta), &ta);
-            bsl::string json;
-            int         result = Util::encode(&json, *datum, strict_options);
-            // Datetime's are not a "safely" encode-able type
-            ASSERTV(result, 1 == result);
-            ASSERTV(EXP_JSON, json, EXP_JSON == json);
-
-            MD other(&ta);
-            result = Util::decode(&other, json);
-            ASSERTV(result, 0 == result);
-            ASSERTV(other->isString(), other->isString());
-            ASSERTV(EXP_STRING,
-                    other->theString(),
-                    EXP_STRING == other->theString());
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("8. Verify we can round-trip 'DatetimeInterval's");
-        {
-            bdlt::DatetimeInterval obj(1, 23, 59, 59, 987, 654);
-            const bsl::string      EXP_STRING = "+1_23:59:59.987654";
-            const bsl::string      EXP_JSON   = "\"" + EXP_STRING + "\"";
-
-            MD          datum(D::createDatetimeInterval(obj, &ta), &ta);
-            bsl::string json;
-            int         result = Util::encode(&json, *datum, strict_options);
-            // DatetimeInterval's are not a "safely" encode-able type
-            ASSERTV(result, 1 == result);
-            ASSERTV(EXP_JSON, json, EXP_JSON == json);
-
-            MD other(&ta);
-            result = Util::decode(&other, json);
-            ASSERTV(result, 0 == result);
-            ASSERTV(other->isString(), other->isString());
-            ASSERTV(EXP_STRING,
-                    other->theString(),
-                    EXP_STRING == other->theString());
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("9. Verify we can round-trip 'Time's");
-        {
-            bdlt::Time        obj(13, 14, 15, 678);
-            const bsl::string EXP_STRING = "13:14:15.678";
-            const bsl::string EXP_JSON   = "\"" + EXP_STRING + "\"";
-
-            MD          datum(D::createTime(obj), &ta);
-            bsl::string json;
-            int         result = Util::encode(&json, *datum, strict_options);
-            // Time's are not a "safely" encode-able type
-            ASSERTV(result, 1 == result);
-            ASSERTV(EXP_JSON, json, EXP_JSON == json);
-
-            MD other(&ta);
-            result = Util::decode(&other, json);
-            ASSERTV(result, 0 == result);
-            ASSERTV(other->isString(), other->isString());
-            ASSERTV(EXP_STRING,
-                    other->theString(),
-                    EXP_STRING == other->theString());
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("10. Verify we can round-trip 'int64's");
-        {
-            bsls::Types::Int64 obj      = 12345;
-            const bsl::string  EXP_JSON = "12345";
-
-            MD          datum(D::createInteger64(obj, &ta), &ta);
-            bsl::string json;
-            int         result = Util::encode(&json, *datum, strict_options);
-            // Int64's are not a "safely" encode-able type
-            ASSERTV(result, 1 == result);
-            ASSERTV(EXP_JSON, json, EXP_JSON == json);
-
-            MD other(&ta);
-            result = Util::decode(&other, json);
-            ASSERTV(result, 0 == result);
-
-            PVVV("\tobj: " << obj
-                           << ", other->theDouble(): " << other->theDouble());
-
-            ASSERTV(other->isDouble(), other->isDouble());
-            ASSERTV(double(obj),
-                    other->theDouble(),
-                    double(obj) == other->theDouble());
-        }
+        testCase04<bsl::string>();
+        testCase04<std::string>();
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+        testCase04<std::pmr::string>();
+#endif
       } break;
       case 3: {
         //---------------------------------------------------------------------
@@ -3416,126 +3663,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING ENCODE TEST" << endl
                                   << "=====================" << endl;
 
-        baljsn::DatumEncoderOptions strict_options;
-        strict_options.setStrictTypes(true);
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("1. Verify we can encode strings");
-
-        // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-
-        PVVV("\ta. Stringify simple string.");
-        {
-            MD          datum(D::copyString("hello", &ta), &ta);
-            bsl::string json(&ta);
-            int         result = Util::encode(&json, *datum);
-            ASSERT(0 == result);
-            LOOP_ASSERT(json, "\"hello\"" == json);
-
-            bsl::string json2(&ta);
-            result = Util::encode(&json2, *datum, strict_options);
-            ASSERT(0 == result);
-            ASSERTV(json, json2, json == json2);
-        }
-
-        // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-
-        PVVV("\tb. Stringify string with special characters.");
-        {
-            MD          datum(D::copyString("\" \\ \b \f \n \r \t \x01", &ta),
-                              &ta);
-            bsl::string json(&ta);
-            int         result = Util::encode(&json, *datum);
-            ASSERT(0 == result);
-            LOOP_ASSERT(json,
-                        "\"\\\" \\\\ \\b \\f \\n \\r \\t \\u0001\"" == json);
-
-            bsl::string json2(&ta);
-            result = Util::encode(&json2, *datum, strict_options);
-            ASSERT(0 == result);
-            ASSERTV(json, json2, json == json2);
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("2. Verify we can encode 'Date's");
-        {
-            bdlt::Date             obj(2001, 12, 25);
-            const bsl::string      EXP_STRING = "2001-12-25";
-            const bsl::string      EXP_JSON   = "\"" + EXP_STRING + "\"";
-
-            MD          datum(D::createDate(obj), &ta);
-            bsl::string json;
-            int         result = Util::encode(&json, *datum);
-            ASSERTV(result, 0 == result);
-            ASSERTV(EXP_JSON, json, EXP_JSON == json);
-
-            bsl::string json2(&ta);
-            result = Util::encode(&json2, *datum, strict_options);
-            ASSERT(1 == result);
-            ASSERTV(json, json2, json == json2);
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("3. Verify we can encode 'Datetime's");
-        {
-            bdlt::Datetime         obj(2001, 12, 25, 15, 59, 57, 123);
-            const bsl::string      EXP_STRING = "2001-12-25T15:59:57.123";
-            const bsl::string      EXP_JSON   = "\"" + EXP_STRING + "\"";
-
-            MD          datum(D::createDatetime(obj, &ta), &ta);
-            bsl::string json;
-            int         result = Util::encode(&json, *datum);
-            ASSERTV(result, 0 == result);
-            ASSERTV(EXP_JSON, json, EXP_JSON == json);
-
-            bsl::string json2(&ta);
-            result = Util::encode(&json2, *datum, strict_options);
-            ASSERT(1 == result);
-            ASSERTV(json, json2, json == json2);
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("4. Verify we can encode 'DatetimeInterval's");
-        {
-            bdlt::DatetimeInterval obj(1, 23, 59, 59, 987, 654);
-            const bsl::string      EXP_STRING = "+1_23:59:59.987654";
-            const bsl::string      EXP_JSON   = "\"" + EXP_STRING + "\"";
-
-            MD          datum(D::createDatetimeInterval(obj, &ta), &ta);
-            bsl::string json;
-            int         result = Util::encode(&json, *datum);
-            ASSERTV(result, 0 == result);
-            ASSERTV(EXP_JSON, json, EXP_JSON == json);
-
-            bsl::string json2(&ta);
-            result = Util::encode(&json2, *datum, strict_options);
-            ASSERT(1 == result);
-            ASSERTV(json, json2, json == json2);
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("5. Verify we can encode 'Time's");
-        {
-            bdlt::Time             obj(13, 14, 15, 678);
-            const bsl::string      EXP_STRING = "13:14:15.678";
-            const bsl::string      EXP_JSON   = "\"" + EXP_STRING + "\"";
-
-            MD          datum(D::createTime(obj), &ta);
-            bsl::string json;
-            int         result = Util::encode(&json, *datum);
-            ASSERTV(result, 0 == result);
-            ASSERTV(EXP_JSON, json, EXP_JSON == json);
-
-            bsl::string json2(&ta);
-            result = Util::encode(&json2, *datum, strict_options);
-            ASSERT(1 == result);
-            ASSERTV(json, json2, json == json2);
-        }
+        testCase03<bsl::string>();
+        testCase03<std::string>();
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+        testCase03<std::pmr::string>();
+#endif
       } break;
       case 2: {
         //---------------------------------------------------------------------
@@ -3843,30 +3975,11 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        DMB map(&ta);
-
-        map.pushBack("integer", D::createDouble(42));
-        map.pushBack("double",  D::createDouble(4.75));
-        map.pushBack("string",  D::copyString("hello", &ta));
-
-        DAB array(&ta);
-        array.pushBack(D::createDouble(0));
-        array.pushBack(D::createDouble(-3.1416));
-        array.pushBack(D::copyString("A long string", &ta));
-        array.pushBack(D::copyString("Abc", &ta));
-
-        map.pushBack("array", array.commit());
-        MD          datum(map.commit(), &ta);
-        bsl::string json;
-        int         result = Util::encode(&json, *datum);
-        ASSERTV(result, 0 == result);
-        if (veryVerbose) P(json);
-
-        MD other(&ta);
-        result = Util::decode(&other, json);
-        ASSERTV(result, 0 == result);
-        ASSERTV(datum, other, datum == other);
-
+        testCase01<bsl::string>();
+        testCase01<std::string>();
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+        testCase01<std::pmr::string>();
+#endif
       } break;
       default: {
         cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;

@@ -18,6 +18,7 @@ BSLS_IDENT_RCSID(baljsn_parserutil_cpp,"$Id$ $CSID$")
 #include <bsls_alignedbuffer.h>
 #include <bsls_annotation.h>
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cmath.h>
@@ -28,11 +29,17 @@ BSLS_IDENT_RCSID(baljsn_parserutil_cpp,"$Id$ $CSID$")
 #include <bsl_iosfwd.h>
 #include <bsl_limits.h>
 
-namespace BloombergLP {
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+# include <memory_resource>
+#endif
+
 namespace {
+namespace u {
+
+using namespace BloombergLP;
 
 template <class TYPE>
-int loadInfOrNan(TYPE *value, bslstl::StringRef data)
+int loadInfOrNan(TYPE *value, const bsl::string_view& data)
 {
     const int NO_SIGN_NAN_OR_INF_STRING_LEN   =  5;
     const int INF_OR_NAN_WITH_SIGN_STRING_LEN =  6;
@@ -133,8 +140,10 @@ static const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10_TO_THE_10 =
                                              UINT64_MAX_VALUE / 10000000000ULL;
 static const bsls::Types::Uint64 UINT64_MAX_VALUE_LAST_DIGIT = 5;
 
+}  // close namespace u
 }  // close unnamed namespace
 
+namespace BloombergLP {
 namespace baljsn {
 
                              // -----------------
@@ -142,7 +151,7 @@ namespace baljsn {
                              // -----------------
 
 // CLASS METHODS
-int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
+int ParserUtil::getString(bsl::string *value, const bsl::string_view& data)
 {
     const char *iter = data.begin();
     const char *end  = data.end();
@@ -201,7 +210,7 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
                 if (bdlb::NumericParseUtil::parseUnsignedInteger(
                         &digits,
                         &rest,
-                        bslstl::StringRef(iter, k_NUM_UNICODE_DIGITS),
+                        bsl::string_view(iter, k_NUM_UNICODE_DIGITS),
                         16,
                         0xFFFFULL,
                         k_NUM_UNICODE_DIGITS) != 0 ||
@@ -237,8 +246,8 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
                     if (bdlb::NumericParseUtil::parseUnsignedInteger(
                             &digits,
                             &rest,
-                            bslstl::StringRef(iter + k_NUM_UNICODE_DIGITS + 2,
-                                              k_NUM_UNICODE_DIGITS),
+                            bsl::string_view(iter + k_NUM_UNICODE_DIGITS + 2,
+                                             k_NUM_UNICODE_DIGITS),
                             16,
                             0xDFFFULL,
                             k_NUM_UNICODE_DIGITS) != 0 ||
@@ -292,8 +301,8 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
     return -1;
 }
 
-int ParserUtil::getValue(bdldfp::Decimal64 *value,
-                         bslstl::StringRef data)
+int ParserUtil::getValue(bdldfp::Decimal64       *value,
+                         const bsl::string_view&  data)
 {
     if (0 == data.length()) {
         return -1;                                                    // RETURN
@@ -346,7 +355,7 @@ int ParserUtil::getValue(bdldfp::Decimal64 *value,
     return 0;
 }
 
-int ParserUtil::getValue(double *value, bslstl::StringRef data)
+int ParserUtil::getValue(double *value, const bsl::string_view& data)
 {
     if (0 == data.length()
      || '.' == data[0]
@@ -360,7 +369,7 @@ int ParserUtil::getValue(double *value, bslstl::StringRef data)
        // these values are encoded as strings in a JSON standard unconformant
        // way.
 
-        return loadInfOrNan(value, data);                             // RETURN
+        return u::loadInfOrNan(value, data);                          // RETURN
     }
 
     const int k_MAX_STRING_LENGTH = 63;
@@ -388,8 +397,8 @@ int ParserUtil::getValue(double *value, bslstl::StringRef data)
     return 0;
 }
 
-int ParserUtil::getUint64(bsls::Types::Uint64 *value,
-                          bslstl::StringRef    data)
+int ParserUtil::getUint64(bsls::Types::Uint64     *value,
+                          const bsl::string_view&  data)
 {
     const char *iter  = data.begin();
     const char *end   = data.end();
@@ -500,9 +509,9 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
     iter = valueBegin;
     while (iter != valueEnd) {
         const unsigned digitValue = *iter - '0';
-        if (tmp < UINT64_MAX_DIVIDED_BY_10
-         || (UINT64_MAX_DIVIDED_BY_10 == tmp
-          && digitValue <= UINT64_MAX_VALUE_LAST_DIGIT)) {
+        if (tmp < u::UINT64_MAX_DIVIDED_BY_10
+         || (u::UINT64_MAX_DIVIDED_BY_10 == tmp
+          && digitValue <= u::UINT64_MAX_VALUE_LAST_DIGIT)) {
             tmp = tmp * 10 + digitValue;
             ++iter;
         }
@@ -519,9 +528,9 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
         iter = fractionalBegin;
         for (int i = 0; i < numAdditionalDigits; ++i, ++iter) {
             const unsigned digitValue = *iter - '0';
-            if (tmp < UINT64_MAX_DIVIDED_BY_10
-             || (UINT64_MAX_DIVIDED_BY_10 == tmp
-              && digitValue <= UINT64_MAX_VALUE_LAST_DIGIT)) {
+            if (tmp < u::UINT64_MAX_DIVIDED_BY_10
+             || (u::UINT64_MAX_DIVIDED_BY_10 == tmp
+              && digitValue <= u::UINT64_MAX_VALUE_LAST_DIGIT)) {
                 tmp = tmp * 10 + digitValue;
             }
             else {
@@ -549,7 +558,7 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
             return -1;                                                // RETURN
         }
         if (exponent >= 10) {
-            if (tmp > UINT64_MAX_DIVIDED_BY_10_TO_THE_10) {
+            if (tmp > u::UINT64_MAX_DIVIDED_BY_10_TO_THE_10) {
                 return -1;                                            // RETURN
             }
             tmp *= 10000000000ULL;
@@ -575,7 +584,7 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
         else {
             const bsls::Types::Uint64 uExponentMultiple =
                       static_cast<bsls::Types::Uint64>(exponentMultiple + 0.1);
-            if (UINT64_MAX_VALUE / uExponentMultiple >= tmp) {
+            if (u::UINT64_MAX_VALUE / uExponentMultiple >= tmp) {
                 tmp *= uExponentMultiple;
             }
             else {
@@ -588,7 +597,7 @@ int ParserUtil::getUint64(bsls::Types::Uint64 *value,
     return 0;
 }
 
-int ParserUtil::getValue(bool *value, bslstl::StringRef data)
+int ParserUtil::getValue(bool *value, const bsl::string_view& data)
 {
     enum { k_TRUE_LENGTH = 4, k_FALSE_LENGTH = 5 };
 
@@ -610,8 +619,8 @@ int ParserUtil::getValue(bool *value, bslstl::StringRef data)
     return 0;
 }
 
-int ParserUtil::getValue(bsl::vector<char> *value,
-                         bslstl::StringRef  data)
+int ParserUtil::getValue(bsl::vector<char>       *value,
+                         const bsl::string_view&  data)
 {
     const int MAX_LENGTH = 1024;
     bsls::AlignedBuffer<MAX_LENGTH> buffer;
@@ -619,7 +628,7 @@ int ParserUtil::getValue(bsl::vector<char> *value,
     bdlma::BufferedSequentialAllocator allocator(buffer.buffer(), MAX_LENGTH);
     bsl::string base64String(&allocator);
 
-    int rc = getValue(&base64String, data);
+    int rc = baljsn::ParserUtil::getValue(&base64String, data);
     if (rc) {
         return -1;                                                    // RETURN
     }
@@ -645,8 +654,8 @@ int ParserUtil::getValue(bsl::vector<char> *value,
 
     return 0;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

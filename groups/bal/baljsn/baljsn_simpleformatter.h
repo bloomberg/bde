@@ -300,6 +300,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_review.h>
 
+#include <bsl_string_view.h>
+
 namespace BloombergLP {
 namespace baljsn {
 
@@ -370,7 +372,7 @@ class SimpleFormatter {
         // Set 'd_useComma' to the value of the specified 'flag', indicating
         // whether the next 'printComma()' call should actually print a comma.
 
-    void printName(const bslstl::StringRef& name);
+    void printName(const bsl::string_view& name);
         // Print onto the stream supplied at construction the specified 'name',
         // followed by a ':'. The ':' is surrounded by a space on each side if
         // 'usePrettyStyle()' is 'true'.  It is the caller's responsibility to
@@ -422,14 +424,14 @@ class SimpleFormatter {
         // "object" in JSON), preceded, if necessary, by a comma.  The behavior
         // is undefined unless 'isNameNeeded()' is 'false'.
 
-    void openObject(const bslstl::StringRef& name);
+    void openObject(const bsl::string_view& name);
         // Print onto the stream supplied at construction the sequence of
         // characters designating the start of an object (referred to as an
         // "object" in JSON) with the specified 'name' , preceded, if
         // necessary, by a comma.  The behavior is undefined unless
         // 'isNameNeeded()' is 'true'.
 
-    void addMemberName(const bslstl::StringRef& name);
+    void addMemberName(const bsl::string_view& name);
         // Print onto the stream supplied at construction the specified 'name'
         // in double-quotes, preceded, if necessary, by a comma, and followed
         // by a ':'.  The behavior is undefined unless 'isNameNeeded()' is
@@ -457,8 +459,8 @@ class SimpleFormatter {
         // formatter encodes in the pretty style and is ignored otherwise.
 
     void openArray(
-            const bslstl::StringRef& name,
-            ArrayFormattingStyle     formattingStyle = e_REGULAR_ARRAY_FORMAT);
+            const bsl::string_view& name,
+            ArrayFormattingStyle    formattingStyle = e_REGULAR_ARRAY_FORMAT);
         // Print onto the stream supplied at construction the sequence of
         // characters designating the start of an array (referred to as an
         // "array" in JSON) with the specified 'name', preceded, if necessary,
@@ -489,7 +491,7 @@ class SimpleFormatter {
         // corresponding to a null element, preceded, if necessary, by a comma.
         // The behavior is undefined unless 'isNameNeeded()' is 'false'.
 
-    void addNullValue(const bslstl::StringRef& name);
+    void addNullValue(const bsl::string_view& name);
         // Print onto the stream supplied at construction the value
         // corresponding to a null element with the specified 'name', preceded,
         // if necessary, by a comma.  The behavior is undefined unless
@@ -504,7 +506,7 @@ class SimpleFormatter {
         // unless 'isNameNeeded()' is 'false'.
 
     template <class TYPE>
-    int addValue(const bslstl::StringRef& name, const TYPE& value);
+    int addValue(const bsl::string_view& name, const TYPE& value);
         // Print onto the stream supplied at construction the specified 'name'
         // and the specified 'value', preceded, if necessary, by a comma,
         // passing the optionally specified 'options' through to the rendering
@@ -597,7 +599,7 @@ void SimpleFormatter::printComma()
 }
 
 inline
-void SimpleFormatter::printName(const bslstl::StringRef& name)
+void SimpleFormatter::printName(const bsl::string_view& name)
 {
     if (usePrettyStyle()) {
         indent();
@@ -626,7 +628,7 @@ bool SimpleFormatter::usePrettyStyle() const
 
 // MANIPULATORS
 inline
-void SimpleFormatter::addMemberName(const bslstl::StringRef& name)
+void SimpleFormatter::addMemberName(const bsl::string_view& name)
 {
     BSLS_ASSERT(isNameNeeded());
 
@@ -656,7 +658,7 @@ void SimpleFormatter::addNullValue()
 }
 
 inline
-void SimpleFormatter::addNullValue(const bslstl::StringRef& name)
+void SimpleFormatter::addNullValue(const bsl::string_view& name)
 {
     BSLS_ASSERT(isNameNeeded());
 
@@ -687,7 +689,7 @@ int SimpleFormatter::addValue(const TYPE& value)
 }
 
 template <class TYPE>
-int SimpleFormatter::addValue(const bslstl::StringRef& name, const TYPE& value)
+int SimpleFormatter::addValue(const bsl::string_view& name, const TYPE& value)
 {
     BSLS_ASSERT(isNameNeeded());
 

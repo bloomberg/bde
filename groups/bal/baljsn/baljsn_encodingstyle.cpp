@@ -64,8 +64,8 @@ int EncodingStyle::fromInt(EncodingStyle::Value *result, int number)
 
 int EncodingStyle::fromString(
         EncodingStyle::Value *result,
-        const char         *string,
-        int                 stringLength)
+        const char           *string,
+        int                   stringLength)
 {
     for (int i = 0; i < 2; ++i) {
         const bdlat_EnumeratorInfo& enumeratorInfo =

@@ -136,8 +136,8 @@ void SimpleFormatter::openArray(ArrayFormattingStyle formattingStyle)
     BSLS_ASSERT_SAFE(!isFormattingObject());
 }
 
-void SimpleFormatter::openArray(const bslstl::StringRef& name,
-                                ArrayFormattingStyle     formattingStyle)
+void SimpleFormatter::openArray(const bsl::string_view& name,
+                                ArrayFormattingStyle    formattingStyle)
 {
     BSLS_ASSERT(isNameNeeded());
 
@@ -183,7 +183,7 @@ void SimpleFormatter::openObject()
     BSLS_ASSERT_SAFE(isFormattingObject());
 }
 
-void SimpleFormatter::openObject(const bslstl::StringRef& name)
+void SimpleFormatter::openObject(const bsl::string_view& name)
 {
     BSLS_ASSERT(isNameNeeded());
 

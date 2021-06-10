@@ -37,7 +37,7 @@ bsl::ostream& Decoder::logTokenizerError(const char *alternateString)
     return d_logStream;
 }
 
-int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
+int Decoder::skipUnknownElement(const bsl::string_view& elementName)
 {
     int rc = d_tokenizer.advanceToNextToken();
     if (rc) {

@@ -30,24 +30,24 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsl_string.h>
 #include <bsl_unordered_set.h>
 
-namespace BloombergLP {
-namespace baljsn {
-
 namespace {
+namespace u {
+
+using namespace BloombergLP;
 
 // LOCAL METHODS
-static int decodeValue(bdld::ManagedDatum *result,
-                       bsl::ostream       *errorStream,
-                       baljsn::Tokenizer  *tokenizer,
-                       int                 maxNestedDepth);
+int decodeValue(bdld::ManagedDatum *result,
+                bsl::ostream       *errorStream,
+                baljsn::Tokenizer  *tokenizer,
+                int                 maxNestedDepth);
     // Decode into the specified '*result' the JSON object in the specified
     // '*tokenizer', updating the specified '*errorStream' if any errors are
     // detected, including if the specified 'maxNestedDepth' is exceeded.
 
-static int encodeValue(SimpleFormatter    *formatter,
-                       const bdld::Datum&  datum,
-                       int                *strictTypesCheckStatus,
-                       bslstl::StringRef  *name = 0);
+int encodeValue(baljsn::SimpleFormatter    *formatter,
+                const bdld::Datum&          datum,
+                int                        *strictTypesCheckStatus,
+                bsl::string_view           *name = 0);
     // Encode the specified 'datum' as JSON, and output it to the specified
     // 'formatter'.  Update '*strictTypesCheckStatus' to the appropriate
     // positve integer value if any types or singular double values that aren't
@@ -57,10 +57,10 @@ static int encodeValue(SimpleFormatter    *formatter,
     // this value.  Return 0 on success, and a negative value if 'datum' cannot
     // be encoded', which should stop further encoding.
 
-static int decodeObject(bdld::ManagedDatum *result,
-                        bsl::ostream       *errorStream,
-                        baljsn::Tokenizer  *tokenizer,
-                        int                 maxNestedDepth)
+int decodeObject(bdld::ManagedDatum *result,
+                 bsl::ostream       *errorStream,
+                 baljsn::Tokenizer  *tokenizer,
+                 int                 maxNestedDepth)
     // Decode into the specified '*result' the JSON object in the specified
     // '*tokenizer', updating the specified '*errorStream' if any errors are
     // detected, including if the specified 'maxNestedDepth' is exceeded.
@@ -92,7 +92,7 @@ static int decodeObject(bdld::ManagedDatum *result,
             return -2;                                                // RETURN
         }
 
-        bslstl::StringRef newKey;
+        bsl::string_view newKey;
         tokenizer->value(&newKey);
         key.assign(newKey);
 
@@ -127,10 +127,10 @@ static int decodeObject(bdld::ManagedDatum *result,
     return 0;
 }
 
-static int decodeArray(bdld::ManagedDatum *result,
-                       bsl::ostream       *errorStream,
-                       baljsn::Tokenizer  *tokenizer,
-                       int                 maxNestedDepth)
+int decodeArray(bdld::ManagedDatum *result,
+                bsl::ostream       *errorStream,
+                baljsn::Tokenizer  *tokenizer,
+                int                 maxNestedDepth)
     // Decode into the specified '*result' the JSON array in the specified
     // '*tokenizer', updating the specified '*errorStream' if any errors are
     // detected, including if the specified 'maxNestedDepth' is exceeded.
@@ -178,12 +178,34 @@ static int decodeArray(bdld::ManagedDatum *result,
     return 0;
 }
 
-static int extractValue(bdld::ManagedDatum *result,
-                        baljsn::Tokenizer  *tokenizer)
+template <class STRING>
+inline
+int encodeImp(STRING                             *result,
+              const bdld::Datum&                  datum,
+              const baljsn::DatumEncoderOptions&  options)
+{
+    bsls::AlignedBuffer<8 * 1024>      buffer;
+    bdlma::BufferedSequentialAllocator bsa(
+        buffer.buffer(), sizeof(buffer));
+
+    bdlsb::MemOutStreamBuf streambuf(&bsa);
+    bsl::ostream           stream(&streambuf);
+
+    int rc = baljsn::DatumUtil::encode(stream, datum, options);
+
+    if (0 <= rc) {
+        result->assign(streambuf.data(), streambuf.length());
+    }
+
+    return rc;
+}
+
+int extractValue(bdld::ManagedDatum *result,
+                 baljsn::Tokenizer  *tokenizer)
     // Extract into the specified '*result' the current value in the specified
     // '*tokenizer'.
 {
-    bslstl::StringRef value;
+    bsl::string_view value;
     tokenizer->value(&value);
 
     if ("true" == value || "false" == value) {
@@ -199,7 +221,7 @@ static int extractValue(bdld::ManagedDatum *result,
     if ('"' == value[0]) {
         bsl::string str(result->allocator());
 
-        if (0 == ParserUtil::getValue(&str, value)) {
+        if (0 == baljsn::ParserUtil::getValue(&str, value)) {
             result->adopt(bdld::Datum::copyString(str, result->allocator()));
         }
         else {
@@ -209,7 +231,7 @@ static int extractValue(bdld::ManagedDatum *result,
         return 0;                                                     // RETURN
     }
 
-    double            d;
+    double           d;
     bslstl::StringRef remainder;
     if (0 == bdlb::NumericParseUtil::parseDouble(&d, &remainder, value) &&
         0 == remainder.length()) {
@@ -220,15 +242,15 @@ static int extractValue(bdld::ManagedDatum *result,
     return -1;
 }
 
-static int decodeValue(bdld::ManagedDatum *result,
-                       bsl::ostream       *errorStream,
-                       baljsn::Tokenizer  *tokenizer,
-                       int                 maxNestedDepth)
+int decodeValue(bdld::ManagedDatum *result,
+                bsl::ostream       *errorStream,
+                baljsn::Tokenizer  *tokenizer,
+                int                 maxNestedDepth)
 {
     switch (tokenizer->tokenType()) {
       case baljsn::Tokenizer::e_START_OBJECT: {
-        int rc =
-            decodeObject(result, errorStream, tokenizer, maxNestedDepth - 1);
+        int rc = u::decodeObject(
+                           result, errorStream, tokenizer, maxNestedDepth - 1);
         if (0 != rc) {
             if (errorStream) {
                 *errorStream << "decodeObject failed, rc = " << rc << '\n';
@@ -237,8 +259,8 @@ static int decodeValue(bdld::ManagedDatum *result,
         }
       } break;
       case baljsn::Tokenizer::e_START_ARRAY: {
-        int rc =
-            decodeArray(result, errorStream, tokenizer, maxNestedDepth - 1);
+        int rc = u::decodeArray(
+                           result, errorStream, tokenizer, maxNestedDepth - 1);
         if (0 != rc) {
             if (errorStream) {
                 *errorStream << "decodeArray failed, rc = " << rc << '\n';
@@ -247,7 +269,7 @@ static int decodeValue(bdld::ManagedDatum *result,
         }
       } break;
       case baljsn::Tokenizer::e_ELEMENT_VALUE: {
-        if (0 != extractValue(result, tokenizer)) {
+        if (0 != u::extractValue(result, tokenizer)) {
             return -3;                                                // RETURN
         }
       } break;
@@ -263,10 +285,10 @@ static int decodeValue(bdld::ManagedDatum *result,
     return 0;
 }
 
-static int encodeArray(SimpleFormatter            *formatter,
-                       const bdld::DatumArrayRef&  datum,
-                       int                        *strictTypesCheckStatus,
-                       bslstl::StringRef          *name = 0)
+int encodeArray(baljsn::SimpleFormatter    *formatter,
+                const bdld::DatumArrayRef&  datum,
+                int                        *strictTypesCheckStatus,
+                bsl::string_view           *name = 0)
     // Encode the specified 'datum' as a JSON array representation, and output
     // it to the specified 'formatter'.  Update '*strictTypesCheckStatus' to
     // the appropriate positve integer value if any types or singular double
@@ -280,16 +302,16 @@ static int encodeArray(SimpleFormatter            *formatter,
         formatter->addMemberName(*name);
     }
 
-    SimpleFormatter::ArrayFormattingStyle style =
+    baljsn::SimpleFormatter::ArrayFormattingStyle style =
         datum.length()
-            ? SimpleFormatter::e_REGULAR_ARRAY_FORMAT
-            : SimpleFormatter::e_EMPTY_ARRAY_FORMAT;
+            ? baljsn::SimpleFormatter::e_REGULAR_ARRAY_FORMAT
+            : baljsn::SimpleFormatter::e_EMPTY_ARRAY_FORMAT;
 
     formatter->openArray(style);
 
     int result = 0;
     for (bsl::size_t i = 0; 0 == result && i < datum.length(); ++i) {
-        result = encodeValue(
+        result = u::encodeValue(
             formatter, datum[i], strictTypesCheckStatus);
     }
 
@@ -298,10 +320,10 @@ static int encodeArray(SimpleFormatter            *formatter,
     return result;
 }
 
-static int encodeObject(SimpleFormatter          *formatter,
-                        const bdld::DatumMapRef&  datum,
-                        int                      *strictTypesCheckStatus,
-                        bslstl::StringRef        *name = 0)
+int encodeObject(baljsn::SimpleFormatter  *formatter,
+                 const bdld::DatumMapRef&  datum,
+                 int                      *strictTypesCheckStatus,
+                 bsl::string_view         *name = 0)
     // Encode the specified 'datum' as a JSON object representation, and output
     // it to the specified 'formatter'.  Update '*strictTypesCheckStatus' to
     // the appropriate positve integer value if any types or singular double
@@ -319,20 +341,20 @@ static int encodeObject(SimpleFormatter          *formatter,
 
     int result = 0;
     for (bsl::size_t i = 0; 0 == result && i < datum.size(); ++i) {
-        bslstl::StringRef name(datum[i].key());
-        result = encodeValue(formatter,
-                             datum[i].value(),
-                             strictTypesCheckStatus,
-                             &name);
+        bsl::string_view name(datum[i].key());
+        result = u::encodeValue(formatter,
+                                datum[i].value(),
+                                strictTypesCheckStatus,
+                                &name);
     }
     formatter->closeObject();
     return result;
 }
 
-static int encodeValue(SimpleFormatter    *formatter,
-                       const bdld::Datum&  datum,
-                       int                *strictTypesCheckStatus,
-                       bslstl::StringRef  *name)
+int encodeValue(baljsn::SimpleFormatter    *formatter,
+                const bdld::Datum&          datum,
+                int                        *strictTypesCheckStatus,
+                bsl::string_view           *name)
 {
     int                   result = -1;
     bdld::Datum::DataType type   = datum.type();
@@ -343,11 +365,11 @@ static int encodeValue(SimpleFormatter    *formatter,
 
     switch(type) {
       case bdld::Datum::e_MAP: {
-        result = encodeObject(
+        result = u::encodeObject(
             formatter, datum.theMap(), strictTypesCheckStatus);
       } break;
       case bdld::Datum::e_ARRAY: {
-        result = encodeArray(
+        result = u::encodeArray(
             formatter, datum.theArray(), strictTypesCheckStatus);
       } break;
       case bdld::Datum::e_INTEGER: {
@@ -430,7 +452,11 @@ static int encodeValue(SimpleFormatter    *formatter,
     return result;
 }
 
+}  // close namespace u
 }  // close unnamed namespace
+
+namespace BloombergLP {
+namespace baljsn {
 
                               // ----------------
                               // struct DatumUtil
@@ -461,8 +487,8 @@ int DatumUtil::decode(bdld::ManagedDatum         *result,
 
     bdld::ManagedDatum value(result->allocator());
 
-    int rc =
-        decodeValue(&value, errorStream, &tokenizer, options.maxNestedDepth());
+    int rc = u::decodeValue(
+                    &value, errorStream, &tokenizer, options.maxNestedDepth());
     if (0 != rc) {
         if (errorStream) {
             *errorStream << "decodeValue failed, rc = " << rc << '\n';
@@ -488,21 +514,24 @@ int DatumUtil::encode(bsl::string                *result,
                       const bdld::Datum&          datum,
                       const DatumEncoderOptions&  options)
 {
-    bsls::AlignedBuffer<8 * 1024>      buffer;
-    bdlma::BufferedSequentialAllocator bsa(
-        buffer.buffer(), sizeof(buffer));
-
-    bdlsb::MemOutStreamBuf streambuf(&bsa);
-    bsl::ostream           stream(&streambuf);
-
-    int rc = encode(stream, datum, options);
-
-    if (0 <= rc) {
-        result->assign(streambuf.data(), streambuf.length());
-    }
-
-    return rc;
+    return u::encodeImp(result, datum, options);
 }
+
+int DatumUtil::encode(std::string                *result,
+                      const bdld::Datum&          datum,
+                      const DatumEncoderOptions&  options)
+{
+    return u::encodeImp(result, datum, options);
+}
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+int DatumUtil::encode(std::pmr::string           *result,
+                      const bdld::Datum&          datum,
+                      const DatumEncoderOptions&  options)
+{
+    return u::encodeImp(result, datum, options);
+}
+#endif
 
 int DatumUtil::encode(bsl::ostream&              stream,
                       const bdld::Datum&         datum,
@@ -520,7 +549,7 @@ int DatumUtil::encode(bsl::ostream&              stream,
 
     int  strictTypesCheckStatus   = 0;
 
-    int rc = encodeValue(&formatter, datum, &strictTypesCheckStatus);
+    int rc = u::encodeValue(&formatter, datum, &strictTypesCheckStatus);
 
     if (0 != strictTypesCheckStatus && options.strictTypes() && 0 == rc) {
         rc = strictTypesCheckStatus;

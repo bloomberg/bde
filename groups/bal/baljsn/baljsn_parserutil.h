@@ -68,16 +68,19 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <bdldfp_decimal.h>
 #include <bdlt_iso8601util.h>
+
+#include <bsls_types.h>
 
 #include <bsl_limits.h>
 #include <bsl_cstring.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_vector.h>
 
-#include <bsls_types.h>
-
-#include <bdldfp_decimal.h>
+#include <string>
+#include <vector>
 
 namespace BloombergLP {
 namespace baljsn {
@@ -95,9 +98,9 @@ struct ParserUtil {
   private:
     // PRIVATE CLASS METHODS
     template <class TYPE>
-    static int getDateAndTimeValue(TYPE              *value,
-                                   bslstl::StringRef  data,
-                                   int                maxLength);
+    static int getDateAndTimeValue(TYPE                    *value,
+                                   const bsl::string_view&  data,
+                                   int                      maxLength);
         // Load into the specified 'value' the date or time value represented
         // as a string in the ISO 8601 format in the specified 'data' and
         // having a maximum data length of the specified 'maxLength'.  Return 0
@@ -107,49 +110,72 @@ struct ParserUtil {
         // 'bdlt::DateTz', 'bdlt::TimeTz', or 'bdlt::DatetimeTz'.
 
     template <class TYPE>
-    static int getIntegralValue(TYPE *value, bslstl::StringRef data);
+    static int getIntegralValue(TYPE *value, bsl::string_view data);
         // Load into the specified 'value' the integer value in the specified
         // 'data'.  Return 0 on success and a non-zero value otherwise.  Note
         // that 'TYPE' is expected to be a *signed* integral type.
 
     template <class TYPE>
-    static int getUnsignedIntegralValue(TYPE *value, bslstl::StringRef data);
+    static int getUnsignedIntegralValue(TYPE                    *value,
+                                        const bsl::string_view&  data);
         // Load into the specified 'value' the unsigned integer value in the
         // specified 'data'.  Return 0 on success and a non-zero value
         // otherwise.  Note that 'TYPE' is expected to be a *unsigned* integral
         // type.
 
-    static int getUint64(bsls::Types::Uint64 *value, bslstl::StringRef data);
+    static int getUint64(bsls::Types::Uint64     *value,
+                         const bsl::string_view&  data);
         // Load into the specified 'value' the value in the specified 'data'.
         // Return 0 on success and a non-zero value otherwise.
 
-    static int getString(bsl::string *value, bslstl::StringRef data);
+    static int getString(bsl::string *value, const bsl::string_view& data);
         // Load into the specified 'value' the string value in the specified
         // 'data'.  Return 0 on success and a non-zero value otherwise.
 
   public:
     // CLASS METHODS
-    static int getValue(bool                *value, bslstl::StringRef data);
-    static int getValue(char                *value, bslstl::StringRef data);
-    static int getValue(unsigned char       *value, bslstl::StringRef data);
-    static int getValue(signed char         *value, bslstl::StringRef data);
-    static int getValue(short               *value, bslstl::StringRef data);
-    static int getValue(unsigned short      *value, bslstl::StringRef data);
-    static int getValue(int                 *value, bslstl::StringRef data);
-    static int getValue(unsigned int        *value, bslstl::StringRef data);
-    static int getValue(bsls::Types::Int64  *value, bslstl::StringRef data);
-    static int getValue(bsls::Types::Uint64 *value, bslstl::StringRef data);
-    static int getValue(float               *value, bslstl::StringRef data);
-    static int getValue(double              *value, bslstl::StringRef data);
-    static int getValue(bdldfp::Decimal64   *value, bslstl::StringRef data);
-    static int getValue(bsl::string         *value, bslstl::StringRef data);
-    static int getValue(bdlt::Date          *value, bslstl::StringRef data);
-    static int getValue(bdlt::Datetime      *value, bslstl::StringRef data);
-    static int getValue(bdlt::DatetimeTz    *value, bslstl::StringRef data);
-    static int getValue(bdlt::DateTz        *value, bslstl::StringRef data);
-    static int getValue(bdlt::Time          *value, bslstl::StringRef data);
-    static int getValue(bdlt::TimeTz        *value, bslstl::StringRef data);
-    static int getValue(bsl::vector<char>   *value, bslstl::StringRef data);
+    static int getValue(bool                    *value,
+                        const bsl::string_view&  data);
+    static int getValue(char                    *value,
+                        const bsl::string_view&  data);
+    static int getValue(unsigned char           *value,
+                        const bsl::string_view&  data);
+    static int getValue(signed char             *value,
+                        const bsl::string_view&  data);
+    static int getValue(short                   *value,
+                        const bsl::string_view&  data);
+    static int getValue(unsigned short          *value,
+                        const bsl::string_view&  data);
+    static int getValue(int                     *value,
+                        const bsl::string_view&  data);
+    static int getValue(unsigned int            *value,
+                        const bsl::string_view&  data);
+    static int getValue(bsls::Types::Int64      *value,
+                        const bsl::string_view&  data);
+    static int getValue(bsls::Types::Uint64     *value,
+                        const bsl::string_view&  data);
+    static int getValue(float                   *value,
+                        const bsl::string_view&  data);
+    static int getValue(double                  *value,
+                        const bsl::string_view&  data);
+    static int getValue(bdldfp::Decimal64       *value,
+                        const bsl::string_view&  data);
+    static int getValue(bsl::string             *value,
+                        const bsl::string_view&  data);
+    static int getValue(bdlt::Date              *value,
+                        const bsl::string_view&  data);
+    static int getValue(bdlt::Datetime          *value,
+                        const bsl::string_view&  data);
+    static int getValue(bdlt::DatetimeTz        *value,
+                        const bsl::string_view&  data);
+    static int getValue(bdlt::DateTz            *value,
+                        const bsl::string_view&  data);
+    static int getValue(bdlt::Time              *value,
+                        const bsl::string_view&  data);
+    static int getValue(bdlt::TimeTz            *value,
+                        const bsl::string_view&  data);
+    static int getValue(bsl::vector<char>       *value,
+                        const bsl::string_view&  data);
         // Load into the specified 'value' the characters read from the
         // specified 'data'.  Return 0 on success or a non-zero value on
         // failure.
@@ -165,7 +191,8 @@ struct ParserUtil {
 
 // CLASS METHODS
 template <class TYPE>
-int ParserUtil::getUnsignedIntegralValue(TYPE *value, bslstl::StringRef data)
+int ParserUtil::getUnsignedIntegralValue(TYPE                    *value,
+                                         const bsl::string_view&  data)
 {
     if (0 == data.length()) {
         return -1;                                                    // RETURN
@@ -188,8 +215,10 @@ int ParserUtil::getUnsignedIntegralValue(TYPE *value, bslstl::StringRef data)
 }
 
 template <class TYPE>
-int ParserUtil::getIntegralValue(TYPE *value, bslstl::StringRef data)
+int ParserUtil::getIntegralValue(TYPE *value, bsl::string_view data)
 {
+    // Note that we take 'data' by value because we may want to modify it.
+
     if (0 == data.length()) {
         return -1;                                                    // RETURN
     }
@@ -197,7 +226,7 @@ int ParserUtil::getIntegralValue(TYPE *value, bslstl::StringRef data)
     bool isNegative;
     if ('-' == data[0]) {
         isNegative = true;
-        data.assign(data.begin() + 1, data.end());
+        data.remove_prefix(1);
     }
     else {
         isNegative = false;
@@ -227,9 +256,9 @@ int ParserUtil::getIntegralValue(TYPE *value, bslstl::StringRef data)
 }
 
 template <class TYPE>
-int ParserUtil::getDateAndTimeValue(TYPE              *value,
-                                    bslstl::StringRef  data,
-                                    int                maxLength)
+int ParserUtil::getDateAndTimeValue(TYPE                    *value,
+                                    const bsl::string_view&  data,
+                                    int                      maxLength)
 {
     enum { k_STRING_LENGTH_WITH_QUOTES = 2 };
 
@@ -248,7 +277,7 @@ int ParserUtil::getDateAndTimeValue(TYPE              *value,
 }
 
 inline
-int ParserUtil::getValue(char *value, bslstl::StringRef data)
+int ParserUtil::getValue(char *value, const bsl::string_view& data)
 {
     signed char tmp;  // Note that 'char' is unsigned on IBM.
     const int   rc = getIntegralValue(&tmp, data);
@@ -259,55 +288,57 @@ int ParserUtil::getValue(char *value, bslstl::StringRef data)
 }
 
 inline
-int ParserUtil::getValue(unsigned char *value, bslstl::StringRef data)
+int ParserUtil::getValue(unsigned char *value, const bsl::string_view& data)
 {
     return getUnsignedIntegralValue(value, data);
 }
 
 inline
-int ParserUtil::getValue(signed char *value, bslstl::StringRef data)
+int ParserUtil::getValue(signed char *value, const bsl::string_view& data)
 {
     return getValue((char *) value, data);
 }
 
 inline
-int ParserUtil::getValue(short *value, bslstl::StringRef data)
+int ParserUtil::getValue(short *value, const bsl::string_view& data)
 {
     return getIntegralValue(value, data);
 }
 
 inline
-int ParserUtil::getValue(unsigned short *value, bslstl::StringRef data)
+int ParserUtil::getValue(unsigned short *value, const bsl::string_view& data)
 {
     return getUnsignedIntegralValue(value, data);
 }
 
 inline
-int ParserUtil::getValue(int *value, bslstl::StringRef data)
+int ParserUtil::getValue(int *value, const bsl::string_view& data)
 {
     return getIntegralValue(value, data);
 }
 
 inline
-int ParserUtil::getValue(unsigned int *value, bslstl::StringRef data)
+int ParserUtil::getValue(unsigned int *value, const bsl::string_view& data)
 {
     return getUnsignedIntegralValue(value, data);
 }
 
 inline
-int ParserUtil::getValue(bsls::Types::Int64 *value, bslstl::StringRef data)
+int ParserUtil::getValue(bsls::Types::Int64      *value,
+                         const bsl::string_view&  data)
 {
     return getIntegralValue(value, data);
 }
 
 inline
-int ParserUtil::getValue(bsls::Types::Uint64 *value, bslstl::StringRef data)
+int ParserUtil::getValue(bsls::Types::Uint64     *value,
+                         const bsl::string_view&  data)
 {
     return getUnsignedIntegralValue(value, data);
 }
 
 inline
-int ParserUtil::getValue(float *value, bslstl::StringRef data)
+int ParserUtil::getValue(float *value, const bsl::string_view& data)
 {
     double    tmp;
     const int rc = getValue(&tmp, data);
@@ -318,13 +349,13 @@ int ParserUtil::getValue(float *value, bslstl::StringRef data)
 }
 
 inline
-int ParserUtil::getValue(bsl::string *value, bslstl::StringRef data)
+int ParserUtil::getValue(bsl::string *value, const bsl::string_view& data)
 {
     return getString(value, data);
 }
 
 inline
-int ParserUtil::getValue(bdlt::Date *value, bslstl::StringRef data)
+int ParserUtil::getValue(bdlt::Date *value, const bsl::string_view& data)
 {
     return getDateAndTimeValue(value,
                                data,
@@ -332,7 +363,7 @@ int ParserUtil::getValue(bdlt::Date *value, bslstl::StringRef data)
 }
 
 inline
-int ParserUtil::getValue(bdlt::Datetime *value, bslstl::StringRef data)
+int ParserUtil::getValue(bdlt::Datetime *value, const bsl::string_view& data)
 {
     return getDateAndTimeValue(value,
                                data,
@@ -340,7 +371,7 @@ int ParserUtil::getValue(bdlt::Datetime *value, bslstl::StringRef data)
 }
 
 inline
-int ParserUtil::getValue(bdlt::DatetimeTz *value, bslstl::StringRef data)
+int ParserUtil::getValue(bdlt::DatetimeTz *value, const bsl::string_view& data)
 {
     return getDateAndTimeValue(value,
                                data,
@@ -348,7 +379,7 @@ int ParserUtil::getValue(bdlt::DatetimeTz *value, bslstl::StringRef data)
 }
 
 inline
-int ParserUtil::getValue(bdlt::DateTz *value, bslstl::StringRef data)
+int ParserUtil::getValue(bdlt::DateTz *value, const bsl::string_view& data)
 {
     return getDateAndTimeValue(value,
                                data,
@@ -356,7 +387,7 @@ int ParserUtil::getValue(bdlt::DateTz *value, bslstl::StringRef data)
 }
 
 inline
-int ParserUtil::getValue(bdlt::Time *value, bslstl::StringRef data)
+int ParserUtil::getValue(bdlt::Time *value, const bsl::string_view& data)
 {
     return getDateAndTimeValue(value,
                                data,
@@ -364,7 +395,7 @@ int ParserUtil::getValue(bdlt::Time *value, bslstl::StringRef data)
 }
 
 inline
-int ParserUtil::getValue(bdlt::TimeTz *value, bslstl::StringRef data)
+int ParserUtil::getValue(bdlt::TimeTz *value, const bsl::string_view& data)
 {
     return getDateAndTimeValue(value,
                                data,

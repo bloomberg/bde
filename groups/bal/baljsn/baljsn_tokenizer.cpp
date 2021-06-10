@@ -689,12 +689,15 @@ int Tokenizer::resetStreamBufGetPointer()
 }
 
 // ACCESSORS
-int Tokenizer::value(bslstl::StringRef *data) const
+int Tokenizer::value(bsl::string_view *data) const
 {
     if ((e_ELEMENT_NAME == d_tokenType || e_ELEMENT_VALUE == d_tokenType) &&
         d_valueBegin != d_valueEnd) {
-        data->assign(&d_stringBuffer[d_valueBegin],
-                     &d_stringBuffer[d_valueEnd]);
+
+        *data = bsl::string_view(d_stringBuffer).substr(
+                                                    d_valueBegin,
+                                                    d_valueEnd - d_valueBegin);
+
         return 0;                                                     // RETURN
     }
     return -1;

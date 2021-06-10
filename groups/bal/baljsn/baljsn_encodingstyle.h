@@ -26,6 +26,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #include <bsl_ostream.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 
 namespace BloombergLP {
 
@@ -67,8 +68,8 @@ struct EncodingStyle {
         // success, and a non-zero value with no effect on 'result' otherwise
         // (i.e., 'string' does not match any enumerator).
 
-    static int fromString(Value              *result,
-                          const bsl::string&  string);
+    static int fromString(Value                   *result,
+                          const bsl::string_view&  string);
         // Load into the specified 'result' the enumerator matching the
         // specified 'string'.  Return 0 on success, and a non-zero value with
         // no effect on 'result' otherwise (i.e., 'string' does not match any
@@ -111,9 +112,11 @@ namespace baljsn {
 
 // CLASS METHODS
 inline
-int EncodingStyle::fromString(Value *result, const bsl::string& string)
+int EncodingStyle::fromString(Value *result, const bsl::string_view& string)
 {
-    return fromString(result, string.c_str(), static_cast<int>(string.length()));
+    return fromString(result,
+                      string.data(),
+                      static_cast<int>(string.length()));
 }
 
 inline

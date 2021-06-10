@@ -156,6 +156,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_sstream.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -476,7 +477,7 @@ struct Encoder_EncodeImplUtil {
     static int encodeMember(bool                      *memberIsEmpty,
                             Formatter                 *formatter,
                             bsl::ostream              *logStream,
-                            const bslstl::StringRef&   memberName,
+                            const bsl::string_view&    memberName,
                             const bsl::vector<char>&   member,
                             FormattingMode             formattingMode,
                             const EncoderOptions&      options,
@@ -486,7 +487,7 @@ struct Encoder_EncodeImplUtil {
     static int encodeMember(bool                      *memberIsEmpty,
                             Formatter                 *formatter,
                             bsl::ostream              *logStream,
-                            const bslstl::StringRef&   memberName,
+                            const bsl::string_view&    memberName,
                             const TYPE&                member,
                             FormattingMode             formattingMode,
                             const EncoderOptions&      options,
@@ -496,7 +497,7 @@ struct Encoder_EncodeImplUtil {
     static int encodeMember(bool                     *memberIsEmpty,
                             Formatter                *formatter,
                             bsl::ostream             *logStream,
-                            const bslstl::StringRef&  memberName,
+                            const bsl::string_view&   memberName,
                             const TYPE&               member,
                             FormattingMode            formattingMode,
                             const EncoderOptions&     options,
@@ -525,17 +526,17 @@ struct Encoder_EncodeImplUtil {
 
     static int encodeMemberPrefix(Formatter                *formatter,
                                   bsl::ostream             *logStream,
-                                  const bslstl::StringRef&  memberName,
+                                  const bsl::string_view&   memberName,
                                   bool                      isFirstMember);
     static int encodeMemberPrefix(Formatter                *formatter,
                                   bsl::ostream             *logStream,
-                                  const bslstl::StringRef&  memberName,
+                                  const bsl::string_view&   memberName,
                                   FormattingMode            formattingMode,
                                   bool                      isFirstMember);
     static int encodeMemberPrefix(bool                     *prefixIsEmpty,
                                   Formatter                *formatter,
                                   bsl::ostream             *logStream,
-                                  const bslstl::StringRef&  memberName,
+                                  const bsl::string_view&   memberName,
                                   FormattingMode            formattingMode,
                                   bool                      isFirstMember);
         // If the specified 'isFirstMember' flag is 'false', encode a "comma"
@@ -998,7 +999,7 @@ class Encoder_SelectionDispatcher {
     bsl::ostream         *d_logStream_p;
         // human-readable descriptions of all encountered error conditions
 
-    bslstl::StringRef     d_selectionName;
+    bsl::string_view      d_selectionName;
         // uniquely identifies the selection among all selections of one
         // choice
 
@@ -1019,7 +1020,7 @@ class Encoder_SelectionDispatcher {
     // CREATORS
     Encoder_SelectionDispatcher(Formatter                *formatter,
                                 bsl::ostream             *logStream,
-                                const bslstl::StringRef&  selectionName,
+                                const bsl::string_view&   selectionName,
                                 FormattingMode            formattingMode,
                                 const EncoderOptions&     options,
                                 bool                      isFirstMember);
@@ -1191,7 +1192,7 @@ class Encoder_AttributeDispatcher {
     bsl::ostream         *d_logStream_p;
         // human-readable descriptions of all encountered error conditions
 
-    bslstl::StringRef     d_attributeName;
+    bsl::string_view      d_attributeName;
         // uniquely identifies the attribute among all attributes of one
         // sequence
 
@@ -1212,7 +1213,7 @@ class Encoder_AttributeDispatcher {
     // CREATORS
     Encoder_AttributeDispatcher(Formatter                *formatter,
                                 bsl::ostream             *logStream,
-                                const bslstl::StringRef&  attributeName,
+                                const bsl::string_view&   attributeName,
                                 FormattingMode            formattingMode,
                                 const EncoderOptions&     options,
                                 bool                      isFirstMember);
@@ -1630,15 +1631,15 @@ int Encoder_EncodeImplUtil::encodeNonEmptyArray(
 
 template <class TYPE>
 int Encoder_EncodeImplUtil::encodeMember(
-                                      bool                      *memberIsEmpty,
-                                      Formatter                 *formatter,
-                                      bsl::ostream              *logStream,
-                                      const bslstl::StringRef&   memberName,
-                                      const TYPE&                member,
-                                      FormattingMode             formattingMode,
-                                      const EncoderOptions&      options,
-                                      bool                       isFirstMember,
-                                      bdlat_TypeCategory::Array  category)
+                                     bool                      *memberIsEmpty,
+                                     Formatter                 *formatter,
+                                     bsl::ostream              *logStream,
+                                     const bsl::string_view&    memberName,
+                                     const TYPE&                member,
+                                     FormattingMode             formattingMode,
+                                     const EncoderOptions&      options,
+                                     bool                       isFirstMember,
+                                     bdlat_TypeCategory::Array  category)
     ///Implementation Note
     ///- - - - - - - - - -
     // This function purposefully ignores the 'EncodeEmptyArrays' option in the
@@ -1680,15 +1681,15 @@ int Encoder_EncodeImplUtil::encodeMember(
 
 template <class TYPE, class OTHER_CATEGORY>
 int Encoder_EncodeImplUtil::encodeMember(
-                                       bool                     *memberIsEmpty,
-                                       Formatter                *formatter,
-                                       bsl::ostream             *logStream,
-                                       const bslstl::StringRef&  memberName,
-                                       const TYPE&               member,
-                                       FormattingMode            formattingMode,
-                                       const EncoderOptions&     options,
-                                       bool                      isFirstMember,
-                                       OTHER_CATEGORY            category)
+                                       bool                    *memberIsEmpty,
+                                       Formatter               *formatter,
+                                       bsl::ostream            *logStream,
+                                       const bsl::string_view&  memberName,
+                                       const TYPE&              member,
+                                       FormattingMode           formattingMode,
+                                       const EncoderOptions&    options,
+                                       bool                     isFirstMember,
+                                       OTHER_CATEGORY           category)
 {
     int rc = ThisUtil::validate(logStream, member, category);
     if (0 != rc) {
@@ -1734,7 +1735,7 @@ inline
 int Encoder_EncodeImplUtil::encodeMemberPrefix(
                                        Formatter                *formatter,
                                        bsl::ostream             *logStream,
-                                       const bslstl::StringRef&  memberName,
+                                       const bsl::string_view&   memberName,
                                        bool                      isFirstMember)
 {
     if (!isFirstMember) {
@@ -1755,7 +1756,7 @@ inline
 int Encoder_EncodeImplUtil::encodeMemberPrefix(
                                        Formatter                *formatter,
                                        bsl::ostream             *logStream,
-                                       const bslstl::StringRef&  memberName,
+                                       const bsl::string_view&   memberName,
                                        FormattingMode            formattingMode,
                                        bool                      isFirstMember)
 {
@@ -1769,12 +1770,12 @@ int Encoder_EncodeImplUtil::encodeMemberPrefix(
 
 inline
 int Encoder_EncodeImplUtil::encodeMemberPrefix(
-                                       bool                     *prefixIsEmpty,
-                                       Formatter                *formatter,
-                                       bsl::ostream             *logStream,
-                                       const bslstl::StringRef&  memberName,
-                                       FormattingMode            formattingMode,
-                                       bool                      isFirstMember)
+                                       bool                    *prefixIsEmpty,
+                                       Formatter               *formatter,
+                                       bsl::ostream            *logStream,
+                                       const bsl::string_view&  memberName,
+                                       FormattingMode           formattingMode,
+                                       bool                     isFirstMember)
 {
     if (bdlat_FormattingMode::e_UNTAGGED & formattingMode) {
         *prefixIsEmpty = true;
@@ -2057,7 +2058,7 @@ int Encoder_SelectionVisitor::operator()(const TYPE& selection,
 {
     Encoder_SelectionDispatcher dispatcher(d_formatter_p,
                                            d_logStream_p,
-                                           bslstl::StringRef(
+                                           bsl::string_view(
                                                    selectionInfo.name(),
                                                    selectionInfo.nameLength()),
                                            selectionInfo.formattingMode(),
@@ -2089,7 +2090,7 @@ inline
 Encoder_SelectionDispatcher::Encoder_SelectionDispatcher(
                                       Formatter                *formatter,
                                       bsl::ostream             *logStream,
-                                      const bslstl::StringRef&  selectionName,
+                                      const bsl::string_view&   selectionName,
                                       FormattingMode            formattingMode,
                                       const EncoderOptions&     options,
                                       bool                      isFirstMember)
@@ -2177,7 +2178,7 @@ int Encoder_AttributeVisitor::operator()(const TYPE& attribute,
 {
     Encoder_AttributeDispatcher dispatcher(d_formatter_p,
                                            d_logStream_p,
-                                           bslstl::StringRef(
+                                           bsl::string_view(
                                                    attributeInfo.name(),
                                                    attributeInfo.nameLength()),
                                            attributeInfo.formattingMode(),
@@ -2211,7 +2212,7 @@ inline
 Encoder_AttributeDispatcher::Encoder_AttributeDispatcher(
                                       Formatter                *formatter,
                                       bsl::ostream             *logStream,
-                                      const bslstl::StringRef&  attributeName,
+                                      const bsl::string_view&   attributeName,
                                       FormattingMode            formattingMode,
                                       const EncoderOptions&     options,
                                       bool                      isFirstMember)

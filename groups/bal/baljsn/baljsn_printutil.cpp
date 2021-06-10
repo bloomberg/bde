@@ -38,8 +38,8 @@ namespace baljsn {
                               // class PrintUtil
                               // ---------------
 
-int PrintUtil::printString(bsl::ostream&            stream,
-                           const bslstl::StringRef& value)
+int PrintUtil::printString(bsl::ostream&           stream,
+                           const bsl::string_view& value)
 {
     if (!bdlde::Utf8Util::isValid(value.data(),
                                   static_cast<int>(value.length()))) {

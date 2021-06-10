@@ -262,12 +262,19 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdld_manageddatum.h>
 #include <bdlsb_fixedmeminstreambuf.h>
 
+#include <bsls_libraryfeatures.h>
+
 #include <bsl_iosfwd.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+# include <memory_resource>
+#endif
+#include <string>
 
 namespace BloombergLP {
-
 namespace baljsn {
 
 class SimpleFormatter;
@@ -282,16 +289,16 @@ struct DatumUtil {
 
     // CLASS METHODS
     static int decode(bdld::ManagedDatum         *result,
-                      const bslstl::StringRef&    json);
+                      const bsl::string_view&     json);
     static int decode(bdld::ManagedDatum         *result,
-                      const bslstl::StringRef&    json,
+                      const bsl::string_view&     json,
                       const DatumDecoderOptions&  options);
     static int decode(bdld::ManagedDatum         *result,
                       bsl::ostream               *errorStream,
-                      const bslstl::StringRef&    json);
+                      const bsl::string_view&     json);
     static int decode(bdld::ManagedDatum         *result,
                       bsl::ostream               *errorStream,
-                      const bslstl::StringRef&    json,
+                      const bsl::string_view&     json,
                       const DatumDecoderOptions&  options);
         // Decode the specified 'json' into the specified 'result'.  If the
         // optionally specified 'errorStream' is non-null, a description of any
@@ -330,11 +337,25 @@ struct DatumUtil {
         // mapping of types in JSON to the types supported by 'Datum' is
         // described in {Supported Types}.
 
-    static int encode(bsl::string               *result,
-                      const bdld::Datum&         datum);
+    static int encode(bsl::string         *result,
+                      const bdld::Datum&   datum);
+    static int encode(std::string         *result,
+                      const bdld::Datum&   datum);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+    static int encode(std::pmr::string   *result,
+                      const bdld::Datum&  datum);
+#endif
     static int encode(bsl::string                *result,
                       const bdld::Datum&          datum,
                       const DatumEncoderOptions&  options);
+    static int encode(std::string                *result,
+                      const bdld::Datum&          datum,
+                      const DatumEncoderOptions&  options);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+    static int encode(std::pmr::string           *result,
+                      const bdld::Datum&          datum,
+                      const DatumEncoderOptions&  options);
+#endif
         // Encode the specified 'datum' as a JSON string, and load the
         // specified 'result' with the encoded JSON string.  Return 0 on
         // success, and a negative value if 'datum' could not be encoded (with
@@ -377,7 +398,7 @@ struct DatumUtil {
 
 inline
 int DatumUtil::decode(bdld::ManagedDatum         *result,
-                      const bslstl::StringRef&    json,
+                      const bsl::string_view&     json,
                       const DatumDecoderOptions&  options)
 {
     bdlsb::FixedMemInStreamBuf buffer(json.data(), json.length());
@@ -386,7 +407,7 @@ int DatumUtil::decode(bdld::ManagedDatum         *result,
 
 inline
 int DatumUtil::decode(bdld::ManagedDatum       *result,
-                      const bslstl::StringRef&  json)
+                      const bsl::string_view&   json)
 {
     return decode(result, json, DatumDecoderOptions());
 }
@@ -394,7 +415,7 @@ int DatumUtil::decode(bdld::ManagedDatum       *result,
 inline
 int DatumUtil::decode(bdld::ManagedDatum         *result,
                       bsl::ostream               *errorStream,
-                      const bslstl::StringRef&    json,
+                      const bsl::string_view&     json,
                       const DatumDecoderOptions&  options)
 {
     bdlsb::FixedMemInStreamBuf buffer(json.data(), json.length());
@@ -404,7 +425,7 @@ int DatumUtil::decode(bdld::ManagedDatum         *result,
 inline
 int DatumUtil::decode(bdld::ManagedDatum         *result,
                       bsl::ostream               *errorStream,
-                      const bslstl::StringRef&    json)
+                      const bsl::string_view&     json)
 {
     return decode(result, errorStream, json, DatumDecoderOptions());
 }
@@ -437,6 +458,21 @@ int DatumUtil::encode(bsl::string *result, const bdld::Datum& datum)
 {
     return encode(result, datum, DatumEncoderOptions());
 }
+
+inline
+int DatumUtil::encode(std::string *result, const bdld::Datum& datum)
+{
+    return encode(result, datum, DatumEncoderOptions());
+}
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PMR)
+inline
+int DatumUtil::encode(std::pmr::string   *result,
+                      const bdld::Datum&  datum)
+{
+    return encode(result, datum, DatumEncoderOptions());
+}
+#endif
 
 inline
 int DatumUtil::encode(bsl::ostream& stream, const bdld::Datum& datum)

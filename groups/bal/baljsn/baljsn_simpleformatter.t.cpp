@@ -737,11 +737,11 @@ R"JSON({
         //: 4 Repeat steps 1-3 for 'addNullValue'.
         //
         // Testing:
-        //   void addMemberName(const bslstl::StringRef&);
+        //   void addMemberName(const bsl::string_view& name);
         //   int addValue(const TYPE& value);
-        //   int addValue(const StringRef&, const TYPE&);
+        //   int addValue(const bsl::string_view&, const TYPE&);
         //   void addNullValue();
-        //   void addNullValue(const bslstl::StringRef& name);
+        //   void addNullValue(const bsl::string_view& name);
         //   bool isNameNeeded() const;
         // --------------------------------------------------------------------
 

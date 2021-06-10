@@ -169,6 +169,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_sstream.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 
 namespace BloombergLP {
 namespace baljsn {
@@ -236,7 +237,7 @@ class Decoder {
         // did not have an error, log the specified 'alternateString'.  Return
         // a reference to 'd_logStream'.
 
-    int skipUnknownElement(const bslstl::StringRef& elementName);
+    int skipUnknownElement(const bsl::string_view& elementName);
         // Skip the unknown element specified by 'elementName' by discarding
         // all the data associated with it and advancing the parser to the next
         // element.  Return 0 on success and a non-zero value otherwise.

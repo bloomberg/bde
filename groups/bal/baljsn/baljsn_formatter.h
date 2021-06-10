@@ -194,6 +194,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_review.h>
 
+#include <bsl_string.h>
+#include <bsl_string_view.h>
+
 namespace BloombergLP {
 namespace baljsn {
 
@@ -300,7 +303,7 @@ class Formatter {
         // relevant only if this formatter encodes in the pretty style and is
         // ignored otherwise.
 
-    int openMember(const bsl::string& name);
+    int openMember(const bsl::string_view& name);
         // Print onto the stream supplied at construction the sequence of
         // characters designating the start of a member (referred to as a
         // "name/value pair" in JSON) having the specified 'name'.  Return 0 on

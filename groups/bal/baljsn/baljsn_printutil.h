@@ -100,6 +100,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 
 namespace BloombergLP {
 namespace baljsn {
@@ -138,8 +139,8 @@ struct PrintUtil {
         // result to the specified 'stream'.  Use the optionally-specified
         // 'options' to decide how 'value' is encoded.
 
-    static int printString(bsl::ostream&             stream,
-                           const bslstl::StringRef&  value);
+    static int printString(bsl::ostream&           stream,
+                           const bsl::string_view& value);
         // Encode the specified string 'value' into JSON format and output the
         // result to the specified 'stream'.
 
@@ -187,9 +188,9 @@ struct PrintUtil {
     static int printValue(bsl::ostream&         stream,
                           const char           *value,
                           const EncoderOptions *options = 0);
-    static int printValue(bsl::ostream&             stream,
-                          const bslstl::StringRef&  value,
-                          const EncoderOptions     *options = 0);
+    static int printValue(bsl::ostream&           stream,
+                          const bsl::string_view& value,
+                          const EncoderOptions *options = 0);
     static int printValue(bsl::ostream&         stream,
                           const bdlt::Time&     value,
                           const EncoderOptions *options = 0);
@@ -438,9 +439,9 @@ int PrintUtil::printValue(bsl::ostream& stream,
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream&             stream,
-                          const bslstl::StringRef&  value,
-                          const EncoderOptions     *)
+int PrintUtil::printValue(bsl::ostream&            stream,
+                          const bsl::string_view&  value,
+                          const EncoderOptions    *)
 {
     return printString(stream, value);
 }

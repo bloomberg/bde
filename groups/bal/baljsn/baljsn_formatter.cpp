@@ -92,7 +92,7 @@ void Formatter::closeArray(bool formatAsEmptyArrayFlag)
     d_outputStream << ']';
 }
 
-int Formatter::openMember(const bsl::string& name)
+int Formatter::openMember(const bsl::string_view& name)
 {
     if (d_usePrettyStyle) {
         indent();

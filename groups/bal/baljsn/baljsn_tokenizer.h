@@ -138,6 +138,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_ios.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -417,7 +418,7 @@ class Tokenizer {
     TokenType tokenType() const;
         // Return the token type of the current token.
 
-    int value(bslstl::StringRef *data) const;
+    int value(bsl::string_view *data) const;
         // Load into the specified 'data' the value of the specified token if
         // the current token's type is 'e_ELEMENT_NAME' or 'e_ELEMENT_VALUE' or
         // leave 'data' unmodified otherwise.  Return 0 on success and a
