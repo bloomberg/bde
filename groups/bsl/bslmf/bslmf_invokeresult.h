@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Precise specification
 ///---------------------
-// The C++11 and C++14 standard defines the psuedo-expression
+// The C++11 and C++14 standard defines the pseudo-expression
 // _INVOKE_ '(f, t1, t2, ..., tN)', as follows:
 //
 //: o '(t1.*f)(t2, ..., tN)' when 'f' is a pointer to a member function of a
@@ -87,7 +87,7 @@ BSLS_IDENT("$Id: $")
 //:   to class type), then 'type' is 'R'.
 //: 3 Otherwise, if 'R' is
 //:    o a fundamental type,
-//:    o a pointer to (possibly cv-qualfied) 'void' or fundamental type,
+//:    o a pointer to (possibly cv-qualified) 'void' or fundamental type,
 //:    o an lvalue reference to any of the above types (possibly cv-qualified),
 //:    o 'bsl::nullptr_t', or
 //:    o 'void',
