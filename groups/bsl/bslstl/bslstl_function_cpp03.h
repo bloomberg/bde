@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Wed Apr 28 15:58:26 2021
+// Generated on Thu Jun 10 09:59:24 2021
 // Command line: sim_cpp11_features.pl bslstl_function.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_H
@@ -68,7 +68,7 @@ struct Function_ArgTypes {
     //..
     // The C++ Standard requires that 'function' define these typedefs for
     // compatibility with one- and two-argument legacy (now deprecated) functor
-    // adaptors.  'bsl::function' publically inherits from an instantiation of
+    // adaptors.  'bsl::function' publicly inherits from an instantiation of
     // this template in order to conditionally declare the above nested types.
     // This primary (unspecialized) template provides no typedefs.
 };
@@ -1107,9 +1107,9 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     // buffer is guaranteed to be large enough to hold a pointer to function,
     // pointer to member function, pointer to member data, a
     // 'bsl::reference_wrapper', or an empty struct.  Although the standard
-    // does not specify a minimum size beyond the aformentioned guarantee, many
-    // small structs will fit in the small object buffer, as defined in the
-    // 'bslstl_function_smallobjectoptimization' component.
+    // does not specify a minimum size beyond the aforementioned guarantee,
+    // many small structs will fit in the small object buffer, as defined in
+    // the 'bslstl_function_smallobjectoptimization' component.
 
   private:
     // PRIVATE TYPES
@@ -1154,7 +1154,7 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     bool operator==(const function&) const;  // Declared but not defined
     bool operator!=(const function&) const;  // Declared but not defined
         // Since 'function' does not support 'operator==' and 'operator!=',
-        // they must be deliberately supressed; otherwise 'function' objects
+        // they must be deliberately suppressed; otherwise 'function' objects
         // would be implicitly comparable by implicit conversion to
         // 'UnspecifiedBool'.
 #endif // !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
@@ -1505,7 +1505,7 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     }
 #endif
 
-#if 0 // TBD: Not yet implimented.
+#if 0 // TBD: Not yet implemented.
     // The functionality of this constructor is subsumed in the previous
     // constructor except for being 'noexcept'.
     template <class FUNC>
@@ -3451,7 +3451,7 @@ namespace bslstl {
 template <class PROTO>
 struct Function_InvokerUtilNullCheck<bsl::function<PROTO> > {
     // Specialization of null checker for instantiations of 'bsl::function'.
-    // This specialization treates an empty 'bsl::function' as a null object.
+    // This specialization treats an empty 'bsl::function' as a null object.
 
     // CLASS METHODS
     static bool isNull(const bsl::function<PROTO>& f)

@@ -950,6 +950,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_isvoid.h>
 #include <bslmf_movableref.h>
 #include <bslmf_removecv.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
@@ -957,6 +958,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_nullptr.h>
 #include <bsls_platform.h>
 #include <bsls_unspecifiedbool.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03

@@ -222,9 +222,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_deallocatorproctor.h>
 
 #include <bslmf_movableref.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_compilerfeatures.h>
-#include <bsls_util.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03

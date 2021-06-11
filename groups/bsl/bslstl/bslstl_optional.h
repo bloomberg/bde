@@ -81,6 +81,7 @@ BSLS_IDENT("$Id: $")
 //:   C++03 will not work.
 
 #include <bslscm_version.h>
+
 #include <bslstl_inplace.h>
 
 #include <bslalg_swaputil.h>
@@ -102,6 +103,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_removeconst.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
@@ -111,7 +113,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_unspecifiedbool.h>
-#include <bsls_util.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <stddef.h>
 
@@ -645,8 +647,8 @@ struct Optional_Data<TYPE, true> : public Optional_DataImp<TYPE> {
                                       bsl::is_trivially_copyable,
                                       bsl::is_trivially_copyable<TYPE>::value);
         // Workaround for C++03 'bsl::is_trivially_copyable' trait.  Note that,
-        // whether 'Optional_Data<TYPE>' satisfies 'bsl::is_trivally_copyable'
-        // doesn't affect 'Optional<TYPE>' 'bsl::is_trivally_copyable' trait.
+        // whether 'Optional_Data<TYPE>' satisfies 'bsl::is_trivially_copyable'
+        // doesn't affect 'Optional<TYPE>' 'bsl::is_trivially_copyable' trait.
         // We only add this nested trait for the tests to be able to check the
         // C++03 implementation of 'Optional_Data'.  For correct C++03
         // functionality, 'bsl::optional' has to add a nested trait as well.
@@ -1397,7 +1399,7 @@ class optional {
 
     TYPE *operator->();
         // Return a pointer providing modifiable access to the underlying
-        // 'TYPE' object.  The behaviour is undefined if the 'optional' object
+        // 'TYPE' object.  The behavior is undefined if the 'optional' object
         // is disengaged.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
@@ -1438,7 +1440,7 @@ class optional {
 
     const TYPE *operator->() const;
         // Return a pointer providing non-modifiable access to the underlying
-        // 'TYPE' object.  The behaviour is undefined if the 'optional' object
+        // 'TYPE' object.  The behavior is undefined if the 'optional' object
         // is disengaged.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
@@ -2229,7 +2231,7 @@ class optional<TYPE, false> {
 
     const TYPE *operator->() const;
         // Return a pointer providing non-modifiable access to the underlying
-        // 'TYPE' object.  The behaviour is undefined if this object is
+        // 'TYPE' object.  The behavior is undefined if this object is
         // disengaged.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS

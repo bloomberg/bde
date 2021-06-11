@@ -586,6 +586,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_matcharithmetictype.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nil.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
@@ -593,6 +594,7 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <cstddef>
 
@@ -662,7 +664,7 @@ struct Vector_DeduceIteratorCategory {
     // two arguments of identical type.  By default, it is assumed that any
     // type that is not a fundamental type, as determined by the type trait
     // 'bsl::is_fundamental', must be an iterator type.  'std::iterator_traits'
-    // is updated in C++17 to provide a SFINAE-friendly instantion of the
+    // is updated in C++17 to provide a SFINAE-friendly instantiation of the
     // primary-template for types that do not provide all of the nested typedef
     // names, but we cannot portably rely on such a scheme yet.
 
@@ -2518,7 +2520,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::constructFromRange(
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newSize > maxSize)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                            "vector<...>::(range-constuctor): input too long");
+                           "vector<...>::(range-constructor): input too long");
     }
 
     size_type newCapacity = Vector_Util::computeNewCapacity(newSize,

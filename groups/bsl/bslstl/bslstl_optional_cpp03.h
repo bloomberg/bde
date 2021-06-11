@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Mon Apr 19 12:55:55 2021
+// Generated on Thu Jun 10 09:59:24 2021
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -863,8 +863,8 @@ struct Optional_Data<TYPE, true> : public Optional_DataImp<TYPE> {
                                       bsl::is_trivially_copyable,
                                       bsl::is_trivially_copyable<TYPE>::value);
         // Workaround for C++03 'bsl::is_trivially_copyable' trait.  Note that,
-        // whether 'Optional_Data<TYPE>' satisfies 'bsl::is_trivally_copyable'
-        // doesn't affect 'Optional<TYPE>' 'bsl::is_trivally_copyable' trait.
+        // whether 'Optional_Data<TYPE>' satisfies 'bsl::is_trivially_copyable'
+        // doesn't affect 'Optional<TYPE>' 'bsl::is_trivially_copyable' trait.
         // We only add this nested trait for the tests to be able to check the
         // C++03 implementation of 'Optional_Data'.  For correct C++03
         // functionality, 'bsl::optional' has to add a nested trait as well.
@@ -2618,7 +2618,7 @@ class optional {
 
     TYPE *operator->();
         // Return a pointer providing modifiable access to the underlying
-        // 'TYPE' object.  The behaviour is undefined if the 'optional' object
+        // 'TYPE' object.  The behavior is undefined if the 'optional' object
         // is disengaged.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
@@ -2659,7 +2659,7 @@ class optional {
 
     const TYPE *operator->() const;
         // Return a pointer providing non-modifiable access to the underlying
-        // 'TYPE' object.  The behaviour is undefined if the 'optional' object
+        // 'TYPE' object.  The behavior is undefined if the 'optional' object
         // is disengaged.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
@@ -4084,7 +4084,7 @@ class optional<TYPE, false> {
 
     const TYPE *operator->() const;
         // Return a pointer providing non-modifiable access to the underlying
-        // 'TYPE' object.  The behaviour is undefined if this object is
+        // 'TYPE' object.  The behavior is undefined if this object is
         // disengaged.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS

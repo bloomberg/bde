@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Fri Oct 23 15:03:46 2020
+// Generated on Thu Jun 10 09:59:24 2021
 // Command line: sim_cpp11_features.pl bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
@@ -73,7 +73,7 @@ struct Vector_DeduceIteratorCategory {
     // two arguments of identical type.  By default, it is assumed that any
     // type that is not a fundamental type, as determined by the type trait
     // 'bsl::is_fundamental', must be an iterator type.  'std::iterator_traits'
-    // is updated in C++17 to provide a SFINAE-friendly instantion of the
+    // is updated in C++17 to provide a SFINAE-friendly instantiation of the
     // primary-template for types that do not provide all of the nested typedef
     // names, but we cannot portably rely on such a scheme yet.
 
@@ -2830,7 +2830,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::constructFromRange(
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newSize > maxSize)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                            "vector<...>::(range-constuctor): input too long");
+                           "vector<...>::(range-constructor): input too long");
     }
 
     size_type newCapacity = Vector_Util::computeNewCapacity(newSize,
@@ -5549,7 +5549,7 @@ extern template class bsl::vector<const char *>;
 #endif // ! defined(INCLUDED_BSLSTL_VECTOR_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2021 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

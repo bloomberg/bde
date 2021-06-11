@@ -62,10 +62,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_assert.h>
 #include <bslmf_decay.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <bslstl_function_smallobjectoptimization.h>
 
@@ -322,7 +324,7 @@ class Function_Rep {
         // This class does not conform to any specific interface so is not
         // allocator-aware in the strict sense.  However, this type does hold
         // an allocator for its AA client and therefore uses the type name
-        // for the allocator prefered by AA types.
+        // for the allocator preferred by AA types.
 
     typedef void                 GenericInvoker();
         // A "generic" function type analogous to the data type 'void' (though
@@ -354,7 +356,7 @@ class Function_Rep {
         // Do nothing if the specified 'func' is a null pointer, otherwise
         // allocate storage (either in-place within this object's small-object
         // buffer or out-of-place from the allocator) to hold a target of
-        // (template paramater) type 'FUNC', forward the 'func' to the
+        // (template parameter) type 'FUNC', forward the 'func' to the
         // constructor of the new target, set 'd_funcManager_p' to manage the
         // new target, and set 'd_invoker_p' to the specified 'invoker'
         // address.  The behavior is undefined unless this object is empty on
@@ -482,7 +484,7 @@ bslstl::Function_Rep::functionManager(ManagerOpCode  opCode,
     // instantiating this template.
     BSLMF_ASSERT(! bslalg::NothrowMovableUtil::IsWrapped<FUNC>::value);
 
-    // If 'FUNC' was allocated inplace dispite having a throwing move
+    // If 'FUNC' was allocated inplace despite having a throwing move
     // constructor, then 'INPLACE' will disagree with 'Soo::IsInplaceFunc'.  In
     // this case, use the raw size of 'FUNC' rather than the encoded size from
     // 'Soo'.

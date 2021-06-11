@@ -902,10 +902,13 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_managedptr.h>
 
+#include <bslmf_util.h>    // 'forward(V)'
+
 #include <bslmt_mutex.h>
 #include <bslmt_readerwritermutex.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <bsl_functional.h>
 #include <bsl_map.h>

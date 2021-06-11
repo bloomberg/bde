@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// Now, parametrize 'TestDriver' class with 'StdAllocatorAdaptor' explicitly
+// Now, parameterize 'TestDriver' class with 'StdAllocatorAdaptor' explicitly
 // to expand 'testCase' behavior for types, that don't support bslma
 // allocators:
 //..
@@ -88,11 +88,11 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocatortraits.h>
 
 #include <bslmf_usesallocator.h>
-#include <bslmf_util.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_util.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <new>
 #include <stddef.h>

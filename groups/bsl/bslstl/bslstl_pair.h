@@ -59,10 +59,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Enhancements Enabled by Modern Language Standards
 ///-------------------------------------------------
-// Language standards after the first (C++98) and its corregandum (C++03) have
+// Language standards after the first (C++98) and its corrigendum (C++03) have
 // added code C++ language features, type traits as well as requirements that
 // affect the exact interface 'pair' provides.  This section describes such
-// enhancements as they becaome available.
+// enhancements as they become available.
 //
 ///Conditional Default Constructor (C++11)
 ///- - - - - - - - - - - - - - - - - - - -
@@ -71,13 +71,13 @@ BSLS_IDENT("$Id: $")
 // member) functions that generate code without making mistakes.  Before C++11
 // it was not possible to determine if a type had a default constructor in a
 // non-intrusive manner.  C++11 makes it possible using <type_traits> to
-// detemine that, and '= default' makes it possible to create special member
+// determine that, and '= default' makes it possible to create special member
 // functions that exists only when they can be implemented properly.
 //
 // Hence, when using compilers with a reasonably complete implementation of
 // C++11 (notably MSVC 2013 is not one of those) we only implement the default
 // constructor of pair if both types inside the pair type have a default
-// constuctor.  Note that it means that when using C++11 (except in compilers
+// constructor.  Note that it means that when using C++11 (except in compilers
 // not implementing it properly) a 'bsl::pair' that stores a reference type
 // (such as 'int&'), or any other type that cannot be default constructed using
 // the syntax 'T v{};' will cause pair to neither declare nor define a default
@@ -300,6 +300,7 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 #include <bsls_platform.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <cstddef>  // 'std::size_t'
 
@@ -346,7 +347,7 @@ void swap(TYPE& a, TYPE& b);
 // In order to support the correct signature for copy constructor/assignment
 // operators of members with non-'const' references for those operations, we
 // must take the implicitly generated declarations.  However, the specification
-// for assignment through references requires defining the assiugnment operator
+// for assignment through references requires defining the assignment operator
 // in those cases, and that will delete any (otherwise) implicitly-declared
 // constructors, so they must be explicitly defaulted on platforms that support
 // them.  However, Visual C++ 2013 refused to recognize these defaults as valid
@@ -411,7 +412,7 @@ struct Pair_BslmaIdiom : bsl::integral_constant<int,
     // This component-private meta-function determines whether the specified
     // 'TYPE' template parameter takes a 'bslma::Allocator*' constructor
     // argument and, if so, whether that argument is at the end of the argument
-    // list or at the begining of the argument list following an argument of
+    // list or at the beginning of the argument list following an argument of
     // type 'bsl::allocator_arg_t'.  This type derived from
     // 'bsl::integral_constant<int, N>' where 'N' is the number of additional
     // parameters required to pass an allocator to a constructor using the
@@ -481,8 +482,8 @@ struct Pair_ImpUtil {
           BloombergLP::bslma::Allocator                                 *alloc,
           bsl::Pair_BslmaIdiomAllocatorArgT);
         // Construct and return by value a tuple, containing arguments for the
-        // corresponding  constructor of (template parameter) type 'TYPE',
-        // forwarding in order the elements in the specified 'tpl' preciding by
+        // corresponding constructor of (template parameter) 'TYPE', forwarding
+        // in order the elements in the specified 'tpl' preceded by
         // 'bsl::allocator_arg' object and the specified 'alloc', because
         // 'TYPE' takes a 'bslma'-style allocator as the second constructor
         // argument preceded by 'bsl::allocator_arg'.  This method provides the
@@ -497,7 +498,6 @@ struct Pair_ImpUtil {
         typedef BloombergLP::bslmf::Util U;
         return noexcept(swap(U::declval<TYPE1&>(), U::declval<TYPE1&>()))
             && noexcept(swap(U::declval<TYPE2&>(), U::declval<TYPE2&>()));
-
     }
 #endif
 };
@@ -750,7 +750,7 @@ struct Pair_First<TYPE&&> {
         // Construct the 'first' member from the specified 'value', without
         // specifying an allocator.  This function (perfectly) forwards 'value'
         // to the constructor of (template parameter) 'TYPE'.
-        // TBD: Consider SFINAE-ing ths constructors, but maybe better handled
+        // TBD: Consider SFINAE-ing this constructor, but maybe better handled
         // at the 'pair' level?
 
     template <class PARAM>
@@ -1461,7 +1461,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // members straight to 'T1' or 'T2' (or both) constructors using first
         // version (but using of second version for this approach will result
         // in a compile-time error).  This method requires that 'T1' and 'T2'
-        // be constructible from (the variable number of template paramters)
+        // be constructible from (the variable number of template parameters)
         // 'ARGS_1' and 'ARGS_2' respectively.
 #endif
 

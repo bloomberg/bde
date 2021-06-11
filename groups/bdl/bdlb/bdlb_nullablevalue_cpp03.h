@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Fri Feb 12 08:40:32 2021
+// Generated on Thu Jun 10 09:59:37 2021
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -196,7 +196,7 @@ class NullableValue : public bsl::optional<TYPE> {
         // 'original' object is null, and the value of 'original.value()' (of
         // 'BDE_OTHER_TYPE') converted to 'TYPE' otherwise.  Use the specified
         // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory.  Note that this constructor will not partcipate in
+        // supply memory.  Note that this constructor will not participate in
         // overload resolution unless 'TYPE' is allocator aware.  Also note
         // that compilation will fail if this function is called with a
         // 'BDE_OTHER_TYPE' that is not convertible to 'TYPE'.
@@ -863,7 +863,7 @@ inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const NullableValue& rhs)
 {
     // Constraints on 'bsl::optional' assignment operator may affect the
-    // assignment.  In order to avoid changes in behaviour, we implement the
+    // assignment.  In order to avoid changes in behavior, we implement the
     // assignment in 'NullableValue' directly.
 
     if (rhs.has_value()) {
@@ -886,7 +886,7 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(
                                           bslmf::MovableRef<NullableValue> rhs)
 {
     // Constraints on 'bsl::optional' assignment operator may affect the
-    // assignment.  In order to avoid changes in behaviour, we implement the
+    // assignment.  In order to avoid changes in behavior, we implement the
     // assignment in 'NullableValue' directly.
 
     NullableValue& lvalue = rhs;
@@ -911,7 +911,7 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(
                                       const NullableValue<BDE_OTHER_TYPE>& rhs)
 {
     // Constraints on 'bsl::optional' assignment operator may affect the
-    // assignment.  In order to avoid changes in behaviour, we implement the
+    // assignment.  In order to avoid changes in behavior, we implement the
     // assignment in 'NullableValue' directly.
 
     if (rhs.has_value()) {
@@ -933,7 +933,7 @@ inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const TYPE& rhs)
 {
     // Constraints on 'bsl::optional' assignment operator may affect the
-    // assignment.  In order to avoid changes in behaviour, we implement the
+    // assignment.  In order to avoid changes in behavior, we implement the
     // assignment in 'NullableValue' directly.
 
     if (this->has_value()) {
@@ -973,7 +973,7 @@ NullableValue<TYPE>& NullableValue<TYPE>::operator=(
                                                    bslmf::MovableRef<TYPE> rhs)
 {
     // Constraints on 'bsl::optional' assignment operator may affect the
-    // assignment.  In order to avoid changes in behaviour, we implement the
+    // assignment.  In order to avoid changes in behavior, we implement the
     // assignment in 'NullableValue' directly.
 
     if (this->has_value()) {
@@ -991,7 +991,7 @@ inline
 NullableValue<TYPE>& NullableValue<TYPE>::operator=(const BDE_OTHER_TYPE& rhs)
 {
     // Constraints on 'bsl::optional' assignment operator may affect the
-    // assignment.  In order to avoid changes in behaviour, we implement the
+    // assignment.  In order to avoid changes in behavior, we implement the
     // assignment in 'NullableValue' directly.
 
     if (this->has_value()) {

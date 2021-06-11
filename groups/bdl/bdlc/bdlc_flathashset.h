@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 // 'bsl::unordered_set'.  However, note that 'bdlc::FlatHashSet' will use
 // significantly less memory than 'bsl::unordered_set' on *all* platforms.
 // Given the Intel-only performance caveat, it is recommended to benchmark
-// before using 'bdlc::FlatHashSet' -- particulary on non-Intel production
+// before using 'bdlc::FlatHashSet' -- particularly on non-Intel production
 // environments.
 //
 ///Interface Differences with 'bsl::unordered_set'
@@ -411,10 +411,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_enableif.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_movableref.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <bslstl_equalto.h>
 #include <bslstl_hash.h>

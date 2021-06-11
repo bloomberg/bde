@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Fri Oct 23 15:03:26 2020
+// Generated on Thu Jun 10 09:59:22 2021
 // Command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
 
 #ifdef COMPILING_BSLALG_ARRAYPRIMITIVES_H
@@ -661,7 +661,7 @@ struct ArrayPrimitives {
         // 'toBegin' pointer, elements of type given by the 'allocator_traits'
         // class template for (template parameter) 'ALLOCATOR', from elements
         // starting at the specified 'fromBegin' pointer and ending immediately
-        // before the specified 'fromEnd' address, moving intothe specified
+        // before the specified 'fromEnd' address, moving into the specified
         // 'position' (after translating from 'fromBegin' to 'toBegin') the
         // specified 'numElements' elements starting at the specified 'first'
         // pointer and ending immediately before the specified 'last' pointer.
@@ -1321,7 +1321,7 @@ struct ArrayPrimitives {
                            TARGET_TYPE       *fromEnd,
                            size_type          numElements,
                            bslma::Allocator  *allocator);
-        // Move the elements of the (template paramaeter) 'TARGET_TYPE' in the
+        // Move the elements of the (template parameter) 'TARGET_TYPE' in the
         // array starting at the specified 'toBegin' address and ending
         // immediately before the specified 'toEnd' address by the specified
         // 'numElements' positions towards larger addresses, and fill the
@@ -1403,7 +1403,7 @@ struct ArrayPrimitives_Imp {
     // 'TARGET_TYPE'.  These utility functions are only for the purpose of
     // implementing those in the 'ArrayPrimitives' utility.  For brevity, we do
     // not repeat the main contracts here, but instead refer to the
-    // corresponding contract in the 'ArrayPrimitive' utility.
+    // corresponding contract in the 'ArrayPrimitives' utility.
 
   private:
     // PRIVATE METHODS
@@ -2490,7 +2490,7 @@ struct ArrayPrimitives_Imp {
         // These functions follow the 'insert' contract.  Note that if
         // 'TARGET_TYPE' is bit-wise copyable and 'FWD_ITER' is convertible to
         // 'const TARGET_TYPE *', then this operation is simply 'memmove'
-        // followed by 'memcopy'.  If 'TARGET_TYPE' is bit-wise moveable and
+        // followed by 'memcpy'.  If 'TARGET_TYPE' is bit-wise moveable and
         // 'FWD_ITER' is convertible to 'const TARGET_TYPE *', then this
         // operation can still be optimized using 'memmove' followed by
         // repeated copies.  The last argument is for removing overload
@@ -8959,7 +8959,7 @@ void ArrayPrimitives_Imp::rotate(TARGET_TYPE                *begin,
             // each triggering an extra assignment in the 'if' clause below, so
             // the loop must only be executed:
             //..
-            //  (length - numElements) / numCycles = remELements / numCycles
+            //  (length - numElements) / numCycles = remElements / numCycles
             //..
             // times.
 
@@ -8994,7 +8994,7 @@ void ArrayPrimitives_Imp::rotate(TARGET_TYPE                *begin,
             // loop must only be executed:
             //..
             //  (length - remElements) / numCycles - 1 =
-            //                                      numELements / numCycles - 1
+            //                                      numElements / numCycles - 1
             //..
             // times.
 
@@ -9047,7 +9047,7 @@ typedef bslalg::ArrayPrimitives bslalg_ArrayPrimitives;
 #endif // ! defined(INCLUDED_BSLALG_ARRAYPRIMITIVES_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2021 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

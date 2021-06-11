@@ -134,6 +134,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_movableref.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
@@ -141,8 +142,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_objectbuffer.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
-#include <bsls_util.h>
 #include <bsls_types.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdint.h>
@@ -208,7 +209,7 @@ class FlatHashTable_IteratorImp
     // This class implements the methods required by 'bsl::ForwardIterator' to
     // provide forward iterators.  As such, an instance of this class
     // represents a position within a flat hash table.  This class uses no
-    // features of the 'ENTRY' type except for addesses of 'ENTRY' objects.
+    // features of the 'ENTRY' type except for addresses of 'ENTRY' objects.
 {
     // PRIVATE TYPES
     typedef FlatHashTable_GroupControl GroupControl;
@@ -317,7 +318,7 @@ class FlatHashTable
                                      bsl::size_t   capacity);
         // Return the index of the first available entry indicated by the
         // specified 'controls' at or after the specified 'index', assuming
-        // 'controls' has the specied 'capacity'.  The behavior is undefined
+        // 'controls' has the specified 'capacity'.  The behavior is undefined
         // unless 'index < capacity' and 'controls' has at least 'capacity'
         // entries.
 

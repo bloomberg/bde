@@ -635,6 +635,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removeconst.h>
 #include <bslmf_removereference.h>
 #include <bslmf_typelist.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bslx_instreamfunctions.h>
 #include <bslx_outstreamfunctions.h>
@@ -643,6 +644,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <bsl_algorithm.h>
 #include <bsl_iosfwd.h>
@@ -2241,7 +2243,7 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // printed if this variant is unset.  Each type that may be contained
         // by this variant shall be printable with 'bdlb::PrintMethods'
         // (typically meaning that they either declare the
-        // 'bdlb::HasPrintMethods' trait or provide the '<<' output streaming
+        // 'bdlb::HasPrintMethod' trait or provide the '<<' output streaming
         // operator).  See {'bdlb_printmethods'}.  The compiler will emit an
         // error if 'bdlb::PrintMethods::print' cannot be instantiated for each
         // type that may be contained by this variant.

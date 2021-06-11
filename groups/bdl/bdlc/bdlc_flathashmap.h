@@ -45,7 +45,7 @@ BSLS_IDENT("$Id: $")
 // 'bsl::unordered_map'.  However, note that 'bdlc::FlatHashMap' will use
 // significantly less memory than 'bsl::unordered_map' on *all* platforms.
 // Given the Intel-only performance caveat, it is recommended to benchmark
-// before using 'bdlc::FlatHashMap' -- particulary on non-Intel production
+// before using 'bdlc::FlatHashMap' -- particularly on non-Intel production
 // environments.
 //
 ///Interface Differences with 'unordered_map'
@@ -266,11 +266,13 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_enableif.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_movableref.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <bslstl_equalto.h>
 #include <bslstl_hash.h>

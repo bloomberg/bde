@@ -129,7 +129,7 @@ BSLS_IDENT("$Id: $")
 //: 2 If the object has a move constructor that might throw an exception
 //
 // The second restriction allows the move constructor and swap operation on
-// 'bsl::function' to be 'noexecpt', as required by the C++ Standard.
+// 'bsl::function' to be 'noexcept', as required by the C++ Standard.
 //
 ///Usage
 ///-----
@@ -594,6 +594,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_usesallocatorargt.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
 #include <bsls_buildtarget.h>
@@ -603,6 +604,7 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_nullptr.h>
 #include <bsls_platform.h>
 #include <bsls_unspecifiedbool.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #ifdef BDE_BUILD_TARGET_EXC
 #include <bslstl_badfunctioncall.h>
@@ -691,7 +693,7 @@ struct Function_ArgTypes {
     //..
     // The C++ Standard requires that 'function' define these typedefs for
     // compatibility with one- and two-argument legacy (now deprecated) functor
-    // adaptors.  'bsl::function' publically inherits from an instantiation of
+    // adaptors.  'bsl::function' publicly inherits from an instantiation of
     // this template in order to conditionally declare the above nested types.
     // This primary (unspecialized) template provides no typedefs.
 };
@@ -732,7 +734,7 @@ class Function_Variadic<RET(ARGS...)> : public Function_ArgTypes<RET(ARGS...)>
     // This component-private class template contains the physical
     // representation and provides the variadic interfaces for 'bsl::function'
     // (see class and component documentation for 'bsl::function').
-    // 'bsl::function' publically inherits from an instantiation of this
+    // 'bsl::function' publicly inherits from an instantiation of this
     // template.  This implementation class exists to 1) minimize the amount of
     // variadic template expansion required in C++03 using the
     // 'sim_cpp11_features.pl' utility and 2) work around issues with the Sun
@@ -849,9 +851,9 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     // buffer is guaranteed to be large enough to hold a pointer to function,
     // pointer to member function, pointer to member data, a
     // 'bsl::reference_wrapper', or an empty struct.  Although the standard
-    // does not specify a minimum size beyond the aformentioned guarantee, many
-    // small structs will fit in the small object buffer, as defined in the
-    // 'bslstl_function_smallobjectoptimization' component.
+    // does not specify a minimum size beyond the aforementioned guarantee,
+    // many small structs will fit in the small object buffer, as defined in
+    // the 'bslstl_function_smallobjectoptimization' component.
 
   private:
     // PRIVATE TYPES
@@ -896,7 +898,7 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     bool operator==(const function&) const;  // Declared but not defined
     bool operator!=(const function&) const;  // Declared but not defined
         // Since 'function' does not support 'operator==' and 'operator!=',
-        // they must be deliberately supressed; otherwise 'function' objects
+        // they must be deliberately suppressed; otherwise 'function' objects
         // would be implicitly comparable by implicit conversion to
         // 'UnspecifiedBool'.
 #endif // !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
@@ -1247,7 +1249,7 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     }
 #endif
 
-#if 0 // TBD: Not yet implimented.
+#if 0 // TBD: Not yet implemented.
     // The functionality of this constructor is subsumed in the previous
     // constructor except for being 'noexcept'.
     template <class FUNC>
@@ -1734,7 +1736,7 @@ namespace bslstl {
 template <class PROTO>
 struct Function_InvokerUtilNullCheck<bsl::function<PROTO> > {
     // Specialization of null checker for instantiations of 'bsl::function'.
-    // This specialization treates an empty 'bsl::function' as a null object.
+    // This specialization treats an empty 'bsl::function' as a null object.
 
     // CLASS METHODS
     static bool isNull(const bsl::function<PROTO>& f)

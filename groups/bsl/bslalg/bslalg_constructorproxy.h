@@ -282,11 +282,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_decay.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_movableref.h>
-#include <bslmf_util.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_scalarprimitives.h>

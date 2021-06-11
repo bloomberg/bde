@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 //          // functions for constructing and manipulating linked lists.
 //
 //      typedef bslalg::BidirectionalLink                       Link;
-//          // This 'typedef' is an alis to the type of the linked list link.
+//          // This 'typedef' is an alias to the type of the linked list link.
 //
 //      // DATA
 //      Node *d_head_p;  // pointer to the head of the linked list
@@ -179,17 +179,17 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslma_allocatortraits.h>
-
 #include <bslstl_simplepool.h>
 
 #include <bslalg_bidirectionallink.h>
 #include <bslalg_bidirectionalnode.h>
 
+#include <bslma_allocatortraits.h>
 #include <bslma_deallocatorproctor.h>
 
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_movableref.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>

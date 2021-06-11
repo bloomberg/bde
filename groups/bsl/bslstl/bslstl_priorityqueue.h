@@ -322,13 +322,13 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_usesallocator.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
-#include <bsls_util.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <algorithm>
-
 #include <functional>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES

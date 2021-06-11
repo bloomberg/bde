@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 // I.e. a slot must be callable with the same arguments as 'PROT', and if a
 // slot returns a value it will be discarded.
 //
-///Call groups
+///Call Groups
 ///-----------
 // Slots are free to have side effects, which means that some slots may have to
 // be called before others even if they are not connected in that order.
@@ -47,14 +47,14 @@ BSLS_IDENT("$Id: $")
 // some way.  Group values are integers, and are ordered by the 'integer <'
 // relation.  By default, all connected slots have the group value set to 0.
 //
-///Concurrency and order of execution
+///Concurrency and Order of Execution
 ///----------------------------------
 // Within a single thread of execution slots are always executed in the order
 // defined by their respective groups and, within groups, by the order they
 // were connected to the signaler.  If the signaler's call operator is invoked
 // concurrently from multiple threads, slots may also be executed concurrently.
 //
-///Slots lifetime
+///Slots Lifetime
 ///--------------
 // Internally, 'bdlmt::Signaler' stores copies of connected slot objects.  The
 // copy of the slot object is destroyed after the slot is disconnected from the
@@ -65,16 +65,16 @@ BSLS_IDENT("$Id: $")
 //
 ///Comparison of 'SignalerConnection's
 ///-----------------------------------
-// Ordering comparisons of 'SignalerConnection's are transitve and are provided
-// to facilitate their being stored in an associative container.  The ordering
-// of a 'SignalerConnection' does not change when it is disconnected.
+// Ordering comparisons of 'SignalerConnection's are transitive and are
+// provided to facilitate their being stored in an associative container.  The
+// ordering of a 'SignalerConnection' does not change when it is disconnected.
 //
 // In equality comparisons, two default constructed connections compare
 // equivalent and a default constructed connection is never equivalent to a
 // connection to a slot.  If a connection is not default constructed, it is
 // equivalent only to another connection that refers to the same slot.
 //
-///Thread safety
+///Thread Safety
 ///-------------
 // 'bdlmt::Signaler' is fully thread-safe, meaning that multiple threads may
 // use their own instances of the class or use a shared instance without
@@ -191,6 +191,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_typelist.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bslmt_readerwritermutex.h>
 #include <bslmt_readlockguard.h>
@@ -202,11 +203,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_types.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
-#include <bsl_cstddef.h>      // bsl::size_t
+#include <bsl_cstddef.h>      // 'bsl::size_t'
 #include <bsl_functional.h>
 #include <bsl_memory.h>
-#include <bsl_utility.h>      // bsl::pair
+#include <bsl_utility.h>      // 'bsl::pair'
 
 namespace BloombergLP {
 
@@ -768,7 +770,7 @@ class Signaler_Node :
     void disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT;
         // Implements 'Signaler::disconnectAllSlots()'.  Disconnect all slots,
         // if any, connected to this signaler.  Any signals emitted on the
-        // corresponding signaler that happen after this call to disconect
+        // corresponding signaler that happen after this call to disconnect
         // completes will not call any slots that were connected prior to this
         // call.  Throws nothing.  Note that this function does not block the
         // calling thread pending completion of ongoing signals emitted on the
@@ -781,22 +783,22 @@ class Signaler_Node :
     void disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT;
         // Implements 'Signaler::disconnectAllSlotsAndWait'.  Disconnect all
         // slots, if any, connected to this signaler.  Any signals emitted on
-        // the corresponding signaler that happens after this call to disconect
-        // completes will not call any slots that were connected prior to this
-        // call.  This function blocks the calling thread pending completion of
-        // all ongoing signals being emitted on the signaler.  Throws nothing.
-        // The behavior is undefined if this method is called from a slot
-        // connected to the signaler.  Note that it is unspecified how many
-        // slots, if any, will be called by any invocation on the signaler that
-        // begins before this function completes.  Also note that if a slot is
-        // connected to this signaler during a call to this function, it is
-        // unspecified whether that slot will be disconnected.
+        // the corresponding signaler that happens after this call to
+        // disconnect completes will not call any slots that were connected
+        // prior to this call.  This function blocks the calling thread pending
+        // completion of all ongoing signals being emitted on the signaler.
+        // Throws nothing.  The behavior is undefined if this method is called
+        // from a slot connected to the signaler.  Note that it is unspecified
+        // how many slots, if any, will be called by any invocation on the
+        // signaler that begins before this function completes.  Also note that
+        // if a slot is connected to this signaler during a call to this
+        // function, it is unspecified whether that slot will be disconnected.
 
     void disconnectGroup(int group) BSLS_KEYWORD_NOEXCEPT;
         // Implements 'Signaler::disconnectGroup()'.  Disconnect all slots, if
         // any, connected to this signaler in the specified 'group'.  Any
         // signal emitted on the corresponding signaler that happens after this
-        // call to disconect completes will not call any slots in 'group' that
+        // call to disconnect completes will not call any slots in 'group' that
         // were connected prior to this call.  Throws nothing.  Note that this
         // function does not block the calling thread pending completion of
         // ongoing signals emitted on the signaler.  Also note that it is
@@ -810,7 +812,7 @@ class Signaler_Node :
         // Implements 'Signaler::disconnectGroupAndWait()'.  Disconnect all
         // slots, if any, connected to this signaler in the specified 'group'.
         // Any signal emitted on the corresponding signaler that happens after
-        // this call to disconect completes will not call any slots in 'group'
+        // this call to disconnect completes will not call any slots in 'group'
         // that were connected prior to this call.  This function blocks the
         // calling thread pending completion of ongoing signals being emitted
         // on the signaler.  Throws nothing.  The behavior is undefined if this
@@ -922,7 +924,7 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
     void disconnectAllSlots() BSLS_KEYWORD_NOEXCEPT;
         // Disconnect all slots, if any, connected to this signaler.  Any
         // signals emitted on the corresponding signaler that happen after this
-        // call to disconect completes will not call any slots that were
+        // call to disconnect completes will not call any slots that were
         // connected prior to this call.  Throws nothing.  Note that this
         // function does not block the calling thread pending completion of
         // ongoing signals emitted on the signaler.  Also note that it is
@@ -935,7 +937,7 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
     void disconnectAllSlotsAndWait() BSLS_KEYWORD_NOEXCEPT;
         // Disconnect all slots, if any, connected to this signaler.  Any
         // signals emitted on the corresponding signaler that happens after
-        // this call to disconect completes will not call any slots that were
+        // this call to disconnect completes will not call any slots that were
         // connected prior to this call.  This function blocks the calling
         // thread pending completion of all ongoing signals being emitted on
         // the signaler.  Throws nothing.  The behavior is undefined if this
@@ -949,7 +951,7 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
     void disconnectGroup(int group) BSLS_KEYWORD_NOEXCEPT;
         // Disconnect all slots, if any, connected to this signaler in the
         // specified 'group'.  Any signal emitted on the corresponding signaler
-        // that happens after this call to disconect completes will not call
+        // that happens after this call to disconnect completes will not call
         // any slots in 'group' that were connected prior to this call.  Throws
         // nothing.  Note that this function does not block the calling thread
         // pending completion of ongoing signals emitted on the signaler.  Also
@@ -962,7 +964,7 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
     void disconnectGroupAndWait(int group) BSLS_KEYWORD_NOEXCEPT;
         // Disconnect all slots, if any, connected to this signaler in the
         // specified 'group'.  Any signal emitted on the corresponding signaler
-        // that happens after this call to disconect completes will not call
+        // that happens after this call to disconnect completes will not call
         // any slots in 'group' that were connected prior to this call.  This
         // function blocks the calling thread pending completion of ongoing
         // signals being emitted on the signaler.  Throws nothing.  The
@@ -979,9 +981,9 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
         //
         // 'bdlmt::Signaler_Invocable', from which this 'class' inherits,
         // provides a call operator that, in C++11, would be defined and behave
-        // exacly this way, except that the number of arguments is limited to
-        // to 9, where 'ARGS...' are the arguments of 'PROT'.  Sequentially
-        // emit the signal, sequentially calling each slot connected to this
+        // exactly this way, except that the number of arguments is limited to
+        // 9, where 'ARGS...' are the arguments of 'PROT'.  Sequentially emit
+        // the signal, sequentially calling each slot connected to this
         // signaler as if by 'f_i(args...)', where 'f_i' is the i-th connected
         // slot.  The behavior is undefined if this function is invoked from a
         // slot connected to this signaler.  Note that signals emitted to slots
@@ -1002,7 +1004,7 @@ class Signaler : public Signaler_Invocable<Signaler<PROT>, PROT> {
     bsl::size_t slotCount() const;
         // Return the number of slots connected to this signaler.  Note that
         // the value returned by 'slotCount()' is approximate if the signaler
-        // is being simulateously manipulated by other threads.
+        // is being simultaneously manipulated by other threads.
 };
 
                           // ========================
@@ -1093,7 +1095,7 @@ class SignalerConnection {
         // disconnected, this function has no effect.  This function returns
         // immediately without waiting on any calls to the signaler that may be
         // in progress.  Any signal emitted on the corresponding signaler that
-        // happens after this call to 'disconect' completes will not emit to
+        // happens after this call to 'disconnect' completes will not emit to
         // the slot.  Throws nothing.  Note that it is unspecified if any
         // signal that is emitted before this function completes will call the
         // slot.
@@ -1104,7 +1106,7 @@ class SignalerConnection {
         // calling thread pending completion of signals emitted on the signaler
         // by any thread, even if the slot was disconnected prior to this call.
         // Any signal emitted on the corresponding signaler that happens after
-        // this call to 'disconect' completes will not emit to the slot.
+        // this call to 'disconnect' completes will not emit to the slot.
         // Throws nothing.  The behavior is undefined if this method is called
         // from any slot.  Note that it is unspecified if any signal emitted on
         // the signaler that begins before this function completes will call
@@ -1844,7 +1846,7 @@ void Signaler_Node<PROT>::invoke(
                              typename ArgumentType::ForwardingType9 arg9) const
 {
     // Hold this mutex (in read mode), so that disconnects in 'wait' mode can
-    // synchonize with the call operator by momentarily locking it for write.
+    // synchronize with the call operator by momentarily locking it for write.
 
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> lock(&d_signalerMutex);
 

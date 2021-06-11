@@ -1476,7 +1476,7 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_nullptr.h>
 #include <bsls_platform.h>
 #include <bsls_unspecifiedbool.h>
-#include <bsls_util.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <functional>           // use 'std::less' to order pointers
 
@@ -2078,7 +2078,7 @@ class shared_ptr {
         // and deallocate the internal representation of the shared pointer.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.  This function does not exist unless
-        // 'unqiue_ptr<COMPATIBLE_TYPE, DELETER>::pointer' is convertible to
+        // 'unique_ptr<COMPATIBLE_TYPE, DELETER>::pointer' is convertible to
         // 'ELEMENT_TYPE *'.  Note that this function creates a 'shared_ptr'
         // with an unspecified deleter type that has satisfies this contract,
         // which might not be the deleter of 'rhs', which is specified by the
@@ -2104,7 +2104,7 @@ class shared_ptr {
         // and deallocate the internal representation of the shared pointer.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.  This function does not exist unless
-        // 'unqiue_ptr<COMPATIBLE_TYPE, DELETER>::pointer' is convertible to
+        // 'unique_ptr<COMPATIBLE_TYPE, DELETER>::pointer' is convertible to
         // 'ELEMENT_TYPE *'.  Note that this function creates a 'shared_ptr'
         // with an unspecified deleter type that has satisfies this contract,
         // which might not be the deleter of 'rhs', which is specified by the
@@ -2385,7 +2385,7 @@ class shared_ptr {
         // object, then release the reference to that shared object, and
         // destroy it using its associated deleter if this shared pointer held
         // the last shared reference to that object.  This function does not
-        // exist unless 'unqiue_ptr<COMPATIBLE_TYPE, DELETER>::pointer' is
+        // exist unless 'unique_ptr<COMPATIBLE_TYPE, DELETER>::pointer' is
         // convertible to 'ELEMENT_TYPE *'.  Note that if 'rhs' is empty, then
         // this shared pointer will be empty after the assignment.  Also note
         // that this function creates a 'shared_ptr' with an unspecified

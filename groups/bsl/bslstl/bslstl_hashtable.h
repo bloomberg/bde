@@ -974,7 +974,7 @@ BSLS_IDENT("$Id: $")
 //      int  orderNumber;                        // unique
 //      int  customerId;                         // no constraint
 //      int  vendorId;                           // no constraint
-//      char description[MAX_DESCRIPTION_SIZE];  // ascii string
+//      char description[MAX_DESCRIPTION_SIZE];  // ASCII string
 //  } MySalesRecord;
 //..
 // Notice that only each 'orderNumber' is unique.  We expect multiple sales to
@@ -1523,6 +1523,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ispointer.h>
 #include <bslmf_istransparentpredicate.h>
 #include <bslmf_movableref.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
 #include <bsls_bslexceptionutil.h>
@@ -1531,6 +1532,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_objectbuffer.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <algorithm>  // for fill_n, max, swap (C++03)
 #include <cstddef>    // for 'size_t'
@@ -2047,18 +2049,17 @@ class HashTable {
     explicit HashTable(const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create an empty hash-table.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is not supplied, a
-        // default-constructed object of the (template paramater) type
+        // default-constructed object of the (template parameter) type
         // 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is 'bsl::allocator'
-        // and 'basicAllocator'is not supplied, the currently installed default
-        // allocator is used to supply memory.  Use 1.0 for the 'maxLoadFactor.
-        // object with a 'maxLoadFactor' of 1.0.  Use a default constructed
-        // object of the (template parameter) type 'HASHER' and a default
-        // constructed object of the (template parameter) type 'COMPARATOR' to
-        // organize elements in the table.  No memory is allocated unless the
-        // 'HASHER' or 'COMPARATOR' types allocate memory in their default
-        // constructor.  Note that a 'bslma::Allocator *' can be supplied for
-        // 'basicAllocator' if the type 'ALLOCATOR' is 'bsl::allocator' (the
-        // default).
+        // and 'basicAllocator' is not supplied, the currently installed
+        // default allocator is used to supply memory.  Use 1.0 for the
+        // 'maxLoadFactor'.  Use a default constructed object of the (template
+        // parameter) type 'HASHER' and a default constructed object of the
+        // (template parameter) type 'COMPARATOR' to organize elements in the
+        // table.  No memory is allocated unless the 'HASHER' or 'COMPARATOR'
+        // types allocate memory in their default constructor.  Note that a
+        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
+        // type 'ALLOCATOR' is 'bsl::allocator' (the default).
 
     HashTable(const HASHER&     hash,
               const COMPARATOR& compare,

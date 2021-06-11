@@ -470,7 +470,7 @@ BSL_OVERRIDES_STD mode"
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
-#include <bsls_util.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
@@ -504,7 +504,7 @@ struct AllocatorTraits_HasSelectOnCopyMethod {
 
     template <class T, T> struct MatchType { };
         // This 'struct' template provides a mechanism to check if a type
-        // matches an instance within a sfinae context.
+        // matches an instance within a SFINAE context.
 
     template <class T>
     struct MethodAlias { typedef T (T::*Method)() const; };
@@ -758,7 +758,7 @@ struct allocator_traits {
     // model (see the 'bslma_stdallocator' component for more details).  In
     // C++11 compilation environments, the 'construct' methods forward to the
     // allocator's 'construct' method if such a method matching the (variable
-    // number of) specified constuctor arguments exists; otherwise, the
+    // number of) specified constructor arguments exists; otherwise, the
     // 'construct' method falls back to invoking the constructor of the element
     // type directly.  In C++03 compilation environments, there is no reliable
     // way to detect if the type provide a method that matches a (variable
@@ -868,7 +868,8 @@ struct allocator_traits {
     using rebind_traits = allocator_traits<rebind_alloc<ELEMENT_TYPE>>;
 #else // !BDE_CXX11_TEMPLATE_ALIASES
     template <class ELEMENT_TYPE>
-    struct rebind_alloc : public ALLOCATOR_TYPE::template rebind<ELEMENT_TYPE>::other
+    struct rebind_alloc :
+                    public ALLOCATOR_TYPE::template rebind<ELEMENT_TYPE>::other
     {
     };
 
@@ -988,7 +989,7 @@ struct allocator_traits<ALLOCATOR_TYPE *> {
     // This is an empty class specialization of 'allocator_traits' for pointer
     // types that (intentionally) does not define any of the traits typedefs.
     // It's needed in order make unambiguous function overloads that take both
-    // a standard allocator by value and a 'blmsa::Allocator *'.  By using
+    // a standard allocator by value and a 'bslma::Allocator *'.  By using
     // the typedefs defined in 'allocator_traits' in the signature of functions
     // taking standard allocators, we can ensure that those overloads are not
     // considered when using 'bslma'-style allocators.

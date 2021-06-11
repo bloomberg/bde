@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Fri Oct 23 15:03:36 2020
+// Generated on Thu Jun 10 09:59:24 2021
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -609,7 +609,7 @@ class shared_ptr {
         // and deallocate the internal representation of the shared pointer.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.  This function does not exist unless
-        // 'unqiue_ptr<COMPATIBLE_TYPE, DELETER>::pointer' is convertible to
+        // 'unique_ptr<COMPATIBLE_TYPE, DELETER>::pointer' is convertible to
         // 'ELEMENT_TYPE *'.  Note that this function creates a 'shared_ptr'
         // with an unspecified deleter type that has satisfies this contract,
         // which might not be the deleter of 'rhs', which is specified by the
@@ -635,7 +635,7 @@ class shared_ptr {
         // and deallocate the internal representation of the shared pointer.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.  This function does not exist unless
-        // 'unqiue_ptr<COMPATIBLE_TYPE, DELETER>::pointer' is convertible to
+        // 'unique_ptr<COMPATIBLE_TYPE, DELETER>::pointer' is convertible to
         // 'ELEMENT_TYPE *'.  Note that this function creates a 'shared_ptr'
         // with an unspecified deleter type that has satisfies this contract,
         // which might not be the deleter of 'rhs', which is specified by the
@@ -916,7 +916,7 @@ class shared_ptr {
         // object, then release the reference to that shared object, and
         // destroy it using its associated deleter if this shared pointer held
         // the last shared reference to that object.  This function does not
-        // exist unless 'unqiue_ptr<COMPATIBLE_TYPE, DELETER>::pointer' is
+        // exist unless 'unique_ptr<COMPATIBLE_TYPE, DELETER>::pointer' is
         // convertible to 'ELEMENT_TYPE *'.  Note that if 'rhs' is empty, then
         // this shared pointer will be empty after the assignment.  Also note
         // that this function creates a 'shared_ptr' with an unspecified
@@ -7970,7 +7970,7 @@ struct IsBitwiseMoveable< ::bsl::weak_ptr<ELEMENT_TYPE> >
 #endif // ! defined(INCLUDED_BSLSTL_SHAREDPTR_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2021 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

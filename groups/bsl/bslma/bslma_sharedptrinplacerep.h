@@ -157,7 +157,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_movableref.h>
-#include <bslmf_util.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>

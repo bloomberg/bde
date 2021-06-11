@@ -138,7 +138,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  template <class TYPE, class ALLOC>
 //  class MyVector {
 //      // This class implements a vector of elements of the (template
-//      // parameter) 'TYPE', which must be copy constructable.  Note that for
+//      // parameter) 'TYPE', which must be copy constructible.  Note that for
 //      // the brevity of the usage example, this class does not provide any
 //      // Exception-Safety guarantee.
 //
@@ -317,6 +317,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_removeconst.h>
 #include <bslmf_removecv.h>
 #include <bslmf_removepointer.h>
+#include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -325,7 +326,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
-#include <bsls_util.h>
+#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <cstddef>  // 'std::size_t'
 #include <cstring>  // 'memset', 'memcpy', 'memmove'
@@ -768,7 +769,7 @@ struct ArrayPrimitives {
         // 'toBegin' pointer, elements of type given by the 'allocator_traits'
         // class template for (template parameter) 'ALLOCATOR', from elements
         // starting at the specified 'fromBegin' pointer and ending immediately
-        // before the specified 'fromEnd' address, moving intothe specified
+        // before the specified 'fromEnd' address, moving into the specified
         // 'position' (after translating from 'fromBegin' to 'toBegin') the
         // specified 'numElements' elements starting at the specified 'first'
         // pointer and ending immediately before the specified 'last' pointer.
@@ -1080,7 +1081,7 @@ struct ArrayPrimitives {
                            TARGET_TYPE       *fromEnd,
                            size_type          numElements,
                            bslma::Allocator  *allocator);
-        // Move the elements of the (template paramaeter) 'TARGET_TYPE' in the
+        // Move the elements of the (template parameter) 'TARGET_TYPE' in the
         // array starting at the specified 'toBegin' address and ending
         // immediately before the specified 'toEnd' address by the specified
         // 'numElements' positions towards larger addresses, and fill the
@@ -1162,7 +1163,7 @@ struct ArrayPrimitives_Imp {
     // 'TARGET_TYPE'.  These utility functions are only for the purpose of
     // implementing those in the 'ArrayPrimitives' utility.  For brevity, we do
     // not repeat the main contracts here, but instead refer to the
-    // corresponding contract in the 'ArrayPrimitive' utility.
+    // corresponding contract in the 'ArrayPrimitives' utility.
 
   private:
     // PRIVATE METHODS
@@ -1674,7 +1675,7 @@ struct ArrayPrimitives_Imp {
         // These functions follow the 'insert' contract.  Note that if
         // 'TARGET_TYPE' is bit-wise copyable and 'FWD_ITER' is convertible to
         // 'const TARGET_TYPE *', then this operation is simply 'memmove'
-        // followed by 'memcopy'.  If 'TARGET_TYPE' is bit-wise moveable and
+        // followed by 'memcpy'.  If 'TARGET_TYPE' is bit-wise moveable and
         // 'FWD_ITER' is convertible to 'const TARGET_TYPE *', then this
         // operation can still be optimized using 'memmove' followed by
         // repeated copies.  The last argument is for removing overload
@@ -4728,7 +4729,7 @@ void ArrayPrimitives_Imp::rotate(TARGET_TYPE                *begin,
             // each triggering an extra assignment in the 'if' clause below, so
             // the loop must only be executed:
             //..
-            //  (length - numElements) / numCycles = remELements / numCycles
+            //  (length - numElements) / numCycles = remElements / numCycles
             //..
             // times.
 
@@ -4763,7 +4764,7 @@ void ArrayPrimitives_Imp::rotate(TARGET_TYPE                *begin,
             // loop must only be executed:
             //..
             //  (length - remElements) / numCycles - 1 =
-            //                                      numELements / numCycles - 1
+            //                                      numElements / numCycles - 1
             //..
             // times.
 

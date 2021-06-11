@@ -124,13 +124,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 
+#include <bslmf_util.h>    // 'forward(V)'
+
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
-
-#include <bslmf_util.h>
-
-#include <bsls_util.h>
 #include <bsls_types.h>
+#include <bsls_util.h>
 
 #include <new>
 #include <stddef.h>

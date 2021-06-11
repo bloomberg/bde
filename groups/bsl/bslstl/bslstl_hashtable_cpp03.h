@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Fri Oct 23 15:03:30 2020
+// Generated on Thu Jun 10 09:59:24 2021
 // Command line: sim_cpp11_features.pl bslstl_hashtable.h
 
 #ifdef COMPILING_BSLSTL_HASHTABLE_H
@@ -526,18 +526,17 @@ class HashTable {
     explicit HashTable(const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create an empty hash-table.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is not supplied, a
-        // default-constructed object of the (template paramater) type
+        // default-constructed object of the (template parameter) type
         // 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is 'bsl::allocator'
-        // and 'basicAllocator'is not supplied, the currently installed default
-        // allocator is used to supply memory.  Use 1.0 for the 'maxLoadFactor.
-        // object with a 'maxLoadFactor' of 1.0.  Use a default constructed
-        // object of the (template parameter) type 'HASHER' and a default
-        // constructed object of the (template parameter) type 'COMPARATOR' to
-        // organize elements in the table.  No memory is allocated unless the
-        // 'HASHER' or 'COMPARATOR' types allocate memory in their default
-        // constructor.  Note that a 'bslma::Allocator *' can be supplied for
-        // 'basicAllocator' if the type 'ALLOCATOR' is 'bsl::allocator' (the
-        // default).
+        // and 'basicAllocator' is not supplied, the currently installed
+        // default allocator is used to supply memory.  Use 1.0 for the
+        // 'maxLoadFactor'.  Use a default constructed object of the (template
+        // parameter) type 'HASHER' and a default constructed object of the
+        // (template parameter) type 'COMPARATOR' to organize elements in the
+        // table.  No memory is allocated unless the 'HASHER' or 'COMPARATOR'
+        // types allocate memory in their default constructor.  Note that a
+        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
+        // type 'ALLOCATOR' is 'bsl::allocator' (the default).
 
     HashTable(const HASHER&     hash,
               const COMPARATOR& compare,
@@ -5836,7 +5835,7 @@ struct IsBitwiseMoveable<bslstl::HashTable<KEY_CONFIG,
 #endif // ! defined(INCLUDED_BSLSTL_HASHTABLE_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2021 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
