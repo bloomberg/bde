@@ -52,12 +52,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 81 components having 19 levels of physical
+ The 'bslmf' package currently has 82 components having 19 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  19. bslmf_forwardingtype
+  19. bslmf_forwardingreftype
+      bslmf_forwardingtype
       bslmf_invokeresult
       bslmf_util
 
@@ -201,6 +202,9 @@
 :
 : 'bslmf_enableif':
 :      Provide a utility to set up SFINAE conditions in type deduction.
+:
+: 'bslmf_forwardingreftype':
+:      Provide a meta-function for determining a forwarding type.
 :
 : 'bslmf_forwardingtype':
 :      Provide a meta-function for determining an optimal forwarding type.
