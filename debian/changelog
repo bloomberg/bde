@@ -1,10 +1,17 @@
-bsl-internal (3.82.0.0) unstable; urgency=low
+bsl-internal (3.83.0.0) unstable; urgency=low
 
+  * 136eca751 Bumped version to 3.83.0.0
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 13 Jun 2021 14:10:51 -0400
+
+bsl-internal (3.82.0.0) git; urgency=low
+
+  * bac433c7c Changelog for version 3.82.0.0
   * fdab06e66 Bumped version to 3.82.0.0
   * d3a0033b5 document implicit conversion to bool w/C++03 (DRQS 166024189) (#3223)
   * bc2628476 Merge pull request #3021 from bchapman/bslstl_iterator-size-ssize-drqs-158473072
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 28 May 2021 16:42:51 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 28 May 2021 16:44:34 -0400
 
 bsl-internal (3.81.0.0) git; urgency=low
 
