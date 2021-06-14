@@ -1302,6 +1302,7 @@ int AttributesFormatter::format(baljsn::SimpleFormatter *formatter,
 
 int AttributesFormatter::parse(bdld::DatumMapRef v)
 {
+    (void) v;
     BSLS_ASSERT(0 == v.size());
     return 0;
 }
@@ -1458,6 +1459,7 @@ RecordJsonFormatter::RecordJsonFormatter(const allocator_type& allocator)
     static const bsl::string_view k_DEFAULT_FORMAT_SPEC = getDefaultFormat();
 
     int rc = setFormat(k_DEFAULT_FORMAT_SPEC);
+    (void) rc;
     BSLS_ASSERT(0 == rc);
 }
 
@@ -1497,6 +1499,7 @@ RecordJsonFormatter& RecordJsonFormatter::operator=(
 {
     if (this != &rhs) {
         int rc = setFormat(rhs.d_formatSpec);
+        (void) rc;
         BSLS_ASSERT(0 == rc);
     }
 

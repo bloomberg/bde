@@ -544,6 +544,7 @@ RecordJsonFormatter::RecordJsonFormatter(const RecordJsonFormatter& original,
 , d_fieldFormatters(allocator)
 {
     int rc = setFormat(d_formatSpec);
+    (void) rc;
     BSLS_ASSERT(0 == rc);
 }
 
@@ -571,6 +572,7 @@ RecordJsonFormatter::RecordJsonFormatter(
     }
     else {
         int rc = setFormat(d_formatSpec);
+        (void) rc;
         BSLS_ASSERT(0 == rc);
     }
 }
@@ -590,6 +592,7 @@ RecordJsonFormatter& RecordJsonFormatter::operator=(
         }
         else {
             int rc = setFormat(MoveUtil::access(rhs).d_formatSpec);
+            (void) rc;
             BSLS_ASSERT(0 == rc);
         }
     }
