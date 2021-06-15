@@ -40,9 +40,12 @@ namespace bsl {
     // the standard header.  This may get tricky if some standard library
     // happens to not require any of these names for its native implementation
     // of the <memory> header.
-# if !defined(BSLS_PLATFORM_CMP_MSVC) && __cplusplus < 201703L
-    // As some of these names are removed from C++17, take a sledgehammer to
-    // crack this nut, and remove all non-standard exports.
+# if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_CMP_SUN)
+#  if __cplusplus < 201103L
+    // We limit these non-standard exports to legacy C++2003 compilation on AIX
+    // and Sun. Note that some newer compilers require an additional include of
+    // <exception> for these, and also that some of these have been removed
+    // from C++17.
     using native_std::bad_exception;
     using native_std::exception;
     using native_std::set_terminate;
@@ -52,7 +55,8 @@ namespace bsl {
     using native_std::uncaught_exception;
     using native_std::unexpected;
     using native_std::unexpected_handler;
-# endif // MSVC, or C++2017
+#  endif // MSVC, or C++2017
+# endif // BSLS_PLATFORM_CMP_IBM or BSLS_PLATFORM_CMP_SUN
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }  // close package namespace
 
