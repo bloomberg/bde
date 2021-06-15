@@ -2338,11 +2338,14 @@ class shared_ptr {
         // parameter) type 'COMPATIBLE_TYPE', and make this shared pointer
         // refer to '(ELEMENT_TYPE *)rhs.ptr()'.  The deleter used in the 'rhs'
         // will be used to destroy the shared object when all references have
-        // been released.  If this shared pointer is already managing a
-        // (possibly shared) object, then release the reference to that shared
-        // object, and destroy it using its associated deleter if this shared
-        // pointer held the last shared reference to that object.  Note that if
-        // 'rhs' is empty, then this shared pointer will be empty after the
+        // been released.  The *default* *allocator* is used to allocate a
+        // 'SharedPtrRep', if needed (users must use the copy-constructor and
+        // swap instead of using this operator to supply an alternative
+        // allocator).  If this shared pointer is already managing a (possibly
+        // shared) object, then release the reference to that shared object,
+        // and destroy it using its associated deleter if this shared pointer
+        // held the last shared reference to that object.  Note that if 'rhs'
+        // is empty, then this shared pointer will be empty after the
         // assignment.  Also note that if 'rhs' owns a reference to another
         // shared object (due to a previous call to
         // 'shared_ptr<T>::managedPtr') then this 'shared_ptr' will adopt the
