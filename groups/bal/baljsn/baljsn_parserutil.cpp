@@ -153,8 +153,8 @@ namespace baljsn {
 // CLASS METHODS
 int ParserUtil::getString(bsl::string *value, const bsl::string_view& data)
 {
-    const char *iter = data.begin();
-    const char *end  = data.end();
+    const char *iter = data.data();
+    const char *end  = data.data() + data.length();
 
     if (iter == end || '"' != *iter) {
         return -1;                                                    // RETURN
@@ -400,8 +400,8 @@ int ParserUtil::getValue(double *value, const bsl::string_view& data)
 int ParserUtil::getUint64(bsls::Types::Uint64     *value,
                           const bsl::string_view&  data)
 {
-    const char *iter  = data.begin();
-    const char *end   = data.end();
+    const char *iter = data.data();
+    const char *end  = data.data() + data.length();
 
     // Extract leading digits and store their range in [valueBegin..valueEnd)
 
