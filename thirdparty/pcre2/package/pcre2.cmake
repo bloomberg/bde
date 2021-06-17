@@ -38,6 +38,7 @@ function(pcre2_process_standalone_package retUOR listFile isntallOpts)
         ${rootDir}/pcre2_ord2utf.c
         ${rootDir}/pcre2_pattern_info.c
         ${rootDir}/pcre2_serialize.c
+        ${rootDir}/pcre2_script_run.c
         ${rootDir}/pcre2_string_utils.c
         ${rootDir}/pcre2_study.c
         ${rootDir}/pcre2_substitute.c
