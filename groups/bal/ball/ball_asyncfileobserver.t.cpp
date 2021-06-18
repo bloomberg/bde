@@ -175,6 +175,80 @@ void aSsErT2(bool condition, const char *message, int line)
 #define ASSERT2(X) { aSsErT2(!(X), #X, __LINE__); }
 
 // ============================================================================
+//               OVERRIDE DEFINED ASSERTION MACROS
+// ----------------------------------------------------------------------------
+// As this test captures cout, we need to log to cerr for this test driver.
+
+#undef BSLIM_TESTUTIL_LOOP_ASSERT
+#define BSLIM_TESTUTIL_LOOP_ASSERT(I,X)                                      \
+    if (!(X)) { bsl::cerr << #I << ": " << (I) << "\n";                      \
+                aSsErT(1, #X, __LINE__); }
+
+#undef BSLIM_TESTUTIL_LOOP1_ASSERT
+#define BSLIM_TESTUTIL_LOOP1_ASSERT                                          \
+    BSLIM_TESTUTIL_LOOP_ASSERT
+
+#undef BSLIM_TESTUTIL_LOOP2_ASSERT
+#define BSLIM_TESTUTIL_LOOP2_ASSERT(I,J,X)                                   \
+    if (!(X)) { bsl::cerr << #I << ": " << (I) << "\t"                       \
+                          << #J << ": " << (J) << "\n";                      \
+                aSsErT(1, #X, __LINE__); }
+
+#undef BSLIM_TESTUTIL_LOOP3_ASSERT
+#define BSLIM_TESTUTIL_LOOP3_ASSERT(I,J,K,X)                                 \
+    if (!(X)) { bsl::cerr << #I << ": " << (I) << "\t"                       \
+                          << #J << ": " << (J) << "\t"                       \
+                          << #K << ": " << (K) << "\n";                      \
+                aSsErT(1, #X, __LINE__); }
+
+#undef BSLIM_TESTUTIL_LOOP4_ASSERT
+#define BSLIM_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)                               \
+    if (!(X)) { bsl::cerr << #I << ": " << (I) << "\t"                       \
+                          << #J << ": " << (J) << "\t"                       \
+                          << #K << ": " << (K) << "\t"                       \
+                          << #L << ": " << (L) << "\n";                      \
+                aSsErT(1, #X, __LINE__); }
+
+#undef BSLIM_TESTUTIL_LOOP5_ASSERT
+#define BSLIM_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)                             \
+    if (!(X)) { bsl::cerr << #I << ": " << (I) << "\t"                       \
+                          << #J << ": " << (J) << "\t"                       \
+                          << #K << ": " << (K) << "\t"                       \
+                          << #L << ": " << (L) << "\t"                       \
+                          << #M << ": " << (M) << "\n";                      \
+               aSsErT(1, #X, __LINE__); }
+
+#undef BSLIM_TESTUTIL_LOOP6_ASSERT
+#define BSLIM_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)                           \
+    if (!(X)) { bsl::cerr << #I << ": " << (I) << "\t"                       \
+                          << #J << ": " << (J) << "\t"                       \
+                          << #K << ": " << (K) << "\t"                       \
+                          << #L << ": " << (L) << "\t"                       \
+                          << #M << ": " << (M) << "\t"                       \
+                          << #N << ": " << (N) << "\n";                      \
+               aSsErT(1, #X, __LINE__); }
+
+#undef BSLIM_TESTUTIL_Q
+#define BSLIM_TESTUTIL_Q(X)                                                  \
+    bsl::cerr << "<| " #X " |>" << bsl::endl;
+    // Quote identifier literally.
+
+#undef BSLIM_TESTUTIL_P
+#define BSLIM_TESTUTIL_P(X)                                                  \
+    bsl::cerr << #X " = " << (X) << bsl::endl;
+    // Print identifier and its value.
+
+#undef BSLIM_TESTUTIL_P_
+#define BSLIM_TESTUTIL_P_(X)                                                 \
+    bsl::cerr << #X " = " << (X) << ", " << bsl::flush;
+    // 'P(X)' without '\n'
+
+#undef BSLIM_TESTUTIL_T_
+#define BSLIM_TESTUTIL_T_                                                    \
+    bsl::cerr << "\t" << bsl::flush;
+    // Print tab (w/o newline).
+    
+// ============================================================================
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
@@ -1583,7 +1657,9 @@ int main(int argc, char *argv[])
                 // Wait for the async logging to complete.
                 waitEmptyRecordQueue(X);
 
-                ASSERT(1    == countLoggedRecords(globbuf.gl_pathv[0]));
+                int logRecordCount = countLoggedRecords(globbuf.gl_pathv[0]);
+                ASSERTV(globbuf.gl_pathv[0], logRecordCount, 1 == logRecordCount);
+
                 ASSERT(true == X->isFileLoggingEnabled());
 
                 globfree(&globbuf);
@@ -2064,8 +2140,8 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::microSleep(3 * 1000, 0);
 
                 // Verify some, but not all records have been published
-                ASSERTV(record.use_count(),
-			1 < record.use_count() && record.use_count() <= logCount);
+                ASSERTV(record.use_count(), 1 < record.use_count());
+                ASSERTV(record.use_count(), record.use_count() <= logCount);
 
                 // After this code block the logger manager will be destroyed.
             }
