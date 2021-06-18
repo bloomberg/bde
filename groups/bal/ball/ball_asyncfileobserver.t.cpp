@@ -966,7 +966,7 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::create(&releaseThread, releaserFunctor);
 
         bsls::TimeInterval start = bsls::SystemTime::nowMonotonicClock();
-        bsls::TimeInterval timeout = start + bsls::TimeInterval(5);
+        bsls::TimeInterval timeout = start + bsls::TimeInterval(10);
         barrier.wait();  // Start of the test.
 
         int rc;
@@ -2059,7 +2059,9 @@ int main(int argc, char *argv[])
                     ball::Context context;
                     mX->publish(record, context);
                 }
-                bslmt::ThreadUtil::microSleep(1, 0);
+                // Sleep at least 3 milliseconds to guarantee thread suspension
+                // across all linux kernel versions.
+                bslmt::ThreadUtil::microSleep(3 * 1000, 0);
 
                 // Verify some, but not all records have been published
                 ASSERTV(record.use_count(),
