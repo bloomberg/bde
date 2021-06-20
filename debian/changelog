@@ -1,15 +1,55 @@
-bsl-internal (3.83.0.0) unstable; urgency=low
+bsl-internal (3.83.0.1) unstable; urgency=low
 
+  * 177a14d0f Backfill changelog
+  * 820c397a0 Update pcre2 to v10.37 (#3270)
+  * f117339b2 'bdldfp' package has been updated in accordance with bde 4.0 (#3257)
+  * 2e2060690 Regenerate cpp03 files. (#3278)
+  * 5122c1c13 baljsn_parserutil: stop assuming that string_view::const_iterator is 'const char *' (#3275)
+  * 7f577a9e9 Changes to 'bsl::shared_ptr' assignment operator documentation (#3263)
+  * 04de15c52 Remove bsl_new non-standard exports for gcc and clang (#3266)
+  * 4088cca3d Silence unused variable warnings in ball. (#3276)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 20 Jun 2021 08:40:20 -0400
+
+bsl-internal (3.83.0.0) git; urgency=low
+
+  * bd00631a1 Changelog for version 3.83.0.0
   * 136eca751 Bumped version to 3.83.0.0
+  * cfa9061e5 bsls_compilerfeatures -- doc inclusions needed for 'forward' (DRQS 166358636) (#3271)
+  * 9ec6d8712 Typos in documentation for bslmf_invokeresult.h (#3272)
+  * 245dbf31f Fix null pointer dereference UBSAN warning (#3206)
+  * 284f549f0 baljsn: bde-4.0 (#3154)
+  * ebaaad67a Fix bind forwarding drqs 165560983 (#3197)
+  * 9da1c6e5e Fix formatting typos. (#3268)
+  * a10692450 Split invokeresult.t into 8 tests (#3252)
+  * 6bc77d5f4 Apply foilOptimizer() call to failing tests (#3254)
+  * a707c014c bslstl_stringref: add c'tor from pmr::string (#3265)
+  * 0634bdc63 Bdlb numericparserutil string view drqs 164339936 (#3256)
+  * 6a7caf172 Bdlpcre bde 4.0 drgs 165911797 (#3234)
+  * 5775bafb6 Windows issues in 'bdlb::tokenizer' have been fixed (#3251)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 13 Jun 2021 14:10:51 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 13 Jun 2021 14:12:14 -0400
 
 bsl-internal (3.82.0.0) git; urgency=low
 
   * bac433c7c Changelog for version 3.82.0.0
   * fdab06e66 Bumped version to 3.82.0.0
+  * 4235803b7 bslstl_function: Implement Overload Limiting  (#3166)
+  * 5753d8e19 Bde4 guidutil drqs164338852 (#3245)
+  * 51352144c bslstl_iterator: back out addition of 'size', 'ssize' free frunctions (#3248)
+  * 68c126bd8 'bdlb_tokenizer' has been updated in accordance with bde-4.0 (#3242)
+  * c0a749483 Make bsl::string_view trivially copyable (#3205)
+  * a4ba0f94c bdlmt_signaler.t.cpp: workaround for compiler bug DRQS 166134166.  Wi… (#3237)
+  * ffca49496 Revert "Balxml decoder check utf 8 with bug 2 drqs 158940938 (#3165)" (#3225)
   * d3a0033b5 document implicit conversion to bool w/C++03 (DRQS 166024189) (#3223)
+  * 863f06ef5 bslstl_iterator: std::size natively defined for MSVC 2015 and above (#3232)
+  * 05fa19a17 bdld.txt: fix typos (#3230)
+  * a2a09a93c higher BSLS_PLATFORM_CMP_VERSION number to address heap issue (#3227)
   * bc2628476 Merge pull request #3021 from bchapman/bslstl_iterator-size-ssize-drqs-158473072
+  * 36bc31434 bdlb_caselessstringview* (#3217)
+  * fd647401e 'int' overflow in 'bdlb_bitmaskutil' has been fixed (#3214)
+  * d0024821a Xlc16 stackaddressutil.t fix 165653925 (#3220)
+  * 8ab828266 remove unneeded bslmt_threadutil to remove cycle (#3221)
 
  -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 28 May 2021 16:44:34 -0400
 
@@ -17,7 +57,20 @@ bsl-internal (3.81.0.0) git; urgency=low
 
   * 9375df531 Changelog for version 3.81.0.0
   * 9546277e5 Bumped version to 3.81.0.0
+  * a2173f85c Explicitly scope seconds to avoid ADL issues with legacy code (#3219)
+  * 3d15703d7 Baljsn encoder assert fix drqs165920075 (#3216)
+  * d4ac43180 Balxml decoder check utf 8 with bug 2 drqs 158940938 (#3165)
+  * d7bc33a96 Md5: modified copy constructor to address DRQS 165984295 (#3209)
+  * cd122b3f3 Add message to d_logStream if input stream is not good (#3215)
+  * 54a95f95e bslalg_arraydestructionprimitives: eliminate UB in safe build (#3211)
+  * 4ffb53067 Correct dup2 calls for AIX and MS test drivers (#3212)
+  * f9fe0f100 remove 'noexcept' from test drivers (#3210)
+  * 31e73ec0c Remove abominable function pointer test on XLC 16.01 pending compiler fix (#3185)
+  * b60c811ae Add chrono-based sleep/sleepUntil method to ThreadUtil (#3201)
+  * 136469b49 Add workaround for __has_include issue in cppcheck (#3200)
+  * d64466838 Fix construction of nested bsl_optional objects (#3198)
   * 63bdaafdc Change 'SaturatedTimeConversionImpUtil::toMillisec' to round up fractional msec (#3203)
+  * 8865a0b34 Switch to ftruncate for bdls::FileSystemUtil::growFile (without fsync) - DRQS 165768099 (#3204)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 7 May 2021 10:55:59 -0400
 
@@ -25,6 +78,11 @@ bsl-internal (3.80.0.0) git; urgency=low
 
   * fa2fbab95 Changelog for version 3.80.0.0
   * 3a6432a03 Bumped version to 3.80.0.0
+  * 3f368a1ed Bslstl string view compare util drqs 164229251 (#3190)
+  * 9c174f124 Allow log rotation start time to be in UTC or local time. (#3178)
+  * aa50d3778 bslmf_movableref: Work around XLC 16 defect (#3202)
+  * b21b3177b Change ibm2->ibmTwo and linxdev5->linxdevFive to avoir deprecation wa… (#3199)
+  * f36727c07 Make bsljsn::DatumUtil::decode exception-neutral (#3196)
 
  -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 23 Apr 2021 15:48:16 -0400
 
@@ -32,6 +90,14 @@ bsl-internal (3.79.0.0) git; urgency=low
 
   * e0c887c01 Changelog for version 3.79.0.0
   * 1a72ef52e Bumped version to 3.79.0.0
+  * af78c6118 Change to using enable_if on the function return type to deal with GCC9 issue (#3195)
+  * 58d071933 Flush output stream after formatting a log record (ball::RecordJsonFormatter) (#3191)
+  * 4f1dfb6e5 Revert "Add chrono-based `sleep`/`sleepUntil` methods to ThreadUtil (#3182)" (#3193)
+  * 3f29f59ad 'getSystemTemporaryDirectory' function has been added (#3189)
+  * 56c382378 Remove windows.h from bsls_outputredirector.h (#3138)
+  * 684fcde8d Add ball RecordJsonFormatter (#3086)
+  * 333d948f2 remove include causing issue (#3188)
+  * efceb87e8 Add chrono-based `sleep`/`sleepUntil` methods to ThreadUtil (#3182)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 16 Apr 2021 17:43:55 -0400
 
@@ -41,6 +107,12 @@ bsl-internal (3.78.0.0) git; urgency=low
   * b0bfce3ed Changelog for version 3.78.0.0
   * eff2db0da Bumped version to 3.78.0.0
   * 8a48c7fc9 Merge pull request #3183 from afeher/drqs-165758572-bdld_datummaker-docu-fix
+  * 2f690d1b8 Fix typo: table -> able (#3180)
+  * 45953ece9 add 'capacity' (#3179)
+  * f948085b0 Add `chrono` calls to Condition and Sluice (#3176)
+  * 579b3d7bd Add `chrono` calls to Barrier, Latch, and FastPostSemaphore (#3173)
+  * 5212c80af string::append with 'string_view' parameter. DRQS 162627462 (#3163)
+  * e67ace9c6 Drqs 165223581/bdlc flathash add hint insert (#3175)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 9 Apr 2021 12:07:51 -0400
 
@@ -48,12 +120,23 @@ bsl-internal (3.77.0.0) git; urgency=low
 
   * 5135e7ab8 Changelog for version 3.77.0.0
   * efa74c608 Bumped version to 3.77.0.0
+  * 9da844785 remove abominable tests from xlc 16.01 pending IBM compiler fix (#3174)
   * 38a526596 Merge pull request #3159 from afeher/drqs-164339013-indexspanstringutil-BDE-4.0
+  * cc9a80596 reproduce and correct issue (#3171)
+  * 598e458a9 Fix bdlb::String::areEqualCaseless contract. (#3172)
+  * 064096ccb Add 'e_TIMED_OUT' and 'clockType()' to bslmt primitives (#3134)
+  * f64098a0f Remove use of 255 as special value in ChronoUtil_ToBslsSystemClockType; make it return success & value (#3170)
+  * 33b67f68f Add package bslmt::ChronoUtil; rework TimedSemaphore to use new package (#3126)
   * 505491bef Merge pull request #3162 from bchapman/bdlmt-bslmt-use-bslmt_testutil-drqs-165533928
+  * 95eae25b0 Fix asyncfileobserver crash (DRQS 165535115 (#3164)
+  * e44713a27 Fix bdlbd_nullablevalue.t on xlC16. (#3158)
   * 87a743760 Merge pull request #3156 from afeher/drqs-127796905-add-bdld_datum-hashappend
+  * e9949d02c fix compiler warnings (#3160)
+  * ba9678997 A couple of issues have been fixed in 'bdls_filesystemutil' test driver (#3157)
   * 238251952 Merge pull request #3151 from afeher/drqs-165417973-bdld_datum-32bit-preserve-snan-qnan
   * 067231560 Merge pull request #3152 from afeher/drqs-165268497-balc_optionvalue-test-xlC16-fix
   * e55c86081 Merge pull request #3148 from afeher/drqs-165268497-fix-balxml-en-decoder-tests-aix
+  * 77be92c89 Fix DRQS 164241820: Empty compatible 'bsl::function' double-wraps. (#3143)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 28 Mar 2021 10:11:29 -0400
 
@@ -61,11 +144,27 @@ bsl-internal (3.76.0.0) git; urgency=low
 
   * 1c9e443c7 Changelog for version 3.76.0.0
   * 7008cc9eb Bumped version to 3.76.0.0
+  * 95db27194 Revert "'bsl::string::append' with 'bsl::string_view' parameter. DRQS 162627462 (#3103)" (#3150)
+  * 97ad2ffae Remove unused files. (#3149)
+  * 672cb528f Revert "Revert "Change AsyncFileObserver to use BoundedQueue (#3079)"" (#3135)
+  * 038f0b10c 'bsl::string::append' with 'bsl::string_view' parameter. DRQS 162627462 (#3103)
+  * 0b81d6456 bsl::hash' specialization for 'std::monostate' has been added (#3110)
+  * 93bddc980 Bde optional bsl header (#3146)
   * a0d83b389 Merge pull request #3145 from bde/nburgers-patch-1
   * da8c9d57c Merge pull request #3144 from bchapman/bsl+bslhdrs.pub-make-consistent-drqs-165406123
+  * a77e05c23 Add a warning to RecordAttributes::message (#3121)
+  * 81d92ab31 bslstl_function: Accept functor via forwarding ref (#3100)
   * 1679ccb69 Merge pull request #3139 from osubbotin/review/fix-sprintf-format-arguments
+  * 7dcab9a7b baljsn_encoder: pass proper bslstl::StringRef's to 'dispatcher's (#3141)
+  * 88b4ec32c Fix assorted typos. (#3140)
+  * 117b50224 gcc9 look for 2018 TBB to enable parallel algo (#3137)
+  * b6b4dc361 BDE 4.0 interfaces: ball (#3118)
+  * 74dc73ffc Remove windows.h from bsls_bsllock includes. (#3128)
   * 78905ff5a Merge pull request #3130 from dsokolov7/review/bde-libraryfeatures-macros-split-drqs-165206618
   * 6dbaa0ffa Merge pull request #3123 from dsokolov7/review/bde-libraryfeatures-macros-renaming-drqs-165206589
+  * 5315248f9 bslim_formatguard: create component (#3114)
+  * df066ca62 Changed safe asserts into normal asserts, also cleaned up some test … (#3113)
+  * eb3be1828 Fix typos in docs. (#3127)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 5 Mar 2021 12:21:51 -0500
 
@@ -73,7 +172,13 @@ bsl-internal (3.75.1.0) git; urgency=low
 
   * cbabb0c34 Changelog for version 3.75.1.0
   * a64a1b32e Bumped version to 3.75.1.0
+  * 31aa64203 Revert removal of e_END from ball_transmission.h (#3125)
+  * a7b2edcb1 Drqs 165258625/bdlc flathashtable ref to temprary (#3119)
+  * b1585cad0 Fix false assertion on null pointer. (#3116)
+  * 3cf58b764 Implement chrono-based calls for TimedSemaphore (second try) (#3117)
   * 26c475831 Merge pull request #3112 from afeher/drqs-164339060-bdlb_literalutil-bde-4.0
+  * 3bb9aec4e Change AsyncFileObserver to use BoundedQueue (#3079)
+  * f84215ff2 Drqs 164984269/bdlcc boundedqueue remove all issue (#3082)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 20 Feb 2021 19:15:54 -0500
 
@@ -81,7 +186,11 @@ bsl-internal (3.75.0.0) git; urgency=low
 
   * 54e9ea68f Changelog for version 3.75.0.0
   * ce7178c5c Bumped version to 3.75.0.0
+  * 5a01aa530 Revert "Revert "(#3097) and (#3090)"" (#3115)
   * 8a1331385 Merge pull request #3111 from cwilson/bdlb_string-gcc9-compile-fail-drqs-165184815
+  * fd457f652 Overload resolution for RecordStringFormatter ctors (#3105)
+  * 4cf8cf57c Fixed issue with 0-sized blob data buffers in 'BlobUtil::hexDump' (#3109)
+  * 57ffaf553 remove RecordAttributes::message() from ball (#3101)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 12 Feb 2021 16:42:15 -0500
 
@@ -89,7 +198,16 @@ bsl-internal (3.74.0.0) git; urgency=low
 
   * 8826c71fc Changelog for version 3.74.0.0
   * 63181e22a Bumped version to 3.74.0.0
+  * 2e8dd354f Revert "'bsl::hash' specialization for 'std::monostate' has been added (#3000)" (#3108)
+  * 1377dc9d5 Revert "Bslstl string view comparisons drqs 164229251 (#3041)" (#3106)
   * 807a411b3 Merge pull request #3099 from mgill83/timout-parameter-rename-drqs-164067283
+  * 662311fc3 Revert "Revert "Update reference_wrapper to alias std (#2985)" (#3022)" (#3038)
+  * 8ce37dc37 bsltf: make tests check whether d'tos are being run (#3084)
+  * 7df85163d Fix typo in bdlmt_fixedthreadpool.h (#3104)
+  * 1a3ee1871 Minor documentation fixes. (#3102)
+  * 2c26e454b 'bsl::hash' specialization for 'std::monostate' has been added (#3000)
+  * 6bd2ea6dc bde 4.0 bdlb_string (DRQS 164339970) #2 (#3045)
+  * d188b2584 Bslstl string view comparisons drqs 164229251 (#3041)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 6 Feb 2021 16:45:11 -0500
 
@@ -105,7 +223,18 @@ bsl-internal (3.73.0.0) git; urgency=low
   * 075494aa4 Changelog for version 3.73.0.0
   * 123eaaabf Bumped version to 3.73.0.0
   * 410e4ac08 Merge pull request #3094 from bchapman/bdlb_printmethods-overload-char-drqs-164959084
+  * 858bd5aa5 Revert "'bsl::string' methods 'append' and 'insert' with 'string_view' param. DRQS 162627462 (#3091)" (#3098)
+  * cd25f8a4b Nullable value fix for assignment (#3097)
+  * 80b7a97f7 'bsl::string' methods 'append' and 'insert' with 'string_view' param. DRQS 162627462 (#3091)
+  * 0c6ae1772 bdlde_base64[en,de]coder: Add fuzz test (#3008)
+  * 70b1334d3 Documentation for user-defined literals has been modified (#3093)
+  * 42f2827dd bsl::optional and bsl::optional backed nullablevalue (#3090)
+  * 9fa8567db Fix logging char(0). (#3095)
+  * 2fdc5a2c8 Disabled extended constexpr rules for gcc 5. (#3087)
+  * 7e79685f6 Support of default constructed StringRefs has been added to Tokenizer. DRQS 164650579 (#3048)
   * 353f25e62 Merge pull request #3083 from mgill83/bind-add-non-const-operator-support-drqs-164900532
+  * 47f031f88 Remove expected -nan output from double tests (#3088)
+  * 2506e1943 Remove support for rendering "-nan" in baljsn_printutil.h (#3085)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 29 Jan 2021 12:51:05 -0500
 
@@ -113,6 +242,12 @@ bsl-internal (3.72.0.0) git; urgency=low
 
   * 489e70a15 Changelog for version 3.72.0.0
   * 68b0e2781 Bumped version to 3.72.0.0
+  * ebcc16635 Refactor bsl::function into smaller, well-documented and tested components (#3081)
+  * 20e2d72f8 Sunternary drqs 164912552 (#3077)
+  * 1835ace27 Async fileobserver threadsafety drqs 164688087 (#3055)
+  * 07e640af9 Work around Sun CC miscompilation error. (#3075)
+  * 9e3ff0d79 Do not try to use cpuid on sun (#3076)
+  * 82b5f7006 add comment regarding pre-fetch and false sharing (#3074)
   * 3581e44ae Merge pull request #3073 from mgill83/balxml-hexparser-docs-drqs-164301919
   * 67829fbfc Merge pull request #2993 from bchapman/bsltf-dtors-sabotage-value-drqs-164353757
 
@@ -121,7 +256,12 @@ bsl-internal (3.72.0.0) git; urgency=low
 bsl-internal (3.71.0.0) git; urgency=low
 
   * a005dcd9b Changelog for version 3.71.0.0
+  * e48039625 Fix use of string_view iterators in C++17 mode on windows (#3072)
   * 312c1fc05 Bumped version to 3.71.0.0
+  * 35b0e0a87 Ball log attributes. (#3009)
+  * 96c92f83e bdlcc_skiplist: change 'updateR' and 'findR' to behave intuitively in… (#3068)
+  * 4f3a0d33a Handle encoding inf/nan values (#3066)
+  * 1affdcffa Clarify usability scope of bslmt::ThreadUtil::self() handle. (#3067)
   * 88cc3e097 Merge pull request #3063 from mgiroux/bde-baljsn_datumutil-windows-test-failures-drqs164717866
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 8 Jan 2021 15:14:47 -0500
@@ -130,6 +270,8 @@ bsl-internal (3.70.0.0) git; urgency=low
 
   * 1b940bb56 Changelog for version 3.70.0.0
   * cd5b68390 Bumped version to 3.70.0.0
+  * 262197eb2  0-sized buffers are allowed to be appended to 'bdlbb::Blob' (#2989)
+  * 46418fd94 DRQS 163966645: Apply decimal digit options to attributes in XML encoder (#3056)
   * b2f779068 Merge pull request #3057 from osubbotin/review/fix-stream-observer
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Dec 2020 11:19:40 -0500
@@ -138,14 +280,28 @@ bsl-internal (3.69.0.0) git; urgency=low
 
   * 06df42f3b Changelog for version 3.69.0.0
   * 46373f997 Bumped version to 3.69.0.0
+  * f29d39770 Minor doc tweaks. (#3053)
+  * 1e6768fe8 Make ball::StreamObserver configurable (#3032)
+  * b27954dcb add fsync/FlushFileBuffers to growFile (#3044)
+  * 903ca5ea4 addressing issue in DRQS 164468793 (#3043)
   * 9aa7acbdc Merge pull request #3050 from jberne4/legacy_attribute_noreturn
+  * 462bc6508 Fix ManagedDatum copy and Datum clone docs. (#3051)
   * b4105b072 Merge pull request #3049 from mclow3/removeStackCompare
+  * 0a5b77c6d add Intel-only caveats to "flat hash" doc (DRQS 164695777) (#3047)
+  * b22befc17 improve performance test (#3042)
+  * 4ffc2e9f2 Integration/flathashmap 20201112 (#3039)
+  * 94efd4991 replacing deprecated use of BSLS_KEYWORD_CONSTEXPR_RELAXED with BSLS_KEYWORD_CONSTEXPR_CPP14 (#3016)
+  * 5ca55320c 'Blob::d_dataIndex' field  has the default value equal to '-1' (#3029)
+  * 53419b200 DRQS 164569283: enhanced exception trace to differentiate different use (#3020)
+  * 4446c51e3 Introduce PCG-based random number generator to GuidUtil (#2988)
+  * 54feb63d9 correct 'waitUntilEmpty' behavior (#3018)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 18 Dec 2020 11:19:32 -0500
 
 bsl-internal (3.68.0.1) git; urgency=low
 
   * 5db54b356 Changelog for version 3.68.0.1
+  * d60a19476 Revert "Update reference_wrapper to alias std (#2985)" (#3022)
   * c5f3d02b8 Merge pull request #3023 from cwilson/bsls_libraryfeatures-fix-typo
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Dec 2020 11:02:17 -0500
@@ -154,8 +310,15 @@ bsl-internal (3.68.0.0) git; urgency=low
 
   * eb29fb202 Changelog for version 3.68.0.0
   * 829b63316 Bumped version to 3.68.0.0
+  * a9f748e8d bslstl_charconv.t.cpp: prevent undefined behavior on LLONG_MIN (#3014)
+  * b7e0486c6 Drqs 160661580/bdlcc singleconsumerqueue concurrent allocation (#3010)
+  * 05365b554 Bdlcc skiplist no const char star drqs 164519609 (#3017)
+  * 863e77a98 bdlde_base64[en,de]coder: Add fuzz test (#3006)
   * 11b7e5f50 Merge pull request #3013 from mgiroux/remove-commented-error-directive
+  * 7bc277b5e bdlcc_skiplist: greatly enhance test driver, fix a couple of bugs (#2995)
   * f59b0b95d define link-coercion symbol per C++ library version (DRQS 164353299) (#2998)
+  * cf0d7041f clang 10 warning fixes have been reapplied for bslstl iterators (#3004)
+  * 9e33de4bb Update reference_wrapper to alias std (#2985)
   * a75d802c4 Merge pull request #3002 from mgiroux/revert-iterator-copy-ctor-changes-drqs157823946
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Dec 2020 10:14:02 -0500
@@ -165,9 +328,12 @@ bsl-internal (3.67.0.0) git; urgency=low
   * 3f293edc0 Changelog for version 3.67.0.0
   * da03213fd Bumped version to 3.67.0.0
   * 4300d9681 Merge pull request #2999 from jdevenpo/xlc16-sljit-platform-detection
+  * 8caef4031 DRQS 164033256: Add fd support for getLastModTime in FS-Util. (#2945)
   * e3f4b0b35 Merge pull request #2980 from dsokolov7/review/bde-implicit-copy-constructor-drqs-157823946
   * 59fe5fd5f Merge pull request #2996 from hrosen4/inteldfp_thread-drqs_164390534
   * 28fa3efc4 Merge pull request #2990 from cwilson/bslstl_stringref-guard-explicit-instantiation-drqs-164345695
+  * c75ecc780 Fuzz testing sample implementations (#2931)
+  * 32711b5cf Silence compiler warning for memcpy of bitwise movable objects. (#2987)
   * b0b5b1fc7 Merge pull request #2983 from dsokolov7/review/bde-int-max-sized-buffers-drqs-157652377
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 13 Nov 2020 15:06:44 -0500
@@ -176,10 +342,17 @@ bsl-internal (3.66.0.0) git; urgency=low
 
   * 7c80b47e6 Changelog for version 3.66.0.0
   * cccbaa1d0 Bumped version to 3.66.0.0
+  * 22a7954a1 bslmt,bdlcc,bdlmt: Update doc on bdlt::CurrentTime, bsls::SystemTime,… (#2978)
   * cb519c8d8 Merge pull request #2984 from bde/revert-2974-bslma_constructionutil-destructiveMove
+  * 3270fbfaa Fix 'destructiveMove' to use real moves in C++03 (#2974)
+  * 10814f02b Check for 0-sized buffers in 'appendDataBuffer' has been modified (#2982)
+  * 494569309 Drqs 164142056/bslh fibonaccibadhashwrapper creation (#2975)
   * 69218c22d Safe versions of buffer insert functions have been added to 'bdlbb:Blob' (#2937)
   * 56a8e2ba0 Merge pull request #2964 from mgiroux/apply-sim_cpp11-drqs161239121
+  * a39095c57 Bde chrono to time interval drqs 150484626 (#2928)
+  * 5cf22b2c4 Problem with 'string_view' iterator on MSVC 2019 has been gotten around (#2972)
   * 41a77e4c9 Merge pull request #2976 from rkhlebnikov/drqs-164239441-fix-memcmp-ub
+  * 0da3028f7 Add make utility to bslma::constructionutil (#2947)
   * 2dec39c5b Merge pull request #2891 from mclow3/drqs-131875306
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 30 Oct 2020 17:17:16 -0400
@@ -189,10 +362,17 @@ bsl-internal (3.65.0.0) git; urgency=low
   * abf2afd23 Changelog for version 3.65.0.0
   * 6d09952d3 Bumped version to 3.65.0.0
   * 3899fabdb Merge pull request #2956 from phalpern/bsls_asserttest-cpp11_sim
+  * a987bc918 Remove blacklist.txt, wscript, and opts files no longer needed (#2970)
   * 8ebb30417 Merge pull request #7 from mgiroux/bsls_asserttest-cpp11_sim
   * 4cc83be3c Merge pull request #2967 from pwainwri/swt-deprecation
   * 8a4c431bb Merge pull request #2959 from bchapman/balxml_configschema-regenerate-drqs-163748896
+  * cd9594ca6 Avoid unnecessarily prblematic words. (#2963)
+  * 90fefbf19 Implemented traits in 'MovableRefUtil' (DRQS 162823126) (#2911)
+  * a21168e40 Fix for DRQS 160192710: (#2941)
+  * b90a0ad04 Get rid of -cc parameter referencing swt (#2961)
+  * a0722e398 Warnings for enum bitwise operations have been fixed (#2936)
   * 81e73ce71 Merge pull request #2948 from phalpern/phalpern/guaranteed_copy_elision
+  * a13bb0a57 Implement fix to 'MovableRefUtil::access' (DRQS 162811827)' (#2910)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 17 Oct 2020 12:46:21 -0400
 
@@ -200,6 +380,9 @@ bsl-internal (3.64.0.0) git; urgency=low
 
   * 6b16c2029 Changelog for version 3.64.0.0
   * 4e28c4e9b Bumped version to 3.64.0.0
+  * 4657ccd84 Switch to more inclusive language than WHITELIST (#2950)
+  * b7a2bda74 Use new tokenizer method name (#2949)
+  * ec34b134c add JSON validation cases (#2935)
   * 9e46559c2 Merge pull request #2946 from bvaldiviesom/feature/add-bdls-pathutil-getextension
   * 1eb1a56f3 Merge pull request #2808 from mclow3/drqs-113474532
 
@@ -209,13 +392,28 @@ bsl-internal (3.63.0.0) git; urgency=low
 
   * 547cf08da Changelog for version 3.63.0.0
   * 2d8eb0954 Bumped version to 3.63.0.0
+  * 1e13432a3 fixing unused variable warnings with anone ufid (#2933)
+  * 9c03f0be6 Bdlt fixutil fuzz drqs 163929029 (#2934)
+  * 7e0c5b4ff DRQS 153564520: Make `baljsn_encoder` fail on stream buffer error (#2883)
+  * ec442cf5d 'bdlb_stringviewutil' has been added (#2927)
   * 4b5c854b6 BSLS_ASSERT_LEVEL_ASSUME* and constexpr BSLS_ASSERT/BSLS_REVIEW initial version
   * cdd237c9e Bumped version to 3.62.0.0
+  * 9d36776ee Warnings from 'bslmf_matcharithmetictype' have been removed (#2930)
+  * d66f99da6 DRQS 163139285: Add file descriptor support for 'bdls::FilesystemUtil::getfileSize' (#2919)
   * ff4f1b9f6 Merge pull request #2929 from osubbotin/review/add-ufids-drqs-163623970
   * 5d3203978 Merge pull request #2926 from mmaguir1/mmaguir1_DRQS_163343501_windows_warning_C4800
   * 59ac30f4d Merge pull request #2879 from mclow3/drqs-118577170
+  * 772ad3ab8 Fix Windows and fuzzing problems (#2924)
   * aa1c93633 Merge pull request #2922 from hrosen4/balxml_minireader-too-much-allocation
+  * 76a52b0fd Beware of too much reallocation blowing out sequential allocators (#2921)
+  * 9d6ea8446 Use data() instead of begin() (#2918)
+  * 66bf46159 correct Windows SSE macros (#2917)
   * 4c8715d45 Remove deprecated conversions from baltzo_zoneinfo. (#2892)
+  * c840428ef Warnings for enum arithmetic have been fixed. DRQS 161543055 (#2897)
+  * c49fdf3f2 Clarify treatment of the 'valudateInputIsUtf8' option (#2916)
+  * e4c1f6c91 baljsn_tokenizer: allowNonUtf8[Tokens -> StringLiterals] (#2898)
+  * 84d33c7f1 add SSE macros (#2915)
+  * ddc04cba0 update library features documentation (#2914)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 18 Sep 2020 12:21:46 -0400
 
@@ -223,9 +421,30 @@ bsl-internal (3.61.0.0) git; urgency=low
 
   * a8e484bcb Changelog for version 3.61.0.0
   * ad483fd26 Bumped version to 3.61.0.0
+  * 625fc2ae2 Fix typo in stringbuff.t (#2913)
+  * 629f29bea fix stringbuf move-assignment operator and str() method (#2912)
+  * e96358245 New style AA changes. (#2899)
+  * 820a4a146 Baljsn parserutil numeric parse util (#2909)
+  * 99d3aec12 Don't parse \u literals with strtol. (#2906)
+  * 7ee016538 Avoid AIX compiler error. (#2903)
+  * 67bb3d379 Don't rely on compiler negative 0. (#2904)
+  * 099f28b26 Get rid of silly test driver file reading. (#2905)
+  * db8edd1d1 Incomplete and incorrect checks. (#2907)
+  * 0e015ee5b Bad tables and hex checking. (#2908)
   * 3086bd9fd Merge pull request #2902 from mgiroux/add-missing-initializer-baljsn_datumutil.t.cpp
+  * a2664f326 Unsafe string test. (#2896)
   * 316dfa919 Merge pull request #2801 from mgiroux/document-duplicated-key-behavior-for-baljsn_datumutil-drqs159746247
+  * 297577fa9 Cosmetically improve `balber_berutil` (#2887)
+  * 1e205d500 Balxml minireader drqs 154828363 (#2900)
+  * 0fcfd3be8 Berutil decimal64 drqs 162368178 (#2895)
+  * 78b6e3d0b Baljsn underflow drqs 162368278 (#2894)
+  * 218ace2d2 Refactor `baljsn_encoder` test driver (#2882)
+  * 9c34a61ed Balsjn datumutil depth limits drqs160193845 (#2821)
+  * 5786780d8 'swap' method has been added for 'ostringstream' and 'streambuf' (#2827)
   * 4f1d99efb Merge pull request #2890 from hrosen4/swapbytes-ub_drqs-162500976
+  * 900602f96 Documentation for 'PooledBlobBufferFactory' has been updated. DRQS 161384667 (#2889)
+  * b235678d5 improve bslmt_lockguard, etc. function-level doc (DRQS 161549065) (#2849)
+  * 1fb100814 Update bslstl_stringview.h (#2888)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 21 Aug 2020 15:52:22 -0400
 
@@ -241,11 +460,17 @@ bsl-internal (3.60.0.0) git; urgency=low
 
   * c9ccd8cde Changelog for version 3.60.0.0
   * 6cf4f67f4 Bumped version to 3.60.0.0
+  * 875748758 update vector and array docs (#2874)
   * 643c1e1ad Merge pull request #2873 from osubbotin/review/remove-obsolete
   * 8c2442898 Merge pull request #2870 from afeher/drqs-161634136-newly-split-bind-test-driver
+  * 7f92e49d0 increase log message buffer size (#2872)
+  * 59ef1a1ce bslmt_testutil: Complete overhaul of guard macros, huge improvement (#2480)
   * 6ac2f79e4 Merge pull request #2865 from afeher/drqs-161457836-newly-split-list-test-driver
+  * 2f44521b5 bdls_filesystemutil.h: doc-only: fix inaccurate 'findMatchingPaths' doc (#2871)
   * a771df7cc Merge pull request #2864 from afeher/drqs-161365580-newly-split-vector-test-driver
   * 2c79f04f4 Merge pull request #2862 from afeher/drqs-161365350-newly-split-deque-test-driver
+  * 68c74f5e5 Null terminate string. (#2867)
+  * ab272e9eb 'linkcoercion' check has been added  to 'bslstl_stringview' (#2866)
   * 169c9c4fe Increase minimum required cmake version to 3.15. (#2861)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 7 Aug 2020 11:22:00 -0400
@@ -254,12 +479,19 @@ bsl-internal (3.59.0.0) git; urgency=low
 
   * 9609964c9 Changelog for version 3.59.0.0
   * 0b0dafcac Bumped version to 3.59.0.0
+  * baf8289bb Fix build after merging PR 2789 (#2850)
+  * f0ca87804 drqs-161339530: Fix wording of 'bdlb_nullopt.h' documentation (#2831)
   * b8cad69a9 Merge pull request #2841 from mgiroux/PR-2666-latest
   * 6adc7449f Merge pull request #2789 from bchapman/bal-jsn,xml-decoder-check-utf8-drqs-158055467
   * b0f374c3a Merge pull request #2847 from mgiroux/remove-smallsequential-allocator-and-pool
+  * 350cdba70 Bdlma smallsequentialallocator drqs 158144690 (#2840)
+  * 82a44feea Demote setlocale check to safe mode. (#2839)
   * e7248b29a Clean up string_view conversion tests
   * e44df7712 Enable more conversions and test them.
   * 9f0f58bbf String view conversions
+  * 2979daa51 'data' manipulator has been added to 'bslstl::string' (#2816)
+  * c550dff94 'MACROS' field has been added to 'ball_log' documentation (#2835)
+  * 436b804ea bdlde_utf8util: deprecate and rename problematic function names (#2818)
   * de8eb1b9e Merge pull request #2832 from APILayer/fix/baljsn-ub-clauses
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 25 Jul 2020 16:47:53 -0400
@@ -270,12 +502,18 @@ bsl-internal (3.58.0.0) git; urgency=low
   * 2c6de7b55 Bumped version to 3.58.0.0
   * 5749c2d59 Merge pull request #2819 from bchapman/bdlb_variant-createInPlace-return-drqs-160662990
   * f77eb979d Merge pull request #2817 from bchapman/bslma_testallocatormonitor-fix-allocate-0-drqs-160613942
+  * 297ed8e89 Revert "Change baltzo_localtimedescriptor to use new-style AA interface (#2795)" (#2829)
+  * d08af640b Change baltzo_localtimedescriptor to use new-style AA interface (#2795)
   * 31345c3d2 Merge pull request #2826 from afeher/drqs-159234337-melt-bslmt_threadattributes-interface
   * 0808aadd2 Merge pull request #2824 from sbreitst/bdlma_smallsequentialpool-drqs-160588397
   * 33dd75890 Merge pull request #2811 from mclow3/drqs-126021517
+  * c3c867830 DRQS 160155173 test case (#2809)
   * e90ca5012 Merge pull request #2820 from osubbotin/review/bdlb-tokenizer-compile-warnings
   * a9059d9fd Merge pull request #2815 from mclow3/drqs-113474532-deletions
+  * 7f02d866c drqs-154126434: fix makeDecimalRaw doc (#2810)
   * cf99ec112 Merge pull request #2813 from gsoumar/patch-1
+  * 2a57ad95d Remove bde legacy names and typos. (#2812)
+  * 3dfdf90f0 updating to use sim_cpp11 properly and do some actual move-only testing on legacy platforms (#2807)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 10 Jul 2020 13:07:32 -0400
 
@@ -296,6 +534,7 @@ bsl-internal (3.56.0.0) git; urgency=low
   * 86e6f3ae5 Merge pull request #2802 from cteubner/patch-2
   * e002c171f Merge pull request #2804 from cteubner/patch-4
   * e992ffae7 Merge pull request #2799 from cwilson/bslstl_ratio-testing-drqs-151126457
+  * d1339f4c8 Hash append for std drqs 159043737 (#2798)
   * 20fb14399 Merge pull request #2797 from ameredit/sun_warnings
   * 3c05e2d73 Merge pull request #2794 from jberne4/aligningallocator_update
 
@@ -307,6 +546,9 @@ bsl-internal (3.55.0.0) git; urgency=low
   * 0227da956 Bumped version to 3.55.0.0
   * 8eb2e365a Merge pull request #2787 from afeher/drqs-158600501-gcc9-WG14-N2322-recommendation-for-__LINE__-support
   * 870a353d7 Merge pull request #2792 from cteubner/patch-1
+  * 2a213e2c7 DRQS 153917503: Provide Extended-Binary BER Date/Time Format (#2790)
+  * 881e550c2 ConstructionUtil: Add Coverity suspicious_sizeof (#2788)
+  * c9f2e1930 baljsn_encoder: Decrease template nesting to fix sun build (#2786)
   * af85e9428 Merge pull request #2784 from sbreitst/bdlma_infrequentdeleteblocklist-drqs-158142905
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 15 May 2020 10:51:01 -0400
@@ -315,7 +557,10 @@ bsl-internal (3.54.0.0) git; urgency=low
 
   * 89113474e Changelog for version 3.54.0.0
   * 5143fccc3 Bumped version to 3.54.0.0
+  * 5c63a777e Integrate JSON Comma Fix for DRQS 117361294 (#2783)
   * 2acca696b Merge pull request #2780 from rkhlebnikov/drqs-158146615-striped-containers-with-noncopyable-value-type
+  * 8ec94509c Bslmt doc various rw locks drqs 157529643 (#2767)
+  * 176af612e bdlcc_deque.h: typo in doc of 'clock type' (#2781)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 1 May 2020 10:52:26 -0400
 
@@ -323,16 +568,28 @@ bsl-internal (3.53.0.0) git; urgency=low
 
   * 6c42d15d9 Changelog for version 3.53.0.0
   * 0739bbf45 Bumped version to 3.53.0.0
+  * a4aa95bda Force undef BDE_OMIT_INTERNAL_DEPRECATED. (#2770)
   * 8927efb57 Merge pull request #2779 from afeher/drqs-157961303-fix-map-test-drivers-sun
+  * ab0167164 Remove erroneous typedef - DRQS 157960535 (#2776)
   * 896dbff7d Merge pull request #2777 from afeher/drqs-157960635-fix-multiset-test-on-sun
   * a670b8723 Merge pull request #2775 from afeher/drqs-157952290-fix-multimap-test-on-sun
+  * 3f5e62d65 bdlbb::BlobUtil::alignTo: create function (#2762)
   * db04bdf6b Merge pull request #2768 from osubbotin/review/omit-deprecated
   * c400c0329 Merge pull request #2774 from afeher/drqs-157937050-fix-hastable-test-on-sun
   * 83c419a46 Merge pull request #2773 from afeher/drqs-157900947-fix-deque_test-on-sun
   * 87ee1479d Merge pull request #2772 from afeher/drqs-157856446-split-vector-test-drivers-SUN
+  * 17901a878 Baltst create package drqs 155898178 (#2748)
+  * 93939dfaa Cleanup ball TDs from deprecated API. (#2771)
+  * 0c6307b86 Add 32 bit PIC-enabled builds of thirdparty libraries. (#2769)
+  * a6dd3ca0f bdlbb_blobutil.h: fix typo for BlobUtilAsciiDumper (#2765)
   * 4c7ff7ff0 Merge pull request #2764 from afeher/gcc-on-darwin-code-fixes
+  * 859b03f29 Use non-deprecated enum value. (#2761)
   * 648d13a1c balcl_option.h: 'bdedox' conversion fix: doc-only
+  * f00fa8877 drqs-157516821: 'balcl_option.t.cpp': MSVC 2017/2019 build warnings. (#2751)
+  * 9bdd77d64 Fix coding style in bslstl_sharedptr.h (#2753)
+  * 4192393b9 Fix Doxygen warnings in bslstl_sharedptr.h (#2752)
   * 497d6106e Merge pull request #2749 from bchapman/balst-open-source-drqs-147852908
+  * 322315df7 Balcl commandline drqs 155623712 Phase Six (#2741)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 24 Apr 2020 11:35:08 -0400
 
@@ -340,14 +597,19 @@ bsl-internal (3.52.0.0) git; urgency=low
 
   * 10f9c910f Changelog for version 3.52.0.0
   * b72bb6053 Bumped version to 3.52.0.0
+  * e367073d3 Bsls dbghelpddlimpl windows thread safe drqs 155085199 (#2707)
   * f91d32f72 Merge pull request #2746 from afeher/fix-bsls_ident-undef
   * c469c4d30 Merge pull request #2744 from afeher/fix-smartptr-test-drivers
   * 94d7dd276 Merge pull request #2743 from mgiroux/sean-baxter-github-pr-256
+  * 93e91d2e4 Bdld datum doc maps drqs 154585376 (#2738)
   * 2b3d07323 Merge pull request #2740 from afeher/drqs-155897793-copy_if-for-cpp03
   * e9ab538d8 Merge pull request #2735 from afeher/remove-bsls_ident-undef
   * f6c7855ff Merge pull request #2739 from afeher/drqs-156777393-remove-bsl_cinttypes-abs-div
+  * 55138e7b9 bslma_testallocator: doc balst::StackTraceTestAllocator (#2731)
   * 638e3c5c7 Merge pull request #2728 from afeher/drqs-142188247-assign-shared_ptr-from-managedptr
   * 18686f3d3 Merge pull request #2733 from sbreitst/balcl_option-drqs-156728040
+  * 12a599b18 Add optional ...Args to _constructible_v. (#2730)
+  * 55cdcf4e0 Balcl option drqs 155623667: Phase Five (#2718)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 3 Apr 2020 11:17:14 -0400
 
@@ -355,14 +617,20 @@ bsl-internal (3.51.0.0) git; urgency=low
 
   * a51bd84c2 Changelog for version 3.51.0.0
   * b9d6e3d61 Bumped version to 3.51.0.0
+  * 7944f8179 Fix pair on gcc-7 & clang. (#2725)
+  * 07377d8bb drqs-156228570: 'balcl_typeinfo': TC 9 bug on 64-bit sparc. (#2724)
   * 7f1b9acea Merge pull request #2723 from cwilson/fix-string-ctor-doc-drqs-156319171
   * 8b3c0ccf3 Merge pull request #2722 from egoodrich4/improve-datum-clone
   * 0823e852a Merge pull request #2720 from afeher/fix-pair-test-driver
   * f3a748bc0 Merge pull request #2719 from afeher/drqs-156229760-cpp20-enum-warning
+  * fa13db7a0 Fix invalid syntax. (#2716)
   * 629561964 Merge pull request #2715 from jmendelsohn4/drqs-156214645/bdlmt_multiqueuethreadpool-case-33-threshold
   * c1f14b479 Merge pull request #2714 from jmendelsohn4/drqs-156182592/bdlma_concurrentpoolallocator-case-6-20200303
   * 26ed4566d Merge pull request #2711 from jmendelsohn4/drqs-156161832/bdlcc_objectcatalog-clang-cleanup-20200303
   * 8fd61c8d2 Merge pull request #2685 from bchapman/balxml-Decimal64-decimal-mode-drqs-154624542
+  * 60ee87974 Behavior of 'bslim::Printer' functions using user's functors has been fixed (#2692)
+  * c1bdceaea Balcl commandline drqs 154845275: Phase Four (#2698)
+  * 003c12456 Drqs 143470677/bdlma concurrentpoolallocator crash on big allocate (#2709)
   * 413e7538a Merge pull request #2708 from jmendelsohn4/drqs-135423849/bdlma_sequentialallocator-incorrect-maxBufferSize-2
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 13 Mar 2020 11:35:37 -0400
@@ -377,8 +645,10 @@ bsl-internal (3.50.0.0) git; urgency=low
   * 02b7bc30c Merge pull request #2703 from jmendelsohn4/drqs-155286712/bdlmt_timereventscheduler-tsan-20200221
   * cb438ef9a Merge pull request #2700 from jmendelsohn4/drqs-155641810/bsls_spinlock-revert-backoff
   * 9e11a28de Merge pull request #2691 from cwilson/nullablevalue-free-swap-allow-differing-allocators-drqs-123088904
+  * 6c01e4ba1 Remove libbos-dev and stop building bos with cmake (#2695)
   * a853d636a Merge pull request #2673 from bchapman/bsltf_wellbehavedmoveonlyalloctesttype-2-drqs-129710603
   * 027a699fe Merge pull request #2694 from hrosen4/bid-win_drqs-155595047
+  * e217fbcb4 'balcl': Phase Three (drqs-154964494) (#2688)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 29 Feb 2020 17:53:22 -0500
 
@@ -386,6 +656,9 @@ bsl-internal (3.49.0.0) git; urgency=low
 
   * 302150da1 Changelog for version 3.49.0.0
   * 3dd06cc37 Bumped version to 3.49.0.0
+  * 88a41b44b Fix documentation typos (#2693)
+  * ebd447154 Add option to configure thread attributes to 'balb::PipeControlChannel' (#2680)
+  * 456947c93 'bsl::exception' declaration in bsl_ios.h DRQS 154479723 (#2683)
   * 9b6aa35f8 Merge pull request #2689 from jmendelsohn4/drqs-155023497/bdlcc_stripedunorderedmap-erase
   * b2bca2de4 Merge pull request #2690 from jberne4/review_windows_nostack
 
@@ -396,9 +669,12 @@ bsl-internal (3.48.1.0) git; urgency=low
   * b40f8fea5 Changelog for version 3.48.1.0
   * a3ac77bde Bumped version to 3.48.1.0
   * c110a114e Merge pull request #2684 from hrosen4/dfp-format_drqs-154919352
+  * 0a08c84c4 drqs-154833435: 'balcl': Phase Two (#2678)
   * 858a954b2 Merge pull request #2682 from hrosen4/dfp-format_drqs-154874861
   * c5754e515 Merge pull request #2677 from bde/review/force-disable-cpp17-abi
   * d1448a48f Merge pull request #2679 from jmendelsohn4/drqs-154832051/bdlmt_multiqueuethreadpool-case-12
+  * ae9d7a5f9 Make all exponents at least two digits and implement showpoint. (#2631)
+  * 673136a23 Fix bslim_testutil.t failure on gcc 9 (#2674)
   * d93945ed6 Merge pull request #2548 from bchapman/bdlcc_objectcatalog-move-semantics-drqs-149082155
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 31 Jan 2020 16:14:28 -0500
@@ -408,6 +684,7 @@ bsl-internal (3.48.0.0) git; urgency=low
   * 6ddc6633f Changelog for version 3.48.0.0
   * d4038d2ec Bumped version to 3.48.0.0
   * 2f7f16c25 Merge pull request #2665 from jmendelsohn4/drqs-153332608/bdlcc_boundedqueue-race-waitUntilEmpty-4
+  * 6211ad2d8 Disable cpp17 ABI flag. (#2675)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 26 Jan 2020 08:18:57 -0500
 
@@ -415,6 +692,7 @@ bsl-internal (3.47.0.0) git; urgency=low
 
   * a0a4e1c8c Changelog for version 3.47.0.0
   * 18f8e138c Bumped version to 3.47.0.0
+  * 281d46b2d Initial implementation of balcl commandline (#2563)
   * c3e61e15c Merge pull request #2672 from rkhlebnikov/drqs-154432480-fix-stringview-merge-issue
   * 3a59e6444 Merge pull request #2662 from hrosen4/string-view-17
   * a5d6a3c36 Merge pull request #2641 from nburgers/191118-balber-DRQS-139634693-TESTS
@@ -425,7 +703,9 @@ bsl-internal (3.47.0.0) git; urgency=low
   * f79bb9b46 changing constexpr macros to name language version
   * 2ce460438 Merge pull request #2668 from afeher/fix-bslim_bslstandardheadertest-case-7-for-msvc
   * 29a5e8849 Merge pull request #2667 from mgiroux/fix-istriviallycopyable-msvc-2013-drqs153989414
+  * bb8d2fb21 assertimputil should not be included if assert is. (#2664)
   * 10167d9d8 Merge pull request #2663 from mgiroux/pr/2661-rebased-master
+  * 01f878d64 Add missing bsls_platform.h. (#2655)
   * 6d1ac3ea9 Revert "Merge pull request #2640 from ameredit/detect_nested_traits_no_sun_abomination"
   * d6e0bf090 Fix string view code for compilation as alias to native version.
   * 5d9bd9adf Merge pull request #2645 from dsokolov7/review/bde-assertiontracker-removal-drqs-152681578
@@ -448,13 +728,16 @@ bsl-internal (3.46.0.0) git; urgency=low
   * 3366afb62 Changelog for version 3.46.0.0
   * d5d8e2955 Bumped version to 3.46.0.0
   * 3f96918dc Merge pull request #2652 from mgiroux/add-missing-includes-for-if-ifn-defs-drqs153708911
+  * dfa189ef4 Multiple-valued trnsparent comparators support has been added (#2613)
   * 4d4e964ac Merge pull request #2648 from mgiroux/suppress-maybe-uninit-balxml_encoder-drqs153551134
   * ceb31bd1c Merge pull request #2649 from mgiroux/pr/2591-rebased-master
+  * a7199b3b7 Fix bad inline variables. (#2643)
   * 98ca63085 Merge pull request #2640 from ameredit/detect_nested_traits_no_sun_abomination
   * a28735f22 Merge pull request #2644 from hrosen4/bad-string-hash_drqs-153467238
   * ad96a9143 Merge pull request #2642 from hrosen4/bad-fenv_drqs-153457037
   * e3fb70d37 Merge pull request #2630 from afeher/drqs-153145297-fix-msvc-2017-out-of-memory
   * d9f5ec454 Merge pull request #2626 from ameredit/fix_isnothrow_move_constructible_for_gcc03
+  * 8ef924a5f String view sun (#2594)
   * 2d53e7a2f Merge pull request #2628 from dsokolov7/review/bde-decimal-bid-conversion-drqs-151660179
   * 69505a652 Merge pull request #2636 from hrosen4/striped-custom-equal_drqs-153304888
   * 51129a3bd Merge pull request #2570 from bchapman/bsltf-move-noexcept-drqs-150993980
@@ -547,10 +830,12 @@ bsl-internal (3.42.0.0) git; urgency=low
   * fc79841b1 Merge pull request #2553 from jberne4/remove_libbos_dev_deps
   * 7d0b586ca Merge pull request #2559 from mgiroux/add-Conflicts-to-debian-control
   * fb6cc82c8 Merge pull request #2558 from mgiroux/baljsn-doxygen-fixes-3.41.0
+  * e6e1c3186 Fix documentation errors. (#2557)
   * 84b408c1e Merge pull request #2537 from ameredit/optimizing_voidtype_for_compilation
   * 638801e91 Merge pull request #2533 from nburgers/191009-balxml-decoder-DRQS-146705251-2-RB
   * c4e636b9d Merge pull request #2536 from nburgers/191018-baljsn-DRQS-146678827-RB
   * d4c7694b8 Merge pull request #2546 from nburgers/191024-bslmt-once-DRQS-149823688
+  * bea2c2ea4 Documentation typos. (#2549)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 8 Nov 2019 12:00:21 -0500
 
@@ -564,6 +849,7 @@ bsl-internal (3.41.0.0) git; urgency=low
   * 5f7ad197a Merge pull request #2542 from glaptev1/update_bdldfp_decimal_doc
   * d56560ace Merge pull request #2544 from mgiroux/remove-trailing-spaces
   * 9daf0a937 Merge pull request #2543 from ameredit/whitespace_fixes_for_description
+  * 14d413fb3 Add /bigobj flag for balxml test drivers. (#2540)
   * a1e1f4dae Merge pull request #2539 from bchapman/bdlma_bufferedsequentialpool-fix-release-drqs-150407633
   * 82ebc8e30 bdlma_bufferedsequentialpool: make 'release' realease ALL dynamic memory
   * 70ef09e91 Merge pull request #2538 from jmendelsohn4/drqs-150355963/bdlmt_eventscheduler-correct-doc-for-microseconds
@@ -595,6 +881,7 @@ bsl-internal (3.40.0.0) git; urgency=low
 
   * 7273c4da5 Changelog for version 3.40.0.0
   * 7fe2360d2 Bump version to 3.40.0
+  * 6f82ec281 Fix various typos accumulated in the documentation sections. (#2513)
   * a1f4f8445 Merge pull request #2506 from jberne4/noexcept_types
   * cd3ed276d Merge pull request #2500 from hrosen4/win-sp_drqs-148281696
   * fb9740989 Merge pull request #2395 from ameredit/avoid_unnecessary_MetaInt_temp
@@ -632,6 +919,7 @@ bsl-internal (3.38.0.0) git; urgency=low
   * 0e256fcad Merge pull request #2494 from apaprock/managedptr-docs
   * 328f2abbb Merge pull request #2472 from sbreitst/searchers-drqs-142948762.4
   * ff5560fc2 Merge pull request #2493 from bchapman/bsla_format-usage-scanf-drqs-147768587
+  * df79b0f14 Define va_copy() for c++03 compilation mode. (#2490)
   * 9486434f3 Merge pull request #2489 from hversche/fix-C-linkage-issues-from-BSL_OVERRIDES_STD-drqs131017375
   * 9a05899b7 Merge pull request #2460 from bchapman/bdls_filesystemutil-nightly-build-drqs-147189788
   * 7cfff510b Merge pull request #2458 from sbreitst/RwMutexAssert-drqs-107102365
@@ -651,6 +939,7 @@ bsl-internal (3.37.1.0) git; urgency=low
   * 04a94fe13 Changelog for version 3.37.1.0
   * a0211436f Bump version to 3.37.1.0
   * 745c795ad Merge pull request #2471 from osubbotin/review/ball-usage-update-drqs-147317724
+  * 2cfd7b7c2 Drqs 147433439/bslmt conditionimpl win32 timeout underflow (#2473)
   * 4af7bce8c Revert "Merge pull request #2465 from bde/revert-2456-searchers-drqs-142948762.3"
   * e2d6ffb8b Merge pull request #2469 from osubbotin/review/oss-update-readme
   * 5f75c15b6 Merge pull request #2431 from osubbotin/review/oss-compilation-fix
@@ -678,6 +967,7 @@ bsl-internal (3.37.0.0) git; urgency=low
   * 8f709fc51 Merge pull request #2441 from ddragan/bslmf_util_moveifpossible
   * 34c7c2d32 Merge pull request #2451 from jmendelsohn4/drqs-146224969/bdlb_bitutil-add-msvc-intrinsics
   * bdcc7187d Merge pull request #2449 from bchapman/balst-doc-balst-txt-performance-drqs-145270921
+  * a4d6f2b82 Searchers drqs 142948762.3 (#2445)
   * 418c92425 Merge pull request #2447 from oimanuel/fix_race_throughputbenchmark-drqs-146586504
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 16 Aug 2019 14:08:50 -0400
@@ -736,12 +1026,20 @@ bsl-internal (3.33.0.0) git; urgency=low
 
   * 3d353ad89 Changelog for version 3.33.0.0
   * 2cf635531 Bump version to 3.33.0.0
+  * b9081c2b3 Prevent 'function::swap' swapping incompatible functions (#2418)
+  * de9ee73fb Drqs 143578129/bdlmt multiqueuethreadpool num elements stress test (#2421)
   * 9f82bd753 Merge pull request #2420 from bchapman/bdlmt_signaler-nightly-build-cpp17-drqs-144867783
+  * 88f8a9547 More MetaInt cleanup (#2396)
+  * 10b81e87d Correct is_nothrow_move_constructible trait (#2409)
+  * 2febf0e3f fix (#2416)
   * 745e6a19a Merge pull request #2361 from bchapman/bdlmt_signaler-create-component-drqs-127658315
+  * c04b86347 Fix reorder warnings in test driver (#2415)
   * 7f71b1767 Merge pull request #2402 from oimanuel/fix_msvc_compile-drqs-143877762
+  * ef58b03c7 fix (#2413)
   * 9662357cb Merge pull request #2412 from bde/fixup-doc-markup-3.32.0
   * 5f9183d69 Merge pull request #2411 from bchapman/bsls_annotation-nightly-build-nodiscard-drqs-144396149
   * 7ea798f81 Merge pull request #6 from ddragan/bdlmt_signaler_tests_refactor
+  * ec3d784e4 bslmt_throughputbenchmark TD failures DRQS 144393977 (#2410)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 5 Jul 2019 09:27:53 -0400
 
@@ -750,9 +1048,15 @@ bsl-internal (3.32.0.0) git; urgency=low
   * 027362ffe Changelog for version 3.32.0.0
   * 1537ef20b Bump version to 3.32.0.0
   * 5cf2805e2 Merge pull request #2271 from mgiroux/move-bsl+stdhdrs-to-bos
+  * 7112384a6 New Bslmt throughputbenchmark drqs 135123704 (#2401)
   * 05420f2a1 Merge pull request #2407 from jmendelsohn4/drqs-144273361/bdlcc-fix-intermittant-timing-failures
   * 8f344cf5a bdlmt_signaler: fix 'noexcept' errors in last version
   * 7f7a06822 Merge pull request #2305 from bchapman/bsla_annotation-above-bsls-drqs-134834126
+  * bd1dd173a Drqs 143438145/bdlcc singleproducerqueue improve try pop front (#2406)
+  * c5fd23854 switch to windows native condition variables (#2404)
+  * 9609bcf2a sync to bdlcc_boundedqueue (#2403)
+  * 776fac19b Drqs 142952992/bdlcc boundedqueue creation (#2376)
+  * 9b5ebde51 Drqs 143192683/bdlcc singleproducersingleconsumerqueue creation (#2391)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 23 Jun 2019 12:14:07 -0400
 
@@ -764,6 +1068,7 @@ bsl-internal (3.31.0.0) git; urgency=low
   * 71a94ad6e Merge pull request #2399 from afeher/baltzo-exemplar-cleanup
   * 8bf498532 Merge pull request #2398 from osubbotin/review/scm-semicolons
   * 4c20c1ae8 Merge pull request #2397 from ameredit/fix_trailing_whitespace
+  * ef28309ca spinlock backoff implementation and performance test DRQS 141894256 (#2363)
   * fb69e6f64 Merge pull request #2394 from sbreitst/remove-createNode-drqs-141430548
   * da4911e39 Merge pull request #2377 from bchapman/bdls_filesystemutil-nightly-build-TC-18-drqs-143013557
 
@@ -783,7 +1088,12 @@ bsl-internal (3.30.0.0) git; urgency=low
   * 3bfeb9c6a Merge pull request #2388 from mgiroux/create-empty-bos-pkg-grp
   * 4427f1aa2 Merge pull request #2386 from rkhlebnikov/drqs-143224375-array-swap-adl
   * a531a80d8 Merge pull request #2385 from ameredit/variadic_common_type_t
+  * c46084bf8 Make `encodeQuotedDecimal64` default true in `baljsn` (#2299)
+  * 6d4e7b604 add missing inline (#2384)
   * 43416a37e Merge pull request #2358 from ameredit/remove_bslmfispointertomember
+  * 6e84f87fa correct bug (#2378)
+  * 07d397845 correct compile warning (#2375)
+  * 2c9a0eef1 Drqs 140362544/bslmt fastpostsemaphore creation (#2346)
   * 8ec6ffead Merge pull request #2373 from jmendelsohn4/drqs-142827756/bdlmt_threadattributes-allocator-awareness
   * 2010b3321 Merge pull request #2369 from hversche/c++17-build-drqs114104661
   * 6fb1e8363 Merge pull request #2370 from ameredit/remove_windows_platform_hacks
@@ -796,6 +1106,7 @@ bsl-internal (3.29.0.0) git; urgency=low
 
   * 2bf0f169c Changelog for version 3.29.0.0
   * 60bc56e94 Bump version to 3.29.0.0
+  * d333aba50 add 'allocator' accesor, use 'allocator()' to create thread (#2367)
   * 2a3c626b2 Merge pull request #2340 from ddragan/perfect_forwarding_for_bslalg_constructorutil
   * ce9f0455d Merge pull request #2364 from apaprock/bslstl-list-default
   * daeb75cf9 Merge pull request #2355 from dbeer/bdls_memoryutil_tests
@@ -808,12 +1119,16 @@ bsl-internal (3.28.0.0) git; urgency=low
   * 5c7fb08ff Changelog for version 3.28.0.0
   * 93e003d2e Bump version to 3.28.0.0
   * 5b3ca5bc7 Merge pull request #2242 from jberne4/drqs_135750941-migrate_reviews
+  * 0c40a1703 set close on exec for the files (#2362)
+  * 9c2519a2b Striped hash map without performance test (#2195)
   * 650e038ef Merge pull request #2359 from osubbotin/review/remove-authors
+  * 7e15847de Fix typo in BerDecoder error message. (#1947)
   * 3d3d78697 Merge pull request #2357 from jberne4/typo_fix-drqs_141167082
   * d8c14fa6e Merge pull request #2350 from jberne4/assert_extern_filename_hack
   * 42a8f5803 Merge pull request #2055 from rtartler/build_depends
   * 5010cd1e5 Merge pull request #1701 from jdevenpo/qpc-reference
   * f784a872e Merge pull request #2349 from dbeer/support_gtest_extension
+  * 3bb126e79 Set default max sequence size to 1GB for BER decoder (#2307)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 3 May 2019 10:44:04 -0400
 
@@ -832,6 +1147,9 @@ bsl-internal (3.27.0.0) git; urgency=low
   * e093bca73 Merge pull request #2263 from hrosen4/system_error
   * e1f986d85 Merge pull request #2341 from afeher/drqs-140781258-rework-stlport-xxx_bound-fixes
   * 351c200ea Merge pull request #2323 from dsokolov7/review/bde-stringref-printto-drqs-139427922
+  * 8488b794f Remove external header guards from bsl+stdhdrs (#2335)
+  * e9cde05d3 Resolve mismatched tags warning in array (#2336)
+  * cc310d272 Native_std forward list (#2210)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 21 Apr 2019 13:46:14 -0400
 
@@ -839,13 +1157,18 @@ bsl-internal (3.26.0.0) git; urgency=low
 
   * 0e0489f77 Changelog for version 3.26.0.0
   * 32cbdc54f Bump version to 3.26.0.0
+  * 44d9dcd50 Remove unneeded explicit template instantiations on IBM test driver (#2338)
+  * 2436d0085 Clean up basic bde_verify issues in bslstl test drivers (#2322)
   * 370d0c57e Merge pull request #2339 from hversche/remove-CLASS-SCOPE-drqs138311093
+  * 6970ff4d3 Drqs 140403279/bdlmt multiqueuethreadpool pause create deadlock (#2333)
   * eda741ae5 Merge pull request #2337 from jmendelsohn4/drqs-140575133/bal-nb-20190405
+  * 9ee3048da Adjustments to bslma_default (#2326)
   * d266882da Merge pull request #2288 from bchapman/bdls_processutil-processName-argv0-redone-drqs-122218213
   * ee14ae853 Merge pull request #2310 from jberne4/DRQS_139414941-move_exemplar
   * b0322be88 Merge pull request #2334 from jmendelsohn4/drqs-140522902/bal-test-compile-warnings-20190404
   * 8e9737f32 Merge pull request #2233 from bchapman/ball_loggercategoryutil-fix-hier-drqs-133568178
   * 82a97254d Merge pull request #2330 from hversche/fix-stlport-drqs139734639
+  * 1db8903e1 Address {DRQS 137104924} - BER Decoder empty string decoding (#2287)
   * 6e8b8f501 Merge pull request #2332 from ameredit/stlport_on_sun
   * b886bc08e Fix version-detect for CC with STLport library
 
@@ -854,9 +1177,13 @@ bsl-internal (3.26.0.0) git; urgency=low
 bsl-internal (3.25.0.0) git; urgency=low
 
   * 5a779197e Changelog for version 3.25.0.0
+  * ae79d24e9 fix resume too soon after pause fails (#2327)
   * 7fe905dea Merge pull request #2314 from osubbotin/review/remove-force-pic
   * fa52f65b1 Merge pull request #2325 from osubbotin/review/doxygen-fixes
   * 707a77892 Merge pull request #2329 from hrosen4/cygwin-endianess_drqs-140210218
+  * e95a8439c correct compiler warning (#2328)
+  * 95c3a4a3e Conan build support. (#2089)
+  * 192052661 xlC does not support C++11 noreturn (#2324)
   * 85156d8a8 Merge pull request #1994 from fbirbacher/reduce-inline-code-for-default-allocator
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 29 Mar 2019 15:09:02 -0400
@@ -874,13 +1201,17 @@ bsl-internal (3.24.0.0) git; urgency=low
 
   * 4fde10686 Changelog for version 3.24.0.0
   * 6fefdcafd Bump version to 3.24.0.0
+  * 281da0501 Drqs 138047258/bdlmt multiqueuethreadpool improve num processed (#2316)
   * 418e7907a Merge pull request #2311 from jmendelsohn4/drqs-139704002/bdlt_datetimeinterval-correct-cmath-include
   * ffcd52e6a Merge pull request #2308 from osubbotin/review/fix-namespace-category-drqs139634627
+  * 4c4582385 Don't set the HAS_CPP11 macros in C++03 mode (#2315)
   * 8769e518a Merge pull request #2313 from cwilson/declare-blob-blobbuffer-move-ctors-noexcept-drqs-139707320
   * 6d30aa998 Merge pull request #2254 from dsokolov7/review/bde-ameredit-array-drqs-131523442
   * c83967474 Merge pull request #2282 from dsokolov7/review/bde-datum-print-drqs-137688398
   * e8f6fcc7b Merge pull request #2306 from jmendelsohn4/drqs-139501501/bdl_nb_compile_warnings
   * f042f5753 Merge pull request #2300 from jberne4/DRQS_139017627-shared_ptr_unique_ptr
+  * 9b14c2547 correct synchronization of 'deleteQueueCb' (#2304)
+  * 01064b0ea correct possible deadlock while calling 'pauseQueue' (#2302)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 22 Mar 2019 14:28:56 -0400
 
@@ -888,8 +1219,12 @@ bsl-internal (3.23.1.0) git; urgency=low
 
   * 1dd0b03ba Changelog for version 3.23.1.0
   * 44b44162f Bump version to 3.23.1
+  * b20103723 improve doc (#2298)
   * 88de69196 Merge pull request #2297 from bde/undo-traits-changes-to-avoid-libsunir-issue
+  * 622e10208 change 'd_owned' from volatile to atomic (#2296)
   * 6743e4d7f Merge pull request #2295 from jmendelsohn4/drqs-138951857/bal-build-warnings
+  * 215d2b996 balst_stacktraceutil.t.cpp: compiler bug in Solaris CC couldn't handle TC 7 (#2294)
+  * abee8d385 make destructors default (#2293)
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 8 Mar 2019 12:23:58 -0500
 
@@ -900,7 +1235,10 @@ bsl-internal (3.23.0.0) git; urgency=low
   * 5b035f46e Merge pull request #2270 from jberne4/drqs_137502208-assert_failure_log_level
   * 30158bcc0 Merge pull request #2291 from oimanuel/bslmf_if_deprecate-drqs-138614884
   * cc07f8d30 Merge pull request #2289 from hversche/add-forward-as-reference
+  * 87bac1a56 Simplifying bslmf_voidtype for better use with C++11 (#2280)
+  * 4f5797ccd sync doc between bdlcc_single* components (#2284)
   * 2bf55d656 Merge pull request #2285 from bchapman/bdls_osutil-bsl_ostream_h-drqs-138288665
+  * e8049a523 correct undefined behavior doc (#2283)
   * f357925b0 Merge pull request #2281 from hrosen4/datum-warning_drqs-138067316
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 4 Mar 2019 10:07:47 -0500
@@ -910,11 +1248,17 @@ bsl-internal (3.22.0.0) git; urgency=low
   * 75b5e09b7 Changelog for version 3.22.0.0
   * 55563d105 Bump version to 3.22.0
   * dad1065fc Merge pull request #2279 from apaprock/bdld-datum-opt-assert
+  * f3c5e91b8 Add 'bdlb::nullOpt' support to 'bdlb::NullableValue' (#2272)
   * e86f855e3 Merge pull request #2277 from bchapman/bdls_fdstream-read-past-buffer-end-drqs-137573159
+  * 77b9683c0 balst_stacktraceresolverimpl_elf.cpp: enhance to resolve multiple segments (#2252)
   * 9574b3977 Merge pull request #2267 from bchapman/bslim_gtestutil-less-template-ostream-drqs-136959045
+  * 2d90b30e7 Remove specific workarounds for old xlC compilers (#2276)
   * 68abafeef Merge pull request #2275 from ameredit/bde_verify_includes_for_bdl
   * 16f726348 Merge pull request #2248 from bchapman/bdls_osutil-VersionHelper-drqs-131942046
+  * b37e282ad asserts fixed (#2268)
+  * dcd89539b Address bde_verify issues will 'bdlb_nullablevalue' (#2269)
   * 8e649ba02 Merge pull request #2262 from bchapman/bsls_dbghelpdllimpl_windows-night-build-fix-drqs-136944165
+  * cfd9ec4e3 Adjust ~RWMutex documentatoin (#2266)
   * a7ca35132 Merge pull request #2260 from jberne4/drqs_136893894-bad_time_separate_functions
   * e42490a57 Merge pull request #2261 from ameredit/nullopt_t
   * 0cdb7ea20 Merge pull request #2265 from oimanuel/fix_bdlcc_cache_locking_test-drqs-137336541
@@ -933,16 +1277,26 @@ bsl-internal (3.20.0.0) git; urgency=low
 
   * 0e4422892 Changelog for version 3.20.0.0
   * ce966b001 Bump version to 3.20.0
+  * 89809fa56 Balst stacktraceresolverimpl xcoff gcc drqs 130613191 (#2255)
   * 9df57b53e Merge pull request #2259 from osubbotin/review/doxygen-fixes
+  * c712bbaef minor doc fixes (#2258)
+  * ae1a5074b Fix some compile errors when native traits support is disabled (#2256)
+  * ba7ff4df0 Resolve any build issues when transitive includes are disabled (#2257)
   * b007cf148 Merge pull request #2253 from osubbotin/review/file-set-category-drqs133952742
   * 10fb3b480 Merge pull request #2083 from dsokolov7/review/bde-z-bael-deadlock-drqs-110401470
   * 2c7c99cee Merge pull request #2229 from dsokolov7/review/bde-output-redirector-drqs-131523442
   * b24b29e08 Merge pull request #2230 from bchapman/bdlcc-late-signaling-doc-drqs-135160731
   * f7f1df2b5 Merge pull request #2223 from dsokolov7/review/bde-variant-references-drqs-111480299
   * d574b324a Merge pull request #2249 from jberne4/drqs_136091384-fix_gcc_attributes
+  * 67ac2f862 Silence test driver warnings on spurious cv-qualifiers (#2250)
   * bd9a2e8a0 fixed versions where gcc declares nodiscard and maybe_unused available
   * 238349fd8 Merge pull request #2246 from cwilson/bsls_libraryfeatures-cpp14-clang-warning-drqs-135945454
+  * e19680ee3 Fix 'bslstl_pair.h' warnings on Clang (#2247)
   * 8ee5b48ff Merge pull request #2245 from osubbotin/review/doxygen-fixes
+  * 9cd759201 bdls_processutil: fix nightly build failure in TC 1 on Windows (#2243)
+  * e58a5df2b DatetimeTz: Fix typo in constructor description (#2227)
+  * c18a53f41 Fix reference in docs to own package name (#2240)
+  * ac42870a8 Resolve many bslx warnings (#2241)
   * 3c6861e0c Merge pull request #2239 from jberne4/drqs_135435123_attribute_fix
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 28 Jan 2019 12:29:26 -0500
@@ -952,12 +1306,27 @@ bsl-internal (3.19.0.0) git; urgency=low
   * 6e99e6c3d Changelog for version 3.19.0.0
   * aeb354a28 Bump version objects to 3.19.0
   * a02a3b6c0 Merge pull request #2238 from afeher/drqs-128628205-testallocator-alignment
+  * 800a06aa1 Balst advanced linux nightly build drqs 133554846 (#2202)
+  * cf0732eee Extern template for stringref (#2236)
+  * 2da377ec7 fix sign extension tests and getUint24 imp (#2237)
   * 432de5a90 Merge pull request #2212 from jberne4/use_annotations
   * 03ab26c47 Merge pull request #2228 from jberne4/review_fix
+  * 03b29d32c Typedef for "OnFileRotationCallback" in observers. (#2234)
   * 061d68882 Merge pull request #2175 from bchapman/ball_log-HIER-MACRO-drqs-129768889
   * 34acc5a45 Merge pull request #2226 from bchapman/bdlcc_cache-bug-with-VALUE=shared_ptr-drqs-134930805
+  * 6f91c0c66 make advanceTime wait for event scheduling (#2224)
   * 6c4400839 Merge pull request #2225 from osubbotin/review/update-synopses
+  * aa0571b31 fix hyphenation in bslma_usesbslmaallocator doc (DRQS 134796240) (#2222)
+  * 4c4f6e3a0 Clean up bslstl_hash test driver (#2221)
   * e24a8d9d3 Merge pull request #2183 from dsokolov7/review/bde-constructionutil-non-copyable-drqs-132281710
+  * b102f869d enable SSE4.2 instructions in WAF build of BDLDE on Darwin (#2220)
+  * 77e830416 Fix byteorderimputil warnings (#2217)
+  * 307a7b93c Doc fix support iterators (#2219)
+  * 870840356 Fix typo bdldfp_decimalconverutil => bdldfp_decimalconvertutil (#2186)
+  * 63ddb4d93 'nullptr' test driver support for MSVC 17.  (#2199)
+  * f7b17dd71 improve performance (#2216)
+  * 0e8fe7c9b Drqs 132645627/bdlcc singleproducerqueue simplify (#2215)
+  * 591e25e6e bsl: Elide librt on macOS when building with CMake (#2214)
   * 0cc7106d3 Merge pull request #2213 from jberne4/balxml_xsd_fixup
   * 22ea155bd Merge pull request #2203 from fbirbacher/implicit-default-ctor-bdld-manageddatum
   * a9edaad73 Merge pull request #2205 from osubbotin/review/doxygen-fixes
@@ -986,6 +1355,8 @@ bsl-internal (3.18.0.0) git; urgency=low
   * daa808c47 Merge pull request #2189 from hrosen4/inteldfp-long-size_drqs-133556280
   * c62d8a27d Merge pull request #2178 from ameredit/cpp17_for_msvc_part_1
   * 57c1533b1 Merge pull request #2191 from bchapman/ball_logthrottle.t.cpp-nightly-build-TC-3-drqs-133554078
+  * a27dacec8 bdlcc_cache: add move semantics (#2053)
+  * 9b0c8d280 Drqs 132301198/bdlcc singleconsumerqueue (#2181)
   * e726d352c Merge pull request #2188 from hversche/doc-nits
   * 68c81ce3c Merge pull request #2155 from bchapman/bslstl_stringref-faster-compares-drqs-128912256
   * 521651b44 Merge pull request #2187 from akao30/fix/log-contract
@@ -1006,6 +1377,7 @@ bsl-internal (3.18.0.0) git; urgency=low
   * 17ee205fa Merge pull request #2136 from jberne4/drqs-130748829-bdl-trivial_asserts_bdl
   * 8a44a9a48 Merge pull request #2137 from jberne4/drqs-130748829-bal-trivial_asserts_bal
   * 8371218b1 Merge pull request #2172 from jberne4/assert_extern_filename_hack_2
+  * 1da8a9f40 Drqs 132623899/bdlcc singleproducerqueue performance (#2173)
   * 523c07aae Merge pull request #2170 from hrosen4/sun-string-hash_dqrs-132030795
   * c4eded903 Merge pull request #2147 from dsokolov7/review/bde-decimal-failures-drqs-127803631
   * ee4937475 Merge pull request #2167 from dsokolov7/review/bde-formatter-failure-drqs-131079298
@@ -1057,6 +1429,7 @@ bsl-internal (3.15.0.0) git; urgency=low
   * b89851c49 Merge pull request #2110 from bchapman/bsls_stackaddressutil-TC-7-nightly-build-drqs-130211744
   * 4eb392614 Merge pull request #2122 from spackard/master
   * 8f30d1c35 Merge pull request #2126 from osubbotin/review/pcre2-version-update
+  * 77d2a61d0 Update pcre2 README for 10.32 (#2125)
   * 3e9dae347 Merge pull request #2123 from osubbotin/review/pcre2-version-update
   * 652f286d4 Merge pull request #2117 from spackard/master
   * 1c74fbcca Merge pull request #2118 from jmendelsohn4/bdlcc_singleproducerqueueimple-remove-TBD-for-padding
@@ -1074,6 +1447,7 @@ bsl-internal (3.15.0.0) git; urgency=low
   * 9ffb9aade Merge pull request #2107 from jmendelsohn4/nb20181002/bdlcc_fixedqueue-fix-usage-example-race
   * 49aed9606 Merge pull request #2042 from osubbotin/review/usage-ballst_stacktraceutil
   * 36c5320ca Merge pull request #2106 from jmendelsohn4/nb20181002/bdlcc_singleproducerqueue-nb-fixes
+  * 5cb79705b Prototype/bdlcc singleproducerunboundedqueue 20180816 (#2082)
   * d307f541f Merge pull request #2104 from oimanuel/hashAppend_bdlb_bigendian-drqs-128723942
   * 6cdf073bd Merge pull request #2099 from oimanuel/fixdoc_bdlb_variant-drqs-123553441
 
@@ -1179,6 +1553,7 @@ bsl-internal (3.11.0.0) git; urgency=low
   * 8c6907a9d Merge pull request #1943 from cwilson/bslmf_decay-macro-clash-with-ISFUNC-drqs-123483201
   * 37f2eda5a Merge pull request #1940 from bchapman/ball_recordattributes-avoid-null-stringref.data-drqs-123123158
   * 30433310b Merge pull request #1935 from osubbotin/review/ball_error_buffer
+  * a7c8068d1 Add a description file for bdlpcre. (#1941)
   * 3885dfae9 Merge pull request #1928 from afeher/drqs-123047215-blob-move-and-swap
   * 99746b6b0 Merge pull request #1918 from hversche/rule-based-logging-doc-drqs-122796660
   * 887d5b23a Merge pull request #1930 from afeher/drqs-123333827-bce-to-bslmt-in-docu
@@ -1201,6 +1576,7 @@ bsl-internal (3.11.0.0) git; urgency=low
   * 01272b5ee Merge pull request #1899 from afeher/drqs-122349536-ref-to-temp
   * a983444c8 Merge pull request #1898 from gjenkins/unselected_choice_balber_options_test2
   * 521d0e6b4 Merge pull request #1903 from osubbotin/review/balber-encoder-fix
+  * 483b6bc6f Fixed trivial spelling error and wrapped line as per doc standards (#1896)
   * ddeec5464 Merge pull request #1894 from gjenkins/unselected_choice_balber_options_test
   * 02ff4e582 Merge pull request #1868 from bchapman/kill-guards-bde-repo-no-bsl-no-btl-drqs-121473090
   * ae4b29aec Merge pull request #1818 from gjenkins/unselected_choice_balber
@@ -1244,6 +1620,8 @@ bsl-internal (3.11.0.0) git; urgency=low
   * 4251a3a95 Merge pull request #1787 from hrosen4/byteorder-ntohl_drqs-118956214
   * 400c177fd Merge pull request #1795 from cwilson/remove-workarounds-for-drqs-117439200-from-userfieldvalue-test-driver
   * cef160b28 Merge pull request #1793 from cwilson/post-bde-3.5-ball-enhancements-baseline-v3.0
+  * 9b22fa2fe Broadcast observer and new LoggerManager API. (#1047)
+  * 60c373782 Class scope category logging (DRQS 92250198) (#1060)
   * 0923ab50d Merge pull request #1791 from ameredit/drqs119246745_fix_gcc_warning_in_forwardutil
   * ae21bb96a Merge pull request #1694 from cwilson/lwg-defect-2268-default-npos-arg-for-string-methods-RDSIBDE-1792
   * 17a4ee62c Merge pull request #1786 from afeher/drqs-118964602-advancetoendnoderaw-fails-on-attributes
@@ -1260,6 +1638,7 @@ bsl-internal (3.11.0.0) git; urgency=low
   * 145da99d9 Merge pull request #1739 from fbirbacher/drqs-117090632/datummaker-no-perfect-forwarding
   * 7bfd9d805 Merge pull request #1770 from hrosen4/ub-left-shift_drqs-114474016
   * 5cbb7bc15 Merge pull request #1719 from dstone50/bdet_TimeInterval-ISO-8601-drqs-61756773
+  * d97c0794e Cmake build layers (#1754)
   * 148ea97aa Merge pull request #1757 from hrosen4/bad-conversion_drqs-118092561
   * df0483028 Merge pull request #1695 from rbhindwa/baljsn_formatter-create-component-drqs-40644741
   * b507b6fb0 Merge pull request #1753 from hrosen4/foolish-test_drqs-105506799
@@ -1515,6 +1894,7 @@ bsl-internal (3.5.0.0) git; urgency=low
   * d396e415c drqs-111478499: 'bdlcc_objectcatalog.h': Recode for 'bdedox' conversion.
   * 3236a9b6c Merge pull request #1545 from cwilson/bsls_objectbuffer-doc-typos-drqs-112139590
   * 48a37084c Merge pull request #1523 from bchapman/bsls_bslonce-BSLS_BSLONCE_INITIALIZER-drqs-111273324
+  * 811e7781e Typo in comments has been fixed. (#1539)
   * 5ee1e409f Merge pull request #1517 from afeher/drqs-111658129-fix-negative-nan-on-linux
   * ecec2e090 Merge pull request #1530 from sbreitst/bdedox_fixes-drqs-111740206.master
   * 76801745c drqs-111740206: master: Format fixes for 'bdedox' conversion.
@@ -1653,6 +2033,7 @@ bsl-internal (3.5.0.0) git; urgency=low
   * afbf4b7a7 Merge pull request #1427 from osubbotin/review/btlso_resolvutil_warnings-drqs-109388019
   * 8b1c5f0c2 Merge pull request #1414 from oimanuel/fix_bslmt_threadutil_t_14-drqs-106536608
   * 9d31a06df Merge pull request #1415 from ameredit/assume_vc_2010
+  * bd4b3ed18 Resolve local address. DRQS 102617223 (#1205)
   * a836f9292 Merge pull request #1412 from bde/revert-1409-revert-1371-drqs-107705012-int-map-builder
   * 31421e549 Merge pull request #1410 from afeher/drqs-1007705012-fix-master
   * 47eb8a7fb Merge pull request #1409 from afeher/revert-1371-drqs-107705012-int-map-builder
@@ -1825,6 +2206,7 @@ bsl-internal (3.5.0.0) git; urgency=low
   * d50845af2 Conversion warning
   * c11b22604 Merge pull request #1130 from rbhindwa/btlb_blob-zero-sized-buffers-disable-asserts-drqs-97690451
   * 25fbff79e Merge pull request #1103 from cwilson/bdlb_variant-add-more-remove_const
+  * 2b494321c Adopt commit d5f7d50d8 from bde-upstream-master: Add deprecation for loadLocalTimeOffset to .cpp files. (#1137)
   * 9d326c7f2 Adopt commit f3a755728 from master: Merge pull request #1109 from hrosen4/resize-empty-vector_drqs-99966534
   * f22902a5f Adopt commit 476e00362 from master: Merge pull request #1104 from hrosen4/vector-string-resize-drqs-99966534
   * 005569e1f Adopt commit 52af0c45b from master: Merge pull request #1093 from cwilson/remove-cycle-from-bslalg-drqs-99635010
@@ -1862,6 +2244,7 @@ bsl-internal (3.5.0.0) git; urgency=low
   * d0048f3d7 Adopt commit c0317f790 from master: Merge pull request #1069 from ameredit/cc_12_4_no_default_template_args
   * c6bea5415 Adopt commit 4c89b8e54 from master: Merge pull request #1056 from abeels/bdlcc_objectcatalog-use-objectbuffer-instead-of-manual-alignment
   * b96dabb7c Adopt commit 43e3718cb from master: Merge pull request #1074 from bchapman/balst-elf-xcoff-gt-4G-execs-drqs-98571127
+  * d5f7d50d8 Add deprecation for loadLocalTimeOffset to .cpp files. (#1137)
   * 793c1d30a fixed version number
   * f3a755728 Merge pull request #1109 from hrosen4/resize-empty-vector_drqs-99966534
   * 476e00362 Merge pull request #1104 from hrosen4/vector-string-resize-drqs-99966534
@@ -1882,6 +2265,7 @@ bsl-internal (3.5.0.0) git; urgency=low
   * f1e06f255 Merge pull request #1086 from osubbotin/review/strict-std-allocator-support-in-map-drqs-XXXXXXXX
   * 283ed4bf4 Merge pull request #1030 from rbhindwa/btlmt-connect-listen-options-drqs-76893072-rebased
   * 31dca8dd0 Merge pull request #1076 from hrosen4/balst_stacktraceresolverimpl_elf-suncc-5.14
+  * 55f427acd Move Datum::DataType::k_NUM_TYPES out of the enum [DRQS 98512307]. (#1094)
   * bc921c906 Merge pull request #1095 from jmendelsohn4/drqs-99727887/sun_nb_20170424
   * 576d0e4ff Merge pull request #1087 from glaptev1/glaptev1/baltzo_timezoneutil_test-drqs-98925106
   * 492e0c980 Merge pull request #1089 from jmendelsohn4/drqs-99630786/aix_nb_20170421
@@ -1997,6 +2381,8 @@ bsl-internal (3.5.0.0) git; urgency=low
   * d9f7d38a7 Merge pull request #1020 from hversche/revert-const-date-accessor-drqs-93897974
   * b701864a9 Merge pull request #1019 from oimanuel/bslmt_qlock_typo-drqs-97246034
   * 9fc80f99d Merge pull request #1017 from hrosen4/poll-btlso_inetstreamsocket-drqs-97192308
+  * 156674c94 'size' accessor has been added to 'bslstl::StringRef'. (#1014)
+  * 6254f7a03 add 'bsltf'-specific 'operator<<' overloads that were missing (#1012)
   * e5161616f Merge pull request #998 from cwilson/bslstl-queue-stack-broken-doxygen-links-drqs-96691374
   * 442cfc182 Merge pull request #995 from mgiroux/pr/994-rebased-master
   * 5f112c1d6 Merge pull request #1000 from cwilson/sessionpool-usage-side-effects-within-assert-drqs-31777798
@@ -2084,6 +2470,7 @@ bsl-internal (3.5.0.0) git; urgency=low
   * 96a10a1ee Merge pull request #954 from dsokolov7/review/copy_n-replacement-drqs-93354460
   * 48f48e75f Merge pull request #962 from mgiroux/review/rename-BUF_SIZE-to-BAEJSN_BUF_SIZE-master-drqs-95448891
   * e27feeebc Merge pull request #956 from jmendelsohn4/drqs-95303426/day_count_conventions_contract_violation_20170119
+  * 701fd1fee bslstl_unorderedmap: remove 'explicit' on initializer_list c'tor (#939)
   * 18e2f3973 Merge pull request #924 from oimanuel/bdlmt_threadpool-assert-drqs-94116649
   * c53916559 Merge pull request #952 from bde/ajm_updates_pablos_function_patch
   * be1884606 Merge pull request #951 from hrosen4/allocator-bdlmt_multiqueuethreadpool-drqs-95127390
@@ -2099,6 +2486,7 @@ bsl-internal (3.5.0.0) git; urgency=low
   * b51224498 Merge pull request #849 from osubbotin/review/reference_in_map-drqs83862770
   * 53ae9207f Merge pull request #917 from ameredit/remove_cpp11_support_in_gcc47
   * b441b1224 Merge pull request #930 from cwilson/ball-clean-up-following-oleg-clean-up
+  * 679d1ed6e Cleanup of ball components. No functional changes. (#927)
   * 89bf39e78 Merge pull request #922 from abeels/bslalg_scalarprimitives-copyconstruct-failure
   * 5209f9590 Merge pull request #921 from abeels/memberfunctionpointer-adl-failure
   * 199807742 Merge pull request #923 from osubbotin/review/fix-the-the-drqs-none
@@ -2132,11 +2520,14 @@ bsl-internal (3.5.0.0) git; urgency=low
   * 0fc97070c Merge pull request #896 from bchapman/bslstl_string-operator=-from-stringrefdata-drqs-57309245
   * 4a377996c Merge pull request #906 from osubbotin/review/bsls-timeutils-return-asserts-drqs-93974802
   * 93a08b3fb Merge pull request #907 from hversche/pr/584-rebases_and_squash
+  * 02b880906 [RDSIBDE-1405] Apply tests for standard allocators to deque (#863)
   * 2d829ef3a Merge pull request #873 from hrosen4/aix-poll-defs-drqs-92487083
   * 1d5b03494 Merge pull request #904 from spackard/master
+  * f1f896d5d Fix compilation error on Darwin. (#903)
   * c3087cf57 Merge pull request #880 from che2/move-stackaddressutil-bsls-drqs-91800628
   * e19ebf1c2 Merge pull request #899 from osubbotin/review/bdlb-tokenizer-usage-drqs-93783862
   * e5bdade3e Merge pull request #898 from abeels/fix-bdld_datummaker-cpp03-build
+  * 5da2b6dee Add tests for standard allocators support for bslstl_list (#886)
   * 24f31079b Merge pull request #900 from cwilson/use-bslmf_resulttype-in-bdlf_bind-drqs-93234786
   * 4152cba8d Adopt commit 9a9a1be from master: Merge pull request #894 from cwilson/propagate-map-free-operator-doc-across-bslstl-drqs-93639116
   * 4d472f878 Adopt commit 96bbb3e from master: Merge pull request #895 from cwilson/remove-AT-REVIEW_FOR_MASTER-from-bsl-header-files
@@ -2236,6 +2627,7 @@ bsl-internal (3.5.0.0) git; urgency=low
   * 47fb00c3c Merge pull request #856 from jmendelsohn4/drqs-92491241/bdlma_sequentialpool_reserveCapacity
   * 42a2f2f8f Merge pull request #844 from dgoffred/cpp11-algos-fixed
   * 99b5fff4e Merge pull request #847 from dschuman/review/dschumann-drqs-69660838
+  * 45ecf3e7d Tests for standard allocators have been applied for 'bsl::unordered_set'. (#793)
   * 4a4004ea8 Merge pull request #853 from che2/fix-balxml_formatter-test-failure
   * 45f26ad9b Merge pull request #852 from hversche/pr/729-rebased-master
   * 501105e92 Merge pull request #698 from hversche/bsls_log_performance
@@ -2257,6 +2649,7 @@ bsl-internal (3.5.0.0) git; urgency=low
   * 614bfbef1 Merge pull request #831 from ameredit/late_windows_fix_for_isenum
   * 7404a9363 Merge pull request #825 from ameredit/fix_string_test_driver_for_cpp11
   * a0767cf68 Merge pull request #815 from ameredit/fix_hash_for_msvc2015
+  * a4f73046a Tests for standard allocators have been applied for 'bsl::set'. RDSIBDE-1430 (#774)
   * a11afd287 Merge pull request #826 from ameredit/incomplete_keys_in_unordered_maps
   * 86bbe7c50 Merge pull request #797 from cwilson/bdlb_nullablevalue-fix-cpp11-robo-build-breakage
   * 66d508199 Merge pull request #824 from ameredit/noexcept_for_utilities
@@ -2302,8 +2695,12 @@ bsl-internal (3.5.0.0) git; urgency=low
   * cc9529152 Merge pull request #812 from bchapman/bsltf-fix-stateful-and-value-array-drqs-91330187
   * 447f57515 Merge pull request #700 from phalpern/function-no-partial
   * 5205d60a0 Merge pull request #549 from phalpern/bslmf_memberfunctionpointertraits
+  * 03161a6c0 Fix test driver issues from PR 787 (#807)
   * 8da84cf4d Merge pull request #782 from jmendelsohn4/drqs-90511308/bdlde_quotedprintablencoder_fix_conversion_add_test_driver
+  * 297565d3f Test driver and documentation changes allocemplacabletesttype (#791)
+  * 7efd2fbb2 Hot fix: excessive template instantiation in 'bsltf_stdstatefulallocator' (#810)
   * d0648de24 Merge pull request #805 from glaptev1/feature/add-bsl-difinition-for-memory_order-enumeration-values-drqs-89923897
+  * d92eb996f Improvement of test driver for 'bsltf_stdstatefulallocator'. DRQS 88258671. (#732)
   * 29e2f8fce Merge pull request #800 from abeels/bsls_assert-log-handler-return-jira-1460
   * c7abbe09d Merge pull request #801 from jmendelsohn4/drqs-90203436/master/bdlt_datetimeinterval_instrument_range
   * a9aba8e86 Merge pull request #787 from cwilson/test-allocator-propagation-traits-across-bslstl
@@ -2312,6 +2709,7 @@ bsl-internal (3.5.0.0) git; urgency=low
   * 67916d351 Merge pull request #794 from che2/fix-berutil-drqs-89283849
   * a48edb317 Merge pull request #785 from dschuman/review/dschumann-drqs-89789150-mqtp
   * 25735fe1a Merge pull request #790 from jmendelsohn4/nb/bdlde_crc64_20161013
+  * ab56cb1aa Improvement of test driver for 'bsltf_stdallocatoradaptor'. DRQS 8619930. (#616)
   * 0aeee8afe Merge pull request #788 from ameredit/unbreak_the_build
   * 585015ce0 Merge pull request #780 from sbreitst/noexcept_test_cases
   * c1226f11d Merge pull request #786 from mgiroux/review/make-threadutil-imp-public
