@@ -100,49 +100,6 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdlb::IndexSpanStringUtil Util;
 
 //=============================================================================
-//                           TEMPORARY WORKAROUND
-//-----------------------------------------------------------------------------
-// This temporary workaround needs to remain in place until
-// {DRQS 164229251 <GO>} is fixed, so `bsl::string_view` can be directly
-// compared to a string literal.
-
-namespace BloombergLP {
-namespace bdlb {
-namespace indexSpanStringUtil_TestOnly {
-
-struct Spartacus {
-    bsl::string_view d_value;
-
-    Spartacus(const bsl::string_view& value)  // IMPLICIT
-    : d_value(value) { }
-
-    template <bsl::size_t SIZE>
-    Spartacus(const char (&value)[SIZE])  // IMPLICIT
-    : d_value(value, SIZE - 1)
-    {
-        BSLS_ASSERT('\0' == value[SIZE - 1]);  // Only string literals.
-    }
-};
-
-bool operator==(const Spartacus &lhs, const Spartacus &rhs)
-{
-    return lhs.d_value == rhs.d_value;
-}
-
-}  // close namespace indexSpanStringUtil_TestOnly
-}  // close package namespace
-}  // close enterprise namespace
-
-using BloombergLP::bdlb::indexSpanStringUtil_TestOnly::operator==;
-
-// This temporary workaround needs to remain in place until
-// {DRQS 164229251 <GO>} is fixed, so `bsl::string_view` can be directly
-// compared to a string literal.
-//-----------------------------------------------------------------------------
-//                     END TEMPORARY WORKAROUND
-//=============================================================================
-
-//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
