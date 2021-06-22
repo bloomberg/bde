@@ -716,7 +716,7 @@ int main(int argc, char *argv[])
 //..
     int scalarInteger = 2;
 //..
-// Finally, we use the uniform 'bslma::DestructionUtil:destroy' method to
+// Finally, we use the uniform 'bslma::DestructionUtil::destroy' method to
 // destroy both 'myInteger' and 'scalarInteger':
 //..
     bslma::DestructionUtil::destroy(myInteger);

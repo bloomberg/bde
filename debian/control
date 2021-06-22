@@ -37,7 +37,7 @@ Description: BDL
  groups/bdl extra libraries
 
 Package: libbsl-dev-extra
-Depends: libbsl-dev
+Depends: libbsl-dev, libryu-dev-extra
 Architecture: any
 Conflicts: libbsl-dev (<< 3.41.0.0), libbsl-extra-dev
 Replaces: libbsl-extra-dev
@@ -65,6 +65,7 @@ Description: BDL
  groups/bdl development files
 
 Package: libbsl-dev
+Depends: libryu-dev
 Architecture: any
 Description: BSL
  groups/bsl development files

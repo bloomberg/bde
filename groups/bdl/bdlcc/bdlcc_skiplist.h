@@ -72,7 +72,7 @@ BSLS_IDENT("$Id: $")
 //: Pair:
 //:     An element of the list; a pairing (association) of a data object with a
 //:     key value.  Also a type name used for *references* to such objects
-//:     ('bdlcc:SkipListPair' objects cannot be constructed directly).
+//:     ('bdlcc::SkipListPair' objects cannot be constructed directly).
 //:
 //: PairHandle:
 //:     An object (of type 'bdlcc::SkipListPairHandle') with scope and copy

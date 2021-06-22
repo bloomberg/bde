@@ -140,9 +140,9 @@ inline namespace chrono_literals {
     bsl::chrono::seconds operator "" _s(unsigned long long secs);
     BSLS_KEYWORD_CONSTEXPR
     bsl::chrono::duration<long double> operator "" _s(long double secs);
-       // Create a 'bsl::chrono::duration' object having the
-       // 'bsl:ratio<1>' duration period and initialized with the specified
-       // 'secs' number of seconds.
+        // Create a 'bsl::chrono::duration' object having the 'bsl::ratio<1>'
+        // duration period and initialized with the specified 'secs' number of
+        // seconds.
 
     BSLS_KEYWORD_CONSTEXPR
     bsl::chrono::milliseconds operator "" _ms(unsigned long long ms);

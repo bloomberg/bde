@@ -78,7 +78,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  int scalarInteger = 2;
 //..
-// Finally, we use the uniform 'bslma::DestructionUtil:destroy'
+// Finally, we use the uniform 'bslma::DestructionUtil::destroy'
 // method to destroy both 'myInteger' and 'scalarInteger':
 //..
 //  bslma::DestructionUtil::destroy(myInteger);

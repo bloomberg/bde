@@ -10,12 +10,13 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlbb::SimpleBlobBufferFactory: a simple 'bdlbb::BlobBufferFactory'
 //
-//@DESCRIPTION: This component provides a mechanism, 'bdlbb:BlobBufferFactory',
-// that implements the 'bdlbb::BufferFactory' protocol and creates
-// 'bdlbb::BlobBuffer' objects of a fixed sized specified at the time the
-// factory is constructed.  The blob buffers created by this factory refer the
-// a (shared) buffer allocated by the allocator supplied at construction, or
-// the default allocator if no allocator is explicitly supplied.
+//@DESCRIPTION: This component provides a mechanism,
+// 'bdlbb::SimpleBlobBufferFactory', that implements the
+// 'bdlbb::BlobBufferFactory' protocol and creates 'bdlbb::BlobBuffer' objects
+// of a fixed sized specified at the time the factory is constructed.  The blob
+// buffers created by this factory refer the a (shared) buffer allocated by the
+// allocator supplied at construction, or the default allocator if no allocator
+// is explicitly supplied.
 //
 ///Usage
 ///-----

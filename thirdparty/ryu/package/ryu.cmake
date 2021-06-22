@@ -13,6 +13,8 @@ function(ryu_process_standalone_package retUOR listFile installOpts)
 
     set(headers
         ${rootDir}/blp_common.h
+        ${rootDir}/blp_common32.h
+        ${rootDir}/blp_common64.h
         ${rootDir}/blp_ryu.h
         ${rootDir}/common.h
         ${rootDir}/d2fixed_full_table.h

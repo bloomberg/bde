@@ -355,7 +355,7 @@ static inline int copy_special_str_printf(char* const result, const bool sign, c
   return sign + 8;
 }
 
-int d2fixed_buffered_n(double d, uint32_t precision, char* result) {
+int ryu_d2fixed_buffered_n(double d, uint32_t precision, char* result) {
   const uint64_t bits = double_to_bits(d);
 #ifdef RYU_DEBUG
   printf("IN=");
@@ -549,21 +549,21 @@ int d2fixed_buffered_n(double d, uint32_t precision, char* result) {
   return index;
 }
 
-void d2fixed_buffered(double d, uint32_t precision, char* result) {
-  const int len = d2fixed_buffered_n(d, precision, result);
+void ryu_d2fixed_buffered(double d, uint32_t precision, char* result) {
+  const int len = ryu_d2fixed_buffered_n(d, precision, result);
   result[len] = '\0';
 }
 
-char* d2fixed(double d, uint32_t precision) {
+char* ryu_d2fixed(double d, uint32_t precision) {
   char* const buffer = (char*)malloc(2000);
-  const int index = d2fixed_buffered_n(d, precision, buffer);
+  const int index = ryu_d2fixed_buffered_n(d, precision, buffer);
   buffer[index] = '\0';
   return buffer;
 }
 
 
 
-int d2exp_buffered_n(double d, uint32_t precision, char* result) {
+int ryu_d2exp_buffered_n(double d, uint32_t precision, char* result) {
   const uint64_t bits = double_to_bits(d);
 #ifdef RYU_DEBUG
   printf("IN=");
@@ -806,14 +806,14 @@ int d2exp_buffered_n(double d, uint32_t precision, char* result) {
   return index;
 }
 
-void d2exp_buffered(double d, uint32_t precision, char* result) {
-  const int len = d2exp_buffered_n(d, precision, result);
+void ryu_d2exp_buffered(double d, uint32_t precision, char* result) {
+  const int len = ryu_d2exp_buffered_n(d, precision, result);
   result[len] = '\0';
 }
 
-char* d2exp(double d, uint32_t precision) {
+char* ryu_d2exp(double d, uint32_t precision) {
   char* const buffer = (char*)malloc(2000);
-  const int index = d2exp_buffered_n(d, precision, buffer);
+  const int index = ryu_d2exp_buffered_n(d, precision, buffer);
   buffer[index] = '\0';
   return buffer;
 }

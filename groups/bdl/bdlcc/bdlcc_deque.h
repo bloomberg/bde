@@ -1277,7 +1277,7 @@ inline
 void Deque<TYPE>::ConstProctor::release()
 {
     // It is important that nobody did a const_cast and modified the underlying
-    // 'bsls:deque' since this destructor won't signal the appropriate
+    // 'bsls::deque' since this destructor won't signal the appropriate
     // condtions in the 'Deque' in that case.  If they wanted to modify the
     // 'bsl::deque' they should have used a 'Proctor' instead of a
     // 'ConstProctor'.

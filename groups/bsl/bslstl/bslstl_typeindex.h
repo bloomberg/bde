@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 // associative or unordered container.
 //
 // This implementation of 'type_index' satisfies the contracts for the native
-// 'std:type_index' specified in the ISO standard, including a specialization
+// 'std::type_index' specified in the ISO standard, including a specialization
 // for the native standard library 'std::hash'.  It further provides an
 // overload for 'hashAppend' to support the BDE hashing framework, and therefor
 // idiomatic usage with 'bsl::hash'.  In general, the recommended best practice
