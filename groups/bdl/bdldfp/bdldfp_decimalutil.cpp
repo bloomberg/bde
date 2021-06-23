@@ -111,74 +111,25 @@ int DecimalUtil::parseDecimal128(Decimal128 *out, const char *str)
     return 0;
 }
 
+
 int DecimalUtil::parseDecimal32(Decimal32 *out, const bsl::string& str)
 {
     BSLS_ASSERT(out != 0);
 
     return parseDecimal32(out, str.c_str());
 }
-
-int DecimalUtil::parseDecimal32(Decimal32 *out, const std::string& str)
-{
-    BSLS_ASSERT(out != 0);
-
-    return parseDecimal32(out, str.c_str());
-}
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-int DecimalUtil::parseDecimal32(Decimal32 *out, const std::pmr::string& str)
-{
-    BSLS_ASSERT(out != 0);
-
-    return parseDecimal32(out, str.c_str());
-}
-#endif
-
 int DecimalUtil::parseDecimal64(Decimal64 *out, const bsl::string& str)
 {
     BSLS_ASSERT(out != 0);
 
     return parseDecimal64(out, str.c_str());
 }
-
-int DecimalUtil::parseDecimal64(Decimal64 *out, const std::string& str)
-{
-    BSLS_ASSERT(out != 0);
-
-    return parseDecimal64(out, str.c_str());
-}
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-int DecimalUtil::parseDecimal64(Decimal64 *out, const std::pmr::string& str)
-{
-    BSLS_ASSERT(out != 0);
-
-    return parseDecimal64(out, str.c_str());
-}
-#endif
-
 int DecimalUtil::parseDecimal128(Decimal128 *out, const bsl::string& str)
 {
     BSLS_ASSERT(out != 0);
 
     return parseDecimal128(out, str.c_str());
 }
-
-int DecimalUtil::parseDecimal128(Decimal128 *out, const std::string& str)
-{
-    BSLS_ASSERT(out != 0);
-
-    return parseDecimal128(out, str.c_str());
-}
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-int DecimalUtil::parseDecimal128(Decimal128 *out, const std::pmr::string& str)
-{
-    BSLS_ASSERT(out != 0);
-
-    return parseDecimal128(out, str.c_str());
-}
-#endif
 
                         // classification functions
 
