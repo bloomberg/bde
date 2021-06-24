@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 // be set by 'setFailureHandler' to another routine.  If the client does not
 // want a core dump to occur, it is recommended they do:
 //..
-//    stackTraceTestAllocator.setFailurehandler(
+//    stackTraceTestAllocator.setFailureHandler(
 //                                  &balst::StackTraceTestAllocator::failNoop);
 //..
 // The stack trace test allocator is prepared for the failure handler to
