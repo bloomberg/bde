@@ -6,6 +6,7 @@
 #include <bdlma_bufferedsequentialallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 #include <bslmt_threadutil.h>
 
 #include <bsls_alignedbuffer.h>
@@ -79,6 +80,12 @@ using namespace bdlpcre;
 // [15] int depthLimit(int);
 // [15] int defaultDepthLimit(int);
 // [13] bool isJitAvailable();
+// [16] int replace(bsl::string *, int *, const string_view&, ...) const;
+// [16] int replace(std::string *, int *, const string_view&, ...) const;
+// [16] int replace(std::pmr::string *, int *, const string_view&, ...) const;
+// [16] int replaceRaw(bsl::string *, int *, const string_view&, ...) const;
+// [16] int replaceRaw(std::string *, int *, const string_view&, ...) const;
+// [16] int replaceRaw(std::pmr::string *, int *, ...) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] k_FLAG_CASELESS
@@ -87,10 +94,10 @@ using namespace bdlpcre;
 // [10] k_FLAG_DOTMATCHESALL
 // [12] ALLOCATOR PROPAGATION
 // [14] JIT OPTIMIZATION SUPPORT
-// [16] UNICODE CHARACTER PROPERTY SUPPORT
-// [17] MEMORY ALIGNMENT
-// [18] CONCERN: 'match' IS THREAD-SAFE
-// [19] USAGE EXAMPLE
+// [17] UNICODE CHARACTER PROPERTY SUPPORT
+// [18] MEMORY ALIGNMENT
+// [19] CONCERN: 'match' IS THREAD-SAFE
+// [20] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -726,8 +733,18 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
+    // CONCERN: In no case does memory come from the default allocator.
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -780,7 +797,7 @@ int main(int argc, char *argv[])
 //  }
 //..
       } break;
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING 'match' THREAD SAFETY
         //
@@ -883,7 +900,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING MEMORY ALIGNMENT
         //
@@ -913,7 +930,7 @@ int main(int argc, char *argv[])
 
         regex.prepare(0, 0, k_PATTERN, 0);
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING UNICODE CHARACTER PROPERTY SUPPORT
         //   This will test that the underlying PCRE2 library correctly handles
@@ -1002,6 +1019,323 @@ int main(int argc, char *argv[])
             retCode = X.match((const char*)UTF8_SUBJECT, 2);
 
             ASSERTV(LINE, retCode, MATCH == !retCode);
+        }
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING 'replace' and 'replaceRaw' METHODS
+        //
+        // Concerns:
+        //: 1 Although we are not testing the implementation of the PCRE
+        //:   library, we want to check that the interface is plugged in
+        //:   correctly and works as documented.  In particular, we want to
+        //:   check that the 'subject', 'replacement', and 'options'
+        //:   arguments are passed to PCRE correctly and the resulting string
+        //:   is copied correctly to the 'result'.
+        //:
+        //: 2 'replace' and 'replaceRaw' returns an error and a position of the
+        //:   error is loaded to 'errorOffset' when a syntax error detected in
+        //:   the replacement string.
+        //:
+        //: 3 If the size of the resulting string does not match the supplied
+        //:   string 'result', then 'replace' and 'replaceRaw' computes the
+        //:   required size and resizes 'result' to hold the result.
+        //:
+        //: 4 'options' are reflected correctly to the corresponding PCRE flags
+        //:   and propagated to the underlying PCRE2 substitution function as
+        //:   expected.
+        //:
+        //: 5 If 'options' is not supplied then 'options' is set to 0 by
+        //:   default.
+        //:
+        //: 6 No memory is allocated from the default allocator.
+        //
+        // Plan:
+        //: 1 Prepare a regular expression object using a given 'PATTERN'
+        //:   string, create a set of subjects that contain a match for
+        //:   'PATTERN'.
+        //:
+        //: 2 Exercise the 'replace' and 'replaceRaw'  methods using
+        //:   'replacement' and 'options' values.
+        //
+        // Testing:
+        //   int replace(bsl::string *, int *,  ...) const;
+        //   int replace(std::string *, int *, const string_view&, ...) const;
+        //   int replace(std::pmr::string *, int *, ...) const;
+        //   int replaceRaw(bsl::string *, int *,  ...) const;
+        //   int replaceRaw(std::string *, int *,  ...) const;
+        //   int replaceRaw(std::pmr::string *, int *, ...) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'replace' and 'replaceRaw' METHOD" << endl
+                          << "=========================================" << endl;
+
+        enum {
+            k_L   = Obj::k_REPLACE_LITERAL,
+            k_G   = Obj::k_REPLACE_GLOBAL,
+            k_X   = Obj::k_REPLACE_EXTENDED,
+            k_U   = Obj::k_REPLACE_UNKNOWN_UNSET,
+            k_E   = Obj::k_REPLACE_UNSET_EMPTY,
+            k_GUE = k_G | k_U | k_E
+        };
+
+        bslma::TestAllocatorMonitor dam(&defaultAllocator);
+        bslma::TestAllocator        ta(veryVeryVeryVerbose);
+
+        {
+            const char PATTERN[] = "a(b)?(c)?";
+
+            static const struct {
+                int         d_lineNum;      // source line number
+                const char *d_subject;      // subject string
+                const char *d_replacement;
+                size_t      d_flags;
+                const char *d_expectedString;
+                int         d_expectedResult;
+                int         d_expectedOffset;
+            } DATA[] = {
+//                                  expected     expected  expected  error
+//line   subject      replacement    flags        string      rc     offset
+//----   -------      -----------   --------     --------  --------  ------
+{ L_,    "=**=",      "A",              0,       "=**=",      0,        0  },
+{ L_,    "=ac=",      "",               0,       "==",        1,        0  },
+{ L_,    "=ac=",      "A",              0,       "=A=",       1,        0  },
+{ L_,    "=abc=",     "A",              0,       "=A=",       1,        0  },
+{ L_,    "=abc=abc=", "A",              0,       "=A=abc=",   1,        0  },
+{ L_,    "=abc=",     "+$1$0$1+",       0,       "=+babcb+=", 1,        0  },
+{ L_,    "=abc=",     "+${1$0$1+",      0,       "",         -1,        4  },
+{ L_,    "=abc=",     "+$3+",           0,       "",         -1,        3  },
+{ L_,    "=ab=",      "+$2+",           0,       "",         -1,        3  },
+// k_REPLACE_LITERAL ------------------------------------------------------
+{ L_,    "=abc=",     "+$1+",           0,       "=+b+=",     1,        0  },
+{ L_,    "=abc=",     "+$1+",         k_L,       "=+$1+=",    1,        0  },
+// k_REPLACE_GLOBAL -------------------------------------------------------
+{ L_,    "=abc=abc=", "A",            k_G,       "=A=A=",     2,        0  },
+// k_REPLACE_EXTENDED -----------------------------------------------------
+{ L_,    "=abc=",     "+${1:-D}+",    k_X,       "=+b+=",     1,        0  },
+{ L_,    "=ac=",      "+${1:-D}+",    k_X,       "=+D+=",     1,        0  },
+{ L_,    "=abc=",     "+${1:+D:d}+",  k_X,       "=+D+=",     1,        0  },
+{ L_,    "=ac=",      "+${1:+D:d}+",  k_X,       "=+d+=",     1,        0  },
+{ L_,    "=ab=",      "+${1:+D:d}"
+                       "${2:+E:e}+",  k_X,       "=+De+=",    1,        0  },
+{ L_,    "=ab=ac=",   "+${1:+D:d}"
+                       "${2:+E:e}+",  k_X | k_G, "=+De+="
+                                                  "+dE+=",    2,        0  },
+// k_REPLACE_UNKNOWN_UNSET and k_REPLACE_UNSET_EMPTY-----------------------
+{ L_,    "=ac=",      "+$3+",         k_U,       "",         -1,        3  },
+{ L_,    "=ac=",      "+$0$1$0+",     k_E,       "=+acac+=",  1,        0  },
+{ L_,    "=ac=",      "+$0$3$0+",     k_E,       "",         -1,        5  },
+{ L_,    "=ac=",      "+$0$3$0+",     k_E | k_U, "=+acac+=",  1,        0  },
+// All flags except k_REPLACE_EXTENDED ------------------------------------
+{ L_,    "=ab=ac=",   "+$0$1$2+",     k_GUE,     "=+abb+="
+                                                  "+acc+=",   2,        0  }
+        };
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            Obj mX(&ta); const Obj& X = mX;
+
+            bsl::string errorMsg(&ta);
+            size_t      errorOffset;
+
+            int retCode = mX.prepare(&errorMsg, &errorOffset, PATTERN, 0, 0);
+
+            ASSERTV(errorMsg, errorOffset, 0 == retCode);
+
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                const int     LINE            = DATA[i].d_lineNum;
+                const char   *SUBJECT         = DATA[i].d_subject;
+                const char   *REPLACEMENT     = DATA[i].d_replacement;
+                const size_t  FLAGS           = DATA[i].d_flags;
+                const char   *EXPECTED        = DATA[i].d_expectedString;
+                const size_t  EXPECTED_LENGTH = bsl::strlen(EXPECTED);
+                const int     RC              = DATA[i].d_expectedResult;
+                const int     OFFSET          = DATA[i].d_expectedOffset;
+
+                if (veryVerbose) {
+                    T_ P_(LINE)  P_(SUBJECT) P_(REPLACEMENT)
+                       P_(FLAGS) P_(RC)      P(EXPECTED)
+                }
+
+                for (size_t j = 0; j < EXPECTED_LENGTH + 1; ++j) {
+
+                    { // replace
+                        int         offset = 0;
+                        bsl::string result1(j, 0, &ta);
+
+                        retCode = X.replace(&result1,
+                                            &offset,
+                                            SUBJECT,
+                                            REPLACEMENT,
+                                            FLAGS);
+
+                        ASSERTV(LINE, RC, retCode,   RC       == retCode);
+                        ASSERTV(LINE,     retCode,   OFFSET,     offset,
+                                     0 <= retCode || OFFSET   == offset);
+                        ASSERTV(LINE,     retCode,   EXPECTED,   result1,
+                                     0 >  retCode || EXPECTED == result1);
+
+                        std::string result2(10000, 0);
+
+                        retCode = X.replace(&result2,
+                                            &offset,
+                                            SUBJECT,
+                                            REPLACEMENT,
+                                            FLAGS);
+
+                        ASSERTV(LINE, RC, retCode,   RC       == retCode);
+                        ASSERTV(LINE,     retCode,   OFFSET,     offset,
+                                     0 <= retCode || OFFSET   == offset);
+                        ASSERTV(LINE,     retCode,   EXPECTED,   result2,
+                                     0 >  retCode || EXPECTED == result2);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        std::pmr::string result3(j, 0);
+
+                        retCode = X.replace(&result3,
+                                            &offset,
+                                            SUBJECT,
+                                            REPLACEMENT,
+                                            FLAGS);
+
+                        ASSERTV(LINE, RC, retCode,   RC       == retCode);
+                        ASSERTV(LINE,     retCode,   OFFSET,     offset,
+                                     0 <= retCode || OFFSET   == offset);
+                        ASSERTV(LINE,     retCode,   EXPECTED,   result3,
+                                     0 >  retCode || EXPECTED == result3);
+#endif
+                    }
+                    { // replaceRaw
+                        int         offset = 0;
+                        bsl::string result1(j, 0, &ta);
+
+                        retCode = X.replaceRaw(&result1,
+                                               &offset,
+                                               SUBJECT,
+                                               REPLACEMENT,
+                                               FLAGS);
+
+                        ASSERTV(LINE, RC, retCode,   RC       == retCode);
+                        ASSERTV(LINE,     retCode,   OFFSET,     offset,
+                                     0 <= retCode || OFFSET   == offset);
+                        ASSERTV(LINE,     retCode,   EXPECTED,   result1,
+                                     0 >  retCode || EXPECTED == result1);
+
+                        std::string result2(10000, 0);
+
+                        retCode = X.replaceRaw(&result2,
+                                               &offset,
+                                               SUBJECT,
+                                               REPLACEMENT,
+                                               FLAGS);
+
+                        ASSERTV(LINE, RC, retCode,   RC       == retCode);
+                        ASSERTV(LINE,     retCode,   OFFSET,     offset,
+                                     0 <= retCode || OFFSET   == offset);
+                        ASSERTV(LINE,     retCode,   EXPECTED,   result2,
+                                     0 >  retCode || EXPECTED == result2);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        std::pmr::string result3(j, 0);
+
+                        retCode = X.replaceRaw(&result3,
+                                               &offset,
+                                               SUBJECT,
+                                               REPLACEMENT,
+                                               FLAGS);
+
+                        ASSERTV(LINE, RC, retCode,   RC       == retCode);
+                        ASSERTV(LINE,     retCode,   OFFSET,     offset,
+                                     0 <= retCode || OFFSET   == offset);
+                        ASSERTV(LINE,     retCode,   EXPECTED,   result3,
+                                     0 >  retCode || EXPECTED == result3);
+#endif
+                    }
+                }
+            }
+        }
+
+        {  // Test NO UTF8 CHECK
+
+            const char          *PATTERN      = "\\xC0";
+            const unsigned char  SUBJECT_UTF8[2] = { 0xC3, 0x80 };
+            const unsigned char  SUBJECT_REGULAR =   0xC0;
+
+            const unsigned char  REPLACE_UTF8[2] = { 0xC3, 0x80 };
+            const unsigned char  REPLACE_REGULAR =   0xC0;
+
+            static const struct {
+                int         d_lineNum;      // source line number
+                int         d_prepareOptions;
+                bool        d_UTF8Validation;
+                int         d_resultUTF8;
+                int         d_resultRegular;
+            } DATA[] = {
+            //Line Prepare Options  Validation UTF8 Regular
+            //---- ---------------  ---------- ---- -------
+            { L_,                0,          1,   0,    1   },
+            { L_,                0,          0,   0,    1   },
+            { L_, Obj::k_FLAG_UTF8,          1,   1,   -1   },
+            { L_, Obj::k_FLAG_UTF8,          0,   1,    0   },
+            };
+
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+
+                const int    LINE            = DATA[i].d_lineNum;
+                const int    PREPARE_OPTIONS = DATA[i].d_prepareOptions;
+                const bool   UTF8_VALIDATION = DATA[i].d_UTF8Validation;
+                const int    RESULT_UTF8     = DATA[i].d_resultUTF8;
+                const int    RESULT_REGULAR  = DATA[i].d_resultRegular;
+
+                Obj mX(&ta); const Obj& X = mX;
+
+                bsl::string errorMsg(&ta);
+                size_t      errorOffset;
+                int         retCode = mX.prepare(&errorMsg,
+                                                 &errorOffset,
+                                                 PATTERN,
+                                                 PREPARE_OPTIONS);
+
+                ASSERTV(LINE, i, errorMsg, errorOffset, 0 == retCode);
+                ASSERTV(LINE, i, X.flags(), PREPARE_OPTIONS == X.flags());
+
+                bsl::string result(&ta);
+                int         offset = 0;
+
+                retCode = UTF8_VALIDATION
+                          ? X.replace(&result,
+                                    &offset,
+                                    string_view((const char *)SUBJECT_UTF8, 2),
+                                    string_view((const char *)REPLACE_UTF8, 2),
+                                    0)
+                          : X.replaceRaw(&result,
+                                    &offset,
+                                    string_view((const char *)SUBJECT_UTF8, 2),
+                                    string_view((const char *)REPLACE_UTF8, 2),
+                                    0);
+
+                ASSERTV(LINE, i, retCode, RESULT_UTF8 == retCode);
+
+                retCode = UTF8_VALIDATION
+                          ? X.replace(
+                                &result,
+                                &offset,
+                                string_view((const char *)&SUBJECT_REGULAR, 1),
+                                string_view((const char *)&REPLACE_REGULAR, 1),
+                                0)
+                          : X.replaceRaw(
+                                &result,
+                                &offset,
+                                string_view((const char *)&SUBJECT_REGULAR, 1),
+                                string_view((const char *)&REPLACE_REGULAR, 1),
+                                0);
+
+                ASSERTV(LINE, i, retCode, RESULT_REGULAR == retCode);
+
+                ASSERTV(LINE, i, offset,  0 <= retCode || 0 > offset);
+            }
         }
       } break;
       case 15: {
@@ -3266,8 +3600,9 @@ int main(int argc, char *argv[])
             int retCodeVSr;
             int retCodeVSv;
             int retCodeVSv1;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
             int retCodeVSv2;
-
+#endif
             bsl::pair<size_t, size_t>           pr;
             bslstl::StringRef                   sr;
             bsl::string_view                    sv;

@@ -14,9 +14,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //@DESCRIPTION: This component provides a mechanism, 'bdlpcre::RegEx', for
 // compiling (or "preparing") regular expressions, and subsequently matching
-// subject strings against a prepared expression.  The regular expressions
-// supported by this component correspond approximately with Perl 5.10.  See
-// the appendix entitled "Perl Compatibility" below for more information.
+// subject strings against a prepared expression and replacing the matching
+// parts with the replacement string.  The regular expressions supported by
+// this component correspond approximately with Perl 5.10.  See the appendix
+// entitled "Perl Compatibility" below for more information.
 //
 // Upon construction, a 'bdlpcre::RegEx' object is initially not associated
 // with a regular expression.  A regular expression pattern is compiled for use
@@ -42,19 +43,22 @@ BSLS_IDENT("$Id$ $CSID$")
 //:   indicate the substrings of the subject that matched respective
 //:   sub-patterns.
 //
+// The matched parts of subjects strings can be replaced with the replacement
+// string using the set of overloaded 'replace' and 'replaceRaw' methods.
+//
 ///"Prepared" State
 ///----------------
 // A 'bdlpcre::RegEx' object must first be prepared with a valid regular
-// expression before attempting to match subject strings.  We say that an
-// instance of 'bdlpcre::RegEx' is in the "prepared" state if the object holds
-// a valid regular expression, in which case calls to the overloaded 'match'
-// methods of that instance are valid.  Otherwise, the object is in the
-// "unprepared" state.  Upon construction, an 'bdlpcre::RegEx' object is in the
-// "unprepared" state.  A successful call to the 'prepare' method puts the
-// object into the "prepared" state.  The 'clear' method, as well as an
-// unsuccessful call to 'prepare', puts the object into the "unprepared" state.
-// The 'isPrepared' accessor may be used to determine whether an object is
-// prepared.
+// expression before attempting to match subject strings or replace the matched
+// parts.  We say that an instance of 'bdlpcre::RegEx' is in the "prepared"
+// state if the object holds a valid regular expression, in which case calls to
+// the overloaded 'match' or 'replace' methods of that instance are valid.
+// Otherwise, the object is in the "unprepared" state.  Upon construction, an
+// 'bdlpcre::RegEx' object is in the "unprepared" state.  A successful call to
+// the 'prepare' method puts the object into the "prepared" state.  The 'clear'
+// method, as well as an unsuccessful call to 'prepare', puts the object into
+// the "unprepared" state.  The 'isPrepared' accessor may be used to determine
+// whether an object is prepared.
 //
 ///Prepare-Time Flags
 ///------------------
@@ -73,12 +77,12 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Multi-Line Matching
 ///- - - - - - - - - -
-// By default, a subject string supplied to 'match' is treated as consisting of
-// a single line of characters (even if it actually contains '\n' characters).
-// The start-of-line meta-character '^' matches only at the beginning of the
-// string, and the end-of-line meta-character '$' matches only at the end of
-// the string (or before a terminating '\n', if present).  This matches the
-// behavior of Perl.
+// By default, a subject string supplied to 'match' or 'replace' is treated as
+// consisting of a single line of characters (even if it actually contains '\n'
+// characters).  The start-of-line meta-character '^' matches only at the
+// beginning of the string, and the end-of-line meta-character '$' matches only
+// at the end of the string (or before a terminating '\n', if present).  This
+// matches the behavior of Perl.
 //
 // If 'RegEx::k_FLAG_MULTILINE' is included in the flags supplied to 'prepare',
 // then start-of-line and end-of-line meta-characters match immediately
@@ -93,14 +97,16 @@ BSLS_IDENT("$Id$ $CSID$")
 ///UTF-8 Support
 ///- - - - - - -
 // If 'RegEx::k_FLAG_UTF8' is included in the flags supplied to 'prepare', then
-// the regular expression pattern supplied to 'prepare', as well as the subject
-// strings subsequently supplied to 'match' and 'matchRaw', are interpreted as
-// strings of UTF-8 characters instead of strings of ASCII characters.  'match'
-// returns a non-zero value if 'pattern()' was prepared with 'k_FLAG_UTF8', but
-// the subject is not a valid UTF-8 string.  The behavior of 'matchRaw' is
-// undefined if 'pattern()' was prepared with 'k_FLAG_UTF8', but the subject is
-// not a valid UTF-8 string.  Note that JIT optimization (see below) is
-// disabled for 'match' if 'pattern()' was prepared with 'k_FLAG_UTF8'.
+// the regular expression pattern supplied to 'prepare', the subject strings
+// subsequently supplied to 'match', 'matchRaw', 'replace', and 'replaceRaw' as
+// well as the replacement string supplied to 'replace' and 'replaceRaw' are
+// interpreted as strings of UTF-8 characters instead of strings of ASCII
+// characters.  'match' and 'replace' return a non-zero value if 'pattern()'
+// was prepared with 'k_FLAG_UTF8', but the subject or the replacement are not
+// a valid UTF-8 string.  The behavior of 'matchRaw' is undefined if
+// 'pattern()' was prepared with 'k_FLAG_UTF8', but the subject is not a valid
+// UTF-8 string.  Note that JIT optimization (see below) is disabled for
+// 'match' if 'pattern()' was prepared with 'k_FLAG_UTF8'.
 //
 ///Dot Matches All
 ///- - - - - - - -
@@ -114,6 +120,95 @@ BSLS_IDENT("$Id$ $CSID$")
 // option, and can be changed within a pattern by a '(?s)' option setting.  A
 // negative class such as '[^a]' always matches newline characters, independent
 // of the setting of this option.
+//
+/// Creating a New String with Replacement
+///---------------------------------------
+// A new string can be created by applying the regular expression pattern to
+// the subject string in which the matching parts are replaced with the
+// replacement string supplied to the 'replace' and 'replaceRaw' methods.
+//
+///Group Insertion Forms
+///- - - - - - - - - - -
+// By default, a dollar character ('$') is an escape character that can specify
+// the insertion of characters from capture groups and names from '(*MARK)' or
+// other control verbs in the pattern (see
+// https://perldoc.perl.org/perlre#Special-Backtracking-Control-Verbs for
+// details).  The following forms are always recognized:
+//..
+//  $$                  insert a dollar character
+//  $<n> or ${<n>}      insert the contents of group <n>
+//  $*MARK or ${*MARK}  insert a control verb name
+//..
+// Either a group number or a group name can be given for '<n>'.  Curly braces
+// are required only if the following character would be interpreted as part of
+// the number or name.  The number may be zero to include the entire matched
+// string.  For example, if the pattern 'a(b)c' is matched with '=abc=' and the
+// replacement string '+$1$0$1+', the result is '=+babcb+='.
+//
+///Replacement Flags
+///- - - - - - - - -
+// A set of flags may be optionally supplied to the 'replace' and 'replaceRaw'
+// method to affect specific substitution behavior.  The flags recognized by
+// 'replace' and 'replaceRaw' are defined in an enumeration declared within the
+// 'bdlpcre::RegEx'.  The flags are passed as a bitwise combination of OR bits
+// in the 'options' argument to 'replace' and 'replaceRaw' (e.g.,
+// 'k_REPLACE_GLOBAL | k_REPLACE_LITERAL).  The flags reflect
+// 'PCRE_SUBSTITUTE_*' flags and are propagated to the underlying PCRE2 library
+// substitute function.  See
+// {https://www.pcre.org/current/doc/html/pcre2api.html#SEC36} for details. The
+// following describes these flags and their effects.
+//
+///Global Replacement
+///  -  -  -  -  -  -
+// The default action of 'replace' and 'replaceRaw'  is to perform just one
+// replacement if the pattern matches.  The 'RegEx::k_REPLACE_GLOBAL' flag
+// requests multiple replacements in the subject string.
+//
+///The Replacement String is Literal
+///- - - - - - - - - - - - - - - - -
+// If 'RegEx::k_REPLACE_LITERAL' is set, the replacement string is not
+// interpreted in any way.
+//
+///Extended Replacement Processing
+///-  -  -  -  -  -  -  -  -  -  -
+// If 'RegEx::k_REPLACE_EXTENDED' is set, extra processing is applied to the
+// replacement string.  Without this option, only the dollar character ('$') is
+// special, and only the group insertion forms listed above (see
+// {Group Insertion Forms}) are valid.  When this flag is set, two things
+// change:
+//
+//: o Firstly, backslash in a replacement string is interpreted as an escape
+//:   character.  The usual forms such as '\n' or '\x{ddd}' can be used to
+//:   specify particular character codes, and backslash followed by any
+//:   non-alphanumeric character quotes that character.  Extended quoting can
+//:   be coded using '\Q...\E', exactly as in the pattern string.
+//:
+//: o The second effect is to add more flexibility to capture group
+//:   substitution.  The syntax is similar to that used by Bash:
+//:..
+//:   ${<n>:-<string>}
+//:   ${<n>:+<string1>:<string2>}
+//:..
+//:   As before, '<n>' may be a group number or a name.  The first form
+//:   specifies a default value.  If group '<n>' is set, its value is inserted;
+//:   if not, '<string>' is expanded and the result inserted.  The second form
+//:   specifies strings that are expanded and inserted when group '<n>' is set
+//:   or unset, respectively.  The first form is just a convenient shorthand
+//:   for '${<n>:+${<n>}:<string>}'.
+//
+///Treat Unknown Group As Unset
+///-  -  -  -  -  -  -  -  -  -
+// The 'RegEx::k_REPLACE_UNKNOWN_UNSET' causes references to capture groups
+// that do not appear in the pattern to be treated as unset groups.
+//
+///Insert An Empty String For Unset Group
+/// -  -  -  -  -  -  -  -  -  -  -  -  -
+// The 'RegEx::k_REPLACE_UNSET_EMPTY' causes unset capture groups (including
+// unknown groups when 'RegEx::k_REPLACE_UNKNOWN_UNSET' is set) to be treated
+// as empty strings when inserted as described in {Group Insertion Forms}.  If
+// this option is not set, an attempt to insert an unset group causes 'replace'
+// and 'replaceRaw' to return an error.  This option does not influence the
+// extended substitution syntax described in {Extended Replacement Processing}.
 //
 ///JIT Compiling Optimization
 ///--------------------------
@@ -664,12 +759,47 @@ class RegEx {
         // and 'subject' is valid UTF-8 if 'pattern()' was prepared with
         // 'k_FLAG_UTF8' but 'false == skipUTF8Validation'.
 
+    template <class STRING>
+    int replaceImp(STRING                  *result,
+                   int                     *errorOffset,
+                   const bsl::string_view&  subject,
+                   const bsl::string_view&  replacement,
+                   size_t                   options,
+                   bool                     skipUTF8Validation) const;
+        // Replace parts of the specified 'subject' that are matched with the
+        // specified 'replacement'.  The specified bit mask of 'options' flags
+        // is used to configure the behavior of the replacement.  'options'
+        // should contain a bit-wise OR of the 'k_REPLACE_*' constants defined
+        // by this class, which indicate additional configuration parameters
+        // for the replacement.  If 'options' has 'k_REPLACE_GLOBAL' flag then
+        // this function iterates over 'subject', replacing every matching
+        // substring.  If 'k_REPLACE_GLOBAL' flag is not set, only the first
+        // matching substring is replaced.  The specified 'skipUTF8Validation'
+        // flag indicates whether UTF-8 'replacment' validity checking is
+        // skipped.  Return the number of substitutions that were carried out,
+        // and load the specified 'result' with the result of the replacement.
+        // Otherwise, if an error occurs, return a negative value.  If that
+        // error is a syntax error in 'replacement', load the specified
+        // 'errorOffset' (if non-null) with the offset in'replacement' where
+        // the error was detected; for other errors, such as invalid 'subject'
+        // or 'replacement' UTF-8 string, load 'errorOffset' with a negative
+        // value.  The behavior is undefined unless 'true == isPrepared()'.
+        // Note that if the size of 'result' is too small to fit the resultant
+        // string then this method computes the size of 'result' and adjusts it
+        // to the size that is needed.  To avoid automatic calculation and
+        // adjustment which may introduce a performace penalty, it is
+        // recommended that the size of 'result' has enough room to fit the
+        // zero-terminating character.
+
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(RegEx, bslma::UsesBslmaAllocator);
 
     // CONSTANTS
     enum {
+        // This enumeration defines the flags that may be supplied to 'prepare'
+        // to affect specific pattern matching behavior.
+
         k_FLAG_CASELESS      = 1 << 0,  // case-insensitive matching
 
         k_FLAG_DOTMATCHESALL = 1 << 1,  // dot metacharacter matches all chars
@@ -682,8 +812,24 @@ class RegEx {
         k_FLAG_JIT           = 1 << 4   // just-in-time compiling optimization
                                         // requested
     };
-        // This enumeration defines the flags that may be supplied to the
-        // 'prepare' method to effect specific pattern matching behavior.
+
+    enum {
+        // This enumeration defines the flags that may be supplied to 'replace'
+        // to affect specific replacement behavior.
+
+        k_REPLACE_LITERAL       = 1 << 0,  // the replacement string is literal
+
+        k_REPLACE_GLOBAL        = 1 << 1,  // replace all occurrences in the
+                                           // subject
+
+        k_REPLACE_EXTENDED      = 1 << 2,  // do extended replacement
+                                           // processing
+
+        k_REPLACE_UNKNOWN_UNSET = 1 << 3,  // treat unknown group as unset
+
+        k_REPLACE_UNSET_EMPTY   = 1 << 4   // simple unset insert = empty
+                                           // string
+    };
 
     static const size_t k_INVALID_OFFSET;
         // Value used to denote an invalid offset for match methods returning
@@ -1219,6 +1365,92 @@ class RegEx {
         // Return a reference to the non-modifiable pattern held by this
         // regular-expression object.  The behavior is undefined unless
         // 'isPrepared() == true'.
+
+    int replace(bsl::string             *result,
+                int                     *errorOffset,
+                const bsl::string_view&  subject,
+                const bsl::string_view&  replacement,
+                size_t                   options = 0) const;
+    int replace(std::string             *result,
+                int                     *errorOffset,
+                const bsl::string_view&  subject,
+                const bsl::string_view&  replacement,
+                size_t                   options = 0) const;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    int replace(std::pmr::string        *result,
+                int                     *errorOffset,
+                const bsl::string_view&  subject,
+                const bsl::string_view&  replacement,
+                size_t                   options = 0) const;
+#endif
+        // Replace parts of the specified 'subject' that are matched with the
+        // specified 'replacement'.  Optionally specify a bit mask of 'options'
+        // flags that configure the behavior of the replacement.  'options'
+        // should contain a bit-wise OR of the 'k_REPLACE_*' constants defined
+        // by this class, which indicate additional configuration parameters
+        // for the replacement.  If 'options' has 'k_REPLACE_GLOBAL' flag then
+        // this function iterates over 'subject', replacing every matching
+        // substring.  If 'k_REPLACE_GLOBAL' flag is not set, only the first
+        // matching substring is replaced.  UTF-8 validity checking is
+        // performed on 'subject' and 'replacement' if 'pattern()' was prepared
+        // with 'k_FLAG_UTF8'.  Return the number of substitutions that were
+        // carried out on success, and load the specified 'result' with the
+        // result of the replacement.  Otherwise, if an error occurs, return a
+        // negative value.  If that error is a syntax error in 'replacement',
+        // load the specified 'errorOffset' (if non-null) with the offset in
+        // 'replacement' where the error was detected;  for other errors, such
+        // as invalid 'subject' or 'replacement' UTF-8 string, load
+        // 'errorOffset' with a negative value.  The behavior is undefined
+        // unless 'true == isPrepared()'.  Note that if the size of 'result' is
+        // too small to fit the resultant string then this method computes the
+        // size of 'result' and adjusts it to the size that is needed.  To
+        // avoid automatic calculation and adjustment which may introduce a
+        // performance penalty, it is recommended that the size of 'result' has
+        // enough room to fit the resulting string including a zero-terminating
+        // character.
+
+    int replaceRaw(bsl::string             *result,
+                   int                     *errorOffset,
+                   const bsl::string_view&  subject,
+                   const bsl::string_view&  replacement,
+                   size_t                   options = 0) const;
+    int replaceRaw(std::string             *result,
+                   int                     *errorOffset,
+                   const bsl::string_view&  subject,
+                   const bsl::string_view&  replacement,
+                   size_t                   options = 0) const;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    int replaceRaw(std::pmr::string        *result,
+                   int                     *errorOffset,
+                   const bsl::string_view&  subject,
+                   const bsl::string_view&  replacement,
+                   size_t                   options = 0) const;
+#endif
+        // Replace parts of the specified 'subject' that are matched with the
+        // specified 'replacement'.  Optionally specify a bit mask of 'options'
+        // flags that configure the behavior of the replacement.  'options'
+        // should contain a bit-wise OR of the 'k_REPLACE_*' constants defined
+        // by this class, which indicate additional configuration parameters
+        // for the replacement.  If 'options' has 'k_REPLACE_GLOBAL' flag then
+        // this function iterates over 'subject', replacing every matching
+        // substring.  If 'k_REPLACE_GLOBAL' flag is not set, only the first
+        // matching substring is replaced.  UTF-8 validity checking is
+        // performed on 'subject' if 'pattern()' was prepared with
+        // 'k_FLAG_UTF8'.  Return the number of substitutions that were carried
+        // out on success, and load the specified 'result' with the result of
+        // the replacement.  Otherwise, if an error occurs, return a negative
+        // value.  If that error is a syntax error in 'replacement', load the
+        // specified 'errorOffset' (if non-null) with the offset in
+        // 'replacement' where the error was detected;  for other errors, such
+        // as invalid 'subject' UTF-8 string, load 'errorOffset' with a
+        // negative value.  The behavior is undefined unless
+        // 'true == isPrepared()'.  Note that if the size of 'result' is too
+        // small to fit the resultant string then this method computes the size
+        // of 'result' and adjusts it to the size that is needed.  To avoid
+        // automatic calculation and adjustment which may introduce a
+        // performance penalty, it is recommended that the size of 'result' has
+        // enough room to fit the resulting string including a zero-terminating
+        // character.
 
     int subpatternIndex(const char *name) const;
         // Return the 1-based index of the sub-pattern having the specified

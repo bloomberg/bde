@@ -606,6 +606,73 @@ int RegEx::matchImp(const RESULT_EXTRACTOR&  extractor,
     return rc;
 }
 
+template <class STRING>
+int RegEx::replaceImp(STRING                  *result,
+                      int                     *errorOffset,
+                      const bsl::string_view&  subject,
+                      const bsl::string_view&  replacement,
+                      size_t                   options,
+                      bool                     skipUTF8Validation) const
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(errorOffset);
+    BSLS_ASSERT(isPrepared());
+
+    RegEx_MatchContextData matchContextData;
+
+    if (0 != d_matchContext->acquireMatchContext(&matchContextData)) {
+        return RegEx_ImpUtil::k_FAILURE;                              // RETURN
+    }
+
+    unsigned int pcreFlags = 0;
+    pcreFlags |= options & k_REPLACE_LITERAL    ? PCRE2_SUBSTITUTE_LITERAL : 0;
+    pcreFlags |= options & k_REPLACE_GLOBAL      ? PCRE2_SUBSTITUTE_GLOBAL : 0;
+    pcreFlags |= options & k_REPLACE_EXTENDED  ? PCRE2_SUBSTITUTE_EXTENDED : 0;
+    pcreFlags |= options & k_REPLACE_UNKNOWN_UNSET
+                                          ? PCRE2_SUBSTITUTE_UNKNOWN_UNSET : 0;
+    pcreFlags |= options & k_REPLACE_UNSET_EMPTY
+                                            ? PCRE2_SUBSTITUTE_UNSET_EMPTY : 0;
+    pcreFlags |= skipUTF8Validation ? PCRE2_NO_UTF_CHECK : 0;
+    pcreFlags |= PCRE2_SUBSTITUTE_OVERFLOW_LENGTH;
+
+    int    rcPcre2;
+    size_t bufferLength = static_cast<size_t>(result->length());
+
+    do {
+        if (bufferLength > result->length()) {
+            result->resize(bufferLength);
+        }
+
+        rcPcre2 = pcre2_substitute(
+                   d_patternCode_p,
+                   reinterpret_cast<const unsigned char *>(subject.data()),
+                   subject.length(),
+                   0,
+                   pcreFlags,
+                   matchContextData.d_matchData_p,
+                   matchContextData.d_matchContext_p,
+                   reinterpret_cast<const unsigned char *>(replacement.data()),
+                   replacement.length(),
+                   reinterpret_cast<unsigned char *>(&(*result)[0]),
+                   &bufferLength);
+
+    } while (PCRE2_ERROR_NOMEMORY == rcPcre2);
+
+    int rc = rcPcre2;
+
+    if (rcPcre2 >= 0) {
+        result->resize(bufferLength);
+    } else {
+        rc           = RegEx_ImpUtil::k_FAILURE;
+        *errorOffset = PCRE2_UNSET == static_cast<size_t>(rcPcre2)
+                       ? -1 : static_cast<int>(bufferLength);
+    }
+
+    d_matchContext->releaseMatchContext(&matchContextData);
+
+    return rc;
+}
+
 // CLASS METHODS
 bool RegEx::isJitAvailable()
 {
@@ -945,6 +1012,94 @@ int RegEx::matchRaw(std::pmr::vector<bsl::string_view> *result,
                     subject.length(),
                     subjectOffset,
                     true);
+}
+#endif
+
+int RegEx::replace(bsl::string             *result,
+                   int                     *errorOffset,
+                   const bsl::string_view&  subject,
+                   const bsl::string_view&  replacement,
+                   size_t                   options) const
+{
+    return replaceImp(result,
+                      errorOffset,
+                      subject,
+                      replacement,
+                      options,
+                      false);
+}
+
+int RegEx::replace(std::string             *result,
+                   int                     *errorOffset,
+                   const bsl::string_view&  subject,
+                   const bsl::string_view&  replacement,
+                   size_t                   options) const
+{
+    return replaceImp(result,
+                      errorOffset,
+                      subject,
+                      replacement,
+                      options,
+                      false);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int RegEx::replace(std::pmr::string        *result,
+                   int                     *errorOffset,
+                   const bsl::string_view&  subject,
+                   const bsl::string_view&  replacement,
+                   size_t                   options) const
+{
+    return replaceImp(result,
+                      errorOffset,
+                      subject,
+                      replacement,
+                      options,
+                      false);
+}
+#endif
+
+int RegEx::replaceRaw(bsl::string             *result,
+                      int                     *errorOffset,
+                      const bsl::string_view&  subject,
+                      const bsl::string_view&  replacement,
+                      size_t                   options) const
+{
+    return replaceImp(result,
+                      errorOffset,
+                      subject,
+                      replacement,
+                      options,
+                      true);
+}
+
+int RegEx::replaceRaw(std::string             *result,
+                      int                     *errorOffset,
+                      const bsl::string_view&  subject,
+                      const bsl::string_view&  replacement,
+                      size_t                   options) const
+{
+    return replaceImp(result,
+                      errorOffset,
+                      subject,
+                      replacement,
+                      options,
+                      true);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int RegEx::replaceRaw(std::pmr::string        *result,
+                      int                     *errorOffset,
+                      const bsl::string_view&  subject,
+                      const bsl::string_view&  replacement,
+                      size_t                   options) const
+{
+    return replaceImp(result,
+                      errorOffset,
+                      subject,
+                      replacement,
+                      options,
+                      true);
 }
 #endif
 
