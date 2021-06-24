@@ -11,6 +11,8 @@
 
 #include <bslmf_isreferencewrapper.h>
 #include <bslmf_issame.h>
+#include <bslmf_ispointer.h>
+#include <bslmf_ismemberpointer.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_removepointer.h>
@@ -134,10 +136,10 @@ using std::printf;
 // [ 9] function& operator=(function&& rhs);
 // [10] function& operator=(nullptr_t) noexcept;
 // [11] function& operator=(FUNC&& rhs);
-// [11+] function& operator=(bsl::reference_wrapper<FUNC> rhs);
+// [11] function& operator=(bsl::reference_wrapper<FUNC> rhs);
 // [13] RET operator()(ARGS...) const; // No target
 // [14] RET operator()(ARGS...) const; // function pointer target
-// [15] RET operator()(ARGS...) const; // function-member pointer target
+// [15] RET operator()(ARGS...) const; // member-function pointer target
 // [16] RET operator()(ARGS...) const; // data-member pointer target
 // [17] RET operator()(ARGS...) const; // User-defined functor target
 // [ 8] void swap(function& other) noexcept;
@@ -654,13 +656,13 @@ bool eqTarget(const bslalg::NothrowMovableWrapper<TYPE>& lhs,
 
 template <class PROTO>
 bool eqTarget(const bsl::function<PROTO>& lhs, const bsl::function<PROTO>& rhs)
-    // 'eqTarget' overload for case where 'lhs' and 'rhs' are instantiations
-    // of 'bsl::function'.  Since 'bsl::function' does not support
-    // 'operator==', this function approximates equality comparison for the
-    // limited cases of empty 'bsl::function' and 'bsl::function' containing a
-    // target of type 'int(*)(const IntWrapper& iw, int v)', only.  Test cases
-    // are designed so that, if a 'bsl::function' is used as a target type, it
-    // is always one of these two cases.
+    // 'eqTarget' overload for case where the specified 'lhs' and 'rhs' are
+    // instantiations of 'bsl::function'.  Since 'bsl::function' does not
+    // support 'operator==', this function approximates equality comparison for
+    // the limited cases of empty 'bsl::function' and 'bsl::function'
+    // containing a target of type 'int(*)(const IntWrapper& iw, int v)', only.
+    // Test cases are designed so that, if a 'bsl::function' is used as a
+    // target type, it is always one of these two cases.
 {
     typedef int (*TargetType)(const IntWrapper&, int);
 
@@ -672,6 +674,18 @@ bool eqTarget(const bsl::function<PROTO>& lhs, const bsl::function<PROTO>& rhs)
 
     // Return true if 'lhs' and 'rhs' have the same target or both are empty.
     return (lhsTarget && rhsTarget) ? *lhsTarget == *rhsTarget : !lhs == !rhs;
+}
+
+template <class FUNC>
+bool eqTarget(const bsl::reference_wrapper<FUNC>& lhs, const FUNC& rhs)
+    // 'eqTarget' overload for case where the specified 'lhs' is a reference
+    // wrapped function and 'rhs' is a function.  It checks the function
+    // wrapped by 'lhs' is the same as 'rhs'.  This specialization facilitates
+    // the comparison done by 'testAssignFromFunctorImp' between
+    // '*function(reference_wrapper(rhsIn)).target<reference_wrapper<FUNC>>()'
+    // and 'rhsIn' during reference wrapping tests.
+{
+    return eqTarget(lhs.get(), rhs);
 }
 
 class CountCopies
@@ -714,6 +728,10 @@ int simpleFunc2(const IntWrapper& iw, int v)
 {
     return iw.value() - v;
 }
+
+#if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+void voidFunc() {}
+#endif
 
 class CountingBase
 {
@@ -1314,7 +1332,7 @@ class TestFunctor
         operator=(bslmf::MovableRefUtil::move(originalRef));
     }
 
-    ~TestFunctor() { memset(this, 0xbb, sizeof(*this)); }
+    ~TestFunctor() { memset(static_cast<void*>(this), 0xbb, sizeof(*this)); }
 
     // MANIPULATORS
     TestFunctor& operator=(const TestFunctor& rhs) {
@@ -3749,19 +3767,87 @@ void testAssignNullptr(const Obj& func, int line)
     LOOP_ASSERT(line, 0              == testAlloc.numBlocksInUse());
 }
 
-template <class FUNC>
-void testAssignFromFunctor(const Obj&   lhsIn,
-                           const FUNC&  rhsIn,
-                           const char  *lhsFuncName,
-                           const char  *rhsFuncName,
-                           bool         skipExcTest)
+
+template <class FUNC, bool REFERENCE_WRAPPING>
+inline
+typename bsl::enable_if<!REFERENCE_WRAPPING, bool>::type
+isCallable(const Obj& obj)
+    // Check whether it is safe to call, for the specified parameter 'obj',
+    // 'obj()' without the risk of a null pointer dereference as part of the
+    // testing done in 'testAssignFromFunctorImp'.  If we are not doing
+    // reference wrapping, then it is sufficient to rely on 'bsl::function's
+    // 'operator bool'.
+{
+    return static_cast<bool>(obj);
+}
+
+template <class FUNC, bool REFERENCE_WRAPPING>
+inline
+typename bsl::enable_if<REFERENCE_WRAPPING &&
+                            !(bsl::is_pointer<FUNC>::value ||
+                              bsl::is_member_pointer<FUNC>::value),
+                        bool>::type
+isCallable(const Obj& obj)
+    // Check whether it is safe to call, for the specified parameter 'obj',
+    // 'obj()' without the risk of a null pointer dereference as part of the
+    // testing done in 'testAssignFromFunctorImp'.  If we have a function
+    // holding a reference wrapped non-pointer (such as a reference wrapped
+    // functor object) then it is always safe.
+{
+    // If we are reference wrapping then the target should always be a pointer
+    // to a non-null reference wrapper.  If that is not the case then report
+    // the error and return false.
+    ASSERT(obj);
+    if (!obj) {
+        return false;                                                 // RETURN
+    }
+
+    // As FUNC is not a pointer it can never be null, so return true.
+    return true;
+}
+
+template <class FUNC, bool REFERENCE_WRAPPING>
+inline
+typename bsl::enable_if<REFERENCE_WRAPPING &&
+                            (bsl::is_pointer<FUNC>::value ||
+                             bsl::is_member_pointer<FUNC>::value),
+                        bool>::type
+isCallable(const Obj& obj)
+    // Check whether it is safe to call, for the specified parameter 'obj',
+    // 'obj()' without the risk of a null pointer dereference as part of the
+    // testing done in 'testAssignFromFunctorImp'.  If we have a function
+    // holding a reference wrapped pointer to a function (or a member function)
+    // then we need to check whether that function pointer (or member function
+    // pointer) is itself null.
+{
+    // If we are reference wrapping then the target should always be a pointer
+    // to a non-null reference wrapper.  If that is not the case then report
+    // the error and return false.
+    ASSERT(obj);
+    if (!obj) {
+        return false;                                                 // RETURN
+    }
+
+    // The target is a reference wrapper of a pointer.  We do not expect the
+    // 'target()' function to return null in this case, so if it does we report
+    // the error and return false.
+    ASSERT(obj.target<bsl::reference_wrapper<FUNC> >());
+    if (!obj.target<bsl::reference_wrapper<FUNC> >()) {
+        return false;                                                 // RETURN
+    }
+
+    return obj.target<bsl::reference_wrapper<FUNC> >()->get();
+}
+
+template <class FUNC, bool REFERENCE_WRAPPING>
+void testAssignFromFunctorImp(const Obj&   lhsIn,
+                              const FUNC&  rhsIn,
+                              const char  *lhsFuncName,
+                              const char  *rhsFuncName,
+                              bool         skipExcTest)
 
 {
     (void) skipExcTest; // Avoid unused var warning in C++03 mode.
-
-    // Get the real functor type (in case it's wrapped).
-    typedef typename
-        bslalg::NothrowMovableUtil::UnwrappedType<FUNC>::type TargetTp;
 
     bslma::TestAllocator ta;
     bsl::allocator<char> alloc(&ta);
@@ -3770,6 +3856,30 @@ void testAssignFromFunctor(const Obj&   lhsIn,
     bslma::TestAllocatorMonitor testAllocMonitor(&ta);
     FunctorMonitor              funcMonitor(L_);
 
+    // Determine whether we are dealing with a null functor or not.  This will
+    // impact which tests we should carry out after assignment.
+    bool rhsInIsNonNull = ! isNull(NTUNWRAP(rhsIn));
+
+    typedef typename bsl::conditional<REFERENCE_WRAPPING,
+                                      bsl::reference_wrapper<FUNC>,
+                                      FUNC&>::type
+        ReferenceType;
+
+    typedef typename bsl::conditional<REFERENCE_WRAPPING,
+                                      bsl::reference_wrapper<FUNC>,
+                                      FUNC>::type
+        RHSType;
+
+    // Get the real functor type (in case it's wrapped).  Note that
+    // 'bsl::function' will unwrap a 'NothrowMovableWrapper' but not if it is
+    // the target of a 'reference_wrapper'.
+    typedef typename bsl::conditional<
+            REFERENCE_WRAPPING,
+            bsl::reference_wrapper<FUNC>,
+            typename bslalg::NothrowMovableUtil::UnwrappedType<FUNC>::type
+        >::type
+        TargetTp;
+
     // Test copy-assignment from non-const functor
     EXCEPTION_TEST_BEGIN(&ta, &copyMoveLimit) {
         // Make copy of lhsIn using desired allocator.  Measure memory usage.
@@ -3777,14 +3887,53 @@ void testAssignFromFunctor(const Obj&   lhsIn,
         Obj           lhs(bsl::allocator_arg, alloc, lhsIn);
         AllocSizeType lhsBytesBefore = ta.numBytesInUse() - preBytes;
 
-        // Make copy of 'rhsIn'.  The copy is a non-const lvalue, but its
-        // value should be unchanged by the assignment.
-        FUNC rhs(rhsIn); const FUNC& RHS = rhs;
+        // Create a 'ReferenceType' variable from a non-const version of
+        // 'rhsIn'.  This variable is used *only* to construct the expected
+        // value 'exp' and will *not* be used to modify 'rhsIn'.
+        //
+        // For the non-reference-wrapped test, this is equivalent to:
+        // 'FUNC& rhsInReferenceNonConst(const_cast<FUNC&>(rhsIn));'
+        //
+        // For the reference-wrapped test, this is equivalent to:
+        // 'bsl::reference_wrapper<FUNC>'
+        // 'rhsInReferenceNonConst(const_cast<FUNC&>(rhsIn));'
+        //
+        // Note that, as this will only be used in the construction of 'exp',
+        // the constness (or lack thereof) is irrelevant.
+        ReferenceType rhsInReferenceNonConst(const_cast<FUNC&>(rhsIn));
+
+        // Make copy of 'rhsIn'.  The copy is a non-const lvalue, but its value
+        // should be unchanged by the assignment.
+        //
+        // In the non-reference-wrapped case, this is equivalent to the
+        // following code that results in 'RHS' being a const reference to a
+        // copy of 'rhsIn':
+        //
+        //       'FUNC         rhs(rhsIn);'
+        //       'FUNC&        referenceToRhs(rhs);'
+        //       'const FUNC&  RHS = referenceToRhs;'
+        //
+        // In the reference-wrapped case, this is equivalent to the following
+        // code that results in RHS being a const reference to a reference
+        // wrapped copy of 'rhsIn':
+        //
+        //       'FUNC                                 rhs(rhsIn);'
+        //       'bsl::reference_wrapper<FUNC>         referenceToRhs(rhs);'
+        //       'const bsl::reference_wrapper<FUNC>&  RHS = referenceToRhs;'
+        //
+        // Note that 'referenceToRhs' is used only in the construction of
+        // 'RHS'.
+
+        FUNC              rhs(rhsIn);
+        ReferenceType     referenceToRhs(rhs);
+        const RHSType&    RHS = referenceToRhs;
 
         // 'exp' is what 'lhs' should look like after the assignment.
         preBytes = ta.numBytesInUse();
-        Obj           exp(bsl::allocator_arg, alloc, rhsIn);
+        Obj           exp(bsl::allocator_arg, alloc, rhsInReferenceNonConst);
         AllocSizeType expBytes = ta.numBytesInUse() - preBytes;
+
+        const bool expIsCallable = isCallable<FUNC, REFERENCE_WRAPPING>(exp);
 
         preBytes = ta.numBytesInUse();
         EXCEPTION_TEST_TRY {
@@ -3792,6 +3941,16 @@ void testAssignFromFunctor(const Obj&   lhsIn,
                 ta.setAllocationLimit(-1);
                 copyMoveLimit = -1;
             }
+
+            // Check noexceptness of the copy if applicable
+ #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+            if (REFERENCE_WRAPPING) {
+                LOOP2_ASSERT(
+                    lhsFuncName, rhsFuncName,
+                    BSLS_KEYWORD_NOEXCEPT_OPERATOR(lhs = RHS));
+            }
+ #endif
+
             ///////// COPY-ASSIGNMENT FROM FUNC //////////
             lhs = RHS;
 
@@ -3802,26 +3961,45 @@ void testAssignFromFunctor(const Obj&   lhsIn,
             AllocSizeType lhsBytesAfter = (lhsBytesBefore +
                                            ta.numBytesInUse() -
                                            preBytes);
-            if (exp) {
+
+            const bool lhsIsCallable =
+                                   isCallable<FUNC, REFERENCE_WRAPPING>(lhs);
+
+            // Make sure the emptiness is as expected:
+            LOOP2_ASSERT(lhsFuncName,
+                         rhsFuncName,
+                         (REFERENCE_WRAPPING || rhsInIsNonNull) ==
+                             static_cast<bool>(lhs));
+            LOOP2_ASSERT(lhsFuncName,
+                         rhsFuncName,
+                         (rhsInIsNonNull == lhsIsCallable));
+            LOOP2_ASSERT(lhsFuncName,
+                         rhsFuncName,
+                         (rhsInIsNonNull == expIsCallable));
+
+            if (rhsInIsNonNull || REFERENCE_WRAPPING) {
                 // Non-empty expected result
-                LOOP2_ASSERT(lhsFuncName, rhsFuncName, lhs);
-                LOOP2_ASSERT(lhsFuncName, rhsFuncName,
+                LOOP2_ASSERT(lhsFuncName,
+                             rhsFuncName,
                              lhs.target_type() == typeid(TargetTp));
-                LOOP2_ASSERT(lhsFuncName, rhsFuncName,
-                             eqTarget(*lhs.target<TargetTp>(), rhsIn));
+                LOOP2_ASSERT(lhsFuncName,
+                             rhsFuncName,
+                             lhs.target<TargetTp>());
+                if (lhs.target<TargetTp>()) {
+                    LOOP2_ASSERT(lhsFuncName,
+                                 rhsFuncName,
+                                 eqTarget(*lhs.target<TargetTp>(), rhsIn));
+                }
             }
-            else {
-                LOOP2_ASSERT(lhsFuncName, rhsFuncName, ! lhs);
-            }
+
             LOOP2_ASSERT(lhsFuncName, rhsFuncName, eqTarget(RHS, rhsIn));
             LOOP2_ASSERT(lhsFuncName, rhsFuncName,
                          alloc == lhs.get_allocator());
             LOOP2_ASSERT(lhsFuncName, rhsFuncName,
                          lhsBytesAfter == expBytes);
 
-            if (lhs && exp) {
-                LOOP2_ASSERT(lhsFuncName, rhsFuncName,
-                             lhs(1, 2) == exp(1, 2));
+            if (lhsIsCallable && expIsCallable) {
+                LOOP2_ASSERT(lhsFuncName, rhsFuncName, lhs(1, 2) == exp(1, 2));
             }
 
             LOOP2_ASSERT(lhsFuncName, rhsFuncName,
@@ -3852,24 +4030,76 @@ void testAssignFromFunctor(const Obj&   lhsIn,
         // Make copy of lhsIn using desired allocator.  Measure memory usage.
         Obj lhs(bsl::allocator_arg, alloc, lhsIn);
 
-        // Make copy of 'rhsIn'.  The copy is a non-const lvalue, but its
-        // value should be unchanged by the assignment.
-        FUNC rhs(rhsIn); const FUNC& RHS = rhs;
+        // Make copy of 'rhsIn'.  The copy is a non-const lvalue, but its value
+        // should be unchanged by the assignment.
+        //
+        // In the non-reference-wrapped case, this is equivalent to the
+        // following code that results in 'RHS' being a const reference to a
+        // copy of 'rhsIn':
+        //
+        //       'FUNC         rhs(rhsIn);'
+        //       'FUNC&        referenceToRhs(rhs);'
+        //       'const FUNC&  RHS = referenceToRhs;'
+        //
+        // In the reference-wrapped case, this is equivalent to the following
+        // code that results in RHS being a const reference to a reference
+        // wrapped copy of 'rhsIn':
+        //
+        //       'FUNC                                 rhs(rhsIn);'
+        //       'bsl::reference_wrapper<FUNC>         referenceToRhs(rhs);'
+        //       'const bsl::reference_wrapper<FUNC>&  RHS = referenceToRhs;'
+        //
+        // Note that 'referenceToRhs' is used only in the construction of
+        // 'RHS'.
+
+        FUNC              rhs(rhsIn);
+        ReferenceType     referenceToRhs(rhs);
+        const RHSType&    RHS = referenceToRhs;
+
 
         // 'exp' is what 'lsh' should look like after the assignment.
         Obj exp(bsl::allocator_arg, alloc, rhsIn);
+
+        // Note that, in this particular test, 'exp' is not constructed from a
+        // reference wrapped function, so pass 'false' to the 'isCallable'
+        // template parameter.
+        const bool expIsCallable = isCallable<FUNC, false>(exp);
 
         EXCEPTION_TEST_TRY {
             if (skipExcTest) {
                 ta.setAllocationLimit(-1);
                 copyMoveLimit = -1;
             }
+
+            // Check noexceptness of the copy if applicable
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+            if (REFERENCE_WRAPPING) {
+                LOOP2_ASSERT(
+                    lhsFuncName, rhsFuncName,
+                    BSLS_KEYWORD_NOEXCEPT_OPERATOR(lhs = RHS));
+            }
+#endif
+
             // Prove that assignment can be called with const rhs.
             lhs = RHS;  // Assignment from const rhs
 
-            // Basic test that assignment worked.
-            LOOP2_ASSERT(lhsFuncName, rhsFuncName, ! lhs == ! exp);
-            if (lhs && exp) {
+            const bool lhsIsCallable =
+                                   isCallable<FUNC, REFERENCE_WRAPPING>(lhs);
+
+            // Basic test that assignment produced the expected emptiness.
+            LOOP2_ASSERT(lhsFuncName,
+                         rhsFuncName,
+                         (REFERENCE_WRAPPING || rhsInIsNonNull) ==
+                             static_cast<bool>(lhs));
+            LOOP2_ASSERT(lhsFuncName,
+                         rhsFuncName,
+                         (rhsInIsNonNull == lhsIsCallable));
+            LOOP2_ASSERT(lhsFuncName,
+                         rhsFuncName,
+                         (rhsInIsNonNull == expIsCallable));
+
+            // If we expected non-empty, do a basic check.
+            if (lhsIsCallable && expIsCallable) {
                 LOOP2_ASSERT(lhsFuncName, rhsFuncName,
                              lhs(1, 2) == exp(1, 2));
             }
@@ -3906,19 +4136,60 @@ void testAssignFromFunctor(const Obj&   lhsIn,
         Obj           lhs(bsl::allocator_arg, alloc, lhsIn);
         AllocSizeType lhsBytesBefore = ta.numBytesInUse() - preBytes;
 
+        // Create a 'ReferenceType' variable from a non-const version of
+        // 'rhsIn'.  This variable is used *only* to construct the expected
+        // value 'exp' and will *not* be used to modify 'rhsIn'.
+        //
+        // For the non-reference-wrapped test, this is equivalent to:
+        // FUNC& rhsInReferenceNonConst(const_cast<FUNC&>(rhsIn));
+        //
+        // For the reference-wrapped test, this is equivalent to:
+        // 'bsl::reference_wrapper<FUNC>'
+        // 'rhsInReferenceNonConst(const_cast<FUNC&>(rhsIn));'
+        ReferenceType rhsInReferenceNonConst(const_cast<FUNC&>(rhsIn));
+
         // Copy 'rhsIn' so as to not change 'rhsIn'
         bslalg::ConstructorProxy<FUNC> rhsProxy(rhsIn, &ta);
         FUNC&                          rhs = rhsProxy.object();
+        ReferenceType                  referenceToRhs(rhs);
 
         // 'exp' is what 'lhs' should look like after the assignment
         preBytes = ta.numBytesInUse();
-        Obj           exp(bsl::allocator_arg, alloc, rhsIn);
+        Obj           exp(bsl::allocator_arg, alloc, rhsInReferenceNonConst);
         AllocSizeType expBytes = ta.numBytesInUse() - preBytes;
+
+        const bool expIsCallable = isCallable<FUNC, REFERENCE_WRAPPING>(exp);
 
         preBytes = ta.numBytesInUse();
         EXCEPTION_TEST_TRY {
+
+            // Check noexceptness of the assignment if applicable
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+            if (REFERENCE_WRAPPING) {
+                LOOP2_ASSERT(
+                    lhsFuncName, rhsFuncName,
+                    BSLS_KEYWORD_NOEXCEPT_OPERATOR(
+                        lhs = bslmf::MovableRefUtil::move(referenceToRhs)));
+            }
+#endif
+
             ///// MOVE-ASSIGNMENT FROM FUNC /////
-            lhs = bslmf::MovableRefUtil::move(rhs);
+            lhs = bslmf::MovableRefUtil::move(referenceToRhs);
+
+            const bool lhsIsCallable =
+                                   isCallable<FUNC, REFERENCE_WRAPPING>(lhs);
+
+            // Basic test that assignment produced the expected emptiness.
+            LOOP2_ASSERT(lhsFuncName,
+                         rhsFuncName,
+                         (REFERENCE_WRAPPING || rhsInIsNonNull) ==
+                             static_cast<bool>(lhs));
+            LOOP2_ASSERT(lhsFuncName,
+                         rhsFuncName,
+                         (rhsInIsNonNull == lhsIsCallable));
+            LOOP2_ASSERT(lhsFuncName,
+                         rhsFuncName,
+                         (rhsInIsNonNull == expIsCallable));
 
             // The number of bytes used by the lhs after the assignment is
             // equal to the number of bytes used before the assignment plus the
@@ -3927,31 +4198,43 @@ void testAssignFromFunctor(const Obj&   lhsIn,
             AllocSizeType lhsBytesAfter = (lhsBytesBefore +
                                            ta.numBytesInUse() -
                                            preBytes);
-            if (exp) {
+            if (rhsInIsNonNull || REFERENCE_WRAPPING) {
                 // Non-empty expected result
                 LOOP2_ASSERT(lhsFuncName, rhsFuncName, lhs);
                 LOOP2_ASSERT(lhsFuncName, rhsFuncName,
                              lhs.target_type() == typeid(TargetTp));
                 TargetTp *target_p = lhs.target<TargetTp>();
+                LOOP3_ASSERT(lhsFuncName, rhsFuncName, target_p,
+                             target_p);
                 LOOP2_ASSERT(lhsFuncName, rhsFuncName,
                              target_p && eqTarget(*target_p, rhsIn));
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
                 // TBD: In C++03, there is a limitation in 'destructiveMove'
                 // such that the target is not moved-into.
-                LOOP2_ASSERT(lhsFuncName, rhsFuncName,
-                             target_p && isMoved(*target_p, true));
+                LOOP4_ASSERT(
+                    lhsFuncName,
+                    rhsFuncName,
+                    target_p,
+                    REFERENCE_WRAPPING,
+                    target_p &&
+                        (REFERENCE_WRAPPING !=
+                        isMoved(*target_p, !REFERENCE_WRAPPING)));
 #endif
-                LOOP2_ASSERT(lhsFuncName, rhsFuncName, isMovedFrom(rhs, true));
+                LOOP5_ASSERT(
+                    lhsFuncName,
+                    rhsFuncName,
+                    target_p,
+                    REFERENCE_WRAPPING,
+                    isMovedFrom(rhs, !REFERENCE_WRAPPING),
+                    (REFERENCE_WRAPPING !=
+                        isMovedFrom(rhs, !REFERENCE_WRAPPING)));
             }
-            else {
-                // Empty expected result
-                LOOP2_ASSERT(lhsFuncName, rhsFuncName, ! lhs);
-            }
+
             LOOP2_ASSERT(lhsFuncName, rhsFuncName,
                          alloc == lhs.get_allocator());
             LOOP2_ASSERT(lhsFuncName, rhsFuncName, lhsBytesAfter == expBytes);
 
-            if (lhs && exp) {
+            if (lhsIsCallable && expIsCallable) {
                 LOOP2_ASSERT(lhsFuncName, rhsFuncName,
                              lhs(1, 2) == exp(1, 2));
             }
@@ -3978,6 +4261,77 @@ void testAssignFromFunctor(const Obj&   lhsIn,
     LOOP2_ASSERT(lhsFuncName, rhsFuncName, defaultAllocMonitor.isInUseSame());
     LOOP2_ASSERT(lhsFuncName, rhsFuncName, testAllocMonitor.isInUseSame());
     LOOP2_ASSERT(lhsFuncName, rhsFuncName, funcMonitor2.isSameCount());
+}
+
+template <class FUNC>
+void testAssignFromFunctor(const Obj&   lhsIn,
+                           const FUNC&  rhsIn,
+                           const char  *lhsFuncName,
+                           const char  *rhsFuncName,
+                           bool         skipExcTest)
+    // This function is called as part of case 11 for the non reference_wrapped
+    // case.  The specified 'lhsIn' and 'rhsIn' are passed to
+    // 'testAssignFromFunctoImp' to be used therein for the creation of
+    // function objects for the purpose of an assignment test.  The specified
+    // 'lhsFuncName' and 'rhsFuncName' are also passed through for use in the
+    // generation of diagnostic messages.  The specified 'skipExcTest' states
+    // whether the exception testing should be skipped or not.
+{
+    testAssignFromFunctorImp<FUNC, false>(lhsIn,
+                                          rhsIn,
+                                          lhsFuncName,
+                                          rhsFuncName,
+                                          skipExcTest);
+}
+
+template <class FUNC>
+typename bsl::enable_if<bsl::is_pointer<FUNC>::value, void>::type
+testAssignFromFunctorRefWrap(const Obj&   lhsIn,
+                             const FUNC&  rhsIn,
+                             const char  *lhsFuncName,
+                             const char  *rhsFuncName)
+    // This function is called as part of case 11 for the reference_wrapped
+    // case where FUNC is a pointer to a function.  The specified 'lhsIn' and
+    // 'rhsIn' are passed to 'testAssignFromFunctorImp' wherein they will be
+    // reference wrapped, prior to said reference wrappers being used for the
+    // creation of function objects for the purpose of an assignment test.  The
+    // specified 'lhsFuncName' and 'rhsFuncName' are also passed through for
+    // use in the generation of diagnostic messages.  No exception testing will
+    // be performed in this scenario.
+{
+    testAssignFromFunctorImp<FUNC, true>(lhsIn,
+                                         rhsIn,
+                                         lhsFuncName,
+                                         rhsFuncName,
+                                         true);
+}
+
+template <class FUNC>
+typename bsl::enable_if<!bsl::is_pointer<FUNC>::value, void>::type
+testAssignFromFunctorRefWrap(BSLA_MAYBE_UNUSED const Obj&   lhsIn,
+                             BSLA_MAYBE_UNUSED const FUNC&  rhsIn,
+                             BSLA_MAYBE_UNUSED const char  *lhsFuncName,
+                             BSLA_MAYBE_UNUSED const char  *rhsFuncName)
+    // This function is called as part of case 11 for the reference_wrapped
+    // case where FUNC is not a pointer to a function.  This scenario is not
+    // supported in C++03, but for C++11 or greater the behaviour is identical
+    // to the reference_wrapped case where FUNC is a pointer.  The specified
+    // 'lhsIn', 'rhsIn', 'lhsFuncName' and 'rhsFuncName' are used identically
+    // to the reference wrapped case where FUNC is a pointer.
+{
+#if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    testAssignFromFunctorImp<FUNC, true>(lhsIn,
+                                         rhsIn,
+                                         lhsFuncName,
+                                         rhsFuncName,
+                                         true);
+#else
+    if (veryVerbose)
+        printf("Skipping testAssignFromFunctor test for lhs %s, rhs %s as "
+               "this is not supported in C++03\n",
+               lhsFuncName,
+               rhsFuncName);
+#endif
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
@@ -5825,6 +6179,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //  function& operator=(FUNC&& rhs);
+        //  function& operator=(bsl::reference_wrapper<FUNC> rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nASSIGNMENT FROM FUNCTOR"
@@ -5885,9 +6240,14 @@ int main(int argc, char *argv[])
             testAssignFromFunctor(lhs, f, funcName, #f, lhsNtWrapped);       \
             if (veryVerbose) printf("Assign %s = NTWRAP(%s) (nothrow)\n",    \
                                     funcName, #f);                           \
-            testAssignFromFunctor(lhs, NTWRAP(f), funcName,            \
+            testAssignFromFunctor(lhs, NTWRAP(f), funcName,                  \
                                   "NTWRAP(" #f ")", true);                   \
+            if (veryVerbose) printf("Assign %s = ref(%s) (nothrow)\n",       \
+                                    funcName, #f);                           \
+            testAssignFromFunctorRefWrap(lhs, f, funcName, "ref(" #f ")");   \
         } while (false)
+
+
 
             TEST(nullFuncPtr                                  );
             TEST(nullMemFuncPtr                               );
@@ -6750,8 +7110,8 @@ int main(int argc, char *argv[])
         typedef bool (*AreEqualFuncPtr_t)(const Obj&, const Obj&);
 
         // Null functors
-        int (*nullFuncPtr)(IntWrapper, int) = 0;
-        int ( IntWrapper::*nullMemFuncPtr)(int) const = 0;
+        int             ( *nullFuncPtr)   (const IntWrapper&, int) = 0;
+        int ( IntWrapper::*nullMemFuncPtr)(int              ) const = 0;
 
         struct TestData {
             // Data for one dimension of test
@@ -8775,6 +9135,22 @@ int main(int argc, char *argv[])
             ASSERT(0x4000 == f3());
             ASSERT(typeid(IntWrapper) == f3.target_type());
             ASSERT(0x4000 == f3.target<IntWrapper>()->value());
+        }
+
+        if (veryVerbose)
+            printf("Basic reference_wrapped function assignment\n");
+        {
+#if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+            bsl::function<void()> f1(voidFunc);
+            bsl::function<void()> f2;
+            f2 = bsl::ref(f1);
+            ASSERT(typeid(bsl::reference_wrapper<bsl::function<void()> >) ==
+                   f2.target_type());
+#else
+            if (veryVerbose)
+                printf("Skipping basic reference_wrapped function assignment "
+                       "as this is not supported in C++03\n");
+#endif
         }
 
       } break;

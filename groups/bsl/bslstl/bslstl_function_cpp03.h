@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Thu Jun 10 09:59:24 2021
+// Generated on Mon Jun 14 12:13:37 2021
 // Command line: sim_cpp11_features.pl bslstl_function.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_H
@@ -1505,19 +1505,26 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     }
 #endif
 
-#if 0 // TBD: Not yet implemented.
-    // The functionality of this constructor is subsumed in the previous
-    // constructor except for being 'noexcept'.
     template <class FUNC>
-    function&
-    operator=(bsl::reference_wrapper<FUNC> rhs) BSLS_KEYWORD_NOEXCEPT;
+    typename enable_if<
+             IsInvocableWithPrototype<typename Decay<FUNC>::type>::value
+     , function &>::type
+    operator=(bsl::reference_wrapper<FUNC> rhs) BSLS_KEYWORD_NOEXCEPT
         // Destroy the current target (if any) of this object, then set the
         // target to the specified 'rhs' wrapper containing a reference to a
         // callable object and return '*this'.  The result is equivalent to
         // having constructed '*this' from 'rhs' and 'this->get_allocator()'.
         // Note that this assignment is a separate overload only because it is
         // unconditionally 'noexcept'.
-#endif
+    {
+        /// Implementation Note
+        ///- - - - - - - - - -
+        // The body of this operator must inlined inplace because the use of
+        // 'enable_if' will otherwise break the MSVC 2010 compiler.
+
+        function(allocator_arg, this->get_allocator(), rhs).swap(*this);
+        return *this;
+    }
 
     function& operator=(nullptr_t) BSLS_KEYWORD_NOEXCEPT;
         // Set this object to empty and return '*this'.
