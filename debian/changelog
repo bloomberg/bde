@@ -1,6 +1,13 @@
-bsl-internal (3.83.0.1) unstable; urgency=low
+bsl-internal (3.84.0.0) unstable; urgency=low
 
-  * 177a14d0f Backfill changelog
+  * 3c399e7fd Bumped version to 3.84.0.0
+  * 57598d5b2 Set BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED in clang if _GLIBCXX_USE_DEPRECATED is defined (#3296)
+  * 30c73d95a Add bplpcre::RegEx::replace method (#3259)
+  * e1b5f9a96 Make function assignment from reference wrapper noexcept (#3260)
+  * a00e334e0 Fix case typo in doc (#3294)
+  * f77ccddfd Revert "'bdldfp' package has been updated in accordance with bde 4.0 (#3257)" (#3288)
+  * 86bcada92 Remove obsolete workaround. (#3284)
+  * 95153ce67 Backfill changelog (bumping patch version)
   * 820c397a0 Update pcre2 to v10.37 (#3270)
   * f117339b2 'bdldfp' package has been updated in accordance with bde 4.0 (#3257)
   * 2e2060690 Regenerate cpp03 files. (#3278)
@@ -9,7 +16,7 @@ bsl-internal (3.83.0.1) unstable; urgency=low
   * 04de15c52 Remove bsl_new non-standard exports for gcc and clang (#3266)
   * 4088cca3d Silence unused variable warnings in ball. (#3276)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 20 Jun 2021 08:40:20 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Jun 2021 11:49:29 -0400
 
 bsl-internal (3.83.0.0) git; urgency=low
 
