@@ -21,14 +21,14 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a mechanism, 'bdlmt::Throttle', that
 // can be used by clients to regulate the frequency at which actions can be
 // taken.  Clients initialize a 'Throttle' with configuration values for
-// 'nanosecondsPerAction' and 'maxSimultaneousActions'.  Then clients request
-// permission from this component to execute actions.  The component keeps
-// track of the number of actions requested, and over time throttles the
-// average number of actions permitted to a rate of '1 / nanosecondsPerAction'
-// (actions-per-nanosecond).  So, for example, to limit the average rate of
-// actions permitted to 10 actions per second (10 actions / one billion
-// nanoseconds), the value for 'nanosecondsPerAction' would be 100000000 (which
-// is one billion / 10).
+// 'nanosecondsPerAction', 'maxSimultaneousActions', and clock type.  Then
+// clients request permission from this component to execute actions.  The
+// component keeps track of the number of actions requested, and over time
+// throttles the average number of actions permitted to a rate of
+// '1 / nanosecondsPerAction' (actions-per-nanosecond).  So, for example, to
+// limit the average rate of actions permitted to 10 actions per second
+// (10 actions / one billion nanoseconds), the value for 'nanosecondsPerAction'
+// would be 100000000 (which is one billion / 10).
 //
 // As clients request permission to perform actions the component accumulates a
 // time debt for those actions that dissipates over time.  The maximum value
@@ -145,6 +145,20 @@ BSLS_IDENT("$Id: $")
 //       allowing execution of the statement controlled by it and always
 //       allowing execution of any 'else' clause present.
 //..
+///Lack of 'bsl::chrono'-Based Overloads for 'requestPermission*'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// 'bdlmt::Throttle' does not provide overloads for 'requestPermission' and
+// 'requestPermissionIfValid' that take a 'bsl::chrono::time_point' as a
+// representation for 'now'.  There are three reasons for this.  First,
+// converting between different clocks is expensive, involving at least two
+// calls to 'now' (one for the clock defined in the time point, and one for the
+// clock used by the throttle).  This is supposed to be a performant component,
+// allowing the caller to avoid the call to 'bsls::SystemTime::now' by passing
+// in their own value of 'now'.  Second, it is inherently imprecise;
+// conversions with the same input can return slightly different results,
+// depending on the scheduling of the calls to 'now'.  Third, we have no way to
+// support clocks that run at different rates.
+//
 ///Usage
 ///-----
 // In this section we show intended usage of this component.
@@ -207,10 +221,15 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 
 #include <bsls_atomicoperations.h>
-#include <bsls_timeinterval.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <bsl_chrono.h>
+#endif
 
 #include <bsl_climits.h>
 
@@ -293,8 +312,52 @@ class Throttle {
         // '0 < nanosecondsPerAction || 0 < maxSimultaneousActions', and
         // 'maxSimultaneousActions * nanosecondsPerActionLeak <= LLONG_MAX'.
         // Note that the behavior for other methods is undefined unless this
-        // 'Throttle' is initialized (either using this function, or a
-        // 'BDLMT_THROTTLE_INIT' macro) prior to being called.
+        // 'Throttle' is initialized (either using one of the overloads of this
+        // function, or a 'BDLMT_THROTTLE_INIT' macro) prior to being called.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    void initialize(int                              maxSimultaneousActions,
+                    Int64                            nanosecondsPerAction,
+                    const bsl::chrono::system_clock&);
+        // Initialize this 'Throttle' to limit the average period of actions
+        // permitted to the specified 'nanosecondsPerAction', and the maximum
+        // number of simultaneous actions allowed to the specified
+        // 'maxSimultaneousActions'.  Use the realtime system clock to measure
+        // time (see {Supported Clock-Types} in the component documentation).
+        // The configured throttle will over time limit the average number of
+        // actions permitted to a rate of '1 / nanosecondsPerAction'.  If
+        // 'maxSimultaneousActions' is 0, the throttle will be configured to
+        // permit no actions, otherwise if 'nanosecondsPerAction' is 0, the
+        // throttle will be configured to permit all actions.  The behavior is
+        // undefined unless '0 <= nanosecondsPerAction',
+        // '0 <= maxSimultaneousActions',
+        // '0 < nanosecondsPerAction || 0 < maxSimultaneousActions', and
+        // 'maxSimultaneousActions * nanosecondsPerActionLeak <= LLONG_MAX'.
+        // Note that the behavior for other methods is undefined unless this
+        // 'Throttle' is initialized (either using one of the overloads of this
+        // function, or a 'BDLMT_THROTTLE_INIT' macro) prior to being called.
+
+    void initialize(int                              maxSimultaneousActions,
+                    Int64                            nanosecondsPerAction,
+                    const bsl::chrono::steady_clock&);
+        // Initialize this 'Throttle' to limit the average period of actions
+        // permitted to the specified 'nanosecondsPerAction', and the maximum
+        // number of simultaneous actions allowed to the specified
+        // 'maxSimultaneousActions'.  Use the monotonic system clock to measure
+        // time (see {Supported Clock-Types} in the component documentation).
+        // The configured throttle will over time limit the average number of
+        // actions permitted to a rate of '1 / nanosecondsPerAction'.  If
+        // 'maxSimultaneousActions' is 0, the throttle will be configured to
+        // permit no actions, otherwise if 'nanosecondsPerAction' is 0, the
+        // throttle will be configured to permit all actions.  The behavior is
+        // undefined unless '0 <= nanosecondsPerAction',
+        // '0 <= maxSimultaneousActions',
+        // '0 < nanosecondsPerAction || 0 < maxSimultaneousActions', and
+        // 'maxSimultaneousActions * nanosecondsPerActionLeak <= LLONG_MAX'.
+        // Note that the behavior for other methods is undefined unless this
+        // 'Throttle' is initialized (either using one of the overloads of this
+        // function, or a 'BDLMT_THROTTLE_INIT' macro) prior to being called.
+#endif
 
     bool requestPermission();
     bool requestPermission(const bsls::TimeInterval& now);
@@ -312,14 +375,14 @@ class Throttle {
         // Optionally specify 'numActions' indicating the number of actions
         // requested.  If 'numActions' is not supplied, one action is
         // requested.  If this function returns 'true' then
-        // 'numActions * nanosecondsPerActions' is added to the time debt
+        // 'numActions * nanosecondsPerAction' is added to the time debt
         // accumulated by this component.  The behavior is undefined unless
-        // this throttle has been initialized (either by calling 'initialize'
-        // or using one of the 'BDLMT_THROTTLE_INIT*' macros),
+        // this throttle has been initialized (either by calling an overload of
+        // 'initialize' or using one of the 'BDLMT_THROTTLE_INIT*' macros),
         // '0 < numActions', ('numActions <= maxSimultaneousActions' or
         // '0 == maxSimultaneousActions'), and the value of 'now', if
         // specified, can be expressed in nanoseconds as a 64-bit signed
-        // integer.  Note that 'requestPerimissionIfValid', unlike these
+        // integer.  Note that 'requestPermissionIfValid', unlike these
         // methods, does not have any preconditions on the value of
         // 'numActions'.
 
@@ -337,15 +400,15 @@ class Throttle {
         // ('now' is a offset from that clocks epoch).  If 'now' is not
         // supplied, the current time is obtained from the configured system
         // clock.  If '*result' is set to 'true' then
-        // 'numActions * nanosecondsPerActions' is added to the time debt
+        // 'numActions * nanosecondsPerAction' is added to the time debt
         // accumulated by this component.  Return 0 if '0 <= numActions',
         // ('numActions <= maxSimultaneousActions' or
         // '0 == maxSimultaneousActions'), and the value of 'now', if
         // specified, can be expressed in nanoseconds as a 64-bit signed
         // integer, and a non-zero value otherwise.  The behavior is undefined
-        // unless this throttle has been initialized (either by calling
-        // 'initialize' or using one of the 'BDLMT_THROTTLE_INIT*' macros).
-        // Note that unless 0 is returned, '*result' is unaffected.
+        // unless this throttle has been initialized (either by calling an
+        // overload of 'initialize' or using one of the 'BDLMT_THROTTLE_INIT*'
+        // macros).  Note that unless 0 is returned, '*result' is unaffected.
 
     // ACCESSOR
     bsls::SystemClockType::Enum clockType() const;
@@ -387,7 +450,7 @@ class Throttle_InitHelper {
     //: o Ensures arguments are evaluated at compile time (which won't be
     //:    the case for floating point arguments)
     //:
-    //: o Enables compile time checkes with BSLMF_ASSERT
+    //: o Enables compile time checks with BSLMF_ASSERT
     //:
     //: o Handles special cases if 0 is passed for
     //:   'MAX_SIMULTANEOUS_ACTIONS' or NANOSECONDS_PER_ACTION'
@@ -416,7 +479,35 @@ class Throttle_InitHelper {
 //                               INLINE DEFINITIONS
 //=============================================================================
 
+                               // --------------
+                               // class Throttle
+                               // --------------
+
 // MANIPULATORS
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+inline
+void Throttle::initialize(
+                       int                              maxSimultaneousActions,
+                       Int64                            nanosecondsPerAction,
+                       const bsl::chrono::system_clock&)
+{
+    initialize(maxSimultaneousActions,
+               nanosecondsPerAction,
+               bsls::SystemClockType::e_REALTIME);
+}
+
+inline
+void Throttle::initialize(
+                       int                              maxSimultaneousActions,
+                       Int64                            nanosecondsPerAction,
+                       const bsl::chrono::steady_clock&)
+{
+    initialize(maxSimultaneousActions,
+               nanosecondsPerAction,
+               bsls::SystemClockType::e_MONOTONIC);
+}
+#endif
+
 inline
 bool Throttle::requestPermission()
 {

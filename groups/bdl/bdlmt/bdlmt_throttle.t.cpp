@@ -57,6 +57,8 @@ using bsl::flush;
 // [ 4] requestPermission(int, const bsls::TimeInterval&);
 // [ 4] requestPermission(const bsls::TimeInterval&);
 // [ 2] void initialize(int, Int64, SystemClockType::Enum);
+// [ 2] void initialize(int, Int64, bsl::chrono::system_clock&);
+// [ 2] void initialize(int, Int64, bsl::chrono::steady_clock&);
 //
 // ACCESSORS
 // [ 7] int nextPermit(bsls::TimeInterval *, int) const;
@@ -2767,6 +2769,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void initialize(int, Int64, SystemClockType::Enum);
+        //   void initialize(int, Int64, bsl::chrono::system_clock&);
+        //   void initialize(int, Int64, bsl::chrono::steady_clock&);
         //   bsls::SystemClockType::Enum clockType() const;
         //   int maxSimultaneousActions() const;
         //   Int64 nanosecondsPerAction() const;
@@ -2825,6 +2829,36 @@ int main(int argc, char *argv[])
 
             ASSERTV(LINE,
                          X.clockType(), clockType, X.clockType() == clockType);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+            Obj mXsyc;    const Obj& Xsyc = mXsyc;
+            mXsyc.initialize(maxSimultaneousActions,
+                             nanosecondsPerAction,
+                             bsl::chrono::system_clock{});
+
+            ASSERTV(LINE,
+                      maxSimultaneousActions == Xsyc.maxSimultaneousActions());
+
+            ASSERTV(LINE, nanosecondsPerAction == Xsyc.nanosecondsPerAction());
+
+            ASSERTV(LINE,
+                        Xsyc.clockType(),   bsls::SystemClockType::e_REALTIME,
+                        Xsyc.clockType() == bsls::SystemClockType::e_REALTIME);
+
+            Obj mXstc;    const Obj& Xstc = mXstc;
+            mXstc.initialize(maxSimultaneousActions,
+                             nanosecondsPerAction,
+                             bsl::chrono::steady_clock{});
+
+            ASSERTV(LINE,
+                      maxSimultaneousActions == Xstc.maxSimultaneousActions());
+
+            ASSERTV(LINE, nanosecondsPerAction == Xstc.nanosecondsPerAction());
+
+            ASSERTV(LINE,
+                       Xstc.clockType(),   bsls::SystemClockType::e_MONOTONIC,
+                       Xstc.clockType() == bsls::SystemClockType::e_MONOTONIC);
+#endif
         }
 
         if (verbose) cout << "Negative Testing\n";
