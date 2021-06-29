@@ -1073,6 +1073,24 @@ int FilesystemUtil::lock(FileDescriptor descriptor, bool lockWrite)
                        &overlapped);
 }
 
+int FilesystemUtil::truncateFileSize(FileDescriptor descriptor, Offset size)
+{
+    const Offset existingFileSize = getFileSize(descriptor);
+    BSLS_ASSERT(size <= existingFileSize);
+
+    const Offset pos = seek(descriptor, size, e_SEEK_FROM_BEGINNING);
+    if (pos != size) {
+        return -1;                                                    // RETURN
+    }
+
+    bool rc = ::SetEndOfFile(descriptor);
+    if (!rc) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
+
 int FilesystemUtil::tryLock(FileDescriptor descriptor, bool lockWrite)
 {
     OVERLAPPED overlapped;
@@ -1630,43 +1648,6 @@ FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
     return k_OFFSET_MAX;
 }
 
-int FilesystemUtil::setFileSize(FileDescriptor descriptor, Offset size)
-{
-    const Offset existingFileSize = getFileSize(descriptor);
-
-    if (size < existingFileSize) {
-        const Offset pos = seek(descriptor, size, e_SEEK_FROM_BEGINNING);
-        if (pos != size) {
-            return -1;                                                // RETURN
-        }
-
-        bool rc = ::SetEndOfFile(descriptor);
-        if (!rc) {
-            return -1;                                                // RETURN
-        }
-    }
-    else {
-        const Offset pos = seek(descriptor, 0, e_SEEK_FROM_END);
-        if (pos != existingFileSize) {
-            return -1;                                                // RETURN
-        }
-
-        int toZero;
-        for (Offset offset = existingFileSize; offset < size;
-                                                            offset += toZero) {
-            toZero = static_cast<int>(
-                       bsl::min<Offset>(size - offset, sizeof(u::zeroBuffer)));
-
-            int rc = write(descriptor, u::zeroBuffer, toZero);
-            if (rc != toZero) {
-                return -1;                                            // RETURN
-            }
-        }
-    }
-
-    return 0;
-}
-
 int FilesystemUtil::getWorkingDirectory(bsl::string *path)
 {
     BSLS_ASSERT(path);
@@ -1999,6 +1980,24 @@ int FilesystemUtil::sync(char *address, bsl::size_t numBytes, bool syncFlag)
     // be logged, so providing a more informative value may aid in debugging.
 
     return 0 == rc ? 0 : errno;
+}
+
+int FilesystemUtil::truncateFileSize(FileDescriptor descriptor, Offset size)
+{
+    const Offset existingFileSize = getFileSize(descriptor);
+    BSLS_ASSERT(size <= existingFileSize);
+
+    int rc = ::ftruncate(descriptor, size);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    const Offset pos = seek(descriptor, 0, e_SEEK_FROM_END);
+    if (pos != size) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
 }
 
 int FilesystemUtil::tryLock(FileDescriptor descriptor, bool lockWriteFlag)
@@ -2445,21 +2444,6 @@ FilesystemUtil::Offset FilesystemUtil::getFileSizeLimit()
     else {
         return rl.rlim_cur;                                           // RETURN
     }
-}
-
-int FilesystemUtil::setFileSize(FileDescriptor descriptor, Offset size)
-{
-    int rc = ::ftruncate(descriptor, size);
-    if (0 != rc) {
-        return -1;                                                    // RETURN
-    }
-
-    const Offset pos = seek(descriptor, 0, e_SEEK_FROM_END);
-    if (pos != size) {
-        return -1;                                                    // RETURN
-    }
-
-    return 0;
 }
 
 int FilesystemUtil::getWorkingDirectory(bsl::string *path)

@@ -86,27 +86,26 @@ using namespace bsl;
 // [ 6] Offset getAvailableSpace(const bsl::string&)
 // [ 6] Offset getAvailableSpace(const char *)
 // [ 6] Offset getAvailableSpace(FileDescriptor)
-// [ 7] int getSystemTemporaryDirectory(bsl::string *path);
-// [ 8] Offset getFileSize(const bsl::string&)
-// [ 8] Offset getFileSize(const char *)
-// [ 8] Offset getFileSize(FileDescriptor)
-// [10] FD open(const char *p, bool writable, bool exist, bool append)
-// [11] static Offset getFileSizeLimit()
-// [12] int tryLock(FileDescriptor, bool ) (Unix)
-// [13] int tryLock(FileDescriptor, bool ) (Windows)
-// [14] int sync(char *, int , bool )
-// [15] int close(FileDescriptor )
-// [19] makeUnsafeTemporaryFilename(string *, const StringRef&)
-// [20] createTemporaryFile(string *, const StringRef&)
-// [21] createTemporaryDirectory(string *, const StringRef&)
-// [22] int createDirectories(const string&, bool);
-// [22] int createPrivateDirectory(const string&);
-// [23] int visitTree(const char *, const string&, const Func&, bool);
-// [23] int visitTree(const string&, const string&, const Func&, bool);
-// [23] int visitPaths(const string&, const Func&);
-// [23] int visitPaths(const char *, const Func&);
-// [24] int getLastModificationTime(bdlt::Datetime *, FileDescriptor);
-// [24] setFileSize(FileDescriptor, Offset);
+// [ 7] Offset getFileSize(const bsl::string&)
+// [ 7] Offset getFileSize(const char *)
+// [ 7] Offset getFileSize(FileDescriptor)
+// [ 9] FD open(const char *p, bool writable, bool exist, bool append)
+// [10] static Offset getFileSizeLimit()
+// [11] int tryLock(FileDescriptor, bool ) (Unix)
+// [12] int tryLock(FileDescriptor, bool ) (Windows)
+// [13] int sync(char *, int , bool )
+// [14] int close(FileDescriptor )
+// [18] makeUnsafeTemporaryFilename(string *, const StringRef&)
+// [19] createTemporaryFile(string *, const StringRef&)
+// [20] createTemporaryDirectory(string *, const StringRef&)
+// [21] int createDirectories(const string&, bool);
+// [21] int createPrivateDirectory(const string&);
+// [22] int visitTree(const char *, const string&, const Func&, bool);
+// [22] int visitTree(const string&, const string&, const Func&, bool);
+// [22] int visitPaths(const string&, const Func&);
+// [22] int visitPaths(const char *, const Func&);
+// [23] int getLastModificationTime(bdlt::Datetime *, FileDescriptor);
+// [24] truncateFileSize(FileDescriptor, Offset);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] CONCERN: findMatchingPaths incorrect on ibm 64-bit
@@ -1906,20 +1905,18 @@ int main(int argc, char *argv[])
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // TESTING SETFILESIZE
+        // TESTING TRUNCATEFILESIZE
         //
         // Concerns:
-        //: 1 That 'setFileSize' can shrink files properly.
+        //: 1 That 'truncateFileSize' can shrink files properly.
         //:
-        //: 2 That 'setFileSize' can grow files properly.
-        //:
-        //: 3 That in either case, the cursor is positioned at the end of the
-        //:   file after the operation.
+        //: 2 That the cursor is positioned at the end of the file after the
+        //:   operation.
         //
         // Plan:
         //: 1 Create a file containing 2 consequetive strings.
         //:
-        //: 2 Use 'setFileSize' to set the length of the file to after the
+        //: 2 Use 'truncateFileSize' to set the length of the file to after the
         //:   first string.
         //:
         //: 3 Do a relative seek to confirm the cursor is positioned right.
@@ -1927,22 +1924,19 @@ int main(int argc, char *argv[])
         //: 4 Close the file and measure it's length and confirm the length is
         //:   is right.
         //:
-        //: 5 Open the file again.
+        //: 5 Open the file again, and try to truncate it back to its original
+        //:   length, longer than its currently length, in an 'ASSERT_FAIL',
+        //:   confirming that an assertion enforces that the function won't
+        //:   grow the file.
         //:
-        //: 6 Use 'setFileSize' to extend the length.
-        //:
-        //: 7 Observe the cursor is at the end.
-        //:
-        //: 8 Seek back to the beginning, read the first string, and confirm
-        //:   that it is right.
-        //:
-        //: 9 Read the second string, and confirm that it is now all zeroes.
+        //: 6 Read the first string, and confirm that it is right.
         //
         // Testing:
-        //   setFileSize(FileDescriptor, Offset);
+        //   truncateFileSize(FileDescriptor, Offset);
         // --------------------------------------------------------------------
 
-        const bsl::string tmpFileName = ::tempFileName(24, "resizefile");
+        const bsl::string tmpFileName = ::tempFileName(test,
+                                                           "truncateFileSize");
 
         if (verbose) P(tmpFileName);
 
@@ -1967,7 +1961,7 @@ int main(int argc, char *argv[])
 
         ASSERT(len1 + len2 == Obj::getFileSize(fd));
 
-        rc = Obj::setFileSize(fd, len1);
+        rc = Obj::truncateFileSize(fd, len1);
         ASSERT(0 == rc);
 
         ASSERT(len1 == Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT));
@@ -1983,27 +1977,20 @@ int main(int argc, char *argv[])
                        Obj::e_KEEP);
         ASSERT(Obj::k_INVALID_FD != fd);
 
-        rc = Obj::setFileSize(fd, len1 + len2);
-        ASSERT(0 == rc);
+        {
+            bsls::AssertTestHandlerGuard hG;
 
-        Obj::Offset offset = Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT);
-        ASSERT(len1 + len2 == offset);
+            ASSERT_FAIL(Obj::truncateFileSize(fd, len1 + len2));
+        }
 
-        offset = Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
-        ASSERT(0 == offset);
+        Obj::Offset off = Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
+        ASSERT(0 == off);
 
         char buffer[300] = { 0 };
         rc = Obj::read(fd, buffer, len1);
         ASSERT(len1 == rc);
 
         ASSERT(!bsl::strcmp(contents1, buffer));
-
-        bsl::memset(buffer, 0, sizeof(buffer));
-
-        rc = Obj::read(fd, buffer, len2);
-        ASSERT(len2 == rc);
-
-        ASSERT(len2 == bsl::count(buffer + 0, buffer + len2, '\0'));
 
         Obj::close(fd);
       } break;

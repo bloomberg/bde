@@ -747,14 +747,6 @@ struct FilesystemUtil {
         // recommended to check for 'k_OFFSET_MAX' specifically to avoid
         // integer overflow in your calculations.
 
-    static int setFileSize(FileDescriptor descriptor, Offset size);
-        // Set the size of the file referred to by the specified 'descriptor'
-        // to the specified 'size'.  If the file is grown, the new data will be
-        // zeroes.  'descriptor' must be open for writing, with the cursor
-        // positioned at end of file.  Return 0 on success and a non-zero value
-        // otherwise.  The behavior is undefined if the file is currently
-        // mapped.
-
     static int lock(FileDescriptor descriptor, bool lockWriteFlag);
         // Acquire a lock for the file with the specified 'descriptor'.  If
         // 'lockWriteFlag' is true, acquire an exclusive write lock; otherwise
@@ -765,6 +757,13 @@ struct FilesystemUtil {
         // unspecified (and platform-dependent) when either attempting to lock
         // 'descriptor' multiple times, or attempting to lock another
         // descriptor referring to the same file, within a single process.
+
+    static int truncateFileSize(FileDescriptor descriptor, Offset size);
+        // Set the size of the file referred to by the specified 'descriptor'
+        // to the specified 'size'.  'descriptor' must be open for writing.
+        // Return 0 on success and a non-zero value otherwise.  The behavior is
+        // undefined if the file is currently mapped, or if 'size' is greater
+        // than the existing size of the file.
 
     static int tryLock(FileDescriptor descriptor, bool lockWriteFlag);
         // Acquire a lock for the file with the specified 'descriptor' if it is
