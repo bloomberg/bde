@@ -100,7 +100,7 @@ using namespace bsl;
 // [ 4] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [14] USAGE EXAMPLE
+// [15] USAGE EXAMPLE
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec);
 // [ 2] CONCERN: 0 == e_SUCCESS
@@ -110,6 +110,7 @@ using namespace bsl;
 // [11] CONCERN: ordering guarantee
 // [12] DRQS 153332608: 'waitUntilEmpty' RACE WITH 'popFront'
 // [13] DRQS 164984269: 'removeAll' STARTED/FINISHED ISSUE
+// [14] DRQS 153332608: 'pushBack', 'pushBack', 'waitUntilEmpty'
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -641,12 +642,16 @@ void setWatchdogText(const char *value)
     memcpy(s_watchdogText, value, strlen(value) + 1);
 }
 
-extern "C" void *watchdog(void *)
+extern "C" void *watchdog(void *arg)
     // Watchdog function used to determine when a timeout should occur.  This
     // function returns without expiration if '0 == s_continue' before one
     // second elapses.  Upon expiration, 's_watchdogText' is displayed and the
     // program is aborted.
 {
+    if (arg) {
+        setWatchdogText(static_cast<const char *>(arg));
+    }
+
     const int MAX = 100;  // one iteration is a deci-second
 
     int count = 0;
@@ -737,6 +742,27 @@ void orderingGuaranteeTest(const int numPushThread, const int numPopThread)
 
     setWatchdogText("ordering guarantee: join watchdog");
     bslmt::ThreadUtil::join(watchdogHandle);
+}
+
+const int k_PUSHPUSHWAIT_COUNT = 100000;
+
+extern "C" void *pushPushWait(void *arg)
+{
+    Obj& mX = *static_cast<Obj *>(arg);
+
+    Obj::value_type value;
+
+    for (int i = 0; i < k_PUSHPUSHWAIT_COUNT; ++i) {
+        mX.pushBack(value);
+
+        mX.pushBack(value);
+
+        mX.waitUntilEmpty();
+
+        ASSERT(0 == mX.numElements());
+    }
+
+    return 0;
 }
 
 extern "C" void *pushWaitDisable(void *arg)
@@ -1058,7 +1084,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1095,6 +1121,49 @@ int main(int argc, char *argv[])
         s_continue = 0;
 
         bslmt::ThreadUtil::join(watchdogHandle);
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // DRQS 153332608: 'pushBack', 'pushBack', 'waitUntilEmpty'
+        //
+        // Concerns:
+        //: 1 If one thread executes 'pushBack', 'pushBack', and
+        //:  'waitUntilEmpty' on an empty queue, another thread executing two
+        //:  'popFront' should never cause 'waitUntilEmpty' to return after
+        //:  the first 'popFront' (detectible with '0 != numElements()').
+        //
+        // Plan:
+        //: 1 Create a thread that executes a known number of 'pushBack',
+        //:   'pushBack', and 'waitUntilEmpty' sequences.  Concurrently,
+        //:   another thread executes the same number of 'popFront' and
+        //:   'popFront' sequences.  After every 'waitUntilEmpty', verify
+        //:   '0 == numElements()'.
+        //
+        // Testing:
+        //   DRQS 153332608: 'pushBack', 'pushBack', 'waitUntilEmpty'
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "DRQS 153332608: 'pushBack', 'pushBack', 'waitUntilEmpty'"
+                 << endl
+                 << "========================================================"
+                 << endl;
+        }
+
+        bslmt::ThreadUtil::Handle              handle;
+
+        Obj mX(128);
+
+        bslmt::ThreadUtil::create(&handle, pushPushWait, &mX);
+
+        Obj::value_type value;
+
+        for (int i = 0; i < k_PUSHPUSHWAIT_COUNT; ++i) {
+            ASSERT(0 == mX.popFront(&value));
+            ASSERT(0 == mX.popFront(&value));
+        }
+
+        bslmt::ThreadUtil::join(handle);
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -1604,7 +1673,7 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::create(&watchdogHandle,
                                       watchdog,
-                                      const_cast<char *>("wait until empty"));
+                                      const_cast<char *>("waitUntilEmpty 1"));
 
             Obj mX(8);  const Obj& X = mX;
 
@@ -1612,7 +1681,7 @@ int main(int argc, char *argv[])
 
             int rv = X.waitUntilEmpty();
 
-            ASSERT(e_SUCCESS == rv);
+            ASSERT(e_SUCCESS   == rv);
             ASSERT(allocations == defaultAllocator.numAllocations());
 
             s_continue = 0;
@@ -1626,7 +1695,7 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::create(&watchdogHandle,
                                       watchdog,
-                                      const_cast<char *>("wait until empty"));
+                                      const_cast<char *>("waitUntilEmpty 2"));
 
             Obj mX(8);  const Obj& X = mX;
 
@@ -1643,7 +1712,7 @@ int main(int argc, char *argv[])
 
             int rv = X.waitUntilEmpty();
 
-            ASSERT(e_SUCCESS == rv);
+            ASSERT(e_SUCCESS   == rv);
             ASSERT(allocations == defaultAllocator.numAllocations());
 
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
@@ -1667,7 +1736,7 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::create(&watchdogHandle,
                                       watchdog,
-                                      const_cast<char *>("wait until empty"));
+                                      const_cast<char *>("waitUntilEmpty 3"));
 
             Obj mX(8);  const Obj& X = mX;
 
@@ -1684,7 +1753,7 @@ int main(int argc, char *argv[])
 
             int rv = X.waitUntilEmpty();
 
-            ASSERT(e_DISABLED == rv);
+            ASSERT(e_DISABLED  == rv);
             ASSERT(allocations == defaultAllocator.numAllocations());
 
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)

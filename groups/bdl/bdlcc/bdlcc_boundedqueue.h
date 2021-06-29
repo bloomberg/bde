@@ -56,10 +56,10 @@ BSLS_IDENT("$Id: $")
 ///----------------
 // A 'bdlcc::BoundedQueue' is exception neutral, and all of the methods of
 // 'bdlcc::BoundedQueue' provide the basic exception safety guarantee (see
-// 'bsldoc_glossary').  If an exception occurs while writing to an element,
-// the element is marked unusable until after a read attempt from the element
-// (at which point the element is "reclaimed").  This failure to write does
-// not increment the result returned by 'numElements'.  Hence,
+// 'bsldoc_glossary').  If an exception occurs while writing to an element, the
+// element is marked unusable until after a read attempt from the element (at
+// which point the element is "reclaimed").  This failure to write does not
+// increment the result returned by 'numElements'.  Hence,
 // 'numElements() == capacity()' is not a valid replacement for 'isFull()'.
 //
 ///Move Semantics in C++03
@@ -202,6 +202,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_objectbuffer.h>
 #include <bsls_types.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstdint.h>
 
 namespace BloombergLP {
@@ -217,9 +218,9 @@ class BoundedQueue_PopCompleteGuard {
     // 'NODE' upon destruction.
 
     // DATA
-    TYPE *d_queue_p;  // managed queue owning the managed node
-    NODE *d_node_p;   // managed node
-    bool  d_isEmpty;  // if true, the empty condition will be signalled
+    TYPE *d_queue_p;      // managed queue owning the managed node
+    NODE *d_node_p;       // managed node
+    bool  d_signalEmpty;  // if true, the empty condition will be signalled
 
     // NOT IMPLEMENTED
     BoundedQueue_PopCompleteGuard();
@@ -229,10 +230,10 @@ class BoundedQueue_PopCompleteGuard {
 
   public:
     // CREATORS
-    BoundedQueue_PopCompleteGuard(TYPE *queue, NODE *node, bool isEmpty);
+    BoundedQueue_PopCompleteGuard(TYPE *queue, NODE *node, bool signalEmpty);
         // Create a 'popComplete' guard managing the specified 'queue' and
         // 'node' that will cause the empty condition to be signalled if the
-        // specified 'isEmpty' is 'true'.
+        // specified 'signalEmpty' is 'true'.
 
     ~BoundedQueue_PopCompleteGuard();
         // Destroy this object and invoke the 'TYPE::popComplete' method with
@@ -353,6 +354,9 @@ class BoundedQueue {
     static const bsls::Types::Uint64 k_FINISHED_INC   = 0x0000000100000000LL;
     static const unsigned int        k_FINISHED_SHIFT = 32;
 
+    static const unsigned int k_MAXIMUM_CIRCULAR_DIFFERENCE =
+         static_cast<unsigned int>(1) << (sizeof(unsigned int) * CHAR_BIT - 1);
+
     // PRIVATE TYPES
     typedef unsigned int                                         Uint;
     typedef typename bsls::Types::Uint64                         Uint64;
@@ -365,57 +369,66 @@ class BoundedQueue {
                               !bsl::is_trivially_copyable<TYPE>::value> Node;
 
     // DATA
-    bslmt::FastPostSemaphore  d_pushSemaphore;   // synchronization primitive
-                                                 // restricting access to empty
-                                                 // elements and providing
-                                                 // enablement/disablement of
-                                                 // "push" operations
+    bslmt::FastPostSemaphore  d_pushSemaphore;     // synchronization primitive
+                                                   // restricting access to
+                                                   // empty elements and
+                                                   // providing
+                                                   // enablement/disablement of
+                                                   // "push" operations
 
-    AtomicUint64              d_pushCount;       // count of "push" operations
-                                                 // started and completed, used
-                                                 // to detect a quiescent state
-                                                 // for safely incrementing
-                                                 // number of available
-                                                 // elements
+    AtomicUint64              d_pushCount;         // count of "push"
+                                                   // operations started and
+                                                   // completed, used to detect
+                                                   // a quiescent state for
+                                                   // safely incrementing
+                                                   // number of available
+                                                   // elements
 
-    AtomicUint64              d_pushIndex;       // index of next enqueue
-                                                 // element location
+    AtomicUint64              d_pushIndex;         // index of next enqueue
+                                                   // element location
 
-    bslmt::FastPostSemaphore  d_popSemaphore;    // synchronization primitive
-                                                 // restricting access to
-                                                 // available elements and
-                                                 // providing
-                                                 // enablement/disablement of
-                                                 // "pop" operations
+    bslmt::FastPostSemaphore  d_popSemaphore;      // synchronization primitive
+                                                   // restricting access to
+                                                   // available elements and
+                                                   // providing
+                                                   // enablement/disablement of
+                                                   // "pop" operations
 
-    AtomicUint64              d_popCount;        // count of "pop" operations
-                                                 // started and completed, used
-                                                 // to detect a quiescent state
-                                                 // for safely incrementing
-                                                 // number of empty elements
+    AtomicUint64              d_popCount;          // count of "pop" operations
+                                                   // started and completed,
+                                                   // used to detect a
+                                                   // quiescent state for
+                                                   // safely incrementing
+                                                   // number of empty elements
 
-    AtomicUint64              d_popIndex;        // index of next dequeue
-                                                 // element location
+    AtomicUint64              d_popIndex;          // index of next dequeue
+                                                   // element location
 
-    Node                     *d_element_p;       // array of elements that
-                                                 // comprise the bounded queue
+    mutable AtomicUint        d_emptyWaiterCount;  // circular count of
+                                                   // 'waitUntilEmpty'
+                                                   // invocations
 
-    Uint64                    d_capacity;        // capacity of the queue
+    AtomicUint                d_emptyCountSeen;    // maximum
+                                                   // 'd_emptyWaiterCount' seen
+                                                   // prior to the queue being
+                                                   // observed as empty; used
+                                                   // to detect most very short
+                                                   // lived transitions to the
+                                                   // queue being empty
 
-    mutable AtomicUint        d_emptyCount;      // count of threads in
-                                                 // 'waitUntilEmpty'
+    mutable bslmt::Mutex      d_emptyMutex;        // blocking point for
+                                                   // 'waitUntilEmpty'
 
-    AtomicUint                d_emptyGeneration; // generation count of a
-                                                 // method causing the queue to
-                                                 // be empty
+    mutable bslmt::Condition  d_emptyCondition;    // condition variable for
+                                                   // 'waitUntilEmpty'
 
-    mutable bslmt::Mutex      d_emptyMutex;      // blocking point for
-                                                 // 'waitUntilEmpty'
+    Node                     *d_element_p;         // array of elements that
+                                                   // comprise the bounded
+                                                   // queue
 
-    mutable bslmt::Condition  d_emptyCondition;  // condition variable for
-                                                 // 'waitUntilEmpty'
+    Uint64                    d_capacity;          // capacity of the queue
 
-    bslma::Allocator         *d_allocator_p;     // allocator, held not owned
+    bslma::Allocator         *d_allocator_p;       // allocator, held not owned
 
     // FRIENDS
     friend class BoundedQueue_PopCompleteGuard<
@@ -426,6 +439,12 @@ class BoundedQueue {
                                                           BoundedQueue<TYPE> >;
 
     // PRIVATE CLASS METHODS
+    static bool circularlyGreater(Uint lhs, Uint rhs);
+        // Return 'true' if the specified 'lhs' is circularly greater than the
+        // specified 'rhs', and 'false' otherwise.  'lhs' is cicularly greater
+        // than 'rhs' if 'lhs' is equal to a value obtained by adding a value
+        // in '[1 .. 2^31]' to 'rhs'.
+
     static bool isQuiescentState(bsls::Types::Uint64 count);
         // Return 'true' if the specified 'count' implies a quiescent state
         // (see *Implementation* *Note*), and 'false' otherwise.  A quiescent
@@ -482,12 +501,12 @@ class BoundedQueue {
         // 'd_popCount').
 
     // PRIVATE MANIPULATORS
-    void popComplete(Node *node, bool isEmpty);
+    void popComplete(Node *node, bool signalEmpty);
         // Destruct the value stored in the specified 'node', mark the 'node'
-        // writable, and if the specified 'isEmpty' is 'true' then signal the
-        // queue empty condition.  This method is used within 'popFrontHelper'
-        // by a guard to complete the reclamation of a node in the presence of
-        // an exception.
+        // writable, and if the specified 'signalEmpty' is 'true' then signal
+        // the queue empty condition.  This method is used within
+        // 'popFrontHelper' by a guard to complete the reclamation of a node in
+        // the presence of an exception.
 
     void popFrontHelper(TYPE *value);
         // Remove the element from the front of this queue and load that
@@ -503,6 +522,15 @@ class BoundedQueue {
         // 'd_popSemaphore' if appropriate.  This method is used within
         // 'pushFront' by a proctor to complete the marking of a node to
         // reclaim in the presence of an exception.
+
+    bool updateEmptyCountSeen(Uint emptyCount);
+        // If the specified 'emptyCount' is (circularly) greater than
+        // 'd_emptyCountSeen', assign 'd_emptyCountSeen' the value of
+        // 'emptyCount' and return 'true'.  Otherwise, return 'false'.  A
+        // return value of 'true' indicates this thread *must* signal any
+        // waiting threads.  Note that a return value of 'false' indicates
+        // another thread has (or will) signal the queue is empty and this
+        // thread does not need to signal.
 
     // NOT IMPLEMENTED
     BoundedQueue(const BoundedQueue&);
@@ -673,12 +701,12 @@ class BoundedQueue {
 template <class TYPE, class NODE>
 inline
 BoundedQueue_PopCompleteGuard<TYPE, NODE>::
-                                   BoundedQueue_PopCompleteGuard(TYPE *queue,
-                                                                 NODE *node,
-                                                                 bool  isEmpty)
+                               BoundedQueue_PopCompleteGuard(TYPE *queue,
+                                                             NODE *node,
+                                                             bool  signalEmpty)
 : d_queue_p(queue)
 , d_node_p(node)
-, d_isEmpty(isEmpty)
+, d_signalEmpty(signalEmpty)
 {
 }
 
@@ -686,7 +714,7 @@ template <class TYPE, class NODE>
 inline
 BoundedQueue_PopCompleteGuard<TYPE, NODE>::~BoundedQueue_PopCompleteGuard()
 {
-    d_queue_p->popComplete(d_node_p, d_isEmpty);
+    d_queue_p->popComplete(d_node_p, d_signalEmpty);
 }
 
              // -----------------------------------------------
@@ -762,6 +790,14 @@ bool BoundedQueue_Node<TYPE, false>::isUnconstructed() const
 // PRIVATE CLASS METHODS
 template <class TYPE>
 inline
+bool BoundedQueue<TYPE>::circularlyGreater(Uint lhs, Uint rhs)
+{
+    return lhs > rhs ? (lhs - rhs) <= k_MAXIMUM_CIRCULAR_DIFFERENCE
+                     : (rhs - lhs) >  k_MAXIMUM_CIRCULAR_DIFFERENCE;
+}
+
+template <class TYPE>
+inline
 bool BoundedQueue<TYPE>::isQuiescentState(bsls::Types::Uint64 count)
 {
     return (count >> k_FINISHED_SHIFT) == (count & k_STARTED_MASK);
@@ -816,7 +852,7 @@ bsls::Types::Uint64 BoundedQueue<TYPE>::unmarkStartedOperation(
 // PRIVATE MANIPULATORS
 template <class TYPE>
 inline
-void BoundedQueue<TYPE>::popComplete(Node *node, bool isEmpty)
+void BoundedQueue<TYPE>::popComplete(Node *node, bool signalEmpty)
 {
     node->d_value.object().~TYPE();
 
@@ -834,21 +870,23 @@ void BoundedQueue<TYPE>::popComplete(Node *node, bool isEmpty)
         }
     }
 
-    if (isEmpty) {
-        AtomicOp::addUintAcqRel(&d_emptyGeneration, 1);
-        if (0 < AtomicOp::getUintAcquire(&d_emptyCount)) {
-            {
-                bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
-            }
-            d_emptyCondition.broadcast();
+    if (signalEmpty) {
+        {
+            bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
         }
+        d_emptyCondition.broadcast();
     }
 }
 
 template <class TYPE>
 void BoundedQueue<TYPE>::popFrontHelper(TYPE *value)
 {
-    bool empty = isEmpty();
+    Uint emptyCount = AtomicOp::getUintAcquire(&d_emptyWaiterCount);
+
+    bool signalEmpty = false;
+    if (isEmpty()) {
+        signalEmpty = updateEmptyCountSeen(emptyCount);
+    }
 
     markStartedOperation(&d_popCount);
 
@@ -873,7 +911,9 @@ void BoundedQueue<TYPE>::popFrontHelper(TYPE *value)
     }
 
     BoundedQueue_PopCompleteGuard<BoundedQueue<TYPE>, Node>
-                                                      guard(this, node, empty);
+                                                      guard(this,
+                                                            node,
+                                                            signalEmpty);
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     *value = bslmf::MovableRefUtil::move(node->d_value.object());
@@ -923,16 +963,35 @@ void BoundedQueue<TYPE>::pushExceptionComplete()
     }
 }
 
+template <class TYPE>
+inline
+bool BoundedQueue<TYPE>::updateEmptyCountSeen(Uint emptyCount)
+{
+    Uint emptyCountSeen = AtomicOp::getUintAcquire(&d_emptyCountSeen);
+    while (circularlyGreater(emptyCount, emptyCountSeen)) {
+        const Uint origEmptyCountSeen = emptyCountSeen;
+
+        emptyCountSeen = AtomicOp::testAndSwapUintAcqRel(&d_emptyCountSeen,
+                                                         emptyCountSeen,
+                                                         emptyCount);
+
+        if (origEmptyCountSeen == emptyCountSeen) {
+            return true;                                              // RETURN
+        }
+    }
+    return false;
+}
+
 // CREATORS
 template <class TYPE>
 BoundedQueue<TYPE>::BoundedQueue(bsl::size_t       capacity,
                                  bslma::Allocator *basicAllocator)
 : d_pushSemaphore()
 , d_popSemaphore()
-, d_element_p(0)
-, d_capacity(capacity > 2 ? capacity : 2)
 , d_emptyMutex()
 , d_emptyCondition()
+, d_element_p(0)
+, d_capacity(capacity > 2 ? capacity : 2)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     AtomicOp::initUint64(&d_pushCount, 0);
@@ -940,8 +999,8 @@ BoundedQueue<TYPE>::BoundedQueue(bsl::size_t       capacity,
     AtomicOp::initUint64(&d_popCount,  0);
     AtomicOp::initUint64(&d_popIndex,  0);
 
-    AtomicOp::initUint(&d_emptyCount,      0);
-    AtomicOp::initUint(&d_emptyGeneration, 0);
+    AtomicOp::initUint(&d_emptyWaiterCount,     0);
+    AtomicOp::initUint(&d_emptyCountSeen, 0);
 
     d_element_p = static_cast<Node *>(
                               d_allocator_p->allocate(static_cast<bsl::size_t>(
@@ -1057,61 +1116,67 @@ int BoundedQueue<TYPE>::pushBack(bslmf::MovableRef<TYPE> value)
 template <class TYPE>
 void BoundedQueue<TYPE>::removeAll()
 {
+    Uint emptyCount = AtomicOp::getUintAcquire(&d_emptyWaiterCount);
+
     int reclaim = d_popSemaphore.takeAll();
 
-    while (reclaim) {
-        int count = reclaim;
+    if (reclaim) {
+        bool signalEmpty = updateEmptyCountSeen(emptyCount);
 
-        reclaim = 0;
+        while (reclaim) {
+            int count = reclaim;
 
-        // For quiescent state detection (see *Implementation* *Note*) and
-        // eventual 'post' to the 'd_pushSemaphore' to indicate node
-        // availability, indicate 'count' remove operations have begin.
+            reclaim = 0;
 
-        markStartedOperation(&d_popCount, count);
+            // For quiescent state detection (see *Implementation* *Note*) and
+            // eventual 'post' to the 'd_pushSemaphore' to indicate node
+            // availability, indicate 'count' remove operations have begin.
 
-        // 'd_popIndex' stores the next location to use (want the original
-        // value)
+            markStartedOperation(&d_popCount, count);
 
-        Uint64 index = AtomicOp::addUint64NvAcqRel(&d_popIndex, count) - count;
+            // 'd_popIndex' stores the next location to use (want the original
+            // value)
 
-        for (int i = 0; i < count; ++i, ++index) {
-            Node& node = d_element_p[index % d_capacity];
+            Uint64 index = AtomicOp::addUint64NvAcqRel(&d_popIndex, count)
+                                                                       - count;
 
-            if (!node.isUnconstructed()) {
-                node.d_value.object().~TYPE();
+            for (int i = 0; i < count; ++i, ++index) {
+                Node& node = d_element_p[index % d_capacity];
+
+                if (!node.isUnconstructed()) {
+                    node.d_value.object().~TYPE();
+                }
+                else {
+                    ++reclaim;
+                }
             }
-            else {
-                ++reclaim;
-            }
-        }
 
-        // For quiescent state detection (see *Implementation* *Note*) and
-        // eventual 'post' to the 'd_pushSemaphore' to indicate node
-        // availability, indicate 'count' remove operations have finished.
+            // For quiescent state detection (see *Implementation* *Note*) and
+            // eventual 'post' to the 'd_pushSemaphore' to indicate node
+            // availability, indicate 'count' remove operations have finished.
 
-        Uint64 popCount = markFinishedOperation(&d_popCount, count);
+            Uint64 popCount = markFinishedOperation(&d_popCount, count);
 
-        if (isQuiescentState(popCount)) {
-            // The total number of popped elements is
-            // 'popCount & k_STARTED_MASK'.  Attempt, once, to zero the count
-            // and, if successful, post to the push semaphore.
+            if (isQuiescentState(popCount)) {
+                // The total number of popped elements is
+                // 'popCount & k_STARTED_MASK'.  Attempt, once, to zero the
+                // count and, if successful, post to the push semaphore.
 
-            if (AtomicOp::testAndSwapUint64AcqRel(&d_popCount,
-                                                  popCount,
-                                                  0) == popCount) {
-                d_pushSemaphore.post(static_cast<int>(
+                if (AtomicOp::testAndSwapUint64AcqRel(&d_popCount,
+                                                      popCount,
+                                                      0) == popCount) {
+                    d_pushSemaphore.post(static_cast<int>(
                                                    popCount & k_STARTED_MASK));
+                }
             }
         }
-    }
 
-    AtomicOp::addUintAcqRel(&d_emptyGeneration, 1);
-    if (0 < AtomicOp::getUintAcquire(&d_emptyCount)) {
-        {
-            bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
+        if (signalEmpty) {
+            {
+                bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
+            }
+            d_emptyCondition.broadcast();
         }
-        d_emptyCondition.broadcast();
     }
 }
 
@@ -1222,12 +1287,10 @@ void BoundedQueue<TYPE>::disablePopFront()
 {
     d_popSemaphore.disable();
 
-    if (0 < AtomicOp::getUintAcquire(&d_emptyCount)) {
-        {
-            bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
-        }
-        d_emptyCondition.broadcast();
+    {
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
     }
+    d_emptyCondition.broadcast();
 }
 
 template <class TYPE>
@@ -1297,38 +1360,38 @@ bsl::size_t BoundedQueue<TYPE>::numElements() const
 template <class TYPE>
 int BoundedQueue<TYPE>::waitUntilEmpty() const
 {
-    AtomicOp::addUintAcqRel(&d_emptyCount, 1);
-
-    const Uint initEmptyGen = AtomicOp::getUintAcquire(&d_emptyGeneration);
+    Uint emptyCount = AtomicOp::addUintNvAcqRel(&d_emptyWaiterCount, 1) - 1;
 
     int state = d_popSemaphore.getDisabledState();
     if (1 == (state & 1)) {
-        AtomicOp::addUintAcqRel(&d_emptyCount, -1);
         return e_DISABLED;                                            // RETURN
     }
 
     if (isEmpty()) {
-        AtomicOp::addUintAcqRel(&d_emptyCount, -1);
         return e_SUCCESS;                                             // RETURN
     }
 
     bslmt::LockGuard<bslmt::Mutex> guard(&d_emptyMutex);
 
-    Uint emptyGen = AtomicOp::getUintAcquire(&d_emptyGeneration);
+    // Return successfully when this queue is empty ('isEmpty()') or this queue
+    // was empty at some point since this method was invoked (the condition
+    // tested by 'circularlyGreater' in the below).
 
-    while (   initEmptyGen == emptyGen
-           && state        == d_popSemaphore.getDisabledState()) {
+    bool empty = isEmpty()
+              || circularlyGreater(AtomicOp::getUintAcquire(&d_emptyCountSeen),
+                                   emptyCount);
+
+    while (!empty && state == d_popSemaphore.getDisabledState()) {
         int rv = d_emptyCondition.wait(&d_emptyMutex);
         if (rv) {
-            AtomicOp::addUintAcqRel(&d_emptyCount, -1);
             return e_FAILED;                                          // RETURN
         }
-        emptyGen = AtomicOp::getUintAcquire(&d_emptyGeneration);
+        empty = isEmpty()
+             || circularlyGreater(AtomicOp::getUintAcquire(&d_emptyCountSeen),
+                                  emptyCount);
     }
 
-    AtomicOp::addUintAcqRel(&d_emptyCount, -1);
-
-    if (initEmptyGen == emptyGen) {
+    if (!empty) {
         return e_DISABLED;                                            // RETURN
     }
 
