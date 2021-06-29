@@ -109,8 +109,6 @@ namespace BloombergLP {
 namespace {
 namespace u {
 
-const char zeroBuffer[32 * 1024] = { 0 };
-
 #if defined(BSLS_PLATFORM_OS_UNIX) \
  && defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
 
