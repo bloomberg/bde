@@ -892,7 +892,8 @@ on attributes associated with the current thread.  The canonical example of
 rule-based logging is to enable verbose logging when processing requests
 for a particular user in a service.
 
-A usage example can be found in {'Example 8: Rule-Based Logging'}.
+A usage example can be found in
+{'Advanced Features Example 1: Rule-Based Logging'}.
 
 To enable rule-based logging clients must do two things:
 : 1. Configure a set of (process-wide) rules to set logging thresholds based on
@@ -931,8 +932,8 @@ by creating a simple, efficient 'ball::AttributeContainer' specifically for the
 "myLib.userid" and "myLib.requesttype" attributes); see
 'ball_attributecontainer' for an example.
 
-{'Example 8: Rule-Based Logging'} below demonstrates creating a simple logging
-rule, and associating attributes with a processing thread.
+{'Advanced Features Example 1: Rule-Based Logging'} below demonstrates creating
+a simple logging rule, and associating attributes with a processing thread.
 
 /A Note on Multi-Threaded Logging Usage
 /--------------------------------------
