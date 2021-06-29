@@ -23,21 +23,24 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component defines a thread barrier named 'bslmt::Barrier'.
 // Barriers provide a simple mechanism for synchronizing a series of threads at
 // a given point in a program.  A barrier is constructed with a number
-// 'numThreads' which is the number of threads required to reach the
-// synchronization point for the barrier to be unblocked.  As each thread
-// reaches the synchronization point, it calls the 'wait' method and blocks.
-// An invariant is that the number of threads blocking on a barrier is always
-// less than 'numThreads'.  Once the required 'numThreads' threads have called
-// 'wait', the invariant is restored by unblocking all the threads and
-// resetting the barrier to its initial state.  In particular, the barrier can
-// be reused several times in succession.
+// 'numArrivals' which is the number of arrivals (invocations of 'arrive',
+// 'wait', and 'timedWait') required to reach the synchronization point for the
+// barrier to be unblocked.  As each thread reaches the synchronization point,
+// it calls either the 'arrive' method to indicate reaching the synchronization
+// point or a 'wait' method to indicate reaching the synchronization point and
+// blocking until the barrier has the required number of arrivals.  An
+// invariant is that the number of threads blocking on a barrier is always less
+// than 'numArrivals'.  Once the required 'numArrivals' has occurred, the
+// invariant is restored by unblocking all the waiting threads and resetting
+// the barrier to its initial state.  In particular, the barrier can be reused
+// several times in succession.
 //
-// Note that the number of threads sharing the use of the barrier should be
-// exactly 'numThreads', as only exactly 'numThreads' threads calling 'wait'
-// will be unblocked.  In particular, extra threads calling 'wait' will block,
-// perhaps unwittingly participating in the next round of reuse of the barrier
-// together with the unblocked 'numThreads' threads (leading to potential race
-// conditions).
+// Note that, if 'arrive' will not be used, the number of threads sharing the
+// use of the barrier should be exactly 'numArrivals', as only exactly
+// 'numArrivals' threads calling 'wait' will be unblocked.  In particular,
+// extra threads calling 'wait' will block, perhaps unwittingly participating
+// in the next round of reuse of the barrier together with the unblocked
+// 'numArrivals' threads (leading to potential race conditions).
 //
 // Note also that the behavior is undefined if a barrier is destroyed while one
 // or more threads are waiting on it.
@@ -247,7 +250,7 @@ BSLS_IDENT("$Id: $")
 //      bslmt::ThreadAttributes attributes;
 //      bslmt::ThreadUtil::Handle threadHandles[k_MAX_BASKET_TRADES];
 //
-//      int numTrades = trade.d_trades.size();
+//      int numTrades = static_cast<int>(trade.d_trades.size());
 //      assert(0 < numTrades && k_MAX_BASKET_TRADES >= numTrades);
 //..
 // Construct the barrier that will be used by the processing threads.  Since a
@@ -309,18 +312,26 @@ namespace bslmt {
 class Barrier {
     // This class defines a thread barrier.
 
-    Mutex           d_mutex;      // mutex used to control access to this
-                                  // barrier.
-    Condition       d_cond;       // condition variable used for signaling
-                                  // blocked threads.
-    const int       d_numThreads; // number of threads required to be waiting
-                                  // before this barrier can be signaled.
-    int             d_numWaiting; // number of threads currently waiting for
-                                  // this barrier to be signaled.
-    int             d_sigCount;   // counted of number of times this barrier
-                                  // has been signaled.
-    int             d_numPending; // Number of threads that have been signaled
-                                  // but have not yet awakened.
+    // DATA
+    Mutex           d_mutex;       // mutex used to control access to this
+                                   // barrier.
+
+    Condition       d_cond;        // condition variable used for signaling
+                                   // blocked threads.
+
+    const int       d_numArrivals; // number of arrivals before this barrier
+                                   // can be signaled.
+
+    int             d_numArrived;  // number of arrivals at this barrier.
+
+    int             d_numWaiting;  // number of threads currently waiting for
+                                   // this barrier to be signaled.
+
+    int             d_sigCount;    // count of number of times this barrier has
+                                   // been signaled.
+
+    int             d_numPending;  // Number of threads that have been signaled
+                                   // but have not yet awakened.
 
     // NOT IMPLEMENTED
     Barrier(const Barrier&);
@@ -333,30 +344,30 @@ class Barrier {
 
     // CREATORS
     explicit Barrier(
-    int                         numThreads,
+    int                         numArrivals,
     bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
-        // Create a barrier that requires the specified 'numThreads' to
+        // Create a barrier that requires the specified 'numArrivals' to
         // unblock.  Optionally specify a 'clockType' indicating the type of
         // the system clock against which the 'bsls::TimeInterval' 'absTime'
         // timeouts passed to the 'timedWait' method are to be interpreted (see
         // {Supported Clock-Types} in the component-level documentation).  If
         // 'clockType' is not specified then the realtime system clock is used.
-        // The behavior is undefined unless '0 < numThreads'.
+        // The behavior is undefined unless '0 < numArrivals'.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    Barrier(int numThreads, const bsl::chrono::system_clock&);
-        // Create a barrier that requires the specified 'numThreads' to
+    Barrier(int numArrivals, const bsl::chrono::system_clock&);
+        // Create a barrier that requires the specified 'numArrivals' to
         // unblock.  Use the realtime system clock as the clock against which
         // the 'absTime' timeouts passed to the 'timedWait' methods are
         // interpreted (see {Supported Clock-Types} in the component-level
-        // documentation).  The behavior is undefined unless '0 < numThreads'.
+        // documentation).  The behavior is undefined unless '0 < numArrivals'.
 
-    Barrier(int numThreads, const bsl::chrono::steady_clock&);
-        // Create a barrier that requires the specified 'numThreads' to
+    Barrier(int numArrivals, const bsl::chrono::steady_clock&);
+        // Create a barrier that requires the specified 'numArrivals' to
         // unblock.  Use the monotonic system clock as the clock against which
         // the 'absTime' timeouts passed to the 'timedWait' methods are
         // interpreted (see {Supported Clock-Types} in the component-level
-        // documentation).  The behavior is undefined unless '0 < numThreads'.
+        // documentation).  The behavior is undefined unless '0 < numArrivals'.
 #endif
 
     ~Barrier();
@@ -366,63 +377,75 @@ class Barrier {
         // one or more threads are waiting on it.
 
     // MANIPULATORS
+    void arrive();
+        // Arrive on this barrier.  If this is the last required arrival,
+        // *signal* all the threads that are currently waiting on this barrier
+        // to unblock and reset the state of this barrier to its initial state.
+
     int timedWait(const bsls::TimeInterval& absTime);
-        // Block until the required number of threads have called 'wait' or
-        // 'timedWait' on this barrier, or until the specified 'absTime'
-        // timeout expires.  In the former case, *signal* all the threads that
-        // are currently waiting on this barrier to unblock, reset the state of
-        // this barrier to its initial state, and return 0.  If this method
-        // times out before the required number of threads are waiting, the
-        // thread is released to proceed and ceases to contribute to the number
-        // of threads waiting, and 'e_TIMED_OUT' is returned.  Any other return
-        // value indicates that an error has occurred.  Errors are
-        // unrecoverable.  After an error, the barrier may be destroyed, but
-        // any other use has undefined behavior.  'absTime' is an *absolute*
-        // time represented as an interval from some epoch, which is determined
-        // by the clock indicated at construction (see {Supported Clock-Types}
-        // in the component-level documentation).  Note that 'timedWait' and
-        // 'wait' should not generally be used together; if one or more threads
-        // called 'wait' while others called 'timedWait', then if the thread(s)
-        // that called 'timedWait' were to time out and not retry, the threads
-        // that called 'wait' would never unblock.
+        // Arrive and block until the required number of arrivals have
+        // occurred, or until the specified 'absTime' timeout expires.  In the
+        // former case, *signal* all the threads that are currently waiting on
+        // this barrier to unblock, reset the state of this barrier to its
+        // initial state, and return 0.  If this method times out before the
+        // required number of arrivals, the thread is released to proceed and
+        // ceases to contribute to the number of arrivals, and 'e_TIMED_OUT' is
+        // returned.  Any other return value indicates that an error has
+        // occurred.  Errors are unrecoverable.  After an error, the barrier
+        // may be destroyed, but any other use has undefined behavior.
+        // 'absTime' is an *absolute* time represented as an interval from some
+        // epoch, which is determined by the clock indicated at construction
+        // (see {Supported Clock-Types} in the component-level documentation).
+        // Note that 'timedWait' and 'wait' should not generally be used
+        // together; if one or more threads called 'wait' while others called
+        // 'timedWait', then if the thread(s) that called 'timedWait' were to
+        // time out and not retry, the threads that called 'wait' would never
+        // unblock.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     template <class CLOCK, class DURATION>
     int timedWait(const bsl::chrono::time_point<CLOCK, DURATION>& absTime);
-        // Block until the required number of threads have called 'wait' or
-        // 'timedWait' on this barrier, or until the specified 'absTime'
-        // timeout expires.  In the former case, *signal* all the threads that
-        // are currently waiting on this barrier to unblock, reset the state of
-        // this barrier to its initial state, and return 0.  If this method
-        // times out before the required number of threads are waiting, the
-        // thread is released to proceed and ceases to contribute to the number
-        // of threads waiting, and 'e_TIMED_OUT' is returned.  Any other return
-        // value indicates that an error has occurred.  Errors are
-        // unrecoverable.  After an error, the barrier may be destroyed, but
-        // any other use has undefined behavior.  'absTime' is an *absolute*
-        // time represented as an interval from some epoch, which is determined
-        // by the clock associated with the time point.  Note that 'timedWait'
-        // and 'wait' should not generally be used together; if one or more
-        // threads called 'wait' while others called 'timedWait', then if the
-        // thread(s) that called 'timedWait' were to time out and not retry,
-        // the threads that called 'wait' would never unblock.
+        // Arrive and block until the required number of arrivals have
+        // occurred, or until the specified 'absTime' timeout expires.  In the
+        // former case, *signal* all the threads that are currently waiting on
+        // this barrier to unblock, reset the state of this barrier to its
+        // initial state, and return 0.  If this method times out before the
+        // required number of arrivals, the thread is released to proceed and
+        // ceases to contribute to the number of arrivals, and 'e_TIMED_OUT' is
+        // returned.  Any other return value indicates that an error has
+        // occurred.  Errors are unrecoverable.  After an error, the barrier
+        // may be destroyed, but any other use has undefined behavior.
+        // 'absTime' is an *absolute* time represented as an interval from some
+        // epoch, which is determined by the clock associated with the time
+        // point.  Note that 'timedWait' and 'wait' should not generally be
+        // used together; if one or more threads called 'wait' while others
+        // called 'timedWait', then if the thread(s) that called 'timedWait'
+        // were to time out and not retry, the threads that called 'wait' would
+        // never unblock.
 #endif
 
     void wait();
-        // Block until the required number of threads have called either 'wait'
-        // or 'timedWait' on this barrier.  Then *signal* all the threads that
-        // are currently waiting on this barrier to unblock and reset the state
-        // of this barrier to its initial state.  Note that generally 'wait'
-        // and 'timedWait' should not be used together, for reasons explained
-        // in the documentation of 'timedWait'.
+        // Arrive and block until the required number of arrivals have
+        // occurred.  Then *signal* all the threads that are currently waiting
+        // on this barrier to unblock and reset the state of this barrier to
+        // its initial state.  Note that generally 'wait' and 'timedWait'
+        // should not be used together, for reasons explained in the
+        // documentation of 'timedWait'.
 
     // ACCESSORS
     bsls::SystemClockType::Enum clockType() const;
         // Return the clock type used for timeouts.
 
+    int numArrivals() const;
+        // Return the required number of arrivals before all waiting threads
+        // will unblock.
+
+    // DEPRECATED METHODS
     int numThreads() const;
-        // Return the number of threads that are required to call 'wait' before
-        // all waiting threads will unblock.
+        // !DEPRECATED!: Use 'numArrivals' instead.
+        //
+        // Return the required number of arrivals before all waiting threads
+        // will unblock.
 };
 }  // close package namespace
 
@@ -432,40 +455,43 @@ class Barrier {
 
 // CREATORS
 inline
-bslmt::Barrier::Barrier(int numThreads, bsls::SystemClockType::Enum clockType)
+bslmt::Barrier::Barrier(int numArrivals, bsls::SystemClockType::Enum clockType)
 : d_mutex()
 , d_cond(clockType)
-, d_numThreads(numThreads)
+, d_numArrivals(numArrivals)
+, d_numArrived(0)
 , d_numWaiting(0)
 , d_sigCount(0)
 , d_numPending(0)
 {
-    BSLS_ASSERT_SAFE(0 < numThreads);
+    BSLS_ASSERT_SAFE(0 < numArrivals);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 inline
-bslmt::Barrier::Barrier(int numThreads, const bsl::chrono::system_clock&)
+bslmt::Barrier::Barrier(int numArrivals, const bsl::chrono::system_clock&)
 : d_mutex()
 , d_cond(bsls::SystemClockType::e_REALTIME)
-, d_numThreads(numThreads)
+, d_numArrivals(numArrivals)
+, d_numArrived(0)
 , d_numWaiting(0)
 , d_sigCount(0)
 , d_numPending(0)
 {
-    BSLS_ASSERT_SAFE(0 < numThreads);
+    BSLS_ASSERT_SAFE(0 < numArrivals);
 }
 
 inline
-bslmt::Barrier::Barrier(int numThreads, const bsl::chrono::steady_clock&)
+bslmt::Barrier::Barrier(int numArrivals, const bsl::chrono::steady_clock&)
 : d_mutex()
 , d_cond(bsls::SystemClockType::e_MONOTONIC)
-, d_numThreads(numThreads)
+, d_numArrivals(numArrivals)
+, d_numArrived(0)
 , d_numWaiting(0)
 , d_sigCount(0)
 , d_numPending(0)
 {
-    BSLS_ASSERT_SAFE(0 < numThreads);
+    BSLS_ASSERT_SAFE(0 < numArrivals);
 }
 
 // MANIPULATORS
@@ -486,9 +512,16 @@ bsls::SystemClockType::Enum bslmt::Barrier::clockType() const
 }
 
 inline
+int bslmt::Barrier::numArrivals() const
+{
+    return d_numArrivals;
+}
+
+// DEPRECATED METHODS
+inline
 int bslmt::Barrier::numThreads() const
 {
-    return d_numThreads;
+    return d_numArrivals;
 }
 
 }  // close enterprise namespace

@@ -21,25 +21,37 @@ namespace BloombergLP {
 bslmt::Barrier::~Barrier()
 {
     while (1) {
-
         {
             LockGuard<Mutex> lock(&d_mutex);
             if (0 == d_numPending) break;
         }
-
         ThreadUtil::yield();
     }
 
-    BSLS_ASSERT( 0 == d_numWaiting );
+    BSLS_ASSERT(0 == d_numWaiting);
+}
+
+void bslmt::Barrier::arrive()
+{
+    LockGuard<Mutex> lock(&d_mutex);
+    if (++d_numArrived == d_numArrivals) {
+        ++d_sigCount;
+        d_numPending += d_numWaiting;
+        d_numArrived = 0;
+        d_numWaiting = 0;
+        d_cond.broadcast();
+    }
 }
 
 int bslmt::Barrier::timedWait(const bsls::TimeInterval& absTime)
 {
     LockGuard<Mutex> lock(&d_mutex);
     int prevSigCount = d_sigCount;
-    if (++d_numWaiting == d_numThreads) {
+    ++d_numWaiting;
+    if (++d_numArrived == d_numArrivals) {
         ++d_sigCount;
-        d_numPending += d_numThreads - 1;
+        d_numPending += d_numWaiting - 1;
+        d_numArrived = 0;
         d_numWaiting = 0;
         d_cond.broadcast();
     }
@@ -47,6 +59,7 @@ int bslmt::Barrier::timedWait(const bsls::TimeInterval& absTime)
         while (d_sigCount == prevSigCount) {
             if (d_cond.timedWait(&d_mutex, absTime) &&
                 d_sigCount == prevSigCount) {
+                --d_numArrived;
                 --d_numWaiting;
                 return e_TIMED_OUT;                                   // RETURN
             }
@@ -60,9 +73,11 @@ void bslmt::Barrier::wait()
 {
     LockGuard<Mutex> lock(&d_mutex);
     int sigCount = d_sigCount;
-    if (++d_numWaiting == d_numThreads) {
+    ++d_numWaiting;
+    if (++d_numArrived == d_numArrivals) {
         ++d_sigCount;
-        d_numPending += d_numThreads - 1;
+        d_numPending += d_numWaiting - 1;
+        d_numArrived = 0;
         d_numWaiting = 0;
         d_cond.broadcast();
     }

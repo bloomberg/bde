@@ -51,19 +51,25 @@ using namespace bsl;  // automatically added by script
 // 'timedWait', with the additional test that the calls to 'timedWait' must
 // time out if not enough threads call it within the time out period.  Next, we
 // make sure that 'wait' and 'timedWait' interact properly so that a call to
-// 'timedWait' can be unblocked by a call to 'wait' and vice versa.  Finally,
-// we make sure the usage example compiles and runs as expected.
+// 'timedWait' can be unblocked by a call to 'wait' and vice versa.  Then, we
+// verify 'arrive' works properly and interacts with the 'wait' methods
+// correctly.  Finally, we make sure the usage example compiles and runs as
+// expected.
 //-----------------------------------------------------------------------------
 // [ 2] bslmt::Barrier(int numThreads);
 // [ 2] ~bslmt::Barrier();
+// [10] void arrive();
 // [ 3] void wait();
 // [ 4] void timedWait(const bsls::TimeInterval& absTime);
 // [ 2] int numThreads();
-// [10] bsls::SystemClockType::Enum clockType() const;
+// [ 9] bsls::SystemClockType::Enum clockType() const;
 //-----------------------------------------------------------------------------
 // [ 1] Breathing test
 // [ 5] Testing interactions between 'wait' and 'timedWait'
-// [ 6] USAGE Example
+// [ 6] Reusable barrier test
+// [ 7] 2-thread reuse test
+// [ 8] Thread-safety of the destructor test
+// [11] USAGE Example
 
 static bsls::SpinLock coutLock = BSLS_SPINLOCK_UNLOCKED;
 
@@ -112,7 +118,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
+//                 HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
 struct ThreadArgs {
@@ -148,12 +154,11 @@ struct ThreadArgs {
 };
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -MN03
+// BDE_VERIFY pragma: push BDE_VERIFY pragma: -MN03
 
-            // ==================
-            // class AnotherClock
-            // ==================
+                            // ==================
+                            // class AnotherClock
+                            // ==================
 
 class AnotherClock {
     // 'AnotherClock' is a C++11-compatible clock that is very similar to
@@ -185,9 +190,9 @@ AnotherClock::time_point AnotherClock::now()
     return AnotherClock::time_point(ret - duration(10000));
 }
 
-            // ===============
-            // class HalfClock
-            // ===============
+                             // ===============
+                             // class HalfClock
+                             // ===============
 
 class HalfClock {
     // 'HalfClock' is a C++11-compatible clock that is very similar to
@@ -237,11 +242,29 @@ int WaitForTimeout(bslmt::Barrier& mX, int secondsToWait)
 }
 #endif
 
+bsls::AtomicInt s_waited;
+
+extern "C" void *threadWait(void *arg)
+{
+    static_cast<bslmt::Barrier *>(arg)->wait();
+    ++s_waited;
+    return 0;
+}
+
+extern "C" void *threadWait100(void *arg)
+{
+    for (int i = 0; i < 100; ++i) {
+        static_cast<bslmt::Barrier *>(arg)->wait();
+        ++s_waited;
+    }
+    return 0;
+}
+
 // ----------------------------------------------------------------------------
-//                      HELPER FUNCTIONS FOR TEST CASE 9
+//                      HELPER FUNCTIONS FOR TEST CASE 8
 // ----------------------------------------------------------------------------
 
-namespace case9 {
+namespace case8 {
 
 struct Control
 {
@@ -263,7 +286,7 @@ extern "C" void *a(void *arg)
 {
     Control *c = (Control *)arg;
 
-    for(int i=0; i<c->d_numIterations; i++) {
+    for (int i=0; i<c->d_numIterations; i++) {
         c->d_b1.wait();
         c->d_b2.wait();
     }
@@ -277,7 +300,7 @@ extern "C" void *b(void *arg)
     Control *c = (Control *)arg;
 
     void *mem = &c->d_b2;
-    for(int i=0; i<c->d_numIterations; i++) {
+    for (int i=0; i<c->d_numIterations; i++) {
         char filler = fillers[i%3];
 
         c->d_b1.wait();
@@ -312,7 +335,7 @@ void test(int numIterations, int numThreads)
     }
 }
 
-}  // close namespace case9
+}  // close namespace case8
 
 // ----------------------------------------------------------------------------
 //                      HELPER FUNCTIONS FOR TEST CASE 5
@@ -662,7 +685,7 @@ extern "C" void * testThread3(void *arg)
         bslmt::ThreadAttributes attributes;
         bslmt::ThreadUtil::Handle threadHandles[k_MAX_BASKET_TRADES];
 
-        int numTrades = trade.d_trades.size();
+        int numTrades = static_cast<int>(trade.d_trades.size());
         ASSERT(0 < numTrades && k_MAX_BASKET_TRADES >= numTrades);
 //..
 // Construct the barrier that will be used by the processing threads.  Since a
@@ -698,7 +721,7 @@ extern "C" void * testThread3(void *arg)
     }
 //..
 
-class Case8_Driver
+class Case7_Driver
 {
    bsls::AtomicInt *d_state;
    bslmt::Barrier *d_barrier;
@@ -706,7 +729,7 @@ class Case8_Driver
 
 public:
 
-   Case8_Driver(bsls::AtomicInt *state, bslmt::Barrier *barrier, int numCycles)
+   Case7_Driver(bsls::AtomicInt *state, bslmt::Barrier *barrier, int numCycles)
    : d_state(state), d_barrier(barrier), d_numCycles(numCycles) {}
 
    void operator()() {
@@ -719,7 +742,7 @@ public:
    }
 };
 
-class Case7_Waiter {
+class Case6_Waiter {
 
    typedef bslmt::Barrier Barrier;
 
@@ -729,7 +752,7 @@ class Case7_Waiter {
    int             d_numThreads;
 
 public:
-   Case7_Waiter(Barrier         *barrier=0,
+   Case6_Waiter(Barrier         *barrier=0,
                 bsls::AtomicInt *state=0,
                 int              numWaits=0,
                 int              numThreads=0)
@@ -746,7 +769,6 @@ public:
       detached.setDetachedState(
                                bslmt::ThreadAttributes::e_CREATE_DETACHED);
 
-
       ASSERT(0 == bslmt::ThreadUtil::create(&dummy, detached, *this));
    }
 
@@ -762,17 +784,17 @@ public:
    }
 };
 
-void case7(bslmt::Barrier *barrier, bool verbose, int numThreads, int numWaits)
+void case6(bslmt::Barrier *barrier, bool verbose, int numThreads, int numWaits)
 {
    bsls::AtomicInt state(0);
-   vector<Case7_Waiter > waiters;
+   vector<Case6_Waiter > waiters;
    waiters.insert(waiters.end(), numThreads-1,
-                  Case7_Waiter(barrier, &state,
+                  Case6_Waiter(barrier, &state,
                                numWaits, numThreads));
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-   for_each(waiters.begin(), waiters.end(), bsl::mem_fn(&Case7_Waiter::begin));
+   for_each(waiters.begin(), waiters.end(), bsl::mem_fn(&Case6_Waiter::begin));
 #else
-   for_each(waiters.begin(), waiters.end(), mem_fun_ref(&Case7_Waiter::begin));
+   for_each(waiters.begin(), waiters.end(), mem_fun_ref(&Case6_Waiter::begin));
 #endif
    for (int i = 0; i < numWaits; ++i) {
       ASSERT(state == i * numThreads);
@@ -801,7 +823,154 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 11: {
+        // --------------------------------------------------------------------
+        // TEST USAGE EXAMPLE
+        //   The usage example from the header has been incorporated into this
+        //   test driver.  All references to 'assert' have been replaced with
+        //   'ASSERT'.  Call the test example function and assert that it works
+        //   as expected.
+        //
+        // Plan:
+        //   Construct a dummy 'BasketTrade' and invoke the
+        //   'processBasketTrade' function.  Assert that the function returns
+        //   the expected result.
+        //
+        // Testing:
+        //   USAGE example
+        // --------------------------------------------------------------------
+
+          {
+              BasketTrade basket;
+              Trade t;
+              enum {
+                  k_NUM_TRADES = 5
+              };
+
+              for (int i = 0; i < k_NUM_TRADES; ++i) {
+                  basket.d_trades.push_back(t);
+              }
+              ASSERT(processBasketTrade(basket));
+          }
+      } break;
       case 10: {
+        // --------------------------------------------------------------------
+        // TESTING 'arrive'
+        //
+        // Concerns:
+        //: 1 'arrive' increments the number of arrivals.
+        //:
+        //: 2 'arrive' signals the blocked threads.
+        //:
+        //: 3 'arrive' interacts correctly with 'wait'.
+        //:
+        //: 4 The barrier is reusable.
+        //
+        // Plan:
+        //: 1 Create a barrier with the required number of arrivals equal to
+        //:   'a + w + 1', where 'a' is the number of arrivals that will occur
+        //:   and 'w' is the number of threads created that will invoke 'wait'.
+        //:   Once the threads have been created and the 'arrive' invocations
+        //:   done, verify all of the threads are blocked.  Issue the final
+        //:   arrival, an 'arrive'.  Join all threads and verify the number of
+        //:   threads that were blocked.  Repeat with the existing barrier but
+        //:   use 'wait' for the final arrival.  (C 1-4)
+        //
+        // Testing:
+        //   void arrive();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'arrive'" << endl
+                          << "================" << endl;
+
+        if (verbose) cout << "Ensure threads block." << endl;
+        {
+            const int k_MAX = 5;
+
+            bslmt::ThreadUtil::Handle threadHandles[k_MAX];
+            bslmt::ThreadAttributes attributes;
+
+            for (int numArrive = 0; numArrive < k_MAX; ++numArrive) {
+                for (int numWait = 0; numWait < k_MAX; ++numWait) {
+
+                    bslmt::Barrier mX(numArrive + numWait + 1);
+
+                    for (int iter = 0; iter < 20; ++iter) {
+                        s_waited = 0;
+
+                        for (int i = 0; i < numWait; ++i) {
+                            bslmt::ThreadUtil::create(&threadHandles[i],
+                                                      attributes,
+                                                      threadWait,
+                                                      &mX);
+                        }
+
+                        for (int i = 0; i < numArrive; ++i) {
+                            mX.arrive();
+                        }
+
+                        if (0 == iter % 5) {
+                            // Generally, we wish to test high concurrency.
+                            // Occasionally, we wish to ensure the blocking
+                            // threads have actually blocked.
+
+                            bslmt::ThreadUtil::microSleep(10000);
+                        }
+                        ASSERT(0 == s_waited);
+
+                        if (0 == iter % 2) {
+                            // test with 'arrive' being final arrival
+
+                            mX.arrive();
+                        }
+                        else {
+                            // test with 'wait' being final arrival
+
+                            mX.wait();
+                        }
+
+                        for (int i = 0; i < numWait; ++i) {
+                            bslmt::ThreadUtil::join(threadHandles[i]);
+                        }
+                        ASSERT(numWait == s_waited);
+                    }
+                }
+            }
+        }
+
+        if (verbose) cout << "High concurrency." << endl;
+        {
+            const int k_NUM_THREADS = 16;
+
+            bslmt::Barrier mX(k_NUM_THREADS + 1);
+
+            bslmt::ThreadUtil::Handle threadHandles[k_NUM_THREADS];
+            bslmt::ThreadAttributes attributes;
+
+            for (int i = 0; i < k_NUM_THREADS; ++i) {
+                bslmt::ThreadUtil::create(&threadHandles[i],
+                                          attributes,
+                                          threadWait100,
+                                          &mX);
+            }
+
+            for (int iter = 0; iter < 100; ++iter) {
+                s_waited = 0;
+
+                mX.arrive();
+
+                while (k_NUM_THREADS != s_waited) {
+                    bslmt::ThreadUtil::yield();
+                }
+            }
+
+            for (int i = 0; i < k_NUM_THREADS; ++i) {
+                bslmt::ThreadUtil::join(threadHandles[i]);
+            }
+        }
+      } break;
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING 'clockType'
         //
@@ -841,7 +1010,7 @@ int main(int argc, char *argv[])
         ASSERT(bsls::SystemClockType::e_MONOTONIC == mt.clockType());
 #endif
       } break;
-      case 9: {
+      case 8: {
         if (verbose) {
            cout << "Thread-safety of the destructor test" << endl;
         }
@@ -856,11 +1025,9 @@ int main(int argc, char *argv[])
            k_NUM_ITERATIONS =5000
         };
 
-        case9::test(k_NUM_ITERATIONS, k_NUM_THREADS);
-
+        case8::test(k_NUM_ITERATIONS, k_NUM_THREADS);
       } break;
-
-      case 8: {
+      case 7: {
         if (verbose) {
            cout << "2-thread reuse test" << endl;
         }
@@ -889,7 +1056,7 @@ int main(int argc, char *argv[])
            cout << "Unencumbered test" << endl;
         }
 
-        Case8_Driver driver(&state,
+        Case7_Driver driver(&state,
                             &normalBarrier,
                             k_NUM_WAIT_CYCLES);
 
@@ -906,8 +1073,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-
-      case 7: {
+      case 6: {
         // ----------------------------------------------------------------
         // Reusable barrier test
         //
@@ -937,41 +1103,8 @@ int main(int argc, char *argv[])
        if (veryVerbose) {
           cout << "   ...Basic barrier..." << endl;
        }
-       case7(&basicBarrier, veryVerbose, k_NUM_THREADS, k_NUM_SHORT_WAITS);
-
+       case6(&basicBarrier, veryVerbose, k_NUM_THREADS, k_NUM_SHORT_WAITS);
       } break;
-
-      case 6: {
-        // --------------------------------------------------------------------
-        // TEST USAGE EXAMPLE
-        //   The usage example from the header has been incorporated into this
-        //   test driver.  All references to 'assert' have been replaced with
-        //   'ASSERT'.  Call the test example function and assert that it works
-        //   as expected.
-        //
-        // Plan:
-        //   Construct a dummy 'BasketTrade' and invoke the
-        //   'processBasketTrade' function.  Assert that the function returns
-        //   the expected result.
-        //
-        // Testing:
-        //   USAGE example
-        // --------------------------------------------------------------------
-
-          {
-              BasketTrade basket;
-              Trade t;
-              enum {
-                  k_NUM_TRADES = 5
-              };
-
-              for (int i = 0; i < k_NUM_TRADES; ++i) {
-                  basket.d_trades.push_back(t);
-              }
-              ASSERT(processBasketTrade(basket));
-          }
-      } break;
-
       case 5: {
         // --------------------------------------------------------------------
         // TESTING interaction between 'wait' and 'timedWait'
@@ -1233,7 +1366,7 @@ int main(int argc, char *argv[])
 
                 if (0 == res ) {
                     ++args.d_stopCount;
-                    while(k_NTHREADS + 1 != args.d_stopCount) {
+                    while (k_NTHREADS + 1 != args.d_stopCount) {
 #ifdef BSLS_PLATFORM_OS_AIX
                         bslmt::ThreadUtil::yield();
 #endif
@@ -1301,7 +1434,7 @@ int main(int argc, char *argv[])
 
                 if (0 == res ) {
                     ++args.d_stopCount;
-                    while(k_NTHREADS + 1 != args.d_stopCount) {
+                    while (k_NTHREADS + 1 != args.d_stopCount) {
 #ifdef BSLS_PLATFORM_OS_AIX
                         bslmt::ThreadUtil::yield();
 #endif
