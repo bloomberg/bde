@@ -95,17 +95,17 @@ using namespace bsl;
 // [12] int tryLock(FileDescriptor, bool ) (Windows)
 // [13] int sync(char *, int , bool )
 // [14] int close(FileDescriptor )
-// [18] makeUnsafeTemporaryFilename(string *, const StringRef&)
-// [19] createTemporaryFile(string *, const StringRef&)
-// [20] createTemporaryDirectory(string *, const StringRef&)
-// [21] int createDirectories(const string&, bool);
-// [21] int createPrivateDirectory(const string&);
-// [22] int visitTree(const char *, const string&, const Func&, bool);
-// [22] int visitTree(const string&, const string&, const Func&, bool);
-// [22] int visitPaths(const string&, const Func&);
-// [22] int visitPaths(const char *, const Func&);
-// [23] int getLastModificationTime(bdlt::Datetime *, FileDescriptor);
-// [24] truncateFileSize(FileDescriptor, Offset);
+// [19] makeUnsafeTemporaryFilename(string *, const StringRef&)
+// [20] createTemporaryFile(string *, const StringRef&)
+// [21] createTemporaryDirectory(string *, const StringRef&)
+// [22] int createDirectories(const string&, bool);
+// [22] int createPrivateDirectory(const string&);
+// [23] int visitTree(const char *, const string&, const Func&, bool);
+// [23] int visitTree(const string&, const string&, const Func&, bool);
+// [23] int visitPaths(const string&, const Func&);
+// [23] int visitPaths(const char *, const Func&);
+// [24] int getLastModificationTime(bdlt::Datetime *, FileDescriptor);
+// [25] truncateFileSize(FileDescriptor, Offset);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] CONCERN: findMatchingPaths incorrect on ibm 64-bit
