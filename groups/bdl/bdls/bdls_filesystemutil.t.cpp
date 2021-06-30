@@ -814,6 +814,7 @@ class FileDescriptorCloseGuard {
     FileDescriptor d_fileDescriptor;
         // file descriptor to close on destruction
 
+  private:
     // NOT IMPLEMENTED
     FileDescriptorCloseGuard(const FileDescriptorCloseGuard&);
     FileDescriptorCloseGuard& operator=(const FileDescriptorCloseGuard&);
@@ -853,6 +854,7 @@ class RemoveGuard {
     bsl::string d_path;
         // path to the regular file to remove on destruction
 
+  private:
     // NOT IMPLEMENTED
     RemoveGuard(const RemoveGuard&);
     RemoveGuard& operator=(const RemoveGuard&);
@@ -979,6 +981,7 @@ int TestUtil::setLastModificationTime(FileDescriptor        descriptor,
 {
     BSLS_ASSERT(utcTime >= TestUtil_UnixImpUtil::getMinFileTime());
     BSLS_ASSERT(utcTime <= TestUtil_UnixImpUtil::getMaxFileTime());
+
     return TestUtil_UnixImpUtil::setLastModificationTime(descriptor, utcTime);
 }
 
@@ -1274,7 +1277,7 @@ TestUtil_UnixImpUtil::createEphemeralFile()
     bsl::string path;
     FileDescriptor fileDescriptor = createTemporaryFile(&path);
     if (k_INVALID_FD == fileDescriptor) {
-        return k_INVALID_FD;
+        return k_INVALID_FD;                                          // RETURN
     }
 
     int rc = ::unlink(path.c_str());
@@ -1531,7 +1534,7 @@ FileDescriptorCloseGuard::FileDescriptorCloseGuard(FileDescriptor descriptor)
 FileDescriptorCloseGuard::~FileDescriptorCloseGuard()
 {
     if (bdls::FilesystemUtil::k_INVALID_FD == d_fileDescriptor) {
-        return;
+        return;                                                       // RETURN
     }
 
     int rc = bdls::FilesystemUtil::close(d_fileDescriptor);
