@@ -120,7 +120,7 @@ sub processFile {
 
                     if (!m!^//! && !m/^ *$/) {
 			# The commented area ended and we are running into
-			# real code.  Set $ii to $maxLength to signal failure.
+                        # real code.  Set $ii to $maxLength to signal failure.
 
                         $ii = $maxLength;
                         last;
@@ -129,6 +129,7 @@ sub processFile {
 
                 if ($ii < $maxLength) {
                     print $apacheCopyright;
+
                     return;
                 }
                 else {
@@ -146,6 +147,54 @@ sub processFile {
 
     print STDOUT "Unable to find copyright message in $sourcefile\n";
     $ret = 1;
+}
+
+sub process_balxml_configschema_cpp {
+    my $sourcefile = "balxml_configschema.cpp";
+
+    (-e $sourcefile) or die "$sourcefile not found";
+
+    rename $sourcefile, $tmp;
+
+    open INFILE,  "< $tmp";
+    open OUTFILE, "> $sourcefile";
+    select OUTFILE;
+
+    my $line;
+    my $configFixed = 0;
+
+    while ($line = <INFILE>) {
+        if (! $configFixed && $line =~ m/DatetimeFractionalSecondPrecision/) {
+
+            for (my $ii = 1; $ii < 10; ++$ii) {
+		if ($line =~ m/default='6'/) {
+		    $line =~ s/default='6'/default='3'/;
+		    $configFixed = 1;
+                    last;
+                }
+                if ($line =~ m/>/) {
+                    die "Couldn't find DatetimeFractionalSecondPrecision\n" .
+                                       " default in balxml_configschema.cpp\n";
+                }
+
+                print $line;
+                $line = <INFILE>;
+            }
+
+
+            if (!$configFixed) {
+                die "DatetimeFractionalSecondPrecision clause too long\n" .
+                                                "in balxml_configschema.cpp\n";
+            }
+        }
+
+        print $line;
+    }
+
+    if (!$configFixed) {
+        die "DatetimeFractionalSecondPrecision clause not found\n" .
+                                                "in balxml_configschema.cpp\n";
+    }
 }
 
 if (`pwd -P` =~ m/.groups.bal.balxml$/) {
@@ -174,7 +223,7 @@ my $codegen = "bas_codegen.pl";
 
 0 == system("$codegen -m cfg -p $pkg -E --noExternalization" .
                         " --noAggregateConversion --noHashSupport $xsdfile") or
-                                          die "$codegen schemaconfig failed\n";
+                                          die "$codegen configschema failed\n";
 
 unlink $tmp;
 foreach my $component (@generatedComponents) {
@@ -185,6 +234,11 @@ foreach my $component (@generatedComponents) {
         &processFile($sourcefile);
     }
 }
+
+
+print STDOUT "Extra modification to 'balxml_configschema.cpp'\n";
+
+&process_balxml_configschema_cpp();
 
 select STDOUT;
 

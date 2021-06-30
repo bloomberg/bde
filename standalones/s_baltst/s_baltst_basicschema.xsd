@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+  xmlns:bdem='http://bloomberg.com/schemas/bdem'
+  bdem:package='balxml'
+  elementFormDefault='qualified'>
+
+    <!-- This file is used to generate the 's_baltst_basicschema' component,
+         which the 'balxml_configschema' component test driver uses to parse
+         its in-core XML Schema Definition. -->
+
+<xs:element name="schema" type="BasicSchema"/>
+
+<xs:complexType name="BasicSchema">
+  <xs:attribute name="xs" type="xs:string"/>
+  <xs:attribute name="bdem" type="xs:string"/>
+  <xs:attribute name="package" type="xs:string"/>
+  <xs:attribute name="elementFormDefault" type="xs:string"/>
+  <xs:sequence>
+    <xs:element minOccurs="0" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="annotation" type="BasicSchemaAnnotationElement"/>
+          <xs:element name="simpleType" type="BasicSchemaSimpleTypeElement"/>
+          <xs:element name="complexType" type="BasicSchemaComplexTypeElement"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="BasicSchemaAnnotationElement">
+  <xs:sequence>
+    <xs:element name="documentation"
+      type="xs:string"
+      minOccurs="0"
+      maxOccurs="1"/>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="BasicSchemaChoiceElement">
+  <xs:sequence>
+    <xs:element minOccurs="0" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="annotation" type="BasicSchemaAnnotationElement"/>
+          <xs:element name="element" type="BasicSchemaElement"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="BasicSchemaComplexTypeElement">
+  <xs:attribute name="name" type="xs:string"/>
+  <xs:sequence>
+    <xs:element minOccurs="0" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="annotation" type="BasicSchemaAnnotationElement"/>
+          <xs:element name="sequence" type="BasicSchemaSequenceElement"/>
+          <xs:element name="choice" type="BasicSchemaChoiceElement"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="BasicSchemaElement">
+  <xs:attribute name="name" type="xs:string"/>
+  <xs:attribute name="type" type="xs:string"/>
+  <xs:attribute name="minOccurs" type="xs:string"/>
+  <xs:attribute name="maxOccurs" type="xs:string"/>
+  <xs:attribute name="default" type="xs:string"/>
+  <xs:attribute name="cppdefault" type="xs:string"/>
+  <xs:attribute name="cpptype" type="xs:string"/>
+  <xs:attribute name="allocatesMemory" type="xs:string"/>
+  <xs:attribute name="allowsDirectManipulation" type="xs:string"/>
+  <xs:sequence>
+    <xs:element minOccurs="0" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="annotation" type="BasicSchemaAnnotationElement"/>
+          <xs:element name="simpleType" type="BasicSchemaSimpleTypeElement"/>
+          <xs:element name="complexType" type="BasicSchemaComplexTypeElement"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="BasicSchemaEnumerationElement">
+  <xs:attribute name="value" type="xs:string"/>
+  <xs:sequence>
+    <xs:element minOccurs="0" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="annotation" type="BasicSchemaAnnotationElement"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="BasicSchemaRestrictionElement">
+  <xs:attribute name="base" type="xs:string"/>
+  <xs:sequence>
+    <xs:element minOccurs="0" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="annotation" type="BasicSchemaAnnotationElement"/>
+          <xs:element name="enumeration" type="BasicSchemaEnumerationElement"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="BasicSchemaSequenceElement">
+  <xs:sequence>
+    <xs:element minOccurs="0" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="annotation" type="BasicSchemaAnnotationElement"/>
+          <xs:element name="element" type="BasicSchemaElement"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="BasicSchemaSimpleTypeElement">
+  <xs:attribute name="name" type="xs:string"/>
+  <xs:attribute name="preserveEnumOrder" type="xs:string"/>
+  <xs:sequence>
+    <xs:element minOccurs="0" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="annotation" type="BasicSchemaAnnotationElement"/>
+          <xs:element name="restriction" type="BasicSchemaRestrictionElement"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+</xs:schema>
