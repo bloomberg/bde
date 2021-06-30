@@ -3007,6 +3007,459 @@ static const struct {
 };
 enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
+//=============================================================================
+//                              FUZZ TESTING
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
+// on how to build and run with fuzz testing enabled.
+//-----------------------------------------------------------------------------
+
+#ifdef BDE_ACTIVATE_FUZZ_TESTING
+#define main test_driver_main
+#endif
+
+extern "C"
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+    // Use the specified 'data' array of 'size' bytes as input to methods of
+    // this component and return zero.
+{
+    typedef bsl::size_t size_t;
+
+    const size_t INT_PTR_SIZE = sizeof(IntPtr);
+
+    size_t      length    = size;
+    const char *begin     = reinterpret_cast<const char *>(data);
+    const char *end       = begin + length;
+    int         testIndex = 0;
+
+    if (data && length) {
+        unsigned char testIndexUC = 0;
+        bsl::memcpy(&testIndexUC, begin, 1);
+        begin  += 1;
+        length -= 1;
+        testIndex = 1 + testIndexUC % 10;
+    }
+
+    int         status = 0;
+    const char *result = 0;
+
+    switch (testIndex) { case 0:  // Zero is always the leading case.
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING 'toAscii'
+        //
+        // Plan:
+        //   Obtain a code point from the fuzz data directly.  If there is not
+        //   enough data to receive required 'IntPtr' value then the default
+        //   value ('0') is used.
+        //
+        // Testing:
+        //   const char *toAscii(IntPtr value);
+        // --------------------------------------------------------------------
+
+        if (length < INT_PTR_SIZE) {
+            // Skip insufficient amount of data.
+            break;
+        }
+
+        IntPtr value = 0;
+        bsl::memcpy(&value, begin, INT_PTR_SIZE);
+
+        const char *asciiStr = Obj::toAscii(value);
+
+        ASSERT(0 == bsl::strcmp(asciiStr, "END_OF_INPUT_TRUNCATION") ||
+               0 == bsl::strcmp(asciiStr, "UNEXPECTED_CONTINUATION_OCTET") ||
+               0 == bsl::strcmp(asciiStr, "NON_CONTINUATION_OCTET") ||
+               0 == bsl::strcmp(asciiStr, "OVERLONG_ENCODING") ||
+               0 == bsl::strcmp(asciiStr, "INVALID_INITIAL_OCTET") ||
+               0 == bsl::strcmp(asciiStr, "VALUE_LARGER_THAN_0X10FFFF") ||
+               0 == bsl::strcmp(asciiStr, "SURROGATE") ||
+               0 == bsl::strcmp(asciiStr, "(* unrecognized value *)"));
+
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING 'readIfValid'
+        //
+        // Plan:
+        //   Use the fuzz data as a UTF-8 string and its length as the length
+        //   of this string to create the required 'streambuf'.
+        //
+        // Testing:
+        //   size_type readIfValid(int *, char *, size_type, bsl::streambuf *);
+        // --------------------------------------------------------------------
+
+        const size_t  OUT_BUF_SIZE = length + 4;
+        char         *outputBuf    =
+                                static_cast<char *>(bsl::malloc(OUT_BUF_SIZE));
+
+        bdlsb::FixedMemInStreamBuf fsb(begin, length);
+
+        Obj::size_type numBytesRead =
+            Obj::readIfValid(&status, outputBuf, OUT_BUF_SIZE, &fsb);
+
+        ASSERT((0 == status && length == numBytesRead) ||
+               (0 >  status && length >  numBytesRead));
+
+        free(outputBuf);
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING 'numCodePointsRaw'
+        //
+        // Plan:
+        //   Use the fuzz data as a UTF-8 string and its length as the length
+        //   of this string.  Call 'numCodePointsIfValid' first to verify the
+        //   validity of this string to avoid undefined behavior.
+        //
+        // Testing:
+        //   IntPtr numCodePointsRaw(const char *string);
+        //   IntPtr numCodePointsRaw(const char *string, size_type length);
+        // --------------------------------------------------------------------
+
+        IntPtr numCodePointsReturned =
+            Obj::numCodePointsIfValid(&result, begin, length);
+        if (0 <= numCodePointsReturned) {
+            numCodePointsReturned = Obj::numCodePointsRaw(begin, length);
+            ASSERT(0 <= numCodePointsReturned);
+            ASSERT(static_cast<IntPtr>(length) >= numCodePointsReturned);
+        }
+
+        // Null-terminated data buffer duplicate creation.
+
+        char *nullTerminatedBuf = static_cast<char *>(bsl::malloc(length + 1));
+        bsl::memcpy(nullTerminatedBuf, begin, length);
+        nullTerminatedBuf[length] = 0;
+
+        const char *nullBegin = nullTerminatedBuf;
+
+        numCodePointsReturned = Obj::numCodePointsIfValid(&result, nullBegin);
+        if (0 <= numCodePointsReturned) {
+            numCodePointsReturned = Obj::numCodePointsRaw(nullBegin);
+
+            ASSERT(0 <= numCodePointsReturned);
+            ASSERT(static_cast<IntPtr>(length) >= numCodePointsReturned);
+        }
+
+        free(nullTerminatedBuf);
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING 'numCodePointsIfValid'
+        //
+        // Plan:
+        //   Use the fuzz data as a UTF-8 string and its length as the length
+        //   of this string.
+        //
+        // Testing:
+        //   IntPtr numCodePointsIfValid(const char **inv, const char  *str);
+        //   IntPtr numCodePointsIfValid(const char **,const char *,size_type);
+        // --------------------------------------------------------------------
+
+        IntPtr numCodePointsReturned =
+            Obj::numCodePointsIfValid(&result, begin, length);
+
+        ASSERT((0 <= numCodePointsReturned && 0 == result) ||
+               (0 > numCodePointsReturned && begin <= result && end > result));
+        ASSERT(static_cast<IntPtr>(length) >= numCodePointsReturned);
+
+        // Null-terminated data buffer duplicate creation.
+
+        char *nullTerminatedBuf = static_cast<char *>(bsl::malloc(length + 1));
+        bsl::memcpy(nullTerminatedBuf, begin, length);
+
+        nullTerminatedBuf[length] = 0;
+
+        const char *nullBegin = nullTerminatedBuf;
+        const char *nullEnd   = nullTerminatedBuf + length + 1;
+
+        result                = 0;
+        numCodePointsReturned = Obj::numCodePointsIfValid(&result, nullBegin);
+
+        ASSERT((0 <= numCodePointsReturned && 0 == result) ||
+               (0 > numCodePointsReturned && nullBegin <= result &&
+                nullEnd > result));
+        ASSERT(static_cast<IntPtr>(length + 1) >= numCodePointsReturned);
+
+        free(nullTerminatedBuf);
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING 'numBytesRaw'
+        //
+        // Plan:
+        //   Obtain a code point from the fuzz data directly.  If there is not
+        //   enough data to receive required 'IntPtr' value, then use every
+        //   non-negative value up to 'sizeof(IntPtr)'. Use the fuzz data and
+        //   its length as the parameters for the 'string_view' object's
+        //   construction.
+        //
+        // Testing:
+        //   IntPtr numBytesRaw(const bslstl::StringRef& str, IntPtr numCP);
+        // --------------------------------------------------------------------
+
+        if (length < INT_PTR_SIZE) {
+            // Skip insufficient amount of data.
+            break;
+        }
+
+        IntPtr numCodePoints = 0;
+        bsl::memcpy(&numCodePoints, begin, INT_PTR_SIZE);
+        begin += INT_PTR_SIZE;
+        length -= INT_PTR_SIZE;
+
+        // Avoid undefined behavior.
+        if (0 > numCodePoints) {
+                break;
+        }
+
+        if (Obj::isValid(begin, length)) {
+            bsl::string_view stringView(begin, length);
+
+            IntPtr numBytes = Obj::numBytesRaw(stringView, numCodePoints);
+
+            ASSERT(0 <= numBytes);
+            ASSERT(length >= static_cast<size_t>(numBytes));
+        }
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING 'numBytesInCodePoint'
+        //
+        // Plan:
+        //   Use the fuzz data as a UTF-8 string containing at least one
+        //   character.
+        //
+        // Testing:
+        //   int numBytesInCodePoint(const char *codePoint);
+        // --------------------------------------------------------------------
+
+        if (length >= 1 && Obj::isValid(begin, 1)) {
+            ASSERT(1 == Obj::numBytesInCodePoint(begin));
+        }
+        else if (length >= 2 && Obj::isValid(begin, 2)) {
+            ASSERT(2 == Obj::numBytesInCodePoint(begin));
+        }
+        else if (length >= 3 && Obj::isValid(begin, 3)) {
+            ASSERT(3 == Obj::numBytesInCodePoint(begin));
+        }
+        else if (length >= 4 && Obj::isValid(begin, 4)) {
+            ASSERT(4 == Obj::numBytesInCodePoint(begin));
+        }
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING 'appendUtf8CodePoint'
+        //
+        // Plan:
+        //   Obtain a code point from the fuzz data directly.  If there is not
+        //   enough data to receive required 'unsigned int' value, then use
+        //   every non-negative value up to 'sizeof(unsigned int)'. Use the
+        //   fuzz data and its length as the parameters for 'output' string
+        //   construction.
+        //
+        // Testing:
+        //   static int appendUtf8CodePoint(bsl::string *out, unsigned int cP);
+        // --------------------------------------------------------------------
+
+        const size_t UNSIGNED_INT_SIZE = sizeof(unsigned int);
+
+        if (length < UNSIGNED_INT_SIZE) {
+            // Skip insufficient amount of data.
+            break;
+        }
+
+        unsigned int codePoint = 0;
+        bsl::memcpy(&codePoint, begin, UNSIGNED_INT_SIZE);
+        begin += UNSIGNED_INT_SIZE;
+        length -= UNSIGNED_INT_SIZE;
+
+        bsl::string output(begin, length);
+
+        status = Obj::appendUtf8CodePoint(&output, codePoint);
+
+        ASSERT((0 == status && length < output.length()) ||
+               (Obj::k_VALUE_LARGER_THAN_0X10FFFF == status &&
+                length == output.length()));
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING 'advanceRaw'
+        //
+        // Plan:
+        //   Obtain the number of code points from the fuzz data directly, use
+        //   the fuzz data as a UTF-8 string and its length as the length of
+        //   this string.
+        //
+        // Testing:
+        //   IntPtr advanceRaw(const char **res, const char *s, IntPtr numCP);
+        //   IntPtr advanceRaw(const char **, const char *, size_type, IntPtr);
+        // --------------------------------------------------------------------
+
+        if (length < INT_PTR_SIZE) {
+            // Skip insufficient amount of data.
+            break;
+        }
+
+        IntPtr numCodePoints = 0;
+        bsl::memcpy(&numCodePoints, begin, INT_PTR_SIZE);
+        begin += INT_PTR_SIZE;
+        length -= INT_PTR_SIZE;
+
+        // Avoid undefined behavior.
+        if (0 > numCodePoints) {
+                break;
+        }
+
+        Obj::advanceIfValid(&status, &result, begin, length, numCodePoints);
+        if (0 == status) {
+            IntPtr traversed =
+                Obj::advanceRaw(&result, begin, length, numCodePoints);
+
+            ASSERT(begin <= result && end >= result);
+            ASSERT(0 <= traversed);
+            ASSERT(numCodePoints >= traversed);
+            ASSERTV(begin + traversed <= result);
+        }
+
+        // Null-terminated data buffer duplicate creation.
+
+        char *nullTerminatedBuf = static_cast<char *>(bsl::malloc(length + 1));
+        bsl::memcpy(nullTerminatedBuf, begin, length);
+        nullTerminatedBuf[length] = 0;
+
+        const char *nullBegin = nullTerminatedBuf;
+        const char *nullEnd   = nullTerminatedBuf + length + 1;
+
+        status = 0;
+        result = 0;
+
+        Obj::advanceIfValid(&status, &result, nullBegin, numCodePoints);
+        if (0 == status) {
+            IntPtr traversed =
+                Obj::advanceRaw(&result, nullBegin, numCodePoints);
+
+            ASSERT(nullBegin <= result && nullEnd >= result);
+            ASSERT(0 <= traversed);
+            ASSERT(numCodePoints >= traversed);
+            ASSERT(nullBegin + traversed <= result);
+        }
+
+        free(nullTerminatedBuf);
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING 'advanceIfValid'
+        //
+        // Plan:
+        //   Obtain the number of code points from the fuzz data directly, use
+        //   the fuzz data as a UTF-8 string and its length as the length of
+        //   this string.
+        //
+        // Testing:
+        //   IntPtr advanceIfValid(int *, const char **, const char *, IntPtr);
+        //   IntPtr advanceIfValid(int*,const char**,cons char*,size_t,IntPtr);
+        // --------------------------------------------------------------------
+
+        if (length < INT_PTR_SIZE) {
+            // Skip insufficient amount of data.
+            break;
+        }
+
+        IntPtr numCodePoints = 0;
+        bsl::memcpy(&numCodePoints, begin, INT_PTR_SIZE);
+        begin += INT_PTR_SIZE;
+        length -= INT_PTR_SIZE;
+
+        // Avoid undefined behavior.
+        if (0 > numCodePoints) {
+                break;
+        }
+
+        IntPtr traversed = Obj::advanceIfValid(
+            &status, &result, begin, length, numCodePoints);
+
+        ASSERT(0 >= status);
+        ASSERT(begin <= result && end >= result);
+        ASSERT(0 <= traversed);
+        ASSERT(numCodePoints >= traversed);
+        ASSERTV(begin + traversed <= result);
+
+        // Null-terminated data buffer duplicate creation.
+
+        char *nullTerminatedBuf = static_cast<char *>(bsl::malloc(length + 1));
+        bsl::memcpy(nullTerminatedBuf, begin, length);
+        nullTerminatedBuf[length] = 0;
+
+        const char *nullBegin = nullTerminatedBuf;
+        const char *nullEnd   = nullTerminatedBuf + length + 1;
+
+        status = 0;
+        result = 0;
+        traversed =
+            Obj::advanceIfValid(&status, &result, nullBegin, numCodePoints);
+
+        ASSERT(0 >= status);
+        ASSERT(nullBegin <= result && nullEnd >= result);
+        ASSERT(0 <= traversed);
+        ASSERT(numCodePoints >= traversed);
+        ASSERT(nullBegin + traversed <= result);
+
+        free(nullTerminatedBuf);
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // TESTING 'isValid'
+        //
+        // Plan:
+        //   Use the fuzz data as a UTF-8 string and its length as the length
+        //   of this string to invoke 'isValid' method.
+        //
+        // Testing:
+        //   bool isValid(const char *string);
+        //   bool isValid(const char *string, size_type length);
+        //   bool isValid(const char **invalidString, const char *string);
+        //   bool isValid(const char **inv, const char *str, size_type length);
+        // --------------------------------------------------------------------
+
+        const char *invalidString = 0;
+        Obj::isValid(begin, length);
+        Obj::isValid(&invalidString, begin, length);
+
+        ASSERT(0 == invalidString ||
+               (begin <= invalidString && end > invalidString));
+
+        char *nullTerminatedBuf = static_cast<char *>(bsl::malloc(length + 1));
+        bsl::memcpy(nullTerminatedBuf, begin, length);
+        nullTerminatedBuf[length] = 0;
+
+        const char *nullBegin = nullTerminatedBuf;
+        const char *nullEnd   = nullTerminatedBuf + length + 1;
+
+        invalidString = 0;
+
+        Obj::isValid(nullBegin);
+        Obj::isValid(&invalidString, nullBegin);
+
+        ASSERT(0 == invalidString ||
+               (nullBegin <= invalidString && nullEnd > invalidString));
+
+        free(nullTerminatedBuf);
+      } break;
+      default: {
+      } break;
+    }
+
+    if (testStatus > 0) {
+        BSLS_ASSERT_INVOKE("FUZZ TEST FAILURES");
+    }
+
+    return 0;
+}
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
