@@ -2031,7 +2031,7 @@ void SkipList<KEY, DATA>::initialize()
 
     const IntPtr offset = offsetOfPtrs();
     for (int i = 0; i < k_MAX_NUM_LEVELS; ++i) {
-        IntPtr nodeSize = offset + (i + 1) * sizeof(Node::d_ptrs);
+        IntPtr nodeSize = offset + (i + 1) * sizeof(typename Node::Ptrs);
         nodeSize = (nodeSize + alignMask) & ~alignMask;
         nodeSizes[i] = static_cast<int>(nodeSize);
     }
