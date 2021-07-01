@@ -11,23 +11,35 @@
 
 #include <bdlb_random.h>
 #include <bdlsb_fixedmeminstreambuf.h>
+#include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bslim_testutil.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_log.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+# include <windows.h>
+#else
+# include <sys/types.h>
+# include <unistd.h>
+#endif
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -218,11 +230,15 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bdlde::Utf8Util     Obj;
 typedef bsls::Types::IntPtr IntPtr;
+typedef bsls::Types::Int64  Int64;
 
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 static int veryVeryVeryVerbose;
+
+namespace {
+namespace u {
 
 static unsigned char utf8MultiLang[] = {
     239,  187, 191,  'C', 'h', 'i',  'n',  'e', 's', 'e', ':',  13,  10,  13,
@@ -1872,10 +1888,10 @@ static inline
 unsigned int randUnsigned()
     // Return a pseudo-random unsigned integer.
 {
-    static bsls::Types::Uint64 randAccum = 0;
+    static bsls::Types::Uint64 localAccum = 0;
 
-    randAccum = randAccum * 6364136223846793005LL + 1442695040888963407LL;
-    return unsigned(randAccum >> 32);
+    localAccum = localAccum * 6364136223846793005LL + 1442695040888963407LL;
+    return unsigned(localAccum >> 32);
 }
 
 static
@@ -1887,7 +1903,7 @@ void appendRand1Byte(bsl::string *dst)
         k_HIGH_BOUND = 0x7f,
         k_MOD_BY     = k_HIGH_BOUND + 1 - k_LOW_BOUND };
 
-    unsigned val = randUnsigned() % k_MOD_BY + k_LOW_BOUND;
+    unsigned val = u::randUnsigned() % k_MOD_BY + k_LOW_BOUND;
 
     BSLS_ASSERT(val <= k_HIGH_BOUND);
 
@@ -1907,7 +1923,7 @@ void appendRand2Byte(bsl::string *dst)
         k_HIGH_BOUND = 0x7ff,
         k_MOD_BY     = k_HIGH_BOUND + 1 - k_LOW_BOUND };
 
-    unsigned val = randUnsigned() % k_MOD_BY + k_LOW_BOUND;
+    unsigned val = u::randUnsigned() % k_MOD_BY + k_LOW_BOUND;
 
     BSLS_ASSERT(val <= k_HIGH_BOUND);
 
@@ -1930,7 +1946,7 @@ void appendRand3Byte(bsl::string *dst)
 
     unsigned val;
     do {
-        val = randUnsigned() % k_MOD_BY + k_LOW_BOUND;
+        val = u::randUnsigned() % k_MOD_BY + k_LOW_BOUND;
     } while (val >= 0xd800 && val <= 0xdfff);
 
     BSLS_ASSERT(val <= k_HIGH_BOUND);
@@ -1953,7 +1969,7 @@ void appendRand4Byte(bsl::string *dst)
         k_HIGH_BOUND = 0x10ffff,
         k_MOD_BY     = k_HIGH_BOUND + 1 - k_LOW_BOUND };
 
-    unsigned val = randUnsigned() % k_MOD_BY + k_LOW_BOUND;
+    unsigned val = u::randUnsigned() % k_MOD_BY + k_LOW_BOUND;
 
     BSLS_ASSERT(val <= k_HIGH_BOUND);
 
@@ -1981,15 +1997,15 @@ void appendRandCorrectCodePoint(bsl::string *dst,
 {
     unsigned r;
     if (-1 == numBytes) {
-        r = randUnsigned();
+        r = u::randUnsigned();
         r = useZero ? r % 5
                     : (r & 3) + 1;
     }
     else {
         BSLS_ASSERT(0 <= numBytes && numBytes <= 4);
 
-        r = useZero && 1 == numBytes && 0 == randUnsigned() % 5 ? 0
-                                                                : numBytes;
+        r = useZero && 1 == numBytes && 0 == u::randUnsigned() % 5 ? 0
+                                                                   : numBytes;
     }
 
     switch (r) {
@@ -1997,16 +2013,16 @@ void appendRandCorrectCodePoint(bsl::string *dst,
         dst->push_back('\0');
       } break;
       case 1: {
-        appendRand1Byte(dst);
+        u::appendRand1Byte(dst);
       } break;
       case 2: {
-        appendRand2Byte(dst);
+        u::appendRand2Byte(dst);
       } break;
       case 3: {
-        appendRand3Byte(dst);
+        u::appendRand3Byte(dst);
       } break;
       case 4: {
-        appendRand4Byte(dst);
+        u::appendRand4Byte(dst);
       } break;
       default: {
         ASSERT(0);
@@ -2083,16 +2099,16 @@ bsl::string utf8Encode(int b)
     ASSERT(static_cast<unsigned>(b) <= 0x10ffff);
 
     if (b <= 0x7f) {
-        return code8(b);                                              // RETURN
+        return u::code8(b);                                           // RETURN
     }
     if (b <= 0x7ff) {
-        return code16(b);                                             // RETURN
+        return u::code16(b);                                          // RETURN
     }
     if (b <= 0xffff) {
-        return code24(b);                                             // RETURN
+        return u::code24(b);                                          // RETURN
     }
 
-    return code32(b);
+    return u::code32(b);
 }
 
 static
@@ -2163,16 +2179,16 @@ unsigned int decode(const char **pc)
 
     char c = **pc;
     if (0    == (~0x7f & c)) {
-        ret = decode8(*pc);
+        ret = u::decode8(*pc);
         ++ *pc;
     } else if (0xc0 == (0xe0 & c)) {
-        ret = decode16(*pc);
+        ret = u::decode16(*pc);
         *pc += 2;
     } else if (0xe0 == (0xf0 & c)) {
-        ret = decode24(*pc);
+        ret = u::decode24(*pc);
         *pc += 3;
     } else if (0xf0 == (0xf8 & c)) {
-        ret = decode32(*pc);
+        ret = u::decode32(*pc);
         *pc += 4;
     } else {
         ASSERT(0);
@@ -2237,15 +2253,16 @@ int intendedSequenceLength(char firstChar)
 int randNum()
     // MMIX Linear Congruential Generator algorithm by Donald Knuth
 {
-    randAccum = randAccum * 6364136223846793005LL + 1442695040888963407LL;
-    return int(randAccum >> 32);
+    u::randAccum = u::randAccum * 6364136223846793005LL +
+                                                         1442695040888963407LL;
+    return int(u::randAccum >> 32);
 }
 
 static
 int randVal()
     // Return a random integer in the '[0..0x1fffff]' range.
 {
-    return (randNum() >> 9) & 0x1fffff;
+    return (u::randNum() >> 9) & 0x1fffff;
 }
 
 static
@@ -2255,7 +2272,7 @@ int randVal8(bool never0 = false)
 {
     int ret;
     do {
-        ret = randVal() & 0x7f;
+        ret = u::randVal() & 0x7f;
     } while (never0 && 0 == ret);
 
     return ret;
@@ -2267,7 +2284,7 @@ int randVal16()
 {
     int ret;
     do {
-        ret = randVal() & 0x7ff;
+        ret = u::randVal() & 0x7ff;
     } while (ret < 0x80);
 
     return ret;
@@ -2281,7 +2298,7 @@ int randVal24(bool neverSurrogates = false)
 {
     int ret;
     do {
-        ret = randVal() & 0xffff;
+        ret = u::randVal() & 0xffff;
     } while (ret < 0x800 ||
                           (neverSurrogates && ret >= 0xd800 && ret <= 0xdfff));
 
@@ -2294,7 +2311,7 @@ int randVal32()
 {
     int ret;
     do {
-        ret = (randVal() & 0xfffff) + (randVal() & 0x7ffff);
+        ret = (u::randVal() & 0xfffff) + (u::randVal() & 0x7ffff);
     } while (ret > 0x10ffff || ret < 0x10000);
 
     return ret;
@@ -2307,19 +2324,19 @@ int randValue(bool strict = false, bool never0 = false)
     // '[0xd800..0xdfff]' surrogates range.  If the optionally specified
     // 'never0' is true, the range is '[1..0x10ffff]'.
 {
-    int type = randVal();
+    int type = u::randVal();
     switch (type & 3) {
       case 0: {
-        return randVal8(never0);                                      // RETURN
+        return u::randVal8(never0);                                   // RETURN
       } break;
       case 1: {
-        return randVal16();                                           // RETURN
+        return u::randVal16();                                        // RETURN
       } break;
       case 2: {
-        return randVal24(strict);                                     // RETURN
+        return u::randVal24(strict);                                  // RETURN
       } break;
       case 3: {
-        return randVal32();                                           // RETURN
+        return u::randVal32();                                        // RETURN
       }
     }
 
@@ -2477,152 +2494,217 @@ static const struct {
 } legalCodepointData[] = {
     //L#      UTF-8          code point
     //--      -----          ----------
-    { L_,     U8_00001,      decode(U8_00001) },
-    { L_,     U8_00002,      decode(U8_00002) },
-    { L_,       "\x03",      decode("\x03")   },
-    { L_,       "\x04",      decode("\x04")   },
-    { L_,       "\x05",      decode("\x05")   },
-    { L_,       "\x06",      decode("\x06")   },
-    { L_,       "\x07",      decode("\x07")   },
-    { L_,       "\x08",      decode("\x08")   },
-    { L_,       "\x09",      decode("\x09")   },
-    { L_,       "\x0a",      decode("\x0a")   },
-    { L_,       "\x0b",      decode("\x0b")   },
-    { L_,       "\x0c",      decode("\x0c")   },
-    { L_,       "\x0d",      decode("\x0d")   },
-    { L_,       "\x0e",      decode("\x0e")   },
-    { L_,       "\x0f",      decode("\x0f")   },
-    { L_,       "\x10",      decode("\x10")   },
-    { L_,       "\x11",      decode("\x11")   },
-    { L_,       "\x12",      decode("\x12")   },
-    { L_,       "\x13",      decode("\x13")   },
-    { L_,       "\x14",      decode("\x14")   },
-    { L_,       "\x15",      decode("\x15")   },
-    { L_,       "\x16",      decode("\x16")   },
-    { L_,       "\x17",      decode("\x17")   },
-    { L_,       "\x18",      decode("\x18")   },
-    { L_,       "\x19",      decode("\x19")   },
-    { L_,       "\x1a",      decode("\x1a")   },
-    { L_,       "\x1b",      decode("\x1b")   },
-    { L_,       "\x1c",      decode("\x1c")   },
-    { L_,       "\x1d",      decode("\x1d")   },
-    { L_,       "\x1e",      decode("\x1e")   },
-    { L_,       "\x1f",      decode("\x1f")   },
-    { L_,       "\x20",      decode("\x20")   },
-    { L_,       "\x21",      decode("\x21")   },
-    { L_,       "\x22",      decode("\x22")   },
-    { L_,       "\x23",      decode("\x23")   },
-    { L_,       "\x24",      decode("\x24")   },
-    { L_,       "\x25",      decode("\x25")   },
-    { L_,       "\x26",      decode("\x26")   },
-    { L_,       "\x27",      decode("\x27")   },
-    { L_,       "\x28",      decode("\x28")   },
-    { L_,       "\x29",      decode("\x29")   },
-    { L_,       "\x2a",      decode("\x2a")   },
-    { L_,       "\x2b",      decode("\x2b")   },
-    { L_,       "\x2c",      decode("\x2c")   },
-    { L_,       "\x2d",      decode("\x2d")   },
-    { L_,       "\x2e",      decode("\x2e")   },
-    { L_,       "\x2f",      decode("\x2f")   },
-    { L_,       "\x30",      decode("\x30")   },
-    { L_,       "\x31",      decode("\x31")   },
-    { L_,       "\x32",      decode("\x32")   },
-    { L_,       "\x33",      decode("\x33")   },
-    { L_,       "\x34",      decode("\x34")   },
-    { L_,       "\x35",      decode("\x35")   },
-    { L_,       "\x36",      decode("\x36")   },
-    { L_,       "\x37",      decode("\x37")   },
-    { L_,       "\x38",      decode("\x38")   },
-    { L_,       "\x39",      decode("\x39")   },
-    { L_,       "\x3a",      decode("\x3a")   },
-    { L_,       "\x3b",      decode("\x3b")   },
-    { L_,       "\x3c",      decode("\x3c")   },
-    { L_,       "\x3d",      decode("\x3d")   },
-    { L_,       "\x3e",      decode("\x3e")   },
-    { L_,       "\x3f",      decode("\x3f")   },
-    { L_,       "\x40",      decode("\x40")   },
-    { L_,       "\x41",      decode("\x41")   },
-    { L_,       "\x42",      decode("\x42")   },
-    { L_,       "\x43",      decode("\x43")   },
-    { L_,       "\x44",      decode("\x44")   },
-    { L_,       "\x45",      decode("\x45")   },
-    { L_,       "\x46",      decode("\x46")   },
-    { L_,       "\x47",      decode("\x47")   },
-    { L_,       "\x48",      decode("\x48")   },
-    { L_,       "\x49",      decode("\x49")   },
-    { L_,       "\x4a",      decode("\x4a")   },
-    { L_,       "\x4b",      decode("\x4b")   },
-    { L_,       "\x4c",      decode("\x4c")   },
-    { L_,       "\x4d",      decode("\x4d")   },
-    { L_,       "\x4e",      decode("\x4e")   },
-    { L_,       "\x4f",      decode("\x4f")   },
-    { L_,       "\x50",      decode("\x50")   },
-    { L_,       "\x51",      decode("\x51")   },
-    { L_,       "\x52",      decode("\x52")   },
-    { L_,       "\x53",      decode("\x53")   },
-    { L_,       "\x54",      decode("\x54")   },
-    { L_,       "\x55",      decode("\x55")   },
-    { L_,       "\x56",      decode("\x56")   },
-    { L_,       "\x57",      decode("\x57")   },
-    { L_,       "\x58",      decode("\x58")   },
-    { L_,       "\x59",      decode("\x59")   },
-    { L_,       "\x5a",      decode("\x5a")   },
-    { L_,       "\x5b",      decode("\x5b")   },
-    { L_,       "\x5c",      decode("\x5c")   },
-    { L_,       "\x5d",      decode("\x5d")   },
-    { L_,       "\x5e",      decode("\x5e")   },
-    { L_,       "\x5f",      decode("\x5f")   },
-    { L_,       "\x60",      decode("\x60")   },
-    { L_,       "\x61",      decode("\x61")   },
-    { L_,       "\x62",      decode("\x62")   },
-    { L_,       "\x63",      decode("\x63")   },
-    { L_,       "\x64",      decode("\x64")   },
-    { L_,       "\x65",      decode("\x65")   },
-    { L_,       "\x66",      decode("\x66")   },
-    { L_,       "\x67",      decode("\x67")   },
-    { L_,       "\x68",      decode("\x68")   },
-    { L_,       "\x69",      decode("\x69")   },
-    { L_,       "\x6a",      decode("\x6a")   },
-    { L_,       "\x6b",      decode("\x6b")   },
-    { L_,       "\x6c",      decode("\x6c")   },
-    { L_,       "\x6d",      decode("\x6d")   },
-    { L_,       "\x6e",      decode("\x6e")   },
-    { L_,       "\x6f",      decode("\x6f")   },
-    { L_,       "\x70",      decode("\x70")   },
-    { L_,       "\x71",      decode("\x71")   },
-    { L_,       "\x72",      decode("\x72")   },
-    { L_,       "\x73",      decode("\x73")   },
-    { L_,       "\x74",      decode("\x74")   },
-    { L_,       "\x75",      decode("\x75")   },
-    { L_,       "\x76",      decode("\x76")   },
-    { L_,       "\x77",      decode("\x77")   },
-    { L_,       "\x78",      decode("\x78")   },
-    { L_,       "\x79",      decode("\x79")   },
-    { L_,       "\x7a",      decode("\x7a")   },
-    { L_,       "\x7b",      decode("\x7b")   },
-    { L_,       "\x7c",      decode("\x7c")   },
-    { L_,       "\x7d",      decode("\x7d")   },
-    { L_,     U8_0007e,      decode(U8_0007e) },
-    { L_,     U8_0007f,      decode(U8_0007f) },
-    { L_,     U8_00080,      decode(U8_00080) },
-    { L_,     U8_00081,      decode(U8_00081) },
-    { L_,     U8_000ff,      decode(U8_000ff) },
-    { L_,     U8_007fe,      decode(U8_007fe) },
-    { L_,     U8_007ff,      decode(U8_007ff) },
-    { L_,     U8_00800,      decode(U8_00800) },
-    { L_,     U8_00801,      decode(U8_00801) },
-    { L_,     U8_0fffe,      decode(U8_0fffe) },
-    { L_,     U8_0ffff,      decode(U8_0ffff) },
-    { L_,     U8_10000,      decode(U8_10000) },
-    { L_,     U8_10001,      decode(U8_10001) },
-    { L_,     U8_10fffe,     decode(U8_10fffe) },
-    { L_,     U8_10ffff,     decode(U8_10ffff) },
+    { L_,     U8_00001,      u::decode(U8_00001) },
+    { L_,     U8_00002,      u::decode(U8_00002) },
+    { L_,       "\x03",      u::decode("\x03")   },
+    { L_,       "\x04",      u::decode("\x04")   },
+    { L_,       "\x05",      u::decode("\x05")   },
+    { L_,       "\x06",      u::decode("\x06")   },
+    { L_,       "\x07",      u::decode("\x07")   },
+    { L_,       "\x08",      u::decode("\x08")   },
+    { L_,       "\x09",      u::decode("\x09")   },
+    { L_,       "\x0a",      u::decode("\x0a")   },
+    { L_,       "\x0b",      u::decode("\x0b")   },
+    { L_,       "\x0c",      u::decode("\x0c")   },
+    { L_,       "\x0d",      u::decode("\x0d")   },
+    { L_,       "\x0e",      u::decode("\x0e")   },
+    { L_,       "\x0f",      u::decode("\x0f")   },
+    { L_,       "\x10",      u::decode("\x10")   },
+    { L_,       "\x11",      u::decode("\x11")   },
+    { L_,       "\x12",      u::decode("\x12")   },
+    { L_,       "\x13",      u::decode("\x13")   },
+    { L_,       "\x14",      u::decode("\x14")   },
+    { L_,       "\x15",      u::decode("\x15")   },
+    { L_,       "\x16",      u::decode("\x16")   },
+    { L_,       "\x17",      u::decode("\x17")   },
+    { L_,       "\x18",      u::decode("\x18")   },
+    { L_,       "\x19",      u::decode("\x19")   },
+    { L_,       "\x1a",      u::decode("\x1a")   },
+    { L_,       "\x1b",      u::decode("\x1b")   },
+    { L_,       "\x1c",      u::decode("\x1c")   },
+    { L_,       "\x1d",      u::decode("\x1d")   },
+    { L_,       "\x1e",      u::decode("\x1e")   },
+    { L_,       "\x1f",      u::decode("\x1f")   },
+    { L_,       "\x20",      u::decode("\x20")   },
+    { L_,       "\x21",      u::decode("\x21")   },
+    { L_,       "\x22",      u::decode("\x22")   },
+    { L_,       "\x23",      u::decode("\x23")   },
+    { L_,       "\x24",      u::decode("\x24")   },
+    { L_,       "\x25",      u::decode("\x25")   },
+    { L_,       "\x26",      u::decode("\x26")   },
+    { L_,       "\x27",      u::decode("\x27")   },
+    { L_,       "\x28",      u::decode("\x28")   },
+    { L_,       "\x29",      u::decode("\x29")   },
+    { L_,       "\x2a",      u::decode("\x2a")   },
+    { L_,       "\x2b",      u::decode("\x2b")   },
+    { L_,       "\x2c",      u::decode("\x2c")   },
+    { L_,       "\x2d",      u::decode("\x2d")   },
+    { L_,       "\x2e",      u::decode("\x2e")   },
+    { L_,       "\x2f",      u::decode("\x2f")   },
+    { L_,       "\x30",      u::decode("\x30")   },
+    { L_,       "\x31",      u::decode("\x31")   },
+    { L_,       "\x32",      u::decode("\x32")   },
+    { L_,       "\x33",      u::decode("\x33")   },
+    { L_,       "\x34",      u::decode("\x34")   },
+    { L_,       "\x35",      u::decode("\x35")   },
+    { L_,       "\x36",      u::decode("\x36")   },
+    { L_,       "\x37",      u::decode("\x37")   },
+    { L_,       "\x38",      u::decode("\x38")   },
+    { L_,       "\x39",      u::decode("\x39")   },
+    { L_,       "\x3a",      u::decode("\x3a")   },
+    { L_,       "\x3b",      u::decode("\x3b")   },
+    { L_,       "\x3c",      u::decode("\x3c")   },
+    { L_,       "\x3d",      u::decode("\x3d")   },
+    { L_,       "\x3e",      u::decode("\x3e")   },
+    { L_,       "\x3f",      u::decode("\x3f")   },
+    { L_,       "\x40",      u::decode("\x40")   },
+    { L_,       "\x41",      u::decode("\x41")   },
+    { L_,       "\x42",      u::decode("\x42")   },
+    { L_,       "\x43",      u::decode("\x43")   },
+    { L_,       "\x44",      u::decode("\x44")   },
+    { L_,       "\x45",      u::decode("\x45")   },
+    { L_,       "\x46",      u::decode("\x46")   },
+    { L_,       "\x47",      u::decode("\x47")   },
+    { L_,       "\x48",      u::decode("\x48")   },
+    { L_,       "\x49",      u::decode("\x49")   },
+    { L_,       "\x4a",      u::decode("\x4a")   },
+    { L_,       "\x4b",      u::decode("\x4b")   },
+    { L_,       "\x4c",      u::decode("\x4c")   },
+    { L_,       "\x4d",      u::decode("\x4d")   },
+    { L_,       "\x4e",      u::decode("\x4e")   },
+    { L_,       "\x4f",      u::decode("\x4f")   },
+    { L_,       "\x50",      u::decode("\x50")   },
+    { L_,       "\x51",      u::decode("\x51")   },
+    { L_,       "\x52",      u::decode("\x52")   },
+    { L_,       "\x53",      u::decode("\x53")   },
+    { L_,       "\x54",      u::decode("\x54")   },
+    { L_,       "\x55",      u::decode("\x55")   },
+    { L_,       "\x56",      u::decode("\x56")   },
+    { L_,       "\x57",      u::decode("\x57")   },
+    { L_,       "\x58",      u::decode("\x58")   },
+    { L_,       "\x59",      u::decode("\x59")   },
+    { L_,       "\x5a",      u::decode("\x5a")   },
+    { L_,       "\x5b",      u::decode("\x5b")   },
+    { L_,       "\x5c",      u::decode("\x5c")   },
+    { L_,       "\x5d",      u::decode("\x5d")   },
+    { L_,       "\x5e",      u::decode("\x5e")   },
+    { L_,       "\x5f",      u::decode("\x5f")   },
+    { L_,       "\x60",      u::decode("\x60")   },
+    { L_,       "\x61",      u::decode("\x61")   },
+    { L_,       "\x62",      u::decode("\x62")   },
+    { L_,       "\x63",      u::decode("\x63")   },
+    { L_,       "\x64",      u::decode("\x64")   },
+    { L_,       "\x65",      u::decode("\x65")   },
+    { L_,       "\x66",      u::decode("\x66")   },
+    { L_,       "\x67",      u::decode("\x67")   },
+    { L_,       "\x68",      u::decode("\x68")   },
+    { L_,       "\x69",      u::decode("\x69")   },
+    { L_,       "\x6a",      u::decode("\x6a")   },
+    { L_,       "\x6b",      u::decode("\x6b")   },
+    { L_,       "\x6c",      u::decode("\x6c")   },
+    { L_,       "\x6d",      u::decode("\x6d")   },
+    { L_,       "\x6e",      u::decode("\x6e")   },
+    { L_,       "\x6f",      u::decode("\x6f")   },
+    { L_,       "\x70",      u::decode("\x70")   },
+    { L_,       "\x71",      u::decode("\x71")   },
+    { L_,       "\x72",      u::decode("\x72")   },
+    { L_,       "\x73",      u::decode("\x73")   },
+    { L_,       "\x74",      u::decode("\x74")   },
+    { L_,       "\x75",      u::decode("\x75")   },
+    { L_,       "\x76",      u::decode("\x76")   },
+    { L_,       "\x77",      u::decode("\x77")   },
+    { L_,       "\x78",      u::decode("\x78")   },
+    { L_,       "\x79",      u::decode("\x79")   },
+    { L_,       "\x7a",      u::decode("\x7a")   },
+    { L_,       "\x7b",      u::decode("\x7b")   },
+    { L_,       "\x7c",      u::decode("\x7c")   },
+    { L_,       "\x7d",      u::decode("\x7d")   },
+    { L_,     U8_0007e,      u::decode(U8_0007e) },
+    { L_,     U8_0007f,      u::decode(U8_0007f) },
+    { L_,     U8_00080,      u::decode(U8_00080) },
+    { L_,     U8_00081,      u::decode(U8_00081) },
+    { L_,     U8_000ff,      u::decode(U8_000ff) },
+    { L_,     U8_007fe,      u::decode(U8_007fe) },
+    { L_,     U8_007ff,      u::decode(U8_007ff) },
+    { L_,     U8_00800,      u::decode(U8_00800) },
+    { L_,     U8_00801,      u::decode(U8_00801) },
+    { L_,     U8_0fffe,      u::decode(U8_0fffe) },
+    { L_,     U8_0ffff,      u::decode(U8_0ffff) },
+    { L_,     U8_10000,      u::decode(U8_10000) },
+    { L_,     U8_10001,      u::decode(U8_10001) },
+    { L_,     U8_10fffe,     u::decode(U8_10fffe) },
+    { L_,     U8_10ffff,     u::decode(U8_10ffff) },
 };
 
 enum {
     NUM_INTERESTING_CODEPOINTS =
         sizeof legalCodepointData / sizeof *legalCodepointData
 };
+
+int getPid()
+    // Return the process id.  Having this be separate from 'Obj::getProcessId'
+    // allows us to call it inline within the component.
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    return static_cast<int>(GetCurrentProcessId());
+#else
+    return static_cast<int>(::getpid());
+#endif
+}
+
+int removeFile(const char *path)
+    // Remove plain file 'path'.  Return 0 on success and a non-zero value
+    // otherwise.
+{
+    BSLS_ASSERT(path);
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+    return ::unlink(path);
+#else
+    // Windows
+
+    bsl::wstring wide;
+
+    for (; *path; ++path) {
+        BSLS_ASSERT(!(*path & 0x80));    // all ascii
+
+        wide.push_back(*path);
+    }
+
+    return DeleteFileW(wide.c_str()) ? 0 : -1;
+#endif
+}
+
+bsl::string tmpFileName(int test)
+{
+    char ret[1024];
+    const char *hostName = bsl::getenv("HOSTNAME");
+    hostName = hostName ? hostName : "unknown_host";
+
+    static const bsl::size_t npos = bsl::string::npos;
+
+    bsl::string componentName = __FILE__;
+    bsl::size_t pos = componentName.find_last_of("/\\");
+    if (npos != pos) {
+        componentName.erase(bsl::size_t(0), pos + 1);
+    }
+    pos = componentName.find('.');
+    if (npos != pos) {
+        componentName.erase(pos, npos);
+    }
+
+    bdlsb::FixedMemOutStreamBuf fileSb(ret, sizeof(ret));
+    bsl::ostream                fileStream(&fileSb);
+    fileStream << "tmp." << componentName << '.' << test << '.' << hostName <<
+                                     '.' << u::getPid() << ".txt" << bsl::ends;
+
+    BSLS_ASSERT(bsl::strlen(ret) < sizeof(ret));
+
+    return ret;
+}
+
+}  // close namespace u
+}  // close unnamed namespace
 
 // ============================================================================
 //                               Usage Example 3
@@ -2729,7 +2811,7 @@ const int *hiSgates     = surrogates + 8;    // beginning of high surrogates
 bsl::string codeRandSurrogate()
     // Return a random surrogate.
 {
-    int val = randNum();
+    int val = u::randNum();
     if (val & 0x1800) {
         val = (val & 0x7ff) + 0xd800;
     }
@@ -2737,13 +2819,13 @@ bsl::string codeRandSurrogate()
         val = surrogates[val & 0xf];
     }
 
-    return code24(val);
+    return u::code24(val);
 }
 
 bsl::string codeRandSurrogatePair()
     // Return a pair of random surrogates.
 {
-    int val = randNum();
+    int val = u::randNum();
     int loSgate, hiSgate;
     if (val & (3 << 20)) {
         loSgate = 0xd800 + (val & 0x3ff);
@@ -2754,7 +2836,7 @@ bsl::string codeRandSurrogatePair()
         hiSgate = hiSgates[(val >> 3) & 7];
     }
 
-    return code24(loSgate) + code24(hiSgate);
+    return u::code24(loSgate) + u::code24(hiSgate);
 }
 
 bsl::string codeRandBenign()
@@ -2762,10 +2844,10 @@ bsl::string codeRandBenign()
 {
     int val;
     do {
-        val = randVal();
+        val = u::randVal();
     } while (0 == val || (0xd800 <= val && 0xdfff >= val) || val > 0x10ffff);
 
-    return utf8Encode(val);
+    return u::utf8Encode(val);
 }
 
 }  // close namespace BDLDE_UTF8UTIL_CASE_4
@@ -2829,25 +2911,25 @@ static const struct {
     // Check the boundary between 1-octet and 2-octet code points.
 
     { L_, "\x7f",                         1,   1, -1,   1   },
-    { L_, U8_00080,                       2,   1, -1,   1   },
+    { L_, "\xc2\x80",                     2,   1, -1,   1   },
 
     // Check the boundary between 2-octet and 3-octet code points.
 
-    { L_, U8_007ff,                       2,   1, -1,   1   },
-    { L_, U8_00800,                       3,   1, -1,   1   },
+    { L_, "\xdf\xbf",                     2,   1, -1,   1   },
+    { L_, "\xe0\xa0\x80",                 3,   1, -1,   1   },
 
     // Check the maximal 3-octet code point.
 
-    { L_, U8_0ffff,                       3,   1, -1,   1   },
+    { L_, "\xef\xbf\xbf",                 3,   1, -1,   1   },
 
     // Make sure 4-octet code points are handled correctly.
 
-    { L_, U8_10000,                       4,   1, -1,   1   },
-    { L_, U8_10000 " ",                   5,   2, -1,   1   },
-    { L_, " " U8_10001 " ",               6,   3, -1,   1   },
-    { L_, U8_10fffe,                      4,   1, -1,   1   },
-    { L_, U8_10fffe " ",                  5,   2, -1,   1   },
-    { L_, " " U8_10ffff " ",              6,   3, -1,   1   },
+    { L_, "\xf0\x90\x80\x80",             4,   1, -1,   1   },
+    { L_, "\xf0\x90\x80\x80 ",            5,   2, -1,   1   },
+    { L_, " \xf0\x90\x80\x81 ",           6,   3, -1,   1   },
+    { L_, "\xf4\x8f\xbf\xbe",             4,   1, -1,   1   },
+    { L_, "\xf4\x8f\xbf\xbe ",            5,   2, -1,   1   },
+    { L_, " \xf4\x8f\xbf\xbf ",           6,   3, -1,   1   },
 
     // unexpected continuation octets
 
@@ -2924,20 +3006,20 @@ static const struct {
     { L_, " \xfe ",                       3, IIO,  1,   0   },
     { L_, " \xff ",                       3, IIO,  1,   0   },
 
-    { L_, U8_00080,                       2,   1, -1,   1   },
+    { L_, "\xc2\x80",                     2,   1, -1,   1   },
     { L_, "\xc2",                         1, EIT,  0,   0   },
-    { L_, U8_00080 " ",                   3,   2, -1,   1   },
-    { L_, U8_000ff,                       2,   1, -1,   1   },
-    { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
+    { L_, "\xc2\x80 ",                    3,   2, -1,   1   },
+    { L_, "\xc3\xbf",                     2,   1, -1,   1   },
+    { L_, "\x01\x20\x7f\xc3\xbf\xdf\xbf\xe0\xa0\x80\xef\xbf\xbf",
                                          13,   7, -1,   1   },
 
-    { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 "\xef",
+    { L_, "\x01\x20\x7f\xc3\xbf\xdf\xbf\xe0\xa0\x80\xef",
                                          11, EIT, 10,   0   },
 
-    { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 "\xef\xbf",
+    { L_, "\x01\x20\x7f\xc3\xbf\xdf\xbf\xe0\xa0\x80\xef\xbf",
                                          12, EIT, 10,   0   },
 
-    { L_, U8_0ffff U8_00800 U8_007ff U8_000ff "\x7f\x20\x01",
+    { L_, "\xef\xbf\xbf\xe0\xa0\x80\xdf\xbf\xc3\xbf\x7f\x20\x01",
                                          13,   7, -1,   1   },
 
     // Make sure illegal overlong encodings are not accepted.  These code
@@ -2948,10 +3030,10 @@ static const struct {
     { L_, "\xf0\x80\x80\x80",             4, OLE,  0,   0   },
     { L_, "\xf0\x8a\xaa\xaa",             4, OLE,  0,   0   },
     { L_, "\xf0\x8f\xbf\xbf",             4, OLE,  0,   0   },    // max OLE
-    { L_, "\xf0\x90\x80\x80",             4,   1,  0,   1   },    // min legal
-    { L_, "\xf1\x80\x80\x80",             4,   1,  0,   1   },    // norm legal
-    { L_, "\xf1\xaa\xaa\xaa",             4,   1,  0,   1   },    // norm legal
-    { L_, "\xf4\x8f\xbf\xbf",             4,   1,  0,   1   },    // max legal
+    { L_, "\xf0\x90\x80\x80",             4,   1, -1,   1   },    // min legal
+    { L_, "\xf1\x80\x80\x80",             4,   1, -1,   1   },    // norm legal
+    { L_, "\xf1\xaa\xaa\xaa",             4,   1, -1,   1   },    // norm legal
+    { L_, "\xf4\x8f\xbf\xbf",             4,   1, -1,   1   },    // max legal
     { L_, "\xf4\x90\x80\x80",             4, VTL,  0,   0   },    // min VTL
     { L_, "\xf4\x90\xbf\xbf",             4, VTL,  0,   0   },    //     VTL
     { L_, "\xf4\xa0\x80\x80",             4, VTL,  0,   0   },    //     VTL
@@ -2960,7 +3042,7 @@ static const struct {
     { L_, "\xe0\x80\x80",                 3, OLE,  0,   0   },
     { L_, "\xe0\x9a\xaa",                 3, OLE,  0,   0   },
     { L_, "\xe0\x9f\xbf",                 3, OLE,  0,   0   },    // max OLE
-    { L_, "\xe0\xa0\x80",                 3,   1,  0,   1   },    // min legal
+    { L_, "\xe0\xa0\x80",                 3,   1, -1,   1   },    // min legal
 
     { L_, "\xc0\x80",                     2, OLE,  0,   0   },
     { L_, "\xc0\xaa",                     2, OLE,  0,   0   },
@@ -2989,7 +3071,7 @@ static const struct {
     { L_, "\xef ",                        2, NCO,  0,   0   },
     { L_, "\xef\xef ",                    3, NCO,  0,   0   },
     { L_, "\xef \xef",                    3, NCO,  0,   0   },
-    { L_, "\xef" U8_00080,                3, NCO,  0,   0   },
+    { L_, "\xef" "\xc2\x80",              3, NCO,  0,   0   },
 
     // 3-octet code points corrupted after octet 2:
 
@@ -3479,7 +3561,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 3: 'readIfValid'
         //
@@ -3561,7 +3643,7 @@ int main(int argc, char *argv[])
         ASSERT(out.length() == validLen);
         ASSERT(validChineseUtf8 == out);
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2: 'advance'
         //
@@ -3674,7 +3756,7 @@ int main(int argc, char *argv[])
     ASSERT(static_cast<int>(string.length()) == result - start);
 //..
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1: 'isValid' AND 'numCodePoints*'
         //
@@ -3793,6 +3875,93 @@ int main(int argc, char *argv[])
     ASSERT(bdlde::Utf8Util::k_OVERLONG_ENCODING == rc);
     ASSERT(invalidPosition == stringWithOverlong.data() + string.length());
 //..
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // REPRODUCE WINDOWS 'sputbackc' BUG ON EOF.
+        // --------------------------------------------------------------------
+
+        const bsl::string& fileName = u::tmpFileName(test);
+
+        if (verbose) P(fileName);
+
+        u::removeFile(fileName.c_str());
+
+        const bsl::string catStr = bsl::string("cat ") + fileName;
+
+        bsl::ofstream of(fileName.c_str());
+        of << "<\xf0\x80";
+        of.close();
+
+        if (verbose) {
+            cout << "File contents: \"" << flush;
+            system(catStr.c_str());
+            cout << "\"\n";
+        }
+
+        {
+            bsl::ifstream ifstr;
+            ifstr.open(fileName.c_str());
+
+            bsl::streambuf& sb = *ifstr.rdbuf();
+
+            char buffer[128];
+            char *pc = buffer;
+            int  eof = bsl::char_traits<char>::eof();
+
+            int c;
+            while (eof != (c = sb.sbumpc())) {
+                *pc++ = (char) c;
+            }
+
+            ASSERT(eof == c);
+            ASSERT(3 == pc - buffer);
+
+            sb.sputbackc(*--pc);
+            sb.sputbackc(*--pc);
+
+#if 0
+            while (eof != (c = sb.sbumpc())) {
+                *pc++ = (char) c;
+            }
+
+            ASSERT(eof == c);
+            ASSERT(3 == pc - buffer);
+
+            sb.sputbackc(buffer[2]);
+            sb.sputbackc(buffer[1]);
+#endif
+
+#if 0
+
+            Int64 offset = ifstr.rdbuf()->pubseekoff(0, bsl::ios_base::cur);
+            ASSERT(0 == offset);
+
+            char buffer[128];
+            int rc;
+            bsl::size_t len = bdlde::Utf8Util::readIfValid(&rc,
+                                                           buffer,
+                                                           sizeof(buffer),
+                                                           ifstr.rdbuf());
+            ASSERTV(len, 1 == len);
+            ASSERTV(rc, bdlde::Utf8Util::toAscii(rc),
+                             bdlde::Utf8Util::k_END_OF_INPUT_TRUNCATION == rc);
+            offset = ifstr.rdbuf()->pubseekoff(0, bsl::ios_base::cur);
+            ASSERTV(offset, 1 == offset);
+
+            len = bdlde::Utf8Util::readIfValid(&rc,
+                                               buffer,
+                                               sizeof(buffer),
+                                               ifstr.rdbuf());
+            ASSERTV(len, 0 == len);
+#endif
+
+            if (verbose) cout << "ifstr about to be destroyed\n";
+        }
+
+        if (verbose) cout << "ifstr was destroyed\n";
+
+        ASSERT(0 == u::removeFile(fileName.c_str()));
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -4321,11 +4490,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING 'appendUtf8CodePoint'\n"
                                "=============================\n";
 
-        for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
-            const int     LINE      = legalCodepointData[ti].d_lineNum;
-            const char   *UTF8      = legalCodepointData[ti].d_utf8_p;
+        for (int ti = 0; ti < u::NUM_INTERESTING_CODEPOINTS; ++ti) {
+            const int     LINE      = u::legalCodepointData[ti].d_lineNum;
+            const char   *UTF8      = u::legalCodepointData[ti].d_utf8_p;
             bsl::size_t   UTF8_LEN  = strlen(UTF8);
-            unsigned int  CODEPOINT = legalCodepointData[ti].d_codePoint;
+            unsigned int  CODEPOINT = u::legalCodepointData[ti].d_codePoint;
 
             bsl::string   empty;
             bsl::string   non_empty("Not an empty string");
@@ -4333,7 +4502,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) {
                 T_; P_(ti);
-                P_(LINE); P_(dumpStr(UTF8)); P_(UTF8_LEN); P(CODEPOINT);
+                P_(LINE); P_(u::dumpStr(UTF8)); P_(UTF8_LEN); P(CODEPOINT);
             }
 
             ASSERT(0 == Obj::appendUtf8CodePoint(&empty, CODEPOINT));
@@ -4372,14 +4541,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING 'numBytesInCodePoint'\n"
                                "=============================\n";
 
-        for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
-            const int    LINE     = legalCodepointData[ti].d_lineNum;
-            const char  *UTF8     = legalCodepointData[ti].d_utf8_p;
+        for (int ti = 0; ti < u::NUM_INTERESTING_CODEPOINTS; ++ti) {
+            const int    LINE     = u::legalCodepointData[ti].d_lineNum;
+            const char  *UTF8     = u::legalCodepointData[ti].d_utf8_p;
             bsl::size_t  UTF8_LEN = strlen(UTF8);
 
             if (veryVerbose) {
                 T_; P_(ti);
-                P_(LINE); P_(dumpStr(UTF8)); P(UTF8_LEN);
+                P_(LINE); P_(u::dumpStr(UTF8)); P(UTF8_LEN);
             }
 
             ASSERT(int(UTF8_LEN) == Obj::numBytesInCodePoint(UTF8));
@@ -4407,13 +4576,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING 'numBytesRaw'\n"
                                "=====================\n";
 
-        for (int ti = 0; ti < NUM_INTERESTING_CODEPOINTS; ++ti) {
-            const int         LINE = legalCodepointData[ti].d_lineNum;
-            const bsl::string UTF8 = legalCodepointData[ti].d_utf8_p;
+        for (int ti = 0; ti < u::NUM_INTERESTING_CODEPOINTS; ++ti) {
+            const int         LINE = u::legalCodepointData[ti].d_lineNum;
+            const bsl::string UTF8 = u::legalCodepointData[ti].d_utf8_p;
 
             if (veryVerbose) {
                 T_; P_(ti);
-                P_(LINE); P_(dumpStr(UTF8)); P(UTF8.length());
+                P_(LINE); P_(u::dumpStr(UTF8)); P(UTF8.length());
             }
 
             ASSERT(Obj::IntPtr(UTF8.length()) ==
@@ -4422,16 +4591,16 @@ int main(int argc, char *argv[])
             ASSERT(Obj::IntPtr(UTF8.length()) ==
                    Obj::numBytesIfValid(UTF8, 1));
 
-            for (int tj = 0; tj < NUM_INTERESTING_CODEPOINTS; ++tj) {
-                const int   LINE_2 = legalCodepointData[tj].d_lineNum;
+            for (int tj = 0; tj < u::NUM_INTERESTING_CODEPOINTS; ++tj) {
+                const int   LINE_2 = u::legalCodepointData[tj].d_lineNum;
                 bsl::string UTF8_2 = UTF8;
 
                 UTF8_2.push_back(0);
-                UTF8_2 += legalCodepointData[tj].d_utf8_p;
+                UTF8_2 += u::legalCodepointData[tj].d_utf8_p;
 
                 if (veryVeryVerbose) {
                     T_; T_; P_(tj);
-                    P_(LINE_2); P_(dumpStr(UTF8_2)); P(UTF8_2.length());
+                    P_(LINE_2); P_(u::dumpStr(UTF8_2)); P(UTF8_2.length());
                 }
 
                 // Adding 2nd code point doesn't change the answer if we only
@@ -4567,16 +4736,16 @@ int main(int argc, char *argv[])
 
         for (int tj = 0; tj < k_NUM_ITERATIONS; ++tj) {
             const bool useZero = tj < k_NUM_USE_ZERO_ITERATIONS;
-            const int numCorrectStrCodePoints = tj ? randUnsigned() % 4 + 2
+            const int numCorrectStrCodePoints = tj ? u::randUnsigned() % 4 + 2
                                                    : 0;
 
             correctStr.clear();
             for (int ii = 0; ii < numCorrectStrCodePoints; ++ii) {
-                appendRandCorrectCodePoint(&correctStr, useZero);
+                u::appendRandCorrectCodePoint(&correctStr, useZero);
             }
 
             if (veryVerbose) {
-                P(dumpStr(correctStr));
+                P(u::dumpStr(correctStr));
             }
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -4599,25 +4768,27 @@ int main(int argc, char *argv[])
 
                 errorStr.clear();
                 if (EIT == ERROR_STATUS &&
-                                30 <= intAbs(tj - k_NUM_USE_ZERO_ITERATIONS)) {
+                             30 <= u::intAbs(tj - k_NUM_USE_ZERO_ITERATIONS)) {
                     // In the end of buffer truncation cases, instead of taking
                     // 'ERROR_STR', manufacture a valid multibyte sequence of
                     // the same indicated length and then truncate it to the
                     // length of 'ERROR_STR'.
 
                     const IntPtr len = bsl::strlen(ERROR_STR + OFFSET);
-                    const int    intendedLen = intendedSequenceLength(
+                    const int    intendedLen = u::intendedSequenceLength(
                                                             ERROR_STR[OFFSET]);
                     ASSERT(len < intendedLen);
                     ASSERT(intendedLen - len <= 3);
 
                     errorStr.assign(ERROR_STR, OFFSET);
-                    appendRandCorrectCodePoint(&errorStr, false, intendedLen);
+                    u::appendRandCorrectCodePoint(&errorStr,
+                                                  false,
+                                                  intendedLen);
 
                     errorStr.resize(OFFSET + len);
                 }
                 else if (SUR == ERROR_STATUS &&
-                                30 <= intAbs(tj - k_NUM_USE_ZERO_ITERATIONS)) {
+                             30 <= u::intAbs(tj - k_NUM_USE_ZERO_ITERATIONS)) {
                     errorStr = BDLDE_UTF8UTIL_CASE_4::codeRandSurrogate();
                 }
                 else {
@@ -4652,7 +4823,7 @@ int main(int argc, char *argv[])
                                                         INT_PTR_MAX);
                     ASSERT(endOfValid == end);
                     ASSERT(numCodePointsExp == numCodePoints);
-                    ASSERTV(LINE, ERROR_STATUS, sts, dumpStr(errorStr),
+                    ASSERTV(LINE, ERROR_STATUS, sts, u::dumpStr(errorStr),
                                                           ERROR_STATUS == sts);
 
                     ASSERT(!Obj::isValid(begin));
@@ -4715,9 +4886,9 @@ int main(int argc, char *argv[])
                                                             &fsb);
                         ASSERT(0 <= intBufLen);
 
-                        ASSERTV(dumpStr(str), intBufLen, outLen,
+                        ASSERTV(u::dumpStr(str), intBufLen, outLen,
                                                           intBufLen <= outLen);
-                        ASSERTV(dumpStr(str), intBufLen, outLen,
+                        ASSERTV(u::dumpStr(str), intBufLen, outLen,
                                                         intBufLen <= validLen);
                         ASSERT(badChar == out[outLen]);
 
@@ -4732,7 +4903,7 @@ int main(int argc, char *argv[])
                         }
 
                         out.resize(intBufLen);
-                        ASSERTV(dumpStr(out),
+                        ASSERTV(u::dumpStr(out),
                                              Obj::isValid(&out[0], intBufLen));
 
                         if (CHECK_WITH_SEEK) {
@@ -4746,8 +4917,8 @@ int main(int argc, char *argv[])
                         const IntPtr expLen = str.length() - intBufLen;
                         ASSERT(expLen == fsb.sgetn(&remainderStr[0], 1024));
                         remainderStr.resize(expLen);
-                        ASSERTV(dumpStr(str.substr(intBufLen)),
-                                                         dumpStr(remainderStr),
+                        ASSERTV(u::dumpStr(str.substr(intBufLen)),
+                                                      u::dumpStr(remainderStr),
                                         str.substr(intBufLen) == remainderStr);
                     }
                 }
@@ -4755,8 +4926,8 @@ int main(int argc, char *argv[])
                 // Now, we tack a correct char on after and observe no change
                 // to the result:
 
-                for (unsigned uu = randUnsigned() % 3 + 1; 0 < uu--; ) {
-                    appendRandCorrectCodePoint(&str, useZero);
+                for (unsigned uu = u::randUnsigned() % 3 + 1; 0 < uu--; ) {
+                    u::appendRandCorrectCodePoint(&str, useZero);
                 }
                 zeroUsed = zeroUsed || (useZero &&
                                      bsl::count(str.begin(), str.end(), '\0'));
@@ -4812,7 +4983,8 @@ int main(int argc, char *argv[])
                                                           begin,
                                                           str.length());
                 ASSERT(endOfValid == end);
-                ASSERTV(LINE, dumpStr(errorStr), ERROR_STATUS, numCodePoints,
+                ASSERTV(LINE, u::dumpStr(errorStr), ERROR_STATUS,
+                                                                 numCodePoints,
                                                 ERROR_STATUS == numCodePoints);
 
                 intStrLen = str.length();
@@ -4836,9 +5008,9 @@ int main(int argc, char *argv[])
                         ASSERT(0 <= intBufLen);
                         ASSERT(badChar == out[outLen]);
 
-                        ASSERTV(dumpStr(str), intBufLen, outLen,
+                        ASSERTV(u::dumpStr(str), intBufLen, outLen,
                                                           intBufLen <= outLen);
-                        ASSERTV(dumpStr(str), intBufLen, outLen,
+                        ASSERTV(u::dumpStr(str), intBufLen, outLen,
                                                         intBufLen <= validLen);
 
                         if (sts == ERROR_STATUS) {
@@ -4852,7 +5024,7 @@ int main(int argc, char *argv[])
                         }
 
                         out.resize(intBufLen);
-                        ASSERTV(dumpStr(out), Obj::isValid(&out[0],
+                        ASSERTV(u::dumpStr(out), Obj::isValid(&out[0],
                                                                    intBufLen));
 
                         if (CHECK_WITH_SEEK) {
@@ -4865,8 +5037,8 @@ int main(int argc, char *argv[])
                         const IntPtr expLen = str.length() - intBufLen;
                         ASSERT(expLen == fsb.sgetn(&remainderStr[0], 1024));
                         remainderStr.resize(expLen);
-                        ASSERTV(dumpStr(str.substr(intBufLen)),
-                                                         dumpStr(remainderStr),
+                        ASSERTV(u::dumpStr(str.substr(intBufLen)),
+                                                      u::dumpStr(remainderStr),
                                         str.substr(intBufLen) == remainderStr);
                     }
                 }
@@ -4966,18 +5138,18 @@ int main(int argc, char *argv[])
 
         for (int tj = 0; tj < k_NUM_ITERATIONS; ++tj) {
             const bool useZero = tj < k_NUM_USE_ZERO_ITERATIONS;
-            const int  numCodePointsExp = randUnsigned() % 6 + 4;
+            const int  numCodePointsExp = u::randUnsigned() % 6 + 4;
 
             str.clear();
             for (int ii = 0; ii < numCodePointsExp; ++ii) {
-                appendRandCorrectCodePoint(&str, useZero);
+                u::appendRandCorrectCodePoint(&str, useZero);
             }
             ASSERT(str.length() < k_MAX_INPUT_LEN);
 
             if (veryVeryVerbose ||
-                               (intAbs(tj - k_NUM_USE_ZERO_ITERATIONS) < 100 &&
+                            (u::intAbs(tj - k_NUM_USE_ZERO_ITERATIONS) < 100 &&
                                                                 veryVerbose)) {
-                P(dumpStr(str));
+                P(u::dumpStr(str));
             }
 
             const bool zeroUsed = bsl::count(str.begin(), str.end(), '\0');
@@ -5151,7 +5323,7 @@ int main(int argc, char *argv[])
 
             // Don't use 'c == 0' as we already tested that above.
 
-            char c = char(randUnsigned() % 256 - 128);
+            char c = char(u::randUnsigned() % 256 - 128);
             c = c ? c : 'a';
             str.push_back(c);
 
@@ -5256,11 +5428,11 @@ int main(int argc, char *argv[])
         IntPtr      numCodePoints;
         int         sts;
 
-        const char * const begin  = charUtf8MultiLang;
-        bsl::size_t        length = sizeof(utf8MultiLang) - 1;
+        const char * const begin  = u::charUtf8MultiLang;
+        bsl::size_t        length = sizeof(u::utf8MultiLang) - 1;
         const char * const end    = begin + length;
 
-        const int expectedNumCPs = NUM_UTF8_MULTI_LANG_CODE_POINTS - 1;
+        const int expectedNumCPs = u::NUM_UTF8_MULTI_LANG_CODE_POINTS - 1;
 
         sts      = -2;
         result   = "woof";
@@ -5276,7 +5448,7 @@ int main(int argc, char *argv[])
                                             begin,
                                             length,
                                             INT_MAX);
-        ASSERT(NUM_UTF8_MULTI_LANG_CODE_POINTS - 1 == numCodePoints);
+        ASSERT(u::NUM_UTF8_MULTI_LANG_CODE_POINTS - 1 == numCodePoints);
         ASSERT(result == end);
         ASSERT(0 == sts);
 
@@ -5309,7 +5481,7 @@ int main(int argc, char *argv[])
 
         result   = "woof";
         numCodePoints = Obj::advanceRaw(&result, begin, length, INT_MAX);
-        ASSERT(NUM_UTF8_MULTI_LANG_CODE_POINTS - 1 == numCodePoints);
+        ASSERT(u::NUM_UTF8_MULTI_LANG_CODE_POINTS - 1 == numCodePoints);
         ASSERT(result == end);
 
         result   = "woof";
@@ -5576,11 +5748,11 @@ int main(int argc, char *argv[])
         bsl::string str;
         str.reserve(6 * 4 + 6 + 1);
 
-        randAccum = 0;
+        u::randAccum = 0;
 
         // test strings with surrogate pairs
         for (int i = 5000; i > 0; -- i) {
-            const int rv = randVal();
+            const int rv = u::randVal();
             const int numLeading = rv & 3;
             const int numTrailing = (rv >> 2) & 3;
             str = "";
@@ -5593,25 +5765,27 @@ int main(int argc, char *argv[])
                 str += codeRandBenign();
             }
 
-            ASSERT(false == allValid(str));
+            ASSERT(false == u::allValid(str));
 
             int sts;
             const char *invalidPoint;
-            ASSERT(numLeading == allAdvanceIfValid(&sts, &invalidPoint, str));
+            ASSERT(numLeading == u::allAdvanceIfValid(
+                                                    &sts, &invalidPoint, str));
             ASSERT(Obj::k_SURROGATE == sts);
             ASSERT(str.c_str() + preLen == invalidPoint);
 
             invalidPoint = 0;
-            ASSERT(Obj::k_SURROGATE == allNumCodePointsIfValid(&invalidPoint,
-                                                               str));
+            ASSERT(Obj::k_SURROGATE == u::allNumCodePointsIfValid(
+                                                                 &invalidPoint,
+                                                                 str));
             ASSERT(str.c_str() + preLen == invalidPoint);
         }
 
-        randAccum = 0;
+        u::randAccum = 0;
 
         // test strings with lone surrogates
         for (int i = 5000; i > 0; -- i) {
-            int rv = randVal();
+            int rv = u::randVal();
             int numLeading = rv & 3;
             int numTrailing = (rv >> 2) & 3;
             str = "";
@@ -5624,17 +5798,19 @@ int main(int argc, char *argv[])
                 str += codeRandBenign();
             }
 
-            ASSERT(false == allValid(str));
+            ASSERT(false == u::allValid(str));
 
             int sts;
             const char *invalidPoint;
-            ASSERT(numLeading == allAdvanceIfValid(&sts, &invalidPoint, str));
+            ASSERT(numLeading == u::allAdvanceIfValid(
+                                                    &sts, &invalidPoint, str));
             ASSERT(Obj::k_SURROGATE == sts);
             ASSERT(str.c_str() + preLen == invalidPoint);
 
             invalidPoint = 0;
-            ASSERT(Obj::k_SURROGATE == allNumCodePointsIfValid(&invalidPoint,
-                                                               str));
+            ASSERT(Obj::k_SURROGATE == u::allNumCodePointsIfValid(
+                                                                 &invalidPoint,
+                                                                 str));
             ASSERT(str.c_str() + preLen == invalidPoint);
         }
       } break;
@@ -5673,10 +5849,10 @@ int main(int argc, char *argv[])
 
         bsl::string s4a = STR(4a);
 
-        bsl::string s1b = code8(47);
+        bsl::string s1b = u::code8(47);
         ASSERT(1 == s1b.length());
 
-        ASSERT(allValid(s4a));
+        ASSERT(u::allValid(s4a));
 
         unsigned char uBom[] = { 0xef, 0xbb, 0xbf };
         Char          bom[]  = { b3 | 0xf, c | 0x3b, c | 0x3f };
@@ -5686,30 +5862,30 @@ int main(int argc, char *argv[])
         ASSERT(0 == bsl::memcmp(uBom, bom, 3));
 
         bsl::string sBom = makeString(bom, sizeof(bom));
-        ASSERT(codeBOM() == sBom);
-        ASSERT(code24(bomVal) == sBom);
+        ASSERT(u::codeBOM() == sBom);
+        ASSERT(u::code24(bomVal) == sBom);
 
         const char *pc = bom;
-        ASSERT(bomVal == decode(&pc));
+        ASSERT(bomVal == u::decode(&pc));
         ASSERT(bom + sizeof(bom) == pc);
 
-        ASSERT(allValid(sBom));
+        ASSERT(u::allValid(sBom));
 
         bsl::string lStr = sBom + s4a + s4a;
 
-        ASSERT(allValid(lStr));
+        ASSERT(u::allValid(lStr));
 
         lStr = s4a + s4a + sBom + s4a + s4a;
 
-        ASSERT(allValid(lStr));
+        ASSERT(u::allValid(lStr));
 
         lStr = s4a + s4a + sBom;
 
-        ASSERT(allValid(lStr));
+        ASSERT(u::allValid(lStr));
 
         lStr = s4a + s4a + sBom + s1b;
 
-        ASSERT(allValid(lStr));
+        ASSERT(u::allValid(lStr));
 
         Char encode16BomLe[] = { char(0xff), char(0xfe) };
         Char encode16BomBe[] = { char(0xfe), char(0xff) };
@@ -5717,26 +5893,26 @@ int main(int argc, char *argv[])
         bsl::string bomLe = STR(16BomLe);
         bsl::string bomBe = STR(16BomBe);
 
-        ASSERT(! allValid(bomLe));
-        ASSERT(! allValid(bomBe));
+        ASSERT(! u::allValid(bomLe));
+        ASSERT(! u::allValid(bomBe));
 
         lStr = s4a + bomLe;
-        ASSERT(! allValid(lStr));
+        ASSERT(! u::allValid(lStr));
 
         lStr = s4a + bomBe;
-        ASSERT(! allValid(lStr));
+        ASSERT(! u::allValid(lStr));
 
         lStr = s4a + bomLe + s4a;
-        ASSERT(! allValid(lStr));
+        ASSERT(! u::allValid(lStr));
 
         lStr = s4a + bomBe + s4a;
-        ASSERT(! allValid(lStr));
+        ASSERT(! u::allValid(lStr));
 
         lStr = s4a + bomLe + s1b;
-        ASSERT(! allValid(lStr));
+        ASSERT(! u::allValid(lStr));
 
         lStr = s4a + bomBe + s1b;
-        ASSERT(! allValid(lStr));
+        ASSERT(! u::allValid(lStr));
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -5808,15 +5984,15 @@ int main(int argc, char *argv[])
         Char encode4j[] = { b4 | 4, c | 0xf, c | 0x3f, c | 0x3f };
                                                         int val4j = 0x10ffff;
 
-#define TEST(testId) do {                                                   \
-            bsl::string str;                                                \
-            str.insert(0, encode ## testId, sizeof(encode ## testId));      \
-            Char *pc = str.data();                                          \
-            const unsigned int val = decode(&pc);                           \
-            ASSERT(pc == str.data() + str.length() + 0 * val ## testId);    \
-            ASSERT(int(val) == val ## testId);                              \
-            ASSERT(str == utf8Encode(val ## testId));                       \
-            ASSERT(allValid(str));                                          \
+#define TEST(testId) do {                                                     \
+            bsl::string str;                                                  \
+            str.insert(0, encode ## testId, sizeof(encode ## testId));        \
+            Char *pc = str.data();                                            \
+            const unsigned int val = u::decode(&pc);                          \
+            ASSERT(pc == str.data() + str.length() + 0 * val ## testId);      \
+            ASSERT(int(val) == val ## testId);                                \
+            ASSERT(str == u::utf8Encode(val ## testId));                      \
+            ASSERT(u::allValid(str));                                         \
         } while(false);
 
         TEST(1a);       TEST(1b);       TEST(1c);       TEST(1d);     TEST(1e);
@@ -5826,17 +6002,17 @@ int main(int argc, char *argv[])
         TEST(4f);       TEST(4g);       TEST(4h);       TEST(4i);     TEST(4j);
 #undef TEST
 
-#define TEST(testId) do {                                                   \
-            bsl::string str;                                                \
-            str.insert(0, encode ## testId, sizeof(encode ## testId));      \
-            Char *pc = str.data();                                          \
-            const unsigned int val = decode(&pc);                           \
-            ASSERT(pc == str.data() + str.length() + 0 * val ## testId);    \
-            ASSERT(int(val) == val ## testId);                              \
-            ASSERT(str == utf8Encode(val ## testId));                       \
-            ASSERT(allValid(str));                                          \
-            ASSERTV(val ## testId, 1 == allNumCodePoints(str));             \
-            ASSERT(bsl::strlen(str.c_str()) == str.length());               \
+#define TEST(testId) do {                                                     \
+            bsl::string str;                                                  \
+            str.insert(0, encode ## testId, sizeof(encode ## testId));        \
+            Char *pc = str.data();                                            \
+            const unsigned int val = u::decode(&pc);                          \
+            ASSERT(pc == str.data() + str.length() + 0 * val ## testId);      \
+            ASSERT(int(val) == val ## testId);                                \
+            ASSERT(str == u::utf8Encode(val ## testId));                      \
+            ASSERT(u::allValid(str));                                         \
+            ASSERTV(val ## testId, 1 == u::allNumCodePoints(str));            \
+            ASSERT(bsl::strlen(str.c_str()) == str.length());                 \
         } while(false);
 
                         TEST(1b);       TEST(1c);       TEST(1d);     TEST(1e);
@@ -5848,66 +6024,66 @@ int main(int argc, char *argv[])
 
         bsl::string s1 = STR(1a)+STR(2a)+STR(3a)+STR(4a)+STR(4f);
         Char *ps = s1.data();
-        ASSERT(val1a == int(decode(&ps)));
-        ASSERT(val2a == int(decode(&ps)));
-        ASSERT(val3a == int(decode(&ps)));
-        ASSERT(val4a == int(decode(&ps)));
-        ASSERT(val4f == int(decode(&ps)));
+        ASSERT(val1a == int(u::decode(&ps)));
+        ASSERT(val2a == int(u::decode(&ps)));
+        ASSERT(val3a == int(u::decode(&ps)));
+        ASSERT(val4a == int(u::decode(&ps)));
+        ASSERT(val4f == int(u::decode(&ps)));
         ASSERT(ps == s1.data() + s1.length());
-        ASSERT(allValid(s1));
+        ASSERT(u::allValid(s1));
 
         s1 = STR(2a)+STR(3a)+STR(4a)+STR(4f);
         ps = s1.data();
-        ASSERT(val2a == int(decode(&ps)));
-        ASSERT(val3a == int(decode(&ps)));
-        ASSERT(val4a == int(decode(&ps)));
-        ASSERT(val4f == int(decode(&ps)));
+        ASSERT(val2a == int(u::decode(&ps)));
+        ASSERT(val3a == int(u::decode(&ps)));
+        ASSERT(val4a == int(u::decode(&ps)));
+        ASSERT(val4f == int(u::decode(&ps)));
         ASSERT(ps == s1.data() + s1.length());
-        ASSERT(allValid(s1));
+        ASSERT(u::allValid(s1));
         ASSERT(bsl::strlen(s1.c_str()) == s1.length());
 
         s1 = STR(1b)+STR(2b)+STR(3b)+STR(4b)+STR(4g);
         ps = s1.data();
-        ASSERT(val1b == int(decode(&ps)));
-        ASSERT(val2b == int(decode(&ps)));
-        ASSERT(val3b == int(decode(&ps)));
-        ASSERT(val4b == int(decode(&ps)));
-        ASSERT(val4g == int(decode(&ps)));
+        ASSERT(val1b == int(u::decode(&ps)));
+        ASSERT(val2b == int(u::decode(&ps)));
+        ASSERT(val3b == int(u::decode(&ps)));
+        ASSERT(val4b == int(u::decode(&ps)));
+        ASSERT(val4g == int(u::decode(&ps)));
         ASSERT(ps == s1.data() + s1.length());
-        ASSERT(allValid(s1));
+        ASSERT(u::allValid(s1));
         ASSERT(bsl::strlen(s1.c_str()) == s1.length());
 
         s1 = STR(1c)+STR(2c)+STR(3c)+STR(4c)+STR(4h);
         ps = s1.data();
-        ASSERT(val1c == int(decode(&ps)));
-        ASSERT(val2c == int(decode(&ps)));
-        ASSERT(val3c == int(decode(&ps)));
-        ASSERT(val4c == int(decode(&ps)));
-        ASSERT(val4h == int(decode(&ps)));
+        ASSERT(val1c == int(u::decode(&ps)));
+        ASSERT(val2c == int(u::decode(&ps)));
+        ASSERT(val3c == int(u::decode(&ps)));
+        ASSERT(val4c == int(u::decode(&ps)));
+        ASSERT(val4h == int(u::decode(&ps)));
         ASSERT(ps == s1.data() + s1.length());
-        ASSERT(allValid(s1));
+        ASSERT(u::allValid(s1));
         ASSERT(bsl::strlen(s1.c_str()) == s1.length());
 
         s1 = STR(1d)+STR(2d)+STR(3d)+STR(4d)+STR(4i);
         ps = s1.data();
-        ASSERT(val1d == int(decode(&ps)));
-        ASSERT(val2d == int(decode(&ps)));
-        ASSERT(val3d == int(decode(&ps)));
-        ASSERT(val4d == int(decode(&ps)));
-        ASSERT(val4i == int(decode(&ps)));
+        ASSERT(val1d == int(u::decode(&ps)));
+        ASSERT(val2d == int(u::decode(&ps)));
+        ASSERT(val3d == int(u::decode(&ps)));
+        ASSERT(val4d == int(u::decode(&ps)));
+        ASSERT(val4i == int(u::decode(&ps)));
         ASSERT(ps == s1.data() + s1.length());
-        ASSERT(allValid(s1));
+        ASSERT(u::allValid(s1));
         ASSERT(bsl::strlen(s1.c_str()) == s1.length());
 
         s1 = STR(1e)+STR(2e)+STR(3e)+STR(4e)+STR(4j);
         ps = s1.data();
-        ASSERT(val1e == int(decode(&ps)));
-        ASSERT(val2e == int(decode(&ps)));
-        ASSERT(val3e == int(decode(&ps)));
-        ASSERT(val4e == int(decode(&ps)));
-        ASSERT(val4j == int(decode(&ps)));
+        ASSERT(val1e == int(u::decode(&ps)));
+        ASSERT(val2e == int(u::decode(&ps)));
+        ASSERT(val3e == int(u::decode(&ps)));
+        ASSERT(val4e == int(u::decode(&ps)));
+        ASSERT(val4j == int(u::decode(&ps)));
         ASSERT(ps == s1.data() + s1.length());
-        ASSERT(allValid(s1));
+        ASSERT(u::allValid(s1));
         ASSERT(bsl::strlen(s1.c_str()) == s1.length());
 
         // random overlong values
@@ -5919,12 +6095,12 @@ int main(int argc, char *argv[])
                                                         int val4o1 = 0xffff;
         Char encode4o2[] = { b4, c , c, c | 3 };        int val4o2 = 0x3;
 
-#define TEST(testId) do {                                                   \
-            bsl::string str = STR(testId);                                  \
-            Char *pc = str.data();                                          \
-            ASSERT(val ## testId == int(decode(&pc)));                      \
-            ASSERT(pc == str.data() + str.length());                        \
-            ASSERT(false == allValid(str));                                 \
+#define TEST(testId) do {                                                     \
+            bsl::string str = STR(testId);                                    \
+            Char *pc = str.data();                                            \
+            ASSERT(val ## testId == int(u::decode(&pc)));                     \
+            ASSERT(pc == str.data() + str.length());                          \
+            ASSERT(false == u::allValid(str));                                \
         } while(false)
 
         TEST(2o1);          TEST(2o2);
@@ -5995,9 +6171,9 @@ int main(int argc, char *argv[])
 
         Char encode8i1[] = { char(0xff), c, c, c, c, c, c, c };
 
-#define TEST(testId) do {                                                   \
-            bsl::string str = STR(testId);                                  \
-            ASSERT(! allValid(str));                                        \
+#define TEST(testId) do {                                                     \
+            bsl::string str = STR(testId);                                    \
+            ASSERT(! u::allValid(str));                                       \
         } while(false)
 
         TEST(1i1);      TEST(1i2);
@@ -6037,33 +6213,33 @@ int main(int argc, char *argv[])
         Char encode4s2[] = { b4, c | 0x10 };
         Char encode4s3[] = { b4 };
 
-#define TEST(testId) do {                                                   \
-            bsl::string str = STR(testId);                                  \
-            ASSERT(! allValid(str));                                        \
-                                                                            \
-            str = STR(4a) + STR(testId) + STR(4a);                          \
-            ASSERT(! allValid(str));                                        \
-                                                                            \
-            str = STR(4a) + STR(testId);                                    \
-            ASSERT(! allValid(str));                                        \
-                                                                            \
-            str = STR(3a) + STR(testId) + STR(3a);                          \
-            ASSERT(! allValid(str));                                        \
-                                                                            \
-            str = STR(3a) + STR(testId);                                    \
-            ASSERT(! allValid(str));                                        \
-                                                                            \
-            str = STR(2a) + STR(testId) + STR(2a);                          \
-            ASSERT(! allValid(str));                                        \
-                                                                            \
-            str = STR(2a) + STR(testId);                                    \
-            ASSERT(! allValid(str));                                        \
-                                                                            \
-            str = STR(1b) + STR(testId) + STR(1b);                          \
-            ASSERT(! allValid(str));                                        \
-                                                                            \
-            str = STR(1b) + STR(testId);                                    \
-            ASSERT(! allValid(str));                                        \
+#define TEST(testId) do {                                                     \
+            bsl::string str = STR(testId);                                    \
+            ASSERT(! u::allValid(str));                                       \
+                                                                              \
+            str = STR(4a) + STR(testId) + STR(4a);                            \
+            ASSERT(! u::allValid(str));                                       \
+                                                                              \
+            str = STR(4a) + STR(testId);                                      \
+            ASSERT(! u::allValid(str));                                       \
+                                                                              \
+            str = STR(3a) + STR(testId) + STR(3a);                            \
+            ASSERT(! u::allValid(str));                                       \
+                                                                              \
+            str = STR(3a) + STR(testId);                                      \
+            ASSERT(! u::allValid(str));                                       \
+                                                                              \
+            str = STR(2a) + STR(testId) + STR(2a);                            \
+            ASSERT(! u::allValid(str));                                       \
+                                                                              \
+            str = STR(2a) + STR(testId);                                      \
+            ASSERT(! u::allValid(str));                                       \
+                                                                              \
+            str = STR(1b) + STR(testId) + STR(1b);                            \
+            ASSERT(! u::allValid(str));                                       \
+                                                                              \
+            str = STR(1b) + STR(testId);                                      \
+            ASSERT(! u::allValid(str));                                       \
         } while(false)
 
         TEST(2s1);
@@ -6077,25 +6253,25 @@ int main(int argc, char *argv[])
         Char encode3u3[] = { b3 | 0xd, c | 0x30, c };        // 0xdc00
         Char encode3u4[] = { b3 | 0xd, c | 0x33, c | 0x3f }; // 0xdcff
 
-#define TEST(testId) do {                                                   \
-            bsl::string str = STR(testId);                                  \
-            ASSERT(false == allValid(str));                                 \
-                                                                            \
-            str = STR(1b) + STR(testId) + STR(1b);                          \
-                                                                            \
-            ASSERT(! allValid(str));                                        \
-                                                                            \
-            str = STR(2b) + STR(testId) + STR(2b);                          \
-                                                                            \
-            ASSERT(! allValid(str));                                        \
-                                                                            \
-            str = STR(3b) + STR(testId) + STR(3b);                          \
-                                                                            \
-            ASSERT(! allValid(str));                                        \
-                                                                            \
-            str = STR(4b) + STR(testId) + STR(4b);                          \
-                                                                            \
-            ASSERT(! allValid(str));                                        \
+#define TEST(testId) do {                                                     \
+            bsl::string str = STR(testId);                                    \
+            ASSERT(false == u::allValid(str));                                \
+                                                                              \
+            str = STR(1b) + STR(testId) + STR(1b);                            \
+                                                                              \
+            ASSERT(! u::allValid(str));                                       \
+                                                                              \
+            str = STR(2b) + STR(testId) + STR(2b);                            \
+                                                                              \
+            ASSERT(! u::allValid(str));                                       \
+                                                                              \
+            str = STR(3b) + STR(testId) + STR(3b);                            \
+                                                                              \
+            ASSERT(! u::allValid(str));                                       \
+                                                                              \
+            str = STR(4b) + STR(testId) + STR(4b);                            \
+                                                                              \
+            ASSERT(! u::allValid(str));                                       \
         } while (false)
 
         TEST(3u1);
@@ -6122,32 +6298,32 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n" "BREATHING TEST" "\n"
                                   "==============" "\n";
 
-        randAccum = 0;
+        u::randAccum = 0;
         bsl::string str;
         str.reserve(41);
         for (int i = 0; i < 40; i += 4) {
-            bsl::string newcp = code32(randVal32());
+            bsl::string newcp = u::code32(u::randVal32());
             ASSERT(4 == Obj::numBytesInCodePoint(newcp.c_str()));
             ASSERT(4 == Obj::numBytesRaw(newcp, 1));
             str += newcp;
         }
 
         ASSERT(40 == str.length());
-        ASSERT(10 == allNumCodePoints(str));
+        ASSERT(10 == u::allNumCodePoints(str));
         ASSERT(40 == Obj::numBytesRaw(str, 10));
         ASSERT( 4 == Obj::numBytesInCodePoint(str.c_str()));
 
         bsl::string s2 = " ";
-        ASSERT( 0 == Obj::appendUtf8CodePoint(&s2, decode(U8_10000)));
+        ASSERT( 0 == Obj::appendUtf8CodePoint(&s2, u::decode(U8_10000)));
         ASSERT( 5 == s2.length());
 
-        ASSERT(allValid(str));
+        ASSERT(u::allValid(str));
 
         for (int i = 0; i <= 40; i += 4) {
             if (veryVeryVeryVerbose) Q(.);
 
             ASSERT(Obj::isValid(str.data(), i));
-            bsl::string c = clone(str.data(), i);
+            bsl::string c = u::clone(str.data(), i);
             ASSERT(Obj::isValid(c.c_str()));
 
             ASSERT(i / 4 == Obj::numCharacters(str.data(), i));
@@ -6162,24 +6338,24 @@ int main(int argc, char *argv[])
                 if (veryVeryVeryVerbose) Q(.);
 
                 ASSERT(false == Obj::isValid(str.data(), j));
-                ASSERT(false == Obj::isValid(clone(str.data(), j).c_str()));
+                ASSERT(false == Obj::isValid(u::clone(str.data(), j).c_str()));
             }
         }
 
         {
-            bsl::string overStr = str + code32(0xffff);
+            bsl::string overStr = str + u::code32(0xffff);
 
             ASSERT(44 == overStr.length());
-            ASSERT(11 == allNumCodePoints(overStr));
+            ASSERT(11 == u::allNumCodePoints(overStr));
             ASSERT(44 == Obj::numBytesRaw(overStr, 11));
 
-            ASSERT(! allValid(overStr));
+            ASSERT(! u::allValid(overStr));
 
             for (int i = 0; i <= 40; i += 4) {
                 if (veryVeryVeryVerbose) Q(.);
 
                 ASSERT(Obj::isValid(str.data(), i));
-                bsl::string c = clone(str.data(), i);
+                bsl::string c = u::clone(str.data(), i);
                 ASSERT(Obj::isValid(c.c_str()));
 
                 ASSERT(i / 4 == Obj::numCharacters(str.data(), i));
@@ -6194,7 +6370,8 @@ int main(int argc, char *argv[])
                     if (veryVeryVeryVerbose) Q(.);
 
                     ASSERT(false == Obj::isValid(str.data(), j));
-                    ASSERT(false == Obj::isValid(clone(str.data(),j).c_str()));
+                    ASSERT(false == Obj::isValid(
+                                              u::clone(str.data(),j).c_str()));
                 }
             }
         }
@@ -6204,7 +6381,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < 30; i += 3) {
             if (veryVeryVeryVerbose) Q(.);
 
-            bsl::string newcp = code24(randVal24(true));
+            bsl::string newcp = u::code24(u::randVal24(true));
 
             ASSERT(3 == Obj::numBytesInCodePoint(newcp.c_str()));
             ASSERT(3 == Obj::numBytesRaw(newcp, 1));
@@ -6213,17 +6390,17 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(30 == str.length());
-        ASSERT(10 == allNumCodePoints(str));
+        ASSERT(10 == u::allNumCodePoints(str));
         ASSERT(30 == Obj::numBytesRaw(str, 10));
         ASSERT( 3 == Obj::numBytesInCodePoint(str.c_str()));
 
-        ASSERT(allValid(str));
+        ASSERT(u::allValid(str));
 
         for (int i = 0; i <= 30; i += 3) {
             if (veryVeryVeryVerbose) Q(.);
 
             ASSERT(Obj::isValid(str.data(), i));
-            bsl::string c = clone(str.data(), i);
+            bsl::string c = u::clone(str.data(), i);
             ASSERT(Obj::isValid(c.c_str()));
 
             ASSERT(i / 3 == Obj::numCharacters(str.data(), i));
@@ -6238,15 +6415,15 @@ int main(int argc, char *argv[])
                 if (veryVeryVeryVerbose) Q(.);
 
                 ASSERT(false == Obj::isValid(str.data(), j));
-                ASSERT(false == Obj::isValid(clone(str.data(), j).c_str()));
+                ASSERT(false == Obj::isValid(u::clone(str.data(), j).c_str()));
             }
         }
 
         {
-            bsl::string surStr = str + code24(0xdddd);    // surrogate value
+            bsl::string surStr = str + u::code24(0xdddd);    // surrogate value
 
             ASSERT(33 == surStr.length());
-            ASSERT(11 == allNumCodePoints(surStr));
+            ASSERT(11 == u::allNumCodePoints(surStr));
 
             ASSERT(! Obj::isValid(surStr.data(), surStr.length()));
             ASSERT(! Obj::isValid(surStr.c_str()));
@@ -6256,7 +6433,7 @@ int main(int argc, char *argv[])
 
                 bool tst = i < 33;
                 ASSERT(tst == Obj::isValid(surStr.data(), i));
-                bsl::string c = clone(surStr.data(), i);
+                bsl::string c = u::clone(surStr.data(), i);
                 ASSERT(tst == Obj::isValid(c.c_str()));
 
                 ASSERT(i / 3 == Obj::numCharacters(surStr.data(), i));
@@ -6271,33 +6448,33 @@ int main(int argc, char *argv[])
                     if (veryVeryVeryVerbose) Q(.);
 
                     ASSERT(! Obj::isValid(surStr.data(), j));
-                    ASSERT(! Obj::isValid(clone(surStr.data(), j).c_str()));
+                    ASSERT(! Obj::isValid(u::clone(surStr.data(), j).c_str()));
                 }
             }
         }
 
         {
-            bsl::string overStr = str + code24(0x7ff);    // overlong value
+            bsl::string overStr = str + u::code24(0x7ff);    // overlong value
 
             ASSERT(33 == overStr.length());
-            ASSERT(11 == allNumCodePoints(overStr));
+            ASSERT(11 == u::allNumCodePoints(overStr));
 
-            ASSERT(! allValid(overStr));
+            ASSERT(! u::allValid(overStr));
 
             for (int i = 0; i <= 33; i += 3) {
                 if (veryVeryVeryVerbose) Q(.);
 
                 bool tst = i < 33;
-                bsl::string c = clone(overStr.data(), i);
-                ASSERT(tst == allValid(c));
+                bsl::string c = u::clone(overStr.data(), i);
+                ASSERT(tst == u::allValid(c));
 
                 ASSERT(i / 3 == Obj::numCharacters(overStr.data(), i));
                 ASSERT(i / 3 == Obj::numCharacters(
-                                            clone(overStr.data(), i).c_str()));
+                                         u::clone(overStr.data(), i).c_str()));
 
                 ASSERT(i / 3 == Obj::numCodePointsRaw(overStr.data(), i));
                 ASSERT(i / 3 == Obj::numCodePointsRaw(
-                                            clone(overStr.data(), i).c_str()));
+                                         u::clone(overStr.data(), i).c_str()));
 
                 if (!tst) break;
 
@@ -6305,7 +6482,8 @@ int main(int argc, char *argv[])
                     if (veryVeryVeryVerbose) Q(.);
 
                     ASSERT(! Obj::isValid(overStr.data(), j));
-                    ASSERT(! Obj::isValid(clone(overStr.data(), j).c_str()));
+                    ASSERT(! Obj::isValid(
+                                         u::clone(overStr.data(), j).c_str()));
                 }
             }
         }
@@ -6317,9 +6495,9 @@ int main(int argc, char *argv[])
 
             int val;
             do {
-                val = randVal16();
+                val = u::randVal16();
             } while (0 == val);
-            bsl::string newcp = code16(val);
+            bsl::string newcp = u::code16(val);
 
             ASSERT(2 == Obj::numBytesInCodePoint(newcp.c_str()));
             ASSERT(2 == Obj::numBytesRaw(newcp, 1));
@@ -6328,17 +6506,17 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(20 == str.length());
-        ASSERT(10 == allNumCodePoints(str));
+        ASSERT(10 == u::allNumCodePoints(str));
         ASSERT(20 == Obj::numBytesRaw(str, 10));
         ASSERT( 2 == Obj::numBytesInCodePoint(str.c_str()));
 
-        ASSERT(allValid(str));
+        ASSERT(u::allValid(str));
 
         for (int i = 0; i <= 20; i += 2) {
             if (veryVeryVeryVerbose) Q(.);
 
             ASSERT(Obj::isValid(str.data(), i));
-            bsl::string c = clone(str.data(), i);
+            bsl::string c = u::clone(str.data(), i);
             ASSERT(Obj::isValid(c.c_str()));
 
             ASSERT(i / 2 == Obj::numCharacters(str.data(), i));
@@ -6353,24 +6531,24 @@ int main(int argc, char *argv[])
                 if (veryVeryVeryVerbose) Q(.);
 
                 ASSERT(false == Obj::isValid(str.data(), j));
-                ASSERT(false == Obj::isValid(clone(str.data(), j).c_str()));
+                ASSERT(false == Obj::isValid(u::clone(str.data(), j).c_str()));
             }
         }
 
         {
-            bsl::string overStr = str + code16(0);       // overlong zero value
+            bsl::string overStr = str + u::code16(0);    // overlong zero value
 
             ASSERT(22 == overStr.length());
-            ASSERT(11 == allNumCodePoints(overStr));
+            ASSERT(11 == u::allNumCodePoints(overStr));
 
-            ASSERT(false == allValid(overStr));
+            ASSERT(false == u::allValid(overStr));
 
             for (int i = 0; i <= 22; i += 2) {
                 if (veryVeryVeryVerbose) Q(.);
 
                 bool tst = i < 22;
                 ASSERT(tst == Obj::isValid(overStr.data(), i));
-                bsl::string c = clone(overStr.data(), i);
+                bsl::string c = u::clone(overStr.data(), i);
                 ASSERT(tst == Obj::isValid(c.c_str()));
 
                 ASSERT(i / 2 == Obj::numCharacters(overStr.data(), i));
@@ -6386,25 +6564,26 @@ int main(int argc, char *argv[])
 
                     ASSERT(false == Obj::isValid(overStr.data(), j));
                     ASSERT(false == Obj::isValid(
-                                            clone(overStr.data(), j).c_str()));
+                                         u::clone(overStr.data(), j).c_str()));
                 }
             }
         }
 
         {
-            bsl::string overStr = str + code16(0x7f);// overlong non-zero value
+            bsl::string overStr = str + u::code16(0x7f);
+                                                     // overlong non-zero value
 
             ASSERT(22 == overStr.length());
-            ASSERT(11 == allNumCodePoints(overStr));
+            ASSERT(11 == u::allNumCodePoints(overStr));
 
-            ASSERT(false == allValid(overStr));
+            ASSERT(false == u::allValid(overStr));
 
             for (int i = 0; i <= 22; i += 2) {
                 if (veryVeryVeryVerbose) Q(.);
 
                 bool tst = i < 22;
                 ASSERT(tst == Obj::isValid(overStr.data(), i));
-                bsl::string c = clone(overStr.data(), i);
+                bsl::string c = u::clone(overStr.data(), i);
                 ASSERT(tst == Obj::isValid(c.c_str()));
 
                 ASSERT(i / 2 == Obj::numCharacters(overStr.data(), i));
@@ -6420,7 +6599,7 @@ int main(int argc, char *argv[])
 
                     ASSERT(false == Obj::isValid(overStr.data(), j));
                     ASSERT(false == Obj::isValid(
-                                            clone(overStr.data(), j).c_str()));
+                                         u::clone(overStr.data(), j).c_str()));
                 }
             }
         }
@@ -6428,23 +6607,23 @@ int main(int argc, char *argv[])
         str = "";
         str.reserve(14);
         for (int i = 0; i < 10; ++ i) {
-            bsl::string newcp = code8(randVal8(true));
+            bsl::string newcp = u::code8(u::randVal8(true));
             ASSERT(1 == Obj::numBytesInCodePoint(newcp.c_str()));
             ASSERT(1 == Obj::numBytesRaw(newcp, 1));
             str += newcp;
         }
 
         ASSERT(10 == str.length());
-        ASSERT(10 == allNumCodePoints(str));
+        ASSERT(10 == u::allNumCodePoints(str));
         ASSERT(10 == Obj::numBytesRaw(str, 10));
 
-        ASSERT(allValid(str));
+        ASSERT(u::allValid(str));
 
         for (int i = 0; i <= 10; ++ i) {
             if (veryVeryVeryVerbose) Q(.);
 
             ASSERT(Obj::isValid(str.data(), i));
-            bsl::string c = clone(str.data(), i);
+            bsl::string c = u::clone(str.data(), i);
             ASSERT(Obj::isValid(c.c_str()));
 
             ASSERT(i == Obj::numCharacters(str.data(), i));
@@ -6455,10 +6634,10 @@ int main(int argc, char *argv[])
         }
 
         {
-            bsl::string zStr = str + code8(0);
-            zStr += code8(randVal8());
-            zStr += code8(randVal8());
-            zStr += code8(randVal8());
+            bsl::string zStr = str + u::code8(0);
+            zStr += u::code8(u::randVal8());
+            zStr += u::code8(u::randVal8());
+            zStr += u::code8(u::randVal8());
 
             ASSERT(14 == zStr.length());
             ASSERT(14 == Obj::numCharacters(zStr.data(), 14));
@@ -6467,13 +6646,13 @@ int main(int argc, char *argv[])
             ASSERT(14 == Obj::numCodePointsRaw(zStr.data(), 14));
             ASSERT(10 == Obj::numCodePointsRaw(zStr.data()));
 
-            ASSERT(allValid(zStr));
+            ASSERT(u::allValid(zStr));
 
             for (int i = 0; i <= 14; ++ i) {
                 if (veryVeryVeryVerbose) Q(.);
 
                 ASSERT(Obj::isValid(zStr.data(), i));
-                bsl::string c = clone(zStr.data(), i);
+                bsl::string c = u::clone(zStr.data(), i);
                 ASSERT(Obj::isValid(c.c_str()));
 
                 ASSERT(i == Obj::numCharacters(zStr.data(), i));
@@ -6503,82 +6682,83 @@ int main(int argc, char *argv[])
         if (verbose) cout << "RANDOM NUMBER GENERATORS TEST\n"
                              "=============================\n";
 
-        cout << "randVal8()\n";
+        cout << "u::randVal8()\n";
         for (int i = 0; i < 32; ++i) {
             for (int j = 0; j < 16; ++j) {
-                cout << (j ? ", " : "") << randVal8();
+                cout << (j ? ", " : "") << u::randVal8();
             }
             cout << endl;
         }
 
-        randAccum = 0;
-        cout << "\nrandVal8(true)\n";
+        u::randAccum = 0;
+        cout << "\nu::randVal8(true)\n";
         for (int i = 0; i < 32; ++i) {
             for (int j = 0; j < 16; ++j) {
-                cout << (j ? ", " : "") << randVal8(true);
+                cout << (j ? ", " : "") << u::randVal8(true);
             }
             cout << endl;
         }
         for (int i = 10 * 1000; i > 0; --i) {
-            int j = randVal8(true);
+            int j = u::randVal8(true);
             ASSERT((0 != j) & (0 == (~0x7f & j)));
         }
 
-        randAccum = 0;
-        cout << "\nrandVal16()\n";
+        u::randAccum = 0;
+        cout << "\nu::randVal16()\n";
         for (int i = 0; i < 60; ++i) {
             for (int j = 0; j < 10; ++j) {
-                cout << (j ? ", " : "") << "0x" << bsl::hex << randVal16();
+                cout << (j ? ", " : "") << "0x" << bsl::hex << u::randVal16();
             }
             cout << endl;
         }
         for (int i = 100 * 1000; i > 0; --i) {
-            int j = randVal16();
+            int j = u::randVal16();
             ASSERT((j >= 0x80) & (j <= 0x7ff));
         }
 
-        randAccum = 0;
-        cout << "\nrandVal24(false)\n";
+        u::randAccum = 0;
+        cout << "\nu::randVal24(false)\n";
         for (int i = 0; i < 60; ++i) {
             for (int j = 0; j < 10; ++j) {
-                cout << (j ? ", " : "") << "0x" << bsl::hex << randVal24();
+                cout << (j ? ", " : "") << "0x" << bsl::hex << u::randVal24();
             }
             cout << endl;
         }
         for (int i = 100 * 1000; i > 0; --i) {
-            int j = randVal24();
+            int j = u::randVal24();
             ASSERT((j >= 0x800) & (j <= 0xffff));
         }
 
-        randAccum = 0;
-        cout << "\nrandVal24(true)\n";
+        u::randAccum = 0;
+        cout << "\nu::randVal24(true)\n";
         for (int i = 0; i < 60; ++i) {
             for (int j = 0; j < 10; ++j) {
-                cout << (j ? ", " : "") << "0x" << bsl::hex << randVal24(true);
+                cout << (j ? ", " : "") << "0x" << bsl::hex <<
+                                                            u::randVal24(true);
             }
             cout << endl;
         }
         for (int i = 100 * 1000; i > 0; --i) {
-            int j = randVal24(true);
+            int j = u::randVal24(true);
             ASSERT((j >= 0x800) & (j <= 0xffff) &
                                              !((j >= 0xd800) & (j <= 0xdfff)));
         }
 
-        randAccum = 0;
-        cout << "\nrandVal32()\n";
+        u::randAccum = 0;
+        cout << "\nu::randVal32()\n";
         for (int i = 0; i < 60; ++i) {
             for (int j = 0; j < 8; ++j) {
-                cout << (j ? ", " : "") << "0x" << bsl::hex << randVal32();
+                cout << (j ? ", " : "") << "0x" << bsl::hex << u::randVal32();
             }
             cout << endl;
         }
         int highest = 0;
         for (int i = 1000 * 1000; i > 0; --i) {
-            int j = randVal32();
+            int j = u::randVal32();
             ASSERT((j >= 0x10000) & (j <= 0x10ffff));
             if (j > highest) highest = j;
         }
-        cout << "highest randVal32: " << highest << endl;
+        cout << "highest u::randVal32: " << highest << endl;
       } break;
       case -2: {
         // --------------------------------------------------------------------
@@ -6600,19 +6780,19 @@ int main(int argc, char *argv[])
 
         cout << "Encode / Decode cycle\n";
 
-        randAccum = 0;
+        u::randAccum = 0;
         bsl::string str;
 
         {
-            randAccum = 0;
+            u::randAccum = 0;
             cout << "Encode:\n";
             str.reserve(7 * 7 * 4 + 1);
             int valStore[7][7];
             for (int row = 0; row < 7; ++ row) {
                 for (int col = 0; col < 7; ++ col) {
-                    int val = randValue(true);
+                    int val = u::randValue(true);
                     cout << (col ? ", " : "") << "0x" << bsl::hex << val;
-                    str += utf8Encode(val);
+                    str += u::utf8Encode(val);
                     valStore[row][col] = val;
                 }
                 cout << endl;
@@ -6624,7 +6804,7 @@ int main(int argc, char *argv[])
             const char *pc = str.data();
             for (int row = 0; row < 7; ++ row) {
                 for (int col = 0; col < 7; ++ col) {
-                    int val = decode(&pc);
+                    int val = u::decode(&pc);
                     cout << (col ? ", " : "") << "0x" << bsl::hex << val;
                     ASSERT(valStore[row][col] == val);
                 }
@@ -6634,14 +6814,14 @@ int main(int argc, char *argv[])
         }
 
         {
-            randAccum = 0;
+            u::randAccum = 0;
             str = "";
             str.reserve(100 * 100 * 4 + 1);
             int valStore[100][100];
             for (int row = 0; row < 100; ++ row) {
                 for (int col = 0; col < 100; ++ col) {
-                    int val = randValue(true);
-                    str += utf8Encode(val);
+                    int val = u::randValue(true);
+                    str += u::utf8Encode(val);
                     valStore[row][col] = val;
                 }
             }
@@ -6651,7 +6831,7 @@ int main(int argc, char *argv[])
             const char *pc = str.data();
             for (int row = 0; row < 100; ++ row) {
                 for (int col = 0; col < 100; ++ col) {
-                    int val = decode(&pc);
+                    int val = u::decode(&pc);
                     ASSERT(valStore[row][col] == val);
                 }
             }
@@ -6660,14 +6840,14 @@ int main(int argc, char *argv[])
         }
 
         {
-            randAccum = 0;
+            u::randAccum = 0;
             str = "";
             str.reserve(100 * 100 * 4 + 1);
             int valStore[100][100];
             for (int row = 0; row < 100; ++ row) {
                 for (int col = 0; col < 100; ++ col) {
-                    int val = randValue(true, true);
-                    str += utf8Encode(val);
+                    int val = u::randValue(true, true);
+                    str += u::utf8Encode(val);
                     valStore[row][col] = val;
                 }
             }
@@ -6677,7 +6857,7 @@ int main(int argc, char *argv[])
             const char *pc = str.data();
             for (int row = 0; row < 100; ++ row) {
                 for (int col = 0; col < 100; ++ col) {
-                    int val = decode(&pc);
+                    int val = u::decode(&pc);
                     ASSERT(valStore[row][col] == val);
                 }
             }

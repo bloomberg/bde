@@ -400,7 +400,7 @@ MiniReader::MiniReader(bslma::Allocator *basicAllocator)
 , d_attrNamePtr     (0)
 , d_attrValPtr      (0)
 , d_lineNum         (0)
-, d_linePtr         (0)
+, d_lineOffset      (0)
 , d_errorInfo       (basicAllocator)
 , d_resolver        ()
 , d_ownNamespaces   (basicAllocator)
@@ -435,7 +435,7 @@ MiniReader::MiniReader(int bufSize, bslma::Allocator *basicAllocator)
 , d_attrNamePtr     (0)
 , d_attrValPtr      (0)
 , d_lineNum         (0)
-, d_linePtr         (0)
+, d_lineOffset      (0)
 , d_errorInfo       (basicAllocator)
 , d_resolver        ()
 , d_ownNamespaces   (basicAllocator)
@@ -553,11 +553,11 @@ void MiniReader::close()
 {
     d_stream.close();
 
-    d_streamOffset = 0;
     d_streamBuf = 0;
     d_memStream = 0;
     d_memSize   = 0;
     d_flags    |= FLG_READ_EOF;
+
     d_state     = ST_CLOSED;
 }
 
@@ -584,7 +584,7 @@ int MiniReader::doOpen(const char *url, const char *encoding)
     d_markPtr    = d_startPtr;
 
     d_lineNum    = 0;
-    d_linePtr    = d_startPtr;
+    d_lineOffset = 0;
 
     d_attrNamePtr = 0;
     d_state       = ST_INITIAL;
@@ -669,7 +669,7 @@ MiniReader::getLineNumber() const
 int
 MiniReader::getColumnNumber() const
 {
-    return static_cast<int>(d_scanPtr - d_linePtr) + 1;
+    return static_cast<int>(getCurrentPosition() - d_lineOffset + 1);
 }
 
 Reader::NodeType
@@ -2118,7 +2118,6 @@ MiniReader::rebasePointers(const char *newBase, size_t newLength)
     d_attrValPtr  = const_cast<char *>(rebasePointer(d_attrValPtr, newBase));
 
     // adjust scan info ptrs
-    d_linePtr = const_cast<char *>(rebasePointer(d_linePtr, newBase));
     d_scanPtr = const_cast<char *>(rebasePointer(d_scanPtr, newBase));
     d_markPtr = const_cast<char *>(rebasePointer(d_markPtr, newBase));
 

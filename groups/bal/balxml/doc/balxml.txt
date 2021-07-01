@@ -10,6 +10,17 @@
  XSD.  Clients can use the components provided by 'balxml' for parsing and
  printing fundamental types, XML schema, and XML data documents.
 
+/Code Generation
+/---------------
+ The script 'code_from_xsd.pl' will automatically generate several components
+ from the file 'balxml.xsd'.  It will refuse to run in the 'balxml' source
+ directory.  Create a separate, temporary directory and copy 'balxml.xsd' and
+ 'code_from_xsd.sh' into it, 'cd' into that directory, and run
+ 'code_from_xsd.sh' there will no command-line arguments.
+
+ Note that the 'balxml_encodingstyle' component will need hand-editing due to
+ redundant, synonymous enum values.
+
 /Hierarchical Synopsis
 /---------------------
  The 'balxml' package currently has 20 components having 6 levels of physical

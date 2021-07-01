@@ -39,11 +39,20 @@
 #include <s_baltst_mysequencewithnullables.h>
 #include <s_baltst_mysimplecontent.h>
 #include <s_baltst_mysimpleintcontent.h>
+#include <s_baltst_simplerequest.h>
 #include <s_baltst_ratsnest.h>
 #include <s_baltst_topchoice.h>
 
 #include <bslim_testutil.h>
 
+#include <bdlat_attributeinfo.h>
+#include <bdlat_choicefunctions.h>
+#include <bdlat_enumeratorinfo.h>
+#include <bdlat_formattingmode.h>
+#include <bdlat_selectioninfo.h>
+#include <bdlat_sequencefunctions.h>
+#include <bdlat_typetraits.h>
+#include <bdlat_valuetypefunctions.h>
 #include <bdlb_chartype.h>
 #include <bdlb_nullableallocatedvalue.h>
 #include <bdlb_nullablevalue.h>
@@ -53,19 +62,16 @@
 #include <bdlb_variant.h>
 #include <bdlde_utf8util.h>
 #include <bdldfp_decimal.h>
+#include <bdls_filesystemutil.h>
+#include <bdls_osutil.h>
+#include <bdls_processutil.h>
 #include <bdlsb_fixedmeminstreambuf.h>
-#include <bdlat_attributeinfo.h>
-#include <bdlat_choicefunctions.h>
-#include <bdlat_enumeratorinfo.h>
-#include <bdlat_formattingmode.h>
-#include <bdlat_selectioninfo.h>
-#include <bdlat_sequencefunctions.h>
-#include <bdlat_typetraits.h>
-#include <bdlat_valuetypefunctions.h>
+#include <bdlsb_fixedmemoutstreambuf.h>
 #include <bdlt_datetimetz.h>
 
 #include <bslim_testutil.h>
 
+#include <bsla_fallthrough.h>
 #include <bslalg_typetraits.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -96,7 +102,7 @@ using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
-namespace test = s_baltst;
+namespace Test = s_baltst;
 
 // ============================================================================
 //                                 TEST PLAN
@@ -168,6 +174,10 @@ namespace test = s_baltst;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [16] USAGE EXAMPLES
+// [22] TESTING VALID & INVALID UTF-8: e_STRING
+// [22] TESTING VALID & INVALID UTF-8: e_STREAMBUF
+// [22] TESTING VALID & INVALID UTF-8: e_ISTREAM
+// [23] TESTING VALID & INVALID UTF-8: e_FILE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -213,6 +223,8 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+#define T2_          (cout << "  ");
 
 // ============================================================================
 //                       TEMPLATIZED OUTPUT FUNCTIONS
@@ -543,6 +555,8 @@ int verbose;
 int veryVerbose;
 int veryVeryVerbose;
 int veryVeryVeryVerbose;
+
+int test;
 
 // ============================================================================
 //                        GLOBAL CLASSES FOR TESTING
@@ -8043,6 +8057,698 @@ extern const char enumerator1String[] = "enumerator1";
 extern const char selection0Name[] = "selection0";
 extern const char selection1Name[] = "selection1";
 
+namespace Utf8Test {
+
+                                // =============
+                                // class RandGen
+                                // =============
+
+class RandGen {
+    // Random number generator using the high-order 32 bits of Donald Knuth's
+    // MMIX algorithm.
+
+    bsls::Types::Uint64 d_seed;
+
+  public:
+    explicit
+    RandGen(int startSeed = 0);
+        // Initialize the generator with the specified 'startSeed'.
+
+    unsigned operator()();
+        // Return the next random number in the series;
+};
+
+// CREATOR
+inline
+RandGen::RandGen(int startSeed)
+: d_seed(startSeed)
+{
+    (void) (*this)();
+    (void) (*this)();
+    (void) (*this)();
+}
+
+// MANIPULATOR
+inline
+unsigned RandGen::operator()()
+{
+    d_seed = d_seed * 6364136223846793005ULL + 1442695040888963407ULL;
+    return static_cast<unsigned>(d_seed >> 32);
+}
+
+int findLoc(int                *line,
+            int                *column,
+            const bsl::string&  pattern,
+            bsl::size_t         offset)
+{
+    if (pattern.length() < offset) {
+        return -1;                                                    // RETURN
+    }
+
+    *line = 1;
+    *column = 1;
+
+    for (unsigned pos = 0; pos < offset; ++pos) {
+        const char c = pattern[pos];
+
+        if ('\n' == c) {
+            ++*line;
+            *column = 1;
+        }
+        else {
+            ++*column;
+        }
+    }
+
+    return 0;
+}
+
+bsl::string utf8Dump(const char *utf8)
+{
+    bsl::string ret;
+
+    for (const char *pc = utf8; *pc; ++pc) {
+        unsigned char uc = *pc;
+
+        ret += "\\x";
+        for (int shift = 4; 0 <= shift; shift -= 4) {
+            const int nybble = (uc >> shift) & 0xf;
+
+            ret += static_cast<char>(nybble < 10 ? '0' + nybble
+                                                 : 'a' + nybble - 10);
+        }
+    }
+
+    return ret;
+}
+
+void writeStringToFile(const char         *fileName,
+                       const bsl::string&  str)
+{
+    typedef bdls::FilesystemUtil FUtil;
+
+    while (true) {
+        FUtil::remove(fileName);
+
+        bsl::ofstream of(fileName, bsl::ios_base::out | bsl::ios_base::binary);
+        of << str << bsl::flush;
+        of.close();
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+        // The above write to file sometimes fails on Windows, so we have to
+        // verify that it succeeded.
+
+        if (! FUtil::exists(fileName)) {
+            continue;
+        }
+
+        bsls::Types::Uint64 fileSize = FUtil::getFileSize(fileName);
+        if (fileSize != str.length()) {
+            continue;
+        }
+
+        bsl::ifstream ifs(fileName, bsl::ios_base::in | bsl::ios_base::binary);
+        bsl::string readStr;
+        char readBuf[10 * 1024];
+        ifs.read(readBuf, sizeof(readBuf));
+        readBuf[ifs.gcount()] = 0;
+
+        if (! ifs.eof() || str != readBuf) {
+            continue;
+        }
+#endif
+        return;                                                       // RETURN
+    }
+}
+
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
+enum { e_PLAT_SOLARIS = 1 };
+#else
+enum { e_PLAT_SOLARIS = 0 };
+#endif
+
+#if defined(BSLS_PLATFORM_OS_AIX)
+enum { e_PLAT_AIX = 1 };
+#else
+enum { e_PLAT_AIX = 0 };
+#endif
+
+enum Mode { e_STRING, e_FILE, e_ISTREAM, e_STREAMBUF, e_END };
+
+bsl::ostream& operator<<(bsl::ostream& stream, Mode mode)
+{
+#undef  CASE
+#define CASE(value)    case value: { stream << #value; } break
+
+    switch (mode) {
+      CASE(e_STRING);
+      CASE(e_FILE);
+      CASE(e_ISTREAM);
+      CASE(e_STREAMBUF);
+      CASE(e_END);
+      default: {
+        stream << "Unknown mode: " << static_cast<int>(mode);
+      } break;
+    }
+#undef  CASE
+
+    return stream;
+}
+
+void validAndInvalidUtf8Test(Mode mode, bool exhaustive = false)
+    // ------------------------------------------------------------------------
+    // TESTING VALID & INVALID UTF-8
+    //
+    // Run tests on valid and invalid UTF-8 injected into an XML message, where
+    // the specified 'mode' determines whether the information passed to the
+    // decoder is:
+    //: o In string form.
+    //:
+    //: o In a file.
+    //:
+    //: o In a 'bsl::istream'.
+    //:
+    //: o In a 'bsl::streambuf'.
+    //
+    // Concerns:
+    //: 1 The decoder successfully parses XML data having non-ASCII UTF-8
+    //:   content when UTF-8 checking is enabled.
+    //:
+    //: 2 The decoder fails to parse invalid UTF-8 data, reports the line
+    //:   number and column number of the location of the start of the invalid
+    //:   UTF-8, and reports the type of error when UTF-8 checking is enabled
+    //
+    // Plan:
+    //: 1 Start with 'xmlRaw', a string containing a sequence of syntactically
+    //:   correct XML describing a valid 'SimpleRequest'.
+    //:   o 'xmlRaw' begins with 'header', another string.  When the decoder is
+    //:     opened, it will immediately read all of header without being called
+    //:     to decode anything.  So if the test expects errors, in some cases
+    //:     those errors will be reported by the 'open' function, before
+    //:     'decode' is called.
+    //:
+    //: 2 The 'mode' argument determines what form the data is read in.  The
+    //:   data can come as a string, the contents of a file, via a
+    //:   'bsl::istream', or in a 'bsl::streambuf'.  The rest of the test is
+    //:   identical, except that we do things in the case where the mode is
+    //:   'e_FILE' to do fewer tests and speed up the test, because creating
+    //:   the file and reading from it are orders of magnitude slower than the
+    //:   other means of providing the data to the decoder.
+    //:
+    //: 3 Do a loop to test valid non-ascii UTF-8 sequences.
+    //:   o Inject random correct UTF-8 sequences into a copy of 'xmlRaw' into
+    //:     places where the resulting string will be syntactically correct
+    //:     XML.
+    //:
+    //:   o The only places where random valid UTF-8 can be inserted into
+    //:     'xmlRaw' without causing a syntax error is in the payload of the
+    //:     'data' field, which starts out as "Woof".  Iterate twice, inserting
+    //:     the random valid UTF-8 string before and after "Woof", and observe
+    //:     that when we examing[examining] the 'data' field of the decoded
+    //:     'SimpleRequest', that the exact UTF-8 we injected is where we
+    //:     expect it.
+    //:
+    //: 4 Do a loop test with invalid non-ascii UTF-8 sequences.
+    //:   o Inject random incorrect non-ascii UTF-8 sequences at random
+    //:     positions into a copy of 'xmlRaw'.  (Note that we don't inject them
+    //:     at location 0 -- this just results in an 'open' failure without a
+    //:     UTF-8 information as the minireader thinks it hit EOF on the first
+    //:     byte).
+    //:
+    //:   o Open the decoder in one of 4 ways according to 'mode'.
+    //:
+    //:   o If the position of the bad UTF-8 was before the end of 'header', we
+    //:     expect the open to have failed, otherwise not.  Check this.
+    //:
+    //:   o If the open failed, attempt to decode a 'SimpleRequest'.
+    //:
+    //:   o Observe that now we have an error rcode , either from 'open' or
+    //:     from 'decode'.  Examine the results:
+    //:     1 Call 'TC::findLoc' to determine the expected line # and column #
+    //:       where the error occurred.
+    //:
+    //:     2 Check the line # in 'errorInfo'.
+    //:
+    //:     3 Check the column # in 'errorInfo'.
+    //:
+    //:     4 Check that 'errorInfo.msg()' contains the string description of
+    //:       the UTF-8 error as given by 'bdlde::Utf8Util::toAscii'.
+    //------------------------------------------------------------------------
+{
+    namespace TC = Utf8Test;
+
+    using bdlde::Utf8Util;
+
+    const Utf8Util::ErrorStatus EIT = Utf8Util::k_END_OF_INPUT_TRUNCATION;
+    const Utf8Util::ErrorStatus UCO =
+                                     Utf8Util::k_UNEXPECTED_CONTINUATION_OCTET;
+    const Utf8Util::ErrorStatus NCO = Utf8Util::k_NON_CONTINUATION_OCTET;
+    const Utf8Util::ErrorStatus OLE = Utf8Util::k_OVERLONG_ENCODING;
+    const Utf8Util::ErrorStatus IIO = Utf8Util::k_INVALID_INITIAL_OCTET;
+    const Utf8Util::ErrorStatus VTL = Utf8Util::k_VALUE_LARGER_THAN_0X10FFFF;
+    const Utf8Util::ErrorStatus SUR = Utf8Util::k_SURROGATE;
+
+    static const struct Data {
+        int                  d_lineNum;    // source line number
+
+        const char           *d_utf8_p;     // UTF-8 input string
+
+        int                  d_numBytes;   // length of spec (in bytes), not
+                                           // including null-terminator
+
+        int                  d_numCodePoints;
+                                           // +ve number of UTF-8 code points
+                                           // if valid, -ve
+                                           // Utf8Util::ErrorStatus is invalid.
+
+        int                  d_errOffset;  // byte offset to first invalid
+                                           // sequence; -1 if valid
+
+        int                  d_isValid;    // 1 if valid UTF-8; 0 otherwise
+    } DATA[] = {
+        //L#  input                          #b   #c  eo  result
+        //--  -----                          --  ---  --  ------
+        { L_, "",                         0,   0, -1,   1   },
+
+        { L_, "H",                        1,   1, -1,   1   },
+        { L_, "He",                       2,   2, -1,   1   },
+        { L_, "Hel",                      3,   3, -1,   1   },
+        { L_, "Hell",                     4,   4, -1,   1   },
+        { L_, "Hello",                    5,   5, -1,   1   },
+
+        // Check the boundary between 1-octet and 2-octet code points.
+
+        { L_, "\x7f",                     1,   1, -1,   1   },
+        { L_, "\xc2\x80",                 2,   1, -1,   1   },
+
+        // Check the boundary between 2-octet and 3-octet code points.
+
+        { L_, "\xdf\xbf",                 2,   1, -1,   1   },
+        { L_, "\xe0\xa0\x80",             3,   1, -1,   1   },
+
+        // Check the maximal 3-octet code point.
+
+        { L_, "\xef\xbf\xbf",             3,   1, -1,   1   },
+
+        // Make sure 4-octet code points are handled correctly.
+
+        { L_, "\xf0\x90\x80\x80",         4,   1, -1,   1   },
+        { L_, "\xf0\x90\x80\x80g",        5,   2, -1,   1   },
+        { L_, "a\xf0\x90\x80\x81g",       6,   3, -1,   1   },
+        { L_, "\xf4\x8f\xbf\xbe",         4,   1, -1,   1   },
+        { L_, "\xf4\x8f\xbf\xbeg",        5,   2, -1,   1   },
+        { L_, "a\xf4\x8f\xbf\xbfg",       6,   3, -1,   1   },
+
+        // unexpected continuation octets
+
+        { L_, "\x80",                     1, UCO,  0,   0   },
+        { L_, "a\x85",                    2, UCO,  1,   0   },
+        { L_, "\x90",                     1, UCO,  0,   0   },
+        { L_, "\x9f",                     1, UCO,  0,   0   },
+        { L_, "\xa1",                     1, UCO,  0,   0   },
+        { L_, "\xaf",                     1, UCO,  0,   0   },
+        { L_, "a\xb0",                    2, UCO,  1,   0   },
+        { L_, "\xbf",                     1, UCO,  0,   0   },
+
+        // Make sure partial 4-octet code points are handled correctly (with a
+        // single error).
+
+        { L_, "\xf0",                     1, EIT,  0,   0   },
+        { L_, "\xf0\x80",                 2, EIT,  0,   0   },
+        { L_, "\xf0\x80\x80",             3, EIT,  0,   0   },
+        { L_, "\xf0g",                    2, NCO,  0,   0   },
+        { L_, "\xf0\x80g",                3, NCO,  0,   0   },
+        { L_, "\xf0\x80\x80g",            4, NCO,  0,   0   },
+
+        // Make sure partial 4-octet code points are handled correctly (with a
+        // single error).
+
+        { L_, "\xe0\x80",                 2, EIT,  0,   0   },
+        { L_, "\xe0",                     1, EIT,  0,   0   },
+        { L_, "\xe0\x80g",                3, NCO,  0,   0   },
+        { L_, "\xe0g",                    2, NCO,  0,   0   },
+
+        // Make sure the "illegal" UTF-8 octets are handled correctly:
+        //   o The octet values C0, C1, F5 to FF never appear.
+
+        { L_, "\xc0",                     1, EIT,  0,   0   },
+        { L_, "\xc1",                     1, EIT,  0,   0   },
+        { L_, "\xf0",                     1, EIT,  0,   0   },
+        { L_, "\xf7",                     1, EIT,  0,   0   },
+        { L_, "\xf8",                     1, IIO,  0,   0   },
+        { L_, "\xf8\xaf\xaf\xaf",         4, IIO,  0,   0   },
+        { L_, "\xf8\x80\x80\x80",         4, IIO,  0,   0   },
+        { L_, "\xf8",                     1, IIO,  0,   0   },
+        { L_, "\xff",                     1, IIO,  0,   0   },
+
+        // Make sure that the "illegal" UTF-8 octets are handled correctly
+        // mid-string:
+        //   o The octet values C0, C1, F5 to FF never appear.
+
+        { L_, "a\xc0g",                   3, NCO,  1,   0   },
+        { L_, "a\xc1g",                   3, NCO,  1,   0   },
+        { L_, "a\xf5g",                   3, NCO,  1,   0   },
+        { L_, "a\xf7g",                   3, NCO,  1,   0   },
+        { L_, "a\xf8g",                   3, IIO,  1,   0   },
+        { L_, "a\xfeg",                   3, IIO,  1,   0   },
+
+        { L_, "\xc2\x80",                 2,   1, -1,   1   },
+        { L_, "\xc2",                     1, EIT,  0,   0   },
+        { L_, "\xc2\x80g",                3,   2, -1,   1   },
+        { L_, "\xc3\xbf",                 2,   1, -1,   1   },
+        { L_, "\x01z\x7f\xc3\xbf\xdf\xbf\xe0\xa0\x80\xef\xbf\xbf",
+                                         13,   7, -1,   1   },
+
+        { L_, "a\xef",                    2, EIT,  1,   0   },
+        { L_, "a\xef\xbf",                2, EIT,  1,   0   },
+
+        { L_, "\xef\xbf\xbf\xe0\xa0\x80\xdf\xbf\xc3\xbf\x7fz\x01",
+                                         13,   7, -1,   1   },
+
+        // Make sure illegal overlong encodings are not accepted.  These code
+        // points are mathematically correctly encoded, but since there are
+        // equivalent encodings with fewer octets, the UTF-8 standard disallows
+        // them.
+
+        { L_, "\xf0\x80\x80\x80",         4, OLE,  0,   0   },
+        { L_, "\xf0\x8f\xbf\xbf",         4, OLE,  0,   0   },    // max OLE
+        { L_, "\xf0\x90\x80\x80",         4,   1, -1,   1   },    // min legal
+        { L_, "\xf1\x80\x80\x80",         4,   1, -1,   1   },    // norm legal
+        { L_, "\xf1\xaa\xaa\xaa",         4,   1, -1,   1   },    // norm legal
+        { L_, "\xf4\x8f\xbf\xbf",         4,   1, -1,   1   },    // max legal
+        { L_, "\xf4\xa0\x80\x80",         4, VTL,  0,   0   },    //     VTL
+        { L_, "\xf7\xbf\xbf\xbf",         4, VTL,  0,   0   },    // max VTL
+
+        { L_, "\xe0\x9f\xbf",             3, OLE,  0,   0   },    // max OLE
+        { L_, "\xe0\xa0\x80",             3,   1, -1,   1   },    // min legal
+
+        { L_, "\xc0\x80",                 2, OLE,  0,   0   },
+        { L_, "\xc1\xbf",                 2, OLE,  0,   0   },    // max OLE
+        { L_, "\xc2\x80",                 2,   1,  0,   1   },    // min legal
+
+        // Corrupted 2-octet code point:
+
+        { L_, "\xc2",                     1, EIT,  0,   0   },
+        { L_, "a\xc2",                    2, EIT,  1,   0   },
+        { L_, "\xc2\xc2",                 2, NCO,  0,   0   },
+        { L_, "\xc2\xef",                 2, NCO,  0,   0   },
+
+        // Corrupted 2-octet code point followed by an invalid code point:
+
+        { L_, "\xc2\xff",                 2, NCO,  0,   0   },
+        { L_, "\xc2\xff",                 2, NCO,  0,   0   },
+
+        // 3-octet code points corrupted after octet 1:
+
+        { L_, "\xef",                     1, EIT,  0,   0   },
+        { L_, "a\xef",                    2, EIT,  1,   0   },
+        { L_, "\xefg",                    2, NCO,  0,   0   },
+        { L_, "\xef\xefg",                3, NCO,  0,   0   },
+        { L_, "\xef" "\xc2\x80",          3, NCO,  0,   0   },
+
+        // 3-octet code points corrupted after octet 2:
+
+        { L_, "\xef\xbf",                 2, EIT,  0,   0   },
+        { L_, "a\xef\xbf@",               4, NCO,  1,   0   },
+        { L_, "\xef\xbf\xef",             3, NCO,  0,   0   },
+
+        { L_, "\xed\xa0\x80",             3, SUR,  0,   0   },
+        { L_, "\xed\xb0\x85g",            4, SUR,  0,   0   },
+        { L_, "\xed\xbf\xbf",             3, SUR,  0,   0   },
+    };
+    enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    enum { k_BUF_LEN = 1024 };
+    char fileName[k_BUF_LEN];
+    {
+        bsl::string osName, osVersion, osPatch;
+        const char *hostName = bsl::getenv("HOSTNAME");
+        if (!hostName) {
+            ASSERT(0 == bdls::OsUtil::getOsInfo(&osName,
+                                                &osVersion,
+                                                &osPatch));
+            osName += '.' + osVersion + '.' + osPatch;
+            hostName = osName.c_str();
+        }
+
+        bdlsb::FixedMemOutStreamBuf fileSb(fileName, sizeof(fileName));
+        bsl::ostream                fileStream(&fileSb);
+        fileStream << "tmp.balxml_decoder." << test << '.' << hostName <<
+                      '.' << bdls::ProcessUtil::getProcessId() <<
+                                                       ".xml" << bsl::ends;
+
+        BSLS_ASSERT(bsl::strlen(fileName) < sizeof(fileName));
+    }
+
+    // Try to set 'mod' so that the tests are done in less that about 7
+    // seconds.  Higher values of 'mod' result in less of the randomized
+    // testing, and hence faster run times.
+
+    const int mod = TC::e_FILE != mode || exhaustive
+                  ? 1
+                  : e_PLAT_SOLARIS
+                  ? 500
+                  : e_PLAT_AIX
+                  ? 600
+                  : 180;
+
+    if (verbose) { P_(exhaustive);    P(mod); }
+
+    // The decoder will not open successfully unless it is able to read the
+    // header.
+
+    const bsl::string header =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<SimpleRequest xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
+
+    const bsl::string xmlRaw = header + "\n" +
+        "  <data>Woof</data>\n"
+        "  <responseLength>23</responseLength>\n"
+        "</SimpleRequest>";
+
+    const bsl::size_t woofPos = xmlRaw.find("Woof");
+    BSLS_ASSERT_OPT(bsl::string::npos != woofPos);
+    const bsl::size_t woofLen = bsl::strlen("Woof");
+
+    if (verbose) {
+        P_(fileName);    P_(header.length());    P(xmlRaw.length());
+    }
+
+    if (verbose) cout << "Test the insertion of valid UTf-8 snippets.\n";
+
+    for (int di = 0; di < k_NUM_DATA; ++di) {
+        const Data&        data      = DATA[di];
+        const int          LINE      = data.d_lineNum;
+        const char        *UTF8      = data.d_utf8_p;
+        const bsl::size_t  NUM_BYTES = data.d_numBytes;
+        const bool         IS_VALID  = data.d_isValid;
+
+        if (!IS_VALID) {
+            continue;
+        }
+
+        if (veryVerbose) { P_(LINE);    P(TC::utf8Dump(UTF8)); }
+
+        for (int ai = 0; ai < 2; ++ai) {
+            const bool AFTER = ai;
+
+            bsl::string xmlStr = xmlRaw;
+
+            bsl::string expData = "Woof";
+            if (AFTER) {
+                xmlStr.insert(woofPos + woofLen, UTF8, NUM_BYTES);
+                expData.append(UTF8, NUM_BYTES);
+            }
+            else {
+                xmlStr.insert(woofPos, UTF8, NUM_BYTES);
+                expData.insert(bsl::size_t(0), UTF8, NUM_BYTES);
+            }
+
+            if (veryVeryVerbose) {
+                T2_ T2_ P_(LINE); P(AFTER);
+            }
+
+            balxml::MiniReader reader;
+            balxml::DecoderOptions options;
+            options.setValidateInputIsUtf8(true);
+            balxml::ErrorInfo e;
+            balxml::Decoder decoder(&options, &reader, &e);
+
+            bdlsb::FixedMemInStreamBuf sb(xmlStr.c_str(), xmlStr.length());
+            bsl::istream is(&sb);
+
+            switch (mode) {
+              case TC::e_STRING: {
+                ASSERT(0 == decoder.open(xmlStr.c_str(), xmlStr.length()));
+              } break;
+              case TC::e_FILE: {
+                TC::writeStringToFile(fileName, xmlStr);
+
+                ASSERT(0 == decoder.open(fileName));
+              } break;
+              case TC::e_ISTREAM: {
+                ASSERT(0 == decoder.open(is));
+              } break;
+              case TC::e_STREAMBUF: {
+                ASSERT(0 == decoder.open(&sb));
+              } break;
+              case TC::e_END: BSLA_FALLTHROUGH;
+              default: {
+                BSLS_ASSERT_INVOKE_NORETURN("invalid mode in 'open'");
+              }
+            }
+
+            Test::SimpleRequest object;
+            int rc = decoder.decode(&object);
+            ASSERT(0 == rc);
+            ASSERT(0 == reader.errorInfo());
+            ASSERT(expData == object.data());
+        }
+    }
+
+    if (verbose) cout << "Test the insertion of invalid UTf-8 snippets.\n";
+
+    int colPass = 0, colFail = 0;
+    TC::RandGen rand(100 * test + mode);
+
+    for (int di = 0; di < k_NUM_DATA; ++di) {
+        const Data&        data       = DATA[di];
+        const int          LINE       = data.d_lineNum;
+        const char        *UTF8       = data.d_utf8_p;
+        const bsl::size_t  NUM_BYTES  = data.d_numBytes;
+        const unsigned     ERR_OFFSET = data.d_errOffset;
+        const int          ERR_TYPE   = data.d_numCodePoints;
+        const bool         IS_VALID   = data.d_isValid;
+
+        if (IS_VALID) {
+            continue;
+        }
+
+        ASSERT(ERR_TYPE < 0);
+
+        if (veryVerbose) {
+            const bsl::string&  utf8Dump = TC::utf8Dump(UTF8);
+            const char         *errMsg   = Utf8Util::toAscii(ERR_TYPE);
+
+            P_(LINE);    P_(utf8Dump);    P(errMsg);
+        }
+
+        // A UTF-8 error at position 0 just results in a message about "Unable
+        // to open reader" without any detail about UTF-8.
+
+        for (bsl::size_t badPos = 1, endPos = xmlRaw.length() - 1; true;
+                                              badPos += 1 + rand() % mod) {
+            badPos = bsl::min(badPos, endPos);
+
+            if (ERR_OFFSET && badPos < header.length()) {
+                // If the pattern involves some random correct UTF-8 before the
+                // error and it is injected in the header, it will result in a
+                // non-UTF-8 syntax error and a wrong column reading.
+
+                continue;
+            }
+
+            bsl::string xmlStr;
+            xmlStr.reserve(xmlRaw.length() + 32);    // reduce # of allocs
+            xmlStr = xmlRaw;
+            xmlStr.insert(badPos, UTF8, NUM_BYTES);
+            if (EIT == ERR_TYPE) {
+                xmlStr.resize(badPos + NUM_BYTES);
+            }
+
+            if (veryVerbose) {
+                if (!exhaustive || 0 == badPos % 20) {
+                        T2_    P(badPos);
+                }
+            }
+
+            // Modes 'e_FILE' and 'e_ISTREAM' read from a file and need
+            // a file to be created for them.  The modes are adjacent
+            // in the 'enum', so save time by creating the file once
+            // and using it in both modes.
+
+            if (veryVeryVerbose) { T2_   T2_   P_(mode);   P(badPos); }
+
+            balxml::MiniReader reader;
+            balxml::DecoderOptions options;
+            options.setValidateInputIsUtf8(true);
+            balxml::ErrorInfo e;
+            balxml::Decoder decoder(&options, &reader, &e);
+
+            bdlsb::FixedMemInStreamBuf sb(xmlStr.c_str(), xmlStr.length());
+            bsl::istream is(&sb);
+
+            int rc = 0;
+            switch (mode) {
+              case TC::e_STRING: {
+                rc = decoder.open(xmlStr.c_str(), xmlStr.length());
+              } break;
+              case TC::e_FILE: {
+                TC::writeStringToFile(fileName, xmlStr);
+
+                rc = decoder.open(fileName);
+              } break;
+              case TC::e_ISTREAM: {
+                rc = decoder.open(is);
+              } break;
+              case TC::e_STREAMBUF: {
+                sb.pubsetbuf(&xmlStr[0], xmlStr.length());
+
+                rc = decoder.open(&sb);
+              } break;
+              case TC::e_END: BSLA_FALLTHROUGH;
+              default: {
+                BSLS_ASSERT_INVOKE_NORETURN(
+                                          "invalid mode in invalid UTF-8");
+              }
+            }
+
+            ASSERTV(badPos, header.length(), rc,
+                                  (badPos < header.length()) == (0 != rc));
+
+            if (0 == rc) {
+                Test::SimpleRequest object;
+                rc = decoder.decode(&object);
+            }
+            ASSERTV(badPos, xmlStr.substr(0, badPos), 0 != rc);
+
+            int expLine, expCol;
+            ASSERT(0 == TC::findLoc(&expLine,
+                                    &expCol,
+                                    xmlStr,
+                                    badPos + ERR_OFFSET));
+
+            const balxml::ErrorInfo& errorInfo = *decoder.errorInfo();
+
+            ASSERTV(errorInfo.lineNumber(), expLine,
+                                        errorInfo.lineNumber() == expLine);
+            if (errorInfo.columnNumber() == expCol) {
+                ++colPass;
+            }
+            else {
+                ++colFail;
+                ASSERTV(LINE, errorInfo.columnNumber(), expCol, badPos,
+                     colPass, colFail, errorInfo.columnNumber() == expCol);
+                ASSERTV(LINE, badPos, xmlStr,
+                                       errorInfo.columnNumber() == expCol);
+            }
+
+            const char *errTypeMsg = Utf8Util::toAscii(ERR_TYPE);
+            ASSERTV(LINE, badPos, errorInfo.message(), errTypeMsg,
+                    bsl::string::npos != errorInfo.message().find(errTypeMsg));
+
+            if (endPos <= badPos) {
+                break;
+            }
+        }
+    }
+
+    bdls::FilesystemUtil::remove(fileName);
+}
+
+}  // close namespace Utf8Test
+
 // ============================================================================
 //                             END TEST APPARATUS
 // ----------------------------------------------------------------------------
@@ -8591,7 +9297,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 // This tool will generate the header and implementation files for the
 // 'test_address' and 'test_employee' components in the current directory.
 //
-// The following function decodes an XML string into a 'test::Employee' object
+// The following function decodes an XML string into a 'Test::Employee' object
 // and verifies the results:
 //..
 //  #include <test_employee.h>
@@ -8613,7 +9319,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
         bsl::stringstream ss(INPUT);
 
-        test::Employee bob;
+        Test::Employee bob;
 
         balxml::DecoderOptions options;
         balxml::MiniReader     reader;
@@ -8662,7 +9368,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
         bsl::stringstream ss(INPUT);
 
-        test::Employee bob;
+        Test::Employee bob;
 
         balxml::DecoderOptions options;
         balxml::MiniReader     reader;
@@ -8727,12 +9433,12 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 // target object accordingly:
 //..
         if (0 == bsl::strcmp(reader.nodeLocalName(), "Address")) {
-            test::Address addr;
+            Test::Address addr;
             rc = decoder.decode(&addr);
             bsl::cout << addr;
         }
         else {
-            test::Employee bob;
+            Test::Employee bob;
             rc = decoder.decode(&bob);
             bsl::cout << bob;
         }
@@ -17515,17 +18221,20 @@ int main(int argc, char *argv[])
 
         balxml::MiniReader reader;
 
-        for (int i = 0; i < NUM_DATA; ++i) {
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const int  i          = ti % NUM_DATA;
+            const bool CHECK_UTF8 = NUM_DATA <= ti;
 
             const bsl::string_view& STR = DATA[i];
 
             balxml::DecoderOptions options;
+            options.setValidateInputIsUtf8(CHECK_UTF8);
             balxml::ErrorInfo e;
             balxml::Decoder decoder(&options, &reader, &e);
 
             bdlsb::FixedMemInStreamBuf isb(STR.data(), STR.size());
 
-            test::Topchoice object;
+            Test::Topchoice object;
             int rc = decoder.decode(&isb, &object);
             if (rc) {
                 cout << "Decoding failed for " << i
@@ -17561,26 +18270,30 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting setting and getting num skipped elems."
                           << endl;
         {
-            balxml::MiniReader reader;
-            balxml::ErrorInfo  errInfo;
-            balxml::DecoderOptions    options;
+            for (int checkUtf8 = 0; checkUtf8 < 2; ++checkUtf8) {
+                balxml::MiniReader reader;
+                balxml::ErrorInfo  errInfo;
+                balxml::DecoderOptions    options;
+                options.setValidateInputIsUtf8(checkUtf8);
 
-            balxml::Decoder mX(&options,
-                               &reader,
-                               &errInfo,
-                               &bsl::cerr,
-                               &bsl::cerr);
-            const balxml::Decoder& X = mX;
-            ASSERT(0 == X.numUnknownElementsSkipped());
+                balxml::Decoder mX(&options,
+                                   &reader,
+                                   &errInfo,
+                                   &bsl::cerr,
+                                   &bsl::cerr);
+                const balxml::Decoder& X = mX;
+                ASSERT(0 == X.numUnknownElementsSkipped());
 
-            const int DATA[] = { 0, 1, 5, 100, 2000 };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int NUM_SKIPPED_ELEMS = DATA[i];
-                mX.setNumUnknownElementsSkipped(NUM_SKIPPED_ELEMS);
-                LOOP3_ASSERT(i, NUM_SKIPPED_ELEMS,
-                           X.numUnknownElementsSkipped(),
-                           NUM_SKIPPED_ELEMS == X.numUnknownElementsSkipped());
+                const int DATA[] = { 0, 1, 5, 100, 2000 };
+                const int NUM_DATA = sizeof DATA / sizeof *DATA;
+                for (int i = 0; i < NUM_DATA; ++i) {
+                    const int NUM_SKIPPED_ELEMS = DATA[i];
+                    mX.setNumUnknownElementsSkipped(NUM_SKIPPED_ELEMS);
+                    LOOP3_ASSERT(i, NUM_SKIPPED_ELEMS,
+                               X.numUnknownElementsSkipped(),
+                               NUM_SKIPPED_ELEMS ==
+                                                X.numUnknownElementsSkipped());
+                }
             }
         }
 
@@ -17699,7 +18412,7 @@ int main(int argc, char *argv[])
 
         // MySequence
         {
-            typedef test::MySequence Type;
+            typedef Test::MySequence Type;
 
             const struct {
                 int              d_line;
@@ -17836,7 +18549,7 @@ int main(int argc, char *argv[])
 
         // MySequenceWithAnonymousChoice
         {
-            typedef test::MySequenceWithAnonymousChoice Type;
+            typedef Test::MySequenceWithAnonymousChoice Type;
 
             const struct {
                 int              d_line;
@@ -18028,7 +18741,7 @@ int main(int argc, char *argv[])
 
         typedef TestSequence2 TS;  // shorthand
 
-        static const struct {
+        static const struct Data {
             int              d_lineNum;  // source line number
             bsl::string_view d_input;    // input string
             int              d_retCode;  // expected ret code
@@ -18078,11 +18791,13 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'Decoder::decode(streambuf*, "
                           << "TYPE*)'." << endl;
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int               LINE              = DATA[i].d_lineNum;
-            const bsl::string_view& INPUT             = DATA[i].d_input;
-            const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
-            const TS                EXPECTED_RESULT   = DATA[i].d_result;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const Data&             data              = DATA[ti % 2];
+            const int               LINE              = data.d_lineNum;
+            const bsl::string_view  INPUT             = data.d_input;
+            const int               EXPECTED_RET_CODE = data.d_retCode;
+            const TS                EXPECTED_RESULT   = data.d_result;
+            const bool              CHECK_UTF8        = NUM_DATA <= ti;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -18097,6 +18812,7 @@ int main(int argc, char *argv[])
             TS                         result = INIT_VALUE;
             balxml::DecoderOptions     options;
             options.setSkipUnknownElements(false);
+            options.setValidateInputIsUtf8(CHECK_UTF8);
 
             balxml::MiniReader reader;
             balxml::ErrorInfo  errInfo;
@@ -18118,11 +18834,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'Decoder::decode(streambuf*, "
                           << "TYPE*, bsl::ostream&, ostream&)'."
                           << endl;
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int               LINE              = DATA[i].d_lineNum;
-            const bsl::string_view& INPUT             = DATA[i].d_input;
-            const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
-            const TS                EXPECTED_RESULT   = DATA[i].d_result;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const Data&             data              = DATA[ti % 2];
+            const int               LINE              = data.d_lineNum;
+            const bsl::string_view  INPUT             = data.d_input;
+            const int               EXPECTED_RET_CODE = data.d_retCode;
+            const TS                EXPECTED_RESULT   = data.d_result;
+            const bool              CHECK_UTF8        = NUM_DATA <= ti;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -18139,6 +18857,7 @@ int main(int argc, char *argv[])
             bsl::ostream               nullStream(0);
             balxml::DecoderOptions     options;
             options.setSkipUnknownElements(false);
+            options.setValidateInputIsUtf8(CHECK_UTF8);
 
             // display error messages on 'bsl::cerr' only if errors are not
             // expected or if very very very verbose
@@ -18170,11 +18889,13 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'Decoder::decode(istream&, "
                           << "TYPE*)'." << endl;
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int               LINE              = DATA[i].d_lineNum;
-            const bsl::string_view& INPUT             = DATA[i].d_input;
-            const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
-            const TS                EXPECTED_RESULT   = DATA[i].d_result;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const Data&             data              = DATA[ti % 2];
+            const int               LINE              = data.d_lineNum;
+            const bsl::string_view  INPUT             = data.d_input;
+            const int               EXPECTED_RET_CODE = data.d_retCode;
+            const TS                EXPECTED_RESULT   = data.d_result;
+            const bool              CHECK_UTF8        = NUM_DATA <= ti;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -18190,6 +18911,7 @@ int main(int argc, char *argv[])
             TS                         result = INIT_VALUE;
             balxml::DecoderOptions     options;
             options.setSkipUnknownElements(false);
+            options.setValidateInputIsUtf8(CHECK_UTF8);
 
             LOOP_ASSERT(LINE, input.good());
 
@@ -18213,11 +18935,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'Decoder::decode(istream&, "
                           << "TYPE*, bsl::ostream&, ostream&)'."
                           << endl;
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int               LINE              = DATA[i].d_lineNum;
-            const bsl::string_view& INPUT             = DATA[i].d_input;
-            const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
-            const TS                EXPECTED_RESULT   = DATA[i].d_result;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const Data&             data              = DATA[ti % 2];
+            const int               LINE              = data.d_lineNum;
+            const bsl::string_view  INPUT             = data.d_input;
+            const int               EXPECTED_RET_CODE = data.d_retCode;
+            const TS                EXPECTED_RESULT   = data.d_result;
+            const bool              CHECK_UTF8        = NUM_DATA <= ti;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -18234,6 +18958,7 @@ int main(int argc, char *argv[])
             bsl::ostream               nullStream(0);
             balxml::DecoderOptions     options;
             options.setSkipUnknownElements(false);
+            options.setValidateInputIsUtf8(CHECK_UTF8);
 
             // display error messages on 'bsl::cerr' only if errors are not
             // expected or if very very very verbose
@@ -18283,7 +19008,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing 'MySimpleContent'." << endl;
         {
-            typedef test::MySimpleContent Type;
+            typedef Test::MySimpleContent Type;
 
             Type EXPECTED_RESULT[3];
 
@@ -18320,8 +19045,10 @@ int main(int argc, char *argv[])
             };
             const int NUM_INPUT = sizeof INPUTS / sizeof *INPUTS;
 
-            for (int i = 0; i < NUM_INPUT; ++i) {
-                const bsl::string_view& INPUT = INPUTS[i];
+            for (int ti = 0; ti < 2 * NUM_INPUT; ++ti) {
+                const int  i                 = ti % NUM_INPUT;
+                const bsl::string_view INPUT = INPUTS[i];
+                const bool CHECK_UTF8        = NUM_INPUT <= ti;
 
                 Type mX;  const Type& X = mX;
 
@@ -18339,6 +19066,7 @@ int main(int argc, char *argv[])
                 balxml::MiniReader     reader;
                 balxml::ErrorInfo      errInfo;
                 balxml::DecoderOptions options;
+                options.setValidateInputIsUtf8(CHECK_UTF8);
 
                 balxml::Decoder decoder(&options,
                                         &reader,
@@ -18355,7 +19083,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing 'MySimpleIntContent'." << endl;
         {
-            typedef test::MySimpleIntContent Type;
+            typedef Test::MySimpleIntContent Type;
 
             Type EXPECTED_RESULT[2];
 
@@ -18382,8 +19110,10 @@ int main(int argc, char *argv[])
             };
             const int NUM_INPUT = sizeof INPUTS / sizeof *INPUTS;
 
-            for (int i = 0; i < NUM_INPUT; ++i) {
-                const bsl::string_view& INPUT = INPUTS[i];
+            for (int ti = 0; ti < 2 * NUM_INPUT; ++ti) {
+                const int  i                 = ti % NUM_INPUT;
+                const bsl::string_view INPUT = INPUTS[i];
+                const bool CHECK_UTF8        = NUM_INPUT <= ti;
 
                 Type mX;  const Type& X = mX;
 
@@ -18401,6 +19131,7 @@ int main(int argc, char *argv[])
                 balxml::MiniReader     reader;
                 balxml::ErrorInfo      errInfo;
                 balxml::DecoderOptions options;
+                options.setValidateInputIsUtf8(CHECK_UTF8);
 
                 balxml::Decoder decoder(&options,
                                         &reader,
@@ -18434,7 +19165,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing 'MySequenceWithAttributes'." << endl;
         {
-            typedef test::MySequenceWithAttributes Type;
+            typedef Test::MySequenceWithAttributes Type;
 
             Type EXPECTED_RESULT[6];
 
@@ -18494,8 +19225,10 @@ int main(int argc, char *argv[])
             };
             const int NUM_INPUT = sizeof INPUTS / sizeof *INPUTS;
 
-            for (int i = 0; i < NUM_INPUT; ++i) {
-                const bsl::string_view& INPUT = INPUTS[i];
+            for (int ti = 0; ti < 2 * NUM_INPUT; ++ti) {
+                const int  i                 = ti % NUM_INPUT;
+                const bsl::string_view INPUT = INPUTS[i];
+                const bool CHECK_UTF8        = NUM_INPUT <= ti;
 
                 Type mX;  const Type& X = mX;
 
@@ -18513,6 +19246,7 @@ int main(int argc, char *argv[])
                 balxml::MiniReader     reader;
                 balxml::ErrorInfo      errInfo;
                 balxml::DecoderOptions options;
+                options.setValidateInputIsUtf8(CHECK_UTF8);
 
                 balxml::Decoder decoder(&options,
                                         &reader,
@@ -18547,25 +19281,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nUsing 'MySequenceWithAnonymousChoice'."
                           << endl;
         {
-            typedef test::MySequenceWithAnonymousChoice Type;
-
-            Type EXPECTED_RESULT[4];
-
-            EXPECTED_RESULT[0].attribute1() = 34;
-            EXPECTED_RESULT[0].choice().makeMyChoice1(67);
-            EXPECTED_RESULT[0].attribute2() = "Hello";
-
-            EXPECTED_RESULT[1].attribute1() = 34;
-            EXPECTED_RESULT[1].choice().makeMyChoice1(67);
-            EXPECTED_RESULT[1].attribute2() = "Hello";
-
-            EXPECTED_RESULT[2].attribute1() = 34;
-            EXPECTED_RESULT[2].choice().makeMyChoice2("World!");
-            EXPECTED_RESULT[2].attribute2() = "Hello";
-
-            EXPECTED_RESULT[3].attribute1() = 34;
-            EXPECTED_RESULT[3].choice().makeMyChoice2("  World! ");
-            EXPECTED_RESULT[3].attribute2() = "Hello";
+            typedef Test::MySequenceWithAnonymousChoice Type;
 
             const bsl::string_view INPUTS[] = {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
@@ -18598,18 +19314,41 @@ int main(int argc, char *argv[])
             };
             const int NUM_INPUT = sizeof INPUTS / sizeof *INPUTS;
 
-            for (int i = 0; i < NUM_INPUT; ++i) {
-                const bsl::string_view& INPUT = INPUTS[i];
+            Type EXPECTED_RESULT[NUM_INPUT];
+
+            int tj = 0;
+
+            EXPECTED_RESULT[tj].attribute1() = 34;
+            EXPECTED_RESULT[tj].choice().makeMyChoice1(67);
+            EXPECTED_RESULT[tj++].attribute2() = "Hello";
+
+            EXPECTED_RESULT[tj].attribute1() = 34;
+            EXPECTED_RESULT[tj].choice().makeMyChoice1(67);
+            EXPECTED_RESULT[tj++].attribute2() = "Hello";
+
+            EXPECTED_RESULT[tj].attribute1() = 34;
+            EXPECTED_RESULT[tj].choice().makeMyChoice2("World!");
+            EXPECTED_RESULT[tj++].attribute2() = "Hello";
+
+            EXPECTED_RESULT[tj].attribute1() = 34;
+            EXPECTED_RESULT[tj].choice().makeMyChoice2("  World! ");
+            EXPECTED_RESULT[tj++].attribute2() = "Hello";
+
+            ASSERT(NUM_INPUT == tj);
+
+            for (int ti = 0; ti < 2 * NUM_INPUT; ++ti) {
+                const int               tii        = ti % NUM_INPUT;
+                const bsl::string_view& INPUT      = INPUTS[tii];
+                const bool              CHECK_UTF8 = NUM_INPUT <= ti;
+                const Type&             Y          = EXPECTED_RESULT[tii];
 
                 Type mX;  const Type& X = mX;
 
-                const Type& Y = EXPECTED_RESULT[i];
-
                 if (veryVerbose) {
-                    T_ P_(i) P_(Y) P(INPUT)
+                    T_ P_(tii) P_(Y) P(INPUT)
                 }
 
-                LOOP3_ASSERT(i, X, Y, X != Y);
+                LOOP3_ASSERT(tii, X, Y, X != Y);
 
                 bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
                 bsl::istream               input(&isb);
@@ -18617,6 +19356,7 @@ int main(int argc, char *argv[])
                 balxml::MiniReader     reader;
                 balxml::ErrorInfo      errInfo;
                 balxml::DecoderOptions options;
+                options.setValidateInputIsUtf8(CHECK_UTF8);
 
                 balxml::Decoder decoder(&options,
                                         &reader,
@@ -18626,8 +19366,8 @@ int main(int argc, char *argv[])
 
                 decoder.decode(input, &mX);
 
-                LOOP_ASSERT(i, input);
-                LOOP3_ASSERT(i, X, Y, X == Y);
+                LOOP_ASSERT(tii, input);
+                LOOP3_ASSERT(tii, X, Y, X == Y);
             }
         }
 
@@ -18673,7 +19413,7 @@ int main(int argc, char *argv[])
             LIST_OR_DEC = IS_LIST | bdlat_FormattingMode::e_DEC
         };
 
-        static const struct {
+        static const struct Data {
             int              d_lineNum;  // source line number
             bsl::string_view d_input;    // input string
             FormattingMode   d_mode;     // formatting mode
@@ -18697,10 +19437,12 @@ int main(int argc, char *argv[])
         const int NUM_DATA  = sizeof DATA / sizeof *DATA;
         const int MAX_DEPTH = 5;
 
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int               LINE            = DATA[i].d_lineNum;
-            const bsl::string_view& INPUT           = DATA[i].d_input;
-            const FormattingMode    FORMATTING_MODE = DATA[i].d_mode;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const Data&            data            = DATA[ti % 2];
+            const int              LINE            = data.d_lineNum;
+            const bsl::string_view INPUT           = data.d_input;
+            const FormattingMode   FORMATTING_MODE = data.d_mode;
+            const bool             CHECK_UTF8      = NUM_DATA <= ti;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -18726,6 +19468,7 @@ int main(int argc, char *argv[])
 
             balxml::DecoderOptions options;
             options.setMaxDepth(MAX_DEPTH);
+            options.setValidateInputIsUtf8(CHECK_UTF8);
 
             balxml::Decoder_StdVectorCharContext context(&result1,
                                                          FORMATTING_MODE);
@@ -18747,8 +19490,7 @@ int main(int argc, char *argv[])
                                                 + EXPECTED_RESULT_DATA.size());
 
             LOOP2_ASSERT(LINE, retCode, 0 == retCode);
-            LOOP3_ASSERT(LINE, EXPECTED_RESULT,   result1,
-                               EXPECTED_RESULT == result1);
+            ASSERTV(LINE, EXPECTED_RESULT == result1);
         }
 
         if (verbose)
@@ -18791,7 +19533,7 @@ int main(int argc, char *argv[])
             HEX     = bdlat_FormattingMode::e_HEX
         };
 
-        static const struct {
+        static const struct Data {
             int              d_lineNum;  // source line number
             bsl::string_view d_input;    // input string
             FormattingMode   d_mode;     // formatting mode
@@ -18811,10 +19553,12 @@ int main(int argc, char *argv[])
         const int NUM_DATA  = sizeof DATA / sizeof *DATA;
         const int MAX_DEPTH = 5;
 
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int               LINE            = DATA[i].d_lineNum;
-            const bsl::string_view& INPUT           = DATA[i].d_input;
-            const FormattingMode    FORMATTING_MODE = DATA[i].d_mode;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const Data&           data            = DATA[ti % 2];
+            const int             LINE            = data.d_lineNum;
+            bsl::string_view      INPUT           = data.d_input;
+            const FormattingMode  FORMATTING_MODE = data.d_mode;
+            const bool            CHECK_UTF8      = NUM_DATA <= ti;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -18838,6 +19582,7 @@ int main(int argc, char *argv[])
 
             balxml::DecoderOptions options;
             options.setMaxDepth(MAX_DEPTH);
+            options.setValidateInputIsUtf8(CHECK_UTF8);
 
             balxml::Decoder_StdStringContext context(&result1,
                                                      FORMATTING_MODE);
@@ -18915,7 +19660,7 @@ int main(int argc, char *argv[])
             // of 0 so that the declaration of the 'd_selectionRecords' array
             // does not fail to compile.
 
-            static const struct {
+            static const struct Data {
                 int              d_lineNum;  // source line number
                 bsl::string_view d_input;    // input string
                 int              d_retCode;  // expected return code
@@ -18940,10 +19685,12 @@ int main(int argc, char *argv[])
             const int NUM_DATA  = sizeof DATA / sizeof *DATA;
             const int MAX_DEPTH = 5;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int               LINE              = DATA[i].d_lineNum;
-                const bsl::string_view& INPUT             = DATA[i].d_input;
-                const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
+            for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+                const Data&             data              = DATA[ti % 2];
+                const int               LINE              = data.d_lineNum;
+                const bsl::string_view& INPUT             = data.d_input;
+                const int               EXPECTED_RET_CODE = data.d_retCode;
+                const bool              CHECK_UTF8        = NUM_DATA <= ti;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -18960,6 +19707,7 @@ int main(int argc, char *argv[])
                 balxml::DecoderOptions     options;
                 options.setMaxDepth(MAX_DEPTH);
                 options.setSkipUnknownElements(false);
+                options.setValidateInputIsUtf8(CHECK_UTF8);
 
                 balxml::Decoder_ChoiceContext<TestChoice0>
                                   context(&result,
@@ -19012,7 +19760,7 @@ int main(int argc, char *argv[])
 
             typedef TestChoice1 TC;  // shorthand for test choice type
 
-            static const struct {
+            static const struct Data {
                 int              d_lineNum;  // source line number
                 bsl::string_view d_input;    // input string
                 int              d_retCode;  // expected return code
@@ -19065,11 +19813,13 @@ int main(int argc, char *argv[])
             const int NUM_DATA  = sizeof DATA / sizeof *DATA;
             const int MAX_DEPTH = 5;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int               LINE              = DATA[i].d_lineNum;
-                const bsl::string_view& INPUT             = DATA[i].d_input;
-                const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
-                const TC                EXPECTED_RESULT   = DATA[i].d_result;
+            for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+                const Data&             data              = DATA[ti % 2];
+                const int               LINE              = data.d_lineNum;
+                const bsl::string_view& INPUT             = data.d_input;
+                const int               EXPECTED_RET_CODE = data.d_retCode;
+                const TC                EXPECTED_RESULT   = data.d_result;
+                const bool              CHECK_UTF8        = NUM_DATA <= ti;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -19094,6 +19844,7 @@ int main(int argc, char *argv[])
                 balxml::DecoderOptions options;
                 options.setMaxDepth(MAX_DEPTH);
                 options.setSkipUnknownElements(false);
+                options.setValidateInputIsUtf8(CHECK_UTF8);
 
                 balxml::Decoder_ChoiceContext<TC>
                                   context(&result1,
@@ -19152,7 +19903,7 @@ int main(int argc, char *argv[])
 
             typedef TestChoice2 TC;  // shorthand for test choice type
 
-            static const struct {
+            static const struct Data {
                 int              d_lineNum;  // source line number
                 bsl::string_view d_input;    // input string
                 int              d_retCode;  // expected return code
@@ -19253,11 +20004,13 @@ int main(int argc, char *argv[])
             const int NUM_DATA  = sizeof DATA / sizeof *DATA;
             const int MAX_DEPTH = 5;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int               LINE              = DATA[i].d_lineNum;
-                const bsl::string_view& INPUT             = DATA[i].d_input;
-                const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
-                const TC                EXPECTED_RESULT   = DATA[i].d_result;
+            for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+                const Data&             data              = DATA[ti % 2];
+                const int               LINE              = data.d_lineNum;
+                const bsl::string_view  INPUT             = data.d_input;
+                const int               EXPECTED_RET_CODE = data.d_retCode;
+                const TC                EXPECTED_RESULT   = data.d_result;
+                const bool              CHECK_UTF8        = NUM_DATA <= ti;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -19282,6 +20035,7 @@ int main(int argc, char *argv[])
                 balxml::DecoderOptions options;
                 options.setMaxDepth(MAX_DEPTH);
                 options.setSkipUnknownElements(false);
+                options.setValidateInputIsUtf8(CHECK_UTF8);
 
                 balxml::Decoder_ChoiceContext<TC>
                                   context(&result1,
@@ -19381,7 +20135,7 @@ int main(int argc, char *argv[])
             // of 0 so that the declaration of the 'd_attributeRecords' array
             // does not fail to compile.
 
-            static const struct {
+            static const struct Data {
                 int              d_lineNum;  // source line number
                 bsl::string_view d_input;    // input string
                 int              d_retCode;  // expected return code
@@ -19406,10 +20160,12 @@ int main(int argc, char *argv[])
             const int NUM_DATA  = sizeof DATA / sizeof *DATA;
             const int MAX_DEPTH = 5;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int               LINE              = DATA[i].d_lineNum;
-                const bsl::string_view &INPUT             = DATA[i].d_input;
-                const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
+            for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+                const Data&             data              = DATA[ti % NUM_DATA];
+                const int               LINE              = data.d_lineNum;
+                const bsl::string_view  INPUT             = data.d_input;
+                const int               EXPECTED_RET_CODE = data.d_retCode;
+                const bool              CHECK_UTF8        = NUM_DATA <= ti;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -19426,6 +20182,7 @@ int main(int argc, char *argv[])
                 balxml::DecoderOptions options;
                 options.setMaxDepth(MAX_DEPTH);
                 options.setSkipUnknownElements(false);
+                options.setValidateInputIsUtf8(CHECK_UTF8);
 
                 balxml::Decoder_SequenceContext<TestSequence0>
                                   context(&result,
@@ -19482,7 +20239,7 @@ int main(int argc, char *argv[])
 
             const int INIT1 = 9876;  // initial (default) value for element 1
 
-            static const struct {
+            static const struct Data {
                 int              d_lineNum;  // source line number
                 bsl::string_view d_input;    // input string
                 int              d_min1;     // min occurrences for element 1
@@ -19538,11 +20295,13 @@ int main(int argc, char *argv[])
             const int NUM_DATA  = sizeof DATA / sizeof *DATA;
             const int MAX_DEPTH = 5;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int               LINE              = DATA[i].d_lineNum;
-                const bsl::string_view& INPUT             = DATA[i].d_input;
-                const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
-                const TS                EXPECTED_RESULT   = DATA[i].d_result;
+            for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+                const Data&             data              = DATA[ti % NUM_DATA];
+                const int               LINE              = data.d_lineNum;
+                const bsl::string_view  INPUT             = data.d_input;
+                const int               EXPECTED_RET_CODE = data.d_retCode;
+                const TS                EXPECTED_RESULT   = data.d_result;
+                const bool              CHECK_UTF8        = NUM_DATA <= ti;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -19567,6 +20326,7 @@ int main(int argc, char *argv[])
                 balxml::DecoderOptions options;
                 options.setMaxDepth(MAX_DEPTH);
                 options.setSkipUnknownElements(false);
+                options.setValidateInputIsUtf8(CHECK_UTF8);
 
                 balxml::Decoder_SequenceContext<TS>
                                   context(&result1,
@@ -19634,15 +20394,15 @@ int main(int argc, char *argv[])
             const bsl::string INIT2 = "AA";  // initial (default) value for
                                              // element 1
 
-            static const struct {
-                int              d_lineNum;  // source line number
-                bsl::string_view d_input;    // input string
-                int              d_min1;     // min occurrences for element 1
-                int              d_max1;     // max occurrences for element 1
-                int              d_min2;     // min occurrences for element 2
-                int              d_max2;     // max occurrences for element 2
-                int              d_retCode;  // expected return code
-                TS               d_result;   // expected result
+            static const struct Data {
+                int         d_lineNum;  // source line number
+                const char *d_input;    // input string
+                int         d_min1;     // min occurrences for element 1
+                int         d_max1;     // max occurrences for element 1
+                int         d_min2;     // min occurrences for element 2
+                int         d_max2;     // max occurrences for element 2
+                int         d_retCode;  // expected return code
+                TS          d_result;   // expected result
             } DATA[] = {
                 //line   input
                 //----   -----
@@ -19759,11 +20519,13 @@ int main(int argc, char *argv[])
             const int NUM_DATA  = sizeof DATA / sizeof *DATA;
             const int MAX_DEPTH = 5;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int               LINE              = DATA[i].d_lineNum;
-                const bsl::string_view& INPUT             = DATA[i].d_input;
-                const int               EXPECTED_RET_CODE = DATA[i].d_retCode;
-                const TS                EXPECTED_RESULT   = DATA[i].d_result;
+            for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+                const Data&             data              = DATA[ti % NUM_DATA];
+                const int               LINE              = data.d_lineNum;
+                const bsl::string_view  INPUT             = data.d_input;
+                const int               EXPECTED_RET_CODE = data.d_retCode;
+                const TS                EXPECTED_RESULT   = data.d_result;
+                const bool              CHECK_UTF8        = NUM_DATA <= ti;
 
                 if (veryVerbose) {
                     T_ P(LINE)
@@ -19788,6 +20550,7 @@ int main(int argc, char *argv[])
                 balxml::DecoderOptions options;
                 options.setMaxDepth(MAX_DEPTH);
                 options.setSkipUnknownElements(false);
+                options.setValidateInputIsUtf8(CHECK_UTF8);
 
                 balxml::Decoder_SequenceContext<TS>
                                   context(&result1,
@@ -19830,11 +20593,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing 'MySequenceWithNullables'." << endl;
         {
-            typedef test::MySequenceWithNullables Type;
+            typedef Test::MySequenceWithNullables Type;
 
             const int         ATTRIBUTE1_VALUE = 123;
             const bsl::string ATTRIBUTE2_VALUE = "test string";
-            test::MySequence  ATTRIBUTE3_VALUE;
+            Test::MySequence  ATTRIBUTE3_VALUE;
 
             ATTRIBUTE3_VALUE.attribute1() = 987;
             ATTRIBUTE3_VALUE.attribute2() = "inner";
@@ -19865,8 +20628,10 @@ int main(int argc, char *argv[])
                 "</MySequenceWithNullables>\n",
             };
 
-            for (int i = 0; i < Type::NUM_ATTRIBUTES; ++i) {
-                const bsl::string_view &INPUT = INPUTS[i];
+            for (int ti = 0; ti < 2 * Type::NUM_ATTRIBUTES; ++ti) {
+                const int              i          = ti % Type::NUM_ATTRIBUTES;
+                const bsl::string_view INPUT      = INPUTS[i];
+                const bool             CHECK_UTF8 = Type::NUM_ATTRIBUTES <= ti;
 
                 Type mX;  const Type& X = mX;
 
@@ -19897,6 +20662,7 @@ int main(int argc, char *argv[])
                 balxml::MiniReader     reader;
                 balxml::ErrorInfo      errInfo;
                 balxml::DecoderOptions options;
+                options.setValidateInputIsUtf8(CHECK_UTF8);
 
                 balxml::Decoder decoder(&options,
                                         &reader,
@@ -19913,11 +20679,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing 'MySequenceWithNillables'." << endl;
         {
-            typedef test::MySequenceWithNillables Type;
+            typedef Test::MySequenceWithNillables Type;
 
             const int         ATTRIBUTE1_VALUE = 123;
             const bsl::string ATTRIBUTE2_VALUE = "test string";
-            test::MySequence  ATTRIBUTE3_VALUE;
+            Test::MySequence  ATTRIBUTE3_VALUE;
 
             ATTRIBUTE3_VALUE.attribute1() = 987;
             ATTRIBUTE3_VALUE.attribute2() = "inner";
@@ -19951,8 +20717,10 @@ int main(int argc, char *argv[])
                 "</MySequenceWithNillables>\n",
             };
 
-            for (int i = 0; i < Type::NUM_ATTRIBUTES; ++i) {
-                const bsl::string_view &INPUT = INPUTS[i];
+            for (int ti = 0; ti < 2 * Type::NUM_ATTRIBUTES; ++ti) {
+                const int               i          = ti % Type::NUM_ATTRIBUTES;
+                const bsl::string_view  INPUT      = INPUTS[i];
+                const bool              CHECK_UTF8 = Type::NUM_ATTRIBUTES <= ti;
 
                 Type mX; const Type& X = mX;
                 for (int j = 0; j < Type::NUM_ATTRIBUTES; ++j) {
@@ -19983,6 +20751,7 @@ int main(int argc, char *argv[])
                 balxml::ErrorInfo      errInfo;
                 balxml::DecoderOptions options;
                 options.setSkipUnknownElements(false);
+                options.setValidateInputIsUtf8(CHECK_UTF8);
 
                 balxml::Decoder decoder(&options,
                                         &reader,
@@ -20479,8 +21248,7 @@ int main(int argc, char *argv[])
                     Type EXPECTED_RESULT(EXPECTED_DATA,
                                          EXPECTED_DATA + EXPECTED_DATA_LENGTH);
 
-                    LOOP3_ASSERT(LINE, EXPECTED_RESULT,   result1,
-                                       EXPECTED_RESULT == result1);
+                    ASSERTV(LINE, EXPECTED_RESULT == result1);
                 }
             }
         }
@@ -20741,12 +21509,12 @@ int main(int argc, char *argv[])
 
         const char XML_NAME[] = "RE";  // xml name for root element
 
-        static const struct {
-            int               d_lineNum;       // source line number
-            bsl::string_view  d_input;         // input string
-            int               d_maxDepth;      // maximum depth
-            bool              d_success;       // parser succeed
-            const char       *d_callSequence;  // expected call sequence
+        static const struct Data {
+            int         d_lineNum;       // source line number
+            const char *d_input;         // input string
+            int         d_maxDepth;      // maximum depth
+            bool        d_success;       // parser succeed
+            const char *d_callSequence;  // expected call sequence
         } DATA[] = {
             //line  input
             //----  -----
@@ -20953,13 +21721,14 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int                LINE                 = DATA[i].d_lineNum;
-            const bsl::string_view&  INPUT                = DATA[i].d_input;
-            const int                MAX_DEPTH            = DATA[i].d_maxDepth;
-            const bool               EXPECTED_SUCCESS     = DATA[i].d_success;
-            const char              *EXPECTED_CALL_SEQUENCE
-                                                      = DATA[i].d_callSequence;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const Data&            data                   = DATA[ti % NUM_DATA];
+            const int              LINE                   = data.d_lineNum;
+            const bsl::string_view INPUT                  = data.d_input;
+            const int              MAX_DEPTH              = data.d_maxDepth;
+            const bool             EXPECTED_SUCCESS       = data.d_success;
+            const char            *EXPECTED_CALL_SEQUENCE = data.d_callSequence;
+            const bool             CHECK_UTF8             = NUM_DATA <= ti;
 
             if (veryVerbose) {
                 T_ P(LINE)
@@ -20980,6 +21749,7 @@ int main(int argc, char *argv[])
 
             balxml::DecoderOptions options;
             options.setMaxDepth(MAX_DEPTH);
+            options.setValidateInputIsUtf8(CHECK_UTF8);
 
             TestContext context(callSequence, XML_NAME, &testAllocator);
 
@@ -21043,7 +21813,7 @@ int main(int argc, char *argv[])
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                                 "<Value " XSI ">\n"
                                 "    123\n"
-                                "</Value>\n";
+                                "</Value>";
             bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
 
             if (veryVerbose) {
@@ -21062,9 +21832,11 @@ int main(int argc, char *argv[])
             int i;
 
             const int ret = decoder.decode(&isb, &i);
+            const unsigned offset = reader.getCurrentPosition();
 
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(i, 123 == i);
+            ASSERTV(offset, INPUT.size(), offset == INPUT.size());
         }
 
         if (verbose) cout << "\nTesting bsl::string." << endl;
@@ -21073,7 +21845,7 @@ int main(int argc, char *argv[])
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                                 "<Value " XSI ">\n"
                                 "    abc\n"
-                                "</Value>\n";
+                                "</Value>";
             bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
 
             if (veryVerbose) {
@@ -21092,9 +21864,11 @@ int main(int argc, char *argv[])
             bsl::string s;
 
             const int ret = decoder.decode(&isb, &s);
+            const unsigned offset = reader.getCurrentPosition();
 
             LOOP_ASSERT(ret, 0 == ret);
             LOOP_ASSERT(s, "\n    abc\n" == s);
+            ASSERTV(offset, INPUT.size(), offset == INPUT.size());
         }
 
         if (verbose) cout << "\nTesting TestSequence2." << endl;
@@ -21104,7 +21878,7 @@ int main(int argc, char *argv[])
                                 "<TestSequence2 " XSI ">\n"
                                 "    <E1>123</E1>\n"
                                 "    <E2>abc</E2>\n"
-                                "</TestSequence2>\n";
+                                "</TestSequence2>";
             bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
             bsl::istream               is(&isb);
 
@@ -21124,9 +21898,11 @@ int main(int argc, char *argv[])
             TestSequence2 ts;
 
             decoder.decode(is, &ts);
+            const unsigned offset = reader.getCurrentPosition();
 
             LOOP_ASSERT(is.fail(), !is.fail());
             LOOP_ASSERT(ts, TestSequence2(123, "abc") == ts);
+            ASSERTV(offset, INPUT.size(), offset == INPUT.size());
         }
 
         if (verbose) cout << "\nTesting TestChoice2." << endl;
@@ -21135,7 +21911,7 @@ int main(int argc, char *argv[])
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                                 "<TestChoice2 " XSI ">\n"
                                 "    <S1>123</S1>\n"
-                                "</TestChoice2>\n";
+                                "</TestChoice2>";
             bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
             bsl::istream               is(&isb);
 
@@ -21155,12 +21931,45 @@ int main(int argc, char *argv[])
             TestChoice2 tc;
 
             decoder.decode(is, &tc);
+            const unsigned offset = reader.getCurrentPosition();
 
             LOOP_ASSERT(is.fail(), !is.fail());
             LOOP_ASSERT(tc, TestChoice2(123) == tc);
+            ASSERTV(offset, INPUT.size(), offset == INPUT.size());
         }
 
         if (verbose) cout << "\nEnd of Breathing Test." << endl;
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // EXHAUSTIVE TESTING VALID & INVALID UTF-8: e_FILE
+        //
+        // Concern:
+        //: 1 We test valid and invalid UTF-8 injected into an XML string that
+        //:   we decode.  In this test case we handle the situation where the
+        //:   data is in a file.  We break this out of the previous test case
+        //:   because it's much slower than the other media of transmitting the
+        //:   data, which are all memory-only.
+        //:
+        //: 2 In this test, since it is a negative test case, we run the test
+        //:   exhaustively, which will take more time than is acceptable in a
+        //:   nightly build.
+        //
+        // Plan:
+        //: 1 Call Utf8Test::validAndInvalidUtf8Test(e_FILE);
+        //:
+        //: 2 Further details in the doc of 'validAndInvalidUtf8Test'.
+        //
+        // Tesing:
+        //   TESTING VALID & INVALID UTF-8: e_FILE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING VALID & INVALID UTF-8: e_FILE\n"
+                             "=====================================\n";
+
+        namespace TC = Utf8Test;
+
+        TC::validAndInvalidUtf8Test(TC::e_FILE, true);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
