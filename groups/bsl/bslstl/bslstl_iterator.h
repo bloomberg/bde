@@ -137,11 +137,20 @@ BSLS_IDENT("$Id: $")
 //      fixedArray[i] = i + 1;
 //  }
 //..
-// Now, we generate reverse iterators using the 'rbegin' and 'rend' methods of
+// Next, we generate reverse iterators using the 'rbegin' and 'rend' methods of
 // the fixed array object:
 //..
 //  MyFixedSizeArray<int, 5>::reverse_iterator rstart  = fixedArray.rbegin();
 //  MyFixedSizeArray<int, 5>::reverse_iterator rfinish = fixedArray.rend();
+//..
+// Now, we note that we could have acquired the iterators and container size by
+// calling the appropriate free functions:
+//..
+//  assert(rstart  == bsl::rbegin(fixedArray));
+//  assert(rfinish == bsl::rend(  fixedArray));
+//
+//  assert(fixedArray.size() == bsl::size(fixedArray));
+//  assert(rfinish - rstart  == bsl::ssize(fixedArray));
 //..
 // Finally, we traverse the fixed array again in reverse order using the two
 // generated reverse iterators:
@@ -176,6 +185,38 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_platform.h>
 
 #include <cstddef>
+
+#if 201703L <= BSLS_COMPILERFEATURES_CPLUSPLUS ||                             \
+         (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1900)
+# define BSLSTL_ITERATOR_SIZE_NATIVE 1
+#else
+# define BSLSTL_ITERATOR_SIZE_NATIVE 0
+#endif
+
+// We have observed that clang-10.0.0 does not support 'std::ssize' in C++20,
+// and we are speculating that later releases of the compiler will support it.
+
+#if 202002L <= BSLS_COMPILERFEATURES_CPLUSPLUS &&                             \
+    (!defined(BSLS_PLATFORM_CMP_CLANG) ||                                     \
+        (BSLS_PLATFORM_CMP_CLANG && 100000 < BSLS_PLATFORM_CMP_VERSION))
+# define BSLSTL_ITERATOR_SSIZE_NATIVE 1
+#else
+# define BSLSTL_ITERATOR_SSIZE_NATIVE 0
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)    &&                    \
+    201103L <= BSLS_COMPILERFEATURES_SUPPORT_CPLUSPLUS
+# define BSLSTL_ITERATOR_SSIZE_ADVANCED_IMPL 1
+#else
+# define BSLSTL_ITERATOR_SSIZE_ADVANCED_IMPL 0
+#endif
+
+#if !BSLSTL_ITERATOR_SSIZE_NATIVE
+# include <bsls_keyword.h>
+# if BSLSTL_ITERATOR_SSIZE_ADVANCED_IMPL
+#   include <type_traits>    // 'common_type', 'make_signed'
+# endif
+#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 # include <initializer_list>
@@ -605,6 +646,7 @@ struct IteratorDistanceImp {
     // This utility class provides a namespace for functions that operate on
     // iterators.
 
+    // CLASS METHODS
     template <class FWD_ITER, class DIFFERENCE_TYPE>
     static void getDistance(DIFFERENCE_TYPE *ret,
                             FWD_ITER         start,
@@ -1042,6 +1084,102 @@ operator+(DIFF_TYPE n, const reverse_iterator<ITER>& rhs)
 }
 
 #endif
+
+                                    // ====
+                                    // size
+                                    // ====
+
+#if BSLSTL_ITERATOR_SIZE_NATIVE
+
+using native_std::size;
+
+#else
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+
+template <class CONTAINER>
+inline
+BSLS_KEYWORD_CONSTEXPR auto size(const CONTAINER& container) ->
+                                                     decltype(container.size())
+    // Return the size of the specified 'container'.  The 'CONTAINER' template
+    // parameter type must provide a 'size' accessor.
+{
+    return container.size();
+}
+
+# else
+
+template <class CONTAINER>
+inline
+BSLS_KEYWORD_CONSTEXPR native_std::size_t size(const CONTAINER& container)
+    // Return the size of the specified 'container'.  The 'CONTAINER' template
+    // parameter type must provide a 'size' accessor.
+{
+    return container.size();
+}
+
+# endif
+
+template <class TYPE, native_std::size_t DIMENSION>
+inline
+BSLS_KEYWORD_CONSTEXPR native_std::size_t size(const TYPE (&)[DIMENSION])
+    // Return the dimension of the specified array argument.
+{
+    return DIMENSION;
+}
+
+#endif
+
+                                    // =====
+                                    // ssize
+                                    // =====
+
+#if BSLSTL_ITERATOR_SSIZE_NATIVE
+
+using native_std::ssize;
+
+#else
+
+# if BSLSTL_ITERATOR_SSIZE_ADVANCED_IMPL
+
+template <class CONTAINER>
+inline
+BSLS_KEYWORD_CONSTEXPR auto ssize(const CONTAINER& container) ->
+                native_std::common_type_t<
+                         native_std::ptrdiff_t,
+                         native_std::make_signed_t<decltype(container.size())>>
+    // Return the size of the specified 'container'.  The 'CONTAINER' template
+    // parameter type must provide a 'size' accessor.
+{
+    return container.size();
+}
+
+# else
+
+template <class CONTAINER>
+inline
+BSLS_KEYWORD_CONSTEXPR native_std::ptrdiff_t ssize(const CONTAINER& container)
+    // Return the size of the specified 'container'.  The 'CONTAINER' template
+    // parameter type must provide a 'size' accessor.
+{
+    return container.size();
+}
+
+# endif
+
+template <class TYPE, native_std::ptrdiff_t DIMENSION>
+inline
+BSLS_KEYWORD_CONSTEXPR native_std::ptrdiff_t ssize(const TYPE (&)[DIMENSION])
+    // Return the dimension of the specified array argument.
+{
+    return DIMENSION;
+}
+
+#endif
+
+#undef BSLSTL_ITERATOR_SIZE_NATIVE
+#undef BSLSTL_ITERATOR_SSIZE_NATIVE
+#undef BSLSTL_ITERATOR_SSIZE_ADVANCED_IMPL
 
 #if defined(BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES)
 
