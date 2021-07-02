@@ -1,0 +1,1471 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Binary to Decimal and Back Again &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bsl::optional: An Allocator-Aware Optional Type" href="bsl_optional.html" />
+    <link rel="prev" title="Concurrent Queue Evaluation" href="concurrent_queue_evaluation/paper.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../news/news.html">BDE News</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../news/news.html#avoiding-common-problems-with-smart-pointers">Avoiding Common Problems with Smart Pointers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../news/news.html#bde-coding-standards-update">BDE Coding Standards Update</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a><ul>
+<li class="toctree-l2"><a class="reference external" href="http://bloomberg.github.io/bde-resources/doxygen/bde_api_prod">API Documentation</a></li>
+<li class="toctree-l2"><a class="reference external" href="https://bloomberg.github.io/bde-tools/">Build Tools</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../library_information/build.html#linux-macos">Linux &amp; MacOS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/build.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/build.html#download-bde-tools">Download BDE tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/build.html#download-bde-library">Download BDE library</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/build.html#set-build-environment">Set build environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/build.html#configure-build-and-install-bde">Configure, build and install BDE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/build.html#create-an-application">Create an application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/build.html#plain-cmake-build">Plain CMake build</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../library_information/build.html#windows">Windows</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/build.html#id1">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/build.html#install-microsoft-visual-studio">Install Microsoft Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/build.html#id5">Download BDE tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/build.html#id6">Download BDE library</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/build.html#id7">Set build environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/build.html#id8">Configure, build and install BDE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/build.html#id10">Plain CMake build</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a><ul>
+<li class="toctree-l2"><a class="reference external" href="https://github.com/bloomberg/bde">Core Libraries</a></li>
+<li class="toctree-l2"><a class="reference external" href="https://github.com/bloomberg/bde-tools">Build Tools</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../library_information/supported_platforms.html#current-minimum-compilers-supported">Current Minimum Compilers Supported</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/supported_platforms.html#tiers-of-support">Tiers of Support</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../library_information/supported_platforms.html#tier-1-bloomberg-production-platforms">Tier 1: Bloomberg Production Platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../library_information/supported_platforms.html#tier-2-actively-supported-platforms">Tier 2: Actively Supported Platforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../library_information/supported_platforms.html#tier-3-user-supported-platforms">Tier 3: User Supported Platforms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/supported_platforms.html#supported-compiler-versions">Supported Compiler Versions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../library_information/supported_platforms.html#current-test-matrix">Current Test Matrix</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.84.0.html">BDE 3.84.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.84.0.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.84.0.html#bde-3-84-0-highlights">BDE 3.84.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.84.0.html#bdlpcre-regex-updated-underlying-library-and-added-replace"><code class="docutils literal notranslate"><span class="pre">bdlpcre::Regex</span></code>: updated underlying library, and added <code class="docutils literal notranslate"><span class="pre">replace</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.84.0.html#fixed-requests-3-84-0">Fixed requests: 3.84.0</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.83.0.html">BDE 3.83.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.83.0.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.83.0.html#bde-3-83-0-highlights">BDE 3.83.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.83.0.html#continuing-bde-4-0-changes">Continuing BDE 4.0 Changes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.83.0.html#fixed-requests-3-83-0">Fixed requests: 3.83.0</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.82.0.html">BDE 3.82.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.82.0.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.82.0.html#bde-3-82-0-highlights">BDE 3.82.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.82.0.html#continuing-bde-4-0-changes">Continuing BDE 4.0 Changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.82.0.html#enhancement-constrained-bsl-function-constructor-overload-resolution">Enhancement: Constrained <code class="docutils literal notranslate"><span class="pre">bsl::function</span></code> Constructor Overload Resolution</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.82.0.html#fixed-requests-3-82-0">Fixed requests: 3.82.0</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.81.0.html">BDE 3.81.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.81.0.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.81.0.html#bde-3-81-0-highlights">BDE 3.81.0 Highlights</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.81.0.html#fixed-requests-3-81-0">Fixed requests: 3.81.0</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.80.0.html">BDE 3.80.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.80.0.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.80.0.html#bde-3-80-0-highlights">BDE 3.80.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.80.0.html#enchancements-extended-implementation-of-comparison-for-string-views">Enchancements: Extended implementation of comparison for string_views</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.80.0.html#changed-behavior-ball-file-rotation-reference-start-time">Changed Behavior: Ball File Rotation Reference Start Time</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.80.0.html#fixed-requests-3-80-0">Fixed requests: 3.80.0</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.79.0.html">BDE 3.79.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.79.0.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.79.0.html#bde-3-79-0-highlights">BDE 3.79.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.79.0.html#new-component-ball-recordjsonformatter">New Component: ball::RecordJsonFormatter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.79.0.html#fixed-requests-3-79-0">Fixed requests: 3.79.0</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.78.0.html">BDE 3.78.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.78.0.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.78.0.html#bde-3-78-0-highlights">BDE 3.78.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.78.0.html#new-article-binary-to-decimal-and-back-again">New Article: Binary to Decimal and Back Again</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.78.0.html#bsl-string-append-bsl-string-view-overload-added"><code class="docutils literal notranslate"><span class="pre">bsl::string::append(bsl::string_view)</span></code> overload added</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.78.0.html#fixed-requests-3-78-0">Fixed requests: 3.78.0</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.77.0.html">BDE 3.77.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.77.0.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.77.0.html#bde-3-77-0-highlights">BDE 3.77.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.77.0.html#bdld-datum-now-useable-as-key-for-associative-containers"><code class="docutils literal notranslate"><span class="pre">bdld::Datum</span></code> now useable as key for associative containers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.77.0.html#fixed-requests-3-77-0">Fixed requests: 3.77.0</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.76.1.html">BDE 3.76.1: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.76.1.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.76.1.html#bde-3-76-1-highlights">BDE 3.76.1 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.76.1.html#bug-fix-for-ball-loggermanager-crash-on-exit">Bug fix for <code class="docutils literal notranslate"><span class="pre">ball::LoggerManager</span></code> crash-on-exit</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.76.1.html#fixed-requests-3-76-1">Fixed requests: 3.76.1</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.76.0.html">BDE 3.76.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.76.0.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.76.0.html#bde-3-76-0-highlights">BDE 3.76.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.76.0.html#new-bsl-optional-now-has-its-header-bsl-optional-h">New <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> now has its header, <code class="docutils literal notranslate"><span class="pre">bsl_optional.h</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.76.0.html#fixed-requests-3-76-0">Fixed requests: 3.76.0</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.75.1.html">BDE 3.75.1: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.75.1.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.75.1.html#bde-3-75-1-highlights">BDE 3.75.1 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.75.1.html#new-bsl-optional-with-interoperability-with-bdlb-nullablevalue">New <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> with interoperability with <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.75.1.html#fixed-requests-3-75-1">Fixed requests: 3.75.1</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.74.0.html">BDE 3.74.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.74.0.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.74.0.html#bde-3-74-0-highlights">BDE 3.74.0 Highlights</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.74.0.html#fixed-requests-3-74-0">Fixed requests: 3.74.0</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.73.1.html">BDE 3.73.1: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.73.1.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.73.1.html#bde-3-73-1-highlights">BDE 3.73.1 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.73.1.html#new-bsl-optional-feature-backed-out">New <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> feature backed out</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.73.1.html#fixed-requests-3-73-1">Fixed requests: 3.73.1</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/BDE_3.73.0.html">BDE 3.73.0: Production Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.73.0.html#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.73.0.html#bde-3-73-0-highlights">BDE 3.73.0 Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/BDE_3.73.0.html#new-bsl-optional-with-interoperability-with-bdlb-nullablevalue">New <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> with interoperability with <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/BDE_3.73.0.html#fixed-requests-3-73-0">Fixed requests: 3.73.0</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/archive/release_notes.html">Archived Release Notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.72.0.html">BDE 3.72.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.72.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.72.0.html#bde-3-72-0-highlights">BDE 3.72.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.72.0.html#fixed-requests-3-72-0">Fixed requests: 3.72.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.71.0.html">BDE 3.71.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.71.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.71.0.html#bde-3-71-0-highlights">BDE 3.71.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.71.0.html#fixed-requests-3-71-0">Fixed requests: 3.71.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.70.0.html">BDE 3.70.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.70.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.70.0.html#bde-3-70-0-highlights">BDE 3.70.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.70.0.html#fixed-requests-3-70-0">Fixed requests: 3.70.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.69.0.html">BDE 3.69.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.69.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.69.0.html#bde-3-69-0-highlights">BDE 3.69.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.69.0.html#fixed-requests-3-69-0">Fixed requests: 3.69.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.68.0.html">BDE 3.68.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.68.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.68.0.html#bde-3-68-0-highlights">BDE 3.68.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.68.0.html#fixed-requests-3-68-0">Fixed requests: 3.68.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.67.0.html">BDE 3.67.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.67.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.67.0.html#bde-3-67-0-highlights">BDE 3.67.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.67.0.html#fixed-requests-3-67-0">Fixed requests: 3.67.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.66.0.html">BDE 3.66.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.66.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.66.0.html#bde-3-66-0-highlights">BDE 3.66.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.66.0.html#fixed-requests-3-66-0">Fixed requests: 3.66.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.65.0.html">BDE 3.65.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.65.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.65.0.html#bde-3-65-0-highlights">BDE 3.65.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.65.0.html#fixed-requests-3-65-0">Fixed requests: 3.65.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.64.0.html">BDE 3.64.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.64.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.64.0.html#bde-3-64-0-highlights">BDE 3.64.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.64.0.html#fixed-requests-3-64-0">Fixed requests: 3.64.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.62.0.html">BDE 3.62.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.62.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.62.0.html#bde-3-62-0-highlights">BDE 3.62.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.62.0.html#fixed-requests-3-62-0">Fixed requests: 3.62.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.61.1.html">BDE 3.61.1: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.61.1.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.61.1.html#bde-3-61-1-highlights">BDE 3.61.1 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.61.1.html#fixed-requests-3-61-1">Fixed requests: 3.61.1</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.61.0.html">BDE 3.61.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.61.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.61.0.html#bde-3-61-0-highlights">BDE 3.61.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.61.0.html#fixed-requests-3-61-0">Fixed requests: 3.61.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.60.0.html">BDE 3.60.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.60.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.60.0.html#bde-3-60-0-highlights">BDE 3.60.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.60.0.html#fixed-requests-3-60-0">Fixed requests: 3.60.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.59.0.html">BDE 3.59.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.59.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.59.0.html#bde-3-59-0-highlights">BDE 3.59.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.59.0.html#fixed-requests-3-59-0">Fixed requests: 3.59.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.58.0.html">BDE 3.58.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.58.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.58.0.html#bde-3-58-0-highlights">BDE 3.58.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.58.0.html#fixed-requests-3-58-0">Fixed requests: 3.58.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.57.0.html">BDE 3.57.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.57.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.57.0.html#bde-3-57-0-highlights">BDE 3.57.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.57.0.html#fixed-requests-3-57-0">Fixed requests: 3.57.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.56.0.html">BDE 3.56.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.56.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.56.0.html#bde-3-56-0-highlights">BDE 3.56.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.56.0.html#fixed-requests-3-56-0">Fixed requests: 3.56.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.55.0.html">BDE 3.55.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.55.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.55.0.html#bde-3-55-0-highlights">BDE 3.55.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.55.0.html#fixed-requests-3-55-0">Fixed requests: 3.55.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.54.0.html">BDE 3.54.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.54.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.54.0.html#bde-3-54-0-highlights">BDE 3.54.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.54.0.html#fixed-requests-3-54-0">Fixed requests: 3.54.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.53.0.html">BDE 3.53.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.53.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.53.0.html#bde-3-53-0-highlights">BDE 3.53.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.53.0.html#fixed-requests-3-53-0">Fixed requests: 3.53.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.52.0.html">BDE 3.52.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.52.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.52.0.html#bde-3-52-0-highlights">BDE 3.52.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.52.0.html#fixed-requests-3-52-0">Fixed requests: 3.52.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.51.0.html">BDE 3.51.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.51.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.51.0.html#bde-3-51-0-highlights">BDE 3.51.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.51.0.html#fixed-requests-3-51-0">Fixed requests: 3.51.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.50.0.html">BDE 3.50.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.50.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.50.0.html#bde-3-50-0-highlights">BDE 3.50.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.50.0.html#fixed-requests-3-50-0">Fixed requests: 3.50.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.49.0.html">BDE 3.49.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.49.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.49.0.html#bde-3-49-0-highlights">BDE 3.49.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.49.0.html#fixed-requests-3-49-0">Fixed requests: 3.49.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.48.1.html">BDE 3.48.1: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.48.1.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.48.1.html#bde-3-48-1-highlights">BDE 3.48.1 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.48.1.html#fixed-requests-3-48-1">Fixed requests: 3.48.1</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.47.0.html">BDE 3.47.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.47.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.47.0.html#bde-3-47-0-highlights">BDE 3.47.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.47.0.html#fixed-requests-3-47-0">Fixed requests: 3.47.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.46.2.html">BDE 3.46.2: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.46.2.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.46.2.html#bde-3-46-2-highlights">BDE 3.46.2 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.46.2.html#fixed-requests-3-46-2">Fixed requests: 3.46.2</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.46.1.html">BDE 3.46.1: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.46.1.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.46.1.html#bde-3-46-1-highlights">BDE 3.46.1 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.46.1.html#fixed-requests-3-46-1">Fixed requests: 3.46.1</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.46.0.html">BDE 3.46.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.46.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.46.0.html#bde-3-46-0-highlights">BDE 3.46.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.46.0.html#fixed-requests-3-46-0">Fixed requests: 3.46.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.45.2.html">BDE 3.45.2: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.45.2.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.45.2.html#bde-3-45-2-highlights">BDE 3.45.2 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.45.0.html">BDE 3.45.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.45.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.45.0.html#bde-3-45-0-highlights">BDE 3.45.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.45.0.html#fixed-requests-3-45-0">Fixed requests: 3.45.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.44.0.html">BDE 3.44.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.44.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.44.0.html#bde-3-44-0-highlights">BDE 3.44.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.44.0.html#fixed-requests-3-44-0">Fixed requests: 3.44.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.42.0.html">BDE 3.42.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.42.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.42.0.html#bde-3-42-0-highlights">BDE 3.42.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.42.0.html#fixed-requests-3-42-0">Fixed requests: 3.42.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.41.0.html">BDE 3.41.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.41.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.41.0.html#bde-3-41-0-highlights">BDE 3.41.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.41.0.html#fixed-requests-3-41-0">Fixed requests: 3.41.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.40.0.html">BDE 3.40.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.40.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.40.0.html#bde-3-40-0-highlights">BDE 3.40.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.40.0.html#fixed-requests-3-40-0">Fixed requests: 3.40.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.39.0.html">BDE 3.39.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.39.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.39.0.html#bde-3-39-0-highlights">BDE 3.39.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.39.0.html#fixed-requests-3-39-0">Fixed requests: 3.39.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.38.0.html">BDE 3.38.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.38.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.38.0.html#bde-3-38-0-highlights">BDE 3.38.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.38.0.html#fixed-requests-3-38-0">Fixed requests: 3.38.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.37.1.html">BDE 3.37.1: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.37.1.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.37.1.html#bde-3-37-1-highlights">BDE 3.37.1 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.37.1.html#fixed-requests-3-37-1">Fixed requests: 3.37.1</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.36.0.html">BDE 3.36.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.36.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.36.0.html#bde-3-36-0-highlights">BDE 3.36.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.36.0.html#fixed-requests-3-36-0">Fixed requests: 3.36.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.35.0.html">BDE 3.35.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.35.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.35.0.html#bde-3-35-0-highlights">BDE 3.35.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.35.0.html#fixed-requests-3-35-0">Fixed requests: 3.35.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.34.0.html">BDE 3.34.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.34.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.34.0.html#bde-3-34-0-highlights">BDE 3.34.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.34.0.html#fixed-requests-3-34-0">Fixed requests: 3.34.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.33.1.html">BDE 3.33.1: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.33.1.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.33.1.html#bde-3-33-1-highlights">BDE 3.33.1 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.33.1.html#fixed-requests-3-33-0">Fixed requests: 3.33.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.32.0.html">BDE 3.32.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.32.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.32.0.html#bde-3-32-0-highlights">BDE 3.32.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.32.0.html#fixed-requests-3-32-0">Fixed requests: 3.32.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.31.0.html">BDE 3.31.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.31.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.31.0.html#bde-3-31-0-highlights">BDE 3.31.0 Highlights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.31.0.html#fixed-requests-3-31-0">Fixed requests: 3.31.0</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.30.0.html">BDE 3.30.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.30.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.30.0.html#bde-3-30-0-highlights">BDE 3.30.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.29.0.html">BDE 3.29.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.29.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.29.0.html#bde-3-29-0-highlights">BDE 3.29.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.28.0.html">BDE 3.28.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.28.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.28.0.html#bde-3-28-0-highlights">BDE 3.28.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.27.0.html">BDE 3.27.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.27.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.27.0.html#bde-3-27-0-highlights">BDE 3.27.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.26.0.html">BDE 3.26.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.26.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.26.0.html#bde-3-26-0-highlights">BDE 3.26.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.25.0.html">BDE 3.25.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.25.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.25.0.html#bde-3-25-0-highlights">BDE 3.25.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.24.0.html">BDE 3.24.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.24.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.24.0.html#bde-3-24-0-highlights">BDE 3.24.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.23.1.html">BDE 3.23.1: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.23.1.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.23.1.html#bde-3-23-1-highlights">BDE 3.23.1 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.21.0.html">BDE 3.21.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.21.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.21.0.html#bde-3-21-0-highlights">BDE 3.21.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.20.0.html">BDE 3.20.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.20.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.20.0.html#bde-3-20-0-highlights">BDE 3.20.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.19.0.html">BDE 3.19.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.19.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.19.0.html#bde-3-19-0-highlights">BDE 3.19.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.18.0.html">BDE 3.18.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.18.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.18.0.html#bde-3-18-0-highlights">BDE 3.18.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.17.0.html">BDE 3.17.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.17.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.17.0.html#bde-3-17-0-highlights">BDE 3.17.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.16.0.html">BDE 3.16.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.16.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.16.0.html#bde-3-16-0-highlights">BDE 3.16.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.15.0.html">BDE 3.15.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.15.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.15.0.html#bde-3-15-0-highlights">BDE 3.15.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.14.0.html">BDE 3.14.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.14.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.14.0.html#bde-3-14-0-highlights">BDE 3.14.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.13.0.html">BDE 3.13.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.13.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.13.0.html#bde-3-13-0-highlights">BDE 3.13.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.12.0.html">BDE 3.12.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.12.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.12.0.html#bde-3-12-0-highlights">BDE 3.12.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.11.0.html">BDE 3.11.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.11.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.11.0.html#bde-3-11-0-highlights">BDE 3.11.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.10.0.html">BDE 3.10.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.10.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.10.0.html#bde-3-10-0-highlights">BDE 3.10.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.9.0.html">BDE 3.9.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.9.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.9.0.html#bde-3-9-0-highlights">BDE 3.9.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.8.0.html">BDE 3.8.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.8.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.8.0.html#bde-3-8-0-highlights">BDE 3.8.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.7.1.html">BDE 3.7.1: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.7.1.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.7.1.html#bde-3-7-1-highlights">BDE 3.7.1 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.7.0.html">BDE 3.7.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.7.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.7.0.html#bde-3-7-0-highlights">BDE 3.7.0 Highlights</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../release_notes/archive/BDE_3.6.0.html">BDE 3.6.0: Production Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.6.0.html#schedule">Schedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../release_notes/archive/BDE_3.6.0.html#bde-3-6-0-highlights">BDE 3.6.0 Highlights</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#introduction">1 Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#units-of-release">2 Units of Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#package-groups">2.1 Package Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#standalone-packages">2.2 Standalone Packages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#components">3 Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#physical-design">3.1 Physical Design</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#logical-design">3.2 Logical Design</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#namespaces">3.3 Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#general-naming-conventions">3.4 General Naming Conventions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#header-files">4 Header Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#general-organization">4.1 General Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#prologue">4.2 Prologue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#include-directives">4.3 Include Directives</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#declarations">4.4 Declarations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#inline-definitions">4.5 Inline Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#epilogue">4.6 Epilogue</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#implementation-files">5 Implementation Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#class-definitions">6 Class Definitions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#general-form">6.1 General Form</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#sections">6.2 Sections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#types-sections">6.3 Types Sections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#types-section-rules-specific-to-enumerations">6.4 Types Section Rules Specific to Enumerations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#data-section">6.5 Data Section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#friends-section">6.6 Friends Section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#method-sections">6.7 Method Sections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#method-definitions">6.8 Method Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#free-operators">6.9 Free Operators</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#method-design-and-implementation">7 Method Design and Implementation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#naming-conventions">7.1 Naming Conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#interface-conventions">7.2 Interface Conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#function-signatures">7.3 Function Signatures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#special-rules-for-creators">7.4 Special Rules for Creators</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#component-level-documentation">8 Component-Level Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#comment-fields">8.1 Comment Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#description">8.2 Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#usage">8.3 Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#class-level-documentation">9 Class-Level Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#class-nomenclature">9.1 Class Nomenclature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#thread-safety">9.2 Thread Safety</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#exception-safety">9.3 Exception Safety</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#alias-safety">9.4 Alias Safety</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#function-level-documentation">10 Function-Level Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#what-the-function-does">10.1 What the Function Does</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#what-the-function-returns">10.2 What the Function Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#more-about-essential-behavior">10.3 More About Essential Behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#undefined-behavior">10.4 Undefined Behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#note-that">10.5 Note That</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#typographical-conventions">11 Typographical Conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#source-file-mechanics">11.1 Source File Mechanics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#variable-declarations">11.2 Variable Declarations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#alignment-for-variable-declarations">11.3 Alignment for Variable Declarations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#variable-documentation">11.4 Variable Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#preprocessor-usage">11.5 Preprocessor Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#mid-function-returns">11.6 Mid-Function Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#formatting-logical-statements">11.7 Formatting Logical Statements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#markup">12 Markup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#basic-markup">12.1 Basic Markup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#displays">12.2 Displays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#headings">12.3 Headings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#links">12.4 Links</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#deprecation">13 Deprecation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#general-meaning">13.1 General Meaning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#section-13-2">13.2 Markup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#appendix-1-obsolete-rules">14 Appendix 1: Obsolete Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/coding_standards.html#appendix-2-rationale">15 Appendix 2: Rationale</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/coding_standards.html#r-7-3-rationale-function-signatures">R.7.3 Rationale: Function Signatures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/feature_index.html">Feature Index</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#allocators">Allocators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#date-and-time">Date and Time</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/feature_index.html#calendars">Calendars</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/feature_index.html#current-date-and-time">Current Date and Time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/feature_index.html#id2">Date and Time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/feature_index.html#time-zones">Time Zones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/feature_index.html#timing">Timing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/feature_index.html#conversions">Conversions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#decimal-floating-point">Decimal Floating-Point</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#defensive-programming">Defensive Programming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#encodings-hashings">Encodings &amp; Hashings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#function-abstractions">Function Abstractions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#glossary-of-bde-terminology">Glossary of BDE Terminology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#logging-and-metrics">Logging and Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#messaging">Messaging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#miscellaneous">Miscellaneous</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#os-operations">OS Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#parsing">Parsing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#smart-pointers">Smart Pointers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#stack-traces-stack-recording-allocator">Stack Traces &amp; Stack-Recording Allocator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#test-apparatus">Test Apparatus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#threads">Threads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/feature_index.html#traits">Traits</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../white_papers/defensive-checks-vs-input-validation.html">Defensive Checking Versus Input Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../white_papers/unleashing-aa-software.html">Unleashing the Power of Allocator-Aware Software Infrastructure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../white_papers/allocator-aware-software.html">Value Proposition: Allocator-Aware (AA) Software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../white_papers/embracing_modern_cpp_safely.html">Embracing Modern C++ Safely</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../white_papers/contracts_ub_and_defensive_programming.html">Contracts, Undefined Behavior, and Defensive Programming</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="concurrent_queue_evaluation/paper.html">Concurrent Queue Evaluation (Mar 31, 2021)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#executive-summary">Executive Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#benchmark">Benchmark</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#selecting-a-result-table">Selecting a Result Table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#result-table-format">Result Table Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#sample-result-table-interpretation">Sample Result Table Interpretation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#multi-producer-multi-consumer-unbounded">Multi-Producer, Multi-Consumer, Unbounded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#multi-producer-multi-consumer-bounded">Multi-Producer, Multi-Consumer, Bounded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#multi-producer-multi-consumer-either">Multi-Producer, Multi-Consumer, Either</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#single-producer-multi-consumer-unbounded">Single-Producer, Multi-Consumer, Unbounded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#single-producer-multi-consumer-bounded">Single-Producer, Multi-Consumer, Bounded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#single-producer-multi-consumer-either">Single-Producer, Multi-Consumer, Either</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#multi-producer-single-consumer-unbounded">Multi-Producer, Single-Consumer, Unbounded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#multi-producer-single-consumer-bounded">Multi-Producer, Single-Consumer, Bounded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#multi-producer-single-consumer-either">Multi-Producer, Single-Consumer, Either</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#single-producer-single-consumer-unbounded">Single-Producer, Single-Consumer, Unbounded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#single-producer-single-consumer-bounded">Single-Producer, Single-Consumer, Bounded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#single-producer-single-consumer-either">Single-Producer, Single-Consumer, Either</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#conclusion">Conclusion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concurrent_queue_evaluation/paper.html#extensive-results">Extensive Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Binary to Decimal and Back Again. (Mar 30, 2021)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#abstract">Abstract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#preserving-equality-through-conversions-round-trip-equality">Preserving Equality Through Conversions (“Round-Trip Equality”)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#decimal-to-binary-conversion">Decimal to Binary Conversion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#binary-to-decimal-conversion">Binary to Decimal Conversion</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#conversion-methods">Conversion Methods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#conversion-from-character-floating-point-representation">Conversion From Character Floating-Point Representation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#conversion-from-decimal-floating-point-representation-bdldfp-decimal">Conversion From Decimal Floating-Point Representation (<code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#conversion-from-binary-floating-point-representation-float-double">Conversion From Binary Floating-Point Representation (<code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_optional.html">bsl::optional: An Allocator-Aware Optional Type. (Feb 1, 2021)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bsl_optional.html#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bsl_optional.html#differences-between-std-optional-and-bsl-optional">Differences Between <code class="docutils literal notranslate"><span class="pre">std::optional</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bsl_optional.html#constructor-documentation">Constructor Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bsl_optional.html#migrating-from-bdlb-nullablevalue">Migrating From <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bsl_optional.html#comparison-of-bsl-optional-and-bdlb-nullablevalue">Comparison of <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bsl_optional.html#interoperability-between-bsl-optional-and-bdlb-nullablevalue">Interoperability Between <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bsl_optional.html#relational-operator-changes">Relational Operator Changes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bsl_optional.html#bdlb-nullablevalue-behavior-change-c-03-only-implicit-conversion-to-bool"><code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code> Behavior Change: C++03-Only <em>Implicit</em> Conversion to <code class="docutils literal notranslate"><span class="pre">bool</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ball_scoped_attributes.html">Adding Context to your Application Log. (Jan 6, 2021)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ball_scoped_attributes.html#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ball_scoped_attributes.html#configuring-an-observer-to-output-attributes">Configuring an Observer to Output Attributes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ball_scoped_attributes.html#new-suggested-log-record-format">New Suggested Log Record Format</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ball_scoped_attributes.html#details-on-using-attributes">Details on Using Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ball_scoped_attributes.html#attribute-naming-recommendations">Attribute Naming Recommendations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ball_scoped_attributes.html#humio-and-splunk">Humio and Splunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ball_scoped_attributes.html#performance">Performance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ball_scoped_attributes.html#results">Results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ball_scoped_attributes.html#benchmark-details">Benchmark Details</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ball_scoped_attributes.html#other-features">Other Features</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ber_format.html">BER Date and Time Format Specification. (Jan 9, 2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpcheck.html">Avoiding Common Problems with Smart Pointers. (Dec 17, 2019)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/contributing.html#where-is-the-bde-source-code">Where is the BDE Source Code?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/contributing.html#basic-requirements-for-a-contribution">Basic Requirements for a Contribution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/contributing.html#bde-development-workflow">BDE Development Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/contributing.html#testing">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/contributing.html#how-do-i-build-and-test-a-fix">How Do I Build and Test a Fix?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/contributing.html#how-do-i-contribute-a-simple-bug-fix-or-documentation-change">How Do I Contribute a Simple Bug Fix or Documentation Change?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/contributing.html#how-do-i-contribute-a-new-feature-component-or-package">How Do I Contribute a New Feature, Component, or Package?</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../knowledge_base/contributing.html#road-map">Road Map</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/contributing.html#proposal">Proposal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/contributing.html#development">Development</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/contributing.html#review">Review</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../knowledge_base/contributing.html#release">Release</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">CMake Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Articles</a> &raquo;</li>
+        
+      <li>Binary to Decimal and Back Again</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bsl_optional.html" class="btn btn-neutral float-right" title="bsl::optional: An Allocator-Aware Optional Type" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="concurrent_queue_evaluation/paper.html" class="btn btn-neutral" title="Concurrent Queue Evaluation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p><em>Mar 30, 2021</em></p>
+<div class="section" id="binary-to-decimal-and-back-again">
+<span id="binary-decimal-conversion-top"></span><h1><a class="toc-backref" href="#id2">Binary to Decimal and Back Again</a><a class="headerlink" href="#binary-to-decimal-and-back-again" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#binary-to-decimal-and-back-again" id="id2">Binary to Decimal and Back Again</a><ul>
+<li><a class="reference internal" href="#abstract" id="id3">Abstract</a></li>
+<li><a class="reference internal" href="#introduction" id="id4">Introduction</a></li>
+<li><a class="reference internal" href="#preserving-equality-through-conversions-round-trip-equality" id="id5">Preserving Equality Through Conversions (“Round-Trip Equality”)</a><ul>
+<li><a class="reference internal" href="#decimal-to-binary-conversion" id="id6">Decimal to Binary Conversion</a></li>
+<li><a class="reference internal" href="#binary-to-decimal-conversion" id="id7">Binary to Decimal Conversion</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#conversion-methods" id="id8">Conversion Methods</a><ul>
+<li><a class="reference internal" href="#conversion-from-character-floating-point-representation" id="id9">Conversion From Character Floating-Point Representation</a></li>
+<li><a class="reference internal" href="#conversion-from-decimal-floating-point-representation-bdldfp-decimal" id="id10">Conversion From Decimal Floating-Point Representation (<code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>)</a></li>
+<li><a class="reference internal" href="#conversion-from-binary-floating-point-representation-float-double" id="id11">Conversion From Binary Floating-Point Representation (<code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="abstract">
+<h2><a class="toc-backref" href="#id3">Abstract</a><a class="headerlink" href="#abstract" title="Permalink to this headline">¶</a></h2>
+<p>Handling floating-point numbers in computer systems is hard.  Types like <code class="docutils literal notranslate"><span class="pre">double</span></code> and <code class="docutils literal notranslate"><span class="pre">float</span></code> (<a class="reference external" href="https://en.wikipedia.org/wiki/IEEE_754-1985">IEEE 754-1985</a>) both provide <em>approximations</em> to the mathematical concept of a real number, which, for the most part, allow us to ignore this complexity.  However, software where we expose the limits of these approximations can be a source of errors, and one area that is a particularly common source of errors at Bloomberg is the conversion between binary representations of floating-point numbers (i.e., <code class="docutils literal notranslate"><span class="pre">double</span></code> and <code class="docutils literal notranslate"><span class="pre">float</span></code>) and decimal representations (like the string “3.14159”).  Such conversions are especially relevant at Bloomberg because financial calculations are governed by laws and expectations that are based on decimal (base-10) thinking.  In this article we seek to explain the complexity in converting between binary and decimal floating-point representations, and to guide developers in performing such conversions safely.</p>
+</div>
+<div class="section" id="introduction">
+<h2><a class="toc-backref" href="#id4">Introduction</a><a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Modern computer systems typically operate on floating-point numbers represented in IEEE-754 binary format.  Binary floating-point numbers are optimal for scientific computations due to the high computational performance enabled by the hardware (FPUs), their high precision, and carefully designed mathematical operations that minimize accumulation of rounding errors during lengthy calculations. However, binary floating-point numbers are far less suitable for computations involving humans, particularly those in the financial sector.</p>
+<p>Financial calculations are governed by laws and expectations that are based on decimal (base-10) thinking. Since binary floating-point cannot represent decimal values exactly, it is difficult to use them while maintaining decimal accuracy requirements. Doing such decimal-based calculations and algorithms using binary floating-point numbers is so hard that it is considered not feasible. The IEEE-754 committee have recognized the issue and added specifications for 3 decimal floating-point types into their 2008 standard: the 32, 64, and 128-bit decimal floating-point formats (BDE provides implementations of decimal floating-point types in the <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdldfp__decimal.html">bdldfp_decimal</a> component).</p>
+<p>Having two numeric formats, binary floating-point representations (like <code class="docutils literal notranslate"><span class="pre">float</span></code> and <code class="docutils literal notranslate"><span class="pre">double</span></code>) and decimal floating-point representations (like the <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> type and any textual representations of a floating-point value) raises the requirement of converting between them.</p>
+<p>The desire to convert numbers from binary floating-point to decimal format is fraught with misunderstanding, and is often accompanied by ill-conceived attempts to “correct rounding errors” and otherwise coerce results into aesthetically pleasing forms. In the Bloomberg environment, there is the additional complication of IBM/Perkin-Elmer/Interdata floating-point. This is a floating-point format that uses a base-16 rather than a base-2 underlying representation, and the Bloomberg environment contains numbers that began as decimals, were converted to IBM format, and then were converted from IBM format to IEEE format.</p>
+</div>
+<div class="section" id="preserving-equality-through-conversions-round-trip-equality">
+<h2><a class="toc-backref" href="#id5">Preserving Equality Through Conversions (“Round-Trip Equality”)</a><a class="headerlink" href="#preserving-equality-through-conversions-round-trip-equality" title="Permalink to this headline">¶</a></h2>
+<p>When we consider conversions between binary and decimal representations an important property we want to maintain is that the converted value in the original representation is equal to its original value (what we call “round-trip equality”). That is, we want to be able take a number in a decimal representation, convert it to a binary representation, and convert it back to a decimal representation and for that resulting value to be equal to the value we started with.</p>
+<div class="section" id="decimal-to-binary-conversion">
+<h3><a class="toc-backref" href="#id6">Decimal to Binary Conversion</a><a class="headerlink" href="#decimal-to-binary-conversion" title="Permalink to this headline">¶</a></h3>
+<p>Generally, when a decimal floating-point value is converted to binary floating-point, the result is the representable binary number nearest in value to that decimal. Unless the decimal value is exactly a multiple of a power of two (e.g., 3.4375 = 55 * 1/16), the converted binary value cannot be equal to the decimal value, it can only be close. It is also desirable that two different decimal values convert to two different binary values.</p>
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">D</span> <span class="o">---</span><span class="mi">4</span><span class="o">-------------------</span><span class="mi">5</span><span class="o">-------------&gt;</span> <span class="n">Decimals</span> <span class="k">with</span> <span class="n">K</span> <span class="n">significant</span> <span class="n">digits</span>
+<span class="n">d</span> <span class="o">-</span><span class="mi">9</span><span class="o">-</span><span class="mi">0</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="mi">2</span><span class="o">-</span><span class="mi">3</span><span class="o">-</span><span class="mi">4</span><span class="o">-</span><span class="mi">5</span><span class="o">-</span><span class="mi">6</span><span class="o">-</span><span class="mi">7</span><span class="o">-</span><span class="mi">8</span><span class="o">-</span><span class="mi">9</span><span class="o">-</span><span class="mi">0</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="mi">2</span><span class="o">-</span><span class="mi">3</span><span class="o">-</span><span class="mi">4</span><span class="o">-</span><span class="mi">5</span><span class="o">-</span><span class="mi">3</span><span class="o">-&gt;</span> <span class="n">Decimals</span> <span class="k">with</span> <span class="n">K</span> <span class="o">+</span> <span class="mi">1</span> <span class="n">significant</span> <span class="n">digits</span>
+<span class="n">B</span> <span class="o">---</span><span class="mi">0</span><span class="o">----</span><span class="mi">1</span><span class="o">----</span><span class="mi">2</span><span class="o">----</span><span class="mi">3</span><span class="o">----</span><span class="mi">4</span><span class="o">----</span><span class="mi">5</span><span class="o">----</span><span class="mi">6</span><span class="o">---&gt;</span> <span class="n">Binary</span> <span class="n">values</span>
+</pre></div>
+</div>
+<p>The diagram above shows three digital scales of different precisions. The first and the second decimal scales reflect the decimal numbers having K and K + 1 significant digits, respectively (for example, 0.12345 and 0.123456). The latter is the binary scale that reflects the representable range of the target binary type <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>. The diagram illustrates that there is a maximum number of significant digits (in our case, K) for which different decimals are converted to different binary values:</p>
+<ul class="simple">
+<li>On the first diagram D<sub>5</sub> is the decimal number, the K-th significant digit of which is 5. Consider D<sub>5</sub> is a multiple of a power of two, D<sub>5</sub> = n*2<sup>m</sup> (e.g., 1.71875 = 55 * 1/32) then it converts to the single B<sub>4</sub> binary number on the binary scale.</li>
+<li>On the second diagram d<sub>50</sub> is the decimal number, the K-th and K-th + 1 significant digits of which are 5 and 0, respectively. d<sub>49</sub>, d<sub>50</sub>, and d<sub>51</sub> (i.e., 1.718749, 1.718750, 1.718751) all convert to B<sub>4</sub>.</li>
+</ul>
+<p>The latter conversion breaks the round-trip equality property as the original decimals cannot be restored after being converted to binary and back.</p>
+<p>It was observed that all decimals with K = 6 significant digits convert to distinct <code class="docutils literal notranslate"><span class="pre">float</span></code> values, but 8589973000 and 8589974000, with K = 7 significant digits, convert to the same <code class="docutils literal notranslate"><span class="pre">float</span></code> value. Similarly, all decimals with K = 15 significant digits convert to unique <code class="docutils literal notranslate"><span class="pre">double</span></code> values but 900719925474.0992 and 900719925474.0993, with K = 16 significant digits, convert to the same <code class="docutils literal notranslate"><span class="pre">double</span></code> value. Over restricted ranges, the maximum may be higher - for example, every decimal value with 7 or fewer significant digits in the range (1*10<sup>-3</sup>.. 8.5*10<sup>9</sup>) converts to a unique <code class="docutils literal notranslate"><span class="pre">float</span></code> value.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When converting a decimal representation (such as a character string containing a monetary value) to either <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code> the maximum number of decimal digits K that can be represented such that the decimal value can later be restored is expressed by the constants <code class="docutils literal notranslate"><span class="pre">std::numeric_limits&lt;float&gt;::digits10</span></code> (6) and <code class="docutils literal notranslate"><span class="pre">std::numeric_limits&lt;double&gt;::digits10</span></code> (15) respectively.</p>
+</div>
+</div>
+<div class="section" id="binary-to-decimal-conversion">
+<h3><a class="toc-backref" href="#id7">Binary to Decimal Conversion</a><a class="headerlink" href="#binary-to-decimal-conversion" title="Permalink to this headline">¶</a></h3>
+<p>Round-trip conversion from binary floating-point to decimal and back requires choosing a number of significant digits for the intermediate decimal representation. Choose too few, and multiple binary values will convert to the same decimal value. For example, B<sub>3</sub>, B<sub>4</sub>, B<sub>5</sub> all convert to D<sub>5</sub>, but B<sub>4</sub> converts to d<sub>50</sub>. There is a minimum number of significant digits such that all representable binary floating-point values will convert to distinct decimal values. For <code class="docutils literal notranslate"><span class="pre">float</span></code>, 9 digits are required and for <code class="docutils literal notranslate"><span class="pre">double</span></code>, 17 digits are required. For example, the two 32-bit float values 0x447FFF92 and 0x447FFF93 both convert to 1023.9933 when only 8 digits are used, but respectively convert to 1023.99329 and 1023.99335 when 9 digits are used. Note that while using this minimum number of digits guarantees unique decimal values, it is also the case that shorter decimal values can convert to the same binary value, and some conversion methods, such as <code class="docutils literal notranslate"><span class="pre">std::to_chars</span></code> (which first appeared in the C++17 Standard) require that for conversion to decimal, a shortest representation that converts back exactly be produced. With our sample numbers, 1023.9933 also converts to 0x447FFF92, so we might prefer that result when converting 0x447FFF92 to decimal rather than the longer 1023.99329.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When converting a binary floating-point representation to a decimal representation (such as a character string or <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>) the minimum number of digits K that are necessary to uniquely represent all distinct values such that the binary floating-point value can later be restored is expressed by the constants <code class="docutils literal notranslate"><span class="pre">std::numeric_limits&lt;float&gt;::max_digits10</span></code> (9) and <code class="docutils literal notranslate"><span class="pre">std::numeric_limits&lt;double&gt;::max_digits10</span></code> (17) respectively.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>To summarize:</p>
+<ul class="last simple">
+<li><code class="docutils literal notranslate"><span class="pre">std::numeric_limits&lt;T&gt;::digits10</span></code>: maximum number of digits in a decimal value where all such values can be uniquely represented in the binary floating-point representation T.</li>
+<li><code class="docutils literal notranslate"><span class="pre">std::numeric_limits&lt;T&gt;::max_digits10</span></code>: the number of decimal digits required to exactly represent all possible values of a binary floating-point representation T (such that values can be restored).</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="conversion-methods">
+<h2><a class="toc-backref" href="#id8">Conversion Methods</a><a class="headerlink" href="#conversion-methods" title="Permalink to this headline">¶</a></h2>
+<p>Floating-point numbers can be encoded in different formats for a variety of purposes:</p>
+<ul class="simple">
+<li>Binary floating-point representation that is commonly used for scientific computations.</li>
+<li>Decimal floating-point representation that provides accuracy for financial computations.</li>
+<li>Decimal character representation used to encode floating-point values in human readable formats, and in text-based interchange (JSON or XML).</li>
+</ul>
+<p>The following sections describe different alternatives for converting between these representations:</p>
+<div class="section" id="conversion-from-character-floating-point-representation">
+<h3><a class="toc-backref" href="#id9">Conversion From Character Floating-Point Representation</a><a class="headerlink" href="#conversion-from-character-floating-point-representation" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="from-character-string-to-binary-floating-point-float-double">
+<h4>From Character String to Binary Floating-Point (<code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code>)<a class="headerlink" href="#from-character-string-to-binary-floating-point-float-double" title="Permalink to this headline">¶</a></h4>
+<p>If a floating-point value is represented as a (decimal) character string, then a binary floating-point value can be obtained in the following ways:</p>
+<ol class="arabic simple">
+<li>Initializing or assigning a binary floating-point variable with a literal in source code (e.g., <code class="docutils literal notranslate"><span class="pre">double</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">1.5;</span></code>). This is the most common type of conversion, which almost no program can do without. This conversion is so integral to the language that it is often overlooked, but the programmer should keep in mind that in order to be able to round-trip the initial value, the number of significant digits should not exceed 6 (7 for the 1*10<sup>-3</sup>.. 8.5*10<sup>9</sup> range) for <code class="docutils literal notranslate"><span class="pre">float</span></code> and 15 for <code class="docutils literal notranslate"><span class="pre">double</span></code>.</li>
+<li>The utility functions in the <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdlb__numericparseutil.html">bdlb_numericparserutil</a> component:</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">bdlb::NumericParseUtil::parseDouble</span></code>. This function provides behavior which parallels the Standard Library <code class="docutils literal notranslate"><span class="pre">strtod</span></code> function, but corrects the implementation deficiencies in <code class="docutils literal notranslate"><span class="pre">strtod</span></code> noted below (consistently handling special values NaN and Infinity, both positive and negative), treats leading white-space as an error (which is more suitable to strictly parsing textual encodings), and provides consistent functionality on all of Bloomberg’s production platforms.</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li>The Standard Library functions:</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">std::atof</span></code> only applies for <code class="docutils literal notranslate"><span class="pre">double</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">std::strtof</span></code> (<strong>since C++11</strong>), <code class="docutils literal notranslate"><span class="pre">std::strtod</span></code> (<strong>since C++03</strong>), <code class="docutils literal notranslate"><span class="pre">std::strtold</span></code> (<strong>since C++11</strong>). For developers that must support all Bloomberg production platforms <code class="docutils literal notranslate"><span class="pre">std::strtod</span></code> is the primary standard library facility available (though we would encourage using <code class="docutils literal notranslate"><span class="pre">bdlb::NumericParseUtil</span></code>).  There are a couple points of non-conformance to be aware of:</li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li>Visual Studio, up to and including MSVC 2013, does not parse the special <code class="docutils literal notranslate"><span class="pre">double</span></code> values NaN and Infinity as specified for <a class="reference external" href="http://en.cppreference.com/w/cpp/string/byte/strtof">strtof</a>;</li>
+<li>libstdc++, the library implementation used with GCC, parses negative NaN but returns positive NaN as the result.</li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">std::stof</span></code>, <code class="docutils literal notranslate"><span class="pre">std::stod</span></code>, <code class="docutils literal notranslate"><span class="pre">std::stold</span></code> (<strong>since</strong> C++11)</li>
+<li><code class="docutils literal notranslate"><span class="pre">std::from_chars</span></code> (<strong>since</strong> C++17) is a locale-independent, non-allocating, and non-throwing alternative to the functions above. This function provides the fastest possible implementation that is useful in common high-throughput contexts such as text-based interchange (JSON or XML).</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Round-trip equality when using <code class="docutils literal notranslate"><span class="pre">std::from_chars</span></code> to recover a floating-point value from a string representation formatted by <code class="docutils literal notranslate"><span class="pre">std::to_chars</span></code> is only guaranteed if both functions are from the same implementation.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">std::from_chars</span></code> is not supported by all libraries provided by the Standard Library C++ vendors that are used at Bloomberg. According to <a class="reference external" href="https://en.cppreference.com/w/cpp/compiler_support">C++ compiler support</a> <code class="docutils literal notranslate"><span class="pre">std::from_chars</span></code> for <code class="docutils literal notranslate"><span class="pre">float</span></code> and <code class="docutils literal notranslate"><span class="pre">double</span></code> is:</p>
+<ul class="last simple">
+<li>Supported in GCC 11.1.0 and later</li>
+<li>Supported in Visual Studio 2017 version 19.15 (note: <code class="docutils literal notranslate"><span class="pre">from_chars</span></code> was supported earlier than <code class="docutils literal notranslate"><span class="pre">to_chars</span></code>) and later</li>
+<li>Not supported in Clang (as of version 11)</li>
+<li>Not supported in Sun Studio CC (as of version 12.4)</li>
+<li>Not supported in IBM xlC (as of version 12)</li>
+</ul>
+</div>
+</div></blockquote>
+<p>All of these functions produce a binary floating-point value which is one of at most two floating-point values closest to the value of the input character string.</p>
+</div>
+<div class="section" id="from-character-string-to-decimal-floating-point-bdldfp-decimal">
+<h4>From Character String to Decimal Floating-Point (<code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>)<a class="headerlink" href="#from-character-string-to-decimal-floating-point-bdldfp-decimal" title="Permalink to this headline">¶</a></h4>
+<p>A text string, and <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>, are both decimal representations of a floating-point number, and so conversions between them are simpler and exact (assuming the required number of digits can be represented in the target type). The following mechanisms for converting a floating-point value represented as a (decimal) character string to an object of <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> type provide the same result value:</p>
+<ol class="arabic simple">
+<li>The utility functions in <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdldfp__decimalutil.html">bdldfp_decimalutil</a> component:</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalUtil::parseDecimal32</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalUtil::parseDecimal64</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalUtil::parseDecimal128</span></code></li>
+</ul>
+<p>These functions parse the input (decimal) character string to the <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> value as specified for the <code class="docutils literal notranslate"><span class="pre">std::strtod32</span></code> function in section 9.6 of the <a class="reference external" href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1312.pdf">ISO/EIC TR 24732 C Decimal Floating-Point Technical Report</a>, except that it is unspecified whether the <code class="docutils literal notranslate"><span class="pre">NaN</span></code> values returned are quiet or signaling.</p>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>User defined literals in <code class="docutils literal notranslate"><span class="pre">bdldfp::literals::DecimalLiterals</span></code> namespace (<strong>requires</strong> C++11): <code class="docutils literal notranslate"><span class="pre">operator</span> <span class="pre">&quot;&quot;</span> <span class="pre">_d32</span></code>, <code class="docutils literal notranslate"><span class="pre">operator</span> <span class="pre">&quot;&quot;</span> <span class="pre">_d64</span></code>, and <code class="docutils literal notranslate"><span class="pre">operator</span> <span class="pre">&quot;&quot;</span> <span class="pre">_d128</span></code>. These user-defined literal suffixes can be applied to both numeric and string literals (i.e., <code class="docutils literal notranslate"><span class="pre">1.2_d128</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;1.2&quot;_d128</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;inf&quot;_d128</span></code>) to produce a decimal floating-point value of the indicated type by parsing the argument string or numeric value.  (If the numeric form is used, note that a leading sign will not be considered part of the literal, but rather will be a unary operator applied to the literal represented by the remainder of the literal.)</li>
+</ol>
+<div class="code cpp highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">using</span> <span class="n">namespace</span> <span class="n">bdldfp</span><span class="p">::</span><span class="n">DecimalLiterals</span><span class="p">;</span>
+
+<span class="n">bdldfp</span><span class="p">::</span><span class="n">Decimal32</span>   <span class="n">d0</span>  <span class="o">=</span> <span class="s2">&quot;1.2&quot;</span><span class="n">_d32</span><span class="p">;</span>
+<span class="n">bdldfp</span><span class="p">::</span><span class="n">Decimal32</span>   <span class="n">d1</span>  <span class="o">=</span>  <span class="mf">1.2</span><span class="n">_d32</span><span class="p">;</span>
+
+<span class="n">bdldfp</span><span class="p">::</span><span class="n">Decimal64</span>   <span class="n">d2</span>  <span class="o">=</span> <span class="s2">&quot;-3.45678901234&quot;</span><span class="n">_d64</span><span class="p">;</span>
+<span class="n">bdldfp</span><span class="p">::</span><span class="n">Decimal64</span>   <span class="n">d3</span>  <span class="o">=</span>  <span class="o">-</span><span class="mf">3.45678901234</span><span class="n">_d64</span><span class="p">;</span>
+
+<span class="n">bdldfp</span><span class="p">::</span><span class="n">Decimal128</span>  <span class="n">inf</span> <span class="o">=</span> <span class="s2">&quot;inf&quot;</span><span class="n">_d128</span><span class="p">;</span>
+<span class="n">bdldfp</span><span class="p">::</span><span class="n">Decimal128</span>  <span class="n">nan</span> <span class="o">=</span> <span class="s2">&quot;nan&quot;</span><span class="n">_d128</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="conversion-from-decimal-floating-point-representation-bdldfp-decimal">
+<h3><a class="toc-backref" href="#id10">Conversion From Decimal Floating-Point Representation (<code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>)</a><a class="headerlink" href="#conversion-from-decimal-floating-point-representation-bdldfp-decimal" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="from-bdldfp-decimal-to-binary-floating-point-float-double">
+<h4>From <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> to Binary Floating-Point (<code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code>)<a class="headerlink" href="#from-bdldfp-decimal-to-binary-floating-point-float-double" title="Permalink to this headline">¶</a></h4>
+<p>If a decimal value is represented as an object of <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> type, then a binary floating-point value can be obtained using the following functions:</p>
+<ol class="arabic simple">
+<li>The utility functions in the <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdldfp__decimalconvertutil.html">bdldfp_decimalconvertutil</a> component:</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalConvertUtil::decimalToFloat</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalConvertUtil::decimalToDouble</span></code></li>
+</ul>
+<p>These functions result in a binary floating-point representation having the value closest to the value of the input decimal object following the conversion rules defined by IEEE-754.</p>
+</div></blockquote>
+</div>
+<div class="section" id="from-bdldfp-decimal-to-character-floating-point-const-char">
+<h4>From <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> to Character Floating-Point (<code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code>)<a class="headerlink" href="#from-bdldfp-decimal-to-character-floating-point-const-char" title="Permalink to this headline">¶</a></h4>
+<p>A text string, and <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>, are both decimal representations of a floating-point number, so conversions between them are simpler and exact (assuming the required number of digits can be represented in the target string). The following mechanisms for converting a <code class="docutils literal notranslate"><span class="pre">bdlfp::Decimal</span></code> object to a (decimal) character string are typically interchangeable, resulting in the same numerical value (potentially formatted differently):</p>
+<ul class="simple">
+<li>The stream output operator (<code class="docutils literal notranslate"><span class="pre">operator</span> <span class="pre">&lt;&lt;</span></code>) will write a <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> value to the output stream. The <code class="docutils literal notranslate"><span class="pre">std::fixed</span></code> and <code class="docutils literal notranslate"><span class="pre">std::scientific</span></code> manipulators are supported for the <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> types. If neither of these are supplied, then the decimal value is formated in the “natural” format as described in the IEEE-754 standard. The “natural” format preserves the quantum stored in the <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> value, such that the formated form of every (bitwise) different <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> value formats differently and restores to the same <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> value if converted back.</li>
+<li><code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalUtil::format</span></code> formats a <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> value placing the output into a buffer. This function implements the same conversion functionality as the stream output operator and provides additional formatting options via a <code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalFormatConfig</span></code> parameter (for example, customizing the NaN and/or Infinity output). When the function is invoked without a configuration, then the decimal value is formatted in the “scientific” format.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="conversion-from-binary-floating-point-representation-float-double">
+<h3><a class="toc-backref" href="#id11">Conversion From Binary Floating-Point Representation (<code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code>)</a><a class="headerlink" href="#conversion-from-binary-floating-point-representation-float-double" title="Permalink to this headline">¶</a></h3>
+<p>Because binary floating-point values are generally not equal to their decimal progenitors, “converting from binary to decimal” does not have a single meaning, and programmers performing such a conversion must be more precise about the properties of the conversion they want to perform.</p>
+<div class="section" id="from-binary-floating-point-to-character-floating-point-const-char">
+<h4>From Binary Floating-Point to Character Floating-Point (<code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code>)<a class="headerlink" href="#from-binary-floating-point-to-character-floating-point-const-char" title="Permalink to this headline">¶</a></h4>
+<p>A user looking to convert a binary floating-point representation to a character string may have one of a few possible use-cases for the conversion:</p>
+<ol class="arabic simple">
+<li>Express the value as the shortest decimal character string that will convert back to the same value. For this conversion, use:</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li>The Standard Library <code class="docutils literal notranslate"><span class="pre">std::to_chars</span></code> (<strong>since</strong> C++17) function is a locale-independent, non-allocating, and non-throwing alternative to the C Standard Library formatting functions (<code class="docutils literal notranslate"><span class="pre">sprintf</span></code>, etc.). This function converts a binary floating-point value to the shortest string representation and provides the fastest possible implementation that is useful in common high-throughput contexts such as text-based interchange (JSON or XML).</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Round-trip equality when using <code class="docutils literal notranslate"><span class="pre">std::from_chars</span></code> to recover a floating-point value from a string representation formatted by <code class="docutils literal notranslate"><span class="pre">std::to_chars</span></code> is only guaranteed if both functions are from the same implementation.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">std::to_chars</span></code> is not supported by all libraries provided by the Standard Library C++ vendors that are used at Bloomberg. According to <a class="reference external" href="https://en.cppreference.com/w/cpp/compiler_support">C++ compiler support</a> <code class="docutils literal notranslate"><span class="pre">std::to_chars</span></code> for <code class="docutils literal notranslate"><span class="pre">float</span></code> and <code class="docutils literal notranslate"><span class="pre">double</span></code> is:</p>
+<ul class="last simple">
+<li>Supported in GCC 11.1.0 and later</li>
+<li>Supported in Visual Studio 2017 version 19.24 and later</li>
+<li>Not supported in Clang (as of version 11)</li>
+<li>Not supported in Sun Studio CC (as of version 12.4)</li>
+<li>Not supported in IBM xlC (as of version 12)</li>
+</ul>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>Express the value rounded to a given number of significant digits.  For this conversion, use <code class="docutils literal notranslate"><span class="pre">snprintf</span></code> into a large-enough buffer:</li>
+</ol>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">buf[100];</span> <span class="pre">double</span> <span class="pre">value;</span> <span class="pre">snprintf(buf,</span> <span class="pre">100,</span> <span class="pre">'%.*g&quot;,</span> <span class="pre">digits,</span> <span class="pre">value);</span></code></li>
+</ul>
+<p>The resulting value will be in either fixed or scientific format depending on the range into which the value falls.
+Trailing zeros will be trimmed away.  If the specified number of digits is at least <code class="docutils literal notranslate"><span class="pre">numeric_limits&lt;T&gt;::max_digits10</span></code>
+(for <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>, depending on the type of the value being converted) then the resulting decimal string will
+convert back to the same value of the same type.</p>
+<ol class="arabic simple" start="3">
+<li>Express the value rounded to a given number of decimal places in scientific notation.  For this conversion, use <code class="docutils literal notranslate"><span class="pre">snprintf</span></code> into a large-enough buffer:</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">buf[100];</span> <span class="pre">double</span> <span class="pre">value;</span> <span class="pre">snprintf(buf,</span> <span class="pre">100,</span> <span class="pre">'%.*e&quot;,</span> <span class="pre">places,</span> <span class="pre">value);</span></code></li>
+</ul>
+</div></blockquote>
+<p>Note that unlike the <code class="docutils literal notranslate"><span class="pre">%g</span></code> version above, here we specify the number of decimal places rather than the number of significant digits,
+and the converted value will therefore have one more significant digit than the number of places specified.  ALso unlike <code class="docutils literal notranslate"><span class="pre">%g</span></code>, trailing
+zeros will not be trimmed from the converted value.</p>
+<ol class="arabic simple" start="4">
+<li>Express the value in fixed-point form rounded to a given number of decimal places. (The decimal places of a decimal number are the number of digits after the decimal point, with trailing 0s removed; .01, 10.01, and 1000.01 each have two decimal places.) For this conversion, use <code class="docutils literal notranslate"><span class="pre">snprintf</span></code> into a large-enough buffer:</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">buf[2000];</span> <span class="pre">double</span> <span class="pre">value;</span> <span class="pre">snprintf(buf,</span> <span class="pre">2000,</span> <span class="pre">&quot;%.*f&quot;,</span> <span class="pre">places,</span> <span class="pre">value);</span></code></li>
+<li>This form is suitable when the value being converted is known to fall into an expected range and the number of decimal places is of particular interest, such as when converting a value representing dollars and cents.</li>
+<li>This form is not suitable for values that span large orders of magnitude, because the significant digits of large values will be followed by many zeros and then a decimal point and zeros for the specified number of decimal places, and the significant digits of small values will be lost past the number of specified decimal places.</li>
+<li>When determining the number of decimal digits, if the floating-point value being converted is the result of scientific calculations, then to guarantee that two different floating-point values convert to two different decimals, the total number of significant digits (the sum of digits before and after the decimal point) should be at least 9 for <code class="docutils literal notranslate"><span class="pre">float</span></code> and 17 for <code class="docutils literal notranslate"><span class="pre">double</span></code> (see discussion of <code class="docutils literal notranslate"><span class="pre">numeric_limits&lt;T&gt;::max_digits10</span></code> above).</li>
+<li>Issues may still be introduced by a conversion. If a binary floating-point value is the result of conversion from the decimal representation, then this conversion can be problematic when the integer portion of the value is large, as there may not be enough precision remaining to deliver a meaningful number of decimal places. For example, for numbers near one trillion that consume 15 digits like 999,999,999,999.999, there is not enough precision in a <code class="docutils literal notranslate"><span class="pre">double</span></code> for 4 decimal places. If you were to try dealing with decimal values in that range but with four decimal places instead of three, you would be using 16 digits and you would not have unique binary values for all such decimals.</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li>Express the value exactly as a decimal. For example, the decimal value .1 converts to the 32-bit IEEE <code class="docutils literal notranslate"><span class="pre">float</span></code> value 0x3DCCCCCD, which has the exact value .100000001490116119384765625. This conversion is seldom useful, except perhaps for debugging, since the exact value may have over 1000 digits. For the same reason, binary floating-point values often cannot be represented exactly as a decimal floating-point. For this conversion, use <code class="docutils literal notranslate"><span class="pre">snprintf</span></code> into a large-enough buffer (the result will have trailing 0s, which may be trimmed):</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">buf[2000];</span> <span class="pre">double</span> <span class="pre">value;</span> <span class="pre">snprintf(buf,</span> <span class="pre">2000,</span> <span class="pre">&quot;%.1100f&quot;,</span> <span class="pre">value);</span></code></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="from-binary-floating-point-to-decimal-floating-point-bdldfp-decimal">
+<h4>From Binary Floating-Point to Decimal Floating-Point (<code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>)<a class="headerlink" href="#from-binary-floating-point-to-decimal-floating-point-bdldfp-decimal" title="Permalink to this headline">¶</a></h4>
+<p>A user looking to convert a floating-point representation to a <code class="docutils literal notranslate"><span class="pre">bdlfp::Decimal</span></code> type may have one of a few possible use-cases for the conversion. There are two general mechanisms to perform the conversion (the <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> constructors, and <code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalConvertUtil</span></code> functions like <code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalConvertUtil::decimal64FromDouble</span></code>). Below, we enumerate the use-cases and provide the appropriate function(s) and arguments for each.</p>
+<p>When converting from a binary floating-point representation to a <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> type, a user may wish to:</p>
+<ol class="arabic simple">
+<li>Express the value as its nearest representable decimal value. For this conversion, use the conversion constructors:</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal32(value)</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal64(value)</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal128(value)</span></code></li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Although this conversion is the easiest to use and simplest to understand, it is frequently <strong>not</strong> the correct choice.</p>
+</div>
+<p>Frequently, the binary floating-point value being converted to a <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> is an approximation of what was originally a decimal value (e.g., a monetary value). For such values one of the other conversions is likely to be more appropriate.</p>
+<ol class="arabic" start="2">
+<li><p class="first">Express the value rounded to a specific number of significant digits. (The significant digits of a decimal number are the digits with all leading and trailing 0s removed; e.g., 0.00103, 10.3 and 10300 each have 3 significant digits.) This conversion is the one that leads programmers to complain about “rounding error” (for example, .1f rounded to 9 digits is .100000001) but is the appropriate one to use when the programmer knows that the binary value was originally converted from a decimal value with that many significant digits. For this conversion, use:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="40%" />
+<col width="41%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Result Type</th>
+<th class="head">float</th>
+<th class="head">double</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><strong>Decimal32</strong></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal32FromFloat(value,</span> <span class="pre">digits)</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal32FromDouble(value,</span> <span class="pre">digits)</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Decimal64</strong></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal64FromFloat(value,</span> <span class="pre">digits)</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal64FromDouble(value,</span> <span class="pre">digits)</span></code></td>
+</tr>
+<tr class="row-even"><td><strong>Decimal128</strong></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal128FromFloat(value,</span> <span class="pre">digits)</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal128FromDouble(value,</span> <span class="pre">digits)</span></code></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</li>
+<li><p class="first">Express the value using the minimum number of significant digits for the type of the binary such that converting the decimal value back to binary will yield the same value. (Note that <strong>17</strong> digits are needed for <code class="docutils literal notranslate"><span class="pre">double</span></code> and <strong>9</strong> for <code class="docutils literal notranslate"><span class="pre">float</span></code>, so not all decimal types can hold such a result.) For this conversion, use:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="39%" />
+<col width="41%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Result Type</th>
+<th class="head">float</th>
+<th class="head">double</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><strong>Decimal64</strong></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal64FromFloat(value,</span> <span class="pre">9)</span></code></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>Decimal128</strong></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal128FromFloat(value,</span> <span class="pre">9)</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal128FromDouble(value,</span> <span class="pre">17)</span></code></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This conversion is appropriate when the binary representation that did not necessarily originate as a conversion from a decimal number, but more likely from some process of calculation (e.g., present value of a cash flow, or a yield curve point calculated from financial instrument prices).</p>
+</div>
+<ol class="arabic" start="4">
+<li><p class="first">Express the value using a number of decimal places that restores the original decimal value from which the binary value was converted, assuming that the original decimal value had sufficiently few significant digits so that no two values with that number of digits would convert to the same binary value. (That number is <strong>15</strong> for <code class="docutils literal notranslate"><span class="pre">double</span></code> and <strong>6</strong> for <code class="docutils literal notranslate"><span class="pre">float</span></code> in general but <strong>7</strong> over a limited range that spans [1*10<sup>-3</sup> .. 8.5*10<sup>9</sup>]). For this conversion, use:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="39%" />
+<col width="40%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Result Type</th>
+<th class="head">float</th>
+<th class="head">double</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><strong>Decimal32</strong></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal32FromFloat(value)</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal32FromDouble(value)</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Decimal64</strong></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal64FromFloat(value)</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal64FromDouble(value)</span></code></td>
+</tr>
+<tr class="row-even"><td><strong>Decimal128</strong></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal128FromFloat(value)</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal128FromDouble(value)</span></code></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This conversion or the one that follows is appropriate when the provenance of a value was a decimal representation (like a monetary value that has been converted to <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code>).</p>
+</div>
+<ol class="arabic" start="5">
+<li><p class="first">Express the value as the shortest decimal number that converts back exactly to the binary value. For example, given the binary value 0x3DCCCCCD above, that corresponding shortest decimal value is (unsurprisingly) .1, while the next lower value 0x3DCCCCCC has the shortest decimal .099999994 and the next higher value 0x3DCCCCCE has the shortest decimal .10000001. This is the most visually appealing result, but can be expensive and slow to compute. For this conversion, use:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="40%" />
+<col width="41%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Result Type</th>
+<th class="head">float</th>
+<th class="head">double</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><strong>Decimal32</strong></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal32FromFloat(value,</span> <span class="pre">-1)</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal32FromDouble(value,</span> <span class="pre">-1)</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Decimal64</strong></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal64FromFloat(value,</span> <span class="pre">-1)</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal64FromDouble(value,</span> <span class="pre">-1)</span></code></td>
+</tr>
+<tr class="row-even"><td><strong>Decimal128</strong></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal128FromFloat(value,</span> <span class="pre">-1)</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal128FromDouble(value,</span> <span class="pre">-1)</span></code></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</li>
+<li><p class="first">Express the value using a number of decimal places that restores the original decimal value assuming that it is a <code class="docutils literal notranslate"><span class="pre">float</span></code> which originated as an IBM/Perkin-Elmer/Interdata float value itself originally converted from a decimal value. For this conversion, use:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Result Type</th>
+<th class="head">float</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><strong>Decimal32</strong></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal32FromFloat(value,</span> <span class="pre">6)</span></code></td>
+</tr>
+<tr class="row-odd"><td><strong>Decimal64</strong></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal64FromFloat(value,</span> <span class="pre">6)</span></code></td>
+</tr>
+<tr class="row-even"><td><strong>Decimal128</strong></td>
+<td><code class="docutils literal notranslate"><span class="pre">decimal128FromFloat(value,</span> <span class="pre">6)</span></code></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2021, Bloomberg LP.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>
