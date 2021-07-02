@@ -427,6 +427,17 @@ void TestUtil::loadDecoderOptions(ComplexTypeElement *decoderOptions)
         SchemaUtil::append(&sequence, skipUnknownElements);
     }
 
+    {
+        Element validateInputIsUtf8;
+        validateInputIsUtf8.name()            = "ValidateInputIsUtf8";
+        validateInputIsUtf8.type()            = "xs:boolean";
+        validateInputIsUtf8.minOccurs()       = "0";
+        validateInputIsUtf8.maxOccurs()       = "1";
+        validateInputIsUtf8.defaultValue()    = "false";
+        validateInputIsUtf8.allowsDirectManipulation() = "0";
+        SchemaUtil::append(&sequence, validateInputIsUtf8);
+    }
+
     SchemaUtil::append(decoderOptions, sequence);
 }
 
