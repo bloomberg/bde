@@ -1917,7 +1917,7 @@ int main(int argc, char *argv[])
         //:   operation.
         //
         // Plan:
-        //: 1 Create a file containing 2 consequetive strings.
+        //: 1 Create a file containing 2 consecutive strings.
         //:
         //: 2 Use 'truncateFileSize' to set the length of the file to after the
         //:   first string.
@@ -1990,7 +1990,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == off);
 
         char buffer[300] = { 0 };
-        rc = Obj::read(fd, buffer, len1);
+        rc = Obj::read(fd, buffer, 300);
         ASSERT(len1 == rc);
 
         ASSERT(!bsl::strcmp(contents1, buffer));

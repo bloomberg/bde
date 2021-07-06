@@ -1073,8 +1073,7 @@ int FilesystemUtil::lock(FileDescriptor descriptor, bool lockWrite)
 
 int FilesystemUtil::truncateFileSize(FileDescriptor descriptor, Offset size)
 {
-    const Offset existingFileSize = getFileSize(descriptor);
-    BSLS_ASSERT(size <= existingFileSize);
+    BSLS_ASSERT(size <= getFileSize(descriptor));
 
     const Offset pos = seek(descriptor, size, e_SEEK_FROM_BEGINNING);
     if (pos != size) {
@@ -1982,8 +1981,7 @@ int FilesystemUtil::sync(char *address, bsl::size_t numBytes, bool syncFlag)
 
 int FilesystemUtil::truncateFileSize(FileDescriptor descriptor, Offset size)
 {
-    const Offset existingFileSize = getFileSize(descriptor);
-    BSLS_ASSERT(size <= existingFileSize);
+    BSLS_ASSERT(size <= getFileSize(descriptor));
 
     int rc = ::ftruncate(descriptor, size);
     if (0 != rc) {

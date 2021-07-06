@@ -761,6 +761,7 @@ struct FilesystemUtil {
     static int truncateFileSize(FileDescriptor descriptor, Offset size);
         // Set the size of the file referred to by the specified 'descriptor'
         // to the specified 'size'.  'descriptor' must be open for writing.
+        // After the function call, the position is set to the end of the file.
         // Return 0 on success and a non-zero value otherwise.  The behavior is
         // undefined if the file is currently mapped, or if 'size' is greater
         // than the existing size of the file.
