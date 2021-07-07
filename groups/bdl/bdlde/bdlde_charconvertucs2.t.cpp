@@ -7,8 +7,9 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <bdlde_charconvertucs2.h>
+
+#include <bslalg_constructorproxy.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -17,11 +18,11 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
-#include <bsl_iostream.h>
-#include <bsl_iomanip.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_iomanip.h>
+#include <bsl_iostream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -107,6 +108,16 @@ static void aSsErT(int c, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 bslma::Allocator& ta = bslma::NewDeleteAllocator::singleton();
+
+namespace {
+    // The test number and the verbosity level are out here so that they are
+    // visible to all functions.  They are set at the beginning of 'main()'.
+    int test;           // The number of the test being executed (from argv)
+    int verbose;        // Nonzero iff one or more args after the test number
+    int veryVerbose;    // Nonzero iff two or more args after the test number
+    int veryVeryVerbose;        // " " three or more args after the test number
+    int veryVeryVeryVerbose;    // " " four or more args after the test number
+}  // close unnamed namespace
 
 // 'ArrayPrinter(pointer, length)' simplifies printing out array values from
 // LOOP_ASSERT failures.
@@ -479,11 +490,316 @@ const struct PrecomputedData {
 bsl::size_t precomputedDataCount = sizeof PRECOMPUTED_DATA
                                  / sizeof *PRECOMPUTED_DATA;
 
+
+static const struct {
+    int                   d_lineNum;        // source line number
+    const char           *d_spec_p;         // utf-8 input string
+    const unsigned short  d_output_p[256];  // expected ucs2 output
+    bsl::size_t           d_bufsize;        // buffer size to claim
+    bsl::size_t           d_expectedCount;  // expected output char count
+    int                   d_expectedResult; // expected result
+} TEST_3_DATA[] = {
+   //L#  input             output                               size #c  result
+   //--  -----             ------                               ---- --  ------
+   { L_, "",               {                               0 },   0, 0, OBTS },
+   { L_, "",               {                               0 },   1, 1,   OK },
+   { L_, "",               {                               0 }, 255, 1,   OK },
+   { L_, " ",              { 0x20,                         0 }, 255, 2,   OK },
+
+   // Make sure short buffers are handled correctly.
+   { L_, "Hello",          {                               0 },   1, 1, OBTS },
+   { L_, "Hello",          { 'H',                          0 },   2, 2, OBTS },
+   { L_, "Hello",          { 'H', 'e', 'l', 'l',           0 },   5, 5, OBTS },
+   { L_, "Hello",          { 'H', 'e', 'l', 'l', 'o',      0 },   6, 6,   OK },
+   { L_, "Hello",          { 'H', 'e', 'l', 'l', 'o',      0 }, 255, 6,   OK },
+
+   // Check the boundary between 1-octet and 2-octet characters.
+   { L_, "\x7f",           {                               0 },   1, 1, OBTS },
+   { L_, "\x7f",           { 0x7f,                         0 }, 255, 2,   OK },
+   { L_, U8_00080,         {                               0 },   1, 1, OBTS },
+   { L_, U8_00080,         { 0x80,                         0 }, 255, 2,   OK },
+
+   // Check the boundary between 2-octet and 3-octet characters.
+   { L_, U8_007ff,         {                               0 },   1, 1, OBTS },
+   { L_, U8_007ff,         { 0x07ff,                       0 }, 255, 2,   OK },
+   { L_, U8_00800,         {                               0 },   1, 1, OBTS },
+   { L_, U8_00800,         { 0x0800,                       0 }, 255, 2,   OK },
+
+   // Check the maximal 3-octet character.
+   { L_, U8_0ffff,         {                               0 },   1, 1, OBTS },
+   { L_, U8_0ffff,         { 0xffff,                       0 }, 255, 2,   OK },
+
+   // Make sure 4-octet characters are handled correctly (with a single error).
+   { L_, U8_10000,         {                               0 },   1, 1, OBTS },
+   { L_, U8_10000,         { '?',                          0 }, 255, 2, BADC },
+   { L_, U8_10000 " ",     { '?', ' ',                     0 }, 255, 3, BADC },
+   { L_, " " U8_10000 " ", { ' ', '?', ' ',                0 }, 255, 4, BADC },
+   { L_, U8_10ffff,        { '?',                          0 }, 255, 2, BADC },
+   { L_, U8_10ffff " ",    { '?', ' ',                     0 }, 255, 3, BADC },
+   { L_, " " U8_10ffff " ",
+                           { ' ', '?', ' ',                0 }, 255, 4, BADC },
+
+   // Make sure partial 4-octet characters are handled correctly (with a single
+   // error).
+   { L_, "\xf0",           {                               0 },   1, 1, OBTS },
+   { L_, "\xf0",           { '?',                          0 }, 255, 2, BADC },
+   { L_, "\xf0\x80",       { '?',                          0 }, 255, 2, BADC },
+   { L_, "\xf0\x80\x80",   { '?',                          0 }, 255, 2, BADC },
+   { L_, "\xf0 ",          { '?', ' ',                     0 }, 255, 3, BADC },
+   { L_, "\xf0\x80 ",      { '?', ' ',                     0 }, 255, 3, BADC },
+   { L_, "\xf0\x80\x80 ",  { '?', ' ',                     0 }, 255, 3, BADC },
+
+   // Make sure the "illegal" UTF-8 octets are handled correctly:
+   //      o  The octet values C0, C1, F5 to FF never appear.
+   //         (however, C0 and C1 indicate the start of overlong
+   //         encodings, which this implementation accepts)
+   { L_, "\xf5",           {                               0 },   1, 1, OBTS },
+   { L_, "\xf5",           { '?',                          0 }, 255, 2, BADC },
+   { L_, "\xf6",           { '?',                          0 }, 255, 2, BADC },
+   { L_, "\xf7",           { '?',                          0 }, 255, 2, BADC },
+   { L_, "\xf8",           { '?',                          0 }, 255, 2, BADC },
+   { L_, "\xf9",           { '?',                          0 }, 255, 2, BADC },
+   { L_, "\xfa",           { '?',                          0 }, 255, 2, BADC },
+   { L_, "\xfb",           { '?',                          0 }, 255, 2, BADC },
+   { L_, "\xfc",           { '?',                          0 }, 255, 2, BADC },
+   { L_, "\xfd",           { '?',                          0 }, 255, 2, BADC },
+   { L_, "\xfe",           { '?',                          0 }, 255, 2, BADC },
+   { L_, "\xff",           { '?',                          0 }, 255, 2, BADC },
+
+   // Make sure that the "illegal" UTF-8 octets are handled correctly
+   // mid-string:
+   //      o  The octet values C0, C1, F5 to FF never appear.
+   //         (however, C0 and C1 indicate the start of overlong
+   //         encodings, which this implementation accepts)
+   { L_, " \xf5 ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
+   { L_, " \xf6 ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
+   { L_, " \xf7 ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
+   { L_, " \xf8 ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
+   { L_, " \xf9 ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
+   { L_, " \xfa ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
+   { L_, " \xfb ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
+   { L_, " \xfc ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
+   { L_, " \xfd ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
+   { L_, " \xfe ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
+   { L_, " \xff ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
+
+   // Make sure short buffers are handled correctly for long input chars.
+   { L_, U8_00080,         {                               0 },   1, 1, OBTS },
+   { L_, U8_00080,         { 0x80,                         0 },   2, 2,   OK },
+   { L_, "\xc2",           { '?',                          0 },   2, 2, BADC },
+   { L_, U8_00080,         { 0x80,                         0 }, 255, 2,   OK },
+   { L_, U8_00080 " ",     { 0x80, ' ',                    0 }, 255, 3,   OK },
+   { L_, U8_000ff,         { 0xff,                         0 },   2, 2,   OK },
+   { L_, U8_000ff,         { 0xff,                         0 },   3, 2,   OK },
+   { L_, U8_000ff,         { 0xff,                         0 }, 255, 2,   OK },
+   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
+                           { 0x1, 0x20, 0x7f, 0xff, 0x7ff,
+                             0x800, 0xffff,                0 }, 255, 8,   OK },
+
+   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 "\xef",
+                           { 0x1, 0x20, 0x7f, 0xff, 0x7ff,
+                             0x800, '?',                   0 }, 255, 8, BADC },
+
+   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 "\xef\xbf",
+                           { 0x1, 0x20, 0x7f, 0xff, 0x7ff,
+                             0x800, '?',                   0 }, 255, 8, BADC },
+
+   { L_, U8_0ffff U8_00800 U8_007ff U8_000ff "\x7f\x20\x01",
+                           { 0xffff, 0x800, 0x7ff, 0xff,
+                             0x7f, 0x20,   0x1,            0 }, 255, 8,   OK },
+
+   // Make sure illegal overlong encodings are accepted.  These characters are
+   // mathematically correctly encoded, but since there are equivalent 1-octet
+   // encodings, the UTF-8 standard disallows them.
+   { L_, "\xc0\x81",       { 0x1,                          0 },   2, 2,   OK },
+   { L_, "\xc0\xbf",       { 0x3f,                         0 },   2, 2,   OK },
+   { L_, "\xc1\x81",       { 0x41,                         0 },   2, 2,   OK },
+   { L_, "\xc1\xbf",       { 0x7f,                         0 },   2, 2,   OK },
+
+   // Make sure that the "skip" logic for corrupted extended characters
+   // operates correctly, without losing any usable data.
+
+   // corrupted 2-octet character:
+   { L_,   "\xc2",         {                               0 },   1, 1, OBTS },
+   { L_,   "\xc2",         { '?',                          0 },   2, 2, BADC },
+   { L_,   " \xc2",        { ' ',                          0 },   2, 2, BOTH },
+   { L_,   "\xc2 ",        { '?',                          0 },   2, 2, BOTH },
+   { L_,   "\xc2 ",        { '?', ' ',                     0 },   3, 3, BADC },
+   { L_,   "\xc2\xc2 ",    { '?',                          0 },   2, 2, BOTH },
+   { L_,   "\xc2\xc2 ",    { '?', '?',                     0 },   3, 3, BOTH },
+   { L_,   "\xc2\xc2 ",    { '?', '?', ' ',                0 },   4, 4, BADC },
+   { L_,   "\xc2 \xc2",    { '?',                          0 },   2, 2, BOTH },
+   { L_,   "\xc2 \xc2",    { '?', ' ',                     0 },   3, 3, BOTH },
+   { L_,   "\xc2 \xc2",    { '?', ' ', '?',                0 },   4, 4, BADC },
+
+   // corrupted 2-octet character followed by a valid character:
+   { L_,   "\xc2" U8_00080,
+                           { '?',                          0 },   2, 2, BOTH },
+
+   { L_,   "\xc2" U8_00080,
+                           { '?', 0x80,                    0 },   3, 3, BADC },
+
+   // corrupted 2-octet character followed by an invalid character:
+   { L_,   "\xc2\xff",
+                           { '?',                          0 },   2, 2, BOTH },
+   { L_,   "\xc2\xff",
+                           { '?', '?',                     0 },   3, 3, BADC },
+
+   // 3-octet characters corrupted after octet 1:
+   { L_,   "\xef",         {                               0 },   1, 1, OBTS },
+   { L_,   "\xef",         { '?',                          0 },   2, 2, BADC },
+   { L_,   " \xef",        { ' ',                          0 },   2, 2, BOTH },
+   { L_,   "\xef ",        { '?',                          0 },   2, 2, BOTH },
+   { L_,   "\xef ",        { '?', ' ',                     0 },   3, 3, BADC },
+   { L_,   "\xef\xef ",    { '?',                          0 },   2, 2, BOTH },
+   { L_,   "\xef\xef ",    { '?', '?',                     0 },   3, 3, BOTH },
+   { L_,   "\xef\xef ",    { '?', '?', ' ',                0 },   4, 4, BADC },
+   { L_,   "\xef \xef",    { '?',                          0 },   2, 2, BOTH },
+   { L_,   "\xef \xef",    { '?', ' ',                     0 },   3, 3, BOTH },
+   { L_,   "\xef \xef",    { '?', ' ', '?',                0 },   4, 4, BADC },
+   { L_,   "\xef" U8_00080,
+                           { '?',                          0 },   2, 2, BOTH },
+
+   { L_,   "\xef" U8_00080,
+                           { '?', 0x80,                    0 },   3, 3, BADC },
+
+   // 3-octet characters corrupted after octet 2:
+   { L_,   "\xef\xbf",     {                               0 },   1, 1, OBTS },
+   { L_,   "\xef\xbf",     { '?',                          0 },   2, 2, BADC },
+   { L_,   " \xef\xbf",    { ' ',                          0 },   2, 2, BOTH },
+   { L_,   " \xef\xbf",    { ' ', '?',                     0 },   3, 3, BADC },
+   { L_,   "\xef\xbf ",    { '?',                          0 },   2, 2, BOTH },
+   { L_,   "\xef\xbf ",    { '?', ' ',                     0 },   3, 3, BADC },
+   { L_,   "\xef\xbf" U8_00080,
+                           { '?',                          0 },   2, 2, BOTH },
+
+   { L_,   "\xef\xbf" U8_00080,
+                           { '?', 0x80,                    0 },   3, 3, BADC },
+
+   { L_,   "\xef\xbf" U8_00080 " ",
+                           { '?',                          0 },   2, 2, BOTH },
+
+   { L_,   "\xef\xbf" U8_00080 " ",
+                           { '?', 0x80,                    0 },   3, 3, BOTH },
+
+   { L_,   "\xef\xbf" U8_00080 " ",
+                           { '?', 0x80, ' ',               0 },   4, 4, BADC },
+
+   { L_,   "\xef\xbf\xef\xbf ",
+                           { '?', '?',                     0 },   3, 3, BOTH },
+
+   { L_,   "\xef\xbf\xef\xbf ",
+                           { '?', '?', ' ',                0 },   4, 4, BADC },
+
+   { L_,   "\xef\xbf \xef\xbf",
+                           { '?',                          0 },   2, 2, BOTH },
+
+   { L_,   "\xef\xbf \xef\xbf",
+                           { '?', ' ',                     0 },   3, 3, BOTH },
+
+   { L_,   "\xef\xbf \xef\xbf",
+                           { '?', ' ', '?',                0 },   4, 4, BADC },
+};
+
+const int NUM_TEST_3_DATA = sizeof TEST_3_DATA / sizeof *TEST_3_DATA;
+
+static const struct {
+    int                   d_lineNum;        // source line number
+
+    const char           *d_output_p;       // utf-8 input string
+
+    const unsigned short  d_spec_p[256];    // expected ucs2 output
+
+    bsl::size_t           d_bufsize;        // buffer size to claim
+                                            //
+
+    bsl::size_t           d_expectedChar;   // expected output char
+                                            // count
+
+    bsl::size_t           d_expectedByte;   // expected output byte
+                                            // count
+
+    int                   d_expectedResult; // expected result
+} TEST_4_DATA[] = {
+   //L#  output           input                            size #c   #b  result
+   //--  -----            ------                           ---- --   --  ------
+   { L_, "",              {                            0 }, 255, 1,  1,   OK },
+
+   // Make sure short buffers are treated right for 1-byte characters.
+   { L_, "",              { 0x20,                      0 },   1, 1,  1, OBTS },
+   { L_, " ",             { 0x20,                      0 },   2, 2,  2,   OK },
+   { L_, " ",             { 0x20,                      0 }, 255, 2,  2,   OK },
+
+   // Make sure short buffers are treated right for multiple 1-byte characters.
+   { L_, "",              { 'H', 'e', 'l', 'l', 'o',   0 },   1, 1,  1, OBTS },
+   { L_, "H",             { 'H', 'e', 'l', 'l', 'o',   0 },   2, 2,  2, OBTS },
+   { L_, "He",            { 'H', 'e', 'l', 'l', 'o',   0 },   3, 3,  3, OBTS },
+   { L_, "Hel",           { 'H', 'e', 'l', 'l', 'o',   0 },   4, 4,  4, OBTS },
+   { L_, "Hell",          { 'H', 'e', 'l', 'l', 'o',   0 },   5, 5,  5, OBTS },
+   { L_, "Hello",         { 'H', 'e', 'l', 'l', 'o',   0 },   6, 6,  6,   OK },
+   { L_, "Hello",         { 'H', 'e', 'l', 'l', 'o',   0 }, 255, 6,  6,   OK },
+
+   // Check handling of boundary between 1-octet and 2-octet characters for
+   // correct handling of short buffers and correct conversion.
+   { L_, "",              { 0x7f,                      0 },   1, 1,  1, OBTS },
+   { L_, "\x7f",          { 0x7f,                      0 }, 255, 2,  2,   OK },
+   { L_, U8_00080,        { 0x80,                      0 }, 255, 2,  3,   OK },
+   { L_, U8_00080 " ",    { 0x80, ' ',                 0 }, 255, 3,  4,   OK },
+
+   { L_, U8_000ff,        { 0xff,                      0 }, 255, 2,  3,   OK },
+
+   // Make sure short buffers are treated right and conversion is correct for
+   // 2-byte characters.
+   { L_, "",              { 0x07ff,                    0 },   1, 1,  1, OBTS },
+   { L_, "",              { 0x07ff,                    0 },   2, 1,  1, OBTS },
+   { L_, U8_007ff,        { 0x07ff,                    0 },   3, 2,  3,   OK },
+   { L_, U8_007ff,        { 0x07ff,                    0 }, 255, 2,  3,   OK },
+
+   // Make sure short buffers are treated right for 3-byte characters.
+   { L_, "",              { 0x0800,                    0 },   1, 1,  1, OBTS },
+   { L_, "",              { 0x0800,                    0 },   2, 1,  1, OBTS },
+   { L_, "",              { 0x0800,                    0 },   3, 1,  1, OBTS },
+   { L_, U8_00800,        { 0x0800,                    0 },   4, 2,  4,   OK },
+   { L_, U8_000ff,        { 0xff,                      0 }, 255, 2,  3,   OK },
+   { L_, U8_0ffff,        { 0xffff,                    0 }, 255, 2,  4,   OK },
+
+   // Make sure short buffers are treated right for 3-byte characters at end of
+   // longer strings.
+   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
+                          { 0x1, 0x20, 0x7f, 0xff,
+                            0x7ff, 0x800, 0xffff,      0 },  11, 7, 11, OBTS },
+
+   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
+                          { 0x1, 0x20, 0x7f, 0xff, 0x7ff,
+                            0x800, 0xffff,             0 },  12, 7, 11, OBTS },
+
+   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
+                          { 0x1, 0x20, 0x7f, 0xff, 0x7ff,
+                            0x800, 0xffff,             0 },  13, 7, 11, OBTS },
+
+   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
+                          { 0x1, 0x20, 0x7f, 0xff, 0x7ff,
+                            0x800, 0xffff,             0 },  14, 8, 14,   OK },
+
+   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
+                          { 0x1, 0x20, 0x7f, 0xff, 0x7ff,
+                            0x800, 0xffff,             0 }, 255, 8, 14,   OK },
+
+   { L_, U8_0ffff U8_00800 U8_007ff U8_000ff "\x7f\x20\x01",
+                          { 0xffff, 0x800, 0X7ff, 0Xff, 0X7f,
+                            0x20, 0x1,                 0 }, 255, 8, 14,   OK },
+};
+
+const int NUM_TEST_4_DATA = sizeof TEST_4_DATA / sizeof *TEST_4_DATA;
+
 // Utility function validating that a 'ucs2ToUtf8' conversion has the expected
 // results.  The function will also test to make sure that insufficient
 // 'dstCapacity' arguments for the conversion function return an
-// 'OUTPUT_BUFFER_TOO_SMALL' result.
+// 'OUTPUT_BUFFER_TOO_SMALL' result.  The (template parameter) 'STRING'
+// specifies the type of output container, that is used in some 'ucs2ToUtf8'
+// overloads.
 
+template <class STRING>
 void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
                                              char           *expected_output,
                                              bsl::size_t     totalOutputLength,
@@ -560,7 +876,9 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
                      makeArrayPrinter(expected_output, bytesWritten),
                      0 == strcmp(outputBuffer, expected_output));
 
-    bsl::string  cppOutput(&ta);
+    bslma::TestAllocator      ca("container");
+    bslalg::ConstructorProxy<STRING>  cppOutputProxy(&ca);
+    STRING&                           cppOutput = cppOutputProxy.object();
     bsl::size_t  cppCharsWritten = 0;
 
     retVal = bdlde::CharConvertUcs2::ucs2ToUtf8(
@@ -584,12 +902,14 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
 }
 
 // This utility function for testing 'ucs2ToUtf8' will *recursively* build up
-// input strings in 'inputBuffer' and output strings in 'outputBuffer', and
-// call 'checkForExpectedConversionResultsU2ToU8' to make sure that the results
+// input strings in 'inputBuffer' and output strings in 'outputBuffer' (or
+// containers of the (template parameter) 'STRING' type), and call
+// 'checkForExpectedConversionResultsU2ToU8' to make sure that the results
 // match.  'inputCursor' and 'outputCursor' point to the "current position" in
 // the respective buffers where this level of the recursion will operate.  The
 // recursion terminates once 'depth <= 0'.
 
+template <class STRING>
 void buildUpAndTestStringsU2ToU8(bsl::size_t     idx,
                                  int             depth,
                                  unsigned short *inputBuffer,
@@ -607,13 +927,13 @@ void buildUpAndTestStringsU2ToU8(bsl::size_t     idx,
     *inputCursor  = 0;
     *outputCursor = 0;
 
-    checkForExpectedConversionResultsU2ToU8(inputBuffer,
-            outputBuffer,
-            totalOutputLength,
-            characterSizes,
-            characterCount,
-            verbose,
-            veryVerbose);
+    checkForExpectedConversionResultsU2ToU8<STRING>(inputBuffer,
+                                                    outputBuffer,
+                                                    totalOutputLength,
+                                                    characterSizes,
+                                                    characterCount,
+                                                    verbose,
+                                                    veryVerbose);
 
     if (depth <= 0) {
         return;                                                       // RETURN
@@ -635,17 +955,17 @@ void buildUpAndTestStringsU2ToU8(bsl::size_t     idx,
                           static_cast<unsigned short>(d.d_utf8CharacterLength);
 
     for (bsl::size_t i = 0; i < precomputedDataCount; ++i) {
-        buildUpAndTestStringsU2ToU8(i,
-                                    depth - 1,
-                                    inputBuffer,
-                                    outputBuffer,
-                                    characterSizes,
-                                    totalOutputLength,
-                                    characterCount,
-                                    inputCursor,
-                                    outputCursor,
-                                    verbose,
-                                    veryVerbose);
+        buildUpAndTestStringsU2ToU8<STRING>(i,
+                                            depth - 1,
+                                            inputBuffer,
+                                            outputBuffer,
+                                            characterSizes,
+                                            totalOutputLength,
+                                            characterCount,
+                                            inputCursor,
+                                            outputCursor,
+                                            verbose,
+                                            veryVerbose);
     }
 }
 
@@ -2521,17 +2841,173 @@ int runPlainTextPerformanceTest(void)
     return 0;
 }
 
+//=============================================================================
+//                              TEST DRIVER
+//=============================================================================
+struct TestDriver
+{
+    // TEST CASES
+    template <class STRING>
+    static void testCase4();
+        // Test 'ucs-2 -> utf-8' conversion.
+
+    template <class VECTOR>
+    static void testCase3();
+        // Test 'utf-8 -> ucs-2' conversion.
+};
+
+template <class STRING>
+void TestDriver::testCase4()
+{
+    for (int i = 0; i < NUM_TEST_4_DATA; ++i) {
+        const int             LINE          = TEST_4_DATA[i].d_lineNum;
+        const char           *OUTPUT        = TEST_4_DATA[i].d_output_p;
+        const unsigned short *SPEC          = TEST_4_DATA[i].d_spec_p;
+        const bsl::size_t     EXPECTEDCHARS = TEST_4_DATA[i].d_expectedChar;
+        const bsl::size_t     EXPECTEDBYTES = TEST_4_DATA[i].d_expectedByte;
+        const int             RETURN        = TEST_4_DATA[i].d_expectedResult;
+
+        bsl::size_t charsWritten = -1;
+        if (OK == RETURN) {
+            bsl::string cppResult(&ta);
+
+            int retVal = bdlde::CharConvertUcs2::ucs2ToUtf8(
+                &cppResult, SPEC, &charsWritten);
+
+            LOOP_ASSERT(LINE, charsWritten == EXPECTEDCHARS);
+            LOOP_ASSERT(LINE, cppResult.length() == EXPECTEDBYTES - 1);
+            LOOP_ASSERT(LINE, retVal == RETURN);
+            LOOP_ASSERT(
+                LINE,
+                0 == memcmp(OUTPUT, cppResult.c_str(), cppResult.length()));
+        }
+    }
+
+    {
+        for (bsl::size_t i = 0; i < precomputedDataCount; ++i) {
+            unsigned short inputBuffer[256]    = {0};
+            char           outputBuffer[256]   = {0};
+            unsigned short characterSizes[256] = {0};
+            bsl::size_t    totalOutputLength   = 0;
+            bsl::size_t    characterCount      = 0;
+
+            unsigned short *inputCursor  = inputBuffer;
+            char           *outputCursor = outputBuffer;
+
+            buildUpAndTestStringsU2ToU8<STRING>(i,
+                                                exhaustiveSearchDepth,
+                                                inputBuffer,
+                                                outputBuffer,
+                                                characterSizes,
+                                                totalOutputLength,
+                                                characterCount,
+                                                inputCursor,
+                                                outputCursor,
+                                                verbose,
+                                                veryVerbose);
+        }
+    }
+}
+
+template <class VECTOR>
+void TestDriver::testCase3()
+{
+    bslma::TestAllocator ca("container");
+
+    for (int i = 0; i < NUM_TEST_3_DATA; ++i) {
+        const int             LINE     = TEST_3_DATA[i].d_lineNum;
+        const char           *SPEC     = TEST_3_DATA[i].d_spec_p;
+        const unsigned short *OUTPUT   = TEST_3_DATA[i].d_output_p;
+        const bsl::size_t     EXPECTED = TEST_3_DATA[i].d_expectedCount;
+        const int             RETURN   = TEST_3_DATA[i].d_expectedResult;
+
+        bslalg::ConstructorProxy<VECTOR> cppResultProxy(&ca);
+        VECTOR&                          cppResult = cppResultProxy.object();
+
+        if (OK == RETURN || BADC == RETURN) {
+            int cppRetVal =
+                bdlde::CharConvertUcs2::utf8ToUcs2(&cppResult, SPEC);
+
+            bsl::size_t cppCharsWritten = cppResult.size();
+            bsl::size_t resultBytes     = cppCharsWritten * sizeof(short);
+
+            LOOP3_ASSERT(LINE, cppRetVal, RETURN, cppRetVal == RETURN);
+            LOOP3_ASSERT(
+                LINE, cppCharsWritten, EXPECTED, cppCharsWritten == EXPECTED);
+            if (cppCharsWritten > 0) {
+                LOOP4_ASSERT(
+                    LINE,
+                    makeArrayPrinter(OUTPUT, EXPECTED),
+                    makeArrayPrinter(&cppResult[0], cppCharsWritten),
+                    cppCharsWritten,
+                    0 == memcmp(OUTPUT, &cppResult[0], resultBytes));
+            }
+        }
+    }
+
+    // Concern - make sure that the 'invalidCharacterPlaceholder' argument
+    // functions correctly.
+
+    {
+        static const struct {
+            int            d_lineNum;        // source line number
+
+            unsigned short d_placeholder;    // placeholder character to
+                                             // test
+
+            unsigned short d_expectedWidth;  // space we expect it to
+                                             // use
+        } DATA[] = {
+            {L_, '?', 1}, {L_, '*', 1}, {L_, '\0', 0}, {L_, 0x1234, 1}};
+
+        for (bsl::size_t i = 0; i < sizeof DATA / sizeof *DATA; ++i) {
+            const int            LINE        = DATA[i].d_lineNum;
+            const unsigned short PLACEHOLDER = DATA[i].d_placeholder;
+            const unsigned short WIDTH       = DATA[i].d_expectedWidth;
+
+            bslalg::ConstructorProxy<VECTOR>  cppResultProxy(&ca);
+            VECTOR&                           cppResult =
+                                                       cppResultProxy.object();
+
+            int expectedRetVal = INVALID_INPUT_CHARACTER;
+
+            int cppRetVal = bdlde::CharConvertUcs2::utf8ToUcs2(&cppResult,
+                                                               "\xef",
+                                                               PLACEHOLDER);
+
+            bsl::size_t cppCharsWritten = cppResult.size();
+
+            LOOP3_ASSERT(
+                LINE, cppRetVal, expectedRetVal, cppRetVal == expectedRetVal);
+
+            LOOP3_ASSERT(LINE,
+                         PLACEHOLDER,
+                         cppResult.at(0),
+                         PLACEHOLDER == cppResult.at(0));
+
+            if (WIDTH > 0) {
+                LOOP3_ASSERT(LINE, 0, cppResult.at(1), 0 == cppResult.at(1));
+            }
+            LOOP3_ASSERT(LINE,
+                         1 + WIDTH,
+                         cppCharsWritten,
+                         static_cast<bsl::size_t>(1 + WIDTH) ==
+                             cppCharsWritten);
+        }
+    }
+}
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char**argv)
 {
-    int                test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int             verbose = argc > 2;
-    int         veryVerbose = argc > 3;
-    int     veryVeryVerbose = argc > 4;    (void) veryVeryVerbose;
-    int veryVeryVeryVerbose = argc > 5;
+    test = argc > 1 ? atoi(argv[1]) : 0;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -2664,105 +3140,16 @@ int main(int argc, char**argv)
         if (verbose) cout <<
            "\nTesting 'bdlde::CharConvertUcs2::ucs2ToUtf8'." << endl;
         {
-            static const struct {
-                int                   d_lineNum;        // source line number
-
-                const char           *d_output_p;       // utf-8 input string
-
-                const unsigned short  d_spec_p[256];    // expected ucs2 output
-
-                bsl::size_t           d_bufsize;        // buffer size to claim
-                                                        //
-
-                bsl::size_t           d_expectedChar;   // expected output char
-                                                        // count
-
-                bsl::size_t           d_expectedByte;   // expected output byte
-                                                        // count
-
-                int                   d_expectedResult; // expected result
-            } DATA[] = {
-// v------------^
-   //L#  output           input                            size #c   #b  result
-   //--  -----            ------                           ---- --   --  ------
-   { L_, "",              {                            0 }, 255, 1,  1,   OK },
-
-   // Make sure short buffers are treated right for 1-byte characters.
-   { L_, "",              { 0x20,                      0 },   1, 1,  1, OBTS },
-   { L_, " ",             { 0x20,                      0 },   2, 2,  2,   OK },
-   { L_, " ",             { 0x20,                      0 }, 255, 2,  2,   OK },
-
-   // Make sure short buffers are treated right for multiple 1-byte characters.
-   { L_, "",              { 'H', 'e', 'l', 'l', 'o',   0 },   1, 1,  1, OBTS },
-   { L_, "H",             { 'H', 'e', 'l', 'l', 'o',   0 },   2, 2,  2, OBTS },
-   { L_, "He",            { 'H', 'e', 'l', 'l', 'o',   0 },   3, 3,  3, OBTS },
-   { L_, "Hel",           { 'H', 'e', 'l', 'l', 'o',   0 },   4, 4,  4, OBTS },
-   { L_, "Hell",          { 'H', 'e', 'l', 'l', 'o',   0 },   5, 5,  5, OBTS },
-   { L_, "Hello",         { 'H', 'e', 'l', 'l', 'o',   0 },   6, 6,  6,   OK },
-   { L_, "Hello",         { 'H', 'e', 'l', 'l', 'o',   0 }, 255, 6,  6,   OK },
-
-   // Check handling of boundary between 1-octet and 2-octet characters for
-   // correct handling of short buffers and correct conversion.
-   { L_, "",              { 0x7f,                      0 },   1, 1,  1, OBTS },
-   { L_, "\x7f",          { 0x7f,                      0 }, 255, 2,  2,   OK },
-   { L_, U8_00080,        { 0x80,                      0 }, 255, 2,  3,   OK },
-   { L_, U8_00080 " ",    { 0x80, ' ',                 0 }, 255, 3,  4,   OK },
-
-   { L_, U8_000ff,        { 0xff,                      0 }, 255, 2,  3,   OK },
-
-   // Make sure short buffers are treated right and conversion is correct for
-   // 2-byte characters.
-   { L_, "",              { 0x07ff,                    0 },   1, 1,  1, OBTS },
-   { L_, "",              { 0x07ff,                    0 },   2, 1,  1, OBTS },
-   { L_, U8_007ff,        { 0x07ff,                    0 },   3, 2,  3,   OK },
-   { L_, U8_007ff,        { 0x07ff,                    0 }, 255, 2,  3,   OK },
-
-   // Make sure short buffers are treated right for 3-byte characters.
-   { L_, "",              { 0x0800,                    0 },   1, 1,  1, OBTS },
-   { L_, "",              { 0x0800,                    0 },   2, 1,  1, OBTS },
-   { L_, "",              { 0x0800,                    0 },   3, 1,  1, OBTS },
-   { L_, U8_00800,        { 0x0800,                    0 },   4, 2,  4,   OK },
-   { L_, U8_000ff,        { 0xff,                      0 }, 255, 2,  3,   OK },
-   { L_, U8_0ffff,        { 0xffff,                    0 }, 255, 2,  4,   OK },
-
-   // Make sure short buffers are treated right for 3-byte characters at end of
-   // longer strings.
-   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
-                          { 0x1, 0x20, 0x7f, 0xff,
-                            0x7ff, 0x800, 0xffff,      0 },  11, 7, 11, OBTS },
-
-   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
-                          { 0x1, 0x20, 0x7f, 0xff, 0x7ff,
-                            0x800, 0xffff,             0 },  12, 7, 11, OBTS },
-
-   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
-                          { 0x1, 0x20, 0x7f, 0xff, 0x7ff,
-                            0x800, 0xffff,             0 },  13, 7, 11, OBTS },
-
-   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
-                          { 0x1, 0x20, 0x7f, 0xff, 0x7ff,
-                            0x800, 0xffff,             0 },  14, 8, 14,   OK },
-
-   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
-                          { 0x1, 0x20, 0x7f, 0xff, 0x7ff,
-                            0x800, 0xffff,             0 }, 255, 8, 14,   OK },
-
-   { L_, U8_0ffff U8_00800 U8_007ff U8_000ff "\x7f\x20\x01",
-                          { 0xffff, 0x800, 0X7ff, 0Xff, 0X7f,
-                            0x20, 0x1,                 0 }, 255, 8, 14,   OK },
-// ^------------v
-            };
-
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int             LINE          = DATA[i].d_lineNum;
-                const char           *OUTPUT        = DATA[i].d_output_p;
-                const unsigned short *SPEC          = DATA[i].d_spec_p;
-                const bsl::size_t     BUFSIZE       = DATA[i].d_bufsize;
-                const bsl::size_t     EXPECTEDCHARS = DATA[i].d_expectedChar;
-                const bsl::size_t     EXPECTEDBYTES = DATA[i].d_expectedByte;
-                const int             RETURN        = DATA[i].d_expectedResult;
+            for (int i = 0; i < NUM_TEST_4_DATA; ++i) {
+                const int             LINE    = TEST_4_DATA[i].d_lineNum;
+                const char           *OUTPUT  = TEST_4_DATA[i].d_output_p;
+                const unsigned short *SPEC    = TEST_4_DATA[i].d_spec_p;
+                const bsl::size_t     BUFSIZE = TEST_4_DATA[i].d_bufsize;
+                const bsl::size_t     EXPECTEDCHARS =
+                                                 TEST_4_DATA[i].d_expectedChar;
+                const bsl::size_t     EXPECTEDBYTES =
+                                                 TEST_4_DATA[i].d_expectedByte;
+                const int             RETURN = TEST_4_DATA[i].d_expectedResult;
 
                 char           results[256] = { 0 };
                 bsl::size_t    charsWritten = -1;
@@ -2803,23 +3190,6 @@ int main(int argc, char**argv)
                     printStr(results);
                     printf("\n");
                 }
-
-                if (OK == RETURN) {
-                    bsl::string cppResult(&ta);
-
-                    int retVal = bdlde::CharConvertUcs2::ucs2ToUtf8(
-                                          &cppResult,
-                                          SPEC,
-                                          &charsWritten);
-
-                    LOOP_ASSERT(LINE, charsWritten       == EXPECTEDCHARS);
-                    LOOP_ASSERT(LINE, cppResult.length() == EXPECTEDBYTES - 1);
-                    LOOP_ASSERT(LINE, retVal             == RETURN);
-                    LOOP_ASSERT(LINE, 0 == memcmp(OUTPUT,
-                                                  cppResult.c_str(),
-                                                  cppResult.length()));
-                }
-
             }
         }
 
@@ -2875,36 +3245,19 @@ int main(int argc, char**argv)
             ASSERT(                      0 == bytesWritten);
         }
 
-        //   - Make sure that all permutations of 1-octet, 2-octet, and 3-octet
-        //     characters are converted correctly or handled correctly for
-        //     short output buffers.
 
-        {
-            for (bsl::size_t i = 0; i < precomputedDataCount; ++i) {
-                unsigned short inputBuffer[256]    = { 0 };
-                char           outputBuffer[256]   = { 0 };
-                unsigned short characterSizes[256] = { 0 };
-                bsl::size_t    totalOutputLength   = 0;
-                bsl::size_t    characterCount      = 0;
+        if (verbose) cout << "\tTesting bsl containers\n";
+        TestDriver::testCase4<bsl::string>();
 
-                unsigned short *inputCursor  = inputBuffer;
-                char           *outputCursor = outputBuffer;
+        if (verbose) cout << "\tTesting std containers\n";
+        TestDriver::testCase4<std::string>();
 
-                buildUpAndTestStringsU2ToU8(i,
-                                            exhaustiveSearchDepth,
-                                            inputBuffer,
-                                            outputBuffer,
-                                            characterSizes,
-                                            totalOutputLength,
-                                            characterCount,
-                                            inputCursor,
-                                            outputCursor,
-                                            verbose,
-                                            veryVerbose);
-            }
-        }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        if (verbose) cout << "\tTesting pmr containers\n";
+
+        TestDriver::testCase4<std::pmr::string>();
+#endif
       } break;
-
       case 3: {
         // --------------------------------------------------------------------
         // CONVERT UTF-8 TO UCS-2
@@ -2963,268 +3316,24 @@ int main(int argc, char**argv)
         if (verbose) cout <<
           "\nTesting 'bdlde::CharConvertUcs2::utf8ToUcs2'." << endl;
         {
-            static const struct {
-                int                   d_lineNum;        // source line number
-
-                const char           *d_spec_p;         // utf-8 input string
-
-                const unsigned short  d_output_p[256];  // expected ucs2 output
-
-                bsl::size_t           d_bufsize;        // buffer size to claim
-
-                bsl::size_t           d_expectedCount;  // expected output char
-                                                        // count
-
-                int                   d_expectedResult; // expected result
-            } DATA[] = {
-// v------------^
-   //L#  input             output                               size #c  result
-   //--  -----             ------                               ---- --  ------
-   { L_, "",               {                               0 },   0, 0, OBTS },
-   { L_, "",               {                               0 },   1, 1,   OK },
-   { L_, "",               {                               0 }, 255, 1,   OK },
-   { L_, " ",              { 0x20,                         0 }, 255, 2,   OK },
-
-   // Make sure short buffers are handled correctly.
-   { L_, "Hello",          {                               0 },   1, 1, OBTS },
-   { L_, "Hello",          { 'H',                          0 },   2, 2, OBTS },
-   { L_, "Hello",          { 'H', 'e', 'l', 'l',           0 },   5, 5, OBTS },
-   { L_, "Hello",          { 'H', 'e', 'l', 'l', 'o',      0 },   6, 6,   OK },
-   { L_, "Hello",          { 'H', 'e', 'l', 'l', 'o',      0 }, 255, 6,   OK },
-
-   // Check the boundary between 1-octet and 2-octet characters.
-   { L_, "\x7f",           {                               0 },   1, 1, OBTS },
-   { L_, "\x7f",           { 0x7f,                         0 }, 255, 2,   OK },
-   { L_, U8_00080,         {                               0 },   1, 1, OBTS },
-   { L_, U8_00080,         { 0x80,                         0 }, 255, 2,   OK },
-
-   // Check the boundary between 2-octet and 3-octet characters.
-   { L_, U8_007ff,         {                               0 },   1, 1, OBTS },
-   { L_, U8_007ff,         { 0x07ff,                       0 }, 255, 2,   OK },
-   { L_, U8_00800,         {                               0 },   1, 1, OBTS },
-   { L_, U8_00800,         { 0x0800,                       0 }, 255, 2,   OK },
-
-   // Check the maximal 3-octet character.
-   { L_, U8_0ffff,         {                               0 },   1, 1, OBTS },
-   { L_, U8_0ffff,         { 0xffff,                       0 }, 255, 2,   OK },
-
-   // Make sure 4-octet characters are handled correctly (with a single error).
-   { L_, U8_10000,         {                               0 },   1, 1, OBTS },
-   { L_, U8_10000,         { '?',                          0 }, 255, 2, BADC },
-   { L_, U8_10000 " ",     { '?', ' ',                     0 }, 255, 3, BADC },
-   { L_, " " U8_10000 " ", { ' ', '?', ' ',                0 }, 255, 4, BADC },
-   { L_, U8_10ffff,        { '?',                          0 }, 255, 2, BADC },
-   { L_, U8_10ffff " ",    { '?', ' ',                     0 }, 255, 3, BADC },
-   { L_, " " U8_10ffff " ",
-                           { ' ', '?', ' ',                0 }, 255, 4, BADC },
-
-   // Make sure partial 4-octet characters are handled correctly (with a single
-   // error).
-   { L_, "\xf0",           {                               0 },   1, 1, OBTS },
-   { L_, "\xf0",           { '?',                          0 }, 255, 2, BADC },
-   { L_, "\xf0\x80",       { '?',                          0 }, 255, 2, BADC },
-   { L_, "\xf0\x80\x80",   { '?',                          0 }, 255, 2, BADC },
-   { L_, "\xf0 ",          { '?', ' ',                     0 }, 255, 3, BADC },
-   { L_, "\xf0\x80 ",      { '?', ' ',                     0 }, 255, 3, BADC },
-   { L_, "\xf0\x80\x80 ",  { '?', ' ',                     0 }, 255, 3, BADC },
-
-   // Make sure the "illegal" UTF-8 octets are handled correctly:
-   //      o  The octet values C0, C1, F5 to FF never appear.
-   //         (however, C0 and C1 indicate the start of overlong
-   //         encodings, which this implementation accepts)
-   { L_, "\xf5",           {                               0 },   1, 1, OBTS },
-   { L_, "\xf5",           { '?',                          0 }, 255, 2, BADC },
-   { L_, "\xf6",           { '?',                          0 }, 255, 2, BADC },
-   { L_, "\xf7",           { '?',                          0 }, 255, 2, BADC },
-   { L_, "\xf8",           { '?',                          0 }, 255, 2, BADC },
-   { L_, "\xf9",           { '?',                          0 }, 255, 2, BADC },
-   { L_, "\xfa",           { '?',                          0 }, 255, 2, BADC },
-   { L_, "\xfb",           { '?',                          0 }, 255, 2, BADC },
-   { L_, "\xfc",           { '?',                          0 }, 255, 2, BADC },
-   { L_, "\xfd",           { '?',                          0 }, 255, 2, BADC },
-   { L_, "\xfe",           { '?',                          0 }, 255, 2, BADC },
-   { L_, "\xff",           { '?',                          0 }, 255, 2, BADC },
-
-   // Make sure that the "illegal" UTF-8 octets are handled correctly
-   // mid-string:
-   //      o  The octet values C0, C1, F5 to FF never appear.
-   //         (however, C0 and C1 indicate the start of overlong
-   //         encodings, which this implementation accepts)
-   { L_, " \xf5 ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
-   { L_, " \xf6 ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
-   { L_, " \xf7 ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
-   { L_, " \xf8 ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
-   { L_, " \xf9 ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
-   { L_, " \xfa ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
-   { L_, " \xfb ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
-   { L_, " \xfc ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
-   { L_, " \xfd ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
-   { L_, " \xfe ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
-   { L_, " \xff ",         { ' ', '?', ' ',                0 }, 255, 4, BADC },
-
-   // Make sure short buffers are handled correctly for long input chars.
-   { L_, U8_00080,         {                               0 },   1, 1, OBTS },
-   { L_, U8_00080,         { 0x80,                         0 },   2, 2,   OK },
-   { L_, "\xc2",           { '?',                          0 },   2, 2, BADC },
-   { L_, U8_00080,         { 0x80,                         0 }, 255, 2,   OK },
-   { L_, U8_00080 " ",     { 0x80, ' ',                    0 }, 255, 3,   OK },
-   { L_, U8_000ff,         { 0xff,                         0 },   2, 2,   OK },
-   { L_, U8_000ff,         { 0xff,                         0 },   3, 2,   OK },
-   { L_, U8_000ff,         { 0xff,                         0 }, 255, 2,   OK },
-   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 U8_0ffff,
-                           { 0x1, 0x20, 0x7f, 0xff, 0x7ff,
-                             0x800, 0xffff,                0 }, 255, 8,   OK },
-
-   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 "\xef",
-                           { 0x1, 0x20, 0x7f, 0xff, 0x7ff,
-                             0x800, '?',                   0 }, 255, 8, BADC },
-
-   { L_, "\x01\x20\x7f" U8_000ff U8_007ff U8_00800 "\xef\xbf",
-                           { 0x1, 0x20, 0x7f, 0xff, 0x7ff,
-                             0x800, '?',                   0 }, 255, 8, BADC },
-
-   { L_, U8_0ffff U8_00800 U8_007ff U8_000ff "\x7f\x20\x01",
-                           { 0xffff, 0x800, 0x7ff, 0xff,
-                             0x7f, 0x20,   0x1,            0 }, 255, 8,   OK },
-
-   // Make sure illegal overlong encodings are accepted.  These characters are
-   // mathematically correctly encoded, but since there are equivalent 1-octet
-   // encodings, the UTF-8 standard disallows them.
-   { L_, "\xc0\x81",       { 0x1,                          0 },   2, 2,   OK },
-   { L_, "\xc0\xbf",       { 0x3f,                         0 },   2, 2,   OK },
-   { L_, "\xc1\x81",       { 0x41,                         0 },   2, 2,   OK },
-   { L_, "\xc1\xbf",       { 0x7f,                         0 },   2, 2,   OK },
-
-   // Make sure that the "skip" logic for corrupted extended characters
-   // operates correctly, without losing any usable data.
-
-   // corrupted 2-octet character:
-   { L_,   "\xc2",         {                               0 },   1, 1, OBTS },
-   { L_,   "\xc2",         { '?',                          0 },   2, 2, BADC },
-   { L_,   " \xc2",        { ' ',                          0 },   2, 2, BOTH },
-   { L_,   "\xc2 ",        { '?',                          0 },   2, 2, BOTH },
-   { L_,   "\xc2 ",        { '?', ' ',                     0 },   3, 3, BADC },
-   { L_,   "\xc2\xc2 ",    { '?',                          0 },   2, 2, BOTH },
-   { L_,   "\xc2\xc2 ",    { '?', '?',                     0 },   3, 3, BOTH },
-   { L_,   "\xc2\xc2 ",    { '?', '?', ' ',                0 },   4, 4, BADC },
-   { L_,   "\xc2 \xc2",    { '?',                          0 },   2, 2, BOTH },
-   { L_,   "\xc2 \xc2",    { '?', ' ',                     0 },   3, 3, BOTH },
-   { L_,   "\xc2 \xc2",    { '?', ' ', '?',                0 },   4, 4, BADC },
-
-   // corrupted 2-octet character followed by a valid character:
-   { L_,   "\xc2" U8_00080,
-                           { '?',                          0 },   2, 2, BOTH },
-
-   { L_,   "\xc2" U8_00080,
-                           { '?', 0x80,                    0 },   3, 3, BADC },
-
-   // corrupted 2-octet character followed by an invalid character:
-   { L_,   "\xc2\xff",
-                           { '?',                          0 },   2, 2, BOTH },
-   { L_,   "\xc2\xff",
-                           { '?', '?',                     0 },   3, 3, BADC },
-
-   // 3-octet characters corrupted after octet 1:
-   { L_,   "\xef",         {                               0 },   1, 1, OBTS },
-   { L_,   "\xef",         { '?',                          0 },   2, 2, BADC },
-   { L_,   " \xef",        { ' ',                          0 },   2, 2, BOTH },
-   { L_,   "\xef ",        { '?',                          0 },   2, 2, BOTH },
-   { L_,   "\xef ",        { '?', ' ',                     0 },   3, 3, BADC },
-   { L_,   "\xef\xef ",    { '?',                          0 },   2, 2, BOTH },
-   { L_,   "\xef\xef ",    { '?', '?',                     0 },   3, 3, BOTH },
-   { L_,   "\xef\xef ",    { '?', '?', ' ',                0 },   4, 4, BADC },
-   { L_,   "\xef \xef",    { '?',                          0 },   2, 2, BOTH },
-   { L_,   "\xef \xef",    { '?', ' ',                     0 },   3, 3, BOTH },
-   { L_,   "\xef \xef",    { '?', ' ', '?',                0 },   4, 4, BADC },
-   { L_,   "\xef" U8_00080,
-                           { '?',                          0 },   2, 2, BOTH },
-
-   { L_,   "\xef" U8_00080,
-                           { '?', 0x80,                    0 },   3, 3, BADC },
-
-   // 3-octet characters corrupted after octet 2:
-   { L_,   "\xef\xbf",     {                               0 },   1, 1, OBTS },
-   { L_,   "\xef\xbf",     { '?',                          0 },   2, 2, BADC },
-   { L_,   " \xef\xbf",    { ' ',                          0 },   2, 2, BOTH },
-   { L_,   " \xef\xbf",    { ' ', '?',                     0 },   3, 3, BADC },
-   { L_,   "\xef\xbf ",    { '?',                          0 },   2, 2, BOTH },
-   { L_,   "\xef\xbf ",    { '?', ' ',                     0 },   3, 3, BADC },
-   { L_,   "\xef\xbf" U8_00080,
-                           { '?',                          0 },   2, 2, BOTH },
-
-   { L_,   "\xef\xbf" U8_00080,
-                           { '?', 0x80,                    0 },   3, 3, BADC },
-
-   { L_,   "\xef\xbf" U8_00080 " ",
-                           { '?',                          0 },   2, 2, BOTH },
-
-   { L_,   "\xef\xbf" U8_00080 " ",
-                           { '?', 0x80,                    0 },   3, 3, BOTH },
-
-   { L_,   "\xef\xbf" U8_00080 " ",
-                           { '?', 0x80, ' ',               0 },   4, 4, BADC },
-
-   { L_,   "\xef\xbf\xef\xbf ",
-                           { '?', '?',                     0 },   3, 3, BOTH },
-
-   { L_,   "\xef\xbf\xef\xbf ",
-                           { '?', '?', ' ',                0 },   4, 4, BADC },
-
-   { L_,   "\xef\xbf \xef\xbf",
-                           { '?',                          0 },   2, 2, BOTH },
-
-   { L_,   "\xef\xbf \xef\xbf",
-                           { '?', ' ',                     0 },   3, 3, BOTH },
-
-   { L_,   "\xef\xbf \xef\xbf",
-                           { '?', ' ', '?',                0 },   4, 4, BADC },
-// ^------------v
-            };
-
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int             LINE     = DATA[i].d_lineNum;
-                const char           *SPEC     = DATA[i].d_spec_p;
-                const unsigned short *OUTPUT   = DATA[i].d_output_p;
-                const bsl::size_t     BUFSIZE  = DATA[i].d_bufsize;
-                const bsl::size_t     EXPECTED = DATA[i].d_expectedCount;
-                const int             RETURN   = DATA[i].d_expectedResult;
+            for (int i = 0; i < NUM_TEST_3_DATA; ++i) {
+                const int             LINE     = TEST_3_DATA[i].d_lineNum;
+                const char           *SPEC     = TEST_3_DATA[i].d_spec_p;
+                const unsigned short *OUTPUT   = TEST_3_DATA[i].d_output_p;
+                const bsl::size_t     BUFSIZE  = TEST_3_DATA[i].d_bufsize;
+                const bsl::size_t     EXPECTED =
+                                                TEST_3_DATA[i].d_expectedCount;
+                const int             RETURN   =
+                                               TEST_3_DATA[i].d_expectedResult;
 
                 unsigned short              results[256] = {0};
                 bsl::size_t                 charsWritten = -1;
-                bsl::vector<unsigned short> cppResult(&ta);
 
                 int retVal = bdlde::CharConvertUcs2::utf8ToUcs2(
                                       results,
                                       BUFSIZE,
                                       SPEC,
                                       &charsWritten);
-
-                if (OK == RETURN || BADC == RETURN) {
-                    int cppRetVal = bdlde::CharConvertUcs2::utf8ToUcs2(
-                                        &cppResult,
-                                        SPEC);
-
-                    bsl::size_t cppCharsWritten = cppResult.size();
-                    bsl::size_t resultBytes = cppCharsWritten
-                                            * sizeof(short);
-
-                    LOOP3_ASSERT(LINE, cppRetVal,         RETURN,
-                                       cppRetVal       == RETURN);
-                    LOOP3_ASSERT(LINE, cppCharsWritten,   EXPECTED,
-                                       cppCharsWritten == EXPECTED);
-                    if (cppCharsWritten > 0) {
-                        LOOP4_ASSERT(LINE,
-                                        makeArrayPrinter(OUTPUT,  EXPECTED),
-                                        makeArrayPrinter(&(cppResult[0]),
-                                                         cppCharsWritten),
-                                        cppCharsWritten,
-                                   0 == memcmp(OUTPUT,
-                                               &(cppResult[0]),
-                                               resultBytes));
-                    }
-                }
 
                 LOOP3_ASSERT(LINE, charsWritten,   EXPECTED,
                                    charsWritten == EXPECTED);
@@ -3289,8 +3398,6 @@ int main(int argc, char**argv)
                                         = sizeof results / sizeof *results;
                     bsl::size_t   charsWritten = -1;
 
-                    bsl::vector<unsigned short> cppResult(&ta);
-
                     int           expectedRetVal = INVALID_INPUT_CHARACTER;
 
                     int retVal = bdlde::CharConvertUcs2::utf8ToUcs2(
@@ -3300,35 +3407,19 @@ int main(int argc, char**argv)
                             &charsWritten,
                             PLACEHOLDER);
 
-                    int cppRetVal = bdlde::CharConvertUcs2::utf8ToUcs2(
-                            &cppResult,
-                            "\xef",
-                            PLACEHOLDER);
-
-                    bsl::size_t cppCharsWritten = cppResult.size();
-
                     LOOP3_ASSERT(LINE, retVal,   expectedRetVal,
                                        retVal == expectedRetVal);
-                    LOOP3_ASSERT(LINE, cppRetVal,   expectedRetVal,
-                                       cppRetVal == expectedRetVal);
 
                     LOOP3_ASSERT(LINE, PLACEHOLDER,   results[0],
                                        PLACEHOLDER == results[0]);
-                    LOOP3_ASSERT(LINE, PLACEHOLDER,   cppResult[0],
-                                       PLACEHOLDER == cppResult[0]);
 
                     if (WIDTH > 0) {
                         LOOP3_ASSERT(LINE, 0,   results[1],
                                            0 == results[1]);
-                        LOOP3_ASSERT(LINE, 0,   cppResult[1],
-                                           0 == cppResult[1]);
                     }
                     LOOP3_ASSERT(LINE, 1 + WIDTH,   charsWritten,
                                  static_cast<bsl::size_t>(1 + WIDTH)
                                                               == charsWritten);
-                    LOOP3_ASSERT(LINE, 1 + WIDTH,   cppCharsWritten,
-                                 static_cast<bsl::size_t>(1 + WIDTH)
-                                                           == cppCharsWritten);
                 }
             }
 
@@ -3382,9 +3473,20 @@ int main(int argc, char**argv)
                                                 veryVerbose);
                 }
             }
+
+            if (verbose) cout << "\tTesting bsl containers\n";
+            TestDriver::testCase3<bsl::vector<unsigned short> >();
+
+            if (verbose) cout << "\tTesting std containers\n";
+            TestDriver::testCase3<std::vector<unsigned short> >();
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            if (verbose) cout << "\tTesting pmr containers\n";
+
+            TestDriver::testCase3<std::pmr::vector<unsigned short> >();
+#endif
         }
       } break;
-
       case 2: {
         // --------------------------------------------------------------------
         // ENUMERATION TEST

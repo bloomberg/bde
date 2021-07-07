@@ -490,6 +490,150 @@ void convertUcs2ToUtf8(unsigned char        **dstBufferPtr,
     *bytesWrittenPtr += 3;
 }
 
+template <class VECTOR>
+int utf8ToUcs2Impl(VECTOR         *result,
+                   const char     *srcString,
+                   unsigned short  errorCharacter)
+{
+    // Theory: We're mainly dealing with 7-bit ASCII, so we're going to try for
+    // an "as tight as possible" inner loop for characters that fit in 7 bits,
+    // and call 'convertUtf8ToUcs2' to deal with the harder cases.
+
+    bsl::size_t charsWritten = 0;
+    const unsigned char *src
+                         = reinterpret_cast<const unsigned char *>(srcString);
+    int retCode = k_SUCCESS;
+
+    // We're going to work in 'buffer' and only update '*result' when 'buffer'
+    // fills up.
+
+    unsigned short        buffer[512];
+    unsigned short       *dstBuffer   = buffer;
+    bsl::size_t           dstCapacity = sizeof buffer / sizeof *buffer;
+    const unsigned short *bufEnd      = buffer + dstCapacity - 2;
+
+    result->resize(0);
+
+    while (*src) {
+        // This branch is unlikely - this only happens every 510 output
+        // characters.
+
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(dstBuffer >= bufEnd)) {
+            result->insert(result->end(), buffer, dstBuffer);
+            dstBuffer   = buffer;
+            dstCapacity = sizeof buffer / sizeof *buffer;
+        }
+
+        if (*src <= ONE_OCTET_CHARACTER_UPPER_BOUND) {
+            // This is a single-octet character; copy it and account for it.
+
+            *dstBuffer = *src;
+
+            ++dstBuffer;
+            --dstCapacity;
+            ++src;
+            ++charsWritten;  // not strictly necessary for C++-style interface
+        }
+        else {
+            // This is a multi-octet character.  Call helper routine.
+
+            convertUtf8ToUcs2(&dstBuffer,
+                              &dstCapacity,
+                              &src,
+                              &charsWritten,
+                              errorCharacter,
+                              &retCode);
+        }
+    }
+
+    // Explicitly null-terminate '*result'.
+
+    *dstBuffer++ = 0;
+
+    result->insert(result->end(), buffer, dstBuffer);
+
+    return retCode;
+}
+
+template <class STRING>
+int ucs2ToUtf8Impl(STRING               *result,
+                   const unsigned short *srcString,
+                   bsl::size_t          *numCharsWritten)
+{
+    // Theory: We're mainly dealing with 7-bit ASCII, so we're going to try for
+    // an "as tight as possible" inner loop for characters that fit in 7 bits,
+    // and call 'convertUcs2ToUtf8' to deal with the harder cases.
+
+    // We're going to work in 'buffer' and only update '*result' when 'buffer'
+    // fills up.
+
+    unsigned char        buffer[1024];
+    unsigned char       *dstBuffer   = buffer;
+    bsl::size_t          dstCapacity = sizeof buffer / sizeof *buffer;
+    const unsigned char *bufEnd      = buffer + dstCapacity - 5;
+
+    result->resize(0);
+
+    int retCode = k_SUCCESS;
+
+    bsl::size_t charsWritten = 0;
+    bsl::size_t bytesWritten = 0;
+
+    while (*srcString) {
+        // This branch is unlikely - this only happens about every 1020 output
+        // octets.
+
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(dstBuffer >= bufEnd)) {
+            char *charBuffer = reinterpret_cast<char *>(buffer);
+            result->append(charBuffer, dstBuffer - buffer);
+            dstBuffer   = buffer;
+            dstCapacity = sizeof buffer / sizeof *buffer;
+        }
+
+        if (*srcString <= ONE_OCTET_CHARACTER_UPPER_BOUND) {
+            // This is a single-octet character.  Copy it and account for it.
+
+            *dstBuffer = static_cast<unsigned char>(*srcString);
+            ++dstBuffer;
+            --dstCapacity;
+            ++charsWritten;
+            ++bytesWritten;  // not strictly necessary for C++-style interface
+        }
+        else {
+            // This is a multi-octet character.  Call helper routine.
+
+            convertUcs2ToUtf8(&dstBuffer,
+                              &dstCapacity,
+                              srcString,
+                              &charsWritten,
+                              &bytesWritten);
+            // A UTF-16 conversion routine would need a '&retCode' argument
+            // passed in here.
+        }
+
+        ++srcString;
+    }
+
+    if (dstBuffer != buffer) {
+        ++charsWritten;  // Account for the null-terminator even though none is
+                         // explicitly appended to '*result'.
+
+        char *charBuffer = reinterpret_cast<char *>(buffer);
+        result->append(charBuffer, dstBuffer - buffer);
+    }
+
+    if (numCharsWritten) {
+        // If nothing was written, pretend a null-terminator was output.
+
+        if (!charsWritten) {
+            ++charsWritten;
+        }
+        *numCharsWritten = charsWritten;
+    }
+
+    return retCode;
+}
+
 }  // close unnamed namespace
 
 namespace BloombergLP {
@@ -499,6 +643,7 @@ namespace bdlde {
                            // struct CharConvertUcs2
                            // ----------------------
 
+// CLASS METHODS
 int CharConvertUcs2::utf8ToUcs2(unsigned short *dstBuffer,
                                 bsl::size_t     dstCapacity,
                                 const char     *srcString,
@@ -589,65 +734,25 @@ int CharConvertUcs2::utf8ToUcs2(bsl::vector<unsigned short> *result,
                                 const char                  *srcString,
                                 unsigned short               errorCharacter)
 {
-    // Theory: We're mainly dealing with 7-bit ASCII, so we're going to try for
-    // an "as tight as possible" inner loop for characters that fit in 7 bits,
-    // and call 'convertUtf8ToUcs2' to deal with the harder cases.
-
-    bsl::size_t charsWritten = 0;
-    const unsigned char *src
-                         = reinterpret_cast<const unsigned char *>(srcString);
-    int retCode = k_SUCCESS;
-
-    // We're going to work in 'buffer' and only update '*result' when 'buffer'
-    // fills up.
-
-    unsigned short        buffer[512];
-    unsigned short       *dstBuffer   = buffer;
-    bsl::size_t           dstCapacity = sizeof buffer / sizeof *buffer;
-    const unsigned short *bufEnd      = buffer + dstCapacity - 2;
-
-    result->resize(0);
-
-    while (*src) {
-        // This branch is unlikely - this only happens every 510 output
-        // characters.
-
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(dstBuffer >= bufEnd)) {
-            result->insert(result->end(), buffer, dstBuffer);
-            dstBuffer   = buffer;
-            dstCapacity = sizeof buffer / sizeof *buffer;
-        }
-
-        if (*src <= ONE_OCTET_CHARACTER_UPPER_BOUND) {
-            // This is a single-octet character; copy it and account for it.
-
-            *dstBuffer = *src;
-
-            ++dstBuffer;
-            --dstCapacity;
-            ++src;
-            ++charsWritten;  // not strictly necessary for C++-style interface
-        }
-        else {
-            // This is a multi-octet character.  Call helper routine.
-
-            convertUtf8ToUcs2(&dstBuffer,
-                              &dstCapacity,
-                              &src,
-                              &charsWritten,
-                              errorCharacter,
-                              &retCode);
-        }
-    }
-
-    // Explicitly null-terminate '*result'.
-
-    *dstBuffer++ = 0;
-
-    result->insert(result->end(), buffer, dstBuffer);
-
-    return retCode;
+    return utf8ToUcs2Impl(result, srcString, errorCharacter);
 }
+
+int CharConvertUcs2::utf8ToUcs2(std::vector<unsigned short> *result,
+                                const char                  *srcString,
+                                unsigned short               errorCharacter)
+{
+    return utf8ToUcs2Impl(result, srcString, errorCharacter);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUcs2::utf8ToUcs2(
+                              std::pmr::vector<unsigned short> *result,
+                              const char                       *srcString,
+                              unsigned short                    errorCharacter)
+{
+    return utf8ToUcs2Impl(result, srcString, errorCharacter);
+}
+#endif
 
 int CharConvertUcs2::ucs2ToUtf8(char                 *dstBuffer,
                                 bsl::size_t           dstCapacity,
@@ -754,77 +859,24 @@ int CharConvertUcs2::ucs2ToUtf8(bsl::string          *result,
                                 const unsigned short *srcString,
                                 bsl::size_t          *numCharsWritten)
 {
-    // Theory: We're mainly dealing with 7-bit ASCII, so we're going to try for
-    // an "as tight as possible" inner loop for characters that fit in 7 bits,
-    // and call 'convertUcs2ToUtf8' to deal with the harder cases.
-
-    // We're going to work in 'buffer' and only update '*result' when 'buffer'
-    // fills up.
-
-    unsigned char        buffer[1024];
-    unsigned char       *dstBuffer   = buffer;
-    bsl::size_t          dstCapacity = sizeof buffer / sizeof *buffer;
-    const unsigned char *bufEnd      = buffer + dstCapacity - 5;
-
-    result->resize(0);
-
-    int retCode = k_SUCCESS;
-
-    bsl::size_t charsWritten = 0;
-    bsl::size_t bytesWritten = 0;
-
-    while (*srcString) {
-        // This branch is unlikely - this only happens about every 1020 output
-        // octets.
-
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(dstBuffer >= bufEnd)) {
-            result->append(buffer, dstBuffer);
-            dstBuffer   = buffer;
-            dstCapacity = sizeof buffer / sizeof *buffer;
-        }
-
-        if (*srcString <= ONE_OCTET_CHARACTER_UPPER_BOUND) {
-            // This is a single-octet character.  Copy it and account for it.
-
-            *dstBuffer = static_cast<unsigned char>(*srcString);
-            ++dstBuffer;
-            --dstCapacity;
-            ++charsWritten;
-            ++bytesWritten;  // not strictly necessary for C++-style interface
-        }
-        else {
-            // This is a multi-octet character.  Call helper routine.
-
-            convertUcs2ToUtf8(&dstBuffer,
-                              &dstCapacity,
-                              srcString,
-                              &charsWritten,
-                              &bytesWritten);
-            // A UTF-16 conversion routine would need a '&retCode' argument
-            // passed in here.
-        }
-
-        ++srcString;
-    }
-
-    if (dstBuffer != buffer) {
-        ++charsWritten;  // Account for the null-terminator even though none is
-                         // explicitly appended to '*result'.
-
-        result->append(buffer, dstBuffer);
-    }
-
-    if (numCharsWritten) {
-        // If nothing was written, pretend a null-terminator was output.
-
-        if (!charsWritten) {
-            ++charsWritten;
-        }
-        *numCharsWritten = charsWritten;
-    }
-
-    return retCode;
+    return ucs2ToUtf8Impl(result, srcString, numCharsWritten);
 }
+
+int CharConvertUcs2::ucs2ToUtf8(std::string          *result,
+                                const unsigned short *srcString,
+                                bsl::size_t          *numCharsWritten)
+{
+    return ucs2ToUtf8Impl(result, srcString, numCharsWritten);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUcs2::ucs2ToUtf8(std::pmr::string     *result,
+                                const unsigned short *srcString,
+                                bsl::size_t          *numCharsWritten)
+{
+    return ucs2ToUtf8Impl(result, srcString, numCharsWritten);
+}
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace

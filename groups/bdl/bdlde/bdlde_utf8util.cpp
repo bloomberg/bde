@@ -545,7 +545,6 @@ static int validateAndCountCodePoints(const char             **invalidString,
     return count;
 }
 
-
 namespace BloombergLP {
 
 namespace bdlde {
@@ -1220,10 +1219,20 @@ bool Utf8Util::isValid(const char **invalidString,
     return validateAndCountCodePoints(invalidString, string, length) >= 0;
 }
 
-Utf8Util::IntPtr Utf8Util::numBytesRaw(const bslstl::StringRef& string,
-                                       IntPtr                   numCodePoints)
+bool Utf8Util::isValid(const char              **invalidString,
+                       const bsl::string_view&   string)
 {
-    BSLS_ASSERT(string.data() || string.isEmpty());
+    BSLS_ASSERT(invalidString);
+
+    return validateAndCountCodePoints(invalidString,
+                                      string.data(),
+                                      string.length()) >= 0;
+}
+
+Utf8Util::IntPtr Utf8Util::numBytesRaw(const bsl::string_view& string,
+                                       IntPtr                  numCodePoints)
+{
+    BSLS_ASSERT(string.data() || string.empty());
     BSLS_ASSERT(0 <= numCodePoints);
 
     size_t numBytes = 0;
@@ -1261,6 +1270,17 @@ Utf8Util::IntPtr Utf8Util::numCodePointsIfValid(const char **invalidString,
     BSLS_ASSERT(0 <= bsls::Types::IntPtr(length));
 
     return validateAndCountCodePoints(invalidString, string, length);
+}
+
+Utf8Util::IntPtr Utf8Util::numCodePointsIfValid(
+                                       const char              **invalidString,
+                                       const bsl::string_view&   string)
+{
+    BSLS_ASSERT(invalidString);
+
+    return validateAndCountCodePoints(invalidString,
+                                      string.data(),
+                                      string.length());
 }
 
 Utf8Util::IntPtr Utf8Util::numCodePointsRaw(const char *string)

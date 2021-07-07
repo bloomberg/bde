@@ -275,6 +275,12 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#include <memory_resource>
+#endif
+#include <string>                  // 'std::string', 'std::pmr::string'
+#include <vector>                  // 'std::vector', 'std::pmr::vector'
+
 namespace BloombergLP {
 
 namespace bdlde {
@@ -329,6 +335,15 @@ struct CharConvertUcs2 {
     static int utf8ToUcs2(bsl::vector<unsigned short> *result,
                           const char                  *srcString,
                           unsigned short               errorCharacter  = '?');
+    static int utf8ToUcs2(std::vector<unsigned short> *result,
+                          const char                  *srcString,
+                          unsigned short               errorCharacter  = '?');
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int utf8ToUcs2(
+                      std::pmr::vector<unsigned short> *result,
+                      const char                       *srcString,
+                      unsigned short                    errorCharacter  = '?');
+#endif
         // Load into the specified 'result' the conversion of the specified
         // null-terminated UTF-8 'srcString' to its null-terminated UCS-2
         // equivalent.  Optionally specify 'errorCharacter' to be substituted
@@ -378,6 +393,14 @@ struct CharConvertUcs2 {
     static int ucs2ToUtf8(bsl::string          *result,
                           const unsigned short *srcString,
                           bsl::size_t          *numCharsWritten = 0);
+    static int ucs2ToUtf8(std::string          *result,
+                          const unsigned short *srcString,
+                          bsl::size_t          *numCharsWritten = 0);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int ucs2ToUtf8(std::pmr::string     *result,
+                          const unsigned short *srcString,
+                          bsl::size_t          *numCharsWritten = 0);
+#endif
         // Load, into the specified 'result', the conversion of the specified
         // null-terminated UCS-2 'srcString' to its UTF-8 equivalent.
         // Optionally specify 'numCharsWritten' which (if not 0) indicates the
@@ -392,6 +415,7 @@ struct CharConvertUcs2 {
         // modes; however, this could change if UTF-8 input validation is
         // added.
 };
+
 }  // close package namespace
 
 }  // close enterprise namespace

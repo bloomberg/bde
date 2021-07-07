@@ -4865,6 +4865,28 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, ERROR_STATUS, numCodePoints,
                                                 ERROR_STATUS == numCodePoints);
 
+                sts = -11;
+                end = "woof";
+                numCodePoints = Obj::advanceIfValid(&sts,
+                                                    &end,
+                                                    str,
+                                                    INT_PTR_MAX);
+                ASSERT(endOfValid == end);
+                ASSERT(numCodePointsExp == numCodePoints);
+                ASSERTV(LINE, ERROR_STATUS, sts, ERROR_STATUS == sts);
+
+                ASSERT(!Obj::isValid(str));
+
+                end = "woof";
+                ASSERT(!Obj::isValid(&end, str));
+                ASSERT(endOfValid == end);
+
+                end = "woof";
+                numCodePoints = Obj::numCodePointsIfValid(&end, str);
+                ASSERT(endOfValid == end);
+                ASSERTV(LINE, ERROR_STATUS, numCodePoints,
+                                                ERROR_STATUS == numCodePoints);
+
                 const IntPtr validLen  = endOfValid - begin;
                 IntPtr       intStrLen = str.length();
                 for (IntPtr endOutLen = intStrLen + 4,
@@ -4987,6 +5009,30 @@ int main(int argc, char *argv[])
                                                                  numCodePoints,
                                                 ERROR_STATUS == numCodePoints);
 
+                sts = -11;
+                end = "woof";
+                numCodePoints = Obj::advanceIfValid(&sts,
+                                                    &end,
+                                                    str,
+                                                    INT_PTR_MAX);
+                ASSERT(endOfValid == end);
+                ASSERT(numCodePointsExp == numCodePoints);
+                ASSERTV(LINE, ERROR_STATUS, sts,
+                                     str[str.length()-1], ERROR_STATUS == sts);
+
+                ASSERT(!Obj::isValid(str));
+
+                end = "woof";
+                ASSERT(!Obj::isValid(&end, str));
+                ASSERT(endOfValid == end);
+
+                end = "woof";
+                numCodePoints = Obj::numCodePointsIfValid(&end, str);
+                ASSERT(endOfValid == end);
+                ASSERTV(LINE, u::dumpStr(errorStr),
+                        ERROR_STATUS, numCodePoints,
+                        ERROR_STATUS == numCodePoints);
+
                 intStrLen = str.length();
                 for (IntPtr endOutLen = intStrLen + 4,
                                    outLen = bsl::max<IntPtr>(4, intStrLen - 1);
@@ -5105,14 +5151,19 @@ int main(int argc, char *argv[])
         // Testing:
         //   IntPtr advanceIfValid(int *, const char **, const char *, int);
         //   IntPtr advanceIfValid(int *, const char **, const char *,int,int);
+        //   IntPtr advanceIfValid(int *,const char **,const string_view&,int);
         //   IntPtr advanceRaw(const char **, const char *, int);
         //   IntPtr advanceRaw(const char **, const char *, int, int);
+        //   IntPtr advanceRaw(const char **, const string_view&, int);
         //   bool isValid(const char *);
         //   bool isValid(const char *, int);
+        //   bool isValid(const string_view&);
         //   bool isValid(const char **, const char *);
         //   bool isValid(const char **, const char *, int);
+        //   bool isValid(const char **, const string_view&);
         //   IntPtr numCodePointsIfValid(const char **, const char *);
         //   IntPtr numCodePointsIfValid(const char **, const char *, int);
+        //   IntPtr numCodePointsIfValid(const char **, const string_view&);
         //   size_t readIfValid(int *, char *, size_t, streambuf *);
         // --------------------------------------------------------------------
 
@@ -5155,12 +5206,13 @@ int main(int argc, char *argv[])
             const bool zeroUsed = bsl::count(str.begin(), str.end(), '\0');
             ASSERT(!zeroUsed || useZero);
 
-            const char * const begin       = str.c_str();
-            const char * const endOfString = &*str.end();
-            const char *       end;
-            IntPtr             numCodePoints;
-            int                sts;
-            const bsl::size_t  strLength = str.length();
+            const char * const     begin       = str.c_str();
+            const char * const     endOfString = &*str.end();
+            const char *           end;
+            IntPtr                 numCodePoints;
+            int                    sts;
+            const bsl::size_t      strLength = str.length();
+            const bsl::string_view strView(str);
 
             if (!zeroUsed) {
                 end = WOOF;
@@ -5185,8 +5237,7 @@ int main(int argc, char *argv[])
                 ASSERT(WOOF == end);
 
                 end = WOOF;
-                numCodePoints = Obj::numCodePointsIfValid(&end,
-                                                          begin);
+                numCodePoints = Obj::numCodePointsIfValid(&end, begin);
                 ASSERT(WOOF == end);
                 ASSERT(numCodePointsExp == numCodePoints);
 
@@ -5202,6 +5253,13 @@ int main(int argc, char *argv[])
             ASSERT(endOfString == end);
             ASSERT(numCodePointsExp == numCodePoints);
 
+            end = "woof";
+            numCodePoints = Obj::advanceRaw(&end,
+                                            strView,
+                                            INT_PTR_MAX);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+
             sts = -11;
             end = "woof";
             numCodePoints = Obj::advanceIfValid(&sts,
@@ -5213,10 +5271,26 @@ int main(int argc, char *argv[])
             ASSERT(numCodePointsExp == numCodePoints);
             ASSERT(0 == sts);
 
+            sts = -11;
+            end = "woof";
+            numCodePoints = Obj::advanceIfValid(&sts,
+                                                &end,
+                                                strView,
+                                                INT_PTR_MAX);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+            ASSERT(0 == sts);
+
             ASSERT(Obj::isValid(begin, strLength));
+
+            ASSERT(Obj::isValid(strView));
 
             end = WOOF;
             ASSERT(Obj::isValid(&end, begin, strLength));
+            ASSERT(WOOF == end);
+
+            end = WOOF;
+            ASSERT(Obj::isValid(&end, strView));
             ASSERT(WOOF == end);
 
             end = WOOF;
@@ -5226,7 +5300,39 @@ int main(int argc, char *argv[])
             ASSERT(WOOF == end);
             ASSERT(numCodePointsExp == numCodePoints);
 
+            end = WOOF;
+            numCodePoints = Obj::numCodePointsIfValid(&end, strView);
+            ASSERT(WOOF == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+
             numCodePoints = Obj::numCodePointsRaw(begin, strLength);
+            ASSERT(numCodePointsExp == numCodePoints);
+
+            numCodePoints = Obj::numCodePointsRaw(strView);
+            ASSERT(numCodePointsExp == numCodePoints);
+
+            sts = -11;
+            end = "woof";
+            numCodePoints = Obj::advanceIfValid(&sts,
+                                                &end,
+                                                strView,
+                                                INT_PTR_MAX);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+            ASSERT(0 == sts);
+
+            ASSERT(Obj::isValid(strView));
+
+            end = WOOF;
+            ASSERT(Obj::isValid(&end, strView));
+            ASSERT(WOOF == end);
+
+            end = WOOF;
+            numCodePoints = Obj::numCodePointsIfValid(&end, strView);
+            ASSERT(WOOF == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+
+            numCodePoints = Obj::numCodePointsRaw(strView);
             ASSERT(numCodePointsExp == numCodePoints);
 
             bdlsb::FixedMemInStreamBuf fsb(0, 0);
@@ -5335,6 +5441,13 @@ int main(int argc, char *argv[])
             ASSERT(endOfString == end);
             ASSERT(numCodePointsExp == numCodePoints);
 
+           end = "woof";
+            numCodePoints = Obj::advanceRaw(&end,
+                                            strView,
+                                            INT_PTR_MAX);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+
             sts = -11;
             end = "woof";
             numCodePoints = Obj::advanceIfValid(&sts,
@@ -5345,6 +5458,17 @@ int main(int argc, char *argv[])
             ASSERT(endOfString == end);
             ASSERT(numCodePointsExp == numCodePoints);
             ASSERT(0 == sts);
+
+            sts = -11;
+            end = "woof";
+            numCodePoints = Obj::advanceIfValid(&sts,
+                                                &end,
+                                                strView,
+                                                INT_PTR_MAX);
+            ASSERT(endOfString == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+            ASSERT(0 == sts);
+
 
             if (!zeroUsed) {
                 end = "woof";
@@ -5386,8 +5510,14 @@ int main(int argc, char *argv[])
 
             ASSERT(Obj::isValid(begin, strLength));
 
+            ASSERT(Obj::isValid(strView));
+
             end = WOOF;
             ASSERT(Obj::isValid(&end, begin, strLength));
+            ASSERT(WOOF == end);
+
+            end = WOOF;
+            ASSERT(Obj::isValid(&end, strView));
             ASSERT(WOOF == end);
 
             end = WOOF;
@@ -5397,7 +5527,16 @@ int main(int argc, char *argv[])
             ASSERT(WOOF == end);
             ASSERT(numCodePointsExp == numCodePoints);
 
+            end = WOOF;
+            numCodePoints = Obj::numCodePointsIfValid(&end,
+                                                      strView);
+            ASSERT(WOOF == end);
+            ASSERT(numCodePointsExp == numCodePoints);
+
             numCodePoints = Obj::numCodePointsRaw(begin, strLength);
+            ASSERT(numCodePointsExp == numCodePoints);
+
+            numCodePoints = Obj::numCodePointsRaw(strView);
             ASSERT(numCodePointsExp == numCodePoints);
         }
       } break;
@@ -5417,8 +5556,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   IntPtr advanceIfValid(int *, const char **, const char *, int);
         //   IntPtr advanceIfValid(int*,const char**,const char *,int,int);
+        //   IntPtr advanceIfValid(int*,const char**,const string_view&,int);
         //   IntPtr advanceRaw(const char **, const char *, int);
         //   IntPtr advanceRaw(const char **, const char *, int, int);
+        //   IntPtr advanceRaw(const char **, const string_view&, int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING REAL PROSE\n"
@@ -5428,9 +5569,10 @@ int main(int argc, char *argv[])
         IntPtr      numCodePoints;
         int         sts;
 
-        const char * const begin  = u::charUtf8MultiLang;
-        bsl::size_t        length = sizeof(u::utf8MultiLang) - 1;
-        const char * const end    = begin + length;
+        const char * const     begin  = u::charUtf8MultiLang;
+        bsl::size_t            length = sizeof(u::utf8MultiLang) - 1;
+        const char * const     end    = begin + length;
+        const bsl::string_view strView(begin, length);
 
         const int expectedNumCPs = u::NUM_UTF8_MULTI_LANG_CODE_POINTS - 1;
 
@@ -5447,6 +5589,16 @@ int main(int argc, char *argv[])
                                             &result,
                                             begin,
                                             length,
+                                            INT_MAX);
+        ASSERT(u::NUM_UTF8_MULTI_LANG_CODE_POINTS - 1 == numCodePoints);
+        ASSERT(result == end);
+        ASSERT(0 == sts);
+
+        sts      = -2;
+        result   = "woof";
+        numCodePoints = Obj::advanceIfValid(&sts,
+                                            &result,
+                                            strView,
                                             INT_MAX);
         ASSERT(u::NUM_UTF8_MULTI_LANG_CODE_POINTS - 1 == numCodePoints);
         ASSERT(result == end);
@@ -5481,6 +5633,11 @@ int main(int argc, char *argv[])
 
         result   = "woof";
         numCodePoints = Obj::advanceRaw(&result, begin, length, INT_MAX);
+        ASSERT(u::NUM_UTF8_MULTI_LANG_CODE_POINTS - 1 == numCodePoints);
+        ASSERT(result == end);
+
+        result   = "woof";
+        numCodePoints = Obj::advanceRaw(&result, strView, INT_MAX);
         ASSERT(u::NUM_UTF8_MULTI_LANG_CODE_POINTS - 1 == numCodePoints);
         ASSERT(result == end);
 

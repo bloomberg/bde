@@ -447,15 +447,34 @@ struct Utf8Util {
         // note that 'string' may contain less than 'length' Unicode code
         // points.
 
+    static IntPtr advanceIfValid(int                      *status,
+                                 const char              **result,
+                                 const bsl::string_view&   string,
+                                 IntPtr                    numCodePoints);
+        // Advance past 0 or more consecutive *valid* Unicode code points at
+        // the beginning of the specified 'string', until either the specified
+        // 'numCodePoints' bytes or the whole 'string' have been traversed, or
+        // invalid UTF-8 is encountered (whichever occurs first), and return
+        // the number of Unicode code points traversed.  Set the specified
+        // '*status' to 0 if no invalid UTF-8 is encountered, and to a value
+        // from the 'ErrorStatus' 'enum' otherwise.  Set the specified
+        // '*result' to the address of the byte immediately following the last
+        // valid code point traversed, or to 'string' if its length or
+        // 'numCodePoints' is 0.  'string' need not be null-terminated and can
+        // contain embedded null bytes.  The behavior is undefined unless
+        // '0 <= numCodePoints'.  Note that the value returned will be in the
+        // range '[0 .. numCodePoints]'.  Also note that 'string' may contain
+        // less than 'string.length()' Unicode code points.
+
     static IntPtr advanceRaw(const char **result,
                              const char  *string,
                              IntPtr       numCodePoints);
         // Advance past 0 or more consecutive Unicode code points at the
         // beginning of the specified 'string', until either the specified
-        // 'numCodePoints' have been traversed or the terminating null byte is
-        // encountered (whichever occurs first), and return the number of
-        // Unicode code points traversed.  Set the specified '*result' to the
-        // address of the byte immediately following the last code point
+        // 'numCodePoints' bytes have been traversed or the terminating null
+        // byte is encountered (whichever occurs first), and return the number
+        // of Unicode code points traversed.  Set the specified '*result' to
+        // the address of the byte immediately following the last code point
         // traversed, or to 'string' if 'string' is empty or 'numCodePoints' is
         // 0.  'string' is necessarily null-terminated, so it cannot contain
         // embedded null bytes.  The behavior is undefined unless 'string'
@@ -482,6 +501,22 @@ struct Utf8Util {
         // '0 <= numCodePoints'.  Note that the value returned will be in the
         // range '[0 .. numCodePoints]'.  Also note that 'string' may contain
         // less than 'length' Unicode code points.
+
+    static IntPtr advanceRaw(const char              **result,
+                             const bsl::string_view&   string,
+                             IntPtr                    numCodePoints);
+        // Advance past 0 or more consecutive Unicode code points at the
+        // beginning of the specified 'string', until either the specified
+        // 'numCodePoints' bytes or the whole string have been traversed
+        // (whichever occurs first), and return the number of Unicode code
+        // points traversed.  Set the specified '*result' to the address of the
+        // byte immediately following the last code point traversed, or to
+        // 'string' if 'length' or 'numCodePoints' is 0.  'string' need not be
+        // null-terminated and can contain embedded null bytes.  The behavior
+        // is undefined unless 'string' contains only valid UTF-8 characters
+        // and '0 <= numCodePoints'.  Note that the value returned will be in
+        // the range '[0 .. numCodePoints]'.  Also note that 'string' may
+        // contain less than 'length' Unicode code points.
 
     static int appendUtf8Character(bsl::string  *output,
                                    unsigned int  codePoint);
@@ -527,6 +562,11 @@ struct Utf8Util {
         // bytes, and 'string' may be null if '0 == length' (see {Empty Input
         // Strings}).
 
+    static bool isValid(const bsl::string_view& string);
+        // Return 'true' if the specified 'string' contains valid UTF-8, and
+        // 'false' otherwise.  'string' need not be null-terminated and can
+        // contain embedded null bytes.
+
     static bool isValid(const char **invalidString, const char *string);
         // Return 'true' if the specified 'string' contains valid UTF-8, and
         // 'false' otherwise.  If 'string' contains invalid UTF-8, load into
@@ -548,8 +588,17 @@ struct Utf8Util {
         // contain embedded null bytes, and 'string' may be null if
         // '0 == length' (see {Empty Input Strings}).
 
-    static IntPtr numBytesIfValid(const bslstl::StringRef& string,
-                                  IntPtr                   numCodePoints);
+    static bool isValid(const char              **invalidString,
+                        const bsl::string_view&   string);
+        // Return 'true' if the specified 'string' contains only valid UTF-8
+        // characters, and 'false' otherwise.  If 'string' contains invalid
+        // UTF-8, load into the specified 'invalidString' the address of the
+        // byte after the last valid code point traversed; 'invalidString' is
+        // unaffected if 'string' contains only valid UTF-8.  'string' need not
+        // be null-terminated and can contain embedded null bytes.
+
+    static IntPtr numBytesIfValid(const bsl::string_view& string,
+                                  IntPtr                  numCodePoints);
         // !DEPRECATED!: Use 'numBytesRaw' instead.
         //
         // Return the length (in bytes) of the specified 'numCodePoints' UTF-8
@@ -559,8 +608,8 @@ struct Utf8Util {
         // 'string' may contain more than 'numCodePoints' encodings in which
         // case the trailing ones are ignored.
 
-    static IntPtr numBytesRaw(const bslstl::StringRef& string,
-                              IntPtr                   numCodePoints);
+    static IntPtr numBytesRaw(const bsl::string_view& string,
+                              IntPtr                  numCodePoints);
         // Return the length (in bytes) of the specified 'numCodePoints' UTF-8
         // encodings in the specified 'string', or a value less than 0 if
         // 'string' contains less than 'numCodePoints' encodings.  The behavior
@@ -658,6 +707,16 @@ struct Utf8Util {
         // Note that 'string' may contain less than 'length' Unicode code
         // points.
 
+    static IntPtr numCodePointsIfValid(const char              **invalidString,
+                                       const bsl::string_view&   string);
+        // Return the number of Unicode code points in the specified 'string'
+        // if 'string' contains valid UTF-8, with no effect on the specified
+        // 'invalidString'.  Otherwise, return a value from the 'ErrorStatus'
+        // 'enum' (which are all negative) and load into 'invalidString' the
+        // address of the byte after the last valid Unicode code point
+        // traversed.  'string' need not be null-terminated and may contain
+        // embedded null bytes.
+
     static IntPtr numCodePointsRaw(const char *string);
         // Return the number of Unicode code points in the specified 'string'.
         // 'string' is necessarily null-terminated, so it cannot contain
@@ -672,6 +731,12 @@ struct Utf8Util {
         // may be null if '0 == length' (see {Empty Input Strings}).  The
         // behavior is undefined unless 'string' contains valid UTF-8.  Note
         // that 'string' may contain less than 'length' Unicode code points.
+
+    static IntPtr numCodePointsRaw(const bsl::string_view& string);
+        // Return the number of Unicode code points in the specified 'string'.
+        // 'string' need not be null-terminated and can contain embedded null
+        // bytes.  The behavior is undefined unless 'string' contains valid
+        // UTF-8.
 
     static size_type readIfValid(int            *status,
                                  char           *outputBuffer,
@@ -720,6 +785,29 @@ struct Utf8Util {
 
 // CLASS METHODS
 inline
+Utf8Util::IntPtr Utf8Util::advanceIfValid(
+                                       int                      *status,
+                                       const char              **result,
+                                       const bsl::string_view&   string,
+                                       IntPtr                    numCodePoints)
+{
+
+    return advanceIfValid(status,
+                          result,
+                          string.data(),
+                          string.length(),
+                          numCodePoints);
+}
+
+inline
+Utf8Util::IntPtr Utf8Util::advanceRaw(const char              **result,
+                                      const bsl::string_view&   string,
+                                      IntPtr                    numCodePoints)
+{
+    return advanceRaw(result, string.data(), string.length(), numCodePoints);
+}
+
+inline
 int Utf8Util::appendUtf8Character(bsl::string  *output,
                                   unsigned int  codePoint)
 {
@@ -751,9 +839,16 @@ bool Utf8Util::isValid(const char *string, size_type length)
 }
 
 inline
+bool Utf8Util::isValid(const bsl::string_view& string)
+{
+    const char *dummy = 0;
+    return isValid(&dummy, string);
+}
+
+inline
 Utf8Util::IntPtr Utf8Util::numBytesIfValid(
-                                        const bslstl::StringRef& string,
-                                        IntPtr                   numCodePoints)
+                                         const bsl::string_view& string,
+                                         IntPtr                  numCodePoints)
 {
     return numBytesRaw(string, numCodePoints);
 }
@@ -796,6 +891,12 @@ Utf8Util::IntPtr Utf8Util::numCharactersRaw(const char *string,
                                             size_type   length)
 {
     return numCodePointsRaw(string, length);
+}
+
+inline
+Utf8Util::IntPtr Utf8Util::numCodePointsRaw(const bsl::string_view& string)
+{
+    return numCodePointsRaw(string.data(), string.length());
 }
 
 }  // close package namespace

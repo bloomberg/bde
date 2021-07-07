@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a 'struct', 'bdlde::CharConvertUtf32',
 // that provides a suite of static functions supporting the *fast* conversion
 // of UTF-8 data to UTF-32, and vice versa.  UTF-8 input can take the form of
-// null-terminated "C" strings or 'bslstl::StringRef's, while UTF-32 input can
+// null-terminated "C" strings or 'bsl::string_view's, while UTF-32 input can
 // only take the form of null-terminated buffers of 'unsigned int'.  Output can
 // be to STL vectors, 'bsl::string's (in the case of UTF-8), and fixed-length
 // buffers.  Invalid byte sequences and code points forbidden by either
@@ -183,7 +183,14 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_cstddef.h>            // 'bsl::size_t'
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_vector.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+#include <memory_resource>
+#endif
+#include <string>                   // 'std::string', 'std::pmr::string'
+#include <vector>                   // 'std::vector', 'std::pmr::vector'
 
 namespace BloombergLP {
 
@@ -200,7 +207,7 @@ struct CharConvertUtf32 {
     // the input, it will be translated, whether correct ('0xfeff') or
     // incorrect ('0xfffe'), into the output without any special handling.
 
-                          // UTF-8 to UTF-32 Methods
+                              // UTF-8 to UTF-32 Methods
 
     // CLASS METHODS
     static int utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
@@ -208,11 +215,35 @@ struct CharConvertUtf32 {
                            unsigned int               errorWord = '?',
                            ByteOrder::Enum            byteOrder =
                                                             ByteOrder::e_HOST);
-    static int utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
-                           const bslstl::StringRef&   srcString,
+    static int utf8ToUtf32(std::vector<unsigned int> *dstVector,
+                           const char                *srcString,
                            unsigned int               errorWord = '?',
                            ByteOrder::Enum            byteOrder =
                                                             ByteOrder::e_HOST);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int utf8ToUtf32(
+                std::pmr::vector<unsigned int> *dstVector,
+                const char                     *srcString,
+                unsigned int                    errorWord = '?',
+                ByteOrder::Enum                 byteOrder = ByteOrder::e_HOST);
+#endif
+    static int utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
+                           const bsl::string_view&    srcString,
+                           unsigned int               errorWord = '?',
+                           ByteOrder::Enum            byteOrder =
+                                                            ByteOrder::e_HOST);
+    static int utf8ToUtf32(std::vector<unsigned int> *dstVector,
+                           const bsl::string_view&    srcString,
+                           unsigned int               errorWord = '?',
+                           ByteOrder::Enum            byteOrder =
+                                                            ByteOrder::e_HOST);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int utf8ToUtf32(
+                std::pmr::vector<unsigned int> *dstVector,
+                const bsl::string_view&         srcString,
+                unsigned int                    errorWord = '?',
+                ByteOrder::Enum                 byteOrder = ByteOrder::e_HOST);
+#endif
         // Load into the specified 'dstVector' the result of converting the
         // specified UTF-8 'srcString' to its UTF-32 equivalent.  Optionally
         // specify 'errorWord' to be substituted, if not 0, for invalid
@@ -232,7 +263,7 @@ struct CharConvertUtf32 {
         // one code point always occupies one 32-bit *ord of output; there is
         // no 'numCodePointsWritten' argument since, after the call,
         // 'dstVector->size()' will equal the number of code points written.
-        // Also note that when the input is a 'bslstl::StringRef', it may
+        // Also note that when the input is a 'bsl::string_view', it may
         // contain embedded nulls, which are translated to zeroes in the
         // output.  Also note that 'errorWord' is assumed to be in host byte
         // order.
@@ -246,13 +277,12 @@ struct CharConvertUtf32 {
                           ByteOrder::Enum           byteOrder            =
                                                             ByteOrder::e_HOST);
     static int utf8ToUtf32(
-                          unsigned int             *dstBuffer,
-                          bsl::size_t               dstCapacity,
-                          const bslstl::StringRef&  srcString,
-                          bsl::size_t              *numCodePointsWritten = 0,
-                          unsigned int              errorWord            = '?',
-                          ByteOrder::Enum           byteOrder            =
-                                                            ByteOrder::e_HOST);
+                       unsigned int            *dstBuffer,
+                       bsl::size_t              dstCapacity,
+                       const bsl::string_view&  srcString,
+                       bsl::size_t             *numCodePointsWritten = 0,
+                       unsigned int             errorWord            = '?',
+                       ByteOrder::Enum          byteOrder = ByteOrder::e_HOST);
         // Load into the specified 'dstBuffer' of the specified 'dstCapacity',
         // the result of converting the specified UTF-8 'srcString' to its
         // UTF-32 equivalent.  Optionally specify 'numCodePointsWritten', which
@@ -291,7 +321,7 @@ struct CharConvertUtf32 {
         // '*numCodePointsWritten' equals the number of *words* written.  Also
         // note that 'errorWord' is assumed to be in host byte order.
 
-                            // UTF-32 to UTF-8 Methods
+                           // UTF-32 to UTF-8 Methods
 
     static int utf32ToUtf8(bsl::string           *dstString,
                            const unsigned int    *srcString,
@@ -299,6 +329,19 @@ struct CharConvertUtf32 {
                            unsigned char          errorByte            = '?',
                            ByteOrder::Enum        byteOrder            =
                                                             ByteOrder::e_HOST);
+    static int utf32ToUtf8(std::string           *dstString,
+                           const unsigned int    *srcString,
+                           bsl::size_t           *numCodePointsWritten = 0,
+                           unsigned char          errorByte            = '?',
+                           ByteOrder::Enum        byteOrder            =
+                                                            ByteOrder::e_HOST);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int utf32ToUtf8(std::pmr::string   *dstString,
+                           const unsigned int *srcString,
+                           bsl::size_t        *numCodePointsWritten = 0,
+                           unsigned char       errorByte            = '?',
+                           ByteOrder::Enum     byteOrder = ByteOrder::e_HOST);
+#endif
     static int utf32ToUtf8(bsl::string           *dstString,
                            const unsigned int    *srcString,
                            bsl::size_t            srcStringLength,
@@ -306,6 +349,21 @@ struct CharConvertUtf32 {
                            unsigned char          errorByte            = '?',
                            ByteOrder::Enum        byteOrder            =
                                                             ByteOrder::e_HOST);
+    static int utf32ToUtf8(std::string           *dstString,
+                           const unsigned int    *srcString,
+                           bsl::size_t            srcStringLength,
+                           bsl::size_t           *numCodePointsWritten = 0,
+                           unsigned char          errorByte            = '?',
+                           ByteOrder::Enum        byteOrder            =
+                                                            ByteOrder::e_HOST);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int utf32ToUtf8(std::pmr::string   *dstString,
+                           const unsigned int *srcString,
+                           bsl::size_t         srcStringLength,
+                           bsl::size_t        *numCodePointsWritten = 0,
+                           unsigned char       errorByte            = '?',
+                           ByteOrder::Enum     byteOrder = ByteOrder::e_HOST);
+#endif
         // Load into the specified 'dstString' the result of converting the
         // specified 'srcString' of 'UTF-32' values to 'UTF-8' and return 0 on
         // success or 'CharConvertStatus::k_INVALID_INPUT_BIT' if invalid
@@ -334,6 +392,20 @@ struct CharConvertUtf32 {
                            unsigned char          errorByte            = '?',
                            ByteOrder::Enum        byteOrder            =
                                                             ByteOrder::e_HOST);
+    static int utf32ToUtf8(std::vector<char>     *dstVector,
+                           const unsigned int    *srcString,
+                           bsl::size_t           *numCodePointsWritten = 0,
+                           unsigned char          errorByte            = '?',
+                           ByteOrder::Enum        byteOrder            =
+                                                            ByteOrder::e_HOST);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int utf32ToUtf8(
+                        std::pmr::vector<char> *dstVector,
+                        const unsigned int     *srcString,
+                        bsl::size_t            *numCodePointsWritten = 0,
+                        unsigned char           errorByte            = '?',
+                        ByteOrder::Enum         byteOrder = ByteOrder::e_HOST);
+#endif
     static int utf32ToUtf8(bsl::vector<char>     *dstVector,
                            const unsigned int    *srcString,
                            bsl::size_t            srcStringLength,
@@ -341,27 +413,42 @@ struct CharConvertUtf32 {
                            unsigned char          errorByte            = '?',
                            ByteOrder::Enum        byteOrder            =
                                                             ByteOrder::e_HOST);
-        // Load into the specified 'dstVector' the result of converting the
-        // specified 'srcString' of 'UTF-32' values to 'UTF-8', always followed
-        // by a null character, and return 0 on success or
-        // 'CharConvertStatus::k_INVALID_INPUT_BIT' if invalid 'UTF-32' values
-        // (in the range '[0xD800 .. 0xDFFF]' or above 0x10FFFF) are seen.
-        // Optionally specify 'srcStringlength' as the number of 'UTF-32'
-        // values to be converted.  If 'srcStringLength' is specified, convert
-        // that many UTF-32 values from 'srcString' (including zero values),
-        // otherwise convert values up to but not including a terminating zero
-        // value.  Optionally specify 'numCodePointsWritten' to receive the
-        // number of 'UTF-8' code points written to 'dstVector'.  Optionally
-        // specify 'errorByte' as the character to be written to 'dstVector' as
-        // the translation of invalid 'UTF-32' values; if not specified, '?' is
-        // used, and if given as 0, no character is written at all.  Optionally
-        // specify 'byteOrder' to determine how 'UTF-32' values in 'srcString'
-        // are interpreted; if not given, host byte order is used.  The
-        // behavior is undefined if 'errorByte' is 0x80 or above.  Note that if
-        // you are passing the 'bsl::vector<unsigned int>' obtained from a call
-        // to 'utf8ToUtf32' and using 'srcStringLength', you must take care to
-        // pass 'vector.size() - 1' to 'srcStringLength' to avoid embedding the
-        // terminating 0.
+    static int utf32ToUtf8(std::vector<char>     *dstVector,
+                           const unsigned int    *srcString,
+                           bsl::size_t            srcStringLength,
+                           bsl::size_t           *numCodePointsWritten = 0,
+                           unsigned char          errorByte            = '?',
+                           ByteOrder::Enum        byteOrder            =
+                                                            ByteOrder::e_HOST);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int utf32ToUtf8(
+                        std::pmr::vector<char> *dstVector,
+                        const unsigned int     *srcString,
+                        bsl::size_t             srcStringLength,
+                        bsl::size_t            *numCodePointsWritten = 0,
+                        unsigned char           errorByte            = '?',
+                        ByteOrder::Enum         byteOrder = ByteOrder::e_HOST);
+#endif
+    // Load into the specified 'dstVector' the result of converting the
+    // specified 'srcString' of 'UTF-32' values to 'UTF-8', always followed by
+    // a null character, and return 0 on success or
+    // 'CharConvertStatus::k_INVALID_INPUT_BIT' if invalid 'UTF-32' values (in
+    // the range '[0xD800 .. 0xDFFF]' or above 0x10FFFF) are seen.  Optionally
+    // specify 'srcStringlength' as the number of 'UTF-32' values to be
+    // converted.  If 'srcStringLength' is specified, convert that many UTF-32
+    // values from 'srcString' (including zero values), otherwise convert
+    // values up to but not including a terminating zero value.  Optionally
+    // specify 'numCodePointsWritten' to receive the number of 'UTF-8' code
+    // points written to 'dstVector'.  Optionally specify 'errorByte' as the
+    // character to be written to 'dstVector' as the translation of invalid
+    // 'UTF-32' values; if not specified, '?' is used, and if given as 0, no
+    // character is written at all.  Optionally specify 'byteOrder' to
+    // determine how 'UTF-32' values in 'srcString' are interpreted; if not
+    // given, host byte order is used.  The behavior is undefined if
+    // 'errorByte' is 0x80 or above.  Note that if you are passing the
+    // 'bsl::vector<unsigned int>' obtained from a call to 'utf8ToUtf32' and
+    // using 'srcStringLength', you must take care to pass 'vector.size() - 1'
+    // to 'srcStringLength' to avoid embedding the terminating 0.
 
     static int utf32ToUtf8(char               *dstBuffer,
                            bsl::size_t         dstCapacity,

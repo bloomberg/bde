@@ -1142,9 +1142,10 @@ int localUtf8ToUtf16(UTF16_WORD       *dstBuffer,
     }
 
     UTF16_WORD *const dstStart = dstBuffer;
-    bsl::size_t nCodePoints = 0;
-    int returnStatus = 0;
-    UTF16_WORD swappedErrorWord;
+
+    bsl::size_t nCodePoints  = 0;
+    int         returnStatus = 0;
+    UTF16_WORD  swappedErrorWord;
 
     swappedErrorWord = SWAPPER::encodeSingleWord(errorWord);
 
@@ -1594,17 +1595,67 @@ int localUtf16ToUtf8(char             *dstBuffer,
     return returnStatus;
 }
 
-template <class UTF16_WORD, class END_FUNCTOR, class SWAPPER>
-int localUtf16ToUtf8String(bsl::string      *dstString,
-                           const UTF16_WORD *srcBuffer,
-                           END_FUNCTOR       endFunctor,
-                           SWAPPER           swapper,
-                           bsl::size_t      *numCodePointsWritten,
-                           char              errorByte)
+template <class CONTAINER>
+void resizeToZeroTerminate(
+                          CONTAINER   *container,
+                          bsl::size_t  numBytesWritten,
+                          typename bsl::enable_if<
+                              bsl::is_same<CONTAINER, bsl::string>::value
+                           || bsl::is_same<CONTAINER, bsl::wstring>::value
+                           || bsl::is_same<CONTAINER, std::string>::value
+                           || bsl::is_same<CONTAINER, std::wstring>::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                           || bsl::is_same<CONTAINER, std::pmr::string>::value
+                           || bsl::is_same<CONTAINER, std::pmr::wstring>::value
+#endif
+                          , void *>::type = 0)
+    // Truncate the specified container in accordance with the specified
+    // 'numBytesWritten'.  Note that also we have to get rid of the final '\0'
+    // character.
+{
+    BSLS_ASSERT(numBytesWritten <= container->length());
+
+    // 'numBytesWritten' may be much smaller than 'length()', plus we always
+    // have to get rid of the '\0'.
+
+    container->resize(numBytesWritten - 1);
+}
+
+template <class CONTAINER>
+void resizeToZeroTerminate(
+               CONTAINER   *container,
+               bsl::size_t  numBytesWritten,
+               typename bsl::enable_if<
+                   bsl::is_same<CONTAINER, bsl::vector<char> >::value
+                || bsl::is_same<CONTAINER, bsl::vector<unsigned short> >::value
+                || bsl::is_same<CONTAINER, std::vector<char> >::value
+                || bsl::is_same<CONTAINER, std::vector<unsigned short> >::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                || bsl::is_same<CONTAINER, std::pmr::vector<char> >::value
+                || bsl::is_same<CONTAINER, std::pmr::vector<unsigned short> >::value
+#endif
+               , void *>::type = 0)
+    // Truncate the specified container in accordance with the specified
+    // 'numBytesWritten'.
+{
+    if (numBytesWritten != container->size()) {
+        BSLS_ASSERT(numBytesWritten < container->size());
+
+        container->resize(numBytesWritten);
+    }
+}
+
+template <class CONTAINER, class UTF16_WORD, class END_FUNCTOR, class SWAPPER>
+int localUtf16ToUtf8Container(CONTAINER        *container,
+                              const UTF16_WORD *srcBuffer,
+                              END_FUNCTOR       endFunctor,
+                              SWAPPER           swapper,
+                              bsl::size_t      *numCodePointsWritten,
+                              char              errorByte)
     // Translate the UTF-16 encoded sequence in the specified 'srcBuffer' to
-    // the specified 'dstString', using the specified 'endFunctor' to evaluate
-    // end of input.  Any pre-existing contents of 'dstString' are discarded.
-    // Use the specified 'swapper' to swap bytes ('Swapper' type) or not swap
+    // the specified 'container', using the specified 'endFunctor' to evaluate
+    // end of input.  Any pre-existing contents of 'container' are discarded.
+    //  Use the specified 'swapper' to swap bytes ('Swapper' type) or not swap
     // them ('NoopSwapper' type).  Return the number of code points (not words
     // or bytes) translated to the specified '*numCodePointsWritten'.  If error
     // sequences are encountered, substitute the specified 'errorByte', or
@@ -1612,23 +1663,18 @@ int localUtf16ToUtf8String(bsl::string      *dstString,
     // undefined if 'srcBuffer' is not null-terminated when it is expected to
     // be, or if 'errorByte >= 0x80'.
 {
-    bsl::size_t estLength = utf8BufferLength(srcBuffer,
+    bsl::size_t estimatedSize = utf8BufferLength(srcBuffer,
                                              endFunctor,
                                              swapper);
-    BSLS_ASSERT(estLength > 0);
+    BSLS_ASSERT(estimatedSize > 0);
 
-    // Set the length big enough to include the '\0' at the end.  There's no
-    // way to stop the routine we call from writing it, and we don't have
-    // permission to write past 'dstString->begin() + dstString->length()'.  So
-    // we'll have to chop the '\0' off after the translation.
-
-    if (estLength > dstString->length()) {
-        dstString->resize(estLength);
+    if (estimatedSize > container->size()) {
+        container->resize(estimatedSize);
     }
 
     bsl::size_t numBytesWritten;
 
-    int rc = localUtf16ToUtf8(dstString->begin(),
+    int rc = localUtf16ToUtf8(&(*container)[0],
                               NoOpCapacity(),
                               srcBuffer,
                               endFunctor,
@@ -1637,74 +1683,231 @@ int localUtf16ToUtf8String(bsl::string      *dstString,
                               &numBytesWritten,
                               errorByte);
     BSLS_ASSERT(0 == (OUT_OF_SPACE_BIT & rc));
-    if (numBytesWritten != estLength) {
-        BSLS_ASSERT(numBytesWritten < estLength);
+    if (numBytesWritten != estimatedSize) {
+        BSLS_ASSERT(numBytesWritten < estimatedSize);
         BSLS_ASSERT(INVALID_INPUT_BIT & rc);
         BSLS_ASSERT(0 == errorByte);
     }
-    BSLS_ASSERT(numBytesWritten <= dstString->length());
-    BSLS_ASSERT(0 == (*dstString)[numBytesWritten - 1]);
+    BSLS_ASSERT(0 == (*container)[numBytesWritten - 1]);
 
-    // 'numBytesWritten' may be much smaller than 'length()', plus we always
-    // have to get rid of the '\0'.
-
-    dstString->resize(numBytesWritten - 1);
+    resizeToZeroTerminate(container, numBytesWritten);
 
     return rc;
 }
 
-template <class UTF16_WORD, class END_FUNCTOR, class SWAPPER>
-int localUtf16ToUtf8Vector(bsl::vector<char> *dstVector,
-                           const UTF16_WORD  *srcBuffer,
-                           END_FUNCTOR        endFunctor,
-                           SWAPPER            swapper,
-                           bsl::size_t       *numCodePointsWritten,
-                           char               errorByte)
-    // Translate the UTF-16 encoded sequence in the specified 'srcBuffer' to
-    // the specified 'dstString', using the specified 'endFunctor' to evaluate
-    // end of input and null-terminating the result.  Use the specified
-    // 'swapper' to swap bytes (using 'Swapper' type) or not swap them (using
-    // 'NoopSwapper' type).  Any pre-existing contents of 'dstString' are
-    // discarded.  Return the number of code points (not words or bytes)
-    // translated to the specified '*numCodePointsWritten'.  If error sequences
-    // are encountered, substitute the specified 'errorByte', or eliminate the
-    // sequence entirely if '0 == errorByte'.  The behavior is undefined if
-    // 'srcBuffer' is not null-terminated, or if 'errorByte >= 0x80'.
+template <class CONTAINER>
+int utf8ToUtf16Impl(CONTAINER                           *dstContainer,
+                    const bsl::string_view&              srcString,
+                    bsl::size_t                         *numCodePointsWritten,
+                    typename CONTAINER::value_type       errorWord,
+                    BloombergLP::bdlde::ByteOrder::Enum  byteOrder)
 {
-    bsl::size_t estLength = utf8BufferLength(srcBuffer,
-                                             endFunctor,
-                                             swapper);
+    typedef typename CONTAINER::value_type ValueType;
+
+    Utf8::PtrBasedEnd endFunctor(srcString.end());
+
+    bsl::size_t estLength = utf16BufferLength(srcString.data(),
+                                              endFunctor);
     BSLS_ASSERT(estLength > 0);
 
-    if (estLength > dstVector->size()) {
-        dstVector->resize(estLength);
+    // Set the length big enough to include the '\0' at the end.  There's no
+    // way to stop the routine we call from writing it, and we don't have
+    // permission to write past
+    // 'dstContainer->begin() + dstContainer->length()'.  So we'll have to chop
+    // the '\0' off after the translation.
+
+    if (estLength > dstContainer->size()) {
+        dstContainer->resize(estLength);
     }
 
-    bsl::size_t numBytesWritten;
+    ValueType   *dstBuffer = &(*dstContainer)[0];
+    bsl::size_t  numWordsWritten;
 
-    int rc = localUtf16ToUtf8(dstVector->begin(),
+    int rc = BloombergLP::bdlde::ByteOrder::e_HOST == byteOrder
+           ? localUtf8ToUtf16(dstBuffer,
                               NoOpCapacity(),
-                              srcBuffer,
+                              srcString.data(),
                               endFunctor,
-                              swapper,
+                              NoOpSwapper<ValueType>(),
                               numCodePointsWritten,
-                              &numBytesWritten,
-                              errorByte);
+                              &numWordsWritten,
+                              errorWord)
+           : localUtf8ToUtf16(dstBuffer,
+                              NoOpCapacity(),
+                              srcString.data(),
+                              endFunctor,
+                              Swapper<ValueType>(),
+                              numCodePointsWritten,
+                              &numWordsWritten,
+                              errorWord);
     BSLS_ASSERT(0 == (OUT_OF_SPACE_BIT & rc));
-    if (numBytesWritten != estLength) {
-        BSLS_ASSERT(numBytesWritten < estLength);
+    if (numWordsWritten != estLength) {
+        BSLS_ASSERT(numWordsWritten < estLength);
         BSLS_ASSERT(INVALID_INPUT_BIT & rc);
-        BSLS_ASSERT(0 == errorByte);
     }
-    BSLS_ASSERT(0 == (*dstVector)[numBytesWritten - 1]);
+    BSLS_ASSERT(0 == (*dstContainer)[numWordsWritten - 1]);
 
-    if (numBytesWritten != dstVector->size()) {
-        BSLS_ASSERT(numBytesWritten < dstVector->size());
-
-        dstVector->resize(numBytesWritten);
-    }
+    resizeToZeroTerminate(dstContainer, numWordsWritten);
 
     return rc;
+}
+
+template <class CONTAINER>
+int utf8ToUtf16Impl(CONTAINER                           *dstContainer,
+                    const char                          *srcString,
+                    bsl::size_t                         *numCodePointsWritten,
+                    typename CONTAINER::value_type       errorWord,
+                    BloombergLP::bdlde::ByteOrder::Enum  byteOrder)
+{
+    typedef typename CONTAINER::value_type ValueType;
+
+    Utf8::ZeroBasedEnd endFunctor;
+
+    bsl::size_t estLength = utf16BufferLength(srcString,
+                                              endFunctor);
+    BSLS_ASSERT(estLength > 0);
+
+    // Set the length big enough to include the '\0' at the end.  There's no
+    // way to stop the routine we call from writing it, and we don't have
+    // permission to write past 'dstWstring->begin() + dstWstring->length()'.
+    // So we'll have to chop the '\0' off after the translation.
+
+    if (estLength > dstContainer->size()) {
+        dstContainer->resize(estLength);
+    }
+
+    bsl::size_t  numWordsWritten;
+    ValueType   *dstBuffer = &(*dstContainer)[0];
+
+    int rc = BloombergLP::bdlde::ByteOrder::e_HOST == byteOrder
+           ? localUtf8ToUtf16(dstBuffer,
+                              NoOpCapacity(),
+                              srcString,
+                              endFunctor,
+                              NoOpSwapper<ValueType>(),
+                              numCodePointsWritten,
+                              &numWordsWritten,
+                              errorWord)
+           : localUtf8ToUtf16(dstBuffer,
+                              NoOpCapacity(),
+                              srcString,
+                              endFunctor,
+                              Swapper<ValueType>(),
+                              numCodePointsWritten,
+                              &numWordsWritten,
+                              errorWord);
+    BSLS_ASSERT(0 == (OUT_OF_SPACE_BIT & rc));
+    if (numWordsWritten != estLength) {
+        BSLS_ASSERT(numWordsWritten < estLength);
+        BSLS_ASSERT(INVALID_INPUT_BIT & rc);
+    }
+    BSLS_ASSERT(0 == (*dstContainer)[numWordsWritten - 1]);
+
+    resizeToZeroTerminate(dstContainer, numWordsWritten);
+
+    return rc;
+}
+
+template <class CONTAINER>
+int utf16ToUtf8Impl(CONTAINER                           *dstContainer,
+                    const unsigned short                *srcString,
+                    bsl::size_t                         *numCodePointsWritten,
+                    char                                 errorByte,
+                    BloombergLP::bdlde::ByteOrder::Enum  byteOrder)
+{
+    Utf16::ZeroBasedEnd<unsigned short> endFunctor;
+
+    return BloombergLP::bdlde::ByteOrder::e_HOST == byteOrder
+               ? localUtf16ToUtf8Container(
+                     dstContainer,
+                     srcString,
+                     endFunctor,
+                     NoOpSwapper<unsigned short>(),
+                     numCodePointsWritten,
+                     errorByte)
+               : localUtf16ToUtf8Container(
+                     dstContainer,
+                     srcString,
+                     endFunctor,
+                     Swapper<unsigned short>(),
+                     numCodePointsWritten,
+                     errorByte);
+}
+
+template <class CONTAINER>
+int utf16ToUtf8Impl(CONTAINER                           *dstContainer,
+                    const unsigned short                *srcString,
+                    bsl::size_t                          srcLengthInWords,
+                    bsl::size_t                         *numCodePointsWritten,
+                    char                                 errorByte,
+                    BloombergLP::bdlde::ByteOrder::Enum  byteOrder)
+{
+    Utf16::PtrBasedEnd<unsigned short> endFunctor(srcString +
+                                                  srcLengthInWords);
+
+    return BloombergLP::bdlde::ByteOrder::e_HOST == byteOrder
+               ? localUtf16ToUtf8Container(
+                     dstContainer,
+                     srcString,
+                     endFunctor,
+                     NoOpSwapper<unsigned short>(),
+                     numCodePointsWritten,
+                     errorByte)
+               : localUtf16ToUtf8Container(
+                     dstContainer,
+                     srcString,
+                     endFunctor,
+                     Swapper<unsigned short>(),
+                     numCodePointsWritten,
+                     errorByte);
+}
+
+template <class CONTAINER>
+int utf16ToUtf8Impl(CONTAINER                           *dstContainer,
+                    const bsl::wstring_view&             srcString,
+                    bsl::size_t                         *numCodePointsWritten,
+                    char                                 errorByte,
+                    BloombergLP::bdlde::ByteOrder::Enum  byteOrder)
+{
+    Utf16::PtrBasedEnd<wchar_t> endFunctor(srcString.end());
+
+    return BloombergLP::bdlde::ByteOrder::e_HOST == byteOrder
+               ? localUtf16ToUtf8Container(dstContainer,
+                                           srcString.data(),
+                                           endFunctor,
+                                           NoOpSwapper<wchar_t>(),
+                                           numCodePointsWritten,
+                                           errorByte)
+               : localUtf16ToUtf8Container(dstContainer,
+                                           srcString.data(),
+                                           endFunctor,
+                                           Swapper<wchar_t>(),
+                                           numCodePointsWritten,
+                                           errorByte);
+}
+
+template <class CONTAINER>
+int utf16ToUtf8Impl(CONTAINER                           *dstobject,
+                    const wchar_t                       *srcString,
+                    bsl::size_t                         *numCodePointsWritten,
+                    char                                 errorByte,
+                    BloombergLP::bdlde::ByteOrder::Enum  byteOrder)
+{
+    Utf16::ZeroBasedEnd<wchar_t> endFunctor;
+
+    return BloombergLP::bdlde::ByteOrder::e_HOST == byteOrder
+               ? localUtf16ToUtf8Container(dstobject,
+                                           srcString,
+                                           endFunctor,
+                                           NoOpSwapper<wchar_t>(),
+                                           numCodePointsWritten,
+                                           errorByte)
+               : localUtf16ToUtf8Container(dstobject,
+                                           srcString,
+                                           endFunctor,
+                                           Swapper<wchar_t>(),
+                                           numCodePointsWritten,
+                                           errorByte);
 }
 
 }  // close unnamed namespace
@@ -1734,62 +1937,48 @@ namespace bdlde {
                         // -- UTF-8 to UTF-16 Methods
 
 int CharConvertUtf16::utf8ToUtf16(
-                                bsl::wstring             *dstWstring,
-                                const bslstl::StringRef&  srcString,
-                                bsl::size_t              *numCodePointsWritten,
-                                wchar_t                   errorWord,
-                                ByteOrder::Enum           byteOrder)
+                                 bsl::wstring            *dstWstring,
+                                 const bsl::string_view&  srcString,
+                                 bsl::size_t             *numCodePointsWritten,
+                                 wchar_t                  errorWord,
+                                 ByteOrder::Enum          byteOrder)
 {
-    Utf8::PtrBasedEnd endFunctor(srcString.end());
-
-    bsl::size_t estLength = utf16BufferLength(srcString.data(),
-                                              endFunctor);
-    BSLS_ASSERT(estLength > 0);
-
-    // Set the length big enough to include the '\0' at the end.  There's no
-    // way to stop the routine we call from writing it, and we don't have
-    // permission to write past 'dstWstring->begin() + dstWstring->length()'.
-    // So we'll have to chop the '\0' off after the translation.
-
-    if (estLength > dstWstring->length()) {
-        dstWstring->resize(estLength);
-    }
-
-    bsl::size_t numWordsWritten;
-
-    int rc = ByteOrder::e_HOST == byteOrder
-           ? localUtf8ToUtf16(dstWstring->begin(),
-                              NoOpCapacity(),
-                              srcString.data(),
-                              endFunctor,
-                              NoOpSwapper<wchar_t>(),
-                              numCodePointsWritten,
-                              &numWordsWritten,
-                              errorWord)
-           : localUtf8ToUtf16(dstWstring->begin(),
-                              NoOpCapacity(),
-                              srcString.data(),
-                              endFunctor,
-                              Swapper<wchar_t>(),
-                              numCodePointsWritten,
-                              &numWordsWritten,
-                              errorWord);
-    BSLS_ASSERT(0 == (OUT_OF_SPACE_BIT & rc));
-    if (numWordsWritten != estLength) {
-        BSLS_ASSERT(numWordsWritten < estLength);
-        BSLS_ASSERT(INVALID_INPUT_BIT & rc);
-    }
-    BSLS_ASSERT(0 == (*dstWstring)[numWordsWritten - 1]);
-
-    BSLS_ASSERT(numWordsWritten <= dstWstring->length());
-
-    // 'dstWstring' may be much longer than necessary, plus we always want to
-    // get rid of the terminating 0.
-
-    dstWstring->resize(numWordsWritten - 1);
-
-    return rc;
+    return utf8ToUtf16Impl(dstWstring,
+                           srcString,
+                           numCodePointsWritten,
+                           errorWord,
+                           byteOrder);
 }
+
+int CharConvertUtf16::utf8ToUtf16(
+                                 std::wstring            *dstWstring,
+                                 const bsl::string_view&  srcString,
+                                 bsl::size_t             *numCodePointsWritten,
+                                 wchar_t                  errorWord,
+                                 ByteOrder::Enum          byteOrder)
+{
+    return utf8ToUtf16Impl(dstWstring,
+                           srcString,
+                           numCodePointsWritten,
+                           errorWord,
+                           byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf8ToUtf16(
+                                 std::pmr::wstring       *dstWstring,
+                                 const bsl::string_view&  srcString,
+                                 bsl::size_t             *numCodePointsWritten,
+                                 wchar_t                  errorWord,
+                                 ByteOrder::Enum          byteOrder)
+{
+    return utf8ToUtf16Impl(dstWstring,
+                           srcString,
+                           numCodePointsWritten,
+                           errorWord,
+                           byteOrder);
+}
+#endif
 
 int CharConvertUtf16::utf8ToUtf16(bsl::wstring       *dstWstring,
                                   const char         *srcString,
@@ -1797,108 +1986,84 @@ int CharConvertUtf16::utf8ToUtf16(bsl::wstring       *dstWstring,
                                   wchar_t             errorWord,
                                   ByteOrder::Enum     byteOrder)
 {
-    Utf8::ZeroBasedEnd endFunctor;
-
-    bsl::size_t estLength = utf16BufferLength(srcString,
-                                              endFunctor);
-    BSLS_ASSERT(estLength > 0);
-
-    // Set the length big enough to include the '\0' at the end.  There's no
-    // way to stop the routine we call from writing it, and we don't have
-    // permission to write past 'dstWstring->begin() + dstWstring->length()'.
-    // So we'll have to chop the '\0' off after the translation.
-
-    if (estLength > dstWstring->length()) {
-        dstWstring->resize(estLength);
-    }
-
-    bsl::size_t numWordsWritten;
-
-    int rc = ByteOrder::e_HOST == byteOrder
-           ? localUtf8ToUtf16(dstWstring->begin(),
-                              NoOpCapacity(),
-                              srcString,
-                              endFunctor,
-                              NoOpSwapper<wchar_t>(),
-                              numCodePointsWritten,
-                              &numWordsWritten,
-                              errorWord)
-           : localUtf8ToUtf16(dstWstring->begin(),
-                              NoOpCapacity(),
-                              srcString,
-                              endFunctor,
-                              Swapper<wchar_t>(),
-                              numCodePointsWritten,
-                              &numWordsWritten,
-                              errorWord);
-    BSLS_ASSERT(0 == (OUT_OF_SPACE_BIT & rc));
-    if (numWordsWritten != estLength) {
-        BSLS_ASSERT(numWordsWritten < estLength);
-        BSLS_ASSERT(INVALID_INPUT_BIT & rc);
-    }
-    BSLS_ASSERT(0 == (*dstWstring)[numWordsWritten - 1]);
-
-    BSLS_ASSERT(numWordsWritten <= dstWstring->length());
-
-    // 'dstWstring' may be much longer than necessary, plus we always want to
-    // get rid of the terminating 0.
-
-    dstWstring->resize(numWordsWritten - 1);
-
-    return rc;
+    return utf8ToUtf16Impl(dstWstring,
+                           srcString,
+                           numCodePointsWritten,
+                           errorWord,
+                           byteOrder);
 }
+
+int CharConvertUtf16::utf8ToUtf16(std::wstring       *dstWstring,
+                                  const char         *srcString,
+                                  bsl::size_t        *numCodePointsWritten,
+                                  wchar_t             errorWord,
+                                  ByteOrder::Enum     byteOrder)
+{
+    return utf8ToUtf16Impl(dstWstring,
+                           srcString,
+                           numCodePointsWritten,
+                           errorWord,
+                           byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf8ToUtf16(std::pmr::wstring *dstWstring,
+                                  const char        *srcString,
+                                  bsl::size_t       *numCodePointsWritten,
+                                  wchar_t            errorWord,
+                                  ByteOrder::Enum    byteOrder)
+{
+    return  utf8ToUtf16Impl(dstWstring,
+                            srcString,
+                            numCodePointsWritten,
+                            errorWord,
+                            byteOrder);
+}
+#endif
 
 int CharConvertUtf16::utf8ToUtf16(
                              bsl::vector<unsigned short> *dstVector,
-                             const bslstl::StringRef&     srcString,
+                             const bsl::string_view&      srcString,
                              bsl::size_t                 *numCodePointsWritten,
                              unsigned short               errorWord,
                              ByteOrder::Enum              byteOrder)
 {
-    Utf8::PtrBasedEnd endFunctor(srcString.end());
-
-    bsl::size_t estLength = utf16BufferLength(srcString.data(),
-                                              endFunctor);
-    BSLS_ASSERT(estLength > 0);
-
-    if (estLength > dstVector->size()) {
-        dstVector->resize(estLength);
-    }
-
-    bsl::size_t numWordsWritten;
-
-    int rc = ByteOrder::e_HOST == byteOrder
-           ? localUtf8ToUtf16(dstVector->begin(),
-                              NoOpCapacity(),
-                              srcString.data(),
-                              endFunctor,
-                              NoOpSwapper<unsigned short>(),
-                              numCodePointsWritten,
-                              &numWordsWritten,
-                              errorWord)
-           : localUtf8ToUtf16(dstVector->begin(),
-                              NoOpCapacity(),
-                              srcString.data(),
-                              endFunctor,
-                              Swapper<unsigned short>(),
-                              numCodePointsWritten,
-                              &numWordsWritten,
-                              errorWord);
-    BSLS_ASSERT(0 == (OUT_OF_SPACE_BIT & rc));
-    if (numWordsWritten != estLength) {
-        BSLS_ASSERT(numWordsWritten < estLength);
-        BSLS_ASSERT(INVALID_INPUT_BIT & rc);
-    }
-    BSLS_ASSERT(0 == (*dstVector)[numWordsWritten - 1]);
-
-    if (numWordsWritten != dstVector->size()) {
-        BSLS_ASSERT(numWordsWritten < dstVector->size());
-
-        dstVector->resize(numWordsWritten);
-    }
-
-    return rc;
+    return utf8ToUtf16Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorWord,
+                           byteOrder);
 }
+
+int CharConvertUtf16::utf8ToUtf16(
+                             std::vector<unsigned short> *dstVector,
+                             const bsl::string_view&      srcString,
+                             bsl::size_t                 *numCodePointsWritten,
+                             unsigned short               errorWord,
+                             ByteOrder::Enum              byteOrder)
+{
+    return utf8ToUtf16Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorWord,
+                           byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf8ToUtf16(
+                        std::pmr::vector<unsigned short> *dstVector,
+                        const bsl::string_view&           srcString,
+                        bsl::size_t                      *numCodePointsWritten,
+                        unsigned short                    errorWord,
+                        ByteOrder::Enum                   byteOrder)
+{
+    return utf8ToUtf16Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorWord,
+                           byteOrder);
+}
+#endif
 
 int CharConvertUtf16::utf8ToUtf16(
                              bsl::vector<unsigned short> *dstVector,
@@ -1907,59 +2072,51 @@ int CharConvertUtf16::utf8ToUtf16(
                              unsigned short               errorWord,
                              ByteOrder::Enum              byteOrder)
 {
-    Utf8::ZeroBasedEnd endFunctor;
-
-    bsl::size_t estLength = utf16BufferLength(srcString,
-                                              endFunctor);
-    BSLS_ASSERT(estLength > 0);
-
-    if (estLength > dstVector->size()) {
-        dstVector->resize(estLength);
-    }
-
-    bsl::size_t numWordsWritten;
-
-    int rc = ByteOrder::e_HOST == byteOrder
-           ? localUtf8ToUtf16(dstVector->begin(),
-                              NoOpCapacity(),
-                              srcString,
-                              endFunctor,
-                              NoOpSwapper<unsigned short>(),
-                              numCodePointsWritten,
-                              &numWordsWritten,
-                              errorWord)
-           : localUtf8ToUtf16(dstVector->begin(),
-                              NoOpCapacity(),
-                              srcString,
-                              endFunctor,
-                              Swapper<unsigned short>(),
-                              numCodePointsWritten,
-                              &numWordsWritten,
-                              errorWord);
-    BSLS_ASSERT(0 == (OUT_OF_SPACE_BIT & rc));
-    if (numWordsWritten != estLength) {
-        BSLS_ASSERT(numWordsWritten < estLength);
-        BSLS_ASSERT(INVALID_INPUT_BIT & rc);
-    }
-    BSLS_ASSERT(0 == (*dstVector)[numWordsWritten - 1]);
-
-    if (numWordsWritten != dstVector->size()) {
-        BSLS_ASSERT(numWordsWritten < dstVector->size());
-
-        dstVector->resize(numWordsWritten);
-    }
-
-    return rc;
+    return utf8ToUtf16Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorWord,
+                           byteOrder);
 }
 
 int CharConvertUtf16::utf8ToUtf16(
-                                unsigned short           *dstBuffer,
-                                bsl::size_t               dstCapacity,
-                                const bslstl::StringRef&  srcString,
-                                bsl::size_t              *numCodePointsWritten,
-                                bsl::size_t              *numWordsWritten,
-                                unsigned short            errorWord,
-                                ByteOrder::Enum           byteOrder)
+                             std::vector<unsigned short> *dstVector,
+                             const char                  *srcString,
+                             bsl::size_t                 *numCodePointsWritten,
+                             unsigned short               errorWord,
+                             ByteOrder::Enum              byteOrder)
+{
+    return utf8ToUtf16Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorWord,
+                           byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf8ToUtf16(
+                        std::pmr::vector<unsigned short> *dstVector,
+                        const char                       *srcString,
+                        bsl::size_t                      *numCodePointsWritten,
+                        unsigned short                    errorWord,
+                        ByteOrder::Enum                   byteOrder)
+{
+    return utf8ToUtf16Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorWord,
+                           byteOrder);
+}
+#endif
+
+int CharConvertUtf16::utf8ToUtf16(
+                                 unsigned short          *dstBuffer,
+                                 bsl::size_t              dstCapacity,
+                                 const bsl::string_view&  srcString,
+                                 bsl::size_t             *numCodePointsWritten,
+                                 bsl::size_t             *numWordsWritten,
+                                 unsigned short           errorWord,
+                                 ByteOrder::Enum          byteOrder)
 {
     Utf8::PtrBasedEnd endFunctor(srcString.end());
 
@@ -1982,14 +2139,13 @@ int CharConvertUtf16::utf8ToUtf16(
                               errorWord);
 }
 
-int CharConvertUtf16::utf8ToUtf16(
-                                unsigned short           *dstBuffer,
-                                bsl::size_t               dstCapacity,
-                                const char               *srcString,
-                                bsl::size_t              *numCodePointsWritten,
-                                bsl::size_t              *numWordsWritten,
-                                unsigned short            errorWord,
-                                ByteOrder::Enum           byteOrder)
+int CharConvertUtf16::utf8ToUtf16(unsigned short  *dstBuffer,
+                                  bsl::size_t      dstCapacity,
+                                  const char      *srcString,
+                                  bsl::size_t     *numCodePointsWritten,
+                                  bsl::size_t     *numWordsWritten,
+                                  unsigned short   errorWord,
+                                  ByteOrder::Enum  byteOrder)
 {
     Utf8::ZeroBasedEnd endFunctor;
 
@@ -2013,13 +2169,13 @@ int CharConvertUtf16::utf8ToUtf16(
 }
 
 int CharConvertUtf16::utf8ToUtf16(
-                                wchar_t                  *dstBuffer,
-                                bsl::size_t               dstCapacity,
-                                const bslstl::StringRef&  srcString,
-                                bsl::size_t              *numCodePointsWritten,
-                                bsl::size_t              *numWordsWritten,
-                                wchar_t                   errorWord,
-                                ByteOrder::Enum           byteOrder)
+                                 wchar_t                 *dstBuffer,
+                                 bsl::size_t              dstCapacity,
+                                 const bsl::string_view&  srcString,
+                                 bsl::size_t             *numCodePointsWritten,
+                                 bsl::size_t             *numWordsWritten,
+                                 wchar_t                  errorWord,
+                                 ByteOrder::Enum          byteOrder)
 {
     Utf8::PtrBasedEnd endFunctor(srcString.end());
 
@@ -2079,22 +2235,40 @@ int CharConvertUtf16::utf16ToUtf8(bsl::string          *dstString,
                                   char                  errorByte,
                                   ByteOrder::Enum       byteOrder)
 {
-    Utf16::ZeroBasedEnd<unsigned short> endFunctor;
-
-    return ByteOrder::e_HOST == byteOrder
-           ? localUtf16ToUtf8String(dstString,
-                                    srcString,
-                                    endFunctor,
-                                    NoOpSwapper<unsigned short>(),
-                                    numCodePointsWritten,
-                                    errorByte)
-           : localUtf16ToUtf8String(dstString,
-                                    srcString,
-                                    endFunctor,
-                                    Swapper<unsigned short>(),
-                                    numCodePointsWritten,
-                                    errorByte);
+    return utf16ToUtf8Impl(dstString,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
 }
+
+int CharConvertUtf16::utf16ToUtf8(std::string          *dstString,
+                                  const unsigned short *srcString,
+                                  bsl::size_t          *numCodePointsWritten,
+                                  char                  errorByte,
+                                  ByteOrder::Enum       byteOrder)
+{
+    return utf16ToUtf8Impl(dstString,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf16ToUtf8(std::pmr::string          *dstString,
+                                  const unsigned short *srcString,
+                                  bsl::size_t          *numCodePointsWritten,
+                                  char                  errorByte,
+                                  ByteOrder::Enum       byteOrder)
+{
+    return utf16ToUtf8Impl(dstString,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
+#endif
 
 int CharConvertUtf16::utf16ToUtf8(bsl::string          *dstString,
                                   const unsigned short *srcString,
@@ -2103,47 +2277,89 @@ int CharConvertUtf16::utf16ToUtf8(bsl::string          *dstString,
                                   char                  errorByte,
                                   ByteOrder::Enum       byteOrder)
 {
-    Utf16::PtrBasedEnd<unsigned short> endFunctor(
-                                                 srcString + srcLengthInWords);
+    return utf16ToUtf8Impl(dstString,
+                           srcString,
+                           srcLengthInWords,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
 
-    return ByteOrder::e_HOST == byteOrder
-           ? localUtf16ToUtf8String(dstString,
-                                    srcString,
-                                    endFunctor,
-                                    NoOpSwapper<unsigned short>(),
-                                    numCodePointsWritten,
-                                    errorByte)
-           : localUtf16ToUtf8String(dstString,
-                                    srcString,
-                                    endFunctor,
-                                    Swapper<unsigned short>(),
-                                    numCodePointsWritten,
-                                    errorByte);
+int CharConvertUtf16::utf16ToUtf8(std::string          *dstString,
+                                  const unsigned short *srcString,
+                                  bsl::size_t           srcLengthInWords,
+                                  bsl::size_t          *numCodePointsWritten,
+                                  char                  errorByte,
+                                  ByteOrder::Enum       byteOrder)
+{
+    return utf16ToUtf8Impl(dstString,
+                           srcString,
+                           srcLengthInWords,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf16ToUtf8(std::pmr::string     *dstString,
+                                  const unsigned short *srcString,
+                                  bsl::size_t           srcLengthInWords,
+                                  bsl::size_t          *numCodePointsWritten,
+                                  char                  errorByte,
+                                  ByteOrder::Enum       byteOrder)
+{
+    return utf16ToUtf8Impl(dstString,
+                           srcString,
+                           srcLengthInWords,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
+#endif
+
+int CharConvertUtf16::utf16ToUtf8(
+                                bsl::string              *dstString,
+                                const bsl::wstring_view&  srcString,
+                                bsl::size_t              *numCodePointsWritten,
+                                char                      errorByte,
+                                ByteOrder::Enum           byteOrder)
+{
+    return utf16ToUtf8Impl(dstString,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
 }
 
 int CharConvertUtf16::utf16ToUtf8(
-                            bsl::string                  *dstString,
-                            const bslstl::StringRefWide&  srcString,
-                            bsl::size_t                  *numCodePointsWritten,
-                            char                          errorByte,
-                            ByteOrder::Enum               byteOrder)
+                                std::string              *dstString,
+                                const bsl::wstring_view&  srcString,
+                                bsl::size_t              *numCodePointsWritten,
+                                char                      errorByte,
+                                ByteOrder::Enum           byteOrder)
 {
-    Utf16::PtrBasedEnd<wchar_t> endFunctor(srcString.end());
-
-    return ByteOrder::e_HOST == byteOrder
-           ? localUtf16ToUtf8String(dstString,
-                                    srcString.data(),
-                                    endFunctor,
-                                    NoOpSwapper<wchar_t>(),
-                                    numCodePointsWritten,
-                                    errorByte)
-           : localUtf16ToUtf8String(dstString,
-                                    srcString.data(),
-                                    endFunctor,
-                                    Swapper<wchar_t>(),
-                                    numCodePointsWritten,
-                                    errorByte);
+    return utf16ToUtf8Impl(dstString,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf16ToUtf8(
+                                std::pmr::string         *dstString,
+                                const bsl::wstring_view&  srcString,
+                                bsl::size_t              *numCodePointsWritten,
+                                char                      errorByte,
+                                ByteOrder::Enum           byteOrder)
+{
+    return utf16ToUtf8Impl(dstString,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
+#endif
 
 int CharConvertUtf16::utf16ToUtf8(bsl::string     *dstString,
                                   const wchar_t   *srcString,
@@ -2151,22 +2367,40 @@ int CharConvertUtf16::utf16ToUtf8(bsl::string     *dstString,
                                   char             errorByte,
                                   ByteOrder::Enum  byteOrder)
 {
-    Utf16::ZeroBasedEnd<wchar_t> endFunctor;
-
-    return ByteOrder::e_HOST == byteOrder
-           ? localUtf16ToUtf8String(dstString,
-                                    srcString,
-                                    endFunctor,
-                                    NoOpSwapper<wchar_t>(),
-                                    numCodePointsWritten,
-                                    errorByte)
-           : localUtf16ToUtf8String(dstString,
-                                    srcString,
-                                    endFunctor,
-                                    Swapper<wchar_t>(),
-                                    numCodePointsWritten,
-                                    errorByte);
+    return utf16ToUtf8Impl(dstString,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
 }
+
+int CharConvertUtf16::utf16ToUtf8(std::string     *dstString,
+                                  const wchar_t   *srcString,
+                                  bsl::size_t     *numCodePointsWritten,
+                                  char             errorByte,
+                                  ByteOrder::Enum  byteOrder)
+{
+    return utf16ToUtf8Impl(dstString,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf16ToUtf8(std::pmr::string *dstString,
+                                  const wchar_t    *srcString,
+                                  bsl::size_t      *numCodePointsWritten,
+                                  char              errorByte,
+                                  ByteOrder::Enum   byteOrder)
+{
+    return utf16ToUtf8Impl(dstString,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
+#endif
 
 int CharConvertUtf16::utf16ToUtf8(bsl::vector<char>    *dstVector,
                                   const unsigned short *srcString,
@@ -2174,22 +2408,39 @@ int CharConvertUtf16::utf16ToUtf8(bsl::vector<char>    *dstVector,
                                   char                  errorByte,
                                   ByteOrder::Enum       byteOrder)
 {
-    Utf16::ZeroBasedEnd<unsigned short> endFunctor;
-
-    return ByteOrder::e_HOST == byteOrder
-           ? localUtf16ToUtf8Vector(dstVector,
-                                    srcString,
-                                    endFunctor,
-                                    NoOpSwapper<unsigned short>(),
-                                    numCodePointsWritten,
-                                    errorByte)
-           : localUtf16ToUtf8Vector(dstVector,
-                                    srcString,
-                                    endFunctor,
-                                    Swapper<unsigned short>(),
-                                    numCodePointsWritten,
-                                    errorByte);
+    return utf16ToUtf8Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
 }
+int CharConvertUtf16::utf16ToUtf8(std::vector<char>    *dstVector,
+                                  const unsigned short *srcString,
+                                  bsl::size_t          *numCodePointsWritten,
+                                  char                  errorByte,
+                                  ByteOrder::Enum       byteOrder)
+{
+    return utf16ToUtf8Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf16ToUtf8(std::pmr::vector<char> *dstVector,
+                                  const unsigned short   *srcString,
+                                  bsl::size_t            *numCodePointsWritten,
+                                  char                    errorByte,
+                                  ByteOrder::Enum         byteOrder)
+{
+    return utf16ToUtf8Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
+#endif
 
 int CharConvertUtf16::utf16ToUtf8(bsl::vector<char>    *dstVector,
                                   const unsigned short *srcString,
@@ -2198,47 +2449,89 @@ int CharConvertUtf16::utf16ToUtf8(bsl::vector<char>    *dstVector,
                                   char                  errorByte,
                                   ByteOrder::Enum       byteOrder)
 {
-    Utf16::PtrBasedEnd<unsigned short> endFunctor(
-                                                 srcString + srcLengthInWords);
+    return utf16ToUtf8Impl(dstVector,
+                           srcString,
+                           srcLengthInWords,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
 
-    return ByteOrder::e_HOST == byteOrder
-           ? localUtf16ToUtf8Vector(dstVector,
-                                    srcString,
-                                    endFunctor,
-                                    NoOpSwapper<unsigned short>(),
-                                    numCodePointsWritten,
-                                    errorByte)
-           : localUtf16ToUtf8Vector(dstVector,
-                                    srcString,
-                                    endFunctor,
-                                    Swapper<unsigned short>(),
-                                    numCodePointsWritten,
-                                    errorByte);
+int CharConvertUtf16::utf16ToUtf8(std::vector<char>    *dstVector,
+                                  const unsigned short *srcString,
+                                  bsl::size_t           srcLengthInWords,
+                                  bsl::size_t          *numCodePointsWritten,
+                                  char                  errorByte,
+                                  ByteOrder::Enum       byteOrder)
+{
+    return utf16ToUtf8Impl(dstVector,
+                           srcString,
+                           srcLengthInWords,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf16ToUtf8(std::pmr::vector<char> *dstVector,
+                                  const unsigned short   *srcString,
+                                  bsl::size_t             srcLengthInWords,
+                                  bsl::size_t            *numCodePointsWritten,
+                                  char                    errorByte,
+                                  ByteOrder::Enum         byteOrder)
+{
+    return utf16ToUtf8Impl(dstVector,
+                           srcString,
+                           srcLengthInWords,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
+#endif
+
+int CharConvertUtf16::utf16ToUtf8(
+                                bsl::vector<char>        *dstVector,
+                                const bsl::wstring_view&  srcString,
+                                bsl::size_t              *numCodePointsWritten,
+                                char                      errorByte,
+                                ByteOrder::Enum           byteOrder)
+{
+    return utf16ToUtf8Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
 }
 
 int CharConvertUtf16::utf16ToUtf8(
-                            bsl::vector<char>            *dstVector,
-                            const bslstl::StringRefWide&  srcString,
-                            bsl::size_t                  *numCodePointsWritten,
-                            char                          errorByte,
-                            ByteOrder::Enum               byteOrder)
+                                std::vector<char>        *dstVector,
+                                const bsl::wstring_view&  srcString,
+                                bsl::size_t              *numCodePointsWritten,
+                                char                      errorByte,
+                                ByteOrder::Enum           byteOrder)
 {
-    Utf16::PtrBasedEnd<wchar_t> endFunctor(srcString.end());
-
-    return ByteOrder::e_HOST == byteOrder
-           ? localUtf16ToUtf8Vector(dstVector,
-                                    srcString.data(),
-                                    endFunctor,
-                                    NoOpSwapper<wchar_t>(),
-                                    numCodePointsWritten,
-                                    errorByte)
-           : localUtf16ToUtf8Vector(dstVector,
-                                    srcString.data(),
-                                    endFunctor,
-                                    Swapper<wchar_t>(),
-                                    numCodePointsWritten,
-                                    errorByte);
+    return utf16ToUtf8Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf16ToUtf8(
+                                std::pmr::vector<char>   *dstVector,
+                                const bsl::wstring_view&  srcString,
+                                bsl::size_t              *numCodePointsWritten,
+                                char                      errorByte,
+                                ByteOrder::Enum           byteOrder)
+{
+    return utf16ToUtf8Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
+#endif
 
 int CharConvertUtf16::utf16ToUtf8(bsl::vector<char> *dstVector,
                                   const wchar_t     *srcString,
@@ -2246,22 +2539,40 @@ int CharConvertUtf16::utf16ToUtf8(bsl::vector<char> *dstVector,
                                   char               errorByte,
                                   ByteOrder::Enum    byteOrder)
 {
-    Utf16::ZeroBasedEnd<wchar_t> endFunctor;
-
-    return ByteOrder::e_HOST == byteOrder
-           ? localUtf16ToUtf8Vector(dstVector,
-                                    srcString,
-                                    endFunctor,
-                                    NoOpSwapper<wchar_t>(),
-                                    numCodePointsWritten,
-                                    errorByte)
-           : localUtf16ToUtf8Vector(dstVector,
-                                    srcString,
-                                    endFunctor,
-                                    Swapper<wchar_t>(),
-                                    numCodePointsWritten,
-                                    errorByte);
+    return utf16ToUtf8Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
 }
+
+int CharConvertUtf16::utf16ToUtf8(std::vector<char> *dstVector,
+                                  const wchar_t     *srcString,
+                                  bsl::size_t       *numCodePointsWritten,
+                                  char               errorByte,
+                                  ByteOrder::Enum    byteOrder)
+{
+    return utf16ToUtf8Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int CharConvertUtf16::utf16ToUtf8(std::pmr::vector<char> *dstVector,
+                                  const wchar_t          *srcString,
+                                  bsl::size_t            *numCodePointsWritten,
+                                  char                    errorByte,
+                                  ByteOrder::Enum         byteOrder)
+{
+    return utf16ToUtf8Impl(dstVector,
+                           srcString,
+                           numCodePointsWritten,
+                           errorByte,
+                           byteOrder);
+}
+#endif
 
 int CharConvertUtf16::utf16ToUtf8(char                 *dstBuffer,
                                   bsl::size_t           dstCapacity,
@@ -2324,13 +2635,13 @@ int CharConvertUtf16::utf16ToUtf8(char                 *dstBuffer,
 }
 
 int CharConvertUtf16::utf16ToUtf8(
-                            char                         *dstBuffer,
-                            bsl::size_t                   dstCapacity,
-                            const bslstl::StringRefWide&  srcString,
-                            bsl::size_t                  *numCodePointsWritten,
-                            bsl::size_t                  *numBytesWritten,
-                            char                          errorByte,
-                            ByteOrder::Enum               byteOrder)
+                                char                     *dstBuffer,
+                                bsl::size_t               dstCapacity,
+                                const bsl::wstring_view&  srcString,
+                                bsl::size_t              *numCodePointsWritten,
+                                bsl::size_t              *numBytesWritten,
+                                char                      errorByte,
+                                ByteOrder::Enum           byteOrder)
 {
     Utf16::PtrBasedEnd<wchar_t> endFunctor(srcString.end());
 
