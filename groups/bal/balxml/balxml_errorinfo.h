@@ -377,11 +377,11 @@ class ErrorInfo
         // Copy the value of the specified 'rhs' object into this object and
         // return a modifiable reference to this object.
 
-    void setError(Severity                 severity,
-                  int                      lineNumber,
-                  int                      columnNumber,
-                  const bslstl::StringRef& source,
-                  const bslstl::StringRef& errorMsg);
+    void setError(Severity                severity,
+                  int                     lineNumber,
+                  int                     columnNumber,
+                  const bsl::string_view& source,
+                  const bsl::string_view& errorMsg);
         // If the specified 'severity' is greater than the current value of
         // 'this->severity()', then set this object's severity to 'severity',
         // line number to the specified 'lineNumber', column number to the

@@ -132,8 +132,8 @@ class PrefixStack {
         // Destroy this object.
 
     // MANIPULATORS
-    int pushPrefix(const bslstl::StringRef& prefix,
-                   const bslstl::StringRef& namespaceUri);
+    int pushPrefix(const bsl::string_view& prefix,
+                   const bsl::string_view& namespaceUri);
         // Map the specified 'namespaceUri' to the specified 'prefix' and
         // return the namespace Id.  New mapping eclipses previous mapping.
 
@@ -156,15 +156,15 @@ class PrefixStack {
         // Return the pointer of 'NamespaceRegistry' associated with this
         // PrefixStack.
 
-    const char *lookupNamespacePrefix(const bslstl::StringRef& prefix) const;
+    const char *lookupNamespacePrefix(const bsl::string_view& prefix) const;
         // Return a copy of the specified 'prefix' if 'prefix' is registered or
         // an empty string if 'prefix' is not registered.
 
-    int lookupNamespaceId(const bslstl::StringRef& prefix) const;
+    int lookupNamespaceId(const bsl::string_view& prefix) const;
         // Return ID of the namespace registered for the specified 'prefix' or
         // -1 if not registered.
 
-    const char *lookupNamespaceUri(const bslstl::StringRef& prefix) const;
+    const char *lookupNamespaceUri(const bsl::string_view& prefix) const;
         // Return the URI of the namespace registered for the specified
         // 'prefix' or empty string if not registered.
 

@@ -5,6 +5,8 @@
 
 #include <bdlb_printmethods.h>
 
+#include <bsls_libraryfeatures.h>
+#include <bsls_nameof.h>
 #include <bsls_review.h>
 
 #include <bsl_cstddef.h>
@@ -16,8 +18,16 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
+
 using namespace BloombergLP;
-using namespace bsl;
+
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
 
 // ============================================================================
 //                             TEST PLAN
@@ -367,6 +377,15 @@ void printValue(bsl::ostream& out, const char& value)
 }
 
 // ============================================================================
+//                       GLOBAL VARIABLES FOR TESTING
+// ----------------------------------------------------------------------------
+
+int test;
+int verbose;
+int veryVerbose;
+int veryVeryVerbose;
+
+// ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -429,6 +448,122 @@ void usageExample()
 }
 //..
 
+namespace {
+namespace u {
+
+enum { k_MAX_NUM_PUSHES = 10 };
+
+struct Data {
+    int         d_lineNum;     // source line number
+    const struct {
+        const char *d_chars;       // characters to push
+        bool        d_success;     // true if push successful
+    }           d_input[k_MAX_NUM_PUSHES];
+    bool        d_endSuccess;  // true if 'endParse' successful
+    const char *d_resultData;  // expected result data
+};
+
+template <class VECTOR_TYPE>
+void test2(const Data& data)
+{
+    const int LINE = data.d_lineNum;
+
+    if (verbose) cout <<
+                 "Starting test2<" << bsls::NameOf<VECTOR_TYPE>() << ">(): " <<
+                                                                  LINE << endl;
+
+    const char              INIT_DATA[] = "InIt VaLuE";
+    const VECTOR_TYPE       INIT_VALUE(INIT_DATA,
+                                       INIT_DATA + sizeof INIT_DATA);
+
+    VECTOR_TYPE             mX = INIT_VALUE;
+    const VECTOR_TYPE&      X  = mX;
+
+    balxml::Base64Parser<VECTOR_TYPE> parser;
+    int                               retCode;
+
+    LOOP2_ASSERT(LINE, X.size(), 0 != X.size());
+
+    retCode = parser.beginParse(&mX);
+    LOOP2_ASSERT(LINE, retCode,  0 == retCode);
+    LOOP2_ASSERT(LINE, X.size(), 0 == X.size());
+
+    bool areAllPushesSuccessful = true;
+
+    for (int j = 0; j < k_MAX_NUM_PUSHES; ++j) {
+        const char *CHARS   = data.d_input[j].d_chars;
+        const bool  SUCCESS = data.d_input[j].d_success;
+
+        if (0 == CHARS) {
+            break;
+        }
+
+        if (veryVeryVerbose) {
+            T_ T_ P_(CHARS) P(SUCCESS)
+        }
+
+        const char *begin = CHARS;
+        const char *end   = CHARS + bsl::strlen(CHARS);
+
+        retCode = parser.pushCharacters(begin, end);
+
+        if (!SUCCESS) {
+            areAllPushesSuccessful = false;
+
+            LOOP3_ASSERT(LINE, j, retCode, 0 != retCode);
+
+            break;
+        }
+
+        LOOP3_ASSERT(LINE, j, retCode, 0 == retCode);
+    }
+
+    if (!areAllPushesSuccessful) {
+        if (verbose) cout <<
+                   "Quitting test2<" << bsls::NameOf<VECTOR_TYPE>() << ">()\n";
+
+        return;                                                       // RETURN
+    }
+
+    const bool END_SUCCESS = data.d_endSuccess;
+
+    retCode = parser.endParse();
+
+    if (!END_SUCCESS) {
+        if (veryVerbose) {
+            T_ P(END_SUCCESS)
+        }
+
+        LOOP2_ASSERT(LINE, retCode, 0 != retCode);
+
+        if (verbose) cout <<
+                   "Quitting test2<" << bsls::NameOf<VECTOR_TYPE>() << ">()\n";
+
+        return;                                                       // RETURN
+    }
+
+    LOOP2_ASSERT(LINE, retCode, 0 == retCode);
+
+    const char *EXPECTED_RESULT_DATA = data.d_resultData;
+
+    if (veryVerbose) {
+        T_ P_(END_SUCCESS) P(EXPECTED_RESULT_DATA)
+    }
+
+    LOOP3_ASSERT(LINE, bsl::strlen(EXPECTED_RESULT_DATA),   X.size(),
+                       bsl::strlen(EXPECTED_RESULT_DATA) == X.size());
+
+    for (bsl::size_t j = 0; j < X.size(); ++j) {
+        LOOP4_ASSERT(LINE, j, EXPECTED_RESULT_DATA[j],   X[j],
+                              EXPECTED_RESULT_DATA[j] == X[j]);
+    }
+
+    if (verbose) cout <<
+                   "Ending   test2<" << bsls::NameOf<VECTOR_TYPE>() << ">()\n";
+}
+
+}  // close namespace u
+}  // close unnamed namespace
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -436,10 +571,10 @@ void usageExample()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -497,17 +632,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTHOROUGH TEST"
                           << "\n=============" << endl;
 
-        const int MAX_NUM_PUSHES = 10;
-
-        static const struct {
-            int         d_lineNum;     // source line number
-            const struct {
-                const char *d_chars;       // characters to push
-                bool        d_success;     // true if push successful
-            }           d_input[MAX_NUM_PUSHES];
-            bool        d_endSuccess;  // true if 'endParse' successful
-            const char *d_resultData;  // expected result data
-        } DATA[] = {
+        static const u::Data DATA[] = {
             //line  input                                endSuccess  result
             //----  -----                                ----------  ------
             //          chars           success
@@ -638,93 +763,17 @@ int main(int argc, char *argv[])
 
             { L_,   { { "YWJjZA;();",     false }   },   true,       ""      },
         };
-        const int NUM_DATA  = sizeof DATA / sizeof *DATA;
+        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int LINE = DATA[i].d_lineNum;
+        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+            const u::Data& data = DATA[ti];
 
-            const char              INIT_DATA[] = "InIt VaLuE";
-            const bsl::vector<char> INIT_VALUE(INIT_DATA,
-                                               INIT_DATA + sizeof INIT_DATA);
-
-            bsl::vector<char>        mX = INIT_VALUE;
-            const bsl::vector<char>& X  = mX;
-
-            balxml::Base64Parser<bsl::vector<char> > parser;
-            int                                     retCode;
-
-            LOOP2_ASSERT(LINE, X.size(), 0 != X.size());
-
-            retCode = parser.beginParse(&mX);
-            LOOP2_ASSERT(LINE, retCode,  0 == retCode);
-            LOOP2_ASSERT(LINE, X.size(), 0 == X.size());
-
-            bool areAllPushesSuccessful = true;
-
-            for (int j = 0; j < MAX_NUM_PUSHES; ++j) {
-                const char *CHARS   = DATA[i].d_input[j].d_chars;
-                const bool  SUCCESS = DATA[i].d_input[j].d_success;
-
-                if (0 == CHARS) {
-                    break;
-                }
-
-                if (veryVeryVerbose) {
-                    T_ T_ P_(CHARS) P(SUCCESS)
-                }
-
-                const char *begin = CHARS;
-                const char *end   = CHARS + bsl::strlen(CHARS);
-
-                retCode = parser.pushCharacters(begin, end);
-
-                if (!SUCCESS) {
-                    areAllPushesSuccessful = false;
-
-                    LOOP3_ASSERT(LINE, j, retCode, 0 != retCode);
-
-                    break;
-                }
-
-                LOOP3_ASSERT(LINE, j, retCode, 0 == retCode);
-            }
-
-            if (!areAllPushesSuccessful) {
-                continue;
-            }
-
-            const bool END_SUCCESS = DATA[i].d_endSuccess;
-
-            retCode = parser.endParse();
-
-            if (!END_SUCCESS) {
-                if (veryVerbose) {
-                    T_ P(END_SUCCESS)
-                }
-
-                LOOP2_ASSERT(LINE, retCode, 0 != retCode);
-
-                continue;
-            }
-
-            LOOP2_ASSERT(LINE, retCode, 0 == retCode);
-
-            const char *EXPECTED_RESULT_DATA = DATA[i].d_resultData;
-
-            if (veryVerbose) {
-                T_ P_(END_SUCCESS) P(EXPECTED_RESULT_DATA)
-            }
-
-            LOOP3_ASSERT(LINE, bsl::strlen(EXPECTED_RESULT_DATA),   X.size(),
-                               bsl::strlen(EXPECTED_RESULT_DATA) == X.size());
-
-            for (bsl::size_t j = 0; j < X.size(); ++j) {
-                LOOP4_ASSERT(LINE, j, EXPECTED_RESULT_DATA[j],   X[j],
-                                      EXPECTED_RESULT_DATA[j] == X[j]);
-            }
+            u::test2<bsl::vector<char> >(data);
+            u::test2<std::vector<char> >(data);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            u::test2<std::pmr::vector<char>>(data);
+#endif
         }
-
-        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 1: {
         // --------------------------------------------------------------------

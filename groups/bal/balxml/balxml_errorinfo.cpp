@@ -62,11 +62,11 @@ ErrorInfo::reset()
     d_message.clear();
 }
 
-void ErrorInfo::setError(Severity                 severity,
-                         int                      lineNumber,
-                         int                      columnNumber,
-                         const bslstl::StringRef& source,
-                         const bslstl::StringRef& errorMsg)
+void ErrorInfo::setError(Severity                severity,
+                         int                     lineNumber,
+                         int                     columnNumber,
+                         const bsl::string_view& source,
+                         const bsl::string_view& errorMsg)
 {
     if (severity > d_severity) {
         d_severity = severity;

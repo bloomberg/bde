@@ -29,7 +29,7 @@ namespace BloombergLP {
 // ACCESSORS
 #ifdef BDE_BUILD_TARGET_SAFE_2
 bool balxml::Formatter::ElemContext::matchTag(
-                                            const bslstl::StringRef& tag) const
+                                             const bsl::string_view& tag) const
 {
     if (d_tagLen != bsl::min<bsl::size_t>(tag.length(), 255)) {
         // Lengths don't match
@@ -153,9 +153,9 @@ Formatter::Formatter(bsl::ostream&          output,
 
 // PRIVATE MANIPULATORS
 void Formatter::addValidCommentImpl(
-                              const bslstl::StringRef& comment,
-                              bool                     forceNewline,
-                              bool                     omitEnclosingWhitespace)
+                               const bsl::string_view& comment,
+                               bool                    forceNewline,
+                               bool                    omitEnclosingWhitespace)
 {
     const char *openMarker  = 0;
     const char *closeMarker = 0;
@@ -215,8 +215,8 @@ void Formatter::indent()
     d_column = d_indentLevel * d_spacesPerLevel;
 }
 
-void Formatter::doAddAttribute(const bslstl::StringRef& name,
-                               const bslstl::StringRef& value)
+void Formatter::doAddAttribute(const bsl::string_view& name,
+                               const bsl::string_view& value)
 {
     BSLS_ASSERT(e_IN_TAG == d_state);
     BSLS_ASSERT(0 != name.length());
@@ -237,7 +237,7 @@ void Formatter::doAddAttribute(const bslstl::StringRef& name,
     d_column += attrLen;
 }
 
-void Formatter::doAddData(const bslstl::StringRef& value, bool addSpace)
+void Formatter::doAddData(const bsl::string_view& value, bool addSpace)
 {
     BSLS_ASSERT(e_BETWEEN_TAGS == d_state);
 
@@ -289,8 +289,8 @@ void Formatter::doAddData(const bslstl::StringRef& value, bool addSpace)
 }
 
 // MANIPULATORS
-void Formatter::openElement(const bslstl::StringRef& name,
-                            WhitespaceType           ws)
+void Formatter::openElement(const bsl::string_view& name,
+                            WhitespaceType          ws)
 {
 // TBD: Why ?
 //     BSLS_ASSERT(d_state != e_AT_END);
@@ -310,7 +310,7 @@ void Formatter::openElement(const bslstl::StringRef& name,
     d_isFirstDataAtLine = true;
 }
 
-void Formatter::closeElement(const bslstl::StringRef& name)
+void Formatter::closeElement(const bsl::string_view& name)
 {
     BSLS_ASSERT(e_IN_TAG == d_state || e_BETWEEN_TAGS == d_state);
     BSLS_ASSERT(d_wrapColumn < 0 || ! d_elementNesting.empty());
@@ -360,7 +360,7 @@ void Formatter::closeElement(const bslstl::StringRef& name)
     }
 }
 
-void Formatter::addHeader(const bslstl::StringRef& encoding)
+void Formatter::addHeader(const bsl::string_view& encoding)
 {
     BSLS_ASSERT(e_AT_START == d_state);
     // TBD escape encoding?
@@ -380,16 +380,15 @@ void Formatter::addHeader(const bslstl::StringRef& encoding)
     d_state = e_AFTER_START_NO_TAG;
 }
 
-void Formatter::addComment(const bslstl::StringRef& comment,
-                           bool                     forceNewline)
+void Formatter::addComment(const bsl::string_view& comment,
+                           bool                    forceNewline)
 {
     addValidCommentImpl(comment, forceNewline, false);
 }
 
-int Formatter::addValidComment(
-                              const bslstl::StringRef& comment,
-                              bool                     forceNewline,
-                              bool                     omitEnclosingWhitespace)
+int Formatter::addValidComment(const bsl::string_view& comment,
+                               bool                    forceNewline,
+                               bool                    omitEnclosingWhitespace)
 {
     const char doubleHyphen[] = "--";
     // The string "--" (double-hyphen) must not occur within comments.  Also

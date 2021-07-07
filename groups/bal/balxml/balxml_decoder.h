@@ -439,7 +439,7 @@ class Decoder {
     int  checkForReaderErrors();
     int  checkForErrors(const ErrorInfo& errInfo);
 
-    void setDecoderError(ErrorInfo::Severity severity, bslstl::StringRef msg);
+    void setDecoderError(ErrorInfo::Severity severity, bsl::string_view msg);
 
     int  readTopElement();
     int  parse(Decoder_ElementContext *context);
@@ -647,8 +647,8 @@ class Decoder_ErrorLogger {
         // stream.
     {
         d_decoder->setDecoderError(d_severity,
-                                   bslstl::StringRef(d_stream.data(),
-                                                     d_stream.length()));
+                                   bsl::string_view(d_stream.data(),
+                                                    d_stream.length()));
     }
 
     bsl::ostream& stream()

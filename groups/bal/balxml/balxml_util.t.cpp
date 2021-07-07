@@ -16,6 +16,10 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -204,24 +208,64 @@ int main(int argc, char *argv[])
 
 
             for (bsl::size_t i=0; i < sizeof(data)/sizeof(data[0]); ++i) {
+                const bsl::string xsd(data[i].d_schema);
+                bsl::string_view  tnsExpected(data[i].d_tns);
 
-                bsl::string xsd(data[i].d_schema);
-                bsl::string tnsExpected(data[i].d_tns);
-                bsl::string tnsReal;
+                {
+                    bsl::string        tnsReal;
+                    bsl::istringstream is(xsd);
 
-                bsl::istringstream is(xsd);
+                    bool rc = balxml::Util::extractNamespaceFromXsd(is.rdbuf(),
+                                                                    &tnsReal);
 
-                bool rc = balxml::Util::extractNamespaceFromXsd(is.rdbuf(),
-                                                               &tnsReal);
+                    LOOP3_ASSERT(i, rc, data[i].d_result,
+                                                       rc == data[i].d_result);
 
-                LOOP3_ASSERT(i, rc, data[i].d_result, rc == data[i].d_result);
-
-                if (rc) {
-                    LOOP3_ASSERT(i,
-                                 tnsExpected,
-                                 tnsReal,
-                                 tnsExpected == tnsReal);
+                    if (rc) {
+                        LOOP3_ASSERT(i,
+                                     tnsExpected,
+                                     tnsReal,
+                                     tnsExpected == tnsReal);
+                    }
                 }
+
+                {
+                    std::string        tnsReal;
+                    bsl::istringstream is(xsd);
+
+                    bool rc = balxml::Util::extractNamespaceFromXsd(is.rdbuf(),
+                                                                    &tnsReal);
+
+                    LOOP3_ASSERT(i, rc, data[i].d_result,
+                                                       rc == data[i].d_result);
+
+                    if (rc) {
+                        LOOP3_ASSERT(i,
+                                     tnsExpected,
+                                     tnsReal,
+                                     tnsExpected == tnsReal);
+                    }
+                }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                {
+                    std::pmr::string   tnsReal;
+                    bsl::istringstream is(xsd);
+
+                    bool rc = balxml::Util::extractNamespaceFromXsd(is.rdbuf(),
+                                                                    &tnsReal);
+
+                    LOOP3_ASSERT(i, rc, data[i].d_result,
+                                                       rc == data[i].d_result);
+
+                    if (rc) {
+                        LOOP3_ASSERT(i,
+                                     tnsExpected,
+                                     tnsReal,
+                                     tnsExpected == tnsReal);
+                    }
+                }
+#endif
             }
         }
         break;
@@ -239,20 +283,61 @@ int main(int argc, char *argv[])
 
             for (bsl::size_t i=0; i < sizeof(data)/sizeof(data[0]); ++i) {
 
-                bsl::string xsd(data[i].d_schema);
-                bsl::string tnsExpected(data[i].d_tns);
-                bsl::string tnsReal;
+                bsl::string_view xsd(data[i].d_schema);
+                bsl::string_view tnsExpected(data[i].d_tns);
 
-                bool rc = balxml::Util::extractNamespaceFromXsd(xsd, &tnsReal);
+                {
+                    bsl::string tnsReal;
 
-                LOOP3_ASSERT(i, rc, data[i].d_result, rc == data[i].d_result);
+                    bool rc = balxml::Util::extractNamespaceFromXsd(xsd,
+                                                                    &tnsReal);
 
-                if (rc) {
-                    LOOP3_ASSERT(i,
-                                 tnsExpected,
-                                 tnsReal,
-                                 tnsExpected == tnsReal);
+                    LOOP3_ASSERT(i, rc, data[i].d_result,
+                                                       rc == data[i].d_result);
+
+                    if (rc) {
+                        LOOP3_ASSERT(i,
+                                     tnsExpected,
+                                     tnsReal,
+                                     tnsExpected == tnsReal);
+                    }
                 }
+
+                {
+                    bsl::string tnsReal;
+
+                    bool rc = balxml::Util::extractNamespaceFromXsd(xsd,
+                                                                    &tnsReal);
+
+                    LOOP3_ASSERT(i, rc, data[i].d_result,
+                                                       rc == data[i].d_result);
+
+                    if (rc) {
+                        LOOP3_ASSERT(i,
+                                     tnsExpected,
+                                     tnsReal,
+                                     tnsExpected == tnsReal);
+                    }
+                }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                {
+                    std::pmr::string tnsReal;
+
+                    bool rc = balxml::Util::extractNamespaceFromXsd(xsd,
+                                                                    &tnsReal);
+
+                    LOOP3_ASSERT(i, rc, data[i].d_result,
+                                                       rc == data[i].d_result);
+
+                    if (rc) {
+                        LOOP3_ASSERT(i,
+                                     tnsExpected,
+                                     tnsReal,
+                                     tnsExpected == tnsReal);
+                    }
+                }
+#endif
             }
         }
         break;

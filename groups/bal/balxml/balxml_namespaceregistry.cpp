@@ -36,7 +36,7 @@ const char *const predefinedNamespaces[] =
     "http://bloomberg.com/schemas/bdem"           // BAEXML_BDEM
 };
 
-int lookupPredefinedId(const bslstl::StringRef& namespaceUri)
+int lookupPredefinedId(const bsl::string_view& namespaceUri)
     // Private function.  Look up the specified 'namespaceUri' in the list of
     // preregistered namespaces and return the namespace ID or -1 if not found.
 {
@@ -53,23 +53,24 @@ int lookupPredefinedId(const bslstl::StringRef& namespaceUri)
 
 namespace balxml {
 int
-NamespaceRegistry::lookupOrRegister(const bslstl::StringRef& namespaceUri)
+NamespaceRegistry::lookupOrRegister(const bsl::string_view& namespaceUri)
 {
     if (namespaceUri.length() == 0) {
         return -1;                                                    // RETURN
     }
 
     int id = lookup(namespaceUri);
-    if (id >= 0) {
-        return id;                                                    // RETURN
+    if (id < 0) {
+        id = static_cast<int>(d_namespaces.size());
+
+        d_namespaces.emplace_back(namespaceUri);
     }
 
-    d_namespaces.push_back(namespaceUri);
-    return static_cast<int>(d_namespaces.size()) - 1;
+    return id;
 }
 
 int
-NamespaceRegistry::lookup(const bslstl::StringRef& namespaceUri) const
+NamespaceRegistry::lookup(const bsl::string_view& namespaceUri) const
 {
     // Registry is typically small, so linear search is appropriate.  Since
     // numeric ID is equal to index of string within the vector, it would not

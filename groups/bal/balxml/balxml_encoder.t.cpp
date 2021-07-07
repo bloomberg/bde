@@ -79,6 +79,7 @@ using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
+using bsl::string_view;
 namespace test = BloombergLP::s_baltst;
 
 // ============================================================================
@@ -432,7 +433,7 @@ void printValue(bsl::ostream& out, const bsl::string& value)
 
 #if 0
 
-void printValue(bsl::ostream& out, const bslstl::StringRef& value)
+void printValue(bsl::ostream& out, const string_view& value)
     // Need to expand \r, \n, \t and surround with DQUOTE characters.
 {
     out << '"';
@@ -2192,9 +2193,9 @@ class TestSelection {
     // CLASS METHODS
     static int id() { return k_ID; }
 
-    static bslstl::StringRef name() { return k_NAME; }
+    static string_view name() { return k_NAME; }
 
-    static bslstl::StringRef annotation() { return k_ANNOTATION; }
+    static string_view annotation() { return k_ANNOTATION; }
 
     static int formattingMode() { return k_FORMATTING_MODE; }
 
@@ -2394,7 +2395,7 @@ class TestChoice {
         // 'selectionNameLength'.  Return 0 on success, and a non-zero value
         // otherwise.
     {
-        const bslstl::StringRef selection(selectionName, selectionNameLength);
+        const string_view selection(selectionName, selectionNameLength);
 
         if (k_HAS_CHOICE_0 && Selection0::name() == selection) {
             d_value.object().template createInPlace<Selection0Type>();
@@ -2509,7 +2510,7 @@ class TestChoice {
 
     bool hasSelection(const char *selectionName, int selectionNameLength) const
     {
-        const bslstl::StringRef selection(selectionName, selectionNameLength);
+        const string_view selection(selectionName, selectionNameLength);
 
         if (k_HAS_CHOICE_0 && Selection0::name() == selection) {
             return true;                                              // RETURN
@@ -3972,8 +3973,8 @@ class TestEnumerator {
     enum { k_INT_VALUE = INT_VALUE };
 
     // CLASS METHODS
-    static int               intValue() { return k_INT_VALUE; }
-    static bslstl::StringRef stringValue() { return k_STRING_VALUE; }
+    static int         intValue() { return k_INT_VALUE; }
+    static string_view stringValue() { return k_STRING_VALUE; }
 
     // CREATORS
     TestEnumerator()
@@ -4001,8 +4002,8 @@ class TestNilEnumerator {
     enum { k_INT_VALUE = 0 };
 
     // CLASS METHODS
-    static int               intValue() { return k_INT_VALUE; }
-    static bslstl::StringRef stringValue() { return k_STRING_VALUE; }
+    static int         intValue() { return k_INT_VALUE; }
+    static string_view stringValue() { return k_STRING_VALUE; }
 };
 
 // CLASS DATA
@@ -4097,7 +4098,7 @@ class TestEnumeration {
         // Return 0 on success, and a non-zero value with no effect on 'result'
         // if 'string' and 'stringLength' do not match any enumerator.
     {
-        const bslstl::StringRef stringRef(string, stringLength);
+        const string_view stringRef(string, stringLength);
 
         if (Enumerator0::stringValue() == stringRef) {
             d_value = Enumerator0::intValue();
@@ -4287,9 +4288,9 @@ class TestAttribute {
     // CLASS METHODS
     static int id() { return k_ID; }
 
-    static bslstl::StringRef name() { return k_NAME; }
+    static string_view name() { return k_NAME; }
 
-    static bslstl::StringRef annotation() { return k_ANNOTATION; }
+    static string_view annotation() { return k_ANNOTATION; }
 
     static int formattingMode() { return k_FORMATTING_MODE; }
 
@@ -4503,8 +4504,8 @@ class TestSequence {
         // non-zero value if the attribute is not found, and the value returned
         // from the invocation of 'manipulator' otherwise.
     {
-        const bslstl::StringRef attributeNameRef(attributeName       ,
-                                                 attributeNameLength);
+        const string_view attributeNameRef(attributeName       ,
+                                           attributeNameLength);
 
         if (k_HAS_ATTRIBUTE_0 && Attribute0::name() == attributeNameRef) {
             return manipulator(&d_attribute0Value.object(),
@@ -4613,8 +4614,8 @@ class TestSequence {
         // attribute is not found, and the value returned from the invocation
         // of 'accessor' otherwise.
     {
-        const bslstl::StringRef attributeNameRef(attributeName       ,
-                                                 attributeNameLength);
+        const string_view attributeNameRef(attributeName       ,
+                                           attributeNameLength);
 
         if (k_HAS_ATTRIBUTE_0 && Attribute0::name() == attributeNameRef) {
             return accessor(d_attribute0Value.object(),
@@ -4706,8 +4707,8 @@ class TestSequence {
         // 'attributeName' of the specified 'attributeNameLength', and 'false'
         // otherwise.
     {
-        const bslstl::StringRef attributeNameRef(attributeName       ,
-                                                 attributeNameLength);
+        const string_view attributeNameRef(attributeName       ,
+                                           attributeNameLength);
 
         if (k_HAS_ATTRIBUTE_0 && Attribute0::name() == attributeNameRef) {
             return true;                                              // RETURN
@@ -5660,36 +5661,36 @@ class TestXmlElement {
     {
     }
 
-    TestXmlElement(const bslstl::StringRef&  name,
-                   bslma::Allocator         *basicAllocator = 0)
+    TestXmlElement(const string_view&  name,
+                   bslma::Allocator   *basicAllocator = 0)
     : d_name(name, basicAllocator)
     , d_attributes(basicAllocator)
     , d_content(Elements(), basicAllocator)
     {
     }
 
-    TestXmlElement(const bslstl::StringRef&  name,
-                   const Attributes&         attributes,
-                   bslma::Allocator         *basicAllocator = 0)
+    TestXmlElement(const string_view&  name,
+                   const Attributes&   attributes,
+                   bslma::Allocator   *basicAllocator = 0)
     : d_name(name, basicAllocator)
     , d_attributes(attributes, basicAllocator)
     , d_content(Elements(), basicAllocator)
     {
     }
 
-    TestXmlElement(const bslstl::StringRef&  name,
-                   const Content&            content,
-                   bslma::Allocator         *basicAllocator = 0)
+    TestXmlElement(const string_view&  name,
+                   const Content&      content,
+                   bslma::Allocator   *basicAllocator = 0)
     : d_name(name, basicAllocator)
     , d_attributes(basicAllocator)
     , d_content(content, basicAllocator)
     {
     }
 
-    TestXmlElement(const bslstl::StringRef&  name,
-                   const Attributes&         attributes,
-                   const Content&            content,
-                   bslma::Allocator         *basicAllocator = 0)
+    TestXmlElement(const string_view&  name,
+                   const Attributes&   attributes,
+                   const Content&      content,
+                   bslma::Allocator   *basicAllocator = 0)
     : d_name(name, basicAllocator)
     , d_attributes(attributes, basicAllocator)
     , d_content(content, basicAllocator)
@@ -5774,28 +5775,26 @@ struct TestXmlUtil {
     typedef TestXmlElement::Content   Content;
 
     // CLASS METHODS
-    static bsl::vector<Attribute> generateAttributes(
-                                                const bslstl::StringRef& key,
-                                                const bslstl::StringRef& value)
+    static bsl::vector<Attribute> generateAttributes(const string_view& key,
+                                                     const string_view& value)
     {
         bsl::vector<Attribute> result;
-        result.push_back(Attribute(key, value));
+        result.push_back(Attribute(bsl::string(key), bsl::string(value)));
         return result;
     }
 
-    static bsl::vector<Attribute> generateAttributes(
-                                               const bslstl::StringRef& key0,
-                                               const bslstl::StringRef& value0,
-                                               const bslstl::StringRef& key1,
-                                               const bslstl::StringRef& value1)
+    static bsl::vector<Attribute> generateAttributes(const string_view& key0,
+                                                     const string_view& value0,
+                                                     const string_view& key1,
+                                                     const string_view& value1)
     {
         bsl::vector<Attribute> result;
-        result.push_back(Attribute(key0, value0));
-        result.push_back(Attribute(key1, value1));
+        result.push_back(Attribute(bsl::string(key0), bsl::string(value0)));
+        result.push_back(Attribute(bsl::string(key1), bsl::string(value1)));
         return result;
     }
 
-    static Content generateContent(const bslstl::StringRef& content)
+    static Content generateContent(const string_view& content)
     {
         return Content(bsl::string(content));
     }
@@ -5821,26 +5820,24 @@ struct TestXmlUtil {
         return generateContent(result);
     }
 
-    static TestXmlElement generateElement(const bslstl::StringRef& name)
+    static TestXmlElement generateElement(const string_view& name)
     {
         return TestXmlElement(name);
     }
 
-    static TestXmlElement generateElement(
-                                       const bslstl::StringRef& name,
-                                       const bslstl::StringRef& attributeKey,
-                                       const bslstl::StringRef& attributeValue)
+    static TestXmlElement generateElement(const string_view& name,
+                                          const string_view& attributeKey,
+                                          const string_view& attributeValue)
     {
         return TestXmlElement(
             name, generateAttributes(attributeKey, attributeValue));
     }
 
-    static TestXmlElement generateElement(
-                                      const bslstl::StringRef& name,
-                                      const bslstl::StringRef& attributeKey0,
-                                      const bslstl::StringRef& attributeValue0,
-                                      const bslstl::StringRef& attributeKey1,
-                                      const bslstl::StringRef& attributeValue1)
+    static TestXmlElement generateElement(const string_view& name,
+                                          const string_view& attributeKey0,
+                                          const string_view& attributeValue0,
+                                          const string_view& attributeKey1,
+                                          const string_view& attributeValue1)
     {
         return TestXmlElement(name,
                               generateAttributes(attributeKey0,
@@ -5849,30 +5846,29 @@ struct TestXmlUtil {
                                                  attributeValue1));
     }
 
-    static TestXmlElement generateElement(const bslstl::StringRef& name,
-                                          const bslstl::StringRef& content)
+    static TestXmlElement generateElement(const string_view& name,
+                                          const string_view& content)
     {
         return TestXmlElement(name, generateContent(content));
     }
 
-    static TestXmlElement generateElement(const bslstl::StringRef& name,
+    static TestXmlElement generateElement(const string_view& name,
                                           const TestXmlElement&    child)
     {
         return TestXmlElement(name, generateContent(child));
     }
 
-    static TestXmlElement generateElement(const bslstl::StringRef& name,
+    static TestXmlElement generateElement(const string_view& name,
                                           const TestXmlElement&    child0,
                                           const TestXmlElement&    child1)
     {
         return TestXmlElement(name, generateContent(child0, child1));
     }
 
-    static TestXmlElement generateElement(
-                                       const bslstl::StringRef& name,
-                                       const bslstl::StringRef& attributeKey,
-                                       const bslstl::StringRef& attributeValue,
-                                       const TestXmlElement&    child)
+    static TestXmlElement generateElement(const string_view& name,
+                                          const string_view& attributeKey,
+                                          const string_view& attributeValue,
+                                          const TestXmlElement&    child)
     {
         return TestXmlElement(name,
                               generateAttributes(attributeKey, attributeValue),
@@ -5898,23 +5894,23 @@ class GenerateXmlElement {
     }
 
     // ACCESSORS
-    TestXmlElement operator()(const bslstl::StringRef& name) const
+    TestXmlElement operator()(const string_view& name) const
     {
         return Util::generateElement(name);
     }
 
-    TestXmlElement operator()(const bslstl::StringRef& name,
-                              const bslstl::StringRef& attributeKey,
-                              const bslstl::StringRef& attributeValue) const
+    TestXmlElement operator()(const string_view& name,
+                              const string_view& attributeKey,
+                              const string_view& attributeValue) const
     {
         return Util::generateElement(name, attributeKey, attributeValue);
     }
 
-    TestXmlElement operator()(const bslstl::StringRef& name,
-                              const bslstl::StringRef& attributeKey0,
-                              const bslstl::StringRef& attributeValue0,
-                              const bslstl::StringRef& attributeKey1,
-                              const bslstl::StringRef& attributeValue1) const
+    TestXmlElement operator()(const string_view& name,
+                              const string_view& attributeKey0,
+                              const string_view& attributeValue0,
+                              const string_view& attributeKey1,
+                              const string_view& attributeValue1) const
     {
         return Util::generateElement(name,
                                      attributeKey0,
@@ -5923,28 +5919,28 @@ class GenerateXmlElement {
                                      attributeValue1);
     }
 
-    TestXmlElement operator()(const bslstl::StringRef& name,
-                              const bslstl::StringRef& content) const
+    TestXmlElement operator()(const string_view& name,
+                              const string_view& content) const
     {
         return Util::generateElement(name, content);
     }
 
-    TestXmlElement operator()(const bslstl::StringRef& name,
+    TestXmlElement operator()(const string_view& name,
                               const TestXmlElement&    child) const
     {
         return Util::generateElement(name, child);
     }
 
-    TestXmlElement operator()(const bslstl::StringRef& name,
+    TestXmlElement operator()(const string_view& name,
                               const TestXmlElement&    child0,
                               const TestXmlElement&    child1) const
     {
         return Util::generateElement(name, child0, child1);
     }
 
-    TestXmlElement operator()(const bslstl::StringRef& name,
-                              const bslstl::StringRef& attributeKey,
-                              const bslstl::StringRef& attributeValue,
+    TestXmlElement operator()(const string_view& name,
+                              const string_view& attributeKey,
+                              const string_view& attributeValue,
                               const TestXmlElement&    child) const
     {
         return Util::generateElement(
@@ -6179,9 +6175,8 @@ class TestCase14RowProtocolImp : public TestCase14RowProtocol {
         bsl::ostream expectedXmlStream(&expectedXmlStreamBuf);
         expectedXmlStream << XML;
 
-        const bslstl::StringRef EXPECTED_OUTPUT(
-                          expectedXmlStreamBuf.data(),
-                          expectedXmlStreamBuf.length());
+        const string_view EXPECTED_OUTPUT(expectedXmlStreamBuf.data(),
+                                          expectedXmlStreamBuf.length());
 
         balxml::EncoderOptions options;
         options.setOutputXMLHeader(false);
@@ -6201,14 +6196,14 @@ class TestCase14RowProtocolImp : public TestCase14RowProtocol {
 
         int rc = mX.encode(&xmlStreamBuf, VALUE);
 
-        const bslstl::StringRef OUTPUT(xmlStreamBuf.data(),
-                                       xmlStreamBuf.length());
+        const string_view OUTPUT(xmlStreamBuf.data(),
+                                 xmlStreamBuf.length());
 
-        const bslstl::StringRef ERRORS(errorStreamBuf.data(),
-                                       errorStreamBuf.length());
+        const string_view ERRORS(errorStreamBuf.data(),
+                                 errorStreamBuf.length());
 
-        const bslstl::StringRef WARNINGS(warningStreamBuf.data(),
-                                         warningStreamBuf.length());
+        const string_view WARNINGS(warningStreamBuf.data(),
+                                   warningStreamBuf.length());
         switch (ENCODING_STATUS) {
           case e_ENCODING_FAILS: {
               ASSERTV(LINE, rc, 0 != rc);
@@ -6729,19 +6724,19 @@ void runTestCase14()
 
     // Abbreviations for the names of 'bdlat' concept test implementations,
     // which will become the tag names of the XML they generate.
-    const bslstl::StringRef S = "MySequence";
-    const bslstl::StringRef C = "MyChoice";
-    const bslstl::StringRef CT = "MyCustomizedType";
-    const bslstl::StringRef D = "MyDynamicType";
-    const bslstl::StringRef E = "MyEnumeration";
+    const string_view S  = "MySequence";
+    const string_view C  = "MyChoice";
+    const string_view CT = "MyCustomizedType";
+    const string_view D  = "MyDynamicType";
+    const string_view E  = "MyEnumeration";
 
     // Abbreviations for attribute and selection names.
-    const bslstl::StringRef A0 = "attribute0";
-    const bslstl::StringRef A1 = "attribute1";
-    const bslstl::StringRef E0 = "enumerator0";
-    const bslstl::StringRef E1 = "enumerator1";
-    const bslstl::StringRef S0 = "selection0";
-    const bslstl::StringRef S1 = "selection1";
+    const string_view A0 = "attribute0";
+    const string_view A1 = "attribute1";
+    const string_view E0 = "enumerator0";
+    const string_view E1 = "enumerator1";
+    const string_view S0 = "selection0";
+    const string_view S1 = "selection1";
 
     // Abbreviations for some test values.
     const int i0 = 0;
@@ -6749,9 +6744,9 @@ void runTestCase14()
     const double d0 = 1.5;
 
     // Abbreviations for XML-encoded representations of some test values.
-    const bslstl::StringRef V0 = "0";
-    const bslstl::StringRef V1 = "1";
-    const bslstl::StringRef D0 = "1.5";
+    const string_view V0 = "0";
+    const string_view V1 = "1";
+    const string_view D0 = "1.5";
 
     // Abbreviations for function objects used to generate objects that
     // implement various 'bdlat' attribute type concepts.
@@ -6817,8 +6812,8 @@ void runTestCase14()
     const GenerateXmlElement x;
 
     // Abbreviations for some XML attribute keys and values.
-    const bslstl::StringRef Nil = "xsi:nil";
-    const bslstl::StringRef T = "true";
+    const string_view Nil = "xsi:nil";
+    const string_view T = "true";
 
     // Abbreviations for function objects used to generate placeholders.
     const PlaceHolder<int>                   i_;
@@ -7724,7 +7719,7 @@ int main(int argc, char *argv[])
             field += preFieldLen;
             const char *end   = bsl::strstr(OUTPUT.c_str(), postField);
             ASSERT(end && field < end);
-            const bslstl::StringRef fieldRef(field, end);
+            const string_view fieldRef(field, end - field);
 
             ASSERTV(LINE, TEXT, fieldRef, TEXT == fieldRef);
         }
@@ -8106,8 +8101,8 @@ int main(int argc, char *argv[])
             bsl::ostream xmlStream(&xmlStreamBuf);
             xmlStream << XML;
 
-            const bslstl::StringRef STRING(xmlStreamBuf.data(),
-                                           xmlStreamBuf.length());
+            const string_view STRING(xmlStreamBuf.data(),
+                                     xmlStreamBuf.length());
             ASSERTV(LINE, EXPECTED_STRING, STRING, EXPECTED_STRING == STRING);
         }
 

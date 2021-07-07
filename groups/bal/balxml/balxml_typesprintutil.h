@@ -339,12 +339,7 @@ struct TypesPrintUtil_Imp {
 
     static bsl::ostream& printBase64(
                                     bsl::ostream&               stream,
-                                    const bsl::string&          object,
-                                    const EncoderOptions       *encoderOptions,
-                                    bdlat_TypeCategory::Simple);
-    static bsl::ostream& printBase64(
-                                    bsl::ostream&               stream,
-                                    const bslstl::StringRef&    object,
+                                    const bsl::string_view&     object,
                                     const EncoderOptions       *encoderOptions,
                                     bdlat_TypeCategory::Simple);
     template <typename TYPE>
@@ -353,17 +348,17 @@ struct TypesPrintUtil_Imp {
                         const TYPE&                             object,
                         const EncoderOptions                   *encoderOptions,
                         bdlat_TypeCategory::Simple,
-                        typename bsl::enable_if<
-                              bsl::is_class<TYPE>::value
-                                                   && bsl::is_convertible<TYPE,
-                              bslstl::StringRef>::value>::type * = 0)
+                        typename bsl::enable_if<bsl::is_class<TYPE>::value &&
+                                     bsl::is_convertible<
+                                         TYPE,
+                                         bsl::string_view>::value>::type * = 0)
     {
         // Function templates using 'enable_if' must be defined inline inside
         // the class definition, as VC 2010 does not recognise a defintion
         // outside the class as matching the same signature.
 
         return printBase64(stream,
-                           static_cast<const bslstl::StringRef&>(object),
+                           static_cast<const bsl::string_view&>(object),
                            encoderOptions,
                            bdlat_TypeCategory::Simple());
     }
@@ -580,12 +575,7 @@ struct TypesPrintUtil_Imp {
                                     bdlat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                     bsl::ostream&               stream,
-                                    const bsl::string&          object,
-                                    const EncoderOptions       *encoderOptions,
-                                    bdlat_TypeCategory::Simple);
-    static bsl::ostream& printDefault(
-                                    bsl::ostream&               stream,
-                                    const bslstl::StringRef&    object,
+                                    const bsl::string_view&     object,
                                     const EncoderOptions       *encoderOptions,
                                     bdlat_TypeCategory::Simple);
     template <typename TYPE>
@@ -594,17 +584,16 @@ struct TypesPrintUtil_Imp {
                         const TYPE&                             object,
                         const EncoderOptions                   *encoderOptions,
                         bdlat_TypeCategory::Simple,
-                        typename bsl::enable_if<
-                              bsl::is_class<TYPE>::value
-                                                   && bsl::is_convertible<TYPE,
-                              bslstl::StringRef>::value>::type * = 0)
+                        typename bsl::enable_if<bsl::is_class<TYPE>::value &&
+                                     bsl::is_convertible<TYPE,
+                                         bsl::string_view>::value>::type * = 0)
     {
         // Function templates using 'enable_if' must be defined inline inside
         // the class definition, as VC 2010 does not recognise a defintion
         // outside the class as matching the same signature.
 
         return printDefault(stream,
-                            static_cast<const bslstl::StringRef&>(object),
+                            static_cast<const bsl::string_view&>(object),
                             encoderOptions,
                             bdlat_TypeCategory::Simple());
     }
@@ -660,11 +649,7 @@ struct TypesPrintUtil_Imp {
                                   ANY_CATEGORY);
 
     static bsl::ostream& printHex(bsl::ostream&               stream,
-                                  const bsl::string&          object,
-                                  const EncoderOptions       *encoderOptions,
-                                  bdlat_TypeCategory::Simple);
-    static bsl::ostream& printHex(bsl::ostream&               stream,
-                                  const bslstl::StringRef&    object,
+                                  const bsl::string_view&     object,
                                   const EncoderOptions       *encoderOptions,
                                   bdlat_TypeCategory::Simple);
     template <typename TYPE>
@@ -673,17 +658,16 @@ struct TypesPrintUtil_Imp {
                         const TYPE&                             object,
                         const EncoderOptions                   *encoderOptions,
                         bdlat_TypeCategory::Simple,
-                        typename bsl::enable_if<
-                              bsl::is_class<TYPE>::value
-                                                   && bsl::is_convertible<TYPE,
-                              bslstl::StringRef>::value>::type * = 0)
+                        typename bsl::enable_if<bsl::is_class<TYPE>::value &&
+                                     bsl::is_convertible<TYPE,
+                                         bsl::string_view>::value>::type * = 0)
     {
         // Function templates using 'enable_if' must be defined inline inside
         // the class definition, as VC 2010 does not recognise a defintion
         // outside the class as matching the same signature.
 
         return printHex(stream,
-                        static_cast<const bslstl::StringRef&>(object),
+                        static_cast<const bsl::string_view&>(object),
                         encoderOptions,
                         bdlat_TypeCategory::Simple());
     }
@@ -755,11 +739,7 @@ struct TypesPrintUtil_Imp {
                                    const EncoderOptions       *encoderOptions,
                                    bdlat_TypeCategory::Simple);
     static bsl::ostream& printText(bsl::ostream&               stream,
-                                   const bsl::string&          object,
-                                   const EncoderOptions       *encoderOptions,
-                                   bdlat_TypeCategory::Simple);
-    static bsl::ostream& printText(bsl::ostream&               stream,
-                                   const bslstl::StringRef&    object,
+                                   const bsl::string_view&     object,
                                    const EncoderOptions       *encoderOptions,
                                    bdlat_TypeCategory::Simple);
     template <typename TYPE>
@@ -768,17 +748,16 @@ struct TypesPrintUtil_Imp {
                         const TYPE&                             object,
                         const EncoderOptions                   *encoderOptions,
                         bdlat_TypeCategory::Simple,
-                        typename bsl::enable_if<
-                              bsl::is_class<TYPE>::value
-                                                   && bsl::is_convertible<TYPE,
-                              bslstl::StringRef>::value>::type * = 0)
+                        typename bsl::enable_if<bsl::is_class<TYPE>::value &&
+                                     bsl::is_convertible<TYPE,
+                                         bsl::string_view>::value>::type * = 0)
     {
         // Function templates using 'enable_if' must be defined inline inside
         // the class definition, as VC 2010 does not recognise a defintion
         // outside the class as matching the same signature.
 
         return printText(stream,
-                         static_cast<const bslstl::StringRef&>(object),
+                         static_cast<const bsl::string_view&>(object),
                          encoderOptions,
                          bdlat_TypeCategory::Simple());
     }
@@ -1623,20 +1602,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                     bsl::ostream&               stream,
-                                    const bsl::string&          object,
-                                    const EncoderOptions       *encoderOptions,
-                                    bdlat_TypeCategory::Simple)
-{
-    return printText(stream,
-                     object,
-                     encoderOptions,
-                     bdlat_TypeCategory::Simple());
-}
-
-inline
-bsl::ostream& TypesPrintUtil_Imp::printDefault(
-                                    bsl::ostream&               stream,
-                                    const bslstl::StringRef&    object,
+                                    const bsl::string_view&     object,
                                     const EncoderOptions       *encoderOptions,
                                     bdlat_TypeCategory::Simple)
 {

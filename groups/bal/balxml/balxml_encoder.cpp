@@ -65,7 +65,7 @@ Encoder::~Encoder()
 
 ErrorInfo::Severity  Encoder::logError(
                                       const char               *text,
-                                      const bslstl::StringRef&  tag,
+                                      const bsl::string_view&   tag,
                                       int                       formattingMode,
                                       int                       index)
 {
@@ -294,7 +294,7 @@ void Encoder_OptionsCompatibilityUtil::getFormatterOptions(
                          // --------------------------
 
 int Encoder_EncodeObject::executeImp(const bsl::vector<char>&  object,
-                                     const bslstl::StringRef&  tag,
+                                     const bsl::string_view&   tag,
                                      int                       formattingMode,
                                      bdlat_TypeCategory::Array)
 {

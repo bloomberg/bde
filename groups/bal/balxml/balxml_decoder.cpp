@@ -337,7 +337,7 @@ Decoder::readTopElement()
 
 void
 Decoder::setDecoderError(ErrorInfo::Severity severity,
-                         bslstl::StringRef   msg)
+                         bsl::string_view    msg)
 {
     ErrorInfo errInfo;
     errInfo.setError(severity,

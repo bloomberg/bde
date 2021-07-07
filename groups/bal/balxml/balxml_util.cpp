@@ -14,20 +14,22 @@ BSLS_IDENT_RCSID(balxml_util_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_iosfwd.h>
 #include <bsl_sstream.h>
 
-namespace BloombergLP  {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
 
-namespace balxml {
-                                // -----------
-                                // struct Util
-                                // -----------
+namespace {
+namespace u {
 
-// CLASS METHODS
-bool
-Util::extractNamespaceFromXsd(const bsl::string&  xsdSource,
-                              bsl::string        *targetNamespace)
+
+template <class STRING_TYPE>
+inline
+bool extractNamespaceFromXsd_Impl(const bsl::string_view&  xsdSource,
+                                  STRING_TYPE             *targetNamespace)
 {
     // Note that a valid XSD file must have this attribute for the root element
     // '<schema>' and the only place that the token "targetNamespace" can
@@ -40,49 +42,56 @@ Util::extractNamespaceFromXsd(const bsl::string&  xsdSource,
 
     BSLS_ASSERT(targetNamespace != 0);
 
-    typedef bsl::string::size_type size_type;
+    typedef typename STRING_TYPE::size_type size_type;
 
-    size_type lookHere             = 0;
-    size_type startTargetNamespace = bsl::string::npos;
+    static const size_type npos                 = STRING_TYPE::npos;
+    size_type              lookHere             = 0;
+    size_type              startTargetNamespace = npos;
 
     for (;;) {
         // Find "targetNamespace" token.
+
         startTargetNamespace = xsdSource.find("targetNamespace", lookHere);
 
-        if (bsl::string::npos != startTargetNamespace) {
+        if (npos != startTargetNamespace) {
             // Find whether there is a '<!-- comment -->' before this
             // "targetNamespace".
 
             size_type startOpenComment = xsdSource.rfind("<!--",
                                                          startTargetNamespace);
 
-            if (bsl::string::npos != startOpenComment) {
+            if (npos != startOpenComment) {
                 // There is a '<!--'; find whether there is '-->' before this
                 // "targetNamespace".
+
                 size_type startCloseComment = xsdSource.find(
                                                          "-->",
                                                          startOpenComment + 4);
                                                         // 4 is strlen("<!--")
-                if (bsl::string::npos == startCloseComment) {
+                if (npos == startCloseComment) {
                     // no ending comment, the doc is not formatted right
-                    startTargetNamespace = bsl::string::npos;
+
+                    startTargetNamespace = npos;
                     break;
                 }
                 else if (startCloseComment >= startTargetNamespace + 15) {
                     // "targetNamespace" is enclosed within '<!-- comment -->'.
                     // 'bsl::strlen("targetNamespace") == 15' So look for next
                     // "targetNamespace".
+
                     lookHere = startCloseComment + 3; // 3 is strlen("-->")
                 }
                 else {
                     BSLS_ASSERT(startCloseComment + 3 <= startTargetNamespace);
                     // Found the "targetNamespace" we are looking for.
+
                     break;
                 }
             }
             else {
                 // There is no '<!--' before this "targetNamespace", so found
                 // the "targetNamespace" we are looking for.
+
                 break;
             }
         }
@@ -92,19 +101,22 @@ Util::extractNamespaceFromXsd(const bsl::string&  xsdSource,
     }
 
     // By now, 'startTargetNamespace' is determined.
-    if (bsl::string::npos != startTargetNamespace) {
+
+    if (npos != startTargetNamespace) {
         // Find whatever content is in the quotation after "targetNamespace".
+
         size_type startNamespace = xsdSource.find_first_of(
                                                     "'\"",
                                                     startTargetNamespace + 16);
-                            // bsl::strlen("targetNamespace=") == 16
-        if (bsl::string::npos != startNamespace) {
+                                       // bsl::strlen("targetNamespace=") == 16
+        if (npos != startNamespace) {
             char quote = xsdSource[startNamespace];
             size_type endNamespace = xsdSource.find(quote, startNamespace + 1);
-            if (bsl::string::npos != endNamespace) {
-                targetNamespace->append(xsdSource.substr(
-                                           startNamespace + 1,
-                                           endNamespace - startNamespace - 1));
+            if (npos != endNamespace) {
+                bsl::string_view sub = xsdSource.substr(
+                                            startNamespace + 1,
+                                            endNamespace - startNamespace - 1);
+                targetNamespace->append(sub.data(), sub.length());
                 return true;                                          // RETURN
             }  // did not find the close quote after the open quote
         }      // did not find the open quote after "targetNamespace"
@@ -113,9 +125,10 @@ Util::extractNamespaceFromXsd(const bsl::string&  xsdSource,
     return false;
 }
 
-bool
-Util::extractNamespaceFromXsd(bsl::streambuf *xsdSource,
-                              bsl::string    *targetNamespace)
+template <class STRING_TYPE>
+inline
+bool extractNamespaceFromXsd_Impl(bsl::streambuf *xsdSource,
+                                  STRING_TYPE    *targetNamespace)
 {
 
     bsl::streambuf::pos_type pos = xsdSource->pubseekoff(0,
@@ -126,12 +139,63 @@ Util::extractNamespaceFromXsd(bsl::streambuf *xsdSource,
 
     oss << xsdSource;
 
-    bool rc = extractNamespaceFromXsd(oss.str(), targetNamespace);
+    bool rc = u::extractNamespaceFromXsd_Impl(oss.str(), targetNamespace);
 
     xsdSource->pubseekpos(pos, bsl::ios::in);
 
     return rc;
 }
+
+}  // close namespace u
+}  // close unnamed namespace
+
+namespace BloombergLP  {
+namespace balxml {
+
+                                // -----------
+                                // struct Util
+                                // -----------
+
+// CLASS METHODS
+bool Util::extractNamespaceFromXsd(const bsl::string_view&  xsdSource,
+                                   bsl::string             *targetNamespace)
+{
+    return u::extractNamespaceFromXsd_Impl(xsdSource, targetNamespace);
+}
+
+bool Util::extractNamespaceFromXsd(const bsl::string_view&  xsdSource,
+                                   std::string             *targetNamespace)
+{
+    return u::extractNamespaceFromXsd_Impl(xsdSource, targetNamespace);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+bool Util::extractNamespaceFromXsd(const bsl::string_view&  xsdSource,
+                                   std::pmr::string        *targetNamespace)
+{
+    return u::extractNamespaceFromXsd_Impl(xsdSource, targetNamespace);
+}
+#endif
+
+bool Util::extractNamespaceFromXsd(bsl::streambuf   *xsdSource,
+                                   bsl::string      *targetNamespace)
+{
+    return u::extractNamespaceFromXsd_Impl(xsdSource, targetNamespace);
+}
+
+bool Util::extractNamespaceFromXsd(bsl::streambuf   *xsdSource,
+                                   std::string      *targetNamespace)
+{
+    return u::extractNamespaceFromXsd_Impl(xsdSource, targetNamespace);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+bool Util::extractNamespaceFromXsd(bsl::streambuf   *xsdSource,
+                                   std::pmr::string *targetNamespace)
+{
+    return u::extractNamespaceFromXsd_Impl(xsdSource, targetNamespace);
+}
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace

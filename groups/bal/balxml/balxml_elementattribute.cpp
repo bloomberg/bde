@@ -101,7 +101,7 @@ const char *ElementAttribute::prefix() const
         return d_prefix = "";                                         // RETURN
     }
 
-    bslstl::StringRef prefix(d_qualifiedName, colon);
+    bsl::string_view prefix(d_qualifiedName, colon - d_qualifiedName);
     d_prefix = d_prefixStack->lookupNamespacePrefix(prefix);
 
     return d_prefix;

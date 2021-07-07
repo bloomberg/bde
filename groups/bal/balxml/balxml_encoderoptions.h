@@ -255,15 +255,15 @@ class EncoderOptions {
         // returned from the invocation of 'manipulator' if 'name' identifies
         // an attribute of this class, and -1 otherwise.
 
-    void setObjectNamespace(const bsl::string& value);
+    void setObjectNamespace(const bsl::string_view& value);
         // Set the "ObjectNamespace" attribute of this object to the specified
         // 'value'.
 
-    void setSchemaLocation(const bsl::string& value);
+    void setSchemaLocation(const bsl::string_view& value);
         // Set the "SchemaLocation" attribute of this object to the specified
         // 'value'.
 
-    void setTag(const bsl::string& value);
+    void setTag(const bsl::string_view& value);
         // Set the "Tag" attribute of this object to the specified 'value'.
 
     void setFormattingMode(int value);
@@ -629,19 +629,19 @@ int EncoderOptions::manipulateAttribute(
 }
 
 inline
-void EncoderOptions::setObjectNamespace(const bsl::string& value)
+void EncoderOptions::setObjectNamespace(const bsl::string_view& value)
 {
     d_objectNamespace = value;
 }
 
 inline
-void EncoderOptions::setSchemaLocation(const bsl::string& value)
+void EncoderOptions::setSchemaLocation(const bsl::string_view& value)
 {
     d_schemaLocation = value;
 }
 
 inline
-void EncoderOptions::setTag(const bsl::string& value)
+void EncoderOptions::setTag(const bsl::string_view& value)
 {
     d_tag = value;
 }

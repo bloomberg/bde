@@ -184,7 +184,8 @@ class HexParser_Helper {
     // 'HexParser<TYPE>'.  Only instances of 'HexParser<TYPE>' can access the
     // facilities in this class.
 
-    template <class TYPE> friend class HexParser;
+    template <class TYPE>
+    friend class HexParser;
 
     static const char s_hexValueTable[128];
         // Table that maps from ASCII character value to hex value.

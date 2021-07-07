@@ -227,7 +227,7 @@ class NamespaceRegistry {
         // 'lookup' by ID will produce different pointers that compare equal
         // using 'strcmp'.
 
-    int lookupOrRegister(const bslstl::StringRef& namespaceUri);
+    int lookupOrRegister(const bsl::string_view& namespaceUri);
         // Return the integer ID for the specified 'namespaceUri', assigning a
         // new ID if the 'namespaceUri' has not been registered before.  Note
         // that the IDs for pre-registered namespaces (including the empty
@@ -239,7 +239,7 @@ class NamespaceRegistry {
         // not removed.
 
     // ACCESSORS
-    int lookup(const bslstl::StringRef& namespaceUri) const;
+    int lookup(const bsl::string_view& namespaceUri) const;
         // Return the integer ID for the specified 'namespaceUri' or -1 if the
         // namespace has not been registered.  Note that not all negative
         // return values correspond to unregistered namespaces.  Preregistered

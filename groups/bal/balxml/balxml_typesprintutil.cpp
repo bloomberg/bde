@@ -792,17 +792,7 @@ namespace balxml {
 
 bsl::ostream&
 TypesPrintUtil_Imp::printBase64(bsl::ostream&               stream,
-                                const bsl::string&          object,
-                                const EncoderOptions       *,
-                                bdlat_TypeCategory::Simple)
-{
-    // Calls a function in the unnamed namespace.  Cannot be inlined.
-    return u::encodeBase64(stream, object.begin(), object.end());
-}
-
-bsl::ostream&
-TypesPrintUtil_Imp::printBase64(bsl::ostream&               stream,
-                                const bslstl::StringRef&    object,
+                                const bsl::string_view&     object,
                                 const EncoderOptions       *,
                                 bdlat_TypeCategory::Simple)
 {
@@ -824,18 +814,7 @@ TypesPrintUtil_Imp::printBase64(bsl::ostream&              stream,
 
 bsl::ostream&
 TypesPrintUtil_Imp::printHex(bsl::ostream&               stream,
-                             const bsl::string&          object,
-                             const EncoderOptions       *,
-                             bdlat_TypeCategory::Simple)
-{
-    return bdlb::Print::singleLineHexDump(stream,
-                                          object.begin(),
-                                          object.end());
-}
-
-bsl::ostream&
-TypesPrintUtil_Imp::printHex(bsl::ostream&               stream,
-                             const bslstl::StringRef&    object,
+                             const bsl::string_view&     object,
                              const EncoderOptions       *,
                              bdlat_TypeCategory::Simple)
 {
@@ -881,21 +860,7 @@ TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
 
 bsl::ostream&
 TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
-                              const bsl::string&          object,
-                              const EncoderOptions       *encoderOptions,
-                              bdlat_TypeCategory::Simple)
-{
-    // Calls a function in the unnamed namespace.  Cannot be inlined.
-    u::printTextReplacingXMLEscapes(stream,
-                                    object.data(),
-                                    static_cast<int>(object.length()),
-                                    encoderOptions);
-    return stream;
-}
-
-bsl::ostream&
-TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
-                              const bslstl::StringRef&    object,
+                              const bsl::string_view&     object,
                               const EncoderOptions       *encoderOptions,
                               bdlat_TypeCategory::Simple)
 {

@@ -124,11 +124,26 @@ namespace balxml {
 struct Util {
 
     // CLASS METHODS
-    static bool extractNamespaceFromXsd(const bsl::string&  xsdSource,
-                                        bsl::string        *targetNamespace);
+    static bool extractNamespaceFromXsd(
+                                     const bsl::string_view&  xsdSource,
+                                     bsl::string             *targetNamespace);
+    static bool extractNamespaceFromXsd(
+                                     const bsl::string_view&  xsdSource,
+                                     std::string             *targetNamespace);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static bool extractNamespaceFromXsd(
+                                     const bsl::string_view&  xsdSource,
+                                     std::pmr::string        *targetNamespace);
+#endif
 
-    static bool extractNamespaceFromXsd(bsl::streambuf *xsdSource,
-                                        bsl::string    *targetNamespace);
+    static bool extractNamespaceFromXsd(bsl::streambuf   *xsdSource,
+                                        bsl::string      *targetNamespace);
+    static bool extractNamespaceFromXsd(bsl::streambuf   *xsdSource,
+                                        std::string      *targetNamespace);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static bool extractNamespaceFromXsd(bsl::streambuf   *xsdSource,
+                                        std::pmr::string *targetNamespace);
+#endif
         // Extract the target namespace from the XSD schema in the specified
         // 'xsdSource' and load it into the specified 'targetNamespace'.
         // Return 'true' on success, and 'false' otherwise.  Note that a valid

@@ -13,6 +13,8 @@
 
 #include <bdlb_printmethods.h>
 
+#include <bsls_libraryfeatures.h>
+#include <bsls_nameof.h>
 #include <bsls_review.h>
 
 #include <bsl_cstddef.h>
@@ -23,6 +25,10 @@
 #include <bsl_iterator.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -375,6 +381,15 @@ void printValue(bsl::ostream& out, const char& value)
 }
 
 // ============================================================================
+//                           GLOBAL VARIABLES FOR TESTING
+// ----------------------------------------------------------------------------
+
+int test;
+int verbose;
+int veryVerbose;
+int veryVeryVerbose;
+
+// ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -434,16 +449,139 @@ void usageExample()
     ASSERT(0x6A == vec[3]);
 }
 //..
+
+namespace {
+namespace u {
+
+enum { k_MAX_NUM_PUSHES = 10 };
+
+struct Data {
+    int         d_lineNum;       // source line number
+    const struct {
+        const char *d_chars;        // characters to push
+        bool        d_success;      // true if push successful
+    }           d_input[k_MAX_NUM_PUSHES];
+    bool        d_endSuccess;    // true if 'endParse' successful
+    const char *d_resultData;    // expected result data
+    int         d_resultLength;  // result length
+};
+
+template <class CONTAINER_TYPE>
+void test2(const Data& data)
+    // 'balxml::HexParser<CONTAINER_TYPE>', when it manipulates & accesses the
+    // 'CONTAINER_TYPE' object it contains, uses only a subset of the
+    // intersection of the interfaces of 'std::string' and 'std::vector', so it
+    // can support any type of container that supports that subset.
+{
+    const char *vName = bsls::NameOf<CONTAINER_TYPE>();
+
+    if (verbose) cout << "Starting  test2<" << vName << ">(data);\n";
+
+    const int LINE = data.d_lineNum;
+
+    const char           INIT[] = "InIt VaLuE";
+    const CONTAINER_TYPE INIT_VALUE(INIT, INIT + sizeof INIT);
+
+    CONTAINER_TYPE mX = INIT_VALUE;    const CONTAINER_TYPE& X  = mX;
+
+    balxml::HexParser<CONTAINER_TYPE> parser;
+    int                               retCode;
+
+    LOOP2_ASSERT(LINE, X.size(), 0 != X.size());
+
+    retCode = parser.beginParse(&mX);
+    LOOP2_ASSERT(LINE, retCode,  0 == retCode);
+    LOOP2_ASSERT(LINE, X.size(), 0 == X.size());
+
+    bool areAllPushesSuccessful = true;
+
+    for (int j = 0; j < k_MAX_NUM_PUSHES; ++j) {
+        const char *CHARS   = data.d_input[j].d_chars;
+        const bool  SUCCESS = data.d_input[j].d_success;
+
+        if (0 == CHARS) {
+            break;
+        }
+
+        if (veryVeryVerbose) {
+            T_ T_ P_(CHARS) P(SUCCESS)
+        }
+
+        const char *begin = CHARS;
+        const char *end   = CHARS + bsl::strlen(CHARS);
+
+        retCode = parser.pushCharacters(begin, end);
+
+        if (!SUCCESS) {
+            areAllPushesSuccessful = false;
+
+            LOOP3_ASSERT(LINE, j, retCode, 0 != retCode);
+
+            break;
+        }
+
+        LOOP3_ASSERT(LINE, j, retCode, 0 == retCode);
+    }
+
+    if (!areAllPushesSuccessful) {
+        if (verbose) cout << "Quitting  test2<" << vName << ">(data);\n";
+
+        return;                                                       // RETURN
+    }
+
+    const bool END_SUCCESS = data.d_endSuccess;
+
+    retCode = parser.endParse();
+
+    if (!END_SUCCESS) {
+        if (veryVerbose) {
+            T_ P(END_SUCCESS)
+        }
+
+        LOOP2_ASSERT(LINE, retCode, 0 != retCode);
+
+        if (verbose) cout << "Quitting  test2<" << vName << ">(data);\n";
+
+        return;                                                       // RETURN
+    }
+
+    LOOP2_ASSERT(LINE, retCode, 0 == retCode);
+
+    const char *EXPECTED_RESULT_DATA   = data.d_resultData;
+    const int   EXPECTED_RESULT_LENGTH = data.d_resultLength;
+
+    if (veryVerbose) {
+        T_ P_(END_SUCCESS)
+           P_(EXPECTED_RESULT_DATA)
+           P (EXPECTED_RESULT_LENGTH)
+    }
+
+    LOOP3_ASSERT(LINE,
+                 EXPECTED_RESULT_LENGTH,
+                 X.size(),
+                 EXPECTED_RESULT_LENGTH == static_cast<int>(X.size()));
+
+    for (bsl::size_t j = 0; j < X.size(); ++j) {
+        LOOP4_ASSERT(LINE, j, EXPECTED_RESULT_DATA[j],   X[j],
+                              EXPECTED_RESULT_DATA[j] == X[j]);
+    }
+
+    if (verbose) cout << "Finishing test2<" << vName << ">(data);\n";
+}
+
+}  // close namespace u
+}  // close unnamed namespace
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -496,18 +634,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTHOROUGH TEST"
                           << "\n=============" << endl;
 
-        const int MAX_NUM_PUSHES = 10;
-
-        static const struct {
-            int         d_lineNum;       // source line number
-            const struct {
-                const char *d_chars;        // characters to push
-                bool        d_success;      // true if push successful
-            }           d_input[MAX_NUM_PUSHES];
-            bool        d_endSuccess;    // true if 'endParse' successful
-            const char *d_resultData;    // expected result data
-            int         d_resultLength;  // result length
-        } DATA[] = {
+        static const u::Data DATA[] = {
             //line  input                                endSuccess  result
             //----  -----                                ----------  ------
             //          chars           success                      resultLen
@@ -655,95 +782,22 @@ int main(int argc, char *argv[])
 
             { L_,   { { "YWJjZA;();",     false }   },   true,  "",  0       },
         };
-        const int NUM_DATA  = sizeof DATA / sizeof *DATA;
+        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int LINE = DATA[i].d_lineNum;
+        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+            const u::Data& data = DATA[ti];
 
-            const char              INIT_DATA[] = "InIt VaLuE";
-            const bsl::vector<char> INIT_VALUE(INIT_DATA,
-                                               INIT_DATA + sizeof INIT_DATA);
+            u::test2<bsl::vector<char> >(data);
+            u::test2<std::vector<char> >(data);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            u::test2<std::pmr::vector<char>>(data);
+#endif
 
-            bsl::vector<char>        mX = INIT_VALUE;
-            const bsl::vector<char>& X  = mX;
-
-            balxml::HexParser<bsl::vector<char> > parser;
-            int                                  retCode;
-
-            LOOP2_ASSERT(LINE, X.size(), 0 != X.size());
-
-            retCode = parser.beginParse(&mX);
-            LOOP2_ASSERT(LINE, retCode,  0 == retCode);
-            LOOP2_ASSERT(LINE, X.size(), 0 == X.size());
-
-            bool areAllPushesSuccessful = true;
-
-            for (int j = 0; j < MAX_NUM_PUSHES; ++j) {
-                const char *CHARS   = DATA[i].d_input[j].d_chars;
-                const bool  SUCCESS = DATA[i].d_input[j].d_success;
-
-                if (0 == CHARS) {
-                    break;
-                }
-
-                if (veryVeryVerbose) {
-                    T_ T_ P_(CHARS) P(SUCCESS)
-                }
-
-                const char *begin = CHARS;
-                const char *end   = CHARS + bsl::strlen(CHARS);
-
-                retCode = parser.pushCharacters(begin, end);
-
-                if (!SUCCESS) {
-                    areAllPushesSuccessful = false;
-
-                    LOOP3_ASSERT(LINE, j, retCode, 0 != retCode);
-
-                    break;
-                }
-
-                LOOP3_ASSERT(LINE, j, retCode, 0 == retCode);
-            }
-
-            if (!areAllPushesSuccessful) {
-                continue;
-            }
-
-            const bool END_SUCCESS = DATA[i].d_endSuccess;
-
-            retCode = parser.endParse();
-
-            if (!END_SUCCESS) {
-                if (veryVerbose) {
-                    T_ P(END_SUCCESS)
-                }
-
-                LOOP2_ASSERT(LINE, retCode, 0 != retCode);
-
-                continue;
-            }
-
-            LOOP2_ASSERT(LINE, retCode, 0 == retCode);
-
-            const char *EXPECTED_RESULT_DATA   = DATA[i].d_resultData;
-            const int   EXPECTED_RESULT_LENGTH = DATA[i].d_resultLength;
-
-            if (veryVerbose) {
-                T_ P_(END_SUCCESS)
-                   P_(EXPECTED_RESULT_DATA)
-                   P (EXPECTED_RESULT_LENGTH)
-            }
-
-            LOOP3_ASSERT(LINE,
-                         EXPECTED_RESULT_LENGTH,
-                         X.size(),
-                         EXPECTED_RESULT_LENGTH == static_cast<int>(X.size()));
-
-            for (bsl::size_t j = 0; j < X.size(); ++j) {
-                LOOP4_ASSERT(LINE, j, EXPECTED_RESULT_DATA[j],   X[j],
-                                      EXPECTED_RESULT_DATA[j] == X[j]);
-            }
+            u::test2<bsl::string>(data);
+            u::test2<std::string>(data);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            u::test2<std::pmr::string>(data);
+#endif
         }
 
         if (verbose) cout << "\nEnd of Test." << endl;
