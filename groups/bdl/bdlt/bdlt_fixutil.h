@@ -1,4 +1,5 @@
 // bdlt_fixutil.h                                                     -*-C++-*-
+
 #ifndef INCLUDED_BDLT_FIXUTIL
 #define INCLUDED_BDLT_FIXUTIL
 
@@ -50,7 +51,7 @@ BSLS_IDENT("$Id: $")
 //
 // Each function that *parses* FIX strings (named 'parse') take the address of
 // a target 'bdlt' object and a 'const char *' (paired with a 'length'
-// argument) or 'bslstl::StringRef', and loads the object with the result of
+// argument) or 'bsl::string_view', and loads the object with the result of
 // parsing the character string.  Since parsing can fail, the parse functions
 // return an 'int' status value (0 for success and a non-zero value for
 // failure).  Note that, besides elementary syntactical considerations, the
@@ -450,7 +451,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlt_fixutilconfiguration.h>
 
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
+
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_review.h>
 
 #include <bsl_ostream.h>
@@ -466,7 +471,7 @@ class DatetimeTz;
 class Time;
 class TimeTz;
 
-class FixUtilConfiguration;
+class  FixUtilConfiguration;
 
                               // ==============
                               // struct FixUtil
@@ -587,6 +592,70 @@ struct FixUtil {
     static int generate(bsl::string                 *string,
                         const DatetimeTz&            object,
                         const FixUtilConfiguration&  configuration);
+
+    static int generate(std::string                 *string,
+                        const Date&                  object);
+    static int generate(std::string                 *string,
+                        const Date&                  object,
+                        const FixUtilConfiguration&  configuration);
+    static int generate(std::string                 *string,
+                        const Time&                  object);
+    static int generate(std::string                 *string,
+                        const Time&                  object,
+                        const FixUtilConfiguration&  configuration);
+    static int generate(std::string                 *string,
+                        const Datetime&              object);
+    static int generate(std::string                 *string,
+                        const Datetime&              object,
+                        const FixUtilConfiguration&  configuration);
+    static int generate(std::string                 *string,
+                        const DateTz&                object);
+    static int generate(std::string                 *string,
+                        const DateTz&                object,
+                        const FixUtilConfiguration&  configuration);
+    static int generate(std::string                 *string,
+                        const TimeTz&                object);
+    static int generate(std::string                 *string,
+                        const TimeTz&                object,
+                        const FixUtilConfiguration&  configuration);
+    static int generate(std::string                 *string,
+                        const DatetimeTz&            object);
+    static int generate(std::string                 *string,
+                        const DatetimeTz&            object,
+                        const FixUtilConfiguration&  configuration);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static int generate(std::pmr::string            *string,
+                        const Date&                  object);
+    static int generate(std::pmr::string            *string,
+                        const Date&                  object,
+                        const FixUtilConfiguration&  configuration);
+    static int generate(std::pmr::string            *string,
+                        const Time&                  object);
+    static int generate(std::pmr::string            *string,
+                        const Time&                  object,
+                        const FixUtilConfiguration&  configuration);
+    static int generate(std::pmr::string            *string,
+                        const Datetime&              object);
+    static int generate(std::pmr::string            *string,
+                        const Datetime&              object,
+                        const FixUtilConfiguration&  configuration);
+    static int generate(std::pmr::string            *string,
+                        const DateTz&                object);
+    static int generate(std::pmr::string            *string,
+                        const DateTz&                object,
+                        const FixUtilConfiguration&  configuration);
+    static int generate(std::pmr::string            *string,
+                        const TimeTz&                object);
+    static int generate(std::pmr::string            *string,
+                        const TimeTz&                object,
+                        const FixUtilConfiguration&  configuration);
+    static int generate(std::pmr::string            *string,
+                        const DatetimeTz&            object);
+    static int generate(std::pmr::string            *string,
+                        const DatetimeTz&            object,
+                        const FixUtilConfiguration&  configuration);
+#endif
         // Load the FIX representation of the specified 'object' into the
         // specified 'string'.  Optionally specify a 'configuration' to affect
         // the format of the generated string.  If 'configuration' is not
@@ -781,7 +850,7 @@ struct FixUtil {
         // an additional second is added to 'result' at the end.  The behavior
         // is undefined unless '0 <= length'.
 
-    static int parse(Date *result, const bslstl::StringRef& string);
+    static int parse(Date *result, const bsl::string_view& string);
         // Parse the specified FIX 'string' as a 'Date' value, and load the
         // value into the specified 'result'.  Return 0 on success, and a
         // non-zero value (with no effect) otherwise.  'string' is assumed to
@@ -795,7 +864,7 @@ struct FixUtil {
         // timezone offset is present in 'string', it is parsed but ignored.
         // The behavior is undefined unless 'string.data()' is non-null.
 
-    static int parse(Time *result, const bslstl::StringRef& string);
+    static int parse(Time *result, const bsl::string_view& string);
         // Parse the specified FIX 'string' as a 'Time' value, and load the
         // value into the specified 'result'.  Return 0 on success, and a
         // non-zero value (with no effect) otherwise.  'string' is assumed to
@@ -816,7 +885,7 @@ struct FixUtil {
         // an additional second is added to 'result' at the end.  The behavior
         // is undefined unless 'string.data()' is non-null.
 
-    static int parse(Datetime *result, const bslstl::StringRef& string);
+    static int parse(Datetime *result, const bsl::string_view& string);
         // Parse the specified FIX 'string' as a 'Datetime' value, and load the
         // value into the specified 'result'.  Return 0 on success, and a
         // non-zero value (with no effect) otherwise.  'string' is assumed to
@@ -837,7 +906,7 @@ struct FixUtil {
         // an additional second is added to 'result' at the end.  The behavior
         // is undefined unless 'string.data()' is non-null.
 
-    static int parse(DateTz *result, const bslstl::StringRef& string);
+    static int parse(DateTz *result, const bsl::string_view& string);
         // Parse the specified FIX 'string' as a 'DateTz' value, and load the
         // value into the specified 'result'.  Return 0 on success, and a
         // non-zero value (with no effect) otherwise.  'string' is assumed to
@@ -851,7 +920,7 @@ struct FixUtil {
         // timezone offset is not present in 'string', UTC is assumed.  The
         // behavior is undefined unless 'string.data()' is non-null.
 
-    static int parse(TimeTz *result, const bslstl::StringRef& string);
+    static int parse(TimeTz *result, const bsl::string_view& string);
         // Parse the specified FIX 'string' as a 'TimeTz' value, and load the
         // value into the specified 'result'.  Return 0 on success, and a
         // non-zero value (with no effect) otherwise.  'string' is assumed to
@@ -871,7 +940,7 @@ struct FixUtil {
         // 'result' at the end.  The behavior is undefined unless
         // 'string.data()' is non-null.
 
-    static int parse(DatetimeTz *result, const bslstl::StringRef& string);
+    static int parse(DatetimeTz *result, const bsl::string_view& string);
         // Parse the specified FIX 'string' as a 'DatetimeTz' value, and load
         // the value into the specified 'result'.  Return 0 on success, and a
         // non-zero value (with no effect) otherwise.  'string' is assumed to
@@ -978,8 +1047,6 @@ FixUtil::generate(char *buffer, int bufferLength, const DatetimeTz& object)
 inline
 int FixUtil::generate(bsl::string *string, const Date& object)
 {
-    BSLS_ASSERT(string);
-
     return generate(string,
                     object,
                     FixUtilConfiguration::defaultConfiguration());
@@ -988,8 +1055,6 @@ int FixUtil::generate(bsl::string *string, const Date& object)
 inline
 int FixUtil::generate(bsl::string *string, const Time& object)
 {
-    BSLS_ASSERT(string);
-
     return generate(string,
                     object,
                     FixUtilConfiguration::defaultConfiguration());
@@ -998,8 +1063,6 @@ int FixUtil::generate(bsl::string *string, const Time& object)
 inline
 int FixUtil::generate(bsl::string *string, const Datetime& object)
 {
-    BSLS_ASSERT(string);
-
     return generate(string,
                     object,
                     FixUtilConfiguration::defaultConfiguration());
@@ -1008,8 +1071,6 @@ int FixUtil::generate(bsl::string *string, const Datetime& object)
 inline
 int FixUtil::generate(bsl::string *string, const DateTz& object)
 {
-    BSLS_ASSERT(string);
-
     return generate(string,
                     object,
                     FixUtilConfiguration::defaultConfiguration());
@@ -1018,8 +1079,6 @@ int FixUtil::generate(bsl::string *string, const DateTz& object)
 inline
 int FixUtil::generate(bsl::string *string, const TimeTz& object)
 {
-    BSLS_ASSERT(string);
-
     return generate(string,
                     object,
                     FixUtilConfiguration::defaultConfiguration());
@@ -1028,12 +1087,108 @@ int FixUtil::generate(bsl::string *string, const TimeTz& object)
 inline
 int FixUtil::generate(bsl::string *string, const DatetimeTz& object)
 {
-    BSLS_ASSERT(string);
-
     return generate(string,
                     object,
                     FixUtilConfiguration::defaultConfiguration());
 }
+
+inline
+int FixUtil::generate(std::string *string, const Date& object)
+{
+    return generate(string,
+                    object,
+                    FixUtilConfiguration::defaultConfiguration());
+}
+
+inline
+int FixUtil::generate(std::string *string, const Time& object)
+{
+    return generate(string,
+                    object,
+                    FixUtilConfiguration::defaultConfiguration());
+}
+
+inline
+int FixUtil::generate(std::string *string, const Datetime& object)
+{
+    return generate(string,
+                    object,
+                    FixUtilConfiguration::defaultConfiguration());
+}
+
+inline
+int FixUtil::generate(std::string *string, const DateTz& object)
+{
+    return generate(string,
+                    object,
+                    FixUtilConfiguration::defaultConfiguration());
+}
+
+inline
+int FixUtil::generate(std::string *string, const TimeTz& object)
+{
+    return generate(string,
+                    object,
+                    FixUtilConfiguration::defaultConfiguration());
+}
+
+inline
+int FixUtil::generate(std::string *string, const DatetimeTz& object)
+{
+    return generate(string,
+                    object,
+                    FixUtilConfiguration::defaultConfiguration());
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+inline
+int FixUtil::generate(std::pmr::string *string, const Date& object)
+{
+    return generate(string,
+                    object,
+                    FixUtilConfiguration::defaultConfiguration());
+}
+
+inline
+int FixUtil::generate(std::pmr::string *string, const Time& object)
+{
+    return generate(string,
+                    object,
+                    FixUtilConfiguration::defaultConfiguration());
+}
+
+inline
+int FixUtil::generate(std::pmr::string *string, const Datetime& object)
+{
+    return generate(string,
+                    object,
+                    FixUtilConfiguration::defaultConfiguration());
+}
+
+inline
+int FixUtil::generate(std::pmr::string *string, const DateTz& object)
+{
+    return generate(string,
+                    object,
+                    FixUtilConfiguration::defaultConfiguration());
+}
+
+inline
+int FixUtil::generate(std::pmr::string *string, const TimeTz& object)
+{
+    return generate(string,
+                    object,
+                    FixUtilConfiguration::defaultConfiguration());
+}
+
+inline
+int FixUtil::generate(std::pmr::string *string, const DatetimeTz& object)
+{
+    return generate(string,
+                    object,
+                    FixUtilConfiguration::defaultConfiguration());
+}
+#endif
 
 inline
 bsl::ostream& FixUtil::generate(bsl::ostream& stream, const Date& object)
@@ -1227,7 +1382,7 @@ int FixUtil::generateRaw(char *buffer, const DatetimeTz& object)
 }
 
 inline
-int FixUtil::parse(Date *result, const bslstl::StringRef& string)
+int FixUtil::parse(Date *result, const bsl::string_view& string)
 {
     BSLS_ASSERT(string.data());
 
@@ -1235,7 +1390,7 @@ int FixUtil::parse(Date *result, const bslstl::StringRef& string)
 }
 
 inline
-int FixUtil::parse(Time *result, const bslstl::StringRef& string)
+int FixUtil::parse(Time *result, const bsl::string_view& string)
 {
     BSLS_ASSERT(string.data());
 
@@ -1243,7 +1398,7 @@ int FixUtil::parse(Time *result, const bslstl::StringRef& string)
 }
 
 inline
-int FixUtil::parse(Datetime *result, const bslstl::StringRef& string)
+int FixUtil::parse(Datetime *result, const bsl::string_view& string)
 {
     BSLS_ASSERT(string.data());
 
@@ -1251,7 +1406,7 @@ int FixUtil::parse(Datetime *result, const bslstl::StringRef& string)
 }
 
 inline
-int FixUtil::parse(DateTz *result, const bslstl::StringRef& string)
+int FixUtil::parse(DateTz *result, const bsl::string_view& string)
 {
     BSLS_ASSERT(string.data());
 
@@ -1259,7 +1414,7 @@ int FixUtil::parse(DateTz *result, const bslstl::StringRef& string)
 }
 
 inline
-int FixUtil::parse(TimeTz *result, const bslstl::StringRef& string)
+int FixUtil::parse(TimeTz *result, const bsl::string_view& string)
 {
     BSLS_ASSERT(string.data());
 
@@ -1267,7 +1422,7 @@ int FixUtil::parse(TimeTz *result, const bslstl::StringRef& string)
 }
 
 inline
-int FixUtil::parse(DatetimeTz *result, const bslstl::StringRef& string)
+int FixUtil::parse(DatetimeTz *result, const bsl::string_view& string)
 {
     BSLS_ASSERT(string.data());
 

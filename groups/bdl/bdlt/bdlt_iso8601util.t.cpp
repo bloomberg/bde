@@ -198,8 +198,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bdlt::Iso8601Util              Util;
 typedef bdlt::Iso8601UtilConfiguration Config;
-
-typedef bslstl::StringRef              StrRef;
+typedef bsl::string_view               StrView;
 
 const int k_INTERVAL_MAX_PRECISION   = 9;
 const int k_DATE_MAX_PRECISION       = 3;
@@ -1216,13 +1215,13 @@ if (veryVerbose)
 
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     0 == Util::parse(&mX,
-                                                     StrRef(buffer, LENGTH)));
+                                                     StrView(buffer, LENGTH)));
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIME == X);
 
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     0 == Util::parse(&mZ,
-                                                     StrRef(buffer, LENGTH)));
+                                                     StrView(buffer, LENGTH)));
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIME == Z.localDatetime());
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
@@ -1267,13 +1266,13 @@ if (veryVerbose)
 
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     0 == Util::parse(&mX,
-                                                     StrRef(buffer, LENGTH)));
+                                                     StrView(buffer, LENGTH)));
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIMETZ.utcDatetime() == X);
 
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     0 == Util::parse(&mZ,
-                                                     StrRef(buffer, LENGTH)));
+                                                     StrView(buffer, LENGTH)));
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIMETZ               == Z);
                         }
@@ -1324,11 +1323,11 @@ if (veryVerbose)
                 ASSERTV(LINE, STRING, ZZ == Z);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parse(&mX, StrRef(STRING, LENGTH)));
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, XX == X);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parse(&mZ, StrRef(STRING, LENGTH)));
+                        0 != Util::parse(&mZ, StrView(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, ZZ == Z);
             }
 
@@ -1357,7 +1356,7 @@ if (veryVerbose)
 
                     mD = DD;
 
-                    ASSERT( 0 == Util::parse(&mD, StrRef(STRING, LENGTH)));
+                    ASSERT( 0 == Util::parse(&mD, StrView(STRING, LENGTH)));
                     ASSERT(DD != D);
                 }
 
@@ -1376,11 +1375,11 @@ if (veryVerbose)
                 ASSERTV(LINE, STRING, ZZ == Z);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parse(&mX, StrRef(STRING, LENGTH)));
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, XX == X);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parse(&mZ, StrRef(STRING, LENGTH)));
+                        0 != Util::parse(&mZ, StrView(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, ZZ == Z);
             }
 
@@ -1409,7 +1408,7 @@ if (veryVerbose)
 
                     mD = XX;
 
-                    ASSERT( 0 == Util::parse(&mD, StrRef(STRING, LENGTH)));
+                    ASSERT( 0 == Util::parse(&mD, StrView(STRING, LENGTH)));
                     ASSERT(XX != D);
                 }
 
@@ -1435,11 +1434,11 @@ if (veryVerbose)
                 ASSERTV(LINE, STRING, ZZ == Z);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parse(&mX, StrRef(STRING, LENGTH)));
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, XX == X);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parse(&mZ, StrRef(STRING, LENGTH)));
+                        0 != Util::parse(&mZ, StrView(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, ZZ == Z);
             }
         }
@@ -1561,11 +1560,11 @@ if (veryVerbose)
                 mZ = ZZ;
 
                 ASSERTV(LINE, INPUT, LENGTH,
-                        0 == Util::parse(&mX, StrRef(INPUT, LENGTH)));
+                        0 == Util::parse(&mX, StrView(INPUT, LENGTH)));
                 ASSERTV(LINE, EXPECTED, X, EXPECTED.utcDatetime() == X);
 
                 ASSERTV(LINE, INPUT, LENGTH,
-                        0 == Util::parse(&mZ, StrRef(INPUT, LENGTH)));
+                        0 == Util::parse(&mZ, StrView(INPUT, LENGTH)));
                 ASSERTV(LINE, EXPECTED, Z, EXPECTED == Z);
             }
         }
@@ -1641,17 +1640,17 @@ if (veryVerbose)
 
                 if (0 == OFFSET) {
                     ASSERTV(LINE, INPUT,
-                            0 == Util::parse(&mX, StrRef(INPUT, LENGTH)));
+                            0 == Util::parse(&mX, StrView(INPUT, LENGTH)));
                     ASSERTV(LINE, INPUT, EXPECTED.utcDatetime() == X);
                 }
                 else {
                     ASSERTV(LINE, INPUT,
-                            0 != Util::parse(&mX, StrRef(INPUT, LENGTH)));
+                            0 != Util::parse(&mX, StrView(INPUT, LENGTH)));
                     ASSERTV(LINE, INPUT, XX == X);
                 }
 
                 ASSERTV(LINE, INPUT,
-                        0 == Util::parse(&mZ, StrRef(INPUT, LENGTH)));
+                        0 == Util::parse(&mZ, StrView(INPUT, LENGTH)));
                 ASSERTV(LINE, INPUT, EXPECTED, Z, EXPECTED == Z);
             }
         }
@@ -1663,8 +1662,8 @@ if (veryVerbose)
             const char *INPUT  = "2013-10-23T01:23:45";
             const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
 
-            const StrRef stringRef(INPUT, LENGTH);
-            const StrRef nullRef;
+            const StrView stringRef(INPUT, LENGTH);
+            const StrView nullRef;
 
             bdlt::Datetime   result;
             bdlt::DatetimeTz resultTz;
@@ -1905,11 +1904,11 @@ if (veryVerbose)
                         mZ = ZZ;
 
                         ASSERTV(ILINE, JLINE, CLINE,
-                                0 == Util::parse(&mX, StrRef(buffer, LENGTH)));
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
                         ASSERTV(ILINE, JLINE, CLINE, TIME == X);
 
                         ASSERTV(ILINE, JLINE, CLINE,
-                                0 == Util::parse(&mZ, StrRef(buffer, LENGTH)));
+                               0 == Util::parse(&mZ, StrView(buffer, LENGTH)));
                         ASSERTV(ILINE, JLINE, CLINE, TIME == Z.localTime());
                         ASSERTV(ILINE, JLINE, CLINE,    0 == Z.offset());
                     }
@@ -1940,11 +1939,11 @@ if (veryVerbose)
                         mZ = ZZ;
 
                         ASSERTV(ILINE, JLINE, CLINE,
-                                0 == Util::parse(&mX, StrRef(buffer, LENGTH)));
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
                         ASSERTV(ILINE, JLINE, CLINE, TIMETZ.utcTime() == X);
 
                         ASSERTV(ILINE, JLINE, CLINE,
-                                0 == Util::parse(&mZ, StrRef(buffer, LENGTH)));
+                               0 == Util::parse(&mZ, StrView(buffer, LENGTH)));
                         ASSERTV(ILINE, JLINE, CLINE, TIMETZ           == Z);
                     }
                 }  // loop over 'CNFG_DATA'
@@ -1987,11 +1986,11 @@ if (veryVerbose)
                 ASSERTV(LINE, STRING, ZZ == Z);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parse(&mX, StrRef(STRING, LENGTH)));
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, XX == X);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parse(&mZ, StrRef(STRING, LENGTH)));
+                        0 != Util::parse(&mZ, StrView(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, ZZ == Z);
             }
 
@@ -2020,7 +2019,7 @@ if (veryVerbose)
 
                     mT = XX;
 
-                    ASSERT( 0 == Util::parse(&mT, StrRef(STRING, LENGTH)));
+                    ASSERT( 0 == Util::parse(&mT, StrView(STRING, LENGTH)));
                     ASSERT(XX != T);
                 }
 
@@ -2046,11 +2045,11 @@ if (veryVerbose)
                 ASSERTV(LINE, STRING, ZZ == Z);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parse(&mX, StrRef(STRING, LENGTH)));
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, XX == X);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parse(&mZ, StrRef(STRING, LENGTH)));
+                        0 != Util::parse(&mZ, StrView(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, ZZ == Z);
             }
         }
@@ -2138,11 +2137,11 @@ if (veryVerbose)
                 mZ = ZZ;
 
                 ASSERTV(LINE, INPUT, LENGTH,
-                        0 == Util::parse(&mX, StrRef(INPUT, LENGTH)));
+                        0 == Util::parse(&mX, StrView(INPUT, LENGTH)));
                 ASSERTV(LINE, EXPECTED, X, EXPECTED.utcTime() == X);
 
                 ASSERTV(LINE, INPUT, LENGTH,
-                        0 == Util::parse(&mZ, StrRef(INPUT, LENGTH)));
+                        0 == Util::parse(&mZ, StrView(INPUT, LENGTH)));
                 ASSERTV(LINE, EXPECTED, Z, EXPECTED == Z);
             }
         }
@@ -2154,8 +2153,8 @@ if (veryVerbose)
             const char *INPUT  = "01:23:45";
             const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
 
-            const StrRef stringRef(INPUT, LENGTH);
-            const StrRef nullRef;
+            const StrView stringRef(INPUT, LENGTH);
+            const StrView nullRef;
 
             bdlt::Time   result;
             bdlt::TimeTz resultTz;
@@ -2298,7 +2297,7 @@ if (veryVerbose)
                 mX = XX;
 
                 ASSERTV(LINE, INPUT, LENGTH,
-                        0 == Util::parse(&mX, StrRef(INPUT, LENGTH)));
+                        0 == Util::parse(&mX, StrView(INPUT, LENGTH)));
                 ASSERTV(LINE, EXPECTED, X, EXPECTED == X);
             }
         }
@@ -2343,7 +2342,7 @@ if (veryVerbose)
                 ASSERTV(LINE, XX, X, XX == X);
 
                 ASSERTV(LINE, INPUT, LENGTH,
-                    0 != Util::parse(&mX, StrRef(INPUT, LENGTH)));
+                    0 != Util::parse(&mX, StrView(INPUT, LENGTH)));
                 ASSERTV(LINE, XX, X, XX == X);
             }
         }
@@ -2492,11 +2491,11 @@ if (veryVerbose)
                         mZ = ZZ;
 
                         ASSERTV(ILINE, JLINE, CLINE,
-                                0 == Util::parse(&mX, StrRef(buffer, LENGTH)));
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
                         ASSERTV(ILINE, JLINE, CLINE, DATE == X);
 
                         ASSERTV(ILINE, JLINE, CLINE,
-                                0 == Util::parse(&mZ, StrRef(buffer, LENGTH)));
+                               0 == Util::parse(&mZ, StrView(buffer, LENGTH)));
                         ASSERTV(ILINE, JLINE, CLINE, DATE == Z.localDate());
                         ASSERTV(ILINE, JLINE, CLINE,    0 == Z.offset());
                     }
@@ -2527,11 +2526,11 @@ if (veryVerbose)
                         mZ = ZZ;
 
                         ASSERTV(ILINE, JLINE, CLINE,
-                                0 == Util::parse(&mX, StrRef(buffer, LENGTH)));
+                               0 == Util::parse(&mX, StrView(buffer, LENGTH)));
                         ASSERTV(ILINE, JLINE, CLINE, DATE   == X);
 
                         ASSERTV(ILINE, JLINE, CLINE,
-                                0 == Util::parse(&mZ, StrRef(buffer, LENGTH)));
+                               0 == Util::parse(&mZ, StrView(buffer, LENGTH)));
                         ASSERTV(ILINE, JLINE, CLINE, DATETZ == Z);
                     }
                 }  // loop over 'CNFG_DATA'
@@ -2574,11 +2573,11 @@ if (veryVerbose)
                 ASSERTV(LINE, STRING, ZZ == Z);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parse(&mX, StrRef(STRING, LENGTH)));
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, XX == X);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parse(&mZ, StrRef(STRING, LENGTH)));
+                        0 != Util::parse(&mZ, StrView(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, ZZ == Z);
             }
 
@@ -2607,7 +2606,7 @@ if (veryVerbose)
 
                     mD = XX;
 
-                    ASSERT( 0 == Util::parse(&mD, StrRef(STRING, LENGTH)));
+                    ASSERT( 0 == Util::parse(&mD, StrView(STRING, LENGTH)));
                     ASSERT(XX != D);
                 }
 
@@ -2625,11 +2624,11 @@ if (veryVerbose)
                 ASSERTV(LINE, STRING, ZZ == Z);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parse(&mX, StrRef(STRING, LENGTH)));
+                        0 != Util::parse(&mX, StrView(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, XX == X);
 
                 ASSERTV(LINE, STRING,
-                        0 != Util::parse(&mZ, StrRef(STRING, LENGTH)));
+                        0 != Util::parse(&mZ, StrView(STRING, LENGTH)));
                 ASSERTV(LINE, STRING, ZZ == Z);
             }
         }
@@ -2641,8 +2640,8 @@ if (veryVerbose)
             const char *INPUT  = "2013-10-23";
             const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
 
-            const StrRef stringRef(INPUT, LENGTH);
-            const StrRef nullRef;
+            const StrView stringRef(INPUT, LENGTH);
+            const StrView nullRef;
 
             bdlt::Date   result;
             bdlt::DateTz resultTz;
@@ -2938,6 +2937,30 @@ if (veryVerbose)
 
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
+                        {
+                            std::string mS("qwerty");
+
+                            ASSERTV(ILINE, JLINE, KLINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X));
+
+                            ASSERTV(ILINE, JLINE, KLINE, EXPECTED, mS,
+                                    EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        {
+                            std::pmr::string mS("qwerty");
+
+                            ASSERTV(ILINE, JLINE, KLINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X));
+
+                            ASSERTV(ILINE, JLINE, KLINE, EXPECTED, mS,
+                                    EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+#endif
 
                         // 'generate' to an 'ostream'
                         {
@@ -3049,6 +3072,28 @@ if (veryVerbose)
 
                             if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
+                        {
+                            std::string mS("qwerty");
+
+                            ASSERTV(ILINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                        {
+                            std::pmr::string mS("qwerty");
+
+                            ASSERTV(ILINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+#endif
 
                         // 'generate' to an 'ostream'
                         {
@@ -3194,27 +3239,48 @@ if (veryVerbose)
             if (verbose) cout << "\t'generate'" << endl;
             {
                 const TYPE X;
-                char       buffer[OBJLEN];
+                char       buffer[OBJLEN], *pc = 0;
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
-                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(    pc, OBJLEN, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
-                ASSERT_FAIL(Util::generate(     0, OBJLEN, X, C));
+                ASSERT_FAIL(Util::generate(     pc, OBJLEN, X, C));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
                 ASSERT_FAIL(Util::generate(buffer,     -1, X, C));
 
-                bsl::string mS("qwerty");
+                bsl::string mSB("qwerty");
+                bsl::string *pb = 0;
 
-                ASSERT_SAFE_PASS(Util::generate(&mS, X));
-                ASSERT_SAFE_FAIL(Util::generate(  0, X));
+                ASSERT_PASS(Util::generate(&mSB, X));
+                ASSERT_FAIL(Util::generate(  pb, X));
 
-                ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
-                ASSERT_FAIL(Util::generate(  0, X, C));
+                ASSERT_PASS(Util::generate(&mSB, X, C));
+                ASSERT_FAIL(Util::generate(  pb, X, C));
+
+                std::string mSS("qwerty");
+                std::string *ps = 0;
+
+                ASSERT_PASS(Util::generate(&mSS, X));
+                ASSERT_FAIL(Util::generate(  ps, X));
+
+                ASSERT_PASS(Util::generate(&mSS, X, C));
+                ASSERT_FAIL(Util::generate(  ps, X, C));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::string mSP("qwerty");
+                std::pmr::string *pp = 0;
+
+                ASSERT_PASS(Util::generate(&mSP, X));
+                ASSERT_FAIL(Util::generate(  pp, X));
+
+                ASSERT_PASS(Util::generate(&mSP, X, C));
+                ASSERT_FAIL(Util::generate(  pp, X, C));
+#endif
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -3448,6 +3514,28 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+                    {
+                        std::string mS("qwerty");
+
+                        ASSERTV(ILINE, JLINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X));
+
+                        ASSERTV(ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    {
+                        std::pmr::string mS("qwerty");
+
+                        ASSERTV(ILINE, JLINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X));
+
+                        ASSERTV(ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+#endif
 
                     // 'generate' to an 'ostream'
                     {
@@ -3552,6 +3640,28 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+                    {
+                        std::string mS("qwerty");
+
+                        ASSERTV(ILINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X, C));
+
+                        ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    {
+                        std::pmr::string mS("qwerty");
+
+                        ASSERTV(ILINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X, C));
+
+                        ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+#endif
 
                     // 'generate' to an 'ostream'
                     {
@@ -3693,27 +3803,45 @@ if (veryVerbose)
             if (verbose) cout << "\t'generate'" << endl;
             {
                 const TYPE X;
-                char       buffer[OBJLEN];
+                char       buffer[OBJLEN], *pc = 0;
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
-                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(    pc, OBJLEN, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
-                ASSERT_FAIL(Util::generate(     0, OBJLEN, X, C));
+                ASSERT_FAIL(Util::generate(    pc, OBJLEN, X, C));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
                 ASSERT_FAIL(Util::generate(buffer,     -1, X, C));
 
-                bsl::string mS("qwerty");
+                bsl::string mB("qwerty"), *pb = 0;
 
-                ASSERT_SAFE_PASS(Util::generate(&mS, X));
-                ASSERT_SAFE_FAIL(Util::generate(  0, X));
+                ASSERT_PASS(Util::generate(&mB, X));
+                ASSERT_FAIL(Util::generate( pb, X));
 
-                ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
-                ASSERT_FAIL(Util::generate(  0, X, C));
+                ASSERT_PASS(Util::generate(&mB, X, C));
+                ASSERT_FAIL(Util::generate( pb, X, C));
+
+                std::string mS("qwerty"), *ps = 0;
+
+                ASSERT_PASS(Util::generate(&mS, X));
+                ASSERT_FAIL(Util::generate( ps, X));
+
+                ASSERT_PASS(Util::generate(&mS, X, C));
+                ASSERT_FAIL(Util::generate( ps, X, C));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::string mP("qwerty"), *pp = 0;
+
+                ASSERT_PASS(Util::generate(&mP, X));
+                ASSERT_FAIL(Util::generate( pp, X));
+
+                ASSERT_PASS(Util::generate(&mP, X, C));
+                ASSERT_FAIL(Util::generate( pp, X, C));
+#endif
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -3941,6 +4069,28 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+                    {
+                        std::string mS("qwerty");
+
+                        ASSERTV(ILINE, JLINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X));
+
+                        ASSERTV(ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    {
+                        std::pmr::string mS("qwerty");
+
+                        ASSERTV(ILINE, JLINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X));
+
+                        ASSERTV(ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+#endif
 
                     // 'generate' to an 'ostream'
                     {
@@ -4045,6 +4195,28 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+                    {
+                        std::string mS("qwerty");
+
+                        ASSERTV(ILINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X, C));
+
+                        ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    {
+                        std::pmr::string mS("qwerty");
+
+                        ASSERTV(ILINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X, C));
+
+                        ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+#endif
 
                     // 'generate' to an 'ostream'
                     {
@@ -4186,39 +4358,57 @@ if (veryVerbose)
             if (verbose) cout << "\t'generate'" << endl;
             {
                 const TYPE X;
-                char       buffer[OBJLEN];
+                char       buffer[OBJLEN], *pc = 0;
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
-                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(    pc, OBJLEN, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
-                ASSERT_FAIL(Util::generate(     0, OBJLEN, X, C));
+                ASSERT_FAIL(Util::generate(    pc, OBJLEN, X, C));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
                 ASSERT_FAIL(Util::generate(buffer,     -1, X, C));
 
-                bsl::string mS("qwerty");
+                bsl::string mB("qwerty"), *pb = 0;
 
-                ASSERT_SAFE_PASS(Util::generate(&mS, X));
-                ASSERT_SAFE_FAIL(Util::generate(  0, X));
+                ASSERT_PASS(Util::generate(&mB, X));
+                ASSERT_FAIL(Util::generate( pb, X));
 
-                ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
-                ASSERT_FAIL(Util::generate(  0, X, C));
+                ASSERT_PASS(Util::generate(&mB, X, C));
+                ASSERT_FAIL(Util::generate( pb, X, C));
+
+                std::string mS("qwerty"), *ps = 0;
+
+                ASSERT_PASS(Util::generate(&mS, X));
+                ASSERT_FAIL(Util::generate( ps, X));
+
+                ASSERT_PASS(Util::generate(&mS, X, C));
+                ASSERT_FAIL(Util::generate( ps, X, C));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::string mP("qwerty"), *pp = 0;
+
+                ASSERT_PASS(Util::generate(&mP, X));
+                ASSERT_FAIL(Util::generate( pp, X));
+
+                ASSERT_PASS(Util::generate(&mP, X, C));
+                ASSERT_FAIL(Util::generate( pp, X, C));
+#endif
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
             {
                 const TYPE X;
-                char       buffer[OBJLEN];
+                char       buffer[OBJLEN], *pc = 0;
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X));
-                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
+                ASSERT_SAFE_FAIL(Util::generateRaw(    pc, X));
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
-                ASSERT_FAIL(Util::generateRaw(     0, X, C));
+                ASSERT_FAIL(Util::generateRaw(    pc, X, C));
             }
         }
 
@@ -4443,6 +4633,28 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+                    {
+                        std::string mS("qwerty");
+
+                        ASSERTV(ILINE, JLINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X));
+
+                        ASSERTV(ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    {
+                        std::pmr::string mS("qwerty");
+
+                        ASSERTV(ILINE, JLINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X));
+
+                        ASSERTV(ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+#endif
 
                     // 'generate' to an 'ostream'
                     {
@@ -4547,6 +4759,28 @@ if (veryVerbose)
 
                         if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
+                    {
+                        std::string mS("qwerty");
+
+                        ASSERTV(ILINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X, C));
+
+                        ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    {
+                        std::pmr::string mS("qwerty");
+
+                        ASSERTV(ILINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X, C));
+
+                        ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+#endif
 
                     // 'generate' to an 'ostream'
                     {
@@ -4590,27 +4824,45 @@ if (veryVerbose)
             if (verbose) cout << "\t'generate'" << endl;
             {
                 const TYPE X;
-                char       buffer[OBJLEN];
+                char       buffer[OBJLEN], *pc = 0;
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
-                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(    pc, OBJLEN, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
-                ASSERT_FAIL(Util::generate(     0, OBJLEN, X, C));
+                ASSERT_FAIL(Util::generate(    pc, OBJLEN, X, C));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
                 ASSERT_FAIL(Util::generate(buffer,     -1, X, C));
 
-                bsl::string mS("qwerty");
+                bsl::string mB("qwerty"), *pb = 0;
 
-                ASSERT_SAFE_PASS(Util::generate(&mS, X));
-                ASSERT_SAFE_FAIL(Util::generate(  0, X));
+                ASSERT_PASS(Util::generate(&mB, X));
+                ASSERT_FAIL(Util::generate( pb, X));
 
-                ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
-                ASSERT_FAIL(Util::generate(  0, X, C));
+                ASSERT_PASS(Util::generate(&mB, X, C));
+                ASSERT_FAIL(Util::generate( pb, X, C));
+
+                std::string mS("qwerty"), *ps = 0;
+
+                ASSERT_PASS(Util::generate(&mS, X));
+                ASSERT_FAIL(Util::generate( ps, X));
+
+                ASSERT_PASS(Util::generate(&mS, X, C));
+                ASSERT_FAIL(Util::generate( ps, X, C));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::string mP("qwerty"), *pp = 0;
+
+                ASSERT_PASS(Util::generate(&mP, X));
+                ASSERT_FAIL(Util::generate( pp, X));
+
+                ASSERT_PASS(Util::generate(&mP, X, C));
+                ASSERT_FAIL(Util::generate( pp, X, C));
+#endif
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -4814,6 +5066,26 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+                {
+                    std::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN, OUTLEN == Util::generate(&mS, X));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                {
+                    std::pmr::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN, OUTLEN == Util::generate(&mS, X));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+#endif
 
                 // 'generate' to an 'ostream'
                 {
@@ -4917,6 +5189,28 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+                {
+                    std::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generate(&mS, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                {
+                    std::pmr::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generate(&mS, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+#endif
 
                 // 'generate' to an 'ostream'
                 {
@@ -4958,39 +5252,57 @@ if (veryVerbose)
             if (verbose) cout << "\t'generate'" << endl;
             {
                 const TYPE X;
-                char       buffer[OBJLEN];
+                char       buffer[OBJLEN], *pc = 0;
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
-                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(    pc, OBJLEN, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
-                ASSERT_FAIL(Util::generate(     0, OBJLEN, X, C));
+                ASSERT_FAIL(Util::generate(    pc, OBJLEN, X, C));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
                 ASSERT_FAIL(Util::generate(buffer,     -1, X, C));
 
-                bsl::string mS("qwerty");
+                bsl::string mB("qwerty"), *pb = 0;
 
-                ASSERT_SAFE_PASS(Util::generate(&mS, X));
-                ASSERT_SAFE_FAIL(Util::generate(  0, X));
+                ASSERT_PASS(Util::generate(&mB, X));
+                ASSERT_FAIL(Util::generate( pb, X));
 
-                ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
-                ASSERT_FAIL(Util::generate(  0, X, C));
+                ASSERT_PASS(Util::generate(&mB, X, C));
+                ASSERT_FAIL(Util::generate( pb, X, C));
+
+                std::string mS("qwerty"), *ps = 0;
+
+                ASSERT_PASS(Util::generate(&mS, X));
+                ASSERT_FAIL(Util::generate( ps, X));
+
+                ASSERT_PASS(Util::generate(&mS, X, C));
+                ASSERT_FAIL(Util::generate( ps, X, C));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::string mP("qwerty"), *pp = 0;
+
+                ASSERT_PASS(Util::generate(&mP, X));
+                ASSERT_FAIL(Util::generate( pp, X));
+
+                ASSERT_PASS(Util::generate(&mP, X, C));
+                ASSERT_FAIL(Util::generate( pp, X, C));
+#endif
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
             {
                 const TYPE X;
-                char       buffer[OBJLEN];
+                char       buffer[OBJLEN], *pc = 0;
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X));
-                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
+                ASSERT_SAFE_FAIL(Util::generateRaw(    pc, X));
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
-                ASSERT_FAIL(Util::generateRaw(     0, X, C));
+                ASSERT_FAIL(Util::generateRaw(    pc, X, C));
             }
         }
 
@@ -5180,6 +5492,26 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+                {
+                    std::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN, OUTLEN == Util::generate(&mS, X));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                {
+                    std::pmr::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN, OUTLEN == Util::generate(&mS, X));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+#endif
 
                 // 'generate' to an 'ostream'
                 {
@@ -5283,6 +5615,28 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+                {
+                    std::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generate(&mS, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                {
+                    std::pmr::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generate(&mS, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+#endif
 
                 // 'generate' to an 'ostream'
                 {
@@ -5324,27 +5678,45 @@ if (veryVerbose)
             if (verbose) cout << "\t'generate'" << endl;
             {
                 const TYPE X;
-                char       buffer[OBJLEN];
+                char       buffer[OBJLEN], *pc = 0;
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
-                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(    pc, OBJLEN, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
-                ASSERT_FAIL(Util::generate(     0, OBJLEN, X, C));
+                ASSERT_FAIL(Util::generate(    pc, OBJLEN, X, C));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
                 ASSERT_FAIL(Util::generate(buffer,     -1, X, C));
 
-                bsl::string mS("qwerty");
+                bsl::string mB("qwerty"), *pb = 0;
 
-                ASSERT_SAFE_PASS(Util::generate(&mS, X));
-                ASSERT_SAFE_FAIL(Util::generate(  0, X));
+                ASSERT_PASS(Util::generate(&mB, X));
+                ASSERT_FAIL(Util::generate( pb, X));
 
-                ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
-                ASSERT_FAIL(Util::generate(  0, X, C));
+                ASSERT_PASS(Util::generate(&mB, X, C));
+                ASSERT_FAIL(Util::generate( pb, X, C));
+
+                bsl::string mS("qwerty"), *ps = 0;
+
+                ASSERT_PASS(Util::generate(&mS, X));
+                ASSERT_FAIL(Util::generate( ps, X));
+
+                ASSERT_PASS(Util::generate(&mS, X, C));
+                ASSERT_FAIL(Util::generate( ps, X, C));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::string mP("qwerty"), *pp = 0;
+
+                ASSERT_PASS(Util::generate(&mP, X));
+                ASSERT_FAIL(Util::generate( pp, X));
+
+                ASSERT_PASS(Util::generate(&mP, X, C));
+                ASSERT_FAIL(Util::generate( pp, X, C));
+#endif
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -5517,6 +5889,26 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+                {
+                    std::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN, OUTLEN == Util::generate(&mS, X));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                {
+                    std::pmr::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN, OUTLEN == Util::generate(&mS, X));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+#endif
 
                 // 'generate' to an 'ostream'
                 {
@@ -5620,6 +6012,28 @@ if (veryVerbose)
 
                     if (veryVerbose) { P_(EXPECTED) P(mS); }
                 }
+                {
+                    std::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generate(&mS, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                {
+                    std::pmr::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generate(&mS, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+#endif
 
                 // 'generate' to an 'ostream'
                 {
@@ -5661,39 +6075,57 @@ if (veryVerbose)
             if (verbose) cout << "\t'generate'" << endl;
             {
                 const TYPE X;
-                char       buffer[OBJLEN];
+                char       buffer[OBJLEN], *pc = 0;
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
-                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(    pc, OBJLEN, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
-                ASSERT_FAIL(Util::generate(     0, OBJLEN, X, C));
+                ASSERT_FAIL(Util::generate(     pc, OBJLEN, X, C));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
                 ASSERT_FAIL(Util::generate(buffer,     -1, X, C));
 
-                bsl::string mS("qwerty");
+                bsl::string mB("qwerty"), *pb = 0;
 
-                ASSERT_SAFE_PASS(Util::generate(&mS, X));
-                ASSERT_SAFE_FAIL(Util::generate(  0, X));
+                ASSERT_PASS(Util::generate(&mB, X));
+                ASSERT_FAIL(Util::generate( pb, X));
 
-                ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
-                ASSERT_FAIL(Util::generate(  0, X, C));
+                ASSERT_PASS(Util::generate(&mB, X, C));
+                ASSERT_FAIL(Util::generate( pb, X, C));
+
+                std::string mS("qwerty"), *ps = 0;
+
+                ASSERT_PASS(Util::generate(&mS, X));
+                ASSERT_FAIL(Util::generate( ps, X));
+
+                ASSERT_PASS(Util::generate(&mS, X, C));
+                ASSERT_FAIL(Util::generate( ps, X, C));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::string mP("qwerty"), *pp = 0;
+
+                ASSERT_PASS(Util::generate(&mP, X));
+                ASSERT_FAIL(Util::generate( pp, X));
+
+                ASSERT_PASS(Util::generate(&mP, X, C));
+                ASSERT_FAIL(Util::generate( pp, X, C));
+#endif
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
             {
                 const TYPE X;
-                char       buffer[OBJLEN];
+                char       buffer[OBJLEN], *pc = 0;
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X));
-                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
+                ASSERT_SAFE_FAIL(Util::generateRaw(    pc, X));
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
-                ASSERT_FAIL(Util::generateRaw(     0, X, C));
+                ASSERT_FAIL(Util::generateRaw(    pc, X, C));
             }
         }
 

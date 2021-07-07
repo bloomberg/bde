@@ -16,13 +16,223 @@ BSLS_IDENT_RCSID(bdlt_iso8601util_cpp,"$Id$ $CSID$")
 #include <bsl_cctype.h>
 #include <bsl_cstring.h>
 
-namespace BloombergLP {
-namespace bdlt {
 namespace {
+namespace u {
 
-// STATIC HELPER FUNCTIONS
+using namespace BloombergLP;
+using namespace BloombergLP::bdlt;
 
-static
+                          // ======================
+                          // class Iso8601Util_Impl
+                          // ======================
+
+class Impl {
+    // This 'class' is private to this component and not to be called from
+    // outside it.
+
+    // PRIVATE TYPES
+    typedef BloombergLP::bdlt::Iso8601Util Util;
+
+    template <class TYPE>
+    struct IsString {
+        static const bool value = bsl::is_same<TYPE, bsl::string>::value
+                               || bsl::is_same<TYPE, std::string>::value
+    #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                               || bsl::is_same<TYPE, std::pmr::string>::value
+    #endif
+        ;
+    };
+
+  public:
+    // CLASS METHODS
+    template <class STRING>
+    static int generate(STRING                          *string,
+                        const bsls::TimeInterval&        object,
+                        const Iso8601UtilConfiguration&  configuration);
+    template <class STRING>
+    static int generate(STRING                          *string,
+                        const Date&                      object,
+                        const Iso8601UtilConfiguration&  configuration);
+    template <class STRING>
+    static int generate(STRING                          *string,
+                        const Time&                      object,
+                        const Iso8601UtilConfiguration&  configuration);
+    template <class STRING>
+    static int generate(STRING                          *string,
+                        const Datetime&                  object,
+                        const Iso8601UtilConfiguration&  configuration);
+    template <class STRING>
+    static int generate(STRING                          *string,
+                        const DateTz&                    object,
+                        const Iso8601UtilConfiguration&  configuration);
+    template <class STRING>
+    static int generate(STRING                          *string,
+                        const TimeTz&                    object,
+                        const Iso8601UtilConfiguration&  configuration);
+    template <class STRING>
+    static int generate(STRING                          *string,
+                        const DatetimeTz&                object,
+                        const Iso8601UtilConfiguration&  configuration);
+        // Load the ISO 8601 representation of the specified 'object' into the
+        // specified 'string'.  Optionally specify a 'configuration' to affect
+        // the format of the generated string.  If 'configuration' is not
+        // supplied, the process-wide default value
+        // 'Iso8601UtilConfiguration::defaultConfiguration()' is used.
+        // 'STRING' must be 'bsl::string', 'std::string', or
+        // 'std::pmr::string'.  Return the number of characters in the
+        // formatted string.  The previous contents of 'string' (if any) are
+        // discarded.
+};
+
+                          // -----------------------
+                          // struct Iso8601Util_Impl
+                          // -----------------------
+
+template <class STRING>
+inline
+int Impl::generate(STRING                          *string,
+                   const bsls::TimeInterval&        object,
+                   const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    BSLMF_ASSERT(IsString<STRING>::value);
+
+    string->resize(Util::k_TIMEINTERVAL_STRLEN);
+
+    const int len = Util::generateRaw(&(*string)[0], object, configuration);
+    BSLS_ASSERT(Util::k_TIMEINTERVAL_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+template <class STRING>
+inline
+int Impl::generate(STRING                          *string,
+                   const Date&                      object,
+                   const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    BSLMF_ASSERT(IsString<STRING>::value);
+
+    string->resize(Util::k_DATE_STRLEN);
+
+    const int len = Util::generateRaw(&(*string)[0], object, configuration);
+    BSLS_ASSERT(Util::k_DATE_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+template <class STRING>
+inline
+int Impl::generate(STRING                          *string,
+                   const Time&                      object,
+                   const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    BSLMF_ASSERT(IsString<STRING>::value);
+
+    string->resize(Util::k_TIME_STRLEN);
+
+    const int len = Util::generateRaw(&(*string)[0], object, configuration);
+
+    BSLS_ASSERT(Util::k_TIME_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+template <class STRING>
+inline
+int Impl::generate(STRING                          *string,
+                   const Datetime&                  object,
+                   const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    BSLMF_ASSERT(IsString<STRING>::value);
+
+    string->resize(Util::k_DATETIME_STRLEN);
+
+    const int len = Util::generateRaw(&(*string)[0], object, configuration);
+
+    BSLS_ASSERT(Util::k_DATETIME_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+template <class STRING>
+inline
+int Impl::generate(STRING                          *string,
+                   const DateTz&                    object,
+                   const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    BSLMF_ASSERT(IsString<STRING>::value);
+
+    string->resize(Util::k_DATETZ_STRLEN);
+
+    const int len = Util::generateRaw(&(*string)[0], object, configuration);
+
+    BSLS_ASSERT(Util::k_DATETZ_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+template <class STRING>
+inline
+int Impl::generate(STRING                          *string,
+                   const TimeTz&                    object,
+                   const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    BSLMF_ASSERT(IsString<STRING>::value);
+
+    string->resize(Util::k_TIMETZ_STRLEN);
+
+    const int len = Util::generateRaw(&(*string)[0], object, configuration);
+
+    BSLS_ASSERT(Util::k_TIMETZ_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+template <class STRING>
+inline
+int Impl::generate(STRING                          *string,
+                   const DatetimeTz&                object,
+                   const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    BSLMF_ASSERT(IsString<STRING>::value);
+
+    string->resize(Util::k_DATETIMETZ_STRLEN);
+
+    const int len = Util::generateRaw(&(*string)[0], object, configuration);
+
+    BSLS_ASSERT(Util::k_DATETIMETZ_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
 int asciiPrefixToInt64(const char         **nextPos,
                        bsls::Types::Int64  *result,
                        const char          *begin,
@@ -62,7 +272,6 @@ int asciiPrefixToInt64(const char         **nextPos,
     return 0;
 }
 
-static
 int asciiToInt(const char **nextPos,
                int         *result,
                const char  *begin,
@@ -84,7 +293,7 @@ int asciiToInt(const char **nextPos,
     const char         *tmpNext = 0;
     bsls::Types::Int64  tmp     = 0;
 
-    if (0 != asciiPrefixToInt64(&tmpNext, &tmp, begin, end)
+    if (0 != u::asciiPrefixToInt64(&tmpNext, &tmp, begin, end)
         || tmpNext != end) {
         return -1;                                                    // RETURN
     }
@@ -95,7 +304,6 @@ int asciiToInt(const char **nextPos,
     return 0;
 }
 
-static
 int parseDate(const char **nextPos,
               int         *year,
               int         *month,
@@ -129,21 +337,21 @@ int parseDate(const char **nextPos,
 
     // 1. Parse year.
 
-    if (0 != asciiToInt(&p, year, p, p + 4) || '-' != *p) {
+    if (0 != u::asciiToInt(&p, year, p, p + 4) || '-' != *p) {
         return -1;                                                    // RETURN
     }
     ++p;  // skip '-'
 
     // 2. Parse month.
 
-    if (0 != asciiToInt(&p, month, p, p + 2) || '-' != *p) {
+    if (0 != u::asciiToInt(&p, month, p, p + 2) || '-' != *p) {
         return -1;                                                    // RETURN
     }
     ++p;  // skip '-'
 
     // 3. Parse day.
 
-    if (0 != asciiToInt(&p, day, p, p + 2)) {
+    if (0 != u::asciiToInt(&p, day, p, p + 2)) {
         return -1;                                                    // RETURN
     }
 
@@ -152,7 +360,6 @@ int parseDate(const char **nextPos,
     return 0;
 }
 
-static
 int parseFractionalSecond(const char         **nextPos,
                           bsls::Types::Int64  *nanosecond,
                           const char          *begin,
@@ -219,7 +426,6 @@ int parseFractionalSecond(const char         **nextPos,
     return 0;
 }
 
-static
 int parseTime(const char         **nextPos,
               int                 *hour,
               int                 *minute,
@@ -266,21 +472,21 @@ int parseTime(const char         **nextPos,
 
     // 1. Parse hour.
 
-    if (0 != asciiToInt(&p, hour, p, p + 2) || ':' != *p) {
+    if (0 != u::asciiToInt(&p, hour, p, p + 2) || ':' != *p) {
         return -1;                                                    // RETURN
     }
     ++p;  // skip ':'
 
     // 2. Parse minute.
 
-    if (0 != asciiToInt(&p, minute, p, p + 2) || ':' != *p) {
+    if (0 != u::asciiToInt(&p, minute, p, p + 2) || ':' != *p) {
         return -1;                                                    // RETURN
     }
     ++p;  // skip ':'
 
     // 3. Parse second.
 
-    if (0 != asciiToInt(&p, second, p, p + 2)) {
+    if (0 != u::asciiToInt(&p, second, p, p + 2)) {
         return -1;                                                    // RETURN
     }
 
@@ -292,11 +498,11 @@ int parseTime(const char         **nextPos,
         ++p;  // skip '.' or ','
 
         bsls::Types::Int64 nanosecond;
-        if (0 != parseFractionalSecond(&p,
-                                       &nanosecond,
-                                       p,
-                                       end,
-                                       roundMicroseconds * 1000)) {
+        if (0 != u::parseFractionalSecond(&p,
+                                          &nanosecond,
+                                          p,
+                                          end,
+                                          roundMicroseconds * 1000)) {
             return -1;                                                // RETURN
         }
         *microsecond = nanosecond / 1000;
@@ -323,7 +529,6 @@ int parseTime(const char         **nextPos,
     return 0;
 }
 
-static
 int parseZoneDesignator(const char **nextPos,
                         int         *minuteOffset,
                         const char  *begin,
@@ -372,7 +577,7 @@ int parseZoneDesignator(const char **nextPos,
 
     int hour;
 
-    if (0 != asciiToInt(&p, &hour, p, p + 2) || hour >= 24) {
+    if (0 != u::asciiToInt(&p, &hour, p, p + 2) || hour >= 24) {
         return -1;                                                    // RETURN
     }
     if (':' == *p) {
@@ -386,7 +591,7 @@ int parseZoneDesignator(const char **nextPos,
 
     int minute;
 
-    if (0 != asciiToInt(&p, &minute, p, p + 2) || minute > 59) {
+    if (0 != u::asciiToInt(&p, &minute, p, p + 2) || minute > 59) {
         return -1;                                                    // RETURN
     }
 
@@ -401,7 +606,6 @@ int parseZoneDesignator(const char **nextPos,
     return 0;
 }
 
-static
 int generateUnpaddedInt(char *buffer, bsls::Types::Int64 value)
     // Write, to the specified 'buffer', the decimal string representation of
     // the specified 'value' and return the number of bytes written.  'buffer'
@@ -423,7 +627,6 @@ int generateUnpaddedInt(char *buffer, bsls::Types::Int64 value)
     return static_cast<int>(current - buffer);
 }
 
-static
 int generateUnpaddedInt(char *buffer, bsls::Types::Int64 value, char separator)
     // Write, to the specified 'buffer', the decimal string representation of
     // the specified 'value' followed by the specified 'separator' character,
@@ -434,7 +637,7 @@ int generateUnpaddedInt(char *buffer, bsls::Types::Int64 value, char separator)
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= value);
 
-    int separatorOffset = generateUnpaddedInt(buffer, value);
+    int separatorOffset = u::generateUnpaddedInt(buffer, value);
 
     if (0 != separatorOffset) {
         buffer[separatorOffset] = separator;
@@ -444,7 +647,6 @@ int generateUnpaddedInt(char *buffer, bsls::Types::Int64 value, char separator)
     return separatorOffset;
 }
 
-static
 int generateInt(char *buffer, int value, int paddedLen)
     // Write, to the specified 'buffer', the decimal string representation of
     // the specified 'value' padded with leading zeros to the specified
@@ -469,7 +671,7 @@ int generateInt(char *buffer, int value, int paddedLen)
     return paddedLen;
 }
 
-static inline
+inline
 int generateInt(char *buffer, int value, int paddedLen, char separator)
     // Write, to the specified 'buffer', the decimal string representation of
     // the specified 'value' padded with leading zeros to the specified
@@ -484,13 +686,12 @@ int generateInt(char *buffer, int value, int paddedLen, char separator)
     BSLS_ASSERT(0 <= value);
     BSLS_ASSERT(0 <= paddedLen);
 
-    buffer += generateInt(buffer, value, paddedLen);
+    buffer += u::generateInt(buffer, value, paddedLen);
     *buffer = separator;
 
     return paddedLen + 1;
 }
 
-static
 int generateZoneDesignator(char                            *buffer,
                            int                              tzOffset,
                            const Iso8601UtilConfiguration&  configuration)
@@ -522,20 +723,19 @@ int generateZoneDesignator(char                            *buffer,
         *p++ = tzSign;
 
         if (configuration.omitColonInZoneDesignator()) {
-            p += generateInt(p, tzOffset / 60, 2);
+            p += u::generateInt(p, tzOffset / 60, 2);
         }
         else {
-            p += generateInt(p, tzOffset / 60, 2, ':');
+            p += u::generateInt(p, tzOffset / 60, 2, ':');
         }
 
-        p += generateInt(p, tzOffset % 60, 2);
+        p += u::generateInt(p, tzOffset % 60, 2);
     }
 
     return static_cast<int>(p - buffer);
 }
 
 #if defined(BSLS_ASSERT_SAFE_IS_USED)
-static
 int generatedLengthForDateTzObject(
                                  int                             defaultLength,
                                  int                             tzOffset,
@@ -564,7 +764,6 @@ int generatedLengthForDateTzObject(
     return defaultLength;
 }
 
-static
 int generatedLengthForDatetimeObject(
                                  int                             defaultLength,
                                  const Iso8601UtilConfiguration& configuration)
@@ -580,7 +779,6 @@ int generatedLengthForDatetimeObject(
          - (0 == configuration.fractionalSecondPrecision() ? 1 : 0);
 }
 
-static
 int generatedLengthForDatetimeTzObject(
                                  int                             defaultLength,
                                  int                             tzOffset,
@@ -613,7 +811,6 @@ int generatedLengthForDatetimeTzObject(
     return defaultLength;
 }
 
-static
 int generatedLengthForTimeObject(int                             defaultLength,
                                  const Iso8601UtilConfiguration& configuration)
     // Return the number of bytes generated, when the specified 'configuration'
@@ -628,7 +825,6 @@ int generatedLengthForTimeObject(int                             defaultLength,
     return defaultLength - (6 - precision) - (0 == precision ? 1 : 0);
 }
 
-static
 int generatedLengthForTimeTzObject(
                                  int                             defaultLength,
                                  int                             tzOffset,
@@ -662,7 +858,6 @@ int generatedLengthForTimeTzObject(
 }
 #endif
 
-static
 void copyBuf(char *dst, int dstLen, const char *src, int srcLen)
     // Copy, to the specified 'dst' buffer having the specified 'dstLen', the
     // specified initial 'srcLen' characters in the specified 'src' string if
@@ -684,7 +879,138 @@ void copyBuf(char *dst, int dstLen, const char *src, int srcLen)
     }
 }
 
+int parseIntervalImpl(bsls::Types::Int64 *weeks,
+                      bsls::Types::Int64 *days,
+                      bsls::Types::Int64 *hours,
+                      bsls::Types::Int64 *minutes,
+                      bsls::Types::Int64 *seconds,
+                      bsls::Types::Int64 *nanoseconds,
+                      const char         *string,
+                      int                 length)
+    // Parse the specified initial 'length' characters of the specified ISO
+    // 8601 'string' and load the values into the specified 'weeks', 'days',
+    // 'hours', 'minutes', 'seconds', and 'nanoseconds'.  Nothing is written
+    // into a value that does not have a corresponding component in 'string'.
+    // Return 0 on success, and a non-zero value (with no effect) otherwise.
+    // 'string' is assumed to be of the form:
+    //..
+    //  P{w+W}{d+D}{T{h+H}{m+M}s+(.|,)s+S}
+    //..
+    // *Exactly* 'length' characters are parsed; parsing will fail if a proper
+    // prefix of 'string' matches the expected format, but the entire 'length'
+    // characters do not.  If an optional fractional second having more than
+    // nine digits is present in 'string', it is rounded to the nearest value
+    // in nanoseconds.  The behavior is undefined unless '0 <= length'.
+{
+    BSLS_ASSERT(weeks);
+    BSLS_ASSERT(days);
+    BSLS_ASSERT(hours);
+    BSLS_ASSERT(minutes);
+    BSLS_ASSERT(seconds);
+    BSLS_ASSERT(nanoseconds);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
+
+    enum { k_MINIMUM_LENGTH = sizeof "P0Y" - 1 };
+
+    if (length < k_MINIMUM_LENGTH) {
+        return -1;                                                    // RETURN
+    }
+
+    const char *p   = string;
+    const char *end = string + length;
+
+    if ('P' != *p) {
+        return -1;                                                    // RETURN
+    }
+    ++p;
+
+    const struct {
+        char                d_terminator;
+        bsls::Types::Int64 *d_value;
+    } states[] = {
+        { 'W', weeks },
+        { 'D', days },
+        { 'H', hours },
+        { 'M', minutes },
+        { 'S', seconds }
+    };
+    const int timeIndex = 2;
+    const int stateSize = static_cast<int>(sizeof states / sizeof *states);
+
+    bool               foundT       = false;
+    bool               foundDecimal = false;
+    bsls::Types::Int64 value        = -1;
+
+    for (int index = 0; index != stateSize; ++index) {
+        if (-1 == value && foundDecimal) {
+            return -1;                                                // RETURN
+        }
+
+        if ('T' == *p) {
+            if (foundT) {
+                return -1;                                            // RETURN
+            }
+
+            foundT = true;
+            ++p;
+
+            if (index < timeIndex) {
+                index = timeIndex;
+            }
+        }
+        else if (index == timeIndex && !foundT) {
+            return -1;                                                // RETURN
+        }
+
+        if (-1 == value) {
+            if (0 != u::asciiPrefixToInt64(&p, &value, p, end)) {
+                return -1;                                            // RETURN
+            }
+        }
+
+        if ('.' == *p || ',' == *p) {
+            ++p;
+            if (0 != u::parseFractionalSecond(&p, nanoseconds, p, end, 1)) {
+                return -1;                                            // RETURN
+            }
+            foundDecimal = true;
+        }
+
+        if (states[index].d_terminator == *p) {
+            if (foundDecimal && 'S' != *p) {
+                return -1;                                            // RETURN
+            }
+            *states[index].d_value = value;
+            ++p;
+
+            if (p == end) {
+                return 0;                                             // RETURN
+            }
+
+            value = -1;
+        }
+
+        if (p == end) {
+            // If 'value' still contains information we have not yet consumed,
+            // it means we never found the corresponding character to say what
+            // type of datum this is.  This occurs for strings like "PT1".
+
+            return value == -1 ? 0 : 1;                               // RETURN
+        }
+    }
+
+    // If we have gotten to this point, there are still characters left over to
+    // parse, even though we have processed everything we can.
+
+    return -1;
+}
+
+}  // close namespace u
 }  // close unnamed namespace
+
+namespace BloombergLP {
+namespace bdlt {
 
                             // ------------------
                             // struct Iso8601Util
@@ -775,8 +1101,8 @@ int Iso8601Util::generate(char                            *buffer,
         buffer[outLen] = '\0';
     }
 
-    BSLS_ASSERT_SAFE(outLen == generatedLengthForTimeObject(k_TIME_STRLEN,
-                                                            configuration));
+    BSLS_ASSERT_SAFE(outLen == u::generatedLengthForTimeObject(k_TIME_STRLEN,
+                                                               configuration));
 
     return outLen;
 }
@@ -806,7 +1132,7 @@ int Iso8601Util::generate(char                            *buffer,
         buffer[outLen] = '\0';
     }
 
-    BSLS_ASSERT_SAFE(outLen == generatedLengthForDatetimeObject(
+    BSLS_ASSERT_SAFE(outLen == u::generatedLengthForDatetimeObject(
                                                              k_DATETIME_STRLEN,
                                                              configuration));
 
@@ -835,12 +1161,13 @@ int Iso8601Util::generate(char                            *buffer,
         outLen = generateRaw(outBuf, object, configuration);
         BSLS_ASSERT(outLen <= k_DATETZ_STRLEN);
 
-        copyBuf(buffer, bufferLength, outBuf, outLen);
+        u::copyBuf(buffer, bufferLength, outBuf, outLen);
     }
 
-    BSLS_ASSERT_SAFE(outLen == generatedLengthForDateTzObject(k_DATETZ_STRLEN,
-                                                              object.offset(),
-                                                              configuration));
+    BSLS_ASSERT_SAFE(outLen == u::generatedLengthForDateTzObject(
+                                                               k_DATETZ_STRLEN,
+                                                               object.offset(),
+                                                               configuration));
 
     return outLen;
 }
@@ -867,16 +1194,17 @@ int Iso8601Util::generate(char                            *buffer,
 
         BSLS_ASSERT(outLen <= k_TIMETZ_STRLEN);
 
-        copyBuf(buffer, bufferLength, outBuf, outLen);
+        u::copyBuf(buffer, bufferLength, outBuf, outLen);
     }
 
     if (bufferLength > outLen) {
         buffer[outLen] = '\0';
     }
 
-    BSLS_ASSERT_SAFE(outLen == generatedLengthForTimeTzObject(k_TIMETZ_STRLEN,
-                                                              object.offset(),
-                                                              configuration));
+    BSLS_ASSERT_SAFE(outLen == u::generatedLengthForTimeTzObject(
+                                                               k_TIMETZ_STRLEN,
+                                                               object.offset(),
+                                                               configuration));
 
     return outLen;
 }
@@ -903,7 +1231,7 @@ int Iso8601Util::generate(char                            *buffer,
 
         BSLS_ASSERT(outLen <= k_DATETIMETZ_STRLEN);
 
-        copyBuf(buffer, bufferLength, outBuf, outLen);
+        u::copyBuf(buffer, bufferLength, outBuf, outLen);
     }
 
     if (bufferLength > outLen) {
@@ -911,7 +1239,7 @@ int Iso8601Util::generate(char                            *buffer,
     }
 
     BSLS_ASSERT_SAFE(outLen ==
-                        generatedLengthForDatetimeTzObject(k_DATETIMETZ_STRLEN,
+                     u::generatedLengthForDatetimeTzObject(k_DATETIMETZ_STRLEN,
                                                            object.offset(),
                                                            configuration));
 
@@ -922,118 +1250,150 @@ int Iso8601Util::generate(bsl::string                     *string,
                           const bsls::TimeInterval&        object,
                           const Iso8601UtilConfiguration&  configuration)
 {
-    BSLS_ASSERT(string);
-
-    string->resize(k_TIMEINTERVAL_STRLEN);
-
-    const int len = generateRaw(&string->front(), object, configuration);
-    BSLS_ASSERT(k_TIMEINTERVAL_STRLEN >= len);
-
-    string->resize(len);
-
-    return len;
+    return u::Impl::generate(string, object, configuration);
 }
 
 int Iso8601Util::generate(bsl::string                     *string,
                           const Date&                      object,
                           const Iso8601UtilConfiguration&  configuration)
 {
-    BSLS_ASSERT(string);
-
-    string->resize(k_DATE_STRLEN);
-
-    const int len = generateRaw(&string->front(), object, configuration);
-    BSLS_ASSERT(k_DATE_STRLEN >= len);
-
-    string->resize(len);
-
-    return len;
+    return u::Impl::generate(string, object, configuration);
 }
 
 int Iso8601Util::generate(bsl::string                     *string,
                           const Time&                      object,
                           const Iso8601UtilConfiguration&  configuration)
 {
-    BSLS_ASSERT(string);
-
-    string->resize(k_TIME_STRLEN);
-
-    const int len = generateRaw(&string->front(), object, configuration);
-
-    BSLS_ASSERT(k_TIME_STRLEN >= len);
-
-    string->resize(len);
-
-    return len;
+    return u::Impl::generate(string, object, configuration);
 }
 
 int Iso8601Util::generate(bsl::string                     *string,
                           const Datetime&                  object,
                           const Iso8601UtilConfiguration&  configuration)
 {
-    BSLS_ASSERT(string);
-
-    string->resize(k_DATETIME_STRLEN);
-
-    const int len = generateRaw(&string->front(), object, configuration);
-
-    BSLS_ASSERT(k_DATETIME_STRLEN >= len);
-
-    string->resize(len);
-
-    return len;
+    return u::Impl::generate(string, object, configuration);
 }
 
 int Iso8601Util::generate(bsl::string                     *string,
                           const DateTz&                    object,
                           const Iso8601UtilConfiguration&  configuration)
 {
-    BSLS_ASSERT(string);
-
-    string->resize(k_DATETZ_STRLEN);
-
-    const int len = generateRaw(&string->front(), object, configuration);
-
-    BSLS_ASSERT(k_DATETZ_STRLEN >= len);
-
-    string->resize(len);
-
-    return len;
+    return u::Impl::generate(string, object, configuration);
 }
 
 int Iso8601Util::generate(bsl::string                     *string,
                           const TimeTz&                    object,
                           const Iso8601UtilConfiguration&  configuration)
 {
-    BSLS_ASSERT(string);
-
-    string->resize(k_TIMETZ_STRLEN);
-
-    const int len = generateRaw(&string->front(), object, configuration);
-
-    BSLS_ASSERT(k_TIMETZ_STRLEN >= len);
-
-    string->resize(len);
-
-    return len;
+    return u::Impl::generate(string, object, configuration);
 }
 
 int Iso8601Util::generate(bsl::string                     *string,
                           const DatetimeTz&                object,
                           const Iso8601UtilConfiguration&  configuration)
 {
-    BSLS_ASSERT(string);
-
-    string->resize(k_DATETIMETZ_STRLEN);
-
-    const int len = generateRaw(&string->front(), object, configuration);
-
-    BSLS_ASSERT(k_DATETIMETZ_STRLEN >= len);
-
-    string->resize(len);
-
-    return len;
+    return u::Impl::generate(string, object, configuration);
 }
+
+int Iso8601Util::generate(std::string                     *string,
+                          const bsls::TimeInterval&        object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    return u::Impl::generate(string, object, configuration);
+}
+
+int Iso8601Util::generate(std::string                     *string,
+                          const Date&                      object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    return u::Impl::generate(string, object, configuration);
+}
+
+int Iso8601Util::generate(std::string                     *string,
+                          const Time&                      object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    return u::Impl::generate(string, object, configuration);
+}
+
+int Iso8601Util::generate(std::string                     *string,
+                          const Datetime&                  object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    return u::Impl::generate(string, object, configuration);
+}
+
+int Iso8601Util::generate(std::string                     *string,
+                          const DateTz&                    object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    return u::Impl::generate(string, object, configuration);
+}
+
+int Iso8601Util::generate(std::string                     *string,
+                          const TimeTz&                    object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    return u::Impl::generate(string, object, configuration);
+}
+
+int Iso8601Util::generate(std::string                     *string,
+                          const DatetimeTz&                object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    return u::Impl::generate(string, object, configuration);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int Iso8601Util::generate(std::pmr::string                *string,
+                          const bsls::TimeInterval&        object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    return u::Impl::generate(string, object, configuration);
+}
+
+int Iso8601Util::generate(std::pmr::string                *string,
+                          const Date&                      object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    return u::Impl::generate(string, object, configuration);
+}
+
+int Iso8601Util::generate(std::pmr::string                *string,
+                          const Time&                      object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    return u::Impl::generate(string, object, configuration);
+}
+
+int Iso8601Util::generate(std::pmr::string                *string,
+                          const Datetime&                  object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    return u::Impl::generate(string, object, configuration);
+}
+
+int Iso8601Util::generate(std::pmr::string                *string,
+                          const DateTz&                    object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    return u::Impl::generate(string, object, configuration);
+}
+
+int Iso8601Util::generate(std::pmr::string                *string,
+                          const TimeTz&                    object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    return u::Impl::generate(string, object, configuration);
+}
+
+int Iso8601Util::generate(std::pmr::string                *string,
+                          const DatetimeTz&                object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    return u::Impl::generate(string, object, configuration);
+}
+#endif
 
 int Iso8601Util::generateRaw(
                           char                            *buffer,
@@ -1057,23 +1417,24 @@ int Iso8601Util::generateRaw(
     *p = 'P';
     ++p;
 
-    p += generateUnpaddedInt(p, weeks, 'W');
-    p += generateUnpaddedInt(p, days,  'D');
+    p += u::generateUnpaddedInt(p, weeks, 'W');
+    p += u::generateUnpaddedInt(p, days,  'D');
 
     *p = 'T';
     ++p;
 
-    p += generateUnpaddedInt(p, hours,   'H');
-    p += generateUnpaddedInt(p, minutes, 'M');
+    p += u::generateUnpaddedInt(p, hours,   'H');
+    p += u::generateUnpaddedInt(p, minutes, 'M');
 
     // We always include the "seconds" portion of the time to indicate that
     // this is not a reduced-precision representation.
+
     if (0 == seconds) {
         *p = '0';
         ++p;
     }
     else {
-        p += generateUnpaddedInt(p, seconds);
+        p += u::generateUnpaddedInt(p, seconds);
     }
 
     const char decimalSign = configuration.useCommaForDecimalSign()
@@ -1092,7 +1453,7 @@ int Iso8601Util::generateRaw(
             value /= 10;
         }
 
-        p += generateInt(p, value, precision, 'S');
+        p += u::generateInt(p, value, precision, 'S');
     }
     else {
         *p = 'S';
@@ -1105,15 +1466,15 @@ int Iso8601Util::generateRaw(
 int Iso8601Util::generateRaw(
                           char                            *buffer,
                           const Date&                      object,
-                          const Iso8601UtilConfiguration&  /* configuration */)
+                          const Iso8601UtilConfiguration&  )
 {
     BSLS_ASSERT(buffer);
 
     char *p = buffer;
 
-    p += generateInt(p, object.year() , 4, '-');
-    p += generateInt(p, object.month(), 2, '-');
-    p += generateInt(p, object.day()  , 2     );
+    p += u::generateInt(p, object.year() , 4, '-');
+    p += u::generateInt(p, object.month(), 2, '-');
+    p += u::generateInt(p, object.day()  , 2     );
 
     return static_cast<int>(p - buffer);
 }
@@ -1126,8 +1487,8 @@ int Iso8601Util::generateRaw(char                            *buffer,
 
     char *p = buffer;
 
-    p += generateInt(p, object.hour()       , 2, ':');
-    p += generateInt(p, object.minute()     , 2, ':');
+    p += u::generateInt(p, object.hour()       , 2, ':');
+    p += u::generateInt(p, object.minute()     , 2, ':');
 
     const char decimalSign = configuration.useCommaForDecimalSign()
                              ? ','
@@ -1136,7 +1497,7 @@ int Iso8601Util::generateRaw(char                            *buffer,
     int precision = configuration.fractionalSecondPrecision();
 
     if (precision) {
-        p += generateInt(p, object.second(), 2, decimalSign);
+        p += u::generateInt(p, object.second(), 2, decimalSign);
 
         int value = object.millisecond() * 1000 + object.microsecond();
 
@@ -1144,10 +1505,10 @@ int Iso8601Util::generateRaw(char                            *buffer,
             value /= 10;
         }
 
-        p += generateInt(p, value, precision);
+        p += u::generateInt(p, value, precision);
     }
     else {
-        p += generateInt(p, object.second(), 2);
+        p += u::generateInt(p, object.second(), 2);
     }
 
     return static_cast<int>(p - buffer);
@@ -1164,8 +1525,8 @@ int Iso8601Util::generateRaw(char                            *buffer,
 
     char *p = buffer + dateLen + 1;
 
-    p += generateInt(p, object.hour()       , 2, ':');
-    p += generateInt(p, object.minute()     , 2, ':');
+    p += u::generateInt(p, object.hour()       , 2, ':');
+    p += u::generateInt(p, object.minute()     , 2, ':');
 
     const char decimalSign = configuration.useCommaForDecimalSign()
                              ? ','
@@ -1174,7 +1535,7 @@ int Iso8601Util::generateRaw(char                            *buffer,
     int precision = configuration.fractionalSecondPrecision();
 
     if (precision) {
-        p += generateInt(p, object.second(), 2, decimalSign);
+        p += u::generateInt(p, object.second(), 2, decimalSign);
 
         int value = object.millisecond() * 1000 + object.microsecond();
 
@@ -1182,10 +1543,10 @@ int Iso8601Util::generateRaw(char                            *buffer,
             value /= 10;
         }
 
-        p += generateInt(p, value, precision);
+        p += u::generateInt(p, value, precision);
     }
     else {
-        p += generateInt(p, object.second(), 2);
+        p += u::generateInt(p, object.second(), 2);
     }
 
     return static_cast<int>(p - buffer);
@@ -1201,9 +1562,9 @@ int Iso8601Util::generateRaw(char                            *buffer,
                                     object.localDate(),
                                     configuration);
 
-    const int zoneLen = generateZoneDesignator(buffer + dateLen,
-                                               object.offset(),
-                                               configuration);
+    const int zoneLen = u::generateZoneDesignator(buffer + dateLen,
+                                                  object.offset(),
+                                                  configuration);
 
     return dateLen + zoneLen;
 }
@@ -1218,9 +1579,9 @@ int Iso8601Util::generateRaw(char                            *buffer,
                                     object.localTime(),
                                     configuration);
 
-    const int zoneLen = generateZoneDesignator(buffer + timeLen,
-                                               object.offset(),
-                                               configuration);
+    const int zoneLen = u::generateZoneDesignator(buffer + timeLen,
+                                                  object.offset(),
+                                                  configuration);
 
     return timeLen + zoneLen;
 }
@@ -1235,139 +1596,15 @@ int Iso8601Util::generateRaw(char                            *buffer,
                                         object.localDatetime(),
                                         configuration);
 
-    const int zoneLen     = generateZoneDesignator(buffer + datetimeLen,
-                                                   object.offset(),
-                                                   configuration);
+    const int zoneLen     = u::generateZoneDesignator(buffer + datetimeLen,
+                                                      object.offset(),
+                                                      configuration);
 
     return datetimeLen + zoneLen;
 }
 
-static
-int parseIntervalImpl(bsls::Types::Int64 *weeks,
-                      bsls::Types::Int64 *days,
-                      bsls::Types::Int64 *hours,
-                      bsls::Types::Int64 *minutes,
-                      bsls::Types::Int64 *seconds,
-                      bsls::Types::Int64 *nanoseconds,
-                      const char         *string,
-                      int                length)
-    // Parse the specified initial 'length' characters of the specified ISO
-    // 8601 'string' and load the values into the specified 'weeks', 'days',
-    // 'hours', 'minutes', 'seconds', and 'nanoseconds'.  Nothing is written
-    // into a value which does not have a corresponding component in 'string'.
-    // Return 0 on success, and a non-zero value (with no effect) otherwise.
-    // 'string' is assumed to be of the form:
-    //..
-    //  P{w+W}{d+D}{T{h+H}{m+M}s+(.|,)s+S}
-    //..
-    // *Exactly* 'length' characters are parsed; parsing will fail if a
-    // proper prefix of 'string' matches the expected format, but the
-    // entire 'length' characters do not.  If an optional fractional second
-    // having more than nine digits is present in 'string', it is rounded
-    // to the nearest value in nanoseconds.  The behavior is undefined
-    // unless '0 <= length'.
-{
-    BSLS_ASSERT(weeks);
-    BSLS_ASSERT(days);
-    BSLS_ASSERT(hours);
-    BSLS_ASSERT(minutes);
-    BSLS_ASSERT(seconds);
-    BSLS_ASSERT(nanoseconds);
-    BSLS_ASSERT(string);
-    BSLS_ASSERT(0 <= length);
 
-    enum { k_MINIMUM_LENGTH = sizeof "P0Y" - 1 };
 
-    if (length < k_MINIMUM_LENGTH) {
-        return -1;                                                    // RETURN
-    }
-
-    const char *p   = string;
-    const char *end = string + length;
-
-    if ('P' != *p) {
-        return -1;                                                    // RETURN
-    }
-    ++p;
-
-    const struct {
-        char                d_terminator;
-        bsls::Types::Int64 *d_value;
-    } states[] = {
-        { 'W', weeks },
-        { 'D', days },
-        { 'H', hours },
-        { 'M', minutes },
-        { 'S', seconds }
-    };
-    const int timeIndex = 2;
-    const int stateSize = static_cast<int>(sizeof states / sizeof *states);
-
-    bool               foundT       = false;
-    bool               foundDecimal = false;
-    bsls::Types::Int64 value        = -1;
-
-    for (int index = 0; index != stateSize; ++index) {
-        if (-1 == value && foundDecimal) {
-            return -1;                                                // RETURN
-        }
-
-        if ('T' == *p) {
-            if (foundT) {
-                return -1;                                            // RETURN
-            }
-
-            foundT = true;
-            ++p;
-
-            if (index < timeIndex) {
-                index = timeIndex;
-            }
-        }
-        else if (index == timeIndex && !foundT) {
-            return -1;                                                // RETURN
-        }
-
-        if (-1 == value) {
-            if (0 != asciiPrefixToInt64(&p, &value, p, end)) {
-                return -1;                                            // RETURN
-            }
-        }
-
-        if ('.' == *p || ',' == *p) {
-            ++p;
-            if (0 != parseFractionalSecond(&p, nanoseconds, p, end, 1)) {
-                return -1;                                            // RETURN
-            }
-            foundDecimal = true;
-        }
-
-        if (states[index].d_terminator == *p) {
-            if (foundDecimal && 'S' != *p) {
-                return -1;                                            // RETURN
-            }
-            *states[index].d_value = value;
-            ++p;
-
-            if (p == end) {
-                return 0;                                             // RETURN
-            }
-
-            value = -1;
-        }
-
-        if (p == end) {
-            // If 'value' still contains information we have not yet consumed,
-            // it means we never found the corresponding character to say what
-            // type of datum this is. This occurs for strings like "PT1".
-            return value == -1 ? 0 : 1;                               // RETURN
-        }
-    }
-
-    // If we have gotten to this point, there are still characters left over to
-    // parse, even though we have processed everything we can.
-    return -1;
-}
 
 int Iso8601Util::parse(bsls::TimeInterval *result,
                        const char         *string,
@@ -1391,14 +1628,14 @@ int Iso8601Util::parse(bsls::TimeInterval *result,
     bsls::Types::Int64 seconds     = 0;
     bsls::Types::Int64 nanoseconds = 0;
 
-    if (0 != parseIntervalImpl(&weeks,
-                               &days,
-                               &hours,
-                               &minutes,
-                               &seconds,
-                               &nanoseconds,
-                               string,
-                               length)) {
+    if (0 != u::parseIntervalImpl(&weeks,
+                                  &days,
+                                  &hours,
+                                  &minutes,
+                                  &seconds,
+                                  &nanoseconds,
+                                  string,
+                                  length)) {
         return -1;                                                    // RETURN
     }
 
@@ -1435,7 +1672,7 @@ int Iso8601Util::parse(Date *result, const char *string, int length)
 
     int year, month, day;
 
-    if (0 != parseDate(&p, &year, &month, &day, p, end)
+    if (0 != u::parseDate(&p, &year, &month, &day, p, end)
      || !Date::isValidYearMonthDay(year, month, day)) {
         return -1;                                                    // RETURN
     }
@@ -1445,7 +1682,7 @@ int Iso8601Util::parse(Date *result, const char *string, int length)
     if (p != end) {
         int tzOffset;
 
-        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
+        if (0 != u::parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
     }
@@ -1486,16 +1723,16 @@ int Iso8601Util::parse(Time *result, const char *string, int length)
 
     Time localTime;
 
-    if (0 != parseTime(&p,
-                       &hour,
-                       &minute,
-                       &second,
-                       &millisecond,
-                       &microsecond,
-                       &hasLeapSecond,
-                       p,
-                       end,
-                       1)
+    if (0 != u::parseTime(&p,
+                          &hour,
+                          &minute,
+                          &second,
+                          &millisecond,
+                          &microsecond,
+                          &hasLeapSecond,
+                          p,
+                          end,
+                          1)
      || 0 != localTime.setTimeIfValid(hour, minute, second)) {
         return -1;                                                    // RETURN
     }
@@ -1517,7 +1754,7 @@ int Iso8601Util::parse(Time *result, const char *string, int length)
     int tzOffset = 0;  // minutes from UTC
 
     if (p != end) {
-        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
+        if (0 != u::parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
 
@@ -1609,7 +1846,7 @@ int Iso8601Util::parse(DateTz *result, const char *string, int length)
     int  year, month, day;
     Date localDate;
 
-    if (0 != parseDate(&p, &year, &month, &day, p, end)
+    if (0 != u::parseDate(&p, &year, &month, &day, p, end)
      || 0 != localDate.setYearMonthDayIfValid(year, month, day)) {
         return -1;                                                    // RETURN
     }
@@ -1619,7 +1856,7 @@ int Iso8601Util::parse(DateTz *result, const char *string, int length)
     int tzOffset = 0;  // minutes from UTC
 
     if (p != end) {
-        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
+        if (0 != u::parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
     }
@@ -1660,16 +1897,16 @@ int Iso8601Util::parse(TimeTz *result, const char *string, int length)
 
     Time localTime;
 
-    if (0 != parseTime(&p,
-                       &hour,
-                       &minute,
-                       &second,
-                       &millisecond,
-                       &microsecond,
-                       &hasLeapSecond,
-                       p,
-                       end,
-                       1)
+    if (0 != u::parseTime(&p,
+                          &hour,
+                          &minute,
+                          &second,
+                          &millisecond,
+                          &microsecond,
+                          &hasLeapSecond,
+                          p,
+                          end,
+                          1)
      || 0 != localTime.setTimeIfValid(hour, minute, second)) {
         return -1;                                                    // RETURN
     }
@@ -1691,7 +1928,7 @@ int Iso8601Util::parse(TimeTz *result, const char *string, int length)
     int tzOffset = 0;  // minutes from UTC
 
     if (p != end) {
-        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
+        if (0 != u::parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
     }
@@ -1732,7 +1969,7 @@ int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
 
     int year, month, day;
 
-    if (0 != parseDate(&p, &year, &month, &day, p, end)
+    if (0 != u::parseDate(&p, &year, &month, &day, p, end)
      || p == end
      || ('T' != *p && 't' != *p)) {
 
@@ -1746,16 +1983,16 @@ int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
     bsls::Types::Int64 microsecond;
     bool               hasLeapSecond;
 
-    if (0 != parseTime(&p,
-                       &hour,
-                       &minute,
-                       &second,
-                       &millisecond,
-                       &microsecond,
-                       &hasLeapSecond,
-                       p,
-                       end,
-                       1)) {
+    if (0 != u::parseTime(&p,
+                          &hour,
+                          &minute,
+                          &second,
+                          &millisecond,
+                          &microsecond,
+                          &hasLeapSecond,
+                          p,
+                          end,
+                          1)) {
         return -1;                                                    // RETURN
     }
 
@@ -1764,7 +2001,7 @@ int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
     int tzOffset = 0;  // minutes from UTC
 
     if (p != end) {
-        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
+        if (0 != u::parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
     }

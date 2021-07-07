@@ -12,17 +12,210 @@ BSLS_IDENT_RCSID(bdlt_fixutil_cpp,"$Id$ $CSID$")
 #include <bdlt_time.h>
 #include <bdlt_timetz.h>
 
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>
 #include <bsl_cstring.h>
 
-namespace BloombergLP {
-namespace bdlt {
 namespace {
+namespace u {
+
+using namespace BloombergLP;
+using namespace BloombergLP::bdlt;
+
+                                  // ===========
+                                  // struct Impl
+                                  // ===========
+
+class Impl {
+    // This 'class' is private to this component and is not to be referred to
+    // outside this component.
+
+    // PRIVATE TYPES
+    typedef BloombergLP::bdlt::FixUtil Util;
+
+    template <class TYPE>
+    struct IsString {
+        static const bool value = bsl::is_same<TYPE, bsl::string>::value
+                               || bsl::is_same<TYPE, std::string>::value
+    #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                               || bsl::is_same<TYPE, std::pmr::string>::value
+    #endif
+        ;
+    };
+
+    // FRIENDS
+    friend struct BloombergLP::bdlt::FixUtil;
+
+    // In all cases below, the 'STRING' template parameter is to be either
+    // 'bsl::string', 'std::string', or 'std::pmr::string'.
+
+    // CLASS METHODS
+    template <class STRING>
+    static int generate(STRING                      *string,
+                        const Date&                  object,
+                        const FixUtilConfiguration&  configuration);
+    template <class STRING>
+    static int generate(STRING                      *string,
+                        const Time&                  object,
+                        const FixUtilConfiguration&  configuration);
+    template <class STRING>
+    static int generate(STRING                      *string,
+                        const Datetime&              object,
+                        const FixUtilConfiguration&  configuration);
+    template <class STRING>
+    static int generate(STRING                      *string,
+                        const DateTz&                object,
+                        const FixUtilConfiguration&  configuration);
+    template <class STRING>
+    static int generate(STRING                      *string,
+                        const TimeTz&                object,
+                        const FixUtilConfiguration&  configuration);
+    template <class STRING>
+    static int generate(STRING                      *string,
+                        const DatetimeTz&            object,
+                        const FixUtilConfiguration&  configuration);
+        // Load the FIX representation of the specified 'object' into the
+        // specified 'string'.  Specify a 'configuration' to affect the format
+        // of the generated string.  'STRING' must be 'bsl::string',
+        // 'std::string', or 'std::pmr::string'.  Return the number of
+        // characters in the formatted string.  The previous contents of
+        // 'string' (if any) are discarded.
+};
+
+                                // -----------
+                                // struct Impl
+                                // -----------
+
+template <class STRING>
+inline
+int Impl::generate(STRING                      *string,
+                   const Date&                  object,
+                   const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    BSLMF_ASSERT(IsString<STRING>::value);
+
+    string->resize(Util::k_DATE_STRLEN);
+
+    const int len = Util::generateRaw(&(*string)[0], object, configuration);
+    BSLS_ASSERT(Util::k_DATE_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+template <class STRING>
+inline
+int Impl::generate(STRING                      *string,
+                   const Time&                  object,
+                   const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    BSLMF_ASSERT(IsString<STRING>::value);
+
+    string->resize(Util::k_TIME_STRLEN);
+
+    const int len = Util::generateRaw(&(*string)[0], object, configuration);
+
+    BSLS_ASSERT(Util::k_TIME_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+template <class STRING>
+inline
+int Impl::generate(STRING                      *string,
+                   const Datetime&              object,
+                   const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    BSLMF_ASSERT(IsString<STRING>::value);
+
+    string->resize(Util::k_DATETIME_STRLEN);
+
+    const int len = Util::generateRaw(&(*string)[0], object, configuration);
+
+    BSLS_ASSERT(Util::k_DATETIME_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+template <class STRING>
+inline
+int Impl::generate(STRING                      *string,
+                   const DateTz&                object,
+                   const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    BSLMF_ASSERT(IsString<STRING>::value);
+
+    string->resize(Util::k_DATETZ_STRLEN);
+
+    const int len = Util::generateRaw(&(*string)[0], object, configuration);
+
+    BSLS_ASSERT(Util::k_DATETZ_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+template <class STRING>
+inline
+int Impl::generate(STRING                      *string,
+                   const TimeTz&                object,
+                   const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    BSLMF_ASSERT(IsString<STRING>::value);
+
+    string->resize(Util::k_TIMETZ_STRLEN);
+
+    const int len = Util::generateRaw(&(*string)[0], object, configuration);
+
+    BSLS_ASSERT(Util::k_TIMETZ_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+template <class STRING>
+inline
+int Impl::generate(STRING                      *string,
+                   const DatetimeTz&            object,
+                   const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    BSLMF_ASSERT(IsString<STRING>::value);
+
+    string->resize(Util::k_DATETIMETZ_STRLEN);
+
+    const int len = Util::generateRaw(&(*string)[0], object, configuration);
+
+    BSLS_ASSERT(Util::k_DATETIMETZ_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
 
 // STATIC HELPER FUNCTIONS
 
-static
 int asciiToInt(const char **nextPos,
                int         *result,
                const char  *begin,
@@ -60,7 +253,6 @@ int asciiToInt(const char **nextPos,
     return 0;
 }
 
-static
 int parseDate(const char **nextPos,
               Date        *date,
               const char  *begin,
@@ -89,17 +281,17 @@ int parseDate(const char **nextPos,
     }
 
     int year;
-    if (0 != asciiToInt(&p, &year, p, p + 4)) {
+    if (0 != u::asciiToInt(&p, &year, p, p + 4)) {
         return -1;                                                    // RETURN
     }
 
     int month;
-    if (0 != asciiToInt(&p, &month, p, p + 2)) {
+    if (0 != u::asciiToInt(&p, &month, p, p + 2)) {
         return -1;                                                    // RETURN
     }
 
     int day;
-    if (0 != asciiToInt(&p, &day, p, p + 2)) {
+    if (0 != u::asciiToInt(&p, &day, p, p + 2)) {
         return -1;                                                    // RETURN
     }
 
@@ -112,7 +304,6 @@ int parseDate(const char **nextPos,
     return 0;
 }
 
-static
 int parseFractionalSecond(const char **nextPos,
                           int         *microsecond,
                           const char  *begin,
@@ -175,7 +366,6 @@ int parseFractionalSecond(const char **nextPos,
     return 0;
 }
 
-static
 int parseTimezoneOffset(const char **nextPos,
                         int         *minuteOffset,
                         const char  *begin,
@@ -225,7 +415,7 @@ int parseTimezoneOffset(const char **nextPos,
     int hour;
     int minute = 0;
 
-    if (0 != asciiToInt(&p, &hour, p, p + 2) || hour >= 24) {
+    if (0 != u::asciiToInt(&p, &hour, p, p + 2) || hour >= 24) {
         return -1;                                                    // RETURN
     }
 
@@ -238,7 +428,7 @@ int parseTimezoneOffset(const char **nextPos,
 
         // Parse minute.
 
-        if (0 != asciiToInt(&p, &minute, p, p + 2) || minute > 59) {
+        if (0 != u::asciiToInt(&p, &minute, p, p + 2) || minute > 59) {
             return -1;                                                // RETURN
         }
     }
@@ -254,7 +444,6 @@ int parseTimezoneOffset(const char **nextPos,
     return 0;
 }
 
-static
 int parseTime(const char **nextPos,
               Time        *time,
               int         *tzOffset,
@@ -291,17 +480,19 @@ int parseTime(const char **nextPos,
     }
 
     int hour;
-    if (0 != asciiToInt(&p, &hour, p, p + 2) || ':' != *p) {
+    if (0 != u::asciiToInt(&p, &hour, p, p + 2) || ':' != *p) {
         return -1;                                                    // RETURN
     }
+
     // "24:00" is not a valid FIX time string according to the protocol.
+
     if (24 <= hour) {
         return -1;                                                    // RETURN
     }
     ++p;  // skip ':'
 
     int minute;
-    if (0 != asciiToInt(&p, &minute, p, p + 2)) {
+    if (0 != u::asciiToInt(&p, &minute, p, p + 2)) {
         return -1;                                                    // RETURN
     }
 
@@ -315,7 +506,7 @@ int parseTime(const char **nextPos,
 
         ++p;  // skip ':'
 
-        if (end - p < 2 || 0 != asciiToInt(&p, &second, p, p + 2)) {
+        if (end - p < 2 || 0 != u::asciiToInt(&p, &second, p, p + 2)) {
             return -1;                                                // RETURN
         }
 
@@ -324,7 +515,7 @@ int parseTime(const char **nextPos,
 
             ++p;  // skip '.'
 
-            if (0 != parseFractionalSecond(&p, &microsecond, p, end)) {
+            if (0 != u::parseFractionalSecond(&p, &microsecond, p, end)) {
                 return -1;                                            // RETURN
             }
             millisecond = microsecond / 1000;
@@ -344,7 +535,8 @@ int parseTime(const char **nextPos,
 
     int localTzOffset = 0;
     if (p != end) {
-        if (0 != parseTimezoneOffset(&p, &localTzOffset, p, end) || p != end) {
+        if (0 != u::parseTimezoneOffset(&p, &localTzOffset, p, end) ||
+                                                                    p != end) {
             return -1;                                                // RETURN
         }
     }
@@ -374,7 +566,6 @@ int parseTime(const char **nextPos,
     return 0;
 }
 
-static
 int generateInt(char *buffer, int value, int paddedLen)
     // Write, to the specified 'buffer', the decimal string representation of
     // the specified 'value' padded with leading zeros to the specified
@@ -399,7 +590,7 @@ int generateInt(char *buffer, int value, int paddedLen)
     return paddedLen;
 }
 
-static inline
+inline
 int generateInt(char *buffer, int value, int paddedLen, char separator)
     // Write, to the specified 'buffer', the decimal string representation of
     // the specified 'value' padded with leading zeros to the specified
@@ -414,13 +605,12 @@ int generateInt(char *buffer, int value, int paddedLen, char separator)
     BSLS_ASSERT(0 <= value);
     BSLS_ASSERT(0 <= paddedLen);
 
-    buffer += generateInt(buffer, value, paddedLen);
+    buffer += u::generateInt(buffer, value, paddedLen);
     *buffer = separator;
 
     return paddedLen + 1;
 }
 
-static
 int generateTimezoneOffset(char                        *buffer,
                            int                          tzOffset,
                            const FixUtilConfiguration&  configuration)
@@ -451,15 +641,14 @@ int generateTimezoneOffset(char                        *buffer,
 
         *p++ = tzSign;
 
-        p += generateInt(p, tzOffset / 60, 2, ':');
-        p += generateInt(p, tzOffset % 60, 2);
+        p += u::generateInt(p, tzOffset / 60, 2, ':');
+        p += u::generateInt(p, tzOffset % 60, 2);
     }
 
     return static_cast<int>(p - buffer);
 }
 
 #if defined(BSLS_ASSERT_SAFE_IS_USED)
-static
 int generatedLengthForDateTzObject(int                         defaultLength,
                                    int                         tzOffset,
                                    const FixUtilConfiguration& configuration)
@@ -483,7 +672,6 @@ int generatedLengthForDateTzObject(int                         defaultLength,
     return defaultLength;
 }
 
-static
 int generatedLengthForDatetimeObject(int                         defaultLength,
                                      const FixUtilConfiguration& configuration)
     // Return the number of bytes generated, when the specified 'configuration'
@@ -498,7 +686,6 @@ int generatedLengthForDatetimeObject(int                         defaultLength,
          - (0 == configuration.fractionalSecondPrecision() ? 1 : 0);
 }
 
-static
 int generatedLengthForDatetimeTzObject(
                                      int                         defaultLength,
                                      int                         tzOffset,
@@ -527,7 +714,6 @@ int generatedLengthForDatetimeTzObject(
     return defaultLength;
 }
 
-static
 int generatedLengthForTimeObject(int                         defaultLength,
                                  const FixUtilConfiguration& configuration)
     // Return the number of bytes generated, when the specified 'configuration'
@@ -542,7 +728,6 @@ int generatedLengthForTimeObject(int                         defaultLength,
     return defaultLength - (6 - precision) - (0 == precision ? 1 : 0);
 }
 
-static
 int generatedLengthForTimeTzObject(int                         defaultLength,
                                    int                         tzOffset,
                                    const FixUtilConfiguration& configuration)
@@ -567,7 +752,6 @@ int generatedLengthForTimeTzObject(int                         defaultLength,
 }
 #endif
 
-static
 void copyBuf(char *dst, int dstLen, const char *src, int srcLen)
     // Copy, to the specified 'dst' buffer having the specified 'dstLen', the
     // specified initial 'srcLen' characters in the specified 'src' string if
@@ -589,7 +773,11 @@ void copyBuf(char *dst, int dstLen, const char *src, int srcLen)
     }
 }
 
+}  // close namespace u
 }  // close unnamed namespace
+
+namespace BloombergLP {
+namespace bdlt {
 
                               // --------------
                               // struct FixUtil
@@ -649,8 +837,8 @@ int FixUtil::generate(char                        *buffer,
         buffer[outLen] = '\0';
     }
 
-    BSLS_ASSERT_SAFE(outLen == generatedLengthForTimeObject(k_TIME_STRLEN,
-                                                            configuration));
+    BSLS_ASSERT_SAFE(outLen == u::generatedLengthForTimeObject(k_TIME_STRLEN,
+                                                               configuration));
 
     return outLen;
 }
@@ -680,7 +868,7 @@ int FixUtil::generate(char                        *buffer,
         buffer[outLen] = '\0';
     }
 
-    BSLS_ASSERT_SAFE(outLen == generatedLengthForDatetimeObject(
+    BSLS_ASSERT_SAFE(outLen == u::generatedLengthForDatetimeObject(
                                                              k_DATETIME_STRLEN,
                                                              configuration));
 
@@ -709,12 +897,13 @@ int FixUtil::generate(char                        *buffer,
         outLen = generateRaw(outBuf, object, configuration);
         BSLS_ASSERT(outLen <= k_DATETZ_STRLEN);
 
-        copyBuf(buffer, bufferLength, outBuf, outLen);
+        u::copyBuf(buffer, bufferLength, outBuf, outLen);
     }
 
-    BSLS_ASSERT_SAFE(outLen == generatedLengthForDateTzObject(k_DATETZ_STRLEN,
-                                                              object.offset(),
-                                                              configuration));
+    BSLS_ASSERT_SAFE(outLen ==
+                             u::generatedLengthForDateTzObject(k_DATETZ_STRLEN,
+                                                               object.offset(),
+                                                               configuration));
 
     return outLen;
 }
@@ -741,16 +930,17 @@ int FixUtil::generate(char                        *buffer,
 
         BSLS_ASSERT(outLen <= k_TIMETZ_STRLEN);
 
-        copyBuf(buffer, bufferLength, outBuf, outLen);
+        u::copyBuf(buffer, bufferLength, outBuf, outLen);
     }
 
     if (bufferLength > outLen) {
         buffer[outLen] = '\0';
     }
 
-    BSLS_ASSERT_SAFE(outLen == generatedLengthForTimeTzObject(k_TIMETZ_STRLEN,
-                                                              object.offset(),
-                                                              configuration));
+    BSLS_ASSERT_SAFE(outLen ==
+                             u::generatedLengthForTimeTzObject(k_TIMETZ_STRLEN,
+                                                               object.offset(),
+                                                               configuration));
 
     return outLen;
 }
@@ -777,7 +967,7 @@ int FixUtil::generate(char                        *buffer,
 
         BSLS_ASSERT(outLen <= k_DATETIMETZ_STRLEN);
 
-        copyBuf(buffer, bufferLength, outBuf, outLen);
+        u::copyBuf(buffer, bufferLength, outBuf, outLen);
     }
 
     if (bufferLength > outLen) {
@@ -785,125 +975,24 @@ int FixUtil::generate(char                        *buffer,
     }
 
     BSLS_ASSERT_SAFE(outLen ==
-                        generatedLengthForDatetimeTzObject(k_DATETIMETZ_STRLEN,
+                     u::generatedLengthForDatetimeTzObject(k_DATETIMETZ_STRLEN,
                                                            object.offset(),
                                                            configuration));
 
     return outLen;
 }
 
-int FixUtil::generate(bsl::string                 *string,
-                      const Date&                  object,
-                      const FixUtilConfiguration&  configuration)
-{
-    BSLS_ASSERT(string);
-
-    string->resize(k_DATE_STRLEN);
-
-    const int len = generateRaw(&string->front(), object, configuration);
-    BSLS_ASSERT(k_DATE_STRLEN >= len);
-
-    string->resize(len);
-
-    return len;
-}
-
-int FixUtil::generate(bsl::string                 *string,
-                      const Time&                  object,
-                      const FixUtilConfiguration&  configuration)
-{
-    BSLS_ASSERT(string);
-
-    string->resize(k_TIME_STRLEN);
-
-    const int len = generateRaw(&string->front(), object, configuration);
-
-    BSLS_ASSERT(k_TIME_STRLEN >= len);
-
-    string->resize(len);
-
-    return len;
-}
-
-int FixUtil::generate(bsl::string                 *string,
-                      const Datetime&              object,
-                      const FixUtilConfiguration&  configuration)
-{
-    BSLS_ASSERT(string);
-
-    string->resize(k_DATETIME_STRLEN);
-
-    const int len = generateRaw(&string->front(), object, configuration);
-
-    BSLS_ASSERT(k_DATETIME_STRLEN >= len);
-
-    string->resize(len);
-
-    return len;
-}
-
-int FixUtil::generate(bsl::string                 *string,
-                      const DateTz&                object,
-                      const FixUtilConfiguration&  configuration)
-{
-    BSLS_ASSERT(string);
-
-    string->resize(k_DATETZ_STRLEN);
-
-    const int len = generateRaw(&string->front(), object, configuration);
-
-    BSLS_ASSERT(k_DATETZ_STRLEN >= len);
-
-    string->resize(len);
-
-    return len;
-}
-
-int FixUtil::generate(bsl::string                 *string,
-                      const TimeTz&                object,
-                      const FixUtilConfiguration&  configuration)
-{
-    BSLS_ASSERT(string);
-
-    string->resize(k_TIMETZ_STRLEN);
-
-    const int len = generateRaw(&string->front(), object, configuration);
-
-    BSLS_ASSERT(k_TIMETZ_STRLEN >= len);
-
-    string->resize(len);
-
-    return len;
-}
-
-int FixUtil::generate(bsl::string                 *string,
-                      const DatetimeTz&            object,
-                      const FixUtilConfiguration&  configuration)
-{
-    BSLS_ASSERT(string);
-
-    string->resize(k_DATETIMETZ_STRLEN);
-
-    const int len = generateRaw(&string->front(), object, configuration);
-
-    BSLS_ASSERT(k_DATETIMETZ_STRLEN >= len);
-
-    string->resize(len);
-
-    return len;
-}
-
 int FixUtil::generateRaw(char                        *buffer,
                          const Date&                  object,
-                         const FixUtilConfiguration&  /* configuration */)
+                         const FixUtilConfiguration&  )
 {
     BSLS_ASSERT(buffer);
 
     char *p = buffer;
 
-    p += generateInt(p, object.year() , 4);
-    p += generateInt(p, object.month(), 2);
-    p += generateInt(p, object.day()  , 2);
+    p += u::generateInt(p, object.year() , 4);
+    p += u::generateInt(p, object.month(), 2);
+    p += u::generateInt(p, object.day()  , 2);
 
     return static_cast<int>(p - buffer);
 }
@@ -916,13 +1005,13 @@ int FixUtil::generateRaw(char                        *buffer,
 
     char *p = buffer;
 
-    p += generateInt(p, 24 > object.hour() ? object.hour() : 0, 2, ':');
-    p += generateInt(p, object.minute(), 2, ':');
+    p += u::generateInt(p, 24 > object.hour() ? object.hour() : 0, 2, ':');
+    p += u::generateInt(p, object.minute(), 2, ':');
 
     int precision = configuration.fractionalSecondPrecision();
 
     if (precision) {
-        p += generateInt(p, object.second(), 2, '.');
+        p += u::generateInt(p, object.second(), 2, '.');
 
         int value = object.millisecond() * 1000 + object.microsecond();
 
@@ -930,10 +1019,10 @@ int FixUtil::generateRaw(char                        *buffer,
             value /= 10;
         }
 
-        p += generateInt(p, value, precision);
+        p += u::generateInt(p, value, precision);
     }
     else {
-        p += generateInt(p, object.second(), 2);
+        p += u::generateInt(p, object.second(), 2);
     }
 
     return static_cast<int>(p - buffer);
@@ -950,13 +1039,13 @@ int FixUtil::generateRaw(char                        *buffer,
 
     char *p = buffer + dateLen + 1;
 
-    p += generateInt(p, 24 > object.hour() ? object.hour() : 0, 2, ':');
-    p += generateInt(p, object.minute(), 2, ':');
+    p += u::generateInt(p, 24 > object.hour() ? object.hour() : 0, 2, ':');
+    p += u::generateInt(p, object.minute(), 2, ':');
 
     int precision = configuration.fractionalSecondPrecision();
 
     if (precision) {
-        p += generateInt(p, object.second(), 2, '.');
+        p += u::generateInt(p, object.second(), 2, '.');
 
         int value = object.millisecond() * 1000 + object.microsecond();
 
@@ -964,10 +1053,10 @@ int FixUtil::generateRaw(char                        *buffer,
             value /= 10;
         }
 
-        p += generateInt(p, value, precision);
+        p += u::generateInt(p, value, precision);
     }
     else {
-        p += generateInt(p, object.second(), 2);
+        p += u::generateInt(p, object.second(), 2);
     }
 
     return static_cast<int>(p - buffer);
@@ -983,9 +1072,9 @@ int FixUtil::generateRaw(char                        *buffer,
                                     object.localDate(),
                                     configuration);
 
-    const int zoneLen = generateTimezoneOffset(buffer + dateLen,
-                                               object.offset(),
-                                               configuration);
+    const int zoneLen = u::generateTimezoneOffset(buffer + dateLen,
+                                                  object.offset(),
+                                                  configuration);
 
     return dateLen + zoneLen;
 }
@@ -1000,15 +1089,15 @@ int FixUtil::generateRaw(char                        *buffer,
 
     char *p = buffer;
 
-    p += generateInt(p, 24 > time.hour() ? time.hour() : 0, 2, ':');
-    p += generateInt(p, time.minute(), 2, ':');
-    p += generateInt(p, time.second(), 2);
+    p += u::generateInt(p, 24 > time.hour() ? time.hour() : 0, 2, ':');
+    p += u::generateInt(p, time.minute(), 2, ':');
+    p += u::generateInt(p, time.second(), 2);
 
     const int timeLen = static_cast<int>(p - buffer);
 
-    const int zoneLen = generateTimezoneOffset(buffer + timeLen,
-                                               object.offset(),
-                                               configuration);
+    const int zoneLen = u::generateTimezoneOffset(buffer + timeLen,
+                                                  object.offset(),
+                                                  configuration);
 
     return timeLen + zoneLen;
 }
@@ -1023,12 +1112,176 @@ int FixUtil::generateRaw(char                        *buffer,
                                         object.localDatetime(),
                                         configuration);
 
-    const int zoneLen     = generateTimezoneOffset(buffer + datetimeLen,
-                                                   object.offset(),
-                                                   configuration);
+    const int zoneLen     = u::generateTimezoneOffset(buffer + datetimeLen,
+                                                      object.offset(),
+                                                      configuration);
 
     return datetimeLen + zoneLen;
 }
+
+int FixUtil::generate(bsl::string                 *string,
+                      const Date&                  object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(bsl::string                 *string,
+                      const Time&                  object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(bsl::string                 *string,
+                      const Datetime&              object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(bsl::string                 *string,
+                      const DateTz&                object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(bsl::string                 *string,
+                      const TimeTz&                object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(bsl::string                 *string,
+                      const DatetimeTz&            object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(std::string                 *string,
+                      const Date&                  object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(std::string                 *string,
+                      const Time&                  object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(std::string                 *string,
+                      const Datetime&              object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(std::string                 *string,
+                      const DateTz&                object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(std::string                 *string,
+                      const TimeTz&                object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(std::string                 *string,
+                      const DatetimeTz&            object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+int FixUtil::generate(std::pmr::string            *string,
+                      const Date&                  object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(std::pmr::string            *string,
+                      const Time&                  object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(std::pmr::string            *string,
+                      const Datetime&              object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(std::pmr::string            *string,
+                      const DateTz&                object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(std::pmr::string            *string,
+                      const TimeTz&                object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+
+int FixUtil::generate(std::pmr::string            *string,
+                      const DatetimeTz&            object,
+                      const FixUtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    return u::Impl::generate(string, object, configuration);
+}
+#endif
 
 int FixUtil::parse(Date *result, const char *string, int length)
 {
@@ -1050,14 +1303,14 @@ int FixUtil::parse(Date *result, const char *string, int length)
     const char *end = string + length;
 
     Date date;
-    if (0 != parseDate(&p, &date, p, end)) {
+    if (0 != u::parseDate(&p, &date, p, end)) {
         return -1;                                                    // RETURN
     }
 
     if (p != end) {
         int tzOffset;
 
-        if (0 != parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
+        if (0 != u::parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
     }
@@ -1089,7 +1342,7 @@ int FixUtil::parse(Time *result, const char *string, int length)
     Time localTime;
     int tzOffset;
     bool isNextDay;
-    if (0 != parseTime(&p, &localTime, &tzOffset, &isNextDay, p, end)) {
+    if (0 != u::parseTime(&p, &localTime, &tzOffset, &isNextDay, p, end)) {
         return -1;                                                    // RETURN
     }
 
@@ -1168,13 +1421,13 @@ int FixUtil::parse(DateTz *result, const char *string, int length)
     const char *end = string + length;
 
     Date date;
-    if (0 != parseDate(&p, &date, p, end)) {
+    if (0 != u::parseDate(&p, &date, p, end)) {
         return -1;                                                    // RETURN
     }
 
     int tzOffset = 0;  // minutes from UTC
     if (p != end) {
-        if (0 != parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
+        if (0 != u::parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
     }
@@ -1206,7 +1459,7 @@ int FixUtil::parse(TimeTz *result, const char *string, int length)
     Time localTime;
     int tzOffset;
     bool isNextDay;
-    if (0 != parseTime(&p, &localTime, &tzOffset, &isNextDay, p, end)) {
+    if (0 != u::parseTime(&p, &localTime, &tzOffset, &isNextDay, p, end)) {
         return -1;                                                    // RETURN
     }
 
@@ -1235,7 +1488,7 @@ int FixUtil::parse(DatetimeTz *result, const char *string, int length)
     const char *end = string + length;
 
     Date date;
-    if (0 != parseDate(&p, &date, p, end) || p == end || '-' != *p) {
+    if (0 != u::parseDate(&p, &date, p, end) || p == end || '-' != *p) {
         return -1;                                                    // RETURN
     }
     ++p;  // skip '-'
@@ -1243,7 +1496,7 @@ int FixUtil::parse(DatetimeTz *result, const char *string, int length)
     Time time;
     int tzOffset;
     bool isNextDay;
-    if (0 != parseTime(&p, &time, &tzOffset, &isNextDay, p, end)) {
+    if (0 != u::parseTime(&p, &time, &tzOffset, &isNextDay, p, end)) {
         return -1;                                                    // RETURN
     }
 
