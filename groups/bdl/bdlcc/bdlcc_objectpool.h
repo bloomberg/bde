@@ -888,7 +888,8 @@ class ObjectPool : public bdlma::Factory<TYPE> {
         // then this method should be invoked to return only *valid* objects
         // because the pool uses the released objects to satisfy further
         // 'getObject' requests.  The behavior is undefined unless the 'object'
-        // was obtained from this object pool's 'getObject' method.
+        // was obtained from this object pool's 'getObject' method and is not
+        // already in a released state.
 
     void reserveCapacity(int numObjects);
         // Create enough objects to satisfy requests for at least the specified
@@ -914,8 +915,9 @@ class ObjectPool : public bdlma::Factory<TYPE> {
     virtual void deleteObject(TYPE *object);
         // This concrete implementation of 'bdlma::Factory::deleteObject'
         // invokes 'releaseObject' on the specified 'object', returning it to
-        // this pool.  Note that this does *not* destroy the object and should
-        // not be invoked directly.
+        // this pool.  The behavior is undefined if 'object' is already in a
+        // released state.  Note that this does *not* destroy the object and
+        // should not be invoked directly.
 };
 
 // ============================================================================
