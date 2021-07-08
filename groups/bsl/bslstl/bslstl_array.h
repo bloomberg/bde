@@ -168,6 +168,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_stdexceptutil.h>
 
 #include <bslalg_rangecompare.h>
+#include <bslalg_hasstliterators.h>
 
 #include <bslh_hash.h>
 
@@ -855,6 +856,23 @@ const TYPE&& bsl::get(const array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT
     return BloombergLP::bslmf::MovableRefUtil::move(a.d_data[INDEX]);
 }
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+namespace BloombergLP {
+
+namespace bslalg {
+
+template <class TYPE, size_t SIZE>
+struct HasStlIterators<bsl::array<TYPE, SIZE> >
+    : bsl::true_type
+{};
+
+}  // close namespace bslalg
+
+}  // close enterprise namespace
 
 #endif
 

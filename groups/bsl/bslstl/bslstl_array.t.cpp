@@ -68,6 +68,8 @@ using namespace bslstl;
 //: o The 'VALUE_TYPE' of the array is assignable, default constructable, and
 //:   supports operator==.
 // ----------------------------------------------------------------------------
+// TRAITS:
+// [24] bslalg::HasStlIterators
 //
 // CREATORS
 // [ 2] array<TYPE, SIZE>();
@@ -124,7 +126,7 @@ using namespace bslstl;
 // [22] void hashAppend(HASH_ALGORITHM&, const bsl::array<TYPE, SIZE>&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [24] USAGE EXAMPLE
+// [25] USAGE EXAMPLE
 // [23] CONCERN: 'constexpr' FUNCTIONS ARE USABLE IN CONSTANT EVALUATION
 
 // TEST APPARATUS: GENERATOR FUNCTIONS
@@ -2062,6 +2064,9 @@ struct TestDriver {
     typedef bsltf::TestValuesArray<TYPE>         TestValues;
     typedef bsltf::TemplateTestFacility          TestFacility;
 
+    static void testCase24();
+        // Test type traits.
+
     static void testCase22();
         // Test 'hashAppend'.
 
@@ -2131,6 +2136,9 @@ struct TestDriver {
 
 template<class TYPE>
 struct TestDriverWrapper{
+
+    static void testCase24();
+        // Test type traits.
 
     static void testCase22();
         // Test 'hashAppend'.
@@ -2202,6 +2210,43 @@ struct TestDriverWrapper{
                                 // ----------
                                 // Test Cases
                                 // ----------
+template<class TYPE>
+void TestDriverWrapper<TYPE>::testCase24()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+
+    TestDriver<TYPE, 0>::testCase24();
+    TestDriver<TYPE, 1>::testCase24();
+    TestDriver<TYPE, 2>::testCase24();
+    TestDriver<TYPE, 3>::testCase24();
+    TestDriver<TYPE, 4>::testCase24();
+    TestDriver<TYPE, 5>::testCase24();
+}
+
+template <class TYPE, size_t SIZE>
+void TestDriver<TYPE, SIZE>::testCase24()
+{
+    // ------------------------------------------------------------------------
+    // TESTING TYPE TRAITS
+    //
+    // Concerns:
+    //: 1 That the array has the 'bslalg::HasStlIterators' trait.
+    //
+    // Plan:
+    //: 1 Test each of the above traits and compare their values to the
+    //:   expected values.
+    //
+    // Testing:
+    //   bslalg::HasStlIterators
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("TESTING TYPE TRAITS\n"
+                        "===================\n");
+
+    BSLMF_ASSERT(bslalg::HasStlIterators<Obj>::value);
+}
 
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase22()
@@ -4383,7 +4428,7 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: -TP33  // Comment should contain a 'Plan:' section
 
     switch (test) { case 0:
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4404,6 +4449,18 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
         UsageExample::usageExample();
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // TESTING TYPE TRAITS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING TYPE TRAITS"
+                            "\n===================\n");
+
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
+                      testCase24,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 23: {
         // --------------------------------------------------------------------

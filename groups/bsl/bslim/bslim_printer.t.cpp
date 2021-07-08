@@ -10,6 +10,7 @@
 #include <bsltf_streamutil.h>
 #include <bsltf_templatetestfacility.h>
 
+#include <bsl_array.h>
 #include <bsl_cctype.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
@@ -1913,6 +1914,118 @@ int main(int argc, char *argv[])
 
             out.str("");
             p.printValue(V.begin(), V.end());
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+        }
+
+        if (veryVerbose) { printf("array<int>\n"); }
+        {
+            bsl::array<int, NUM_DATA>        a;
+            const bsl::array<int, NUM_DATA>& A = a;
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                a[i] = uniqKeys[i];
+            }
+
+            bsl::ostringstream out;
+            bslim::Printer     p(&out, 2, 2);
+            p.printAttribute("array", A);
+
+            const char *EXP = "      array = [\n"
+                              "        -3\n"
+                              "        2\n"
+                              "        7\n"
+                              "        5\n"
+                              "        9\n"
+                              "        3\n"
+                              "        22\n"
+                              "        1\n"
+                              "      ]\n";
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+
+            out.str("");
+            p.printAttribute("array", A.begin(), A.end());
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+        }
+        {
+            bsl::array<int, NUM_DATA>        a;
+            const bsl::array<int, NUM_DATA>& A = a;
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                a[i] = uniqKeys[i];
+            }
+
+            bsl::ostringstream out;
+            bslim::Printer     p(&out, 2, 2);
+            p.printValue(A);
+
+            const char *EXP = "      [\n"
+                              "        -3\n"
+                              "        2\n"
+                              "        7\n"
+                              "        5\n"
+                              "        9\n"
+                              "        3\n"
+                              "        22\n"
+                              "        1\n"
+                              "      ]\n";
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+
+            out.str("");
+            p.printValue(A.begin(), A.end());
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+        }
+
+        if (veryVerbose) { printf("array<char>\n"); }
+        {
+            bsl::array<char, NUM_DATA>        a;
+            const bsl::array<char, NUM_DATA>& A = a;
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                a[i] = uniqKeys[i];
+            }
+
+            bsl::ostringstream out;
+            bslim::Printer     p(&out, 2, 2);
+            p.printAttribute("array", A);
+
+            const char *EXP = "      array = [\n"
+                              "        0xfd\n"
+                              "        0x2\n"
+                              "        0x7\n"
+                              "        0x5\n"
+                              "        '\\t'\n"
+                              "        0x3\n"
+                              "        0x16\n"
+                              "        0x1\n"
+                              "      ]\n";
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+
+            out.str("");
+            p.printAttribute("array", A.begin(), A.end());
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+        }
+        {
+            bsl::array<char, NUM_DATA>        a;
+            const bsl::array<char, NUM_DATA>& A = a;
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                a[i] = uniqKeys[i];
+            }
+
+            bsl::ostringstream out;
+            bslim::Printer     p(&out, 2, 2);
+            p.printValue(A);
+
+            const char *EXP = "      [\n"
+                              "        0xfd\n"
+                              "        0x2\n"
+                              "        0x7\n"
+                              "        0x5\n"
+                              "        '\\t'\n"
+                              "        0x3\n"
+                              "        0x16\n"
+                              "        0x1\n"
+                              "      ]\n";
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+
+            out.str("");
+            p.printValue(A.begin(), A.end());
             LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
         }
 
