@@ -1704,7 +1704,7 @@ int utf8ToUtf16Impl(CONTAINER                           *dstContainer,
 {
     typedef typename CONTAINER::value_type ValueType;
 
-    Utf8::PtrBasedEnd endFunctor(srcString.end());
+    Utf8::PtrBasedEnd endFunctor(srcString.data() + srcString.length());
 
     bsl::size_t estLength = utf16BufferLength(srcString.data(),
                                               endFunctor);
@@ -1869,7 +1869,8 @@ int utf16ToUtf8Impl(CONTAINER                           *dstContainer,
                     char                                 errorByte,
                     BloombergLP::bdlde::ByteOrder::Enum  byteOrder)
 {
-    Utf16::PtrBasedEnd<wchar_t> endFunctor(srcString.end());
+    Utf16::PtrBasedEnd<wchar_t> endFunctor(
+                                        srcString.data() + srcString.length());
 
     return BloombergLP::bdlde::ByteOrder::e_HOST == byteOrder
                ? localUtf16ToUtf8Container(dstContainer,
@@ -2118,7 +2119,7 @@ int CharConvertUtf16::utf8ToUtf16(
                                  unsigned short           errorWord,
                                  ByteOrder::Enum          byteOrder)
 {
-    Utf8::PtrBasedEnd endFunctor(srcString.end());
+    Utf8::PtrBasedEnd endFunctor(srcString.data() + srcString.length());
 
     return ByteOrder::e_HOST == byteOrder
            ? localUtf8ToUtf16(dstBuffer,
@@ -2177,7 +2178,7 @@ int CharConvertUtf16::utf8ToUtf16(
                                  wchar_t                  errorWord,
                                  ByteOrder::Enum          byteOrder)
 {
-    Utf8::PtrBasedEnd endFunctor(srcString.end());
+    Utf8::PtrBasedEnd endFunctor(srcString.data() + srcString.length());
 
     return ByteOrder::e_HOST == byteOrder
            ? localUtf8ToUtf16(dstBuffer,
@@ -2643,7 +2644,8 @@ int CharConvertUtf16::utf16ToUtf8(
                                 char                      errorByte,
                                 ByteOrder::Enum           byteOrder)
 {
-    Utf16::PtrBasedEnd<wchar_t> endFunctor(srcString.end());
+    Utf16::PtrBasedEnd<wchar_t> endFunctor(
+                                        srcString.data() + srcString.length());
 
     return ByteOrder::e_HOST == byteOrder
            ? localUtf16ToUtf8(dstBuffer,

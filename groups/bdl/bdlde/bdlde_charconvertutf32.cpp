@@ -1546,9 +1546,9 @@ int utf8ToUtf32Impl(VECTOR                              *dstVector,
     typedef Utf8ToUtf32Translator<NoopCapacity,
                                   Utf8PtrBasedEnd,
                                   NoopSwapper> NoSwapTranslator;
-    Utf8PtrBasedEnd endFunctor(srcString.end());
+    Utf8PtrBasedEnd endFunctor(srcString.data() + srcString.length());
 
-    bsl::size_t bufferLen = utf32BufferLengthNeeded(srcString.begin(),
+    bsl::size_t bufferLen = utf32BufferLengthNeeded(srcString.data(),
                                                     endFunctor);
     BSLS_ASSERT(bufferLen > 0);
     dstVector->resize(bufferLen);
@@ -1559,13 +1559,13 @@ int utf8ToUtf32Impl(VECTOR                              *dstVector,
               ? NoSwapTranslator::translate(&dstVector->front(),
                                             0,
                                             endFunctor,
-                                            srcString.begin(),
+                                            srcString.data(),
                                             &numWordsWritten,
                                             errorWord)
               : SwapTranslator::translate(&dstVector->front(),
                                           0,
                                           endFunctor,
-                                          srcString.begin(),
+                                          srcString.data(),
                                           &numWordsWritten,
                                           errorWord);
 
@@ -1914,7 +1914,7 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
                                   ByteOrder::Enum            byteOrder)
 {
     BSLS_ASSERT(dstVector);
-    BSLS_ASSERT(srcString.begin());
+    BSLS_ASSERT(srcString.data());
     BSLS_ASSERT(isLegalUtf32ErrorWord(errorWord));
 
     return utf8ToUtf32Impl(dstVector, srcString, errorWord, byteOrder);
@@ -1926,7 +1926,7 @@ int CharConvertUtf32::utf8ToUtf32(std::vector<unsigned int> *dstVector,
                                   ByteOrder::Enum            byteOrder)
 {
     BSLS_ASSERT(dstVector);
-    BSLS_ASSERT(srcString.begin());
+    BSLS_ASSERT(srcString.data());
     BSLS_ASSERT(isLegalUtf32ErrorWord(errorWord));
 
     return utf8ToUtf32Impl(dstVector, srcString, errorWord, byteOrder);
@@ -1939,7 +1939,7 @@ int CharConvertUtf32::utf8ToUtf32(std::pmr::vector<unsigned int> *dstVector,
                                   ByteOrder::Enum                 byteOrder)
 {
     BSLS_ASSERT(dstVector);
-    BSLS_ASSERT(srcString.begin());
+    BSLS_ASSERT(srcString.data());
     BSLS_ASSERT(isLegalUtf32ErrorWord(errorWord));
 
     return utf8ToUtf32Impl(dstVector, srcString, errorWord, byteOrder);
@@ -1999,7 +1999,7 @@ int CharConvertUtf32::utf8ToUtf32(
                                  ByteOrder::Enum          byteOrder)
 {
     BSLS_ASSERT(dstBuffer);
-    BSLS_ASSERT(srcString.begin());
+    BSLS_ASSERT(srcString.data());
     BSLS_ASSERT(isLegalUtf32ErrorWord(errorWord));
 
     typedef Utf8ToUtf32Translator<Capacity,
@@ -2008,7 +2008,7 @@ int CharConvertUtf32::utf8ToUtf32(
     typedef Utf8ToUtf32Translator<Capacity,
                                   Utf8PtrBasedEnd,
                                   NoopSwapper> NoSwapTranslator;
-    Utf8PtrBasedEnd endFunctor(srcString.end());
+    Utf8PtrBasedEnd endFunctor(srcString.data() + srcString.length());
 
     bsl::size_t localNumCodePointsWritten;
     if (0 == numCodePointsWritten) {
@@ -2023,13 +2023,13 @@ int CharConvertUtf32::utf8ToUtf32(
            ? NoSwapTranslator::translate(dstBuffer,
                                          dstCapacity,
                                          endFunctor,
-                                         srcString.begin(),
+                                         srcString.data(),
                                          numCodePointsWritten,
                                          errorWord)
            : SwapTranslator::translate(dstBuffer,
                                        dstCapacity,
                                        endFunctor,
-                                       srcString.begin(),
+                                       srcString.data(),
                                        numCodePointsWritten,
                                        errorWord);
 }
