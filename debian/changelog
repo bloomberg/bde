@@ -1,5 +1,32 @@
-bsl-internal (3.84.0.0) unstable; urgency=low
+bsl-internal (3.85.0.0) unstable; urgency=low
 
+  * 6400527d3 Bumped version to 3.85.0.0
+  * 66a11f2a0 Revert "'bdldfp' package has been updated in accordance with bde 4.0 (#3300)" (#3326)
+  * 6ed246583 Add C++11 move constructor/assignment to managed ptr 166101527 (#3240)
+  * ec5e7ff16 'HasStlIterators' trait has been added for 'bsl::array' (#3316)
+  * a5aa43c26 bdlcc::ObjectPool::{release,delete}Object: doc undefined if already released (#3324)
+  * 55a9c062b bdlt - bde 4.0 (#3305)
+  * 9dbf0a7b3 bde 4.0 bdlde drqs 165468367 (#3262)
+  * 3eb68fe49 balxml: bde-4.0 (#3261)
+  * a8a380413 'bdldfp' package has been updated in accordance with bde 4.0 (#3300)
+  * 7cad48d37 bslstl_iterator: add 'size', 'ssize' free functions (#3250)
+  * 3e90d4527 balxml_configschema: Fix test failures (#3317)
+  * 30d2c39f4 'shared_mutex' has been added to 'bsl' namespace (#3302)
+  * 3d7afa56b Revert "Revert "Balxml decoder check utf 8 with bug 2 drqs 158940938 … (#3315)
+  * d9054e7a8 balxml_configschema: Test XSD for validity and correctness (#3292)
+  * 9ab3b91c6 bdlcc_skiplist: Fix Clang C++03 Build (#3304)
+  * acc887352 Disable usage example for AIX in bslmf_forwardingtype.t.cpp (#3313)
+  * e452b3bb2 Fuzz tests have been added for 'bdlde_utf8util' (#3246)
+  * 0bfa8c234 Drqs 166535994/bdlcc boundedqueue wait until empty (#3299)
+  * f5b053885 add 'arrive' (#3301)
+  * 748766706 Links have been updated in ball.txt file. (#3303)
+  * 4d2d8d311 Add chrono-style overloads to bdlmt::throttle (#3283)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 9 Jul 2021 13:34:55 -0400
+
+bsl-internal (3.84.0.0) git; urgency=low
+
+  * a801c3a54 Changelog for version 3.84.0.0
   * 3c399e7fd Bumped version to 3.84.0.0
   * 57598d5b2 Set BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED in clang if _GLIBCXX_USE_DEPRECATED is defined (#3296)
   * 30c73d95a Add bplpcre::RegEx::replace method (#3259)
@@ -16,7 +43,7 @@ bsl-internal (3.84.0.0) unstable; urgency=low
   * 04de15c52 Remove bsl_new non-standard exports for gcc and clang (#3266)
   * 4088cca3d Silence unused variable warnings in ball. (#3276)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Jun 2021 11:49:29 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Jun 2021 12:17:24 -0400
 
 bsl-internal (3.83.0.0) git; urgency=low
 
