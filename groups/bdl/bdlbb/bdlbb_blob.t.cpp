@@ -2015,7 +2015,7 @@ int main(int argc, char *argv[])
         // TESTING 'reolaceDataBuffer'
         //
         // Concerns:
-        //   - That replacing does not change neither the number of data
+        //   - That replacing does not change either the number of data
         //     buffers nor the number of blob buffers.
         //   - That replacing changing the length and capacity of a blob by the
         //     difference between the size of replaced buffer and the size of
@@ -2042,7 +2042,7 @@ int main(int argc, char *argv[])
         //   bdlbb::Blob::replaceDataBuffer(int index, bdlbb::BlobBuffer *buf);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'prependDataBuffer'" << endl;
+        if (verbose) cout << "\nTesting 'replaceDataBuffer'" << endl;
 
         for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
         for (int replacementBufferSize = 1; replacementBufferSize <= 5;
@@ -2061,30 +2061,31 @@ int main(int argc, char *argv[])
             bslma::TestAllocator& testAllocator = ta;
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
-                const int BUFFER_SIZE          = bufferSize;
+                const int BUFFER_SIZE             = bufferSize;
                 const int REPLACEMENT_BUFFER_SIZE = replacementBufferSize;
-                const int DATA_LENGTH          = dataLength;
-                const int NUM_BUFFERS          = numBuffers;
-                const int REPLACE_POS          = replacePos;
-                const int NUM_DATA_BUFFERS     = (dataLength + BUFFER_SIZE - 1)
-                                                 / BUFFER_SIZE;
-                const int LAST_DB_LENGTH       =
+                const int DATA_LENGTH             = dataLength;
+                const int NUM_BUFFERS             = numBuffers;
+                const int REPLACE_POS             = replacePos;
+                const int NUM_DATA_BUFFERS        = (dataLength
+                                                     + BUFFER_SIZE
+                                                     - 1) / BUFFER_SIZE;
+                const int LAST_DB_LENGTH          =
                     NUM_DATA_BUFFERS > 0
                     ? DATA_LENGTH - (NUM_DATA_BUFFERS - 1) * BUFFER_SIZE : 0;
-                const int REPLACED_BUFFER_SIZE =
+                const int REPLACED_BUFFER_SIZE    =
                     REPLACE_POS < NUM_DATA_BUFFERS - 1
                     ? BUFFER_SIZE : LAST_DB_LENGTH;
-                const int EXP_NUM_BUFFERS      = NUM_BUFFERS;
-                const int EXP_NUM_DATA_BUFFERS = NUM_DATA_BUFFERS;
-                const int EXP_LAST_DB_LENGTH   =
+                const int EXP_NUM_BUFFERS         = NUM_BUFFERS;
+                const int EXP_NUM_DATA_BUFFERS    = NUM_DATA_BUFFERS;
+                const int EXP_LAST_DB_LENGTH      =
                     REPLACE_POS < EXP_NUM_DATA_BUFFERS - 1
                     ? LAST_DB_LENGTH : REPLACEMENT_BUFFER_SIZE;
-                const int EXP_DATA_LENGTH      = DATA_LENGTH
-                                                 + REPLACEMENT_BUFFER_SIZE
-                                                 - REPLACED_BUFFER_SIZE;
-                const int EXP_TOTAL_SIZE       = BUFFER_SIZE *
-                                                 (EXP_NUM_BUFFERS - 1) +
-                                                 REPLACEMENT_BUFFER_SIZE;
+                const int EXP_DATA_LENGTH         = DATA_LENGTH
+                                                    + REPLACEMENT_BUFFER_SIZE
+                                                    - REPLACED_BUFFER_SIZE;
+                const int EXP_TOTAL_SIZE          = BUFFER_SIZE *
+                                                    (EXP_NUM_BUFFERS - 1)
+                                                    + REPLACEMENT_BUFFER_SIZE;
 
                 if (veryVerbose) {
                     T_; P_(BUFFER_SIZE); P_(REPLACEMENT_BUFFER_SIZE);
@@ -2108,7 +2109,7 @@ int main(int argc, char *argv[])
                 ifa.allocate(&buffer);
                 ASSERT(REPLACEMENT_BUFFER_SIZE == buffer.size());
 
-                mX.replaceDataBuffer(REPLACE_POS, &buffer); // TEST HERE
+                mX.replaceDataBuffer(REPLACE_POS, buffer); // TEST HERE
 
                 ASSERT(EXP_DATA_LENGTH      == X.length());
                 ASSERT(EXP_NUM_BUFFERS      == X.numBuffers());
@@ -2132,17 +2133,16 @@ int main(int argc, char *argv[])
 
             {
                 const ObjBuffer TINY_DUMMY(bsl::shared_ptr<char>(),       1);
-                ObjBuffer       HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX);
-                ObjBuffer       EMPTY;
+                const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX);
+                const ObjBuffer EMPTY;
                 Obj             mX;
 
                 ASSERT_PASS(mX.appendDataBuffer(TINY_DUMMY));
                 ASSERT_PASS(mX.appendDataBuffer(TINY_DUMMY));
                 mX.setLength(2);
-                ASSERT_FAIL(mX.replaceDataBuffer(0, &HUGE_DUMMY));
-                ASSERT_FAIL(mX.replaceDataBuffer(0, 0));
-                ASSERT_FAIL(mX.replaceDataBuffer(-1, &EMPTY));
-                ASSERT_FAIL(mX.replaceDataBuffer(mX.numDataBuffers(), &EMPTY));
+                ASSERT_FAIL(mX.replaceDataBuffer(0,  HUGE_DUMMY));
+                ASSERT_FAIL(mX.replaceDataBuffer(-1, EMPTY));
+                ASSERT_FAIL(mX.replaceDataBuffer(mX.numDataBuffers(), EMPTY));
             }
         }
       } break;

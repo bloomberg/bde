@@ -44,8 +44,8 @@ BSLS_IDENT("$Id: $")
 // The blob also updates its data length during certain operations (e.g.,
 // insertion/removal/replacement of buffers containing some data bytes), as
 // well as several attributes driven by the data length.  The first bytes
-// numbered by the data length belong to the data buffers.  Note that all data,
-// buffers except perhaps the last, contribute all their bytes to the
+// numbered by the data length belong to the data buffers.  Note that all data
+// buffers, except perhaps the last, contribute all their bytes to the
 // 'bdlbb::Blob' data.  The last data buffer contributes anywhere between one
 // and all of its bytes to the 'bdlbb::Blob' data.  The number of data buffers
 // (returned by the 'numDataBuffers' method), as well as the last data buffer
@@ -692,7 +692,8 @@ class Blob {
         // The length of this blob is unaffected.  The behavior is undefined
         // unless neither the total size of the resulting blob nor its total
         // number of buffers exceeds 'INT_MAX'.  Note that this operation is
-        // equivalent to 'insert(numBuffers(), buffer)', but is more efficient.
+        // equivalent to 'insertBuffer(numBuffers(), buffer)', but is more
+        // efficient.
 
     void appendDataBuffer(const BlobBuffer& buffer);
         // Append the specified 'buffer' after the last *data* buffer of this
@@ -704,7 +705,7 @@ class Blob {
         //..
         //  const int n = blob.length();
         //  blob.trimLastDataBuffer();
-        //  blob.insert(numDataBuffers(), buffer);
+        //  blob.insertBuffer(numDataBuffers(), buffer);
         //  blob.setLength(n + buffer.size());
         //..
         // but is more efficient.
@@ -730,7 +731,7 @@ class Blob {
         // exceeds 'INT_MAX'.  Note that this operation is equivalent to:
         //..
         //  const int n = blob.length();
-        //  blob.insert(0, buffer);
+        //  blob.insertBuffer(0, buffer);
         //  blob.setLength(n + buffer.size());
         //..
         // but is more efficient.
@@ -760,17 +761,17 @@ class Blob {
         // 'totalSize' will be 'length' plus any unused capacity in the last
         // buffer having data.
 
-    void replaceDataBuffer(int index, BlobBuffer* srcBuffer);
+    void replaceDataBuffer(int index, const BlobBuffer& buffer);
         // Replace the data buffer at the specified 'index' with the specified
-        // 'srcBuffer'.  The behavior is undefined unless
-        // '0 <= index <= numDataBuffers()' and the total size of the resulting
+        // 'buffer'.  The behavior is undefined unless
+        // '0 <= index < numDataBuffers()' and the total size of the resulting
         // blob does not exceed 'INT_MAX'.  Note that this operation is
         // equivalent to:
         //..
         //  blob.removeBuffer(index);
         //  const int n = blob.length();
-        //  blob.insert(index, *srcBuffer);
-        //  blob.setLength(n + srcBuffer->size());
+        //  blob.insertBuffer(index, buffer);
+        //  blob.setLength(n + buffer.size());
         //..
         // but is more efficient.
 

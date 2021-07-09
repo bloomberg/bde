@@ -633,25 +633,24 @@ void Blob::removeUnusedBuffers()
     }
 }
 
-void Blob::replaceDataBuffer(int index, BlobBuffer *srcBuffer)
+void Blob::replaceDataBuffer(int index, const BlobBuffer& buffer)
 {
     BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(index < numDataBuffers());
-    BSLS_ASSERT(srcBuffer);
-    BSLS_ASSERT(d_totalSize <= INT_MAX - srcBuffer->size());
+    BSLS_ASSERT(d_totalSize <= INT_MAX - buffer.size());
 
-    int sizeDiff = srcBuffer->size() - d_buffers[index].size();
+    int sizeDiff = buffer.size() - d_buffers[index].size();
 
     d_totalSize += sizeDiff;
     if (d_dataIndex == index) {
-        d_dataLength = d_preDataIndexLength + srcBuffer->size();
+        d_dataLength = d_preDataIndexLength + buffer.size();
     }
     else if (d_dataIndex > index) {
         d_preDataIndexLength += sizeDiff;
         d_dataLength += sizeDiff;
     }
 
-    d_buffers[index].swap(*srcBuffer);
+    d_buffers[index] = buffer;
 }
 
 void Blob::setLength(int length)
