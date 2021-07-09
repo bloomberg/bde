@@ -8,6 +8,8 @@ BSLS_IDENT_RCSID(bsls_timeinterval_cpp,"$Id$ $CSID$")
 #include <bsls_bsltestutil.h>  // for testing only
 #include <bsls_nameof.h>       // for testing only
 
+#include <stdio.h>             // snprintf()
+
 #include <ostream>
 
 // BDE_VERIFY pragma: push
@@ -132,8 +134,23 @@ std::ostream& TimeInterval::print(std::ostream& stream,
         }
     }
 
-    stream << '(' << d_seconds     << ", "
-                  << d_nanoseconds << ')';
+    enum { k_BUFFER_SIZE = 64 };
+        // The buffer must have enough space to fit the maximum output which is
+        // four fixed characters "(, )" plus max ten for the nanoseconds plus
+        // 19 characters for LLONG_MAX plus two for the sign plus one for
+        // terminating NULL.  Sums up to 4 + 10 + 19 + 2 + 1 = 36.
+
+    char buffer[k_BUFFER_SIZE] = { 0 };
+
+    int rc = snprintf(buffer,
+                      k_BUFFER_SIZE,
+                      "(%lld, %d)",
+                      d_seconds,
+                      d_nanoseconds);
+    (void) rc;
+    BSLS_ASSERT(0 <= rc);
+
+    stream << buffer;
 
     // We suppress the trailing end-of-line if 'spacesPerLevel < 0'.
 

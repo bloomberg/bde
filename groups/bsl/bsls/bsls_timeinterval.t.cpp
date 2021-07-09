@@ -10,6 +10,7 @@
 #include <bsls_platform.h>
 
 #include <algorithm>
+#include <iomanip>
 #include <iterator>
 #include <ostream>
 #include <sstream>
@@ -9332,6 +9333,10 @@ int main(int argc, char *argv[])
         //: 7 The output 'operator<<'s signature and return type are standard.
         //:
         //: 8 The output 'operator<<' returns the destination 'ostream'.
+        //:
+        //: 9 The output 'operator<<' respects the output width set by the
+        //:   'std::setw' manipulator on the specified 'ostream'.
+        //:   {DRQS 166236963}
         //
         // Plan:
         //: 1 Use the addresses of the 'print' member function and 'operator<<'
@@ -9374,6 +9379,10 @@ int main(int argc, char *argv[])
         //:   testing an additional set of time intervals (including extremal
         //:   values), but this time fixing the 'level' and 'spacesPerLevel'
         //:   arguments to 0 and -1, respectively.
+        //:
+        //: 4 Using the table-driven technique, set the different field width
+        //:   used on oputput operations and ensure that the object value is
+        //:   formatted correctly.
         //
         // Testing:
         //   ostream& print(ostream&, int, int) const;
@@ -9545,7 +9554,7 @@ int main(int argc, char *argv[])
                 int                 d_lineNum;  // source line number
                 bsls::Types::Int64  d_seconds;  // second field value
                 int                 d_nsecs;    // nanosecond field value
-                const char         *d_expected;    // expected output format
+                const char         *d_expected; // expected output format
             } DATA[] = {
                 //line     secs        nsecs        output format
                 //---- ------------   ---------   ---------------------------
@@ -9554,7 +9563,15 @@ int main(int argc, char *argv[])
                 { L_,             0,       -100, "(0, -100)"                 },
                 { L_,          -123,      -5000, "(-123, -5000)"             },
                 { L_,  3000000000LL,  999999999, "(3000000000, 999999999)"   },
-                { L_, -3000000000LL, -999999999, "(-3000000000, -999999999)" }
+                { L_, -3000000000LL, -999999999, "(-3000000000, -999999999)" },
+                { L_,     LLONG_MAX,    INT_MAX, "(9223372036854775807, "
+                                                 "2147483647)"               },
+                { L_,     LLONG_MAX,    INT_MIN, "(9223372036854775807, "
+                                                 "-2147483648)"              },
+                { L_,     LLONG_MIN,    INT_MAX, "(-9223372036854775808, "
+                                                 "2147483647)"               },
+                { L_,     LLONG_MIN,    INT_MIN, "(-9223372036854775808, "
+                                                 "-2147483648)"              }
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -9595,6 +9612,77 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, PRINT_RESULT, RESULT,
                                             0 == strcmp(PRINT_RESULT, RESULT));
                 }
+            }
+        }
+
+        if (verbose) printf("\nTesting i/o manipulators).\n");
+        {   // P-4
+            static const struct {
+                int                 d_lineNum;  // source line number
+                int                 d_width;    // output width
+                bool                d_left;
+                bool                d_right;
+                char                d_fillChar;
+                const char         *d_expected; // expected output format
+            } DATA[] = {
+                //line   width  left  right  fill  output format
+                //----   -----  ----  -----  ----  -------------
+                { L_,    -1,    0,    0,     0,    "(0, 0)"    },
+                { L_,     0,    0,    0,     0,    "(0, 0)"    },
+                { L_,     8,    0,    0,     0,    "  (0, 0)"  },
+                { L_,     7,    0,    0,     0,    " (0, 0)"   },
+                { L_,     6,    0,    0,     0,    "(0, 0)"    },
+                { L_,     5,    0,    0,     0,    "(0, 0)"    },
+                { L_,     8,    0,    1,   '*',    "**(0, 0)"  },
+                { L_,     7,    0,    1,   '*',    "*(0, 0)"   },
+                { L_,     6,    0,    1,   '*',    "(0, 0)"    },
+                { L_,     5,    0,    1,   '*',    "(0, 0)"    },
+                { L_,     8,    1,    0,   '*',    "(0, 0)**"  },
+                { L_,     7,    1,    0,   '*',    "(0, 0)*"   },
+                { L_,     6,    1,    0,   '*',    "(0, 0)"    },
+                { L_,     5,    1,    0,   '*',    "(0, 0)"    },
+           };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int di = 0; di < NUM_DATA;  ++di) {
+                const int                LINE     = DATA[di].d_lineNum;
+                const int                WIDTH    = DATA[di].d_width;
+                const bool               LEFT     = DATA[di].d_left;
+                const bool               RIGHT    = DATA[di].d_right;
+                const char               FILL     = DATA[di].d_fillChar;
+                const char *const        EXPECTED = DATA[di].d_expected;
+
+                typedef native_std::ostringstream OSStream;
+
+                Obj      mX;  const Obj& X = mX;
+                OSStream out;
+
+                if (WIDTH > 0) {
+                    out << std::setw(WIDTH);
+                }
+
+                if (LEFT) {
+                    out << std::left;
+                }
+
+                if (RIGHT) {
+                    out << std::right;
+                }
+
+                if (FILL) {
+                    out << std::setfill(FILL);
+                }
+
+                out << X;
+
+                const std::string  RESULT_STRING = out.str();
+                const char        *RESULT = RESULT_STRING.c_str();
+
+                if (veryVerbose) { T_; P_(EXPECTED); P(RESULT); }
+
+                ASSERTV(LINE, strlen(EXPECTED) == strlen(RESULT));
+                ASSERTV(LINE, 0                == strcmp(EXPECTED, RESULT));
             }
         }
       } break;
