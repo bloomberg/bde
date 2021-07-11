@@ -94,7 +94,6 @@ using namespace BloombergLP;
 //  #define BSLMA_MANAGEDPTR_COMPILE_FAIL_HOMOGENEOUS_ORDERING
 //  #define BSLMA_MANAGEDPTR_COMPILE_FAIL_HETEROGENEOUS_COMPARISON
 //  #define BSLMA_MANAGEDPTR_COMPILE_FAIL_HETEROGENEOUS_ORDERING
-//  #define BSLMA_MANAGEDPTR_COMPILE_FAIL_MOVE_FROM_DERIVED_TYPE_LVALUE
 //-----------------------------------------------------------------------------
 //                         bslma::ManagedPtr
 //                         -----------------
@@ -140,7 +139,6 @@ using namespace BloombergLP;
 // [12] ManagedPtr& operator=(ManagedPtr&& rhs);
 // [12] ManagedPtr& operator=(MovableRef<ManagedPtr<OTHER>> rhs);
 // [12] ManagedPtr& operator=(ManagedPtr_Ref<ELEMENT_TYPE> ref);
-// [12] ManagedPtr& operator=(ManagedPtr<OTHER>&& rhs);
 // [13] void clear();
 // [13] bsl::pair<TYPE *, ManagedPtrDeleter> release();
 // [  ] TARGET_TYPE *release(ManagedPtrDeleter *deleter);
@@ -185,7 +183,6 @@ using namespace BloombergLP;
 // [ 2] class MyTestObject
 // [ 2] class MyDerivedObject
 // [ 2] class MySecondDerivedObject
-// [ 2] class MyDerivedDerivedObject
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TEST MACHINERY
@@ -346,7 +343,7 @@ class MySecondDerivedObject : public MyTestObject {
 
   public:
     // CREATORS
-    explicit MySecondDerivedObject(int* counter);
+    explicit MySecondDerivedObject(int *counter);
         // Create a 'MySecondDerivedObject' using the specified 'counter' to
         // record when this object's destructor is run.
 
@@ -356,30 +353,6 @@ class MySecondDerivedObject : public MyTestObject {
 
     ~MySecondDerivedObject();
         // Increment the stored reference to a counter by 10000, then destroy
-        // this object.
-};
-
-                           // ============================
-                           // class MyDerivedDerivedObject
-                           // ============================
-
-class MyDerivedDerivedObject : public MyDerivedObject {
-    // This test-class has the same destructor-counting behavior as
-    // 'MyTestObject', but offers a second, distinct, derived class in order to
-    // test correct behavior when handling derived->base conversions.
-
-  public:
-    // CREATORS
-    explicit MyDerivedDerivedObject(int *counter);
-        // Create a 'MyDerivedDerivedObject' using the specified 'counter' to
-        // record when this object's destructor is run.
-
-    // Use compiler-generated copy constructor and assignment operator
-    // MyDerivedDerivedObject(const MyDerivedDerivedObject& other);
-    // MyDerivedDerivedObject operator=(const MyDerivedDerivedObject& rhs);
-
-    ~MyDerivedDerivedObject();
-        // Increment the stored reference to a counter by 1000000, then destroy
         // this object.
 };
 
@@ -1203,15 +1176,11 @@ namespace {
 
 typedef MyTestObject                          Test;
 typedef MyDerivedObject                       Derived;
-typedef MySecondDerivedObject                 SecondDerived;
-typedef MyDerivedDerivedObject                 DerivedDerived;
 
-typedef bslma::ManagedPtr<MyTestObject>           Obj;
-typedef bslma::ManagedPtr<const MyTestObject>     CObj;
-typedef bslma::ManagedPtr<MyDerivedObject>        DObj;
-typedef bslma::ManagedPtr<MySecondDerivedObject>  D2Obj;
-typedef bslma::ManagedPtr<MyDerivedDerivedObject> DDObj;
-typedef bslma::ManagedPtr<void>                   VObj;
+typedef bslma::ManagedPtr<MyTestObject>       Obj;
+typedef bslma::ManagedPtr<const MyTestObject> CObj;
+typedef bslma::ManagedPtr<MyDerivedObject>    DObj;
+typedef bslma::ManagedPtr<void>               VObj;
 
 //=============================================================================
 //                      HELPER CLASSES FOR TESTING
@@ -1533,22 +1502,6 @@ MySecondDerivedObject::~MySecondDerivedObject()
     (*deleteCounter()) += 9999;  // +1 from base -> 10000
 }
 
-                           // ----------------------------
-                           // class MyDerivedDerivedObject
-                           // ----------------------------
-
-// CREATORS
-inline
-MyDerivedDerivedObject::MyDerivedDerivedObject(int* counter)
-    : MyDerivedObject(counter)
-{
-}
-
-inline
-MyDerivedDerivedObject::~MyDerivedDerivedObject()
-{
-    (*deleteCounter()) += 999900;  // +100 from base -> 1000000
-}
 }  // close unnamed namespace
 
 //=============================================================================
@@ -1617,7 +1570,6 @@ static bslma::ManagedPtr<MyDerivedObject>
 returnDerivedPtr(int *numDels, bslma::TestAllocator *allocator)
 {
     MyDerivedObject *p = new (*allocator) MyDerivedObject(numDels);
-
     bslma::ManagedPtr<MyDerivedObject> ret(p, allocator);
     return ret;
 }
@@ -1626,34 +1578,14 @@ static bslma::ManagedPtr<MyTestObject>
 returnManagedPtr(int *numDels, bslma::TestAllocator *allocator)
 {
     MyTestObject *p = new (*allocator) MyTestObject(numDels);
-
     bslma::ManagedPtr<MyTestObject> ret(p, allocator);
     return ret;
-}
-
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-static void
-consumeManagedPtr(bslma::ManagedPtr<MyTestObject>,
-                  int *numDels,
-                  int  checkValue)
-{
-    ASSERTV(checkValue, *numDels, checkValue == *numDels);
-}
-#endif //defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-
-static void
-consumeManagedPtrCR(const bslma::ManagedPtr<MyTestObject>&,
-                    int *numDels,
-                    int  checkValue)
-{
-    ASSERTV(checkValue, *numDels, checkValue == *numDels);
 }
 
 static bslma::ManagedPtr<MySecondDerivedObject>
 returnSecondDerivedPtr(int *numDels, bslma::TestAllocator *allocator)
 {
     MySecondDerivedObject *p = new (*allocator) MySecondDerivedObject(numDels);
-
     bslma::ManagedPtr<MySecondDerivedObject> ret(p, allocator);
     return ret;
 }
@@ -10324,7 +10256,6 @@ int main(int argc, char *argv[])
         //   ManagedPtr& operator=(ManagedPtr&& rhs);
         //   ManagedPtr& operator=(MovableRef<ManagedPtr<OTHER>> rhs);
         //   ManagedPtr& operator=(ManagedPtr_Ref<ELEMENT_TYPE> ref);
-        //   ManagedPtr& operator=(ManagedPtr<OTHER>&& rhs);
         // --------------------------------------------------------------------
 
         using namespace CREATORS_TEST_NAMESPACE;
@@ -10489,7 +10420,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(1 == numDeletes2);
 
-        numDeletes = 0;
+        numDeletes  = 0;
         numDeletes2 = 0;
         {
             Test    *p  = new MyTestObject(&numDeletes);
@@ -10501,12 +10432,12 @@ int main(int argc, char *argv[])
             o = o2;
 
             ASSERT(!o2);
-            ASSERTV(numDeletes, 1 == numDeletes);
+            ASSERTV(numDeletes,  1 == numDeletes);
             ASSERTV(numDeletes2, 0 == numDeletes2);
 
             ASSERT(o.get() == p2);
         }
-        ASSERT(1 == numDeletes);
+        ASSERT(  1 == numDeletes);
         ASSERT(100 == numDeletes2);
 
         numDeletes  = 0;
@@ -10528,99 +10459,6 @@ int main(int argc, char *argv[])
         }
         ASSERT(  1 == numDeletes);
         ASSERT(100 == numDeletes2);
-
-        numDeletes = 0;
-        numDeletes2 = 0;
-        {
-            Test *p = new MyTestObject(&numDeletes);
-            Obj   o(p);
-
-            o = returnDerivedPtr(&numDeletes2, &da);
-
-            ASSERTV(numDeletes, 1 == numDeletes);
-            ASSERTV(numDeletes2, 0 == numDeletes2);
-        }
-        ASSERT(1 == numDeletes);
-        ASSERT(100 == numDeletes2);
-
-        numDeletes = 0;
-        {
-            Test *p = new MyTestObject(&numDeletes);
-            Obj   o(p);
-
-            o = DObj();
-
-            ASSERTV(numDeletes, 1 == numDeletes);
-        }
-        ASSERT(1 == numDeletes);
-
-        numDeletes = 0;
-        numDeletes2 = 0;
-        int numDeletes3 = 0;
-        {
-            // Assign to moved-from ManagedPtr
-
-            Test           *p  = new MyTestObject(&numDeletes);
-            Derived        *p2 = new MyDerivedObject(&numDeletes2);
-            DerivedDerived *p3 = new MyDerivedDerivedObject(&numDeletes3);
-
-            Obj    o(p);
-            DObj  o2(p2);
-            DDObj o3(p3);
-
-            o = bslmf::MovableRefUtil::move(o2);
-
-            ASSERT(!o2);
-            ASSERTV(numDeletes,  1 == numDeletes);
-            ASSERTV(numDeletes2, 0 == numDeletes2);
-            ASSERTV(numDeletes3, 0 == numDeletes3);
-            ASSERT(o.get() == p2);
-
-            o2 = o3;
-
-            ASSERT(!o3);
-            ASSERTV(numDeletes,  1 == numDeletes);
-            ASSERTV(numDeletes2, 0 == numDeletes2);
-            ASSERTV(numDeletes3, 0 == numDeletes3);
-            ASSERT(o2.get() == p3);
-        }
-        ASSERT(      1 == numDeletes);
-        ASSERT(    100 == numDeletes2);
-        ASSERT(1000000 == numDeletes3);
-
-        numDeletes  = 0;
-        numDeletes2 = 0;
-        numDeletes3 = 0;
-        {
-            // Move assign to moved-from ManagedPtr
-
-            Test           *p  = new MyTestObject(&numDeletes);
-            Derived        *p2 = new MyDerivedObject(&numDeletes2);
-            DerivedDerived *p3 = new MyDerivedDerivedObject(&numDeletes3);
-
-            Obj    o(p);
-            DObj  o2(p2);
-            DDObj o3(p3);
-
-            o = bslmf::MovableRefUtil::move(o2);
-
-            ASSERT(!o2);
-            ASSERTV(numDeletes,  1 == numDeletes);
-            ASSERTV(numDeletes2, 0 == numDeletes2);
-            ASSERTV(numDeletes3, 0 == numDeletes3);
-            ASSERT(o.get() == p2);
-
-            o2 = bslmf::MovableRefUtil::move(o3);
-
-            ASSERT(!o3);
-            ASSERTV(numDeletes,  1 == numDeletes);
-            ASSERTV(numDeletes2, 0 == numDeletes2);
-            ASSERTV(numDeletes3, 0 == numDeletes3);
-            ASSERT(o2.get() == p3);
-        }
-        ASSERT(      1 == numDeletes);
-        ASSERT(    100 == numDeletes2);
-        ASSERT(1000000 == numDeletes3);
 
         numDeletes = 0;
         {
@@ -10659,7 +10497,6 @@ int main(int argc, char *argv[])
         numDeletes = 0;
         {
             Test *p = new MyTestObject(&numDeletes);
-
             Obj o(p);
             Obj o2;
 
@@ -10681,9 +10518,8 @@ int main(int argc, char *argv[])
         numDeletes = 0;
         {
             Derived *p = new MyDerivedObject(&numDeletes);
-
             DObj o(p);
-            Obj  o2;
+            Obj o2;
 
             bslma::ManagedPtr_Ref<Test> r = o;
             o2 = r;
@@ -10692,94 +10528,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == numDeletes);
         }
         ASSERTV(numDeletes, 100 == numDeletes);
-
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        if (verbose) printf(
-                "\tTest bslma::ManagedPtr<Base>::operator=" \
-                "(ManagedPtr<Derived>&& rhs)\n");
-
-        numDeletes = 0;
-        numDeletes2 = 0;
-        {
-            Test     *p = new MyTestObject(&numDeletes);
-            Derived *p2 = new MyDerivedObject(&numDeletes2);
-
-            Obj  o(p);
-            DObj o2(p2);
-
-            o = std::move(o2);
-
-            ASSERT(!o2);
-            ASSERTV(numDeletes, 1 == numDeletes);
-            ASSERTV(numDeletes2, 0 == numDeletes2);
-
-            ASSERT(o.get() == p2);
-        }
-        ASSERT(1 == numDeletes);
-        ASSERT(100 == numDeletes2);
-
-        numDeletes = 0;
-        {
-            Derived *p = new MyDerivedObject(&numDeletes);
-
-            DObj o(p);
-            Obj  o2 = bslmf::MovableRefUtil::move(o);
-
-            ASSERT(o2);
-            ASSERT(!o);
-            ASSERT(0 == numDeletes);
-        }
-        ASSERTV(numDeletes, 100 == numDeletes);
-
-        numDeletes = 0;
-        {
-            Derived *p = new MyDerivedObject(&numDeletes);
-
-            Obj o2 = DObj(p);
-
-            ASSERT(o2);
-            ASSERT(0 == numDeletes);
-        }
-        ASSERTV(numDeletes, 100 == numDeletes);
-
-        numDeletes = 0;
-        {
-            Obj o2 = returnDerivedPtr(&numDeletes, &da);
-
-            ASSERT(o2);
-            ASSERT(0 == numDeletes);
-        }
-        ASSERTV(numDeletes, 100 == numDeletes);
-
-        numDeletes = 0;
-        {
-            Obj o2 = DObj();
-
-            ASSERT(!o2);
-            ASSERT(0 == numDeletes);
-        }
-        ASSERTV(numDeletes, 0 == numDeletes);
-#endif //defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-
-//#define BSLMA_MANAGEDPTR_COMPILE_FAIL_MOVE_FROM_DERIVED_TYPE_LVALUE
-#if defined(BSLMA_MANAGEDPTR_COMPILE_FAIL_MOVE_FROM_DERIVED_TYPE_LVALUE)
-        // Note: on MSVC this will compile unless the /permissive- flag is
-        // specified to disable Microsoft C++ extensions and force
-        // conformance to the standard.
-        numDeletes = 0;
-        {
-            Derived *p = new MyDerivedObject(&numDeletes);
-
-            DObj o(p);
-            Obj  o2 = o;
-
-            ASSERT(o2);
-            ASSERT(!o);
-            ASSERT(0 == numDeletes);
-        }
-        ASSERTV(numDeletes, 100 == numDeletes);
-#endif
-
 
 //#define BSLMA_MANAGEDPTR_COMPILE_FAIL_ASSIGN_FROM_INCOMPATIBLE_TYPE
 #if defined(BSLMA_MANAGEDPTR_COMPILE_FAIL_ASSIGN_FROM_INCOMPATIBLE_TYPE)
@@ -11282,167 +11030,30 @@ int main(int argc, char *argv[])
             Obj o(d);
             ASSERT(o.get() == p);
             ASSERT(0 == d.get());
-            ASSERT(0 == numDeletes);
         }
         ASSERTV(numDeletes, 100 == numDeletes);
 
         numDeletes = 0;
         {
-            Derived* p = new MyDerivedObject(&numDeletes);
-
+            Derived *p = new MyDerivedObject(&numDeletes);
             DObj d(p);
             ASSERT(d.get() == p);
 
             Obj o(bslmf::MovableRefUtil::move(d));
             ASSERT(o.get() == p);
             ASSERT(0 == d.get());
-            ASSERT(0 == numDeletes);
         }
         ASSERTV(numDeletes, 100 == numDeletes);
-
-        numDeletes = 0;
-        {
-            Obj o(returnDerivedPtr(&numDeletes, &da));
-            ASSERT(o.get());
-            ASSERT(0 == numDeletes);
-        }
-        ASSERTV(numDeletes, 100 == numDeletes);
-
-        numDeletes = 0;
-        {
-            Obj o((DObj())); // Avoid vexing parse.
-            ASSERT(!o && !o.get());
-            ASSERT(0 == numDeletes);
-        }
-        ASSERTV(numDeletes, 0 == numDeletes);
-
-        numDeletes = 0;
-        {
-            Derived* p = new MyDerivedObject(&numDeletes);
-
-            DObj d(p);
-            ASSERT(d.get() == p);
-
-            consumeManagedPtrCR(bslmf::MovableRefUtil::move(d),
-                                &numDeletes, 0);
-
-            ASSERT(0 == d.get());
-            ASSERT(100 == numDeletes);
-        }
-        ASSERTV(numDeletes, 100 == numDeletes);
-
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-
-        numDeletes = 0;
-        {
-            Obj o(bslmf::MovableRefUtil::move(
-                returnDerivedPtr(&numDeletes, &da)));
-
-            ASSERT(o.get());
-            ASSERT(0 == numDeletes);
-        }
-        ASSERTV(numDeletes, 100 == numDeletes);
-
-        numDeletes = 0;
-        {
-            Derived* p = new MyDerivedObject(&numDeletes);
-
-            DObj d(p);
-            ASSERT(d.get() == p);
-
-            consumeManagedPtr(bslmf::MovableRefUtil::move(d),
-                              &numDeletes, 0);
-
-            ASSERT(0 == d.get());
-            ASSERT(100 == numDeletes);
-        }
-        ASSERTV(numDeletes, 100 == numDeletes);
-
-        numDeletes = 0;
-        {
-            consumeManagedPtr(returnDerivedPtr(&numDeletes, &da),
-                              &numDeletes, 0);
-            ASSERT(100 == numDeletes);
-        }
-        ASSERTV(numDeletes, 100 == numDeletes);
-
-        numDeletes = 0;
-        {
-            Derived* p = new MyDerivedObject(&numDeletes);
-
-            consumeManagedPtr(DObj(p), &numDeletes, 0);
-            ASSERT(100 == numDeletes);
-        }
-        ASSERTV(numDeletes, 100 == numDeletes);
-
-        numDeletes = 0;
-        {
-            consumeManagedPtr(DObj(), &numDeletes, 0);
-            ASSERT(0 == numDeletes);
-        }
-        ASSERTV(numDeletes, 0 == numDeletes);
-
-        numDeletes = 0;
-        {
-            consumeManagedPtrCR(returnDerivedPtr(&numDeletes, &da),
-                                &numDeletes, 0);
-            ASSERT(100 == numDeletes);
-        }
-        ASSERTV(numDeletes, 100 == numDeletes);
-
-        numDeletes = 0;
-        {
-            Derived* p = new MyDerivedObject(&numDeletes);
-
-            consumeManagedPtrCR(DObj(p), &numDeletes, 0);
-            ASSERT(100 == numDeletes);
-        }
-        ASSERTV(numDeletes, 100 == numDeletes);
-
-        numDeletes = 0;
-        {
-            consumeManagedPtrCR(DObj(), &numDeletes, 0);
-            ASSERT(0 == numDeletes);
-        }
-        ASSERTV(numDeletes, 0 == numDeletes);
-#endif //defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-
-//#define BSLMA_MANAGEDPTR_COMPILE_FAIL_MOVE_FROM_DERIVED_TYPE_LVALUE
-#if defined(BSLMA_MANAGEDPTR_COMPILE_FAIL_MOVE_FROM_DERIVED_TYPE_LVALUE)
-        numDeletes = 0;
-        {
-            Derived* p = new MyDerivedObject(&numDeletes);
-            DObj d(p);
-            ASSERT(d.get() == p);
-
-            consumeManagedPtr(d, &numDeletes, 0);
-            ASSERT(0 == numDeletes);
-        }
-        ASSERTV(numDeletes, 100 == numDeletes);
-
-        numDeletes = 0;
-        {
-            Derived* p = new MyDerivedObject(&numDeletes);
-            DObj d(p);
-            ASSERT(d.get() == p);
-
-            consumeManagedPtrCR(d, &numDeletes, 0);
-            ASSERT(0 == numDeletes);
-        }
-        ASSERTV(numDeletes, 100 == numDeletes);
-#endif
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) printf("\tTesting moving to non-leftmost base\n");
         {
             CompositeInt3 derived;
-
             bslma::ManagedPtr<CompositeInt3> pD(
                                           &derived,
                                           0,
                                           &bslma::ManagedPtrUtil::noOpDeleter);
-
             int testVal  = pD->data();
             int testVal2 = pD->data2();
             ASSERTV(testVal,    3 == testVal);  // pD->data()
@@ -12946,17 +12557,14 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 'MyTestObject', 'MyDerivedObject' and 'MySecondDerivedObject'
-        //    and 'MyDerivedDerivedObject'
         //:   objects do not allocate any memory from the default allocator nor
         //:   from the global allocator for any of their operations.
         //:
         //: 2 'MyTestObject', 'MyDerivedObject' and 'MySecondDerivedObject'
-        //    and 'MyDerivedDerivedObject'
         //:   objects, created with a pointer to an integer, increment the
         //:   referenced integer exactly once when they are destroyed.
         //:
         //: 3 'MyTestObject', 'MyDerivedObject' and 'MySecondDerivedObject'
-        //    and 'MyDerivedDerivedObject'
         //:   objects, created by copying another object of the same type,
         //:   increment the integer referenced by the original object, exactly
         //:   once, when they are destroyed.
@@ -12967,11 +12575,6 @@ int main(int argc, char *argv[])
         //:
         //: 6 'MyDerivedObject' is *not* derived from 'MySecondDerivedObject',
         //:   nor is 'MySecondDerivedObject' derived from 'MyDerivedObject'.
-        //:
-        //: 7 'MyDerivedDerivedObject' is derived from 'MyDerivedObject'.
-        //:
-        //: 8 'MyDerivedDerivedObject' is *not* derived from
-        //    'MySecondDerivedObject'.
         //
         // Plan:
         //: 1 Install test allocator monitors to verify that neither the global
@@ -13017,7 +12620,6 @@ int main(int argc, char *argv[])
         //    class MyTestObject
         //    class MyDerivedObject
         //    class MySecondDerivedObject
-        //    class MyDerivedDerivedObject
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING TEST MACHINERY"
@@ -13095,29 +12697,6 @@ int main(int argc, char *argv[])
         }
         ASSERT(20000 == destructorCount);
 
-        if (verbose) printf("\tTest class MyDerivedDerivedObject\n");
-
-        destructorCount = 0;
-        {
-            MyDerivedDerivedObject st(&destructorCount);
-            ASSERT(&destructorCount == st.deleteCounter());
-            ASSERTV(destructorCount, 0 == destructorCount);
-        }
-        ASSERTV(destructorCount, 1000000 == destructorCount);
-
-        destructorCount = 0;
-        {
-            MyDerivedDerivedObject st1(&destructorCount);
-            {
-                MyDerivedDerivedObject st2 = st1;
-                ASSERT(&destructorCount == st1.deleteCounter());
-                ASSERT(&destructorCount == st2.deleteCounter());
-                ASSERTV(destructorCount, 0 == destructorCount);
-            }
-            ASSERTV(destructorCount, 1000000 == destructorCount);
-        }
-        ASSERT(2000000 == destructorCount);
-
         if (verbose) printf("\tTest pointer conversions\n");
 
         struct Local {
@@ -13126,12 +12705,6 @@ int main(int argc, char *argv[])
 
             static bool matchDerived(MyDerivedObject *) { return true; }
             static bool matchDerived(...) { return false; }
-
-            static bool matchDerivedDerived(MyDerivedDerivedObject*)
-            {
-                return true;
-            }
-            static bool matchDerivedDerived(...) { return false; }
 
             static bool matchSecond(MySecondDerivedObject *) { return true; }
             static bool matchSecond(...) { return false; }
@@ -13142,7 +12715,6 @@ int main(int argc, char *argv[])
             ASSERT(!Local::matchBase(&badValue));
             ASSERT(!Local::matchDerived(&badValue));
             ASSERT(!Local::matchSecond(&badValue));
-            ASSERT(!Local::matchDerivedDerived(&badValue));
         }
 
         {
@@ -13150,7 +12722,6 @@ int main(int argc, char *argv[])
             ASSERT(Local::matchBase(&mt));
             ASSERT(!Local::matchDerived(&mt));
             ASSERT(!Local::matchSecond(&mt));
-            ASSERT(!Local::matchDerivedDerived(&mt));
         }
 
         {
@@ -13158,7 +12729,6 @@ int main(int argc, char *argv[])
             ASSERT(Local::matchBase(&dt));
             ASSERT(Local::matchDerived(&dt));
             ASSERT(!Local::matchSecond(&dt));
-            ASSERT(!Local::matchDerivedDerived(&dt));
         }
 
         {
@@ -13166,15 +12736,6 @@ int main(int argc, char *argv[])
             ASSERT(Local::matchBase(&st));
             ASSERT(!Local::matchDerived(&st));
             ASSERT(Local::matchSecond(&st));
-            ASSERT(!Local::matchDerivedDerived(&st));
-        }
-
-        {
-            MyDerivedDerivedObject st(&destructorCount);
-            ASSERT(Local::matchBase(&st));
-            ASSERT(Local::matchDerived(&st));
-            ASSERT(!Local::matchSecond(&st));
-            ASSERT(Local::matchDerivedDerived(&st));
         }
 
         ASSERT(dam.isInUseSame());
