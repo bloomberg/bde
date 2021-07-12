@@ -101,18 +101,19 @@ using bsl::cerr;
 // [ 7] void bdlbb::Blob::removeUnusedBuffers();
 // [ 8] void bdlbb::Blob::prependDataBuffer(buffer);
 // [ 8] void bdlbb::Blob::appendDataBuffer(buffer)
-// [ 9] void bdlbb::Blob::moveBuffers(bdlbb::Blob *srcBlob);
-// [10] void bdlbb::Blob::swapBufferRaw(int index, BlobBuffer *srcBuffer);
-// [11] void bdlbb::Blob::moveDataBuffers(bdlbb::Blob *srcBlob);
-// [11] void bdlbb::Blob::moveAndAppendDataBuffers(bdlbb::Blob *srcBlob);
-// [15] bslma::allocator *bdlbb::Blob::allocator() const;
+// [ 9] void bdlbb::Blob::replaceDataBuffer(int index, BlobBuffer *srcBuffer)
+// [10] void bdlbb::Blob::moveBuffers(bdlbb::Blob *srcBlob);
+// [11] void bdlbb::Blob::swapBufferRaw(int index, BlobBuffer *srcBuffer);
+// [12] void bdlbb::Blob::moveDataBuffers(bdlbb::Blob *srcBlob);
+// [12] void bdlbb::Blob::moveAndAppendDataBuffers(bdlbb::Blob *srcBlob);
+// [16] bslma::allocator *bdlbb::Blob::allocator() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] CONCERN: BUFFER ALIASING
-// [13] IMPLICIT TRIM
-// [14] MOVE OPERATIONS
-// [15] SWAP
-// [16] USAGE EXAMPLE
+// [13] CONCERN: BUFFER ALIASING
+// [14] IMPLICIT TRIM
+// [15] MOVE OPERATIONS
+// [16] SWAP
+// [17] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -722,7 +723,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -875,7 +876,7 @@ int main(int argc, char *argv[])
         ASSERT(5                             == blob.numBuffers());
     }
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING SWAP
         //
@@ -1027,7 +1028,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING MOVE OPERATIONS
         //
@@ -1326,7 +1327,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == sourceDA.totalSize()           );
         }
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING IMPLICIT TRIM
         //
@@ -1485,7 +1486,7 @@ int main(int argc, char *argv[])
             ASSERT(0   == blob.lastDataBufferLength());
         }
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING CONCERN: BUFFER ALIASING
         //
@@ -1571,7 +1572,7 @@ int main(int argc, char *argv[])
 
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING: moveDataBuffers
         //
@@ -1852,7 +1853,7 @@ int main(int argc, char *argv[])
             // }
         }
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING 'swapBufferRaw'
         //
@@ -1934,7 +1935,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING: moveBuffers
         //
@@ -2008,6 +2009,142 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == defaultAlloc.numAllocations());
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING 'reolaceDataBuffer'
+        //
+        // Concerns:
+        //   - That replacing does not change either the number of data
+        //     buffers nor the number of blob buffers.
+        //   - That replacing changing the length and capacity of a blob by the
+        //     difference between the size of replaced buffer and the size of
+        //     the replacement buffer.
+        //   - That the component is exception neutral.
+        //   - That asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //   For all combinations of length, buffer size (for the factory), and
+        //   number of buffers, check that a blob constructed to the proper
+        //   parameters has the expected characteristics and that, after
+        //   prepending and appending data buffers, these characteristics are
+        //   changed as expected (the number of data and blob buffers has not
+        //   changed, the length and capacity of a blob have changed by the
+        //   difference between the size of replaced buffer and the size of the
+        //   replacement buffer).  In all cases, run the test in a bdema
+        //   exception test loop to test for exception neutrality (invariants
+        //   are asserted in the blob destructor upon throwing the exception).
+        //   Verify that, in appropriate build modes, defensive checks are
+        //   triggered for invalid attribute values, not triggered for adjacent
+        //   valid ones.
+        //
+        // Testing:
+        //   bdlbb::Blob::replaceDataBuffer(int index, bdlbb::BlobBuffer *buf);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting 'replaceDataBuffer'" << endl;
+
+        for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
+        for (int replacementBufferSize = 1; replacementBufferSize <= 5;
+                                                       ++replacementBufferSize)
+        for (int numBuffers = 0; numBuffers <= 5; ++numBuffers)
+        for (int dataLength = 0; dataLength <= bufferSize * numBuffers;
+                                                                  ++dataLength)
+        for (int replacePos  = 0;
+             replacePos < (dataLength + bufferSize - 1) / bufferSize;
+             ++replacePos)
+        {
+            bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&defaultAlloc);
+            bslma::TestAllocator ta(veryVeryVerbose);
+
+            bslma::TestAllocator& testAllocator = ta;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+            {
+                const int BUFFER_SIZE             = bufferSize;
+                const int REPLACEMENT_BUFFER_SIZE = replacementBufferSize;
+                const int DATA_LENGTH             = dataLength;
+                const int NUM_BUFFERS             = numBuffers;
+                const int REPLACE_POS             = replacePos;
+                const int NUM_DATA_BUFFERS        = (dataLength
+                                                     + BUFFER_SIZE
+                                                     - 1) / BUFFER_SIZE;
+                const int LAST_DB_LENGTH          =
+                    NUM_DATA_BUFFERS > 0
+                    ? DATA_LENGTH - (NUM_DATA_BUFFERS - 1) * BUFFER_SIZE : 0;
+                const int REPLACED_BUFFER_SIZE    =
+                    REPLACE_POS < NUM_DATA_BUFFERS - 1
+                    ? BUFFER_SIZE : LAST_DB_LENGTH;
+                const int EXP_NUM_BUFFERS         = NUM_BUFFERS;
+                const int EXP_NUM_DATA_BUFFERS    = NUM_DATA_BUFFERS;
+                const int EXP_LAST_DB_LENGTH      =
+                    REPLACE_POS < EXP_NUM_DATA_BUFFERS - 1
+                    ? LAST_DB_LENGTH : REPLACEMENT_BUFFER_SIZE;
+                const int EXP_DATA_LENGTH         = DATA_LENGTH
+                                                    + REPLACEMENT_BUFFER_SIZE
+                                                    - REPLACED_BUFFER_SIZE;
+                const int EXP_TOTAL_SIZE          = BUFFER_SIZE *
+                                                    (EXP_NUM_BUFFERS - 1)
+                                                    + REPLACEMENT_BUFFER_SIZE;
+
+                if (veryVerbose) {
+                    T_; P_(BUFFER_SIZE); P_(REPLACEMENT_BUFFER_SIZE);
+                        P_(DATA_LENGTH); P(NUM_BUFFERS);
+                    T_; P_(EXP_NUM_DATA_BUFFERS);
+                        P_(EXP_NUM_BUFFERS); P(REPLACE_POS);
+                }
+
+                SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
+
+                Obj mX(&fa, &ta);   const Obj& X = mX;
+                mX.setLength(BUFFER_SIZE * NUM_BUFFERS);
+
+                mX.setLength(DATA_LENGTH);
+                ASSERT(DATA_LENGTH      == X.length());
+                ASSERT(NUM_BUFFERS      == X.numBuffers());
+                ASSERT(NUM_DATA_BUFFERS == X.numDataBuffers());
+
+                SimpleBlobBufferFactory ifa(REPLACEMENT_BUFFER_SIZE, &ta);
+                bdlbb::BlobBuffer buffer;
+                ifa.allocate(&buffer);
+                ASSERT(REPLACEMENT_BUFFER_SIZE == buffer.size());
+
+                mX.replaceDataBuffer(REPLACE_POS, buffer); // TEST HERE
+
+                ASSERT(EXP_DATA_LENGTH      == X.length());
+                ASSERT(EXP_NUM_BUFFERS      == X.numBuffers());
+                ASSERT(EXP_NUM_DATA_BUFFERS == X.numDataBuffers());
+                ASSERT(EXP_LAST_DB_LENGTH   == X.lastDataBufferLength());
+                ASSERT(EXP_TOTAL_SIZE       == X.totalSize());
+
+                checkNoAliasedBlobBuffers(X);
+            }
+            ASSERT(0 <  ta.numAllocations());
+            ASSERT(0 == ta.numBytesInUse());
+            ASSERT(0 == ta.numMismatches());
+            ASSERT(0 == defaultAlloc.numAllocations());
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        }
+
+        if (verbose) cout << "\tNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            {
+                const ObjBuffer TINY_DUMMY(bsl::shared_ptr<char>(),       1);
+                const ObjBuffer HUGE_DUMMY(bsl::shared_ptr<char>(), INT_MAX);
+                const ObjBuffer EMPTY;
+                Obj             mX;
+
+                ASSERT_PASS(mX.appendDataBuffer(TINY_DUMMY));
+                ASSERT_PASS(mX.appendDataBuffer(TINY_DUMMY));
+                mX.setLength(2);
+                ASSERT_FAIL(mX.replaceDataBuffer(0,  HUGE_DUMMY));
+                ASSERT_FAIL(mX.replaceDataBuffer(-1, EMPTY));
+                ASSERT_FAIL(mX.replaceDataBuffer(mX.numDataBuffers(), EMPTY));
+            }
+        }
       } break;
       case 8: {
         // --------------------------------------------------------------------
