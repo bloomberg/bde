@@ -3212,8 +3212,8 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
 #else
-                      case 'j': BSLA_FALLTHROUGH
-                      case 'k': BSLA_FALLTHROUGH
+                      case 'j': BSLA_FALLTHROUGH;
+                      case 'k': BSLA_FALLTHROUGH;
                       case 'l': {
                         continue;
                       } break;
