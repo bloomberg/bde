@@ -10,6 +10,10 @@ BSLS_IDENT_RCSID(baltzo_defaultzoneinfocache_cpp,"$Id$ $CSID$")
 #include <bslmt_once.h>
 
 #include <bslma_default.h>
+
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
+
 #include <bsls_assert.h>
 #include <bsls_log.h>
 #include <bsls_platform.h>
@@ -17,7 +21,21 @@ BSLS_IDENT_RCSID(baltzo_defaultzoneinfocache_cpp,"$Id$ $CSID$")
 #include <bsl_cstdlib.h>    // 'getenv'
 #include <bsl_ostream.h>
 
-namespace BloombergLP {
+namespace {
+namespace u {
+
+using namespace BloombergLP;
+
+template <class CCHAR_VECTOR>
+struct IsCCharVector {
+    static const bool value =
+             bsl::is_same<CCHAR_VECTOR, bsl::vector<const char *> >::value
+          || bsl::is_same<CCHAR_VECTOR, std::vector<const char *> >::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+          || bsl::is_same<CCHAR_VECTOR, std::pmr::vector<const char *> >::value
+#endif
+    ;
+};
 
 // Potential locations of TZ Database time-zone information.
 static const char *BALTZO_DATA_LOCATIONS[] = {
@@ -56,6 +74,23 @@ baltzo::ZoneinfoCache *initSystemDefaultCache()
     return &cache;
 }
 
+template <class CCHAR_VECTOR>
+inline
+void loadDefaultZoneinfoDataLocations_Impl(CCHAR_VECTOR *locations)
+{
+    BSLS_ASSERT(locations);
+
+    BSLMF_ASSERT(u::IsCCharVector<CCHAR_VECTOR>::value);
+
+    for (const char **pathPtr = u::BALTZO_DATA_LOCATIONS; *pathPtr; ++pathPtr){
+        locations->push_back(*pathPtr);
+    }
+}
+
+}  // namespace u
+}  // namespace
+
+namespace BloombergLP {
 namespace baltzo {
 
                          // --------------------------
@@ -65,16 +100,17 @@ namespace baltzo {
 // PRIVATE CLASS METHODS
 ZoneinfoCache *DefaultZoneinfoCache::instance()
 {
-    if (userSingletonCachePtr) {
-        return userSingletonCachePtr;                                 // RETURN
+    if (u::userSingletonCachePtr) {
+        return u::userSingletonCachePtr;                              // RETURN
     }
 
     BSLMT_ONCE_DO {
-        if (0 == systemSingletonCachePtr) {
-            systemSingletonCachePtr = initSystemDefaultCache();
+        if (0 == u::systemSingletonCachePtr) {
+            u::systemSingletonCachePtr = u::initSystemDefaultCache();
         }
     }
-    return systemSingletonCachePtr;
+
+    return u::systemSingletonCachePtr;
 }
 
 // CLASS METHODS
@@ -96,7 +132,7 @@ const char *DefaultZoneinfoCache::defaultZoneinfoDataLocation()
         return envValue;                                              // RETURN
     }
 
-    for (const char **pathPtr = BALTZO_DATA_LOCATIONS; *pathPtr; ++pathPtr) {
+    for (const char **pathPtr = u::BALTZO_DATA_LOCATIONS; *pathPtr; ++pathPtr){
         if (DataFileLoader::isPlausibleZoneinfoRootPath(*pathPtr)) {
             BSLS_LOG_INFO("The environment variable "
                           "'BDE_ZONEINFO_ROOT_PATH' has not been set. "
@@ -113,19 +149,29 @@ const char *DefaultZoneinfoCache::defaultZoneinfoDataLocation()
 }
 
 void DefaultZoneinfoCache::loadDefaultZoneinfoDataLocations(
-                                          bsl::vector<const char *> *locations)
+                                     bsl::vector<const char *>      *locations)
 {
-    BSLS_ASSERT(locations);
-
-    for (const char **pathPtr = BALTZO_DATA_LOCATIONS; *pathPtr; ++pathPtr) {
-        locations->push_back(*pathPtr);
-    }
+    u::loadDefaultZoneinfoDataLocations_Impl(locations);
 }
+
+void DefaultZoneinfoCache::loadDefaultZoneinfoDataLocations(
+                                     std::vector<const char *>      *locations)
+{
+    u::loadDefaultZoneinfoDataLocations_Impl(locations);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+void DefaultZoneinfoCache::loadDefaultZoneinfoDataLocations(
+                                     std::pmr::vector<const char *> *locations)
+{
+    u::loadDefaultZoneinfoDataLocations_Impl(locations);
+}
+#endif
 
 ZoneinfoCache *DefaultZoneinfoCache::setDefaultCache(ZoneinfoCache *cache)
 {
-    ZoneinfoCache *previous = userSingletonCachePtr;
-    userSingletonCachePtr = cache;
+    ZoneinfoCache *previous = u::userSingletonCachePtr;
+    u::userSingletonCachePtr = cache;
     return previous;
 }
 

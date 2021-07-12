@@ -199,13 +199,18 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
 #include <bsl_string.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslalg_typetraits.h>
+# include <bslalg_typetraits.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 
 namespace BloombergLP {
 namespace baltzo {
@@ -281,8 +286,14 @@ class DataFileLoader : public Loader {
         // be left in a valid, but unspecified state.
 
     // ACCESSORS
-    int loadTimeZoneFilePath(bsl::string *result,
-                             const char  *timeZoneId) const;
+    int loadTimeZoneFilePath(bsl::string      *result,
+                             const char       *timeZoneId) const;
+    int loadTimeZoneFilePath(std::string      *result,
+                             const char       *timeZoneId) const;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    int loadTimeZoneFilePath(std::pmr::string *result,
+                             const char       *timeZoneId) const;
+#endif
         // Load into the specified 'result' the file-system path to the
         // Zoneinfo binary data file corresponding to the specified
         // 'timeZoneId' relative to the configured 'rootPath'.  Return 0 on

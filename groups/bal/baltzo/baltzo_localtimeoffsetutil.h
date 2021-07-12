@@ -134,6 +134,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_atomic.h>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslalg_typetraits.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace BloombergLP {
 namespace baltzo {
 
@@ -240,7 +244,11 @@ struct LocalTimeOffsetUtil {
         // method is invoked before the successful invocation of a 'configure'
         // method.
 
-    static void loadTimezone(bsl::string *timezone);
+    static void loadTimezone(bsl::string      *timezone);
+    static void loadTimezone(std::string      *timezone);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    static void loadTimezone(std::pmr::string *timezone);
+#endif
         // Load to the specified 'timezone' time zone identifier used to
         // determine the local time offset from UTC.  This method *is* not
         // thread-safe.  The behavior is undefined if this method is invoked

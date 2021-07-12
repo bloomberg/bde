@@ -184,7 +184,7 @@ class LocalDatetime {
         // allocator is used.
 
     LocalDatetime(const bdlt::DatetimeTz&   datetimeTz,
-                  const bslstl::StringRef&  timeZoneId,
+                  const bsl::string_view&   timeZoneId,
                   const allocator_type&     allocator = allocator_type());
     LocalDatetime(const bdlt::DatetimeTz&   datetimeTz,
                   const char               *timeZoneId,
@@ -241,8 +241,8 @@ class LocalDatetime {
         // Set the 'datetimeTz' attribute of this object to the specified
         // 'value'.
 
-    void setTimeZoneId(const bslstl::StringRef&  value);
-    void setTimeZoneId(const char               *value);
+    void setTimeZoneId(const bsl::string_view&  value);
+    void setTimeZoneId(const char              *value);
         // Set the 'timeZoneId' attribute of this object to the specified
         // 'value'.  If 'value' is null, it is treated as an empty string.
 
@@ -383,9 +383,9 @@ LocalDatetime::LocalDatetime(const allocator_type& allocator)
 }
 
 inline
-LocalDatetime::LocalDatetime(const bdlt::DatetimeTz&  datetimeTz,
-                             const bslstl::StringRef& timeZoneId,
-                             const allocator_type&    allocator)
+LocalDatetime::LocalDatetime(const bdlt::DatetimeTz& datetimeTz,
+                             const bsl::string_view& timeZoneId,
+                             const allocator_type&   allocator)
 : d_datetimeTz(datetimeTz)
 , d_timeZoneId(timeZoneId.begin(), timeZoneId.end(), allocator)
 {
@@ -466,16 +466,24 @@ void LocalDatetime::setDatetimeTz(const bdlt::DatetimeTz& value)
 }
 
 inline
-void LocalDatetime::setTimeZoneId(const bslstl::StringRef& value)
+void LocalDatetime::setTimeZoneId(const bsl::string_view& value)
 {
-    d_timeZoneId.assign(value.begin(), value.end());
+    // The swap ensures that the if the old value of 'd_timeZoneId' was longer
+    // than the new one, space won't be wasted.
+
+    bsl::string(value, d_timeZoneId.get_allocator().mechanism()).swap(
+                                                                 d_timeZoneId);
 }
 
 inline
 void LocalDatetime::setTimeZoneId(const char *value)
 {
     if (value) {
-        bsl::string(value, d_timeZoneId.get_allocator()).swap(d_timeZoneId);
+        // The swap ensures that the if the old value of 'd_timeZoneId' was
+        // longer than the new one, space won't be wasted.
+
+        bsl::string(value, d_timeZoneId.get_allocator().mechanism()).swap(
+                                                                 d_timeZoneId);
     }
     else {
         d_timeZoneId.clear();

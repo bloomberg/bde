@@ -3838,7 +3838,7 @@ int main(int argc, char *argv[])
         bdlt::DatetimeTz  someDtz( someDt, -( 4 * 60 - 0));
         bdlt::DatetimeTz largeDtz(largeDt,  (24 * 60 - 1));
 
-        const char *defaultTzId = "";
+        const char *defaultTzId = 0;
         const char   *smallTzId = "a";
         const char   *largeTzId = LONGEST_STRING;
 
@@ -3877,16 +3877,19 @@ int main(int argc, char *argv[])
                                                         // this test allocates
                                                         // some object memory.
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int               LINE =  DATA[ti].d_line;
-                const char              MEM  =  DATA[ti].d_mem;
-                const bdlt::DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz_p;
-                const char *const       TZID =  DATA[ti].d_timeZoneId_p;
+                const int               LINE   =  DATA[ti].d_line;
+                const char              MEM    =  DATA[ti].d_mem;
+                const bdlt::DatetimeTz& DTTZ   = *DATA[ti].d_datetimeTz_p;
+                const char *const       TZID   =  DATA[ti].d_timeZoneId_p;
+                const bsl::string_view  TZIDSV =  DATA[ti].d_timeZoneId_p
+                                               ?  DATA[ti].d_timeZoneId_p
+                                               :  "";
 
                 if (veryVerbose) { T_ P_(MEM) P_(DTTZ) P(TZID) }
 
                 ASSERTV(LINE, MEM, MEM && strchr("YN?", MEM));
 
-                for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+                for (char cfg = 'a'; cfg <= 'f'; ++cfg) {
 
                     const char CONFIG = cfg;  // how we specify the allocator
 
@@ -3915,6 +3918,19 @@ int main(int argc, char *argv[])
                         objPtr = new (fa) Obj(DTTZ, TZID, &sa);
                         objAllocatorPtr = &sa;
                       } break;
+                      case 'd': {
+                        objPtr = new (fa) Obj(DTTZ, TZIDSV);
+                        objAllocatorPtr = &da;
+                      } break;
+                      case 'e': {
+                        objPtr = new (fa) Obj(DTTZ, TZIDSV,
+                                              Obj::allocator_type());
+                        objAllocatorPtr = &da;
+                      } break;
+                      case 'f': {
+                        objPtr = new (fa) Obj(DTTZ, TZIDSV, &sa);
+                        objAllocatorPtr = &sa;
+                      } break;
                       default: {
                         ASSERTV(LINE, CONFIG, !"Bad allocator config.");
                       } break;
@@ -3926,7 +3942,8 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
 
                     bslma::TestAllocator&  oa = *objAllocatorPtr;
-                    bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+                    bslma::TestAllocator& noa = &sa == objAllocatorPtr
+                                              ? da : sa;
 
                     // Use untested functionality to help ensure the first row
                     // of the table contains the default-constructed value.
@@ -3946,7 +3963,7 @@ int main(int argc, char *argv[])
                             DTTZ == X.datetimeTz());
 
                     ASSERTV(LINE, CONFIG, TZID, X.timeZoneId(),
-                            TZID == X.timeZoneId());
+                            TZIDSV == X.timeZoneId());
 
                     // -------------------------------------------------------
                     // Verify any attribute allocators are installed properly.
@@ -4016,10 +4033,13 @@ int main(int argc, char *argv[])
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int               LINE =  DATA[ti].d_line;
-                const char              MEM  =  DATA[ti].d_mem;
-                const bdlt::DatetimeTz& DTTZ = *DATA[ti].d_datetimeTz_p;
-                const char *const       TZID =  DATA[ti].d_timeZoneId_p;
+                const int               LINE   =  DATA[ti].d_line;
+                const char              MEM    =  DATA[ti].d_mem;
+                const bdlt::DatetimeTz& DTTZ   = *DATA[ti].d_datetimeTz_p;
+                const char *const       TZID   =  DATA[ti].d_timeZoneId_p;
+                const bsl::string_view  TZIDSV =  DATA[ti].d_timeZoneId_p
+                                               ?  DATA[ti].d_timeZoneId_p
+                                               :  "";
 
                 if (veryVerbose) { T_ P_(MEM) P_(DTTZ) P(TZID) }
 
@@ -4035,7 +4055,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, DTTZ, obj.datetimeTz(),
                             DTTZ == obj.datetimeTz());
                     ASSERTV(LINE, TZID, obj.timeZoneId(),
-                            TZID == obj.timeZoneId());
+                            TZIDSV == obj.timeZoneId());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
@@ -4174,19 +4194,20 @@ int main(int argc, char *argv[])
 
         // 'D' values: These are the default-constructed values.
 
-        const bdlt::DatetimeTz D1   = bdlt::DatetimeTz();  // default value
-        const char             D2[] = "";                  // default value
+        const bdlt::DatetimeTz  D1   = bdlt::DatetimeTz();  // default value
+        const char             *D2   = 0;                    // default value
+        const bsl::string_view  D2SV;
 
         // 'A' values: Should cause memory allocation if possible.
 
-        const bdlt::DatetimeTz A1(bdlt::Datetime(2011, 5, 3, 15), -4 * 60);
-        const char             A2[] = "a_" SUFFICIENTLY_LONG_STRING;
+        const bdlt::DatetimeTz  A1(bdlt::Datetime(2011, 5, 3, 15), -4 * 60);
+        const char             *A2 = "a_" SUFFICIENTLY_LONG_STRING;
 
         // 'B' values: Should NOT cause allocation (use alternate string type).
 
-        const bdlt::Datetime   maxDatetime(9999, 12, 31, 23, 59, 59, 999);
-        const bdlt::DatetimeTz B1   = bdlt::DatetimeTz(maxDatetime, 1440 - 1);
-        const char             B2[] = "xyz";
+        const bdlt::Datetime    maxDatetime(9999, 12, 31, 23, 59, 59, 999);
+        const bdlt::DatetimeTz  B1 = bdlt::DatetimeTz(maxDatetime, 1440 - 1);
+        const bsl::string_view  B2 = "xyz";
 
         if (verbose) cout << "\nTesting with various allocator configurations."
                           << endl;
@@ -4245,8 +4266,8 @@ int main(int argc, char *argv[])
             // Verify the object's attribute values.
             // -------------------------------------
 
-            ASSERTV(CONFIG, D1, X.datetimeTz(), D1 == X.datetimeTz());
-            ASSERTV(CONFIG, D2, X.timeZoneId(), D2 == X.timeZoneId());
+            ASSERTV(CONFIG, D1, X.datetimeTz(), D1   == X.datetimeTz());
+            ASSERTV(CONFIG, D2, X.timeZoneId(), D2SV == X.timeZoneId());
 
             // -----------------------------------------------------
             // Verify that each attribute is independently settable.
@@ -4257,16 +4278,16 @@ int main(int argc, char *argv[])
                 bslma::TestAllocatorMonitor tam(&oa);
 
                 mX.setDatetimeTz(A1);
-                ASSERTV(CONFIG, A1 == X.datetimeTz());
-                ASSERTV(CONFIG, D2 == X.timeZoneId());
+                ASSERTV(CONFIG, A1   == X.datetimeTz());
+                ASSERTV(CONFIG, D2SV == X.timeZoneId());
 
                 mX.setDatetimeTz(B1);
-                ASSERTV(CONFIG, B1 == X.datetimeTz());
-                ASSERTV(CONFIG, D2 == X.timeZoneId());
+                ASSERTV(CONFIG, B1   == X.datetimeTz());
+                ASSERTV(CONFIG, D2SV == X.timeZoneId());
 
                 mX.setDatetimeTz(D1);
-                ASSERTV(CONFIG, D1 == X.datetimeTz());
-                ASSERTV(CONFIG, D2 == X.timeZoneId());
+                ASSERTV(CONFIG, D1   == X.datetimeTz());
+                ASSERTV(CONFIG, D2SV == X.timeZoneId());
 
                 ASSERTV(CONFIG, tam.isTotalSame());
             }
@@ -4290,8 +4311,8 @@ int main(int argc, char *argv[])
                 ASSERTV(CONFIG, B2 == X.timeZoneId());
 
                 mX.setTimeZoneId(D2);
-                ASSERTV(CONFIG, D1 == X.datetimeTz());
-                ASSERTV(CONFIG, D2 == X.timeZoneId());
+                ASSERTV(CONFIG, D1   == X.datetimeTz());
+                ASSERTV(CONFIG, D2SV == X.timeZoneId());
 
                 ASSERTV(CONFIG, tam.isTotalSame());
             }

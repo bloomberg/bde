@@ -1153,6 +1153,98 @@ int main(int argc, char *argv[])
 #endif
         }
 
+        {
+           if (verbose) cout <<
+                           "\nCreate a test allocator and install "
+                           "it in the return object" << endl;
+
+           std::vector<const char *> locations;
+
+           if (verbose) cout <<
+                           "\nTest that all allocations are temporary" << endl;
+
+            const bsls::Types::Int64 DA_NUM_BYTES =
+                                              defaultAllocator.numBytesInUse();
+
+            Obj::loadDefaultZoneinfoDataLocations(&locations);
+            LOOP2_ASSERT(L_, defaultAllocator.numBytesInUse(),
+                         DA_NUM_BYTES == defaultAllocator.numBytesInUse());
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+            // Make sure 'locations' contains the same number of paths as
+            // expected.
+
+            LOOP2_ASSERT(L_, locations.size(),
+                         NUM_VALUES == locations.size());
+
+            // Verify that the paths correspond to the expected values.
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const int   LINE        = VALUES[i].d_line;
+                const char *EXP_PATH    = VALUES[i].d_path;
+                const char *RESULT_PATH = locations[i];
+
+                if (veryVerbose) {
+                     T_ P_(LINE) P_(EXP_PATH) P(RESULT_PATH)
+                }
+
+                LOOP2_ASSERT(LINE, EXP_PATH,
+                             0 == bsl::strcmp(RESULT_PATH, EXP_PATH));
+            }
+#else
+            // As of now Windows does not have any default paths.
+
+            LOOP2_ASSERT(L_, locations.size(), 0 == locations.size());
+#endif
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        {
+           if (verbose) cout <<
+                           "\nCreate a test allocator and install "
+                           "it in the return object" << endl;
+
+           std::pmr::vector<const char *> locations;
+
+           if (verbose) cout <<
+                           "\nTest that all allocations are temporary" << endl;
+
+            const bsls::Types::Int64 DA_NUM_BYTES =
+                                              defaultAllocator.numBytesInUse();
+
+            Obj::loadDefaultZoneinfoDataLocations(&locations);
+            LOOP2_ASSERT(L_, defaultAllocator.numBytesInUse(),
+                         DA_NUM_BYTES == defaultAllocator.numBytesInUse());
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+            // Make sure 'locations' contains the same number of paths as
+            // expected.
+
+            LOOP2_ASSERT(L_, locations.size(),
+                         NUM_VALUES == locations.size());
+
+            // Verify that the paths correspond to the expected values.
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const int   LINE        = VALUES[i].d_line;
+                const char *EXP_PATH    = VALUES[i].d_path;
+                const char *RESULT_PATH = locations[i];
+
+                if (veryVerbose) {
+                     T_ P_(LINE) P_(EXP_PATH) P(RESULT_PATH)
+                }
+
+                LOOP2_ASSERT(LINE, EXP_PATH,
+                             0 == bsl::strcmp(RESULT_PATH, EXP_PATH));
+            }
+#else
+            // As of now Windows does not have any default paths.
+
+            LOOP2_ASSERT(L_, locations.size(), 0 == locations.size());
+#endif
+        }
+#endif
+
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertTestHandlerGuard hG;
@@ -1160,11 +1252,25 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout <<
                  "\t'CLASS METHOD 'loadDefaultZoneinfoDataLocations' " << endl;
             {
-                bsl::vector<const char *> parameter;
+                bsl::vector<const char *> parameter, *nv = 0;
 
                 ASSERT_PASS(Obj::loadDefaultZoneinfoDataLocations(&parameter));
-                ASSERT_FAIL(Obj::loadDefaultZoneinfoDataLocations(0));
+                ASSERT_FAIL(Obj::loadDefaultZoneinfoDataLocations(nv));
             }
+            {
+                std::vector<const char *> parameter, *nv = 0;
+
+                ASSERT_PASS(Obj::loadDefaultZoneinfoDataLocations(&parameter));
+                ASSERT_FAIL(Obj::loadDefaultZoneinfoDataLocations(nv));
+            }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            {
+                std::pmr::vector<const char *> parameter, *nv = 0;
+
+                ASSERT_PASS(Obj::loadDefaultZoneinfoDataLocations(&parameter));
+                ASSERT_FAIL(Obj::loadDefaultZoneinfoDataLocations(nv));
+            }
+#endif
         }
       } break;
       case 1: {

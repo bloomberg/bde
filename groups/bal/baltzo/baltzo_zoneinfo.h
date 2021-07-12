@@ -489,13 +489,13 @@ class Zoneinfo {
         // 'utcTime' is already present, replace it's local-time descriptor
         // with 'descriptor'.
 
-    void setIdentifier(const bslstl::StringRef&  value);
-    void setIdentifier(const char               *value);
+    void setIdentifier(const bsl::string_view&  value);
+    void setIdentifier(const char              *value);
         // Set the 'identifier' attribute of this object to the specified
         // 'value'.
 
-    void setPosixExtendedRangeDescription(const bslstl::StringRef&  value);
-    void setPosixExtendedRangeDescription(const char               *value);
+    void setPosixExtendedRangeDescription(const bsl::string_view&  value);
+    void setPosixExtendedRangeDescription(const char              *value);
         // Set the 'posixExtendedRangeDescription' attribute of this object,
         // used to describe local time transitions far in the future, to the
         // specified 'value' (see {posixExtendedRangeDescription}).
@@ -703,7 +703,7 @@ Zoneinfo& Zoneinfo::operator=(const Zoneinfo& rhs)
 }
 
 inline
-void Zoneinfo::setIdentifier(const bslstl::StringRef& value)
+void Zoneinfo::setIdentifier(const bsl::string_view& value)
 {
     BSLS_ASSERT(0 != value.data());
 
@@ -719,7 +719,7 @@ void Zoneinfo::setIdentifier(const char *value)
 }
 
 inline
-void Zoneinfo::setPosixExtendedRangeDescription(const bslstl::StringRef& value)
+void Zoneinfo::setPosixExtendedRangeDescription(const bsl::string_view& value)
 {
     BSLS_ASSERT(0 != value.data());
 

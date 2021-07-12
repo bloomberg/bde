@@ -825,9 +825,19 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(ti) P_(TZ_ID) };
 
-                bsl::string result;
+                bsl::string bslResult;
                 LOOP2_ASSERT(ti, TZ_ID,
-                             0 != X.loadTimeZoneFilePath(&result, TZ_ID));
+                             0 != X.loadTimeZoneFilePath(&bslResult, TZ_ID));
+
+                std::string stdResult;
+                LOOP2_ASSERT(ti, TZ_ID,
+                             0 != X.loadTimeZoneFilePath(&stdResult, TZ_ID));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::string pmrResult;
+                LOOP2_ASSERT(ti, TZ_ID,
+                             0 != X.loadTimeZoneFilePath(&pmrResult, TZ_ID));
+#endif
             }
         }
 
@@ -849,9 +859,19 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(ti) P_(TZ_ID) };
 
-                bsl::string result;
+                bsl::string bslResult;
                 LOOP2_ASSERT(ti, TZ_ID,
-                             0 == X.loadTimeZoneFilePath(&result, TZ_ID));
+                             0 == X.loadTimeZoneFilePath(&bslResult, TZ_ID));
+
+                std::string stdResult;
+                LOOP2_ASSERT(ti, TZ_ID,
+                             0 == X.loadTimeZoneFilePath(&stdResult, TZ_ID));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::string pmrResult;
+                LOOP2_ASSERT(ti, TZ_ID,
+                             0 == X.loadTimeZoneFilePath(&pmrResult, TZ_ID));
+#endif
             }
         }
 
@@ -860,12 +880,28 @@ int main(int argc, char *argv[])
             Obj mX; const Obj& X = mX;
             mX.configureRootPath(".");
 
-            bsl::string result;
+            bsl::string bslResult;
 
-            ASSERT(0 != X.loadTimeZoneFilePath(&result, "/"));
-            ASSERT(0 != X.loadTimeZoneFilePath(&result, "/A"));
-            ASSERT(0 == X.loadTimeZoneFilePath(&result, "A/"));
-            ASSERT(0 == X.loadTimeZoneFilePath(&result, "A/B"));
+            ASSERT(0 != X.loadTimeZoneFilePath(&bslResult, "/"));
+            ASSERT(0 != X.loadTimeZoneFilePath(&bslResult, "/A"));
+            ASSERT(0 == X.loadTimeZoneFilePath(&bslResult, "A/"));
+            ASSERT(0 == X.loadTimeZoneFilePath(&bslResult, "A/B"));
+
+            std::string stdResult;
+
+            ASSERT(0 != X.loadTimeZoneFilePath(&stdResult, "/"));
+            ASSERT(0 != X.loadTimeZoneFilePath(&stdResult, "/A"));
+            ASSERT(0 == X.loadTimeZoneFilePath(&stdResult, "A/"));
+            ASSERT(0 == X.loadTimeZoneFilePath(&stdResult, "A/B"));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+            std::pmr::string pmrResult;
+
+            ASSERT(0 != X.loadTimeZoneFilePath(&pmrResult, "/"));
+            ASSERT(0 != X.loadTimeZoneFilePath(&pmrResult, "/A"));
+            ASSERT(0 == X.loadTimeZoneFilePath(&pmrResult, "A/"));
+            ASSERT(0 == X.loadTimeZoneFilePath(&pmrResult, "A/B"));
+#endif
         }
 
         if (verbose) cout <<
@@ -908,10 +944,25 @@ int main(int argc, char *argv[])
 
                     mX.configureRootPath(ROOT);
 
-                    bsl::string result;
+                    bsl::string bslResult;
                     LOOP_ASSERT(LINE,
-                                0 == X.loadTimeZoneFilePath(&result, TZ_ID));
-                    LOOP3_ASSERT(LINE, EXP, result, EXP == result);
+                                0 == X.loadTimeZoneFilePath(&bslResult,
+                                                            TZ_ID));
+                    LOOP3_ASSERT(LINE, EXP, bslResult, EXP == bslResult);
+
+                    std::string stdResult;
+                    LOOP_ASSERT(LINE,
+                                0 == X.loadTimeZoneFilePath(&stdResult,
+                                                            TZ_ID));
+                    LOOP3_ASSERT(LINE, EXP, stdResult, EXP == stdResult);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    std::pmr::string pmrResult;
+                    LOOP_ASSERT(LINE,
+                                0 == X.loadTimeZoneFilePath(&pmrResult,
+                                                            TZ_ID));
+                    LOOP3_ASSERT(LINE, EXP, pmrResult, EXP == pmrResult);
+#endif
                 }
             }
         }
@@ -1002,10 +1053,25 @@ int main(int argc, char *argv[])
 
                     mX.configureRootPath(ROOT);
 
-                    bsl::string result;
+                    bsl::string bslResult;
                     LOOP_ASSERT(LINE,
-                                0 == X.loadTimeZoneFilePath(&result, TZ_ID));
-                    LOOP3_ASSERT(LINE, EXP, result, EXP == result);
+                                0 == X.loadTimeZoneFilePath(&bslResult,
+                                                            TZ_ID));
+                    LOOP3_ASSERT(LINE, EXP, bslResult, EXP == bslResult);
+
+                    std::string stdResult;
+                    LOOP_ASSERT(LINE,
+                                0 == X.loadTimeZoneFilePath(&stdResult,
+                                                            TZ_ID));
+                    LOOP3_ASSERT(LINE, EXP, stdResult, EXP == stdResult);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                    std::pmr::string pmrResult;
+                    LOOP_ASSERT(LINE,
+                                0 == X.loadTimeZoneFilePath(&pmrResult,
+                                                            TZ_ID));
+                    LOOP3_ASSERT(LINE, EXP, pmrResult, EXP == pmrResult);
+#endif
                 }
             }
 #undef ROOT

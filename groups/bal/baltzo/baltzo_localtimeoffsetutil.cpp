@@ -167,6 +167,24 @@ void LocalTimeOffsetUtil::loadTimezone(bsl::string *timezone)
     *timezone = *privateTimezone();
 }
 
+void LocalTimeOffsetUtil::loadTimezone(std::string *timezone)
+{
+    BSLS_ASSERT(timezone);
+
+    bslmt::ReadLockGuard<bslmt::RWMutex> readLockGuard(privateLock());
+    *timezone = *privateTimezone();
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+void LocalTimeOffsetUtil::loadTimezone(std::pmr::string *timezone)
+{
+    BSLS_ASSERT(timezone);
+
+    bslmt::ReadLockGuard<bslmt::RWMutex> readLockGuard(privateLock());
+    *timezone = *privateTimezone();
+}
+#endif
+
 }  // close package namespace
 }  // close enterprise namespace
 
