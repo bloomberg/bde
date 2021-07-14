@@ -11,9 +11,6 @@ Build System Changes
 
 Created a `package/pcre2.cmake' file to build using CMake.
 
-Created a `wscript` file to build using waf, based on instructions from the
-`NON-AUTOTOOLS-BUILD` file.
-
 AIX Builds (64-bit)
 ===================
 
