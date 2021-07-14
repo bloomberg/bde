@@ -92,7 +92,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
-// On platforms that the implement IEEE 754 standard for floating-point
+// On platforms that implement the IEEE 754 standard for floating-point
 // arithmetic, dividing a positive number by zero yields positive infinity and
 // dividing a negative number by zero yields negative infinity.  The result of
 // division by zero will therefore be detected as infinite by the 'isInfinite'

@@ -127,29 +127,32 @@ static bool     veryVerbose = 0;
 static bool veryVeryVerbose = 0;
 
 // ============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//                       TEST DRIVER CONFIGURATION
 // ----------------------------------------------------------------------------
 
-typedef bdlb::Float Obj;
+#define TEST_FLOAT_SIGNALING_NAN
+#define TEST_DOUBLE_SIGNALING_NAN
 
-// Some platforms do not support signaling NaNs, especially for
-// single-precision floats, and will convert SNaNs to QNaNs during argument
-// passing.
 #if defined(BSLS_PLATFORM_CPU_POWERPC)
-const bool hasFSNan = false;
-const bool hasDSNan = true;
-#else
-const bool hasFSNan = true;
-const bool hasDSNan = true;
-#endif
+// PowerPC starts to "show" 'float' signaling NaN values with xlC 16 compiler,
+// but not reliably enough for testing.
 
-#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
+# undef TEST_FLOAT_SIGNALING_NAN
+
+#elif defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
 // Both x86 and AMD processors convert SNaNs to QNaNs when certain operations
 // are performed on SNaNs, especially when x87 math is used, making the tests
 // for SNaN's non-deterministic.  See internal-ticket D37511035.
 
-#define OMIT_SNAN_TESTS
+# undef TEST_FLOAT_SIGNALING_NAN
+# undef TEST_DOUBLE_SIGNALING_NAN
 #endif
+
+// ============================================================================
+//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
+typedef bdlb::Float Obj;
 
 unsigned int floatToRep(float x)
     // Convert the specified 'x' to its integer representation.
@@ -201,23 +204,22 @@ double dmax() { return DBL_MAX; }
 static const float  FQNAN1 = repToFloat(0x7fc00000U);
 static const float  FQNAN2 = repToFloat(0x7fc12345U);
 static const float  FQNAN3 = repToFloat(0x7fffffffU);
-#if !defined(OMIT_SNAN_TESTS)
+
+#if defined(TEST_FLOAT_SIGNALING_NAN)
 static const float  FSNAN1 = repToFloat(0x7f800001U);
 static const float  FSNAN2 = repToFloat(0x7fa12345U);
 static const float  FSNAN3 = repToFloat(0x7fbfffffU);
 #endif
+
 static const double DQNAN1 = repToDouble(0x7ff8000000000000ULL);
 static const double DQNAN2 = repToDouble(0x7ff9123456781234ULL);
 static const double DQNAN3 = repToDouble(0x7fffffffffffffffULL);
-#if !defined(OMIT_SNAN_TESTS)
+
+#if defined(TEST_DOUBLE_SIGNALING_NAN)
 static const double DSNAN1 = repToDouble(0x7ff0000000000001ULL);
 static const double DSNAN2 = repToDouble(0x7ff5123456781234ULL);
 static const double DSNAN3 = repToDouble(0x7ff7ffffffffffffULL);
 #endif
-
-// ============================================================================
-//                  CLASSES FOR TESTING USAGE EXAMPLES
-// ----------------------------------------------------------------------------
 
 
 // ============================================================================
@@ -261,7 +263,7 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
-// On platforms that the implement IEEE 754 standard for floating-point
+// On platforms that implement the IEEE 754 standard for floating-point
 // arithmetic, dividing a positive number by zero yields positive infinity and
 // dividing a negative number by zero yields negative infinity.  The result of
 // division by zero will therefore be detected as infinite by the 'isInfinite'
@@ -389,7 +391,7 @@ int main(int argc, char *argv[])
         static const int POS_INFINITY  = Obj::k_POSITIVE_INFINITY;
         static const int NEG_INFINITY  = Obj::k_NEGATIVE_INFINITY;
         static const int QNAN          = Obj::k_QNAN;
-#if !defined(OMIT_SNAN_TESTS)
+#if defined(TEST_DOUBLE_SIGNALING_NAN) || defined(TEST_FLOAT_SIGNALING_NAN)
         static const int SNAN          = Obj::k_SNAN;
 #endif
         static const int POS_NORMAL    = Obj::k_POSITIVE_NORMAL;
@@ -472,7 +474,7 @@ int main(int argc, char *argv[])
 { L_, -1.0F / fzero()                     , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 { L_, 2.0F * -fmax()                      , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 { L_, -8388608.0F / fmin()                , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
-#if !defined(OMIT_SNAN_TESTS)
+#if defined(TEST_FLOAT_SIGNALING_NAN)
 { L_, FSNAN1                              , 0,0,0,0,1,X,0,0,1, SNAN          },
 { L_, FSNAN2                              , 0,0,0,0,1,X,0,0,1, SNAN          },
 { L_, FSNAN3                              , 0,0,0,0,1,X,0,0,1, SNAN          },
@@ -483,32 +485,22 @@ int main(int argc, char *argv[])
         static const int NUM_FDATA = sizeof FDATA / sizeof FDATA[0];
 
         for (int ti = 0; ti < NUM_FDATA; ++ti) {
-            int   LINE           = FDATA[ti].d_line;
-            float input          = FDATA[ti].d_input;
-            int   isZero         = FDATA[ti].d_isZero;
-            int   isNormal       = FDATA[ti].d_isNormal;
-            int   isSubnormal    = FDATA[ti].d_isSubnormal;
-            int   isInfinite     = FDATA[ti].d_isInfinite;
-            int   isNan          = FDATA[ti].d_isNan;
-            int   signBit        = FDATA[ti].d_signBit;
-            int   isFinite       = FDATA[ti].d_isFinite;
-            int   isQuietNan     = FDATA[ti].d_isQNan;
-            int   isSignalingNan = FDATA[ti].d_isSNan;
-            int   classifyFine   = FDATA[ti].d_classification;
+            const int   LINE           = FDATA[ti].d_line;
+            const float input          = FDATA[ti].d_input;
+            const int   isZero         = FDATA[ti].d_isZero;
+            const int   isNormal       = FDATA[ti].d_isNormal;
+            const int   isSubnormal    = FDATA[ti].d_isSubnormal;
+            const int   isInfinite     = FDATA[ti].d_isInfinite;
+            const int   isNan          = FDATA[ti].d_isNan;
+            const int   signBit        = FDATA[ti].d_signBit;
+            const int   isFinite       = FDATA[ti].d_isFinite;
+            const int   isQuietNan     = FDATA[ti].d_isQNan;
+            const int   isSignalingNan = FDATA[ti].d_isSNan;
+            const int   classifyFine   = FDATA[ti].d_classification;
 
             if (veryVeryVerbose) Pd((long)LINE);
 
-            if (! hasFSNan) {
-                // If signaling NaN not supported, convert SNaN results to
-                // equivalent QNaN results.
-
-                isQuietNan     |= isSignalingNan;
-
-                isSignalingNan  = 0;
-                classifyFine   &= ~Obj::k_SIGNALING;
-            }
-
-            int classify = classifyFine & ~(NEGATIVE | SIGNALING);
+            const int classify = classifyFine & ~(NEGATIVE | SIGNALING);
 
             FUNCTION_TEST_F(isZero        );
             FUNCTION_TEST_F(isNormal      );
@@ -591,7 +583,7 @@ int main(int argc, char *argv[])
 { L_, -1.0 / dzero()                      , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 { L_, 2.0 * -dmax()                       , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 { L_, 4503599627370496.0 / -dmin()        , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
-#if !defined(OMIT_SNAN_TESTS)
+#if defined(TEST_DOUBLE_SIGNALING_NAN)
 { L_, DSNAN1                              , 0,0,0,0,1,X,0,0,1, SNAN          },
 { L_, DSNAN2                              , 0,0,0,0,1,X,0,0,1, SNAN          },
 { L_, DSNAN3                              , 0,0,0,0,1,X,0,0,1, SNAN          },
@@ -602,30 +594,22 @@ int main(int argc, char *argv[])
         static const int NUM_DDATA = sizeof DDATA / sizeof DDATA[0];
 
         for (int ti = 0; ti < NUM_DDATA; ++ti) {
-            int    LINE           = DDATA[ti].d_line;
-            double input          = DDATA[ti].d_input;
-            int    isZero         = DDATA[ti].d_isZero;
-            int    isNormal       = DDATA[ti].d_isNormal;
-            int    isSubnormal    = DDATA[ti].d_isSubnormal;
-            int    isInfinite     = DDATA[ti].d_isInfinite;
-            int    isNan          = DDATA[ti].d_isNan;
-            int    signBit        = DDATA[ti].d_signBit;
-            int    isFinite       = DDATA[ti].d_isFinite;
-            int    isQuietNan     = DDATA[ti].d_isQNan;
-            int    isSignalingNan = DDATA[ti].d_isSNan;
-            int    classifyFine   = DDATA[ti].d_classification;
+            const int    LINE           = DDATA[ti].d_line;
+            const double input          = DDATA[ti].d_input;
+            const int    isZero         = DDATA[ti].d_isZero;
+            const int    isNormal       = DDATA[ti].d_isNormal;
+            const int    isSubnormal    = DDATA[ti].d_isSubnormal;
+            const int    isInfinite     = DDATA[ti].d_isInfinite;
+            const int    isNan          = DDATA[ti].d_isNan;
+            const int    signBit        = DDATA[ti].d_signBit;
+            const int    isFinite       = DDATA[ti].d_isFinite;
+            const int    isQuietNan     = DDATA[ti].d_isQNan;
+            const int    isSignalingNan = DDATA[ti].d_isSNan;
+            const int    classifyFine   = DDATA[ti].d_classification;
 
             if (veryVeryVerbose) Pd((long)LINE);
 
-            if (! hasDSNan) {
-                // If signaling NaN not supported, convert SNaN results to
-                // equivalent QNaN results.
-                isQuietNan     |= isSignalingNan;
-                isSignalingNan  = 0;
-                classifyFine    &= ~Obj::k_SIGNALING;
-            }
-
-            int classify = classifyFine & ~(NEGATIVE | SIGNALING);
+            const int classify = classifyFine & ~(NEGATIVE | SIGNALING);
 
             FUNCTION_TEST_D(isZero        );
             FUNCTION_TEST_D(isNormal      );
@@ -724,9 +708,11 @@ int main(int argc, char *argv[])
         ASSERT(  Obj::isQuietNan(fnan));
         ASSERT(  Obj::isQuietNan(dnan));
 
-#if !defined(OMIT_SNAN_TESTS)
-        LOOP_ASSERT(hasFSNan, hasFSNan != Obj::isQuietNan(fsnan));
-        LOOP_ASSERT(hasDSNan, hasDSNan != Obj::isQuietNan(dsnan));
+#if defined(TEST_FLOAT_SIGNALING_NAN)
+        ASSERT(! Obj::isQuietNan(fsnan));
+#endif
+#if defined(TEST_DOUBLE_SIGNALING_NAN)
+        ASSERT(! Obj::isQuietNan(dsnan));
 #endif
         ASSERT(! Obj::isQuietNan(f));
         ASSERT(! Obj::isQuietNan(d));
@@ -736,9 +722,11 @@ int main(int argc, char *argv[])
         ASSERT(! Obj::isSignalingNan(fnan));
         ASSERT(! Obj::isSignalingNan(dnan));
 
-#if !defined(OMIT_SNAN_TESTS)
-        LOOP_ASSERT(hasFSNan, hasFSNan == Obj::isSignalingNan(fsnan));
-        LOOP_ASSERT(hasDSNan, hasDSNan == Obj::isSignalingNan(dsnan));
+#if defined(TEST_FLOAT_SIGNALING_NAN)
+        ASSERT(  Obj::isSignalingNan(fsnan));
+#endif
+#if defined(TEST_DOUBLE_SIGNALING_NAN)
+        ASSERT(  Obj::isSignalingNan(dsnan));
 #endif
 
         ASSERT(! Obj::isSignalingNan(f));
@@ -794,8 +782,12 @@ int main(int argc, char *argv[])
 #endif
 
         if (veryVerbose) {
-            Pd((long)hasFSNan);
-            Pd((long)hasDSNan);
+#if defined(TEST_FLOAT_SIGNALING_NAN)
+            puts("Will test 'float' signaling NaN");
+#endif
+#if defined(TEST_DOUBLE_SIGNALING_NAN)
+            puts("Will test 'double' signaling NaN");
+#endif
 
             Pf(finf);
             PF(dinf);
