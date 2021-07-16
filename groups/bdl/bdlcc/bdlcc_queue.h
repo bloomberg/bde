@@ -407,9 +407,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_mutex.h>
 #include <bslmt_threadutil.h>
 
+#include <bslmf_movableref.h>
+
+#include <bsls_libraryfeatures.h>
 #include <bsls_timeinterval.h>
 
 #include <bsl_vector.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -440,6 +447,19 @@ class Queue {
                                            // erroneously reports a syntax
                                            // error ("Expected an expression").
 
+    template <class VECTOR>
+    struct IsVector {
+        // This 'struct' has a 'value' that evaluates to 'true' if the
+        // specified 'VECTOR' is a 'bsl', 'std', or 'std::pmr' 'vector<TYPE>'.
+
+        static const bool value =
+                            bsl::is_same<bsl::vector<TYPE>, VECTOR>::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                         || bsl::is_same<std::pmr::vector<TYPE>, VECTOR>::value
+#endif
+                         || bsl::is_same<std::vector<TYPE>, VECTOR>::value;
+    };
+
     // DATA
     mutable
     bslmt::Mutex      d_mutex;             // mutex object used to synchronize
@@ -465,6 +485,35 @@ class Queue {
     // NOT IMPLEMENTED
     Queue(const Queue<TYPE>&);
     Queue<TYPE>& operator=(const Queue<TYPE>&);
+
+    // PRIVATE MANIPULATORS
+    template <class VECTOR>
+    void removeAllImpl(VECTOR *buffer = 0);
+        // Remove all the items in this queue.  If the optionally specified
+        // 'buffer' is not 0, load into 'buffer' a copy of the items removed in
+        // front to back order of the queue prior to 'removeAll'.
+
+    template <class VECTOR>
+    void tryPopFrontImpl(int maxNumItems, VECTOR *buffer);
+        // Remove up to the specified 'maxNumItems' from the front of this
+        // queue.  Optionally specify a 'buffer' into which the items removed
+        // from the queue are loaded.  If 'buffer' is non-null, the removed
+        // items are appended to it as if by repeated application of
+        // 'buffer->push_back(popFront())' while the queue is not empty and
+        // 'maxNumItems' have not yet been removed.  The behavior is undefined
+        // unless 'maxNumItems >= 0'.  This method never blocks.
+
+    template <class VECTOR>
+    void tryPopBackImpl(int maxNumItems, VECTOR *buffer);
+        // Remove up to the specified 'maxNumItems' from the back of this
+        // queue.  Optionally specify a 'buffer' into which the items removed
+        // from the queue are loaded.  If 'buffer' is non-null, the removed
+        // items are appended to it as if by repeated application of
+        // 'buffer->push_back(popBack())' while the queue is not empty and
+        // 'maxNumItems' have not yet been removed.  This method never blocks.
+        // The behavior is undefined unless 'maxNumItems >= 0'.  Note that the
+        // ordering of the items in '*buffer' after the call is the reverse of
+        // the ordering they had in the queue.
 
   public:
     // TRAITS
@@ -590,7 +639,12 @@ class Queue {
         // 0 on success, and a non-zero value if the call timed out before an
         // item was available.
 
-    void removeAll(bsl::vector<TYPE> *buffer = 0);
+    void removeAll();
+    void removeAll(bsl::vector<TYPE>      *buffer);
+    void removeAll(std::vector<TYPE>      *buffer);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    void removeAll(std::pmr::vector<TYPE> *buffer);
+#endif
         // Remove all the items in this queue.  If the optionally specified
         // 'buffer' is not 0, load into 'buffer' a copy of the items removed in
         // front to back order of the queue prior to 'removeAll'.
@@ -642,7 +696,12 @@ class Queue {
         // this queue is empty, return a non-zero value with no effect on
         // 'buffer' or the state of this queue.  This method never blocks.
 
-    void tryPopFront(int maxNumItems, bsl::vector<TYPE> *buffer = 0);
+    void tryPopFront(int maxNumItems);
+    void tryPopFront(int maxNumItems, bsl::vector<TYPE>      *buffer);
+    void tryPopFront(int maxNumItems, std::vector<TYPE>      *buffer);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    void tryPopFront(int maxNumItems, std::pmr::vector<TYPE> *buffer);
+#endif
         // Remove up to the specified 'maxNumItems' from the front of this
         // queue.  Optionally specify a 'buffer' into which the items removed
         // from the queue are loaded.  If 'buffer' is non-null, the removed
@@ -657,7 +716,12 @@ class Queue {
         // this queue is empty, return a non-zero value with no effect on
         // 'buffer' or the state of this queue.  This method never blocks.
 
-    void tryPopBack(int maxNumItems, bsl::vector<TYPE> *buffer = 0);
+    void tryPopBack(int maxNumItems);
+    void tryPopBack(int maxNumItems, bsl::vector<TYPE>      *buffer);
+    void tryPopBack(int maxNumItems, std::vector<TYPE>      *buffer);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    void tryPopBack(int maxNumItems, std::pmr::vector<TYPE> *buffer);
+#endif
         // Remove up to the specified 'maxNumItems' from the back of this
         // queue.  Optionally specify a 'buffer' into which the items removed
         // from the queue are loaded.  If 'buffer' is non-null, the removed
@@ -724,6 +788,95 @@ class Queue {
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
+
+// PRIVATE MANIPULATORS
+template <class TYPE>
+template <class VECTOR>
+void Queue<TYPE>::removeAllImpl(VECTOR *buffer)
+{
+    BSLMF_ASSERT(IsVector<VECTOR>::value);
+
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    bool wasFull = d_highWaterMark > 0 && d_queue.length() >= d_highWaterMark;
+
+    if (buffer) {
+        for (int ii = 0, len = d_queue.length(); ii < len; ++ii) {
+            buffer->push_back(bslmf::MovableRefUtil::move(d_queue[ii]));
+        }
+    }
+    d_queue.removeAll();
+
+    lock.release()->unlock();
+
+    if (wasFull) {
+        for (int i = 0; d_highWaterMark > i; ++i) {
+            d_notFullCondition.signal();
+        }
+    }
+}
+
+template <class TYPE>
+template <class VECTOR>
+void Queue<TYPE>::tryPopFrontImpl(int maxNumItems, VECTOR *buffer)
+{
+    BSLMF_ASSERT(IsVector<VECTOR>::value);
+
+    int numSignal = 0;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        int        length  = d_queue.length();
+        const bool wasFull = d_highWaterMark > 0 && length >= d_highWaterMark;
+
+        for (; d_queue.length() > 0 && maxNumItems > 0; --maxNumItems) {
+            if (buffer) {
+                buffer->push_back(
+                                 bslmf::MovableRefUtil::move(d_queue.front()));
+            }
+            d_queue.popFront();
+            --length;
+        }
+
+        if (wasFull && length < d_highWaterMark) {
+            numSignal = d_highWaterMark - length;
+        }
+    }
+
+    for (; 0 < numSignal; --numSignal) {
+        d_notFullCondition.signal();
+    }
+}
+
+template <class TYPE>
+template <class VECTOR>
+void Queue<TYPE>::tryPopBackImpl(int maxNumItems, VECTOR *buffer)
+{
+    BSLMF_ASSERT(IsVector<VECTOR>::value);
+
+    int numSignal = 0;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        int        length  = d_queue.length();
+        const bool wasFull = d_highWaterMark > 0 && length >= d_highWaterMark;
+
+        for (; d_queue.length() > 0 && maxNumItems > 0; --maxNumItems) {
+            if (buffer) {
+                buffer->push_back(bslmf::MovableRefUtil::move(d_queue.back()));
+            }
+            d_queue.popBack();
+            --length;
+        }
+
+        if (wasFull && length < d_highWaterMark) {
+            numSignal = d_highWaterMark - length;
+        }
+    }
+
+    for (; 0 < numSignal; --numSignal) {
+        d_notFullCondition.signal();
+    }
+}
 
 // CREATORS
 template <class TYPE>
@@ -945,32 +1098,34 @@ int Queue<TYPE>::tryPopFront(TYPE *buffer)
 }
 
 template <class TYPE>
+inline
+void Queue<TYPE>::tryPopFront(int maxNumItems)
+{
+    tryPopFrontImpl(maxNumItems, static_cast<bsl::vector<TYPE> *>(0));
+}
+
+template <class TYPE>
+inline
 void Queue<TYPE>::tryPopFront(int maxNumItems, bsl::vector<TYPE> *buffer)
 {
-    int numSignal = 0;
-    {
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-
-        int        length  = d_queue.length();
-        const bool wasFull = d_highWaterMark > 0 && length >= d_highWaterMark;
-
-        for (; d_queue.length() > 0 && maxNumItems > 0; --maxNumItems) {
-            if (buffer) {
-                buffer->push_back(d_queue.front());
-            }
-            d_queue.popFront();
-            --length;
-        }
-
-        if (wasFull && length < d_highWaterMark) {
-            numSignal = d_highWaterMark - length;
-        }
-    }
-
-    for (; 0 < numSignal; --numSignal) {
-        d_notFullCondition.signal();
-    }
+    tryPopFrontImpl(maxNumItems, buffer);
 }
+
+template <class TYPE>
+inline
+void Queue<TYPE>::tryPopFront(int maxNumItems, std::vector<TYPE> *buffer)
+{
+    tryPopFrontImpl(maxNumItems, buffer);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class TYPE>
+inline
+void Queue<TYPE>::tryPopFront(int maxNumItems, std::pmr::vector<TYPE> *buffer)
+{
+    tryPopFrontImpl(maxNumItems, buffer);
+}
+#endif
 
 template <class TYPE>
 int Queue<TYPE>::tryPopBack(TYPE *buffer)
@@ -994,48 +1149,60 @@ int Queue<TYPE>::tryPopBack(TYPE *buffer)
 }
 
 template <class TYPE>
+inline
+void Queue<TYPE>::tryPopBack(int maxNumItems)
+{
+    tryPopBackImpl(maxNumItems, static_cast<bsl::vector<TYPE> *>(0));
+}
+
+template <class TYPE>
+inline
 void Queue<TYPE>::tryPopBack(int maxNumItems, bsl::vector<TYPE> *buffer)
 {
-    int numSignal = 0;
-    {
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    tryPopBackImpl(maxNumItems, buffer);
+}
 
-        int        length  = d_queue.length();
-        const bool wasFull = d_highWaterMark > 0 && length >= d_highWaterMark;
+template <class TYPE>
+inline
+void Queue<TYPE>::tryPopBack(int maxNumItems, std::vector<TYPE> *buffer)
+{
+    tryPopBackImpl(maxNumItems, buffer);
+}
 
-        for (; d_queue.length() > 0 && maxNumItems > 0; --maxNumItems) {
-            if (buffer) {
-                buffer->push_back(d_queue.back());
-            }
-            d_queue.popBack();
-            --length;
-        }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class TYPE>
+inline
+void Queue<TYPE>::tryPopBack(int maxNumItems, std::pmr::vector<TYPE> *buffer)
+{
+    tryPopBackImpl(maxNumItems, buffer);
+}
+#endif
 
-        if (wasFull && length < d_highWaterMark) {
-            numSignal = d_highWaterMark - length;
-        }
-    }
-
-    for (; 0 < numSignal; --numSignal) {
-        d_notFullCondition.signal();
-    }
+template <class TYPE>
+void Queue<TYPE>::removeAll()
+{
+    removeAllImpl(static_cast<bsl::vector<TYPE> *>(0));
 }
 
 template <class TYPE>
 void Queue<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    bool wasFull = d_highWaterMark > 0 && d_queue.length() >= d_highWaterMark;
-    d_queue.removeAll(buffer);
-
-    lock.release()->unlock();
-
-    if (wasFull) {
-        for (int i = 0; d_highWaterMark > i; ++i) {
-            d_notFullCondition.signal();
-        }
-    }
+    removeAllImpl(buffer);
 }
+
+template <class TYPE>
+void Queue<TYPE>::removeAll(std::vector<TYPE> *buffer)
+{
+    removeAllImpl(buffer);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class TYPE>
+void Queue<TYPE>::removeAll(std::pmr::vector<TYPE> *buffer)
+{
+    removeAllImpl(buffer);
+}
+#endif
 
 template <class TYPE>
 void Queue<TYPE>::pushBack(const TYPE& item)

@@ -173,6 +173,16 @@ typedef bsls::Types::IntPtr         IntPtr;
 namespace {
 namespace u {
 
+enum VecType { e_BSL,
+               e_STD,
+               e_PMR,
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+               e_NUM_VEC_TYPES = e_PMR + 1
+#else
+               e_NUM_VEC_TYPES = e_PMR
+#endif
+};
+
 bsls::AtomicInt masterThreadId(0);
 
 enum AddMode {
@@ -524,6 +534,16 @@ unsigned RandGen::operator()()
 
 }  // close namespace u
 }  // close unnamed namespace
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, u::VecType value)
+{
+    stream << (u::e_BSL == value ? "bsl"      :
+               u::e_STD == value ? "std"      :
+               u::e_PMR == value ? "std::pmr" : "unk");
+
+    return stream;
+}
 
 bsl::ostream& operator<<(bsl::ostream& stream, u::AddMode mode)
 {
@@ -885,6 +905,8 @@ class TestDriver {
 
     static void addRTest();
 
+    template <class VECTOR>
+    static void removeAllTestByVecType();
     static void removeAllTest();
 
     static void findTest();
@@ -2454,41 +2476,25 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::addRTest()
 }
 
 template <class KEY_TYPE, class DATA_TYPE>
-void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTest()
-// ----------------------------------------------------------------------------
-// REMOVEALL TEST
-//
-// Concerns:
-//: 1 That the function 'removeAll' empties the container.
-//:
-//: 2 If a vector is passed to 'removeAll', the container is emptied but the
-//:   vector is populated with pair handles referring to all the deleted nodes
-//:   from the container.
-//
-// Plan:
-//: 1 Create a container and populate it from the non-sorted table 'VALUES1',
-//:
-//: 2 Use the function 'verify' to traverse the container and compare it with
-//:   table 'VALUES2', which has the same data as 'VALUES1', only sorted.
-//:
-//: 3 Call 'removeAll' with no args, and verify that it empties the container.
-//:
-//: 4 Re-populate and check the conainter again as in steps '1' and '2'.
-//:
-//: 5 Create a vector of pair handles and put one pair handle in it.
-//:
-//: 6 Call 'removeAll' passing it the vector, and observe that the container
-//:   is emptied.
-//:
-//: 7 Examine the contents of the vector and observe that it has the handle
-//:   that was originally there, with the other handles from the container
-//:   appended to that, in the correct order.
-//:
-//: 8 Don't check the default allocator -- 'removeAll' uses it.
-// ---------------------------------------------------------------------------
+template <class VECTOR>
+void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTestByVecType()
 {
-    if (verbose) cout << "removeAllTest<" << bsls::NameOf<KEY_TYPE>() <<
-                           ", " << bsls::NameOf<DATA_TYPE>() << ">();" << endl;
+    static const u::VecType vecType =
+                     bsl::is_same<VECTOR, bsl::vector<PairHandle> >::value
+                   ? u::e_BSL
+                   : bsl::is_same<VECTOR, std::vector<PairHandle> >::value
+                   ? u::e_STD
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                   : bsl::is_same<VECTOR, std::pmr::vector<PairHandle> >::value
+                   ? u::e_PMR
+#endif
+                   : u::e_NUM_VEC_TYPES;
+    BSLMF_ASSERT(u::e_NUM_VEC_TYPES != vecType);
+
+    if (verbose) cout << "  removeAllTestByVecType<" <<
+                                   vecType << "::vector<PairHandle>, " <<
+                                   bsls::NameOf<KEY_TYPE>() << ", " <<
+                                   bsls::NameOf<DATA_TYPE>() << ">();" << endl;
 
     TableRecord VALUES1[] = {
         { L_ , 1, 2, 0},
@@ -2535,7 +2541,12 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTest()
 
         ASSERT(0 == da.numAllocations());
 
-        bsl::vector<PairHandle> removed(&ta);
+        bsl::vector<PairHandle> removedRealBsl(&ta);
+        VECTOR                  removedReal;
+        VECTOR&                 removed = u::e_BSL == vecType
+                                        ? *reinterpret_cast<VECTOR *>(
+                                                               &removedRealBsl)
+                                        : removedReal;
 
         PairHandle ph;
         ASSERT(0 == mX.front(&ph));
@@ -2566,11 +2577,59 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTest()
             }
         }
 
+        // 'removeAll(&vec)' uses a temporary vector that uses the default
+        // allocator.
+
         ASSERT(0 <  da.numAllocations());
     }
 
     ASSERT(0 <  ta.numAllocations());
     ASSERT(0 == ta.numBytesInUse());
+}
+
+template <class KEY_TYPE, class DATA_TYPE>
+void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTest()
+// ----------------------------------------------------------------------------
+// REMOVEALL TEST
+//
+// Concerns:
+//: 1 That the function 'removeAll' empties the container.
+//:
+//: 2 If a vector is passed to 'removeAll', the container is emptied but the
+//:   vector is populated with pair handles referring to all the deleted nodes
+//:   from the container.
+//
+// Plan:
+//: 1 Create a container and populate it from the non-sorted table 'VALUES1',
+//:
+//: 2 Use the function 'verify' to traverse the container and compare it with
+//:   table 'VALUES2', which has the same data as 'VALUES1', only sorted.
+//:
+//: 3 Call 'removeAll' with no args, and verify that it empties the container.
+//:
+//: 4 Re-populate and check the conainter again as in steps '1' and '2'.
+//:
+//: 5 Create a vector of pair handles and put one pair handle in it.
+//:
+//: 6 Call 'removeAll' passing it the vector, and observe that the container
+//:   is emptied.
+//:
+//: 7 Examine the contents of the vector and observe that it has the handle
+//:   that was originally there, with the other handles from the container
+//:   appended to that, in the correct order.
+//:
+//: 8 Don't check the default allocator -- 'removeAll' uses it.
+// ---------------------------------------------------------------------------
+{
+    if (verbose) cout << "removeAllTest<" <<
+                                   bsls::NameOf<KEY_TYPE>() << ", " <<
+                                   bsls::NameOf<DATA_TYPE>() << ">();" << endl;
+
+    removeAllTestByVecType<bsl::vector<PairHandle> >();
+    removeAllTestByVecType<std::vector<PairHandle> >();
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    removeAllTestByVecType<std::pmr::vector<PairHandle> >();
+#endif
 }
 
 template <class KEY_TYPE, class DATA_TYPE>

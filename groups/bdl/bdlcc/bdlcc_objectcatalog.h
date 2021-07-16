@@ -284,6 +284,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
@@ -294,6 +295,10 @@ BSLS_IDENT("$Id: $")
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -424,6 +429,12 @@ class ObjectCatalog {
         // 'ObjectCatalog_AutoCleanup' guard, but there it should not invoke
         // the object's destructor.)
 
+    template <class VECTOR>
+    void removeAllImpl(VECTOR *buffer);
+        // Remove all objects that are currently held in this catalog and
+        // optionally load into the optionally specified 'buffer' the removed
+        // objects.
+
     // PRIVATE ACCESSORS
     Node *findNode(int handle) const;
         // Return a pointer to the node with the specified 'handle', or 0 if
@@ -462,7 +473,12 @@ class ObjectCatalog {
         // 'handle' is not contained in this catalog.  Note that 'valueBuffer'
         // is assigned into, and thus must point to a valid 'TYPE' instance.
 
-    void removeAll(bsl::vector<TYPE> *buffer = 0);
+    void removeAll();
+    void removeAll(bsl::vector<TYPE>      *buffer);
+    void removeAll(std::vector<TYPE>      *buffer);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    void removeAll(std::pmr::vector<TYPE> *buffer);
+#endif
         // Remove all objects that are currently held in this catalog and
         // optionally load into the optionally specified 'buffer' the removed
         // objects.
@@ -669,6 +685,45 @@ void ObjectCatalog<TYPE>::freeNode(typename ObjectCatalog<TYPE>::Node *node)
     d_nextFreeNode_p = node;
 }
 
+
+template <class TYPE>
+template <class VECTOR>
+void ObjectCatalog<TYPE>::removeAllImpl(VECTOR *buffer)
+{
+    static const bool isVector =
+                            bsl::is_same<bsl::vector<TYPE>, VECTOR>::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                         || bsl::is_same<std::pmr::vector<TYPE>, VECTOR>::value
+#endif
+                         || bsl::is_same<std::vector<TYPE>, VECTOR>::value;
+    BSLMF_ASSERT(isVector);
+
+    typedef typename bsl::vector<Node *>::iterator VIt;
+
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
+
+    for (VIt it = d_nodes.begin(); it != d_nodes.end(); ++it) {
+        if ((*it)->d_handle & k_BUSY_INDICATOR) {
+            TYPE *value = getNodeValue(*it);
+
+            if (buffer) {
+                buffer->push_back(bslmf::MovableRefUtil::move(*value));
+            }
+            value->~TYPE();
+        }
+    }
+
+    // Even though we get rid of the container of 'Node *' without returning
+    // the nodes to the pool prior, the release of the pool immediately after
+    // will properly (and efficiently) dispose of those nodes without leaking
+    // memory.
+
+    d_nodes.clear();
+    d_nodePool.release();
+    d_nextFreeNode_p = 0;
+    d_length = 0;
+}
+
 // PRIVATE ACCESSORS
 template <class TYPE>
 inline
@@ -832,33 +887,34 @@ int ObjectCatalog<TYPE>::remove(int handle, TYPE *valueBuffer)
 }
 
 template <class TYPE>
+inline
+void ObjectCatalog<TYPE>::removeAll()
+{
+    removeAllImpl(static_cast<bsl::vector<TYPE> *>(0));
+}
+
+template <class TYPE>
+inline
 void ObjectCatalog<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 {
-    typedef typename bsl::vector<Node *>::iterator VIt;
-
-    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_lock);
-
-    for (VIt it = d_nodes.begin(); it != d_nodes.end(); ++it) {
-        if ((*it)->d_handle & k_BUSY_INDICATOR) {
-            TYPE *value = getNodeValue(*it);
-
-            if (buffer) {
-                buffer->push_back(bslmf::MovableRefUtil::move(*value));
-            }
-            value->~TYPE();
-        }
-    }
-
-    // Even though we get rid of the container of 'Node *' without returning
-    // the nodes to the pool prior, the release of the pool immediately after
-    // will properly (and efficiently) dispose of those nodes without leaking
-    // memory.
-
-    d_nodes.clear();
-    d_nodePool.release();
-    d_nextFreeNode_p = 0;
-    d_length = 0;
+    removeAllImpl(buffer);
 }
+
+template <class TYPE>
+inline
+void ObjectCatalog<TYPE>::removeAll(std::vector<TYPE> *buffer)
+{
+    removeAllImpl(buffer);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class TYPE>
+inline
+void ObjectCatalog<TYPE>::removeAll(std::pmr::vector<TYPE> *buffer)
+{
+    removeAllImpl(buffer);
+}
+#endif
 
 template <class TYPE>
 int ObjectCatalog<TYPE>::replace(int handle, const TYPE& newObject)

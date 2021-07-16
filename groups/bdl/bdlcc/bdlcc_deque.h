@@ -39,9 +39,9 @@ BSLS_IDENT("$Id: $")
 //:   assignment.
 // All operations on 'bdlcc::Deque' provide the strong exception guarantee,
 // both for the 'bdlcc::Deque's own salient state and the salient state of the
-// 'bsl::vector', if any, passed to manipulators.  However, the non-salient
-// 'capacity' of the underlying 'bsl::deque' and of the passed 'bsl::vector'
-// may be modified.
+// 'vector', if any, passed to manipulators.  However, the non-salient
+// 'capacity' of the underlying 'bsl::deque' and of the passed 'vector' may be
+// modified.
 //
 ///Design Rationale for 'bdlcc::Deque'
 ///-----------------------------------
@@ -449,6 +449,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_review.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_timeinterval.h>
@@ -460,98 +461,12 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstddef.h>
 #include <bsl_cstdio.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
+
 namespace BloombergLP {
 namespace bdlcc {
-
-// PRIVATE TYPES
-template <class TYPE>
-class Deque_DequeThrowGuard {
-    // This private 'class' is used to manage a 'bsl::deque', during the course
-    // of an operation by a 'bdlcc::Deque'.  Because it has a 'release' method,
-    // it is actually a proctor, but we call it a 'guard' to avoid having
-    // clients confuse it with this component's 'Proctor' and 'ConstProctor'
-    // types.  A 'deque' that is being managed may only grow, and only on one
-    // end or the other.  If a throw happens during the course of the operation
-    // and this guard's destructor is called while still managing the object,
-    // it will restore the managed object to its initial state via operations
-    // that are guaranteed not to throw.
-
-    // PRIVATE TYPES
-    typedef bsl::deque<TYPE>                      MonoDeque;
-    typedef typename MonoDeque::size_type         size_type;
-    typedef typename MonoDeque::const_iterator    MDCIter;
-
-    // DATA
-    MonoDeque          *d_monoDeque_p;
-    const MDCIter       d_mdBegin;
-    const MDCIter       d_mdEnd;
-    const bool          d_mdWasEmpty;
-
-  private:
-    // NOT IMPLEMENTED
-    Deque_DequeThrowGuard(const Deque_DequeThrowGuard&);
-    Deque_DequeThrowGuard& operator=(const Deque_DequeThrowGuard&);
-
-  public:
-    // CREATORS
-    explicit
-    Deque_DequeThrowGuard(MonoDeque *monoDeque_p);
-        // Create a 'Deque_DequeThrowGuard' object that will manage the
-        // specified '*monoDeque_p'.  The behavior is undefined if
-        // '0 == monoDeque_p'.
-
-    ~Deque_DequeThrowGuard();
-        // If a 'MonoDeque' is being managed by this 'ThrowGuard', restore it
-        // to the state it was in when this object was created.
-
-    // MANIPULATOR
-    void release();
-        // Release the monitored 'MonoDeque' from management by this
-        // 'Deque_DequeThrowGuard' object.
-};
-
-template <class TYPE>
-class Deque_VectorThrowGuard {
-    // This private 'class' is used to manage one object, either a 'MonoDeque'
-    // or a 'vector', during the course of an operation by a 'bdlcc::Deque'.
-    // Because it has a 'release' method, it is actually a proctor, but we call
-    // it a 'guard' to avoid having clients confuse it with the 'Proctor' and
-    // 'ConstProctor' types.  If a 'deque' is being managed, it may only grow,
-    // and only on one end or the other.  If a throw happens during the course
-    // of the operation and the guard's destructor is called while still
-    // managing the object, it will restore the managed object to its initial
-    // state via operations that are guaranteed not to throw.
-
-    // PRIVATE TYPES
-    typedef typename bsl::vector<TYPE>::size_type VSize;
-
-    // DATA
-    bsl::vector<TYPE>  *d_vector_p;
-    const VSize         d_vSize;
-
-  private:
-    // NOT IMPLEMENTED
-    Deque_VectorThrowGuard(const Deque_VectorThrowGuard&);
-    Deque_VectorThrowGuard& operator=(const Deque_VectorThrowGuard&);
-
-  public:
-    // CREATORS
-    explicit
-    Deque_VectorThrowGuard(bsl::vector<TYPE> *vector_p);
-        // Create a 'Deque_VectorThrowGuard' object that will manage the
-        // specified '*vector_p'.  Note that the case where '0 == vector_p' is
-        // explicitly permitted, in which case this object will not manage
-        // anything.
-
-    ~Deque_VectorThrowGuard();
-        // If a 'vector' is being managed by this 'Deque_VectorThrowGuard',
-        // restore it to the state it was in when this object was created.
-
-    // MANIPULATOR
-    void release();
-        // Release the monitored 'vector' from management by this
-        // 'Deque_VectorThrowGuard' object.
-};
 
                                  // ===========
                                  // class Deque
@@ -566,6 +481,24 @@ class Deque {
     // this class is not value-semantic, the underlying 'bsl::deque<TYPE>'
     // class is.
 
+    // PRIVATE TYPES
+    class DequeThrowGuard;
+    template <class VECTOR>
+    class VectorThrowGuard;
+
+    template <class VECTOR>
+    struct IsVector {
+        // This 'struct' has a 'value' that evaluates to 'true' if the
+        // specified 'VECTOR' is a 'bsl', 'std', or 'std::pmr' 'vector<VALUE>'.
+
+        static const bool value =
+                            bsl::is_same<bsl::vector<TYPE>, VECTOR>::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                         || bsl::is_same<std::pmr::vector<TYPE>, VECTOR>::value
+#endif
+                         || bsl::is_same<std::vector<TYPE>, VECTOR>::value;
+    };
+
   public:
     // PUBLIC TYPES
     typedef bsl::deque<TYPE>               MonoDeque;
@@ -573,11 +506,6 @@ class Deque {
 
     class Proctor;            // defined after this 'class'
     class ConstProctor;       // defined after this 'class'
-
-  private:
-    // PRIVATE TYPES
-    typedef Deque_DequeThrowGuard<TYPE>  DequeThrowGuard;
-    typedef Deque_VectorThrowGuard<TYPE> VectorThrowGuard;
 
   private:
     // DATA
@@ -608,6 +536,40 @@ class Deque {
   private:
     // NOT IMPLEMENTED
     Deque<TYPE>& operator=(const Deque<TYPE>&);
+
+    // PRIVATE MANIPULATORS
+    template <class VECTOR>
+    void removeAllImpl(VECTOR *buffer = 0);
+        // If the optionally specified 'buffer' is non-zero, append all the
+        // elements from this container to '*buffer' in the same order, then,
+        // regardless of whether 'buffer' is zero, clear this container.  Note
+        // that the previous contents of '*buffer' are not discarded -- the
+        // removed items are appended to it.
+
+    template <class VECTOR>
+    void tryPopBackImpl(size_type  maxNumItems,
+                        VECTOR    *buffer);
+        // Remove up to the specified 'maxNumItems' from the back of this
+        // container.  Optionally specify a 'buffer' into which the items
+        // removed from the container are loaded.  If 'buffer' is non-null, the
+        // removed items are appended to it as if by repeated application of
+        // 'buffer->push_back(popBack())' while the container is not empty and
+        // 'maxNumItems' have not yet been removed.  Note that the ordering of
+        // the items in '*buffer' after the call is the reverse of the ordering
+        // they had in the deque.  Also note that '*buffer' is not cleared --
+        // the popped items are appended after any pre-existing contents.
+
+    template <class VECTOR>
+    void tryPopFrontImpl(size_type  maxNumItems,
+                         VECTOR    *buffer);
+        // Remove up to the specified 'maxNumItems' from the front of this
+        // container.  Optionally specify a 'buffer' into which the items
+        // removed from the container are appended.  If 'buffer' is non-null,
+        // the removed items are appended to it as if by repeated application
+        // of 'buffer->push_back(popFront())' while the const is not empty and
+        // 'maxNumItems' have not yet been removed.  Note that '*buffer' is not
+        // cleared -- the popped items are appended after any pre-existing
+        // contents.
 
   public:
     // CLASS METHODS
@@ -782,7 +744,12 @@ class Deque {
         // move-insertable 'item' to the front of this container.  'item' is
         // left in a valid but unspecified state.
 
-    void removeAll(bsl::vector<TYPE> *buffer = 0);
+    void removeAll();
+    void removeAll(bsl::vector<TYPE>      *buffer);
+    void removeAll(std::vector<TYPE>      *buffer);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    void removeAll(std::pmr::vector<TYPE> *buffer);
+#endif
         // If the optionally specified 'buffer' is non-zero, append all the
         // elements from this container to '*buffer' in the same order, then,
         // regardless of whether 'buffer' is zero, clear this container.  Note
@@ -873,8 +840,15 @@ class Deque {
         // this container is empty, return a non-zero value with no effect on
         // 'item' or the state of this container.
 
-    void tryPopBack(size_type          maxNumItems,
-                    bsl::vector<TYPE> *buffer = 0);
+    void tryPopBack(size_type               maxNumItems);
+    void tryPopBack(size_type               maxNumItems,
+                    bsl::vector<TYPE>      *buffer);
+    void tryPopBack(size_type               maxNumItems,
+                    std::vector<TYPE>      *buffer);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    void tryPopBack(size_type               maxNumItems,
+                    std::pmr::vector<TYPE> *buffer);
+#endif
         // Remove up to the specified 'maxNumItems' from the back of this
         // container.  Optionally specify a 'buffer' into which the items
         // removed from the container are loaded.  If 'buffer' is non-null, the
@@ -894,8 +868,15 @@ class Deque {
         // If this container is empty, return a non-zero value with no effect
         // on '*item' or the state of this container.
 
-    void tryPopFront(size_type          maxNumItems,
-                     bsl::vector<TYPE> *buffer = 0);
+    void tryPopFront(size_type               maxNumItems);
+    void tryPopFront(size_type               maxNumItems,
+                     bsl::vector<TYPE>      *buffer);
+    void tryPopFront(size_type               maxNumItems,
+                     std::vector<TYPE>      *buffer);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    void tryPopFront(size_type               maxNumItems,
+                     std::pmr::vector<TYPE> *buffer);
+#endif
         // Remove up to the specified 'maxNumItems' from the front of this
         // container.  Optionally specify a 'buffer' into which the items
         // removed from the container are appended.  If 'buffer' is non-null,
@@ -977,6 +958,95 @@ class Deque {
         // before it is returned if any other threads are simultaneously
         // modifying this container.  To find the length while a proctor has
         // the container locked, call 'proctor->size()'.
+};
+
+template <class TYPE>
+class Deque<TYPE>::DequeThrowGuard {
+    // This private 'class' is used to manage a 'bsl::deque', during the course
+    // of an operation by a 'bdlcc::Deque'.  Because it has a 'release' method,
+    // it is actually a proctor, but we call it a 'guard' to avoid having
+    // clients confuse it with this component's 'Proctor' and 'ConstProctor'
+    // types.  A 'deque' that is being managed may only grow, and only on one
+    // end or the other.  If a throw happens during the course of the operation
+    // and this guard's destructor is called while still managing the object,
+    // it will restore the managed object to its initial state via operations
+    // that are guaranteed not to throw.
+
+    // PRIVATE TYPES
+    typedef bsl::deque<TYPE>                      MonoDeque;
+    typedef typename MonoDeque::size_type         size_type;
+    typedef typename MonoDeque::const_iterator    MDCIter;
+
+    // DATA
+    MonoDeque          *d_monoDeque_p;
+    const MDCIter       d_mdBegin;
+    const MDCIter       d_mdEnd;
+    const bool          d_mdWasEmpty;
+
+  private:
+    // NOT IMPLEMENTED
+    DequeThrowGuard(const DequeThrowGuard&);
+    DequeThrowGuard& operator=(const DequeThrowGuard&);
+
+  public:
+    // CREATORS
+    explicit
+    DequeThrowGuard(MonoDeque *monoDeque_p);
+        // Create a 'Deque_DequeThrowGuard' object that will manage the
+        // specified '*monoDeque_p'.  The behavior is undefined if
+        // '0 == monoDeque_p'.
+
+    ~DequeThrowGuard();
+        // If a 'MonoDeque' is being managed by this 'ThrowGuard', restore it
+        // to the state it was in when this object was created.
+
+    // MANIPULATOR
+    void release();
+        // Release the monitored 'MonoDeque' from management by this
+        // 'Deque_DequeThrowGuard' object.
+};
+
+template <class TYPE>
+template <class VECTOR>
+class Deque<TYPE>::VectorThrowGuard {
+    // This private 'class' is used to manage one 'vector' object during the
+    // course of an operation by a 'bdlcc::Deque'.  Because it has a 'release'
+    // method, it is actually a proctor, but we call it a 'guard' to avoid
+    // having clients confuse it with the 'Proctor' and 'ConstProctor' types.
+    // The vector may only grow by having objects appended to it.  If a throw
+    // happens during the course of the operation and the guard's destructor is
+    // called while still managing the object, it will restore the managed
+    // object to its initial state via operations that are guaranteed not to
+    // throw.
+
+    // PRIVATE TYPES
+    typedef typename VECTOR::size_type VSize;
+
+    // DATA
+    VECTOR         *d_vector_p;
+    const VSize     d_vSize;
+
+  private:
+    // NOT IMPLEMENTED
+    VectorThrowGuard(const VectorThrowGuard&);
+    VectorThrowGuard& operator=(const VectorThrowGuard&);
+
+  public:
+    // CREATORS
+    explicit
+    VectorThrowGuard(VECTOR *vector_p);
+        // Create a 'VectorThrowGuard' object that will manage the specified
+        // '*vector_p'.  Note that the case where '0 == vector_p' is explicitly
+        // permitted, in which case this object will not manage anything.
+
+    ~VectorThrowGuard();
+        // If a 'vector' is being managed by this 'VectorThrowGuard', restore
+        // it to the state it was in when this object was created.
+
+    // MANIPULATOR
+    void release();
+        // Release the monitored 'vector' from management by this
+        // 'VectorThrowGuard' object.
 };
 
                               // ====================
@@ -1329,15 +1399,14 @@ bool Deque<TYPE>::ConstProctor::isNull() const
     return 0 == d_container_p;
 }
 
-                          // ----------------------------
-                          // bdlcc::Deque_DequeThrowGuard
-                          // ----------------------------
+                      // -----------------------------------
+                      // bdlcc::Deque<TYPE>::DequeThrowGuard
+                      // -----------------------------------
 
 // CREATORS
 template <class TYPE>
 inline
-Deque_DequeThrowGuard<TYPE>::Deque_DequeThrowGuard(
-                                                 bsl::deque<TYPE> *monoDeque_p)
+Deque<TYPE>::DequeThrowGuard::DequeThrowGuard(bsl::deque<TYPE> *monoDeque_p)
 : d_monoDeque_p(monoDeque_p)
 , d_mdBegin(   monoDeque_p->cbegin())
 , d_mdEnd(     monoDeque_p->cend())
@@ -1348,7 +1417,7 @@ Deque_DequeThrowGuard<TYPE>::Deque_DequeThrowGuard(
 
 template <class TYPE>
 inline
-Deque_DequeThrowGuard<TYPE>::~Deque_DequeThrowGuard()
+Deque<TYPE>::DequeThrowGuard::~DequeThrowGuard()
 {
     if (d_monoDeque_p)  {
         if (d_mdWasEmpty) {
@@ -1396,28 +1465,29 @@ Deque_DequeThrowGuard<TYPE>::~Deque_DequeThrowGuard()
 // MANIPULATOR
 template <class TYPE>
 inline
-void Deque_DequeThrowGuard<TYPE>::release()
+void Deque<TYPE>::DequeThrowGuard::release()
 {
     d_monoDeque_p = 0;
 }
 
-                          // -----------------------------
-                          // bdlcc::Deque_VectorThrowGuard
-                          // -----------------------------
+                  // --------------------------------------------
+                  // bdlcc::Deque<TYPE>::VectorThrowGuard<VECTOR>
+                  // --------------------------------------------
 
 // CREATORS
 template <class TYPE>
+template <class VECTOR>
 inline
-Deque_VectorThrowGuard<TYPE>::Deque_VectorThrowGuard(
-                                                   bsl::vector<TYPE> *vector_p)
+Deque<TYPE>::VectorThrowGuard<VECTOR>::VectorThrowGuard(VECTOR *vector_p)
 : d_vector_p(vector_p)
 , d_vSize(vector_p ? vector_p->size() : 0)
 {
 }
 
 template <class TYPE>
+template <class VECTOR>
 inline
-Deque_VectorThrowGuard<TYPE>::~Deque_VectorThrowGuard()
+Deque<TYPE>::VectorThrowGuard<VECTOR>::~VectorThrowGuard()
 {
     if (d_vector_p) {
         const VSize newSize = d_vector_p->size();
@@ -1439,8 +1509,9 @@ Deque_VectorThrowGuard<TYPE>::~Deque_VectorThrowGuard()
 
 // MANIPULATOR
 template <class TYPE>
+template <class VECTOR>
 inline
-void Deque_VectorThrowGuard<TYPE>::release()
+void Deque<TYPE>::VectorThrowGuard<VECTOR>::release()
 {
     d_vector_p = 0;
 }
@@ -1448,6 +1519,97 @@ void Deque_VectorThrowGuard<TYPE>::release()
                                   // ------------
                                   // bdlcc::Deque
                                   // ------------
+
+// PRIVATE MANIPULATORS
+template <class TYPE>
+template <class VECTOR>
+inline
+void Deque<TYPE>::removeAllImpl(VECTOR *buffer)
+{
+    BSLMF_ASSERT(IsVector<VECTOR>::value);
+
+    Proctor proctor(this);
+
+    VectorThrowGuard<VECTOR> tg(buffer);
+
+    if (buffer) {
+        const size_type size = d_monoDeque.size();
+        buffer->reserve(buffer->size() + size);
+
+        for (size_type ii = 0; ii < size; ++ii) {
+            buffer->push_back(bslmf::MovableRefUtil::move(d_monoDeque[ii]));
+        }
+    }
+
+    proctor->clear();
+
+    tg.release();
+}
+
+
+template <class TYPE>
+template <class VECTOR>
+void Deque<TYPE>::tryPopBackImpl(typename Deque<TYPE>::size_type  maxNumItems,
+                                 VECTOR                          *buffer)
+{
+    BSLMF_ASSERT(IsVector<VECTOR>::value);
+
+    Proctor proctor(this);
+    VectorThrowGuard<VECTOR> tg(buffer);
+
+    // First, calculate 'toMove', which drives how the rest of the function
+    // behaves.
+
+    const size_type size   = d_monoDeque.size();
+    const size_type toMove = bsl::min(size, maxNumItems);
+
+    if (buffer) {
+        buffer->reserve(buffer->size() + toMove);
+
+        const size_type lastMovedIdx = size - toMove;
+        for (size_type ii = size; lastMovedIdx < ii--; ) {
+            buffer->push_back(bslmf::MovableRefUtil::move(d_monoDeque[ii]));
+        }
+    }
+    d_monoDeque.erase(d_monoDeque.end() - toMove, d_monoDeque.end());
+
+    tg.release();
+
+    // Signalling will happen automatically when proctor is destroyed.
+}
+
+template <class TYPE>
+template <class VECTOR>
+void Deque<TYPE>::tryPopFrontImpl(typename Deque<TYPE>::size_type  maxNumItems,
+                                  VECTOR                          *buffer)
+{
+    BSLMF_ASSERT(IsVector<VECTOR>::value);
+
+    typedef typename MonoDeque::iterator Iterator;
+
+    Proctor proctor(this);
+    VectorThrowGuard<VECTOR> tg(buffer);
+
+    // First, calculate 'toMove', which drives how the rest of the function
+    // behaves.
+
+    const size_type toMove     = bsl::min(d_monoDeque.size(), maxNumItems);
+    const Iterator  beginRange = d_monoDeque.begin();
+    const Iterator  endRange   = beginRange + toMove;
+
+    if (buffer) {
+        buffer->reserve(buffer->size() + toMove);
+
+        for (size_type ii = 0; ii < toMove; ++ii) {
+            buffer->push_back(bslmf::MovableRefUtil::move(d_monoDeque[ii]));
+        }
+    }
+    proctor->erase(beginRange, endRange);
+
+    tg.release();
+
+    // Signalling will happen automatically when proctor is destroyed.
+}
 
 // CLASS METHODS
 template <class TYPE>
@@ -1858,25 +2020,33 @@ void Deque<TYPE>::pushFront(bslmf::MovableRef<TYPE> item)
 
 template <class TYPE>
 inline
+void Deque<TYPE>::removeAll()
+{
+    removeAllImpl(static_cast<bsl::vector<TYPE> *>(0));
+}
+
+template <class TYPE>
+inline
 void Deque<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 {
-    Proctor proctor(this);
-
-    VectorThrowGuard tg(buffer);
-
-    if (buffer) {
-        const size_type size = d_monoDeque.size();
-        buffer->reserve(buffer->size() + size);
-
-        for (size_type ii = 0; ii < size; ++ii) {
-            buffer->push_back(bslmf::MovableRefUtil::move(d_monoDeque[ii]));
-        }
-    }
-
-    proctor->clear();
-
-    tg.release();
+    removeAllImpl(buffer);
 }
+
+template <class TYPE>
+inline
+void Deque<TYPE>::removeAll(std::vector<TYPE> *buffer)
+{
+    removeAllImpl(buffer);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class TYPE>
+inline
+void Deque<TYPE>::removeAll(std::pmr::vector<TYPE> *buffer)
+{
+    removeAllImpl(buffer);
+}
+#endif
 
 template <class TYPE>
 int Deque<TYPE>::timedPopBack(TYPE                      *item,
@@ -2046,32 +2216,37 @@ int Deque<TYPE>::tryPopBack(TYPE *item)
 }
 
 template <class TYPE>
+inline
+void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems)
+{
+    tryPopBackImpl(maxNumItems, static_cast<bsl::vector<TYPE> *>(0));
+}
+
+template <class TYPE>
+inline
 void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems,
                              bsl::vector<TYPE>               *buffer)
 {
-    Proctor proctor(this);
-    VectorThrowGuard tg(buffer);
-
-    // First, calculate 'toMove', which drives how the rest of the function
-    // behaves.
-
-    const size_type size   = d_monoDeque.size();
-    const size_type toMove = bsl::min(size, maxNumItems);
-
-    if (buffer) {
-        buffer->reserve(buffer->size() + toMove);
-
-        const size_type lastMovedIdx = size - toMove;
-        for (size_type ii = size; lastMovedIdx < ii--; ) {
-            buffer->push_back(bslmf::MovableRefUtil::move(d_monoDeque[ii]));
-        }
-    }
-    d_monoDeque.erase(d_monoDeque.end() - toMove, d_monoDeque.end());
-
-    tg.release();
-
-    // Signalling will happen automatically when proctor is destroyed.
+    tryPopBackImpl(maxNumItems, buffer);
 }
+
+template <class TYPE>
+inline
+void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems,
+                             std::vector<TYPE>               *buffer)
+{
+    tryPopBackImpl(maxNumItems, buffer);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class TYPE>
+inline
+void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems,
+                             std::pmr::vector<TYPE>          *buffer)
+{
+    tryPopBackImpl(maxNumItems, buffer);
+}
+#endif
 
 template <class TYPE>
 int Deque<TYPE>::tryPopFront(TYPE *item)
@@ -2101,34 +2276,33 @@ int Deque<TYPE>::tryPopFront(TYPE *item)
 }
 
 template <class TYPE>
+void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems)
+{
+    tryPopFrontImpl(maxNumItems, static_cast<bsl::vector<TYPE> *>(0));
+}
+
+template <class TYPE>
 void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems,
                               bsl::vector<TYPE>               *buffer)
 {
-    typedef typename MonoDeque::iterator Iterator;
-
-    Proctor proctor(this);
-    VectorThrowGuard tg(buffer);
-
-    // First, calculate 'toMove', which drives how the rest of the function
-    // behaves.
-
-    const size_type toMove     = bsl::min(d_monoDeque.size(), maxNumItems);
-    const Iterator  beginRange = d_monoDeque.begin();
-    const Iterator  endRange   = beginRange + toMove;
-
-    if (buffer) {
-        buffer->reserve(buffer->size() + toMove);
-
-        for (size_type ii = 0; ii < toMove; ++ii) {
-            buffer->push_back(bslmf::MovableRefUtil::move(d_monoDeque[ii]));
-        }
-    }
-    proctor->erase(beginRange, endRange);
-
-    tg.release();
-
-    // Signalling will happen automatically when proctor is destroyed.
+    tryPopFrontImpl(maxNumItems, buffer);
 }
+
+template <class TYPE>
+void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems,
+                              std::vector<TYPE>               *buffer)
+{
+    tryPopFrontImpl(maxNumItems, buffer);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template <class TYPE>
+void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems,
+                              std::pmr::vector<TYPE>          *buffer)
+{
+    tryPopFrontImpl(maxNumItems, buffer);
+}
+#endif
 
 template <class TYPE>
 int Deque<TYPE>::tryPushBack(const TYPE& item)

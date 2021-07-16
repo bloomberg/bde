@@ -390,6 +390,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_alignmentfromtype.h>
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_review.h>
 #include <bsls_types.h>
 
@@ -399,6 +400,10 @@ BSLS_IDENT("$Id: $")
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+# include <memory_resource>
+#endif
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -776,6 +781,21 @@ class SkipList {
     typedef SkipListPairHandle<KEY, DATA> PairHandle;
 
   private:
+    // PRIVATE TYPES
+    template <class VECTOR, class VALUE_TYPE>
+    struct IsVector {
+        // This 'struct' has a 'value' that evaluates to 'true' if the
+        // specified 'VECTOR' is a 'bsl', 'std', or 'std::pmr'
+        // 'vector<VALUE_TYPE>'.
+
+        static const bool value =
+                      bsl::is_same<bsl::vector<VALUE_TYPE>, VECTOR>::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                   || bsl::is_same<std::pmr::vector<VALUE_TYPE>, VECTOR>::value
+#endif
+                   || bsl::is_same<std::vector<VALUE_TYPE>, VECTOR>::value;
+    };
+
     // PRIVATE CONSTANTS
     enum {
         k_MAX_NUM_LEVELS = 32,       // Also defined in RandomLevelGenerator
@@ -931,15 +951,25 @@ class SkipList {
         // reaches 0, destroy 'node' and return it to the pool.  Note that this
         // method neither acquires nor requires the lock.
 
-    int removeAllImp(bsl::vector<Pair *> *removed, bool unlock);
+    template <class VECTOR>
+    int removeAllMaybeUnlock(VECTOR *removed, bool unlock);
         // Remove all items from this list, and then unlock the mutex if the
-        // specified 'unlock' flag is 'true'.  Load into the 'removed' vector
-        // pointers that can be used to refer to the removed items.  *Each*
-        // such pointer must be released (using 'releaseReferenceRaw') when it
-        // is no longer needed.  Note that the pairs in 'removed' will be in
-        // ascending order by key value.  Return the number of items that were
-        // removed from the list.  This internal method must be called under
-        // the lock.
+        // specified 'unlock' flag is 'true'.  Load into the specified
+        // 'removed' vector pointers that can be used to refer to the removed
+        // items.  *Each* such pointer must be released (using
+        // 'releaseReferenceRaw') when it is no longer needed.  Note that the
+        // pairs in 'removed' will be in ascending order by key value.  Return
+        // the number of items that were removed from the list.  This internal
+        // method must be called under the lock.
+
+    template <class VECTOR>
+    int removeAll_Impl(VECTOR *removed);
+        // Remove all items from this list.  Optionally specify 'removed', a
+        // vector to which to append handles to the removed nodes.  The items
+        // appended to 'removed' will be in ascending order by key value.
+        // Return the number of items that were removed from this list.  Note
+        // that all references in 'removed' must be released (i.e., destroyed)
+        // before this skip list is destroyed.
 
     int removeNode(Node *node);
         // Acquire the lock, remove the specified 'node' from the list, and
@@ -1327,7 +1357,12 @@ class SkipList {
         // list.  Return 0 on success, and a non-zero value if the pair has
         // already been removed from the list.
 
-    int removeAll(bsl::vector<PairHandle> *removed = 0);
+    int removeAll();
+    int removeAll(bsl::vector<PairHandle>      *removed);
+    int removeAll(std::vector<PairHandle>      *removed);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    int removeAll(std::pmr::vector<PairHandle> *removed);
+#endif
         // Remove all items from this list.  Optionally specify 'removed', a
         // vector to which to append handles to the removed nodes.  The items
         // appended to 'removed' will be in ascending order by key value.
@@ -1342,6 +1377,8 @@ class SkipList {
         // when it is no longer needed.  The pairs appended to 'removed' will
         // be in ascending order by key value.  Return the number of items that
         // were removed from this list.
+        //
+        // *DEPRECATED*: Call 'removeAll' instead.
 
                          // Update Methods
 
@@ -2175,9 +2212,11 @@ void SkipList<KEY, DATA>::releaseNode(Node *node)
 }
 
 template<class KEY, class DATA>
-int SkipList<KEY, DATA>::removeAllImp(bsl::vector<Pair *> *removed,
-                                      bool                 unlock)
+template<class VECTOR>
+int SkipList<KEY, DATA>::removeAllMaybeUnlock(VECTOR *removed, bool unlock)
 {
+    BSLMF_ASSERT((IsVector<VECTOR, Pair *>::value));
+
     Node *p = d_head_p;
     Node *q = p->d_ptrs[0].d_next_p;
 
@@ -2218,6 +2257,31 @@ int SkipList<KEY, DATA>::removeAllImp(bsl::vector<Pair *> *removed,
         }
     }
     return numRemoved;
+}
+
+template <class KEY, class DATA>
+template <class VECTOR>
+int SkipList<KEY, DATA>::removeAll_Impl(VECTOR *removed)
+{
+    BSLMF_ASSERT((IsVector<VECTOR, PairHandle>::value));
+
+    bsl::vector<Pair *> removedRaw;
+
+    int rc = removeAllRaw(removed ? &removedRaw : 0);
+    if (0 == removed) {
+        return rc;                                                    // RETURN
+    }
+    else {
+        for (typename bsl::vector<Pair *>::iterator it = removedRaw.begin();
+             it != removedRaw.end();
+             ++it)
+        {
+            PairHandle item(this, *it);
+            removed->push_back(item);
+;
+        }
+    }
+    return rc;
 }
 
 template<class KEY, class DATA>
@@ -2691,7 +2755,7 @@ SkipList<KEY, DATA>::operator=(const SkipList& rhs)
     // first empty this list
 
     LockGuard guard(&d_lock);
-    removeAllImp(0, false);
+    removeAllMaybeUnlock(static_cast<bsl::vector<Pair *> *>(0), false);
 
     // Now lock the other list and get handles to all its elements.  Once we
     // have locked it, we need to do all operations manually because the
@@ -3025,25 +3089,34 @@ int SkipList<KEY, DATA>::remove(const Pair *reference)
 }
 
 template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::removeAll()
+{
+    return removeAll_Impl(static_cast<bsl::vector<PairHandle> *>(0));
+}
+
+template<class KEY, class DATA>
+inline
 int SkipList<KEY, DATA>::removeAll(bsl::vector<PairHandle> *removed)
 {
-    bsl::vector<Pair *> removedRaw;
-
-    int rc = removeAllRaw(removed ? &removedRaw : 0);
-    if (0 == removed) {
-        return rc;                                                    // RETURN
-    }
-    else {
-        for (typename bsl::vector<Pair *>::iterator it = removedRaw.begin();
-             it != removedRaw.end();
-             ++it)
-        {
-            PairHandle item(this, *it);
-            removed->push_back(item);
-        }
-    }
-    return rc;
+    return removeAll_Impl(removed);
 }
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::removeAll(std::vector<PairHandle> *removed)
+{
+    return removeAll_Impl(removed);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::removeAll(std::pmr::vector<PairHandle> *removed)
+{
+    return removeAll_Impl(removed);
+}
+#endif
 
 template<class KEY, class DATA>
 inline
@@ -3051,7 +3124,7 @@ int SkipList<KEY, DATA>::removeAllRaw(bsl::vector<Pair *> *removed)
 {
     d_lock.lock();
 
-    return removeAllImp(removed, true); // true = unlock after removal
+    return removeAllMaybeUnlock(removed, true); // true = unlock after removal
 }
 
                          // Update Methods

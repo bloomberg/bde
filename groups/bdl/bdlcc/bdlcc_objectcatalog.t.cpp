@@ -1111,6 +1111,13 @@ class TestDriver {
         // corresponding to those described by the specified 'spec', but not
         // necessarily in the same order, and 'false' otherwise.
 
+    template <class VECTOR>
+    static bool hasSpecElements(const VECTOR&  container,
+                                const char    *spec);
+        // Return 'true' if the specified 'container' contains elements
+        // corresponding to those described by the specified 'spec', but not
+        // necessarily in the same order, and 'false' otherwise.
+
     static void gg(Obj              *object,
                    const char       *spec,
                    bsl::vector<int> *handles = 0);
@@ -1165,6 +1172,38 @@ bool TestDriver<ELEMENT>::hasSpecElements(const Obj&  container,
     for (Iter it(container); it; ++it, ++ii) {
         const ELEMENT& el = it.value();
         const int rawValue = getData(el);
+        ASSERT(0 < rawValue);
+        ASSERT(rawValue < 128);
+        const char value = static_cast<char>(rawValue);
+
+        char *pc = bsl::find(tmpSpec, tmpSpec + LENGTH, value);
+        if (tmpSpec + LENGTH == pc) {
+            return false;                                             // RETURN
+        }
+        *pc = 0;
+    }
+
+    return LENGTH == ii;
+}
+
+template <class ELEMENT>
+template <class VECTOR>
+bool TestDriver<ELEMENT>::hasSpecElements(const VECTOR&  container,
+                                          const char    *spec)
+{
+    char c = 0;
+    bsl::string tmpSpecBuffer(spec);
+    const bsl::size_t LENGTH = tmpSpecBuffer.length();
+
+    char *tmpSpec = tmpSpecBuffer.empty()
+                  ? &c
+                  : &tmpSpecBuffer[0];
+
+    typedef typename VECTOR::const_iterator VIter;
+
+    unsigned ii = 0;
+    for (VIter it = container.begin(); container.end() != it; ++it, ++ii) {
+        const int rawValue = getData(*it);
         ASSERT(0 < rawValue);
         ASSERT(rawValue < 128);
         const char value = static_cast<char>(rawValue);
@@ -1313,9 +1352,18 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     spec = "AB10";
     ASSERT(hasSpecElements(X, spec));
 
-    mX.removeAll();
+    bsl::vector<ELEMENT> vBsl(&ta);
+    mX.removeAll(&vBsl);
+    ASSERT(hasSpecElements(vBsl, spec));
+    bsltf::MoveState::Enum ms = getMovedInto(vBsl[0]);
+    ASSERTV(tName, ms, s_expMoved, s_expMoved == ms);
     ASSERT(0 == X.length());
     ASSERT(hasSpecElements(X, ""));
+
+    // It's important not to 'removeAll' to 'std::vector' here, since on C++03
+    // platforms 'std::vector' does not support move semantics, and this
+    // function is sometimes called with 'ELEMENT' specified as a move-only
+    // type.
 
     spec = "ABCDEF";
     gg(&mX, spec, &handles);
@@ -1440,9 +1488,27 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
     spec = "AB10";
     ASSERT(hasSpecElements(X, spec));
 
-    mX.removeAll();
+    bsl::vector<ELEMENT> vBsl(&ta);
+    mX.removeAll(&vBsl);
+    ASSERT(hasSpecElements(vBsl, spec));
     ASSERT(0 == X.length());
     ASSERT(hasSpecElements(X, ""));
+
+    gg(&mX, spec);
+    std::vector<ELEMENT> vStd;
+    mX.removeAll(&vStd);
+    ASSERT(hasSpecElements(vStd, spec));
+    ASSERT(0 == X.length());
+    ASSERT(hasSpecElements(X, ""));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    gg(&mX, spec);
+    std::pmr::vector<ELEMENT> vPmr;
+    mX.removeAll(&vPmr);
+    ASSERT(hasSpecElements(vPmr, spec));
+    ASSERT(0 == X.length());
+    ASSERT(hasSpecElements(X, ""));
+#endif
 
     spec = "ABCDEF";
     gg(&mX, spec, &handles);
@@ -2392,6 +2458,15 @@ class Pattern {
     }
 
     // MANIPULATORS
+    Pattern& operator=(const Pattern& rhs)
+    {
+        if (this != &rhs) {
+            d_pattern = rhs.d_pattern;
+        }
+
+        return *this;
+    }
+
     void setPattern(int pattern)
     {
         d_pattern = pattern;

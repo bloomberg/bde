@@ -140,6 +140,17 @@ typedef bsls::Types::UintPtr              UintPtr;
 namespace {
 namespace u {
 
+enum VecType { e_BEGIN,
+               e_BSL = e_BEGIN,
+               e_STD,
+               e_PMR,
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+               e_NUM_VEC_TYPES = e_PMR + 1
+#else
+               e_NUM_VEC_TYPES = e_PMR
+#endif
+};
+
 bsls::TimeInterval now()
     // Return the current time, as a 'TimeInterval'.
 {
@@ -148,6 +159,16 @@ bsls::TimeInterval now()
 
 }  // close namespace u
 }  // close unnamed namespace
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, u::VecType value)
+{
+    stream << (u::e_BSL == value ? "bsl"      :
+               u::e_STD == value ? "std"      :
+               u::e_PMR == value ? "std::pmr" : "unk");
+
+    return stream;
+}
 
                               // ================
                               // class TestString
@@ -512,6 +533,304 @@ void TestLockObject::reset()
 }
 
 }  // close namespace TIMEQUEUE_TEST_CASE_10
+
+// ============================================================================
+//                         TESITNG POPLE RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace TEST_CASE_POPLE {
+
+const char VA[] = "A";
+const char VB[] = "B";
+const char VC[] = "C";
+const char VD[] = "D";
+const char VE[] = "E";
+const char VF[] = "F";
+const char VG[] = "G";
+const char VH[] = "H";
+
+static const struct {
+    int         d_lineNum;     // Source line number
+    int         d_secs;
+    int         d_nsecs;
+    const char* d_value;
+} VALUES[] = {
+    //line secs  nsecs    value
+    //---- ----- -------- --------
+    { L_,   2  , 1000000, VE     },  // \x0
+    { L_,   2  , 1000000, VE     },  // \x1
+    { L_,   2  , 1000000, VE     },  // \x2
+    { L_,   2  , 1000001, VF     },  // \x3
+    { L_,   1  , 9999998, VC     },  // \x4
+    { L_,   1  , 9999999, VD     },  // \x5
+    { L_,   0  , 0000000, VA     },  // \x6
+    { L_,   3  , 1000000, VG     },  // \x7
+    { L_,   3  , 1000000, VG     },  // \x8
+    { L_,   2  , 1500000, VF     },  // \x9
+    { L_,   4  , 1000001, VH     },  // \xa
+    { L_,   1  , 9999998, VC     },  // \xb
+    { L_,   1  , 9999999, VD     },  // \xc
+    { L_,   0  , 0000001, VB     }   // \xd
+};
+const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+const char *SORTED_VALUES = "\x6\xd\x4\xb\x5\xc\x0\x1\x2\x3\x9\x7\x8\xa";
+
+static const struct {
+    int          d_line;
+    int          d_secs;
+    int          d_nsecs;
+    int          d_expNumItems;
+    const char  *d_expItems;
+} POP_DATA_NM[] = {
+    //line secs   nsecs    expNumItems expItems
+    //---- ----- --------- ----------- ----------------
+    {  L_ , 1    , 0       , 2         , "\x6\xd"          },
+    {  L_ , 1    , 0       , 0         , ""                },
+//  {  L_ , 1    , 9999998 , 2         , "\x4\xb"          },
+//  {  L_ , 1    , 9999999 , 2         , "\x5\xc"          },
+    {  L_ , 1    , 9999999 , 4         , "\x4\xb\x5\xc"    },
+    {  L_ , 2    , 4000000 , 5         , "\x0\x1\x2\x3\x9" },
+    {  L_ , 5    , 0       , 3         , "\x7\x8\xa   "    },
+    {  L_ , 100  , 9999999 , 0         , ""                }
+};
+const int NUM_POPS_NM = sizeof POP_DATA_NM / sizeof *POP_DATA_NM;
+
+static const struct {
+    int          d_line;
+    int          d_secs;
+    int          d_nsecs;
+    int          d_maxNumItems;
+    int          d_expNumItems;
+    const char  *d_expItems;
+} POP_DATA_MT[] = {
+    //line secs nsecs     maxNum expNum expItems
+    //---- ---- --------- ------ ------ ----------------
+    {  L_ , 1   , 0       , 0   , 0    , ""                },
+    {  L_ , 1   , 0       , 1   , 1    , "\x6"             },
+    {  L_ , 1   , 0       , 1   , 1    , "\xd"             },
+    {  L_ , 1   , 0       , 1   , 0    , ""                },
+    {  L_ , 1   , 0       , 20  , 0    , ""                },
+    {  L_ , 1   , 9999998 , 1   , 1    , "\x4"             },
+    {  L_ , 1   , 9999998 , 20  , 1    , "\xb"             },
+    {  L_ , 1   , 9999998 , 1   , 0    , ""                },
+    {  L_ , 1   , 9999999 , 20  , 2    , "\x5\xc"          },
+    {  L_ , 2   , 1500000 , 5   , 5    , "\x0\x1\x2\x3\x9" },
+    {  L_ , 2   , 4000000 , 0   , 0    , ""                },
+    {  L_ , 5   , 0       , 1   , 1    , "\x7"             },
+    {  L_ , 5   , 0       , 1   , 1    , "\x8"             },
+    {  L_ , 5   , 0       , 1   , 1    , "\xa"             },
+    {  L_ , 100 , 9999999 , 20  , 0    , ""                },
+    {  L_ , 100 , 9999999 , 0   , 0    , ""                }
+};
+const int NUM_POPS_MT = sizeof POP_DATA_MT / sizeof *POP_DATA_MT;
+
+template <class VECTOR>
+void testCasePopLE()
+{
+    static const u::VecType vecType =
+                            bsl::is_same<bsl::vector<Item>, VECTOR>::value
+                          ? u::e_BSL
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                          : bsl::is_same<std::pmr::vector<Item>, VECTOR>::value
+                          ? u::e_PMR
+#endif
+                          : bsl::is_same<std::vector<Item>, VECTOR>::value
+                          ? u::e_STD
+                          : u::e_NUM_VEC_TYPES;
+    BSLMF_ASSERT(u::e_NUM_VEC_TYPES != vecType);
+
+    bslma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator defaultAlloc(veryVeryVerbose);
+    bslma::DefaultAllocatorGuard defaultAllocGuard(&defaultAlloc);
+
+    if (verbose) cout << "\t'popLE' without maxTimers.  VecType: " <<
+                                                               vecType << endl;
+    {
+        int handles[NUM_VALUES];
+
+        Obj mX(&ta); const Obj& X = mX;
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            const int   LINE        = VALUES[i].d_lineNum;
+            const char *VAL         = VALUES[i].d_value;
+            const int   SECS        = VALUES[i].d_secs;
+            const int   NSECS       = VALUES[i].d_nsecs;
+            const bsls::TimeInterval TIME(SECS,NSECS);
+
+            handles[i] = mX.add(TIME,VAL);
+            if (veryVerbose) {
+                T_; P_(LINE); P_(VAL); P_(TIME); P(X.length());
+            }
+            ASSERTV(LINE, (i+1) == X.length());
+            ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
+        }
+
+        int cumulNumItems = 0;
+        for (int i = 0; i < NUM_POPS_NM; ++i) {
+            const int   LINE         = POP_DATA_NM[i].d_line;
+            const int   EXPNUMITEMS  = POP_DATA_NM[i].d_expNumItems;
+            const char *EXPITEMS     = POP_DATA_NM[i].d_expItems;
+            const int   SECS         = POP_DATA_NM[i].d_secs;
+            const int   NSECS        = POP_DATA_NM[i].d_nsecs;
+            const bsls::TimeInterval TIME(SECS,NSECS);
+            const int   OLDLENGTH    = X.length();
+
+            bsl::vector<Item> bufferBsl(&ta);
+            VECTOR            bufferReal;
+            VECTOR&           buffer = u::e_BSL == vecType
+                                     ? *reinterpret_cast<VECTOR *>(&bufferBsl)
+                                     : bufferReal;
+
+            int newLength = 0;
+            bsls::TimeInterval newMinTime;
+
+            mX.popLE(TIME, &buffer, &newLength, &newMinTime);
+
+            if (veryVerbose) {
+                T_; P_(LINE); P_(EXPNUMITEMS);P(TIME);
+                T_; P_(OLDLENGTH); P_(X.length()); P(buffer.size());
+            }
+
+            ASSERTV(LINE, EXPNUMITEMS == (int)buffer.size());
+            ASSERTV(LINE, OLDLENGTH - EXPNUMITEMS == newLength);
+
+            if (0 < newLength) {
+                cumulNumItems += EXPNUMITEMS;
+                const int SORTED_IDX = SORTED_VALUES[cumulNumItems];
+                const int NEWSECS    = VALUES[SORTED_IDX].d_secs;
+                const int NEWNSECS   = VALUES[SORTED_IDX].d_nsecs;
+                const bsls::TimeInterval EXPNEWMINTIME(NEWSECS,NEWNSECS);
+                ASSERTV(LINE, EXPNEWMINTIME == newMinTime);
+                if (veryVerbose) {
+                    T_; P_(EXPNEWMINTIME); P(newMinTime);
+                }
+            }
+            else {
+                ASSERTV(LINE, bsls::TimeInterval() == newMinTime);
+            }
+
+            if (buffer.size() && EXPNUMITEMS == (int)buffer.size()) {
+                for (int j=0; j < EXPNUMITEMS; ++j) {
+                    const int   I      = EXPITEMS[j];
+                    const char *EXPVAL = VALUES[I].d_value;
+                    const bsls::TimeInterval EXPTIME(VALUES[I].d_secs,
+                                                    VALUES[I].d_nsecs);
+
+                    if (veryVerbose) {
+                        T_; T_; P_(I); P_(EXPVAL);P(EXPTIME);
+                        T_; T_; P_(buffer[j].time());
+                        P(buffer[j].data());
+                    }
+
+                    ASSERTV(j, EXPTIME == buffer[j].time());
+                    ASSERTV(j, EXPVAL  == buffer[j].data());
+                    ASSERTV(j,
+                                true != X.isRegisteredHandle(handles[I]));
+                }
+            }
+        }
+    }
+    ASSERT(u::e_BSL != vecType || 0 == defaultAlloc.numAllocations());
+    ASSERT(0 == ta.numBytesInUse());
+    ASSERT(0 == ta.numMismatches());
+    if (veryVeryVerbose) { P(ta); }
+
+    if (verbose) cout << "\t'popLE' with maxTimers.  VecType: " <<
+                                                               vecType << endl;
+    {
+        int handles[NUM_VALUES];
+
+        Obj mX(&ta); const Obj& X = mX;
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            const int   LINE        = VALUES[i].d_lineNum;
+            const int   SECS        = VALUES[i].d_secs;
+            const int   NSECS       = VALUES[i].d_nsecs;
+            const char *VAL         = VALUES[i].d_value;
+            const bsls::TimeInterval TIME(SECS,NSECS);
+
+            handles[i] = mX.add(TIME,VAL);
+            if (veryVerbose) {
+                T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
+            }
+            ASSERTV(LINE, (i+1) == X.length());
+            ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
+        }
+
+        int               cumulNumItems = 0;
+        bsl::vector<Item> bufferBsl(&ta);
+        VECTOR            bufferReal;
+        VECTOR&           buffer = u::e_BSL == vecType
+                                 ? *reinterpret_cast<VECTOR *>(&bufferBsl)
+                                 : bufferReal;
+        for (int i = 0; i < NUM_POPS_MT; ++i) {
+            const int   LINE         = POP_DATA_MT[i].d_line;
+            const int   SECS         = POP_DATA_MT[i].d_secs;
+            const int   NSECS        = POP_DATA_MT[i].d_nsecs;
+            const int   MAXNUMITEMS  = POP_DATA_MT[i].d_maxNumItems;
+            const int   EXPNUMITEMS  = POP_DATA_MT[i].d_expNumItems;
+            const char *EXPITEMS     = POP_DATA_MT[i].d_expItems;
+            const bsls::TimeInterval TIME(SECS,NSECS);
+            const int   OLDLENGTH    = X.length();
+            const int   OLDSIZE      = static_cast<int>(buffer.size());
+
+            int newLength = 0;
+            bsls::TimeInterval newMinTime;
+
+            mX.popLE(TIME, MAXNUMITEMS, &buffer, &newLength, &newMinTime);
+
+            if (veryVerbose) {
+                T_; P_(LINE); P_(MAXNUMITEMS); P_(EXPNUMITEMS); P(TIME);
+                T_; P_(OLDLENGTH); P_(X.length()); P(buffer.size());
+            }
+
+            ASSERTV(LINE, OLDSIZE + EXPNUMITEMS == (int)buffer.size());
+            ASSERTV(LINE, OLDLENGTH - EXPNUMITEMS == newLength);
+
+            if (0 < newLength) {
+                cumulNumItems += EXPNUMITEMS;
+                const int SORTED_IDX = SORTED_VALUES[cumulNumItems];
+                const int NEWSECS    = VALUES[SORTED_IDX].d_secs;
+                const int NEWNSECS   = VALUES[SORTED_IDX].d_nsecs;
+                const bsls::TimeInterval EXPNEWMINTIME(NEWSECS,NEWNSECS);
+                ASSERTV(LINE, EXPNEWMINTIME == newMinTime);
+                if (veryVerbose) {
+                   T_; P_(EXPNEWMINTIME); P(newMinTime);
+                }
+            }
+            else {
+                ASSERTV(LINE, bsls::TimeInterval() == newMinTime);
+            }
+
+            if (OLDSIZE + EXPNUMITEMS == (int)buffer.size()) {
+                for (int j=0; j < EXPNUMITEMS; ++j) {
+                    const int   I      = EXPITEMS[j];
+                    const char *EXPVAL = VALUES[I].d_value;
+                    const bsls::TimeInterval EXPTIME(VALUES[I].d_secs,
+                                                    VALUES[I].d_nsecs);
+
+                    if (veryVerbose) {
+                        T_; T_; P_(I); P_(EXPVAL);P(EXPTIME);
+                        T_; T_; P_(buffer[OLDSIZE + j].time());
+                        P(buffer[j].data());
+                    }
+
+                    ASSERTV(j, EXPTIME == buffer[OLDSIZE + j].time());
+                    ASSERTV(j, EXPVAL  == buffer[OLDSIZE + j].data());
+                    ASSERTV(j,
+                                true != X.isRegisteredHandle(handles[I]));
+                }
+            }
+        }
+    }
+    ASSERT(u::e_BSL != vecType || 0 == defaultAlloc.numAllocations());
+    ASSERT(0 == ta.numBytesInUse());
+    ASSERT(0 == ta.numMismatches());
+    if (veryVeryVerbose) { P(ta); }
+}
+
+}  // close namespace TEST_CASE_POPLE
 
 // ============================================================================
 //                        CASE -100 RELATED ENTITIES
@@ -2140,267 +2459,13 @@ int main(int argc, char *argv[])
                           << "Testing 'popLE' manipulator" << endl
                           << "===========================" << endl;
 
-        const char VA[] = "A";
-        const char VB[] = "B";
-        const char VC[] = "C";
-        const char VD[] = "D";
-        const char VE[] = "E";
-        const char VF[] = "F";
-        const char VG[] = "G";
-        const char VH[] = "H";
+        namespace TC = TEST_CASE_POPLE;
 
-        static const struct {
-            int         d_lineNum;     // Source line number
-            int         d_secs;
-            int         d_nsecs;
-            const char* d_value;
-        } VALUES[] = {
-            //line secs  nsecs    value
-            //---- ----- -------- --------
-            { L_,   2  , 1000000, VE     },  // \x0
-            { L_,   2  , 1000000, VE     },  // \x1
-            { L_,   2  , 1000000, VE     },  // \x2
-            { L_,   2  , 1000001, VF     },  // \x3
-            { L_,   1  , 9999998, VC     },  // \x4
-            { L_,   1  , 9999999, VD     },  // \x5
-            { L_,   0  , 0000000, VA     },  // \x6
-            { L_,   3  , 1000000, VG     },  // \x7
-            { L_,   3  , 1000000, VG     },  // \x8
-            { L_,   2  , 1500000, VF     },  // \x9
-            { L_,   4  , 1000001, VH     },  // \xa
-            { L_,   1  , 9999998, VC     },  // \xb
-            { L_,   1  , 9999999, VD     },  // \xc
-            { L_,   0  , 0000001, VB     }   // \xd
-        };
-        const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-
-        const char *SORTED_VALUES =
-                                 "\x6\xd\x4\xb\x5\xc\x0\x1\x2\x3\x9\x7\x8\xa";
-
-        if (verbose) cout << "\t'popLE' without maxTimers." << endl;
-        {
-            static const struct {
-                int          d_line;
-                int          d_secs;
-                int          d_nsecs;
-                int          d_expNumItems;
-                const char  *d_expItems;
-            } POP_DATA[] = {
-                //line secs   nsecs    expNumItems expItems
-                //---- ----- --------- ----------- ----------------
-                {  L_ , 1    , 0       , 2         , "\x6\xd"          },
-                {  L_ , 1    , 0       , 0         , ""                },
-            //  {  L_ , 1    , 9999998 , 2         , "\x4\xb"          },
-            //  {  L_ , 1    , 9999999 , 2         , "\x5\xc"          },
-                {  L_ , 1    , 9999999 , 4         , "\x4\xb\x5\xc"    },
-                {  L_ , 2    , 4000000 , 5         , "\x0\x1\x2\x3\x9" },
-                {  L_ , 5    , 0       , 3         , "\x7\x8\xa   "    },
-                {  L_ , 100  , 9999999 , 0         , ""                }
-            };
-            const int NUM_POPS   = sizeof POP_DATA / sizeof *POP_DATA;
-
-            int handles[NUM_VALUES];
-
-            Obj mX(&ta); const Obj& X = mX;
-
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                const int   LINE        = VALUES[i].d_lineNum;
-                const char *VAL         = VALUES[i].d_value;
-                const int   SECS        = VALUES[i].d_secs;
-                const int   NSECS       = VALUES[i].d_nsecs;
-                const bsls::TimeInterval TIME(SECS,NSECS);
-
-                handles[i] = mX.add(TIME,VAL);
-                if (veryVerbose) {
-                    T_; P_(LINE); P_(VAL); P_(TIME); P(X.length());
-                }
-                ASSERTV(LINE, (i+1) == X.length());
-                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
-            }
-
-            int cumulNumItems = 0;
-            for (int i = 0; i < NUM_POPS; ++i) {
-                const int   LINE         = POP_DATA[i].d_line;
-                const int   EXPNUMITEMS  = POP_DATA[i].d_expNumItems;
-                const char *EXPITEMS     = POP_DATA[i].d_expItems;
-                const int   SECS         = POP_DATA[i].d_secs;
-                const int   NSECS        = POP_DATA[i].d_nsecs;
-                const bsls::TimeInterval TIME(SECS,NSECS);
-                const int   OLDLENGTH    = X.length();
-
-                bsl::vector<bdlcc::TimeQueueItem<const char*> > buffer(&ta);
-
-                int newLength = 0;
-                bsls::TimeInterval newMinTime;
-
-                mX.popLE(TIME, &buffer, &newLength, &newMinTime);
-
-                if (veryVerbose) {
-                    T_; P_(LINE); P_(EXPNUMITEMS);P(TIME);
-                    T_; P_(OLDLENGTH); P_(X.length()); P(buffer.size());
-                }
-
-                ASSERTV(LINE, EXPNUMITEMS == (int)buffer.size());
-                ASSERTV(LINE, OLDLENGTH - EXPNUMITEMS == newLength);
-
-                if (0 < newLength) {
-                    cumulNumItems += EXPNUMITEMS;
-                    const int SORTED_IDX = SORTED_VALUES[cumulNumItems];
-                    const int NEWSECS    = VALUES[SORTED_IDX].d_secs;
-                    const int NEWNSECS   = VALUES[SORTED_IDX].d_nsecs;
-                    const bsls::TimeInterval EXPNEWMINTIME(NEWSECS,NEWNSECS);
-                    ASSERTV(LINE, EXPNEWMINTIME == newMinTime);
-                    if (veryVerbose) {
-                        T_; P_(EXPNEWMINTIME); P(newMinTime);
-                    }
-                }
-                else {
-                    ASSERTV(LINE, bsls::TimeInterval() == newMinTime);
-                }
-
-                if (buffer.size() && EXPNUMITEMS == (int)buffer.size()) {
-                    for (int j=0; j < EXPNUMITEMS; ++j) {
-                        const int   I      = EXPITEMS[j];
-                        const char *EXPVAL = VALUES[I].d_value;
-                        const bsls::TimeInterval EXPTIME(VALUES[I].d_secs,
-                                                        VALUES[I].d_nsecs);
-
-                        if (veryVerbose) {
-                            T_; T_; P_(I); P_(EXPVAL);P(EXPTIME);
-                            T_; T_; P_(buffer[j].time());
-                            P(buffer[j].data());
-                        }
-
-                        ASSERTV(j, EXPTIME == buffer[j].time());
-                        ASSERTV(j, EXPVAL  == buffer[j].data());
-                        ASSERTV(j,
-                                    true != X.isRegisteredHandle(handles[I]));
-                    }
-                }
-            }
-        }
-        ASSERT(0 == defaultAlloc.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-        ASSERT(0 == ta.numMismatches());
-        if (veryVeryVerbose) { P(ta); }
-
-        if (verbose) cout << "\t'popLE' with maxTimers." << endl;
-        {
-            static const struct {
-                int          d_line;
-                int          d_secs;
-                int          d_nsecs;
-                int          d_maxNumItems;
-                int          d_expNumItems;
-                const char  *d_expItems;
-            } POP_DATA[] = {
-                //line secs nsecs     maxNum expNum expItems
-                //---- ---- --------- ------ ------ ----------------
-                {  L_ , 1   , 0       , 0   , 0    , ""                },
-                {  L_ , 1   , 0       , 1   , 1    , "\x6"             },
-                {  L_ , 1   , 0       , 1   , 1    , "\xd"             },
-                {  L_ , 1   , 0       , 1   , 0    , ""                },
-                {  L_ , 1   , 0       , 20  , 0    , ""                },
-                {  L_ , 1   , 9999998 , 1   , 1    , "\x4"             },
-                {  L_ , 1   , 9999998 , 20  , 1    , "\xb"             },
-                {  L_ , 1   , 9999998 , 1   , 0    , ""                },
-                {  L_ , 1   , 9999999 , 20  , 2    , "\x5\xc"          },
-                {  L_ , 2   , 1500000 , 5   , 5    , "\x0\x1\x2\x3\x9" },
-                {  L_ , 2   , 4000000 , 0   , 0    , ""                },
-                {  L_ , 5   , 0       , 1   , 1    , "\x7"             },
-                {  L_ , 5   , 0       , 1   , 1    , "\x8"             },
-                {  L_ , 5   , 0       , 1   , 1    , "\xa"             },
-                {  L_ , 100 , 9999999 , 20  , 0    , ""                },
-                {  L_ , 100 , 9999999 , 0   , 0    , ""                }
-            };
-            const int NUM_POPS   = sizeof POP_DATA / sizeof *POP_DATA;
-
-            int handles[NUM_VALUES];
-
-            Obj mX(&ta); const Obj& X = mX;
-
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                const int   LINE        = VALUES[i].d_lineNum;
-                const int   SECS        = VALUES[i].d_secs;
-                const int   NSECS       = VALUES[i].d_nsecs;
-                const char *VAL         = VALUES[i].d_value;
-                const bsls::TimeInterval TIME(SECS,NSECS);
-
-                handles[i] = mX.add(TIME,VAL);
-                if (veryVerbose) {
-                    T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
-                }
-                ASSERTV(LINE, (i+1) == X.length());
-                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
-            }
-
-            int cumulNumItems = 0;
-            bsl::vector<bdlcc::TimeQueueItem<const char*> > buffer(&ta);
-            for (int i = 0; i < NUM_POPS; ++i) {
-                const int   LINE         = POP_DATA[i].d_line;
-                const int   SECS         = POP_DATA[i].d_secs;
-                const int   NSECS        = POP_DATA[i].d_nsecs;
-                const int   MAXNUMITEMS  = POP_DATA[i].d_maxNumItems;
-                const int   EXPNUMITEMS  = POP_DATA[i].d_expNumItems;
-                const char *EXPITEMS     = POP_DATA[i].d_expItems;
-                const bsls::TimeInterval TIME(SECS,NSECS);
-                const int   OLDLENGTH    = X.length();
-                const int   OLDSIZE      = static_cast<int>(buffer.size());
-
-                int newLength = 0;
-                bsls::TimeInterval newMinTime;
-
-                mX.popLE(TIME, MAXNUMITEMS, &buffer, &newLength, &newMinTime);
-
-                if (veryVerbose) {
-                    T_; P_(LINE); P_(MAXNUMITEMS); P_(EXPNUMITEMS); P(TIME);
-                    T_; P_(OLDLENGTH); P_(X.length()); P(buffer.size());
-                }
-
-                ASSERTV(LINE, OLDSIZE + EXPNUMITEMS == (int)buffer.size());
-                ASSERTV(LINE, OLDLENGTH - EXPNUMITEMS == newLength);
-
-                if (0 < newLength) {
-                    cumulNumItems += EXPNUMITEMS;
-                    const int SORTED_IDX = SORTED_VALUES[cumulNumItems];
-                    const int NEWSECS    = VALUES[SORTED_IDX].d_secs;
-                    const int NEWNSECS   = VALUES[SORTED_IDX].d_nsecs;
-                    const bsls::TimeInterval EXPNEWMINTIME(NEWSECS,NEWNSECS);
-                    ASSERTV(LINE, EXPNEWMINTIME == newMinTime);
-                    if (veryVerbose) {
-                       T_; P_(EXPNEWMINTIME); P(newMinTime);
-                    }
-                }
-                else {
-                    ASSERTV(LINE, bsls::TimeInterval() == newMinTime);
-                }
-
-                if (OLDSIZE + EXPNUMITEMS == (int)buffer.size()) {
-                    for (int j=0; j < EXPNUMITEMS; ++j) {
-                        const int   I      = EXPITEMS[j];
-                        const char *EXPVAL = VALUES[I].d_value;
-                        const bsls::TimeInterval EXPTIME(VALUES[I].d_secs,
-                                                        VALUES[I].d_nsecs);
-
-                        if (veryVerbose) {
-                            T_; T_; P_(I); P_(EXPVAL);P(EXPTIME);
-                            T_; T_; P_(buffer[OLDSIZE + j].time());
-                            P(buffer[j].data());
-                        }
-
-                        ASSERTV(j, EXPTIME == buffer[OLDSIZE + j].time());
-                        ASSERTV(j, EXPVAL  == buffer[OLDSIZE + j].data());
-                        ASSERTV(j,
-                                    true != X.isRegisteredHandle(handles[I]));
-                    }
-                }
-            }
-        }
-        ASSERT(0 == defaultAlloc.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-        ASSERT(0 == ta.numMismatches());
-        if (veryVeryVerbose) { P(ta); }
-
+        TC::testCasePopLE<bsl::vector<Item> >();
+        TC::testCasePopLE<std::vector<Item> >();
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+        TC::testCasePopLE<std::pmr::vector<Item> >();
+#endif
       } break;
       case 6: {
         // --------------------------------------------------------------------
