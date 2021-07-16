@@ -77,25 +77,25 @@ using namespace bsl;
 // CLASS METHODS
 // [ 2] FD open(const char *path, openPolicy, ioPolicy, truncatePolicy)
 // [ 2] FD open(const string& path, openPolicy, ioPolicy, truncatePolicy)
+// [ 3] int findMatchingPaths(vector<string>*, const char *)
 // [ 4] bool isRegularFile(const bsl::string&, bool)
 // [ 4] bool isRegularFile(const char *, bool)
 // [ 4] bool isDirectory(const bsl::string&, bool)
 // [ 4] bool isDirectory(const char *, bool)
 // [ 5] int rollFileChain(const bsl::string&, int)
 // [ 5] int rollFileChain(const char *, int)
-// [ 6] Offset getAvailableSpace(const bsl::string&)
 // [ 6] Offset getAvailableSpace(const char *)
 // [ 6] Offset getAvailableSpace(FileDescriptor)
-// [ 7] int getSystemTemporaryDirectory(bsl::string *path);
+// [ 7] int getSystemTemporaryDirectory(bsl::string *path)
 // [ 8] Offset getFileSize(const bsl::string&)
 // [ 8] Offset getFileSize(const char *)
 // [ 8] Offset getFileSize(FileDescriptor)
+// [ 9] int findMatchingPaths(vector<string> *, const char *)
 // [10] FD open(const char *p, bool writable, bool exist, bool append)
 // [11] static Offset getFileSizeLimit()
-// [12] int tryLock(FileDescriptor, bool ) (Unix)
-// [13] int tryLock(FileDescriptor, bool ) (Windows)
-// [14] int sync(char *, int , bool )
-// [15] int close(FileDescriptor )
+// [12] int tryLock(FileDescriptor, bool)
+// [13] int sync(char *, int , bool)
+// [14] int close(FileDescriptor)
 // [19] makeUnsafeTemporaryFilename(string *, const StringRef&)
 // [20] createTemporaryFile(string *, const StringRef&)
 // [21] createTemporaryDirectory(string *, const StringRef&)
@@ -106,6 +106,7 @@ using namespace bsl;
 // [23] int visitPaths(const string&, const Func&);
 // [23] int visitPaths(const char *, const Func&);
 // [24] int getLastModificationTime(bdlt::Datetime *, FileDescriptor);
+// [25] truncateFileSize(FileDescriptor, Offset);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] CONCERN: findMatchingPaths incorrect on ibm 64-bit
@@ -814,6 +815,7 @@ class FileDescriptorCloseGuard {
     FileDescriptor d_fileDescriptor;
         // file descriptor to close on destruction
 
+  private:
     // NOT IMPLEMENTED
     FileDescriptorCloseGuard(const FileDescriptorCloseGuard&);
     FileDescriptorCloseGuard& operator=(const FileDescriptorCloseGuard&);
@@ -853,6 +855,7 @@ class RemoveGuard {
     bsl::string d_path;
         // path to the regular file to remove on destruction
 
+  private:
     // NOT IMPLEMENTED
     RemoveGuard(const RemoveGuard&);
     RemoveGuard& operator=(const RemoveGuard&);
@@ -979,6 +982,7 @@ int TestUtil::setLastModificationTime(FileDescriptor        descriptor,
 {
     BSLS_ASSERT(utcTime >= TestUtil_UnixImpUtil::getMinFileTime());
     BSLS_ASSERT(utcTime <= TestUtil_UnixImpUtil::getMaxFileTime());
+
     return TestUtil_UnixImpUtil::setLastModificationTime(descriptor, utcTime);
 }
 
@@ -1274,7 +1278,7 @@ TestUtil_UnixImpUtil::createEphemeralFile()
     bsl::string path;
     FileDescriptor fileDescriptor = createTemporaryFile(&path);
     if (k_INVALID_FD == fileDescriptor) {
-        return k_INVALID_FD;
+        return k_INVALID_FD;                                          // RETURN
     }
 
     int rc = ::unlink(path.c_str());
@@ -1531,7 +1535,7 @@ FileDescriptorCloseGuard::FileDescriptorCloseGuard(FileDescriptor descriptor)
 FileDescriptorCloseGuard::~FileDescriptorCloseGuard()
 {
     if (bdls::FilesystemUtil::k_INVALID_FD == d_fileDescriptor) {
-        return;
+        return;                                                       // RETURN
     }
 
     int rc = bdls::FilesystemUtil::close(d_fileDescriptor);
@@ -1701,7 +1705,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == Obj::setWorkingDirectory(tmpWorkingDir));
 
     switch(test) { case 0:
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -1787,7 +1791,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
       } break;
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1902,6 +1906,100 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // TESTING TRUNCATEFILESIZE
+        //
+        // Concerns:
+        //: 1 That 'truncateFileSize' can shrink files properly.
+        //:
+        //: 2 That the cursor is positioned at the end of the file after the
+        //:   operation.
+        //
+        // Plan:
+        //: 1 Create a file containing 2 consecutive strings.
+        //:
+        //: 2 Use 'truncateFileSize' to set the length of the file to after the
+        //:   first string.
+        //:
+        //: 3 Do a relative seek to confirm the cursor is positioned right.
+        //:
+        //: 4 Close the file and measure it's length and confirm the length is
+        //:   is right.
+        //:
+        //: 5 Open the file again, and try to truncate it back to its original
+        //:   length, longer than its currently length, in an 'ASSERT_FAIL',
+        //:   confirming that an assertion enforces that the function won't
+        //:   grow the file.
+        //:
+        //: 6 Read the first string, and confirm that it is right.
+        //
+        // Testing:
+        //   truncateFileSize(FileDescriptor, Offset);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING TRUNCATEFILESIZE\n"
+                             "========================\n";
+
+        const bsl::string tmpFileName = ::tempFileName(test,
+                                                           "truncateFileSize");
+
+        if (verbose) P(tmpFileName);
+
+        Obj::FileDescriptor fd = Obj::open(tmpFileName.c_str(),
+                                           Obj::e_OPEN_OR_CREATE,
+                                           Obj::e_READ_WRITE,
+                                           Obj::e_TRUNCATE);
+        ASSERT(Obj::k_INVALID_FD != fd);
+
+        const char *contents1 = "To be or not to be, that is the question.\n";
+        const char *contents2 = "There are more things in heaven and Earth,"
+                                                                  " Horatio,\n"
+                                "than are dreamt of in your philosophy.\n";
+
+        const int len1 = static_cast<int>(bsl::strlen(contents1));
+        const int len2 = static_cast<int>(bsl::strlen(contents2));
+
+        int rc = Obj::write(fd, contents1, len1);
+        ASSERT(len1 == rc);
+        rc =     Obj::write(fd, contents2, len2);
+        ASSERT(len2 == rc);
+
+        ASSERT(len1 + len2 == Obj::getFileSize(fd));
+
+        rc = Obj::truncateFileSize(fd, len1);
+        ASSERT(0 == rc);
+
+        ASSERT(len1 == Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT));
+
+        rc = Obj::close(fd);
+        ASSERT(0 == rc);
+
+        ASSERT(len1 == Obj::getFileSize(tmpFileName));
+
+        fd = Obj::open(tmpFileName.c_str(),
+                       Obj::e_OPEN,
+                       Obj::e_READ_WRITE,
+                       Obj::e_KEEP);
+        ASSERT(Obj::k_INVALID_FD != fd);
+
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            ASSERT_FAIL(Obj::truncateFileSize(fd, len1 + len2));
+        }
+
+        Obj::Offset off = Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
+        ASSERT(0 == off);
+
+        char buffer[300] = { 0 };
+        rc = Obj::read(fd, buffer, 300);
+        ASSERT(len1 == rc);
+
+        ASSERT(!bsl::strcmp(contents1, buffer));
+
+        Obj::close(fd);
       } break;
       case 24: {
         // --------------------------------------------------------------------
@@ -2065,6 +2163,9 @@ int main(int argc, char *argv[])
             {    L_, DT(1970,  2,  1,  0,  0,  0,   0,   0) },
             {    L_, DT(1970,  1,  1,  1, 59, 59, 999, 999) },
             {    L_, DT(1970, 12, 31, 23, 59, 59, 999, 999) },
+#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+            {    L_, DT(1970, 12, 31, 24,  0,  0,   0,   0) },
+#endif
 
             {    L_, DT(1972,  2, 29,  0,  0,  0,   0,   0) },
             {    L_, DT(1972,  2, 29, 23, 59, 59, 999, 999) },
@@ -2199,8 +2300,6 @@ int main(int argc, char *argv[])
         //:   and observe that the functions perform appropriately.
         //
         // TESTING
-        //   typedef bsl::function<void (const char *path)> Func;
-        //
         //   int visitTree(const char *, const string&, const Func&, bool);
         //   int visitTree(const string&, const string&, const Func&, bool);
         //   int visitPaths(const string&, const Func&);
@@ -2400,6 +2499,10 @@ int main(int argc, char *argv[])
         //:  6 Verify that 'createPrivateDirectory' call with the path that
         //:    would indicate child directory of an non-existent directory
         //:    fails with 'k_ERROR_PATH_NOT_FOUND'.
+        //
+        // Testing:
+        //   int createDirectories(const string&, bool);
+        //   int createPrivateDirectory(const string&);
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -3478,7 +3581,7 @@ int main(int argc, char *argv[])
         //:
         //
         // Testing:
-        //   int close(FileDescriptor )
+        //   int close(FileDescriptor)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING: 'close'\n"
@@ -3552,7 +3655,7 @@ int main(int argc, char *argv[])
         //:   macros).  (C-5)
         //
         // Testing:
-        //   int sync(char *, int , bool )
+        //   int sync(char *, int , bool)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING: 'sync'\n"
@@ -3705,6 +3808,9 @@ int main(int argc, char *argv[])
         //   failure has occurred.  While the child is executing, the parent is
         //   in a wait loop waiting for the 'touchWhenDone' file to come into
         //   existence.
+        //
+        // Testing:
+        //   int tryLock(FileDescriptor, bool)
         // --------------------------------------------------------------------
 
         typedef Obj::FileDescriptor FD;
@@ -3918,6 +4024,9 @@ int main(int argc, char *argv[])
       case 11: {
         // --------------------------------------------------------------------
         // GETFILESIZELIMIT TEST
+        //
+        // Testing:
+        //   static Offset getFileSizeLimit()
         // --------------------------------------------------------------------
 
         if (verbose) cout << "getFileSizeLimit test\n"
@@ -4024,6 +4133,9 @@ int main(int argc, char *argv[])
         //: 2 Create a directory structure that has a file that matches a
         //:   pattern that is for a directory in the search pattern.  Verify
         //:   that the 'Obj::findMatchingPaths' call succeeds anyway.
+        //
+        // Testing:
+        //   int findMatchingPaths(vector<string> *, const char *)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "MATCHING TESTS\n"
@@ -4523,7 +4635,7 @@ int main(int argc, char *argv[])
         //:   delete it.  (C-2)
         //
         // Testing
-        //    int getSystemTemporaryDirectory(bsl::string *path);
+        //    int getSystemTemporaryDirectory(bsl::string *path)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing 'getSystemTemporaryDirectory'\n"
@@ -4562,6 +4674,10 @@ int main(int argc, char *argv[])
         // Plan:
         //   Just call the function and check it returns a non-negative result.
         //   We cannot verify it properly.
+        //
+        // Testing:
+        //   Offset getAvailableSpace(const char *)
+        //   Offset getAvailableSpace(FileDescriptor)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing 'getAvailableSpace'\n"
@@ -4597,6 +4713,10 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create tmpFile and roll until .1-.3 exist, and verify that they
         //   contain 0-2 (3 rolled off the end).
+        //
+        // Testing:
+        //    int rollFileChain(const bsl::string&, int)
+        //    int rollFileChain(const char *, int)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing 'rollFileChain' (files)\n"
@@ -4686,6 +4806,12 @@ int main(int argc, char *argv[])
         // Plan:
         //   Permutate a test vector with a list of different files and
         //   directories to test.
+        //
+        // Testing:
+        //    bool isRegularFile(const bsl::string&, bool)
+        //    bool isRegularFile(const char *, bool)
+        //    bool isDirectory(const bsl::string&, bool)
+        //    bool isDirectory(const char *, bool)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing 'isRegularFile' & 'isDirectory'\n"
@@ -4882,7 +5008,7 @@ int main(int argc, char *argv[])
         //: 3 Test with a pattern that matches nothing.
         //
         // Testing:
-        //   int Obj::findMatchingPaths(vector<string>*, const char *)
+        //   int findMatchingPaths(vector<string>*, const char *)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing pattern matching\n"

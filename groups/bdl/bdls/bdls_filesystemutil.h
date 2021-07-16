@@ -758,6 +758,14 @@ struct FilesystemUtil {
         // 'descriptor' multiple times, or attempting to lock another
         // descriptor referring to the same file, within a single process.
 
+    static int truncateFileSize(FileDescriptor descriptor, Offset size);
+        // Set the size of the file referred to by the specified 'descriptor'
+        // to the specified 'size'.  'descriptor' must be open for writing.
+        // After the function call, the position is set to the end of the file.
+        // Return 0 on success and a non-zero value otherwise.  The behavior is
+        // undefined if the file is currently mapped, or if 'size' is greater
+        // than the existing size of the file.
+
     static int tryLock(FileDescriptor descriptor, bool lockWriteFlag);
         // Acquire a lock for the file with the specified 'descriptor' if it is
         // currently available.  If the specified 'lockWriteFlag' is true,

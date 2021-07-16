@@ -1071,6 +1071,23 @@ int FilesystemUtil::lock(FileDescriptor descriptor, bool lockWrite)
                        &overlapped);
 }
 
+int FilesystemUtil::truncateFileSize(FileDescriptor descriptor, Offset size)
+{
+    BSLS_ASSERT(size <= getFileSize(descriptor));
+
+    const Offset pos = seek(descriptor, size, e_SEEK_FROM_BEGINNING);
+    if (pos != size) {
+        return -1;                                                    // RETURN
+    }
+
+    bool rc = ::SetEndOfFile(descriptor);
+    if (!rc) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
+
 int FilesystemUtil::tryLock(FileDescriptor descriptor, bool lockWrite)
 {
     OVERLAPPED overlapped;
@@ -1185,6 +1202,7 @@ int FilesystemUtil::getLastModificationTime(bdlt::Datetime *time,
                                             FileDescriptor  descriptor)
 {
     BSLS_ASSERT(time);
+
     typedef FilesystemUtil_WindowsImpUtil<u::WindowsInterfaceUtil>
         WindowsImpUtil;
 
@@ -1959,6 +1977,23 @@ int FilesystemUtil::sync(char *address, bsl::size_t numBytes, bool syncFlag)
     // be logged, so providing a more informative value may aid in debugging.
 
     return 0 == rc ? 0 : errno;
+}
+
+int FilesystemUtil::truncateFileSize(FileDescriptor descriptor, Offset size)
+{
+    BSLS_ASSERT(size <= getFileSize(descriptor));
+
+    int rc = ::ftruncate(descriptor, size);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    const Offset pos = seek(descriptor, 0, e_SEEK_FROM_END);
+    if (pos != size) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
 }
 
 int FilesystemUtil::tryLock(FileDescriptor descriptor, bool lockWriteFlag)
