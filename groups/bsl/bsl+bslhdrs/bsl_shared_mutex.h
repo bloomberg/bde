@@ -15,6 +15,7 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 
 #include <shared_mutex>
