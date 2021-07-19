@@ -619,7 +619,7 @@ namespace RandomValueFunctions {
         // Deterministically load a pseudo-random value into the specified
         // 'value' using the specified 'loader'.
 
-}  // close RandomValueFunctions namespace
+}  // close namespace RandomValueFunctions
 
                            // ======================
                            // struct RandomValueUtil
@@ -769,9 +769,10 @@ class Md5Fingerprint {
         // to this object.
 
     unsigned char& operator[](bsl::size_t index);
-        // Return a reference providing modifiable access to the 'unsigned char'
-        // element of the 'array' attribute of this object at the specified
-        // 'index'.  The behavior is undefined unless '16 > index'.
+        // Return a reference providing modifiable access to the
+        // 'unsigned char' element of the 'array' attribute of this object at
+        // the specified 'index'.  The behavior is undefined unless
+        // '16 > index'.
 
     void setTheUintAt(bsl::size_t index, unsigned int value);
         // Assign to the 4 'unsigned char' elements of the 'array' attribute of
@@ -1379,9 +1380,9 @@ struct Md5StateUtil_ImplUtil {
                          unsigned int     s);
         // Load into the specified 'a', 'b', 'c', and 'd' a value
         // deterministically determined from the specified 'x', 'i', 'k', and
-        // 's'.   The essential behavior of this function is equivalent to the
-        // second round operation for updating the MD5 state as specified in the
-        // April 1992 revision of IETF RFC 1321.
+        // 's'.  The essential behavior of this function is equivalent to the
+        // second round operation for updating the MD5 state as specified in
+        // the April 1992 revision of IETF RFC 1321.
 
     static void round3Op(unsigned int    *a,
                          unsigned int    *b,
@@ -1442,6 +1443,7 @@ class Md5ChecksumAlgorithm {
     // DATA
     Md5State d_state; // current MD5 state
 
+  private:
     // NOT IMPLEMENTED
     Md5ChecksumAlgorithm(const Md5ChecksumAlgorithm&) BSLS_KEYWORD_DELETED;
     Md5ChecksumAlgorithm& operator=(const Md5ChecksumAlgorithm)
@@ -1972,10 +1974,9 @@ void Case27Tester::operator()(int LINE1, const SIMPLE_TYPE& VALUE) const
                 LOOP2_ASSERT_EQ(LINE1, LINE2, VALUE, inValue);
                 if (VALUE != inValue) continue;
 
-                LOOP2_ASSERT_EQ(LINE1,
-                                LINE2,
-                                static_cast<bsl::size_t>(accumNumBytesConsumed),
-                                inStreamBufLength);
+                ASSERTV(LINE1, LINE2,
+                             static_cast<bsl::size_t>(accumNumBytesConsumed) ==
+                                                            inStreamBufLength);
                 if (static_cast<bsl::size_t>(accumNumBytesConsumed) !=
                     inStreamBufLength) {
                     continue;
@@ -1986,7 +1987,8 @@ void Case27Tester::operator()(int LINE1, const SIMPLE_TYPE& VALUE) const
             }
         } while (0 != rc);
 
-        LOOP2_ASSERT_EQ(LINE1, LINE2, inStreamBufLength, outStreamBuf.length());
+        LOOP2_ASSERT_EQ(LINE1, LINE2, inStreamBufLength,
+                                      outStreamBuf.length());
 
     }
 }
@@ -2028,14 +2030,12 @@ int ByteBufferUtil::loadBuffer(int        *numBytesWritten,
 
         unsigned char currentNibble;
         if ('A' <= character && character <= 'Z') {
-            currentNibble = static_cast<unsigned char>('\x0A') +
-                            (static_cast<unsigned char>(character) -
-                             static_cast<unsigned char>('A'));
+            currentNibble = static_cast<unsigned char>(
+                                                     '\x0A' + character - 'A');
         }
         else if ('0' <= character && character <= '9') {
-            currentNibble = static_cast<unsigned char>('\x00') +
-                            (static_cast<unsigned char>(character) -
-                             static_cast<unsigned char>('0'));
+            currentNibble = static_cast<unsigned char>(
+                                                     '\x00' + character - '0');
         }
         else {
             return -1;                                                // RETURN
@@ -2048,7 +2048,7 @@ int ByteBufferUtil::loadBuffer(int        *numBytesWritten,
           } break;
           case e_NEEDS_LOW_NIBBLE: {
             const char byte =
-                static_cast<char>(stateHighNibble | currentNibble);
+                            static_cast<char>(stateHighNibble | currentNibble);
 
             *buffer++ = byte;
             ++*numBytesWritten;
@@ -2088,8 +2088,10 @@ unsigned char RandomInputIterator::generateValue(int *seed)
 
     *seed = unsignedSeed;
 
-    unsigned char hiByte = (unsignedSeed >> 24) & 0x7F;
-    unsigned char loByte = (unsignedSeed >> 16) & 0xFF;
+    unsigned char hiByte = static_cast<unsigned char>(
+                                                  (unsignedSeed >> 24) & 0x7F);
+    unsigned char loByte = static_cast<unsigned char>(
+                                                  (unsignedSeed >> 16) & 0xFF);
 
     return hiByte ^ loByte;
 }
@@ -2102,6 +2104,7 @@ bool RandomInputIterator::areEqual(const RandomInputIterator& lhs,
                                            : true);
     BSLS_ASSERT(lhs.d_value != rhs.d_value ? lhs.d_seed != rhs.d_seed
                                            : true);
+
     return lhs.d_seed == rhs.d_seed;
 }
 
@@ -2475,7 +2478,7 @@ void loadRandomValue(VALUE_TYPE *value, LOADER& loader)
     return loader(value);
 }
 
-}  // close RandomValueFunctions namespace
+}  // close namespace RandomValueFunctions
 
                            // ----------------------
                            // struct RandomValueUtil
@@ -2502,6 +2505,7 @@ INTEGRAL_TYPE RandomValueUtil::generateModulo(LOADER& loader,
                                               INTEGRAL_TYPE base)
 {
     BSLS_ASSERT(base >= 0);
+
     return generate<INTEGRAL_TYPE>(loader) % base;
 }
 
@@ -2695,7 +2699,7 @@ void loadRandomValue(bdlt::Time *value, LOADER& loader)
     const unsigned microsecond = millisecondRemainder;
 
     BSLS_ASSERT(
-           bdlt::Time::isValid(hour, minute, second, millisecond, microsecond));
+          bdlt::Time::isValid(hour, minute, second, millisecond, microsecond));
 
     value->setTime(hour, minute, second, millisecond, microsecond);
 }
@@ -2756,6 +2760,7 @@ void ByteArrayUtil::setTheUintAt(unsigned char *begin,
     BSLS_ASSERT(begin <= end);
     BSLS_ASSERT(static_cast<bsl::size_t>((end - begin) /
                                          sizeof(unsigned int)) > index);
+
     static_cast<void>(end);
 
     begin += index * sizeof(unsigned int);
@@ -2774,6 +2779,7 @@ void ByteArrayUtil::setTheUint64At(unsigned char       *begin,
     BSLS_ASSERT(begin <= end);
     BSLS_ASSERT(static_cast<bsl::size_t>((end - begin) /
                                          sizeof(bsls::Types::Uint64)) > index);
+
     static_cast<void>(end);
 
     begin += index * sizeof(unsigned int);
@@ -2795,6 +2801,7 @@ unsigned int ByteArrayUtil::theUintAt(const unsigned char *begin,
     BSLS_ASSERT(begin <= end);
     BSLS_ASSERT(static_cast<bsl::size_t>((end - begin) /
                                          sizeof(unsigned int)) > index);
+
     static_cast<void>(end);
 
     begin += index * sizeof(unsigned int);
@@ -2919,8 +2926,10 @@ bsl::ostream& Md5Fingerprint::print(bsl::ostream& stream,
 
     for (const unsigned char *it = d_value; it != d_value + k_SIZE; ++it) {
         const unsigned char value = *it;
-        const unsigned char hiNibble = (value >> 4) & 0x0F;
-        const unsigned char loNibble = (value >> 0) & 0x0F;
+        const unsigned char hiNibble = static_cast<unsigned char>(
+                                                          (value >> 4) & 0x0F);
+        const unsigned char loNibble = static_cast<unsigned char>(
+                                                          (value >> 0) & 0x0F);
 
         const char hiNibbleChar = nibbleCharacters[hiNibble];
         const char loNibbleChar = nibbleCharacters[loNibble];
@@ -4880,10 +4889,14 @@ void checksumAppend(CHECKSUM_ALGORITHM& checksum, int value)
 {
     BSLMF_ASSERT(4 == sizeof(value));
 
-    const signed char byte0 = (value >> (0 * 8)) & 0xFF;
-    const signed char byte1 = (value >> (1 * 8)) & 0xFF;
-    const signed char byte2 = (value >> (2 * 8)) & 0xFF;
-    const signed char byte3 = (value >> (3 * 8)) & 0xFF;
+    const signed char byte0 = static_cast<signed char>(
+                                                    (value >> (0 * 8)) & 0xFF);
+    const signed char byte1 = static_cast<signed char>(
+                                                    (value >> (1 * 8)) & 0xFF);
+    const signed char byte2 = static_cast<signed char>(
+                                                    (value >> (2 * 8)) & 0xFF);
+    const signed char byte3 = static_cast<signed char>(
+                                                    (value >> (3 * 8)) & 0xFF);
 
     checksumAppend(checksum, byte0);
     checksumAppend(checksum, byte1);
@@ -4896,14 +4909,22 @@ void checksumAppend(CHECKSUM_ALGORITHM& checksum, bsls::Types::Int64 value)
 {
     BSLMF_ASSERT(8 == sizeof(bsls::Types::Int64));
 
-    const signed char byte0 = (value >> (0 * 8)) & 0xFF;
-    const signed char byte1 = (value >> (1 * 8)) & 0xFF;
-    const signed char byte2 = (value >> (2 * 8)) & 0xFF;
-    const signed char byte3 = (value >> (3 * 8)) & 0xFF;
-    const signed char byte4 = (value >> (4 * 8)) & 0xFF;
-    const signed char byte5 = (value >> (5 * 8)) & 0xFF;
-    const signed char byte6 = (value >> (6 * 8)) & 0xFF;
-    const signed char byte7 = (value >> (7 * 8)) & 0xFF;
+    const signed char byte0 = static_cast<signed char>(
+                                                    (value >> (0 * 8)) & 0xFF);
+    const signed char byte1 = static_cast<signed char>(
+                                                    (value >> (1 * 8)) & 0xFF);
+    const signed char byte2 = static_cast<signed char>(
+                                                    (value >> (2 * 8)) & 0xFF);
+    const signed char byte3 = static_cast<signed char>(
+                                                    (value >> (3 * 8)) & 0xFF);
+    const signed char byte4 = static_cast<signed char>(
+                                                    (value >> (4 * 8)) & 0xFF);
+    const signed char byte5 = static_cast<signed char>(
+                                                    (value >> (5 * 8)) & 0xFF);
+    const signed char byte6 = static_cast<signed char>(
+                                                    (value >> (6 * 8)) & 0xFF);
+    const signed char byte7 = static_cast<signed char>(
+                                                    (value >> (7 * 8)) & 0xFF);
 
     checksumAppend(checksum, byte0);
     checksumAppend(checksum, byte1);
@@ -4920,10 +4941,14 @@ void checksumAppend(CHECKSUM_ALGORITHM& checksum, unsigned int value)
 {
     BSLMF_ASSERT(4 == sizeof(unsigned int));
 
-    const unsigned char byte0 = (value >> (0 * 8)) & 0xFF;
-    const unsigned char byte1 = (value >> (1 * 8)) & 0xFF;
-    const unsigned char byte2 = (value >> (2 * 8)) & 0xFF;
-    const unsigned char byte3 = (value >> (3 * 8)) & 0xFF;
+    const unsigned char byte0 = static_cast<unsigned char>(
+                                                    (value >> (0 * 8)) & 0xFF);
+    const unsigned char byte1 = static_cast<unsigned char>(
+                                                    (value >> (1 * 8)) & 0xFF);
+    const unsigned char byte2 = static_cast<unsigned char>(
+                                                    (value >> (2 * 8)) & 0xFF);
+    const unsigned char byte3 = static_cast<unsigned char>(
+                                                    (value >> (3 * 8)) & 0xFF);
 
     checksumAppend(checksum, byte0);
     checksumAppend(checksum, byte1);
@@ -4936,14 +4961,22 @@ void checksumAppend(CHECKSUM_ALGORITHM& checksum, bsls::Types::Uint64 value)
 {
     BSLMF_ASSERT(8 == sizeof(bsls::Types::Uint64));
 
-    const unsigned char byte0 = (value >> (0 * 8)) & 0xFF;
-    const unsigned char byte1 = (value >> (1 * 8)) & 0xFF;
-    const unsigned char byte2 = (value >> (2 * 8)) & 0xFF;
-    const unsigned char byte3 = (value >> (3 * 8)) & 0xFF;
-    const unsigned char byte4 = (value >> (4 * 8)) & 0xFF;
-    const unsigned char byte5 = (value >> (5 * 8)) & 0xFF;
-    const unsigned char byte6 = (value >> (6 * 8)) & 0xFF;
-    const unsigned char byte7 = (value >> (7 * 8)) & 0xFF;
+    const unsigned char byte0 =
+                         static_cast<unsigned char>((value >> (0 * 8)) & 0xFF);
+    const unsigned char byte1 =
+                         static_cast<unsigned char>((value >> (1 * 8)) & 0xFF);
+    const unsigned char byte2 =
+                         static_cast<unsigned char>((value >> (2 * 8)) & 0xFF);
+    const unsigned char byte3 =
+                         static_cast<unsigned char>((value >> (3 * 8)) & 0xFF);
+    const unsigned char byte4 =
+                         static_cast<unsigned char>((value >> (4 * 8)) & 0xFF);
+    const unsigned char byte5 =
+                         static_cast<unsigned char>((value >> (5 * 8)) & 0xFF);
+    const unsigned char byte6 =
+                         static_cast<unsigned char>((value >> (6 * 8)) & 0xFF);
+    const unsigned char byte7 =
+                         static_cast<unsigned char>((value >> (7 * 8)) & 0xFF);
 
     checksumAppend(checksum, byte0);
     checksumAppend(checksum, byte1);
@@ -5030,7 +5063,7 @@ void checksumAppend(CHECKSUM_ALGORITHM&      checksum,
       } break;
       default: {
           BSLS_ASSERT(!"Unreachable");
-          return;
+          return;                                                     // RETURN
       } break;
     }
 
@@ -5280,7 +5313,7 @@ const unsigned char TestDataUtil::s_RANDOM_GARBAGE_1K[1024] = {
   0x75, 0x6d, 0x88, 0xac
 };
 
-}  // close u namespace
+}  // close namespace u
 }  // close unnamed namespace
 
 // ============================================================================
@@ -5739,25 +5772,25 @@ int main(int argc, char *argv[])
 { L_,  0, 3, F, 23, 59, 59, 999, 999,-1439, TXT, "\x12" "23:59:59.999-23:59" },
 { L_,  0, 3, F, 24,  0,  0,   0,   0,    0, TXT, "\x12" "24:00:00.000+00:00" },
 
-{ L_,  0, 6, F,  0,  0,  0,   0,   0,    0, TXT, "\x15" "00:00:00.000000+00:00" },
-{ L_,  0, 6, F,  0,  0,  0,   0,   0,    1, TXT, "\x15" "00:00:00.000000+00:01" },
-{ L_,  0, 6, F,  0,  0,  0,   0,   0,   -1, TXT, "\x15" "00:00:00.000000-00:01" },
-{ L_,  0, 6, F,  0,  0,  0,   0,   1,    0, TXT, "\x15" "00:00:00.000001+00:00" },
-{ L_,  0, 6, F,  0,  0,  0,   1,   0,    0, TXT, "\x15" "00:00:00.001000+00:00" },
-{ L_,  0, 6, F,  0,  0,  1,   0,   0,    0, TXT, "\x15" "00:00:01.000000+00:00" },
-{ L_,  0, 6, F,  0,  1,  0,   0,   0,    0, TXT, "\x15" "00:01:00.000000+00:00" },
-{ L_,  0, 6, F,  1,  0,  0,   0,   0,    0, TXT, "\x15" "01:00:00.000000+00:00" },
-{ L_,  0, 6, F,  0,  0,  0,   0,   0, 1439, TXT, "\x15" "00:00:00.000000+23:59" },
-{ L_,  0, 6, F,  0,  0,  0,   0,   0,-1439, TXT, "\x15" "00:00:00.000000-23:59" },
-{ L_,  0, 6, F,  0,  0,  0,   0,   0,    0, TXT, "\x15" "00:00:00.000000+00:00" },
-{ L_,  0, 6, F,  0,  0,  0,   0, 999,    0, TXT, "\x15" "00:00:00.000999+00:00" },
-{ L_,  0, 6, F,  0,  0,  0, 999,   0,    0, TXT, "\x15" "00:00:00.999000+00:00" },
-{ L_,  0, 6, F,  0,  0, 59,   0,   0,    0, TXT, "\x15" "00:00:59.000000+00:00" },
-{ L_,  0, 6, F,  0, 59,  0,   0,   0,    0, TXT, "\x15" "00:59:00.000000+00:00" },
-{ L_,  0, 6, F, 23,  0,  0,   0,   0,    0, TXT, "\x15" "23:00:00.000000+00:00" },
-{ L_,  0, 6, F, 23, 59, 59, 999, 999, 1439, TXT, "\x15" "23:59:59.999999+23:59" },
-{ L_,  0, 6, F, 23, 59, 59, 999, 999,-1439, TXT, "\x15" "23:59:59.999999-23:59" },
-{ L_,  0, 6, F, 24,  0,  0,   0,   0,    0, TXT, "\x15" "24:00:00.000000+00:00" },
+{ L_,  0, 6, F,  0,  0,  0,   0,   0,    0,TXT,"\x15" "00:00:00.000000+00:00"},
+{ L_,  0, 6, F,  0,  0,  0,   0,   0,    1,TXT,"\x15" "00:00:00.000000+00:01"},
+{ L_,  0, 6, F,  0,  0,  0,   0,   0,   -1,TXT,"\x15" "00:00:00.000000-00:01"},
+{ L_,  0, 6, F,  0,  0,  0,   0,   1,    0,TXT,"\x15" "00:00:00.000001+00:00"},
+{ L_,  0, 6, F,  0,  0,  0,   1,   0,    0,TXT,"\x15" "00:00:00.001000+00:00"},
+{ L_,  0, 6, F,  0,  0,  1,   0,   0,    0,TXT,"\x15" "00:00:01.000000+00:00"},
+{ L_,  0, 6, F,  0,  1,  0,   0,   0,    0,TXT,"\x15" "00:01:00.000000+00:00"},
+{ L_,  0, 6, F,  1,  0,  0,   0,   0,    0,TXT,"\x15" "01:00:00.000000+00:00"},
+{ L_,  0, 6, F,  0,  0,  0,   0,   0, 1439,TXT,"\x15" "00:00:00.000000+23:59"},
+{ L_,  0, 6, F,  0,  0,  0,   0,   0,-1439,TXT,"\x15" "00:00:00.000000-23:59"},
+{ L_,  0, 6, F,  0,  0,  0,   0,   0,    0,TXT,"\x15" "00:00:00.000000+00:00"},
+{ L_,  0, 6, F,  0,  0,  0,   0, 999,    0,TXT,"\x15" "00:00:00.000999+00:00"},
+{ L_,  0, 6, F,  0,  0,  0, 999,   0,    0,TXT,"\x15" "00:00:00.999000+00:00"},
+{ L_,  0, 6, F,  0,  0, 59,   0,   0,    0,TXT,"\x15" "00:00:59.000000+00:00"},
+{ L_,  0, 6, F,  0, 59,  0,   0,   0,    0,TXT,"\x15" "00:59:00.000000+00:00"},
+{ L_,  0, 6, F, 23,  0,  0,   0,   0,    0,TXT,"\x15" "23:00:00.000000+00:00"},
+{ L_,  0, 6, F, 23, 59, 59, 999, 999, 1439,TXT,"\x15" "23:59:59.999999+23:59"},
+{ L_,  0, 6, F, 23, 59, 59, 999, 999,-1439,TXT,"\x15" "23:59:59.999999-23:59"},
+{ L_,  0, 6, F, 24,  0,  0,   0,   0,    0,TXT,"\x15" "24:00:00.000000+00:00"},
 
 { L_,  0, 3, T,  0,  0,  0,   0,   0,    0, BIN, "01                  00" },
 { L_,  0, 3, T,  0,  0,  0,   0,   0,    1, BIN, "05  00 01     00 00 00" },
@@ -5821,25 +5854,25 @@ int main(int argc, char *argv[])
 { L_, V , 3, F, 23, 59, 59, 999, 999,-1439, TXT, "\x12" "23:59:59.999-23:59" },
 { L_, V , 3, F, 24,  0,  0,   0,   0,    0, TXT, "\x12" "24:00:00.000+00:00" },
 
-{ L_, V , 6, F,  0,  0,  0,   0,   0,    0, TXT, "\x15" "00:00:00.000000+00:00" },
-{ L_, V , 6, F,  0,  0,  0,   0,   0,    1, TXT, "\x15" "00:00:00.000000+00:01" },
-{ L_, V , 6, F,  0,  0,  0,   0,   0,   -1, TXT, "\x15" "00:00:00.000000-00:01" },
-{ L_, V , 6, F,  0,  0,  0,   0,   1,    0, TXT, "\x15" "00:00:00.000001+00:00" },
-{ L_, V , 6, F,  0,  0,  0,   1,   0,    0, TXT, "\x15" "00:00:00.001000+00:00" },
-{ L_, V , 6, F,  0,  0,  1,   0,   0,    0, TXT, "\x15" "00:00:01.000000+00:00" },
-{ L_, V , 6, F,  0,  1,  0,   0,   0,    0, TXT, "\x15" "00:01:00.000000+00:00" },
-{ L_, V , 6, F,  1,  0,  0,   0,   0,    0, TXT, "\x15" "01:00:00.000000+00:00" },
-{ L_, V , 6, F,  0,  0,  0,   0,   0, 1439, TXT, "\x15" "00:00:00.000000+23:59" },
-{ L_, V , 6, F,  0,  0,  0,   0,   0,-1439, TXT, "\x15" "00:00:00.000000-23:59" },
-{ L_, V , 6, F,  0,  0,  0,   0,   0,    0, TXT, "\x15" "00:00:00.000000+00:00" },
-{ L_, V , 6, F,  0,  0,  0,   0, 999,    0, TXT, "\x15" "00:00:00.000999+00:00" },
-{ L_, V , 6, F,  0,  0,  0, 999,   0,    0, TXT, "\x15" "00:00:00.999000+00:00" },
-{ L_, V , 6, F,  0,  0, 59,   0,   0,    0, TXT, "\x15" "00:00:59.000000+00:00" },
-{ L_, V , 6, F,  0, 59,  0,   0,   0,    0, TXT, "\x15" "00:59:00.000000+00:00" },
-{ L_, V , 6, F, 23,  0,  0,   0,   0,    0, TXT, "\x15" "23:00:00.000000+00:00" },
-{ L_, V , 6, F, 23, 59, 59, 999, 999, 1439, TXT, "\x15" "23:59:59.999999+23:59" },
-{ L_, V , 6, F, 23, 59, 59, 999, 999,-1439, TXT, "\x15" "23:59:59.999999-23:59" },
-{ L_, V , 6, F, 24,  0,  0,   0,   0,    0, TXT, "\x15" "24:00:00.000000+00:00" },
+{ L_, V , 6, F,  0,  0,  0,   0,   0,    0,TXT,"\x15" "00:00:00.000000+00:00"},
+{ L_, V , 6, F,  0,  0,  0,   0,   0,    1,TXT,"\x15" "00:00:00.000000+00:01"},
+{ L_, V , 6, F,  0,  0,  0,   0,   0,   -1,TXT,"\x15" "00:00:00.000000-00:01"},
+{ L_, V , 6, F,  0,  0,  0,   0,   1,    0,TXT,"\x15" "00:00:00.000001+00:00"},
+{ L_, V , 6, F,  0,  0,  0,   1,   0,    0,TXT,"\x15" "00:00:00.001000+00:00"},
+{ L_, V , 6, F,  0,  0,  1,   0,   0,    0,TXT,"\x15" "00:00:01.000000+00:00"},
+{ L_, V , 6, F,  0,  1,  0,   0,   0,    0,TXT,"\x15" "00:01:00.000000+00:00"},
+{ L_, V , 6, F,  1,  0,  0,   0,   0,    0,TXT,"\x15" "01:00:00.000000+00:00"},
+{ L_, V , 6, F,  0,  0,  0,   0,   0, 1439,TXT,"\x15" "00:00:00.000000+23:59"},
+{ L_, V , 6, F,  0,  0,  0,   0,   0,-1439,TXT,"\x15" "00:00:00.000000-23:59"},
+{ L_, V , 6, F,  0,  0,  0,   0,   0,    0,TXT,"\x15" "00:00:00.000000+00:00"},
+{ L_, V , 6, F,  0,  0,  0,   0, 999,    0,TXT,"\x15" "00:00:00.000999+00:00"},
+{ L_, V , 6, F,  0,  0,  0, 999,   0,    0,TXT,"\x15" "00:00:00.999000+00:00"},
+{ L_, V , 6, F,  0,  0, 59,   0,   0,    0,TXT,"\x15" "00:00:59.000000+00:00"},
+{ L_, V , 6, F,  0, 59,  0,   0,   0,    0,TXT,"\x15" "00:59:00.000000+00:00"},
+{ L_, V , 6, F, 23,  0,  0,   0,   0,    0,TXT,"\x15" "23:00:00.000000+00:00"},
+{ L_, V , 6, F, 23, 59, 59, 999, 999, 1439,TXT,"\x15" "23:59:59.999999+23:59"},
+{ L_, V , 6, F, 23, 59, 59, 999, 999,-1439,TXT,"\x15" "23:59:59.999999-23:59"},
+{ L_, V , 6, F, 24,  0,  0,   0,   0,    0,TXT,"\x15" "24:00:00.000000+00:00"},
 
 { L_, V , 3, T,  0,  0,  0,   0,   0,    0, BIN, "01                     00" },
 { L_, V , 3, T,  0,  0,  0,   0,   0,    1, BIN, "05  00 01        00 00 00" },
@@ -7100,8 +7133,8 @@ int main(int argc, char *argv[])
 
                 if (DATETIMETZ.localDatetime().time() == bdlt::Time() &&
                     VERSION < V && BINARY) {
-                    const bdlt::Datetime& DATETIME = DATETIMETZ.localDatetime();
-                    const bdlt::Datetime& datetime = datetimeTz.localDatetime();
+                    const bdlt::Datetime& DATETIME =DATETIMETZ.localDatetime();
+                    const bdlt::Datetime& datetime =datetimeTz.localDatetime();
                     LOOP1_ASSERT_EQ(LINE, datetime.year(), DATETIME.year());
                     LOOP1_ASSERT_EQ(LINE, datetime.month(), DATETIME.month());
                     LOOP1_ASSERT_EQ(LINE, datetime.day(), DATETIME.day());
@@ -7540,12 +7573,12 @@ int main(int argc, char *argv[])
             static const int MINUTES[] = {
                 0, 1, 2, 3, 32, 33, 57, 58, 59};
 
-            static const int NUM_MINUTES = sizeof(MINUTES) / sizeof(MINUTES[0]);
+            static const int NUM_MINUTES = sizeof(MINUTES) / sizeof(*MINUTES);
 
             static const int SECONDS[] = {
                 0, 1, 2, 3, 4, 5, 31, 32, 33, 57, 58, 59};
 
-            static const int NUM_SECONDS = sizeof(SECONDS) / sizeof(SECONDS[0]);
+            static const int NUM_SECONDS = sizeof(SECONDS) / sizeof(*SECONDS);
 
             static const int MILLISECONDS[] = {
                 0,   1,   2,   3,   4,   5,   6,   7,   8,   15,
@@ -8101,12 +8134,12 @@ int main(int argc, char *argv[])
             static const int MINUTES[] = {
                 0, 1, 2, 3, 32, 33, 57, 58, 59};
 
-            static const int NUM_MINUTES = sizeof(MINUTES) / sizeof(MINUTES[0]);
+            static const int NUM_MINUTES = sizeof(MINUTES)/sizeof(MINUTES[0]);
 
             static const int SECONDS[] = {
                 0, 1, 2, 3, 4, 5, 31, 32, 33, 57, 58, 59};
 
-            static const int NUM_SECONDS = sizeof(SECONDS) / sizeof(SECONDS[0]);
+            static const int NUM_SECONDS = sizeof(SECONDS)/sizeof(SECONDS[0]);
 
             static const int MILLISECONDS[] = {
                 0,   1,   2,   3,   4,   5,   6,   7,   8,   15,
@@ -9344,7 +9377,7 @@ int main(int argc, char *argv[])
             static const int OFFSETS[] = {
                 -1439, -1438, -1, 0, 1, 1438, 1439};
 
-            static const int NUM_OFFSETS = sizeof(OFFSETS) / sizeof(OFFSETS[0]);
+            static const int NUM_OFFSETS = sizeof(OFFSETS)/sizeof(OFFSETS[0]);
 
             static const int NUM_DATA = NUM_YEARS * NUM_DAYS * NUM_HOURS *
                                         NUM_MINUTES * NUM_SECONDS *
@@ -9851,10 +9884,11 @@ int main(int argc, char *argv[])
       case 26: {
         // --------------------------------------------------------------------
         // TESTING 'getValue' BEHAVIORAL FINGERPRINT
+        //
         //   This case tests that the values decoded by
         //   'balber::BerUtil::getValue' for a large, deterministically and
-        //   pseudo-randomly generated set of inputs, are *likely* equivalent to
-        //   the values it decodes as of BDE 3.44.0.  This case tests the
+        //   pseudo-randomly generated set of inputs, are *likely* equivalent
+        //   to the values it decodes as of BDE 3.44.0.  This case tests the
         //   decoded values for too many encodings to explicitly enumerate.
         //   Instead, the encodings are generated during the execution of the
         //   test, and the results of each invocation of 'getValue' are
@@ -9935,18 +9969,18 @@ int main(int argc, char *argv[])
             //  .---- /      /    /    .-----------------------------------
             // /     /      /    /    /    'putValue' BEHAVIORAL FINGERPRINT
             //-- ------- ------ -- ------ ------------------------------------
-            { L_, SEED_0, 50000, 3, false, "a4f4796fce831c62afed26b178c63715" },
-            { L_, SEED_0, 50000, 3, true , "a9e9d0fbbc1487449bf928907792f211" },
-            { L_, SEED_0, 50000, 6, false, "0bab0341289bddcd8c66fd607b0b76dc" },
-            { L_, SEED_0, 50000, 6, true , "a9e9d0fbbc1487449bf928907792f211" },
-            { L_, SEED_1, 50000, 3, false, "53229ec3841b3815e8efb6cc8e64a098" },
-            { L_, SEED_1, 50000, 3, true , "1c7ceb60dbd74c17be929311f86ab185" },
-            { L_, SEED_1, 50000, 6, false, "4f884d423a3fbb65b531c5f4fe1ec0ed" },
-            { L_, SEED_1, 50000, 6, true , "1c7ceb60dbd74c17be929311f86ab185" },
-            { L_, SEED_2, 50000, 3, false, "01defb86e00fc10ca4c4a5dc802f9c54" },
-            { L_, SEED_2, 50000, 3, true , "de75fb921b25090f0f6975b6e4bf8bd3" },
-            { L_, SEED_2, 50000, 6, false, "af150f3a022e5fd55ccb5b400bfbc487" },
-            { L_, SEED_2, 50000, 6, true , "de75fb921b25090f0f6975b6e4bf8bd3" },
+            { L_, SEED_0, 50000, 3, false, "a4f4796fce831c62afed26b178c63715"},
+            { L_, SEED_0, 50000, 3, true , "a9e9d0fbbc1487449bf928907792f211"},
+            { L_, SEED_0, 50000, 6, false, "0bab0341289bddcd8c66fd607b0b76dc"},
+            { L_, SEED_0, 50000, 6, true , "a9e9d0fbbc1487449bf928907792f211"},
+            { L_, SEED_1, 50000, 3, false, "53229ec3841b3815e8efb6cc8e64a098"},
+            { L_, SEED_1, 50000, 3, true , "1c7ceb60dbd74c17be929311f86ab185"},
+            { L_, SEED_1, 50000, 6, false, "4f884d423a3fbb65b531c5f4fe1ec0ed"},
+            { L_, SEED_1, 50000, 6, true , "1c7ceb60dbd74c17be929311f86ab185"},
+            { L_, SEED_2, 50000, 3, false, "01defb86e00fc10ca4c4a5dc802f9c54"},
+            { L_, SEED_2, 50000, 3, true , "de75fb921b25090f0f6975b6e4bf8bd3"},
+            { L_, SEED_2, 50000, 6, false, "af150f3a022e5fd55ccb5b400bfbc487"},
+            { L_, SEED_2, 50000, 6, true , "de75fb921b25090f0f6975b6e4bf8bd3"},
         };
 
         static const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -9965,7 +9999,7 @@ int main(int argc, char *argv[])
             getValueFingerprint.setNumSamples(NUM_SAMPLES);
             getValueFingerprint.setFractionalSecondPrecision(SECOND_PRECISION);
             getValueFingerprint.setEncodeDateAndTimeTypesAsBinary(
-                                          ENCODE_DATE_AND_TIME_TYPES_AS_BINARY);
+                                         ENCODE_DATE_AND_TIME_TYPES_AS_BINARY);
 
             const u::Md5Fingerprint md5Fingerprint =
                 u::ChecksumUtil::getMd5(getValueFingerprint);
@@ -9974,7 +10008,7 @@ int main(int argc, char *argv[])
             bsl::ostream md5FingerprintStream(&md5FingerprintStreamBuf);
             md5FingerprintStream << md5Fingerprint;
 
-            const bslstl::StringRef md5FingerprintString(
+            const bsl::string_view md5FingerprintString(
                 md5FingerprintStreamBuf.data(),
                 md5FingerprintStreamBuf.length());
 
@@ -10068,18 +10102,18 @@ int main(int argc, char *argv[])
             //  .---- /      /    /    .---------------------------------
             // /     /      /    /    /    'putValue' BEHAVIORAL FINGERPRINT
             //-- ------- ------ -- ------ ------------------------------------
-            { L_, SEED_0, 50000, 3, false, "a893e5c4643b5b40b45aa8d93c90a097" },
-            { L_, SEED_0, 50000, 3, true , "7166428b5ca3e18a0953877091f37ce7" },
-            { L_, SEED_0, 50000, 6, false, "95acf3bfe61bed5bf29c686c61ff6269" },
-            { L_, SEED_0, 50000, 6, true , "7166428b5ca3e18a0953877091f37ce7" },
-            { L_, SEED_1, 50000, 3, false, "37ce54c6d2f92fd9a822080aeda006e2" },
-            { L_, SEED_1, 50000, 3, true , "d0a8c8d46f37a89f15e71dae0c64d492" },
-            { L_, SEED_1, 50000, 6, false, "9d3d66bd3b64fc76d51ba638c2d88531" },
-            { L_, SEED_1, 50000, 6, true , "d0a8c8d46f37a89f15e71dae0c64d492" },
-            { L_, SEED_2, 50000, 3, false, "06c17b7af732eaa78f2fb8a03351d0fc" },
-            { L_, SEED_2, 50000, 3, true , "2689b7bf2a0a5002170e1c631fdf29ef" },
-            { L_, SEED_2, 50000, 6, false, "b3bf9ce8ffa3a8601e8edf915b8c418a" },
-            { L_, SEED_2, 50000, 6, true , "2689b7bf2a0a5002170e1c631fdf29ef" },
+            { L_, SEED_0, 50000, 3, false, "a893e5c4643b5b40b45aa8d93c90a097"},
+            { L_, SEED_0, 50000, 3, true , "7166428b5ca3e18a0953877091f37ce7"},
+            { L_, SEED_0, 50000, 6, false, "95acf3bfe61bed5bf29c686c61ff6269"},
+            { L_, SEED_0, 50000, 6, true , "7166428b5ca3e18a0953877091f37ce7"},
+            { L_, SEED_1, 50000, 3, false, "37ce54c6d2f92fd9a822080aeda006e2"},
+            { L_, SEED_1, 50000, 3, true , "d0a8c8d46f37a89f15e71dae0c64d492"},
+            { L_, SEED_1, 50000, 6, false, "9d3d66bd3b64fc76d51ba638c2d88531"},
+            { L_, SEED_1, 50000, 6, true , "d0a8c8d46f37a89f15e71dae0c64d492"},
+            { L_, SEED_2, 50000, 3, false, "06c17b7af732eaa78f2fb8a03351d0fc"},
+            { L_, SEED_2, 50000, 3, true , "2689b7bf2a0a5002170e1c631fdf29ef"},
+            { L_, SEED_2, 50000, 6, false, "b3bf9ce8ffa3a8601e8edf915b8c418a"},
+            { L_, SEED_2, 50000, 6, true , "2689b7bf2a0a5002170e1c631fdf29ef"},
         };
 
         static const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -10098,7 +10132,7 @@ int main(int argc, char *argv[])
             putValueFingerprint.setNumSamples(NUM_SAMPLES);
             putValueFingerprint.setFractionalSecondPrecision(SECOND_PRECISION);
             putValueFingerprint.setEncodeDateAndTimeTypesAsBinary(
-                                          ENCODE_DATE_AND_TIME_TYPES_AS_BINARY);
+                                         ENCODE_DATE_AND_TIME_TYPES_AS_BINARY);
 
             const u::Md5Fingerprint md5Fingerprint =
                 u::ChecksumUtil::getMd5(putValueFingerprint);
@@ -10107,7 +10141,7 @@ int main(int argc, char *argv[])
             bsl::ostream md5FingerprintStream(&md5FingerprintStreamBuf);
             md5FingerprintStream << md5Fingerprint;
 
-            const bslstl::StringRef md5FingerprintString(
+            const bsl::string_view md5FingerprintString(
                 md5FingerprintStreamBuf.data(),
                 md5FingerprintStreamBuf.length());
 
@@ -10433,19 +10467,22 @@ int main(int argc, char *argv[])
                 // Create 2 masks.  One for a single bit in the byte at the
                 // current index, the other for all but that one bit.
                 const unsigned char bitMask =
-                    static_cast<unsigned char>(0x01 << (i % 8));
-                const unsigned char byteMask = ~bitMask;
+                                   static_cast<unsigned char>(0x01 << (i % 8));
+                const unsigned char byteMask =
+                                          static_cast<unsigned char>(~bitMask);
 
                 // Use the single-bit mask to get a byte having all bits 0,
                 // except for the masked bit from the byte at the current
                 // index (which may be 0 or 1).
-                const unsigned char bitAtIdx = byteAtIdx & bitMask;
+                const unsigned char bitAtIdx = static_cast<unsigned char>(
+                                                          byteAtIdx & bitMask);
 
                 // Calculate the unsigned char value having the same value
                 // as 'byteAtIdx' except for having exactly 1 of its 8 bits
                 // flipped.
-                const unsigned char newByteAtIdx = (byteAtIdx & byteMask) |
-                                                   (~bitAtIdx & bitMask);
+                const unsigned char newByteAtIdx = static_cast<unsigned char>(
+                                                       (byteAtIdx & byteMask) |
+                                                       (~bitAtIdx & bitMask));
 
                 // Replace the byte at the specified index with the above
                 // calculated value, thereby flipping a single bit in the
@@ -13357,17 +13394,17 @@ int main(int argc, char *argv[])
                             ASSERT(0 == Util::putValue(&osb1,
                                                        VALUE1,
                                                        &options));
-                            const int LENGTH1 = static_cast<int>(osb1.length());
+                            const int LENGTH1 =static_cast<int>(osb1.length());
 
                             ASSERT(0 == Util::putValue(&osb2,
                                                        VALUE2,
                                                        &options));
-                            const int LENGTH2 = static_cast<int>(osb2.length());
+                            const int LENGTH2 =static_cast<int>(osb2.length());
 
                             ASSERT(0 == Util::putValue(&osb3,
                                                        VALUE3,
                                                        &options));
-                            const int LENGTH3 = static_cast<int>(osb3.length());
+                            const int LENGTH3 =static_cast<int>(osb3.length());
 
                             if (veryVerbose) {
                                 cout << "Output Buffer:";
@@ -13464,17 +13501,17 @@ int main(int argc, char *argv[])
                             ASSERT(0 == Util::putValue(&osb1,
                                                        VALUE1,
                                                        &DEFOPTS));
-                            const int LENGTH1 = static_cast<int>(osb1.length());
+                            const int LENGTH1 =static_cast<int>(osb1.length());
 
                             ASSERT(0 == Util::putValue(&osb2,
                                                        VALUE2,
                                                        &DEFOPTS));
-                            const int LENGTH2 = static_cast<int>(osb2.length());
+                            const int LENGTH2 =static_cast<int>(osb2.length());
 
                             ASSERT(0 == Util::putValue(&osb3,
                                                        VALUE3,
                                                        &DEFOPTS));
-                            const int LENGTH3 = static_cast<int>(osb3.length());
+                            const int LENGTH3 =static_cast<int>(osb3.length());
 
                             if (veryVerbose) {
                                 cout << "Output Buffer:";
@@ -13617,17 +13654,17 @@ int main(int argc, char *argv[])
                             ASSERT(0 == Util::putValue(&osb1,
                                                        VALUE1,
                                                        &options));
-                            const int LENGTH1 = static_cast<int>(osb1.length());
+                            const int LENGTH1 =static_cast<int>(osb1.length());
 
                             ASSERT(0 == Util::putValue(&osb2,
                                                        VALUE2,
                                                        &options));
-                            const int LENGTH2 = static_cast<int>(osb2.length());
+                            const int LENGTH2 =static_cast<int>(osb2.length());
 
                             ASSERT(0 == Util::putValue(&osb3,
                                                        VALUE3,
                                                        &options));
-                            const int LENGTH3 = static_cast<int>(osb3.length());
+                            const int LENGTH3 =static_cast<int>(osb3.length());
 
                             if (veryVerbose) {
                                 cout << "Output Buffer:";
@@ -13691,17 +13728,17 @@ int main(int argc, char *argv[])
                             ASSERT(0 == Util::putValue(&osb1,
                                                        VALUE1,
                                                        &DEFOPTS));
-                            const int LENGTH1 = static_cast<int>(osb1.length());
+                            const int LENGTH1 =static_cast<int>(osb1.length());
 
                             ASSERT(0 == Util::putValue(&osb2,
                                                        VALUE2,
                                                        &DEFOPTS));
-                            const int LENGTH2 = static_cast<int>(osb2.length());
+                            const int LENGTH2 =static_cast<int>(osb2.length());
 
                             ASSERT(0 == Util::putValue(&osb3,
                                                        VALUE3,
                                                        &DEFOPTS));
-                            const int LENGTH3 = static_cast<int>(osb3.length());
+                            const int LENGTH3 =static_cast<int>(osb3.length());
 
                             if (veryVerbose) {
                                 cout << "Output Buffer:";
@@ -14975,44 +15012,47 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTESTING 'putValue', 'getValue' for string"
                                << "\n========================================="
                                << bsl::endl;
-        {
-            static const struct {
-                int         d_lineNum;  // source line number
-                const char *d_string;   // string value
-                const char *d_exp;      // expected value
-            } DATA[] = {
-                //line no.  string                exp
-                //-------   ------                ---
-                { L_,        "",                  "00" },
-                { L_,        " ",                 "01 20" },
-                { L_,        "-+",                "02 2D 2B" },
-                { L_,        "Hello",             "05 48 65 6C 6C 6F" },
-                { L_,        "12345",             "05 31 32 33 34 35" },
-                { L_,        "&$#",               "03 26 24 23" },
-                { L_,        "Have a nice day",   "0F 48 61 76 65 20 61 20 6E"
-                                                  "69 63 65 20 64 61 79" },
-                { L_,        "QWERTY",            "06 51 57 45 52 54 59" },
-                { L_,        "This is an extremely long line that spans "
-                             "a few lines",       "35 54 68 69 73 20 69 73 20"
-                                                  "61 6E 20 65 78 74 72 65 6D"
-                                                  "65 6C 79 20 6C 6F 6E 67 20"
-                                                  "6C 69 6E 65 20 74 68 61 74"
-                                                  "20 73 70 61 6E 73 20 61 20"
-                                                "66 65 77 20 6C 69 6E 65 73" },
-            };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        static const struct {
+            int         d_lineNum;  // source line number
+            const char *d_string;   // string value
+            const char *d_exp;      // expected value
+        } DATA[] = {
+            //line no.  string                exp
+            //-------   ------                ---
+            { L_,        "",                  "00" },
+            { L_,        " ",                 "01 20" },
+            { L_,        "-+",                "02 2D 2B" },
+            { L_,        "Hello",             "05 48 65 6C 6C 6F" },
+            { L_,        "12345",             "05 31 32 33 34 35" },
+            { L_,        "&$#",               "03 26 24 23" },
+            { L_,        "Have a nice day",   "0F 48 61 76 65 20 61 20 6E"
+                                              "69 63 65 20 64 61 79" },
+            { L_,        "QWERTY",            "06 51 57 45 52 54 59" },
+            { L_,        "This is an extremely long line that spans "
+                         "a few lines",       "35 54 68 69 73 20 69 73 20"
+                                              "61 6E 20 65 78 74 72 65 6D"
+                                              "65 6C 79 20 6C 6F 6E 67 20"
+                                              "6C 69 6E 65 20 74 68 61 74"
+                                              "20 73 70 61 6E 73 20 61 20"
+                                              "66 65 77 20 6C 69 6E 65 73" },
+        };
 
-            for (int di = 0; di < NUM_DATA; ++di) {
-                const int        LINE = DATA[di].d_lineNum;
-                const StringRef  VAL  = DATA[di].d_string;
-                const char      *EXP  = DATA[di].d_exp;
-                const int        LEN  = numOctets(EXP);
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
+        for (int di = 0; di < NUM_DATA; ++di) {
+            const int                LINE = DATA[di].d_lineNum;
+            const bslstl::StringRef  SR   = DATA[di].d_string;
+            const bsl::string        S    = DATA[di].d_string;
+            const char              *EXP  = DATA[di].d_exp;
+            const int                LEN  = numOctets(EXP);
+
+            if (veryVerbose) Q(StringRef);
+            {
                 string  val;
 
                 bdlsb::MemOutStreamBuf osb;
-                LOOP_ASSERT(LINE, 0   == Util::putValue(&osb, VAL));
+                LOOP_ASSERT(LINE, 0   == Util::putValue(&osb, SR));
                 LOOP_ASSERT(LINE, LEN == (int)osb.length());
                 LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
@@ -15025,10 +15065,40 @@ int main(int argc, char *argv[])
                 int numBytesConsumed = 0;
                 bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
                 LOOP_ASSERT(LINE,
-                            SUCCESS ==
-                                Util::getValue(&isb, &val, &numBytesConsumed));
+                            SUCCESS == Util::getValue(&isb,
+                                                      &val,
+                                                      &numBytesConsumed));
                 LOOP_ASSERT(LINE, 0 == isb.length());
-                LOOP2_ASSERT(VAL, val, VAL == val);
+                LOOP2_ASSERT(SR, val, SR == val);
+                LOOP3_ASSERT(LINE,
+                             LEN,
+                             numBytesConsumed,
+                             LEN == numBytesConsumed);
+            }
+
+            if (veryVerbose) Q(bsl::string);
+            {
+                string  val;
+
+                bdlsb::MemOutStreamBuf osb;
+                LOOP_ASSERT(LINE, 0   == Util::putValue(&osb, S));
+                LOOP_ASSERT(LINE, LEN == (int)osb.length());
+                LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    P(EXP)
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+
+                int numBytesConsumed = 0;
+                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+                LOOP_ASSERT(LINE,
+                            SUCCESS == Util::getValue(&isb,
+                                                      &val,
+                                                      &numBytesConsumed));
+                LOOP_ASSERT(LINE, 0 == isb.length());
+                LOOP2_ASSERT(S, val, S == val);
                 LOOP3_ASSERT(LINE,
                              LEN,
                              numBytesConsumed,
@@ -15050,62 +15120,60 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTESTING 'putValue', 'getValue' for string"
                                << "\n========================================="
                                << bsl::endl;
-        {
-            static const struct {
-                int         d_lineNum;  // source line number
-                const char *d_string;   // string value
-                const char *d_exp;      // expected value
-            } DATA[] = {
-                //line no.  string                exp
-                //-------   ------                ---
-                { L_,        "",                  "00" },
-                { L_,        " ",                 "01 20" },
-                { L_,        "-+",                "02 2D 2B" },
-                { L_,        "Hello",             "05 48 65 6C 6C 6F" },
-                { L_,        "12345",             "05 31 32 33 34 35" },
-                { L_,        "&$#",               "03 26 24 23" },
-                { L_,        "Have a nice day",   "0F 48 61 76 65 20 61 20 6E"
-                                                  "69 63 65 20 64 61 79" },
-                { L_,        "QWERTY",            "06 51 57 45 52 54 59" },
-                { L_,        "This is an extremely long line that spans "
-                             "a few lines",       "35 54 68 69 73 20 69 73 20"
-                                                  "61 6E 20 65 78 74 72 65 6D"
-                                                  "65 6C 79 20 6C 6F 6E 67 20"
-                                                  "6C 69 6E 65 20 74 68 61 74"
-                                                  "20 73 70 61 6E 73 20 61 20"
-                                                "66 65 77 20 6C 69 6E 65 73" },
-            };
+        struct Data {
+            int         d_lineNum;  // source line number
+            const char *d_string;   // string value
+            const char *d_exp;      // expected value
+        } DATA[] = {
+            //line no.  string                exp
+            //-------   ------                ---
+            { L_,        "",                  "00" },
+            { L_,        " ",                 "01 20" },
+            { L_,        "-+",                "02 2D 2B" },
+            { L_,        "Hello",             "05 48 65 6C 6C 6F" },
+            { L_,        "12345",             "05 31 32 33 34 35" },
+            { L_,        "&$#",               "03 26 24 23" },
+            { L_,        "Have a nice day",   "0F 48 61 76 65 20 61 20 6E"
+                                              "69 63 65 20 64 61 79" },
+            { L_,        "QWERTY",            "06 51 57 45 52 54 59" },
+            { L_,        "This is an extremely long line that spans "
+                         "a few lines",       "35 54 68 69 73 20 69 73 20"
+                                              "61 6E 20 65 78 74 72 65 6D"
+                                              "65 6C 79 20 6C 6F 6E 67 20"
+                                              "6C 69 6E 65 20 74 68 61 74"
+                                              "20 73 70 61 6E 73 20 61 20"
+                                              "66 65 77 20 6C 69 6E 65 73" },
+        };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        for (int di = 0; di < NUM_DATA; ++di) {
+            const Data&        data = DATA[di];
+            const int          LINE = data.d_lineNum;
+            const bsl::string  VAL  = data.d_string;
+            const char        *EXP  = data.d_exp;
+            const int          LEN  = numOctets(EXP);
 
-            for (int di = 0; di < NUM_DATA; ++di) {
-                const int     LINE = DATA[di].d_lineNum;
-                const string  VAL  = DATA[di].d_string;
-                const char   *EXP  = DATA[di].d_exp;
-                const int     LEN  = numOctets(EXP);
-                      string  val;
+            bsl::string val;
 
-                bdlsb::MemOutStreamBuf osb;
-                LOOP_ASSERT(LINE, 0   == Util::putValue(&osb, VAL));
-                LOOP_ASSERT(LINE, LEN == (int)osb.length());
-                LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
+            bdlsb::MemOutStreamBuf osb;
+            LOOP_ASSERT(LINE, 0   == Util::putValue(&osb, VAL));
+            LOOP_ASSERT(LINE, LEN == (int)osb.length());
+            LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
 
-                if (veryVerbose) {
-                    P(EXP)
-                    cout << "Output Buffer:";
-                    printBuffer(osb.data(), osb.length());
-                }
-
-                int numBytesConsumed = 0;
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                LOOP_ASSERT(LINE,
-                            SUCCESS ==
-                                Util::getValue(&isb, &val, &numBytesConsumed));
-                LOOP_ASSERT(LINE, 0        == isb.length());
-                LOOP2_ASSERT(VAL, val, VAL == val);
-                LOOP3_ASSERT(LINE, LEN, numBytesConsumed,
-                             LEN == numBytesConsumed);
+            if (veryVerbose) {
+                P(EXP)
+                cout << "Output Buffer:";
+                printBuffer(osb.data(), osb.length());
             }
+
+            int numBytesConsumed = 0;
+            bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+            LOOP_ASSERT(LINE,
+                    SUCCESS == Util::getValue(&isb, &val, &numBytesConsumed));
+            LOOP_ASSERT(LINE, 0        == isb.length());
+            LOOP2_ASSERT(VAL, val, VAL == val);
+            LOOP3_ASSERT(LINE, LEN, numBytesConsumed,
+                         LEN == numBytesConsumed);
         }
       } break;
       case 12: {
@@ -16071,7 +16139,7 @@ int main(int argc, char *argv[])
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
                     LOOP_ASSERT(LINE, SUCCESS ==
-                                   IntegerUtil::getIntegerValue(&vi, &isb, LEN));
+                                 IntegerUtil::getIntegerValue(&vi, &isb, LEN));
                     LOOP_ASSERT(LINE, 0 == isb.length());
                     LOOP_ASSERT(LINE, vi == VI);
                 }

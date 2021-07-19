@@ -4020,7 +4020,7 @@ int BerUtil_BooleanImpUtil::putBoolValue(bsl::streambuf *streamBuf, bool value)
 
     if (static_cast<int>(value) !=
         streamBuf->sputc(static_cast<char_type>(value ? 1 : 0))) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     return 0;
@@ -4069,14 +4069,18 @@ int BerUtil_IntegerImpUtil::getNumOctetsToStream(TYPE value)
         static const TYPE POS_MASK = TYPE(~NEG_MASK);
         while ((value & POS_MASK) == value) {
             value = static_cast<TYPE>(value << 8);
+
             // shift out redundant high-order 0x00
+
             --numBytes;
         }
     }
     else {  // 0 > value
         while ((value | NEG_MASK) == value) {
             value = static_cast<TYPE>(value << 8);
+
             // shift out redundant high-order 0xFF
+
             --numBytes;
         }
     }
@@ -4238,18 +4242,21 @@ int BerUtil_CharacterImpUtil::getCharValue(char           *value,
                                            int             length)
 {
     switch (length) {
-      case 1:
-        break;
-      case 2:
+      case 1: {
+        ; // do nothing
+      } break;
+      case 2: {
         if (0 != streamBuf->sbumpc()) {
             // see 'getIntegerValue', if this 'char' had been encoded as
             // 'unsigned' there might be a leading 0 which is acceptable, but
             // any other value for the first byte is invalid
+
             return -1;                                                // RETURN
         }
-        break;
-      default:
+      } break;
+      default: {
         return -1;                                                    // RETURN
+      }
     }
 
     int valueOctet = streamBuf->sbumpc();
@@ -4461,6 +4468,7 @@ bool BerUtil_ExtendedBinaryEncodingUtil::useExtendedBinaryEncoding(
     if (!options) {
         // If encoding options are not specified, by default the ISO8601 format
         // is used.
+
         return false;                                                 // RETURN
     }
 
@@ -4780,7 +4788,7 @@ int BerUtil_DateAndTimeHeaderImpUtil::getValue(Header        *value,
         }
 
         value->makeExtendedBinaryWithTimezone(timezoneOffset);
-        return 0;
+        return 0;                                                     // RETURN
       } break;
     }
 
@@ -5127,7 +5135,7 @@ BerUtil_TimeEncoding::Value BerUtil_TimeImpUtil::selectTimeEncoding(
         return TimeEncoding::e_COMPACT_BINARY_TIME;                   // RETURN
     }
 
-    return TimeEncoding::e_ISO8601_TIME;                              // RETURN
+    return TimeEncoding::e_ISO8601_TIME;
 }
 
 inline
@@ -5199,11 +5207,11 @@ BerUtil_TimeTzEncoding::Value BerUtil_TimeImpUtil::selectTimeTzEncoding(
 
     if (ExtendedBinaryEncodingUtil::useBinaryEncoding(options) &&
         (0 == value.offset())) {
-        return TimeTzEncoding::e_COMPACT_BINARY_TIME;
+        return TimeTzEncoding::e_COMPACT_BINARY_TIME;                 // RETURN
     }
 
     if (ExtendedBinaryEncodingUtil::useBinaryEncoding(options)) {
-        return TimeTzEncoding::e_COMPACT_BINARY_TIMETZ;
+        return TimeTzEncoding::e_COMPACT_BINARY_TIMETZ;               // RETURN
     }
 
     return TimeTzEncoding::e_ISO8601_TIMETZ;
@@ -5803,7 +5811,7 @@ int BerUtil_DatetimeImpUtil::detectDatetimeOrDatetimeTzEncoding(
 
     if (DateAndTimeHeaderUtil::isExtendedBinaryWithoutTimezone(firstByte)) {
         *encoding = DatetimeOrDatetimeTzEncoding::e_EXTENDED_BINARY_DATETIME;
-        return 0;                                                       // RETURN
+        return 0;                                                     // RETURN
     }
 
     if (DateAndTimeHeaderUtil::isExtendedBinaryWithTimezone(firstByte)) {
@@ -6105,22 +6113,26 @@ int BerUtil_DatetimeImpUtil::getDatetimeOrDatetimeTzValue(
 
     switch (encoding) {
       case DatetimeOrDatetimeTzEncoding::e_ISO8601_DATETIME: {
-        return getIso8601DatetimeValue(value, streamBuf, length);
+        return getIso8601DatetimeValue(value, streamBuf, length);     // RETURN
       } break;
       case DatetimeOrDatetimeTzEncoding::e_ISO8601_DATETIMETZ: {
-        return getIso8601DatetimeTzValue(value, streamBuf, length);
+        return getIso8601DatetimeTzValue(value, streamBuf, length);   // RETURN
       } break;
       case DatetimeOrDatetimeTzEncoding::e_COMPACT_BINARY_DATETIME: {
         return getCompactBinaryDatetimeValue(value, streamBuf, length);
+                                                                      // RETURN
       } break;
       case DatetimeOrDatetimeTzEncoding::e_COMPACT_BINARY_DATETIMETZ: {
         return getCompactBinaryDatetimeTzValue(value, streamBuf, length);
+                                                                      // RETURN
       } break;
       case DatetimeOrDatetimeTzEncoding::e_EXTENDED_BINARY_DATETIME: {
         return getExtendedBinaryDatetimeValue(value, streamBuf, length);
+                                                                      // RETURN
       } break;
       case DatetimeOrDatetimeTzEncoding::e_EXTENDED_BINARY_DATETIMETZ: {
         return getExtendedBinaryDatetimeTzValue(value, streamBuf, length);
+                                                                      // RETURN
       } break;
     }
 
