@@ -6430,7 +6430,11 @@ template <class TYPE>
 inline
 TYPE Variant_ReturnAnyTypeUtil<TYPE>::doNotCall(TYPE *dummy)
 {
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+    return bslmf::MovableRefUtil::move(*dummy);
+#else
     return *dummy;
+#endif
 }
 
 template <class TYPE>

@@ -33,6 +33,7 @@
 
 #include <bsltf_movablealloctesttype.h>
 #include <bsltf_movabletesttype.h>
+#include <bsltf_moveonlyalloctesttype.h>
 #include <bsltf_movestate.h>
 #include <bsltf_templatetestfacility.h>
 
@@ -3959,6 +3960,76 @@ void testReferenceResultTypeSpecified()
 }
 
 }  // close namespace FUNCTIONS_FOR_TESTING_APPLY
+
+namespace TYPES_FOR_TESTING_NON_COPYABLE_RETURN_VALUES {
+
+                           // ===============================
+                           // class DefaultReturnValueVisitor
+                           // ===============================
+template <class RETURN_TYPE>
+class DefaultReturnValueVisitor {
+    // This class simply returns the default constructed object of the
+    // (template parameter) 'RETURN_TYPE'.
+
+  public:
+    // TYPES
+    typedef RETURN_TYPE ResultType;
+
+    // ACCESSORS
+    template <class TYPE>
+    ResultType operator()(const TYPE&) const
+    {
+        return RETURN_TYPE();
+    }
+};
+
+                           // ======================
+                           // class CopyOnlyTestType
+                           // ======================
+
+class CopyOnlyTestType {
+    // This class, that does not support move constructor or move assignment
+    // operator, provides copy mechanisms only.
+
+    // DATA
+    int d_value;  // object's value
+
+  public:
+    // CREATORS
+    CopyOnlyTestType()
+    // Create an object having the null value.
+    : d_value(0)
+    {}
+
+    explicit CopyOnlyTestType(int value)
+    // Create an object that has the specified 'value'.
+    : d_value(value)
+    {}
+
+    CopyOnlyTestType(const CopyOnlyTestType& original)
+    // Create an object having the value of the specified 'original'
+    // object.
+    : d_value(original.d_value)
+    {}
+
+    // MANIPULATORS
+    CopyOnlyTestType& operator=(CopyOnlyTestType rhs)
+        // Assign to this object the value of the specified 'rhs' object.
+    {
+        d_value = rhs.d_value;
+        return *this;
+    }
+
+    // ACCESSORS
+    int data() const
+        // Return the value of this object.  The method name is unified with
+        // the 'bsltf::MoveOnlyAllocTestType' accessor's name for consistency.
+    {
+        return d_value;
+    }
+};
+
+}  // close namespace TYPES_FOR_TESTING_NON_COPYABLE_RETURN_VALUES
 
 // ============================================================================
 //                            OUT-OF-LINE TEST CASES
@@ -27457,6 +27528,57 @@ void TestUtil::testCase15()
                                         ResultTypeRvalueRefReturningVisitor>();
         testReferenceResultTypeSpecified<
                                    ResultTypeConstRvalueRefReturningVisitor>();
+#endif
+    }
+
+    if (verbose) cout << "\nTesting visitors returning objects of move-only"
+                      << " and copy-only types."
+                      << endl;
+    {
+        // This test case has been added due to DRQS 166154377, where compiler
+        // failed to build a code with the visitor returning a 'ResultType' of
+        // a non-copyable type.
+
+        using namespace TYPES_FOR_TESTING_NON_COPYABLE_RETURN_VALUES;
+
+        {
+            bdlb::Variant<int, const char *> variant;
+
+            CopyOnlyTestType copyResult =
+                  variant.apply(DefaultReturnValueVisitor<CopyOnlyTestType>());
+            ASSERT(0 == copyResult.data());
+
+            variant.assign(123);
+
+            copyResult =
+                  variant.apply(DefaultReturnValueVisitor<CopyOnlyTestType>());
+            ASSERT(0 == copyResult.data());
+
+            copyResult = variant.applyRaw(
+                                DefaultReturnValueVisitor<CopyOnlyTestType>());
+            ASSERT(0 == copyResult.data());
+        }
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+        {
+            typedef bsltf::MoveOnlyAllocTestType MoveOnlyTestType;
+
+            bdlb::Variant<int, const char *> variant;
+
+            MoveOnlyTestType moveResult =
+                  variant.apply(DefaultReturnValueVisitor<MoveOnlyTestType>());
+            ASSERT(0 == moveResult.data());
+
+            variant.assign(123);
+
+            moveResult =
+                  variant.apply(DefaultReturnValueVisitor<MoveOnlyTestType>());
+            ASSERT(0 == moveResult.data());
+
+            moveResult = variant.applyRaw(
+                                DefaultReturnValueVisitor<MoveOnlyTestType>());
+            ASSERT(0 == moveResult.data());
+        }
 #endif
     }
 }
