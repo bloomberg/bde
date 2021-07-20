@@ -70,22 +70,20 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Treatment of NaN (Not-A-Number)
 ///- - - - - - - - - - - - - - - -
-// 'Datum' provides the minimal requirements for representing NaN values found
-// in the IEEE-754 standard, meaning Datum will preserve the distinction
-// between "signaling" (sNaN) and "quiet" (qNan) NaN values.  'Datum' will not
-// preserve the non normative bits of a 'double' representation of NaN.  So,
-// for example, if a 'Datum' were constructed for a NaN value, performing a
-// 'memcmp' of the bits returned by 'theDouble' accessor to original 'double'
-// value may indicate the bits of the representations are not-equal, but
-// 'std::fpclassify' and 'bdlb::Float::classifyFine' would be the same.
+// When storing a NaN value in a 'Datum', 'Datum' guarantees only that *a* NaN
+// value will be represented, but does not guarantee that the particular bit
+// pattern supplied for a NaN value will be preserved.  Note that an IEEE-754
+// representation for 'double' allows for signaling and quiet NaN values, as
+// well as a sign bit, and other bits of NaN payload data.  These non-salient
+// elements of the "value" of the 'double' may not be preserved (and in the
+// case of signaling NaNs, cannot be preserved on some platforms).
 //
 ///Treatment of Infinity
 ///- - - - - - - - - - -
-// Similarly to NaN, 'Datum' provides the minimal requirements for representing
-// infinity values found in the IEEE-754 standard, providing unique
-// representations for +/- infinity.  IEEE-754 double precisions format
-// requires also only those two infinity values.  Unlike NaN values, these two
-// infinity values have no non-normative bits in their representations.
+// 'Datum' is provides unique representations for positive and negative
+// infinity.  IEEE-754 double precisions format requires also only those two
+// infinity values.  (Unlike NaN values, these two infinity values have no
+// non-normative bits in their representations, or signaling/quiet forms.)
 //
 ///Immutability
 ///------------
@@ -1373,12 +1371,10 @@ class Datum {
 
     static Datum createDouble(double value);
         // Return, by value, a datum having the specified 'double' 'value'.
-        // This method guarantees that two possible NaN values, a singaling and
-        // a quiet NaN, are preserved (i.e., the result of 'std::fpclassify',
-        // and 'bdlb::Float::classifyFine', will be preserved for NaN values),
-        // but does not guarantee the preservation of bit-wise equality.  The
-        // sign and NaN payload bits of NaN values retrieved by the 'theDouble'
-        // method are unspecified (see also {'Special Floating Point Values'}.
+        // When 'value' is NaN this method guarantees only that a NaN value is
+        // stored.  The sign and NaN payload bits of a NaN 'value' later
+        // retrieved by the 'theDouble' method are unspecified (see also
+        // {Special Floating Point Values}.
 
     static Datum createError(int code);
         // Return, by value, a datum having a 'DatumError' value with the
@@ -1807,12 +1803,9 @@ class Datum {
     double theDouble() const;
         // Return the double value represented by this object.  The behavior is
         // undefined unless this object actually represents a double value.
-        // This method guarantees that two possible NaN values, a singaling and
-        // a quiet NaN, are preserved (i.e., the result of 'std::fpclassify',
-        // and 'bdlb::Float::classifyFine', will be preserved for NaN values),
-        // but does not guarantee the preservation of bit-wise equality.  The
-        // sign and NaN payload bits of NaN values returned are unspecified
-        // (see also {'Special Floating Point Values'}.
+        // If the returned value is NaN this method guarantees only that a NaN
+        // value will be returned.  The sign and NaN payload bits of NaN values
+        // returned are unspecified (see also {Special Floating Point Values}.
 
     DatumError theError() const;
         // Return the error value represented by this object as a 'DatumError'
@@ -3333,9 +3326,7 @@ Datum Datum::createDouble(double value)
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(value == value))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return createExtendedDataObject(
-                         e_EXTENDED_INTERNAL_NAN2,
-                         bdlb::Float::isSignalingNan(value) ? 1 : 0); // RETURN
+        return createExtendedDataObject(e_EXTENDED_INTERNAL_NAN2, 0); // RETURN
     } else {
         result.d_double = value;
     }
@@ -3901,10 +3892,7 @@ double Datum::theDouble() const
         return d_double;                                              // RETURN
     }
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-    if (0 == d_as.d_int) {
-        return bsl::numeric_limits<double>::quiet_NaN();              // RETURN
-    }
-    return bsl::numeric_limits<double>::signaling_NaN();
+    return bsl::numeric_limits<double>::quiet_NaN();                  // RETURN
 #else  // BSLS_PLATFORM_CPU_32_BIT
     return d_as.d_double;
 #endif // BSLS_PLATFORM_CPU_32_BIT

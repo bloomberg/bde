@@ -1,8 +1,6 @@
 // bdld_datum.t.cpp                                                   -*-C++-*-
 #include <bdld_datum.h>
 
-#include <bdlb_float.h>
-
 #include <bdldfp_decimalconvertutil.h>
 #include <bdldfp_decimalutil.h>
 
@@ -462,19 +460,18 @@ const double k_DOUBLE_LOADED_NAN   = -sqrt(-1.0);  // A NaN with random bits.
                                                  // are used in the 32bit
                                                 // 'Datum' implementation to
                                                // store values of other types.
-                                              // We can distinguish between two
-                                             // NaN values: signaling and quiet
-                                            // when compiling for 32bit ABI.
-                                           // In 64bit ABI we store NaNs
-                                          // without loss of information but
+                                              // We do not distinguish between
+                                             // NaN values when compiling for
+                                            // a 32 bit ABI.  When compiling
+                                           // for a 64 bit ABI we store NaNs
+                                          // without loss of information, but
                                          // that may change as we look to save
                                         // physical and virtual memory space.
 
-const bool k_DOUBLE_NAN_BITS_PRESERVED =
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-                                     false;  // Signaling and quiet NaN only.
+const bool k_DOUBLE_NAN_BITS_PRESERVED = false;  // "Some NaN" stored.
 #else   // BSLS_PLATFORM_CPU_32_BIT
-                                     true;  // All NaN bits preserved.
+const bool k_DOUBLE_NAN_BITS_PRESERVED = true;  // All NaN bits stored.
 #endif  // BSLS_PLATFORM_CPU_32_BIT
 
 const Decimal64 k_DECIMAL64_MIN      = numeric_limits<Decimal64>::min();
@@ -5053,17 +5050,14 @@ int main(int argc, char *argv[])
                         ASSERT(VALUE == D.theDouble());
                     } else {
                         ASSERT(VALUE != D.theDouble());
-                        ASSERTV(bdlb::Float::classifyFine(VALUE),
-                                bdlb::Float::classifyFine(D.theDouble()),
-                                bdlb::Float::classifyFine(VALUE) ==
-                                     bdlb::Float::classifyFine(D.theDouble()));
+
                         if (k_DOUBLE_NAN_BITS_PRESERVED) {
                             // In 64bit 'Datum' we currently store 'NaN' values
                             // unchanged.
                             const double THE_DOUBLE = D.theDouble();
                             ASSERT(bsl::memcmp(&VALUE,
-                                               &THE_DOUBLE,
-                                               sizeof(double)) == 0);
+                                &THE_DOUBLE,
+                                sizeof(double)) == 0);
                         }
                     }
 
@@ -5078,6 +5072,15 @@ int main(int argc, char *argv[])
                         ASSERT(VALUE == DC.theDouble());
                     } else {
                         ASSERT(VALUE != DC.theDouble());
+
+                        // Cloning a NaN must result in the exact same value
+                        // bit-by-bit, regardless that we do not guarantee
+                        // preserving all the bits of a NaN in 'createDouble'.
+                        const double ORIGINAL_DOUBLE = D.theDouble();
+                        const double CLONED_DOUBLE   = DC.theDouble();
+                        ASSERT(bsl::memcmp(&ORIGINAL_DOUBLE,
+                                           &CLONED_DOUBLE,
+                                           sizeof(double)) == 0);
                     }
 
                     Datum::destroy(D, &oa);
@@ -10736,10 +10739,6 @@ int main(int argc, char *argv[])
                     ASSERT(VALUE == Z.theDouble());
                 } else {
                     ASSERT(VALUE != Z.theDouble());
-                    ASSERTV(bdlb::Float::classifyFine(VALUE),
-                            bdlb::Float::classifyFine(Z.theDouble()),
-                            bdlb::Float::classifyFine(VALUE) ==
-                                     bdlb::Float::classifyFine(Z.theDouble()));
                     if (k_DOUBLE_NAN_BITS_PRESERVED) {
                         // In 64bit 'Datum' we currently store 'NaN' values
                         // unchanged.
@@ -11687,7 +11686,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'createBoolean'." << endl;
         {
-            const static bool DATA[] = { true, false };
+            const static bool DATA[]   = { true, false };
             const size_t      DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i< DATA_LEN; ++i) {
@@ -12013,13 +12012,10 @@ int main(int argc, char *argv[])
                     ASSERT(VALUE == D.theDouble());
                 } else {
                     ASSERT(VALUE != D.theDouble());
-                    ASSERTV(bdlb::Float::classifyFine(VALUE),
-                            bdlb::Float::classifyFine(D.theDouble()),
-                            bdlb::Float::classifyFine(VALUE) ==
-                                     bdlb::Float::classifyFine(D.theDouble()));
+                    // In 32 bit mode we guarantee just "some NaN value".
                     if (k_DOUBLE_NAN_BITS_PRESERVED) {
-                        // In 64bit 'Datum' we currently store 'NaN' values
-                        // unchanged.
+                        // In 64 bit mode 'Datum' we currently store 'NaN'
+                        // values unchanged.
                         const double THE_DOUBLE = D.theDouble();
                         ASSERT(bsl::memcmp(&VALUE,
                                            &THE_DOUBLE,
