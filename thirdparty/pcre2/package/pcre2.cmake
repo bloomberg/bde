@@ -3,7 +3,7 @@ include(bde_struct)
 include(bde_uor)
 
 bde_prefixed_override(pcre2 process_standalone_package)
-function(pcre2_process_standalone_package retUOR listFile isntallOpts)
+function(pcre2_process_standalone_package retUOR listFile installOpts)
     bde_assert_no_extra_args()
 
     get_filename_component(listDir ${listFile} DIRECTORY)

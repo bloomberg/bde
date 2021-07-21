@@ -1,0 +1,3 @@
+set(uor_description "ryu -  C library of routines to efficiently convert IEEE-754 floating-point numbers to decimal strings using shortest, fixed %f, and scientific %e formatting.")
+
+set(uor_version "2021.0127.6f85836")

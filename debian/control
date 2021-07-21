@@ -41,7 +41,7 @@ Depends: libbsl-dev
 Architecture: any
 Conflicts: libbsl-dev (<< 3.41.0.0), libbsl-extra-dev
 Replaces: libbsl-extra-dev
-Description: BSL 
+Description: BSL
  groups/bsl extra libraries
 
 
@@ -66,7 +66,7 @@ Description: BDL
 
 Package: libbsl-dev
 Architecture: any
-Description: BSL 
+Description: BSL
  groups/bsl development files
 
 
@@ -74,7 +74,7 @@ Description: BSL
 Package: libinteldfp-dev-extra
 Depends: libinteldfp-dev
 Architecture: any
-Description: Intel Decimal Floating-Point Math Library 
+Description: Intel Decimal Floating-Point Math Library
  thirdparty/inteldfp extra libraries
 
 Package: libinteldfp-dev
@@ -92,3 +92,15 @@ Description: PCRE 2 Regular Expression Library
 Package: libpcre2-dev
 Architecture: any
 Description: PCRE 2 Regular Expression Library
+
+
+
+Package: libryu-dev-extra
+Depends: libryu-dev
+Architecture: any
+Description: Bloomberg LP Extended Ryu Float Formatting Library
+ thirdparty/ryu extra libraries
+
+Package: libryu-dev
+Architecture: any
+Description: Bloomberg LP Extended Ryu Float Formatting Library
