@@ -476,6 +476,10 @@ class EventScheduler {
     bslmt::ThreadUtil::Handle
                           d_dispatcherThread;   // dispatcher thread handle
 
+    bsls::AtomicUint64    d_dispatcherThreadId; // dispatcher thread id used to
+                                                // implement function
+                                                // 'isInDispatcherThread'
+
     bslmt::Mutex          d_dispatcherMutex;    // serialize starting/stopping
                                                 // dispatcher thread
 
@@ -823,6 +827,10 @@ class EventScheduler {
     int numRecurringEvents() const;
         // Return the number of recurring events registered with this
         // scheduler.
+
+    bool isInDispatcherThread() const;
+        // Return 'true' if the calling thread is the dispatcher thread of this
+        // scheduler, and 'false' otherwise.
 
                                   // Aspects
 
@@ -1193,6 +1201,13 @@ inline
 int EventScheduler::numRecurringEvents() const
 {
     return d_recurringQueue.length();
+}
+
+inline
+bool EventScheduler::isInDispatcherThread() const
+{
+    return d_dispatcherThreadId.loadAcquire() ==
+                                           bslmt::ThreadUtil::selfIdAsUint64();
 }
 
                                   // Aspects

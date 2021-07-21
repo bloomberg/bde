@@ -118,6 +118,7 @@ using namespace bsl;  // automatically added by script
 // [21] bsls::SystemClockType::Enum clockType() const;
 // [23] bsls::TimeInterval now() const;
 // [24] bslma::Allocator *allocator() const;
+// [27] bool isInDispatcherThread() const;
 //-----------------------------------------------------------------------------
 // [01] BREATHING TEST
 // [25] DRQS 150355963: 'advanceTime' WITH UNDER A MICROSECOND
@@ -126,7 +127,7 @@ using namespace bsl;  // automatically added by script
 // [10] TESTING CONCURRENT SCHEDULING AND CANCELLING
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
 // [22] CLOCK REPLACEMENT BREATHING TEST
-// [27] USAGE EXAMPLE
+// [28] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -956,6 +957,22 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
 // production code.
 
 }  // close namespace EVENTSCHEDULER_TEST_CASE_USAGE
+
+// ============================================================================
+//                         CASE 27 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+void case27LoadIsInDispatcherThread(
+                                   bsls::AtomicBool      *isInDispatcherThread,
+                                   bdlmt::EventScheduler *scheduler,
+                                   bslmt::Semaphore      *semaphore)
+    // Load into the specified 'isInDispatcherThread' the result of a
+    // 'isInDispatcherThread' call on the specified 'scheduler' and call
+    // 'post' on the specified 'semaphore'.
+{
+    *isInDispatcherThread = scheduler->isInDispatcherThread();
+    semaphore->post();
+}
 
 // ============================================================================
 //                         CASE 25 RELATED ENTITIES
@@ -2382,7 +2399,8 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 27: {
+
+      case 28: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLES:
         //
@@ -2442,6 +2460,72 @@ int main(int argc, char *argv[])
 
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // TESTING 'isInDispatcherThread' ACCESSOR
+        //
+        // Concerns:
+        //: 1 That 'isInDispatcherThread' should only return 'true' when called
+        //    from the scheduler's dispatcher thread.
+        //
+        // Plan:
+        //: 1 Call 'isInDispatcherThread' on a scheduler from inside and from
+        //    outside the scheduler's own dispatched thread, and make sure that
+        //    the function returns 'true' only when invoked from within the
+        //    dispatcher thread.
+        //
+        // Testing:
+        //   bool isInDispatcherThread() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'isInDispatcherThread' ACCESSOR\n"
+                             "=======================================\n";
+
+        // create scheduler
+        bdlmt::EventScheduler scheduler;
+
+        // atomic flag to store the result of a 'isInDispatcherThread' call
+        bsls::AtomicBool isInDispatcherThread;
+
+        // call 'isInDispatcherThread' before starting the scheduler
+        isInDispatcherThread = scheduler.isInDispatcherThread();
+        ASSERT(isInDispatcherThread == false);
+
+        for (int i = 0; i < 3; ++i) {
+            // Repeat several times, each time the scheduler will create a new
+            // thread.
+
+            if (veryVerbose) {
+                P_(i);
+            }
+
+            // start scheduler (create dispatcher thread)
+            scheduler.start();
+
+            // call 'isInDispatcherThread' from outside the dispatcher thread
+            isInDispatcherThread = scheduler.isInDispatcherThread();
+            ASSERT(isInDispatcherThread == false);
+
+            // call 'isInDispatcherThread' from inside the dispatcher thread
+            bslmt::Semaphore sem;
+            scheduler.scheduleEvent(bsls::TimeInterval(), // immediately
+                                    bdlf::BindUtil::bind(
+                                               &case27LoadIsInDispatcherThread,
+                                               &isInDispatcherThread,
+                                               &scheduler,
+                                               &sem));
+            sem.wait();
+
+            ASSERT(isInDispatcherThread == true);
+
+            // stop scheduler (shutdown dispatcher thread)
+            scheduler.stop();
+        }
+
+        // call 'isInDispatcherThread' after stopping the scheduler
+        isInDispatcherThread = scheduler.isInDispatcherThread();
+        ASSERT(isInDispatcherThread == false);
       } break;
       case 26: {
         // --------------------------------------------------------------------

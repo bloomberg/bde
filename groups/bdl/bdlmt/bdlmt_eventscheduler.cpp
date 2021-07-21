@@ -50,6 +50,14 @@ bsl::function<bsls::TimeInterval()> createDefaultCurrentTimeFunctor(
               clockType);
 }
 
+static inline
+bsls::Types::Uint64 invalidThreadId()
+    // Return a value that is guaranteed never to be a valid thread id.
+{
+    return bslmt::ThreadUtil::idAsUint64(
+            bslmt::ThreadUtil::handleToId(bslmt::ThreadUtil::invalidHandle()));
+}
+
 namespace bdlmt {
 
                  // =======================================
@@ -165,6 +173,9 @@ bsls::Types::Int64 EventScheduler::chooseNextEvent(bsls::Types::Int64 *now)
 
 void EventScheduler::dispatchEvents()
 {
+    // set the dispatcher thread id
+    d_dispatcherThreadId.storeRelease(bslmt::ThreadUtil::selfIdAsUint64());
+
     bsls::Types::Int64 now = d_currentTimeFunctor().totalMicroseconds();
 
     while (1) {
@@ -182,6 +193,10 @@ void EventScheduler::dispatchEvents()
         // Now proceed with the next iteration.
 
         if (!d_running) {
+            // reset the dispatcher thread id, as the same id may be reused by
+            // the OS after the thread terminates
+            d_dispatcherThreadId.storeRelease(invalidThreadId());
+
             return;                                                   // RETURN
         }
 
@@ -254,6 +269,7 @@ EventScheduler::EventScheduler(bslma::Allocator *basicAllocator)
 , d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
                       &defaultDispatcherFunction)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_dispatcherThreadId(invalidThreadId())
 , d_running(false)
 , d_dispatcherAwaited(false)
 , d_currentRecurringEvent(0)
@@ -272,6 +288,7 @@ EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
 , d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
                       &defaultDispatcherFunction)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_dispatcherThreadId(invalidThreadId())
 , d_queueCondition(clockType)
 , d_running(false)
 , d_dispatcherAwaited(false)
@@ -293,6 +310,7 @@ EventScheduler::EventScheduler(
 , d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
                       dispatcherFunctor)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_dispatcherThreadId(invalidThreadId())
 , d_running(false)
 , d_dispatcherAwaited(false)
 , d_currentRecurringEvent(0)
@@ -313,6 +331,7 @@ EventScheduler::EventScheduler(
 , d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
                       dispatcherFunctor)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_dispatcherThreadId(invalidThreadId())
 , d_queueCondition(clockType)
 , d_running(false)
 , d_dispatcherAwaited(false)
