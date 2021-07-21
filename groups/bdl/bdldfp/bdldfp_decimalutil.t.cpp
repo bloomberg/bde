@@ -3534,54 +3534,20 @@ int main(int argc, char* argv[])
                 const char* INPUT    = DATA[i].d_input_p;
                 const Type  EXP      = DATA[i].d_exp;
                 const bool  IS_VALID = DATA[i].d_isValid;
-                Type        valueStr = ERROR_VALUE;
-                Type        valueBsl = ERROR_VALUE;
-                Type        valueStd = ERROR_VALUE;
+                      Type  value    = ERROR_VALUE;
 
-                const int rcStr = Util::parseDecimal32(&valueStr, INPUT);
-                const int rcBsl = Util::parseDecimal32(&valueBsl,
-                                                       bsl::string(INPUT, pa));
-                const int rcStd = Util::parseDecimal32(&valueStd,
-                                                       std::string(INPUT));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                Type      valuePmr = ERROR_VALUE;
-                const int rcPmr = Util::parseDecimal32(
-                                                      &valuePmr,
-                                                      std::pmr::string(INPUT));
-#endif
-
+                const int rc = Util::parseDecimal32(&value, INPUT);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rcStr, 0 == rcStr);
-                    LOOP2_ASSERT(LINE, rcBsl, 0 == rcBsl);
-                    LOOP2_ASSERT(LINE, rcStd, 0 == rcStd);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    LOOP2_ASSERT(LINE, rcPmr, 0 == rcPmr);
-#endif
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
-                    LOOP2_ASSERT(LINE, rcStr, rcStr);
-                    LOOP2_ASSERT(LINE, rcBsl, rcBsl);
-                    LOOP2_ASSERT(LINE, rcStd, rcStd);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    LOOP2_ASSERT(LINE, rcPmr, rcPmr);
-#endif
+                    LOOP2_ASSERT(LINE, rc, rc);
                 }
 
                 if (Util::isNan(EXP)) {
-                    LOOP3_ASSERT(LINE, EXP, valueStr, Util::isNan(valueStr));
-                    LOOP3_ASSERT(LINE, EXP, valueBsl, Util::isNan(valueBsl));
-                    LOOP3_ASSERT(LINE, EXP, valueStd, Util::isNan(valueStd));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    LOOP3_ASSERT(LINE, EXP, valuePmr, Util::isNan(valuePmr));
-#endif
-                }
-                else {
-                    LOOP3_ASSERT(LINE, EXP, valueStr, EXP == valueStr);
-                    LOOP3_ASSERT(LINE, EXP, valueBsl, EXP == valueBsl);
-                    LOOP3_ASSERT(LINE, EXP, valueStd, EXP == valueStd);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    LOOP3_ASSERT(LINE, EXP, valuePmr, EXP == valuePmr);
-#endif
+                    LOOP3_ASSERT(LINE, EXP, value, Util::isNan(value));
+                } else {
+                    LOOP3_ASSERT(LINE, EXP, value, EXP == value);
                 }
             }
         }
@@ -3643,53 +3609,19 @@ int main(int argc, char* argv[])
                 const char* INPUT    = DATA[i].d_input_p;
                 const Type  EXP      = DATA[i].d_exp;
                 const bool  IS_VALID = DATA[i].d_isValid;
-                Type        valueStr = ERROR_VALUE;
-                Type        valueBsl = ERROR_VALUE;
-                Type        valueStd = ERROR_VALUE;
+                      Type  value    = ERROR_VALUE;
 
-                const int rcStr = Util::parseDecimal64(&valueStr, INPUT);
-                const int rcBsl = Util::parseDecimal64(&valueBsl,
-                                                       bsl::string(INPUT, pa));
-                const int rcStd = Util::parseDecimal64(&valueStd,
-                                                       std::string(INPUT));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                Type      valuePmr = ERROR_VALUE;
-                const int rcPmr = Util::parseDecimal64(
-                                                      &valuePmr,
-                                                      std::pmr::string(INPUT));
-#endif
-
+                const int rc = Util::parseDecimal64(&value, INPUT);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rcStr, 0 == rcStr);
-                    LOOP2_ASSERT(LINE, rcBsl, 0 == rcBsl);
-                    LOOP2_ASSERT(LINE, rcStd, 0 == rcStd);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    LOOP2_ASSERT(LINE, rcPmr, 0 == rcPmr);
-#endif
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
-                    LOOP2_ASSERT(LINE, rcStr, rcStr);
-                    LOOP2_ASSERT(LINE, rcBsl, rcBsl);
-                    LOOP2_ASSERT(LINE, rcStd, rcStd);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    LOOP2_ASSERT(LINE, rcPmr, rcPmr);
-#endif
+                    LOOP2_ASSERT(LINE, rc, rc);
                 }
                 if (Util::isNan(EXP)) {
-                    LOOP3_ASSERT(LINE, EXP, valueStr, Util::isNan(valueStr));
-                    LOOP3_ASSERT(LINE, EXP, valueBsl, Util::isNan(valueBsl));
-                    LOOP3_ASSERT(LINE, EXP, valueStd, Util::isNan(valueStd));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    LOOP3_ASSERT(LINE, EXP, valuePmr, Util::isNan(valuePmr));
-#endif
-                }
-                else {
-                    LOOP3_ASSERT(LINE, EXP, valueStr, EXP == valueStr);
-                    LOOP3_ASSERT(LINE, EXP, valueBsl, EXP == valueBsl);
-                    LOOP3_ASSERT(LINE, EXP, valueStd, EXP == valueStd);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    LOOP3_ASSERT(LINE, EXP, valuePmr, EXP == valuePmr);
-#endif
+                    LOOP3_ASSERT(LINE, EXP, value, Util::isNan(value));
+                } else {
+                    LOOP3_ASSERT(LINE, EXP, value, EXP == value);
                 }
             }
         }
@@ -3750,53 +3682,19 @@ int main(int argc, char* argv[])
                 const char* INPUT    = DATA[i].d_input_p;
                 const Type  EXP      = DATA[i].d_exp;
                 const bool  IS_VALID = DATA[i].d_isValid;
-                Type        valueStr = ERROR_VALUE;
-                Type        valueBsl = ERROR_VALUE;
-                Type        valueStd = ERROR_VALUE;
+                      Type  value    = ERROR_VALUE;
 
-                const int rcStr = Util::parseDecimal128(&valueStr, INPUT);
-                const int rcBsl = Util::parseDecimal128(
-                                                       &valueBsl,
-                                                       bsl::string(INPUT, pa));
-                const int rcStd = Util::parseDecimal128(&valueStd,
-                                                        std::string(INPUT));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                Type      valuePmr = ERROR_VALUE;
-                const int rcPmr    = Util::parseDecimal128(
-                                                      &valuePmr,
-                                                      std::pmr::string(INPUT));
-#endif
+                const int rc = Util::parseDecimal128(&value, INPUT);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rcStr, 0 == rcStr);
-                    LOOP2_ASSERT(LINE, rcBsl, 0 == rcBsl);
-                    LOOP2_ASSERT(LINE, rcStd, 0 == rcStd);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    LOOP2_ASSERT(LINE, rcPmr, 0 == rcPmr);
-#endif
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
                 }
                 else {
-                    LOOP2_ASSERT(LINE, rcStr, rcStr);
-                    LOOP2_ASSERT(LINE, rcBsl, rcBsl);
-                    LOOP2_ASSERT(LINE, rcStd, rcStd);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    LOOP2_ASSERT(LINE, rcPmr, rcPmr);
-#endif
+                    LOOP2_ASSERT(LINE, rc, rc);
                 }
                 if (Util::isNan(EXP)) {
-                    LOOP3_ASSERT(LINE, EXP, valueStr, Util::isNan(valueStr));
-                    LOOP3_ASSERT(LINE, EXP, valueBsl, Util::isNan(valueBsl));
-                    LOOP3_ASSERT(LINE, EXP, valueStd, Util::isNan(valueStd));
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    LOOP3_ASSERT(LINE, EXP, valuePmr, Util::isNan(valuePmr));
-#endif
-                }
-                else {
-                    LOOP3_ASSERT(LINE, EXP, valueStr, EXP == valueStr);
-                    LOOP3_ASSERT(LINE, EXP, valueBsl, EXP == valueBsl);
-                    LOOP3_ASSERT(LINE, EXP, valueStd, EXP == valueStd);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                    LOOP3_ASSERT(LINE, EXP, valuePmr, EXP == valuePmr);
-#endif
+                    LOOP3_ASSERT(LINE, EXP, value, Util::isNan(value));
+                } else {
+                    LOOP3_ASSERT(LINE, EXP, value, EXP == value);
                 }
             }
         }
