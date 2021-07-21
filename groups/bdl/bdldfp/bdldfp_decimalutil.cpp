@@ -69,66 +69,48 @@ bool isNanString(const char *str) {
 
                              // Creator functions
 
-
-int DecimalUtil::parseDecimal32(Decimal32 *out, const char *str)
+int DecimalUtil::parseDecimal32(Decimal32                       *out,
+                                const DecimalUtil_CStringProxy&  str)
 {
     BSLS_ASSERT(out != 0);
-    BSLS_ASSERT(str != 0);
+    BSLS_ASSERT(str.string() != 0);
 
-    Decimal32 d = DecimalImpUtil::parse32(str);
-    if (isNan(d) && !isNanString(str)) {
+    Decimal32 d = DecimalImpUtil::parse32(str.string());
+    if (isNan(d) && !isNanString(str.string())) {
         return -1;
     }
     *out = d;
     return 0;
 }
 
-int DecimalUtil::parseDecimal64(Decimal64 *out, const char *str)
+int DecimalUtil::parseDecimal64(Decimal64                       *out,
+                                const DecimalUtil_CStringProxy&  str)
 {
 
     BSLS_ASSERT(out != 0);
-    BSLS_ASSERT(str != 0);
+    BSLS_ASSERT(str.string() != 0);
 
-    Decimal64 d = DecimalImpUtil::parse64(str);
-    if (isNan(d) && !isNanString(str)) {
+    Decimal64 d = DecimalImpUtil::parse64(str.string());
+    if (isNan(d) && !isNanString(str.string())) {
         return -1;
     }
     *out = d;
     return 0;
 }
 
-int DecimalUtil::parseDecimal128(Decimal128 *out, const char *str)
+int DecimalUtil::parseDecimal128(Decimal128                      *out,
+                                 const DecimalUtil_CStringProxy&  str)
 {
     BSLS_ASSERT(out != 0);
-    BSLS_ASSERT(str != 0);
+    BSLS_ASSERT(str.string() != 0);
 
-    Decimal128 d = DecimalImpUtil::parse128(str);
+    Decimal128 d = DecimalImpUtil::parse128(str.string());
 
-    if (isNan(d) && !isNanString(str)) {
+    if (isNan(d) && !isNanString(str.string())) {
         return -1;
     }
     *out = d;
     return 0;
-}
-
-
-int DecimalUtil::parseDecimal32(Decimal32 *out, const bsl::string& str)
-{
-    BSLS_ASSERT(out != 0);
-
-    return parseDecimal32(out, str.c_str());
-}
-int DecimalUtil::parseDecimal64(Decimal64 *out, const bsl::string& str)
-{
-    BSLS_ASSERT(out != 0);
-
-    return parseDecimal64(out, str.c_str());
-}
-int DecimalUtil::parseDecimal128(Decimal128 *out, const bsl::string& str)
-{
-    BSLS_ASSERT(out != 0);
-
-    return parseDecimal128(out, str.c_str());
 }
 
                         // classification functions

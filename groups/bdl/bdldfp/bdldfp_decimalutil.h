@@ -81,10 +81,51 @@ BSLS_IDENT("$Id$")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_optional.h>
 #include <bsl_string.h>
 
 namespace BloombergLP {
 namespace bdldfp {
+                     // ==============================
+                     // class DecimalUtil_CStringProxy
+                     // ==============================
+
+class DecimalUtil_CStringProxy {
+    // This private helper class provides a single conversion path from types
+    // that efficiently provide null-terminated strings.  Note that while a
+    // conversion from 'bslstl::StringRef' is also provided, it is inefficient,
+    // and will be deprecated.
+
+  private:
+    // CLASS DATA
+    bsl::optional<bsl::string>  d_ownedString;  // used to hold an
+                                                // object-lifetime string when
+                                                // constructing from a
+                                                // 'StringRef'
+    const char *d_cstring;
+
+    DecimalUtil_CStringProxy(
+                         const DecimalUtil_CStringProxy&) BSLS_KEYWORD_DELETED;
+    DecimalUtil_CStringProxy& operator=(
+                         const DecimalUtil_CStringProxy&) BSLS_KEYWORD_DELETED;
+
+  public:
+    // CREATORS
+    DecimalUtil_CStringProxy(const char *str);
+    DecimalUtil_CStringProxy(const bsl::string& str);
+    DecimalUtil_CStringProxy(const std::string& str);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    DecimalUtil_CStringProxy(const std::pmr::string& str);
+#endif
+    DecimalUtil_CStringProxy(const bslstl::StringRef& str);
+        // Create a proxy object for the specified 'str' giving access to the
+        // corresponding null-terminated string.
+
+    // ACCESSORS
+    const char *string() const;
+        // Return a pointer to the null-terminated string this object proxies.
+};
+
                             // =================
                             // class DecimalUtil
                             // =================
@@ -146,12 +187,12 @@ struct DecimalUtil {
         // the macro 'ERANGE' into 'errno' and return infinity with the
         // appropriate sign.
 
-    static int parseDecimal32( Decimal32  *out, const char *str);
-    static int parseDecimal64( Decimal64  *out, const char *str);
-    static int parseDecimal128(Decimal128 *out, const char *str);
-    static int parseDecimal32( Decimal32  *out, const bsl::string& str);
-    static int parseDecimal64( Decimal64  *out, const bsl::string& str);
-    static int parseDecimal128(Decimal128 *out, const bsl::string& str);
+    static int parseDecimal32(Decimal32                       *out,
+                              const DecimalUtil_CStringProxy&  str);
+    static int parseDecimal64(Decimal64                       *out,
+                              const DecimalUtil_CStringProxy&  str);
+    static int parseDecimal128(Decimal128                      *out,
+                               const DecimalUtil_CStringProxy&  str);
         // Load into the specified 'out' the decimal floating point number
         // described by the specified 'str'; return zero if the conversion was
         // successful and non-zero otherwise.  The value of 'out' is
@@ -702,6 +743,56 @@ struct DecimalUtil {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+                       // ------------------------------
+                       // class DecimalUtil_CStringProxy
+                       // ------------------------------
+
+// CREATORS
+inline
+DecimalUtil_CStringProxy::DecimalUtil_CStringProxy(const char *str)
+: d_cstring(str)
+{
+}
+
+inline
+DecimalUtil_CStringProxy::DecimalUtil_CStringProxy(const bsl::string& str)
+: d_cstring(str.c_str())
+{
+}
+
+inline
+DecimalUtil_CStringProxy::DecimalUtil_CStringProxy(const std::string& str)
+: d_cstring(str.c_str())
+{
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+inline
+DecimalUtil_CStringProxy::DecimalUtil_CStringProxy(const std::pmr::string& str)
+: d_cstring(str.c_str())
+{
+}
+#endif
+
+inline
+DecimalUtil_CStringProxy::DecimalUtil_CStringProxy(
+                                                  const bslstl::StringRef& str)
+: d_ownedString(str)
+, d_cstring(d_ownedString->c_str())
+{
+}
+
+// ACCESSORS
+inline
+const char *DecimalUtil_CStringProxy::string() const
+{
+    return d_cstring;
+}
+                             // -----------------
+                             // class DecimalUtil
+                             // -----------------
+
+// CLASS METHODS
 inline
 Decimal32 DecimalUtil::makeDecimalRaw32(int significand, int exponent)
 {
