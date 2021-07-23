@@ -12,18 +12,26 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_eventscheduler_cpp,"$Id$ $CSID$")
 
-#include <bdlf_bind.h>
-
 #include <bdlt_timeunitratio.h>
 
-#include <bslmt_lockguard.h>
-
 #include <bsls_assert.h>
-#include <bsls_systemtime.h>
 #include <bsls_review.h>
+#include <bsls_systemtime.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_vector.h>
+
+// Implementation note: The 'EventData' and 'RecurringEventData' structures
+// contain two different 'bsl::function's.  The first one, named 'd_callback',
+// is the user-provided function that is called when the event occurs.  The
+// second one, named 'd_nowOffset', is called when the clock of the
+// 'EventScheduler' indicates that it is time for the event to occur.  It
+// returns the number of microseconds until the event should actually occur.
+// The reason for having two different functions is that the event can be
+// scheduled on a different clock than the one that the 'EventScheduler' uses,
+// and the two clocks may run at different rates. This "two level" check
+// ensures that the events do not occur before the scheduled time on the clock
+// where the time was specified.
 
 // Implementation note: When casting, we often cast through 'void *' or
 // 'const void *' to avoid getting alignment warnings.
@@ -85,7 +93,7 @@ class EventSchedulerTestTimeSource_Data {
     // CREATORS
     explicit
     EventSchedulerTestTimeSource_Data(bsls::TimeInterval currentTime);
-        // Construct a test time-source data object that will store the
+        // Create a test time-source data object that will store the
         // "system-time", initialized to the specified 'currentTime'.
 
     //! ~EventSchedulerTestTimeSource_Data() = default;
@@ -131,6 +139,17 @@ bsls::TimeInterval EventSchedulerTestTimeSource_Data::currentTime() const
                            // --------------------
                            // class EventScheduler
                            // --------------------
+
+// PRIVATE CLASS METHODS
+bsls::Types::Int64 EventScheduler::returnZero()
+{
+    return 0;
+}
+
+bsls::Types::Int64 EventScheduler::returnZeroInt(int)
+{
+    return 0;
+}
 
 // PRIVATE MANIPULATORS
 bsls::Types::Int64 EventScheduler::chooseNextEvent(bsls::Types::Int64 *now)
@@ -224,26 +243,50 @@ void EventScheduler::dispatchEvents()
         }
 
         // We have an event due for execution.
+        BSLS_ASSERT(0 != d_currentEvent || 0 != d_currentRecurringEvent);
 
         if (d_currentRecurringEvent) {
             RecurringEventData& data = d_currentRecurringEvent->data();
-            int ret = d_recurringQueue.updateR(
-                                          d_currentRecurringEvent,
-                                          t + data.second.totalMicroseconds());
-            if (0 == ret) {
-                lock.release()->unlock();
-                d_dispatcherFunctor(data.first);
+            bsls::Types::Int64 nowOffset = data.d_nowOffset(data.d_eventIdx);
+            if (nowOffset <= 0) {
+                ++data.d_eventIdx;
+                int ret = d_recurringQueue.updateR(
+                                      d_currentRecurringEvent,
+                                      t + data.d_interval.totalMicroseconds());
+                if (0 == ret) {
+                    lock.release()->unlock();
+                    d_dispatcherFunctor(data.d_callback);
+                }
             }
-            continue;
+            else {
+                int ret = d_recurringQueue.updateR(
+                                      d_currentRecurringEvent,
+                                      now + nowOffset);
+                (void) ret;
+                d_recurringQueue.releaseReferenceRaw(d_currentRecurringEvent);
+                d_currentRecurringEvent = 0;
+            }
         }
-        BSLS_ASSERT(0 != d_currentEvent);
-        int ret = d_eventQueue.remove(d_currentEvent);
-        if (0 == ret) {
-            lock.release()->unlock();
-            d_dispatcherFunctor(d_currentEvent->data());
+        else { // d_currentEvent
+            EventData& data = d_currentEvent->data();
+            bsls::Types::Int64 nowOffset = data.d_nowOffset();
+            if (nowOffset <= 0) {
+                int ret = d_eventQueue.remove(d_currentEvent);
+                if (0 == ret) {
+                    lock.release()->unlock();
+                    d_dispatcherFunctor(data.d_callback);
+                }
+            }
+            else {
+                int ret = d_eventQueue.updateR(
+                                d_currentEvent,
+                                now + nowOffset);
+                (void) ret;
+                d_eventQueue.releaseReferenceRaw(d_currentEvent);
+                d_currentEvent = 0;
+            }
         }
     }
-
 }
 
 void EventScheduler::releaseCurrentEvents()
@@ -256,6 +299,89 @@ void EventScheduler::releaseCurrentEvents()
     if (d_currentEvent) {
         d_eventQueue.releaseReferenceRaw(d_currentEvent);
         d_currentEvent = 0;
+    }
+}
+
+void
+EventScheduler::scheduleEvent(EventHandle               *event,
+                              const bsls::TimeInterval&  epochTime,
+                              const EventData&           eventData)
+{
+    bool newTop;
+
+    d_eventQueue.addR(&event->d_handle,
+                      epochTime.totalMicroseconds(),
+                      eventData,
+                      &newTop);
+
+    if (newTop) {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        d_queueCondition.signal();
+    }
+}
+
+void EventScheduler::scheduleEventRaw(EventHandle               **event,
+                                      const bsls::TimeInterval&   epochTime,
+                                      const EventData&            eventData)
+{
+    bool newTop;
+
+    d_eventQueue.addRawR((EventQueue::Pair **)event,
+                         epochTime.totalMicroseconds(),
+                         eventData,
+                         &newTop);
+
+    if (newTop) {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        d_queueCondition.signal();
+    }
+}
+
+void
+EventScheduler::scheduleRecurringEvent(
+                                     RecurringEventHandle      *event,
+                                     const RecurringEventData&  eventData,
+                                     const bsls::TimeInterval&  startEpochTime)
+{
+    bsls::Types::Int64 stime(startEpochTime.totalMicroseconds());
+    if (0 == stime) {
+        stime =
+           (d_currentTimeFunctor() + eventData.d_interval).totalMicroseconds();
+    }
+
+    bool newTop;
+    d_recurringQueue.addR(&event->d_handle,
+                          stime,
+                          eventData,
+                          &newTop);
+
+    if (newTop) {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        d_queueCondition.signal();
+    }
+}
+
+void
+EventScheduler::scheduleRecurringEventRaw(
+                                 RecurringEvent            **event,
+                                 const RecurringEventData&   eventData,
+                                 const bsls::TimeInterval&   startEpochTime)
+{
+    bsls::Types::Int64 stime(startEpochTime.totalMicroseconds());
+    if (0 == stime) {
+        stime = (d_currentTimeFunctor() +
+                                    eventData.d_interval).totalMicroseconds();
+    }
+
+    bool newTop;
+    d_recurringQueue.addRawR((RecurringEventQueue::Pair **)event,
+                             stime,
+                             eventData,
+                             &newTop);
+
+    if (newTop) {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        d_queueCondition.signal();
     }
 }
 
@@ -298,6 +424,50 @@ EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
 , d_clockType(clockType)
 {
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+EventScheduler::EventScheduler(
+                             const bsl::chrono::system_clock&,
+                             bslma::Allocator                 *basicAllocator)
+: d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
+                       createDefaultCurrentTimeFunctor(
+                                            bsls::SystemClockType::e_REALTIME))
+, d_eventQueue(basicAllocator)
+, d_recurringQueue(basicAllocator)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      &defaultDispatcherFunction)
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_queueCondition(bsls::SystemClockType::e_REALTIME)
+, d_running(false)
+, d_dispatcherAwaited(false)
+, d_currentRecurringEvent(0)
+, d_currentEvent(0)
+, d_waitCount(0)
+, d_clockType(bsls::SystemClockType::e_REALTIME)
+{
+}
+
+EventScheduler::EventScheduler(
+                             const bsl::chrono::steady_clock&,
+                             bslma::Allocator                  *basicAllocator)
+: d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
+                       createDefaultCurrentTimeFunctor(
+                                           bsls::SystemClockType::e_MONOTONIC))
+, d_eventQueue(basicAllocator)
+, d_recurringQueue(basicAllocator)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      &defaultDispatcherFunction)
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_queueCondition(bsls::SystemClockType::e_MONOTONIC)
+, d_running(false)
+, d_dispatcherAwaited(false)
+, d_currentRecurringEvent(0)
+, d_currentEvent(0)
+, d_waitCount(0)
+, d_clockType(bsls::SystemClockType::e_MONOTONIC)
+{
+}
+#endif
 
 EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
@@ -342,170 +512,58 @@ EventScheduler::EventScheduler(
 {
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+EventScheduler::EventScheduler(
+                          const EventScheduler::Dispatcher&  dispatcherFunctor,
+                          const bsl::chrono::system_clock&,
+                          bslma::Allocator                  *basicAllocator)
+: d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
+                       createDefaultCurrentTimeFunctor(
+                                            bsls::SystemClockType::e_REALTIME))
+, d_eventQueue(basicAllocator)
+, d_recurringQueue(basicAllocator)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      dispatcherFunctor)
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_queueCondition(bsls::SystemClockType::e_REALTIME)
+, d_running(false)
+, d_dispatcherAwaited(false)
+, d_currentRecurringEvent(0)
+, d_currentEvent(0)
+, d_waitCount(0)
+, d_clockType(bsls::SystemClockType::e_REALTIME)
+{
+}
+
+EventScheduler::EventScheduler(
+                          const EventScheduler::Dispatcher&  dispatcherFunctor,
+                          const bsl::chrono::steady_clock&,
+                          bslma::Allocator                  *basicAllocator)
+: d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
+                       createDefaultCurrentTimeFunctor(
+                                           bsls::SystemClockType::e_MONOTONIC))
+, d_eventQueue(basicAllocator)
+, d_recurringQueue(basicAllocator)
+, d_dispatcherFunctor(bsl::allocator_arg_t(), basicAllocator,
+                      dispatcherFunctor)
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_queueCondition(bsls::SystemClockType::e_MONOTONIC)
+, d_running(false)
+, d_dispatcherAwaited(false)
+, d_currentRecurringEvent(0)
+, d_currentEvent(0)
+, d_waitCount(0)
+, d_clockType(bsls::SystemClockType::e_MONOTONIC)
+{
+}
+#endif
+
 EventScheduler::~EventScheduler()
 {
     BSLS_ASSERT(bslmt::ThreadUtil::invalidHandle() == d_dispatcherThread);
 }
 
 // MANIPULATORS
-int EventScheduler::start()
-{
-    bslmt::ThreadAttributes attr;
-
-    return start(attr);
-}
-
-int EventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
-{
-    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                            d_dispatcherThread));
-
-    // Implementation note: d_dispatcherMutex is in a lock hierarchy with
-    // d_mutex and must be locked first.
-    bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
-
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    if (d_running ||
-        bslmt::ThreadUtil::invalidHandle() != d_dispatcherThread) {
-        return 0;                                                     // RETURN
-    }
-
-    bslmt::ThreadAttributes modAttr(threadAttributes);
-    modAttr.setDetachedState(bslmt::ThreadAttributes::e_CREATE_JOINABLE);
-
-    if (bslmt::ThreadUtil::createWithAllocator(
-                &d_dispatcherThread,
-                modAttr,
-                bdlf::BindUtil::bind(&EventScheduler::dispatchEvents, this),
-                allocator())) {
-        return -1;                                                    // RETURN
-    }
-
-    d_running = true;
-    return 0;
-}
-
-void EventScheduler::stop()
-{
-    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
-                                            d_dispatcherThread));
-
-    // Implementation note: d_dispatcherMutex is in a lock hierarchy with
-    // d_mutex and must be locked first.
-    bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
-
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    if (!d_running) {
-        return;                                                       // RETURN
-    }
-
-    d_running = false;
-    d_queueCondition.signal();
-
-    lock.release()->unlock();
-
-    bslmt::ThreadUtil::join(d_dispatcherThread);
-    d_dispatcherThread = bslmt::ThreadUtil::invalidHandle();
-}
-
-void
-EventScheduler::scheduleEvent(EventHandle                  *event,
-                              const bsls::TimeInterval&     epochTime,
-                              const bsl::function<void()>&  callback)
-{
-    bool newTop;
-
-    d_eventQueue.addR(&event->d_handle,
-                      epochTime.totalMicroseconds(),
-                      callback,
-                      &newTop);
-
-    if (newTop) {
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-        d_queueCondition.signal();
-    }
-}
-
-void EventScheduler::scheduleEventRaw(Event                        **event,
-                                      const bsls::TimeInterval&      epochTime,
-                                      const bsl::function<void()>&   callback)
-{
-    bool newTop;
-
-    d_eventQueue.addRawR((EventQueue::Pair **)event,
-                         epochTime.totalMicroseconds(),
-                         callback,
-                         &newTop);
-
-    if (newTop) {
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-        d_queueCondition.signal();
-    }
-}
-
-void
-EventScheduler::scheduleRecurringEvent(
-                                  RecurringEventHandle         *event,
-                                  const bsls::TimeInterval&     interval,
-                                  const bsl::function<void()>&  callback,
-                                  const bsls::TimeInterval&     startEpochTime)
-{
-    // Note that when this review is converted to an assert, the following
-    // assert is redundant and can be removed.
-    BSLS_REVIEW(1 <= interval.totalMicroseconds());
-    BSLS_ASSERT(0 != interval);
-
-    bsls::Types::Int64 stime(startEpochTime.totalMicroseconds());
-    if (0 == stime) {
-        stime = (d_currentTimeFunctor() + interval).totalMicroseconds();
-    }
-
-    RecurringEventData recurringEventData(callback, interval);
-
-    bool newTop;
-
-    d_recurringQueue.addR(&event->d_handle,
-                          stime,
-                          recurringEventData,
-                          &newTop);
-
-    if (newTop) {
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-        d_queueCondition.signal();
-    }
-}
-
-void
-EventScheduler::scheduleRecurringEventRaw(
-                                 RecurringEvent               **event,
-                                 const bsls::TimeInterval&      interval,
-                                 const bsl::function<void()>&   callback,
-                                 const bsls::TimeInterval&      startEpochTime)
-{
-    // Note that when this review is converted to an assert, the following
-    // assert is redundant and can be removed.
-    BSLS_REVIEW(1 <= interval.totalMicroseconds());
-    BSLS_ASSERT(0 != interval);
-
-    bsls::Types::Int64 stime(startEpochTime.totalMicroseconds());
-    if (0 == stime) {
-        stime = (d_currentTimeFunctor() + interval).totalMicroseconds();
-    }
-
-    RecurringEventData recurringEventData(callback, interval);
-
-    bool newTop;
-    d_recurringQueue.addRawR((RecurringEventQueue::Pair **)event,
-                             stime,
-                             recurringEventData,
-                             &newTop);
-
-    if (newTop) {
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-        d_queueCondition.signal();
-    }
-}
-
 int EventScheduler::cancelEvent(EventHandle *handle)
 {
     if (0 == (const Event *) *handle) {
@@ -526,6 +584,32 @@ int EventScheduler::cancelEvent(RecurringEventHandle *handle)
     int ret = cancelEvent((const RecurringEvent *) *handle);
     handle->release();
     return ret;
+}
+
+void EventScheduler::cancelAllEvents()
+{
+    d_eventQueue.removeAll();
+    d_recurringQueue.removeAll();
+}
+
+void EventScheduler::cancelAllEventsAndWait()
+{
+    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
+                                            d_dispatcherThread));
+
+    d_eventQueue.removeAll();
+    d_recurringQueue.removeAll();
+
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    while (1) {
+        if (0 == d_currentEvent && 0 == d_currentRecurringEvent) {
+            break;
+        }
+        else {
+            d_dispatcherAwaited = true;
+            d_iterationCondition.wait(&d_mutex);
+        }
+    }
 }
 
 int EventScheduler::cancelEventAndWait(const RecurringEvent *handle)
@@ -628,6 +712,7 @@ int EventScheduler::rescheduleEvent(const Event               *handle,
     bool isNewTop;
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
+    h->data().d_nowOffset = returnZero;
     int ret = d_eventQueue.updateR(h,
                                    newEpochTime.totalMicroseconds(),
                                    &isNewTop);
@@ -652,6 +737,8 @@ int EventScheduler::rescheduleEventAndWait(
     {
         bool isNewTop;
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        h->data().d_nowOffset = returnZero;
         ret = d_eventQueue.updateR(h,
                                    newEpochTime.totalMicroseconds(),
                                    &isNewTop);
@@ -682,30 +769,112 @@ int EventScheduler::rescheduleEventAndWait(
     return ret;
 }
 
-void EventScheduler::cancelAllEvents()
+void EventScheduler::scheduleEventRaw(Event                        **event,
+                                      const bsls::TimeInterval&      epochTime,
+                                      const bsl::function<void()>&   callback)
 {
-    d_eventQueue.removeAll();
-    d_recurringQueue.removeAll();
+    bool newTop;
+
+    d_eventQueue.addRawR((EventQueue::Pair **)event,
+                         epochTime.totalMicroseconds(),
+                         EventData(callback, returnZero),
+                         &newTop);
+
+    if (newTop) {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        d_queueCondition.signal();
+    }
 }
 
-void EventScheduler::cancelAllEventsAndWait()
+void
+EventScheduler::scheduleRecurringEventRaw(
+                                 RecurringEvent               **event,
+                                 const bsls::TimeInterval&      interval,
+                                 const bsl::function<void()>&   callback,
+                                 const bsls::TimeInterval&      startEpochTime)
+{
+    // Note that when this review is converted to an assert, the following
+    // assert is redundant and can be removed.
+    BSLS_REVIEW(1 <= interval.totalMicroseconds());
+    BSLS_ASSERT(0 != interval);
+
+    bsls::Types::Int64 stime(startEpochTime.totalMicroseconds());
+    if (0 == stime) {
+        stime = (d_currentTimeFunctor() + interval).totalMicroseconds();
+    }
+
+    RecurringEventData eventData(interval, callback, returnZeroInt);
+
+    bool newTop;
+    d_recurringQueue.addRawR((RecurringEventQueue::Pair **)event,
+                             stime,
+                             eventData,
+                             &newTop);
+
+    if (newTop) {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        d_queueCondition.signal();
+    }
+}
+
+int EventScheduler::start()
+{
+    bslmt::ThreadAttributes attr;
+
+    return start(attr);
+}
+
+int EventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
 {
     BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                             d_dispatcherThread));
 
-    d_eventQueue.removeAll();
-    d_recurringQueue.removeAll();
+    // Implementation note: d_dispatcherMutex is in a lock hierarchy with
+    // d_mutex and must be locked first.
+    bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
 
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    while (1) {
-        if (0 == d_currentEvent && 0 == d_currentRecurringEvent) {
-            break;
-        }
-        else {
-            d_dispatcherAwaited = true;
-            d_iterationCondition.wait(&d_mutex);
-        }
+    if (d_running ||
+        bslmt::ThreadUtil::invalidHandle() != d_dispatcherThread) {
+        return 0;                                                     // RETURN
     }
+
+    bslmt::ThreadAttributes modAttr(threadAttributes);
+    modAttr.setDetachedState(bslmt::ThreadAttributes::e_CREATE_JOINABLE);
+
+    if (bslmt::ThreadUtil::createWithAllocator(
+                &d_dispatcherThread,
+                modAttr,
+                bdlf::BindUtil::bind(&EventScheduler::dispatchEvents, this),
+                allocator())) {
+        return -1;                                                    // RETURN
+    }
+
+    d_running = true;
+    return 0;
+}
+
+void EventScheduler::stop()
+{
+    BSLS_ASSERT(!bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
+                                            d_dispatcherThread));
+
+    // Implementation note: d_dispatcherMutex is in a lock hierarchy with
+    // d_mutex and must be locked first.
+    bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
+
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    if (!d_running) {
+        return;                                                       // RETURN
+    }
+
+    d_running = false;
+    d_queueCondition.signal();
+
+    lock.release()->unlock();
+
+    bslmt::ThreadUtil::join(d_dispatcherThread);
+    d_dispatcherThread = bslmt::ThreadUtil::invalidHandle();
 }
 
                     // ----------------------------------

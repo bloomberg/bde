@@ -24,10 +24,11 @@
 #include <bslma_testallocator.h>
 
 #include <bslmt_barrier.h>
+#include <bslmt_latch.h>
+#include <bslmt_semaphore.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_timedsemaphore.h>
-#include <bslmt_semaphore.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
@@ -128,6 +129,10 @@ using namespace bsl;  // automatically added by script
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
 // [22] CLOCK REPLACEMENT BREATHING TEST
 // [28] USAGE EXAMPLE
+// [29] BREATHING TEST FOR CHRONO TIME-POINTS
+// [30] scheduleEventRaw(Event**, TimeInterval&, function<void()>&);
+// [30] scheduleEventRaw(Event**, time_point&, function<void()>&);
+// [31] TESTING 'scheduleRecurringEventRaw' WITH CHRONO CLOCKS
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -729,6 +734,127 @@ static void cancelAllEventsCallback(Obj *scheduler, int wait)
     }
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+                         // =========================
+                         // class ChronoRecurringTest
+                         // =========================
+
+
+template <class CLOCK, class REP, class PERIOD>
+struct ChronoRecurringTest {
+    // This class captures the timings of a recurring event, and then checks
+    // to see if the times of the event match what the user specified.
+
+    using Tp = typename CLOCK::time_point;
+    using Dur = bsl::chrono::duration<REP, PERIOD>;
+
+    Tp              d_startTime;
+    Tp              d_stopTime;
+    Dur             d_interval;
+    bsl::vector<Tp> d_callTimes;
+
+    ChronoRecurringTest(Tp startTime, Dur interval)
+        // Constructs a 'ChronoRecurringTest'.  Remember the specified
+        // 'startTime' and specified 'interval' for checking later.  Reserve
+        // space in 'd_callTimes' so that we don't need to reallocate later.
+    : d_startTime(startTime), d_stopTime(startTime), d_interval(interval)
+    {
+        d_callTimes.reserve(1000);
+    }
+
+    void callback ()
+        // Record what time this is called in the 'd_callTimes' vector.
+    {
+        d_callTimes.push_back(CLOCK::now());
+    }
+
+    void captureStopTime()
+        // Record what time we stopped getting callbacks.
+    {
+        d_stopTime = CLOCK::now();
+    }
+
+    void checkResults(const char *clockName)
+        // Check the captured results to see if they are sensible.  If we are
+        // printing results, use the specified 'clockName' to identify the
+        // clock that we're testing.
+    {
+        // Check that:
+        // * None of the callbacks happened before the start time
+        // * None of the callbacks happened after the stop time
+        // * There are a reasonable number of callbacks
+        if (veryVerbose)
+            cout << "Checking results for " << clockName << endl;
+        ASSERT(1 < d_callTimes.size());
+        ASSERT(d_callTimes.front() >= d_startTime);
+        ASSERT(d_callTimes.back()  <= d_stopTime);
+        size_t maxExpectedCalls = (d_stopTime - d_startTime) / d_interval + 1;
+        if (veryVerbose)
+            cout << "Expected " << maxExpectedCalls << " callbacks, got "
+                << d_callTimes.size()
+                << endl;
+        ASSERT(d_callTimes.size() <= maxExpectedCalls);
+        ASSERT(d_callTimes.size() >= 0.9 * maxExpectedCalls);
+
+        for (size_t i = 0; i < d_callTimes.size(); ++i) {
+            using namespace bsl::chrono;
+
+            nanoseconds expectedDur =
+                                    duration_cast<nanoseconds>(d_interval * i);
+            nanoseconds actualDur   =
+                      duration_cast<nanoseconds>(d_callTimes[i] - d_startTime);
+
+            if (veryVerbose) {
+                cout << "Expected " << expectedDur.count()
+                     << " got "     << actualDur.count()
+                     << " ("        << (int64_t)(actualDur.count() -
+                                                 expectedDur.count())
+                     << ")"
+                     << endl;
+            }
+            ASSERT(d_callTimes[i] >= d_startTime + (d_interval * i));
+        }
+    }
+
+    void schedule(BloombergLP::bdlmt::EventScheduler &x)
+        // Schedule the recurring event that we will be timing on the specified
+        // EventScheduler 'x'.
+    {
+        x.scheduleRecurringEvent(
+                 d_interval,
+                 bdlf::MemFnUtil::memFn(&ChronoRecurringTest::callback, this),
+                 d_startTime);
+    }
+
+    RecurringEvent * scheduleRaw(BloombergLP::bdlmt::EventScheduler &x)
+        // Schedule the recurring event that we will be timing on the specified
+        // 'EventScheduler' 'x'.  Return a handle that can be used to cancel
+        // the recurring event.
+    {
+        RecurringEvent *event;
+        x.scheduleRecurringEventRaw(
+                 &event,
+                 d_interval,
+                 bdlf::MemFnUtil::memFn(&ChronoRecurringTest::callback, this),
+                 d_startTime);
+        return event;
+    }
+};
+
+template <class CLOCK, class REP1, class PER1, class REP2, class PER2>
+ChronoRecurringTest<CLOCK, REP2, PER2>
+MakeChronoTest(bsl::chrono::duration<REP1, PER1> start_time,
+               bsl::chrono::duration<REP2, PER2> interval)
+    // Create and return a ChronoRecurringTest object from the specified
+    // 'start_time' and 'interval'.  This helper function exist to avoid
+    // specifying all the type necessary.
+{
+    return ChronoRecurringTest<CLOCK, REP2, PER2> (CLOCK::now() + start_time,
+                                                   interval);
+}
+#endif
+
+
 // ============================================================================
 //                 HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ============================================================================
@@ -765,6 +891,15 @@ extern "C" void *watchdog(void *)
     }
 
     return 0;
+}
+
+void signalLatchCallback(bslmt::Latch& done)
+    // When called, signal the specified latch 'done' that we have arrived.
+{
+    if (verbose) {
+        bsl::cout << "signalLatchCallback" << bsl::endl;
+    }
+    done.arrive();
 }
 
 // ============================================================================
@@ -835,7 +970,7 @@ class my_Server {
     explicit
     my_Server(const bsls::TimeInterval&  ioTimeout,
               bslma::Allocator          *allocator = 0);
-        // Construct a 'my_Server' object with a timeout value of the specified
+        // Create a 'my_Server' object with a timeout value of the specified
         // 'ioTimeout' seconds.  Optionally specify an 'allocator' used to
         // supply memory.  If 'allocator' is 0, the currently installed default
         // allocator is used.
@@ -920,11 +1055,10 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
 
    void testCase()
    {
-       // Construct the scheduler
+       // Create the scheduler
        bdlmt::EventScheduler scheduler;
 
-       // Construct the time-source.
-       // Install the time-source in the scheduler.
+       // Create the time-source.  Install the time-source in the scheduler.
        bdlmt::EventSchedulerTestTimeSource timeSource(&scheduler);
 
        // Retrieve the initial time held in the time-source.
@@ -957,6 +1091,85 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
 // production code.
 
 }  // close namespace EVENTSCHEDULER_TEST_CASE_USAGE
+
+
+// ============================================================================
+//                         CASE 28 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -MN03
+
+            // ==================
+            // class AnotherClock
+            // ==================
+
+class AnotherClock {
+    // 'AnotherClock' is a C++11-compatible clock that is very similar to
+    // 'bsl::chrono::steady_clock'.  The only difference is that it uses a
+    // different epoch; it begins 10000 "ticks" after the beginning of
+    // 'steady_clock's epoch.
+
+  private:
+    typedef bsl::chrono::steady_clock base_clock;
+
+  public:
+    typedef base_clock::duration                  duration;
+    typedef base_clock::rep                       rep;
+    typedef base_clock::period                    period;
+    typedef bsl::chrono::time_point<AnotherClock> time_point;
+
+    static const bool is_steady = base_clock::is_steady;
+
+    // CLASS METHODS
+    static time_point now() noexcept;
+        // Return a time point representing the time since the beginning of the
+        // epoch.
+};
+
+// CLASS METHODS
+AnotherClock::time_point AnotherClock::now() noexcept
+{
+    base_clock::duration ret = base_clock::now().time_since_epoch();
+    return AnotherClock::time_point(ret - duration(10000));
+}
+
+            // ===============
+            // class HalfClock
+            // ===============
+
+class HalfClock {
+    // 'HalfClock' is a C++11-compatible clock that is very similar to
+    // 'bsl::chrono::steady_clock'.  The difference is that it runs "half as
+    // fast" as 'steady_clock'.
+
+  private:
+    typedef bsl::chrono::steady_clock base_clock;
+
+  public:
+    typedef base_clock::duration               duration;
+    typedef base_clock::rep                    rep;
+    typedef base_clock::period                 period;
+    typedef bsl::chrono::time_point<HalfClock> time_point;
+
+    static const bool is_steady = base_clock::is_steady;
+
+    // CLASS METHODS
+    static time_point now() noexcept;
+        // Return a time point representing the time since the beginning of the
+        // epoch.
+};
+
+// CLASS METHODS
+HalfClock::time_point HalfClock::now() noexcept
+{
+    base_clock::duration ret = base_clock::now().time_since_epoch();
+    return HalfClock::time_point(ret/2);
+}
+
+// BDE_VERIFY pragma: pop
+#endif
 
 // ============================================================================
 //                         CASE 27 RELATED ENTITIES
@@ -2399,10 +2612,309 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 31: {
+        // --------------------------------------------------------------------
+        // TESTING 'scheduleRecurringEventRaw' WITH CHRONO CLOCKS
+        //
+        // Concerns:
+        //: 1 Ensure that we can schedule a raw recurring event using a C++11
+        //    clock.
+        //
+        // Plan:
+        //: 1 Schedule events using 'scheduleEventRaw' and verify that the
+        //    callbacks are called.
+        //
+        // Testing:
+        // TESTING 'scheduleRecurringEventRaw' WITH CHRONO CLOCKS
+        // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+           << "TESTING 'scheduleRecurringEventRaw' WITH CHRONO CLOCKS" << endl
+           << "======================================================" << endl;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        {
+            using namespace bsl::chrono;
+
+            auto systemClockTest  =
+                   MakeChronoTest<system_clock>(seconds(1), milliseconds(500));
+            auto steadyClockTest  =
+                MakeChronoTest<steady_clock>(seconds(1), microseconds(600000));
+            auto anotherClockTest =
+                   MakeChronoTest<AnotherClock>(seconds(1), milliseconds(300));
+            auto halfClockTest    =
+                MakeChronoTest<HalfClock>   (seconds(1), microseconds(250000));
+
+            bslma::TestAllocator ta(veryVeryVerbose);
+            Obj                  x(bsls::SystemClockType::e_REALTIME, &ta);
+
+            // schedule the calls
+            RecurringEvent *system_handle  = systemClockTest.scheduleRaw(x);
+            RecurringEvent *steady_handle  = steadyClockTest.scheduleRaw(x);
+            RecurringEvent *another_handle = anotherClockTest.scheduleRaw(x);
+            RecurringEvent *half_handle    = halfClockTest.scheduleRaw(x);
+
+            x.start();
+            microSleep(0, 10);
+            x.stop();
+
+            systemClockTest.captureStopTime();
+            steadyClockTest.captureStopTime();
+            anotherClockTest.captureStopTime();
+            halfClockTest.captureStopTime();
+
+            x.cancelEvent(system_handle);
+            x.cancelEvent(steady_handle);
+            x.cancelEvent(another_handle);
+            x.cancelEvent(half_handle);
+
+            ASSERT(0 != systemClockTest.d_callTimes.size());
+            ASSERT(0 != steadyClockTest.d_callTimes.size());
+            ASSERT(0 != anotherClockTest.d_callTimes.size());
+            ASSERT(0 != halfClockTest.d_callTimes.size());
+
+            systemClockTest.checkResults("system clock");
+            steadyClockTest.checkResults("steady clock");
+            anotherClockTest.checkResults("another clock");
+            halfClockTest.checkResults("half speed clock");
+        }
+#endif
+      } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // TESTING 'scheduleEventRaw'
+        //
+        // Concerns:
+        //: 1 Ensure that we can schedule a raw event clock.
+        //
+        // Plan:
+        //: 1 Schedule events using 'scheduleEventRaw' and verify that the
+        //    callbacks are called.
+        //
+        // Testing:
+        //   scheduleEventRaw(Event**, TimeInterval&, function<void()>&);
+        //   scheduleEventRaw(Event**, time_point&, function<void()>&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'scheduleEventRaw'" << endl
+                          << "==========================" << endl;
+        {
+            bslma::TestAllocator         ta(veryVeryVerbose);
+            bslma::TestAllocator         oa(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard defaultAllocGuard(&ta);
+
+            bdlmt::EventScheduler scheduler(&oa);
+            bslmt::Latch          done(1);
+
+            Event     *event;
+            scheduler.scheduleEventRaw(
+                    &event,
+                    bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
+                                                       + bsls::TimeInterval(1),
+                    bdlf::BindUtil::bind(signalLatchCallback, bsl::ref(done)));
+
+            scheduler.start();
+            done.wait();
+            scheduler.stop();
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        {
+            // test with matching clocks
+            bslma::TestAllocator         ta(veryVeryVerbose);
+            bslma::TestAllocator         oa(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard defaultAllocGuard(&ta);
+
+            bdlmt::EventScheduler scheduler(&oa);
+            bslmt::Latch          done(1);
+
+            Event     *event;
+            scheduler.scheduleEventRaw(
+                    &event,
+                    bsl::chrono::system_clock::now() + bsl::chrono::seconds(1),
+                    bdlf::BindUtil::bind(signalLatchCallback, bsl::ref(done)));
+
+            scheduler.start();
+            done.wait();
+            scheduler.stop();
+        }
+
+        {
+            // test with different clocks
+            bslma::TestAllocator         ta(veryVeryVerbose);
+            bslma::TestAllocator         oa(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard defaultAllocGuard(&ta);
+
+            bdlmt::EventScheduler scheduler(&oa);
+            bslmt::Latch          done(1);
+
+            Event     *event;
+            scheduler.scheduleEventRaw(
+                    &event,
+                    bsl::chrono::steady_clock::now() + bsl::chrono::seconds(1),
+                    bdlf::BindUtil::bind(signalLatchCallback, bsl::ref(done)));
+
+            scheduler.start();
+            done.wait();
+            scheduler.stop();
+        }
+#endif
+      } break;
+
+      case 29: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST FOR CHRONO TIME-POINTS
+        //
+        // Concerns:
+        //: 1 Ensure that we can schedule an event using a C++11 clock.
+        //
+        // Plan:
+        //: 1 Schedule a series of events using different C++11 clocks, and
+        //    verify that the callbacks are called at a reasonable time.
+        //
+        // Testing:
+        //   BREATHING TEST FOR CHRONO TIME-POINTS
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BREATHING TEST FOR CHRONO TIME-POINTS" << endl
+                          << "=====================================" << endl;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        if (verbose) cout << "\tBreathing test system_clock and steady_clock."
+                          << endl;
+        {
+            bslma::TestAllocator         ta(veryVeryVerbose);
+            bslma::TestAllocator         oa(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard defaultAllocGuard(&ta);
+
+            bdlmt::EventScheduler scheduler(&oa);
+            bslmt::Latch          done(3);
+
+
+            bsls::Stopwatch timer;
+            double elapsedTimeOne, elapsedTimeTwo, elapsedTimeThree;
+
+            scheduler.scheduleEvent(
+                    bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME) +
+                                                         bsls::TimeInterval(1),
+                    [&done, &timer, &elapsedTimeOne]()
+                    {
+                        if (verbose) {
+                            bsl::cout << "One" << bsl::endl;
+                        }
+                        elapsedTimeOne = timer.elapsedTime();
+                        done.arrive();
+                    });
+
+            scheduler.scheduleEvent(
+                    bsl::chrono::system_clock::now() + bsl::chrono::seconds(2),
+                    [&done, &timer, &elapsedTimeTwo]()
+                    {
+                        if (verbose) {
+                            bsl::cout << "Two" << bsl::endl;
+                        }
+                        elapsedTimeTwo = timer.elapsedTime();
+                        done.arrive();
+                    });
+
+            if (verbose) cout << "\tScheduling events(3)."
+                              << endl;
+
+            scheduler.scheduleEvent(
+                    bsl::chrono::steady_clock::now() + bsl::chrono::seconds(3),
+                    [&done, &timer, &elapsedTimeThree]()
+                    {
+                        if (verbose) {
+                            bsl::cout << "Three" << bsl::endl;
+                        }
+                        elapsedTimeThree = timer.elapsedTime();
+                        done.arrive();
+                    });
+
+            ASSERT(0 == ta.numBytesInUse());
+
+            timer.start();
+            scheduler.start();
+            done.wait();
+            scheduler.stop();
+
+            const double EPSILON = .1;
+
+            ASSERTV(elapsedTimeOne,   EPSILON > fabs(1 - elapsedTimeOne));
+            ASSERTV(elapsedTimeTwo,   EPSILON > fabs(2 - elapsedTimeTwo));
+            ASSERTV(elapsedTimeThree, EPSILON > fabs(3 - elapsedTimeThree));
+        }
+
+        if (verbose) cout << "\tBreathing test custom clock"
+                          << endl;
+
+        {
+            bslma::TestAllocator         ta(veryVeryVerbose);
+            bslma::TestAllocator         oa(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard defaultAllocGuard(&ta);
+
+            bdlmt::EventScheduler scheduler(&oa);
+            bslmt::Latch          done(3);
+
+
+            bsls::Stopwatch timer;
+            double elapsedTimeOne, elapsedTimeTwo, elapsedTimeThree;
+
+            scheduler.scheduleEvent(
+                    bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME) +
+                                                         bsls::TimeInterval(1),
+                    [&done, &timer, &elapsedTimeOne]()
+                    {
+                        if (verbose) {
+                            bsl::cout << "One" << bsl::endl;
+                        }
+                        elapsedTimeOne = timer.elapsedTime();
+                        done.arrive();
+                    });
+
+            scheduler.scheduleEvent(
+                    HalfClock::now() + bsl::chrono::milliseconds(500),
+                    [&done, &timer,  &elapsedTimeTwo]()
+                    {
+                        if (verbose) {
+                            bsl::cout << "Two" << bsl::endl;
+                        }
+                        elapsedTimeTwo = timer.elapsedTime();
+                        done.arrive();
+                    });
+
+            scheduler.scheduleEvent(
+                    AnotherClock::now() + bsl::chrono::seconds(2),
+                    [&done, &timer, &elapsedTimeThree]()
+                    {
+                        if (verbose) {
+                            bsl::cout << "Three" << bsl::endl;
+                        }
+                        elapsedTimeThree = timer.elapsedTime();
+                        done.arrive();
+                    });
+
+            ASSERT(0 == ta.numBytesInUse());
+
+            timer.start();
+            scheduler.start();
+            done.wait();
+            scheduler.stop();
+
+            const double EPSILON = .1;
+
+            ASSERTV(elapsedTimeOne,   EPSILON > fabs(1 - elapsedTimeOne));
+            ASSERTV(elapsedTimeTwo,   EPSILON > fabs(1 - elapsedTimeTwo));
+            ASSERTV(elapsedTimeThree, EPSILON > fabs(2 - elapsedTimeThree));
+
+        }
+#endif
+      } break;
       case 28: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLES:
+        // TESTING USAGE EXAMPLES
         //
         // Concerns:
         //   The usage examples provided in the component header file must
@@ -2587,11 +3099,10 @@ int main(int argc, char *argv[])
                  << "======================================================\n";
         }
 
-        // Construct the scheduler
+        // Create the scheduler
         bdlmt::EventScheduler scheduler;
 
-        // Construct the time-source.  Install the time-source in the
-        // scheduler.
+        // Create the time-source.  Install the time-source in the scheduler.
         bdlmt::EventSchedulerTestTimeSource timeSource(&scheduler);
 
         // Set the time-source to have no nanoseconds.
@@ -2636,7 +3147,7 @@ int main(int argc, char *argv[])
         //
         // Concern:
         //   That the 'allocator' accessor correctly returns the allocator
-        //   suplied at construction.
+        //   supplied at construction.
         //
         // Plan:
         //   Create objects with different allocators, and verify that the
@@ -2784,11 +3295,10 @@ int main(int argc, char *argv[])
         TestClass1 event1;
         TestClass1 event2;
 
-        // Construct the scheduler
+        // Create the scheduler
         bdlmt::EventScheduler scheduler;
 
-        // Construct the time-source.
-        // Install the time-source in the scheduler.
+        // Create the time-source.  Install the time-source in the scheduler.
         bdlmt::EventSchedulerTestTimeSource timeSource(&scheduler);
 
         // Retrieve the initial time held in the time-source.
@@ -2856,6 +3366,11 @@ int main(int argc, char *argv[])
         using namespace EVENTSCHEDULER_TEST_CASE_20;
         using namespace bdlf::PlaceHolders;
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        typedef bsl::chrono::system_clock system_clock;
+        typedef bsl::chrono::steady_clock steady_clock;
+#endif
+
         const bsls::SystemClockType::Enum realTime =
                                             bsls::SystemClockType::e_REALTIME;
         const bsls::SystemClockType::Enum monotonic =
@@ -2884,9 +3399,46 @@ int main(int argc, char *argv[])
             ASSERT(monotonic == Y.clockType());
         }
 
+        if (verbose) cout <<
+            "Explicit clock type, no dispatcher, no allocator\n";
+        {
+            Obj x(realTime);    const Obj& X = x;
+            Obj y(monotonic);   const Obj& Y = y;
+
+            ASSERT(realTime  == X.clockType());
+            ASSERT(monotonic == Y.clockType());
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        if (verbose) cout << "chrono clocks, no dispatcher\n";
+        {
+            Obj x(system_clock(), &ta);   const Obj& X = x;
+            Obj y(steady_clock(), &ta);   const Obj& Y = y;
+
+            ASSERT(realTime  == X.clockType());
+            ASSERT(monotonic == Y.clockType());
+        }
+
+        if (verbose) cout << "chrono clocks, no dispatcher, no allocator\n";
+        {
+            Obj x((system_clock()));   const Obj& X = x;
+            Obj y((steady_clock()));   const Obj& Y = y;
+
+            ASSERT(realTime  == X.clockType());
+            ASSERT(monotonic == Y.clockType());
+        }
+#endif
+
         if (verbose) cout << "Dispatcher, clock type defaults\n";
         {
             Obj x(dispatcher, &ta);    const Obj& X = x;
+
+            ASSERT(realTime == X.clockType());
+        }
+
+        if (verbose) cout << "Dispatcher, clock type defaults, no allocator\n";
+        {
+            Obj x(dispatcher);    const Obj& X = x;
 
             ASSERT(realTime == X.clockType());
         }
@@ -2899,6 +3451,35 @@ int main(int argc, char *argv[])
             ASSERT(realTime  == X.clockType());
             ASSERT(monotonic == Y.clockType());
         }
+
+        if (verbose) cout << "Dispatcher, explicit clock type, no allocator\n";
+        {
+            Obj x(dispatcher, realTime);    const Obj& X = x;
+            Obj y(dispatcher, monotonic);   const Obj& Y = y;
+
+            ASSERT(realTime  == X.clockType());
+            ASSERT(monotonic == Y.clockType());
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        if (verbose) cout << "Dispatcher, chrono clocks\n";
+        {
+            Obj x(dispatcher, system_clock(), &ta);    const Obj& X = x;
+            Obj y(dispatcher, steady_clock(), &ta);    const Obj& Y = y;
+
+            ASSERT(realTime  == X.clockType());
+            ASSERT(monotonic == Y.clockType());
+        }
+
+        if (verbose) cout << "Dispatcher, chrono clocks, no allocator\n";
+        {
+            Obj x(dispatcher, system_clock());     const Obj& X = x;
+            Obj y(dispatcher, steady_clock());     const Obj& Y = y;
+
+            ASSERT(realTime  == X.clockType());
+            ASSERT(monotonic == Y.clockType());
+        }
+#endif
       } break;
       case 20: {
         // --------------------------------------------------------------------
@@ -3014,7 +3595,7 @@ int main(int argc, char *argv[])
         //   creating the event, bind an handle to it.  Cancel the event twice.
         //   Verify the state of the queue throughout this process by
         //   monitoring 'scheduler.numEvents()' or
-        //   'scheduler.numRecurrringEvents()', verify that the return codes
+        //   'scheduler.numRecurringEvents()', verify that the return codes
         //   from the cancel calls are what they should be, and verify that the
         //   handle is in the correct state by casting it to a pointer (a
         // released handle will cast to a null pointer, a bound handle will
@@ -3718,13 +4299,13 @@ int main(int argc, char *argv[])
         }
 
         {
-          // Repeat above
+          // Repeat above - but call rescheduleEventAndWait
 
-          const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
-          const int T  = 1 * DECI_SEC_IN_MICRO_SEC;
+          const int                mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
+          const int                T  = 1 * DECI_SEC_IN_MICRO_SEC;
           const bsls::TimeInterval T2(2 * DECI_SEC);
           const bsls::TimeInterval T4(4 * DECI_SEC);
-          const int T6 = 6 * DECI_SEC_IN_MICRO_SEC;
+          const int                T6 = 6 * DECI_SEC_IN_MICRO_SEC;
           const bsls::TimeInterval T8(8 * DECI_SEC);
 
           Obj x(&ta);
@@ -3753,6 +4334,240 @@ int main(int argc, char *argv[])
           }
           x.stop();
         }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        {
+            // Create and start a scheduler object, schedule an event at T2,
+            // reschedule it at T4 (both on C++11 clocks) and verify that
+            // reschedule succeeds.  Verify that the callback executes at the
+            // new rescheduled time.  Now verify that rescheduling the same
+            // event fails.
+
+            using namespace bsl::chrono;
+
+            const int          mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
+            const int          T = 1 * DECI_SEC_IN_MICRO_SEC;
+            const milliseconds T2(200);
+            const milliseconds T4(400);
+            const int          T6 = 6 * DECI_SEC_IN_MICRO_SEC;
+            const milliseconds T8(800);
+
+            {
+                Obj x(&ta);
+                x.start();
+
+                TestClass1 testObj;
+
+                bsls::TimeInterval now = u::now();
+                EventHandle        h;
+                x.scheduleEvent(
+                      &h,
+                      AnotherClock::now() + T2,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+
+                microSleep(T, 0);
+                bsls::TimeInterval elapsed = u::now() - now;
+                if (elapsed < T2) {
+                    nExec = testObj.numExecuted();
+                    LOOP_ASSERT(nExec, 0 == nExec);
+                    ASSERT( 0 ==
+                              x.rescheduleEvent(h, AnotherClock::now() + T4) );
+                    microSleep(T6, 0);
+                    makeSureTestObjectIsExecuted(testObj, mT, 100);
+                    nExec = testObj.numExecuted();
+                    LOOP_ASSERT(nExec, 1 == nExec);
+                    ASSERT( 0 !=
+                              x.rescheduleEvent(h, AnotherClock::now() + T8) );
+                }
+                x.stop();
+            }
+
+            // Repeat above - but call rescheduleEventAndWait
+            {
+                Obj x(&ta);
+                x.start();
+
+                TestClass1 testObj;
+
+                bsls::TimeInterval now = u::now();
+                EventHandle        h;
+                x.scheduleEvent(
+                      &h,
+                      AnotherClock::now() + T2,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+
+                microSleep(T, 0);
+                bsls::TimeInterval elapsed = u::now() - now;
+                if (elapsed < T2) {
+                    nExec = testObj.numExecuted();
+                    LOOP_ASSERT(nExec, 0 == nExec);
+                    ASSERT( 0 ==
+                        x.rescheduleEventAndWait(h, AnotherClock::now() + T4));
+                    microSleep(T6, 0);
+                    makeSureTestObjectIsExecuted(testObj, mT, 100);
+                    nExec = testObj.numExecuted();
+                    LOOP_ASSERT(nExec, 1 == nExec);
+                    ASSERT( 0 !=
+                        x.rescheduleEventAndWait(h, AnotherClock::now() + T8));
+                }
+                x.stop();
+            }
+        }
+
+        {
+            // Create and start a scheduler object, schedule an event at T2,
+            // (using a BDE clock), reschedule it at T4 (using a C++11 clock)
+            // and verify that the reschedule succeeds.  Verify that the
+            // callback executes at the new rescheduled time.  Now verify that
+            // rescheduling the same event fails.
+
+            using namespace bsl::chrono;
+
+            const int                mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
+            const int                T = 1 * DECI_SEC_IN_MICRO_SEC;
+            const bsls::TimeInterval T2(2 * DECI_SEC);
+            const milliseconds       T4(400);
+            const int                T6 = 6 * DECI_SEC_IN_MICRO_SEC;
+            const milliseconds       T8(800);
+
+            {
+                Obj x(&ta);
+                x.start();
+
+                TestClass1 testObj;
+
+                bsls::TimeInterval now = u::now();
+                EventHandle        h;
+                x.scheduleEvent(
+                      &h,
+                      now + T2,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+
+                microSleep(T, 0);
+                bsls::TimeInterval elapsed = u::now() - now;
+                if (elapsed < T2) {
+                    nExec = testObj.numExecuted();
+                    LOOP_ASSERT(nExec, 0 == nExec);
+                    ASSERT( 0 ==
+                              x.rescheduleEvent(h, AnotherClock::now() + T4) );
+                    microSleep(T6, 0);
+                    makeSureTestObjectIsExecuted(testObj, mT, 100);
+                    nExec = testObj.numExecuted();
+                    LOOP_ASSERT(nExec, 1 == nExec);
+                    ASSERT( 0 !=
+                              x.rescheduleEvent(h, AnotherClock::now() + T8) );
+                }
+                x.stop();
+            }
+
+            // Repeat above - but call rescheduleEventAndWait
+            {
+                Obj x(&ta);
+                x.start();
+
+                TestClass1 testObj;
+
+                bsls::TimeInterval now = u::now();
+                EventHandle        h;
+                x.scheduleEvent(
+                      &h,
+                      now + T2,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+
+                microSleep(T, 0);
+                bsls::TimeInterval elapsed = u::now() - now;
+                if (elapsed < T2) {
+                    nExec = testObj.numExecuted();
+                    LOOP_ASSERT(nExec, 0 == nExec);
+                    ASSERT( 0 ==
+                       x.rescheduleEventAndWait(h, AnotherClock::now() + T4) );
+                    microSleep(T6, 0);
+                    makeSureTestObjectIsExecuted(testObj, mT, 100);
+                    nExec = testObj.numExecuted();
+                    LOOP_ASSERT(nExec, 1 == nExec);
+                    ASSERT( 0 !=
+                       x.rescheduleEventAndWait(h, AnotherClock::now() + T8) );
+                }
+                x.stop();
+            }
+        }
+
+        {
+            // Create and start a scheduler object, schedule an event at T2,
+            // (using a C++11 clock), reschedule it at T4 (using a BDE clock)
+            // and verify that the reschedule succeeds.  Verify that the
+            // callback executes at the new rescheduled time.  Now verify that
+            // rescheduling the same event fails.
+
+            using namespace bsl::chrono;
+
+            const int                mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
+            const int                T = 1 * DECI_SEC_IN_MICRO_SEC;
+            const milliseconds       T2(200);
+            const bsls::TimeInterval T4(4 * DECI_SEC);
+            const int                T6 = 6 * DECI_SEC_IN_MICRO_SEC;
+            const bsls::TimeInterval T8(8 * DECI_SEC);
+
+            {
+                Obj x(&ta);
+                x.start();
+
+                TestClass1 testObj;
+
+                bsls::TimeInterval now = u::now();
+                EventHandle        h;
+                x.scheduleEvent(
+                      &h,
+                      AnotherClock::now() + T2,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+
+                microSleep(T, 0);
+                bsls::TimeInterval elapsed = u::now() - now;
+                if (elapsed < T2) {
+                    nExec = testObj.numExecuted();
+                    LOOP_ASSERT(nExec, 0 == nExec);
+                    ASSERT( 0 == x.rescheduleEvent(h, now + T4) );
+                    microSleep(T6, 0);
+                    makeSureTestObjectIsExecuted(testObj, mT, 100);
+                    nExec = testObj.numExecuted();
+                    LOOP_ASSERT(nExec, 1 == nExec);
+                    ASSERT( 0 != x.rescheduleEvent(h, now + T8) );
+                }
+                x.stop();
+            }
+
+            // Repeat above - but call rescheduleEventAndWait
+            {
+                Obj x(&ta);
+                x.start();
+
+                TestClass1 testObj;
+
+                bsls::TimeInterval now = u::now();
+                EventHandle        h;
+                x.scheduleEvent(
+                      &h,
+                      AnotherClock::now() + T2,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+
+                microSleep(T, 0);
+                bsls::TimeInterval elapsed = u::now() - now;
+                if (elapsed < T2) {
+                    nExec = testObj.numExecuted();
+                    LOOP_ASSERT(nExec, 0 == nExec);
+                    ASSERT( 0 == x.rescheduleEventAndWait(h, now + T4) );
+                    microSleep(T6, 0);
+                    makeSureTestObjectIsExecuted(testObj, mT, 100);
+                    nExec = testObj.numExecuted();
+                    LOOP_ASSERT(nExec, 1 == nExec);
+                    ASSERT( 0 != x.rescheduleEventAndWait(h, now + T8) );
+                }
+                x.stop();
+            }
+        }
+
+#endif
+
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
@@ -3767,12 +4582,13 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create several threads.  Half of the threads execute 'h =
-        //   scheduler.scheduleEvent(..), scheduler.cancelAllEvent()' in a loop
-        //   and other half execute 'h = scheduler.scheduleRecurringEvent(..)'
-        //   and 'scheduler.cancelAllEvents(h)' in a loop.  Finally join all
-        //   the threads and verify that no callback has been invoked and that
-        //   the scheduler is still in good state (this is done by scheduling
-        //   an event and verifying that it is executed as expected).
+        //   scheduler.scheduleEvent(..), scheduler.cancelAllEvents()' in a
+        //   loop and other half execute
+        //   'h = scheduler.scheduleRecurringEvent(..)' and
+        //   'scheduler.cancelAllEvents(h)' in a loop.  Finally join all the
+        //   threads and verify that no callback has been invoked and that the
+        //   scheduler is still in good state (this is done by scheduling an
+        //   event and verifying that it is executed as expected).
         //
         // Testing:
         //   Concurrent scheduling and cancelling-All.
@@ -5385,6 +6201,50 @@ int main(int argc, char *argv[])
             }
         }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        if (verbose) cout << "\nTesting with chrono-clocks." << endl;
+        {
+            using namespace bsl::chrono;
+
+            auto systemClockTest  =
+                   MakeChronoTest<system_clock>(seconds(1), milliseconds(500));
+            auto steadyClockTest  =
+                MakeChronoTest<steady_clock>(seconds(1), microseconds(600000));
+            auto anotherClockTest =
+                   MakeChronoTest<AnotherClock>(seconds(1), milliseconds(300));
+            auto halfClockTest    =
+                MakeChronoTest<HalfClock>   (seconds(1), microseconds(250000));
+
+            bslma::TestAllocator ta(veryVeryVerbose);
+            Obj                  x(bsls::SystemClockType::e_REALTIME, &ta);
+
+            // schedule the calls
+            systemClockTest.schedule(x);
+            steadyClockTest.schedule(x);
+            anotherClockTest.schedule(x);
+            halfClockTest.schedule(x);
+
+            x.start();
+            microSleep(0, 10);
+            x.stop();
+
+            systemClockTest.captureStopTime();
+            steadyClockTest.captureStopTime();
+            anotherClockTest.captureStopTime();
+            halfClockTest.captureStopTime();
+
+            ASSERT(0 != systemClockTest.d_callTimes.size());
+            ASSERT(0 != steadyClockTest.d_callTimes.size());
+            ASSERT(0 != anotherClockTest.d_callTimes.size());
+            ASSERT(0 != halfClockTest.d_callTimes.size());
+
+            systemClockTest.checkResults("system clock");
+            steadyClockTest.checkResults("steady clock");
+            anotherClockTest.checkResults("another clock");
+            halfClockTest.checkResults("half speed clock");
+        }
+#endif
+
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertTestHandlerGuard hG;
@@ -5466,7 +6326,7 @@ int main(int argc, char *argv[])
                                                     bsls::TimeInterval(0, 999),
                                                     noop));
             }
-        }
+       }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -5966,13 +6826,13 @@ int main(int argc, char *argv[])
           // it execute once and then cancel it and then verify the expected
           // result.
 
-          const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
+          const int                mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
           const bsls::TimeInterval T3(3 * DECI_SEC);
-          const int T4 = 4 * DECI_SEC_IN_MICRO_SEC;
-          const int T6 = 6 * DECI_SEC_IN_MICRO_SEC;
+          const int                T4 = 4 * DECI_SEC_IN_MICRO_SEC;
+          const int                T6 = 6 * DECI_SEC_IN_MICRO_SEC;
 
           bslma::TestAllocator ta(veryVeryVerbose);
-          Obj x(&ta);
+          Obj                  x(&ta);
           x.start();
 
           TestClass1 testObj;
@@ -6003,15 +6863,61 @@ int main(int argc, char *argv[])
           x.stop();
         }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        {
+          // Create and start a scheduler object, schedule a clock of T3 (using
+          // a chrono duration), let it execute once and then cancel it and
+          // then verify the expected result.
+
+          using namespace bsl::chrono;
+
+          const int          mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
+          const milliseconds T3(30);
+          const int          T4 = 4 * DECI_SEC_IN_MICRO_SEC;
+          const int          T6 = 6 * DECI_SEC_IN_MICRO_SEC;
+
+          bslma::TestAllocator ta(veryVeryVerbose);
+          Obj                  x(&ta);
+          x.start();
+
+          TestClass1 testObj;
+
+          bsls::TimeInterval now = u::now();
+          RecurringEventHandle h;
+          x.scheduleRecurringEvent(
+                      &h,
+                      T3,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+
+          bslmt::ThreadUtil::microSleep(T4, 0);
+          makeSureTestObjectIsExecuted(testObj, mT, 100);
+          nExec = testObj.numExecuted();
+          LOOP_ASSERT(nExec, 1 <= nExec);
+
+          bsls::TimeInterval elapsed = u::now() - now;
+          if (elapsed < T6) {
+              ASSERT( 0 == x.cancelEvent(h) );
+              ASSERT( 0 != x.cancelEvent(h) );
+
+              const int NEXEC = testObj.numExecuted();
+              bslmt::ThreadUtil::microSleep(T4, 0);
+              nExec = testObj.numExecuted();
+              LOOP2_ASSERT(NEXEC, nExec, NEXEC == nExec);
+          }
+          // Else complain but do not stop the test suite.
+          x.stop();
+        }
+#endif
+
         {
           // Create and start a scheduler object, schedule two clocks of T3
           // interval, invoke 'cancelAllEvents' and verify the result.
 
           const bsls::TimeInterval T3(3 * DECI_SEC);
-          const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
+          const int                T10 = 10 * DECI_SEC_IN_MICRO_SEC;
 
           bslma::TestAllocator ta(veryVeryVerbose);
-          Obj x(&ta);
+          Obj                  x(&ta);
           x.start();
 
           TestClass1 testObj1;
@@ -6042,6 +6948,50 @@ int main(int argc, char *argv[])
           x.stop();
         }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        {
+          // Create and start a scheduler object, schedule two clocks of T3
+          // interval (using a chrono duration), invoke 'cancelAllEvents' and
+          // verify the result.
+
+          using namespace bsl::chrono;
+
+          const milliseconds T3(300);
+          const int          T10 = 10 * DECI_SEC_IN_MICRO_SEC;
+
+          bslma::TestAllocator ta(veryVeryVerbose);
+          Obj                  x(&ta);
+          x.start();
+
+          TestClass1 testObj1;
+          TestClass1 testObj2;
+
+          RecurringEventHandle h1, h2;
+          x.scheduleRecurringEvent(
+                     &h1,
+                     T3,
+                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
+
+          x.scheduleRecurringEvent(
+                     &h2,
+                     T3,
+                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2));
+
+          x.cancelAllEvents();
+          ASSERT( 0 != x.cancelEvent(h1) );
+          ASSERT( 0 != x.cancelEvent(h2) );
+
+          const int NEXEC1 = testObj1.numExecuted();
+          const int NEXEC2 = testObj2.numExecuted();
+          microSleep(T10, 0);
+          nExec = testObj1.numExecuted();
+          LOOP2_ASSERT(NEXEC1, nExec, NEXEC1 == nExec);
+          nExec = testObj2.numExecuted();
+          LOOP2_ASSERT(NEXEC2, nExec, NEXEC2 == nExec);
+          x.stop();
+        }
+#endif
+
         {
           // Create and start a scheduler object, schedule a clock of T3
           // interval, schedule an event at T6, invoke 'stop' at T4 and then
@@ -6053,7 +7003,7 @@ int main(int argc, char *argv[])
           const bsls::TimeInterval T6(6 * DECI_SEC);
 
           bslma::TestAllocator ta(veryVeryVerbose);
-          Obj x(&ta);
+          Obj                  x(&ta);
           x.start();
 
           TestClass1 testObj1;
@@ -6073,8 +7023,8 @@ int main(int argc, char *argv[])
           x.stop();
 
           bsls::TimeInterval elapsed = u::now() - now;
-          const int NEXEC1 = testObj1.numExecuted();
-          const int NEXEC2 = testObj2.numExecuted();
+          const int          NEXEC1 = testObj1.numExecuted();
+          const int          NEXEC2 = testObj2.numExecuted();
           if (elapsed < T6) {
               LOOP_ASSERT(NEXEC1, 1 == NEXEC1);
               LOOP_ASSERT(NEXEC2, 0 == NEXEC2);
@@ -6107,6 +7057,77 @@ int main(int argc, char *argv[])
               LOOP2_ASSERT(NEXEC2, elapsed, T6 < elapsed);
           }
         }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        {
+          // Create and start a scheduler object, schedule a clock of T3
+          // interval (using a chrono duration), schedule an event at T6,
+          // invoke 'stop' at T4 and then verify the state.  Invoke 'start' and
+          // then verify the state.
+
+          using namespace bsl::chrono;
+
+          const int                mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
+          const int                T4 = 4 * DECI_SEC_IN_MICRO_SEC;
+          const milliseconds       T3(300);
+          const bsls::TimeInterval T6(6 * DECI_SEC);
+
+          bslma::TestAllocator ta(veryVeryVerbose);
+          Obj                  x(&ta);
+          x.start();
+
+          TestClass1 testObj1;
+          TestClass1 testObj2;
+
+          bsls::TimeInterval now = u::now();
+          x.scheduleRecurringEvent(
+                     T3,
+                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj1));
+
+          x.scheduleEvent(
+                     now + T6,
+                     bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj2));
+
+          microSleep(T4, 0);
+          makeSureTestObjectIsExecuted(testObj1, mT, 100);
+          x.stop();
+
+          bsls::TimeInterval elapsed = u::now() - now;
+          const int          NEXEC1 = testObj1.numExecuted();
+          const int          NEXEC2 = testObj2.numExecuted();
+          if (elapsed < T6) {
+              LOOP_ASSERT(NEXEC1, 1 == NEXEC1);
+              LOOP_ASSERT(NEXEC2, 0 == NEXEC2);
+          } else {
+              LOOP_ASSERT(NEXEC1, 1 <= NEXEC1);
+          }
+          microSleep(T4, 0);
+          nExec = testObj1.numExecuted();
+          LOOP2_ASSERT(NEXEC1, nExec, NEXEC1 == nExec);
+          nExec = testObj2.numExecuted();
+          LOOP2_ASSERT(NEXEC2, nExec, NEXEC2 == nExec);
+
+          if (0 == NEXEC2) {
+              // If testObj2 has already executed its event, there is not much
+              // point to test this.
+
+              x.start();
+              microSleep(T4, 0);
+              makeSureTestObjectIsExecuted(testObj2, mT, 100, NEXEC2);
+              nExec = testObj2.numExecuted();
+              LOOP2_ASSERT(NEXEC2, nExec, NEXEC2 + 1 <= nExec);
+              x.stop();
+          }
+          else {
+              // However, if testObj2 has already executed its event, we should
+              // make sure it do so legally, i.e., after the requisite period
+              // of time.  Note that 'elapsed' was measure *after* the
+              // 'x.stop()'.
+
+              LOOP2_ASSERT(NEXEC2, elapsed, T6 < elapsed);
+          }
+        }
+#endif
 
       } break;
       case -1: {

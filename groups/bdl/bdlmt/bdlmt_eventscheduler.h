@@ -19,6 +19,7 @@ BSLS_IDENT("$Id: $")
 //  bdlmt::EventScheduler: a thread-safe event scheduler
 //  bdlmt::EventSchedulerEventHandle: handle to a single scheduled event
 //  bdlmt::EventSchedulerRecurringEventHandle: handle to a recurring event
+//  bdlmt::EventSchedulerTestTimeSource: class for testing time changes
 //
 //@SEE_ALSO: bdlmt_timereventscheduler
 //
@@ -28,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // processed by a separate thread (called the dispatcher thread).  By default
 // the callbacks are also executed in the dispatcher thread, but that behavior
 // can be altered by providing a dispatcher functor at creation time (see the
-// section "The Dispatcher Thread and the Dispatcher Functor").
+// section {The Dispatcher Thread and the Dispatcher Functor}).
 //
 // Events may be referred to by 'bdlmt::EventSchedulerEventHandle' and
 // 'bdlmt::EventSchedulerRecurringEventHandle' objects, which clean up after
@@ -111,22 +112,53 @@ BSLS_IDENT("$Id: $")
 // dispatcher thread becomes available; once the backlog is worked off, events
 // will be executed at or near their scheduled times.
 //
-///Supported Clock-Types
+///Supported Clock Types
 ///---------------------
-// The component 'bsls::SystemClockType' supplies the enumeration indicating
-// the system clock on which times supplied to other methods should be based.
-// If the clock type indicated at construction is
+// An 'EventScheduler' optionally accepts a clock type at construction
+// indicating the clock by which it will internally schedule events.  The clock
+// type may be indicated by either a 'bsls::SystemClockType::Enum' value, a
+// 'bsl::chrono::system_clock' object (which is equivalent to specifying
+// 'e_REALTIME'), or a 'bsl::chrono::steady_clock' object (equivalent to
+// specifying 'e_MONOTONIC').  If a clock type is not specified, 'e_REALTIME'
+// is used.
+//
+///Scheduling Using a 'bsl::chrono::time_point'
+/// - - - - - - - - - - - - - - - - - - - - - -
+// When creating either a one-time or recurring event, clients may pass a
+// 'bsl::chrono::time_point' indicating the time the event should occur.  This
+// 'time_point' object can be associated with an arbitrary clock.  If the
+// 'time_point' is associated with a different clock than was indicated at
+// construction of the event scheduler, those time points are converted to be
+// relative to the event scheduler's clock for processing.  A possible
+// implementation of such a conversion would be:
+//..
+//  bsls::TimeInterval(time - CLOCK::now()) + eventScheduler.now()
+//..
+// where 'time' is a 'time_point', 'CLOCK' is the clock associated with 'time',
+// and 'eventScheduler' is the 'EventScheduler' on which the event is being
+// scheduled.  Notice that the conversion adds some imprecision and overhead to
+// evaluation of the event.  An event scheduler guarantees an event will occur
+// at or after the supplied 'time_point', even if that 'time_point' is defined
+// in terms of a 'CLOCK' different from the one used by the event scheduler.
+// If there is a discontinuity between the clock for a 'time_point' and the
+// event scheduler's clock, additional processing overhead may result (because
+// the event may need to be rescheduled), and the event may also occur later
+// than what one might otherwise expect.
+//
+///Scheduling Using a 'bsls::TimeInterval'
+///- - - - - - - - - - - - - - - - - - - -
+// When creating either a one-time or recurring event, clients may pass a
+// 'bsls::TimeInterval' indicating the time the event should occur as an offset
+// from an epoch.  If the clock type indicated at construction is
 // 'bsls::SystemClockType::e_REALTIME', time should be expressed as an absolute
 // offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch used in
-// 'bdlt::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the clock
-// type indicated at construction is 'bsls::SystemClockType::e_MONOTONIC', time
-// should be expressed as an absolute offset since the epoch of this clock
-// (which matches the epoch used in
-// 'bdlt::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
-//
-// The current epoch time for a particular 'bdlmt::EventScheduler' instance
-// according to the correct clock is available via the
-// 'bdlmt::EventScheduler::now' accessor.
+// 'bdlt::CurrentTime::now(bsls::SystemClockType::e_REALTIME)', and
+// 'bsl::chrono::system_clock::now()').  If the clock type indicated at
+// construction is 'bsls::SystemClockType::e_MONOTONIC', time should be
+// expressed as an absolute offset since the epoch of this clock (which matches
+// the epoch used in
+// 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)' and
+// 'bsl::chrono::steady_clock').
 //
 ///Event Clock Substitution
 ///------------------------
@@ -260,7 +292,7 @@ BSLS_IDENT("$Id: $")
 //   public:
 //     my_Server(const bsls::TimeInterval&  ioTimeout,
 //               bslma::Allocator         *allocator = 0);
-//         // Construct a 'my_Server' object with a timeout value of
+//         // Create a 'my_Server' object with a timeout value of
 //         // 'ioTimeout' seconds.  Optionally specify a 'allocator' used to
 //         // supply memory.  If 'allocator' is 0, the currently installed
 //         // default allocator is used.
@@ -344,10 +376,10 @@ BSLS_IDENT("$Id: $")
 // }
 //
 // void testCase() {
-//     // Construct the scheduler
+//     // Create the scheduler
 //     bdlmt::EventScheduler scheduler;
 //
-//     // Construct the time-source.
+//     // Create the time-source.
 //     // Install the time-source in the scheduler.
 //     bdlmt::EventSchedulerTestTimeSource timeSource(&scheduler);
 //
@@ -384,26 +416,37 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlcc_skiplist.h>
 
+#include <bdlf_bind.h>
+#include <bdlf_placeholder.h>
+
+#include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_condition.h>
+#include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
 
+#include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_libraryfeatures.h>
+#include <bsls_review.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_timeinterval.h>
-
-#include <bslma_allocator.h>
-
 #include <bsls_types.h>
 
 #include <bsl_functional.h>
 #include <bsl_memory.h>
 #include <bsl_utility.h>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <bslmt_chronoutil.h>
+
+#include <bsl_chrono.h>
+#endif
 
 namespace BloombergLP {
 namespace bdlmt {
@@ -424,14 +467,77 @@ class EventScheduler {
 
   private:
     // PRIVATE TYPES
-    typedef bsl::pair<bsl::function<void()>, bsls::TimeInterval>
-                                                           RecurringEventData;
+
+                               // ================
+                               // struct EventData
+                               // ================
+
+    struct EventData {
+        // This 'struct' encapsulates all of the information for a
+        // non-recurring event.
+
+        // DATA
+        bsl::function<void()>               d_callback;
+            // user-supplied callback invoked when associated event triggers
+
+        bsl::function<bsls::Types::Int64()> d_nowOffset;
+            // a function that returns the difference, in microseconds, between
+            // when the scheduled event is meant to occur and the current time
+
+        // CREATORS
+        EventData(const bsl::function<void()>&               callback,
+                  const bsl::function<bsls::Types::Int64()>& nowOffset)
+            // Create an 'EventData' from the specified 'callback' and
+            // 'nowOffset'.
+        : d_callback(callback)
+        , d_nowOffset(nowOffset)
+        {
+        }
+    };
+
+                         // =========================
+                         // struct RecurringEventData
+                         // =========================
+
+    struct RecurringEventData {
+        // This 'struct' encapsulates all of the information for a recurring
+        // event.
+
+        // DATA
+        bsls::TimeInterval                     d_interval;
+            // the time between calls (in microseconds)
+
+        bsl::function<void()>                  d_callback;
+            // user-supplied callback invoked when associated event triggers
+
+        bsl::function<bsls::Types::Int64(int)> d_nowOffset;
+            // a function that returns the difference, in microseconds, between
+            // when the scheduled event is meant to occur and the current time
+
+        int                                    d_eventIdx;
+            // the index of the recurring event (starting with 0); passed to
+            // 'd_nowOffset' to determine the time of the next invocation of
+            // 'd_callback'
+
+        // CREATORS
+        RecurringEventData(
+                       const bsls::TimeInterval&                     interval,
+                       const bsl::function<void()>&                  callback,
+                       const bsl::function<bsls::Types::Int64(int)>& nowOffset)
+            // Create a 'RecurringEventData' from the specified 'interval',
+            // 'callback', and 'nowOffset'.
+        : d_interval(interval)
+        , d_callback(callback)
+        , d_nowOffset(nowOffset)
+        , d_eventIdx(0)
+        {
+        }
+    };
 
     typedef bdlcc::SkipList<bsls::Types::Int64,
                             RecurringEventData>            RecurringEventQueue;
 
-    typedef bdlcc::SkipList<bsls::Types::Int64,
-                            bsl::function<void()> >        EventQueue;
+    typedef bdlcc::SkipList<bsls::Types::Int64, EventData> EventQueue;
 
     typedef bsl::function<bsls::TimeInterval()>            CurrentTimeFunctor;
 
@@ -524,6 +630,41 @@ class EventScheduler {
     bsls::SystemClockType::Enum
                           d_clockType;          // clock type used
 
+    // PRIVATE CLASS METHODS
+    static bsls::Types::Int64 returnZero();
+        // Return 0.
+
+    static bsls::Types::Int64 returnZeroInt(int);
+        // Return 0.  The 'int' argument is ignored.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class CLOCK, class DURATION>
+    static bsls::Types::Int64
+    timeUntilTrigger(const bsl::chrono::time_point<CLOCK, DURATION>& absTime);
+        // Return the number of microseconds between the current time and the
+        // specified 'absTime'.  'absTime' is an *absolute* time represented as
+        // an interval from some epoch, which is determined by the clock
+        // associated with the time point.  Note that this method is used when
+        // the 'CLOCK' type used to schedule the event differs from that of the
+        // event scheduler itself.  Also note that a negative value is returned
+        // if 'absTime' is in the past.
+
+    template <class CLOCK, class DURATION, class REP_TYPE, class PERIOD_TYPE>
+    static bsls::Types::Int64 timeUntilTriggerRecurring(
+               const bsl::chrono::time_point<CLOCK, DURATION>&     absTime,
+               const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& interval,
+               int                                                 eventIndex);
+        // Return the number of microseconds between the current time and the
+        // scheduled time of the specified 'eventIndex'th recurring event,
+        // which starts at the specified 'absTime' and repeats at the specified
+        // 'interval'.  'absTime' is an *absolute* time represented as an
+        // interval from some epoch, which is determined by the clock
+        // associated with the time point.  The behavior is undefined unless
+        // '0 <= eventIndex'.  Note that this method is used when the 'CLOCK'
+        // type used to schedule the event differs from that of the event
+        // scheduler itself.
+#endif
+
     // PRIVATE MANIPULATORS
     bsls::Types::Int64 chooseNextEvent(bsls::Types::Int64 *now);
         // Pick either 'd_currentEvent' or 'd_currentRecurringEvent' as the
@@ -537,7 +678,7 @@ class EventScheduler {
         // is valid.  Note that the argument and return value of this method
         // are expressed in terms of the number of microseconds elapsed since
         // some epoch, which is determined by the clock indicated at
-        // construction (see {Supported Clock-Types} in the component
+        // construction (see {Supported Clock Types} in the component
         // documentation).  Also note that this method may update the value of
         // 'now' with the current system time if necessary.
 
@@ -550,50 +691,160 @@ class EventScheduler {
         // Release 'd_currentRecurringEvent' and 'd_currentEvent', if they
         // refer to valid events.
 
+    void scheduleEvent(EventHandle               *event,
+                       const bsls::TimeInterval&  epochTime,
+                       const EventData&           eventData);
+        // Schedule the callback of the specified 'eventData' to be dispatched
+        // at the specified 'epochTime' truncated to microseconds.  Load into
+        // the specified 'event' pointer a handle that can be used to cancel
+        // the event (by invoking 'cancelEvent').  The 'epochTime' is an
+        // absolute time represented as an interval from some epoch, which is
+        // determined by the clock indicated at construction (see {Supported
+        // Clock Types} in the component documentation).  Note that if
+        // 'epochTime' is in the past, the event is dispatched immediately.
+
+    void scheduleEventRaw(EventHandle               **event,
+                          const bsls::TimeInterval&   epochTime,
+                          const EventData&            eventData);
+        // Schedule the callback of the specified 'eventData' to be dispatched
+        // at the specified 'epochTime' truncated to microseconds.  Load into
+        // the specified 'event' pointer a handle that can be used to cancel
+        // the event (by invoking 'cancelEvent').  The 'epochTime' is an
+        // absolute time represented as an interval from some epoch, which is
+        // determined by the clock indicated at construction (see {Supported
+        // Clock Types} in the component documentation).  The 'event' pointer
+        // must be released by invoking 'releaseEventRaw' when it is no longer
+        // needed.  Note that if 'epochTime' is in the past, the event is
+        // dispatched immediately.
+
+    void scheduleRecurringEvent(RecurringEventHandle      *event,
+                                const RecurringEventData&  eventData,
+                                const bsls::TimeInterval&  startEpochTime);
+        // Schedule a recurring event that invokes the callback of the
+        // specified 'eventData' with the first event dispatched at the
+        // specified 'startEpochTime' truncated to microseconds.  Load into the
+        // specified 'event' pointer a handle that can be used to cancel the
+        // event (by invoking 'cancelEvent').  The 'startEpochTime' is an
+        // absolute time represented as an interval from some epoch, which is
+        // determined by the clock indicated at construction (see {Supported
+        // Clock Types} in the component documentation).  The behavior is
+        // undefined unless the interval of 'eventData' is at least one
+        // microsecond.  Note that if 'startEpochTime' is in the past, the
+        // first event is dispatched immediately, and additional
+        // '(now() - startEpochTime) / eventData.d_interval' events will be
+        // submitted serially.
+
+    void scheduleRecurringEventRaw(RecurringEvent            **event,
+                                   const RecurringEventData&   eventData,
+                                   const bsls::TimeInterval&   startEpochTime);
+        // Schedule a recurring event that invokes the callback of the
+        // specified 'eventData' with the first event dispatched at the
+        // specified 'startEpochTime' truncated to microseconds.  Load into the
+        // specified 'event' pointer a handle that can be used to cancel the
+        // event (by invoking 'cancelEvent').  The 'startEpochTime' is an
+        // *absolute* time represented as an interval from some epoch, which is
+        // determined by the clock indicated at construction (see {Supported
+        // Clock Types} in the component documentation).  The 'event' pointer
+        // must be released by invoking 'releaseEventRaw' when it is no longer
+        // needed.  The behavior is undefined unless the interval of
+        // 'eventData' is at least one microsecond.  Note that if
+        // 'startEpochTime' is in the past, the first event is dispatched
+        // immediately, and additional
+        // '(now() - startEpochTime) / eventData.d_interval' events will be
+        // submitted serially.
+
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(EventScheduler, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit EventScheduler(bslma::Allocator *basicAllocator = 0);
-        // Construct an event scheduler using the default dispatcher functor
-        // (see the "The dispatcher thread and the dispatcher functor" section
-        // in component-level doc) and use the realtime clock epoch for all
-        // time intervals (see {Supported Clock-Types} in the component
-        // documentation).  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // Create an event scheduler using the default dispatcher functor (see
+        // {The Dispatcher Thread and the Dispatcher Functor} in the
+        // component-level documentation) and using the system realtime clock
+        // to indicate the epoch used for all time intervals.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     explicit EventScheduler(bsls::SystemClockType::Enum  clockType,
                             bslma::Allocator            *basicAllocator = 0);
-        // Construct an event scheduler using the default dispatcher functor
-        // (see the "The dispatcher thread and the dispatcher functor" section
-        // in component-level doc) and use the specified 'clockType' to
-        // indicate the epoch used for all time intervals (see {Supported
-        // Clock-Types} in the component documentation).  Optionally specify a
+        // Create an event scheduler using the default dispatcher functor (see
+        // {The Dispatcher Thread and the Dispatcher Functor} in the
+        // component-level documentation) and using the specified 'clockType'
+        // to indicate the epoch used for all time intervals (see {Supported
+        // Clock Types} in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    explicit EventScheduler(
+                         const bsl::chrono::system_clock&,
+                         bslma::Allocator                 *basicAllocator = 0);
+        // Create an event scheduler using the default dispatcher functor (see
+        // {The Dispatcher Thread and the Dispatcher Functor} in the
+        // component-level documentation) and using the system realtime clock
+        // to indicate the epoch used for all time intervals.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    explicit EventScheduler(
+                         const bsl::chrono::steady_clock&,
+                         bslma::Allocator                 *basicAllocator = 0);
+        // Create an event scheduler using the default dispatcher functor (see
+        // {The Dispatcher Thread and the Dispatcher Functor} in the
+        // component-level documentation) and using the system monotonic clock
+        // to indicate the epoch used for all time intervals.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+#endif
 
     explicit EventScheduler(const Dispatcher&  dispatcherFunctor,
                             bslma::Allocator  *basicAllocator = 0);
-        // Construct an event scheduler using the specified 'dispatcherFunctor'
-        // (see "The dispatcher thread and the dispatcher functor" section in
-        // component-level doc) and use the realtime clock epoch for all time
-        // intervals (see {Supported Clock-Types} in the component
-        // documentation).  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // Create an event scheduler using the specified 'dispatcherFunctor'
+        // (see {The Dispatcher Thread and the Dispatcher Functor} in the
+        // component-level documentation) and using the system realtime clock
+        // to indicate the epoch used for all time intervals.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
-    explicit EventScheduler(const Dispatcher&            dispatcherFunctor,
-                            bsls::SystemClockType::Enum  clockType,
-                            bslma::Allocator            *basicAllocator = 0);
-        // Construct an event scheduler using the specified 'dispatcherFunctor'
-        // (see "The dispatcher thread and the dispatcher functor" section in
-        // component-level doc) and use the specified 'clockType' to indicate
-        // the epoch used for all time intervals (see {Supported Clock-Types}
-        // in the component documentation).  Optionally specify a
+    EventScheduler(const Dispatcher&            dispatcherFunctor,
+                   bsls::SystemClockType::Enum  clockType,
+                   bslma::Allocator            *basicAllocator = 0);
+        // Create an event scheduler using the specified 'dispatcherFunctor'
+        // (see {The Dispatcher Thread and the Dispatcher Functor} in the
+        // component-level documentation) and using the specified 'clockType'
+        // to indicate the epoch used for all time intervals (see {Supported
+        // Clock Types} in the component documentation).  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    EventScheduler(const Dispatcher&                 dispatcherFunctor,
+                   const bsl::chrono::system_clock&,
+                   bslma::Allocator                 *basicAllocator = 0);
+        // Create an event scheduler using the specified 'dispatcherFunctor'
+        // (see {The Dispatcher Thread and the Dispatcher Functor} in the
+        // component-level documentation) and using the system realtime clock
+        // to indicate the epoch used for all time intervals.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    EventScheduler(const Dispatcher&                 dispatcherFunctor,
+                   const bsl::chrono::steady_clock&,
+                   bslma::Allocator                 *basicAllocator = 0);
+        // Create an event scheduler using the specified 'dispatcherFunctor'
+        // (see {The Dispatcher Thread and the Dispatcher Functor} in the
+        // component-level documentation) and using the system monotonic clock
+        // to indicate the epoch used for all time intervals.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+#endif
 
     ~EventScheduler();
         // Discard all unprocessed events and destroy this object.  The
@@ -675,8 +926,21 @@ class EventScheduler {
         // invalid *or* if the event has already been dispatched.  The
         // 'newEpochTime' is an absolute time represented as an interval from
         // some epoch, which is determined by the clock indicated at
-        // construction (see {Supported Clock-Types} in the component
+        // construction (see {Supported Clock Types} in the component
         // documentation).
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class CLOCK, class DURATION>
+    int rescheduleEvent(
+                const Event                                     *handle,
+                const bsl::chrono::time_point<CLOCK, DURATION>&  newEpochTime);
+        // Reschedule the event referred to by the specified 'handle' at the
+        // specified 'newEpochTime' truncated to microseconds.  Return 0 on
+        // successful reschedule, and a non-zero value if the 'handle' is
+        // invalid *or* if the event has already been dispatched.  The
+        // 'newEpochTime' is an absolute time represented as an interval from
+        // some epoch, determined by the clock associated with the time point.
+#endif
 
     int rescheduleEventAndWait(const Event               *handle,
                                const bsls::TimeInterval&  newEpochTime);
@@ -688,12 +952,29 @@ class EventScheduler {
         // *or* if the event has already been dispatched.  The 'newEpochTime'
         // is an absolute time represented as an interval from some epoch,
         // which is determined by the clock indicated at construction (see
-        // {Supported Clock-Types} in the component documentation).  The
+        // {Supported Clock Types} in the component documentation).  The
         // behavior is undefined if this method is invoked from the dispatcher
         // thread.
 
-    void scheduleEvent(const bsls::TimeInterval&     epochTime,
-                       const bsl::function<void()>&  callback);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class CLOCK, class DURATION>
+    int rescheduleEventAndWait(
+                const Event                                     *handle,
+                const bsl::chrono::time_point<CLOCK, DURATION>&  newEpochTime);
+        // Reschedule the event referred to by the specified 'handle' at the
+        // specified 'newEpochTime' truncated to microseconds.  Block until the
+        // event having 'handle' (if it is valid) is either successfully
+        // rescheduled or dispatched before the call returns.  Return 0 on
+        // successful reschedule, and a non-zero value if 'handle' is invalid
+        // *or* if the event has already been dispatched.  The 'newEpochTime'
+        // is an absolute time represented as an interval from some epoch,
+        // which is determined by the clock associated with the time point.
+        // The behavior is undefined if this method is invoked from the
+        // dispatcher thread.
+#endif
+
+    void scheduleEvent(const bsls::TimeInterval&    epochTime,
+                       const bsl::function<void()>& callback);
     void scheduleEvent(EventHandle                  *event,
                        const bsls::TimeInterval&     epochTime,
                        const bsl::function<void()>&  callback);
@@ -702,9 +983,31 @@ class EventScheduler {
         // specified 'event' a handle that can be used to cancel the event (by
         // invoking 'cancelEvent').  The 'epochTime' is an absolute time
         // represented as an interval from some epoch, which is determined by
-        // the clock indicated at construction (see {Supported Clock-Types} in
-        // the component documentation).  Note that 'epochTime' may be in the
+        // the clock indicated at construction (see {Supported Clock Types} in
+        // the component documentation).  This method guarantees that the
+        // event will occur at or after 'epochTime'.  'epochTime' may be in the
         // past, in which case the event will be executed as soon as possible.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class CLOCK, class DURATION>
+    void scheduleEvent(
+                     const bsl::chrono::time_point<CLOCK, DURATION>& epochTime,
+                     const bsl::function<void()>&                    callback);
+    template <class CLOCK, class DURATION>
+    void scheduleEvent(
+                    EventHandle                                     *event,
+                    const bsl::chrono::time_point<CLOCK, DURATION>&  epochTime,
+                    const bsl::function<void()>&                     callback);
+        // Schedule the specified 'callback' to be dispatched at the specified
+        // 'epochTime' truncated to microseconds.  Load into the optionally
+        // specified 'event' a handle that can be used to cancel the event (by
+        // invoking 'cancelEvent').  The 'epochTime' is an absolute time
+        // represented as an interval from some epoch, which is determined by
+        // the clock associated with the time point.  This method guarantees
+        // that the event will occur at or after 'epochTime'.  'epochTime' may
+        // be in the past, in which case the event will be executed as soon as
+        // possible.
+#endif
 
     void scheduleEventRaw(Event                        **event,
                           const bsls::TimeInterval&      epochTime,
@@ -712,15 +1015,30 @@ class EventScheduler {
         // Schedule the specified 'callback' to be dispatched at the specified
         // 'epochTime' truncated to microseconds.  Load into the specified
         // 'event' pointer a handle that can be used to cancel the event (by
+        // invoking 'cancelEvent').  The 'epochTime' is an *absolute* time
+        // represented as an interval from some epoch, which is determined by
+        // the clock indicated at construction (see {Supported Clock Types} in
+        // the component documentation).  The 'event' pointer must be released
+        // invoking 'releaseEventRaw' when it is no longer needed.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class CLOCK, class DURATION>
+    void scheduleEventRaw(
+                   Event                                           **event,
+                   const bsl::chrono::time_point<CLOCK, DURATION>&   epochTime,
+                   const bsl::function<void()>&                      callback);
+#endif
+        // Schedule the specified 'callback' to be dispatched at the specified
+        // 'epochTime' truncated to microseconds.  Load into the specified
+        // 'event' pointer a handle that can be used to cancel the event (by
         // invoking 'cancelEvent').  The 'epochTime' is an absolute time
         // represented as an interval from some epoch, which is determined by
-        // the clock indicated at construction (see {Supported Clock-Types} in
-        // the component documentation).  The 'event' pointer must be released
-        // by invoking 'releaseEventRaw' when it is no longer needed.
+        // the clock associated with the time point.  The 'event' pointer must
+        // be released invoking 'releaseEventRaw' when it is no longer needed.
 
-    void scheduleRecurringEvent(const bsls::TimeInterval&     interval,
-                                const bsl::function<void()>&  callback,
-                                const bsls::TimeInterval&     startEpochTime
+    void scheduleRecurringEvent(const bsls::TimeInterval&    interval,
+                                const bsl::function<void()>& callback,
+                                const bsls::TimeInterval&    startEpochTime
                                                       = bsls::TimeInterval(0));
     void scheduleRecurringEvent(RecurringEventHandle         *event,
                                 const bsls::TimeInterval&     interval,
@@ -736,11 +1054,41 @@ class EventScheduler {
         // the event (by invoking 'cancelEvent').  The 'startEpochTime' is an
         // absolute time represented as an interval from some epoch, which is
         // determined by the clock indicated at construction (see {Supported
-        // Clock-Types} in the component documentation).  The behavior is
+        // Clock Types} in the component documentation).  The behavior is
         // undefined unless 'interval' is at least one microsecond.  Note that
         // if 'startEpochTime' is in the past, the first event is dispatched
-        // immediately, and additional '(now - startEpochTime) / interval'
+        // immediately, and additional '(now() - startEpochTime) / interval'
         // events will be submitted serially.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class CLOCK, class REP_TYPE, class PERIOD_TYPE, class DURATION>
+    void scheduleRecurringEvent(
+             const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& interval,
+             const bsl::function<void()>&                        callback,
+             const bsl::chrono::time_point<CLOCK, DURATION>&     startEpochTime
+                      = CLOCK::now());
+    template <class CLOCK, class REP_TYPE, class PERIOD_TYPE, class DURATION>
+    void scheduleRecurringEvent(
+            RecurringEventHandle                                *event,
+            const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>&  interval,
+            const bsl::function<void()>&                         callback,
+            const bsl::chrono::time_point<CLOCK, DURATION>&      startEpochTime
+                      = CLOCK::now());
+        // Schedule a recurring event that invokes the specified 'callback' at
+        // every specified 'interval' truncated to microseconds, with the first
+        // event dispatched at the optionally specified 'startEpochTime'
+        // truncated to microseconds.  If 'startEpochTime' is not specified,
+        // the first event is dispatched at one 'interval' from now.  Load into
+        // the optionally specified 'event' a handle that can be used to cancel
+        // the event (by invoking 'cancelEvent').  The 'startEpochTime' is an
+        // absolute time represented as an interval from some epoch, which is
+        // determined by the clock associated with the time point.  The
+        // behavior is undefined unless 'interval' is at least one microsecond.
+        // Note that if 'startEpochTime' is in the past, the first event is
+        // dispatched immediately, and additional
+        // '(now() - startEpochTime) / interval' events will be submitted
+        // serially.
+#endif
 
     void scheduleRecurringEventRaw(
                                   RecurringEvent               **event,
@@ -757,13 +1105,38 @@ class EventScheduler {
         // the event (by invoking 'cancelEvent').  The 'startEpochTime' is an
         // absolute time represented as an interval from some epoch, which is
         // determined by the clock indicated at construction (see {Supported
-        // Clock-Types} in the component documentation).  The 'event' pointer
+        // Clock Types} in the component documentation).  The 'event' pointer
         // must be released by invoking 'releaseEventRaw' when it is no longer
         // needed.  The behavior is undefined unless 'interval' is at least one
         // microsecond.  Note that if 'startEpochTime' is in the past, the
         // first event is dispatched immediately, and additional
-        // '(now - startEpochTime) / interval' events will be submitted
+        // '(now() - startEpochTime) / interval' events will be submitted
         // serially.
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    template <class CLOCK, class REP_TYPE, class PERIOD_TYPE, class DURATION>
+    void scheduleRecurringEventRaw(
+           RecurringEvent                                      **event,
+           const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>&   interval,
+           const bsl::function<void()>&                          callback,
+           const bsl::chrono::time_point<CLOCK, DURATION>&       startEpochTime
+                                                               = CLOCK::now());
+        // Schedule a recurring event that invokes the specified 'callback' at
+        // every specified 'interval' truncated to microseconds, with the first
+        // event dispatched at the optionally specified 'startEpochTime'
+        // truncated to microseconds.  If 'startEpochTime' is not specified,
+        // the first event is dispatched at one 'interval' from now.  Load into
+        // the specified 'event' pointer a handle that can be used to cancel
+        // the event (by invoking 'cancelEvent').  The 'startEpochTime' is an
+        // absolute time represented as an interval from some epoch, which is
+        // determined by the clock associated with the time point.  The 'event'
+        // pointer must be released by invoking 'releaseEventRaw' when it is no
+        // longer needed.  The behavior is undefined unless 'interval' is at
+        // least one microsecond.  Note that if 'startEpochTime' is in the
+        // past, the first event is dispatched immediately, and additional
+        // '(now() - startEpochTime) / interval' events will be submitted
+        // serially.
+#endif
 
     int start();
         // Begin dispatching events on this scheduler using default attributes
@@ -818,7 +1191,7 @@ class EventScheduler {
     bsls::TimeInterval now() const;
         // Return the current epoch time, an absolute time represented as an
         // interval from some epoch, which is determined by the clock indicated
-        // at construction (see {Supported Clock-Types} in the component
+        // at construction (see {Supported Clock Types} in the component
         // documentation).
 
     int numEvents() const;
@@ -849,8 +1222,7 @@ class EventSchedulerEventHandle
     // method that expects them.
 
     // PRIVATE TYPES
-    typedef bdlcc::SkipList<bsls::Types::Int64,
-                            bsl::function<void()> > EventQueue;
+    typedef EventScheduler::EventQueue EventQueue;
 
     // DATA
     EventQueue::PairHandle  d_handle;
@@ -899,8 +1271,7 @@ class EventSchedulerRecurringEventHandle
     // be used in any method which expects these.
 
     // PRIVATE TYPES
-    typedef bsl::pair<bsl::function<void()>, bsls::TimeInterval>
-                                                       RecurringEventData;
+    typedef EventScheduler::RecurringEventData         RecurringEventData;
     typedef bdlcc::SkipList<bsls::Types::Int64,
                             RecurringEventData>        RecurringEventQueue;
 
@@ -974,7 +1345,7 @@ class EventSchedulerTestTimeSource {
     // CREATORS
     explicit
     EventSchedulerTestTimeSource(EventScheduler *scheduler);
-        // Construct a test time-source object that will control the
+        // Create a test time-source object that will control the
         // "system-time" observed by the specified 'scheduler'.  Initialize
         // 'now' to be an arbitrary time value.  The behavior is undefined if
         // any methods have previously been called on 'scheduler'.
@@ -1106,13 +1477,44 @@ namespace bdlmt {
                             // class EventScheduler
                             // --------------------
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+// PRIVATE CLASS METHODS
+template <class CLOCK, class DURATION>
+// not inline because it gets put into a bsl::function
+bsls::Types::Int64 EventScheduler::timeUntilTrigger(
+                       const bsl::chrono::time_point<CLOCK, DURATION>& absTime)
+{
+    using namespace bsl::chrono;
+
+    auto         now = CLOCK::now();
+    microseconds offset = duration_cast<microseconds>(absTime - now);
+    // If the time to fire is less than one microsecond in the future, then
+    // report it as 1us.
+    return 0 == offset.count() && absTime > now
+           ? 1
+           : static_cast<bsls::Types::Int64>(offset.count());
+}
+
+template <class CLOCK, class DURATION, class REP_TYPE, class PERIOD_TYPE>
+// not inline because it gets put into a bsl::function
+bsls::Types::Int64 EventScheduler::timeUntilTriggerRecurring(
+                const bsl::chrono::time_point<CLOCK, DURATION>&     absTime,
+                const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& interval,
+                int                                                 eventIndex)
+{
+    BSLS_ASSERT(0 <= eventIndex);
+
+    return timeUntilTrigger(absTime + eventIndex * interval);
+}
+#endif
+
 // MANIPULATORS
 inline
 int EventScheduler::cancelEvent(const Event *handle)
 {
     const EventQueue::Pair *itemPtr =
-                        reinterpret_cast<const EventQueue::Pair*>(
-                                        reinterpret_cast<const void*>(handle));
+                       reinterpret_cast<const EventQueue::Pair*>(
+                                       reinterpret_cast<const void*>(handle));
 
     return d_eventQueue.remove(itemPtr);
 }
@@ -1121,24 +1523,17 @@ inline
 int EventScheduler::cancelEvent(const RecurringEvent *handle)
 {
     const RecurringEventQueue::Pair *itemPtr =
-                reinterpret_cast<const RecurringEventQueue::Pair*>(
-                                        reinterpret_cast<const void*>(handle));
+               reinterpret_cast<const RecurringEventQueue::Pair*>(
+                                       reinterpret_cast<const void*>(handle));
 
     return d_recurringQueue.remove(itemPtr);
-}
-
-inline
-void EventScheduler::scheduleEvent(const bsls::TimeInterval&    epochTime,
-                                   const bsl::function<void()>& callback)
-{
-    scheduleEventRaw(0, epochTime, callback);
 }
 
 inline
 void EventScheduler::releaseEventRaw(Event *handle)
 {
     d_eventQueue.releaseReferenceRaw(reinterpret_cast<EventQueue::Pair*>(
-                                             reinterpret_cast<void*>(handle)));
+                                            reinterpret_cast<void*>(handle)));
 }
 
 inline
@@ -1146,8 +1541,195 @@ void EventScheduler::releaseEventRaw(RecurringEvent *handle)
 {
     d_recurringQueue.releaseReferenceRaw(
                          reinterpret_cast<RecurringEventQueue::Pair*>(
-                                             reinterpret_cast<void*>(handle)));
+                                            reinterpret_cast<void*>(handle)));
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class CLOCK, class DURATION>
+int EventScheduler::rescheduleEvent(
+                 const Event                                     *handle,
+                 const bsl::chrono::time_point<CLOCK, DURATION>&  newEpochTime)
+{
+    BSLS_ASSERT(handle);
+
+    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+        return rescheduleEvent(handle, newEpochTime.time_since_epoch());
+                                                                      // RETURN
+    }
+
+    const EventQueue::Pair *h = reinterpret_cast<const EventQueue::Pair *>(
+                                       reinterpret_cast<const void *>(handle));
+
+    bool                           isNewTop;
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    bsls::TimeInterval             offsetFromNow(newEpochTime - CLOCK::now());
+
+    h->data().d_nowOffset =
+         bdlf::BindUtil::bind(timeUntilTrigger<CLOCK, DURATION>, newEpochTime);
+
+    int ret = d_eventQueue.updateR(h,
+                                   (now() + offsetFromNow).totalMicroseconds(),
+                                   &isNewTop);
+
+    if (0 == ret && isNewTop) {
+        d_queueCondition.signal();
+    }
+    return ret;
+}
+
+template <class CLOCK, class DURATION>
+int EventScheduler::rescheduleEventAndWait(
+                 const Event                                     *handle,
+                 const bsl::chrono::time_point<CLOCK, DURATION>&  newEpochTime)
+{
+    BSLS_ASSERT(handle);
+
+    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+        return rescheduleEventAndWait(handle, newEpochTime.time_since_epoch());
+                                                                      // RETURN
+    }
+
+    int                     ret;
+    const EventQueue::Pair *h =
+        reinterpret_cast<const EventQueue::Pair *>(
+                                       reinterpret_cast<const void *>(handle));
+    {
+        bool                           isNewTop;
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        bsls::TimeInterval             offsetFromNow(
+                                                  newEpochTime - CLOCK::now());
+
+        h->data().d_nowOffset = bdlf::BindUtil::bind
+                             (timeUntilTrigger<CLOCK, DURATION>, newEpochTime);
+        ret = d_eventQueue.updateR(h,
+                                   (now() + offsetFromNow).totalMicroseconds(),
+                                   &isNewTop);
+
+        if (0 == ret) {
+            if (isNewTop) {
+                d_queueCondition.signal();
+            }
+            if (d_currentEvent != h) {
+                return 0;                                             // RETURN
+            }
+        }
+    }
+
+    // Wait until event is rescheduled or dispatched.
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    while (1) {
+        if (d_currentEvent != h) {
+            break;
+        }
+        else {
+            d_dispatcherAwaited = true;
+            d_iterationCondition.wait(&d_mutex);
+        }
+    }
+
+    return ret;
+}
+#endif
+
+inline
+void EventScheduler::scheduleEvent(const bsls::TimeInterval&    epochTime,
+                                   const bsl::function<void()>& callback)
+{
+    scheduleEventRaw(0,
+                     epochTime,
+                     EventData(callback, EventScheduler::returnZero));
+}
+
+inline
+void EventScheduler::scheduleEvent(EventHandle                  *event,
+                                   const bsls::TimeInterval&     epochTime,
+                                   const bsl::function<void()>&  callback)
+{
+    scheduleEvent(event, epochTime, EventData(callback, returnZero));
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class CLOCK, class DURATION>
+inline
+void EventScheduler::scheduleEvent(
+                     const bsl::chrono::time_point<CLOCK, DURATION>& epochTime,
+                     const bsl::function<void()>&                    callback)
+{
+    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+        scheduleEvent(epochTime.time_since_epoch(), callback);
+    }
+    else {
+        bsls::TimeInterval offsetFromNow(epochTime - CLOCK::now());
+        scheduleEventRaw(
+            0,
+            now() + offsetFromNow,
+            EventData(
+                callback,
+                bdlf::BindUtil::bind(
+                    timeUntilTrigger<CLOCK, DURATION>,
+                    epochTime)
+                ));
+    }
+}
+
+template <class CLOCK, class DURATION>
+void EventScheduler::scheduleEvent(
+                    EventHandle                                     *event,
+                    const bsl::chrono::time_point<CLOCK, DURATION>&  epochTime,
+                    const bsl::function<void()>&                     callback)
+{
+    BSLS_ASSERT(event);
+
+    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+        scheduleEvent(event, epochTime.time_since_epoch(), callback);
+    }
+    else {
+        bsls::TimeInterval offsetFromNow(epochTime - CLOCK::now());
+
+        scheduleEvent(
+            event,
+            now() + offsetFromNow,
+            EventData(
+             callback,
+             bdlf::BindUtil::bind(timeUntilTrigger<CLOCK, DURATION>, epochTime)
+            ));
+    }
+}
+
+template <class CLOCK, class DURATION>
+void EventScheduler::scheduleEventRaw(
+                   Event                                           **event,
+                   const bsl::chrono::time_point<CLOCK, DURATION>&   epochTime,
+                   const bsl::function<void()>&                      callback)
+{
+    BSLS_ASSERT(event);
+
+    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+        scheduleEventRaw(event, epochTime.time_since_epoch(), callback);
+    }
+    else {
+        using namespace bsl::chrono;
+
+        microseconds stime =
+                     duration_cast<microseconds>(epochTime.time_since_epoch());
+
+        bool newTop;
+        d_eventQueue.addRawR((EventQueue::Pair **)event,
+                             (bsls::Types::Int64) stime.count(),
+                             EventData(
+                                 callback,
+                                 bdlf::BindUtil::bind(
+                                    timeUntilTrigger<CLOCK, DURATION>,
+                                    epochTime)),
+                             &newTop);
+
+        if (newTop) {
+            bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+            d_queueCondition.signal();
+        }
+    }
+}
+#endif
 
 inline
 void EventScheduler::scheduleRecurringEvent(
@@ -1155,8 +1737,142 @@ void EventScheduler::scheduleRecurringEvent(
                                    const bsl::function<void()>& callback,
                                    const bsls::TimeInterval&    startEpochTime)
 {
+    // Note that when this review is converted to an assert, the following
+    // assert is redundant and can be removed.
+    BSLS_REVIEW(1 <= interval.totalMicroseconds());
+    BSLS_ASSERT(0 != interval);
+
     scheduleRecurringEventRaw(0, interval, callback, startEpochTime);
 }
+
+inline
+void EventScheduler::scheduleRecurringEvent(
+                                  RecurringEventHandle         *event,
+                                  const bsls::TimeInterval&     interval,
+                                  const bsl::function<void()>&  callback,
+                                  const bsls::TimeInterval&     startEpochTime)
+{
+    // Note that when this review is converted to an assert, the following
+    // assert is redundant and can be removed.
+    BSLS_REVIEW(1 <= interval.totalMicroseconds());
+    BSLS_ASSERT(0 != interval);
+    BSLS_ASSERT(event);
+
+    scheduleRecurringEvent(
+                      event,
+                      RecurringEventData(interval, callback, returnZeroInt),
+                      startEpochTime);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class CLOCK, class REP_TYPE, class PERIOD_TYPE, class DURATION>
+void
+EventScheduler::scheduleRecurringEvent(
+            const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& interval,
+            const bsl::function<void()>&                        callback,
+            const bsl::chrono::time_point<CLOCK, DURATION>&     startEpochTime)
+{
+    BSLS_ASSERT(bsl::chrono::microseconds(1) <= interval);
+
+    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+        scheduleRecurringEvent(interval,
+                               callback,
+                               startEpochTime.time_since_epoch());
+    }
+    else {
+        using namespace bsl::chrono;
+
+        bsls::TimeInterval offsetFromNow(startEpochTime - CLOCK::now());
+
+        scheduleRecurringEventRaw(
+            0,
+            RecurringEventData(
+                interval,
+                callback,
+                bdlf::BindUtil::bind(
+                    timeUntilTriggerRecurring
+                                      <CLOCK, DURATION, REP_TYPE, PERIOD_TYPE>,
+                    startEpochTime,
+                    interval,
+                    bdlf::PlaceHolders::_1)),
+            now() + offsetFromNow);
+    }
+}
+
+template <class CLOCK, class REP_TYPE, class PERIOD_TYPE, class DURATION>
+void
+EventScheduler::scheduleRecurringEvent(
+           RecurringEventHandle                                *event,
+           const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>&  interval,
+           const bsl::function<void()>&                         callback,
+           const bsl::chrono::time_point<CLOCK, DURATION>&      startEpochTime)
+{
+    BSLS_ASSERT(event);
+    BSLS_ASSERT(bsl::chrono::microseconds(1) <= interval);
+
+    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+        scheduleRecurringEvent(event,
+                               interval,
+                               callback,
+                               startEpochTime.time_since_epoch());
+    }
+    else {
+        using namespace bsl::chrono;
+
+        bsls::TimeInterval offsetFromNow(startEpochTime - CLOCK::now());
+
+        scheduleRecurringEvent(
+            event,
+            RecurringEventData(
+                interval,
+                callback,
+                bdlf::BindUtil::bind(
+                  timeUntilTriggerRecurring
+                                      <CLOCK, DURATION, REP_TYPE, PERIOD_TYPE>,
+                  startEpochTime,
+                  interval,
+                  bdlf::PlaceHolders::_1)),
+            now() + offsetFromNow);
+    }
+}
+
+template <class CLOCK, class REP_TYPE, class PERIOD_TYPE, class DURATION>
+void
+EventScheduler::scheduleRecurringEventRaw(
+          RecurringEvent                                      **event,
+          const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>&   interval,
+          const bsl::function<void()>&                          callback,
+          const bsl::chrono::time_point<CLOCK, DURATION>&       startEpochTime)
+{
+    BSLS_ASSERT(event);
+    BSLS_ASSERT(bsl::chrono::microseconds(1) <= interval);
+
+    if (bslmt::ChronoUtil::isMatchingClock<CLOCK>(d_clockType)) {
+        scheduleRecurringEventRaw(event,
+                                  interval,
+                                  callback,
+                                  startEpochTime.time_since_epoch());
+    }
+    else {
+        using namespace bsl::chrono;
+
+        bsls::TimeInterval offsetFromNow(startEpochTime - CLOCK::now());
+
+        scheduleRecurringEventRaw(
+            event,
+            RecurringEventData(
+                interval,
+                callback,
+                bdlf::BindUtil::bind(
+                    timeUntilTriggerRecurring
+                                      <CLOCK, DURATION, REP_TYPE, PERIOD_TYPE>,
+                    startEpochTime,
+                    interval,
+                    bdlf::PlaceHolders::_1)),
+            now() + offsetFromNow);
+    }
+}
+#endif
 
 // ACCESSORS
 inline
