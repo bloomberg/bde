@@ -838,7 +838,7 @@ class vectorBase {
 
     reference at(size_type position);
         // Return a reference providing modifiable access to the element at the
-        // specified 'position' in this vector.  Throw a 'bsl::out_of_range'
+        // specified 'position' in this vector.  Throw a 'std::out_of_range'
         // exception if 'position >= size()'.
 
     reference front();

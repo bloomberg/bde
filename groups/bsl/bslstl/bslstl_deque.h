@@ -593,7 +593,7 @@ class Deque_Base {
 
     reference at(size_type position);
         // Return a reference providing modifiable access to the element at the
-        // specified 'position' in this deque.  Throw a 'bsl::out_of_range'
+        // specified 'position' in this deque.  Throw a 'std::out_of_range'
         // exception if 'position >= size()'.
 
     reference front();
@@ -656,7 +656,7 @@ class Deque_Base {
 
     const_reference at(size_type position) const;
         // Return a reference providing non-modifiable access to the element at
-        // the specified 'position' in this deque.  Throw a 'bsl::out_of_range'
+        // the specified 'position' in this deque.  Throw a 'std::out_of_range'
         // exception if 'position >= size()'.
 
     const_reference front() const;

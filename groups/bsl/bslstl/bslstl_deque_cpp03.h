@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Fri Oct 23 15:03:44 2020
+// Generated on Mon Jul 26 19:54:55 2021
 // Command line: sim_cpp11_features.pl bslstl_deque.h
 
 #ifdef COMPILING_BSLSTL_DEQUE_H
@@ -170,7 +170,7 @@ class Deque_Base {
 
     reference at(size_type position);
         // Return a reference providing modifiable access to the element at the
-        // specified 'position' in this deque.  Throw a 'bsl::out_of_range'
+        // specified 'position' in this deque.  Throw a 'std::out_of_range'
         // exception if 'position >= size()'.
 
     reference front();
@@ -233,7 +233,7 @@ class Deque_Base {
 
     const_reference at(size_type position) const;
         // Return a reference providing non-modifiable access to the element at
-        // the specified 'position' in this deque.  Throw a 'bsl::out_of_range'
+        // the specified 'position' in this deque.  Throw a 'std::out_of_range'
         // exception if 'position >= size()'.
 
     const_reference front() const;
@@ -6438,7 +6438,7 @@ struct UsesBslmaAllocator<bsl::deque<VALUE_TYPE, ALLOCATOR> >
 #endif // ! defined(INCLUDED_BSLSTL_DEQUE_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2021 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

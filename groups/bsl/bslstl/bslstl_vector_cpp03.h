@@ -21,7 +21,7 @@
 // specially delimited regions of C++11 code, then this header contains no
 // code and is not '#include'd in the original header.
 //
-// Generated on Thu Jun 10 09:59:24 2021
+// Generated on Mon Jul 26 19:49:55 2021
 // Command line: sim_cpp11_features.pl bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
@@ -247,7 +247,7 @@ class vectorBase {
 
     reference at(size_type position);
         // Return a reference providing modifiable access to the element at the
-        // specified 'position' in this vector.  Throw a 'bsl::out_of_range'
+        // specified 'position' in this vector.  Throw a 'std::out_of_range'
         // exception if 'position >= size()'.
 
     reference front();
