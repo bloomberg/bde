@@ -805,10 +805,10 @@ class TimeQueue {
         // incrementing the iteration count.  Set 'd_prev_p' field to 0.
 
     template <class VECTOR>
-    void popLE_Impl(const bsls::TimeInterval&  time,
-                    VECTOR                    *buffer,
-                    int                       *newLength = 0,
-                    bsls::TimeInterval        *newMinTime = 0);
+    void popLEImp(const bsls::TimeInterval&  time,
+                  VECTOR                    *buffer,
+                  int                       *newLength = 0,
+                  bsls::TimeInterval        *newMinTime = 0);
         // Remove from this queue all the items that have a time value less
         // than or equal to the specified 'time', and optionally append into
         // the optionally specified 'buffer' a list of the removed items,
@@ -824,11 +824,11 @@ class TimeQueue {
         // supply memory for the items appended to the 'buffer'.
 
     template <class VECTOR>
-    void popLE_Impl(const bsls::TimeInterval&  time,
-                    int                        maxTimers,
-                    VECTOR                    *buffer,
-                    int                       *newLength = 0,
-                    bsls::TimeInterval        *newMinTime = 0);
+    void popLEImp(const bsls::TimeInterval&  time,
+                  int                        maxTimers,
+                  VECTOR                    *buffer,
+                  int                       *newLength = 0,
+                  bsls::TimeInterval        *newMinTime = 0);
         // Remove from this queue up to the specified 'maxTimers' number of
         // items that have a time value less than or equal to the specified
         // 'time', and optionally append into the optionally specified 'buffer'
@@ -1185,10 +1185,10 @@ void TimeQueue<DATA>::freeNode(Node *node)
 
 template <class DATA>
 template <class VECTOR>
-void TimeQueue<DATA>::popLE_Impl(const bsls::TimeInterval&  time,
-                                 VECTOR                    *buffer,
-                                 int                       *newLength,
-                                 bsls::TimeInterval        *newMinTime)
+void TimeQueue<DATA>::popLEImp(const bsls::TimeInterval&  time,
+                               VECTOR                    *buffer,
+                               int                       *newLength,
+                               bsls::TimeInterval        *newMinTime)
 {
     BSLMF_ASSERT(IsVector<VECTOR>::value);
 
@@ -1236,11 +1236,11 @@ void TimeQueue<DATA>::popLE_Impl(const bsls::TimeInterval&  time,
 
 template <class DATA>
 template <class VECTOR>
-void TimeQueue<DATA>::popLE_Impl(const bsls::TimeInterval&  time,
-                                 int                        maxTimers,
-                                 VECTOR                    *buffer,
-                                 int                       *newLength,
-                                 bsls::TimeInterval        *newMinTime)
+void TimeQueue<DATA>::popLEImp(const bsls::TimeInterval&  time,
+                               int                        maxTimers,
+                               VECTOR                    *buffer,
+                               int                       *newLength,
+                               bsls::TimeInterval        *newMinTime)
 {
     BSLS_ASSERT(0 <= maxTimers);
 
@@ -1566,7 +1566,7 @@ template <class DATA>
 inline
 void TimeQueue<DATA>::popLE(const bsls::TimeInterval& time)
 {
-    popLE_Impl(time, static_cast<bsl::vector<TimeQueueItem<DATA> > *>(0));
+    popLEImp(time, static_cast<bsl::vector<TimeQueueItem<DATA> > *>(0));
 }
 
 template <class DATA>
@@ -1576,7 +1576,7 @@ void TimeQueue<DATA>::popLE(const bsls::TimeInterval&          time,
                             int                               *newLength,
                             bsls::TimeInterval                *newMinTime)
 {
-    popLE_Impl(time, buffer, newLength, newMinTime);
+    popLEImp(time, buffer, newLength, newMinTime);
 }
 
 template <class DATA>
@@ -1586,7 +1586,7 @@ void TimeQueue<DATA>::popLE(const bsls::TimeInterval&          time,
                             int                               *newLength,
                             bsls::TimeInterval                *newMinTime)
 {
-    popLE_Impl(time, buffer, newLength, newMinTime);
+    popLEImp(time, buffer, newLength, newMinTime);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
@@ -1597,7 +1597,7 @@ void TimeQueue<DATA>::popLE(const bsls::TimeInterval&               time,
                             int                                    *newLength,
                             bsls::TimeInterval                     *newMinTime)
 {
-    popLE_Impl(time, buffer, newLength, newMinTime);
+    popLEImp(time, buffer, newLength, newMinTime);
 }
 #endif
 
@@ -1605,9 +1605,9 @@ template <class DATA>
 inline
 void TimeQueue<DATA>::popLE(const bsls::TimeInterval& time, int maxTimers)
 {
-    popLE_Impl(time,
-               maxTimers,
-               static_cast<bsl::vector<TimeQueueItem<DATA> > *>(0));
+    popLEImp(time,
+             maxTimers,
+             static_cast<bsl::vector<TimeQueueItem<DATA> > *>(0));
 }
 
 template <class DATA>
@@ -1618,7 +1618,7 @@ void TimeQueue<DATA>::popLE(const bsls::TimeInterval&          time,
                             int                               *newLength,
                             bsls::TimeInterval                *newMinTime)
 {
-    popLE_Impl(time, maxTimers, buffer, newLength, newMinTime);
+    popLEImp(time, maxTimers, buffer, newLength, newMinTime);
 }
 
 template <class DATA>
@@ -1629,7 +1629,7 @@ void TimeQueue<DATA>::popLE(const bsls::TimeInterval&          time,
                             int                               *newLength,
                             bsls::TimeInterval                *newMinTime)
 {
-    popLE_Impl(time, maxTimers, buffer, newLength, newMinTime);
+    popLEImp(time, maxTimers, buffer, newLength, newMinTime);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
@@ -1641,7 +1641,7 @@ void TimeQueue<DATA>::popLE(const bsls::TimeInterval&               time,
                             int                                    *newLength,
                             bsls::TimeInterval                     *newMinTime)
 {
-    popLE_Impl(time, maxTimers, buffer, newLength, newMinTime);
+    popLEImp(time, maxTimers, buffer, newLength, newMinTime);
 }
 #endif
 

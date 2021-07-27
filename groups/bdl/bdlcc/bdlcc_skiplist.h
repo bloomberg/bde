@@ -963,7 +963,7 @@ class SkipList {
         // method must be called under the lock.
 
     template <class VECTOR>
-    int removeAll_Impl(VECTOR *removed);
+    int removeAllImp(VECTOR *removed);
         // Remove all items from this list.  Optionally specify 'removed', a
         // vector to which to append handles to the removed nodes.  The items
         // appended to 'removed' will be in ascending order by key value.
@@ -2259,29 +2259,59 @@ int SkipList<KEY, DATA>::removeAllMaybeUnlock(VECTOR *removed, bool unlock)
     return numRemoved;
 }
 
-template <class KEY, class DATA>
-template <class VECTOR>
-int SkipList<KEY, DATA>::removeAll_Impl(VECTOR *removed)
+template<class KEY, class DATA>
+template<class VECTOR>
+int SkipList<KEY, DATA>::removeAllImp(VECTOR *removed)
 {
     BSLMF_ASSERT((IsVector<VECTOR, PairHandle>::value));
 
-    bsl::vector<Pair *> removedRaw;
+    int numRemoved = 0;
+    Node *begin, *end;
 
-    int rc = removeAllRaw(removed ? &removedRaw : 0);
-    if (0 == removed) {
-        return rc;                                                    // RETURN
-    }
-    else {
-        for (typename bsl::vector<Pair *>::iterator it = removedRaw.begin();
-             it != removedRaw.end();
-             ++it)
-        {
-            PairHandle item(this, *it);
-            removed->push_back(item);
-;
+    {
+        LockGuard guard(&d_lock);
+
+        begin = d_head_p->d_ptrs[0].d_next_p;
+        end   = d_tail_p;
+
+        Node *p       = d_head_p;
+        Node *q       = p->d_ptrs[0].d_next_p;
+
+        while (q != d_tail_p) {
+            p = q;
+            q = p->d_ptrs[0].d_next_p;
+
+            numRemoved++;
+        }
+        d_length -= numRemoved;
+
+        for (int i = 0; i <= d_listLevel; ++i) {
+            d_head_p->d_ptrs[i].d_next_p = d_tail_p;
+            d_tail_p->d_ptrs[i].d_prev_p = d_head_p;
         }
     }
-    return rc;
+
+    if (removed) {
+        removed->reserve(removed->size() + numRemoved);
+        while (begin != end) {
+            Node *condemned = begin;
+            begin = begin->d_ptrs[0].d_next_p;
+
+            removed->push_back(PairHandle(this, reinterpret_cast<Pair *>(
+                                                                  condemned)));
+            condemned->d_ptrs[0].d_next_p = 0;
+        }
+    }
+    else {
+        while (begin != end) {
+            Node *condemned = begin;
+            begin = begin->d_ptrs[0].d_next_p;
+
+            releaseNode(condemned);
+        }
+    }
+
+    return numRemoved;
 }
 
 template<class KEY, class DATA>
@@ -3092,21 +3122,21 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::removeAll()
 {
-    return removeAll_Impl(static_cast<bsl::vector<PairHandle> *>(0));
+    return removeAllImp(static_cast<bsl::vector<PairHandle> *>(0));
 }
 
 template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::removeAll(bsl::vector<PairHandle> *removed)
 {
-    return removeAll_Impl(removed);
+    return removeAllImp(removed);
 }
 
 template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::removeAll(std::vector<PairHandle> *removed)
 {
-    return removeAll_Impl(removed);
+    return removeAllImp(removed);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
@@ -3114,7 +3144,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::removeAll(std::pmr::vector<PairHandle> *removed)
 {
-    return removeAll_Impl(removed);
+    return removeAllImp(removed);
 }
 #endif
 

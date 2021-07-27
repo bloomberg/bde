@@ -488,13 +488,13 @@ class Queue {
 
     // PRIVATE MANIPULATORS
     template <class VECTOR>
-    void removeAllImpl(VECTOR *buffer = 0);
+    void removeAllImp(VECTOR *buffer = 0);
         // Remove all the items in this queue.  If the optionally specified
         // 'buffer' is not 0, load into 'buffer' a copy of the items removed in
         // front to back order of the queue prior to 'removeAll'.
 
     template <class VECTOR>
-    void tryPopFrontImpl(int maxNumItems, VECTOR *buffer);
+    void tryPopFrontImp(int maxNumItems, VECTOR *buffer);
         // Remove up to the specified 'maxNumItems' from the front of this
         // queue.  Optionally specify a 'buffer' into which the items removed
         // from the queue are loaded.  If 'buffer' is non-null, the removed
@@ -504,7 +504,7 @@ class Queue {
         // unless 'maxNumItems >= 0'.  This method never blocks.
 
     template <class VECTOR>
-    void tryPopBackImpl(int maxNumItems, VECTOR *buffer);
+    void tryPopBackImp(int maxNumItems, VECTOR *buffer);
         // Remove up to the specified 'maxNumItems' from the back of this
         // queue.  Optionally specify a 'buffer' into which the items removed
         // from the queue are loaded.  If 'buffer' is non-null, the removed
@@ -792,7 +792,7 @@ class Queue {
 // PRIVATE MANIPULATORS
 template <class TYPE>
 template <class VECTOR>
-void Queue<TYPE>::removeAllImpl(VECTOR *buffer)
+void Queue<TYPE>::removeAllImp(VECTOR *buffer)
 {
     BSLMF_ASSERT(IsVector<VECTOR>::value);
 
@@ -817,7 +817,7 @@ void Queue<TYPE>::removeAllImpl(VECTOR *buffer)
 
 template <class TYPE>
 template <class VECTOR>
-void Queue<TYPE>::tryPopFrontImpl(int maxNumItems, VECTOR *buffer)
+void Queue<TYPE>::tryPopFrontImp(int maxNumItems, VECTOR *buffer)
 {
     BSLMF_ASSERT(IsVector<VECTOR>::value);
 
@@ -849,7 +849,7 @@ void Queue<TYPE>::tryPopFrontImpl(int maxNumItems, VECTOR *buffer)
 
 template <class TYPE>
 template <class VECTOR>
-void Queue<TYPE>::tryPopBackImpl(int maxNumItems, VECTOR *buffer)
+void Queue<TYPE>::tryPopBackImp(int maxNumItems, VECTOR *buffer)
 {
     BSLMF_ASSERT(IsVector<VECTOR>::value);
 
@@ -1101,21 +1101,21 @@ template <class TYPE>
 inline
 void Queue<TYPE>::tryPopFront(int maxNumItems)
 {
-    tryPopFrontImpl(maxNumItems, static_cast<bsl::vector<TYPE> *>(0));
+    tryPopFrontImp(maxNumItems, static_cast<bsl::vector<TYPE> *>(0));
 }
 
 template <class TYPE>
 inline
 void Queue<TYPE>::tryPopFront(int maxNumItems, bsl::vector<TYPE> *buffer)
 {
-    tryPopFrontImpl(maxNumItems, buffer);
+    tryPopFrontImp(maxNumItems, buffer);
 }
 
 template <class TYPE>
 inline
 void Queue<TYPE>::tryPopFront(int maxNumItems, std::vector<TYPE> *buffer)
 {
-    tryPopFrontImpl(maxNumItems, buffer);
+    tryPopFrontImp(maxNumItems, buffer);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
@@ -1123,7 +1123,7 @@ template <class TYPE>
 inline
 void Queue<TYPE>::tryPopFront(int maxNumItems, std::pmr::vector<TYPE> *buffer)
 {
-    tryPopFrontImpl(maxNumItems, buffer);
+    tryPopFrontImp(maxNumItems, buffer);
 }
 #endif
 
@@ -1152,21 +1152,21 @@ template <class TYPE>
 inline
 void Queue<TYPE>::tryPopBack(int maxNumItems)
 {
-    tryPopBackImpl(maxNumItems, static_cast<bsl::vector<TYPE> *>(0));
+    tryPopBackImp(maxNumItems, static_cast<bsl::vector<TYPE> *>(0));
 }
 
 template <class TYPE>
 inline
 void Queue<TYPE>::tryPopBack(int maxNumItems, bsl::vector<TYPE> *buffer)
 {
-    tryPopBackImpl(maxNumItems, buffer);
+    tryPopBackImp(maxNumItems, buffer);
 }
 
 template <class TYPE>
 inline
 void Queue<TYPE>::tryPopBack(int maxNumItems, std::vector<TYPE> *buffer)
 {
-    tryPopBackImpl(maxNumItems, buffer);
+    tryPopBackImp(maxNumItems, buffer);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
@@ -1174,33 +1174,33 @@ template <class TYPE>
 inline
 void Queue<TYPE>::tryPopBack(int maxNumItems, std::pmr::vector<TYPE> *buffer)
 {
-    tryPopBackImpl(maxNumItems, buffer);
+    tryPopBackImp(maxNumItems, buffer);
 }
 #endif
 
 template <class TYPE>
 void Queue<TYPE>::removeAll()
 {
-    removeAllImpl(static_cast<bsl::vector<TYPE> *>(0));
+    removeAllImp(static_cast<bsl::vector<TYPE> *>(0));
 }
 
 template <class TYPE>
 void Queue<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 {
-    removeAllImpl(buffer);
+    removeAllImp(buffer);
 }
 
 template <class TYPE>
 void Queue<TYPE>::removeAll(std::vector<TYPE> *buffer)
 {
-    removeAllImpl(buffer);
+    removeAllImp(buffer);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 template <class TYPE>
 void Queue<TYPE>::removeAll(std::pmr::vector<TYPE> *buffer)
 {
-    removeAllImpl(buffer);
+    removeAllImp(buffer);
 }
 #endif
 

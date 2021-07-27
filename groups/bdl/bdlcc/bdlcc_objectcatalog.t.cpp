@@ -1351,13 +1351,16 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
 
     spec = "AB10";
     ASSERT(hasSpecElements(X, spec));
-
     bsl::vector<ELEMENT> vBsl(&ta);
     mX.removeAll(&vBsl);
     ASSERT(hasSpecElements(vBsl, spec));
     bsltf::MoveState::Enum ms = getMovedInto(vBsl[0]);
     ASSERTV(tName, ms, s_expMoved, s_expMoved == ms);
     ASSERT(0 == X.length());
+    ASSERT(hasSpecElements(X, ""));
+
+    gg(&mX, "ABEF", &handles);
+    mX.removeAll();
     ASSERT(hasSpecElements(X, ""));
 
     // It's important not to 'removeAll' to 'std::vector' here, since on C++03
@@ -1486,8 +1489,13 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyable()
     ASSERT(!X.isMember(VS[2]));
 
     spec = "AB10";
-    ASSERT(hasSpecElements(X, spec));
 
+    ASSERT(hasSpecElements(X, spec));
+    mX.removeAll();
+    ASSERT(0 == X.length());
+    ASSERT(hasSpecElements(X, ""));
+
+    gg(&mX, spec);
     bsl::vector<ELEMENT> vBsl(&ta);
     mX.removeAll(&vBsl);
     ASSERT(hasSpecElements(vBsl, spec));

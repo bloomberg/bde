@@ -445,6 +445,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_movableref.h>
 
@@ -539,7 +540,7 @@ class Deque {
 
     // PRIVATE MANIPULATORS
     template <class VECTOR>
-    void removeAllImpl(VECTOR *buffer = 0);
+    void removeAllImp(VECTOR *buffer = 0);
         // If the optionally specified 'buffer' is non-zero, append all the
         // elements from this container to '*buffer' in the same order, then,
         // regardless of whether 'buffer' is zero, clear this container.  Note
@@ -547,8 +548,8 @@ class Deque {
         // removed items are appended to it.
 
     template <class VECTOR>
-    void tryPopBackImpl(size_type  maxNumItems,
-                        VECTOR    *buffer);
+    void tryPopBackImp(size_type  maxNumItems,
+                       VECTOR    *buffer);
         // Remove up to the specified 'maxNumItems' from the back of this
         // container.  Optionally specify a 'buffer' into which the items
         // removed from the container are loaded.  If 'buffer' is non-null, the
@@ -560,8 +561,8 @@ class Deque {
         // the popped items are appended after any pre-existing contents.
 
     template <class VECTOR>
-    void tryPopFrontImpl(size_type  maxNumItems,
-                         VECTOR    *buffer);
+    void tryPopFrontImp(size_type  maxNumItems,
+                        VECTOR    *buffer);
         // Remove up to the specified 'maxNumItems' from the front of this
         // container.  Optionally specify a 'buffer' into which the items
         // removed from the container are appended.  If 'buffer' is non-null,
@@ -1524,7 +1525,7 @@ void Deque<TYPE>::VectorThrowGuard<VECTOR>::release()
 template <class TYPE>
 template <class VECTOR>
 inline
-void Deque<TYPE>::removeAllImpl(VECTOR *buffer)
+void Deque<TYPE>::removeAllImp(VECTOR *buffer)
 {
     BSLMF_ASSERT(IsVector<VECTOR>::value);
 
@@ -1549,8 +1550,8 @@ void Deque<TYPE>::removeAllImpl(VECTOR *buffer)
 
 template <class TYPE>
 template <class VECTOR>
-void Deque<TYPE>::tryPopBackImpl(typename Deque<TYPE>::size_type  maxNumItems,
-                                 VECTOR                          *buffer)
+void Deque<TYPE>::tryPopBackImp(typename Deque<TYPE>::size_type  maxNumItems,
+                                VECTOR                          *buffer)
 {
     BSLMF_ASSERT(IsVector<VECTOR>::value);
 
@@ -1580,8 +1581,8 @@ void Deque<TYPE>::tryPopBackImpl(typename Deque<TYPE>::size_type  maxNumItems,
 
 template <class TYPE>
 template <class VECTOR>
-void Deque<TYPE>::tryPopFrontImpl(typename Deque<TYPE>::size_type  maxNumItems,
-                                  VECTOR                          *buffer)
+void Deque<TYPE>::tryPopFrontImp(typename Deque<TYPE>::size_type  maxNumItems,
+                                 VECTOR                          *buffer)
 {
     BSLMF_ASSERT(IsVector<VECTOR>::value);
 
@@ -2022,21 +2023,21 @@ template <class TYPE>
 inline
 void Deque<TYPE>::removeAll()
 {
-    removeAllImpl(static_cast<bsl::vector<TYPE> *>(0));
+    removeAllImp(static_cast<bsl::vector<TYPE> *>(0));
 }
 
 template <class TYPE>
 inline
 void Deque<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 {
-    removeAllImpl(buffer);
+    removeAllImp(buffer);
 }
 
 template <class TYPE>
 inline
 void Deque<TYPE>::removeAll(std::vector<TYPE> *buffer)
 {
-    removeAllImpl(buffer);
+    removeAllImp(buffer);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
@@ -2044,7 +2045,7 @@ template <class TYPE>
 inline
 void Deque<TYPE>::removeAll(std::pmr::vector<TYPE> *buffer)
 {
-    removeAllImpl(buffer);
+    removeAllImp(buffer);
 }
 #endif
 
@@ -2219,7 +2220,7 @@ template <class TYPE>
 inline
 void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems)
 {
-    tryPopBackImpl(maxNumItems, static_cast<bsl::vector<TYPE> *>(0));
+    tryPopBackImp(maxNumItems, static_cast<bsl::vector<TYPE> *>(0));
 }
 
 template <class TYPE>
@@ -2227,7 +2228,7 @@ inline
 void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems,
                              bsl::vector<TYPE>               *buffer)
 {
-    tryPopBackImpl(maxNumItems, buffer);
+    tryPopBackImp(maxNumItems, buffer);
 }
 
 template <class TYPE>
@@ -2235,7 +2236,7 @@ inline
 void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems,
                              std::vector<TYPE>               *buffer)
 {
-    tryPopBackImpl(maxNumItems, buffer);
+    tryPopBackImp(maxNumItems, buffer);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
@@ -2244,7 +2245,7 @@ inline
 void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems,
                              std::pmr::vector<TYPE>          *buffer)
 {
-    tryPopBackImpl(maxNumItems, buffer);
+    tryPopBackImp(maxNumItems, buffer);
 }
 #endif
 
@@ -2278,21 +2279,21 @@ int Deque<TYPE>::tryPopFront(TYPE *item)
 template <class TYPE>
 void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems)
 {
-    tryPopFrontImpl(maxNumItems, static_cast<bsl::vector<TYPE> *>(0));
+    tryPopFrontImp(maxNumItems, static_cast<bsl::vector<TYPE> *>(0));
 }
 
 template <class TYPE>
 void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems,
                               bsl::vector<TYPE>               *buffer)
 {
-    tryPopFrontImpl(maxNumItems, buffer);
+    tryPopFrontImp(maxNumItems, buffer);
 }
 
 template <class TYPE>
 void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems,
                               std::vector<TYPE>               *buffer)
 {
-    tryPopFrontImpl(maxNumItems, buffer);
+    tryPopFrontImp(maxNumItems, buffer);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
@@ -2300,7 +2301,7 @@ template <class TYPE>
 void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems,
                               std::pmr::vector<TYPE>          *buffer)
 {
-    tryPopFrontImpl(maxNumItems, buffer);
+    tryPopFrontImp(maxNumItems, buffer);
 }
 #endif
 

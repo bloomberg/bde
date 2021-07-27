@@ -15,12 +15,6 @@
 #include <bdlt_intervalconversionutil.h>
 #include <bdlt_datetime.h>
 
-#include <bsla_fallthrough.h>
-#include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
-#include <bslma_usesbslmaallocator.h>
-#include <bslmf_assert.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_barrier.h>
 #include <bslmt_condition.h>
@@ -30,6 +24,21 @@
 #include <bslmt_testutil.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
+
+#include <bsltf_streamutil.h>
+#include <bsltf_templatetestfacility.h>
+
+#include <bslalg_constructorproxy.h>
+
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_assert.h>
+
+#include <bsla_fallthrough.h>
+
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_nameof.h>
@@ -40,8 +49,6 @@
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
-#include <bsltf_streamutil.h>
-#include <bsltf_templatetestfacility.h>
 
 #include <bsl_algorithm.h>    // 'min'
 #include <bsl_cstdlib.h>
@@ -175,12 +182,10 @@ namespace u {
 
 enum VecType { e_BSL,
                e_STD,
-               e_PMR,
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-               e_NUM_VEC_TYPES = e_PMR + 1
-#else
-               e_NUM_VEC_TYPES = e_PMR
+               e_PMR,
 #endif
+               e_NUM_VEC_TYPES
 };
 
 bsls::AtomicInt masterThreadId(0);
@@ -540,7 +545,10 @@ bsl::ostream& operator<<(bsl::ostream& stream, u::VecType value)
 {
     stream << (u::e_BSL == value ? "bsl"      :
                u::e_STD == value ? "std"      :
-               u::e_PMR == value ? "std::pmr" : "unk");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+               u::e_PMR == value ? "std::pmr" :
+#endif
+               "unk");
 
     return stream;
 }
@@ -2489,7 +2497,10 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTestByVecType()
                    ? u::e_PMR
 #endif
                    : u::e_NUM_VEC_TYPES;
+
     BSLMF_ASSERT(u::e_NUM_VEC_TYPES != vecType);
+
+    typedef bslalg::ConstructorProxy<VECTOR> ProxyVector;
 
     if (verbose) cout << "  removeAllTestByVecType<" <<
                                    vecType << "::vector<PairHandle>, " <<
@@ -2541,12 +2552,8 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTestByVecType()
 
         ASSERT(0 == da.numAllocations());
 
-        bsl::vector<PairHandle> removedRealBsl(&ta);
-        VECTOR                  removedReal;
-        VECTOR&                 removed = u::e_BSL == vecType
-                                        ? *reinterpret_cast<VECTOR *>(
-                                                               &removedRealBsl)
-                                        : removedReal;
+        ProxyVector  removedProxy(&ta);
+        VECTOR&      removed = removedProxy.object();
 
         PairHandle ph;
         ASSERT(0 == mX.front(&ph));
@@ -2577,10 +2584,7 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTestByVecType()
             }
         }
 
-        // 'removeAll(&vec)' uses a temporary vector that uses the default
-        // allocator.
-
-        ASSERT(0 <  da.numAllocations());
+        ASSERT(u::e_BSL != vecType || 0 == da.numAllocations());
     }
 
     ASSERT(0 <  ta.numAllocations());
@@ -2619,7 +2623,7 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTest()
 //:   appended to that, in the correct order.
 //:
 //: 8 Don't check the default allocator -- 'removeAll' uses it.
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 {
     if (verbose) cout << "removeAllTest<" <<
                                    bsls::NameOf<KEY_TYPE>() << ", " <<
@@ -5500,8 +5504,7 @@ int main(int argc, char *argv[])
             // internal temporary vector.  All previous modes should not use
             // the default allocator.
 
-            ASSERT((u::e_ADD_WITH_REMOVEALL_HANDLES == mode) ==
-                                                    (0 < da.numAllocations()));
+            ASSERT(0 == da.numAllocations());
         }
 
         ASSERT(0 <  ta.numAllocations());

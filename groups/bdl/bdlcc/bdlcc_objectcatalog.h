@@ -277,6 +277,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
@@ -430,7 +431,7 @@ class ObjectCatalog {
         // the object's destructor.)
 
     template <class VECTOR>
-    void removeAllImpl(VECTOR *buffer);
+    void removeAllImp(VECTOR *buffer);
         // Remove all objects that are currently held in this catalog and
         // optionally load into the optionally specified 'buffer' the removed
         // objects.
@@ -688,7 +689,7 @@ void ObjectCatalog<TYPE>::freeNode(typename ObjectCatalog<TYPE>::Node *node)
 
 template <class TYPE>
 template <class VECTOR>
-void ObjectCatalog<TYPE>::removeAllImpl(VECTOR *buffer)
+void ObjectCatalog<TYPE>::removeAllImp(VECTOR *buffer)
 {
     static const bool isVector =
                             bsl::is_same<bsl::vector<TYPE>, VECTOR>::value
@@ -890,21 +891,21 @@ template <class TYPE>
 inline
 void ObjectCatalog<TYPE>::removeAll()
 {
-    removeAllImpl(static_cast<bsl::vector<TYPE> *>(0));
+    removeAllImp(static_cast<bsl::vector<TYPE> *>(0));
 }
 
 template <class TYPE>
 inline
 void ObjectCatalog<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 {
-    removeAllImpl(buffer);
+    removeAllImp(buffer);
 }
 
 template <class TYPE>
 inline
 void ObjectCatalog<TYPE>::removeAll(std::vector<TYPE> *buffer)
 {
-    removeAllImpl(buffer);
+    removeAllImp(buffer);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
@@ -912,7 +913,7 @@ template <class TYPE>
 inline
 void ObjectCatalog<TYPE>::removeAll(std::pmr::vector<TYPE> *buffer)
 {
-    removeAllImpl(buffer);
+    removeAllImp(buffer);
 }
 #endif
 

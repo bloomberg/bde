@@ -17,6 +17,8 @@
 
 #include <bsltf_streamutil.h>
 
+#include <bslalg_constructorproxy.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_newdeleteallocator.h>
@@ -322,13 +324,21 @@ namespace u {
 enum VecType { e_BEGIN,
                e_BSL = e_BEGIN,
                e_STD,
-               e_PMR,
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-               e_NUM_VEC_TYPES = e_PMR + 1
-#else
-               e_NUM_VEC_TYPES = e_PMR
+               e_PMR,
 #endif
+               e_END
 };
+
+template <class VECTOR>
+typename VECTOR::value_type *vData(VECTOR *v)
+    // Provide access similar to 'vector::data()'.  According to
+    // cppreference.com, the 'vector::data()' manipulator is provided on all
+    // versions of C++, but we find that it is supported on neither Solaris nor
+    // AIX.
+{
+    return v->empty() ? 0 : &(*v)[0];
+}
 
 }  // close namespace u
 }  // close unnamed namespace
@@ -521,7 +531,7 @@ MoveCopyAllocTestType::MoveCopyAllocTestType(bslma::Allocator *basicAllocator)
 , d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
 , d_movedInto(bsltf::MoveState::e_NOT_MOVED)
 {
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    d_data_p = static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
     *d_data_p = 0;
 }
 
@@ -533,7 +543,7 @@ MoveCopyAllocTestType::MoveCopyAllocTestType(int               data,
 , d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
 , d_movedInto(bsltf::MoveState::e_NOT_MOVED)
 {
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    d_data_p = static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
     *d_data_p = data;
 }
 
@@ -597,7 +607,7 @@ MoveCopyAllocTestType::MoveCopyAllocTestType(
 , d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
 , d_movedInto(bsltf::MoveState::e_NOT_MOVED)
 {
-    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    d_data_p = static_cast<int *>(d_allocator_p->allocate(sizeof(int)));
     *d_data_p = original.data();
 }
 
@@ -619,7 +629,7 @@ MoveCopyAllocTestType::operator=(const MoveCopyAllocTestType& rhs)
 {
     if (&rhs != this)
     {
-        int *newData = reinterpret_cast<int *>(
+        int *newData = static_cast<int *>(
                                          d_allocator_p->allocate(sizeof(int)));
         d_allocator_p->deallocate(d_data_p);
         d_data_p = newData;
@@ -646,7 +656,7 @@ MoveCopyAllocTestType::operator=(bslmf::MovableRef<MoveCopyAllocTestType> rhs)
                 lvalue.d_data_p = 0;
             }
             else {
-                int *newData = reinterpret_cast<int *>(
+                int *newData = static_cast<int *>(
                                          d_allocator_p->allocate(sizeof(int)));
                 if (d_data_p) {
                     d_allocator_p->deallocate(d_data_p);
@@ -660,7 +670,7 @@ MoveCopyAllocTestType::operator=(bslmf::MovableRef<MoveCopyAllocTestType> rhs)
             lvalue.d_movedFrom = bsltf::MoveState::e_MOVED;
         }
         else {
-            int *newData = reinterpret_cast<int *>(
+            int *newData = static_cast<int *>(
                                          d_allocator_p->allocate(sizeof(int)));
             if (d_data_p) {
                 d_allocator_p->deallocate(d_data_p);
@@ -678,7 +688,7 @@ MoveCopyAllocTestType::operator=(bslmf::MovableRef<MoveCopyAllocTestType> rhs)
 void MoveCopyAllocTestType::setData(int value)
 {
     if (!d_data_p) {
-        int *newData = reinterpret_cast<int *>(
+        int *newData = static_cast<int *>(
                                          d_allocator_p->allocate(sizeof(int)));
         d_data_p = newData;
     }
@@ -888,25 +898,15 @@ bsl::ostream& operator<<(bsl::ostream& stream, u::VecType value)
 {
     stream << (u::e_BSL == value ? "bsl"      :
                u::e_STD == value ? "std"      :
-               u::e_PMR == value ? "std::pmr" : "unk");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+               u::e_PMR == value ? "std::pmr" :
+#endif
+               "unk");
 
     return stream;
 }
 
 namespace u {
-
-template <class VECTOR>
-const typename VECTOR::value_type& vFront(const VECTOR& v)
-{
-    return v[0];
-}
-
-template <class VECTOR>
-const typename VECTOR::value_type& vBack(const VECTOR& v)
-{
-    return v[v.size() - 1];
-}
-
 
 bsls::TimeInterval now()
     // Return the current time, as a 'TimeInterval'.
@@ -2934,184 +2934,197 @@ struct UsesBslmaAllocator<MULTI_THREADED_TRY_PUSH::BufferedPopper> :
 namespace TEST_CASE_19 {
 
 template <class ELEMENT>
-void testForcePushRemoveAll()
+void testForcePushRemoveAllAux(const bool       match,
+                               const bool       moveFlag,
+                               const bool       pushFront,
+                               const u::VecType vecType)
 {
     enum { k_NUM_ELEMENTS  = 10,
            k_WELL_BEHAVED  = u::HasWellBehavedMove<ELEMENT>::value,
-           k_IS_MOVE_AWARE = u::IsMoveAware<ELEMENT>::value
-        };
+           k_IS_MOVE_AWARE = u::IsMoveAware<ELEMENT>::value,
+           k_IS_MOVE_COPY  = bsl::is_same<ELEMENT,
+                                          bsltf::MoveCopyAllocTestType>::value
+    };
 
     // Expected Copyconstruct Movestate
 
-    const bool isMoveCopy = bsl::is_same<ELEMENT,
-                                         bsltf::MoveCopyAllocTestType>::value;
+    const char *name = NameOf<ELEMENT>();
 
+    if (veryVeryVerbose) {
+        P_(match);    P_(moveFlag);    P_(pushFront);    P(vecType);
+    }
+
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator ta("test",    veryVeryVeryVerbose);
+    bslma::TestAllocator oa("other",   veryVeryVeryVerbose);
+    bslma::TestAllocator sa("source",  veryVeryVeryVerbose);
+
+    bslma::TestAllocator& ca = !match || u::e_BSL == vecType ? ta : da;
+    bslma::TestAllocator& va =  match ? (u::e_BSL == vecType ? ta : da)
+                                      : oa;
+
+    bslma::DefaultAllocatorGuard defaultAllocatorGuard(&da);
+
+    bdlcc::Deque<ELEMENT> mX(2, &ca);  const bdlcc::Deque<ELEMENT>& X = mX;
+
+    ASSERT(0 == X.length());
+
+    bsltf::MoveState::Enum expMove = !u::IsMoveAware<ELEMENT>::value
+                                   ? e_UNKNOWN
+                                   : !moveFlag || (!match && k_IS_MOVE_COPY)
+                                   ? e_NOT_MOVED
+                                   : e_MOVED;
+
+    bsl::vector<ELEMENT> footprintVec(&va);
+    footprintVec.resize(1);
+    ELEMENT& e = footprintVec.front();
+
+    if (pushFront) {
+        for (unsigned ii = k_NUM_ELEMENTS; 0 < ii--; ) {
+            const int c = 'A' + ii;
+            BEGIN_EXCEP_TEST_OBJ(ELEMENT, mX) {
+                u::setData(&e, c);
+
+                if (moveFlag) {
+                    mX.forcePushFront(MUtil::move(e));
+                }
+                else {
+                    mX.forcePushFront(e);
+                }
+            } END_EXCEP_TEST_OBJ
+            ASSERTV(ii, X.length(), k_NUM_ELEMENTS - ii == X.length());
+            ASSERTV(X, c == u::getData(u::myFront(X)));
+            ASSERTV(expMove, bsltf::getMovedInto(u::myFront(X)),
+                                expMove == bsltf::getMovedInto(u::myFront(X)));
+            ASSERT(expMove == bsltf::getMovedFrom(e));
+        }
+    }
+    else {
+        for (unsigned ii = 0; ii < k_NUM_ELEMENTS; ++ii) {
+            const int c = 'A' + ii;
+            BEGIN_EXCEP_TEST_OBJ(ELEMENT, mX) {
+                u::setData(&e, c);
+
+                if (moveFlag) {
+                    mX.forcePushBack(MUtil::move(e));
+                }
+                else {
+                    mX.forcePushBack(e);
+                }
+            } END_EXCEP_TEST_OBJ
+            ASSERTV(ii, X.length(), ii + 1 == X.length());
+            ASSERTV(X, c == u::getData(u::myBack(X)));
+            ASSERTV(expMove, bsltf::getMovedInto(u::myBack(X)),
+                                 expMove == bsltf::getMovedInto(u::myBack(X)));
+            ASSERT(expMove == bsltf::getMovedFrom(e));
+        }
+    }
+
+    ELEMENT *pb = 0, *pe = 0;
+    bsl::vector<ELEMENT> vBsl(&va);
+    std::vector<ELEMENT> vStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    std::pmr::vector<ELEMENT> vPmr;
+#endif
+
+    switch (vecType) {
+      case u::e_BSL: {
+        int numThrows = -1;
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(va) {
+            ++numThrows;
+
+            mX.removeAll(&vBsl);
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+        if (PLAT_EXC) {
+            ASSERTV(numThrows, 1 <= numThrows);
+            ASSERTV(numThrows, !match || !moveFlag ||
+                                           !k_IS_MOVE_AWARE || numThrows <= 1);
+        }
+
+        pb = u::vData(&vBsl);
+        pe = pb + vBsl.size();
+      } break;
+      case u::e_STD: {
+        mX.removeAll(&vStd);
+
+        pb = u::vData(&vStd);
+        pe = pb + vStd.size();
+      } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+      case u::e_PMR: {
+        mX.removeAll(&vPmr);
+
+        pb = vPmr.data();
+        pe = pb + vPmr.size();
+      } break;
+#endif
+      default : {
+        ASSERT(0 && "default");
+      } break;
+    }
+
+    if (u::e_BSL == vecType) {
+        // The behavior of non-bsl vectors with regard to passing allocator
+        // args to move constructors varies from platform to platform.
+
+        expMove = !u::IsMoveAware<ELEMENT>::value
+                ? e_UNKNOWN
+                : !match && k_IS_MOVE_COPY
+                ? e_NOT_MOVED
+                : e_MOVED;
+
+        for (ELEMENT *p = pb; p < pe; ++p) {
+            ASSERTV(name, vecType, expMove, bsltf::getMovedInto(*p),
+                                           expMove == bsltf::getMovedInto(*p));
+        }
+    }
+
+    if (k_WELL_BEHAVED || match) {
+        ASSERTV(name, pe - pb, k_NUM_ELEMENTS == pe - pb);
+        for (ELEMENT *p = pb; p < pe; ++p) {
+            char exp = static_cast<char>('A' + (p - pb));
+            ASSERTV(name, vecType, exp, u::getData(*p), exp == u::getData(*p));
+        }
+    }
+    else {
+        int prevData = 'A' - 1;
+        int numValid = 0;
+        for (ELEMENT *p = pb; p < pe; ++p) {
+            int d = u::getData(*p);
+            if (d) {
+                ++numValid;
+                ASSERTV(name, p-pb, prevData, *p, prevData < d);
+                prevData = d;
+            }
+        }
+        if (veryVerbose) {
+            P_(name);    P_(numValid);    P(char(prevData));
+        }
+    }
+
+    ASSERT(u::e_BSL != vecType || 0 == da.numAllocations());
+}
+
+template <class ELEMENT>
+void testForcePushRemoveAll()
+{
     const char *name = NameOf<ELEMENT>();
 
     if (verbose) cout << "Force Push Remove All: " << name << endl;
 
-    for (int ti = 0; ti < u::e_NUM_VEC_TYPES * 8; ++ti) {
-        bool             match     = ti & 1;
-        const bool       moveFlag  = ti & 2;
-        const bool       pushFront = ti & 4;
-        const u::VecType vecType   = static_cast<u::VecType>(ti / 8);
+    for (int match = 0; match < 2; ++match) {
+        for (int moveFlag = 0; moveFlag < 2; ++moveFlag) {
+            for (int pushFront = 0; pushFront < 2; ++pushFront) {
+                for (int vi = u::e_BEGIN; vi < u::e_END; ++vi) {
+                    const u::VecType vecType = static_cast<u::VecType>(vi);
 
-        bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::TestAllocator ta("test",    veryVeryVeryVerbose);
-        bslma::TestAllocator oa("other",   veryVeryVeryVerbose);
-        bslma::TestAllocator sa("source",  veryVeryVeryVerbose);
-
-        bslma::TestAllocator& ca = !match || u::e_BSL == vecType ? ta : da;
-        bslma::TestAllocator& va =  match ? (u::e_BSL == vecType ? ta : da)
-                                          : oa;
-
-        bslma::DefaultAllocatorGuard defaultAllocatorGuard(&da);
-
-        bdlcc::Deque<ELEMENT> mX(2, &ca);  const bdlcc::Deque<ELEMENT>& X = mX;
-
-        ASSERT(0 == X.length());
-
-        bsltf::MoveState::Enum expMove = !u::IsMoveAware<ELEMENT>::value
-                                       ? e_UNKNOWN
-                                       : !moveFlag || (!match && isMoveCopy)
-                                       ? e_NOT_MOVED
-                                       : e_MOVED;
-
-        if (veryVerbose) { P_(ti);    P_(match);    P(pushFront); }
-
-        bsl::vector<ELEMENT> footprintVec(&va);
-        footprintVec.resize(1);
-        ELEMENT& e = footprintVec.front();
-
-        if (pushFront) {
-            for (unsigned ii = k_NUM_ELEMENTS; 0 < ii--; ) {
-                const int c = 'A' + ii;
-                BEGIN_EXCEP_TEST_OBJ(ELEMENT, mX) {
-                    u::setData(&e, c);
-
-                    if (moveFlag) {
-                        mX.forcePushFront(MUtil::move(e));
-                    }
-                    else {
-                        mX.forcePushFront(e);
-                    }
-                } END_EXCEP_TEST_OBJ
-                ASSERTV(ii, X.length(), k_NUM_ELEMENTS - ii == X.length());
-                ASSERTV(X, c == u::getData(u::myFront(X)));
-                ASSERTV(expMove, bsltf::getMovedInto(u::myFront(X)),
-                                expMove == bsltf::getMovedInto(u::myFront(X)));
-                ASSERT(expMove == bsltf::getMovedFrom(e));
-            }
-        }
-        else {
-            for (unsigned ii = 0; ii < k_NUM_ELEMENTS; ++ii) {
-                const int c = 'A' + ii;
-                BEGIN_EXCEP_TEST_OBJ(ELEMENT, mX) {
-                    u::setData(&e, c);
-
-                    if (moveFlag) {
-                        mX.forcePushBack(MUtil::move(e));
-                    }
-                    else {
-                        mX.forcePushBack(e);
-                    }
-                } END_EXCEP_TEST_OBJ
-                ASSERTV(ii, X.length(), ii + 1 == X.length());
-                ASSERTV(X, c == u::getData(u::myBack(X)));
-                ASSERTV(expMove, bsltf::getMovedInto(u::myBack(X)),
-                                 expMove == bsltf::getMovedInto(u::myBack(X)));
-                ASSERT(expMove == bsltf::getMovedFrom(e));
-            }
-        }
-
-        ELEMENT *pb = 0, *pe = 0;
-        bsl::vector<ELEMENT> vBsl(&va);
-        std::vector<ELEMENT> vStd;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-        std::pmr::vector<ELEMENT> vPmr;
-#endif
-        switch (vecType) {
-          case u::e_BSL: {
-            int numThrows = -1;
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(va) {
-                ++numThrows;
-
-                mX.removeAll(&vBsl);
-            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-            if (PLAT_EXC) {
-                ASSERTV(numThrows, 1 <= numThrows);
-                ASSERTV(numThrows, !match || !moveFlag ||
-                                           !k_IS_MOVE_AWARE || numThrows <= 1);
-            }
-
-            if (!vBsl.empty()) {
-                pb = &vBsl[0];
-                pe = pb + vBsl.size();
-            }
-          } break;
-          case u::e_STD: {
-            mX.removeAll(&vStd);
-
-            if (!vStd.empty()) {
-                pb = &vStd[0];
-                pe = pb + vStd.size();
-            }
-          } break;
-          case u::e_PMR: {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-            mX.removeAll(&vPmr);
-
-            if (!vPmr.empty()) {
-                pb = &vPmr[0];
-                pe = pb + vPmr.size();
-            }
-#else
-            ASSERT(0 && "PMR");
-#endif
-          } break;
-          default : {
-            ASSERT(0 && "default");
-          } break;
-        }
-
-        if (u::e_BSL == vecType) {
-            // The behavior of non-bsl vectors with regard to passing allocator
-            // args to move constructors varies from platform to platform.
-
-            expMove = !u::IsMoveAware<ELEMENT>::value
-                    ? e_UNKNOWN
-                    : !match && isMoveCopy
-                    ? e_NOT_MOVED
-                    : e_MOVED;
-
-            for (ELEMENT *p = pb; p < pe; ++p) {
-                ASSERTV(name, vecType, expMove, bsltf::getMovedInto(*p),
-                                           expMove == bsltf::getMovedInto(*p));
-            }
-        }
-
-        if (k_WELL_BEHAVED || match) {
-            ASSERTV(name, pe - pb, k_NUM_ELEMENTS == pe - pb);
-            for (ELEMENT *p = pb; p < pe; ++p) {
-                char exp = static_cast<char>('A' + (p - pb));
-                ASSERTV(name, vecType, exp, u::getData(*p),
-                                                        exp == u::getData(*p));
-            }
-        }
-        else {
-            int prevData = 'A' - 1;
-            int numValid = 0;
-            for (ELEMENT *p = pb; p < pe; ++p) {
-                int d = u::getData(*p);
-                if (d) {
-                    ++numValid;
-                    ASSERTV(name, ti, p-pb, prevData, *p, prevData < d);
-                    prevData = d;
+                    testForcePushRemoveAllAux<ELEMENT>(match,
+                                                       moveFlag,
+                                                       pushFront,
+                                                       vecType);
                 }
-            }
-            if (veryVerbose) {
-                P_(name);    P_(numValid);    P(char(prevData));
             }
         }
     }
@@ -3701,7 +3714,8 @@ namespace TEST_CASE_12 {
 
 template <class VECTOR>
 class TestPopFront {
-    typedef typename VECTOR::value_type ELEMENT;
+    typedef typename VECTOR::value_type      ELEMENT;
+    typedef bslalg::ConstructorProxy<VECTOR> ProxyVector;
 
     enum { k_IS_MOVE_AWARE = u::IsMoveAware<ELEMENT>::value };
 
@@ -3733,11 +3747,8 @@ class TestPopFront {
         // values are as expected.
     {
         int                    expectedVal  = 0;
-        bsl::vector<ELEMENT>   vBslReal(d_alloc_p);
-        VECTOR                 vReal;
-        VECTOR&                v = u::e_BSL == s_vecType
-                                 ? *reinterpret_cast<VECTOR *>(&vBslReal)
-                                 : vReal;
+        ProxyVector            pv(d_alloc_p);
+        VECTOR&                v = pv.object();
         IntPtr                 maxVecSize   = 0;
         int                    maxVecSizeAt = 0;
         bsltf::MoveState::Enum vms = !k_IS_MOVE_AWARE
@@ -3786,7 +3797,8 @@ class TestPopFront {
 
 template <class VECTOR>
 class TestPopBack {
-    typedef typename VECTOR::value_type ELEMENT;
+    typedef typename VECTOR::value_type      ELEMENT;
+    typedef bslalg::ConstructorProxy<VECTOR> ProxyVector;
 
     enum { k_IS_MOVE_AWARE = u::IsMoveAware<ELEMENT>::value };
 
@@ -3818,11 +3830,8 @@ class TestPopBack {
         // are as expected.
     {
         int                    expectedVal  = 0;
-        bsl::vector<ELEMENT>   vBslReal(d_alloc_p);
-        VECTOR                 vReal;
-        VECTOR&                v = u::e_BSL == s_vecType
-                                 ? *reinterpret_cast<VECTOR *>(&vBslReal)
-                                 : vReal;
+        ProxyVector            pv(d_alloc_p);
+        VECTOR&                v = pv.object();
         IntPtr                 maxVecSize   = 0;
         int                    maxVecSizeAt = 0;
         bsltf::MoveState::Enum vms = !k_IS_MOVE_AWARE
@@ -3891,7 +3900,7 @@ void testMultiThreadedTryPop()
         footprintVec.resize(1);
         ELEMENT& ee = footprintVec[0];
 
-        for (int run = 0; run < u::e_NUM_VEC_TYPES * 3; ++run) {
+        for (int run = u::e_BEGIN; run < u::e_END * 3; ++run) {
             const u::VecType vecType = static_cast<u::VecType>(run / 3);
 
             if (veryVerbose) cout << "  " << vecType << "::vector<" << name <<
@@ -3906,14 +3915,12 @@ void testMultiThreadedTryPop()
                 TestPopFront<std::vector<ELEMENT> > frontFunc(&mX, &ta);
                 bslmt::ThreadUtil::create(&handle, frontFunc);
               } break;
-              case u::e_PMR: {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+              case u::e_PMR: {
                 TestPopFront<std::pmr::vector<ELEMENT> > frontFunc(&mX, &ta);
                 bslmt::ThreadUtil::create(&handle, frontFunc);
-#else
-                ASSERT(0 && "PMR");
-#endif
               } break;
+#endif
               default: {
                 ASSERT(0 && "default");
               }
@@ -3942,14 +3949,12 @@ void testMultiThreadedTryPop()
                 TestPopBack<std::vector<ELEMENT> > backFunc(&mX, &ta);
                 bslmt::ThreadUtil::create(&handle, backFunc);
               } break;
-              case u::e_PMR: {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+              case u::e_PMR: {
                 TestPopBack<std::pmr::vector<ELEMENT> > backFunc(&mX, &ta);
                 bslmt::ThreadUtil::create(&handle, backFunc);
-#else
-                ASSERT(0 && "PMR");
-#endif
               } break;
+#endif
               default: {
                 ASSERT(0 && "default");
               }
@@ -4254,6 +4259,7 @@ void testSingleThreadedTryPop()
 {
     typedef typename VECTOR::value_type             ELEMENT;
     typedef typename bdlcc::Deque<ELEMENT>::Proctor Proctor;
+    typedef bslalg::ConstructorProxy<VECTOR>        ProxyVector;
 
     const char *name = NameOf<VECTOR>();
 
@@ -4293,11 +4299,8 @@ void testSingleThreadedTryPop()
 
         bdlcc::Deque<ELEMENT> mX(&xa);    const bdlcc::Deque<ELEMENT>& X = mX;
         bsl::deque<ELEMENT>   mY(&xa);    const bsl::deque<ELEMENT>&   Y = mY;
-        VECTOR                vReal;
-        bsl::vector<ELEMENT>  vRealBsl(&va);
-        VECTOR&               v = u::e_BSL == vecType
-                                ? *reinterpret_cast<VECTOR *>(&vRealBsl)
-                                : vReal;
+        ProxyVector           pv(&va);
+        VECTOR&               v = pv.object();
         bsl::vector<ELEMENT>  eFootprint(&va);
         eFootprint.resize(1);
         ELEMENT&              e = eFootprint.front();
@@ -4367,8 +4370,8 @@ void testSingleThreadedTryPop()
 
         ASSERT(4 == v.size());
         if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE) {
-            ASSERT('A' + 2 == u::getData(u::vFront(v)));
-            ASSERT('A' + 5 == u::getData(u::vBack(v )));
+            ASSERT('A' + 2 == u::getData(v.front()));
+            ASSERT('A' + 5 == u::getData(v.back()));
         }
         mY.erase(mY.begin(), mY.begin() + 4);
         {
@@ -4395,8 +4398,8 @@ void testSingleThreadedTryPop()
         ASSERT(0 == u::myLength(X));
         ASSERT(4 == v.size());
         if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE) {
-            ASSERT('A' + 6 == u::getData(u::vFront(v)));
-            ASSERT('A' + 9 == u::getData(u::vBack( v)));
+            ASSERT('A' + 6 == u::getData(v.front()));
+            ASSERT('A' + 9 == u::getData(v.back()));
         }
         ASSERT(0 == X.length());
         v.clear();
@@ -4463,8 +4466,8 @@ void testSingleThreadedTryPop()
         }
         ASSERT(4 == v.size());
         if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE) {
-            ASSERTV(u::vFront(v), 'A' + 2 == u::getData(u::vFront(v)));
-            ASSERTV(u::vBack( v), 'A' + 5 == u::getData(u::vBack( v)));
+            ASSERTV(v.front(), 'A' + 2 == u::getData(v.front()));
+            ASSERTV(v.back(),  'A' + 5 == u::getData(v.back()));
         }
         mY.erase(mY.end() - 4, mY.end());
         {
@@ -4491,8 +4494,8 @@ void testSingleThreadedTryPop()
         ASSERT(0 == u::myLength(X));
         ASSERT(4 == v.size());
         if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE) {
-            ASSERTV(u::vFront(v), 'A' + 6 == u::getData(u::vFront(v)));
-            ASSERTV(u::vBack( v), 'A' + 9 == u::getData(u::vBack( v)));
+            ASSERTV(v.front(), 'A' + 6 == u::getData(v.front()));
+            ASSERTV(v.back(),  'A' + 9 == u::getData(v.back()));
         }
         ASSERT(0 == X.length());
         v.clear();

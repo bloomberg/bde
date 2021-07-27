@@ -296,16 +296,17 @@ BSLS_IDENT("$Id: $")
 
 #include <bslim_printer.h>
 
+#include <bslmt_readerwritermutex.h>
+#include <bslmt_readlockguard.h>
+#include <bslmt_writelockguard.h>
+
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_allocatorargt.h>
+#include <bslmf_assert.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_movableref.h>
-
-#include <bslmt_readerwritermutex.h>
-#include <bslmt_readlockguard.h>
-#include <bslmt_writelockguard.h>
 
 #include <bsls_assert.h>
 #include <bsls_libraryfeatures.h>
@@ -411,20 +412,6 @@ class Cache {
 
     typedef bslmt::ReaderWriterMutex                              LockType;
 
-    template <class VECTOR, class VALUE_TYPE>
-    struct IsVector {
-        // This 'struct' has a 'value' that evaluates to 'true' if the
-        // specified 'VECTOR' is a 'bsl', 'std', or 'std::pmr'
-        // 'vector<VALUE_TYPE>'.
-
-        static const bool value =
-                      bsl::is_same<bsl::vector<VALUE_TYPE>, VECTOR>::value
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                   || bsl::is_same<std::pmr::vector<VALUE_TYPE>, VECTOR>::value
-#endif
-                   || bsl::is_same<std::vector<VALUE_TYPE>, VECTOR>::value;
-    };
-
     // DATA
     bslma::Allocator          *d_allocator_p;          // memory allocator
                                                        // (held, not owned)
@@ -466,31 +453,15 @@ class Cache {
         // 'size() < lowWatermark()' beginning from the front of the eviction
         // queue.  Invoke the post-eviction callback for each item evicted.
 
-    template <class VECTOR>
-    int eraseBulkImpl(const VECTOR& keys);
-        // Remove the items having the specified 'keys' from this cache.
-        // Invoke the post-eviction callback for each removed item.  Return
-        // the number of items successfully removed.
-
     void evictItem(const typename MapType::iterator& mapIt);
         // Evict the item at the specified 'mapIt' and invoke the post-eviction
         // callback for that item.
 
     template <class VECTOR>
-    int insertBulkImpl(const VECTOR& data);
+    int insertBulkImp(const VECTOR& data);
         // Insert the specified 'data' (composed of Key-Value pairs) into this
         // cache.  If a key already exists, then its value will be replaced
         // with the value.  Return the number of items successfully inserted.
-
-    template <class VECTOR>
-    int insertBulkMoveImpl(VECTOR *data);
-        // Insert the specified 'data' (composed of Key-Value pairs) into this
-        // cache.  If a key already exists, then its value will be replaced
-        // with the value.  Return the number of items successfully inserted.
-        // If an exception occurs during this action, we provide only the
-        // basic guarantee - both this cache and 'data' will be in some valid
-        // but unspecified state.  Note that this function has permission from
-        // the caller to move items out of '*data'.
 
     bool insertValuePtrMoveImp(KEY          *key_p,
                                bool          moveKey,
@@ -576,14 +547,15 @@ class Cache {
         // the post-eviction callback for the removed item.  Return 0 on
         // success and 1 if 'key' does not exist.
 
-    int eraseBulk(const bsl::vector<KEY>&      keys);
-    int eraseBulk(const std::vector<KEY>&      keys);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-    int eraseBulk(const std::pmr::vector<KEY>& keys);
-#endif
-        // Remove the items having the specified 'keys' from this cache.
-        // Invoke the post-eviction callback for each removed item.  Return
-        // the number of items successfully removed.
+    template <class ITERATOR>
+    int eraseBulk(ITERATOR begin, ITERATOR end);
+    int eraseBulk(const bsl::vector<KEY>& keys);
+        // Remove the items having either the specified 'keys' or they keys in
+        // the range '[ begin, end )', from this cache, If iterators are
+        // specified, the iterators must support 'const KEY& operator*()',
+        // 'operator++()', and inequality comparison.  Invoke the post-eviction
+        // callback for each removed item.  Return the number of items
+        // successfully removed.
 
     void insert(const KEY& key, const VALUE& value);
     void insert(const KEY& key, bslmf::MovableRef<VALUE> value);
@@ -606,20 +578,17 @@ class Cache {
         // occurs, the cache will not be modified, but 'key' may be changed.
         // Also note that 'key' must be copyable, even if it is moved.
 
-    int insertBulk(const bsl::vector<KVType>&      data);
-    int insertBulk(const std::vector<KVType>&      data);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-    int insertBulk(const std::pmr::vector<KVType>& data);
-#endif
-        // Insert the specified 'data' (composed of Key-Value pairs) into this
-        // cache.  If a key already exists, then its value will be replaced
-        // with the value.  Return the number of items successfully inserted.
+    template <class ITERATOR>
+    int insertBulk(ITERATOR begin, ITERATOR end);
+    int insertBulk(const bsl::vector<KVType>& data);
+        // Insert the specified 'data' (composed of Key-Value pairs) or the
+        // range of Key-Value pairs specified by '[ begin, end )' into this
+        // cache.  'ITERATOR' must support 'operator++()', inequality
+        // comparison, and 'const KVType& operator*()'.  If a key already
+        // exists, then its value will be replaced with the value.  Return the
+        // number of items successfully inserted.
 
     int insertBulk(bslmf::MovableRef<bsl::vector<KVType> >      data);
-    int insertBulk(bslmf::MovableRef<std::vector<KVType> >      data);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-    int insertBulk(bslmf::MovableRef<std::pmr::vector<KVType> > data);
-#endif
         // Insert the specified 'data' (composed of Key-Value pairs) into this
         // cache.  If a key already exists, then its value will be replaced
         // with the value.  Return the number of items successfully inserted.
@@ -760,67 +729,6 @@ void Cache_QueueProctor<KEY>::release()
                         // -----------
                         // class Cache
                         // -----------
-
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class VECTOR>
-inline
-int Cache<KEY, VALUE, HASH, EQUAL>::eraseBulkImpl(const VECTOR& keys)
-{
-    BSLMF_ASSERT((IsVector<VECTOR, KEY>::value));
-
-    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
-
-    int count = 0;
-    for (bsl::size_t i = 0; i < keys.size(); ++i) {
-        const typename MapType::iterator mapIt = d_map.find(keys[i]);
-        if (mapIt == d_map.end()) {
-            continue;
-        }
-        ++count;
-        evictItem(mapIt);
-    }
-    return count;
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class VECTOR>
-inline
-int Cache<KEY, VALUE, HASH, EQUAL>::insertBulkImpl(const VECTOR& data)
-{
-    BSLMF_ASSERT((IsVector<VECTOR, KVType>::value));
-
-    int                             count = 0;
-    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
-
-    for (bsl::size_t i = 0; i < data.size(); ++i) {
-        KEY          *key_p      = const_cast<KEY *>(         &data[i].first);
-        ValuePtrType *valuePtr_p = const_cast<ValuePtrType *>(&data[i].second);
-
-        count += insertValuePtrMoveImp(key_p, false, valuePtr_p, false);
-    }
-    return count;
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class VECTOR>
-inline
-int Cache<KEY, VALUE, HASH, EQUAL>::insertBulkMoveImpl(VECTOR *data)
-{
-    BSLMF_ASSERT((IsVector<VECTOR, KVType>::value));
-
-    int                             count = 0;
-    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
-
-    VECTOR& localData = *data;
-
-    for (bsl::size_t i = 0; i < localData.size(); ++i) {
-        KEY          *key_p      = &localData[i].first;
-        ValuePtrType *valuePtr_p = &localData[i].second;
-
-        count += insertValuePtrMoveImp(key_p, true, valuePtr_p, true);
-    }
-    return count;
-}
 
 // CREATORS
 template <class KEY, class VALUE, class HASH, class EQUAL>
@@ -1040,27 +948,30 @@ int Cache<KEY, VALUE, HASH, EQUAL>::erase(const KEY& key)
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
-int
-Cache<KEY, VALUE, HASH, EQUAL>::eraseBulk(const bsl::vector<KEY>& keys)
+template <class ITERATOR>
+int Cache<KEY, VALUE, HASH, EQUAL>::eraseBulk(ITERATOR begin, ITERATOR end)
 {
-    return eraseBulkImpl(keys);
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+
+    int count = 0;
+    for (; begin != end; ++begin) {
+        const typename MapType::iterator mapIt = d_map.find(*begin);
+        if (mapIt == d_map.end()) {
+            continue;
+        }
+        ++count;
+        evictItem(mapIt);
+    }
+
+    return count;
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
-int
-Cache<KEY, VALUE, HASH, EQUAL>::eraseBulk(const std::vector<KEY>& keys)
+inline
+int Cache<KEY, VALUE, HASH, EQUAL>::eraseBulk(const bsl::vector<KEY>& keys)
 {
-    return eraseBulkImpl(keys);
+    return eraseBulk(keys.begin(), keys.end());
 }
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-template <class KEY, class VALUE, class HASH, class EQUAL>
-int
-Cache<KEY, VALUE, HASH, EQUAL>::eraseBulk(const std::pmr::vector<KEY>& keys)
-{
-    return eraseBulkImpl(keys);
-}
-#endif
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
@@ -1150,54 +1061,49 @@ void Cache<KEY, VALUE, HASH, EQUAL>::insert(bslmf::MovableRef<KEY> key,
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class ITERATOR>
+int Cache<KEY, VALUE, HASH, EQUAL>::insertBulk(ITERATOR begin,
+                                               ITERATOR end)
+{
+    int                             count = 0;
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+
+    for (; begin != end; ++begin) {
+        KEY          *key_p      = const_cast<KEY *>(         &begin->first);
+        ValuePtrType *valuePtr_p = const_cast<ValuePtrType *>(&begin->second);
+
+        count += insertValuePtrMoveImp(key_p, false, valuePtr_p, false);
+    }
+
+    return count;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
 int Cache<KEY, VALUE, HASH, EQUAL>::insertBulk(const bsl::vector<KVType>& data)
 {
-    return insertBulkImpl(data);
+    return insertBulk(data.begin(), data.end());
 }
-
-template <class KEY, class VALUE, class HASH, class EQUAL>
-int Cache<KEY, VALUE, HASH, EQUAL>::insertBulk(const std::vector<KVType>& data)
-{
-    return insertBulkImpl(data);
-}
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-template <class KEY, class VALUE, class HASH, class EQUAL>
-int Cache<KEY, VALUE, HASH, EQUAL>::insertBulk(
-                                          const std::pmr::vector<KVType>& data)
-{
-    return insertBulkImpl(data);
-}
-#endif
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 int Cache<KEY, VALUE, HASH, EQUAL>::insertBulk(
                                   bslmf::MovableRef<bsl::vector<KVType> > data)
 {
-    bsl::vector<KVType>& local = data;
+    typedef bsl::vector<KVType> Vec;
 
-    return insertBulkMoveImpl(&local);
+    Vec& local = data;
+
+    int                             count = 0;
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+
+    for (typename Vec::iterator it = local.begin(); it < local.end(); ++it) {
+        KEY          *key_p      = &it->first;
+        ValuePtrType *valuePtr_p = &it->second;
+
+        count += insertValuePtrMoveImp(key_p, true, valuePtr_p, true);
+    }
+    return count;
 }
-
-template <class KEY, class VALUE, class HASH, class EQUAL>
-int Cache<KEY, VALUE, HASH, EQUAL>::insertBulk(
-                                  bslmf::MovableRef<std::vector<KVType> > data)
-{
-    std::vector<KVType>& local = data;
-
-    return insertBulkMoveImpl(&local);
-}
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-template <class KEY, class VALUE, class HASH, class EQUAL>
-int Cache<KEY, VALUE, HASH, EQUAL>::insertBulk(
-                             bslmf::MovableRef<std::pmr::vector<KVType> > data)
-{
-    std::pmr::vector<KVType>& local = data;
-
-    return insertBulkMoveImpl(&local);
-}
-#endif
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
