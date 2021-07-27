@@ -222,8 +222,14 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_nullptr.h>
+#include <bsls_platform.h>
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#if   defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) \
+ && !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800)
+// The implementation of C++17 semantics in this component depends upon the
+// use of 'decltype' for expression SFINAE.  MSVC 2013 (which has version
+// number 1800) claims to support 'decltype', but does not have a sufficiently
+// functional implementation of expression sfinae to enable C++17 semantics.
 #define BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS 1
 #endif
 

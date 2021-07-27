@@ -31,7 +31,6 @@
 
 #include <bsls_compilerfeatures.h>
 
-
 // Workaround for the fact that the cpp11 feature simulation script adds the
 // variable 'COMPILING_BSLMF_INVOKERESULT_T_CPP' in the generated code, but
 // sets the variable 'COMPILING_BSLMF_INVOKERESULT_00_T_CPP' in the generated
@@ -125,6 +124,40 @@ void aSsErT(bool condition, const char *message, int line)
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#define MSVC 1
+#else
+#define MSVC 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800
+#define MSVC_2013 1
+#else
+#define MSVC_2013 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1900
+#define MSVC_2015 1
+#else
+#define MSVC_2015 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)   \
+ && BSLS_PLATFORM_CMP_VERSION >= 1910 \
+ && BSLS_PLATFORM_CMP_VERSION <= 1916
+#define MSVC_2017 1
+#else
+#define MSVC_2017 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)   \
+ && BSLS_PLATFORM_CMP_VERSION >= 1920 \
+ && BSLS_PLATFORM_CMP_VERSION <= 1929
+#define MSVC_2019 1
+#else
+#define MSVC_2019 0
+#endif
 
                       // =============================================
                       // Common function for test case banner printing
@@ -588,17 +621,23 @@ struct ApplyRef {
         TEST_KERNEL::template apply<const RT&>(LINE);
         TEST_KERNEL::template apply<volatile RT&>(LINE);
         TEST_KERNEL::template apply<const volatile RT&>(LINE);
-#    ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-#       if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCE
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#  if !MSVC_2013 // MSVC 2013 does not have a sufficiently functional
+                 // implementation of expression sfinae for
+                 // 'bslmf_invokeresult' to make use of 'decltype'.  This means
+                 // that 'bslmf_invokeresult' cannot support
+                 // rvalue-reference-qualified types on MSVC 2013.
         TEST_KERNEL::template apply<RT&&>(LINE);
         TEST_KERNEL::template apply<const RT&&>(LINE);
         TEST_KERNEL::template apply<volatile RT&&>(LINE);
         TEST_KERNEL::template apply<const volatile RT&&>(LINE);
-#       else
-#           error Rvalue refs without 'decltype' not supported by \
-                  'invoke_result'.
-#       endif
-#    endif
+#  endif
+# else
+#  error "Rvalue refs without 'decltype' not supported by 'bsl::invoke_result'"
+# endif
+#endif
     }
 };
 

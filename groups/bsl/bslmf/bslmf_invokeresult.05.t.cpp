@@ -118,6 +118,7 @@ struct FunctorTest
         typedef typename invoke_result<FuncRt1<RT> , int  >::type Rt1ResultInt;
         typedef typename invoke_result<FuncRt1<RT>&, int  >::type
             Rt1rResultInt;
+
         ASSERTV(LINE, (bsl::is_same<RT , Rt1ResultR>::value));
         ASSERTV(LINE, (bsl::is_same<RT , Rt1rResultR>::value));
         ASSERTV(LINE, (bsl::is_same<int, Rt1ResultInt>::value));
@@ -151,7 +152,7 @@ struct FunctorTest
             MFResult;
         typedef typename invoke_result<ManyFunc&, MetaType<RT>, int>::type
             MFrResult;
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) && !MSVC_2013
         // 'decltype' is supported, the result type will always be correct.
         ASSERTV(LINE, (bsl::is_same<RT, MFResult>::value));
         ASSERTV(LINE, (bsl::is_same<RT, MFrResult>::value));
@@ -226,6 +227,7 @@ void testCase5APRforEnum()
     ApplyRef<FunctorTest<true>, volatile MyEnum*>::apply(L_);
     ApplyRef<FunctorTest<true>, const volatile MyEnum*>::apply(L_);
 }
+
 void testCase5APRforClass()
     // This function was originally a call to the function:
     // applyPtrAndRef<FunctorTest<true>, TYPE >(L_).  However xlC and Sun CC
@@ -242,6 +244,7 @@ void testCase5APRforClass()
     ApplyRef<FunctorTest<true>, volatile MyClass*>::apply(L_);
     ApplyRef<FunctorTest<true>, const volatile MyClass*>::apply(L_);
 }
+
 void testCase5APRforDerivedClass()
     // This function was originally a call to the function:
     // applyPtrAndRef<FunctorTest<true>, TYPE >(L_).  However xlC and Sun CC
@@ -579,7 +582,7 @@ int main(int argc, char *argv[])
         TEST(bool                       , ConvertibleToFunc               );
         TEST(short                      , ConvertibleToFunc,short         );
         TEST(int*                       , ConvertibleToFunc,int,float     );
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) && !MSVC_2013
         TEST(MyClass                    , ConvertibleToFunc,int,float,bool);
 #else
         TEST(InvokeResultDeductionFailed, ConvertibleToFunc,int,float,bool);

@@ -420,6 +420,34 @@ void dumpExTest(const char *s,
 //                      GLOBAL DEFINITIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#define MSVC 1
+#else
+#define MSVC 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800
+#define MSVC_2013 1
+#else
+#define MSVC_2013 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1900
+#define MSVC_2015 1
+#else
+#define MSVC_2015 0
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+# ifndef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+#  error "This test driver requires 'bslmf::MovableRef<T>' be 'T&&' if" \
+         " the current compiler supports rvalue references."
+# endif
+# define DEDUCED_MOVABLE_REF(T) T&&
+#else
+# define DEDUCED_MOVABLE_REF(T) ::BloombergLP::bslmf::MovableRef<T >
+#endif
+
 namespace {
 
 // Size type used by test allocator.
@@ -430,6 +458,10 @@ bslma::TestAllocator defaultTestAllocator("defaultTestAllocator");
 
 #define NTWRAP(r)   bslalg::NothrowMovableUtil::wrap(r)
 #define NTUNWRAP(r) bslalg::NothrowMovableUtil::unwrap(r)
+
+                // --------------------
+                // Class template RWrap
+                // --------------------
 
 template <class TYPE>
 class RWrap {
@@ -460,6 +492,10 @@ struct IsReferenceWrapper<RWrap<TYPE> > : bsl::true_type {
 }  // close enterprise namespace
 
 namespace {
+
+                // -----------------------
+                // Class template SmartPtr
+                // -----------------------
 
 template <class TYPE>
 class SmartPtr
@@ -504,6 +540,10 @@ void functionWithDefaultArgument(int = 0)
 SUMMING_FUNC(0)
 BSLS_MACROREPEAT(13, SUMMING_FUNC)
 
+                // ----------------------
+                // Class ConvertibleToInt
+                // ----------------------
+
 class ConvertibleToInt
 {
     // Class of objects implicitly convertible to 'int'
@@ -515,6 +555,10 @@ class ConvertibleToInt
 
     operator int() const { return d_value; }
 };
+
+                // ----------------
+                // Class IntWrapper
+                // ----------------
 
 class IntWrapper
 {
@@ -581,12 +625,117 @@ inline bool operator!=(const IntWrapper& a, const IntWrapper& b)
     return a.value() != b.value();
 }
 
+                // -----------------------
+                // Class IntWrapperDerived
+                // -----------------------
+
 class IntWrapperDerived : public IntWrapper
 {
     // Derived class of 'IntWrapper'
 
   public:
     IntWrapperDerived(int v) : IntWrapper(v) { }                    // IMPLICIT
+};
+
+                // ----------------
+                // Struct IntHolder
+                // ----------------
+
+struct IntHolder {
+    // PUBLIC DATA
+    int d_value;
+
+    // CREATORS
+    IntHolder(int value)                                            // IMPLICIT
+    : d_value(value)
+    {
+    }
+
+    // ACCESSORS
+    int value() const { return d_value; }
+};
+
+                // ---------------------
+                // Struct ConstIntHolder
+                // ---------------------
+
+struct ConstIntHolder {
+    // PUBLIC DATA
+    const int d_value;
+
+    // CREATORS
+    ConstIntHolder(int value)                                       // IMPLICIT
+    : d_value(value)
+    {
+    }
+
+    // MANIPULATORS
+    ConstIntHolder& operator=(const ConstIntHolder& rhs)
+        // Assign the value of the specified 'rhs' to this object and return a
+        // reference providing modifiable access to this object.  The behavior
+        // is undefined unless 'rhs' has the same value of this object upon
+        // invocation.  Note that this contract may seem silly, tautological,
+        // and unusably restrictive, but it provides just enough capability to
+        // support the syntactic needs of this test in a well-defined manner.
+    {
+        ///Implementation Note
+        ///-------------------
+        // The assignment operator for class types having a 'const' data member
+        // is not implicitly defined.  Infrastructure in this test requires
+        // that these "int holder" types be copy-assignable.  The copy
+        // assignment operation for a 'ConstIntHolder' can only be well-defined
+        // if the 'rhs' has the same value as 'this' so that assignment does
+        // not end up changing 'd_value'.
+
+        ASSERT(rhs.d_value == d_value);
+        return *this;
+    }
+
+    // ACCESSORS
+    int value() const { return d_value; }
+};
+
+                // -----------------------
+                // Struct IntHolderDerived
+                // -----------------------
+
+struct IntHolderDerived : IntHolder {
+    // CREATORS
+    IntHolderDerived(int value)                                     // IMPLICIT
+    : IntHolder(value)
+    {
+    }
+};
+
+                // --------------------------------
+                // Struct IntHolderVirtuallyDerived
+                // --------------------------------
+
+struct IntHolderVirtuallyDerived_Base1 : virtual IntHolder {
+    // CREATORS
+    IntHolderVirtuallyDerived_Base1(int value)                      // IMPLICIT
+    : IntHolder(value)
+    {
+    }
+};
+
+struct IntHolderVirtuallyDerived_Base2 : virtual IntHolder {
+    // CREATORS
+    IntHolderVirtuallyDerived_Base2(int value)                      // IMPLICIT
+    : IntHolder(value)
+    {
+    }
+};
+
+struct IntHolderVirtuallyDerived : IntHolderVirtuallyDerived_Base1,
+                                   IntHolderVirtuallyDerived_Base2 {
+    // CREATORS
+    IntHolderVirtuallyDerived(int value)                            // IMPLICIT
+    : IntHolder(value)
+    , IntHolderVirtuallyDerived_Base1(value)
+    , IntHolderVirtuallyDerived_Base2(value)
+    {
+    }
 };
 
 int *getAddress(int& r) { return &r; }
@@ -1657,16 +1806,23 @@ class ArgGeneratorBase {
     MutableT d_value;
 
   public:
+    // TYPES
+    typedef TYPE WrappedType;
+
+    // CONSTANTS
     enum { INIT_VALUE = 0x2001 };
 
+    // CREATORS
     ArgGeneratorBase() : d_value(INIT_VALUE) { }
         // Create an object of wrapping a 'TYPE' object with a known initial
         // value.
 
-    TYPE& reset() { return (d_value = MutableT(INIT_VALUE)); }
+    // MANIPULATORS
+    WrappedType& reset() { return (d_value = MutableT(INIT_VALUE)); }
         // Reset the wrapped object to its initial value and return a
         // modifiable reference to the wrapped object.
 
+    // ACCESSORS
     int value() const { return d_value.value(); }
         // Return the value of the wrapped object.
 };
@@ -1701,7 +1857,7 @@ struct ArgGenerator : ArgGeneratorBase<TYPE> {
 
 template <class TYPE>
 struct ArgGenerator<TYPE&> : ArgGeneratorBase<TYPE> {
-    // Specialization of 'ArgGenerator' for lvalues reference to the specified
+    // Specialization of 'ArgGenerator' for lvalue references to the specified
     // 'TYPE'.
 
     bool check(int exp) const { return this->value() == exp; }
@@ -1712,6 +1868,22 @@ struct ArgGenerator<TYPE&> : ArgGeneratorBase<TYPE> {
         // Reset the wrapped object to its initial value and return a
         // modifiable lvalue reference to the wrapped object, typically for use
         // as an argument in a function call.
+};
+
+template <class TYPE>
+struct ArgGenerator<DEDUCED_MOVABLE_REF(TYPE)> : ArgGeneratorBase<TYPE> {
+    // Specialization of 'ArgGenerator' for movable references to the specified
+    // 'TYPE'.
+
+    bool check(int exp) const { return this->value() == exp; }
+        // Return true if the wrapped object's value compares equal to the
+        // specified 'exp'.
+
+    bslmf::MovableRef<TYPE> obj()
+        // Reset the wrapped object to its initial value and return a
+        // modifiable, movable reference to the wrapped object, typically for
+        // use as an argument in a function call.
+        { return bslmf::MovableRefUtil::move(this->reset()); }
 };
 
 template <class TYPE>
@@ -1732,16 +1904,42 @@ template <class TYPE>
 struct ArgGenerator<SmartPtr<TYPE> > : ArgGeneratorBase<TYPE> {
     // Specialization of 'ArgGenerator' for 'SmartPtr' to the specified 'TYPE'.
 
-    // Specialization for smart pointers to 'TYPE'
     bool check(int exp) const { return this->value() == exp; }
         // Return true if the wrapped object's value compares equal to the
         // specified 'exp'.
 
     SmartPtr<TYPE> obj() { return SmartPtr<TYPE>(&this->reset()); }
-        // Reset the wrapped object to its initial value and return a
-        // smart pointer to the wrapped object, typically for use as an
-        // argument in a function call.  The smart pointer is returned by
-        // value, but provides modifiable access to the wrapped object.
+        // Reset the wrapped object to its initial value and return a smart
+        // pointer to the wrapped object, typically for use as an argument in a
+        // function call.  The smart pointer is returned by value, but provides
+        // modifiable access to the wrapped object.
+};
+
+template <class TYPE>
+struct ArgGenerator<DEDUCED_MOVABLE_REF(SmartPtr<TYPE>)>
+: ArgGeneratorBase<TYPE> {
+    // Specialization of 'ArgGenerator' for movable references of modifiable
+    // smart pointers smart pointers to the specified 'TYPE'.
+
+  private:
+    SmartPtr<TYPE> d_obj;
+        // an object of type 'SmartPtr<TYPE>' such that the 'obj' member
+        // function can return a 'bslmf::MovableRef<SmartPtr<TYPE> >' object
+        // without creating an rvalue reference to a temporary
+
+  public:
+    bool check(int exp) const { return this->value() == exp; }
+        // Return true if the wrapped object's value compares equal to the
+        // specified 'exp'.
+
+    bslmf::MovableRef<SmartPtr<TYPE> > obj()
+        // Reset the wrapped object to its initial value and return a movable
+        // reference of a smart pointer to the wrapped object, typically for
+        // use as an argument in a function call.
+    {
+        d_obj = SmartPtr<TYPE>(&this->reset());
+        return bslmf::MovableRefUtil::move(d_obj);
+    }
 };
 
 // Special marker for moved-from comparisons
@@ -1787,7 +1985,6 @@ struct Function_IsReferenceCompatible<BloombergLP::bdef_Function<PROTOTYPE *>,
 };
 
 }  // Close package namespace
-
 }  // Close enterprise namespace
 
 // ============================================================================
@@ -2389,6 +2586,52 @@ void testPtrToConstMemFunc(const char *prototypeStr)
     ASSERT(gen.check(0x2001));
 }
 
+template <class TYPE, class RET>
+void testPtrToMemData(const char *prototypeStr)
+{
+    if (veryVeryVerbose) printf("\t%s\n", prototypeStr);
+
+    ArgGenerator<TYPE> gen;
+
+    // Test with 'void' return type.
+    bsl::function<void(TYPE)> f0(&IntHolder::d_value);
+    f0(gen.obj());
+    ASSERT(gen.check(0x2001));
+
+    // Test with specified return type 'RET'.
+    bsl::function<RET(TYPE)> f1(&IntHolder::d_value);
+    ASSERT(0x2001 == f1(gen.obj()));
+    ASSERT(gen.check(0x2001));
+
+    // Test with a "nothrow" wrapper.
+    bsl::function<RET(TYPE)> f2(NTWRAP(&IntHolder::d_value));
+    ASSERT(0x2001 == f1(gen.obj()));
+    ASSERT(gen.check(0x2001));
+}
+
+template <class TYPE, class RET>
+void testPtrToConstMemData(const char *prototypeStr)
+{
+    if (veryVeryVerbose) printf("\t%s\n", prototypeStr);
+
+    ArgGenerator<TYPE> gen;
+
+    // Test with 'void' return type.
+    bsl::function<void(TYPE)> f0(&ConstIntHolder::d_value);
+    f0(gen.obj());
+    ASSERT(gen.check(0x2001));
+
+    // Test with specified return type 'RET'.
+    bsl::function<RET(TYPE)> f1(&ConstIntHolder::d_value);
+    ASSERT(0x2001 == f1(gen.obj()));
+    ASSERT(gen.check(0x2001));
+
+    // Test with a "nothrow" wrapper.
+    bsl::function<RET(TYPE)> f2(NTWRAP(&ConstIntHolder::d_value));
+    ASSERT(0x2001 == f1(gen.obj()));
+    ASSERT(gen.check(0x2001));
+}
+
 template <class FUNCTOR, class OBJ>
 bool checkValue(const OBJ& obj, int exp)
     // Return true if the functor wrapped within the specified 'obj' has a
@@ -2875,7 +3118,7 @@ void testConstructFromCallableObj(const FUNC&  func,
 #undef CALL_IMP
 }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
 
 template <class VOID, class PROTOTYPE, class REF_UTIL, class FUNC>
 struct TestIsConstructibleImp : bsl::false_type {
@@ -3045,10 +3288,21 @@ void testIsConstructible(int          line,
                            TEST_IS_CONSTRUCTIBLE##Util,                       \
                            LRVAL##RefUtil>(line, funcName, isConstructible)
 
+#if !MSVC_2015 && !MSVC_2013
+    // MSVC 2015 and earlier have a brittle implementation of expression sfinae
+    // and does not implement 2-phase name lookup correctly.  These 2 issues
+    // combine to make the check for Lvalue-Callability in the single-argument
+    // "functor" constructor of 'bsl::function' impossible to use in expression
+    // sfinae.  For some reason, likely due to differences in overload
+    // resolution, the "extended functor" constructor (the one that takes an
+    // allocator) *can* be used in expression sfinae.
+
     CALL_IMP(TestIsConstructible         , Lvalue     );
     CALL_IMP(TestIsConstructible         , Rvalue     );
     CALL_IMP(TestIsConstructible         , ConstLvalue);
     CALL_IMP(TestIsConstructible         , ConstRvalue);
+#endif
+
     CALL_IMP(TestIsConstructibleWithAlloc, Lvalue     );
     CALL_IMP(TestIsConstructibleWithAlloc, Rvalue     );
     CALL_IMP(TestIsConstructibleWithAlloc, ConstLvalue);
@@ -3057,7 +3311,7 @@ void testIsConstructible(int          line,
 #undef CALL_IMP
 }
 
-#endif // defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+#endif // defined(BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE)
 
 template <class FUNC>
 void testCopyCtorWithAlloc(FUNC        func,
@@ -4334,7 +4588,7 @@ testAssignFromFunctorRefWrap(BSLA_MAYBE_UNUSED const Obj&   lhsIn,
 #endif
 }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
 template <class VOID, class PROTOTYPE, class REF_UTIL, class FUNC>
 struct TestIsAssignableImp : bsl::false_type {
     // This 'struct' template implements a partial boolean metafunction that
@@ -4436,7 +4690,7 @@ void testIsAssignable(int line, const char *funcName, bool isAssignable)
 
 #undef CALL_IMP
 }
-#endif // defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#endif // defined(BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE)
 
 class MyPredicate {
     // This class provides a type invocable with the prototype 'bool (int)'.
@@ -5166,14 +5420,133 @@ int main(int argc, char *argv[])
 #endif // C++11
 
       } break;
-
       case 16: {
         // --------------------------------------------------------------------
         // POINTER TO MEMBER DATA INVOCATION
         //
+        //  All of the concerns refer to an object 'f' of type
+        //  'bsl::function<RET(T)>', for a specified return type 'RET' and
+        //  class 'T'.  f's constructor argument is a pointer 'dp' to data
+        //  member of type 'DT FT::*' for a specified data type 'DT' and class
+        //  type 'FT'.  The invocation argument is an 'obj' of type 'T'.
+        //
         // Concerns:
+        //: 1 If 'T' is the same as 'FT&', invoking 'f(obj)' yields the same
+        //:   return value as 'obj.*dp'.
+        //:
+        //: 2 If 'T' is the same as 'FT', invoking 'f(obj)' yields the same
+        //:   return value as 'obj.*dp', and will access the data member of
+        //:   the copy of 'obj' made when it was passed by value, not 'obj'
+        //:   itself.
+        //:
+        //: 3 If 'T' is the same as 'FT*', or "smart pointer" to 'FT', invoking
+        //:   'f(obj)' yields the same result as '(*obj).*dp'.
+        //:
+        //: 4 The return type 'RET' need not match the data-member type 'DT'
+        //:   so long as 'RET' is implicitly convertible to 'DT' or a
+        //:   reference-to 'DT'.
+        //:
+        //: 5 If 'dp' is a pointer to const data member, then 'T' can be
+        //:   rvalue of, reference to, pointer to, or smart-pointer to either a
+        //:   const or non-const type.  All of the above concerns apply to both
+        //:   const and non-const data members.
+        //:
+        //: 6 Concerns 1 and 2 also apply if 'T' is an rvalue of, reference to,
+        //:   pointer to, or smart-pointer to a type derived or
+        //:   virtually-derived from 'FT'.
+        //:
+        //: 7 If 'RET' is 'void', then the return value of the access to 'dp'
+        //:   is discarded.
+        //:
+        //: 8 If 'RET' is a reference to 'DT', the address of the reference
+        //:   returned by 'f(obj)' is equal to the address of 'obj.*dp'.
+        //:
+        //: 9 When 'dp' is wrapped using a 'bslalg::NothrowMovableWrapper',
+        //:   invocation proceeds as though the wrapper were not present.
+        //:
+        //: 10 In C++11 and later, if 'T' is an rvalue-reference qualified
+        //:    type, 'RET' may be any type that is explicitly convertible from
+        //:    an xvalue expression of 'DT' type.  Note that these are the same
+        //:    semantics as when 'T' is a non-reference-qualified ("object")
+        //:    type.  Note that the standard 'std::function' only permits 'RET'
+        //:    types that are implicitly convertible from such 'DT'-typed
+        //:    expressions.  'bsl::function' extends the set of allowable 'RET'
+        //:    types for backwards compatibility.
+        //:
+        //: 11 In C++11 and later, if 'T' is an rvalue-reference qualified
+        //:    type, or a non-reference-qualified ("object") type, 'RET' may be
+        //:    any rvalue-reference qualified type that is explicitly
+        //:    convertible from an (xvalue) expression of 'DT' type.  Note that
+        //:    the standard 'std::function' only permits 'RET' types that are
+        //:    implicitly convertible from such 'DT'-typed expressions.
+        //:    'bsl::function' extends the set of allowable 'RET' types for
+        //:    backwards compatibility.
         //
         // Plan:
+        //: 1 Create a class 'IntHolder' that holds an 'int' value as a public
+        //:   data member named 'd_value', and a class 'ConstIntHolder' that
+        //:   holds a 'const int' value as a public data member.
+        //:
+        //: 2 For concern 1, implement a test function template
+        //:   'testPtrToMemData' that instantiates a 'bsl::function'
+        //:   instantiated for a specified object type and specified return
+        //:   type, given the address of 'IntHolder::d_value'.  Then, invoke
+        //:   'testPtrToMemData' with object type 'IntHolder&' and verify that
+        //:   the return value is as expected.
+        //:
+        //: 3 For concern 2, ensure that 'testPtrtoMemData' checks for no
+        //:   change to 'obj' if 'T' is not a pointer or reference type.
+        //:   Invoke 'testPtrToMemData' with object type 'IntHolder'.
+        //:
+        //: 4 For concern 3, invoke 'testPtrToMemData' with object types
+        //:   'IntHolder*', and 'SmartPtr<IntHolder>'.
+        //:
+        //: 5 For concern 4, invoke 'testPtrToMemData' with 'RET' types
+        //:   'DT' and 'const DT&', as well as 'DT&' when 'T' is not a
+        //:   const-qualified reference type.
+        //:
+        //: 6 For concern 5, implement a test function template,
+        //:   'testPtrToConstMemData', that works similarly to
+        //:   'testPtrToMemData' except that it wraps the const data member
+        //:   'ConstIntHolder::d_value' instead of the non-const data member
+        //:   'IntHolder::d_value'.  Invoke 'testPtrToConstMemData' with object
+        //:   types 'ConstIntHolder', 'ConstIntHolder&', 'ConstIntHolder*', and
+        //:   'SmartPtr<ConstIntHolder>', as well as 'const' versions of the
+        //:   preceding, and corresponding 'const' and/or reference-qualified
+        //:   versions of the return type.
+        //:
+        //: 7 For concern 6, create classes 'IntHolderDerived' and
+        //:   'IntHolderVirtuallyDerived', respectively derived and virtually
+        //:   derived from 'IntHolder'.  Invoke 'testPtrToMemData' with object
+        //:   types 'IntHolderDerived', 'IntHolderDerived&',
+        //:   'IntHolderDerived*', and 'SmartPtr<IntHolderDerived', as well as
+        //:   'const' versions of the preceding, and corresponding 'const'
+        //:   and/or reference-qualified versions of the return type.
+        //:
+        //: 8 For concern 7, add a check in 'testPtrToMemData' and
+        //:   'testPtrToConstMemData' that a 'bsl::function' specialization
+        //:   with a 'void' 'RET' is constructible from pointers to data
+        //:   members, and that invoking such functions has no effect (outside
+        //:   of, perhaps, dereferencing the pointer to the data member).
+        //:
+        //: 9 For concern 8, where both 'T' and 'RET' types are reference
+        //:   types, take the address of the result of 'f(obj)' and verify that
+        //:   it is equal to the address of the corresponding data member of
+        //:   'obj', which is '&obj.*dp'.
+        //:
+        //: 10 For concern 9, add a check in 'testPtrToMemData' and
+        //:    'testPtrToConstMemData' that a 'bsl::function' object
+        //:    constructed using a pointer to a data member wrapped by a
+        //:    'bslalg::NothrowMovableWrapper' has the same behavior as a
+        //:    'bsl:function' object constructed with the non-wrapped pointer
+        //:    to data member.
+        //:
+        //: 11 For concerns 10 and 11, use 'testPtrToMemData' and
+        //:    'testPtrToConstMemData' with combinations of rvalue-reference
+        //:    qualified 'T' and/or 'RET' types, and check that a
+        //:    'bsl::function' with such a prototype is constructible from a
+        //:    pointer to an (optionally const) data member if the criteria in
+        //:    those concerns are met.
         //
         // Testing:
         //  RET operator()(ARGS...) const; // data-member pointer target
@@ -5182,9 +5555,231 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nPOINTER TO MEMBER DATA INVOCATION"
                             "\n=================================\n");
 
-        // TBD: Not-yet-implemented feature
-      } break;
+#define TEST(c, d)       testPtrToMemData<c, d>(#d "(" #c ")")
+#define TEST_CONST(c, d) testPtrToConstMemData<c, d>(#d "(" #c ")")
 
+        if (veryVerbose) printf("Plan step 3\n");
+        TEST(IntHolder&, int       );
+        TEST(IntHolder&, int&      );
+        TEST(IntHolder&, const int&);
+        TEST(IntHolder , int       );
+        TEST(IntHolder , const int&);
+
+        if (veryVerbose) printf("Plan step 4\n");
+        TEST(IntHolder *        , int       );
+        TEST(IntHolder *        , int&      );
+        TEST(IntHolder *        , const int&);
+        TEST(SmartPtr<IntHolder>, int       );
+        TEST(SmartPtr<IntHolder>, int&      );
+        TEST(SmartPtr<IntHolder>, const int&);
+
+        if (veryVerbose) printf("Plan step 5\n");
+        TEST(const IntHolder&         , int       );
+        TEST(const IntHolder&         , const int&);
+        TEST(const IntHolder          , int       );
+        TEST(const IntHolder          , const int&);
+        TEST(const IntHolder *        , int       );
+        TEST(const IntHolder *        , const int&);
+        TEST(SmartPtr<const IntHolder>, int       );
+        TEST(SmartPtr<const IntHolder>, const int&);
+
+        if (veryVerbose) printf("Plan step 6\n");
+        TEST_CONST(ConstIntHolder&               , int       );
+        TEST_CONST(ConstIntHolder&               , const int&);
+        TEST_CONST(ConstIntHolder                , int       );
+        TEST_CONST(ConstIntHolder                , const int&);
+        TEST_CONST(ConstIntHolder *              , int       );
+        TEST_CONST(ConstIntHolder *              , const int&);
+        TEST_CONST(SmartPtr<ConstIntHolder>      , int       );
+        TEST_CONST(SmartPtr<ConstIntHolder>      , const int&);
+        TEST_CONST(const ConstIntHolder&         , int       );
+        TEST_CONST(const ConstIntHolder&         , const int&);
+        TEST_CONST(const ConstIntHolder          , int       );
+        TEST_CONST(const ConstIntHolder          , const int&);
+        TEST_CONST(const ConstIntHolder *        , int       );
+        TEST_CONST(const ConstIntHolder *        , const int&);
+        TEST_CONST(SmartPtr<const ConstIntHolder>, int       );
+        TEST_CONST(SmartPtr<const ConstIntHolder>, const int&);
+
+        if (veryVerbose) printf("Plan step 7\n");
+        TEST(IntHolderDerived&                        , int       );
+        TEST(IntHolderDerived&                        , int&      );
+        TEST(IntHolderDerived&                        , const int&);
+        TEST(IntHolderDerived                         , int       );
+        TEST(IntHolderDerived                         , const int&);
+        TEST(IntHolderDerived *                       , int       );
+        TEST(IntHolderDerived *                       , int&      );
+        TEST(IntHolderDerived *                       , const int&);
+        TEST(SmartPtr<IntHolderDerived>               , int       );
+        TEST(SmartPtr<IntHolderDerived>               , int&      );
+        TEST(SmartPtr<IntHolderDerived>               , const int&);
+        TEST(const IntHolderDerived&                  , int       );
+        TEST(const IntHolderDerived&                  , const int&);
+        TEST(const IntHolderDerived                   , int       );
+        TEST(const IntHolderDerived                   , const int&);
+        TEST(const IntHolderDerived *                 , int       );
+        TEST(const IntHolderDerived *                 , const int&);
+        TEST(SmartPtr<const IntHolderDerived>         , int       );
+        TEST(SmartPtr<const IntHolderDerived>         , const int&);
+        TEST(IntHolderVirtuallyDerived&               , int       );
+        TEST(IntHolderVirtuallyDerived&               , int&      );
+        TEST(IntHolderVirtuallyDerived&               , const int&);
+        TEST(IntHolderVirtuallyDerived                , int       );
+        TEST(IntHolderVirtuallyDerived                , const int&);
+        TEST(IntHolderVirtuallyDerived *              , int       );
+        TEST(IntHolderVirtuallyDerived *              , int&      );
+        TEST(IntHolderVirtuallyDerived *              , const int&);
+        TEST(SmartPtr<IntHolderVirtuallyDerived>      , int       );
+        TEST(SmartPtr<IntHolderVirtuallyDerived>      , int&      );
+        TEST(SmartPtr<IntHolderVirtuallyDerived>      , const int&);
+        TEST(const IntHolderVirtuallyDerived&         , int       );
+        TEST(const IntHolderVirtuallyDerived&         , const int&);
+        TEST(const IntHolderVirtuallyDerived          , int       );
+        TEST(const IntHolderVirtuallyDerived          , const int&);
+        TEST(const IntHolderVirtuallyDerived *        , int       );
+        TEST(const IntHolderVirtuallyDerived *        , const int&);
+        TEST(SmartPtr<const IntHolderVirtuallyDerived>, int       );
+        TEST(SmartPtr<const IntHolderVirtuallyDerived>, const int&);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+        if (veryVerbose) printf("Plan step 10");
+        TEST(IntHolder&&                      , int        );
+        TEST(IntHolder&&                      , int&&      );
+        TEST(IntHolder&&                      , const int  );
+        TEST(IntHolder&&                      , const int& );
+        TEST(IntHolder&&                      , const int&&);
+        TEST(const IntHolder&&                , int        );
+        TEST(const IntHolder&&                , const int  );
+        TEST(const IntHolder&&                , const int& );
+        TEST(const IntHolder&&                , const int&&);
+        TEST(IntHolderDerived&&               , int        );
+        TEST(IntHolderDerived&&               , int&&      );
+        TEST(IntHolderDerived&&               , const int  );
+        TEST(IntHolderDerived&&               , const int& );
+        TEST(IntHolderDerived&&               , const int&&);
+        TEST(const IntHolderDerived&&         , int        );
+        TEST(const IntHolderDerived&&         , const int  );
+        TEST(const IntHolderDerived&&         , const int& );
+        TEST(const IntHolderDerived&&         , const int&&);
+        TEST(IntHolderVirtuallyDerived&&      , int        );
+        TEST(IntHolderVirtuallyDerived&&      , int&&      );
+        TEST(IntHolderVirtuallyDerived&&      , const int  );
+        TEST(IntHolderVirtuallyDerived&&      , const int& );
+        TEST(IntHolderVirtuallyDerived&&      , const int&&);
+        TEST(const IntHolderVirtuallyDerived&&, int        );
+        TEST(const IntHolderVirtuallyDerived&&, const int  );
+        TEST(const IntHolderVirtuallyDerived&&, const int& );
+        TEST(const IntHolderVirtuallyDerived&&, const int&&);
+        TEST(SmartPtr<IntHolder>&&            , int        );
+        TEST(SmartPtr<IntHolder>&&            , int&       );
+        TEST(SmartPtr<IntHolder>&&            , int&&      );
+        TEST(SmartPtr<IntHolder>&&            , const int  );
+        TEST(SmartPtr<IntHolder>&&            , const int& );
+        TEST(SmartPtr<IntHolder>&&            , const int&&);
+        TEST(SmartPtr<const IntHolder>&&      , int        );
+        TEST(SmartPtr<const IntHolder>&&      , const int  );
+        TEST(SmartPtr<const IntHolder>&&      , const int& );
+        TEST(SmartPtr<const IntHolder>&&      , const int&&);
+
+        {
+            bsl::function<int(IntHolder &&)> function(&IntHolder::d_value);
+            IntHolder                        intHolder(0x2001);
+            ASSERT(0x2001 == function(static_cast<IntHolder&&>(intHolder)));
+        }
+
+        {
+            bsl::function<int && (IntHolder &&)> function(&IntHolder::d_value);
+            IntHolder                            intHolder(0x2001);
+            ASSERT(0x2001 == function(static_cast<IntHolder&&>(intHolder)));
+        }
+
+        {
+            bsl::function<const int&(IntHolder &&)> function(
+                &IntHolder::d_value);
+            IntHolder intHolder(0x2001);
+            ASSERT(0x2001 == function(static_cast<IntHolder&&>(intHolder)));
+            ASSERT(&function(static_cast<IntHolder&&>(intHolder)) ==
+                   &intHolder.d_value);
+        }
+
+        {
+            bsl::function<const int && (IntHolder &&)> function(
+                &IntHolder::d_value);
+            IntHolder intHolder(0x2001);
+            ASSERT(0x2001 == function(static_cast<IntHolder&&>(intHolder)));
+        }
+
+#endif
+
+#undef TEST_CONST
+#undef TEST
+
+        if (veryVerbose) printf("Plan step 9\n");
+        bsl::function<int& (IntHolder&)> ftr(&IntHolder::d_value);
+        IntHolder ihr(0x2001);
+        ftr(ihr) = 0x2002;
+        ASSERT(0x2002 == ihr.d_value);
+        ASSERT(&ftr(ihr) == &ihr.d_value);
+
+        bsl::function<int& (IntHolder *)> ftp(&IntHolder::d_value);
+        IntHolder ihp(0x2001);
+        ftp(&ihp) = 0x2002;
+        ASSERT(0x2002 == ihp.d_value);
+        ASSERT(&ftp(&ihp) == &ihp.d_value);
+
+        bsl::function<int& (SmartPtr<IntHolder>)> ftsp(&IntHolder::d_value);
+        IntHolder ihsp(0x2001);
+        ftsp(&ihsp) = 0x2002;
+        ASSERT(0x2002 == ihsp.d_value);
+        ASSERT(&ftsp(&ihsp) == &ihsp.d_value);
+
+        bsl::function<int& (IntHolder&)> ftrd(&IntHolder::d_value);
+        IntHolderDerived ihrd(0x2001);
+        ftrd(ihrd) = 0x2002;
+        ASSERT(0x2002 == ihrd.d_value);
+        ASSERT(&ftrd(ihrd) == &ihrd.d_value);
+
+        bsl::function<int& (IntHolder *)> ftpd(&IntHolder::d_value);
+        IntHolderDerived ihpd(0x2001);
+        ftpd(&ihpd) = 0x2002;
+        ASSERT(0x2002 == ihpd.d_value);
+        ASSERT(&ftpd(&ihpd) == &ihpd.d_value);
+
+        bsl::function<int& (SmartPtr<IntHolder>)> ftspd(&IntHolder::d_value);
+        IntHolderDerived ihspd(0x2001);
+        ftspd(&ihspd) = 0x2002;
+        ASSERT(0x2002 == ihspd.d_value);
+        ASSERT(&ftspd(&ihspd) == &ihspd.d_value);
+
+        bsl::function<const int& (IntHolder&)> ftcr(&IntHolder::d_value);
+        IntHolder ihcr(0x2001);
+        ASSERT(&ftcr(ihcr) == &ihcr.d_value);
+
+        bsl::function<const int& (IntHolder *)> ftcp(&IntHolder::d_value);
+        IntHolder ihcp(0x2001);
+        ASSERT(&ftcp(&ihcp) == &ihcp.d_value);
+
+        bsl::function<const int&(SmartPtr<IntHolder>)> ftcsp(
+            &IntHolder::d_value);
+        IntHolder ihcsp(0x2001);
+        ASSERT(&ftcsp(&ihcsp) == &ihcsp.d_value);
+
+        bsl::function<const int&(const IntHolder&)> ftccr(&IntHolder::d_value);
+        IntHolder ihccr(0x2001);
+        ASSERT(&ftccr(ihccr) == &ihccr.d_value);
+
+        bsl::function<const int&(const IntHolder *)> ftccp(
+            &IntHolder::d_value);
+        IntHolder ihccp(0x2001);
+        ASSERT(&ftccp(&ihccp) == &ihccp.d_value);
+
+        bsl::function<const int&(SmartPtr<const IntHolder>)> ftccsp(
+            &IntHolder::d_value);
+        IntHolder ihccsp(0x2001);
+        ASSERT(&ftccsp(&ihccsp) == &ihccsp.d_value);
+
+      } break;
       case 15: {
         // --------------------------------------------------------------------
         // POINTER TO MEMBER FUNCTION INVOCATION
@@ -6208,7 +6803,9 @@ int main(int argc, char *argv[])
         TestData data[] = {
             TEST_ITEM(SimpleFuncPtr_t                , nullFuncPtr       ),
             TEST_ITEM(SimpleFuncPtr_t                , simpleFunc        ),
+#if !MSVC_2013
             TEST_ITEM(SimpleMemFuncPtr_t             , nullMemFuncPtr    ),
+#endif
             TEST_ITEM(SimpleMemFuncPtr_t             , &IntWrapper::add1 ),
             TEST_ITEM(EmptyFunctor                   , 0                 ),
             TEST_ITEM(SmallFunctor                   , 0x2000            ),
@@ -6250,7 +6847,9 @@ int main(int argc, char *argv[])
 
 
             TEST(nullFuncPtr                                  );
+#if !MSVC_2013
             TEST(nullMemFuncPtr                               );
+#endif
             TEST(&simpleFunc                                  );
             TEST(&IntWrapper::add1                            );
             TEST(EmptyFunctor()                               );
@@ -6284,12 +6883,6 @@ int main(int argc, char *argv[])
         typedef SmartPtr<const IntWrapperDerived> ScIWD;
         typedef RWrap<IntWrapperDerived>          RIWD;
         typedef RWrap<const IntWrapperDerived>    RcIWD;
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-        static const bool MSVC = true;
-#else
-        static const bool MSVC = false;
-#endif
 
         //                                                 Constructible?
         //  Proto Functor Type                                           \.
@@ -6538,37 +7131,37 @@ int main(int argc, char *argv[])
         // 'bsl::function' objects with prototypes having smart pointer to, and
         // reference-wrapped, class types, constructed with pointers to member
         // functions of base types.
-        TEST(       int  (        IWD  ), int (IW::*)()         , true );
-        TEST(       int  (       RIWD  ), int (IW::*)()         , true );
-        TEST(       int  (      RcIWD  ), int (IW::*)()         , false);
-        TEST(       int  (       SIWD  ), int (IW::*)()         , true );
-        TEST(       int  (      ScIWD  ), int (IW::*)()         , false);
-        TEST(       int  (        IWD  ), int (IW::*)() &       , false);
-        TEST(       int  (       RIWD  ), int (IW::*)() &       , true );
-        TEST(       int  (      RcIWD  ), int (IW::*)() &       , false);
-        TEST(       int  (       SIWD  ), int (IW::*)() &       , true );
-        TEST(       int  (      ScIWD  ), int (IW::*)() &       , false);
-        TEST(       int  (        IWD  ), int (IW::*)() const   , true );
-        TEST(       int  (       RIWD  ), int (IW::*)() const   , true );
-        TEST(       int  (      RcIWD  ), int (IW::*)() const   , true );
-        TEST(       int  (       SIWD  ), int (IW::*)() const   , true );
-        TEST(       int  (      ScIWD  ), int (IW::*)() const   , true );
-        TEST(       int  (        IWD  ), int (IW::*)() const&  , MSVC );
-        TEST(       int  (       RIWD  ), int (IW::*)() const&  , true );
-        TEST(       int  (      RcIWD  ), int (IW::*)() const&  , true );
-        TEST(       int  (       SIWD  ), int (IW::*)() const&  , true );
-        TEST(       int  (      ScIWD  ), int (IW::*)() const&  , true );
+        TEST(       int  (        IWD  ), int (IW::*)()         , true     );
+        TEST(       int  (       RIWD  ), int (IW::*)()         , true     );
+        TEST(       int  (      RcIWD  ), int (IW::*)()         , false    );
+        TEST(       int  (       SIWD  ), int (IW::*)()         , true     );
+        TEST(       int  (      ScIWD  ), int (IW::*)()         , false    );
+        TEST(       int  (        IWD  ), int (IW::*)() &       , MSVC_2015);
+        TEST(       int  (       RIWD  ), int (IW::*)() &       , true     );
+        TEST(       int  (      RcIWD  ), int (IW::*)() &       , false    );
+        TEST(       int  (       SIWD  ), int (IW::*)() &       , true     );
+        TEST(       int  (      ScIWD  ), int (IW::*)() &       , false    );
+        TEST(       int  (        IWD  ), int (IW::*)() const   , true     );
+        TEST(       int  (       RIWD  ), int (IW::*)() const   , true     );
+        TEST(       int  (      RcIWD  ), int (IW::*)() const   , true     );
+        TEST(       int  (       SIWD  ), int (IW::*)() const   , true     );
+        TEST(       int  (      ScIWD  ), int (IW::*)() const   , true     );
+        TEST(       int  (        IWD  ), int (IW::*)() const&  , MSVC     );
+        TEST(       int  (       RIWD  ), int (IW::*)() const&  , true     );
+        TEST(       int  (      RcIWD  ), int (IW::*)() const&  , true     );
+        TEST(       int  (       SIWD  ), int (IW::*)() const&  , true     );
+        TEST(       int  (      ScIWD  ), int (IW::*)() const&  , true     );
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        TEST(       int  (        IWD  ), int (IW::*)() &&      , true );
-        TEST(       int  (       RIWD  ), int (IW::*)() &&      , false);
-        TEST(       int  (      RcIWD  ), int (IW::*)() &&      , false);
-        TEST(       int  (       SIWD  ), int (IW::*)() &&      , false);
-        TEST(       int  (      ScIWD  ), int (IW::*)() &&      , false);
-        TEST(       int  (        IWD  ), int (IW::*)() const&& , true );
-        TEST(       int  (       RIWD  ), int (IW::*)() const&& , false);
-        TEST(       int  (      RcIWD  ), int (IW::*)() const&& , false);
-        TEST(       int  (       SIWD  ), int (IW::*)() const&& , false);
-        TEST(       int  (      ScIWD  ), int (IW::*)() const&& , false);
+        TEST(       int  (        IWD  ), int (IW::*)() &&      ,!MSVC_2015);
+        TEST(       int  (       RIWD  ), int (IW::*)() &&      , false    );
+        TEST(       int  (      RcIWD  ), int (IW::*)() &&      , false    );
+        TEST(       int  (       SIWD  ), int (IW::*)() &&      , false    );
+        TEST(       int  (      ScIWD  ), int (IW::*)() &&      , false    );
+        TEST(       int  (        IWD  ), int (IW::*)() const&& ,!MSVC_2015);
+        TEST(       int  (       RIWD  ), int (IW::*)() const&& , false    );
+        TEST(       int  (      RcIWD  ), int (IW::*)() const&& , false    );
+        TEST(       int  (       SIWD  ), int (IW::*)() const&& , false    );
+        TEST(       int  (      ScIWD  ), int (IW::*)() const&& , false    );
 #endif
 
         // 'bsl::function' objects having prototypes with const- and/or
@@ -6933,7 +7526,9 @@ int main(int argc, char *argv[])
         TestData dataA[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
             TEST_ITEM(SimpleFuncPtr_t        , simpleFunc        ),
+#if !MSVC_2013
             TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
+#endif
             TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::add1 ),
             TEST_ITEM(EmptyFunctor           , 0                 ),
             TEST_ITEM(SmallFunctor           , 0x200             ),
@@ -6954,7 +7549,9 @@ int main(int argc, char *argv[])
         TestData dataB[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
             TEST_ITEM(SimpleFuncPtr_t        , simpleFunc2       ),
+#if !MSVC_2013
             TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
+#endif
             TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::sub1 ),
             TEST_ITEM(EmptyFunctor           , 0                 ),
             TEST_ITEM(SmallFunctor           , 0x30              ),
@@ -7131,7 +7728,9 @@ int main(int argc, char *argv[])
         TestData dataA[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
             TEST_ITEM(SimpleFuncPtr_t        , simpleFunc        ),
+#if !MSVC_2013
             TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
+#endif
             TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::add1 ),
             TEST_ITEM(EmptyFunctor           , 0                 ),
             TEST_ITEM(SmallFunctor           , 0x2000            ),
@@ -7152,7 +7751,9 @@ int main(int argc, char *argv[])
         TestData dataB[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
             TEST_ITEM(SimpleFuncPtr_t        , simpleFunc2       ),
+#if !MSVC_2013
             TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
+#endif
             TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::sub1 ),
             TEST_ITEM(EmptyFunctor           , 0                 ),
             TEST_ITEM(SmallFunctor           , 0x3000            ),
@@ -7384,7 +7985,9 @@ int main(int argc, char *argv[])
         //   =====================================  =================
         TEST(nullFuncPtr                          , false);
         TEST(&simpleFunc                          , false);
+#if !MSVC_2013
         TEST(nullMemFuncPtr                       , false);
+#endif
         TEST(&IntWrapper::add1                    , false);
         TEST(EmptyFunctor()                       , false);
         TEST(SmallFunctor(0x2000)                 , false);
@@ -7558,7 +8161,9 @@ int main(int argc, char *argv[])
         } while (false)
 
         TEST(nullFuncPtr                          );
+#if !MSVC_2013
         TEST(nullMemFuncPtr                       );
+#endif
         TEST(emptyInnerFunction                   );
         TEST(simpleFunc                           );
         TEST(&IntWrapper::add1                    );
@@ -7825,7 +8430,9 @@ int main(int argc, char *argv[])
         //   ======================================   =========  ==========
         TEST(bsl::nullptr_t()                       , false    , true );
         TEST(nullFuncPtr                            , false    , true );
+#if !MSVC_2013
         TEST(nullMemFuncPtr                         , false    , true );
+#endif
         TEST(emptyInnerFunction                     , false    , true );
         TEST(&simpleFunc                            , false    , true );
         TEST(&IntWrapper::add1                      , false    , true );
@@ -7844,7 +8451,9 @@ int main(int argc, char *argv[])
         TEST(simpleInnerFunction                    , false    , false);
 
         TEST(NTWRAP(nullFuncPtr)                    , true     , true );
+#if !MSVC_2013
         TEST(NTWRAP(nullMemFuncPtr)                 , true     , true );
+#endif
         TEST(NTWRAP(emptyInnerFunction)             , true     , true );
         TEST(NTWRAP(simpleFunc)                     , true     , true );
         TEST(NTWRAP(&IntWrapper::add1)              , true     , true );
@@ -7886,12 +8495,6 @@ int main(int argc, char *argv[])
         typedef RWrap<IntWrapperDerived>          RIWD;
         typedef RWrap<const IntWrapperDerived>    RcIWD;
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-        static const bool MSVC = true;
-#else
-        static const bool MSVC = false;
-#endif
-
         //                                                 Constructible?
         //  Proto Functor Type                                           \.
         //  ===== ==================================================== =======
@@ -7900,6 +8503,7 @@ int main(int argc, char *argv[])
         // const- and/or reference-qualified functions, pointer to functions,
         // and pointers to member functions that vary in arity and return-type
         // compatibility.
+
         TEST(PROTO, int     ()                                        , false);
         TEST(PROTO, int     (IW)                                      , false);
         TEST(PROTO, int     (IW, int)                                 , true );
@@ -8144,7 +8748,7 @@ int main(int argc, char *argv[])
         TEST(       int  (      RcIWD  ), int (IW::*)()         , false);
         TEST(       int  (       SIWD  ), int (IW::*)()         , true );
         TEST(       int  (      ScIWD  ), int (IW::*)()         , false);
-        TEST(       int  (        IWD  ), int (IW::*)() &       , false);
+        TEST(       int  (        IWD  ), int (IW::*)() &       , MSVC_2015);
         TEST(       int  (       RIWD  ), int (IW::*)() &       , true );
         TEST(       int  (      RcIWD  ), int (IW::*)() &       , false);
         TEST(       int  (       SIWD  ), int (IW::*)() &       , true );
@@ -8160,12 +8764,12 @@ int main(int argc, char *argv[])
         TEST(       int  (       SIWD  ), int (IW::*)() const&  , true );
         TEST(       int  (      ScIWD  ), int (IW::*)() const&  , true );
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        TEST(       int  (        IWD  ), int (IW::*)() &&      , true );
+        TEST(       int  (        IWD  ), int (IW::*)() &&      , !MSVC_2015);
         TEST(       int  (       RIWD  ), int (IW::*)() &&      , false);
         TEST(       int  (      RcIWD  ), int (IW::*)() &&      , false);
         TEST(       int  (       SIWD  ), int (IW::*)() &&      , false);
         TEST(       int  (      ScIWD  ), int (IW::*)() &&      , false);
-        TEST(       int  (        IWD  ), int (IW::*)() const&& , true );
+        TEST(       int  (        IWD  ), int (IW::*)() const&& , !MSVC_2015);
         TEST(       int  (       RIWD  ), int (IW::*)() const&& , false);
         TEST(       int  (      RcIWD  ), int (IW::*)() const&& , false);
         TEST(       int  (       SIWD  ), int (IW::*)() const&& , false);

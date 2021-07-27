@@ -108,13 +108,7 @@ int main(int argc, char *argv[])
         // Remove the "defined but not used" warning:
         ASSERT(true);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-
-#ifdef BSLS_PLATFORM_CMP_MSVC
-        static const bool MSVC = true;
-#else
-        static const bool MSVC = false;
-#endif
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) && !MSVC_2013
 
         typedef void                V;
         typedef int                 I;

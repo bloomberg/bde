@@ -418,8 +418,6 @@ PREINSTANTIATE_APR_FOR_BASIC_TYPES(
         PtrToMemObjTest<SmartPtr<MyDerivedClass const volatile>,
                         MyDerivedClass const volatile&>);
 
-
-
 // ============================================================================
 //                                MAIN PROGRAM
 // ----------------------------------------------------------------------------

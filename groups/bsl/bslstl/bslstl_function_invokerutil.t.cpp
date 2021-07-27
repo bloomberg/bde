@@ -103,6 +103,56 @@ int veryVeryVeryVerbose = 0; // For test allocators
 //                  GLOBAL DEFINITIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#define MSVC 1
+#else
+#define MSVC 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800
+#define MSVC_2013 1
+#else
+#define MSVC_2013 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1900
+#define MSVC_2015 1
+#else
+#define MSVC_2015 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)   \
+ && BSLS_PLATFORM_CMP_VERSION >= 1910 \
+ && BSLS_PLATFORM_CMP_VERSION <= 1916
+#define MSVC_2017 1
+#else
+#define MSVC_2017 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)   \
+ && BSLS_PLATFORM_CMP_VERSION >= 1920 \
+ && BSLS_PLATFORM_CMP_VERSION <  1929
+#define MSVC_2019 1
+#else
+#define MSVC_2019 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)    \
+ && BSLS_PLATFORM_CMP_VERSION >= 100000 \
+ && BSLS_PLATFORM_CMP_VERSION <  110000
+#define CLANG_10 1
+#else
+#define CLANG_10 0
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)    \
+ && BSLS_PLATFORM_CMP_VERSION >= 110000 \
+ && BSLS_PLATFORM_CMP_VERSION <  120000
+#define CLANG_11 1
+#else
+#define CLANG_11 0
+#endif
+
 typedef bslstl::Function_InvokerUtil             Util;
 typedef bslstl::Function_Rep                     Rep;
 typedef bslstl::Function_SmallObjectOptimization SmallObjectOptimization;
@@ -1180,50 +1230,6 @@ int main(int argc, char *argv[])
           typedef bslmf::MovableRef<E>       rrE;
           typedef bslmf::MovableRef<const E> rrcE;
 
-#if defined(BSLS_PLATFORM_CMP_CLANG)    \
- && BSLS_PLATFORM_CMP_VERSION >= 100000 \
- && BSLS_PLATFORM_CMP_VERSION <  110000
-          BSLA_MAYBE_UNUSED static const bool CLANG10 = true;
-#else
-          BSLA_MAYBE_UNUSED static const bool CLANG10 = false;
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_CLANG)    \
- && BSLS_PLATFORM_CMP_VERSION >= 110000 \
- && BSLS_PLATFORM_CMP_VERSION <  120000
-          BSLA_MAYBE_UNUSED static const bool CLANG11 = true;
-#else
-          BSLA_MAYBE_UNUSED static const bool CLANG11 = false;
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1900
-          BSLA_MAYBE_UNUSED static const bool MSVC15 = true;
-#else
-          BSLA_MAYBE_UNUSED static const bool MSVC15 = false;
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)   \
- && BSLS_PLATFORM_CMP_VERSION >= 1910 \
- && BSLS_PLATFORM_CMP_VERSION <= 1916
-          BSLA_MAYBE_UNUSED static const bool MSVC17 = true;
-#else
-          BSLA_MAYBE_UNUSED static const bool MSVC17 = false;
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)   \
- && BSLS_PLATFORM_CMP_VERSION >= 1920 \
- && BSLS_PLATFORM_CMP_VERSION <  1929
-          BSLA_MAYBE_UNUSED static const bool MSVC19 = true;
-#else
-          BSLA_MAYBE_UNUSED static const bool MSVC19 = false;
-#endif
-
-#ifdef BSLS_PLATFORM_CMP_MSVC
-          BSLA_MAYBE_UNUSED static const bool MSVC = true;
-#else
-          BSLA_MAYBE_UNUSED static const bool MSVC = false;
-#endif
-
           //                                       LINE        IS INVOCABLE
           //                                       ----.      .------------
           //        PROTOTYPE       INVOCAND TYPE       \.   /
@@ -1450,26 +1456,27 @@ int main(int argc, char *argv[])
           TEST.run<void (  rAI),  void       (  AcI)  >(L_, YES);
           TEST.run<void (  rAI),  void       (  rAI)  >(L_, YES);
           TEST.run<void (  rAI),  void       ( rAcI)  >(L_, YES);
-          TEST.run<void (  rAI),  void       ( rrAI)  >(L_, MSVC17);
-          TEST.run<void (  rAI),  void       (rrAcI)  >(L_, MSVC17);
+          TEST.run<void (  rAI),  void       ( rrAI)  >(L_, MSVC_2017);
+          TEST.run<void (  rAI),  void       (rrAcI)  >(L_, MSVC_2017);
           TEST.run<void ( rAcI),  void       (   AI)  >(L_, NO );
           TEST.run<void ( rAcI),  void       (  AcI)  >(L_, YES);
           TEST.run<void ( rAcI),  void       (  rAI)  >(L_, NO );
           TEST.run<void ( rAcI),  void       ( rAcI)  >(L_, YES);
           TEST.run<void ( rAcI),  void       ( rrAI)  >(L_, NO );
-          TEST.run<void ( rAcI),  void       (rrAcI)  >(L_, MSVC17);
+          TEST.run<void ( rAcI),  void       (rrAcI)  >(L_, MSVC_2017);
           TEST.run<void ( rrAI),  void       (   AI)  >(L_, YES);
           TEST.run<void ( rrAI),  void       (  AcI)  >(L_, YES);
-          TEST.run<void ( rrAI),  void       (  rAI)  >(L_, MSVC17);
+          TEST.run<void ( rrAI),  void       (  rAI)  >(L_, MSVC_2017
+                                                         || MSVC_2015);
           TEST.run<void ( rrAI),  void       ( rAcI)  >(L_, YES);
-          TEST.run<void ( rrAI),  void       ( rrAI)  >(L_, YES);
-          TEST.run<void ( rrAI),  void       (rrAcI)  >(L_, YES);
+          TEST.run<void ( rrAI),  void       ( rrAI)  >(L_, !MSVC_2015);
+          TEST.run<void ( rrAI),  void       (rrAcI)  >(L_, !MSVC_2015);
           TEST.run<void (rrAcI),  void       (   AI)  >(L_, NO );
           TEST.run<void (rrAcI),  void       (  AcI)  >(L_, YES);
           TEST.run<void (rrAcI),  void       (  rAI)  >(L_, NO );
           TEST.run<void (rrAcI),  void       ( rAcI)  >(L_, YES);
           TEST.run<void (rrAcI),  void       ( rrAI)  >(L_, NO );
-          TEST.run<void (rrAcI),  void       (rrAcI)  >(L_, YES);
+          TEST.run<void (rrAcI),  void       (rrAcI)  >(L_, !MSVC_2015);
 
           // invocations with decay of cvr-qualified array argument types to
           // pointer argument types
@@ -1479,8 +1486,8 @@ int main(int argc, char *argv[])
           TEST.run<void (   AI),  void       ( rPcI)  >(L_, NO );
           TEST.run<void (   AI),  void       ( rrPI)  >(L_, NO );
           TEST.run<void (   AI),  void       (rrPcI)  >(L_, !MSVC
-                                                         && !CLANG10
-                                                         && !CLANG11);
+                                                         && !CLANG_10
+                                                         && !CLANG_11);
           TEST.run<void (  AcI),  void       (   PI)  >(L_, NO );
           TEST.run<void (  AcI),  void       (  PcI)  >(L_, YES);
           TEST.run<void (  AcI),  void       (  rPI)  >(L_, NO );
@@ -1491,26 +1498,29 @@ int main(int argc, char *argv[])
           TEST.run<void (  rAI),  void       (  PcI)  >(L_, YES);
           TEST.run<void (  rAI),  void       (  rPI)  >(L_, NO );
           TEST.run<void (  rAI),  void       ( rPcI)  >(L_, NO );
-          TEST.run<void (  rAI),  void       ( rrPI)  >(L_, !MSVC19);
-          TEST.run<void (  rAI),  void       (rrPcI)  >(L_, !MSVC19);
+          TEST.run<void (  rAI),  void       ( rrPI)  >(L_, !MSVC_2019
+                                                         && !MSVC_2015);
+          TEST.run<void (  rAI),  void       (rrPcI)  >(L_, !MSVC_2019
+                                                         && !MSVC_2015);
           TEST.run<void ( rAcI),  void       (   PI)  >(L_, NO );
           TEST.run<void ( rAcI),  void       (  PcI)  >(L_, YES);
           TEST.run<void ( rAcI),  void       (  rPI)  >(L_, NO );
           TEST.run<void ( rAcI),  void       ( rPcI)  >(L_, NO );
           TEST.run<void ( rAcI),  void       ( rrPI)  >(L_, NO );
-          TEST.run<void ( rAcI),  void       (rrPcI)  >(L_, !MSVC19);
+          TEST.run<void ( rAcI),  void       (rrPcI)  >(L_, !MSVC_2019
+                                                         && !MSVC_2015);
           TEST.run<void ( rrAI),  void       (   PI)  >(L_, YES);
           TEST.run<void ( rrAI),  void       (  PcI)  >(L_, YES);
           TEST.run<void ( rrAI),  void       (  rPI)  >(L_, NO );
           TEST.run<void ( rrAI),  void       ( rPcI)  >(L_, NO );
-          TEST.run<void ( rrAI),  void       ( rrPI)  >(L_, YES);
-          TEST.run<void ( rrAI),  void       (rrPcI)  >(L_, YES);
+          TEST.run<void ( rrAI),  void       ( rrPI)  >(L_, !MSVC_2015);
+          TEST.run<void ( rrAI),  void       (rrPcI)  >(L_, !MSVC_2015);
           TEST.run<void (rrAcI),  void       (   PI)  >(L_, NO );
           TEST.run<void (rrAcI),  void       (  PcI)  >(L_, YES);
           TEST.run<void (rrAcI),  void       (  rPI)  >(L_, NO );
           TEST.run<void (rrAcI),  void       ( rPcI)  >(L_, NO );
           TEST.run<void (rrAcI),  void       ( rrPI)  >(L_, NO );
-          TEST.run<void (rrAcI),  void       (rrPcI)  >(L_, YES);
+          TEST.run<void (rrAcI),  void       (rrPcI)  >(L_, !MSVC_2015);
 
           // invocations of various callable types without argument or return
           // type conversions

@@ -165,6 +165,12 @@ static int veryVeryVeryVerbose = 0; // For test allocators
 # define ASSERT_IS_INPLACE(OBJ, EXP) ((void *) 0)
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800
+#define MSVC_2013 1
+#else
+#define MSVC_2013 0
+#endif
+
 namespace {
 
 // Whitebox: Small object optimization buffer size
@@ -755,10 +761,19 @@ enum {
 };
 
 // List of types used for most tests
-#define FUNCTION_PTR_TYPES \
-    PtrToFunc_t,           \
-    PtrToMemData_t,        \
+#if MSVC_2013
+// MSVC 2013 miscompiles function templates that return pointers to data
+// members.  For this reason, 'bslstl_function_rep' cannot support targets that
+// are reference wrappers of pointers to data members.
+# define FUNCTION_PTR_TYPES \
+    PtrToFunc_t,            \
     PtrToMemFunc_t
+#else
+# define FUNCTION_PTR_TYPES \
+    PtrToFunc_t,            \
+    PtrToMemData_t,         \
+    PtrToMemFunc_t
+#endif
 
 // Generate a list functor types with the specified size and has-allocator
 // quality ('e_SMALL_FUNCTOR', 'e_MEDIUM_FUNCTOR' or 'e_LARGE_FUNCTOR',

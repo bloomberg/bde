@@ -109,6 +109,12 @@ void aSsErT(bool b, const char *s, int i)
 //                           ENTITIES FOR TESTING
 // ----------------------------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800
+#define MSVC_2013 1
+#else
+#define MSVC_2013 0
+#endif
+
 namespace {
 namespace u {
 using namespace BloombergLP;
@@ -121,6 +127,15 @@ class IncompleteType;
     // 'IncompleteType' provides a declaration an incomplete class type, which
     // this test driver uses to construct other types for the purposes of
     // testing.
+
+#if MSVC_2013
+    // However MSVC 2013 requires 'IncompleteType' to be complete when
+    // calculating the size of 'bsl::reference_wrapper<IncompleteType>' below.
+
+class IncompleteType {
+};
+
+#endif
 
                                // =============
                                // class TypeTag
