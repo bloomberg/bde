@@ -8,6 +8,9 @@ balxml_encoderoptions
 balxml_encodingstyle
 balxml_errorinfo
 balxml_formatter
+balxml_formatter_compactimpl
+balxml_formatter_prettyimpl
+balxml_formatterwhitespacetype
 balxml_hexparser
 balxml_listparser
 balxml_minireader

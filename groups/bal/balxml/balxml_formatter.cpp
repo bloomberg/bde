@@ -1,4 +1,5 @@
 // balxml_formatter.cpp                                               -*-C++-*-
+#include <balxml_formatter.h>
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,122 +8,147 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <balxml_formatter.h>
-
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balxml_formatter_cpp,"$Id$ $CSID$")
 
 #include <bdlb_print.h>
 
-#include <bsls_assert.h>
-
-#include <bsl_cstring.h>
-#include <bsl_iomanip.h>
-#include <bsl_utility.h>
-
 namespace BloombergLP {
+namespace balxml {
 
-                    // ====================================
-                    // class balxml::Formatter::ElemContext
-                    // ====================================
+                           // ---------------------
+                           // class Formatter_State
+                           // ---------------------
 
-// ACCESSORS
-#ifdef BDE_BUILD_TARGET_SAFE_2
-bool balxml::Formatter::ElemContext::matchTag(
-                                             const bsl::string_view& tag) const
+// PRIVATE CREATORS
+Formatter_State::Formatter_State(int                   indentLevel,
+                                 int                   spacesPerLevel,
+                                 int                   wrapColumn,
+                                 const allocator_type& allocator)
+: d_mode(k_COMPACT_MODE_WRAP_COLUMN == wrapColumn ? Mode::e_COMPACT
+                                                  : Mode::e_PRETTY)
+, d_allocator(allocator)
 {
-    if (d_tagLen != bsl::min<bsl::size_t>(tag.length(), 255)) {
-        // Lengths don't match
-        return false;
+    switch (d_mode) {
+      case Mode::e_COMPACT: {
+        new (d_compact.buffer()) Compact(indentLevel, spacesPerLevel);
+      } break;
+      case Mode::e_PRETTY: {
+        new (d_pretty.buffer())
+            Pretty(indentLevel, spacesPerLevel, wrapColumn, allocator);
+      } break;
+    }
+}
+
+// CREATORS
+Formatter_State::Formatter_State(const Formatter_State& original,
+                                 const allocator_type&  allocator)
+: d_mode(original.d_mode)
+, d_allocator(allocator)
+{
+    switch (original.d_mode) {
+      case Mode::e_COMPACT: {
+        new (d_compact.buffer()) Compact(original.d_compact.object());
+      } break;
+      case Mode::e_PRETTY: {
+        new (d_pretty.buffer()) Pretty(original.d_pretty.object(), allocator);
+      } break;
+    }
+}
+
+Formatter_State::~Formatter_State()
+{
+    switch (d_mode) {
+      case Mode::e_COMPACT: {
+        d_compact.object().~Compact();
+      } break;
+      case Mode::e_PRETTY: {
+        d_pretty.object().~Pretty();
+      } break;
+    }
+}
+
+// MANIPULATORS
+Formatter_State& Formatter_State::operator=(const Formatter_State& rhs)
+{
+    switch (d_mode) {
+      case Mode::e_COMPACT: {
+        d_compact.object().~Compact();
+      } break;
+      case Mode::e_PRETTY: {
+        d_pretty.object().~Pretty();
+      } break;
     }
 
-    int len = bsl::min<bsl::size_t>(k_TRUNCATED_TAG_LEN, tag.length());
-    return 0 == bsl::memcmp(d_tag, tag.data(), len);
-}
-#endif
+    d_mode = rhs.d_mode;
 
-namespace balxml {
+    switch (rhs.d_mode) {
+      case Mode::e_COMPACT: {
+        new (d_compact.buffer()) Compact(rhs.d_compact.object());
+      } break;
+      case Mode::e_PRETTY: {
+        new (d_pretty.buffer())
+            Pretty(rhs.d_pretty.object(), d_allocator);
+      } break;
+    }
+
+    return *this;
+}
 
                               // ===============
                               // class Formatter
                               // ===============
+
+// CLASS DATA
+#ifdef BDE_VERIFY
+#pragma bde_verify push
+#pragma bde_verify - MN03
+#pragma bde_verify - UC01
+#endif
+
+const FormatterWhitespaceType::Enum Formatter::e_PRESERVE_WHITESPACE;
+const FormatterWhitespaceType::Enum Formatter::e_WORDWRAP;
+const FormatterWhitespaceType::Enum Formatter::e_WORDWRAP_INDENT;
+const FormatterWhitespaceType::Enum Formatter::e_NEWLINE_INDENT;
+const FormatterWhitespaceType::Enum Formatter::BAEXML_NEWLINE_INDENT;
+
+#ifdef BDE_VERIFY
+#pragma bde_verify pop
+#endif
 
 // CREATORS
 Formatter::Formatter(bsl::streambuf   *output,
                      int               indentLevel,
                      int               spacesPerLevel,
                      int               wrapColumn,
-                     bslma::Allocator *basic_allocator)
-: d_outputStreamObj(output)
-, d_outputStream(d_outputStreamObj)
-, d_indentLevel(indentLevel)
-, d_spacesPerLevel(spacesPerLevel)
-, d_column(0)
-, d_wrapColumn(wrapColumn)
-, d_elementNesting(basic_allocator)
-, d_state(e_AT_START)
-, d_isFirstData(true)
-, d_isFirstDataAtLine(true)
-, d_encoderOptions()
+                     bslma::Allocator *basicAllocator)
+: d_streamHolder(output)
+, d_state(indentLevel, spacesPerLevel, wrapColumn, basicAllocator)
+, d_encoderOptions(basicAllocator)
 {
-    if (d_wrapColumn < 0) {
-        // In compact mode, we don't use the 'd_elementNesting' stack.  In
-        // this case, we rely on 'd_indentLevel' to determine the depth of the
-        // element stack.
-        d_indentLevel = 0;
-    }
 }
 
 Formatter::Formatter(bsl::ostream&     output,
                      int               indentLevel,
                      int               spacesPerLevel,
                      int               wrapColumn,
-                     bslma::Allocator *basic_allocator)
-: d_outputStreamObj(0)
-, d_outputStream(output)
-, d_indentLevel(indentLevel)
-, d_spacesPerLevel(spacesPerLevel)
-, d_column(0)
-, d_wrapColumn(wrapColumn)
-, d_elementNesting(basic_allocator)
-, d_state(e_AT_START)
-, d_isFirstData(true)
-, d_isFirstDataAtLine(true)
-, d_encoderOptions()
+                     bslma::Allocator *basicAllocator)
+: d_streamHolder(&output)
+, d_state(indentLevel, spacesPerLevel, wrapColumn, basicAllocator)
+, d_encoderOptions(basicAllocator)
 {
-    if (d_wrapColumn < 0) {
-        // In compact mode, we don't use the 'd_elementNesting' stack.  In
-        // this case, we rely on 'd_indentLevel' to determine the depth of the
-        // element stack.
-        d_indentLevel = 0;
-    }
 }
-
 
 Formatter::Formatter(bsl::streambuf        *output,
                      const EncoderOptions&  encoderOptions,
                      int                    indentLevel,
                      int                    spacesPerLevel,
                      int                    wrapColumn,
-                     bslma::Allocator      *basic_allocator)
-: d_outputStreamObj(output)
-, d_outputStream(d_outputStreamObj)
-, d_indentLevel(indentLevel)
-, d_spacesPerLevel(spacesPerLevel)
-, d_column(0)
-, d_wrapColumn(wrapColumn)
-, d_elementNesting(basic_allocator)
-, d_state(e_AT_START)
-, d_isFirstData(true)
-, d_isFirstDataAtLine(true)
-, d_encoderOptions(encoderOptions)
+                     bslma::Allocator      *basicAllocator)
+: d_streamHolder(output)
+, d_state(indentLevel, spacesPerLevel, wrapColumn, basicAllocator)
+, d_encoderOptions(encoderOptions, basicAllocator)
 {
-    if (d_wrapColumn < 0) {
-        // In compact mode, we don't use the 'd_elementNesting' stack.  In
-        // this case, we rely on 'd_indentLevel' to determine the depth of the
-        // element stack.
-        d_indentLevel = 0;
-    }
 }
 
 Formatter::Formatter(bsl::ostream&          output,
@@ -130,295 +156,118 @@ Formatter::Formatter(bsl::ostream&          output,
                      int                    indentLevel,
                      int                    spacesPerLevel,
                      int                    wrapColumn,
-                     bslma::Allocator      *basic_allocator)
-: d_outputStreamObj(0)
-, d_outputStream(output)
-, d_indentLevel(indentLevel)
-, d_spacesPerLevel(spacesPerLevel)
-, d_column(0)
-, d_wrapColumn(wrapColumn)
-, d_elementNesting(basic_allocator)
-, d_state(e_AT_START)
-, d_isFirstData(true)
-, d_isFirstDataAtLine(true)
-, d_encoderOptions(encoderOptions)
+                     bslma::Allocator      *basicAllocator)
+: d_streamHolder(&output)
+, d_state(indentLevel, spacesPerLevel, wrapColumn, basicAllocator)
+, d_encoderOptions(encoderOptions, basicAllocator)
 {
-    if (d_wrapColumn < 0) {
-        // In compact mode, we don't use the 'd_elementNesting' stack.  In
-        // this case, we rely on 'd_indentLevel' to determine the depth of the
-        // element stack.
-        d_indentLevel = 0;
-    }
-}
-
-// PRIVATE MANIPULATORS
-void Formatter::addValidCommentImpl(
-                               const bsl::string_view& comment,
-                               bool                    forceNewline,
-                               bool                    omitEnclosingWhitespace)
-{
-    const char *openMarker  = 0;
-    const char *closeMarker = 0;
-
-    int markerLength = 0;
-
-    if (omitEnclosingWhitespace) {
-        openMarker   = "<!--";
-        closeMarker  = "-->";
-        markerLength = 7;
-    }
-    else {
-        openMarker   = "<!-- ";
-        closeMarker  = " -->";
-        markerLength = 9;
-    }
-
-    if (e_AT_START == d_state) {
-        d_state = e_AFTER_START_NO_TAG;
-    }
-    if (e_AFTER_START_NO_TAG != d_state) {
-        closeTagIfOpen();
-    }
-
-    bool isOnSeparateLine = false;
-    if ((forceNewline || 0 == d_column) && d_wrapColumn >= 0) {
-        indent();
-        isOnSeparateLine = true;
-    }
-    else {
-        d_outputStream << ' ';
-        ++d_column;
-    }
-
-    d_outputStream << openMarker << comment << closeMarker;
-
-    if (isOnSeparateLine) {
-        d_outputStream << '\n';
-        d_column = 0;
-    }
-    else {
-        d_column += static_cast<int>(comment.length() + markerLength);
-    }
-}
-
-void Formatter::indent()
-{
-    if (d_wrapColumn < 0) {
-        return;                                                       // RETURN
-    }
-
-    if (0 != d_column) {
-        d_outputStream << '\n';
-    }
-
-    bdlb::Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
-    d_column = d_indentLevel * d_spacesPerLevel;
-}
-
-void Formatter::doAddAttribute(const bsl::string_view& name,
-                               const bsl::string_view& value)
-{
-    BSLS_ASSERT(e_IN_TAG == d_state);
-    BSLS_ASSERT(0 != name.length());
-
-    int attrLen = static_cast<int>(name.length() + value.length()) + 4;
-        // 4 accounts for ' ', '=', '"', '"'
-    if (d_column + attrLen + 2 >= d_wrapColumn) {
-                          // 2 accounts for possible "/>"
-        indent();
-        // No need to count ' ' after the element name
-        --attrLen;
-    }
-    else {
-        d_outputStream << ' ';
-    }
-
-    d_outputStream << name << "=\"" << value << '"';
-    d_column += attrLen;
-}
-
-void Formatter::doAddData(const bsl::string_view& value, bool addSpace)
-{
-    BSLS_ASSERT(e_BETWEEN_TAGS == d_state);
-
-    int valueLen = static_cast<int>(value.length());
-    if (d_wrapColumn >= 0) {
-        if (d_isFirstData && d_column > 0 &&
-            e_NEWLINE_INDENT == d_elementNesting.back().ws()) {
-            addNewline();
-        }
-
-        if (0 == valueLen) {
-            return;                                                   // RETURN
-        }
-
-        WhitespaceType ws = d_elementNesting.back().ws();
-        if (addSpace && e_PRESERVE_WHITESPACE != ws) {
-            if (d_column + valueLen >= d_wrapColumn || 0 == d_column) {
-                if (e_WORDWRAP == ws
-                 && d_column > 0 && d_wrapColumn >= 0) {
-                    addNewline();
-                }
-                else {
-                    indent();
-                    d_elementNesting.back().setWs(e_NEWLINE_INDENT);
-                    // Force BAEXML_WORDWRAP_INDENT to become
-                    // BAEXML_NEWLINE_INDENT now that there is line wrapping
-                    // for the data, so that the closing tag doesn't share its
-                    // line with data.
-                    // TBD: this is not documented in the interface.
-                }
-                d_isFirstDataAtLine = true;
-            }
-        }
-        else if (!addSpace && d_isFirstData && e_NEWLINE_INDENT == ws) {
-            indent();
-        } // else do nothing if BAEXML_PRESERVE_WHITESPACE or if addSpace is
-          // false
-
-        if (addSpace && !d_isFirstDataAtLine) {
-            d_outputStream << ' ';
-            ++d_column;
-        }
-    } // End if (do wrapping)
-
-    d_outputStream << value;
-    d_column += valueLen;
-    d_isFirstData = false;
-    d_isFirstDataAtLine = false;
 }
 
 // MANIPULATORS
-void Formatter::openElement(const bsl::string_view& name,
-                            WhitespaceType          ws)
+void Formatter::addComment(const bsl::string_view& comment, bool forceNewline)
 {
-// TBD: Why ?
-//     BSLS_ASSERT(d_state != e_AT_END);
-
-    closeTagIfOpen();
-
-    indent();
-    d_outputStream << '<' << name;
-    d_column += 1 + static_cast<int>(name.length());
-
-    if (d_wrapColumn >= 0) {
-        d_elementNesting.push_back(ElemContext(name, ws));
-    }
-    ++d_indentLevel;
-    d_state = e_IN_TAG;
-    d_isFirstData = true;
-    d_isFirstDataAtLine = true;
-}
-
-void Formatter::closeElement(const bsl::string_view& name)
-{
-    BSLS_ASSERT(e_IN_TAG == d_state || e_BETWEEN_TAGS == d_state);
-    BSLS_ASSERT(d_wrapColumn < 0 || ! d_elementNesting.empty());
-#ifdef BDE_BUILD_TARGET_SAFE_2
-    BSLS_ASSERT(d_wrapColumn < 0 || d_elementNesting.back().matchTag(name));
-#endif
-
-    --d_indentLevel;
-
-    if (e_IN_TAG == d_state) {
-        // Empty element (may have attributes but no data).
-        d_outputStream << "/>";
-        d_column += 2;
-    }
-    else {
-        if (d_wrapColumn > 0
-         && (0 == d_column ||
-             e_NEWLINE_INDENT == d_elementNesting.back().ws())) {
-            // Indent this line.
-            indent();
-        }
-        d_outputStream << "</" << name << '>';
-        d_column += 3 + static_cast<int>(name.length());
-    }
-
-    d_isFirstData = false;
-
-    if (d_wrapColumn < 0) {
-        // Compact mode: 'd_elementNesting' is not used.  Use indent level to
-        // determine if we are at the end.
-        d_state = 0 == d_indentLevel ? e_AT_END : e_BETWEEN_TAGS;
-    }
-    else {
-        // Non-compact mode: Add newline at end of element.
-        d_outputStream << '\n';
-        d_column = 0;
-        d_isFirstDataAtLine = true;
-
-        // Pop element stack and compute new state.
-        d_elementNesting.pop_back();
-        d_state = d_elementNesting.empty() ? e_AT_END
-                                           : e_BETWEEN_TAGS;
-    }
-
-    if (e_AT_END == d_state) {
-        d_outputStream.flush();
+    switch (d_state.mode()) {
+      case Mode::e_COMPACT: {
+        CompactUtil::addComment(*d_streamHolder.stream(),
+                                &d_state.compact(),
+                                comment,
+                                forceNewline);
+      } break;
+      case Mode::e_PRETTY: {
+        PrettyUtil::addComment(*d_streamHolder.stream(),
+                               &d_state.pretty(),
+                               comment,
+                               forceNewline);
+      } break;
     }
 }
 
 void Formatter::addHeader(const bsl::string_view& encoding)
 {
-    BSLS_ASSERT(e_AT_START == d_state);
-    // TBD escape encoding?
-    static const char startHeader[] = "<?xml version=\"1.0\" encoding=\"";
-    static const char endHeader[]   = "\" ?>";
-    d_outputStream << startHeader << encoding << endHeader;
-    if (d_wrapColumn >= 0) {
-        d_outputStream << '\n';
-        d_column = 0;
+    switch (d_state.mode()) {
+      case Mode::e_COMPACT: {
+        CompactUtil::addHeader(
+            *d_streamHolder.stream(), &d_state.compact(), encoding);
+      } break;
+      case Mode::e_PRETTY: {
+        PrettyUtil::addHeader(
+            *d_streamHolder.stream(), &d_state.pretty(), encoding);
+      } break;
     }
-    else {
-        d_column += static_cast<int>(  sizeof(startHeader)
-                                     + sizeof(endHeader)
-                                     - 2
-                                     + encoding.length());
-    }
-    d_state = e_AFTER_START_NO_TAG;
-}
-
-void Formatter::addComment(const bsl::string_view& comment,
-                           bool                    forceNewline)
-{
-    addValidCommentImpl(comment, forceNewline, false);
 }
 
 int Formatter::addValidComment(const bsl::string_view& comment,
                                bool                    forceNewline,
                                bool                    omitEnclosingWhitespace)
 {
-    const char doubleHyphen[] = "--";
-    // The string "--" (double-hyphen) must not occur within comments.  Also
-    // the grammar does not allow a comment ending in "--->".
-    if (comment.end() != bsl::search(comment.begin(),
-                                     comment.end(),
-                                     doubleHyphen,
-                                     doubleHyphen + sizeof doubleHyphen - 1)
-        || (omitEnclosingWhitespace && !comment.empty()
-            && '-' == *comment.rbegin())) {
-        return 1;                                                     // RETURN
+    int result = 0;
+
+    switch (d_state.mode()) {
+      case Mode::e_COMPACT: {
+        result = CompactUtil::addValidComment(*d_streamHolder.stream(),
+                                              &d_state.compact(),
+                                              comment,
+                                              forceNewline,
+                                              omitEnclosingWhitespace);
+      } break;
+      case Mode::e_PRETTY: {
+        result = PrettyUtil::addValidComment(*d_streamHolder.stream(),
+                                             &d_state.pretty(),
+                                             comment,
+                                             forceNewline,
+                                             omitEnclosingWhitespace);
+      } break;
     }
 
-    addValidCommentImpl(comment, forceNewline, omitEnclosingWhitespace);
-    return 0;
+    return result;
+}
+
+void Formatter::closeElement(const bsl::string_view& name)
+{
+    switch (d_state.mode()) {
+      case Mode::e_COMPACT: {
+        CompactUtil::closeElement(
+            *d_streamHolder.stream(), &d_state.compact(), name);
+      } break;
+      case Mode::e_PRETTY: {
+        PrettyUtil::closeElement(
+            *d_streamHolder.stream(), &d_state.pretty(), name);
+      } break;
+    }
+}
+
+void Formatter::openElement(const bsl::string_view& name,
+                            WhitespaceType          whitespaceMode)
+{
+    switch (d_state.mode()) {
+      case Mode::e_COMPACT: {
+        CompactUtil::openElement(*d_streamHolder.stream(),
+                                 &d_state.compact(),
+                                 name,
+                                 whitespaceMode);
+      } break;
+      case Mode::e_PRETTY: {
+        PrettyUtil::openElement(
+            *d_streamHolder.stream(), &d_state.pretty(), name, whitespaceMode);
+      } break;
+    }
 }
 
 void Formatter::reset()
 {
-    d_outputStream.clear(); // Clear error condition(s)
-    d_column = 0;
-    d_state = e_AT_START;
-    d_indentLevel -= static_cast<int>(d_elementNesting.size());
-    d_elementNesting.clear();
+    d_streamHolder.stream()->clear();  // Clear error condition(s)
 
-    d_isFirstData = true;
-    d_isFirstDataAtLine = true;
+    switch (d_state.mode()) {
+      case Mode::e_COMPACT: {
+        CompactUtil::reset(&d_state.compact());
+      } break;
+      case Mode::e_PRETTY: {
+        PrettyUtil::reset(&d_state.pretty());
+      } break;
+    }
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

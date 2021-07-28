@@ -23,7 +23,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'balxml' package currently has 20 components having 6 levels of physical
+ The 'balxml' package currently has 24 components having 6 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -31,10 +31,13 @@
   6. balxml_decoder
 
   5. balxml_encoder
+     balxml_formatter
      balxml_minireader
+     balxml_utf8readerwrapper
      balxml_validatingreader
 
-  4. balxml_formatter
+  4. balxml_formatter_compactimpl
+     balxml_formatter_prettyimpl
      balxml_reader
      balxml_typesparserutil
 
@@ -49,6 +52,7 @@
      balxml_decoderoptions
      balxml_encodingstyle
      balxml_errorinfo
+     balxml_formatterwhitespacetype
      balxml_hexparser
      balxml_listparser
      balxml_namespaceregistry
@@ -87,6 +91,15 @@
 : 'balxml_formatter':
 :      Provide a simple interface for writing formatted XML.
 :
+: 'balxml_formatter_compactimpl':
+:      Provide minimal-whitespace implementation for 'balxml_formatter'.
+:
+: 'balxml_formatter_prettyimp':
+:      Provide pretty-printing implementation for 'balxml_formatter'.
+:
+: 'balxml_formatterwhitespacetype':
+:      Enumerate the set of whitespace options for formatted data.
+:
 : 'balxml_hexparser':
 :      Provide push parser for hex types.
 :
@@ -110,6 +123,9 @@
 :
 : 'balxml_typesprintutil':
 :      Provide a utility for printing types using XML formatting.
+:
+: 'balxml_utf8readerwrapper':
+:      Provide wrapper for 'Reader' to check input UTF-8 validity.
 :
 : 'balxml_util':
 :      Provide a suite of common XML utilities.

@@ -9,17 +9,25 @@
 
 #include <balxml_formatter.h>
 
+#include <bdlde_md5.h>
+
+#include <bdlf_bind.h>
+
 #include <bdlsb_memoutstreambuf.h>
+
 #include <bdlt_datetime.h>
 #include <bdlt_date.h>
 #include <bdlt_time.h>
 
 #include <bslim_testutil.h>
+
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_iostream.h>
+#include <bsl_functional.h>
+#include <bsl_memory.h>
 #include <bsl_sstream.h>
 
 #include <bsl_climits.h>
@@ -30,6 +38,11 @@
 
 using namespace BloombergLP;
 using namespace bsl;
+
+#ifdef BDE_VERIFY
+#pragma bde_verify push
+#pragma bde_verify -TP13
+#endif
 
 // ============================================================================
 //                             TEST PLAN
@@ -43,6 +56,10 @@ using namespace bsl;
 // manipulators as helpers to indicate the such internal states have been
 // reached or avoided (such as the use of flush()).
 // ----------------------------------------------------------------------------
+
+#ifdef BDE_VERIFY
+#pragma bde_verify pop
+#endif
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -118,13 +135,13 @@ const char L[] = "AB DE";
 const char M[] = "A234567890 234567890 234567890D234567890"
                  " 234567890F234567890 234567890 234567890";
 
-// escapable characters
+// characters that can be escaped
 const unsigned char R1[] = "&'<>\"";
 const unsigned char R2[] = "&amp;&apos;&lt;&gt;&quot;";
 const unsigned char S1[] = "Aa&Bb'Cc<Dd>Ee\"";
 const unsigned char S2[] = "Aa&amp;Bb&apos;Cc&lt;Dd&gt;Ee&quot;";
 
-// truncatable control characters
+// control characters that can be truncated
 const unsigned char T1[] = { 'h', 'e', 'l', 'l', 'o', 0x1F, ' ', 0x01,
                              'w', 'o', 'r', 'l', 'd', 0 };
 const unsigned char T2[] = { 'h', 'e', 'l', 'l', 'o', 0 };
@@ -154,6 +171,7 @@ enum Test {
 // ----------------------------------------------------------------------------
 //                            Perturbation class
 // ----------------------------------------------------------------------------
+
 struct Pert {
     // Provides permutations for orthogonal perturbation
     static bool s_doFlush[];
@@ -161,10 +179,10 @@ struct Pert {
     static int s_spacesPerLevel[];
     static int s_wrapColumn[];
 
-    bool d_doFlush; // whether to perform flush() after operation
-    int d_initialIndent;
-    int d_spacesPerLevel;
-    int d_wrapColumn;
+    bool        d_doFlush;  // whether to perform flush() after operation
+    int         d_initialIndent;
+    int         d_spacesPerLevel;
+    int         d_wrapColumn;
     Pert()
         : d_doFlush(false), d_initialIndent(0),
           d_spacesPerLevel(0), d_wrapColumn(0),
@@ -418,7 +436,697 @@ using namespace bsl;  // automatically added by script
     return os;
 }
 
+                         // ==========================
+                         // struct FormatterModelState
+                         // ==========================
+
+struct FormatterModelState {
+    // An approximation of the state of the formatter used to determine whether
+    // or not it is legal to call a particular member function.
+
+    enum Enum {
+        e_START,
+        e_DEFAULT,
+        e_IN_TAG,
+        e_END
+    };
+};
+
+                        // ===========================
+                        // struct FormatterModelAction
+                        // ===========================
+
+struct FormatterModelAction {
+    // A list of all XML-printing member functions on the formatter.
+
+    // TYPES
+    enum Enum {
+        e_ADD_ATTRIBUTE,
+        e_ADD_BLANK_LINE,
+        e_ADD_COMMENT,
+        e_ADD_VALID_COMMENT,
+        e_ADD_DATA,
+        e_ADD_LIST_DATA,
+        e_ADD_ELEMENT_AND_DATA,
+        e_ADD_HEADER,
+        e_ADD_NEWLINE,
+        e_CLOSE_ELEMENT,
+        e_FLUSH,
+        e_OPEN_ELEMENT_PRESERVE_WS,
+        e_OPEN_ELEMENT_WORDWRAP,
+        e_OPEN_ELEMENT_WORDWRAP_INDENT,
+        e_OPEN_ELEMENT_NEWLINE_INDENT
+    };
+
+    enum {
+        k_NUM_ENUMERATORS = 15
+    };
+
+    // CLASS METHODS
+    static Enum fromInt(int index);
+
+    static const char *toChars(Enum value);
+
+};
+
+// CLASS METHODS
+FormatterModelAction::Enum FormatterModelAction::fromInt(int index)
+{
+    BSLS_ASSERT(0 <= index && index < k_NUM_ENUMERATORS);
+    return static_cast<Enum>(index);
+}
+
+const char *FormatterModelAction::toChars(Enum value)
+{
+    switch (value) {
+      case e_ADD_ATTRIBUTE:
+        return "e_ADD_ATTRIBUTE";
+      case e_ADD_BLANK_LINE:
+        return "e_ADD_BLANK_LINE";
+      case e_ADD_COMMENT:
+        return "e_ADD_COMMENT";
+      case e_ADD_VALID_COMMENT:
+        return "e_ADD_VALID_COMMENT";
+      case e_ADD_DATA:
+        return "e_ADD_DATA";
+      case e_ADD_LIST_DATA:
+        return "e_ADD_LIST_DATA";
+      case e_ADD_ELEMENT_AND_DATA:
+        return "e_ADD_ELEMENT_AND_DATA";
+      case e_ADD_HEADER:
+        return "e_ADD_HEADER";
+      case e_ADD_NEWLINE:
+        return "e_ADD_NEWLINE";
+      case e_CLOSE_ELEMENT:
+        return "e_CLOSE_ELEMENT";
+      case e_FLUSH:
+        return "e_FLUSH";
+      case e_OPEN_ELEMENT_PRESERVE_WS:
+        return "e_OPEN_ELEMENT_PRESERVE_WS";
+      case e_OPEN_ELEMENT_WORDWRAP:
+        return "e_OPEN_ELEMENT_WORDWRAP";
+      case e_OPEN_ELEMENT_WORDWRAP_INDENT:
+        return "e_OPEN_ELEMENT_WORDWRAP_INDENT";
+      case e_OPEN_ELEMENT_NEWLINE_INDENT:
+        return "e_OPEN_ELEMENT_NEWLINE_INDENT";
+    }
+
+    return 0;
+}
+
+                         // =========================
+                         // struct FormatterModelUtil
+                         // =========================
+
+struct FormatterModelUtil {
+
+    // TYPES
+    typedef FormatterModelAction Action;
+    typedef FormatterModelState  State;
+
+    // CLASS METHODS
+    static bool isActionAllowed(State::Enum  state,
+                                int          nestingDepth,
+                                Action::Enum action);
+        // Return 'true' if the behavior of invoking the member function
+        // identified by the specified 'action' on a 'balxml::Formatter' in the
+        // specified 'state' with the specified 'indentLevel' is defined, and
+        // return 'false' otherwise.
+
+    static State::Enum getNextState(State::Enum  state,
+                                    int          nestingDepth,
+                                    Action::Enum action);
+        // Return the next state after performing the specified 'action' at the
+        // specified 'state' with the specified 'nestingDepth'.
+
+    static int getNextNestingDepth(State::Enum  state,
+                                   int          nestingDepth,
+                                   Action::Enum action);
+        // Return the next nesting depth after performing the specified
+        // 'action' at the specified 'state' with the specified 'nestingDepth'.
+
+    static void performAction(Obj *formatter, Action::Enum action);
+        // Invoke the member function identified by the specified 'action' on
+        // the specified 'formatter', providing placeholders for any arguments.
+
+    static void appendBehavior(
+                             bdlde::Md5                    *digest,
+                             int                            numActions,
+                             int                            initialIndentLevel,
+                             int                            spacesPerLevel,
+                             int                            wrapColumn,
+                             const balxml::EncoderOptions&  encoderOptions);
+        // Append to the specified 'digest' the output of all valid sequences
+        // of XML-printing member functions of the specified 'numActions'
+        // length on a 'balxml::Formatter' initialized with the specified
+        // 'initialIndentLevel', 'spacesPerLevel', 'wrapColumn', and
+        // 'encoderOptions'.
+};
+
+// CLASS METHODS
+bool FormatterModelUtil::isActionAllowed(State::Enum  state,
+                                         int          nestingDepth,
+                                         Action::Enum action)
+{
+    switch (state) {
+      case State::e_START: {
+        switch (action) {
+          case Action::e_ADD_ATTRIBUTE:
+            return false;
+          case Action::e_ADD_BLANK_LINE:
+            return true;
+          case Action::e_ADD_COMMENT:
+            return true;
+          case Action::e_ADD_VALID_COMMENT:
+            return true;
+          case Action::e_ADD_DATA:
+            return false;
+          case Action::e_ADD_LIST_DATA:
+            return false;
+          case Action::e_ADD_ELEMENT_AND_DATA:
+            return true;
+          case Action::e_ADD_HEADER:
+            return true;
+          case Action::e_ADD_NEWLINE:
+            return true;
+          case Action::e_CLOSE_ELEMENT:
+            return false;
+          case Action::e_FLUSH:
+            return true;
+          case Action::e_OPEN_ELEMENT_PRESERVE_WS:
+            return true;
+          case Action::e_OPEN_ELEMENT_WORDWRAP:
+            return true;
+          case Action::e_OPEN_ELEMENT_WORDWRAP_INDENT:
+            return true;
+          case Action::e_OPEN_ELEMENT_NEWLINE_INDENT:
+            return true;
+        }
+      } break;
+      case State::e_DEFAULT: {
+        switch (action) {
+          case Action::e_ADD_ATTRIBUTE:
+            return false;
+          case Action::e_ADD_BLANK_LINE:
+            return true;
+          case Action::e_ADD_COMMENT:
+            return true;
+          case Action::e_ADD_VALID_COMMENT:
+            return true;
+          case Action::e_ADD_DATA:
+            return 0 != nestingDepth;
+          case Action::e_ADD_LIST_DATA:
+            return 0 != nestingDepth;
+          case Action::e_ADD_ELEMENT_AND_DATA:
+            return true;
+          case Action::e_ADD_HEADER:
+            return false;
+          case Action::e_ADD_NEWLINE:
+            return true;
+          case Action::e_CLOSE_ELEMENT:
+            return 0 != nestingDepth;
+          case Action::e_FLUSH:
+            return true;
+          case Action::e_OPEN_ELEMENT_PRESERVE_WS:
+            return true;
+          case Action::e_OPEN_ELEMENT_WORDWRAP:
+            return true;
+          case Action::e_OPEN_ELEMENT_WORDWRAP_INDENT:
+            return true;
+          case Action::e_OPEN_ELEMENT_NEWLINE_INDENT:
+            return true;
+        }
+      } break;
+      case State::e_IN_TAG: {
+        switch (action) {
+          case Action::e_ADD_ATTRIBUTE:
+            return true;
+          case Action::e_ADD_BLANK_LINE:
+            return true;
+          case Action::e_ADD_COMMENT:
+            return true;
+          case Action::e_ADD_VALID_COMMENT:
+            return true;
+          case Action::e_ADD_DATA:
+            return true;
+          case Action::e_ADD_LIST_DATA:
+            return true;
+          case Action::e_ADD_ELEMENT_AND_DATA:
+            return true;
+          case Action::e_ADD_HEADER:
+            return false;
+          case Action::e_ADD_NEWLINE:
+            return true;
+          case Action::e_CLOSE_ELEMENT:
+            return true;
+          case Action::e_FLUSH:
+            return true;
+          case Action::e_OPEN_ELEMENT_PRESERVE_WS:
+            return true;
+          case Action::e_OPEN_ELEMENT_WORDWRAP:
+            return true;
+          case Action::e_OPEN_ELEMENT_WORDWRAP_INDENT:
+            return true;
+          case Action::e_OPEN_ELEMENT_NEWLINE_INDENT:
+            return true;
+        }
+      } break;
+      case State::e_END:
+        return false;
+    }
+
+    return false;
+}
+
+FormatterModelState::Enum FormatterModelUtil::getNextState(
+                                                     State::Enum  state,
+                                                     int          nestingDepth,
+                                                     Action::Enum action)
+{
+    switch (state) {
+      case State::e_START: {
+        switch (action) {
+          case Action::e_ADD_ATTRIBUTE:
+            return State::e_END;
+          case Action::e_ADD_BLANK_LINE:
+            return State::e_START;
+          case Action::e_ADD_COMMENT:
+            return State::e_DEFAULT;
+          case Action::e_ADD_VALID_COMMENT:
+            return State::e_DEFAULT;
+          case Action::e_ADD_DATA:
+            return State::e_END;
+          case Action::e_ADD_LIST_DATA:
+            return State::e_END;
+          case Action::e_ADD_ELEMENT_AND_DATA:
+            return State::e_DEFAULT;
+          case Action::e_ADD_HEADER:
+            return State::e_DEFAULT;
+          case Action::e_ADD_NEWLINE:
+            return State::e_START;
+          case Action::e_CLOSE_ELEMENT:
+            return State::e_END;
+          case Action::e_FLUSH:
+            return State::e_START;
+          case Action::e_OPEN_ELEMENT_PRESERVE_WS:
+            return State::e_IN_TAG;
+          case Action::e_OPEN_ELEMENT_WORDWRAP:
+            return State::e_IN_TAG;
+          case Action::e_OPEN_ELEMENT_WORDWRAP_INDENT:
+            return State::e_IN_TAG;
+          case Action::e_OPEN_ELEMENT_NEWLINE_INDENT:
+            return State::e_IN_TAG;
+        }
+      } break;
+      case State::e_DEFAULT: {
+        switch (action) {
+          case Action::e_ADD_ATTRIBUTE:
+            return State::e_END;
+          case Action::e_ADD_BLANK_LINE:
+            return State::e_DEFAULT;
+          case Action::e_ADD_COMMENT:
+            return State::e_DEFAULT;
+          case Action::e_ADD_VALID_COMMENT:
+            return State::e_DEFAULT;
+          case Action::e_ADD_DATA:
+            return 0 == nestingDepth ? State::e_END : State::e_DEFAULT;
+          case Action::e_ADD_LIST_DATA:
+            return 0 == nestingDepth ? State::e_END : State::e_DEFAULT;
+          case Action::e_ADD_ELEMENT_AND_DATA:
+            return State::e_DEFAULT;
+          case Action::e_ADD_HEADER:
+            return State::e_END;
+          case Action::e_ADD_NEWLINE:
+            return State::e_DEFAULT;
+          case Action::e_CLOSE_ELEMENT:
+            return 0 == nestingDepth ? State::e_END : State::e_DEFAULT;
+          case Action::e_FLUSH:
+            return State::e_DEFAULT;
+          case Action::e_OPEN_ELEMENT_PRESERVE_WS:
+            return State::e_IN_TAG;
+          case Action::e_OPEN_ELEMENT_WORDWRAP:
+            return State::e_IN_TAG;
+          case Action::e_OPEN_ELEMENT_WORDWRAP_INDENT:
+            return State::e_IN_TAG;
+          case Action::e_OPEN_ELEMENT_NEWLINE_INDENT:
+            return State::e_IN_TAG;
+        }
+      } break;
+      case State::e_IN_TAG: {
+        switch (action) {
+          case Action::e_ADD_ATTRIBUTE:
+            return State::e_IN_TAG;
+          case Action::e_ADD_BLANK_LINE:
+            return State::e_DEFAULT;
+          case Action::e_ADD_COMMENT:
+            return State::e_DEFAULT;
+          case Action::e_ADD_VALID_COMMENT:
+            return State::e_DEFAULT;
+          case Action::e_ADD_DATA:
+            return State::e_DEFAULT;
+          case Action::e_ADD_LIST_DATA:
+            return State::e_DEFAULT;
+          case Action::e_ADD_ELEMENT_AND_DATA:
+            return State::e_DEFAULT;
+          case Action::e_ADD_HEADER:
+            return State::e_END;
+          case Action::e_ADD_NEWLINE:
+            return State::e_DEFAULT;
+          case Action::e_CLOSE_ELEMENT:
+            return State::e_DEFAULT;
+          case Action::e_FLUSH:
+            return State::e_DEFAULT;
+          case Action::e_OPEN_ELEMENT_PRESERVE_WS:
+            return State::e_IN_TAG;
+          case Action::e_OPEN_ELEMENT_WORDWRAP:
+            return State::e_IN_TAG;
+          case Action::e_OPEN_ELEMENT_WORDWRAP_INDENT:
+            return State::e_IN_TAG;
+          case Action::e_OPEN_ELEMENT_NEWLINE_INDENT:
+            return State::e_IN_TAG;
+        }
+      } break;
+      case State::e_END:
+        return State::e_END;
+    }
+
+    return State::e_END;
+}
+
+int FormatterModelUtil::getNextNestingDepth(State::Enum  state,
+                                            int          nestingDepth,
+                                            Action::Enum action)
+{
+    if (Action::e_OPEN_ELEMENT_PRESERVE_WS == action ||
+        Action::e_OPEN_ELEMENT_WORDWRAP == action ||
+        Action::e_OPEN_ELEMENT_WORDWRAP_INDENT == action ||
+        Action::e_OPEN_ELEMENT_NEWLINE_INDENT == action) {
+        return nestingDepth + 1;                                      // RETURN
+    }
+
+    if (Action::e_CLOSE_ELEMENT == action) {
+        return nestingDepth - 1;                                      // RETURN
+    }
+
+    return nestingDepth;
+}
+
+void FormatterModelUtil::performAction(Obj *formatter, Action::Enum action)
+{
+    switch (action) {
+      case Action::e_ADD_ATTRIBUTE: {
+          formatter->addAttribute("attrName", "attrValue");
+      } break;
+      case Action::e_ADD_BLANK_LINE: {
+          formatter->addBlankLine();
+      } break;
+      case Action::e_ADD_COMMENT: {
+          formatter->addComment("lorem ipsum dolor sit amet");
+      } break;
+      case Action::e_ADD_VALID_COMMENT: {
+          formatter->addValidComment("lorem ipsum dolor sit amet");
+      } break;
+      case Action::e_ADD_DATA: {
+          formatter->addData("data");
+      } break;
+      case Action::e_ADD_LIST_DATA: {
+          formatter->addListData("listData");
+      } break;
+      case Action::e_ADD_ELEMENT_AND_DATA: {
+          formatter->addElementAndData("element", "data");
+      } break;
+      case Action::e_ADD_HEADER: {
+          formatter->addHeader();
+      } break;
+      case Action::e_ADD_NEWLINE: {
+          formatter->addNewline();
+      } break;
+      case Action::e_CLOSE_ELEMENT: {
+          formatter->closeElement("element");
+      } break;
+      case Action::e_FLUSH: {
+          formatter->flush();
+      } break;
+      case Action::e_OPEN_ELEMENT_PRESERVE_WS: {
+          formatter->openElement("element", Obj::e_PRESERVE_WHITESPACE);
+      } break;
+      case Action::e_OPEN_ELEMENT_WORDWRAP: {
+          formatter->openElement("element", Obj::e_WORDWRAP);
+      } break;
+      case Action::e_OPEN_ELEMENT_WORDWRAP_INDENT: {
+          formatter->openElement("element", Obj::e_WORDWRAP_INDENT);
+      } break;
+      case Action::e_OPEN_ELEMENT_NEWLINE_INDENT: {
+          formatter->openElement("element", Obj::e_NEWLINE_INDENT);
+      } break;
+    }
+}
+
+void FormatterModelUtil::appendBehavior(
+                             bdlde::Md5                    *digest,
+                             int                            numActions,
+                             int                            initialIndentLevel,
+                             int                            spacesPerLevel,
+                             int                            wrapColumn,
+                             const balxml::EncoderOptions&  encoderOptions)
+{
+    BSLS_ASSERT(0 < numActions);
+
+    // int numIterations = exponentiate(Action::k_NUM_ENUMERATORS,
+    //                                  numActions);
+    int numIterations = Action::k_NUM_ENUMERATORS;
+    for (int i = 0; i != numActions - 1; ++i) {
+        numIterations *= Action::k_NUM_ENUMERATORS;
+    }
+
+    for (int iterIdx = 0; iterIdx != numIterations; ++iterIdx) {
+        bdlsb::MemOutStreamBuf streambuf;
+
+        Obj formatter(&streambuf,
+                      encoderOptions,
+                      initialIndentLevel,
+                      spacesPerLevel,
+                      wrapColumn);
+
+        State::Enum state        = State::e_START;
+        int         nestingDepth = 0;
+        int         seed         = iterIdx;
+
+        for (int actionIdx = 0; actionIdx != numActions; ++actionIdx) {
+            const Action::Enum action =
+                Action::fromInt(seed % Action::k_NUM_ENUMERATORS);
+            seed /= Action::k_NUM_ENUMERATORS;
+
+            if (!isActionAllowed(state, nestingDepth, action)) {
+                break;  // BREAK
+            }
+
+            performAction(&formatter, action);
+            state        = getNextState(state, nestingDepth, action);
+            nestingDepth = getNextNestingDepth(state, nestingDepth, action);
+        }
+
+        digest->update(streambuf.data(), static_cast<int>(streambuf.length()));
+    }
+}
+
+
+                           // =====================
+                           // class Method_Protocol
+                           // =====================
+
+class Method_Protocol {
+    // This abstract base class provides a protocol for an object that can be
+    // invoked on a 'balxml::Formatter *' (i.e. is a "method" of
+    // 'balxml::Formatter') and copied.
+    //
+    // Note that this class is an implementation detail of 'Method' below.
+
+  public:
+    // CREATORS
+    virtual ~Method_Protocol()
+    {
+    }
+
+    // ACCESSORS
+    virtual Method_Protocol *clone() const = 0;
+
+    virtual void operator()(balxml::Formatter *formatter) const = 0;
+};
+
+                              // ================
+                              // class Method_Imp
+                              // ================
+
+template <class METHOD>
+class Method_Impl : public Method_Protocol {
+    // This mechanism class template provides an implementation of the
+    // 'Method_Protocol' whose virtual function call operator invokes
+    // an object of the specified 'METHOD' type with the supplied formatter.
+    //
+    // Note that this class is an implementation detail of 'Method' below.
+
+  public:
+    // TYPES
+    typedef Method_Protocol Protocol;
+
+  private:
+    // DATA
+    METHOD d_method;
+
+  public:
+    // CREATORS
+    explicit Method_Impl(const METHOD& method)
+    : d_method(method)
+    {
+    }
+
+    // ACCESSORS
+    Protocol *clone() const BSLS_KEYWORD_OVERRIDE
+    {
+        return new Method_Impl(*this);
+    }
+
+    void operator()(balxml::Formatter *formatter) const BSLS_KEYWORD_OVERRIDE
+    {
+        d_method(formatter);
+    }
+};
+
+                                // ============
+                                // class Method
+                                // ============
+
+class Method {
+    // This mechanism class provides a type-erased interface to an object of
+    // any type that is invocable with a 'balxml::Formatter *' (e.g. that is a
+    // "method" of 'balxml::Formatter'.)
+
+    // PRIVATE TYPES
+    typedef Method_Protocol Protocol;
+
+    // DATA
+    bsl::shared_ptr<Protocol> d_protocol;
+
+  public:
+    // CREATORS
+    Method()
+    : d_protocol()
+    {
+    }
+
+    Method(const Method& original)
+    : d_protocol(original.d_protocol->clone())
+    {
+    }
+
+    template <class METHOD>
+    /* IMPLICIT */ Method(const METHOD& method)
+    : d_protocol(bsl::make_shared<Method_Impl<METHOD> >(method))
+    {
+    }
+
+    // MANIPULATORS
+    Method& operator=(const Method& original)
+    {
+        d_protocol = bsl::shared_ptr<Protocol>(original.d_protocol->clone());
+        return *this;
+    }
+
+    // ACCESSORS
+    void operator()(balxml::Formatter *formatter) const
+    {
+        if (d_protocol) {
+            (*d_protocol)(formatter);
+        }
+    }
+};
+
+                       // =============================
+                       // class AddElementAndDataMethod
+                       // =============================
+
+class AddElementAndDataMethod {
+    // This class provides a function-call operator that is a factory for
+    // 'Method' objects that invokes 'balxml::Formatter::addElementAndData'
+    // with bound 'name', 'value', and 'formattingMode' arguments.
+
+  public:
+    // CREATORS
+    AddElementAndDataMethod()
+    {
+    }
+
+    // ACCESSORS
+    template <class TYPE>
+    Method operator()(const bsl::string_view& name,
+                      const TYPE&             value,
+                      int                     formattingMode = 0) const
+    {
+        void (balxml::Formatter:: *member)(
+            const bsl::string_view&, const TYPE&, int) =
+            &balxml::Formatter::addElementAndData<TYPE>;
+
+        return bdlf::BindUtil::bind(
+            member, bdlf::PlaceHolders::_1, name, value, formattingMode);
+    }
+};
+
+                          // =======================
+                          // class OpenElementMethod
+                          // =======================
+
+class OpenElementMethod {
+    // This class provides a function-call operator that is a factory for
+    // 'Method' objects that invokes 'balxml::Formatter::openElement' with
+    // bound 'name', and 'ws' arguments.
+
+  public:
+    // CREATORS
+    OpenElementMethod()
+    {
+    }
+
+    // ACCESSORS
+    Method operator()(const bsl::string_view&           name,
+                      balxml::Formatter::WhitespaceType ws =
+                          balxml::Formatter::e_PRESERVE_WHITESPACE) const
+    {
+        void (balxml::Formatter:: *member)(const bsl::string_view&,
+                                          balxml::Formatter::WhitespaceType) =
+            &balxml::Formatter::openElement;
+
+        return bdlf::BindUtil::bind(member, bdlf::PlaceHolders::_1, name, ws);
+    }
+};
+
+                          // ========================
+                          // class CloseElementMethod
+                          // ========================
+
+class CloseElementMethod {
+    // This class provides a function-call operator that is a factory for
+    // 'Method' objects that invokes 'balxml::Formatter::closeElement' with
+    // a bound 'name' argument.
+
+  public:
+    // CREATORS
+    CloseElementMethod()
+    {
+    }
+
+    // ACCESSORS
+    Method operator()(const bsl::string_view& name) const
+    {
+        void (balxml::Formatter:: *member)(const bsl::string_view&) =
+            &balxml::Formatter::closeElement;
+
+        return bdlf::BindUtil::bind(member, bdlf::PlaceHolders::_1, name);
+    }
+};
+
 }  // close unnamed namespace
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -442,108 +1150,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-#if 0
       case 25: {
-  bsl::ostringstream os;
-  balxml::Formatter f(os, 0, 4, 5);
-//..
-// We then try to add an element with a name greater than the wrap column.
-//..
-  f.openElement("Oranges");
-//..
-// This will output:
-//..
-//1234567890
-//<Oranges
-//..
-// Now we want to add an attribute:
-//..
-  bsl::cout << os.str() << bsl::endl;
-  f.addAttribute("size", 3.5);
-//..
-// This will output:
-//..
-//1234567890
-//<Oranges
-//    size=3.5
-//..
-// Note that although the element name exceeds the wrap column, it was kept
-// intact but adding an attribute is done at the next line (and with correct
-// indentation).  Also note that although the attribute name and value output
-// exceeds the wrap column it is kept on the same line.
-//
-// After closing the element the output is:
-//..
-  bsl::cout << os.str() << bsl::endl;
-  f.closeElement("Oranges");
-//..
-// This produces the output below:
-//..
-  bsl::cout << os.str() << bsl::endl;
-//1234567890
-//<Oranges
-//    size=3.5/>
-//..
-// A similar formatting applies to element data.  Suppose we add a new element
-// "Apples".  Note that the length is greater than the wrapColumn but the it
-// is still printed as a single unit:
-//..
-  f.openElement("Apples");
-  f.addData("Eat before it rots");
-  bsl::cout << os.str() << bsl::endl;
-//..
-// This produces the following output:
-//..
-//<Apples>
-//    Eat before it rots
-//..
-// Closing the element will also be on a new line as follows:
-//..
-  f.closeElement("Apples");
-  bsl::cout << os.str() << bsl::endl;
-//<Apples>
-//    Eat before it rots
-//</Apples>
-//..
-      } break;
-      case 24: {
-        bsl::cout << "Wrap Column 0" << bsl::endl;
-        balxml::Formatter mX(bsl::cout.rdbuf(), 0, 4, 0);
-        mX.openElement("Oranges");
-        mX.addAttribute("farm", "Frances' Orchard"); // ' is escaped
-        mX.addAttribute("size", 3.5);
-        mX.closeElement("Oranges");
-
-        bsl::cout << "Wrap Column 5" << bsl::endl;
-        balxml::Formatter mY(bsl::cout.rdbuf(), 0, 4, 5);
-        mY.openElement("Oranges");
-        mY.addAttribute("farm", "Frances' Orchard"); // ' is escaped
-        mY.addAttribute("size", 3.5);
-        mY.closeElement("Oranges");
-
-        bsl::cout << "Wrap Column -1" << bsl::endl;
-        balxml::Formatter mZ(bsl::cout.rdbuf(), 0, 4, -1);
-        mZ.openElement("Oranges");
-        mZ.addAttribute("farm", "Frances' Orchard"); // ' is escaped
-        mZ.addAttribute("size", 3.5);
-        mZ.closeElement("Oranges");
-        bsl::cout << bsl::endl;
-
-        bsl::cout << "Wrap Column 0" << bsl::endl;
-        balxml::Formatter mX1(bsl::cout.rdbuf(), 0, 4, 0);
-        mX1.addElementAndData("farm", "Frances' Orchard"); // ' is escaped
-
-        bsl::cout << "Wrap Column 5" << bsl::endl;
-        balxml::Formatter mX2(bsl::cout.rdbuf(), 0, 4, 5);
-        mX2.addElementAndData("farm", "Frances' Orchard"); // ' is escaped
-
-        bsl::cout << "Wrap Column -1" << bsl::endl;
-        balxml::Formatter mA(bsl::cout.rdbuf(), 0, 4, -1);
-        mA.addElementAndData("farm", "Frances' Orchard"); // ' is escaped
-
-      } break;
-#endif
-      case 23: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         // --------------------------------------------------------------------
@@ -720,7 +1327,250 @@ int main(int argc, char *argv[])
     }
 //..
       } break;
+      case 24: {
+          // ------------------------------------------------------------------
+          // TESTING INDENTATION FOR 'closeElement'
+          //   Ensure that 'closeElement' indents the closing tag when
+          //   'wrapColumn' is set to 0.
+          //
+          // Concerns:
+          //: 1 When 'spacesPerLevel' is non-zero and 'wrapColumn' is 0 (which
+          //:   indicates an infinite wrap column), 'closeElement' properly
+          //:   indents the printed closing tag if said tag is not
+          //:   self-closing.
+          //
+          // Plan:
+          //: 1 Set 'spacesPerLevel' to 1, 'wrapColumn' to 0, and the initial
+          //:   indent level to 0, and print XML documents having nesting
+          //:   depths of 0, 1, and 2, where no elements are self-closing, and
+          //:   verify that all closing tags are indented by 1 space per
+          //:   nesting level.
+          //:
+          //: 2 As a control, print the same documents using several other
+          //:   combinations of 'spacesPerLevel, 'wrapColumn', and initial
+          //:   indent level options, and verify the behavior of the formatter
+          //:   is consistent.
+          //
+          // TESTING
+          //   'closeElement(const bslstl::StringRef& name)'
+          // ------------------------------------------------------------------
 
+          if (verbose) {
+              bsl::cout << "\nTESTING INDENTATION FOR 'closeElement'"
+                        << "\n======================================"
+                        << bsl::endl;
+          }
+
+          static const int k_MAX_METHODS = 10;
+
+          static const bsl::string_view A = "A";
+          static const bsl::string_view B = "B";
+          static const bsl::string_view C = "C";
+          static const bsl::string_view D = "D";
+
+          const AddElementAndDataMethod a;
+          const CloseElementMethod      c;
+          const OpenElementMethod       o;
+
+          const struct {
+              int          d_line;
+              int          d_indentLevel;
+              int          d_spacesPerLevel;
+              int          d_wrapColumn;
+              Method       d_methods[k_MAX_METHODS];
+              const char  *d_expectedString;
+          } DATA[] = {
+              //           INDENT LEVEL
+              //          .------------
+              //         /  SPACES PER LEVEL
+              //  LINE  /  .----------------
+              // .---- /  /  WRAP COLUMN
+              // |    /  /  .-----------
+              // |   /  /  /                  METHOD SEQUENCE
+              // -- -- -- -- -------------------------------------------------
+              //                     EXPECTED OUTPUT
+              // -------------------------------------------------------------
+              { L_, 0, 1, 0,{a(A,B)                     },
+                "<A>B</A>\n"                                                 },
+              { L_, 0, 1, 0,{o(A),a(B,C),c(A)           },
+                "<A>\n <B>C</B>\n</A>\n"                                     },
+              { L_, 0, 1, 0,{o(A),o(B),a(C,D),c(B),c(A) },
+                "<A>\n <B>\n  <C>D</C>\n </B>\n</A>\n"                       },
+
+              { L_, 0, 2, 0,{a(A,B)                     },
+                "<A>B</A>\n"                                                 },
+              { L_, 0, 2, 0,{o(A),a(B,C),c(A)           },
+                "<A>\n  <B>C</B>\n</A>\n"                                    },
+              { L_, 0, 2, 0,{o(A),o(B),a(C,D),c(B),c(A) },
+                "<A>\n  <B>\n    <C>D</C>\n  </B>\n</A>\n"                   },
+
+              { L_, 0, 1,80,{a(A,B)                     },
+                "<A>B</A>\n"                                                 },
+              { L_, 0, 1,80,{o(A),a(B,C),c(A)           },
+                "<A>\n <B>C</B>\n</A>\n"                                     },
+              { L_, 0, 1,80,{o(A),o(B),a(C,D),c(B),c(A) },
+                "<A>\n <B>\n  <C>D</C>\n </B>\n</A>\n"                       },
+
+              { L_, 0, 2, 0,{a(A,B)                     },
+                "<A>B</A>\n"                                                 },
+              { L_, 0, 2, 0,{o(A),a(B,C),c(A)           },
+                "<A>\n  <B>C</B>\n</A>\n"                                    },
+              { L_, 0, 2, 0,{o(A),o(B),a(C,D),c(B),c(A) },
+                "<A>\n  <B>\n    <C>D</C>\n  </B>\n</A>\n"                   },
+
+              { L_, 1, 1, 0,{a(A,B)                     },
+                " <A>B</A>\n"                                                },
+              { L_, 1, 1, 0,{o(A),a(B,C),c(A)           },
+                " <A>\n  <B>C</B>\n </A>\n"                                  },
+              { L_, 1, 1, 0,{o(A),o(B),a(C,D),c(B),c(A) },
+                " <A>\n  <B>\n   <C>D</C>\n  </B>\n </A>\n"                  },
+
+              { L_, 1, 2, 0,{a(A,B)                     },
+                "  <A>B</A>\n"                                               },
+              { L_, 1, 2, 0,{o(A),a(B,C),c(A)           },
+                "  <A>\n    <B>C</B>\n  </A>\n"                              },
+              { L_, 1, 2, 0,{o(A),o(B),a(C,D),c(B),c(A) },
+                "  <A>\n    <B>\n      <C>D</C>\n    </B>\n  </A>\n"         },
+
+              { L_, 1, 1,80,{a(A,B)                     },
+                " <A>B</A>\n"                                                },
+              { L_, 1, 1,80,{o(A),a(B,C),c(A)           },
+                " <A>\n  <B>C</B>\n </A>\n"                                  },
+              { L_, 1, 1,80,{o(A),o(B),a(C,D),c(B),c(A) },
+                " <A>\n  <B>\n   <C>D</C>\n  </B>\n </A>\n"                  },
+
+              { L_, 1, 2,80,{a(A,B)                     },
+                "  <A>B</A>\n"                                               },
+              { L_, 1, 2,80,{o(A),a(B,C),c(A)           },
+                "  <A>\n    <B>C</B>\n  </A>\n"                              },
+              { L_, 1, 2,80,{o(A),o(B),a(C,D),c(B),c(A) },
+                "  <A>\n    <B>\n      <C>D</C>\n    </B>\n  </A>\n"         }
+          };
+
+          const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+          for (int i = 0; i != NUM_DATA; ++i) {
+              const int           LINE             = DATA[i].d_line;
+              const int           INDENT_LEVEL     = DATA[i].d_indentLevel;
+              const int           SPACES_PER_LEVEL = DATA[i].d_spacesPerLevel;
+              const int           WRAP_COLUMN      = DATA[i].d_wrapColumn;
+              const Method *const METHODS          = DATA[i].d_methods;
+              const char *const   EXPECTED_STRING  = DATA[i].d_expectedString;
+
+              bdlsb::MemOutStreamBuf streamBuf;
+              balxml::Formatter formatter(
+                  &streamBuf, INDENT_LEVEL, SPACES_PER_LEVEL, WRAP_COLUMN);
+
+              for (const Method *methodPtr  = METHODS;
+                                 methodPtr != METHODS + k_MAX_METHODS;
+                               ++methodPtr) {
+                  const Method& method = *methodPtr;
+                  method(&formatter);
+              }
+
+              const bsl::string_view EXPECTED = EXPECTED_STRING;
+              const bsl::string_view actual(streamBuf.data(),
+                                            streamBuf.length());
+
+              ASSERTV(LINE, EXPECTED, actual, EXPECTED == actual);
+          }
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING BEHAVIOR CHECKSUMS
+        //   Ensure that the behavior of 'balxml::Formatter' with certain
+        //   permutations of options has not changed.
+        //
+        //   At around the time this test case was added, the
+        //   'balxml_formatter' component underwent a heavy refactoring.  This
+        //   test case intends to detect and reject any difference in behavior
+        //   for certain initial configurations of the formatter that may have
+        //   been introduced by the refactoring, or a subsequent change.  The
+        //   test performs a depth-ordered enumeration of all possible valid
+        //   sequences of method calls to 'balxml::Formatter' up to length 5,
+        //   given a set of initial options.  Since the amount of output
+        //   produced by this enumeration is enormous, this test case verifies
+        //   that the output has a specific MD5 checksum, as opposed to testing
+        //   all the output for equality.
+        //
+        // Concerns:
+        //: 1 The checksum of all valid call sequences on 'balxml::Formatter'
+        //:   up to length 5 are equal to the checksums calculated from an
+        //:   earlier version of this component.
+        //
+        // Plan:
+        //: 1 For several sets of settings, take the MD5 checksum of the output
+        //:   of all valid call sequences of 'balxml::Formatter' up to length
+        //:   5 (using sample arguments where necessary) and verify that the
+        //:   checksums are equal to "known-good" values.
+        //
+        // TESTING
+        //   ALL BEHAVIOR
+        // --------------------------------------------------------------------
+
+
+        if (verbose) {
+            bsl::cout << "\nBEHAVIOR CHECKSUMS"
+                      << "\n==================" << bsl::endl;
+        }
+
+        const struct {
+            int         d_line;
+            int         d_initialIndentLevel;
+            int         d_spacesPerLevel;
+            int         d_wrapColumn;
+            const char *d_behaviorChecksum;
+        } DATA[] = {
+            //          INITIAL INDENT LEVEL
+            //         .--------------------
+            //  LINE  /   SPACES PER LEVEL
+            // .---- /   .----------------
+            // |    /   /   WRAP COLUMN
+            // |   /   /   .-----------
+            // |  /   /   /          MD5 BEHAVIOR CHECKSUM
+            //-- --- --- --- -----------------------------------
+            { L_,  0,  0,  0, "0332f6b2d3fe5970c2ccf771ccb5312a" },
+            { L_,  0,  4,  0, "1dcb077b799541a607f8405b263af6b1" },
+            { L_,  1,  4,  0, "53ee584707e538e5c01f90e5174dfdf3" },
+            { L_,  0,  0, -1, "7c9762dff11cbe5a40b1c6f9c1ff82ee" },
+            { L_,  0,  0, 80, "d9071b04adc47a7909214a8280d8c9ba" },
+            { L_,  0,  4, 80, "ec05d90294a33f3ee4794e973ab7a21d" },
+            { L_,  1,  4, 80, "480e5abd5dbbd1698a54cd8ae385b8fe" }
+        };
+
+        const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const int LINE                 = DATA[i].d_line;
+            const int INITIAL_INDENT_LEVEL = DATA[i].d_initialIndentLevel;
+            const int SPACES_PER_LEVEL     = DATA[i].d_spacesPerLevel;
+            const int WRAP_COLUMN          = DATA[i].d_wrapColumn;
+            const bsl::string_view BEHAVIOR_CHECKSUM =
+                DATA[i].d_behaviorChecksum;
+
+            static const int k_BEHAVIOR_CHECKSUM_DEPTH = 5;
+
+            bdlde::Md5 digest;
+            const balxml::EncoderOptions DEFAULT_ENCODER_OPTIONS;
+            FormatterModelUtil::appendBehavior(&digest,
+                                               k_BEHAVIOR_CHECKSUM_DEPTH,
+                                               INITIAL_INDENT_LEVEL,
+                                               SPACES_PER_LEVEL,
+                                               WRAP_COLUMN,
+                                               DEFAULT_ENCODER_OPTIONS);
+
+            bdlsb::MemOutStreamBuf digestStreambuf;
+            bsl::ostream           digestStream(&digestStreambuf);
+            digestStream << digest;
+            const bsl::string_view digestView(digestStreambuf.data(),
+                                              digestStreambuf.length());
+
+            ASSERTV(LINE,
+                    BEHAVIOR_CHECKSUM,
+                    digestView,
+                    BEHAVIOR_CHECKSUM == digestView);
+        }
+      } break;
       case 22: {
         // --------------------------------------------------------------------
         // TESTING that add* functions invalidate the stream on failure
@@ -1707,7 +2557,7 @@ int main(int argc, char *argv[])
                       formatter.closeElement(NAME);
                       bsl::string expected((INIT_INDENT + level) * // (a)
                                            SPACES_PERLEVEL, ' ');
-                      if (WRAP_COLUMN <= 0) {
+                      if (WRAP_COLUMN < 0) {
                           expected = "";
                       }
 
@@ -1811,7 +2661,7 @@ int main(int argc, char *argv[])
                   formatter.closeElement(NAME);
 
                   bsl::string expected;
-                  if (WRAP_COLUMN > 0 && Obj::e_NEWLINE_INDENT == WS) { // (c)
+                  if (WRAP_COLUMN >= 0 && Obj::e_NEWLINE_INDENT == WS) { // (c)
                       if (bsl::strlen(VALUE) > 0) {
                           // do not add unnecessary newline if VALUE is ""
                           expected += '\n';
@@ -1968,7 +2818,7 @@ int main(int argc, char *argv[])
                           if (0 == value) {
                               expected += '>'; // (a)
                               ++expectedColumn;
-                              if (WRAP_COLUMN > 0
+                              if (WRAP_COLUMN >= 0
                                && Obj::e_NEWLINE_INDENT == WS) {
                                   expected += '\n'; // (d)
                                   expectedColumn = 0;
@@ -2016,7 +2866,7 @@ int main(int argc, char *argv[])
                                           static_cast<int>(bsl::strlen(VALUE));
                               isFirstAtLine = false;
                           } // else: (f)
-                          else if (WRAP_COLUMN <= 0) {
+                          else if (WRAP_COLUMN < 0) {
                               if (0 == value) {
                                   isFirstAtLine = false;
                               }
@@ -2029,7 +2879,7 @@ int main(int argc, char *argv[])
                           LOOP6_ASSERT(LINE, WS, WRAP_COLUMN, value,
                                        expected, ss.str(),
                                        expected == ss.str());
-                          if (WRAP_COLUMN > 0) {
+                          if (WRAP_COLUMN >= 0) {
                               LOOP6_ASSERT(LINE, WS, INIT_INDENT,
                                            SPACES_PERLEVEL, WRAP_COLUMN, value,
                                            expectedColumn ==
@@ -2145,14 +2995,14 @@ int main(int argc, char *argv[])
                               ++expectedColumn;
                           }
 
-                          if (WRAP_COLUMN > 0
+                          if (WRAP_COLUMN >= 0
                            && Obj::e_NEWLINE_INDENT == WS
                            && 0 == value) {
                               expected += '\n'; // (c)
                               expectedColumn = 0;
                           }
 
-                          if (WRAP_COLUMN > 0
+                          if (WRAP_COLUMN >= 0
                            && Obj::e_NEWLINE_INDENT == WS
                            && isFirstData && bsl::strlen(VALUE) > 0) {
                               // first non-empty data write the indentation
@@ -2170,7 +3020,7 @@ int main(int argc, char *argv[])
                           LOOP6_ASSERT(LINE, WS, WRAP_COLUMN, value,
                                        expected, ss.str(),
                                        expected == ss.str());
-                          if (WRAP_COLUMN > 0) {
+                          if (WRAP_COLUMN >= 0) {
                               LOOP6_ASSERT(LINE, WS, INIT_INDENT,
                                            SPACES_PERLEVEL, WRAP_COLUMN, value,
                                            expectedColumn ==
@@ -2293,7 +3143,7 @@ int main(int argc, char *argv[])
                       LOOP5_ASSERT(LINE, INIT_INDENT,
                                    SPACES_PERLEVEL, WRAP_COLUMN, attr,
                                    expected == ss.str());
-                      if (WRAP_COLUMN <= 0) {
+                      if (WRAP_COLUMN < 0) {
                           LOOP5_ASSERT(LINE, INIT_INDENT,
                                        SPACES_PERLEVEL, WRAP_COLUMN, attr,
                                        expectedColumn >=
@@ -2317,7 +3167,7 @@ int main(int argc, char *argv[])
                   LOOP5_ASSERT(LINE, INIT_INDENT,
                                SPACES_PERLEVEL, WRAP_COLUMN, DOFLUSH,
                                expected == ss.str());
-                  if (WRAP_COLUMN <= 0) {
+                  if (WRAP_COLUMN < 0) {
                       LOOP5_ASSERT(LINE, INIT_INDENT,
                                    SPACES_PERLEVEL, WRAP_COLUMN, DOFLUSH,
                                    expectedColumn >= formatter.outputColumn());
@@ -2445,7 +3295,7 @@ int main(int argc, char *argv[])
                   LOOP5_ASSERT(LINE, INIT_INDENT,
                                SPACES_PERLEVEL, WRAP_COLUMN, DOFLUSH,
                                expected == ss.str());
-                  if (WRAP_COLUMN <= 0) {
+                  if (WRAP_COLUMN < 0) {
                       LOOP5_ASSERT(LINE, INIT_INDENT,
                                    SPACES_PERLEVEL, WRAP_COLUMN, DOFLUSH,
                                    expectedColumn >= formatter.outputColumn());
@@ -3084,6 +3934,45 @@ int main(int argc, char *argv[])
                   P(outputStr);
               }
           }
+      } break;
+      case -4: {
+        // Wrap column test
+        //  This is a legacy test case that verifies the behavior of
+        //  various low and negative wrap column settings.
+        bsl::cout << "Wrap Column 0" << bsl::endl;
+        balxml::Formatter mX(bsl::cout.rdbuf(), 0, 4, 0);
+        mX.openElement("Oranges");
+        mX.addAttribute("farm", "Frances' Orchard"); // ' is escaped
+        mX.addAttribute("size", 3.5);
+        mX.closeElement("Oranges");
+
+        bsl::cout << "Wrap Column 5" << bsl::endl;
+        balxml::Formatter mY(bsl::cout.rdbuf(), 0, 4, 5);
+        mY.openElement("Oranges");
+        mY.addAttribute("farm", "Frances' Orchard"); // ' is escaped
+        mY.addAttribute("size", 3.5);
+        mY.closeElement("Oranges");
+
+        bsl::cout << "Wrap Column -1" << bsl::endl;
+        balxml::Formatter mZ(bsl::cout.rdbuf(), 0, 4, -1);
+        mZ.openElement("Oranges");
+        mZ.addAttribute("farm", "Frances' Orchard"); // ' is escaped
+        mZ.addAttribute("size", 3.5);
+        mZ.closeElement("Oranges");
+        bsl::cout << bsl::endl;
+
+        bsl::cout << "Wrap Column 0" << bsl::endl;
+        balxml::Formatter mX1(bsl::cout.rdbuf(), 0, 4, 0);
+        mX1.addElementAndData("farm", "Frances' Orchard"); // ' is escaped
+
+        bsl::cout << "Wrap Column 5" << bsl::endl;
+        balxml::Formatter mX2(bsl::cout.rdbuf(), 0, 4, 5);
+        mX2.addElementAndData("farm", "Frances' Orchard"); // ' is escaped
+
+        bsl::cout << "Wrap Column -1" << bsl::endl;
+        balxml::Formatter mA(bsl::cout.rdbuf(), 0, 4, -1);
+        mA.addElementAndData("farm", "Frances' Orchard"); // ' is escaped
+
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
