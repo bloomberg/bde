@@ -1,28 +1,19 @@
-// balber_berencoderoptions.h-- GENERATED FILE - DO NOT EDIT ---*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
+// balber_berencoderoptions.h        *DO NOT EDIT*         @generated -*-C++-*-
 #ifndef INCLUDED_BALBER_BERENCODEROPTIONS
 #define INCLUDED_BALBER_BERENCODEROPTIONS
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdem_berencoderoptions_h,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balber_berencoderoptions_h,"$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
-//
-//@CLASSES:
-//  balber::BerEncoderOptions: BER encoding options
-//
-//@DESCRIPTION: TBD
+
+#include <bslalg_typetraits.h>
 
 #include <bdlat_attributeinfo.h>
+
 #include <bdlat_selectioninfo.h>
+
 #include <bdlat_typetraits.h>
 
 #include <bsls_objectbuffer.h>
@@ -33,8 +24,11 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bsls_assert.h>
 
 #include <bsl_iosfwd.h>
+#include <bsl_limits.h>
 
 namespace BloombergLP {
+
+namespace balber { class BerEncoderOptions; }
 namespace balber {
 
                           // =======================
@@ -44,129 +38,112 @@ namespace balber {
 class BerEncoderOptions {
     // BER encoding options
 
-    // DATA
-    int d_datetimeFractionalSecondPrecision;
+    // INSTANCE DATA
+    int   d_traceLevel;
+        // trace (verbosity) level
+    int   d_bdeVersionConformance;
+        // The largest BDE version that can be assumed of the corresponding
+        // decoder for the encoded message, expressed as 10000*majorVersion +
+        // 100*minorVersion + patchVersion (e.g.  1.5.0 is expressed as 10500).
+        //
+        // Ideally, the BER encoder should be permitted to generate any BER
+        // that conforms to X.690 (Basic Encoding Rules) and X.694 (mapping of
+        // XSD to ASN.1).  In practice, however, certain unimplemented features
+        // and missunderstandings of these standards have resulted in a decoder
+        // that cannot accept the full range of legal inputs.  Even when the
+        // encoder and decoder are both upgraded to a richer subset of BER, the
+        // program receiving the encoded values may not have been recompiled
+        // with the latest version and, thus restricting the encoder to emit
+        // BER that can be understood by the decoder at the other end of the
+        // wire.  If it is that the receiver has a more modern decoder, set
+        // this variable to a larger value to allow the encoder to produce BER
+        // that is richer and more standards conformant.  The default should be
+        // increased only when old copies of the decoder are completely out of
+        // circulation.
+    int   d_datetimeFractionalSecondPrecision;
         // This option controls the number of decimal places used for seconds
         // when encoding 'Datetime' and 'DatetimeTz'.
-
-    int d_traceLevel;
-        // trace (verbosity) level
-
-    int d_bdeVersionConformance;
-        // The largest BDE version that can be assumed of the corresponding
-        // decoder for the encoded message, expressed as
-        // '10000*majorVersion + 100*minorVersion + patchVersion' (e.g.,  1.5.0
-        // is expressed as 10500).  Ideally, the BER encoder should be
-        // permitted to generate any BER that conforms to X.690 (Basic Encoding
-        // Rules) and X.694 (mapping of XSD to ASN.1).  In practice, however,
-        // certain unimplemented features and missunderstandings of these
-        // standards have resulted in a decoder that cannot accept the full
-        // range of legal inputs.  Even when the encoder and decoder are both
-        // upgraded to a richer subset of BER, the program receiving the
-        // encoded values may not have been recompiled with the latest version
-        // and, thus restricting the encoder to emit BER that can be understood
-        // by the decoder at the other end of the wire.  If it is that the
-        // receiver has a more modern decoder, set this variable to a larger
-        // value to allow the encoder to produce BER that is richer and more
-        // standards conformant.  The default should be increased only when old
-        // copies of the decoder are completely out of circulation.
-
-    bool d_encodeEmptyArrays;
+    bool  d_encodeEmptyArrays;
         // This option allows users to control if empty arrays are encoded.  By
         // default empty arrays are encoded as not encoding empty arrays is
         // non-compliant with the BER encoding specification.
-
-    bool d_encodeDateAndTimeTypesAsBinary;
+    bool  d_encodeDateAndTimeTypesAsBinary;
         // This option allows users to control if date and time types are
         // encoded as binary integers.  By default these types are encoded as
         // strings in the ISO 8601 format.
-
-    bool d_disableUnselectedChoiceEncoding;
-        // This encode option allows users to control if it is an error to
-        // try and encoded any element with an unselected choice.  By default
-        // the encoder allows unselected choice by eliding from the encoding.
+    bool  d_disableUnselectedChoiceEncoding;
+        // This encode option allows users to control if it is an error to try
+        // and encoded any element with an unselected choice.  By default the
+        // encoder allows unselected choices by eliding them from the encoding.
+    bool  d_preserveSignOfNegativeZero;
+        // This *backward*-*compatibility* option controls whether or not
+        // negative zero floating-point values are encoded as the BER
+        // representation of negative zero or positive zero.  If this option is
+        // 'true', negative zero floating-point values are encoded as the  BER
+        // representation of negative zero, such that they will decode back to
+        // negative zero.  If this option is 'false', negative zero
+        // floating-point values are encoded as the BER representation of
+        // positive zero, such they they will decode to positive zero.  For
+        // backward-compatibility purposes, the default value of this option is
+        // 'false'.  Setting this option to 'true' requires the receiving
+        // decoder to come from BDE release '3.90.x' or later, or otherwise
+        // comply to the ISO/IEC 8825-1:2015 standard.  Clients are encouraged
+        // to update their recipients to the latest version of BDE and set this
+        // option to 'true'.  Note that the 'false' value of this  option will
+        // eventually be deprecated, and the default value changed to 'true'.
 
   public:
     // TYPES
     enum {
-        e_ATTRIBUTE_ID_TRACE_LEVEL                          = 0
-      , e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE              = 1
-      , e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS                  = 2
-      , e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
-      , e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION = 4
-      , e_ATTRIBUTE_ID_DISABLE_UNSELECTED_CHOICE_ENCODING   = 5
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , ATTRIBUTE_ID_TRACE_LEVEL                          =
-                            e_ATTRIBUTE_ID_TRACE_LEVEL
-      , ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE              =
-                            e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE
-      , ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS                  =
-                            e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS
-      , ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY =
-                            e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY
-      , ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION =
-                            e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION
-
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+        ATTRIBUTE_ID_TRACE_LEVEL                          = 0
+      , ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE              = 1
+      , ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS                  = 2
+      , ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
+      , ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION = 4
+      , ATTRIBUTE_ID_DISABLE_UNSELECTED_CHOICE_ENCODING   = 5
+      , ATTRIBUTE_ID_PRESERVE_SIGN_OF_NEGATIVE_ZERO       = 6
     };
 
     enum {
-        k_NUM_ATTRIBUTES = 6
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+        NUM_ATTRIBUTES = 7
     };
 
     enum {
-        e_ATTRIBUTE_INDEX_TRACE_LEVEL                          = 0
-      , e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE              = 1
-      , e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS                  = 2
-      , e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
-      , e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION = 4
-      , e_ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING   = 5
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , ATTRIBUTE_INDEX_TRACE_LEVEL                          =
-                         e_ATTRIBUTE_INDEX_TRACE_LEVEL
-      , ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE              =
-                         e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE
-      , ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS                  =
-                         e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS
-      , ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY =
-                         e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY
-      , ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION =
-                         e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+        ATTRIBUTE_INDEX_TRACE_LEVEL                          = 0
+      , ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE              = 1
+      , ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS                  = 2
+      , ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
+      , ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION = 4
+      , ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING   = 5
+      , ATTRIBUTE_INDEX_PRESERVE_SIGN_OF_NEGATIVE_ZERO       = 6
     };
 
     // CONSTANTS
     static const char CLASS_NAME[];
-    static const int  DEFAULT_INITIALIZER_TRACE_LEVEL;
-    static const int  DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE;
+
+    static const int DEFAULT_INITIALIZER_TRACE_LEVEL;
+
+    static const int DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE;
+
     static const bool DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS;
+
     static const bool DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY;
-    static const int  DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PRECISION;
+
+    static const int DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PRECISION;
+
     static const bool DEFAULT_INITIALIZER_DISABLE_UNSELECTED_CHOICE_ENCODING;
+
+    static const bool DEFAULT_INITIALIZER_PRESERVE_SIGN_OF_NEGATIVE_ZERO;
+
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion(int versionSelector);
-        // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
-        // method.  Note that the 'versionSelector' is expected to be formatted
-        // as 'yyyymmdd', a date representation.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
     static int maxSupportedBdexVersion();
-        // Return the most current BDEX streaming version number supported by
+        // Return the most current 'bdex' streaming version number supported by
         // this class.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
+        // information on 'bdex' streaming of value-semantic types and
         // containers.
-
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
@@ -188,6 +165,14 @@ class BerEncoderOptions {
         // Create an object of type 'BerEncoderOptions' having the value of the
         // specified 'original' object.
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    BerEncoderOptions(BerEncoderOptions&& original) = default;
+        // Create an object of type 'BerEncoderOptions' having the value of the
+        // specified 'original' object.  After performing this action, the
+        // 'original' object will be left in a valid, but unspecified state.
+#endif
+
     ~BerEncoderOptions();
         // Destroy this object.
 
@@ -195,81 +180,86 @@ class BerEncoderOptions {
     BerEncoderOptions& operator=(const BerEncoderOptions& rhs);
         // Assign to this object the value of the specified 'rhs' object.
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    BerEncoderOptions& operator=(BerEncoderOptions&& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+        // After performing this action, the 'rhs' object will be left in a
+        // valid, but unspecified state.
+#endif
+
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
         // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format, and return a
-        // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, this object
-        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
-        // If 'version' is supported but 'stream' becomes invalid during this
-        // operation, this object has an undefined, but valid, state.  Note
-        // that no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bslx' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
-        // Reset this object to the default value (i.e., its value upon default
-        // construction).
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator' sequentially on the address of
         // each (modifiable) attribute of this object, supplying 'manipulator'
         // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the last
-        // invocation of 'manipulator' (i.e., the invocation that terminated
-        // the sequence).
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'id', supplying
-        // 'manipulator' with the corresponding attribute information
-        // structure.  Return the value returned from the invocation of
-        // 'manipulator' if 'id' identifies an attribute of this class, and -1
-        // otherwise.
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'name' of the
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
         // specified 'nameLength', supplying 'manipulator' with the
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
         // an attribute of this class, and -1 otherwise.
 
     void setTraceLevel(int value);
-        // Set the 'TraceLevel' attribute of this object to the specified
+        // Set the "TraceLevel" attribute of this object to the specified
         // 'value'.
 
     int& bdeVersionConformance();
-        // Return a reference to the modifiable 'BdeVersionConformance'
+        // Return a reference to the modifiable "BdeVersionConformance"
         // attribute of this object.
 
     void setEncodeEmptyArrays(bool value);
-        // Set the 'EncodeEmptyArrays' attribute of this object to the
+        // Set the "EncodeEmptyArrays" attribute of this object to the
         // specified 'value'.
 
     void setEncodeDateAndTimeTypesAsBinary(bool value);
-        // Set the 'EncodeDateAndTimeTypesAsBinary' attribute of this object to
-        // the specified 'value'.  If this option is set to 'true' then date
-        // and time types will be encoded (in a standard-incompliant way) as an
-        // octet string as opposed to as a string in the ISO 8601 format as
-        // required by the standard.  Note that the binary encoding format is
-        // incompatible with the string encoding format and must be used after
-        // ensuring that the ber decoder can decode the binary format.
+        // Set the "EncodeDateAndTimeTypesAsBinary" attribute of this object to
+        // the specified 'value'.
 
     void setDatetimeFractionalSecondPrecision(int value);
-        // Set the 'DatetimeFractionalSecondPrecision' attribute of this object
-        // to the specified 'value'.  The behavior is undefined unless
-        // 'value == 3 || value == 6'.
+        // Set the "DatetimeFractionalSecondPrecision" attribute of this object
+        // to the specified 'value'.
 
     void setDisableUnselectedChoiceEncoding(bool value);
-        // Set the 'DisableUnselectedChoiceEncoding' attribute of this object
+        // Set the "DisableUnselectedChoiceEncoding" attribute of this object
         // to the specified 'value'.
+
+    void setPreserveSignOfNegativeZero(bool value);
+        // Set the "PreserveSignOfNegativeZero" attribute of this object to the
+        // specified 'value'.
 
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
@@ -289,28 +279,26 @@ class BerEncoderOptions {
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object, using the specified 'version'
-        // format, to the specified output 'stream', and return a reference to
-        // 'stream'.  If 'stream' is initially invalid, this operation has no
-        // effect.  If 'version' is not supported, 'stream' is invalidated, but
-        // otherwise unmodified.  Note that 'version' is not written to
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bslx' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
         // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor' with
-        // the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the last
-        // invocation of 'accessor' (i.e., the invocation that terminated the
-        // sequence).
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
-        // this object indicated by the specified 'id', supplying 'accessor'
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
         // with the corresponding attribute information structure.  Return the
         // value returned from the invocation of 'accessor' if 'id' identifies
         // an attribute of this class, and -1 otherwise.
@@ -319,36 +307,39 @@ class BerEncoderOptions {
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
-        // this object indicated by the specified 'name' of the specified
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
         // 'nameLength', supplying 'accessor' with the corresponding attribute
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
 
     int traceLevel() const;
-        // Return a reference to the non-modifiable 'TraceLevel' attribute of
-        // this object.
+        // Return the value of the "TraceLevel" attribute of this object.
 
     int bdeVersionConformance() const;
-        // Return a reference to the non-modifiable 'BdeVersionConformance'
-        // attribute of this object.
+        // Return the value of the "BdeVersionConformance" attribute of this
+        // object.
 
     bool encodeEmptyArrays() const;
-        // Return a reference to the non-modifiable 'EncodeEmptyArrays'
-        // attribute of this object.
+        // Return the value of the "EncodeEmptyArrays" attribute of this
+        // object.
 
     bool encodeDateAndTimeTypesAsBinary() const;
-        // Return a reference to the non-modifiable
-        // 'EncodeDateAndTimeTypesAsBinary' attribute of this object.
+        // Return the value of the "EncodeDateAndTimeTypesAsBinary" attribute
+        // of this object.
 
     int datetimeFractionalSecondPrecision() const;
-        // Return a reference to the non-modifiable
-        // 'DatetimeFractionalSecondPrecision' attribute of this object.
+        // Return the value of the "DatetimeFractionalSecondPrecision"
+        // attribute of this object.
 
     bool disableUnselectedChoiceEncoding() const;
-        // Return  the value of the non-modifiable
-        // 'DatetimeFractionalSecondPrecision' attribute of this object.
+        // Return the value of the "DisableUnselectedChoiceEncoding" attribute
+        // of this object.
+
+    bool preserveSignOfNegativeZero() const;
+        // Return the value of the "PreserveSignOfNegativeZero" attribute of
+        // this object.
 };
 
 // FREE OPERATORS
@@ -367,16 +358,17 @@ bool operator!=(const BerEncoderOptions& lhs, const BerEncoderOptions& rhs);
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const BerEncoderOptions& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 
 // TRAITS
+
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(balber::BerEncoderOptions)
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 namespace balber {
@@ -387,18 +379,10 @@ namespace balber {
 
 // CLASS METHODS
 inline
-int BerEncoderOptions::maxSupportedBdexVersion(int /* versionSelector */)
-{
-    return 1;  // versions start at 1.
-}
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-inline
 int BerEncoderOptions::maxSupportedBdexVersion()
 {
-    return maxSupportedBdexVersion(0);
+    return 2;  // versions start at 1.
 }
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 // MANIPULATORS
 template <class STREAM>
@@ -406,28 +390,24 @@ STREAM& BerEncoderOptions::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) {
+          case 2: {
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_traceLevel, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_bdeVersionConformance, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_encodeEmptyArrays, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_encodeDateAndTimeTypesAsBinary, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_datetimeFractionalSecondPrecision, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_disableUnselectedChoiceEncoding, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_preserveSignOfNegativeZero, 1);
+          } break;
           case 1: {
-            bslx::InStreamFunctions::bdexStreamIn(stream,
-                                                  d_traceLevel,
-                                                  1);
-            bslx::InStreamFunctions::bdexStreamIn(stream,
-                                                  d_bdeVersionConformance,
-                                                  1);
-            bslx::InStreamFunctions::bdexStreamIn(stream,
-                                                  d_encodeEmptyArrays,
-                                                  1);
-            bslx::InStreamFunctions::bdexStreamIn(
-                                              stream,
-                                              d_encodeDateAndTimeTypesAsBinary,
-                                              1);
-            bslx::InStreamFunctions::bdexStreamIn(
-                                           stream,
-                                           d_datetimeFractionalSecondPrecision,
-                                           1);
-            bslx::InStreamFunctions::bdexStreamIn(
-                                             stream,
-                                             d_disableUnselectedChoiceEncoding,
-                                             1);
+            reset();
+
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_traceLevel, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_bdeVersionConformance, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_encodeEmptyArrays, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_encodeDateAndTimeTypesAsBinary, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_datetimeFractionalSecondPrecision, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_disableUnselectedChoiceEncoding, 1);
           } break;
           default: {
             stream.invalidate();
@@ -442,43 +422,37 @@ int BerEncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_traceLevel,
-                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
-    if (ret) {
-        return ret;                                                   // RETURN
-    }
-
-    ret = manipulator(
-              &d_bdeVersionConformance,
-              ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
-    if (ret) {
-        return ret;                                                   // RETURN
-    }
-
-    ret = manipulator(
-                  &d_encodeEmptyArrays,
-                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
-    if (ret) {
-        return ret;                                                   // RETURN
-    }
-
-    ret = manipulator(&d_encodeDateAndTimeTypesAsBinary,
-                      ATTRIBUTE_INFO_ARRAY[
-                      e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
-    if (ret) {
-        return ret;                                                   // RETURN
-    }
-
-    ret = manipulator(&d_datetimeFractionalSecondPrecision,
-                      ATTRIBUTE_INFO_ARRAY[
-                      e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
+    ret = manipulator(&d_traceLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL]);
     if (ret) {
         return ret;
     }
 
-    ret = manipulator(&d_disableUnselectedChoiceEncoding,
-                        ATTRIBUTE_INFO_ARRAY[
-                        e_ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING]);
+    ret = manipulator(&d_bdeVersionConformance, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_encodeEmptyArrays, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_encodeDateAndTimeTypesAsBinary, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_datetimeFractionalSecondPrecision, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_disableUnselectedChoiceEncoding, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_preserveSignOfNegativeZero, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_PRESERVE_SIGN_OF_NEGATIVE_ZERO]);
     if (ret) {
         return ret;
     }
@@ -489,58 +463,47 @@ int BerEncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int BerEncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { k_NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case e_ATTRIBUTE_ID_TRACE_LEVEL: {
-        return manipulator(
-                          &d_traceLevel,
-                          ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
-      } break;
-      case e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE: {
-        return manipulator(
-              &d_bdeVersionConformance,
-              ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
-      } break;
-      case e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS: {
-        return manipulator(
-                  &d_encodeEmptyArrays,
-                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
-      } break;
-      case e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY: {
-        return manipulator(
-                      &d_encodeDateAndTimeTypesAsBinary,
-                      ATTRIBUTE_INFO_ARRAY[
-                      e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
-      } break;
-      case e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION: {
-        return manipulator(
-                      &d_datetimeFractionalSecondPrecision,
-                      ATTRIBUTE_INFO_ARRAY[
-                      e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
-      } break;
-      case e_ATTRIBUTE_ID_DISABLE_UNSELECTED_CHOICE_ENCODING: {
-        return manipulator(
-                        &d_disableUnselectedChoiceEncoding,
-                        ATTRIBUTE_INFO_ARRAY[
-                        e_ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING]);
-      } break;
+      case ATTRIBUTE_ID_TRACE_LEVEL: {
+        return manipulator(&d_traceLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL]);
+      }
+      case ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE: {
+        return manipulator(&d_bdeVersionConformance, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
+      }
+      case ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS: {
+        return manipulator(&d_encodeEmptyArrays, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
+      }
+      case ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY: {
+        return manipulator(&d_encodeDateAndTimeTypesAsBinary, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
+      }
+      case ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION: {
+        return manipulator(&d_datetimeFractionalSecondPrecision, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
+      }
+      case ATTRIBUTE_ID_DISABLE_UNSELECTED_CHOICE_ENCODING: {
+        return manipulator(&d_disableUnselectedChoiceEncoding, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING]);
+      }
+      case ATTRIBUTE_ID_PRESERVE_SIGN_OF_NEGATIVE_ZERO: {
+        return manipulator(&d_preserveSignOfNegativeZero, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_PRESERVE_SIGN_OF_NEGATIVE_ZERO]);
+      }
       default:
-        return k_NOT_FOUND;
+        return NOT_FOUND;
     }
 }
 
 template <class MANIPULATOR>
-int BerEncoderOptions::manipulateAttribute(MANIPULATOR&  manipulator,
-                                           const char   *name,
-                                           int           nameLength)
+int BerEncoderOptions::manipulateAttribute(
+        MANIPULATOR&  manipulator,
+        const char   *name,
+        int           nameLength)
 {
-    enum { k_NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };
 
-    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
-                                                                   nameLength);
-    if (!attributeInfo) {
-        return k_NOT_FOUND;
+    const bdlat_AttributeInfo *attributeInfo =
+                                         lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -573,7 +536,6 @@ void BerEncoderOptions::setEncodeDateAndTimeTypesAsBinary(bool value)
 inline
 void BerEncoderOptions::setDatetimeFractionalSecondPrecision(int value)
 {
-    BSLS_ASSERT(value == 3 || value == 6);
     d_datetimeFractionalSecondPrecision = value;
 }
 
@@ -583,37 +545,37 @@ void BerEncoderOptions::setDisableUnselectedChoiceEncoding(bool value)
     d_disableUnselectedChoiceEncoding = value;
 }
 
+inline
+void BerEncoderOptions::setPreserveSignOfNegativeZero(bool value)
+{
+    d_preserveSignOfNegativeZero = value;
+}
+
 // ACCESSORS
 template <class STREAM>
 STREAM& BerEncoderOptions::bdexStreamOut(STREAM& stream, int version) const
 {
     switch (version) {
+      case 2: {
+        bslx::OutStreamFunctions::bdexStreamOut(stream, this->traceLevel(), 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, this->bdeVersionConformance(), 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, this->encodeEmptyArrays(), 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, this->encodeDateAndTimeTypesAsBinary(), 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, this->datetimeFractionalSecondPrecision(), 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, this->disableUnselectedChoiceEncoding(), 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, this->preserveSignOfNegativeZero(), 1);
+      } break;
       case 1: {
-        bslx::OutStreamFunctions::bdexStreamOut(stream,
-                                                d_traceLevel,
-                                                1);
-        bslx::OutStreamFunctions::bdexStreamOut(stream,
-                                                d_bdeVersionConformance,
-                                                1);
-        bslx::OutStreamFunctions::bdexStreamOut(stream,
-                                                d_encodeEmptyArrays,
-                                                1);
-        bslx::OutStreamFunctions::bdexStreamOut(
-                                              stream,
-                                              d_encodeDateAndTimeTypesAsBinary,
-                                              1);
-        bslx::OutStreamFunctions::bdexStreamOut(
-                                           stream,
-                                           d_datetimeFractionalSecondPrecision,
-                                           1);
-        bslx::OutStreamFunctions::bdexStreamOut(
-                                             stream,
-                                             d_disableUnselectedChoiceEncoding,
-                                             1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, this->traceLevel(), 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, this->bdeVersionConformance(), 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, this->encodeEmptyArrays(), 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, this->encodeDateAndTimeTypesAsBinary(), 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, this->datetimeFractionalSecondPrecision(), 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, this->disableUnselectedChoiceEncoding(), 1);
       } break;
       default: {
         stream.invalidate();
-      } break;
+      }
     }
     return stream;
 }
@@ -623,47 +585,39 @@ int BerEncoderOptions::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_traceLevel,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
+    ret = accessor(d_traceLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL]);
     if (ret) {
-        return ret;                                                   // RETURN
+        return ret;
     }
 
-    ret = accessor(d_bdeVersionConformance,
-                   ATTRIBUTE_INFO_ARRAY[
-                                   e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
+    ret = accessor(d_bdeVersionConformance, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
     if (ret) {
-        return ret;                                                   // RETURN
+        return ret;
     }
 
-    ret = accessor(d_encodeEmptyArrays,
-                   ATTRIBUTE_INFO_ARRAY[
-                                       e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
+    ret = accessor(d_encodeEmptyArrays, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
     if (ret) {
-        return ret;                                                   // RETURN
+        return ret;
     }
 
-    ret = accessor(d_encodeDateAndTimeTypesAsBinary,
-                   ATTRIBUTE_INFO_ARRAY[
-                      e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
+    ret = accessor(d_encodeDateAndTimeTypesAsBinary, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
     if (ret) {
-        return ret;                                                   // RETURN
+        return ret;
     }
 
-    ret = accessor(d_datetimeFractionalSecondPrecision,
-                   ATTRIBUTE_INFO_ARRAY[
-                      e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
-
+    ret = accessor(d_datetimeFractionalSecondPrecision, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
     if (ret) {
-        return ret;                                                   // RETURN
+        return ret;
     }
 
-    ret = accessor(d_disableUnselectedChoiceEncoding,
-                   ATTRIBUTE_INFO_ARRAY[
-                        e_ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING]);
-
+    ret = accessor(d_disableUnselectedChoiceEncoding, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING]);
     if (ret) {
-        return ret;                                                   // RETURN
+        return ret;
+    }
+
+    ret = accessor(d_preserveSignOfNegativeZero, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_PRESERVE_SIGN_OF_NEGATIVE_ZERO]);
+    if (ret) {
+        return ret;
     }
 
     return ret;
@@ -672,57 +626,47 @@ int BerEncoderOptions::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int BerEncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { k_NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };
 
     switch (id) {
-      case e_ATTRIBUTE_ID_TRACE_LEVEL: {
-        return accessor(d_traceLevel,
-                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
-      } break;
-      case e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE: {
-        return accessor(d_bdeVersionConformance,
-                        ATTRIBUTE_INFO_ARRAY[
-                                   e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
-      } break;
-      case e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS: {
-        return accessor(d_encodeEmptyArrays,
-                        ATTRIBUTE_INFO_ARRAY[
-                                       e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
-      } break;
-      case e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY: {
-        return accessor(
-                      d_encodeDateAndTimeTypesAsBinary,
-                      ATTRIBUTE_INFO_ARRAY[
-                      e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
-      } break;
-      case e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION: {
-        return accessor(
-            d_datetimeFractionalSecondPrecision,
-            ATTRIBUTE_INFO_ARRAY[
-            e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
-      } break;
-      case e_ATTRIBUTE_ID_DISABLE_UNSELECTED_CHOICE_ENCODING: {
-        return accessor(
-                        d_disableUnselectedChoiceEncoding,
-                        ATTRIBUTE_INFO_ARRAY[
-                        e_ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING]);
-      } break;
+      case ATTRIBUTE_ID_TRACE_LEVEL: {
+        return accessor(d_traceLevel, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL]);
+      }
+      case ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE: {
+        return accessor(d_bdeVersionConformance, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
+      }
+      case ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS: {
+        return accessor(d_encodeEmptyArrays, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS]);
+      }
+      case ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY: {
+        return accessor(d_encodeDateAndTimeTypesAsBinary, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
+      }
+      case ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION: {
+        return accessor(d_datetimeFractionalSecondPrecision, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
+      }
+      case ATTRIBUTE_ID_DISABLE_UNSELECTED_CHOICE_ENCODING: {
+        return accessor(d_disableUnselectedChoiceEncoding, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING]);
+      }
+      case ATTRIBUTE_ID_PRESERVE_SIGN_OF_NEGATIVE_ZERO: {
+        return accessor(d_preserveSignOfNegativeZero, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_PRESERVE_SIGN_OF_NEGATIVE_ZERO]);
+      }
       default:
-        return k_NOT_FOUND;
+        return NOT_FOUND;
     }
 }
 
 template <class ACCESSOR>
-int BerEncoderOptions::accessAttribute(ACCESSOR&   accessor,
-                                       const char *name,
-                                       int         nameLength) const
+int BerEncoderOptions::accessAttribute(
+        ACCESSOR&   accessor,
+        const char *name,
+        int         nameLength) const
 {
-    enum { k_NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };
 
-    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
-                                                                   nameLength);
-    if (!attributeInfo) {
-       return k_NOT_FOUND;
+    const bdlat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -764,62 +708,55 @@ bool BerEncoderOptions::disableUnselectedChoiceEncoding() const
     return d_disableUnselectedChoiceEncoding;
 }
 
+inline
+bool BerEncoderOptions::preserveSignOfNegativeZero() const
+{
+    return d_preserveSignOfNegativeZero;
+}
+
 }  // close package namespace
 
 // FREE FUNCTIONS
+
 inline
-bool balber::operator==(const BerEncoderOptions& lhs,
-                        const BerEncoderOptions& rhs)
+bool balber::operator==(
+        const balber::BerEncoderOptions& lhs,
+        const balber::BerEncoderOptions& rhs)
 {
-    return  lhs.traceLevel()                     == rhs.traceLevel()
-         && lhs.bdeVersionConformance()          == rhs.bdeVersionConformance()
-         && lhs.encodeEmptyArrays()              == rhs.encodeEmptyArrays()
-         && lhs.encodeDateAndTimeTypesAsBinary() ==
-                                           rhs.encodeDateAndTimeTypesAsBinary()
-         && lhs.datetimeFractionalSecondPrecision() ==
-                                        rhs.datetimeFractionalSecondPrecision()
-         && lhs.disableUnselectedChoiceEncoding() ==
-                                         rhs.disableUnselectedChoiceEncoding();
+    return  lhs.traceLevel() == rhs.traceLevel()
+         && lhs.bdeVersionConformance() == rhs.bdeVersionConformance()
+         && lhs.encodeEmptyArrays() == rhs.encodeEmptyArrays()
+         && lhs.encodeDateAndTimeTypesAsBinary() == rhs.encodeDateAndTimeTypesAsBinary()
+         && lhs.datetimeFractionalSecondPrecision() == rhs.datetimeFractionalSecondPrecision()
+         && lhs.disableUnselectedChoiceEncoding() == rhs.disableUnselectedChoiceEncoding()
+         && lhs.preserveSignOfNegativeZero() == rhs.preserveSignOfNegativeZero();
 }
 
 inline
-bool balber::operator!=(const BerEncoderOptions& lhs,
-                        const BerEncoderOptions& rhs)
+bool balber::operator!=(
+        const balber::BerEncoderOptions& lhs,
+        const balber::BerEncoderOptions& rhs)
 {
-    return  lhs.traceLevel()                     != rhs.traceLevel()
-         || lhs.bdeVersionConformance()          != rhs.bdeVersionConformance()
-         || lhs.encodeEmptyArrays()              != rhs.encodeEmptyArrays()
-         || lhs.encodeDateAndTimeTypesAsBinary() !=
-                                           rhs.encodeDateAndTimeTypesAsBinary()
-         || lhs.datetimeFractionalSecondPrecision() !=
-                                        rhs.datetimeFractionalSecondPrecision()
-         || lhs.disableUnselectedChoiceEncoding() !=
-                                         rhs.disableUnselectedChoiceEncoding();
+    return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& balber::operator<<(bsl::ostream&            stream,
-                                 const BerEncoderOptions& rhs)
+bsl::ostream& balber::operator<<(
+        bsl::ostream& stream,
+        const balber::BerEncoderOptions& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
 
 }  // close enterprise namespace
-
 #endif
 
+// GENERATED BY BLP_BAS_CODEGEN_2021.07.12.1
+// USING bas_codegen.pl -m msg --msgExpand -p balber --noAggregateConversion --noHashSupport -c berencoderoptions balber.xsd
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// ----------------------------- END-OF-FILE ----------------------------------
+// NOTICE:
+//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
+//      Property of Bloomberg Finance L.P. (BFLP)
+//      This software is made available solely pursuant to the
+//      terms of a BFLP license agreement which governs its use.
+// ------------------------------- END-OF-FILE --------------------------------

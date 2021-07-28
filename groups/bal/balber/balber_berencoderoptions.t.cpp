@@ -705,6 +705,7 @@ int main(int argc, char *argv[])
         const bool  D4   = false;        // 'encodeDateAndTimeTypesAsBinary'
         const int   D5   = 3;            // 'datetimeFractionalSecondPrecision'
         const int   D6   = false;        // 'disableUnselectedChoiceEncoding'
+        const bool  D7   = false;        // 'preserveSignOfNegativeZero'
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
@@ -726,6 +727,8 @@ int main(int argc, char *argv[])
                      D5 == X.datetimeFractionalSecondPrecision());
         LOOP2_ASSERT(D6, X.disableUnselectedChoiceEncoding(),
                      D6 == X.disableUnselectedChoiceEncoding());
+        LOOP2_ASSERT(D7, X.preserveSignOfNegativeZero(),
+                     D7 == X.preserveSignOfNegativeZero());
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -763,6 +766,7 @@ int main(int argc, char *argv[])
         typedef bool  T4;        // 'encodeDateAndTimeTypesAsBinary'
         typedef int   T5;        // 'datetimeFractionalSecondPrecision'
         typedef int   T6;        // 'disableUnselectedChoiceEncoding'
+        typedef bool  T7;        // 'preserveSignOfNegativeZero'
 
         // Attribute 1 Values: 'traceLevel'
 
@@ -794,6 +798,11 @@ int main(int argc, char *argv[])
         const T6 D6 = false;    // default value
         const T6 A6 = true;
 
+        // Attribute 7 Values: 'preserveSignOfNegativeZero'
+
+        const T7 D7 = false;    // default value
+        const T7 A7 = true;
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
@@ -810,6 +819,7 @@ int main(int argc, char *argv[])
         ASSERT(D4 == W.encodeDateAndTimeTypesAsBinary());
         ASSERT(D5 == W.datetimeFractionalSecondPrecision());
         ASSERT(D6 == W.disableUnselectedChoiceEncoding());
+        ASSERT(D7 == W.preserveSignOfNegativeZero());
 
         if (veryVerbose) cout <<
                   "\tb. Try equality operators: 'w' <op> 'w'." << endl;
@@ -832,6 +842,7 @@ int main(int argc, char *argv[])
         ASSERT(D4 == X.encodeDateAndTimeTypesAsBinary());
         ASSERT(D5 == X.datetimeFractionalSecondPrecision());
         ASSERT(D6 == X.disableUnselectedChoiceEncoding());
+        ASSERT(D7 == X.preserveSignOfNegativeZero());
 
         if (veryVerbose) cout <<
                    "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -850,6 +861,7 @@ int main(int argc, char *argv[])
         mX.setEncodeDateAndTimeTypesAsBinary(A4);
         mX.setDatetimeFractionalSecondPrecision(A5);
         mX.setDisableUnselectedChoiceEncoding(A6);
+        mX.setPreserveSignOfNegativeZero(A7);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
@@ -860,6 +872,7 @@ int main(int argc, char *argv[])
         ASSERT(A4 == X.encodeDateAndTimeTypesAsBinary());
         ASSERT(A5 == X.datetimeFractionalSecondPrecision());
         ASSERT(A6 == X.disableUnselectedChoiceEncoding());
+        ASSERT(A7 == X.preserveSignOfNegativeZero());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -879,6 +892,7 @@ int main(int argc, char *argv[])
         mY.setEncodeDateAndTimeTypesAsBinary(A4);
         mY.setDatetimeFractionalSecondPrecision(A5);
         mY.setDisableUnselectedChoiceEncoding(A6);
+        mY.setPreserveSignOfNegativeZero(A7);
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
@@ -889,6 +903,7 @@ int main(int argc, char *argv[])
         ASSERT(A4 == X.encodeDateAndTimeTypesAsBinary());
         ASSERT(A5 == Y.datetimeFractionalSecondPrecision());
         ASSERT(A6 == Y.disableUnselectedChoiceEncoding());
+        ASSERT(A7 == Y.preserveSignOfNegativeZero());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
@@ -913,6 +928,7 @@ int main(int argc, char *argv[])
         ASSERT(A4 == Z.encodeDateAndTimeTypesAsBinary());
         ASSERT(A5 == Z.datetimeFractionalSecondPrecision());
         ASSERT(A6 == Z.disableUnselectedChoiceEncoding());
+        ASSERT(A7 == Z.preserveSignOfNegativeZero());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -933,6 +949,7 @@ int main(int argc, char *argv[])
         mZ.setEncodeDateAndTimeTypesAsBinary(D4);
         mZ.setDatetimeFractionalSecondPrecision(D5);
         mZ.setDisableUnselectedChoiceEncoding(D6);
+        mZ.setPreserveSignOfNegativeZero(D7);
 
         if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
@@ -943,6 +960,7 @@ int main(int argc, char *argv[])
         ASSERT(D4 == Z.encodeDateAndTimeTypesAsBinary());
         ASSERT(D5 == Z.datetimeFractionalSecondPrecision());
         ASSERT(D6 == Z.disableUnselectedChoiceEncoding());
+        ASSERT(D7 == Z.preserveSignOfNegativeZero());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -967,6 +985,7 @@ int main(int argc, char *argv[])
         ASSERT(A4 == W.encodeDateAndTimeTypesAsBinary());
         ASSERT(A5 == W.datetimeFractionalSecondPrecision());
         ASSERT(A6 == W.disableUnselectedChoiceEncoding());
+        ASSERT(A7 == W.preserveSignOfNegativeZero());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -991,6 +1010,7 @@ int main(int argc, char *argv[])
         ASSERT(D4 == W.encodeDateAndTimeTypesAsBinary());
         ASSERT(D5 == W.datetimeFractionalSecondPrecision());
         ASSERT(D6 == W.disableUnselectedChoiceEncoding());
+        ASSERT(D7 == W.preserveSignOfNegativeZero());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1015,6 +1035,7 @@ int main(int argc, char *argv[])
         ASSERT(A4 == X.encodeDateAndTimeTypesAsBinary());
         ASSERT(A5 == X.datetimeFractionalSecondPrecision());
         ASSERT(A6 == X.disableUnselectedChoiceEncoding());
+        ASSERT(A7 == X.preserveSignOfNegativeZero());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;

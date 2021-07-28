@@ -120,6 +120,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_time.h>
 #include <bdlt_timetz.h>
 
+#include <bdlb_float.h>
 #include <bdlb_variant.h>
 
 #include <bslmf_assert.h>
@@ -831,9 +832,13 @@ struct BerUtil_FloatingPointImpUtil {
         k_DOUBLE_NUM_MANTISSA_BYTES          = 7,
         k_DOUBLE_BIAS                        = 1023,
 
+        k_POSITIVE_ZERO_LEN    = 0,
+        k_NEGATIVE_ZERO_LEN    = 1,
+
         k_POSITIVE_INFINITY_ID = 0x40,
         k_NEGATIVE_INFINITY_ID = 0x41,
         k_NAN_ID               = 0x42,
+        k_NEGATIVE_ZERO_ID     = 0x43,
 
         k_DOUBLE_INFINITY_EXPONENT_ID = 0x7FF,
         k_INFINITY_MANTISSA_ID        = 0,
@@ -935,23 +940,29 @@ struct BerUtil_FloatingPointImpUtil {
 
     // Encoding
 
-    static int putFloatValue(bsl::streambuf *streamBuf, float value);
+    static int putFloatValue(bsl::streambuf         *streamBuf,
+                            float                    value,
+                            const BerEncoderOptions *options = 0);
         // Write the length and contents octets of the BER encoding of the
         // specified real 'value' (as defined in the specification) to the
-        // output sequence of the specified 'streamBuf'.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if all bytes corresponding to the length and contents octets are
-        // written to the 'streamBuf' without the write position becoming
-        // unavailable.
+        // output sequence of the specified 'streamBuf'.  Optionally specify
+        // 'options', which will indicate whether '-0.0f' will be preserved or
+        // encoded as '+0.0f'.  Return 0 if successful, and a non-zero value
+        // otherwise.  The operation succeeds if all bytes corresponding to the
+        // length and contents octets are written to the 'streamBuf' without
+        // the write position becoming unavailable.
 
-    static int putDoubleValue(bsl::streambuf *streamBuf, double value);
+    static int putDoubleValue(bsl::streambuf          *streamBuf,
+                              double                   value,
+                              const BerEncoderOptions *options = 0);
         // Write the length and contents octets of the BER encoding of the
         // specified real 'value' (as defined in the specification) to the
-        // output sequence of the specified 'streamBuf'.  Return 0 if
-        // successful, and a non-zero value otherwise.  The operation succeeds
-        // if all bytes corresponding to the length and contents octets are
-        // written to the 'streamBuf' without the write position becoming
-        // unavailable.
+        // output sequence of the specified 'streamBuf'.  Optionally specify
+        // 'options', which will indicate whether '-0.0' will be preserved or
+        // encoded as '+0.0'.  Return 0 if successful, and a non-zero value
+        // otherwise.  The operation succeeds if all bytes corresponding to the
+        // length and contents octets are written to the 'streamBuf' without
+        // the write position becoming unavailable.
 
     static int putDecimal64Value(bsl::streambuf    *streamBuf,
                                  bdldfp::Decimal64  value);
@@ -4354,10 +4365,14 @@ int BerUtil_FloatingPointImpUtil::getFloatValue(float          *value,
 // Encoding
 
 inline
-int BerUtil_FloatingPointImpUtil::putFloatValue(bsl::streambuf *streamBuf,
-                                                float           value)
+int BerUtil_FloatingPointImpUtil::putFloatValue(
+                                            bsl::streambuf          *streamBuf,
+                                            float                    value,
+                                            const BerEncoderOptions *options)
 {
-    return putDoubleValue(streamBuf, static_cast<double>(value));
+    return putDoubleValue(streamBuf,
+                          static_cast<double>(value),
+                          options);
 }
 
                         // ----------------------------
@@ -6360,17 +6375,21 @@ int BerUtil_PutValueImpUtil::putValue(bsl::streambuf          *streamBuf,
 inline
 int BerUtil_PutValueImpUtil::putValue(bsl::streambuf          *streamBuf,
                                       float                    value,
-                                      const BerEncoderOptions *)
+                                      const BerEncoderOptions *options)
 {
-    return FloatingPointUtil::putFloatValue(streamBuf, value);
+    return FloatingPointUtil::putFloatValue(streamBuf,
+                                            value,
+                                            options);
 }
 
 inline
 int BerUtil_PutValueImpUtil::putValue(bsl::streambuf          *streamBuf,
                                       double                   value,
-                                      const BerEncoderOptions *)
+                                      const BerEncoderOptions *options)
 {
-    return FloatingPointUtil::putDoubleValue(streamBuf, value);
+    return FloatingPointUtil::putDoubleValue(streamBuf,
+                                             value,
+                                             options);
 }
 
 inline

@@ -764,19 +764,41 @@ int BerUtil_FloatingPointImpUtil::getDoubleValue(double         *value,
 
     int nextOctet = streamBuf->sbumpc();
 
-    if (k_POSITIVE_INFINITY_ID == nextOctet) {
-        assembleDouble(
-            value, k_DOUBLE_INFINITY_EXPONENT_ID, k_INFINITY_MANTISSA_ID, 0);
-        return SUCCESS;                                               // RETURN
-    }
-    else if (k_NEGATIVE_INFINITY_ID == nextOctet) {
-        assembleDouble(
-            value, k_DOUBLE_INFINITY_EXPONENT_ID, k_INFINITY_MANTISSA_ID, 1);
-        return SUCCESS;                                               // RETURN
-    }
-    else if (k_NAN_ID == nextOctet) {
-        assembleDouble(value, k_DOUBLE_INFINITY_EXPONENT_ID, 1, 0);
-        return SUCCESS;                                               // RETURN
+    if (1 == length) {
+        switch (nextOctet) {
+          case k_POSITIVE_INFINITY_ID: {
+            assembleDouble(value,
+                           k_DOUBLE_INFINITY_EXPONENT_ID,
+                           k_INFINITY_MANTISSA_ID,
+                           0);
+
+            return SUCCESS;                                           // RETURN
+          } break;
+          case k_NEGATIVE_INFINITY_ID: {
+            assembleDouble(value,
+                           k_DOUBLE_INFINITY_EXPONENT_ID,
+                           k_INFINITY_MANTISSA_ID,
+                           1);
+
+            return SUCCESS;                                           // RETURN
+          } break;
+          case k_NAN_ID: {
+            assembleDouble(value,
+                           k_DOUBLE_INFINITY_EXPONENT_ID,
+                           1,
+                           0);
+
+            return SUCCESS;                                           // RETURN
+          } break;
+          case k_NEGATIVE_ZERO_ID: {
+            *value = -0.0;
+
+            return SUCCESS;                                           // RETURN
+          } break;
+          default: {
+            ; // do nothing
+          }
+        }
     }
 
     if (!(nextOctet & static_cast<unsigned char>(k_REAL_BINARY_ENCODING))) {
@@ -910,15 +932,24 @@ int BerUtil_FloatingPointImpUtil::putDecimal64Value(
     return 0;
 }
 
-int BerUtil_FloatingPointImpUtil::putDoubleValue(bsl::streambuf *streamBuf,
-                                                 double          value)
+int BerUtil_FloatingPointImpUtil::putDoubleValue(
+                                            bsl::streambuf          *streamBuf,
+                                            double                   value,
+                                            const BerEncoderOptions *options)
 {
     enum { SUCCESS = 0, FAILURE = -1 };
 
     // If 0 == value, put out length = 0 and return.
 
     if (0.0 == value) {
-        return 0 == streamBuf->sputc(0) ? SUCCESS : FAILURE;          // RETURN
+        static const char negativeZeroSeq[] = { k_NEGATIVE_ZERO_LEN,
+                                                k_NEGATIVE_ZERO_ID };
+
+        bool ok = (options && options->preserveSignOfNegativeZero()) &&
+                                                    bdlb::Float::signBit(value)
+                ? 2 == streamBuf->sputn(negativeZeroSeq, 2)
+                : k_POSITIVE_ZERO_LEN == streamBuf->sputc(k_POSITIVE_ZERO_LEN);
+        return ok ? SUCCESS : FAILURE;                                // RETURN
     }
 
     // Else parse double value.
@@ -1850,7 +1881,7 @@ int BerUtil_DatetimeImpUtil::millisecondsSinceEpochToDatetime(
         static_cast<int>(millisecondsSinceEpoch -
                          daysSinceEpoch * Ratio::k_MILLISECONDS_PER_DAY);
 
-    int hour = millisecondsSinceMidnight / Ratio::k_MILLISECONDS_PER_HOUR;
+    int hour = millisecondsSinceMidnight / Ratio::k_MILLISECONDS_PER_HOUR_32;
 
     const int minute = (millisecondsSinceMidnight -
                         hour * Ratio::k_MILLISECONDS_PER_HOUR_32) /
