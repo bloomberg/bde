@@ -2,7 +2,7 @@
 
 @PURPOSE: Provide generic functions to manipulate attribute types
 
-@MNEMONIC: Basic Development Environment ATtribute types (bdlat)
+@MNEMONIC: Basic Development Environment Attribute Types (bdlat)
 
 @DESCRIPTION: The 'bdlat' package provides generic functions to work with the
  different concepts of attribute types.  These concepts group common behaviors
