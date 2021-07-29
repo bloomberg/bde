@@ -41,6 +41,9 @@ BSLS_IDENT("$Id: $")
 //  | erase, getValue                                    | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
+//  | visit(key, visitor)                                | Average: O[1]      |
+//  | visitReadOnly(key, visitor)                        | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
 //  | insertBulk, k elements                             | Average: O[k]      |
 //  |                                                    | Worst:   O[n*k]    |
 //  +----------------------------------------------------+--------------------+
@@ -49,7 +52,7 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //  | rehash                                             | O[n]               |
 //  +----------------------------------------------------+--------------------+
-//  | visit                                              | O[n]               |
+//  | visit(visitor), visitReadOnly(visitor)             | O[n]               |
 //  +----------------------------------------------------+--------------------+
 //..
 //
@@ -422,6 +425,19 @@ class StripedUnorderedContainerImpl {
         //      // called on additional elements, and 'false' otherwise (i.e.,
         //      // if no other elements should be visited).  Note that this
         //      // functor can change the value associated with 'key'.
+        //..
+
+    typedef bsl::function<bool (const VALUE&, const KEY&)>
+                                                       ReadOnlyVisitorFunction;
+        // An alias to a function meeting the following contract:
+        //..
+        //  bool visitorFunction(const VALUE& value, const KEY& key);
+        //      // Visit the specified 'value' attribute associated with the
+        //      // specified 'key'.  Return 'true' if this function may be
+        //      // called on additional elements, and 'false' otherwise (i.e.,
+        //      // if no other elements should be visited).  Note that this
+        //      // functor can *not* change the values associated with 'key'
+        //      // and 'value'.
         //..
 
   private:
@@ -893,10 +909,12 @@ class StripedUnorderedContainerImpl {
         // change.
 
     int update(const KEY& key, const VisitorFunction& visitor);
+        // !DEPRECATED!: Use 'visit(key, visitor)' instead.
+        //
         // Serially call the specified 'visitor' on each element (if one
         // exists) in this hash map having the specified 'key' until every such
-        // element has been updated or until 'visitor' returns 'false'.  That
-        // is, for '(key, value)', invoke:
+        // element has been updated or 'visitor' returns 'false'.  That is, for
+        // '(key, value)', invoke:
         //..
         //  bool visitor(&value, key);
         //..
@@ -909,9 +927,8 @@ class StripedUnorderedContainerImpl {
 
     int visit(const VisitorFunction& visitor);
         // Call the specified 'visitor' (in an unspecified order) on the
-        // elements in this hash table having the specified 'key' either until
-        // each such element has been visited or until 'visitor' returns
-        // 'false.  That is, for '(key, value)', invoke:
+        // elements in this hash table until each element has been visited or
+        // 'visitor' returns 'false'.  That is, for '(key, value)', invoke:
         //..
         //  bool visitor(&value, key);
         //..
@@ -927,6 +944,21 @@ class StripedUnorderedContainerImpl {
         // manipulators and 'getValue*' methods are invoked from within
         // 'visitor', as it may lead to a deadlock.  Note that 'visitor' can
         // change the value of the visited elements.
+
+    int visit(const KEY& key, const VisitorFunction& visitor);
+        // Serially call the specified 'visitor' on each element (if one
+        // exists) in this hash map having the specified 'key' until every such
+        // element has been updated or 'visitor' returns 'false'.  That is, for
+        // '(key, value)', invoke:
+        //..
+        //  bool visitor(&value, key);
+        //..
+        // Return the number of elements visited or the negation of that value
+        // if visitations stopped because 'visitor' returned 'false'.
+        // 'visitor' has exclusive access (i.e., write access) to each element
+        // for duration of each invocation.  The behavior is undefined if hash
+        // map manipulators and 'getValue*' methods are invoked from within
+        // 'visitor', as it may lead to a deadlock.
 
     // ACCESSORS
     bsl::size_t bucketIndex(const KEY& key) const;
@@ -998,10 +1030,43 @@ class StripedUnorderedContainerImpl {
     bsl::size_t numStripes() const;
         // Return the number of stripes in the hash.
 
+    int visitReadOnly(const ReadOnlyVisitorFunction& visitor) const;
+        // Call the specified 'visitor' (in an unspecified order) on the
+        // elements in this hash table until each element has been visited or
+        // 'visitor' returns 'false'.  That is, for '(key, value)', invoke:
+        //..
+        //  bool visitor(value, key);
+        //..
+        // Return the number of elements visited or the negation of that value
+        // if visitations stopped because 'visitor' returned 'false'.
+        // 'visitor' has read-only access to each element for duration of each
+        // invocation.  Every element present in this hash map at the time
+        // 'visit' is invoked will be visited unless it is removed before
+        // 'visitor' is called for that element.  Each visitation is done by
+        // the calling thread and the order of visitation is not specified.
+        // The behavior is undefined if hash map manipulators are invoked from
+        // within 'visitor', as it may lead to a deadlock.  Note that 'visitor'
+        // can *not* change the value of the visited elements.
+
+    int visitReadOnly(const KEY&                     key,
+                      const ReadOnlyVisitorFunction& visitor) const;
+        // Serially call the specified 'visitor' on each element (if one
+        // exists) in this hash map having the specified 'key' until every such
+        // element has been visitd or 'visitor' returns 'false'.  That is, for
+        // '(key, value)', invoke:
+        //..
+        //  bool visitor(value, key);
+        //..
+        // Return the number of elements visited or the negation of that value
+        // if visitations stopped because 'visitor' returned 'false'.
+        // 'visitor' has read-only access to each element for duration of each
+        // invocation.  The behavior is undefined if hash map manipulators are
+        // invoked from within 'visitor', as it may lead to a deadlock.
+
     bsl::size_t size() const;
         // Return the current number of elements in this hash.
 
-                               // Aspects
+                                 // Aspects
 
     bslma::Allocator *allocator() const;
         // Return the allocator used by this hash map to supply memory.  Note
@@ -2505,25 +2570,7 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::update(
                                                 const KEY&             key,
                                                 const VisitorFunction& visitor)
 {
-    bsl::size_t bucketIdx;
-    LEWGuard    guard(lockWrite(&bucketIdx, key));
-
-    StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& bucket =
-                                                          d_buckets[bucketIdx];
-
-    // Loop on the elements in the list
-    int                                             count = 0;
-    StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode = bucket.head();
-    for (; curNode != NULL; curNode = curNode->next()) {
-        if (d_comparator(curNode->key(), key)) {
-            ++count;
-            bool ret = visitor(&curNode->value(), key);
-            if (ret == false) {
-                return -count;                                        // RETURN
-            }
-        }
-    }
-    return count;
+    return visit(key, visitor);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
@@ -2554,6 +2601,33 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visit(
             }
         }
         d_locks_p[i].unlockW();
+    }
+    return count;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visit(
+                                                const KEY&             key,
+                                                const VisitorFunction& visitor)
+{
+    bsl::size_t bucketIdx;
+    LEWGuard    guard(lockWrite(&bucketIdx, key));
+
+    StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& bucket =
+                                                          d_buckets[bucketIdx];
+
+    // Loop on the elements in the list
+    int                                             count = 0;
+    StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode = bucket.head();
+    for (; curNode != NULL; curNode = curNode->next()) {
+        if (d_comparator(curNode->key(), key)) {
+            ++count;
+            bool ret = visitor(&curNode->value(), key);
+            if (ret == false) {
+                return -count;                                        // RETURN
+            }
+        }
     }
     return count;
 }
@@ -2704,6 +2778,65 @@ bsl::size_t
 StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::numStripes() const
 {
     return static_cast<bsl::size_t>(d_numStripes);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visitReadOnly(
+                                  const ReadOnlyVisitorFunction& visitor) const
+{
+    // Main loop on stripes: lock a stripe and process all buckets in it
+    int count = 0;
+    for (bsl::size_t i = 0; i < d_numStripes; ++i) {
+        d_locks_p[i].lockR();
+        // Loop on the buckets of the current stripe.  This is simple, as the
+        // stripe is the last bits in a bucket index.  We start with the
+        // current stripe as the first bucket, and add 'd_numStripes' for the
+        // next bucket, until 'd_numBuckets'.
+        for (bsl::size_t j = i; j < d_numBuckets; j += d_numStripes) {
+            const StripedUnorderedContainerImpl_Bucket<KEY, VALUE> &bucket =
+                                                                  d_buckets[j];
+            // Loop on the nodes in the bucket.
+            for (StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode =
+                                                bucket.head(); curNode != NULL;
+                                                   curNode = curNode->next()) {
+                ++count;
+                bool ret = visitor(curNode->value(), curNode->key());
+                if (!ret) {
+                    d_locks_p[i].unlockR();
+                    return -count;                                    // RETURN
+                }
+            }
+        }
+        d_locks_p[i].unlockR();
+    }
+    return count;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visitReadOnly(
+                                  const KEY&                     key,
+                                  const ReadOnlyVisitorFunction& visitor) const
+{
+    bsl::size_t bucketIdx;
+    LERGuard    guard(lockRead(&bucketIdx, key));
+
+    const StripedUnorderedContainerImpl_Bucket<KEY, VALUE>& bucket =
+                                                          d_buckets[bucketIdx];
+
+    // Loop on the elements in the list
+    int                                             count = 0;
+    StripedUnorderedContainerImpl_Node<KEY, VALUE> *curNode = bucket.head();
+    for (; curNode != NULL; curNode = curNode->next()) {
+        if (d_comparator(curNode->key(), key)) {
+            ++count;
+            bool ret = visitor(curNode->value(), key);
+            if (ret == false) {
+                return -count;                                        // RETURN
+            }
+        }
+    }
+    return count;
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>

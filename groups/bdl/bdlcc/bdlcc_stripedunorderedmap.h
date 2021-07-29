@@ -55,6 +55,9 @@ BSLS_IDENT("$Id: $")
 //  | erase, getValue                                    | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
+//  | visit(key, visitor)                                | Average: O[1]      |
+//  | visitReadOnly(key, visitor)                        | Worst:   O[n]      |
+//  +----------------------------------------------------+--------------------+
 //  | insertBulk, k elements                             | Average: O[k]      |
 //  |                                                    | Worst:   O[n*k]    |
 //  +----------------------------------------------------+--------------------+
@@ -63,7 +66,7 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //  | rehash                                             | O[n]               |
 //  +----------------------------------------------------+--------------------+
-//  | visit                                              | O[n]               |
+//  | visit(visitor), visitReadOnly(visitor)             | O[n]               |
 //  +----------------------------------------------------+--------------------+
 //..
 //
@@ -414,6 +417,19 @@ class StripedUnorderedMap {
         //      // functor can change the value associated with 'key'.
         //..
 
+    typedef bsl::function<bool (const VALUE&, const KEY&)>
+                                                       ReadOnlyVisitorFunction;
+        // An alias to a function meeting the following contract:
+        //..
+        //  bool visitorFunction(const VALUE& value, const KEY& key);
+        //      // Visit the specified 'value' attribute associated with the
+        //      // specified 'key'.  Return 'true' if this function may be
+        //      // called on additional elements, and 'false' otherwise (i.e.,
+        //      // if no other elements should be visited).  Note that this
+        //      // functor can *not* change the value associated with 'key'
+        //      // and 'value'.
+        //..
+
     // CREATORS
     explicit StripedUnorderedMap(
                    bsl::size_t       numInitialBuckets = k_DEFAULT_NUM_BUCKETS,
@@ -549,6 +565,8 @@ class StripedUnorderedMap {
         // found having 'key'.
 
     int update(const KEY& key, const VisitorFunction& visitor);
+        // !DEPRECATED!: Use 'visit(key, visitor)' instead.
+        //
         // Call the specified 'visitor' with the element (if one exists) in
         // this hash map having the specified 'key'.  That is:
         //..
@@ -562,9 +580,8 @@ class StripedUnorderedMap {
 
     int visit(const VisitorFunction& visitor);
         // Call the specified 'visitor' (in an unspecified order) on all
-        // elements in this hash table until each such element has been
-        // visited or until 'visitor' returns 'false'.
-        // That is, for '(key, value)', invoke:
+        // elements in this hash table until each such element has been visited
+        // or 'visitor' returns 'false'.  That is, for '(key, value)', invoke:
         //..
         //  bool visitor(&value, key);
         //..
@@ -580,6 +597,18 @@ class StripedUnorderedMap {
         // manipulators and 'getValue*' methods are invoked from within
         // 'visitor', as it may lead to a deadlock.  Note that 'visitor' can
         // change the value of the visited elements.
+
+    int visit(const KEY& key, const VisitorFunction& visitor);
+        // Call the specified 'visitor' with the element (if one exists) in
+        // this hash map having the specified 'key'.  That is:
+        //..
+        //  bool visitor(&value, key);
+        //..
+        // Return the number of elements updated or -1 if 'visitor' returned
+        // 'false'.  'visitor' has exclusive access (i.e., write access) the
+        // element for during its invocation.  The behavior is undefined if
+        // hash map manipulators and 'getValue*' methods are invoked from
+        // within 'visitor', as it may lead to a deadlock.
 
     // ACCESSORS
     bsl::size_t bucketCount() const;
@@ -639,6 +668,38 @@ class StripedUnorderedMap {
 
     bsl::size_t numStripes() const;
         // Return the number of stripes in the hash.
+
+    int visitReadOnly(const ReadOnlyVisitorFunction& visitor) const;
+        // Call the specified 'visitor' (in an unspecified order) on all
+        // elements in this hash table until each such element has been visited
+        // or 'visitor' returns 'false'.  That is, for '(key, value)', invoke:
+        //..
+        //  bool visitor(value, key);
+        //..
+        // Return the number of elements visited or the negation of that value
+        // if visitations stopped because 'visitor' returned 'false'.
+        // 'visitor' has read-only access to each element for duration of each
+        // invocation.  Every element present in this hash map at the time
+        // 'visit' is invoked will be visited unless it is removed before
+        // 'visitor' is called for that element.  Each visitation is done by
+        // the calling thread and the order of visitation is not specified.
+        // The behavior is undefined if hash map manipulators are invoked from
+        // within 'visitor', as it may lead to a deadlock.  Note that 'visitor'
+        // can *not* change the value of the visited elements.
+
+    int visitReadOnly(const KEY&                     key,
+                      const ReadOnlyVisitorFunction& visitor) const;
+        // Call the specified 'visitor' on element (if one exists) in this hash
+        // map having the specified 'key'.  That is, for '(key, value)',
+        // invoke:
+        //..
+        //  bool visitor(value, key);
+        //..
+        // Return the number of elements visited or '-1' if 'visitor' returned
+        // 'false'.  'visitor' has read-only access to each element for
+        // duration of each invocation.  The behavior is undefined if hash map
+        // manipulators are invoked from within 'visitor', as it may lead to a
+        // deadlock.
 
     bsl::size_t size() const;
         // Return the current number of elements in this hash map.
@@ -803,6 +864,15 @@ int StripedUnorderedMap<KEY, VALUE, HASH, EQUAL>::visit(
     return d_imp.visit(visitor);
 }
 
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+int StripedUnorderedMap<KEY, VALUE, HASH, EQUAL>::visit(
+                                                const KEY&             key,
+                                                const VisitorFunction& visitor)
+{
+    return d_imp.visit(key, visitor);
+}
+
 // ACCESSORS
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
@@ -886,6 +956,23 @@ inline
 bsl::size_t StripedUnorderedMap<KEY, VALUE, HASH, EQUAL>::numStripes() const
 {
     return d_imp.numStripes();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+int StripedUnorderedMap<KEY, VALUE, HASH, EQUAL>::visitReadOnly(
+                                  const ReadOnlyVisitorFunction& visitor) const
+{
+    return d_imp.visitReadOnly(visitor);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+int StripedUnorderedMap<KEY, VALUE, HASH, EQUAL>::visitReadOnly(
+                                  const KEY&                     key,
+                                  const ReadOnlyVisitorFunction& visitor) const
+{
+    return d_imp.visitReadOnly(key, visitor);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>

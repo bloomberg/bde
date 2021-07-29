@@ -87,8 +87,8 @@ using namespace bsl;
 // 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR' macro and other types in
 // special cases.
 //
-// Single-threaded behavior is tested in test cases [1 .. 21].  Multi-threaded
-// issues are addressed in test case 22.
+// Single-threaded behavior is tested in test cases [1 .. 22].  Multi-threaded
+// issues are addressed in test case 23.
 //
 // As this component simply forwards its methods to
 // 'bdlcc:StripedUnorderedImpl', we simply need to test that the various
@@ -130,6 +130,7 @@ using namespace bsl;
 // [20] bsl::size_t setValueFirst(const KEY& key, VALUE&& value);
 // [16] int update(const KEY& key, const VisitorFunction& functor);
 // [17] int visit(const VisitorFunction& visitor);
+// [16] int visit(const KEY& key, const VisitorFunction& functor);
 //
 // ACCESSORS
 // [ 4] bsl::size_t bucketIndex(const KEY& key) const;
@@ -145,13 +146,15 @@ using namespace bsl;
 // [18] float maxLoadFactor() const;
 // [ 4] bsl::size_t numStripes() const;
 // [ 4] bsl::size_t size() const;
+// [22] int visitReadOnly(const ReadOnlyVisitorFunction& visitor) const;
+// [22] int visitReadOnly(const KEY&, const ReadOnlyVisitorFunction&) const;
 //
 // [ 4] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [19] TYPE TRAITS
-// [22] MULTI-THREADED STRESS TEST
-// [23] USAGE EXAMPLE
+// [23] MULTI-THREADED STRESS TEST
+// [24] USAGE EXAMPLE
 // [-1] PERFORMANCE TEST INT->STRING
 // [-2] PERFORMANCE TEST STRING->INT64
 
@@ -669,6 +672,7 @@ class TestDriver {
   private:
     // TYPES
     typedef bdlcc::StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL> Obj;
+    typedef bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL> VisitedElements;
 
     // Shorthands
     typedef bsl::pair<KEY, VALUE>    PairType;
@@ -680,6 +684,30 @@ class TestDriver {
                                                 KEY,
                                                 VALUE,
                                                 PairStdAllocator> > TestValues;
+
+    struct TestCase19Reader {
+        // Functor for testCase19 - visitReadOnly.
+
+        // DATA
+        bsl::size_t       d_numSuccess;  // Functor will succeed for the first
+                                         // 'd_numSuccess' times, and fail
+                                         // after.
+
+        const TestValues& d_values;      // Test values array, size 52
+
+        // CREATORS
+        explicit TestCase19Reader(bsl::size_t       numSuccess,
+                                  const TestValues& values);
+            // Create a 'TestCase19Reader' with the specified 'numSuccess' and
+            // a reference to the specified 'values'.  Functor calls will
+            // succeed the first 'numSuccess' times and fail afterwards.
+
+        // MANIPULATORS
+        bool operator()(const VALUE& value, const KEY& key);
+            // Register a visit of the specified 'value' related to the
+            // specified 'key'.  Return 'true' for the first 'd_numSuccess'
+            // calls, and 'false' afterwards.
+    };
 
     struct TestCase15Updater {
         // Functor for testCase15 - setComputedValue in rehash.
@@ -698,7 +726,7 @@ class TestDriver {
     };
 
     struct TestCase14Updater {
-        // Functor for testCase14 - visit.
+        // Functor for testCase14 - visit(visitor).
 
         // DATA
         int         d_numSuccess; // Functor will succeed for the first
@@ -720,7 +748,7 @@ class TestDriver {
     };
 
     struct TestCase13Updater {
-        // Functor for testCase13 - update.
+        // Functor for testCase13 - visit(key, visitor).
 
         // DATA
         bool d_success; // Set to 'false' if functor is to fail, or 'true'
@@ -763,11 +791,19 @@ class TestDriver {
     static KEY   s_testCase13_key;
     static int   s_testCase13_valueId;
     static VALUE s_testCase13_value;
-    static int   s_testCase14_count;
         // Places for the test case 13 functor to put a copy of its 'key'
         // input. to put a copy of the identifier of its '*value' input, to
         // obtain a value to be set to its '*value', and to keep a counter of
         // calls, respectively.
+
+    static int s_testCase14_count;
+        // Place for the test case 14 functor to put a number of visited
+        // values.
+
+    static bsl::size_t     s_testCase19_count;
+    static VisitedElements s_testCase19_visitedElements;
+        // Places for the test case 22 functor to put a number of visited
+        // values and copies of its 'key' input and its '*value' input.
 
   public:
     static void testCase1();
@@ -786,13 +822,51 @@ class TestDriver {
     static void testCase14();
     static void testCase15();
     static void testCase16();
+    static void testCase16_update();
     static void testCase17();
     static void testCase18();
     static void testCase19();
     static void testCase20();
     static void testCase21();
-        // Code for test cases 1 to 21.
+    static void testCase22();
+        // Code for test cases 1 to 22.
 };
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase19Reader::TestCase19Reader(
+                                                  bsl::size_t       numSuccess,
+                                                  const TestValues& values)
+: d_numSuccess(numSuccess)
+, d_values(values)
+{
+    s_testCase19_count = 0;
+    s_testCase19_visitedElements.clear();
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase19Reader::operator()(
+                                                            const VALUE& value,
+                                                            const KEY&   key)
+{
+    // Search for key within d_values.  As we need to copy from next value,
+    // assume that it must be within the first 51 members.
+    int keyIdx;
+    for (keyIdx = 0; keyIdx < 51; ++keyIdx) {
+        if (areEqual(key, d_values[keyIdx].first)) {
+            break;
+        }
+    }
+    if (keyIdx == 51) { // Should not happen!
+        return false;                                                 // RETURN
+    }
+
+    // Store information about visited element.
+    s_testCase19_visitedElements.emplace(key, value);
+
+    // Increase count, and return true / false based on count.
+    ++s_testCase19_count;
+    return s_testCase19_count <= d_numSuccess;
+}
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase15Updater::TestCase15Updater(
@@ -864,6 +938,24 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase13Updater::operator()(
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
+bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase12Updater::operator()(
+                                                             VALUE      *value,
+                                                             const KEY&  key)
+{
+    s_testCase12_found = !areEqual(*value, VALUE());
+    s_testCase12_key   = key;
+    if (s_testCase12_found) {
+        s_testCase12_valueId = TstFacility::getIdentifier(*value);
+    }
+    else {
+        ASSERTV(areEqual(*value, VALUE()));
+        s_testCase12_valueId = 0;
+    }
+    *value = s_testCase12_value;
+    return true;
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
 bool TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase12_found;
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
@@ -888,21 +980,774 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 int TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase14_count;
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
-bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase12Updater::operator()(
-                                                             VALUE      *value,
-                                                             const KEY&  key)
+bsl::size_t TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase19_count;
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+typename TestDriver<KEY, VALUE, HASH, EQUAL>::VisitedElements
+             TestDriver<KEY, VALUE, HASH, EQUAL>::s_testCase19_visitedElements;
+template <class KEY, class VALUE, class HASH, class EQUAL>
+
+void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase22()
 {
-    s_testCase12_found = !areEqual(*value, VALUE());
-    s_testCase12_key   = key;
-    if (s_testCase12_found) {
-        s_testCase12_valueId = TstFacility::getIdentifier(*value);
+    // ------------------------------------------------------------------------
+    // TEST 'visitReadOnly'
+    //
+    // Concerns:
+    //: 1 The given functor is executed and is called with the expected
+    //:   arguments (i.e. the value at 'value' is the value attribute
+    //:   associated with 'key').
+    //:
+    //: 2 The functor is called for every element in the hash map irrespective
+    //:   of the bucket in which it resides by 'common' overload (i.e.
+    //:   'visitReadOnly(const ReadOnlyVisitorFunction& v)').  The functor is
+    //:   called for every element in the hash map having the given 'key' by
+    //:   'single-key' overload (i.e.
+    //:   'visitReadOnly(const KEY& k, const ReadOnlyVisitorFunction& v)'.
+    //:
+    //: 3 The 'visit' methods return the number of values visited.
+    //:
+    //: 4 The "tour" is halted prematurely when the functor returns 'false'.
+    //:
+    //:   1 The number of elements visited is less than the size of the hash
+    //:     map.
+    //:
+    //:   2 The return value is negative.
+    //:
+    //: 5 The methods work if the hash map is empty.
+    //:
+    //: 6 Object under the test remains unaffected.
+    //:
+    //: 7 QoI: There is no temporary memory allocation from any allocator.
+    //
+    // Plan:
+    //: 1 Test the empty hash map in a standalone case.  (C-5)
+    //:
+    //: 2 For hash maps of varying lengths with unique values and for hash maps
+    //:   of varying lengths with duplicate values and, we:
+    //:   1 Run a visitor that always succeeds and a visitor that fails after
+    //:     half the elements.
+    //:   2 Store every key and value passed to functor to mark element as
+    //:     visited.
+    //:   3 Confirm that there was no temporary memory allocation from the
+    //:     default and object allocators.  (C-7)
+    //:   4 Confirm that the return value is correct.  (C-3..4)
+    //:   5 Confirm that object itself remains unaffected.  (C-6)
+    //:   6 Confirm that the functor was called the expected number of times.
+    //:   7 Confirm that the expected number of elements has been visited.
+    //:   8 Confirm that only the expected elements have been visited.
+    //:     (C-1..2)
+    //
+    // Testing:
+    //   int visitReadOnly(const ReadOnlyVisitorFunction& visitor) const;
+    //   int visitReadOnly(const KEY&, const ReadOnlyVisitorFunction&) const;
+    // ------------------------------------------------------------------------
+
+    // Test is equivalent to 'testCase19' in 'StripedUnorderedContainerImpl'.
+
+    if (verbose) cout << endl
+                      << "TEST 'visitReadOnly'" << endl
+                      << "====================" << endl;
+
+    if (veryVeryVerbose) {
+        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
     }
-    else {
-        ASSERTV(areEqual(*value, VALUE()));
-        s_testCase12_valueId = 0;
+
+    typedef typename VisitedElements::const_iterator Element;
+
+    bslma::TestAllocator         da("default",  veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+    bslma::TestAllocator         oa("object",   veryVeryVeryVerbose);
+    bslma::TestAllocator         sa("supplied", veryVeryVeryVerbose);
+
+    // CONCERN: In no case does memory come from the default allocator.
+    bslma::TestAllocatorMonitor dam(&da);
+
+    const TestValues  VALUES; // contains 52 distinct increasing values
+    const bsl::size_t MAX_LENGTH = 15;
+
+    if (verbose) cout << "/tTesting common read-only visit" << endl;
+
+    // Test empty hash map.
+    {
+        Obj        mX(128, 8, &oa);
+        const Obj& X = mX;
+
+        TestCase19Reader testCase19Reader(10, VALUES);
+
+        typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
+
+        dam.reset(); // 'bsl::function' constructor allocates from the default
+                     // allocator.
+
+        int rc = mX.visitReadOnly(visitor);
+
+        ASSERTV(rc, 0 == rc);
+        ASSERTV(0 == X.size());
+
+        ASSERTV(0 == s_testCase19_count);
+        ASSERTV(0 == s_testCase19_visitedElements.size());
+
+        // No change in memory allocation.
+        ASSERTV(dam.isTotalSame());
     }
-    *value = s_testCase12_value;
-    return true;
+
+    // Testing with unique values - success
+    for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+        const bsl::size_t LENGTH = ti;
+
+        Obj        mX(128, 8, &oa);
+        const Obj& X = mX;
+
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            mX.insert(VALUES[tj].first, VALUES[tj].second);
+        }
+        ASSERTV(LENGTH == X.size());
+
+        bsl::size_t              bucketCount = X.bucketCount();
+        bsl::vector<bsl::size_t> bucketSizes(bucketCount, &sa);
+
+        for (bsl::size_t i = 0; i < bucketCount; ++i) {
+            bucketSizes[i] = X.bucketSize(i);
+        }
+
+        TestCase19Reader testCase19Reader(INT_MAX, VALUES);
+
+        typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
+        dam.reset(); // 'bsl::function' constructor allocates from the default
+                     // allocator.
+
+        bslma::TestAllocatorMonitor oam(&oa);
+
+        int rc = mX.visitReadOnly(visitor);
+
+        // Confirm return value and number of functor calls.
+        ASSERTV(static_cast<int>(LENGTH), rc, static_cast<int>(LENGTH) == rc);
+        ASSERTV(LENGTH, s_testCase19_count, LENGTH == s_testCase19_count);
+
+        // Size unchanged.
+        ASSERTV(LENGTH == X.size());
+
+        // Bucket count unchanged.
+        ASSERTV(bucketCount == X.bucketCount());
+
+        // Bucket sizes did not change.
+        for (bsl::size_t i = 0; i < bucketCount; ++i) {
+            ASSERTV(bucketSizes[i] == X.bucketSize(i));
+        }
+
+        // No change in memory allocation.
+        ASSERTV(oam.isTotalSame());
+        ASSERTV(dam.isTotalSame());
+
+        // Confirm that values remain unchanged.
+        bsl::vector<VALUE> values(&sa);
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            bsl::size_t rc1 = X.getValueAll(&values, VALUES[tj].first);
+            ASSERTV(1 == rc1);
+            ASSERTV(areEqual(values[0], VALUES[tj].second));
+        }
+
+        // Confirm that all values have been visited.
+        ASSERTV(LENGTH, s_testCase19_visitedElements.size(),
+                LENGTH == s_testCase19_visitedElements.size());
+
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            Element element =
+                s_testCase19_visitedElements.find(VALUES[tj].first);
+            ASSERTV(s_testCase19_visitedElements.end() != element);
+            ASSERTV(areEqual(VALUES[tj].second, element->second));
+        }
+
+    } // END Testing with unique values - success
+
+    // Testing with unique values - fail
+    for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+        const bsl::size_t LENGTH = ti;
+
+        Obj        mX(128, 8, &oa);
+        const Obj& X = mX;
+
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            mX.insert(VALUES[tj].first, VALUES[tj].second);
+        }
+        ASSERTV(LENGTH == X.size());
+
+        bsl::size_t              bucketCount = X.bucketCount();
+        bsl::vector<bsl::size_t> bucketSizes(bucketCount, &sa);
+
+        for (bsl::size_t i = 0; i < bucketCount; ++i) {
+            bucketSizes[i] = X.bucketSize(i);
+        }
+
+        TestCase19Reader  testCase19Reader(LENGTH / 2, VALUES);
+        const bsl::size_t EXP_NUM_VISITS = LENGTH / 2 + 1;
+        const int         EXP_RESULT     = -(static_cast<int>(LENGTH) / 2 + 1);
+
+        typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
+        dam.reset(); // 'bsl::function' constructor allocates from the default
+                     // allocator.
+
+        bslma::TestAllocatorMonitor oam(&oa);
+
+        int rc = mX.visitReadOnly(visitor);
+
+        // Confirm return value and number of functor calls.
+        ASSERTV(EXP_RESULT, rc, EXP_RESULT == rc);
+        ASSERTV(EXP_NUM_VISITS == s_testCase19_count);
+
+        // Size unchanged.
+        ASSERTV(LENGTH == X.size());
+
+        // Bucket count unchanged.
+        ASSERTV(bucketCount == X.bucketCount());
+
+        // Bucket sizes did not change.
+        for (bsl::size_t i = 0; i < bucketCount; ++i) {
+            ASSERTV(bucketSizes[i] == X.bucketSize(i));
+        }
+
+        // No change in memory allocation.
+        ASSERTV(oam.isTotalSame());
+        ASSERTV(dam.isTotalSame());
+
+        // Confirm that values remain unchanged.
+        ASSERTV(EXP_NUM_VISITS, s_testCase19_visitedElements.size(),
+                EXP_NUM_VISITS == s_testCase19_visitedElements.size());
+
+        bsl::vector<VALUE> values(&sa);
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            bsl::size_t rc1 = X.getValueAll(&values, VALUES[tj].first);
+            ASSERTV(1 == rc1);
+            ASSERTV(areEqual(values[0], VALUES[tj].second));
+        }
+
+        // Confirm that values have been visited.
+        bsl::size_t numVisitedElements = 0;
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            Element element =
+                           s_testCase19_visitedElements.find(VALUES[tj].first);
+            if (s_testCase19_visitedElements.end() != element) {
+                ASSERTV(areEqual(VALUES[tj].second, element->second));
+                ++numVisitedElements;
+            }
+        }
+        ASSERTV(EXP_NUM_VISITS, numVisitedElements,
+                EXP_NUM_VISITS == numVisitedElements);
+    } // END Testing with unique values - fail
+
+    // Testing with duplicate values - success
+    for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+        const bsl::size_t LENGTH         = ti;
+        const bsl::size_t EXP_NUM_VISITS = 2 * LENGTH;
+
+        Obj        mX(128, 8, &oa);
+        const Obj& X = mX;
+
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            mX.insert(VALUES[tj].first, VALUES[tj].second);
+            mX.insert(VALUES[tj].first, VALUES[LENGTH - tj - 1].second);
+        }
+        ASSERTV(EXP_NUM_VISITS == X.size());
+
+        bsl::size_t              bucketCount = X.bucketCount();
+        bsl::vector<bsl::size_t> bucketSizes(bucketCount, &sa);
+
+        for (bsl::size_t i = 0; i < bucketCount; ++i) {
+            bucketSizes[i] = X.bucketSize(i);
+        }
+
+        TestCase19Reader testCase19Reader(INT_MAX, VALUES);
+
+        typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
+        dam.reset(); // 'bsl::function' constructor allocates from the default
+                     // allocator.
+
+        bslma::TestAllocatorMonitor oam(&oa);
+
+        int rc = mX.visitReadOnly(visitor);
+
+        // Confirm return value, number of functor calls
+        ASSERTV(rc, static_cast<int>(EXP_NUM_VISITS) == rc);
+        ASSERTV(EXP_NUM_VISITS, s_testCase19_count,
+                EXP_NUM_VISITS == s_testCase19_count);
+
+        // Size unchanged.
+        ASSERTV(EXP_NUM_VISITS == X.size());
+
+        // Bucket count unchanged.
+        ASSERTV(bucketCount == X.bucketCount());
+
+        // Bucket sizes did not change.
+        for (bsl::size_t i = 0; i < bucketCount; ++i) {
+            ASSERTV(bucketSizes[i] == X.bucketSize(i));
+        }
+
+        // No change in memory allocation.
+        ASSERTV(oam.isTotalSame());
+        ASSERTV(dam.isTotalSame());
+
+        // Confirm that all values remain unchanged.
+        bsl::vector<VALUE> values(&sa);
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            bsl::size_t rc1 = X.getValueAll(&values, VALUES[tj].first);
+            ASSERTV(2 == rc1);
+            ASSERTV(areEqual(values[0], VALUES[tj].second));
+            ASSERTV(areEqual(values[1], VALUES[LENGTH - tj - 1].second));
+        }
+
+        // Confirm that all values have been visited.
+        ASSERTV(EXP_NUM_VISITS, s_testCase19_visitedElements.size(),
+                EXP_NUM_VISITS == s_testCase19_visitedElements.size());
+
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            ASSERTV(VALUES[tj].first,
+                    s_testCase19_visitedElements.count(VALUES[tj].first),
+                    2 == s_testCase19_visitedElements.count(VALUES[tj].first));
+            bsl::pair<Element, Element> elements =
+                s_testCase19_visitedElements.equal_range(VALUES[tj].first);
+            Element element     = elements.first;
+            VALUE   firstValue  = element->second;
+            ++element;
+            VALUE secondValue = element->second;
+            ASSERTV((areEqual(VALUES[tj].second,              firstValue) &&
+                     areEqual(VALUES[LENGTH - tj - 1].second, secondValue))
+                 || (areEqual(VALUES[tj].second,              secondValue) &&
+                     areEqual(VALUES[LENGTH - tj - 1].second, firstValue)));
+        }
+    } // END Testing with duplicate values - success
+
+    // Testing with duplicate values - fail
+    for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+        const bsl::size_t LENGTH         = ti;
+
+        Obj        mX(128, 8, &oa);
+        const Obj& X = mX;
+
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            mX.insert(VALUES[tj].first, VALUES[tj].second);
+            mX.insert(VALUES[tj].first, VALUES[LENGTH - tj - 1].second);
+        }
+        ASSERTV(LENGTH * 2 == X.size());
+
+        bsl::size_t              bucketCount = X.bucketCount();
+        bsl::vector<bsl::size_t> bucketSizes(bucketCount, &sa);
+
+        for (bsl::size_t i = 0; i < bucketCount; ++i) {
+            bucketSizes[i] = X.bucketSize(i);
+        }
+
+        TestCase19Reader testCase19Reader(LENGTH, VALUES);
+        const bsl::size_t EXP_NUM_VISITS = LENGTH + 1;
+        const int         EXP_RESULT     = -(static_cast<int>(LENGTH) + 1);
+
+        typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
+        dam.reset(); // 'bsl::function' constructor allocates from the default
+                     // allocator.
+
+        bslma::TestAllocatorMonitor oam(&oa);
+
+        int rc = mX.visitReadOnly(visitor);
+
+        // Confirm return value, number of functor calls
+        ASSERTV(EXP_RESULT, rc, EXP_RESULT == rc);
+        ASSERTV(EXP_NUM_VISITS == s_testCase19_count);
+
+        // Size unchanged.
+        ASSERTV(LENGTH * 2 == X.size());
+
+        // Bucket count unchanged.
+        ASSERTV(bucketCount == X.bucketCount());
+
+        // Bucket sizes did not change.
+        for (bsl::size_t i = 0; i < bucketCount; ++i) {
+            ASSERTV(bucketSizes[i] == X.bucketSize(i));
+        }
+
+        // No change in memory allocation.
+        ASSERTV(oam.isTotalSame());
+        ASSERTV(dam.isTotalSame());
+
+        // Confirm that all values remain unchanged.
+        bsl::vector<VALUE> values(&sa);
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            bsl::size_t rc1 = X.getValueAll(&values, VALUES[tj].first);
+            ASSERTV(2 == rc1);
+            ASSERTV(areEqual(values[0], VALUES[tj].second));
+            ASSERTV(areEqual(values[1], VALUES[LENGTH - tj - 1].second));
+        }
+
+        // Confirm that all values have been visited.
+        ASSERTV(EXP_NUM_VISITS, s_testCase19_visitedElements.size(),
+                EXP_NUM_VISITS == s_testCase19_visitedElements.size());
+
+        bsl::size_t numVisitedElements = 0;
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            switch (s_testCase19_visitedElements.count(VALUES[tj].first)) {
+              case 2: {  // both elements have been visited
+                bsl::pair<Element, Element> elements =
+                    s_testCase19_visitedElements.equal_range(VALUES[tj].first);
+                Element element    = elements.first;
+                VALUE   firstValue = element->second;
+                ++element;
+                VALUE secondValue = element->second;
+                ASSERTV(
+                    (areEqual(VALUES[tj].second, firstValue) &&
+                     areEqual(VALUES[LENGTH - tj - 1].second, secondValue)) ||
+                    (areEqual(VALUES[tj].second, secondValue) &&
+                     areEqual(VALUES[LENGTH - tj - 1].second, firstValue)));
+                numVisitedElements += 2;
+              } break;
+              case 1: { // only one element has been visited
+                bsl::pair<Element, Element> elements =
+                    s_testCase19_visitedElements.equal_range(VALUES[tj].first);
+                Element element = elements.first;
+                ASSERTV(
+                    areEqual(VALUES[tj].second, element->second) ||
+                    areEqual(VALUES[LENGTH - tj - 1].second, element->second));
+                ++numVisitedElements;
+              } break;
+              case 0: {  // no elements with this key have been visited
+              } break;
+              default: {
+                  ASSERTV("Unexpected number of elements", false);
+              }
+            }
+        }
+        ASSERTV(EXP_NUM_VISITS, numVisitedElements,
+                EXP_NUM_VISITS == numVisitedElements);
+    } // END Testing with duplicate values - fail
+
+    if (verbose) cout << "/tTesting read-only visit with key" << endl;
+
+    // Test empty hash map.
+    {
+        Obj        mX(8, 4, &oa);
+        const Obj& X = mX;
+
+        TestCase19Reader testCase19Reader(10, VALUES);
+
+        typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
+
+        dam.reset(); // 'bsl::function' constructor allocates from the default
+                     // allocator.
+
+        int rc = mX.visitReadOnly(VALUES[0].first, visitor);
+
+        ASSERTV(rc, 0 == rc);
+        ASSERTV(0 == X.size());
+
+        ASSERTV(0 == s_testCase19_count);
+        ASSERTV(0 == s_testCase19_visitedElements.size());
+
+        // No change in memory allocation.
+        ASSERTV(dam.isTotalSame());
+    }
+
+    // Testing with unique keys.
+    for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+        const bsl::size_t LENGTH = ti;
+
+        Obj        mX(128, 8, &oa);
+        const Obj& X = mX;
+
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            mX.insert(VALUES[tj].first, VALUES[tj].second);
+        }
+        ASSERTV(LENGTH == X.size());
+
+        bsl::size_t              bucketCount = X.bucketCount();
+        bsl::vector<bsl::size_t> bucketSizes(bucketCount, &sa);
+
+        for (bsl::size_t i = 0; i < bucketCount; ++i) {
+            bucketSizes[i] = X.bucketSize(i);
+        }
+
+        TestCase19Reader testCase19Reader(INT_MAX, VALUES);
+
+        typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
+        dam.reset(); // 'bsl::function' constructor allocates from the default
+                     // allocator.
+
+        bslma::TestAllocatorMonitor oam(&oa);
+
+        int rc = mX.visitReadOnly(VALUES[LENGTH - 1].first, visitor);
+
+        // Confirm return value and number of functor calls.
+        ASSERTV(rc, 1 == rc);
+        ASSERTV(s_testCase19_count, 1 == s_testCase19_count);
+
+        // Size unchanged.
+        ASSERTV(LENGTH == X.size());
+
+        // Bucket count unchanged.
+        ASSERTV(bucketCount == X.bucketCount());
+
+        // Bucket sizes did not change.
+        for (bsl::size_t i = 0; i < bucketCount; ++i) {
+            ASSERTV(bucketSizes[i] == X.bucketSize(i));
+        }
+
+        // No change in memory allocation.
+        ASSERTV(oam.isTotalSame());
+        ASSERTV(dam.isTotalSame());
+
+        // Confirm that values remain unchanged.
+        bsl::vector<VALUE> values(&sa);
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            bsl::size_t rc1 = X.getValueAll(&values, VALUES[tj].first);
+            ASSERTV(1 == rc1);
+            ASSERTV(areEqual(values[0], VALUES[tj].second));
+        }
+
+        // Confirm that expected value has been visited.
+        ASSERTV(s_testCase19_visitedElements.size(),
+                1 == s_testCase19_visitedElements.size());
+
+        Element element =
+                   s_testCase19_visitedElements.find(VALUES[LENGTH - 1].first);
+        ASSERTV(s_testCase19_visitedElements.end() != element);
+        ASSERTV(areEqual(VALUES[LENGTH - 1].second, element->second));
+
+        // Check missing value
+        s_testCase19_count = 0;
+        s_testCase19_visitedElements.clear();
+
+        rc = mX.visitReadOnly(VALUES[LENGTH + 1].first, visitor);
+        ASSERTV(rc, 0 == rc);
+
+        // No change in memory allocation.
+        ASSERTV(oam.isTotalSame());
+        ASSERTV(dam.isTotalSame());
+
+        ASSERTV(s_testCase19_count, 0 == s_testCase19_count);
+        ASSERTV(s_testCase19_visitedElements.size(),
+                0 == s_testCase19_visitedElements.size());
+    } // END Testing with unique values
+
+    // Testing with duplicate values - success
+    for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+        const bsl::size_t LENGTH = ti;
+        const bsl::size_t INDEX  = LENGTH -1;
+
+        Obj        mX(128, 8, &oa);
+        const Obj& X = mX;
+
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            mX.insert(VALUES[tj].first, VALUES[tj].second);
+            mX.insert(VALUES[tj].first, VALUES[LENGTH - tj - 1].second);
+        }
+        ASSERTV(2 * LENGTH == X.size());
+
+        bsl::size_t              bucketCount = X.bucketCount();
+        bsl::vector<bsl::size_t> bucketSizes(bucketCount, &sa);
+
+        for (bsl::size_t i = 0; i < bucketCount; ++i) {
+            bucketSizes[i] = X.bucketSize(i);
+        }
+
+        TestCase19Reader testCase19Reader(INT_MAX, VALUES);
+
+        typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
+        dam.reset(); // 'bsl::function' constructor allocates from the default
+                     // allocator.
+
+        bslma::TestAllocatorMonitor oam(&oa);
+
+        int rc = mX.visitReadOnly(VALUES[INDEX].first, visitor);
+
+        // Confirm return value, number of functor calls
+        ASSERTV(rc, 2 == rc);
+        ASSERTV(s_testCase19_count, 2 == s_testCase19_count);
+
+        // Size unchanged.
+        ASSERTV(2 * LENGTH == X.size());
+
+        // Bucket count unchanged.
+        ASSERTV(bucketCount == X.bucketCount());
+
+        // Bucket sizes did not change.
+        for (bsl::size_t i = 0; i < bucketCount; ++i) {
+            ASSERTV(bucketSizes[i] == X.bucketSize(i));
+        }
+
+        // No change in memory allocation.
+        ASSERTV(oam.isTotalSame());
+        ASSERTV(dam.isTotalSame());
+
+        // Confirm that all values remain unchanged.
+        bsl::vector<VALUE> values(&sa);
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            bsl::size_t rc1 = X.getValueAll(&values, VALUES[tj].first);
+            ASSERTV(2 == rc1);
+            ASSERTV(areEqual(values[0], VALUES[tj].second));
+            ASSERTV(areEqual(values[1], VALUES[LENGTH - tj - 1].second));
+        }
+
+        // Confirm that expected values have been visited.
+        ASSERTV(s_testCase19_visitedElements.size(),
+                2 == s_testCase19_visitedElements.size());
+        ASSERTV(VALUES[INDEX].first,
+                s_testCase19_visitedElements.count(VALUES[INDEX].first),
+                2 == s_testCase19_visitedElements.count(VALUES[INDEX].first));
+        bsl::pair<Element, Element> elements =
+                 s_testCase19_visitedElements.equal_range(VALUES[INDEX].first);
+        Element element     = elements.first;
+        VALUE   firstValue  = element->second;
+        ++element;
+        VALUE   secondValue = element->second;
+        ASSERTV((areEqual(VALUES[INDEX].second, firstValue) &&
+                 areEqual(VALUES[0].second,     secondValue))
+             || (areEqual(VALUES[INDEX].second, secondValue) &&
+                 areEqual(VALUES[0].second,     firstValue)));
+
+        // Check missing value
+        s_testCase19_count = 0;
+        s_testCase19_visitedElements.clear();
+
+        dam.reset();  // We used default allocator for 'firstValue' and
+                      // 'secondValue' creation.
+
+        rc = mX.visitReadOnly(VALUES[LENGTH + 1].first, visitor);
+        ASSERTV(rc, 0 == rc);
+
+        // No change in memory allocation.
+        ASSERTV(oam.isTotalSame());
+        ASSERTV(dam.isTotalSame());
+
+        ASSERTV(s_testCase19_count, 0 == s_testCase19_count);
+        ASSERTV(s_testCase19_visitedElements.size(),
+                0 == s_testCase19_visitedElements.size());
+    } // END Testing with duplicate values - success
+
+    // Testing with duplicate values - fail
+    for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+        const bsl::size_t LENGTH = ti;
+
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            const bsl::size_t INDEX  = tj;
+
+            Obj        mX(128, 8, &oa);
+            const Obj& X = mX;
+
+            for (bsl::size_t tk = 0; tk < LENGTH; ++tk) {
+                if (INDEX == tk) {
+                    for (bsl::size_t tl = 0; tl < LENGTH; ++tl) {
+                        // Put 'LENGTH' values with the same key
+                        mX.insert(VALUES[tk].first,
+                                  VALUES[LENGTH - tl - 1].second);
+                    }
+                }
+                else {
+                    mX.insert(VALUES[tk].first, VALUES[tk].second);
+                }
+            }
+
+            ASSERTV(2 * LENGTH - 1 == X.size());
+
+            bsl::size_t              bucketCount = X.bucketCount();
+            bsl::vector<bsl::size_t> bucketSizes(bucketCount, &sa);
+
+            for (bsl::size_t i = 0; i < bucketCount; ++i) {
+                bucketSizes[i] = X.bucketSize(i);
+            }
+
+            TestCase19Reader testCase19Reader(LENGTH / 2, VALUES);
+            const bsl::size_t EXP_NUM_VISITS = LENGTH / 2 + 1;
+            const int         EXP_RESULT     =
+                                           -(static_cast<int>(LENGTH / 2) + 1);
+
+            typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
+            dam.reset(); // 'bsl::function' constructor allocates from the
+                         // default allocator.
+
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            int rc = mX.visitReadOnly(VALUES[INDEX].first, visitor);
+
+            // Confirm return value, number of functor calls
+            ASSERTV(EXP_RESULT, rc,  EXP_RESULT == rc);
+            ASSERTV(EXP_NUM_VISITS, s_testCase19_count,
+                    EXP_NUM_VISITS == s_testCase19_count);
+
+            // Size unchanged.
+            ASSERTV(2 * LENGTH - 1 == X.size());
+
+            // Bucket count unchanged.
+            ASSERTV(bucketCount == X.bucketCount());
+
+            // Bucket sizes did not change.
+            for (bsl::size_t i = 0; i < bucketCount; ++i) {
+                ASSERTV(bucketSizes[i] == X.bucketSize(i));
+            }
+
+            // No change in memory allocation.
+            ASSERTV(oam.isTotalSame());
+            ASSERTV(dam.isTotalSame());
+
+            // Confirm that all values remain unchanged.
+            bsl::vector<VALUE> values(&sa);
+            for (bsl::size_t tk = 0; tk < LENGTH; ++tk) {
+                bsl::size_t rc1 = X.getValueAll(&values, VALUES[tk].first);
+                if (INDEX == tk) {
+                    ASSERTV(LENGTH == rc1);
+                    for (bsl::size_t tl = 0; tl < LENGTH; ++tl) {
+                         ASSERTV(areEqual(values[tl],
+                                          VALUES[LENGTH - tl - 1].second));
+                    }
+                }
+                else {
+                    ASSERTV(1 == rc1);
+                    ASSERTV(areEqual(values[0], VALUES[tk].second));
+                }
+            }
+
+            // Confirm that expected values have been visited.
+            ASSERTV(s_testCase19_visitedElements.size(),
+                    EXP_NUM_VISITS == s_testCase19_visitedElements.size());
+            const bsl::size_t COUNT =
+                       s_testCase19_visitedElements.count(VALUES[INDEX].first);
+            ASSERTV(VALUES[INDEX].first, COUNT, EXP_NUM_VISITS == COUNT);
+
+            // Now we made sure that the operator was called expected number of
+            // times with the expected key.  And we need to verify that it
+            // didn't visit the same element several times.
+
+            bsl::size_t numVisitedValues = 0;
+            for (bsl::size_t tk = 0; tk < LENGTH; ++tk) {
+                bsl::pair<Element, Element> elements =
+                 s_testCase19_visitedElements.equal_range(VALUES[INDEX].first);
+                for (Element element = elements.first;
+                     element != elements.second;
+                     ++element) {
+                    if (areEqual(element->second, VALUES[tk].second)) {
+                        ++numVisitedValues;
+                        break;
+                    }
+                }
+            }
+
+            ASSERTV(EXP_NUM_VISITS, numVisitedValues,
+                    EXP_NUM_VISITS == numVisitedValues);
+
+            // Check missing value
+            s_testCase19_count = 0;
+            s_testCase19_visitedElements.clear();
+
+            rc = mX.visitReadOnly(VALUES[LENGTH + 1].first, visitor);
+            ASSERTV(rc, 0 == rc);
+
+            // No change in memory allocation.
+            ASSERTV(oam.isTotalSame());
+            ASSERTV(dam.isTotalSame());
+
+            ASSERTV(s_testCase19_count, 0 == s_testCase19_count);
+            ASSERTV(s_testCase19_visitedElements.size(),
+                    0 == s_testCase19_visitedElements.size());
+        }
+    } // END Testing with duplicate values - fail
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
@@ -2176,7 +3021,324 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
 {
     // ------------------------------------------------------------------------
-    // TEST 'update'
+    // TEST 'visit(key, visitor)'
+    //
+    // Concerns:
+    //: 1 The given functor is executed and is called with the expected
+    //:   arguments:
+    //:
+    //:   1 The value at 'value' is the value attribute associated with
+    //:     'key'.
+    //:
+    //:   2 A change at 'value' changes the element associated with 'key'.
+    //:
+    //: 2 The functor is called for every element in the hash map having the
+    //:   given 'key'.
+    //:
+    //: 3 The 'visit(key, visitor)' method returns the number of keys visited
+    //:   if the functor returns 'true' in all invocations.
+    //:
+    //: 4 The "tour" is halted prematurely when the functor returns 'false'.
+    //:
+    //:   1 The number of elements visited is less than the size of the hash
+    //:     map.
+    //:
+    //:   2 The return value is negative.
+    //:
+    //: 5 The method works if 'key' is not in the hash map.
+    //:
+    //: 6 The method works if the hash map is empty.
+    //:
+    //: 7 QoI: When element(s) are updated, and the 'VALUE' type is
+    //:   non-allocating, no memory is allocated or deallocated.
+    //:
+    //: 8 QoI: There is no temporary memory allocation from any allocator.
+    //
+    // Plan:
+    //: 1 Test the empty hash map in a standalone case.
+    //:
+    //: 2 For hash maps of varying lengths with unique keys, we:
+    //:   1 Update one existing key.
+    //:   2 Confirm that the return value is correct.
+    //:   3 The size of the container does not change.
+    //:   4 The size of the bucket does not change.
+    //:   5 Memory in use does not change if 'VALUE' type is non-allocating.
+    //:   6 Confirm that the value(s) associated with the key were updated to
+    //:     the new value.
+    //:   7 Confirm that no other elements have changed.
+    //:
+    //: 3 For hash maps of varying lengths with duplicate keys, we:
+    //:   1 Update one existing key with a functor that return always 'true'.
+    //:   2 Confirm that the return value is correct.
+    //:   3 The size of the container does not change.
+    //:   4 The size of the bucket does not change.
+    //:   5 Memory in use does not change if 'VALUE' type is non-allocating.
+    //:   6 Confirm that the values associated with the key were updated to
+    //:     the new value.
+    //:   7 Confirm that no other elements have changed.
+    //:   8 Update one existing key with a functor that return always 'false'.
+    //:   9 Confirm that the return value is correct.
+    //:  10 The size of the container does not change.
+    //:  11 The size of the bucket does not change.
+    //:  12 Memory in use does not change if 'VALUE' type is non-allocating.
+    //:  13 Confirm that one of the values associated with the key was updated
+    //:     to the new value.
+    //:  14 Confirm that no other elements have changed.
+    //
+    // Testing:
+    //   int visit(const KEY& key, const VisitorFunction& functor);
+    // ------------------------------------------------------------------------
+
+    // This is equivalent to 'testCase13' in 'StripedUnorderedImpl'.
+
+    if (verbose) cout << endl
+                      << "TEST 'update'" << endl
+                      << "=============" << endl;
+
+    if (veryVeryVerbose) {
+        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+    }
+
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+    // CONCERN: In no case does memory come from the default allocator.
+    bslma::TestAllocatorMonitor dam(&defaultAllocator);
+
+    const TestValues     VALUES; // contains 52 distinct increasing values
+    const bsl::size_t    MAX_LENGTH = 15;
+    bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
+    TestCase13Updater    testCase13UpdaterSuccess(true );
+    TestCase13Updater    testCase13UpdaterFail   (false);
+
+    // Test empty hash map.
+    {
+        Obj mX(8, 4, &supplied);  const Obj& X = mX;
+
+        // Check missing value
+        bsl::size_t rc = mX.visit(VALUES[0].first, testCase13UpdaterSuccess);
+        ASSERTV(rc, 0 == rc);
+        ASSERTV(0 == X.size());
+    }
+
+    // Test updating unique keys.
+    for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+        const bsl::size_t LENGTH = ti;
+
+        Obj  mX(128, 8, &supplied);  const Obj& X = mX;
+
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            mX.insert(VALUES[tj].first, VALUES[tj].second);
+        }
+        ASSERTV(LENGTH == X.size());
+
+        bslma::TestAllocatorMonitor sam(&supplied);
+
+        bsl::size_t bucketIdx     = X.bucketIndex(VALUES[LENGTH - 1].first);
+        bsl::size_t oldBucketSize = X.bucketSize(bucketIdx);
+
+        s_testCase13_value = VALUES[LENGTH].second;
+
+        // Check existing value.
+        int rc = mX.visit(VALUES[LENGTH - 1].first, testCase13UpdaterSuccess);
+        ASSERTV(rc, 1 == rc);
+        ASSERTV(VALUES[LENGTH - 1].first, s_testCase13_key,
+                areEqual(VALUES[LENGTH - 1].first, s_testCase13_key));
+        ASSERTV(TstFacility::getIdentifier(VALUES[LENGTH - 1].second),
+                s_testCase13_valueId,
+                TstFacility::getIdentifier(VALUES[LENGTH - 1].second)
+                                          == s_testCase13_valueId);
+        // Update did not change size.
+        ASSERTV(LENGTH == X.size());
+
+        // Bucket size did not change.
+        ASSERTV(oldBucketSize == X.bucketSize(bucketIdx));
+
+        // Confirm the value has changed to the new value.
+        VALUE       value;
+        bsl::size_t rc1 = X.getValueFirst(&value, VALUES[LENGTH - 1].first);
+        ASSERTV(1 == rc1);
+        ASSERTV(areEqual(value, VALUES[LENGTH].second));
+
+        // No change in memory allocation if 'VALUE' is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+            ASSERTV(sam.isInUseSame());
+        }
+
+        // Confirm that other values have not changed.
+        for (bsl::size_t tj = 0; tj < LENGTH - 1; ++tj) {
+            rc1 = X.getValueFirst(&value, VALUES[tj].first);
+            ASSERTV(1 == rc1);
+            ASSERTV(areEqual(value, VALUES[tj].second));
+        }
+
+        sam.reset();
+
+        bucketIdx      = X.bucketIndex(VALUES[LENGTH + 1].first);
+        oldBucketSize = X.bucketSize(bucketIdx);
+
+        s_testCase13_value = VALUES[LENGTH + 1].second;
+
+        // Check missing value
+        rc = mX.visit(VALUES[LENGTH + 1].first, testCase13UpdaterSuccess);
+        ASSERTV(rc, 0 == rc);
+
+        // Confirm that values have not changed.
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            rc1 = X.getValueFirst(&value, VALUES[tj].first);
+            ASSERTV(1 == rc1);
+            ASSERTV(areEqual(value,
+                             tj == LENGTH - 1 ? VALUES[LENGTH].second :
+                                                VALUES[tj].second));
+        }
+    } // END Testing with unique values
+    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        ASSERT(dam.isTotalSame());
+    }
+
+    // Test updating duplicate keys.
+    for (bsl::size_t ti = 2; ti < MAX_LENGTH; ++ti) {
+        const bsl::size_t LENGTH = ti;
+
+        Obj mX(8, 4, &supplied);  const Obj& X = mX;
+
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            mX.insert(VALUES[tj].first, VALUES[tj].second);
+            mX.insert(VALUES[tj].first, VALUES[LENGTH - tj - 1].second);
+        }
+        ASSERTV(2 * LENGTH == X.size());
+
+        bslma::TestAllocatorMonitor sam(&supplied);
+
+        // Existing value - visit with successful functor
+        bsl::size_t bucketIdx     = X.bucketIndex(VALUES[LENGTH - 1].first);
+        bsl::size_t oldBucketSize = X.bucketSize(bucketIdx);
+
+        s_testCase13_value = VALUES[LENGTH].second;
+
+        int rc = mX.update(VALUES[LENGTH - 1].first, testCase13UpdaterSuccess);
+        ASSERTV(rc, 2 == rc);
+        ASSERTV(VALUES[LENGTH - 1].first, s_testCase13_key,
+                areEqual(VALUES[LENGTH - 1].first, s_testCase13_key));
+
+        // Update did not change size.
+        ASSERTV(2 * LENGTH == X.size());
+
+        // Bucket size did not change.
+        ASSERTV(oldBucketSize == X.bucketSize(bucketIdx));
+
+        // Confirm the values have changed to the new value.
+        bsl::vector<VALUE> values(&scratch);
+
+        bsl::size_t rc1 = X.getValueAll(&values, VALUES[LENGTH - 1].first);
+        ASSERTV(2 == rc1);
+        ASSERTV(areEqual(values[0], VALUES[LENGTH].second));
+        ASSERTV(areEqual(values[1], VALUES[LENGTH].second));
+
+        // No change in memory allocation if VALUE is non-allocating
+        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+            ASSERTV(sam.isInUseSame());
+        }
+
+        // Confirm that other values have not changed.
+        for (bsl::size_t tj = 0; tj < LENGTH - 1; ++tj) {
+            rc1 = X.getValueAll(&values, VALUES[tj].first);
+            ASSERTV(2 == rc1);
+            ASSERTV(areEqual(values[0], VALUES[tj].second) ||
+                    areEqual(values[0], VALUES[LENGTH - tj - 1].second));
+            ASSERTV(areEqual(values[1], VALUES[tj].second) ||
+                    areEqual(values[1], VALUES[LENGTH - tj - 1].second));
+        }
+
+        sam.reset();
+
+        // Existing value - visit with failed functor
+        bucketIdx     = X.bucketIndex(VALUES[LENGTH - 2].first);
+        oldBucketSize = X.bucketSize(bucketIdx);
+
+        s_testCase13_value = VALUES[LENGTH].second;
+
+        rc = mX.visit(VALUES[LENGTH - 2].first, testCase13UpdaterFail);
+        ASSERTV(rc, -1 == rc);
+        ASSERTV(VALUES[LENGTH - 2].first, s_testCase13_key,
+                areEqual(VALUES[LENGTH - 2].first, s_testCase13_key));
+
+        // Update did not change size.
+        ASSERTV(2 * LENGTH == X.size());
+
+        // Bucket size did not change.
+        ASSERTV(oldBucketSize == X.bucketSize(bucketIdx));
+
+        // Confirm that one of the values have changed to the new value.
+        rc1 = X.getValueAll(&values, VALUES[LENGTH - 2].first);
+        ASSERTV(2 == rc1);
+        ASSERTV(areEqual(values[0], VALUES[LENGTH].second) ||
+                areEqual(values[0], VALUES[LENGTH - 2].second) ||
+                areEqual(values[0], VALUES[1].second));
+        ASSERTV(areEqual(values[1], VALUES[LENGTH].second) ||
+                areEqual(values[1], VALUES[LENGTH - 2].second) ||
+                areEqual(values[1], VALUES[1].second));
+
+        // No change in memory allocation if 'VALUE' is non-allocating.
+        if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+            ASSERTV(sam.isInUseSame());
+        }
+        // Confirm that other values have not changed.
+        for (bsl::size_t tj = 0; tj < LENGTH - 2; ++tj) {
+            rc1 = X.getValueAll(&values, VALUES[tj].first);
+            ASSERTV(2 == rc1);
+            ASSERTV(areEqual(values[0], VALUES[tj].second) ||
+                    areEqual(values[0], VALUES[LENGTH - tj - 1].second));
+            ASSERTV(areEqual(values[1], VALUES[tj].second) ||
+                    areEqual(values[1], VALUES[LENGTH - tj - 1].second));
+        }
+    } // END Test updating duplicate keys.
+    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        ASSERT(dam.isTotalSame());
+    }
+
+    // Test coverage with a small number of buckets.
+    for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
+        const bsl::size_t LENGTH = ti;
+
+        Obj mX(8, 4, &supplied);  const Obj& X = mX;
+
+        for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
+            mX.insert(VALUES[tj].first, VALUES[tj].second);
+        }
+        ASSERTV(LENGTH == X.size());
+
+        // Check existing value
+        int rc = mX.visit(VALUES[LENGTH - 1].first, testCase13UpdaterSuccess);
+        ASSERTV(rc, 1 == rc);
+        ASSERTV(VALUES[LENGTH - 1].first, s_testCase13_key,
+                areEqual(VALUES[LENGTH - 1].first, s_testCase13_key));
+        ASSERTV(TstFacility::getIdentifier(VALUES[LENGTH - 1].second),
+                s_testCase13_valueId,
+                TstFacility::getIdentifier(VALUES[LENGTH - 1].second)
+                                          == s_testCase13_valueId);
+
+        rc = mX.visit(VALUES[LENGTH - 1].first, testCase13UpdaterFail);
+        ASSERTV(rc, -1 == rc);
+
+        // Check missing value
+        rc = mX.visit(VALUES[LENGTH + 1].first, testCase13UpdaterSuccess);
+        ASSERTV(rc, 0 == rc);
+    }
+
+    // CONCERN: In no case does memory come from the default allocator.
+    if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
+        ASSERT(dam.isTotalSame());
+    }
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16_update()
+{
+    // ------------------------------------------------------------------------
+    // TEST 'update' (DEPRECATED)
     //
     // Concerns:
     //: 1 The given functor is executed and is called with the expected
@@ -2247,8 +3409,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
     // This is equivalent to 'testCase13' in 'StripedUnorderedImpl'.
 
     if (verbose) cout << endl
-                      << "TEST 'update'" << endl
-                      << "=============" << endl;
+                      << "TEST 'update' (DEPRECATED)" << endl
+                      << "==========================" << endl;
 
     if (veryVeryVerbose) {
         cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
@@ -2490,7 +3652,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
         ASSERT(dam.isTotalSame());
     }
 }
-
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
@@ -6588,7 +7749,7 @@ int main(int argc, char *argv[])
 
     // BDE_VERIFY pragma: -TP17 These are defined in the various test functions
     switch (test) { case 0:
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -6609,8 +7770,11 @@ int main(int argc, char *argv[])
         usage::example1();
       } break;
       // BDE_VERIFY pragma: -TP05 Defined in the various test functions
-      case 22: {
+      case 23: {
         threaded::threadedTest1();
+      } break;
+      case 22: {
+        RUN_EACH_TYPE(TestDriver, testCase22, TEST_TYPES_REGULAR);
       } break;
       case 21: {
         RUN_EACH_TYPE(TestDriver, testCase21, bsltf::MovableAllocTestType);
@@ -6628,7 +7792,8 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver, testCase17, TEST_TYPES_REGULAR);
       } break;
       case 16: {
-        RUN_EACH_TYPE(TestDriver, testCase16, TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase16,        TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(TestDriver, testCase16_update, TEST_TYPES_REGULAR);
       } break;
       case 15: {
         RUN_EACH_TYPE(TestDriver, testCase15, TEST_TYPES_REGULAR);
