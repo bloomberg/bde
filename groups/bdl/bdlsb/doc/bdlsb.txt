@@ -2,7 +2,7 @@
 
 @PURPOSE: Provide concrete 'streambuf' implementations.
 
-@MNEMONIC: Basic Development Environment Stream Buffers (bdlsb)
+@MNEMONIC: Basic Development Library Stream Buffers (bdlsb)
 
 @SEE_ALSO: bdlx
 

@@ -2,7 +2,7 @@
 
 @PURPOSE: Provide signature-specific function objects (functors).
 
-@MNEMONIC: Basic Development Environment Functors (bdlf)
+@MNEMONIC: Basic Development Library Functors (bdlf)
 
 @SEE_ALSO: bcef
 

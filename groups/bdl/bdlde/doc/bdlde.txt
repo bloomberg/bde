@@ -2,7 +2,7 @@
 
 @PURPOSE: Mechanisms for standard encodings and hashings, e.g., base64, md5.
 
-@MNEMONIC: Basic Development Environment Data Encoder (bdlde)
+@MNEMONIC: Basic Development Library Data Encoder (bdlde)
 
 @SEE_ALSO:
 
