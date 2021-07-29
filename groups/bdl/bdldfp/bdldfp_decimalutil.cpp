@@ -69,44 +69,40 @@ bool isNanString(const char *str) {
 
                              // Creator functions
 
-int DecimalUtil::parseDecimal32(Decimal32                       *out,
-                                const DecimalUtil_CStringProxy&  str)
+int DecimalUtil::parseDecimal32(Decimal32 *out, const char *str)
 {
     BSLS_ASSERT(out != 0);
-    BSLS_ASSERT(str.string() != 0);
+    BSLS_ASSERT(str != 0);
 
-    Decimal32 d = DecimalImpUtil::parse32(str.string());
-    if (isNan(d) && !isNanString(str.string())) {
+    Decimal32 d = DecimalImpUtil::parse32(str);
+    if (isNan(d) && !isNanString(str)) {
         return -1;
     }
     *out = d;
     return 0;
 }
 
-int DecimalUtil::parseDecimal64(Decimal64                       *out,
-                                const DecimalUtil_CStringProxy&  str)
+int DecimalUtil::parseDecimal64(Decimal64 *out, const char *str)
 {
-
     BSLS_ASSERT(out != 0);
-    BSLS_ASSERT(str.string() != 0);
+    BSLS_ASSERT(str != 0);
 
-    Decimal64 d = DecimalImpUtil::parse64(str.string());
-    if (isNan(d) && !isNanString(str.string())) {
+    Decimal64 d = DecimalImpUtil::parse64(str);
+    if (isNan(d) && !isNanString(str)) {
         return -1;
     }
     *out = d;
     return 0;
 }
 
-int DecimalUtil::parseDecimal128(Decimal128                      *out,
-                                 const DecimalUtil_CStringProxy&  str)
+int DecimalUtil::parseDecimal128(Decimal128 *out, const char *str)
 {
     BSLS_ASSERT(out != 0);
-    BSLS_ASSERT(str.string() != 0);
+    BSLS_ASSERT(str != 0);
 
-    Decimal128 d = DecimalImpUtil::parse128(str.string());
+    Decimal128 d = DecimalImpUtil::parse128(str);
 
-    if (isNan(d) && !isNanString(str.string())) {
+    if (isNan(d) && !isNanString(str)) {
         return -1;
     }
     *out = d;
