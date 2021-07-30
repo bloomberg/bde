@@ -29,15 +29,15 @@
  just alphabetical.
 ..
   6. balxml_decoder
+     balxml_encoder
 
-  5. balxml_encoder
-     balxml_formatter
+  5. balxml_formatter
      balxml_minireader
      balxml_utf8readerwrapper
      balxml_validatingreader
 
-  4. balxml_formatter_compactimpl
-     balxml_formatter_prettyimpl
+  4. balxml_formatter_compactimpl                                     !PRIVATE!
+     balxml_formatter_prettyimpl                                      !PRIVATE!
      balxml_reader
      balxml_typesparserutil
 
@@ -71,7 +71,7 @@
 :      Provide a generic translation from XML into C++ objects.
 :
 : 'balxml_decoderoptions':
-:      Provide value-semantic attribute classes.
+:      Provide value-semantic attribute classes
 :
 : 'balxml_elementattribute':
 :      Provide the properties of an attribute in an XML element tag.
@@ -80,10 +80,10 @@
 :      Provide an XML encoder utility.
 :
 : 'balxml_encoderoptions':
-:      Provide value-semantic attribute classes.
+:      Provide value-semantic attribute classes
 :
 : 'balxml_encodingstyle':
-:      Provide value-semantic attribute classes.
+:      Provide value-semantic attribute classes
 :
 : 'balxml_errorinfo':
 :      Provide common error information for XML components.
@@ -91,14 +91,14 @@
 : 'balxml_formatter':
 :      Provide a simple interface for writing formatted XML.
 :
-: 'balxml_formatter_compactimpl':
-:      Provide minimal-whitespace implementation for 'balxml_formatter'.
+: 'balxml_formatter_compactimpl':                                     !PRIVATE!
+:      Provide a minimal-whitespace implementation for 'balxml_formatter'.
 :
-: 'balxml_formatter_prettyimp':
+: 'balxml_formatter_prettyimpl':                                      !PRIVATE!
 :      Provide pretty-printing implementation for 'balxml_formatter'.
 :
 : 'balxml_formatterwhitespacetype':
-:      Enumerate the set of whitespace options for formatted data.
+:      Enumerate the set of whitespace options for 'balxml_formatter'.
 :
 : 'balxml_hexparser':
 :      Provide push parser for hex types.
