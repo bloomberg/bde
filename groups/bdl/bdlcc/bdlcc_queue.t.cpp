@@ -10,9 +10,11 @@
 
 #include <bdlcc_queue.h>
 
+#include <bdlf_bind.h>
+#include <bdlb_random.h>
+
 #include <bslim_testutil.h>
 
-#include <bslma_testallocator.h>
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_semaphore.h>
@@ -20,15 +22,16 @@
 #include <bslmt_mutex.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
-#include <bsls_atomic.h>
-#include <bsls_systemtime.h>
 
-#include <bdlf_bind.h>
-#include <bdlb_random.h>
+#include <bslalg_constructorproxy.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
+#include <bsls_atomic.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
 
 #include <bsl_algorithm.h>
 
@@ -613,6 +616,10 @@ namespace QUEUE_TEST_CASE_13 {
 
 template <class VECTOR>
 class TestPopFront {
+    // TYPES
+    typedef bslalg::ConstructorProxy<VECTOR> ProxyVector;
+
+    // DATA
     Obj              *d_mX;
     int               d_maxVecSize;
     Element           d_maxVecSizeAt;
@@ -643,11 +650,8 @@ class TestPopFront {
     {
         int expectedVal = 0;
         Element e;
-        bsl::vector<Element> vBsl(d_alloc_p);
-        VECTOR               vReal;
-        VECTOR&              v = u::e_BSL == s_vecType
-                               ? *reinterpret_cast<VECTOR *>(&vBsl)
-                               : vReal;
+        ProxyVector   pv(d_alloc_p);
+        VECTOR&       v = pv.object();
 
         while (expectedVal < 50) {
             if (25 == expectedVal) {
@@ -680,6 +684,10 @@ class TestPopFront {
 
 template <class VECTOR>
 class TestPopBack {
+    // TYPES
+    typedef bslalg::ConstructorProxy<VECTOR> ProxyVector;
+
+    // DATA
     Obj              *d_mX;
     int               d_maxVecSize;
     Element           d_maxVecSizeAt;
@@ -710,11 +718,8 @@ class TestPopBack {
     {
         int expectedVal = 0;
         Element e;
-        bsl::vector<Element> vBsl(d_alloc_p);
-        VECTOR               vReal;
-        VECTOR&              v = u::e_BSL == s_vecType
-                               ? *reinterpret_cast<VECTOR *>(&vBsl)
-                               : vReal;
+        ProxyVector   pv(d_alloc_p);
+        VECTOR&       v = pv.object();
 
         while (expectedVal < 50) {
             if (25 == expectedVal) {
@@ -2565,11 +2570,12 @@ int main(int argc, char *argv[])
         //   void tryPopBack(int, vector<TYPE> *);
         // --------------------------------------------------------------------
 
+        namespace TC = TEST_TRY_POP;
 
-        TEST_TRY_POP::testTryPop<bsl::vector<Element> >();
-        TEST_TRY_POP::testTryPop<std::vector<Element> >();
+        TC::testTryPop<bsl::vector<Element> >();
+        TC::testTryPop<std::vector<Element> >();
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-        TEST_TRY_POP::testTryPop<std::pmr::vector<Element> >();
+        TC::testTryPop<std::pmr::vector<Element> >();
 #endif 
       } break;
       case 9: {

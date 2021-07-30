@@ -602,16 +602,17 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpoolallocator.h>
 #include <bdlma_pool.h>
 
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+
 #include <bslalg_scalarprimitives.h>
 
 #include <bslma_default.h>
 #include <bslma_destructionutil.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_nestedtraitdeclaration.h>
-
-#include <bslmt_lockguard.h>
-#include <bslmt_mutex.h>
 
 #include <bsls_alignment.h>
 #include <bsls_assert.h>
@@ -723,8 +724,10 @@ class TimeQueue {
         // This 'struct' has a 'value' that evaluates to 'true' if the
         // specified 'VECTOR' is a 'bsl', 'std', or 'std::pmr' 'vector<VALUE>'.
 
+        // TYPE
         typedef TimeQueueItem<DATA> Item;
 
+        // CLASS DATA
         static const bool value =
                             bsl::is_same<bsl::vector<Item>, VECTOR>::value
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR

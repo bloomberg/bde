@@ -457,12 +457,6 @@ class Cache {
         // Evict the item at the specified 'mapIt' and invoke the post-eviction
         // callback for that item.
 
-    template <class VECTOR>
-    int insertBulkImp(const VECTOR& data);
-        // Insert the specified 'data' (composed of Key-Value pairs) into this
-        // cache.  If a key already exists, then its value will be replaced
-        // with the value.  Return the number of items successfully inserted.
-
     bool insertValuePtrMoveImp(KEY          *key_p,
                                bool          moveKey,
                                ValuePtrType *valuePtr_p,
@@ -547,15 +541,17 @@ class Cache {
         // the post-eviction callback for the removed item.  Return 0 on
         // success and 1 if 'key' does not exist.
 
-    template <class ITERATOR>
-    int eraseBulk(ITERATOR begin, ITERATOR end);
+    template <class INPUT_ITERATOR>
+    int eraseBulk(INPUT_ITERATOR begin, INPUT_ITERATOR end);
+        // Remove the items having either the keys in
+        // the specified range '*[ begin, end )', from this cache.  Invoke the
+        // post-eviction callback for each removed item.  Return the number of
+        // items successfully removed.
+
     int eraseBulk(const bsl::vector<KEY>& keys);
-        // Remove the items having either the specified 'keys' or they keys in
-        // the range '[ begin, end )', from this cache, If iterators are
-        // specified, the iterators must support 'const KEY& operator*()',
-        // 'operator++()', and inequality comparison.  Invoke the post-eviction
-        // callback for each removed item.  Return the number of items
-        // successfully removed.
+        // Remove the items having either the specified 'keys' from this cache.
+        // Invoke the post-eviction callback for each removed item.  Return the
+        // number of items successfully removed.
 
     void insert(const KEY& key, const VALUE& value);
     void insert(const KEY& key, bslmf::MovableRef<VALUE> value);
@@ -578,15 +574,17 @@ class Cache {
         // occurs, the cache will not be modified, but 'key' may be changed.
         // Also note that 'key' must be copyable, even if it is moved.
 
-    template <class ITERATOR>
-    int insertBulk(ITERATOR begin, ITERATOR end);
+    template <class INPUT_ITERATOR>
+    int insertBulk(INPUT_ITERATOR begin, INPUT_ITERATOR end);
+        // Insert the specified range of Key-Value pairs specified by
+        // '*[ begin, end )' into this cache.  If a key already exists, then
+        // its value will be replaced with the value.  Return the number of
+        // items successfully inserted.
+
     int insertBulk(const bsl::vector<KVType>& data);
-        // Insert the specified 'data' (composed of Key-Value pairs) or the
-        // range of Key-Value pairs specified by '[ begin, end )' into this
-        // cache.  'ITERATOR' must support 'operator++()', inequality
-        // comparison, and 'const KVType& operator*()'.  If a key already
-        // exists, then its value will be replaced with the value.  Return the
-        // number of items successfully inserted.
+        // Insert the specified 'data' (composed of Key-Value pairs) into this
+        // cache.  If a key already exists, then its value will be replaced
+        // with the value.  Return the number of items successfully inserted.
 
     int insertBulk(bslmf::MovableRef<bsl::vector<KVType> >      data);
         // Insert the specified 'data' (composed of Key-Value pairs) into this
@@ -948,8 +946,9 @@ int Cache<KEY, VALUE, HASH, EQUAL>::erase(const KEY& key)
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class ITERATOR>
-int Cache<KEY, VALUE, HASH, EQUAL>::eraseBulk(ITERATOR begin, ITERATOR end)
+template <class INPUT_ITERATOR>
+int Cache<KEY, VALUE, HASH, EQUAL>::eraseBulk(INPUT_ITERATOR begin,
+                                              INPUT_ITERATOR end)
 {
     bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
 
@@ -1061,9 +1060,9 @@ void Cache<KEY, VALUE, HASH, EQUAL>::insert(bslmf::MovableRef<KEY> key,
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class ITERATOR>
-int Cache<KEY, VALUE, HASH, EQUAL>::insertBulk(ITERATOR begin,
-                                               ITERATOR end)
+template <class INPUT_ITERATOR>
+int Cache<KEY, VALUE, HASH, EQUAL>::insertBulk(INPUT_ITERATOR begin,
+                                               INPUT_ITERATOR end)
 {
     int                             count = 0;
     bslmt::WriteLockGuard<LockType> guard(&d_rwlock);

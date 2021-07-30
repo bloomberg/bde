@@ -3409,7 +3409,7 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::updateTest()
         {
             PairHandle ph;
             ASSERT(0 == X.findR(&ph, KVS[k_NUM_ITEMS - 1]));
-            ASSERT(ph.data() == DVS[k_NUM_ITEMS - 1]); 
+            ASSERT(ph.data() == DVS[k_NUM_ITEMS - 1]);
             bool newFrontFlag;
             ASSERT(0 == mX.update(ph, KVS[0], &newFrontFlag, 1));
             ASSERT(newFrontFlag);
@@ -3529,7 +3529,7 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::updateTest()
 
             X.skipForward(&ph);
             ASSERT(KVS[1] == ph.key());
-        }            
+        }
 
         verify( X, &init[0], init.size(), L_);
         verifyR(X, &init[0], init.size(), L_);
