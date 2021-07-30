@@ -1,5 +1,37 @@
-bsl-internal (3.85.0.0) unstable; urgency=low
+bsl-internal (3.86.0.0) unstable; urgency=low
 
+  * e8e7c2bcf Bumped version to 3.86.0.0
+  * 34c3a0cf6 Use an alternative approach to creating a zero-terminated string. (#3347)
+  * 34d40e6f4 Fix minor package documentation typos (#3352)
+  * 93628974e Read-only 'visit' has been added to 'bdlcc_stripedunordered*' containers (#3340)
+  * ea9a08e4c balxml_formatter: Indent closing tags when 'wrapColumn' is 0 (#3312)
+  * 85c4332a1 balber: optionally support preserveNegativeZero (#3341)
+  * bbb277fff bslstl_function: Test ptr-to-data-member support & fix MSVC 2015 build (#3295)
+  * 228f35172 Documentation inconsistency between prefixes for exceptions has been removed (#3346)
+  * b46dfecd9 Chrono changes for bdlmt::EventScheduler (#3192)
+  * f53494ada Revert "Revert "'bdldfp' package has been updated in accordance with bde 4.0 (#3300)" (#3326)" (#3345)
+  * 5e057e052 Add Ryu with Bloomberg extensions. (#3343)
+  * e55aab5f5 Revert "Revert "Revert "'bdldfp' package has been updated in accordance with bde 4.0 (#3257)" (#3288)" (#3334)" (#3344)
+  * c37a4b25e bdlmt::EventScheduler::isInDispatcherThread (#3307)
+  * f89e13d90 Remove signaling NaN support in 32bit Datum. (#3338)
+  * f3264a6cb Issue with non-copyable return values in 'bdlb::Variant' has been fixed (#3255)
+  * e5f573896 Required include has been added to the 'bsl_shared_mutex.h' (#3339)
+  * 801ba7ba9 balber_berutil: minor test driver improvements and warning cleanup (#3281)
+  * 375789aeb Merge pull request #3306 from bchapman/bdls_filesystemutil-truncateFileSize-drqs-164967919
+  * 695d027b0 Revert "Revert "'bdldfp' package has been updated in accordance with bde 4.0 (#3257)" (#3288)" (#3334)
+  * 2a4fee990 Fix signaling NaN testing. (#3323)
+  * 62953a061 Add pcre2 patch info to README.Bloomberg.md (#3332)
+  * 9ae02e6a2 Merge pull request #3325 from glaptev1/add_blob_replace_data_buffer_drqs-153713331
+  * bd4882e62 Fix sljit platform detection with xlc on AIX (#3329)
+  * c74e592d0 Revert "Add C++11 move constructor/assignment to managed ptr 166101527 (#3240)" (#3328)
+  * 5cec5d4bb Repect the field width when output the bsls::TimeInterval value (#3322)
+  * b04528869 Fixed bdlde build error on Windows(C++17) (#3327)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 30 Jul 2021 17:23:48 -0400
+
+bsl-internal (3.85.0.0) git; urgency=low
+
+  * 136e4356b Changelog for version 3.85.0.0
   * 6400527d3 Bumped version to 3.85.0.0
   * 66a11f2a0 Revert "'bdldfp' package has been updated in accordance with bde 4.0 (#3300)" (#3326)
   * 6ed246583 Add C++11 move constructor/assignment to managed ptr 166101527 (#3240)
@@ -22,7 +54,7 @@ bsl-internal (3.85.0.0) unstable; urgency=low
   * 748766706 Links have been updated in ball.txt file. (#3303)
   * 4d2d8d311 Add chrono-style overloads to bdlmt::throttle (#3283)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 9 Jul 2021 13:34:55 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 9 Jul 2021 13:46:13 -0400
 
 bsl-internal (3.84.0.0) git; urgency=low
 
