@@ -175,9 +175,9 @@ void aSsErT2(bool condition, const char *message, int line)
 #define ASSERT2(X) { aSsErT2(!(X), #X, __LINE__); }
 
 // ============================================================================
-//               OVERRIDE DEFINED ASSERTION MACROS
+//                      OVERRIDE DEFINED ASSERTION MACROS
 // ----------------------------------------------------------------------------
-// As this test captures cout, we need to log to cerr for this test driver.
+// As this test captures `cout`, we need to log to `cerr` for this test driver.
 // (otherwise we don't get to see the output from `ASSERTV` calls when any
 // tests fail)
 
@@ -249,7 +249,7 @@ void aSsErT2(bool condition, const char *message, int line)
 #define BSLIM_TESTUTIL_T_                                                    \
     bsl::cerr << "\t" << bsl::flush;
     // Print tab (w/o newline).
-    
+
 // ============================================================================
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
@@ -1660,7 +1660,9 @@ int main(int argc, char *argv[])
                 waitEmptyRecordQueue(X);
 
                 int logRecordCount = countLoggedRecords(globbuf.gl_pathv[0]);
-                ASSERTV(globbuf.gl_pathv[0], logRecordCount, 1 == logRecordCount);
+                ASSERTV(globbuf.gl_pathv[0],
+                        logRecordCount,
+                        1 == logRecordCount);
 
                 ASSERT(true == X->isFileLoggingEnabled());
 
