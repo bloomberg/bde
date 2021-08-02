@@ -966,7 +966,7 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::create(&releaseThread, releaserFunctor);
 
         bsls::TimeInterval start = bsls::SystemTime::nowMonotonicClock();
-        bsls::TimeInterval timeout = start + bsls::TimeInterval(5);
+        bsls::TimeInterval timeout = start + bsls::TimeInterval(10);
         barrier.wait();  // Start of the test.
 
         int rc;
@@ -1583,7 +1583,11 @@ int main(int argc, char *argv[])
                 // Wait for the async logging to complete.
                 waitEmptyRecordQueue(X);
 
-                ASSERT(1    == countLoggedRecords(globbuf.gl_pathv[0]));
+                int logRecordCount = countLoggedRecords(globbuf.gl_pathv[0]);
+                ASSERTV(globbuf.gl_pathv[0],
+                        logRecordCount,
+                        1 == logRecordCount);
+
                 ASSERT(true == X->isFileLoggingEnabled());
 
                 globfree(&globbuf);
@@ -2062,8 +2066,10 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::microSleep(1, 0);
 
                 // Verify some, but not all records have been published
+                ASSERTV(record.use_count(), 1 < record.use_count());
                 ASSERTV(record.use_count(),
-			1 < record.use_count() && record.use_count() <= logCount);
+                        logCount,
+                        record.use_count() <= logCount);
 
                 // After this code block the logger manager will be destroyed.
             }
