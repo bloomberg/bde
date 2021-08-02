@@ -109,19 +109,20 @@ using bsl::ostream;
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] StackTraceFrame(bslma::Allocator *bA = 0);
-// [ 3] StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
+// [ 3] StackTraceFrame(cvp, cSV, int, cSV, siz, cSV, cSV, *bA = 0);
+// [ 7] StackTraceFrame(cvp, cSV, int, cSV, siz, cSV, cSV, *bA = 0);
 // [ 7] StackTraceFrame(const balst::STF& o, *bA = 0);
 // [ 2] ~StackTraceFrame();
 //
 // MANIPULATORS
 // [ 9] operator=(const balst::StackTraceFrame& rhs);
 // [ 2] setAddress(const void *value);
-// [ 2] setLibraryFileName(const bslstl::StringRef& value);
+// [ 2] setLibraryFileName(const bsl::string_view& value);
 // [ 2] setLineNumber(int value);
-// [ 2] setMangledSymbolName(const bslstl::StringRef& value);
+// [ 2] setMangledSymbolName(const bsl::string_view& value);
 // [ 2] setOffsetFromSymbol(bsl::size_t value);
-// [ 2] setSourceFileName(const bslstl::StringRef& value);
-// [ 2] setSymbolName(const bslstl::StringRef& value);
+// [ 2] setSourceFileName(const bsl::string_view& value);
+// [ 2] setSymbolName(const bsl::string_view& value);
 //
 // [ 8] void swap(balst::StackTraceFrame& other);
 //
@@ -1786,7 +1787,8 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
+        //   StackTraceFrame(const balst::STF& o, *bA = 0);
+        //   StackTraceFrame(cvp, cSV, int, cSV, siz, cSV, cSV, *bA = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3151,7 +3153,7 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
+        //   StackTraceFrame(cvp, cSV, int, cSV, siz, cSV, cSV, *bA = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3584,12 +3586,12 @@ int main(int argc, char *argv[])
         //   StackTraceFrame(bslma::Allocator *bA = 0);
         //   ~StackTraceFrame();
         //   setAddress(const void *value);
-        //   setLibraryFileName(const bslstl::StringRef& value);
+        //   setLibraryFileName(const bsl::string_view& value);
         //   setLineNumber(int value);
-        //   setMangledSymbolName(const bslstl::StringRef& value);
+        //   setMangledSymbolName(const bsl::string_view& value);
         //   setOffsetFromSymbol(bsl::size_t value);
-        //   setSourceFileName(const bslstl::StringRef& value);
-        //   setSymbolName(const bslstl::StringRef& value);
+        //   setSourceFileName(const bsl::string_view& value);
+        //   setSymbolName(const bsl::string_view& value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
