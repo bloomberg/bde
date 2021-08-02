@@ -178,6 +178,8 @@ void aSsErT2(bool condition, const char *message, int line)
 //               OVERRIDE DEFINED ASSERTION MACROS
 // ----------------------------------------------------------------------------
 // As this test captures cout, we need to log to cerr for this test driver.
+// (otherwise we don't get to see the output from `ASSERTV` calls when any
+// tests fail)
 
 #undef BSLIM_TESTUTIL_LOOP_ASSERT
 #define BSLIM_TESTUTIL_LOOP_ASSERT(I,X)                                      \
@@ -2135,13 +2137,13 @@ int main(int argc, char *argv[])
                     ball::Context context;
                     mX->publish(record, context);
                 }
-                // Sleep at least 3 milliseconds to guarantee thread suspension
-                // across all linux kernel versions.
-                bslmt::ThreadUtil::microSleep(3 * 1000, 0);
+                bslmt::ThreadUtil::microSleep(1, 0);
 
                 // Verify some, but not all records have been published
                 ASSERTV(record.use_count(), 1 < record.use_count());
-                ASSERTV(record.use_count(), record.use_count() <= logCount);
+                ASSERTV(record.use_count(),
+                        logCount,
+                        record.use_count() <= logCount);
 
                 // After this code block the logger manager will be destroyed.
             }
