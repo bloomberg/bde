@@ -222,6 +222,8 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace balxml {
 
+class Formatter;
+
                         // ============================
                         // class Formatter_StreamHolder
                         // ============================
@@ -359,7 +361,7 @@ class Formatter_State {
         // current selection of this object is 'pretty'.
 
     // FRIENDS
-    friend class Formatter;
+    friend class balxml::Formatter;
 
   public:
     // TRAITS
