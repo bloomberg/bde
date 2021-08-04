@@ -422,6 +422,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_allocatorargt.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_condition.h>
@@ -476,6 +477,7 @@ class EventScheduler {
         // This 'struct' encapsulates all of the information for a
         // non-recurring event.
 
+      public:
         // DATA
         bsl::function<void()>               d_callback;
             // user-supplied callback invoked when associated event triggers
@@ -484,13 +486,36 @@ class EventScheduler {
             // a function that returns the difference, in microseconds, between
             // when the scheduled event is meant to occur and the current time
 
+      private:
+        // NOT IMPLEMENTED
+        EventData& operator=(const EventData&);
+
+      public:
+        // TRAITS
+        BSLMF_NESTED_TRAIT_DECLARATION(EventData, bslma::UsesBslmaAllocator);
+
         // CREATORS
-        EventData(const bsl::function<void()>&               callback,
-                  const bsl::function<bsls::Types::Int64()>& nowOffset)
+        EventData(
+                const bsl::function<void()>&                callback,
+                const bsl::function<bsls::Types::Int64()>&  nowOffset,
+                bslma::Allocator                           *basicAllocator = 0)
             // Create an 'EventData' from the specified 'callback' and
-            // 'nowOffset'.
-        : d_callback(callback)
-        , d_nowOffset(nowOffset)
+            // 'nowOffset'.  Optionally specify a 'basicAllocator' used to
+            // supply memory.  If 'basicAllocator' is 0, the currently
+            // installed default allocator is used.
+        : d_callback(bsl::allocator_arg, basicAllocator, callback)
+        , d_nowOffset(bsl::allocator_arg, basicAllocator, nowOffset)
+        {
+        }
+
+        EventData(const EventData&  original,
+                  bslma::Allocator *basicAllocator = 0)
+            // Create an 'EventData' object having the value of the specified
+            // 'original' object.  Optionally specify a 'basicAllocator' used
+            // to supply memory.  If 'basicAllocator' is 0, the currently
+            // installed default allocator is used.
+        : d_callback(bsl::allocator_arg, basicAllocator, original.d_callback)
+        , d_nowOffset(bsl::allocator_arg, basicAllocator, original.d_nowOffset)
         {
         }
     };
@@ -503,6 +528,7 @@ class EventScheduler {
         // This 'struct' encapsulates all of the information for a recurring
         // event.
 
+      public:
         // DATA
         bsls::TimeInterval                     d_interval;
             // the time between calls (in microseconds)
@@ -519,17 +545,42 @@ class EventScheduler {
             // 'd_nowOffset' to determine the time of the next invocation of
             // 'd_callback'
 
+      private:
+        // NOT IMPLEMENTED
+        RecurringEventData& operator=(const RecurringEventData&);
+
+      public:
+        // TRAITS
+        BSLMF_NESTED_TRAIT_DECLARATION(RecurringEventData,
+                                       bslma::UsesBslmaAllocator);
+
         // CREATORS
         RecurringEventData(
-                       const bsls::TimeInterval&                     interval,
-                       const bsl::function<void()>&                  callback,
-                       const bsl::function<bsls::Types::Int64(int)>& nowOffset)
+             const bsls::TimeInterval&                      interval,
+             const bsl::function<void()>&                   callback,
+             const bsl::function<bsls::Types::Int64(int)>&  nowOffset,
+             bslma::Allocator                              *basicAllocator = 0)
             // Create a 'RecurringEventData' from the specified 'interval',
-            // 'callback', and 'nowOffset'.
+            // 'callback', and 'nowOffset'.  Optionally specify a
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
         : d_interval(interval)
-        , d_callback(callback)
-        , d_nowOffset(nowOffset)
+        , d_callback(bsl::allocator_arg, basicAllocator, callback)
+        , d_nowOffset(bsl::allocator_arg, basicAllocator, nowOffset)
         , d_eventIdx(0)
+        {
+        }
+
+        RecurringEventData(const RecurringEventData&  original,
+                           bslma::Allocator          *basicAllocator = 0)
+            // Create a 'RecurringEventData' object having the value of the
+            // specified 'original' object.  Optionally specify a
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
+        : d_interval(original.d_interval)
+        , d_callback(bsl::allocator_arg, basicAllocator, original.d_callback)
+        , d_nowOffset(bsl::allocator_arg, basicAllocator, original.d_nowOffset)
+        , d_eventIdx(original.d_eventIdx)
         {
         }
     };

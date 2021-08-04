@@ -22,6 +22,7 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bslmt_barrier.h>
 #include <bslmt_latch.h>
@@ -133,6 +134,7 @@ using namespace bsl;  // automatically added by script
 // [30] scheduleEventRaw(Event**, TimeInterval&, function<void()>&);
 // [30] scheduleEventRaw(Event**, time_point&, function<void()>&);
 // [31] TESTING 'scheduleRecurringEventRaw' WITH CHRONO CLOCKS
+// [32] CONCERN: 'EventData' and 'RecurringEventData' are allocator-aware.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -577,6 +579,7 @@ struct TestClass1 {
     // clock or an event.  The class keeps track of number of times the
     // callback has been executed.
 
+    // DATA
     bsls::AtomicInt  d_numExecuted;
     int              d_executionTime;  // in microseconds
 
@@ -1459,7 +1462,7 @@ const bsls::TimeInterval T6(6 * DECI_SEC); // decrease chance of timing failure
 bool  testTimingFailure = false;
 
 bslmt::Barrier barrier(NUM_THREADS);
-bslma::TestAllocator ta;
+bslma::TestAllocator ta(veryVeryVerbose);
 Obj x(&ta);
 
 TestClass1 testObj[NUM_THREADS]; // one test object for each thread
@@ -1513,7 +1516,7 @@ void *workerThread11(void *arg)
           }
       }
       break;
-    };
+    }
 
     barrier.wait();
     return NULL;
@@ -1537,7 +1540,7 @@ const bsls::TimeInterval T6(6 * DECI_SEC); // decrease chance of timing failure
 bool  testTimingFailure = false;
 
 bslmt::Barrier barrier(NUM_THREADS);
-bslma::TestAllocator ta;
+bslma::TestAllocator ta(veryVeryVerbose);
 Obj x(&ta);
 
 TestClass1 testObj[NUM_THREADS]; // one test object for each thread
@@ -1613,7 +1616,7 @@ void *workerThread10(void *arg)
           }
       }
       break;
-    };
+    }
 
     return NULL;
 }
@@ -2605,13 +2608,107 @@ int main(int argc, char *argv[])
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
-    bslma::TestAllocator ta("test");
-    bslma::TestAllocator da("default");
+    bslma::TestAllocator ta("test", veryVeryVerbose);
+    bslma::TestAllocator da("default", veryVeryVerbose);
     bslma::DefaultAllocatorGuard dGuard(&da);
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+        case 32: {
+        // --------------------------------------------------------------------
+        // TESTING 'EventData', 'RecurringEventData' ALLOCATOR-AWARENESS
+        //
+        // Concerns:
+        //: 1 That DRQS 166874007 is fixed, which reported that neither
+        //:   'EventData' nor 'RecurringEventData' were allocator-aware.
+        //
+        // Plan:
+        //: 1 Schedule a one-time event and a recurring event, both whose
+        //:   callbacks should thwart the small-object optimization of
+        //:   'bsl::function'.  Note that no events actually fire as the event
+        //:   scheduler is deliberately not started.
+        //:
+        //: 2 Use test allocator monitors to verify expected allocator usage.
+        //
+        // Testing:
+        //   CONCERN: 'EventData' and 'RecurringEventData' are allocator-aware.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+             << "TESTING 'EventData', 'RecurringEventData' ALLOCATOR-AWARENESS"
+             << endl
+             << "============================================================="
+             << endl;
+
+        using namespace EVENTSCHEDULER_TEST_CASE_3;
+
+        bslma::TestAllocator oa("object", veryVeryVerbose);
+
+        {
+            bslma::TestAllocator         da("default", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(&oa);
+
+            // Schedule an event at T2 and schedule its cancellation at T1
+            // where T1 < T2.
+
+            const bsls::TimeInterval T1(100 * DECI_SEC);
+            const bsls::TimeInterval T2(200 * DECI_SEC);
+
+            TestClass1  testObj;
+            EventHandle handle;
+
+            bsls::TimeInterval now = u::now();
+
+            mX.scheduleEvent(
+                      &handle,
+                      now + T2,
+                      bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
+
+            ASSERT(0 == da.numBytesInUse());
+
+            bslma::TestAllocatorMonitor dam(&da);
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            // White Box: Incurs temporary allocation from 'da' for an
+            // 'EventData' object.
+
+            mX.scheduleEvent(now + T1,
+                             bdlf::BindUtil::bind(&cancelEventCallback,
+                                                  &mX, handle, 0, 0, L_));
+
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isTotalUp());
+            ASSERT(oam.isInUseUp());
+
+            dam.reset();
+            oam.reset();
+
+            // White Box: Incurs temporary allocation from 'da' for a
+            // 'RecurringEventData' object.
+
+            mX.scheduleRecurringEvent(T1,
+                                      bdlf::BindUtil::bind(
+                                                        &cancelEventCallback,
+                                                        &mX, handle, 0, 0, L_),
+                                      now + T1);
+
+            ASSERT(dam.isInUseSame());
+            ASSERT(dam.isTotalUp());
+            ASSERT(oam.isInUseUp());
+
+            ASSERT(0  < mX.numEvents() && 0  < mX.numRecurringEvents());
+
+            mX.cancelAllEventsAndWait();
+
+            ASSERT(0 == mX.numEvents() && 0 == mX.numRecurringEvents());
+        }
+        ASSERT(0  < oa.numAllocations());
+        ASSERT(0 == oa.numBytesInUse());
+
+      } break;
       case 31: {
         // --------------------------------------------------------------------
         // TESTING 'scheduleRecurringEventRaw' WITH CHRONO CLOCKS
@@ -2761,7 +2858,6 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
-
       case 29: {
         // --------------------------------------------------------------------
         // BREATHING TEST FOR CHRONO TIME-POINTS
@@ -2819,8 +2915,7 @@ int main(int argc, char *argv[])
                         done.arrive();
                     });
 
-            if (verbose) cout << "\tScheduling events(3)."
-                              << endl;
+            if (verbose) cout << "\tScheduling events(3)." << endl;
 
             scheduler.scheduleEvent(
                     bsl::chrono::steady_clock::now() + bsl::chrono::seconds(3),
@@ -2847,8 +2942,7 @@ int main(int argc, char *argv[])
             ASSERTV(elapsedTimeThree, EPSILON > fabs(3 - elapsedTimeThree));
         }
 
-        if (verbose) cout << "\tBreathing test custom clock"
-                          << endl;
+        if (verbose) cout << "\tBreathing test custom clock" << endl;
 
         {
             bslma::TestAllocator         ta(veryVeryVerbose);
@@ -2908,7 +3002,6 @@ int main(int argc, char *argv[])
             ASSERTV(elapsedTimeOne,   EPSILON > fabs(1 - elapsedTimeOne));
             ASSERTV(elapsedTimeTwo,   EPSILON > fabs(1 - elapsedTimeTwo));
             ASSERTV(elapsedTimeThree, EPSILON > fabs(2 - elapsedTimeThree));
-
         }
 #endif
       } break;
@@ -3166,7 +3259,7 @@ int main(int argc, char *argv[])
             ASSERT(bslma::Default::defaultAllocator() == X.allocator());
         }
         {
-            bslma::TestAllocator oa("supplied");
+            bslma::TestAllocator oa("supplied", veryVeryVerbose);
 
             Obj mX(&oa);  const Obj& X = mX;
 
@@ -3616,7 +3709,7 @@ int main(int argc, char *argv[])
               "TESTING REDUNDANT CANCEL{RECURRING}EVENT{ANDWAIT} ON HANDLES\n"
               "============================================================\n";
 
-        bslma::TestAllocator ta;
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj scheduler(&ta);
 
         const bsls::TimeInterval farFuture = u::now() + 10.0;
@@ -4109,7 +4202,7 @@ int main(int argc, char *argv[])
 
         using namespace EVENTSCHEDULER_TEST_CASE_13;
 
-        bslma::TestAllocator ta;
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         const int TEST_DATA[] = {
             (1 <<  3),     // some small value
@@ -4181,7 +4274,7 @@ int main(int argc, char *argv[])
 
         using namespace EVENTSCHEDULER_TEST_CASE_13;
 
-        bslma::TestAllocator ta;
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         const int TEST_DATA[] = {
             (1 <<  3),     // some small value
@@ -5383,7 +5476,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
 
       } break;
-
       case 4: {
         // --------------------------------------------------------------------
         // TESTING 'cancelAllEvents':
