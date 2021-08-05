@@ -29,12 +29,14 @@ using namespace BloombergLP;
 // CREATORS
 // [ 2] TestInputIterator();
 // [ 2] TestInputIterator(const TestInputIterator&);
+// [ 3] TestInputIterator(TYPE *);
+// [ 3] TestInputIterator(CONTIGUOUS_ITERATOR);
 // [ 2] ~TestInputIterator();
 //
 // MANIPULATORS
 // [ 2] TestInputIterator& operator=(const TestInputIterator&);
 // [ 3] TestInputIterator& operator++();
-// [ 3] TestInputIterator& operator++(int);
+// [ 3] TestInputIterator operator++(int);
 //
 // ACCESSORS
 // [ 3] TYPE *operator->() const;
@@ -272,29 +274,135 @@ int main(int argc, char *argv[])
         if (verbose) printf("EQUALITY-COMPARISON OPERATORS\n"
                             "=============================\n");
 
+        u::MyClass mc[2] = { u::MyClass(0), u::MyClass(0) };
+        bsltf::TestInputIterator<u::MyClass> nc1(&mc[0]);
+        bsltf::TestInputIterator<u::MyClass> nc2(&mc[0]);
+        bsltf::TestInputIterator<u::MyClass> nc3(&mc[1]);
+
+
         if (veryVerbose) printf("\tTesting different objects\n");
-        {
-            bsltf::TestInputIterator<u::MyClass> nc1;
-            bsltf::TestInputIterator<u::MyClass> nc2;
+        {                                                                     \
             ASSERT(nc2 == nc1);
             ASSERT(nc1 == nc2);
+            ASSERT(nc1 != nc3);
+            ASSERT(nc3 != nc1);
+
             ASSERT(!(nc2 != nc1));
             ASSERT(!(nc1 != nc2));
+            ASSERT(!(nc3 == nc1));
+            ASSERT(!(nc1 == nc3));
         }
 
-        if (veryVerbose) printf("\tTesting copies\n");
+        if (veryVerbose) printf("\tTesting const copies\n");
         {
-            bsltf::TestInputIterator<u::MyClass>        nc;
-            const bsltf::TestInputIterator<u::MyClass>& NC(nc);
-            ASSERT(NC == nc);
-            ASSERT(nc == NC);
-            ASSERT(!(NC != nc));
-            ASSERT(!(nc != NC));
+            const bsltf::TestInputIterator<u::MyClass>& NC1(nc1);
+            const bsltf::TestInputIterator<u::MyClass>& NC2(nc2);
+            const bsltf::TestInputIterator<u::MyClass>& NC3(nc3);
+
+            ASSERT(nc1 == NC1);
+            ASSERT(NC1 == nc1);
+            ASSERT(!(nc1 != NC1));
+            ASSERT(!(NC1 != nc1));
+
+            ASSERT(nc2 == NC2);
+            ASSERT(NC2 == nc2);
+            ASSERT(!(nc2 != NC2));
+            ASSERT(!(NC2 != nc2));
+
+            ASSERT(nc3 == NC3);
+            ASSERT(NC3 == nc3);
+            ASSERT(!(nc3 != NC3));
+            ASSERT(!(NC3 != nc3));
+
+
+            ASSERT(NC2 == NC1);
+            ASSERT(NC1 == NC2);
+            ASSERT(NC1 != NC3);
+            ASSERT(NC3 != NC1);
+
+            ASSERT(!(NC2 != NC1));
+            ASSERT(!(NC1 != NC2));
+            ASSERT(!(NC3 == NC1));
+            ASSERT(!(NC1 == NC3));
+
+
+            ASSERT(NC2 == nc1);
+            ASSERT(NC1 == nc2);
+            ASSERT(NC1 != nc3);
+            ASSERT(NC3 != nc1);
+
+            ASSERT(!(NC2 != nc1));
+            ASSERT(!(NC1 != nc2));
+            ASSERT(!(NC3 == nc1));
+            ASSERT(!(NC1 == nc3));
+
+            ASSERT(nc2 == NC1);
+            ASSERT(nc1 == NC2);
+            ASSERT(nc1 != NC3);
+            ASSERT(nc3 != NC1);
+
+            ASSERT(!(nc2 != NC1));
+            ASSERT(!(nc1 != NC2));
+            ASSERT(!(nc3 == NC1));
+            ASSERT(!(nc1 == NC3));
         }
       } break;
       case 3: {
         // --------------------------------------------------------------------
         // ITERATING OVER A RANGE
+        //
+        // Concerns:
+        //: 1 That the class under test can iterate over a contiguous range.
+        //:
+        //: 2 That the class under test can be initialized with a pointer, or
+        //:   with a contiguous iterator.
+        //
+        // Plan:
+        //: 1 Use a 'vector' to create a range of 'int's.
+        //:   o Create an iterator pair to the start and end of the vector
+        //:     using the 'CONTIGUOUS_ITERATOR' c'tor.
+        //:
+        //:   o Traverse the range, examining the values with 'operator++()'
+        //:     and 'operator*()'.
+        //:
+        //:   o Traverse the range again, examining the values with
+        //:     'operator++(int)' and 'operator*()'.
+        //:
+        //:   o Create an iterator pair to the start and end of the vector
+        //:     using the pointer c'tor.
+        //:
+        //:   o Traverse the range, examining the values with 'operator++()'
+        //:     and 'operator*()'.
+        //:
+        //:   o Traverse the range again, examining the values with
+        //:     'operator++(int)' and 'operator*()'.
+        //:
+        //: 2 Use a 'vector' to create a range of 'u::MyClass' objects.
+        //:   o Create an iterator pair to the start and end of the vector
+        //:     using the 'CONTIGUOUS_ITERATOR' c'tor.
+        //:
+        //:   o Traverse the range, examining the values with 'operator++()'
+        //:     and 'operator->()'.
+        //:
+        //:   o Traverse the range again, examining the values with
+        //:     'operator++(int)' and 'operator->()'.
+        //:
+        //:   o Create an iterator pair to the start and end of the vector
+        //:     using the pointer c'tor.
+        //:
+        //:   o Traverse the range, examining the values with 'operator++()'
+        //:     and 'operator->()'.
+        //:
+        //:   o Traverse the range again, examining the values with
+        //:     'operator++(int)' and 'operator->()'.
+        //
+        // Testing:
+        //   TestInputIterator(TYPE *);
+        //   TestInputIterator(CONTIGUOUS_ITERATOR);
+        //   TestInputIterator& operator++();
+        //   TestInputIterator operator++(int);
+        //   TYPE *operator->() const;
+        //   TYPE operator*() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("ITERATING OVER A RANGE\n"
