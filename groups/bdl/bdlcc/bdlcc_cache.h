@@ -543,13 +543,13 @@ class Cache {
 
     template <class INPUT_ITERATOR>
     int eraseBulk(INPUT_ITERATOR begin, INPUT_ITERATOR end);
-        // Remove the items having either the keys in
-        // the specified range '*[ begin, end )', from this cache.  Invoke the
-        // post-eviction callback for each removed item.  Return the number of
-        // items successfully removed.
+        // Remove the items having either the keys in the specified range
+        // '*[ begin, end )', from this cache.  Invoke the post-eviction
+        // callback for each removed item.  Return the number of items
+        // successfully removed.
 
     int eraseBulk(const bsl::vector<KEY>& keys);
-        // Remove the items having either the specified 'keys' from this cache.
+        // Remove the items having the specified 'keys' from this cache.
         // Invoke the post-eviction callback for each removed item.  Return the
         // number of items successfully removed.
 
@@ -586,7 +586,7 @@ class Cache {
         // cache.  If a key already exists, then its value will be replaced
         // with the value.  Return the number of items successfully inserted.
 
-    int insertBulk(bslmf::MovableRef<bsl::vector<KVType> >      data);
+    int insertBulk(bslmf::MovableRef<bsl::vector<KVType> > data);
         // Insert the specified 'data' (composed of Key-Value pairs) into this
         // cache.  If a key already exists, then its value will be replaced
         // with the value.  Return the number of items successfully inserted.

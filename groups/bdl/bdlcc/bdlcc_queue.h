@@ -448,17 +448,7 @@ class Queue {
                                            // error ("Expected an expression").
 
     template <class VECTOR>
-    struct IsVector {
-        // This 'struct' has a 'value' that evaluates to 'true' if the
-        // specified 'VECTOR' is a 'bsl', 'std', or 'std::pmr' 'vector<TYPE>'.
-
-        static const bool value =
-                            bsl::is_same<bsl::vector<TYPE>, VECTOR>::value
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                         || bsl::is_same<std::pmr::vector<TYPE>, VECTOR>::value
-#endif
-                         || bsl::is_same<std::vector<TYPE>, VECTOR>::value;
-    };
+    struct IsVector;
 
     // DATA
     mutable
@@ -783,6 +773,24 @@ class Queue {
         // Return the number of elements in this queue.  Note that if other
         // threads are manipulating the queue, this information may be obsolete
         // by the time it is returned.
+};
+
+                        // ======================
+                        // struct Queue::IsVector
+                        // ======================
+
+template <class TYPE>
+template <class VECTOR>
+struct Queue<TYPE>::IsVector {
+    // This 'struct' has a 'value' that evaluates to 'true' if the specified
+    // 'VECTOR' is a 'bsl', 'std', or 'std::pmr' 'vector<TYPE>'.
+
+    static const bool value =
+                            bsl::is_same<bsl::vector<TYPE>, VECTOR>::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                         || bsl::is_same<std::pmr::vector<TYPE>, VECTOR>::value
+#endif
+                         || bsl::is_same<std::vector<TYPE>, VECTOR>::value;
 };
 
 // ============================================================================

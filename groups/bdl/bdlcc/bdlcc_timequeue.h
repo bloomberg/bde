@@ -720,21 +720,7 @@ class TimeQueue {
 
     // PRIVATE TYPES
     template <class VECTOR>
-    struct IsVector {
-        // This 'struct' has a 'value' that evaluates to 'true' if the
-        // specified 'VECTOR' is a 'bsl', 'std', or 'std::pmr' 'vector<VALUE>'.
-
-        // TYPE
-        typedef TimeQueueItem<DATA> Item;
-
-        // CLASS DATA
-        static const bool value =
-                            bsl::is_same<bsl::vector<Item>, VECTOR>::value
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                         || bsl::is_same<std::pmr::vector<Item>, VECTOR>::value
-#endif
-                         || bsl::is_same<std::vector<Item>, VECTOR>::value;
-    };
+    struct IsVector;
 
     struct Node {
         // This queue is implemented internally as a map of time values, each
@@ -1162,6 +1148,28 @@ class TimeQueueItem {
 
     const Key& key() const;
         // Return the non-modifiable key value associated with this item.
+};
+
+                        // =========================
+                        // TimeQueue<DATA>::IsVector
+                        // =========================
+
+template <class DATA>
+template <class VECTOR>
+struct TimeQueue<DATA>::IsVector {
+    // This 'struct' has a 'value' that evaluates to 'true' if the specified
+    // 'VECTOR' is a 'bsl', 'std', or 'std::pmr' 'vector<VALUE>'.
+
+    // TYPE
+    typedef TimeQueueItem<DATA> Item;
+
+    // CLASS DATA
+    static const bool value =
+                            bsl::is_same<bsl::vector<Item>, VECTOR>::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                         || bsl::is_same<std::pmr::vector<Item>, VECTOR>::value
+#endif
+                         || bsl::is_same<std::vector<Item>, VECTOR>::value;
 };
 
 // ============================================================================

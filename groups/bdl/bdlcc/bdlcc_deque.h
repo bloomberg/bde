@@ -488,17 +488,7 @@ class Deque {
     class VectorThrowGuard;
 
     template <class VECTOR>
-    struct IsVector {
-        // This 'struct' has a 'value' that evaluates to 'true' if the
-        // specified 'VECTOR' is a 'bsl', 'std', or 'std::pmr' 'vector<VALUE>'.
-
-        static const bool value =
-                            bsl::is_same<bsl::vector<TYPE>, VECTOR>::value
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                         || bsl::is_same<std::pmr::vector<TYPE>, VECTOR>::value
-#endif
-                         || bsl::is_same<std::vector<TYPE>, VECTOR>::value;
-    };
+    struct IsVector;
 
   public:
     // PUBLIC TYPES
@@ -1048,6 +1038,20 @@ class Deque<TYPE>::VectorThrowGuard {
     void release();
         // Release the monitored 'vector' from management by this
         // 'VectorThrowGuard' object.
+};
+
+template <class TYPE>
+template <class VECTOR>
+struct Deque<TYPE>::IsVector {
+    // This 'struct' has a 'value' that evaluates to 'true' if the specified
+    // 'VECTOR' is a 'bsl', 'std', or 'std::pmr' 'vector<VALUE>'.
+
+    static const bool value =
+                            bsl::is_same<bsl::vector<TYPE>, VECTOR>::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                         || bsl::is_same<std::pmr::vector<TYPE>, VECTOR>::value
+#endif
+                         || bsl::is_same<std::vector<TYPE>, VECTOR>::value;
 };
 
                               // ====================

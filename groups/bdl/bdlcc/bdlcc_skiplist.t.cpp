@@ -3773,7 +3773,11 @@ void removeAllSafetyFunc(Obj        *list,
     barrier_p->wait();
 
     const bsltf::AllocTestType data(id, alloc_p);
-    bsl::vector<Pair*>         removedPairs(alloc_p);
+    bsl::vector<Pair*>         removedPairsBsl(alloc_p);
+    std::vector<Pair*>         removedPairsStd;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    std::pmr::vector<Pair*>    removedPairsPmr;
+#endif
     bsl::vector<PairHandle>    removedHandles(alloc_p);
 
     for (int ii = 0; ii < numIterations; ++ii) {
@@ -3902,23 +3906,49 @@ void removeAllSafetyFunc(Obj        *list,
 
             removedHandles.clear();
         } else {
-            switch (ii % 3) {
+            switch (ii % 5) {
               case 0: {
                 removed += list->removeAll();
               } break;
               case 1: {
-                unsigned rc = list->removeAllRaw(&removedPairs);
-                ASSERT(rc == removedPairs.size());
+                unsigned rc = list->removeAllRaw(&removedPairsBsl);
+                ASSERT(rc == removedPairsBsl.size());
                 removed += rc;
 
-                for (unsigned jj = 0; jj < removedPairs.size(); ++jj) {
-                    list->releaseReferenceRaw(removedPairs[jj]);
+                for (unsigned jj = 0; jj < removedPairsBsl.size(); ++jj) {
+                    list->releaseReferenceRaw(removedPairsBsl[jj]);
                 }
 
-                removedPairs.clear();
+                removedPairsBsl.clear();
               } break;
               case 2: {
-                removed += list->removeAllRaw(0);
+                unsigned rc = list->removeAllRaw(&removedPairsStd);
+                ASSERT(rc == removedPairsStd.size());
+                removed += rc;
+
+                for (unsigned jj = 0; jj < removedPairsStd.size(); ++jj) {
+                    list->releaseReferenceRaw(removedPairsStd[jj]);
+                }
+
+                removedPairsStd.clear();
+              } break;
+              case 3: {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                unsigned rc = list->removeAllRaw(&removedPairsPmr);
+                ASSERT(rc == removedPairsPmr.size());
+                removed += rc;
+
+                for (unsigned jj = 0; jj < removedPairsPmr.size(); ++jj) {
+                    list->releaseReferenceRaw(removedPairsPmr[jj]);
+                }
+
+                removedPairsPmr.clear();
+#else
+                removed += list->removeAllRaw();
+#endif
+              } break;
+              case 4: {
+                removed += list->removeAllRaw();
               } break;
               default: {
                 BSLS_ASSERT(0);

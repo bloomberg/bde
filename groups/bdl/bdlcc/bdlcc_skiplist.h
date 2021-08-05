@@ -794,56 +794,9 @@ class SkipList {
     typedef bslmt::LockGuard<bslmt::Mutex>      LockGuard;
 
     template <class VECTOR, class VALUE_TYPE>
-    struct IsVector {
-        // This 'struct' has a 'value' that evaluates to 'true' if the
-        // specified 'VECTOR' is a 'bsl', 'std', or 'std::pmr'
-        // 'vector<VALUE_TYPE>'.
-
-        static const bool value =
-                      bsl::is_same<bsl::vector<VALUE_TYPE>, VECTOR>::value
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                   || bsl::is_same<std::pmr::vector<VALUE_TYPE>, VECTOR>::value
-#endif
-                   || bsl::is_same<std::vector<VALUE_TYPE>, VECTOR>::value;
-    };
-
-    class PairFactory {
-      private:
-        // NOT IMPLEMENTED
-        PairFactory(const PairFactory&);
-        PairFactory& operator=(const PairFactory&);
-
-      public:
-        // CREATORS
-        explicit
-        PairFactory(SkipList *);
-            // Create a 'PairFactory'.
-
-        // ACCESSOR
-        Pair *operator()(Node *node) const;
-            // Convert the specified 'node' to a 'Pair *'.
-    };
-
-    class PairHandleFactory {
-        // DATA
-        SkipList *d_list_p;
-
-      private:
-        // NOT IMPLEMENTED
-        PairHandleFactory(const PairHandleFactory&);
-        PairHandleFactory& operator=(const PairHandleFactory&);
-
-      public:
-        // CREATORS
-        explicit
-        PairHandleFactory(SkipList *list);
-            // Create a 'PairHandleFactory' bound to the specified 'list'.
-
-        // ACCESSOR
-        PairHandle operator()(Node *node) const;
-            // Return a 'PairHandle' bound to the list this object is bound to,
-            // and referring to the specified 'node'.
-    };
+    struct IsVector;
+    struct PairFactory;
+    class  PairHandleFactory;
 
     // PRIVATE CONSTANTS
     enum {
@@ -1408,15 +1361,18 @@ class SkipList {
         // that all references in 'removed' must be released (i.e., destroyed)
         // before this skip list is destroyed.
 
-    int removeAllRaw(bsl::vector<Pair *> *removed);
-        // Remove all items from this list.  Append to the specified 'removed'
-        // vector pointers that can be used to refer to the removed items.
-        // *Each* such pointer must be released (using 'releaseReferenceRaw')
-        // when it is no longer needed.  The pairs appended to 'removed' will
-        // be in ascending order by key value.  Return the number of items that
-        // were removed from this list.
-        //
-        // *DEPRECATED*: Call 'removeAll' instead.
+    int removeAllRaw();
+    int removeAllRaw(bsl::vector<Pair *>      *removed);
+    int removeAllRaw(std::vector<Pair *>      *removed);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+    int removeAllRaw(std::pmr::vector<Pair *> *removed);
+#endif
+        // Remove all items from this list.  Append to the optionally specified
+        // 'removed' vector pointers that can be used to refer to the removed
+        // items.  *Each* such pointer must be released (using
+        // 'releaseReferenceRaw') when it is no longer needed.  The pairs
+        // appended to 'removed' will be in ascending order by key value.
+        // Return the number of items that were removed from this list.
 
                          // Update Methods
 
@@ -1691,6 +1647,61 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
                          const SkipList<KEY, DATA>& list);
     // Write the specified 'list' to the specified output 'stream' and return a
     // reference to the modifiable 'stream'.
+
+                          // ========================
+                          // class SkipList::IsVector
+                          // ========================
+
+template <class KEY, class DATA>
+template <class VECTOR, class VALUE_TYPE>
+struct SkipList<KEY, DATA>::IsVector {
+    // This 'struct' has a 'value' that evaluates to 'true' if the specified
+    // 'VECTOR' is a 'bsl', 'std', or 'std::pmr' 'vector<VALUE_TYPE>'.
+
+    static const bool value =
+                      bsl::is_same<bsl::vector<VALUE_TYPE>, VECTOR>::value
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                   || bsl::is_same<std::pmr::vector<VALUE_TYPE>, VECTOR>::value
+#endif
+                   || bsl::is_same<std::vector<VALUE_TYPE>, VECTOR>::value;
+};
+
+                        // ===========================
+                        // class SkipList::PairFactory
+                        // ===========================
+
+template <class KEY, class DATA>
+struct SkipList<KEY, DATA>::PairFactory {
+    // CREATORS
+    explicit
+    PairFactory(SkipList *);
+        // Create a 'PairFactory'.
+
+    // ACCESSOR
+    Pair *operator()(Node *node) const;
+        // Convert the specified 'node' to a 'Pair *'.
+};
+
+                    // =================================
+                    // class SkipList::PairHandleFactory
+                    // =================================
+
+template <class KEY, class DATA>
+class SkipList<KEY, DATA>::PairHandleFactory {
+    // DATA
+    SkipList *d_list_p;
+
+  public:
+    // CREATORS
+    explicit
+    PairHandleFactory(SkipList *list);
+        // Create a 'PairHandleFactory' bound to the specified 'list'.
+
+    // ACCESSOR
+    PairHandle operator()(Node *node) const;
+        // Return a 'PairHandle' bound to the list this object is bound to, and
+        // referring to the specified 'node'.
+};
 
 // ============================================================================
 //                            INLINE DEFINITIONS
@@ -3183,10 +3194,33 @@ int SkipList<KEY, DATA>::removeAll(std::pmr::vector<PairHandle> *removed)
 
 template<class KEY, class DATA>
 inline
+int SkipList<KEY, DATA>::removeAllRaw()
+{
+    return removeAllImp(static_cast<bsl::vector<Pair *> *>(0));
+}
+
+template<class KEY, class DATA>
+inline
 int SkipList<KEY, DATA>::removeAllRaw(bsl::vector<Pair *> *removed)
 {
     return removeAllImp(removed);
 }
+
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::removeAllRaw(std::vector<Pair *> *removed)
+{
+    return removeAllImp(removed);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+template<class KEY, class DATA>
+inline
+int SkipList<KEY, DATA>::removeAllRaw(std::pmr::vector<Pair *> *removed)
+{
+    return removeAllImp(removed);
+}
+#endif
 
                          // Update Methods
 
