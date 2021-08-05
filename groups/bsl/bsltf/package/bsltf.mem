@@ -31,5 +31,6 @@ bsltf_stdtestallocator_cpp03
 bsltf_streamutil
 bsltf_templatetestfacility
 bsltf_testvaluesarray
+bsltf_testinputiterator
 bsltf_uniontesttype
 bsltf_wellbehavedmoveonlyalloctesttype
