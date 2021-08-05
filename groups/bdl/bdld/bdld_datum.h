@@ -26,7 +26,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // provides a space-efficient discriminated union (i.e., a variant) that holds
 // the value of either a scalar type (e.g., 'int', 'double', 'Date') or an
 // aggregate (i.e., array or map) of 'Datum' objects.  The set of possible
-// types that a datum may hold is described in the 'Supported Types' section.
+// types that a datum may hold is described in the {Supported Types} section.
 //
 // The 'Datum' class is implemented as a POD-type, such that instances of the
 // class are bitwise copyable and have trivial initialization, assignment and
@@ -39,8 +39,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // a 'Datum' object itself.  Those types may require memory be allocated for
 // storage.  In order to keep the footprint of a 'Datum' object as small as
 // possible, a 'Datum' object does not hold a reference to an allocator, and so
-// memory must be explicitly managed by the user of 'Datum'.  See 'Memory
-// Management' for more details.
+// memory must be explicitly managed by the user of 'Datum'.  See
+// {Memory Management} for more details.
 //
 ///Notion of Value
 ///---------------
@@ -90,7 +90,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'Datum' objects are generally immutable, meaning the value stored inside a
 // 'Datum' object cannot be changed *except* through the assignment operation.
 // A 'Datum' is copy-assignable, so a 'Datum' object can assigned another
-// 'Datum' object'. On assignment, a 'Datum' object is "shallow-copied".
+// 'Datum' object. On assignment, a 'Datum' object is "shallow-copied".
 // Meaning that the footprint of original 'Datum' object is copied into the
 // footprint of the destination 'Datum' object, but if the 'Datum' refers to
 // dynamically allocated memory, only the value of the address is copied (not
