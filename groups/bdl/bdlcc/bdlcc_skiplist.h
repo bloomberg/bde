@@ -794,9 +794,9 @@ class SkipList {
     typedef bslmt::LockGuard<bslmt::Mutex>      LockGuard;
 
     template <class VECTOR, class VALUE_TYPE>
-    struct IsVector;
-    struct PairFactory;
-    class  PairHandleFactory;
+    class IsVector;
+    class PairFactory;
+    class PairHandleFactory;
 
     // PRIVATE CONSTANTS
     enum {
@@ -1361,18 +1361,18 @@ class SkipList {
         // that all references in 'removed' must be released (i.e., destroyed)
         // before this skip list is destroyed.
 
-    int removeAllRaw();
     int removeAllRaw(bsl::vector<Pair *>      *removed);
     int removeAllRaw(std::vector<Pair *>      *removed);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
     int removeAllRaw(std::pmr::vector<Pair *> *removed);
 #endif
-        // Remove all items from this list.  Append to the optionally specified
+        // Remove all items from this list.  Append to the specified
         // 'removed' vector pointers that can be used to refer to the removed
         // items.  *Each* such pointer must be released (using
         // 'releaseReferenceRaw') when it is no longer needed.  The pairs
         // appended to 'removed' will be in ascending order by key value.
-        // Return the number of items that were removed from this list.
+        // Return the number of items that were removed from this list.  If
+        // 'removed' is 0, all the removed nodes will be released.
 
                          // Update Methods
 
@@ -1654,10 +1654,12 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
 
 template <class KEY, class DATA>
 template <class VECTOR, class VALUE_TYPE>
-struct SkipList<KEY, DATA>::IsVector {
+class SkipList<KEY, DATA>::IsVector {
     // This 'struct' has a 'value' that evaluates to 'true' if the specified
     // 'VECTOR' is a 'bsl', 'std', or 'std::pmr' 'vector<VALUE_TYPE>'.
 
+  public:
+    // PUBLIC CLASS DATA
     static const bool value =
                       bsl::is_same<bsl::vector<VALUE_TYPE>, VECTOR>::value
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
@@ -1671,10 +1673,10 @@ struct SkipList<KEY, DATA>::IsVector {
                         // ===========================
 
 template <class KEY, class DATA>
-struct SkipList<KEY, DATA>::PairFactory {
+class SkipList<KEY, DATA>::PairFactory {
+  public:
     // CREATORS
-    explicit
-    PairFactory(SkipList *);
+    explicit PairFactory(SkipList *);
         // Create a 'PairFactory'.
 
     // ACCESSOR
@@ -1693,8 +1695,7 @@ class SkipList<KEY, DATA>::PairHandleFactory {
 
   public:
     // CREATORS
-    explicit
-    PairHandleFactory(SkipList *list);
+    explicit PairHandleFactory(SkipList *list);
         // Create a 'PairHandleFactory' bound to the specified 'list'.
 
     // ACCESSOR
@@ -3191,13 +3192,6 @@ int SkipList<KEY, DATA>::removeAll(std::pmr::vector<PairHandle> *removed)
     return removeAllImp(removed);
 }
 #endif
-
-template<class KEY, class DATA>
-inline
-int SkipList<KEY, DATA>::removeAllRaw()
-{
-    return removeAllImp(static_cast<bsl::vector<Pair *> *>(0));
-}
 
 template<class KEY, class DATA>
 inline

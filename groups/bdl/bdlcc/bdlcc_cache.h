@@ -543,8 +543,8 @@ class Cache {
 
     template <class INPUT_ITERATOR>
     int eraseBulk(INPUT_ITERATOR begin, INPUT_ITERATOR end);
-        // Remove the items having either the keys in the specified range
-        // '*[ begin, end )', from this cache.  Invoke the post-eviction
+        // Remove the items having the keys in the specified range
+        // '[ begin, end )', from this cache.  Invoke the post-eviction
         // callback for each removed item.  Return the number of items
         // successfully removed.
 
@@ -577,9 +577,9 @@ class Cache {
     template <class INPUT_ITERATOR>
     int insertBulk(INPUT_ITERATOR begin, INPUT_ITERATOR end);
         // Insert the specified range of Key-Value pairs specified by
-        // '*[ begin, end )' into this cache.  If a key already exists, then
-        // its value will be replaced with the value.  Return the number of
-        // items successfully inserted.
+        // '[ begin, end )' into this cache.  If a key already exists, then its
+        // value will be replaced with the value.  Return the number of items
+        // successfully inserted.
 
     int insertBulk(const bsl::vector<KVType>& data);
         // Insert the specified 'data' (composed of Key-Value pairs) into this

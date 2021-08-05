@@ -640,7 +640,7 @@ class TestPopFront {
     : d_mX(mX)
     , d_maxVecSize(0)
     , d_maxVecSizeAt(0)
-    , d_alloc_p(alloc)    
+    , d_alloc_p(alloc)
         // c'tor
     {
     }
@@ -708,7 +708,7 @@ class TestPopBack {
     : d_mX(mX)
     , d_maxVecSize(0)
     , d_maxVecSizeAt(0)
-    , d_alloc_p(alloc)    
+    , d_alloc_p(alloc)
         // c'tor
     {
     }
@@ -2576,7 +2576,7 @@ int main(int argc, char *argv[])
         TC::testTryPop<std::vector<Element> >();
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
         TC::testTryPop<std::pmr::vector<Element> >();
-#endif 
+#endif
       } break;
       case 9: {
         // --------------------------------------------------------------------

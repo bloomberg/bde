@@ -3773,12 +3773,6 @@ void removeAllSafetyFunc(Obj        *list,
     barrier_p->wait();
 
     const bsltf::AllocTestType data(id, alloc_p);
-    bsl::vector<Pair*>         removedPairsBsl(alloc_p);
-    std::vector<Pair*>         removedPairsStd;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-    std::pmr::vector<Pair*>    removedPairsPmr;
-#endif
-    bsl::vector<PairHandle>    removedHandles(alloc_p);
 
     for (int ii = 0; ii < numIterations; ++ii) {
         int         key = ii;
@@ -3900,17 +3894,19 @@ void removeAllSafetyFunc(Obj        *list,
             // internal temporary vector.  All previous modes should not use
             // the default allocator.
 
+            bsl::vector<PairHandle> removedHandles(alloc_p);
+
             unsigned rc = list->removeAll(&removedHandles);
             ASSERT(rc == removedHandles.size());
             removed += rc;
-
-            removedHandles.clear();
         } else {
             switch (ii % 5) {
               case 0: {
                 removed += list->removeAll();
               } break;
               case 1: {
+                bsl::vector<Pair*> removedPairsBsl(alloc_p);
+
                 unsigned rc = list->removeAllRaw(&removedPairsBsl);
                 ASSERT(rc == removedPairsBsl.size());
                 removed += rc;
@@ -3918,10 +3914,10 @@ void removeAllSafetyFunc(Obj        *list,
                 for (unsigned jj = 0; jj < removedPairsBsl.size(); ++jj) {
                     list->releaseReferenceRaw(removedPairsBsl[jj]);
                 }
-
-                removedPairsBsl.clear();
               } break;
               case 2: {
+                std::vector<Pair*> removedPairsStd;
+
                 unsigned rc = list->removeAllRaw(&removedPairsStd);
                 ASSERT(rc == removedPairsStd.size());
                 removed += rc;
@@ -3934,6 +3930,8 @@ void removeAllSafetyFunc(Obj        *list,
               } break;
               case 3: {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+                std::pmr::vector<Pair*> removedPairsPmr;
+
                 unsigned rc = list->removeAllRaw(&removedPairsPmr);
                 ASSERT(rc == removedPairsPmr.size());
                 removed += rc;
@@ -3944,11 +3942,12 @@ void removeAllSafetyFunc(Obj        *list,
 
                 removedPairsPmr.clear();
 #else
-                removed += list->removeAllRaw();
+                removed += list->removeAll();
 #endif
               } break;
               case 4: {
-                removed += list->removeAllRaw();
+                std::vector<Pair*> *nullRemoved = 0;
+                removed += list->removeAllRaw(nullRemoved);
               } break;
               default: {
                 BSLS_ASSERT(0);
