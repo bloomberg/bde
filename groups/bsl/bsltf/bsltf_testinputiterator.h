@@ -5,14 +5,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a pure input iterator for an empty range.
+//@PURPOSE: Provide a pure input iterator capable of traversing a range.
 //
 //@CLASSES:
 //  bsltf::TestInputIterator: empty input iterator template
 //
 //@DESCRIPTION: This components provides a mechanism,
-// 'bsltf::TestInputIterator', that defines an input iterator which supports
-// the following operations:
+// 'bsltf::TestInputIterator', that defines an input iterator that supports the
+// following operations:
 //
 //: o Obj& operator++()
 //:
@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 //: o reference& operator*() const
 //
 // The iterator is initializable with either a pointer into a range, or a
-// 'vector::iterator' for any STL 'vector' type.
+// non-pointer iterator over a contiguous range.
 //
 // This iterator type is typically used to check algorithms for compatibility
 // with input iterators.  The goal is to make sure that their code is able to
@@ -90,7 +90,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 
 #include <cstddef>
@@ -99,9 +98,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bsltf {
 
-                        // =======================
-                        // class TestInputIterator
-                        // =======================
+                          // =======================
+                          // class TestInputIterator
+                          // =======================
 
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
 // Sun CC workaround: iterators must be derived from 'std::iterator' to work
@@ -119,10 +118,9 @@ class TestInputIterator : public std::iterator<std::input_iterator_tag,
 template <class TYPE>
 class TestInputIterator {
 #endif
-    // Provide an input iterator that iterates over an empty sequence.  All
-    // 'TestInputIterator' objects compare equal.  Since the iteration sequence
-    // is empty, incrementing or de-referencing this iterator yields undefined
-    // behavior.
+    // Provide an input iterator that iterates that can iterate over a
+    // contiguous range of object while supporting no operations other than
+    // those defined for 'LegacyInputIterator'.
 
   public:
     // PUBLIC TYPES
@@ -153,47 +151,40 @@ class TestInputIterator {
     TestInputIterator(TYPE *ptr);
         // Construct an input iterator based on the specified 'ptr'.
 
-    template <class VECTOR_ITERATOR>
+    template <class CONTIGUOUS_ITERATOR>
     explicit
-    TestInputIterator(VECTOR_ITERATOR iter);
+    TestInputIterator(CONTIGUOUS_ITERATOR iter);
         // Construct an input iterator based on the specified iterator 'iter'.
-        // The behavior is undefined unless 'VECTOR_ITERATOR' is a vector
-        // iterator for an STL 'vector' class where 'vector::iterator' is not a
-        // pointer type.
+        // The behavior is undefined unless 'CONTIGUOUS_ITERATOR' is an
+        // iterator into a range of contiguous, adjacent objects of type
+        // 'value_type' and is not a pointer type.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-    TestInputIterator(const TestInputIterator& original) = default;
+    // TestInputIterator(const TestInputIterator& original) = default;
         // Construct a copy of the specified 'original' object.
 
-    ~TestInputIterator() = default;
+    // ~TestInputIterator() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    TestInputIterator& operator=(const TestInputIterator& rhs) = default;
+    // TestInputIterator& operator=(const TestInputIterator& rhs) = default;
         // Assign to this object the value of the specified 'rhs' and return a
         // reference to this modifiable object.
-#endif
 
     TestInputIterator& operator++();
-        // The behavior is undefined for this method.  Note that this method
-        // signature matches the requirements of an input iterator, but a
-        // 'TestInputIterator' always represents the end position in a range.
+        // Increment this iterator to refer to the next contiguous 'TYPE'
+        // object, and return a reference to after the increment.
 
     TestInputIterator operator++(int);
-        // The behavior is undefined for this method.  Note that this method
-        // signature matches the requirements of an input iterator, but a
-        // 'TestInputIterator' always represents the end position in a range.
+        // Copy this iterator, increment, and return by value the copy that
+        // was made prior to the increment.
 
     // ACCESSORS
     pointer operator->() const;
-        // The behavior is undefined for this method.  Note that this method
-        // signature matches the requirements of an input iterator, but a
-        // 'TestInputIterator' always represents the end position in a range.
+        // Return a pointer to the 'TYPE' object referred to by this iterator.
 
     reference operator*() const;
-        // The behavior is undefined for this method.  Note that this method
-        // signature matches the requirements of an input iterator, but a
-        // 'TestInputIterator' always represents the end position in a range.
+        // Return a const reference to the 'TYPE' object referred to by this
+        // iterator.
 };
 
 // FREE OPERATORS
@@ -201,19 +192,23 @@ template <class TYPE>
 inline
 bool operator==(const TestInputIterator<TYPE>& lhs,
                 const TestInputIterator<TYPE>& rhs);
-    // Return 'true'.  Note that all iterators represent the end position in a
-    // range, and therefore all iterators have the same value.
+    // Return 'true' if the specified 'lhs' and 'rhs' refer to the same 'TYPE'
+    // object and 'false' othersise.
 
 template <class TYPE>
 inline
 bool operator!=(const TestInputIterator<TYPE>& lhs,
                 const TestInputIterator<TYPE>& rhs);
-    // Return 'false'.  Note that all iterators represent the end position in a
-    // range, and therefore all iterators have the same value.
+    // Return 'true' if the specified 'lhs' and 'rhs' do not refer to the same
+    // 'TYPE' object and 'false' othersise.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
 // ============================================================================
+
+                          // -----------------------
+                          // class TestInputIterator
+                          // -----------------------
 
 // CREATORS
 template<class TYPE>
@@ -231,9 +226,9 @@ TestInputIterator<TYPE>::TestInputIterator(TYPE *ptr)
 }
 
 template<class TYPE>
-template <class VECTOR_ITERATOR>
+template <class CONTIGUOUS_ITERATOR>
 inline
-TestInputIterator<TYPE>::TestInputIterator(VECTOR_ITERATOR iter)
+TestInputIterator<TYPE>::TestInputIterator(CONTIGUOUS_ITERATOR iter)
 : d_value_p(&*iter)
 {
 }

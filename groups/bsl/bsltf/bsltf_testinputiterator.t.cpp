@@ -103,24 +103,21 @@ class MyClass {
 
   public:
     // CREATORS
-    explicit
-    MyClass(int value) : d_value(value) {}
-        // Construct a MyClass object.
+    explicit MyClass(int value)
+    : d_value(value)
+        // Construct a MyClass object from the specified 'value'.
+    {}
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-    MyClass(const MyClass& original) = default;
+    // MyClass(const MyClass& original) = default;
         // Construct a copy of an object.
 
-    ~MyClass() = default;
+    // ~MyClass() = default;
         // Destroy an object.
 
     // MANIPULATORS
-    MyClass& operator=(const MyClass&) = default;
-        // The type used to instantiate 'bsltf::TestInputIterator' does not
-        // need to be assignable, although it must be copy-constructible.  We
-        // disable the assignment operator to ensure that we don't depend on
-        // it.
-#endif
+    //  MyClass& operator=(const MyClass& rhs) = default;
+        // Assign the specified 'rhs' to this object and return a reference to
+        // this object.
 
     // ACCESSORS
     int value() const { return d_value; }
@@ -163,6 +160,8 @@ bool isConst(const TYPE&)
 //..
     template <class IN_ITER>
     double sum(IN_ITER first, IN_ITER last)
+        // Return the sum of the 'double's in the specified range
+        // '[ first, last )'.
     {
         double total = 0;
         while (first != last) {
