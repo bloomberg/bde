@@ -1,8 +1,8 @@
-// bsltf_testinputiterator.cpp                                        -*-C++-*-
-#include <bsltf_testinputiterator.h>
+// bsltf_inputiterator.cpp                                            -*-C++-*-
+#include <bsltf_inputiterator.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bsltf_testinputiterator_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bsltf_inputiterator_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2021 Bloomberg Finance L.P.

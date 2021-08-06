@@ -1,5 +1,5 @@
-// bsltf_testinputiterator.t.cpp                                      -*-C++-*-
-#include <bsltf_testinputiterator.h>
+// bsltf_inputiterator.t.cpp                                          -*-C++-*-
+#include <bsltf_inputiterator.h>
 
 #include <bslmf_assert.h> // for testing only
 #include <bslmf_issame.h> // for testing only
@@ -10,6 +10,8 @@
 #include <vector>
 
 #include <cstddef>
+#include <cstdlib>
+#include <cstring>
 
 #include <stdio.h>
 
@@ -20,31 +22,30 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// bsltf::TestInputIterator has no state and thus very little to test.  We need
+// bsltf::InputIterator has no state and thus very little to test.  We need
 // to verify that objects can be created and destroyed, that all forbidden
 // operations calls lead to assert, and that that comparison operators return
 // valid results.  The usage example completes the test by proving that it
 // works in idiomatic use.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] TestInputIterator();
-// [ 2] TestInputIterator(const TestInputIterator&);
-// [ 3] TestInputIterator(TYPE *);
-// [ 3] TestInputIterator(CONTIGUOUS_ITERATOR);
-// [ 2] ~TestInputIterator();
+// [ 2] InputIterator();
+// [ 2] InputIterator(const InputIterator&);
+// [ 3] InputIterator(TYPE *);
+// [ 2] ~InputIterator();
 //
 // MANIPULATORS
-// [ 2] TestInputIterator& operator=(const TestInputIterator&);
-// [ 3] TestInputIterator& operator++();
-// [ 3] TestInputIterator operator++(int);
+// [ 2] InputIterator& operator=(const InputIterator&);
+// [ 3] InputIterator& operator++();
+// [ 3] InputIterator operator++(int);
 //
 // ACCESSORS
 // [ 3] TYPE *operator->() const;
 // [ 3] TYPE operator*() const;
 //
 // FREE OPERATORS
-// [ 4] bool operator==(TestInputIterator&, TestInputIterator&);
-// [ 4] bool operator!=(TestInputIterator&, TestInputIterator&);
+// [ 4] bool operator==(InputIterator&, InputIterator&);
+// [ 4] bool operator!=(InputIterator&, InputIterator&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
@@ -97,12 +98,16 @@ namespace u {
 
 class MyClass {
     // A simple test class that can instantiated and copied to help test the
-    // instantiation of 'bsltf::TestInputIterator' on a user-defined type.
+    // instantiation of 'bsltf::InputIterator' on a user-defined type.
 
     int d_value;
 
   public:
     // CREATORS
+    MyClass() : d_value(0)
+        // Create a 'MyClass' object with value 0.
+    {}
+
     explicit MyClass(int value)
     : d_value(value)
         // Construct a MyClass object from the specified 'value'.
@@ -149,9 +154,9 @@ bool isConst(const TYPE&)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bsltf::TestInputIterator':
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we use a 'bsltf::TestInputIterator' to test that an
+///Example 1: Basic Use of 'bsltf::InputIterator':
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// In the following example we use a 'bsltf::InputIterator' to test that an
 // aggregation function compiles and works when instantiated with a pure input
 // iterator.
 //
@@ -177,7 +182,7 @@ bool isConst(const TYPE&)
 
 int main(int argc, char *argv[])
 {
-    const int         test = argc > 1 ? atoi(argv[1]) : 0;
+    const int         test = argc > 1 ? std::atoi(argv[1]) : 0;
     const bool     verbose = argc > 2;
     const bool veryVerbose = argc > 3;
 
@@ -205,16 +210,16 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Then, in 'main', we define an array of 'double's and define
-// 'TestInputIterators' pointing to the beginning and ending of it,
-// initializing the iterators with pointers:
+// Then, in 'main', we define an array of 'double's and define 'InputIterators'
+// pointing to the beginning and ending of it, initializing the iterators with
+// pointers:
 //..
-    static double myArray[] = { 2.5, 3, 5, 7, 11.5, 5 };
+    static const double myArray[] = { 2.5, 3, 5, 7, 11.5, 5 };
     enum { k_MY_ARRAY_LEN = sizeof myArray / sizeof *myArray };
 
-    typedef bsltf::TestInputIterator<double> IterType;
+    typedef bsltf::InputIterator<const double> Iter;
 
-    IterType begin(myArray + 0), end(myArray + k_MY_ARRAY_LEN);
+    Iter begin(myArray + 0), end(myArray + k_MY_ARRAY_LEN);
 //..
 // Next, we call 'sum' with the two iterators, and observe that its yields the
 // expected result, and because it compiles, we know that 'sum' did not attempt
@@ -224,21 +229,24 @@ int main(int argc, char *argv[])
     const double x = sum(begin, end);
     ASSERT(34.0 == x);
 //..
-// Then, we make a vector containing the elements of 'myArray':
+// Then, we illustrate that we can just make 'begin' and 'end' iterators from
+// the array directly with the 'begin' and 'end' class methods of the
+// 'InputIteratorUtil' class.
+//..
+    typedef bsltf::InputIteratorUtil Util;
+
+    const double y = sum(Util::begin(myArray), Util::end(myArray));
+    ASSERT(34.0 == y);
+//..
+// Now, we make an 'std::vector' containing the elements of 'myArray':
 //..
     const std::vector<double> v(myArray + 0, myArray + k_MY_ARRAY_LEN);
 //..
-// Next, we illustrate that we can create iterators by initializing them with
-// vector iterators rather than pointers, even on STL implementations where
-// 'vector::iterator' is not a simple pointer type:
+// Finally, we call 'sum' using, again, the 'begin' and 'end' class methods to
+// create iterators for it directly from our 'vector':
 //..
-    IterType vBegin(v.begin()), vEnd(v.end());
-//..
-// Now we call 'sum' on our new pair of iterators and observe that it, once
-// again, gets the correct result:
-//..
-    const double y = sum(vBegin, vEnd);
-    ASSERT(34.0 == y);
+    const double z = sum(Util::begin(v), Util::end(v));
+    ASSERT(34.0 == z);
 //..
       } break;
       case 4: {
@@ -246,10 +254,10 @@ int main(int argc, char *argv[])
         // EQUALITY-COMPARISON OPERATORS
         //
         // Concerns:
-        //: 1 Two objects of 'bsltf::TestInputIterator' class, 'X' and 'Y',
+        //: 1 Two objects of 'bsltf::InputIterator' class, 'X' and 'Y',
         //:   always compare equal.
         //:
-        //: 2 Two objects of 'bsltf::TestInputIterator' class, 'X' and 'Y',
+        //: 2 Two objects of 'bsltf::InputIterator' class, 'X' and 'Y',
         //:   never compare unequal.
         //:
         //: 3 Comparison is symmetric.
@@ -266,17 +274,19 @@ int main(int argc, char *argv[])
         //:   them.  (C-1..4)
         //
         // Testing:
-        //   bool operator==(TestInputIterator&, TestInputIterator&);
-        //   bool operator!=(TestInputIterator&, TestInputIterator&);
+        //   bool operator==(InputIterator&, InputIterator&);
+        //   bool operator!=(InputIterator&, InputIterator&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("EQUALITY-COMPARISON OPERATORS\n"
                             "=============================\n");
 
+        typedef bsltf::InputIterator<u::MyClass> Iter;
+
         u::MyClass mc[2] = { u::MyClass(0), u::MyClass(0) };
-        bsltf::TestInputIterator<u::MyClass> nc1(&mc[0]);
-        bsltf::TestInputIterator<u::MyClass> nc2(&mc[0]);
-        bsltf::TestInputIterator<u::MyClass> nc3(&mc[1]);
+
+        Iter       nc1(&mc[0]), nc2(&mc[0]), nc3(&mc[1]);
+        const Iter NC1(&mc[0]), NC2(&mc[0]), NC3(&mc[1]);
 
 
         if (veryVerbose) printf("\tTesting different objects\n");
@@ -294,10 +304,6 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\tTesting const copies\n");
         {
-            const bsltf::TestInputIterator<u::MyClass>& NC1(nc1);
-            const bsltf::TestInputIterator<u::MyClass>& NC2(nc2);
-            const bsltf::TestInputIterator<u::MyClass>& NC3(nc3);
-
             ASSERT(nc1 == NC1);
             ASSERT(NC1 == nc1);
             ASSERT(!(nc1 != NC1));
@@ -396,16 +402,19 @@ int main(int argc, char *argv[])
         //:     'operator++(int)' and 'operator->()'.
         //
         // Testing:
-        //   TestInputIterator(TYPE *);
-        //   TestInputIterator(CONTIGUOUS_ITERATOR);
-        //   TestInputIterator& operator++();
-        //   TestInputIterator operator++(int);
+        //   InputIterator(TYPE *);
+        //   InputIterator& operator++();
+        //   InputIterator operator++(int);
+        //   InputIteratorUtil::begin(vector);
+        //   InputIteratorUtil::end(vector);
         //   TYPE *operator->() const;
         //   TYPE operator*() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("ITERATING OVER A RANGE\n"
                             "======================\n");
+
+        typedef bsltf::InputIteratorUtil Util;
 
         if (verbose) printf("Iterating over a range of 'int'\n");
         {
@@ -414,17 +423,17 @@ int main(int argc, char *argv[])
                 v.push_back(ii);
             }
 
-            typedef bsltf::TestInputIterator<int> Iter;
+            typedef bsltf::InputIterator<int> Iter;
             int jj = 0;
             {
-                const Iter begin(v.begin()), end(v.end());
-                for (Iter it = begin; end != it; ++it) {
+                const Iter end = Util::end(v);
+                for (Iter it = Util::begin(v); end != it; ++it) {
                     ASSERT(jj++ == *it);
                 }
                 ASSERT(100 == jj);
 
                 jj = 0;
-                for (Iter it = begin; end != it; ) {
+                for (Iter it = Util::begin(v); end != it; ) {
                     ASSERT(jj++ == *it++);
                 }
                 ASSERT(100 == jj);
@@ -444,6 +453,24 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(100 == jj);
             }
+
+            int array[100];
+            std::memcpy(array, &v[0], 100 * sizeof(int));
+
+            jj = 0;
+            {
+                const Iter end = Util::end(array);
+                for (Iter it = Util::begin(array); end != it; ++it) {
+                    ASSERT(jj++ == *it);
+                }
+                ASSERT(100 == jj);
+
+                jj = 0;
+                for (Iter it = Util::begin(array); end != it; ) {
+                    ASSERT(jj++ == *it++);
+                }
+                ASSERT(100 == jj);
+            }
         }
 
         if (verbose) printf("Iterating over a range of 'u::MyClass'\n");
@@ -453,17 +480,17 @@ int main(int argc, char *argv[])
                 mv.push_back(u::MyClass(ii));
             }
 
-            typedef bsltf::TestInputIterator<u::MyClass> Iter;
+            typedef bsltf::InputIterator<u::MyClass> Iter;
             int jj = 0;
             {
-                const Iter begin(mv.begin()), end(mv.end());
-                for (Iter it = begin; end != it; ++it) {
+                const Iter end = Util::end(mv);
+                for (Iter it = Util::begin(mv); end != it; ++it) {
                     ASSERT(jj++ == it->value());
                 }
                 ASSERT(100 == jj);
 
                 jj = 0;
-                for (Iter it = begin; end != it; ) {
+                for (Iter it = Util::begin(mv); end != it; ) {
                     ASSERT(jj++ == (it++)->value());
                 }
                 ASSERT(100 == jj);
@@ -479,6 +506,24 @@ int main(int argc, char *argv[])
 
                 jj = 0;
                 for (Iter it = begin; end != it; ) {
+                    ASSERT(jj++ == (it++)->value());
+                }
+                ASSERT(100 == jj);
+            }
+
+            u::MyClass array[100];
+            std::memcpy(array, &mv[0], 100 * sizeof(int));
+
+            jj = 0;
+            {
+                const Iter end = Util::end(array);
+                for (Iter it = Util::begin(array); end != it; ++it) {
+                    ASSERT(jj++ == it->value());
+                }
+                ASSERT(100 == jj);
+
+                jj = 0;
+                for (Iter it = Util::begin(array); end != it; ) {
                     ASSERT(jj++ == (it++)->value());
                 }
                 ASSERT(100 == jj);
@@ -509,29 +554,29 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Verify the default constructor exists and is publicly accessible
-        //:   by default-constructing a 'const bsltf::TestInputIterator'
-        //:   object.  (C-1)
+        //:   by default-constructing a 'const bsltf::InputIterator' object.
+        //:   (C-1)
         //:
         //: 2 Verify the copy constructor is publicly accessible and not
         //:   'explicit' by using the copy-initialization syntax to create a
-        //:   second 'bsltf::TestInputIterator' from the first. (C-2..3)
+        //:   second 'bsltf::InputIterator' from the first.  (C-2..3)
         //:
         //: 3 Assign the value of the first ('const') object to the second.
         //:   (C-4)
         //:
         //: 4 Chain the assignment of the value of the first ('const') object
         //:   to the second, into a self-assignment of the second object to
-        //:   itself. (C-5)
+        //:   itself.  (C-5)
         //:
         //: 5 Verify the destructor is publicly accessible by allowing the two
-        //:   'bsltf::TestInputIterator' object to leave scope and be
-        //:   destroyed.  (C-6)
+        //:   'bsltf::InputIterator' object to leave scope and be destroyed.
+        //:   (C-6)
         //
         // Testing:
-        //   TestInputIterator();
-        //   TestInputIterator(const TestInputIterator&);
-        //   ~TestInputIterator();
-        //   TestInputIterator& operator=(const TestInputIterator&);
+        //   InputIterator();
+        //   InputIterator(const InputIterator&);
+        //   ~InputIterator();
+        //   InputIterator& operator=(const InputIterator&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("PRIMARY MANIPULATORS\n"
@@ -539,7 +584,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\tTesting basic type\n");
         {
-            typedef bsltf::TestInputIterator<int> Obj;
+            typedef bsltf::InputIterator<int> Obj;
 
             int ii(3);
             const Obj NI1(&ii);
@@ -549,15 +594,15 @@ int main(int argc, char *argv[])
 
             BSLMF_ASSERT((bsl::is_same<Obj::iterator_category,
                                        std::input_iterator_tag>::value));
-            BSLMF_ASSERT((bsl::is_same<Obj::value_type, const int>::value));
+            BSLMF_ASSERT((bsl::is_same<Obj::value_type, int>::value));
 
-            ASSERT(u::isConst(*ni3));
+            ASSERT(! u::isConst(*ni3));
             ASSERT(! u::isConst(ni3));
         }
 
         if (veryVerbose) printf("\tTesting user-defined type\n");
         {
-            typedef bsltf::TestInputIterator<u::MyClass> Obj;
+            typedef bsltf::InputIterator<u::MyClass> Obj;
 
             u::MyClass mc(5);
             const Obj NC1(&mc);
@@ -568,7 +613,7 @@ int main(int argc, char *argv[])
             BSLMF_ASSERT((bsl::is_same<Obj::iterator_category,
                                        std::input_iterator_tag>::value));
             BSLMF_ASSERT((bsl::is_same<Obj::value_type,
-                                       const u::MyClass>::value));
+                                       u::MyClass>::value));
 
             ASSERT(u::isConst(nc3->value()));
             ASSERT(! u::isConst(nc3));

@@ -76,7 +76,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
-#include <bsltf_testinputiterator.h>
+#include <bsltf_inputiterator.h>
 
 #include <bsls_compilerfeatures.h>
 
@@ -92,12 +92,12 @@ namespace bdlb {
 #if 201103L <= BSLS_COMPILERFEATURES_CPLUSPLUS
 
 template <class TYPE>
-using TestInputIterator = bsltf::TestInputIterator<TYPE>;
+using TestInputIterator = bsltf::InputIterator<TYPE>;
 
 #else
 
 template <class TYPE>
-struct TestInputIterator : public bsltf::TestInputIterator<TYPE> {
+struct TestInputIterator : public bsltf::InputIterator<TYPE> {
     // CREATORS
     TestInputIterator();
 
@@ -115,20 +115,20 @@ struct TestInputIterator : public bsltf::TestInputIterator<TYPE> {
 template <class TYPE>
 inline
 TestInputIterator<TYPE>::TestInputIterator()
-: bsltf::TestInputIterator<TYPE>()
+: bsltf::InputIterator<TYPE>()
 {}
 
 template <class TYPE>
 inline
 TestInputIterator<TYPE>::TestInputIterator(TYPE *ptr)
-: bsltf::TestInputIterator<TYPE>(ptr)
+: bsltf::InputIterator<TYPE>(ptr)
 {}
 
 template <class TYPE>
 template <class CONTIGUOUS_ITERATOR>
 inline
 TestInputIterator<TYPE>::TestInputIterator(CONTIGUOUS_ITERATOR iter)
-: bsltf::TestInputIterator<TYPE>(iter)
+: bsltf::InputIterator<TYPE>(iter)
 {}
 
 #endif

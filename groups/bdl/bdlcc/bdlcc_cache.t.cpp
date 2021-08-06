@@ -24,7 +24,7 @@
 #include <bsltf_movestate.h>
 #include <bsltf_streamutil.h>
 #include <bsltf_templatetestfacility.h>
-#include <bsltf_testinputiterator.h>
+#include <bsltf_inputiterator.h>
 #include <bsltf_testvaluesarray.h>
 
 #include <bslmf_assert.h>
@@ -2485,7 +2485,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase11()
         bdlcc::CacheEvictionPolicy::e_FIFO
     };
 
-    typedef bsltf::TestInputIterator<typename Obj::KVType> InputIterator;
+    typedef bsltf::InputIteratorUtil IterUtil;
     enum InsertBy {
         e_INSERT_BY_BEGIN,
         e_INSERT_BY_VECTOR = e_INSERT_BY_BEGIN,
@@ -2524,11 +2524,9 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase11()
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
                   } break;
                   case e_INSERT_BY_ITERATOR: {
-                    InputIterator begin(insertVecBsl.begin());
-                    InputIterator end(  insertVecBsl.end());
-
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                        mX.insertBulk(begin, end);
+                        mX.insertBulk(IterUtil::begin(insertVecBsl),
+                                      IterUtil::end(  insertVecBsl));
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
                   } break;
                   default: {
@@ -2809,7 +2807,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase7()
 
     const int NUM_POLICIES = sizeof(POLICIES) / sizeof(*POLICIES);
 
-    typedef bsltf::TestInputIterator<KEYTYPE> InputIterator;
+    typedef bsltf::InputIteratorUtil IterUtil;
     enum EraseType {
         e_ERASE_BY_BEGIN,
         e_ERASE_BY_VECTOR = e_ERASE_BY_BEGIN,
@@ -2866,9 +2864,8 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase7()
                         count = mX.eraseBulk(eraseKeysBsl);
                       } break;
                       case e_ERASE_BY_ITERATOR: {
-                        InputIterator begin(eraseKeysBsl.begin());
-                        InputIterator end(  eraseKeysBsl.end());
-                        count = mX.eraseBulk(begin, end);
+                        count = mX.eraseBulk(IterUtil::begin(eraseKeysBsl),
+                                             IterUtil::end(  eraseKeysBsl));
                       } break;
                       default: {
                         ASSERT(0);
@@ -2912,10 +2909,8 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase7()
                     count = mX.eraseBulk(eraseKeysBsl);
                   } break;
                   case e_ERASE_BY_ITERATOR: {
-                    InputIterator begin(eraseKeysBsl.begin());
-                    InputIterator end(  eraseKeysBsl.end());
-
-                    count = mX.eraseBulk(begin, end);
+                    count = mX.eraseBulk(IterUtil::begin(eraseKeysBsl),
+                                         IterUtil::end(  eraseKeysBsl));
                   } break;
                   default: {
                     ASSERT(0);

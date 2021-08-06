@@ -31,7 +31,6 @@ using namespace BloombergLP;
 // [ 2] TestInputIterator();
 // [ 2] TestInputIterator(const TestInputIterator&);
 // [ 3] TestInputIterator(TYPE *);
-// [ 3] TestInputIterator(CONTIGUOUS_ITERATOR);
 // [ 2] ~TestInputIterator();
 //
 // MANIPULATORS
@@ -299,15 +298,6 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Use a 'vector' to create a range of 'int's.
         //:   o Create an iterator pair to the start and end of the vector
-        //:     using the 'CONTIGUOUS_ITERATOR' c'tor.
-        //:
-        //:   o Traverse the range, examining the values with 'operator++()'
-        //:     and 'operator*()'.
-        //:
-        //:   o Traverse the range again, examining the values with
-        //:     'operator++(int)' and 'operator*()'.
-        //:
-        //:   o Create an iterator pair to the start and end of the vector
         //:     using the pointer c'tor.
         //:
         //:   o Traverse the range, examining the values with 'operator++()'
@@ -317,15 +307,6 @@ int main(int argc, char *argv[])
         //:     'operator++(int)' and 'operator*()'.
         //:
         //: 2 Use a 'vector' to create a range of 'u::MyClass' objects.
-        //:   o Create an iterator pair to the start and end of the vector
-        //:     using the 'CONTIGUOUS_ITERATOR' c'tor.
-        //:
-        //:   o Traverse the range, examining the values with 'operator++()'
-        //:     and 'operator->()'.
-        //:
-        //:   o Traverse the range again, examining the values with
-        //:     'operator++(int)' and 'operator->()'.
-        //:
         //:   o Create an iterator pair to the start and end of the vector
         //:     using the pointer c'tor.
         //:
@@ -337,7 +318,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   TestInputIterator(TYPE *);
-        //   TestInputIterator(CONTIGUOUS_ITERATOR);
         //   TestInputIterator& operator++();
         //   TestInputIterator operator++(int);
         //   TYPE *operator->() const;
@@ -356,20 +336,6 @@ int main(int argc, char *argv[])
 
             typedef bdlb::TestInputIterator<int> Iter;
             int jj = 0;
-            {
-                const Iter begin(v.begin()), end(v.end());
-                for (Iter it = begin; end != it; ++it) {
-                    ASSERT(jj++ == *it);
-                }
-                ASSERT(100 == jj);
-
-                jj = 0;
-                for (Iter it = begin; end != it; ) {
-                    ASSERT(jj++ == *it++);
-                }
-                ASSERT(100 == jj);
-            }
-
             {
                 const Iter begin(&v[0]), end(&v[0] + 100);
                 jj = 0;
@@ -395,20 +361,6 @@ int main(int argc, char *argv[])
 
             typedef bdlb::TestInputIterator<u::MyClass> Iter;
             int jj = 0;
-            {
-                const Iter begin(mv.begin()), end(mv.end());
-                for (Iter it = begin; end != it; ++it) {
-                    ASSERT(jj++ == it->value());
-                }
-                ASSERT(100 == jj);
-
-                jj = 0;
-                for (Iter it = begin; end != it; ) {
-                    ASSERT(jj++ == (it++)->value());
-                }
-                ASSERT(100 == jj);
-            }
-
             {
                 const Iter begin(&mv[0]), end(&mv[0] + 100);
                 jj = 0;
@@ -480,6 +432,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("\tTesting basic type\n");
         {
             typedef bdlb::TestInputIterator<int> Obj;
+            typedef bsl::iterator_traits<Obj>    Traits;
 
             int ii(3);
             const Obj NI1(&ii);
@@ -489,15 +442,20 @@ int main(int argc, char *argv[])
 
             BSLMF_ASSERT((bsl::is_same<Obj::iterator_category,
                                        std::input_iterator_tag>::value));
-            BSLMF_ASSERT((bsl::is_same<Obj::value_type, const int>::value));
+            BSLMF_ASSERT((bsl::is_same<Obj::value_type, int>::value));
 
-            ASSERT(u::isConst(*ni3));
+            BSLMF_ASSERT((bsl::is_same<Traits::iterator_category,
+                                       std::input_iterator_tag>::value));
+            BSLMF_ASSERT((bsl::is_same<Traits::value_type, int>::value));
+
+            ASSERT(! u::isConst(*ni3));
             ASSERT(! u::isConst(ni3));
         }
 
         if (veryVerbose) printf("\tTesting user-defined type\n");
         {
             typedef bdlb::TestInputIterator<u::MyClass> Obj;
+            typedef bsl::iterator_traits<Obj>           Traits;
 
             u::MyClass mc(5);
             const Obj NC1(&mc);
@@ -508,7 +466,12 @@ int main(int argc, char *argv[])
             BSLMF_ASSERT((bsl::is_same<Obj::iterator_category,
                                        std::input_iterator_tag>::value));
             BSLMF_ASSERT((bsl::is_same<Obj::value_type,
-                                       const u::MyClass>::value));
+                                       u::MyClass>::value));
+
+            BSLMF_ASSERT((bsl::is_same<Traits::iterator_category,
+                                       std::input_iterator_tag>::value));
+            BSLMF_ASSERT((bsl::is_same<Traits::value_type,
+                                       u::MyClass>::value));
 
             ASSERT(u::isConst(nc3->value()));
             ASSERT(! u::isConst(nc3));

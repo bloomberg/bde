@@ -10,6 +10,7 @@ bsltf_degeneratefunctor
 bsltf_emplacabletesttype
 bsltf_enumeratedtesttype
 bsltf_evilbooleantype
+bsltf_inputiterator
 bsltf_movablealloctesttype
 bsltf_movabletesttype
 bsltf_moveonlyalloctesttype
@@ -31,6 +32,5 @@ bsltf_stdtestallocator_cpp03
 bsltf_streamutil
 bsltf_templatetestfacility
 bsltf_testvaluesarray
-bsltf_testinputiterator
 bsltf_uniontesttype
 bsltf_wellbehavedmoveonlyalloctesttype
