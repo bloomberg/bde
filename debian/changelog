@@ -1,5 +1,18 @@
-bsl-internal (3.86.0.0) unstable; urgency=low
+bsl-internal (3.87.0.0) unstable; urgency=low
 
+  * ee39d04d6 Bumped version to 3.87.0.0
+  * e430ecb7d Merge pull request #3363 from afeher/drqs-166905817-fix-ryu-decimal-notation
+  * 44c970982 bdld_datum.h: doc formatting fixes (#3231)
+  * a5e8942d6 make EventData, RecurringEventData allocator-aware (DRQS 166874007) (#3359)
+  * 2062197f8 Fix friend declaration in balxml. (#3355)
+  * 2e9e89e55 Merge pull request #3279 from mgill83/asyncfileobserver-test-fix-drqs-166463531
+  * 93a379424 balst_stacktraceframe: bde-4.0 (#3348)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 6 Aug 2021 18:29:48 -0400
+
+bsl-internal (3.86.0.0) git; urgency=low
+
+  * 293bc9b28 Changelog for version 3.86.0.0
   * e8e7c2bcf Bumped version to 3.86.0.0
   * 34c3a0cf6 Use an alternative approach to creating a zero-terminated string. (#3347)
   * 34d40e6f4 Fix minor package documentation typos (#3352)
@@ -27,7 +40,7 @@ bsl-internal (3.86.0.0) unstable; urgency=low
   * 5cec5d4bb Repect the field width when output the bsls::TimeInterval value (#3322)
   * b04528869 Fixed bdlde build error on Windows(C++17) (#3327)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 30 Jul 2021 17:23:48 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 30 Jul 2021 17:30:58 -0400
 
 bsl-internal (3.85.0.0) git; urgency=low
 
