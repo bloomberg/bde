@@ -300,10 +300,11 @@ static inline int write_digits(uint32_t olength, uint32_t output, WriteDigitsMod
     }
     i += 2;  // Written 2 digits in either `mode`
   } else {
-    // Finaly we get here when writing a single top digit.  It means an
-    // `output` with odd number of digits (`olength % 2 == 1`).  If that odd
-    // number is not 1, we need to write a decimal radix dot into the position
-    // that follows it.
+      // We get here when writing a single top digit.  It means an `output` with
+      // odd number of decimal digits (`olength % 2 == 1`).  If that odd number
+      // is not 1, we need to write a decimal radix dot into the position that
+      // follows it.  In other words we only write a dot if there are decimal
+      // digits in the scientific significand.
     if (Mantissa == mode && 1 != olength) {
       result[1] = '.';                       // Write the radix point
       ++i;                                   // Count the radix point
@@ -317,7 +318,7 @@ static inline int write_digits(uint32_t olength, uint32_t output, WriteDigitsMod
 }
 
 static inline int write_scientific(uint32_t olength, const floating_decimal_32 v, char* const result) {
-  // Write the positive number represented by the specifed `v` in scientifc
+  // Write the positive number represented by the specified `v` in scientific
   // notation into the specified `result`.  The specified `olength` is the
   // pre-calculated number of decimal digits in `v.mantissa`.  The behavior is
   // undefined unless `decimalLength9(v.mantissa) == olength` and `result` has
@@ -345,7 +346,7 @@ static inline int write_scientific(uint32_t olength, const floating_decimal_32 v
 }
 
 static inline int write_decimal(uint32_t olength, const floating_decimal_32 v, char* const result) {
-  // Write the positive number represented by the specifed `v` in decimal
+  // Write the positive number represented by the specified `v` in decimal
   // notation into the specified `result`.  The specified `olength` is the
   // pre-calculated number of decimal digits in `v.mantissa`.  The behavior is
   // undefined unless `decimalLength9(v.mantissa) == olength` and `result` has
@@ -410,10 +411,21 @@ static inline int write_decimal(uint32_t olength, const floating_decimal_32 v, c
 
     result[index++] = '.';  // Insert the radix point
 
-    olength = -exponent;  // Set `olength` to the digit of the fractional part
+    // The decimal portion may start with zeros.  `write_digits` does not write
+    // leading zeros, so we do it here.  `exponent` is negative, and its
+    // absolute value is the number of decimal digits we need to write.  So
+    // `-exponent` is minus the actual number of digits we have (in `output`)
+    // is the number of leading decimal zeros to write.  For example `1.0025`
+    // will have `25 == output` and `-4 == exponent`:
+    olength = decimalLength9(output);
+    const uint32_t numLeadZeros = -exponent - olength;
+    if (numLeadZeros > 0) {
+        memset(result + index, '0', numLeadZeros);
+        index += numLeadZeros;
+    }
   }
 
-  // Writes the digits of `output` to `result + index`.  Notive that in
+  // Writes the digits of `output` to `result + index`.  Notice that in
   // `output` we may have fractional digits, or if `0 <= exponent` we will
   // write the digits of the integer part here.
   index += write_digits(olength, output, DigitsOnly, result + index);
@@ -455,9 +467,9 @@ static inline int to_chars(const floating_decimal_32 v, const bool sign, char* r
 
   // The ternary operator chooses between the two notation functions, then we
   // immediately call the chosen one.  The parentheses around the ternary
-  // operator are necessary because it has much lower precedence the the
-  // function call operator.  The last line adjusts the number of characters
-  // writen in case we have written a negative sign before.
+  // operator are necessary because it has much lower precedence the function
+  // call operator.  The last line adjusts the number of characters written in
+  // case we wrote a negative sign earlier.
   return (needs_decimal_notation(olength, v.exponent)
       ? write_decimal : write_scientific)(olength, v, result)
       + (sign ? 1 : 0);
